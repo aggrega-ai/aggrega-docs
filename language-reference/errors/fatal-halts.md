@@ -4805,7 +4805,107 @@ Emitted message. The condition leads, then each reference: the template it is in
 
 Where an entry's fields were built from a value declared sensitive, its resource's logical ID and type are shown as `<redacted>`, and so is any step of the path that spells that logical ID.
 
-**How to fix:** decide which of the two you meant. Where the referring resource still needs the left-out one, keep it: remove the entry. Where it does not, leave the referring resource out as well, with an entry of its own — a sourced template takes no values, so the reference itself cannot be changed. An output naming the resource cannot be left out, so a resource an output names stays.
+**How to fix:** decide which of the two you meant. Where the referring resource still needs the left-out one, keep it: remove the entry. Where it does not, leave the referring resource out as well, with an entry of its own — a value bound to a parameter replaces only a reference to that parameter, so a reference to a resource cannot be changed by one. An output naming the resource cannot be left out, so a resource an output names stays.
+
+### A valuesMapping key names no parameter of a sourced CloudFormation template
+
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+
+A sourced CloudFormation template takes values through the `Parameters` it declares, and a Recipe's `valuesMapping` writes one key per parameter it fills. A key that names no parameter any template of the source declares has nowhere to go, so the render stops rather than drop it — the failure CloudFormation itself would report for an unknown parameter, reported while it is still yours to fix. Only a `valuesMapping` fills parameters: values the Recipe did not map are never read this way, so a component's own values written for the Recipe's other inputs never meet this.
+
+Emitted message. The condition leads, then every key that named nothing and what each template of the source declares:
+> a plugin could not resolve something it requires to exactly one value
+> cloudformation-provider: the Recipe's valuesMapping writes the key `"<key>"`, and no template of the source declares a parameter of that name: template `"<template>"` declares `"<parameter>"`, …; a sourced template takes values only through the parameters it declares, so rename the key to the parameter it is meant for, or remove it from the valuesMapping
+
+**How to fix:** compare the key with the parameters the message lists — a misspelt key is the usual cause — and rename it, or remove it from the `valuesMapping`. See [cloudformation → Values for a sourced template's parameters](../providers/cloudformation.md#values-for-a-sourced-templates-parameters).
+
+### A value bound to a CloudFormation parameter cannot take the parameter's type
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+A literal bound to a parameter is converted the way CloudFormation converts the same value passed for that parameter's `Type` when the stack deploys. Where no such conversion exists the render stops: a value that is not a number bound to a `Number` or a `List<Number>`, a list or a mapping bound to a parameter that takes one value, and any literal bound to an `AWS::SSM::Parameter::Value<…>` parameter, whose value CloudFormation reads from Parameter Store rather than from the template. A list bound to a parameter the template names as an `Fn::Sub` variable stops the render too, because a variable substitutes one string.
+
+Emitted message. The condition leads, then the parameter, its template and its type, and why the value does not fit; no value is quoted:
+> a plugin has no representation for a value it was given
+> cloudformation-provider: parameter `"<parameter>"` of template `"<template>"` is of type `<type>`, and `<why the value does not fit>`
+
+**How to fix:** bind a value of the parameter's type — or, for a Parameter Store type, a `{{resolve:ssm:…}}` dynamic reference or an intrinsic function — or leave the parameter unbound for a value passed when the stack deploys.
+
+### A value bound to a CloudFormation parameter is one its constraints refuse
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+A literal bound to a parameter is checked against the constraints the template declares for it — `AllowedValues`, `AllowedPattern`, `MinLength`, `MaxLength`, `MinValue` and `MaxValue` — the check CloudFormation makes on a value passed when the stack deploys, moved to build time so that filling a parameter removes no check the template declared. An intrinsic function and a dynamic reference are left for CloudFormation to check, since their value does not exist until the stack deploys.
+
+Emitted message. The condition leads, then the parameter, its template and the constraint; no value is quoted:
+> a plugin has no representation for a value it was given
+> cloudformation-provider: the value bound to parameter `"<parameter>"` of template `"<template>"` does not satisfy its `<constraint>`, which CloudFormation would refuse when the stack deploys; bind a value the parameter admits
+
+**How to fix:** bind a value the constraint admits; the template's own declaration of the parameter lists what it allows.
+
+### A secret bound to a CloudFormation parameter would be written into the template
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+A value bound to a parameter is written into the template, where anyone who can read the stack's template can read it, so the provider admits a secret only as a pointer to where it is stored. The render stops on a literal bound to a parameter the template declares `NoEcho`; on a value the build marks as carrying something an author declared sensitive, bound as anything but a dynamic reference; and, where the Recipe's `valuesMapping` reads such a value, on every literal that mapping binds, since none of its output can be traced back to the value it came from.
+
+Emitted message. The condition leads, then the parameters and what to bind instead; no value is quoted. One of:
+> a plugin has no representation for a value it was given
+> cloudformation-provider: parameter `"<parameter>"` of template `"<template>"` is declared NoEcho, and the value bound to it would be written into the template as it stands; bind a dynamic reference ({{resolve:secretsmanager:…}} or {{resolve:ssm-secure:…}}) or an intrinsic function instead, or leave the parameter unbound for a deploy-time value
+>
+> cloudformation-provider: the value bound to parameter `"<parameter>"` of template `"<template>"` is declared sensitive (by `<declaration>`), and only a dynamic reference may carry such a value into a template; …
+>
+> cloudformation-provider: the Recipe's valuesMapping reads a value declared sensitive, so every value it produces is treated as one, and binding parameter(s) `"<parameter>"`, … would write a value into the template as it stands; …
+
+**How to fix:** store the secret in Secrets Manager or as a Parameter Store secure string and bind a dynamic reference to it — `{{resolve:secretsmanager:<secret>}}` or `{{resolve:ssm-secure:<name>}}` — or leave the parameter unbound for a value passed when the stack deploys. See [cloudformation → Values for a sourced template's parameters](../providers/cloudformation.md#values-for-a-sourced-templates-parameters).
+
+### A dynamic reference is bound where CloudFormation does not resolve it
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+CloudFormation resolves a dynamic reference in a resource's properties, but not in EC2 user data and not in `AWS::CloudFormation::Init` metadata, and it shows a template's `Outputs` to whoever reads the stack. So a dynamic reference bound to a parameter the template references in a `UserData` property, in that metadata or in its `Outputs` stops the render rather than reach a place where it either cannot deploy or is exposed.
+
+Emitted message. The condition leads, then the parameter, its template and where the template references it; no value is quoted:
+> a plugin has no representation for a value it was given
+> cloudformation-provider: the value bound to parameter `"<parameter>"` of template `"<template>"` is a dynamic reference, and the template references the parameter in `<where>`, where CloudFormation does not resolve a dynamic reference or shows it to whoever reads the stack; bind an intrinsic function instead, or leave the parameter unbound for a deploy-time value
+
+**How to fix:** leave the parameter unbound and pass its value when the stack deploys, or bind an intrinsic function that yields what the template needs there.
+
+### A rule reads a bound CloudFormation parameter by name
+
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+
+`Fn::ValueOf` in a template's `Rules` names a parameter by its logical ID rather than through `Ref`, and reads the value passed for it when the stack deploys. Binding the parameter removes its declaration from the template, which would leave the rule naming nothing, so the render stops.
+
+Emitted message. The condition leads, then the rule, its template and the parameter:
+> a plugin has no expression for a construct this build declares
+> cloudformation-provider: rule `"<rule>"` of template `"<template>"` reads parameter `"<parameter>"` through Fn::ValueOf, which names a parameter the template declares, and binding the parameter removes its declaration; leave the parameter unbound so the rule can read it at deploy
+
+**How to fix:** remove the parameter's key from the `valuesMapping`, so the parameter stays declared and the rule reads the value passed when the stack deploys.
+
+### The assembled CloudFormation stack cannot carry a transform
+
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+
+The assembled stack's `Transform` is built from every component's, and a transform processes the whole template, so a transform whose effect is not confined to content written for it is refused rather than allowed to change how another component's content deploys: `AWS::CodeDeployBlueGreen` and `AWS::Include` always, a macro your account defines and `AWS::ServiceCatalog` beside any other component, `AWS::LanguageExtensions` beside another component's serverless content, and `AWS::Serverless-2016-10-31` where its `Globals` would reach another component's serverless resources or one of its event sources names a resource another component declares. The full table is in [cloudformation → Top-level sections in the assembled stack](../providers/cloudformation.md#top-level-sections-in-the-assembled-stack).
+
+Emitted message. The condition leads, then every component in the stack, the transform and the components declaring it, and why it cannot be carried:
+> a plugin has no expression for a construct this build declares
+> cloudformation-provider: the assembled stack of component `"<component>"`, … cannot carry the transform `"<transform>"`, declared by component `"<component>"`: `<why>`
+
+**How to fix:** place the component declaring the transform in a boundary of its own, so its stack holds nothing the transform could change; or, where the message names content another component declares, move that content into the component declaring the transform.
+
+### Two components order one pair of transforms oppositely
+
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+
+The assembled stack runs its transforms in one order, built from each component's own order and from CloudFormation's documented one. Where two orders cannot both hold — two components listing one pair of transforms the opposite way round, or a component listing `AWS::Serverless-2016-10-31` before `AWS::LanguageExtensions`, which CloudFormation documents the other way — there is no one order to write, so the render stops.
+
+Emitted message. The condition leads, then the pair and who ordered it each way:
+> a plugin could not resolve something it requires to exactly one value
+> cloudformation-provider: the transforms `"<first>"` and `"<second>"` are ordered both ways — `"<first>"` before `"<second>"` by `<who>`, and `"<second>"` before `"<first>"` by `<who>` — and the assembled stack's Transform runs them in one order; declare them in one order
+
+**How to fix:** declare the pair in one order in every component that lists both, following CloudFormation's own order where it documents one.
 
 ### Two entries reach one stack output name
 
@@ -4851,7 +4951,7 @@ Emitted message. The condition names the kind of failure, and the provider's own
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
-A CloudFormation cross-reference is an object rather than text, so it can only replace a value whole. This condition is what a placeholder that survived only inside a larger string reports — a value composed around it, rather than delivered as the whole of what was injected. There is nothing to swap the object for, so the render stops rather than emit a reference in a shape the target cannot read.
+A CloudFormation cross-reference is an object rather than text, so it can only replace a value whole. This condition is what a placeholder found inside a larger string reports — a value composed around it, rather than delivered as the whole of what was injected. There is nothing to swap the object for, so the render stops rather than emit a reference in a shape the target cannot read.
 
 Emitted message. The condition leads, then the value and the connection it arrived on:
 > a plugin has no representation for a value it was given
@@ -6033,10 +6133,10 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0285` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` | A Recipe publishes a `provides` key its Component does not declare, checked at publication |
 | `E0286` | `the version bump being published is smaller than the evolution check's classification of the change requires` | The version offered is a smaller bump than the change requires |
 | `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
-| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have |
-| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
+| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have; A rule reads a bound CloudFormation parameter by name; The assembled CloudFormation stack cannot carry a transform |
+| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A valuesMapping key names no parameter of a sourced CloudFormation template; Two components order one pair of transforms oppositely; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |

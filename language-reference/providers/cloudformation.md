@@ -7,7 +7,7 @@ The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stac
 A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map, each component's `provides` values surface as stack `Outputs`, and the template's other top-level sections are accounted for one by one under [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack). Two authoring shapes are accepted:
 
 - **Fragment (artifacts) input.** A Recipe authors resource fragments directly; the provider normalizes them to pure-JSON long-form intrinsics and merges them into the assembled stack.
-- **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly, leaving out any resource the Recipe's `omits:` entries name — see [Leaving resources out of a sourced template](#leaving-resources-out-of-a-sourced-template).
+- **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly, fills the parameters the template declares from the Recipe's `valuesMapping` — see [Values for a sourced template's parameters](#values-for-a-sourced-templates-parameters) — and leaves out any resource the Recipe's `omits:` entries name — see [Leaving resources out of a sourced template](#leaving-resources-out-of-a-sourced-template).
 
 The assembled template is pure JSON. Intrinsics are emitted verbatim and never evaluated at build time — the compiler cannot resolve a value that only exists after the stack deploys, and evaluating one would break the ahead-of-time contract.
 
@@ -23,7 +23,7 @@ Each resource a Feature contributes keeps the identity composed for that attachm
 
 ## Top-level sections in the assembled stack
 
-Several components assemble into one stack, so every top-level section a CloudFormation template admits has to be accounted for by the assembly. Each one falls into exactly one of three groups.
+Several components assemble into one stack, so every top-level section a CloudFormation template admits has to be accounted for by the assembly — including `Globals` and `Hooks`, the two sections a transform CloudFormation hosts adds to the template language. Each one falls into exactly one of the groups below, and a top-level key a component writes that is no section at all gets a warning naming the component and the key, so nothing is dropped without being said.
 
 **Assembled under names the provider scopes, or reads as written.** `Resources` and `Outputs`, which [Names in the assembled stack](#names-in-the-assembled-stack) covers in full. `AWSTemplateFormatVersion` is written by the provider rather than read from any component: the template language admits a single value for it, so there is nothing for a component to decide.
 
@@ -35,9 +35,23 @@ One word covers two different places here, and only the first of them is yours. 
 
 Two components declaring different names in one of these sections both land. Two declaring one name with identical content merge into a single entry and the build proceeds. Two declaring one name with **different** content halt the build, naming the section, the name, and both components — because one of the two bodies would otherwise be discarded, leaving the component that wrote it with a declaration the stack does not carry. That is the same reconciliation the resource and output names follow, and renaming either one clears it.
 
-**Named rather than carried.** `Description` and `Transform` are each a single statement about a whole template rather than a map of names you chose, so an assembly drawing on several components has no answer for either. Two descriptions are two answers to one question and neither is the stack's. A transform reinterprets the entire template, so adopting one component's would change how every other component's content is read — a larger claim than any one component is in a position to make. The assembled stack therefore carries neither, and every component that authored one gets a warning naming the component and the section, so nothing is dropped without being said. The warning is advisory and out-of-band: the emitted template is byte-for-byte what it would be without it, and `--no-unsupported-field-warnings` silences it along with the rest of that class.
+**Named rather than carried.** `Description` is a single statement about a whole template rather than a map of names you chose, so an assembly drawing on several components has no answer for it: two descriptions are two answers to one question and neither is the stack's. `Hooks` is read only by the `AWS::CodeDeployBlueGreen` transform, which the assembled stack never carries (see below). The assembled stack therefore carries neither, and every component that authored one gets a warning naming the component and the section. So does a component that writes `Globals` without declaring the `AWS::Serverless-2016-10-31` transform that reads it. The warning is advisory and out-of-band: the emitted template is byte-for-byte what it would be without it, and `--no-unsupported-field-warnings` silences it along with the rest of that class.
 
-Nothing sets a description or a transform on the assembled stack, and that is the deliberate position rather than a gap awaiting a keyword — the stack draws on more contributors than any one of them can speak for. A component that needs a transform's behaviour writes the resources it would have expanded to.
+**`Transform` is built from every component's.** A transform is a macro CloudFormation runs over the whole template before it deploys anything, so the assembled stack's `Transform` is the union of the transforms its components declare — a sourced template's and a fragment's alike — in the order CloudFormation documents: a macro your account defines before the transforms CloudFormation hosts, and `AWS::LanguageExtensions` before `AWS::Serverless-2016-10-31`. Each component's own order is kept, and two transforms nothing orders run in the order the components first declare them, so the same components give the same stack. One transform is written as a string and several as a list. A stack with only one component, which declares its `Transform` in one template or fragment, keeps it exactly as it was written wherever the table below carries it, and a stack whose components declare none carries none. A component's transform raises no warning: it is carried, or the build halts naming it.
+
+Because a transform processes the whole template, carrying one changes how every other component's content deploys unless what it does is confined to content written for it. So each transform takes the disposition CloudFormation's own documentation of it supports, and a combination the stack cannot carry halts the build, naming the transform and every component in the stack:
+
+| transform | in the assembled stack |
+| --- | --- |
+| `AWS::Serverless-2016-10-31` | carried, with the `Globals` of the component declaring it. It halts where those `Globals` would reach another component's serverless resources, and where one of its resources' event sources names a resource another component declares, because the transform rewrites the resource an event names. |
+| `AWS::LanguageExtensions` | carried alone, or beside `AWS::Serverless-2016-10-31` from the same component. It halts beside another component's serverless content, because the serverless transform names what it generates differently once language extensions have resolved its values. |
+| `AWS::SecretsManager-2020-07-23`, `AWS::SecretsManager-2024-09-16` | carried: they process only the rotation schedules that ask for them. |
+| `AWS::ServiceCatalog` | carried for a stack with only one component. Beside any other it halts, because it substitutes its reference pattern anywhere in the template. |
+| `AWS::CodeDeployBlueGreen` | halts, even alone: CloudFormation refuses `Outputs` and `Fn::ImportValue` anywhere in a template declaring it, and the assembled stack carries the outputs its components publish. |
+| `AWS::Include` | halts, even alone: it inserts content fetched from S3 when the stack deploys, which the build cannot read. |
+| a macro your account defines | carried for a stack with only one component. Beside any other it halts, because what it does to the rest of the template is unknown to the build. |
+
+Two components declaring one pair of transforms in opposite orders halt the build too, naming both orders and both components, since the stack runs them in one order. A component that needs a transform the stack cannot carry goes in a boundary of its own.
 
 ## Names in the assembled stack
 
@@ -146,9 +160,48 @@ A sourced CloudFormation template is structurally validated before it renders: t
 
 Nor does the parse ask whether the template's references resolve. Whether a `Ref` names a parameter, or an `Fn::FindInMap` a map, is a question about the assembled stack rather than about any one input document, and it is CloudFormation's to answer at deploy time. The build states what it did not carry instead of judging what the result refers to. The one reference it does judge is one to a resource an `omits:` entry left out of the template, which the next section covers: there the build itself made the reference dangle.
 
+## Values for a sourced template's parameters
+
+A sourced template takes values the way CloudFormation itself gives a template values: through the `Parameters` it declares. A Recipe's `valuesMapping` writes one key per parameter it fills, and the provider binds each one in every template of the source that declares it — every `Ref` to the parameter in `Resources`, `Outputs`, `Conditions`, `Rules` and SAM's `Globals` becomes the value, every `Fn::Sub` naming the parameter as a variable receives the value through its variable map, and the parameter leaves the template's `Parameters`. A parameter no key names is left exactly as the template wrote it, for a value passed when the stack deploys or for its `Default`.
+
+```yaml
+spec:
+  capability: cloudformation
+  implements: core/delivery-stream:1.0.0
+  source:
+    kind: git-repository
+    url: https://github.com/aws-cloudformation/aws-cloudformation-templates.git
+    ref: a0f43bc6d20813052892546f445037cf84c75b54
+    module_subdir: DataFirehose
+  valuesMapping: |
+    CloudWatchLogGroupRetention: {{ .values.retention_days }}
+    DestinationBucketName: "{{ .context.inject.env.BUCKET_NAME }}"
+```
+
+**Only a `valuesMapping` fills parameters.** The keys it writes are the parameter names you meant for the template, so each has to name a parameter some template of the source declares: a key naming none stops the build, naming the key and the parameters each template does declare — the failure CloudFormation would report for an unknown parameter, reported while it is still yours to fix. A Recipe declaring no `valuesMapping` fills nothing: the component's own values reach the provider under their own names, written for the Recipe's other inputs, and are left unread.
+
+**What a value is decides what reaches the template.**
+
+- A literal — a string, a number, a boolean, or a list of them — is written into the template, converted the way CloudFormation converts the same value passed for the parameter's `Type` when the stack deploys: a `Number` becomes the string a `Ref` to it yields, so `7` arrives as `"7"`; a `CommaDelimitedList` or a `List<…>` type becomes a list of strings, taking either a list or a comma-separated string whose members are trimmed; every other type takes one string. A literal is checked against the parameter's own `AllowedValues`, `AllowedPattern`, `MinLength`, `MaxLength`, `MinValue` and `MaxValue`, and one they refuse stops the build, naming the parameter and the constraint, so filling a parameter removes no check the template declared. A pattern written in a regular-expression syntax the build cannot read is left for CloudFormation to check when the stack deploys.
+- A value that is wholly one CloudFormation intrinsic reaches the reference site as that intrinsic, for CloudFormation to evaluate when the stack deploys: a long-form mapping such as `{"Fn::GetAtt": [Queue, Arn]}`, or a string that is exactly one short form — `!GetAtt Queue.Arn`, `!Ref Bucket`, `!Sub …` and the other forms CloudFormation defines. That is how another component's published reference reaches a parameter: the catalog's CloudFormation Recipes publish such a reference as short-form text, and a `valuesMapping` reading it off the injection context passes it on. **Quote a spliced reference** — `"{{ .context.inject.env.BUCKET_NAME }}"` — because unquoted, the mapping's own YAML reads `!GetAtt Queue.Arn` as a tag and hands on only `Queue.Arn`. A value that only begins with an exclamation mark, or that names no CloudFormation short form, stays text.
+- A dynamic reference — `{{resolve:ssm:…}}`, `{{resolve:ssm-secure:…}}` or `{{resolve:secretsmanager:…}}` — reaches the reference site as written, for CloudFormation to resolve when the stack deploys, so the value it names is never in the template.
+- A value another component publishes from a different stack reaches the template as a cross-stack reference, the same `Fn::ImportValue` or `Fn::GetStackOutput` a fragment receives (see [Cross-stack wiring](#cross-stack-wiring)), at every place the template referenced the parameter.
+
+A parameter whose type CloudFormation reads from Parameter Store — `AWS::SSM::Parameter::Value<…>` — has no literal that reproduces what CloudFormation would do with it, so a literal bound to one stops the build; bind a `{{resolve:ssm:…}}` reference or an intrinsic, or leave it unbound. A list bound to a parameter the template names as an `Fn::Sub` variable stops the build too, because a variable substitutes one string.
+
+**A rule that reads a parameter by name keeps it unbound.** `Fn::ValueOf` in a template's `Rules` names a declared parameter by its logical ID rather than through `Ref`, and filling the parameter removes its declaration, so binding one a rule reads that way stops the build, naming the rule and the parameter.
+
+**A secret never reaches the template as plain text.** A value that is written into the template is readable by anyone who can read the stack's template, so the provider admits a secret only as a pointer to where it is stored:
+
+- A parameter the template declares `NoEcho` takes a dynamic reference or an intrinsic, and a literal bound to it stops the build.
+- A value the build marks as carrying something an author declared sensitive is admitted only as a dynamic reference; where the `valuesMapping` reads such a value, every value it produces is treated as one, and every literal it binds stops the build.
+- A dynamic reference stops the build where its parameter is referenced in a resource's `UserData` property, in `AWS::CloudFormation::Init` metadata, or in `Outputs`: CloudFormation does not resolve a dynamic reference in EC2 user data or in that metadata, and shows `Outputs` to whoever reads the stack.
+
+Every such refusal names the parameters, and quotes no value.
+
 ## Leaving resources out of a sourced template
 
-A sourced template is used as it stands: the provider normalizes it and reads no value into it, so a template fetched from a git repository that declares a resource the Release must not create — a bucket the operator already provides, a key the platform manages elsewhere — cannot be changed by the Recipe. That is what the [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) entries of a Recipe or a FeatureRecipe are for. This provider honours them on a sourced template and on nothing else: the fragments an `artifacts:` entry authors render without them.
+A sourced template's resources are its own: values reach it only through the parameters it declares, so a template fetched from a git repository that declares a resource the Release must not create — a bucket the operator already provides, a key the platform manages elsewhere — cannot be changed by a value. That is what the [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) entries of a Recipe or a FeatureRecipe are for. This provider honours them on a sourced template and on nothing else: the fragments an `artifacts:` entry authors render without them.
 
 ```yaml
 spec:
@@ -178,9 +231,9 @@ spec:
 - a resource's `DependsOn`, as one logical ID or a list of them;
 - each variable of `Fn::Sub`, in its string form and in its list form: `${StoreLogs}` and `${StoreLogs.Arn}` both name `StoreLogs`.
 
-Some values only look like references and are not read as one. `${!StoreLogs}` is literal text, and a variable the list form's map names is that map's value. A resource's `Condition` and the first argument of `Fn::If` name a condition, `Fn::FindInMap` names a mapping, `Fn::ImportValue` an export of another stack, and `Fn::GetAZs` a region. The `Conditions`, `Mappings`, `Parameters` and `Rules` sections cannot name a resource, and the template's own top-level `Metadata` section is information CloudFormation stores rather than reads, so none of them is checked. A `Ref` or an `Fn::GetAtt` whose logical ID is itself written as an intrinsic function is valid only under a transform, which the assembled stack never carries (see [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack)), so it names no resource the check can read and is left as it is; so is a reference to a resource the source never declared.
+Some values only look like references and are not read as one. `${!StoreLogs}` is literal text, and a variable the list form's map names is that map's value. A resource's `Condition` and the first argument of `Fn::If` name a condition, `Fn::FindInMap` names a mapping, `Fn::ImportValue` an export of another stack, and `Fn::GetAZs` a region. The `Conditions`, `Mappings`, `Parameters` and `Rules` sections cannot name a resource, and the template's own top-level `Metadata` section is information CloudFormation stores rather than reads, so none of them is checked. A `Ref` or an `Fn::GetAtt` whose logical ID is itself written as an intrinsic function is valid only under the `AWS::LanguageExtensions` transform, which resolves it when the stack deploys (see [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack)), so it names no resource the check can read and is left as it is; so is a reference to a resource the source never declared.
 
-**The check reads the declaring Recipe's or FeatureRecipe's own templates, together.** They assemble into one stack, so a reference to a logical ID another of those templates still declares is not stopped. Nothing else is read: a reference to a left-out resource stops the build even where another component declares a resource of that logical ID, and a reference made by anything else that assembles into the stack — another component, an attached Feature, or the Recipe's own `artifacts:` entries — is not one this check sees, so CloudFormation refuses the stack when it is deployed. To keep a reference, keep the resource. A sourced template takes no values, so the reference itself cannot be changed: leave out the resource making it as well, or remove the entry. An output is not a resource and no entry names one, so a resource the template's `Outputs` name cannot be left out of it: leaving it out stops the build.
+**The check reads the declaring Recipe's or FeatureRecipe's own templates, together.** They assemble into one stack, so a reference to a logical ID another of those templates still declares is not stopped. Nothing else is read: a reference to a left-out resource stops the build even where another component declares a resource of that logical ID, and a reference made by anything else that assembles into the stack — another component, an attached Feature, or the Recipe's own `artifacts:` entries — is not one this check sees, so CloudFormation refuses the stack when it is deployed. To keep a reference, keep the resource. A value bound to a parameter replaces only a reference to that parameter, so a reference to a resource is the template's own and cannot be changed by one: leave out the resource making it as well, or remove the entry. An output is not a resource and no entry names one, so a resource the template's `Outputs` name cannot be left out of it: leaving it out stops the build.
 
 ## Cloud-target annotations
 
