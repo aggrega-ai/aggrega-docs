@@ -217,6 +217,13 @@ address rather than an external hostname. A single external endpoint is assemble
 at the ingress tier, routing to the address this module exports. Transport
 security is off, because the chart's own certificate source generates a
 certificate authority and a signed certificate at render time, which two renders
-of identical input would not reproduce. The metrics exporter and the
-Prometheus-operator monitor are off, and no value or override of the Component
-turns them on; the exporter's image is pinned with the rest all the same.
+of identical input would not reproduce. The Prometheus-operator monitor is off.
+
+The registry's metrics are off too. The Component's `values.metrics_enabled`
+turns them on for the control plane, the worker tier, the blob store and an
+added exporter, and publishes the four Services for a scraper to discover; the
+same chart setting also opens the blob store's debug listener — profiling,
+execution traces and runtime variables, with no caller check — to every
+in-cluster caller. The module leaves that value at its default of false, so this
+example renders no metrics; an Aggregate that declares the Component itself can
+set it. The exporter's image is pinned with the rest all the same.
