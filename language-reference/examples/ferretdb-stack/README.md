@@ -69,16 +69,36 @@ manifests offline — no chart pull is required.
 The proxy renders as a stateless Deployment plus a ClusterIP Service on the wire
 port. Its container environment carries the connection composed from the backend
 edge — the backend's in-cluster Service name, user, and database, with no
-password in the URL:
+password in the URL — and keeps FerretDB's debug listener on the pod's loopback
+address, where no other pod reaches it:
 
 ```yaml
 env:
   - name: FERRETDB_LISTEN_ADDR
     value: :27017
+  - name: FERRETDB_DEBUG_ADDR
+    value: 127.0.0.1:8088
   - name: FERRETDB_POSTGRESQL_URL
     value: postgres://postgres@database-zdbackend-default:5432/postgres
   - name: PGPASSWORD
     value: apppass
+```
+
+Neither probe needs that listener. The readiness probe runs `ferretdb ping`
+inside the container, which pings the wire port and so also proves the backend
+connection; the liveness probe checks only that the wire port accepts
+connections, so a backend outage takes the proxy out of its Service without
+restarting it:
+
+```yaml
+livenessProbe:
+  tcpSocket:
+    port: 27017
+readinessProbe:
+  exec:
+    command:
+      - /ferretdb
+      - ping
 ```
 
 The backend renders as a StatefulSet with a persistent volume mounted at
