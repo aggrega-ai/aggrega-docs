@@ -1048,8 +1048,10 @@ them, and no other setting.
 
 `importer/compose` reads the services and the models a Compose file declares. It drafts each
 service as an instance of the catalog Component its image matches, or of the standard library's
-generic server, `core/compute/server`, running its image; each model as a model Component of its own;
-and a Release beside them carrying what each service states for its operation.
+generic server, `core/compute/server`, running its image; each model as an instance of the standard
+library's Docker Model Runner runtime, `core/ai-model/docker-model-runner`, where your catalog holds
+it, and as a model Component of its own where it does not; and a Release beside them carrying what
+each service states for its operation.
 
 ### What it reads
 
@@ -1077,7 +1079,10 @@ and a Release beside them carrying what each service states for its operation.
   member — `command`, `healthcheck`, `secrets`, `env_file` and the rest — is written nowhere, and
   named in a comment above the service's entry in the Release.
 - **A model.** Each entry of the top-level `models`: its `model`, the OCI identifier of the model, its
-  `context_size` and its `runtime_flags`. Any other member is named in a comment above its instance.
+  `context_size` and its `runtime_flags`, carried as written into an instance of
+  `core/ai-model/docker-model-runner` where your catalog holds it, and of a model Component drafted
+  for it where it does not; the model's decision says which, and why. Any other member is named in a
+  comment above its instance.
 - **The rest.** The other top-level members — `name`, `networks`, `volumes`, `secrets`, `configs` —
   are not read, and the comment opening the Aggregate names them.
 
@@ -1149,10 +1154,18 @@ read several directories. Each service a service's `depends_on` names is a conne
 `uses: <key>: link: {target: <key>}`. An environment value naming another service — a word of the
 value, split at every character a host name is not written with, equal to that service's name — that
 `depends_on` does not name draws no connection: the service's decision records it as a hint, naming
-the variable and the service, never the value. Each model is drafted as
-`<target_namespace>/ai-model/<key>`, a Component of the `ai-model` category whose values declare
-`model`, `context_size` and `runtime_flags`; its instance writes each the source states, and each
-service naming the model is connected to it. A service naming the model in the long form, with
+the variable and the service, never the value. Each model is an instance of
+`core/ai-model/docker-model-runner` where the workspace's catalog holds it, whatever `reuse_mode`
+says, and no Component is drafted for it: the instance writes `model` and `runtime_flags` as the
+source states them, and the source's `context_size` as `context_window`, the value the runtime
+declares for a model's context length, which its Compose Recipe writes back as Compose's
+`context_size`. Where the catalog holds no `core/ai-model/docker-model-runner`, the model is drafted
+as `<target_namespace>/ai-model/<key>`, a Component of the `ai-model` category whose values declare
+`model`, `context_size` and `runtime_flags`, and its instance writes each the source states. Every
+model has a decision saying which — `mapped llm (model) to core/ai-model/docker-model-runner as a
+reference, NONE`, or a draft whose decision records that the workspace's catalog holds no
+`core/ai-model/docker-model-runner` — and each service naming the model is connected to it either
+way. A service naming the model in the long form, with
 `endpoint_var` or `model_var`, names the variables its address and identifier reach the service under.
 No key of the draft holds a variable's name — the connection is written on a socket named after the
 model, which declares no value, and an importer is handed no Component's infrastructure keys — so a
@@ -1179,13 +1192,18 @@ Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the
 the draft carries — the image of a service matched to another Component, its `ports`, `expose`,
 `volumes` and `environment` — for you to carry where the Component takes it, and names what the draft
 leaves for the Release: the image of a service naming none, as one that builds its own does, and a
-port that is not one number.
+port that is not one number. A build places only the instances a Release names, so each instance
+of `core/ai-model/docker-model-runner` has an empty entry, `<key>: {}`, after the services': the
+runtime takes no input on Compose that lacks a default. A model drafted as a Component of its own
+has no entry, since no Recipe realizes it until you write one; add the entry when you add the
+Recipe, or the build halts naming the instance as placed in no boundary.
 A port the Component does not take, such as one below `core/compute/server`'s floor of 1024, is
 written as the source states it, and the build halts naming it. The Release's `metadata.environment`
 and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are, unless the
 import is given a target, as [What a target adds](#what-a-target-adds) describes. The Manifest
 names the Recipe realizing each Component on the target you build for; `core/compute/server` is
-realized on Kubernetes by `helm/server`.
+realized on Kubernetes by `helm/server`, and `core/ai-model/docker-model-runner` by
+`compose/docker-model-runner` on Compose and `helm/docker-model-runner` on Kubernetes.
 
 A `compose.yaml` running PostgreSQL and an API of its own that depends on it:
 
