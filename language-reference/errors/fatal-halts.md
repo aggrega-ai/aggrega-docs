@@ -4681,11 +4681,11 @@ Emitted message. The condition names the kind of failure — a value with no rep
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
-A container's processor and memory quantities are written in the notation Kubernetes uses for resources, and compose carries them in units of its own, so each is read as a quantity and converted from its value. Two things stop that, and the message says which it met: a value that is not a quantity at all, and a quantity compose has no exact form for — a negative amount, a memory amount that is not a whole number of bytes, a processor amount finer than nine decimal places of a core, or an amount past the largest compose can hold. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
+A container's processor and memory quantities, and its `nvidia.com/gpu` count, are written in the notation Kubernetes uses for resources, and compose carries them in units of its own — a GPU count becomes the count of an NVIDIA device reservation — so each is read as a quantity and converted from its value. Two things stop that, and the message says which it met: a value that is not a quantity at all, and a quantity compose has no exact form for — a negative amount, a memory amount that is not a whole number of bytes, a processor amount finer than nine decimal places of a core, a GPU count that is not a whole number of devices, or an amount past the largest compose can hold. A container whose `nvidia.com/gpu` request and limit ask for different counts stops too, because compose reserves one count for a service. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
 
 **Emitted messages.** Each opens with the condition — a value with no representation in what the provider emits — then names the resource, whether the value is a request or a limit, its path in the Workload and the value. A value that is not a quantity is followed by what made it not one and the form a quantity takes:
 > a plugin has no representation for a value it was given
-> compose: the `<cpu|memory>` `<request|limit>` at `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei): resources quantity cannot be converted to a compose deploy.resources value
+> compose: the `<cpu|memory|nvidia.com/gpu>` `<request|limit>` at `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei): resources quantity cannot be converted to a compose deploy.resources value
 
 A quantity compose cannot represent is followed by the range compose holds for that resource:
 > a plugin has no representation for a value it was given
@@ -4694,7 +4694,16 @@ A quantity compose cannot represent is followed by the range compose holds for t
 > a plugin has no representation for a value it was given
 > compose: the cpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose cpus value is a core count from 0 to 9223372036.854775807 with at most nine decimal places: resources quantity cannot be converted to a compose deploy.resources value
 
-**How to fix:** where the value is not a quantity, write it in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities); a bare suffix such as `m` is what a template leaves when the value it interpolates is empty, so the input to fix is the one the template read. Where it is a quantity compose cannot represent, write an amount inside the range the message states — memory as a whole number of bytes in whichever unit (`1536Mi` rather than `1.5001Gi`), and processor time to at most nine decimal places of a core.
+> a plugin has no representation for a value it was given
+> compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
+
+A GPU request and limit asking for different counts name both paths and both counts:
+> a plugin has no representation for a value it was given
+> compose: the nvidia.com/gpu request at `<path>` and the limit at `<path>` ask for different counts (`<request>` and `<limit>`); compose reserves one device count for a service, so write the same count in both or only the limit: resources quantity cannot be converted to a compose deploy.resources value
+
+Where the Workload's template reads a value an author declared sensitive, no message quotes the value it refused, and the two counts are left out the same way.
+
+**How to fix:** where the value is not a quantity, write it in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities); a bare suffix such as `m` is what a template leaves when the value it interpolates is empty, so the input to fix is the one the template read. Where it is a quantity compose cannot represent, write an amount inside the range the message states — memory as a whole number of bytes in whichever unit (`1536Mi` rather than `1.5001Gi`), processor time to at most nine decimal places of a core, and a GPU count as a whole number of devices (`1`, not `0.5` or `500m`). Where a GPU request and limit disagree, write the same count in both, or write only the limit, which is the count Kubernetes schedules for the same Workload.
 
 ### A resource quantity the helm provider emits is not a quantity
 

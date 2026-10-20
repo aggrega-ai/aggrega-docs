@@ -44,16 +44,32 @@ A container's `resources` reach compose's `deploy.resources` block, which docker
 | `resources.limits.cpu` | `deploy.resources.limits.cpus` | Same conversion |
 | `resources.requests.memory` | `deploy.resources.reservations.memory` | An exact byte count, converted from the value in whichever form it is written — `8Gi` becomes `8589934592`, `1.5Gi` becomes `1610612736`, `1e3` becomes `1000` |
 | `resources.limits.memory` | `deploy.resources.limits.memory` | Same conversion |
-| an extended resource key — `nvidia.com/gpu`, `amd.com/gpu`, any `<domain>/<name>` | — | No single-host compose analog. The key is dropped and the build raises an `unsupported-field` warning naming it, one per distinct key however many of `requests` and `limits` carried it. Its value is not emitted, so it is not checked |
+| `nvidia.com/gpu`, under `resources.limits`, `resources.requests` or both | `deploy.resources.reservations.devices` | One NVIDIA device entry on the container's service — `driver: nvidia`, `count:` the GPU count, `capabilities: [gpu]`. The count is the limit's where a limit is written — the count Kubernetes schedules for an extended resource — and the request's otherwise. A count of `0` asks for no GPU and writes no entry |
+| any other extended resource key — `amd.com/gpu` and every other `<domain>/<name>` | — | No single-host compose analog. The key is dropped and the build raises an `unsupported-field` warning naming it, one per distinct key however many of `requests` and `limits` carried it. Its value is not emitted, so it is not checked |
 
-Each `cpu` and `memory` value is read as a quantity, in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities), on the Workload as the Recipe's templates evaluated it. Two things halt the build with a `TRANSLATION_ERROR`, and the error says which of the two it met, naming the container's path, whether the value is a request or a limit, the resource and the value:
+Each `cpu`, `memory` and `nvidia.com/gpu` value is read as a quantity, in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities), on the Workload as the Recipe's templates evaluated it. Two things halt the build with a `TRANSLATION_ERROR`, and the error says which of the two it met, naming the container's path, whether the value is a request or a limit, the resource and the value:
 
 - **a value that is not a quantity** — `lots`, `1.5 cores`, or the `m` an empty template leaves in `"{{ .infra.cpu }}m"`;
-- **a quantity compose cannot represent exactly** — a negative amount; a memory amount that is not a whole number of bytes (`1500m`, `4u`) or is larger than 9223372036854775807 bytes (`8Ei`); a cpu amount finer than nine decimal places of a core, the finest precision a Kubernetes quantity itself keeps, or larger than 9223372036.854775807 cores.
+- **a quantity compose cannot represent exactly** — a negative amount; a memory amount that is not a whole number of bytes (`1500m`, `4u`) or is larger than 9223372036854775807 bytes (`8Ei`); a cpu amount finer than nine decimal places of a core, the finest precision a Kubernetes quantity itself keeps, or larger than 9223372036.854775807 cores; a GPU count that is not a whole number of devices (`0.5`, `500m`).
+
+A container whose `nvidia.com/gpu` request and limit ask for different counts halts the same way, naming both paths: compose reserves one count for a service, so the translation would otherwise have to choose one. Write the same count in both, or only the limit.
 
 Nothing is rounded, and no value is emitted that means something else.
 
-**A GPU request is the common case of the dropped-key row.** A Workload asking for `nvidia.com/gpu` renders a service carrying no GPU reservation of any kind, and the build names the key it dropped. Pair that with the `runtimeClassName` row in [Pod-level fields](#pod-level-fields): a Workload authored to run on GPU reaches compose as a plain CPU service, and says so twice — once for the resource and once for the runtime.
+**A GPU request reserves NVIDIA GPUs.** A Workload container asking for `nvidia.com/gpu: "1"` renders a service carrying this reservation, beside any `cpus` and `memory` its requests reserve:
+
+```yaml
+deploy:
+  resources:
+    reservations:
+      devices:
+        - driver: nvidia
+          count: 1
+          capabilities:
+            - gpu
+```
+
+Docker Compose hands the reserved GPUs to the container when the Docker host has that many NVIDIA GPUs and is set up to give them to containers; the build cannot see the host, so a file reserving GPUs assembles the same way wherever it will run. The entry always states its count, because Compose reads a device entry with no count as every GPU on the host. Only the NVIDIA key is translated: `amd.com/gpu` and every other vendor's key keep the dropped-key row's warning. The `runtimeClassName` row in [Pod-level fields](#pod-level-fields) is unchanged — compose has no runtime-class analog, so a Workload naming a GPU-enabled runtime is told the runtime was omitted, while its GPU count is reserved.
 
 ### Probes
 
