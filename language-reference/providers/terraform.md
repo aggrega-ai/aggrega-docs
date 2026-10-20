@@ -28,6 +28,22 @@ The shape is load-bearing rather than cosmetic, for two reasons.
 
 **A component's files are addressed by its own directory.** Two components in one boundary can vendor modules that write identically-named files — `main.tf`, `variables.tf` — and each set sits under its own component's directory rather than contending for one path.
 
+### Where a provider is configured
+
+A provider's configuration — a `provider` block — is written at the root, never inside a component's module. Terraform's documentation says a module meant to be called by another must not contain `provider` blocks, and a module it calls inherits the root's default configuration of each provider that module uses. A module carrying a `provider` block of its own cannot be called with `depends_on`, `count` or `for_each`, and this provider writes `depends_on` on a component's `module` block whenever another component of the same root carries an earlier `syncWave`, as Deployment ordering below describes; Terraform then refuses the whole configuration while it is loaded, before it plans anything.
+
+So a Recipe whose provider needs configuring writes that configuration as a file under [`spec.boundary.artifacts`](../entities/recipe.md#the-boundary-block--files-for-the-boundarys-shared-output). Each such file is written once beside `aggrega.modules.tf`, where Terraform reads it together with the root configuration, and the component's module keeps only its `required_providers` declaration of the provider's source and version:
+
+```text
+infra/terraform/
+  aggrega.modules.tf
+  provider-azurerm.tf
+  modules/
+    gateway/main.tf
+```
+
+Components of one root that declare the same file with the same bytes share the one copy; the same name with different bytes stops the build. The modules' resources are recorded against that one configuration, so it is also what Terraform destroys them with. A Release that removes the last component declaring the file removes the file with it, and Terraform then refuses to plan the destruction of what those modules created, asking for a provider block that configures the provider. Destroy those resources before removing the last such component.
+
 ### Where a component's inputs are supplied
 
 A component's inputs are the **arguments of its `module` block** in the root configuration, and that is the only place they are written. A block carries arguments where the compiler supplies the module's inputs — a Recipe that vendors a module with `source:`. It is bare where the Recipe authored the configuration body itself and resolved its values into that body, so there is nothing left for the compiler to pass.

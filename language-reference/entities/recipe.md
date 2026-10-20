@@ -363,7 +363,7 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 ## The `boundary:` block — files for the boundary's shared output
 
-Most Recipes never need this. Everything else a Recipe writes belongs to its own component: the provider places it under that component's own position in the boundary's output. Some files belong to the boundary as a whole instead — a file the target reads once for everything the boundary deploys. Terraform's provider configuration is the common case: Terraform accepts a `provider` block only in the root configuration of a boundary, and a module carrying one of its own cannot be called with `depends_on`, `count` or `for_each`. `spec.boundary.artifacts` is where a Recipe writes such a file.
+Most Recipes never need this. Everything else a Recipe writes belongs to its own component: the provider places it under that component's own position in the boundary's output. Some files belong to the boundary as a whole instead — a file the target reads once for everything the boundary deploys. Terraform's provider configuration is the common case: Terraform's documentation keeps `provider` blocks out of a module another configuration calls, and a module carrying one of its own cannot be called with `depends_on`, `count` or `for_each`. `spec.boundary.artifacts` is where a Recipe writes such a file.
 
 ```yaml
 spec:
