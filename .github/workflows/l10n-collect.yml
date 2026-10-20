@@ -1,4 +1,4 @@
-# The collector of a Markdown documentation corpus translated with @aggrega-ai/l10n:
+# The collector of a Markdown documentation corpus translated with @cognitio/l10n:
 # the translation workflow's companion, copied beside it to the repository as
 # .github/workflows/l10n-collect.yml, and named by the configuration's
 # `ci.collector`. It runs the same command, `npx l10n ci`, with the same rules.
@@ -42,11 +42,13 @@ jobs:
         with:
           node-version: 24
 
-      # The package is installed here alone, from its vendored directory with its
-      # dependencies, and saved nowhere: the repository root has no package.json,
-      # so the documentation site builds from a plain clone without it.
+      # The package is installed here alone, from the vendored archive whose path
+      # `sh install.sh path` reads from cognitio-modules.json, its dependencies
+      # from the public registry, and saved nowhere: the repository root has no
+      # package.json, so the documentation site builds from a plain clone without
+      # it.
       - name: Install
-        run: npm install --no-save --no-audit --no-fund --install-links ./l10n/vendor/l10n
+        run: npm install --no-save --no-audit --no-fund "$(sh install.sh path @cognitio/l10n)"
 
       - name: Collect, submit and push the translation memory
         run: npx l10n ci --config l10n/l10n.config.json
