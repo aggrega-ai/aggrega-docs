@@ -361,6 +361,42 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 **Use cases.** `artifacts:` is the home for auxiliary resources that the primary chart or module does not produce: a `NetworkPolicy` accompanying a workload, an `HPA` paired with a Deployment, a sidecar `ConfigMap` keyed off `instance_id`. Cross-cutting auxiliary resources that apply across many components (a backup sidecar attached to every datastore, for example) belong on FeatureRecipe Resource Generation rather than per-Recipe `artifacts:` — see [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe extension surface.
 
+## The `boundary:` block — files for the boundary's shared output
+
+Most Recipes never need this. Everything else a Recipe writes belongs to its own component: the provider places it under that component's own position in the boundary's output. Some files belong to the boundary as a whole instead — a file the target reads once for everything the boundary deploys. Terraform's provider configuration is the common case: Terraform accepts a `provider` block only in the root configuration of a boundary, and a module carrying one of its own cannot be called with `depends_on`, `count` or `for_each`. `spec.boundary.artifacts` is where a Recipe writes such a file.
+
+```yaml
+spec:
+  capability: terraform
+  implements: core/api-gateway/azure-api-management:1.0.0
+  artifacts:
+    main.tf:
+      $import: ./module/main.tf
+  boundary:
+    artifacts:
+      # Terraform reads this beside the root configuration; one copy serves every
+      # component of the boundary that declares it.
+      provider-azurerm.tf: |
+        provider "azurerm" {
+          features {}
+        }
+```
+
+**The block is `artifacts:` at a second scope.** `artifacts` is its one member, and it takes exactly the shape of the Recipe's own [`artifacts:`](#the-artifacts-field--auxiliary-manifests): the same three modes — inline content, a file `$import:`, a library `$import:` whose files nest under the entry's key as `<key>/<filename>` — the same key-to-filename rule and the same alphabet for a key, and the same template context, so an entry reads `.values`, `.infra`, `.locals` and the rest exactly as an `artifacts:` entry does. It needs at least one entry, any other member under `boundary:` is refused when the Recipe is read, and a Recipe on the `eval` provider cannot declare it. A FeatureRecipe has no such block.
+
+**Where a file is written.** Once, in the directory holding the boundary's assembled output, beside the files the provider's own assembly writes there — for terraform, beside the `aggrega.modules.tf` root configuration rather than inside the component's module. The provider is handed none of these files: the compiler evaluates them and writes them itself, and stamps nothing into one to say which component it came from, because it belongs to every component that declared it. An entry whose template renders to nothing writes no file.
+
+**How several contributors meet.** Every entry is evaluated for each component the Recipe renders in the boundary, and the files every contributor to the boundary declared are merged by name. One name evaluated to the same bytes — by two components bound to one Recipe, or by two Recipes configuring one provider identically — is one file. One name evaluated to different bytes stops the build, naming the file and every contributor, because no single file is what all of them wrote; so does a name the provider's own assembly writes, such as `aggrega.modules.tf`. Both are the [assembled-output collision](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Two Recipes configuring one provider under two different file names are not merged — each file is written — and the target is what then reports the duplicate configuration, so Recipes meant to share a provider configuration share its file name, conventionally one named for the provider it configures.
+
+**Which providers accept it.** Whether a file placed beside a boundary's assembled output means anything is a property of the provider's target, so it is part of the provider's own declaration. A Recipe declaring the block whose provider does not accept it is refused before anything renders, whatever its entries render to; see [The provider does not support boundary artifacts](../errors/fatal-halts.md#the-provider-does-not-support-boundary-artifacts). The [capability grid](../../architecture/16-recipe-input-composition.md#provider-capability-matrix) lists each provider's claim.
+
+| Provider | `boundary.artifacts:` |
+| --- | --- |
+| `terraform` | Accepted. Each file is written beside the boundary's root configuration, which Terraform reads together with every other configuration file in that directory. |
+| `helm`, `compose`, `helm-chart`, `cloudformation` | Refused before anything renders. |
+
+**A file `$import:` here is pinned as one an `artifacts:` entry imports.** The [entity lock](../cli/aggrega-pull.md#the-entity-lock) records its digest in the same `artifactDigests` list, under `boundary/<key>` rather than under the key alone, so an entry of each block written under one key is pinned apart. The pin step records it, a pull that does not pin halts where its pin is missing or no longer matches, and a build refuses a file edited since it was pinned exactly as it refuses an `artifacts:` file.
+
 ## The `outputLabels:` field — author-declared labels on rendered output
 
 `Recipe.spec.outputLabels:` is a map of label key → value that the provider stamps onto every object the Recipe's rendered output produces. It is the honest home for a *realization trait* — a property of how a particular Recipe realizes a component, as opposed to what the component is. Take the storage a realization persists with, written below as the illustrative key `example.io/storage-backing`: a Helm Recipe mounting a PersistentVolumeClaim and a Compose Recipe mounting a named volume realize the same component through different machinery, so they carry different `outputLabels` and downstream tooling (cost allocation, policy, inventory) can tell them apart on the emitted resources. The key is illustrative — `example.io/` is an example namespace, and a catalog picks the keys its own tooling reads.

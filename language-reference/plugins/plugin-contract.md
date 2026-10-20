@@ -247,6 +247,7 @@ The host is a generic router. It reads the guest's `describe()` self-report — 
 - `artifact_delimiters` (optional) — the Go-template delimiter pair the guest applies to artifact bodies.
 - `reusable_instance` (optional) — whether one loaded instance may serve every crossing of the build (see [Determinism and instance reuse](#determinism-and-instance-reuse) below).
 - `omits` (optional) — whether the guest honours the omit entries a source render carries (see [Leaving rendered units out](#leaving-rendered-units-out) below).
+- `boundary_artifacts` (optional) — whether the guest's target accepts the files a Recipe contributes to its boundary's shared output (see [Accepting the files a Recipe contributes to the boundary](#accepting-the-files-a-recipe-contributes-to-the-boundary) below).
 - `source_ignore` (optional) — the files the guest's ecosystem never ships beside a source it renders (see [Declaring what a source's ecosystem never ships](#declaring-what-a-sources-ecosystem-never-ships) below).
 
 The socket is a fixed export set — one mandatory, the rest optional and advertised in `describe()`:
@@ -384,6 +385,22 @@ A provider that does all three declares it with `omits: true` on its contract. T
 - **A document declaring `omits:` whose provider does not claim `omits: true` is refused before anything renders**, so an author learns at once that the key would have no effect rather than finding the document in the output. The compiler reads your claim from your `describe()` once every Recipe and FeatureRecipe in the build is bound, and refuses before the first component renders — so a guest that does not claim the key is never handed an entry. The refusal names the provider and the component the document renders for, or, for a FeatureRecipe that generates once for a boundary, the boundary and the attachment. See [The provider does not support omits](../errors/fatal-halts.md#the-provider-does-not-support-omits).
 
 **Status today:** **available**. The helm, compose and cloudformation guests distributed with the compiler declare the claim and honour the entries. The helm guest writes no field of any entry into a text it returns. The compose and cloudformation guests name an entry's kind, name and namespace when they refuse the entry, and the units an entry left out when they refuse a file or a template that still names them, and show every field of a marked entry as `<redacted>` there. The helm-chart and terraform guests do not declare the claim, so a document declaring `omits:` that one of them renders is refused.
+
+#### Accepting the files a Recipe contributes to the boundary
+
+Some files belong to a boundary as a whole rather than to one of its components — a provider configuration a target reads once for everything the boundary deploys, say. A Recipe writes those under [`spec.boundary.artifacts`](../entities/recipe.md#the-boundary-block--files-for-the-boundarys-shared-output), and the compiler, not your guest, does the work: it evaluates each file against the context an `artifacts:` entry is evaluated against, merges the files every contributor to the dispatch group declared by name, and writes each one once in the directory holding the group's assembled output, beside what your `assemble_boundary` returns. Your guest is handed none of these files on any export and is never asked about one, so there is nothing to implement — only a statement about your target to make:
+
+```json
+"contract": {
+  "input_kinds": { "sourced": true, "artifacts_standalone": true },
+  "boundary_assembly": "nest",
+  "boundary_artifacts": true
+}
+```
+
+Declare `boundary_artifacts: true` only when your target reads a file placed in that directory as part of the boundary's output. The `Plugin` entity records the same claim as `spec.provider.contract.boundaryArtifacts`; where the entity carries a render-behavior contract, the load refuses a guest whose `describe()` reports a different value. A Recipe declaring the block whose provider does not claim it is refused before anything renders, naming the provider and the component; see [The provider does not support boundary artifacts](../errors/fatal-halts.md#the-provider-does-not-support-boundary-artifacts). A file one of these merges places under a name your assembly also writes stops the build as [two contributors writing one output path](../errors/fatal-halts.md#two-contributors-write-the-same-output-path), so the names your assembly writes are part of what you document for authors.
+
+**Status today:** **available**. The terraform guest distributed with the compiler declares the claim, and Terraform reads each file beside the boundary's root configuration; the helm, compose, helm-chart and cloudformation guests do not declare it.
 
 #### Declaring what a source's ecosystem never ships
 

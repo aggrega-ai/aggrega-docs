@@ -40,20 +40,20 @@ What a given pull *did* — whether each entity was fetched fresh from a registr
 
 ## The entity lock
 
-A Recipe or FeatureRecipe can depend on bytes outside its own document: a chart or fragment fetched from a remote `source:`, a file an `artifacts` entry brings in with `$import`, or the files of a `source:` that names a directory or a file beside it. What each of those digested to is recorded in a file named `entity.lock`, in the same directory as the entity file. The entity file you wrote is never written to; what was derived lives beside it. The [entity lock schema](../schema/other/entity-lock.md) describes the file field by field.
+A Recipe or FeatureRecipe can depend on bytes outside its own document: a chart or fragment fetched from a remote `source:`, a file an `artifacts` entry — or an entry of a Recipe's `boundary.artifacts` — brings in with `$import`, or the files of a `source:` that names a directory or a file beside it. What each of those digested to is recorded in a file named `entity.lock`, in the same directory as the entity file. The entity file you wrote is never written to; what was derived lives beside it. The [entity lock schema](../schema/other/entity-lock.md) describes the file field by field.
 
 **Who writes it.** One step writes it: [`aggrega pin`](aggrega-pin.md), which the entity's author runs, needs no Release, and records every class of pin the lock holds. `aggrega pull --pin-sources` and `aggrega push --pin-sources` run that same step on the author's behalf and write the same bytes. A pull that was not asked to pin writes no lock at all: over each Recipe and FeatureRecipe the Release builds from your catalog directories, it compares what the step would record with what the lock holds, and halts where a pin is missing or no longer matches its input, naming the entity, each input and its class, and `aggrega pin`. A local source's files are held to their pins as one set: a lock that records none of them halts the pull, and so does a file added, changed or removed since the pin. The workspace key `pin_sources_at_pull` makes pinning every pull's default, and `--pin-sources=false` restores the halt for one run. Pinning is an authoring duty, so a halt on a consumer's first pull means the entity's publisher never pinned it; the consumer's remedy is that key rather than a hand edit of someone else's directory. [`aggrega pin`](aggrega-pin.md#who-pins-and-when) sets this out in full.
 
 **What it holds.** Three lists, each row naming one input:
 
 - `sourceDigests` — one row for each remote `source:` whose coordinates you wrote out in full, with no template in its `kind`, `url`, `chart`, `module_subdir`, `version` or `ref`. The row carries the source's `kind` and `url`, its `chart` or `module_subdir` where it has one, the version it resolved to — for a git source, the commit its `ref` named — and the content digest of the fetched archive, plus the manifest digest for a chart fetched over OCI.
-- `artifactDigests` — one row for each `artifacts` entry supplied by a file imported with `$import`, naming the entry's key and the digest of the file's bytes.
+- `artifactDigests` — one row for each `artifacts` or `boundary.artifacts` entry supplied by a file imported with `$import`, naming the entry and the digest of the file's bytes. An `artifacts` entry is named by its key, and a `boundary.artifacts` entry as `boundary/<key>`, so an entry of each block written under one key is pinned apart.
 - `localSourceDigests` — one row for each file a `source:` naming a directory or a file beside the entity contributes to what a publication of the entity carries, naming the file's path beside the entity and the digest of its bytes. Nothing is fetched for such a source; its files are digested as they stand. A source written as a template contributes every file in the entity's directory, so each of those has a row.
 
 **What it does not hold:**
 
 - **A remote source whose coordinates are filled in from a template** — a `version` read from `.infra`, for instance. Which artifact it names is decided by each Release that uses the entity, so each version it resolves to is pinned in that Release's lockfile, and nothing about it is written beside the entity.
-- **An inline `artifacts` entry**, which is part of the entity file, and **an entry taken from an ArtifactLibrary**, whose content is pinned by the library version the lockfile records.
+- **An inline `artifacts` or `boundary.artifacts` entry**, which is part of the entity file, and **an entry taken from an ArtifactLibrary**, whose content is pinned by the library version the lockfile records.
 
 An entity with nothing to pin gets no `entity.lock`, and the step, run over an entity which no longer needs one, removes it.
 
@@ -61,7 +61,7 @@ An entity with nothing to pin gets no `entity.lock`, and the step, run over an e
 
 **`aggrega build` holds your files to it.** A build reads the lock and makes three comparisons:
 
-- **Each imported file is digested again and compared with its row.** A file edited after it was pinned halts the build with `[CATALOG_ERROR E0026]`, naming the artifact, the imported file and both digests.
+- **Each imported file is digested again and compared with its row**, a `boundary.artifacts` file exactly as an `artifacts` file. A file edited after it was pinned halts the build with `[CATALOG_ERROR E0026]`, naming the artifact as its row names it, the imported file and both digests.
 - **A local source's files are digested again and compared with their rows, as one set**, before the provider reads the source. A file edited, added or removed since the pin halts the build with `E0305` under the component instance whose source it is, naming each such file and both digests; a file beside the entity that the source does not contribute is not compared. A lock that records no row for a local source leaves nothing to compare, as [A local source no longer matches the pins recorded beside its Recipe](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe) describes.
 - **Each source row is compared with the digest the Release's lockfile records for the same source.** A disagreement halts the build with `[FETCH_ERROR E0135]`, naming the lock and both digests. The two files are written by two resolutions of the same source — the pin step's and the pull's — so they disagree when those resolutions got different bytes, or when one of the two files was edited. Different bytes under one version is what an upstream that re-published a version looks like.
 

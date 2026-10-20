@@ -154,6 +154,24 @@ The head carries this condition's short code, `E0335`.
 
 **How to fix:** remove the `omits:` key, or render the source through a provider that honours it. Where a `helm-chart` or `terraform` Recipe sources a local chart or module, a line in the `.aggregaignore` beside the Recipe leaves a file of that source out instead, from the next time the Recipe is pinned — see [`aggrega pin`](../cli/aggrega-pin.md).
 
+#### The provider does not support boundary artifacts
+
+<!-- covers: internal/compiler/renderer.ErrUnsupportedBoundaryArtifacts -->
+
+A Recipe declares `spec.boundary.artifacts` — files for the shared output of the boundary it renders in — and the provider rendering it does not declare that it accepts such files. The compiler writes those files itself, beside what the provider assembles for the boundary, and hands the provider none of them, so whether a file placed there means anything is a property of the provider's target. A target that does not read it would ship it and ignore it, and the configuration it carries would never take effect; the build refuses before anything renders instead.
+
+Whether a provider accepts the files is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Any entry counts, whatever it would render to. The `terraform` provider accepts them, writing each beside the boundary's root configuration; `helm`, `compose`, `helm-chart` and `cloudformation` do not, and are refused.
+
+The refusal is decided once every component's Recipe is bound and each provider has described itself — before the first component renders and before any entry is evaluated, so a build refused here renders nothing. Every Recipe at fault is reported in one build, once for each component it renders; where more than one finding is, they are grouped under `Recipes declaring boundary artifacts whose provider does not accept them`. A Recipe bound to a provider the build cannot resolve is not reported here: that build halts where the provider is selected, naming the binding.
+
+Emitted message, positioned at `.spec.boundary` in the Recipe, where the edit is. The category reaches you in the bracketed head; the message names the provider first, then the component the Recipe renders for:
+
+> provider does not support boundary artifacts (`"<provider-name>"`, node `"<node-id>"`). this provider's contract does not declare that it accepts files written to a boundary's shared output; remove the boundary block, or render the Recipe through a provider whose contract declares it
+
+The head carries this condition's short code, `E0351`.
+
+**How to fix:** remove the `boundary:` block, or render the Recipe through a provider that accepts it. A file that belongs to the component rather than to the boundary is an [`artifacts:`](../entities/recipe.md#the-artifacts-field--auxiliary-manifests) entry instead.
+
 #### At least one input kind must be present
 
 <!-- covers: pkg/validator.ErrRecipeNoInputKind -->
@@ -3631,12 +3649,14 @@ The build halts rather than writing one of the two files and discarding the othe
 
 Each contributor is named for what it is, which is what says where its name is written: `component <name>` for a component instance, `feature <name>` for a feature attached to a boundary, and `the <provider> assembly` for the assembly's own merged output. The contributors are listed in name order, so the sentence is the same on every build of the same input.
 
+**A file a Recipe contributes to the boundary's shared output meets this rule too.** A Recipe's [`boundary:` block](../entities/recipe.md#the-boundary-block--files-for-the-boundarys-shared-output) writes its files beside the provider's own assembled output, once per file name. Several components declaring one name with identical bytes are one file and never collide; declaring it with different bytes collides here, naming the file and every component that declared it, and so does a name the provider's assembly itself writes — `aggrega.modules.tf` for `terraform`, say, which names `the terraform assembly` among the contributors. A file several components declared identically that meets the assembly's own file is named with all of them, as `component <name-1> and component <name-2>`.
+
 The boundaries the assembly was fed by are named too, and they are listed rather than singled out. Boundaries whose `directory:` declarations evaluate alike assemble as one, and nothing about a collision says which of them the contributors that met were declared in — so the finding gives you every boundary whose declaration could separate them and asserts about none of them that it is the one at fault. The finding is reported against the Release document as a whole for the same reason: naming one boundary inside it would send you to a document that may have contributed nothing to the path.
 
 Where more than one path collides, the findings arrive together under a report stating what they have in common:
 > assembled output paths written by more than one contributor
 
-**How to fix:** rename the emitted file in whichever Recipe you control — an `artifacts:` key, or the filename a Workload translation derives — so the two no longer meet. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own.
+**How to fix:** rename the emitted file in whichever Recipe you control — an `artifacts:` key, a `boundary:` block's key, or the filename a Workload translation derives — so the two no longer meet. Where two Recipes declare one shared file and mean the same configuration, make their declarations byte for byte the same. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own.
 
 ### The same name is derived more than once inside the output
 
@@ -4095,7 +4115,7 @@ An `artifacts:` entry a FeatureRecipe writes reports the same condition as the b
 
 <!-- covers: internal/compiler/renderer.ErrArtifactContentMismatch -->
 
-An `artifacts:` entry that imports a local file has its content pinned when the Recipe is pinned — by `aggrega pin`, or by a pull or a push asked to run the same step: the digest of the file's bytes is recorded in the `entity.lock` beside the Recipe. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after it was pinned never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message.
+An `artifacts:` entry that imports a local file has its content pinned when the Recipe is pinned — by `aggrega pin`, or by a pull or a push asked to run the same step: the digest of the file's bytes is recorded in the `entity.lock` beside the Recipe. An entry of a Recipe's `boundary.artifacts:` is pinned and compared the same way, recorded under `boundary/<key>`, which is the name the message gives it. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after it was pinned never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message.
 
 **What is compared is the entry's content, not what rendering it produced.** An artifact body is a template, and evaluating it substitutes values that differ per component instance, so a digest over the output would disagree for every instance whose values differ. The recorded content is the same text for every instance that binds the Recipe, which is what makes one recorded digest the right thing to compare against.
 
@@ -6076,6 +6096,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0348` | `pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts` | A pipeline step reads its targets' render facts |
 | `E0349` | `no Recipe in the workspace's catalog binds to the capability the import's target names` | An import's target names a capability no Recipe in the catalog binds to |
 | `E0350` | `no importer recognises the source` | No importer recognises the source |
+| `E0351` | `provider does not support boundary artifacts` | The provider does not support boundary artifacts |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

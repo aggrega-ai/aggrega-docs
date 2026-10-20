@@ -812,6 +812,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0348` | `pipeline-step-reads-target-render-facts` | `pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts` |
 | `E0349` | `import-target-unbound` | `no Recipe in the workspace's catalog binds to the capability the import's target names` |
 | `E0350` | `unrecognised-import-format` | `no importer recognises the source` |
+| `E0351` | `unsupported-boundary-artifacts` | `provider does not support boundary artifacts` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

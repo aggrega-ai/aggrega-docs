@@ -416,6 +416,16 @@ The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<authored-
 
 **cloudformation provider:** artifacts are stack fragments — the resources one component contributes rather than a whole template. The provider normalizes each fragment to pure-JSON long-form intrinsics and merges it into the single stack assembled for that output directory, where resources join one `Resources` map and the component's `provides` surface as stack `Outputs` under names scoped to the publishing component. Which of a fragment's other top-level sections survive the assembly is under [What a merged document carries from `artifacts:`](#what-a-merged-document-carries-from-artifacts). See [the cloudformation provider page](../language-reference/providers/cloudformation.md#fragment-recipes-assembled-into-a-stack).
 
+### The Boundary Scope: Files for a Boundary's Shared Output
+
+The artifacts mechanism has a second scope. Everything above is written to the component's own position in its boundary's output; a Recipe's `spec.boundary.artifacts` is the same map — the same three forms, the same key-to-filename rule, the same template context — written once for the boundary as a whole instead. It exists for a file the target reads once for everything a boundary deploys, which no component's own position can hold: Terraform accepts a provider configuration only in a boundary's root configuration, never inside a component's module.
+
+**Where it lands.** In the directory holding the dispatch group's assembled output, beside the files the provider's own assembly writes there — for terraform, beside the root configuration. The compiler evaluates each entry once per component the Recipe renders, against that component's context, and writes the file itself: the provider is handed none of these files, and nothing is stamped into one to say which component it came from, because it belongs to every contributor that declared it.
+
+**How contributors meet.** The files every contributor to one dispatch group declared are merged by name. One name declared with identical bytes is one file; one name declared with different bytes, or a name the provider's assembly writes itself, stops the build naming the file and every contributor — the same refusal two contributors writing one output path meets. So a provider configuration two Recipes need is written by both under one name, and the build checks they agree.
+
+**Who accepts it.** Whether a file placed beside a boundary's assembled output means anything is a property of the provider's target, so it is the provider's own claim, read from its `describe()` like its input kinds. A Recipe declaring the block for a provider that does not claim it is refused before anything renders. The grid below carries the claim as its last column; today terraform makes it.
+
 ### What Artifacts Is Not
 
 Three structural distinctions:
@@ -430,20 +440,20 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 ## Provider Capability Matrix
 
-Each provider declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the provider, not the Recipe — a provider renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
+Each provider declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the provider, not the Recipe — a provider renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`). The last two columns are the provider's claims that it honours `omits:` and that it accepts the files a Recipe contributes to its boundary's shared output under `boundary.artifacts:` ([above](#the-boundary-scope-files-for-a-boundarys-shared-output)); neither is an input kind.
 
 **Read each column on its own.** A row says which kinds a provider renders taken one at a time. It does not say that two ticked kinds may be declared together. Because the kinds compose by addition, each declared kind is dispatched and emitted separately, so a pair can be refused for a reason neither column carries — most often because both kinds produce a file under the same output name. Which combinations each provider actually accepts is stated in prose under [What each provider accepts, in full](#what-each-provider-accepts-in-full).
 
 <!-- BEGIN GENERATED: provider-capability-matrix -->
-| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) | `omits:` |
-| --- | --- | --- | --- | --- | --- |
-| helm | ✅ | ✅ | ✅ | ✅ | ✅ |
-| compose | ✅ | ✅ | ✅ | ✅ | ✅ |
-| helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ | ❌ |
-| terraform | ✅ | ❌ | ✅ | ✅ | ❌ |
-| cloudformation | ✅ | ❌ | ✅ | ✅ | ✅ |
+| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) | `omits:` | `boundary.artifacts:` |
+| --- | --- | --- | --- | --- | --- | --- |
+| helm | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| compose | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ | ❌ | ❌ |
+| terraform | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| cloudformation | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
-*This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts, and whether it honours `omits:`, in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
+*This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts, whether it honours `omits:` and whether it accepts `boundary.artifacts:`, in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: provider-capability-matrix -->
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
