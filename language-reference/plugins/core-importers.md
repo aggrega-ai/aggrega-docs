@@ -522,14 +522,21 @@ Each value it writes empty is reported with `credential-emptied`, by its node an
 its value; a value already empty, or `null`, is left as it is and not reported. A value the setting
 does not take halts the import, which drafts nothing, rather than reading as `none`.
 
-A located value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`,
-`${input:id}`, `${workspaceFolder}` — holds no value of its own: whatever the setting says it is
-carried as written and named in no warning, whichever format the flow is in, as the MCP importer writes one. So is a
-member that is one reference inside a value a format keeps as text, such as a Flowise `mcpServerConfig`
-written as JSON text, or headers and query parameters held as a JSON object in text on Flowise and
-n8n: written empty, the text keeps that member as written. A reference carrying a default,
-`${NAME:-value}`, or text beside a reference, such as `--key=${NAME}`, holds a value, and is located
-like any other.
+A located value that is one variable reference and nothing else holds no value of its own: the bare
+name of a variable, `${NAME}` — a predefined variable such as `${workspaceFolder}` or `${userHome}`
+included — or one of the forms the MCP clients define, `${env:NAME}` and `${input:id}`. Whatever the
+setting says it is carried as written and named in no warning, whichever format the flow is in, as the
+MCP importer writes one. So is a member that is one reference inside a value a format keeps as text,
+such as a Flowise `mcpServerConfig` written as JSON text, or headers and query parameters held as a
+JSON object in text on Flowise and n8n: written empty, the text keeps that member as written.
+
+A reference carrying text after an operator holds that text, which can be a key, whether or not a colon
+comes before the operator: a default, `${NAME:-value}` or `${NAME-value}`; an alternative,
+`${NAME:+value}` or `${NAME+value}`; a message, `${NAME:?message}` or `${NAME?message}`; an
+assignment, `${NAME:=value}` or `${NAME=value}`. It is located like any other value — carried and
+named in a `credential-carried` warning by default, written empty where the setting asks for its
+kind — and so is any other text inside `${…}`, such as `${config:name}`, and text beside a reference,
+such as `--key=${NAME}`.
 
 What the draft writes so that a node reaches its connection — an address written empty, a variable's
 name, a selected credential or default headers written empty, as
@@ -979,14 +986,16 @@ value left out, so the build halts naming each, and a header's value or a part o
 out of the comment, which names the header or the part alone. A client's `infra.stdio_runtime` is read
 off the command as the Release writes it, so a command written empty leaves it out too.
 
-A value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`, `${input:id}`,
-`${workspaceFolder}` — holds no value of its own: it is written as the text it is whatever the setting
-says, the bridge passing it to the server unexpanded, and it is named in no warning, as a reference is
-[in a flow](#credential-values-the-flow-holds). An environment
-variable whose value is one is written with its key and no value, its reference named in the comment
-above the entry, for the Release to supply, and a header or a part of the address whose value is one
-is listed with the reference it reads from. A reference carrying a default, `${NAME:-value}`, or text
-beside a reference holds a value, and is located like any other.
+A value that is one variable reference and nothing else — the bare name `${NAME}`, a predefined
+variable such as `${workspaceFolder}` among them, `${env:NAME}` or `${input:id}` — holds no value of
+its own: it is written as the text it is whatever the setting says, the bridge passing it to the
+server unexpanded, and it is named in no warning, as a reference is
+[in a flow](#credential-values-the-flow-holds). An environment variable whose value is one is written
+with its key and no value, its reference named in the comment above the entry, for the Release to
+supply, and a header or a part of the address whose value is one is listed with the reference it reads
+from. A reference carrying text after an operator — a default, an alternative, a message or an
+assignment, such as `${NAME:-value}` or `${NAME-value}`, with or without a colon — holds that text, and
+so does text beside a reference; each is located like any other value.
 
 No infrastructure key of `core/ai-tool/mcp` takes a header's value: a remote server's credential is
 held by each consumer, on its connection to the tool, and the import drafts no consumer. So the
