@@ -68,9 +68,10 @@ manifests offline — no chart pull is required.
 ## What the composed stack looks like
 
 The gateway renders as a stateless Deployment plus a ClusterIP Service on the
-proxy port. Its Pod carries a migrations init container that runs before the
-main container; both carry the connection composed from the backend edge — the
-backend's in-cluster Service name, user, and database:
+proxy port and a ConfigMap carrying its Status API's request allowlist. Its Pod
+carries a migrations init container that runs before the main container; both
+carry the connection composed from the backend edge — the backend's in-cluster
+Service name, user, and database:
 
 ```yaml
 env:
@@ -84,10 +85,20 @@ env:
     value: kong
   - name: KONG_PG_DATABASE
     value: kong
-  [… omitted: the gateway's own proxy, admin and status listen addresses]
+  [… omitted: the gateway's own proxy, admin and status listen addresses, and
+   the allowlist file its Status API includes]
   - name: KONG_PG_PASSWORD
     value: apppass
 ```
+
+The gateway's readiness and liveness probes ask Kong's Status API —
+`GET /status/ready` and `GET /status` — on the container port `status`, so that
+listener is bound on the Pod's address. Kong includes the allowlist from the
+ConfigMap in the Status API's own server block: from any address but the Pod's
+loopback one it answers a `GET` of `/status`, `/status/ready` or `/metrics`, and
+refuses every other request with `403` — among them `POST /status/ready`, which
+would otherwise mark the gateway draining and take it out of its Service until
+it restarts.
 
 The backend renders as a StatefulSet with a persistent volume mounted at
 `/var/lib/postgresql/data`, plus a ClusterIP Service and a headless Service.
