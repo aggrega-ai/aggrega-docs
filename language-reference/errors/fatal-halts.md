@@ -4097,25 +4097,27 @@ Emitted message:
 
 **How to fix:** open the Recipe the message names and check its `artifacts:` keys against the files any bundle it imports contributes. Where the keys are genuinely distinct and the collision still stands, nothing in the document is at fault and the report is worth raising with whoever maintains the build.
 
-### An ArtifactLibrary bundle file leaves the key it was imported at
+### An ArtifactLibrary bundle file names no file of its own under the key it was imported at
 
 <!-- covers: internal/compiler/renderer.ErrArtifactLibraryFileEscapesKey -->
 
-An `artifacts:` entry importing a bundle expands into one output per file in that bundle, each nested under the key the import was written at. So the key names a directory and every file the bundle contributes belongs beneath it. A file name that climbs out of that directory, names an absolute location, or names nothing at all does not, and the build stops rather than place the file somewhere the consuming Recipe never chose.
+An `artifacts:` entry importing a bundle expands into one output per file in that bundle, each nested under the key the import was written at. So the key names a directory and every file the bundle contributes belongs beneath it, under a name of its own. A file name that climbs out of that directory, names an absolute location, or names nothing at all does not, and the build stops rather than place the file somewhere the consuming Recipe never chose.
+
+**Naming nothing covers every name that is not one file's one spelling beneath the key.** `.` and `./`, and a name that collapses back onto the key such as `x/..`, name the key itself, so the file would be written where the key's directory belongs. A name with a trailing or doubled `/`, or with a `.` or `..` part — `x/`, `a//b`, `./a`, `a/./b`, `a/../b` — is a second spelling of a file another name can carry: `a//b` beside `a/b` is two names for one file, and one would be written over the other with no collision reported. The empty name is refused too.
 
 **What it prevents is a silent re-layout rather than a write outside the output directory.** Where the files are written is guarded again, so a name climbing far enough is refused there in any case. The name that survives that guard is the one climbing exactly one level: it lands back inside the output directory, at a position nobody chose. That is worse than a refused write, because every collision guard on this path reads a name as it was composed rather than as it resolves — so two such files can resolve onto one output with nothing reporting a collision, and which one survives is decided by nothing anybody wrote.
 
-**A nested layout inside the key is untouched.** A bundle is free to carry its own subdirectories, and nesting them under the consumption key is what the key is for.
+**A nested layout written plainly inside the key is untouched.** A bundle is free to carry its own subdirectories, such as `rbac/role.yaml`, and nesting them under the consumption key is what the key is for. A name that merely contains dots inside a part, such as `..config` or `role.v1.yaml`, is an ordinary name.
 
 The consuming Recipe and the published bundle are usually written by different authors, so the message names both halves together with the remedy.
 
-An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the file first, then the library it came from and the entry it is consumed at. Every file of the bundle whose name leaves the key is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
-> artifact-library bundle file name leaves the artifacts key its output is nested under (`"<filename>"`, ArtifactLibrary `"<library>"`, artifacts entry `"<key>"`). rename the file inside the ArtifactLibrary bundle so its name stays under the artifacts key it is consumed at
+An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the file first, then the library it came from and the entry it is consumed at. Every file of the bundle whose name is refused is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
+> artifact-library bundle file name does not name a file of its own beneath the artifacts key its output is nested under (`"<filename>"`, ArtifactLibrary `"<library>"`, artifacts entry `"<key>"`). rename the file inside the ArtifactLibrary bundle to an ordinary file name beneath the artifacts key it is consumed at, such as "config.yaml" or "rbac/role.yaml" — no "." or ".." part, and no leading, trailing or doubled "/"
 
 An `artifacts:` entry a FeatureRecipe writes reports the same condition as the bundle is resolved, naming the recipe it was written in and the first such file:
-> artifact-library bundle file name leaves the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactLibrary bundle so its name stays under the artifacts key it is consumed at
+> artifact-library bundle file name does not name a file of its own beneath the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactLibrary bundle to an ordinary file name beneath the artifacts key it is consumed at, such as "config.yaml" or "rbac/role.yaml" — no "." or ".." part, and no leading, trailing or doubled "/"
 
-**How to fix:** rename the file inside the ArtifactLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
+**How to fix:** rename the file inside the ArtifactLibrary to an ordinary file name beneath the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
 
 ### An imported artifact no longer matches the digest recorded beside its Recipe
 
@@ -6123,7 +6125,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0248` | `wasm: guest plugin returned an output that is not the shape the socket reads` | A plugin returned something that is not the shape the socket reads |
 | `E0250` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` | A provider named a directory for a contributor that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
-| `E0252` | `artifact-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactLibrary bundle file leaves the key it was imported at |
+| `E0252` | `artifact-library bundle file name does not name a file of its own beneath the artifacts key its output is nested under` | An ArtifactLibrary bundle file names no file of its own under the key it was imported at |
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
 | `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |

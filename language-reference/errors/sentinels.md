@@ -714,7 +714,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0248` | `wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0250` | `nest-segment-not-one-directory` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` |
 | `E0251` | `recipe-source-is-empty` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
-| `E0252` | `artifact-library-file-escapes-key` | `artifact-library bundle file name leaves the artifacts key its output is nested under` |
+| `E0252` | `artifact-library-file-escapes-key` | `artifact-library bundle file name does not name a file of its own beneath the artifacts key its output is nested under` |
 | `E0253` | `annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
 | `E0254` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `E0255` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
