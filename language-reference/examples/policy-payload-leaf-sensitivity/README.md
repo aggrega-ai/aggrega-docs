@@ -206,9 +206,19 @@ module "db" {
 ```
 
 and `dist/infra-delegated/terraform/modules/db/main.tf`, which opens with a
-`#`-comment block identifying the build and then carries the resource:
+`#`-comment block identifying the build and then carries the AWS provider
+constraint, the resource and the address output the Recipe publishes:
 
 ```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.69"
+    }
+  }
+}
+
 resource "aws_db_instance" "db" {
   identifier     = "db"
   engine         = "mariadb"
@@ -236,6 +246,10 @@ resource "aws_db_instance" "db" {
   backup_retention_period = 7
 
   ## ── Provider-specific overrides ──────────────────────────
+}
+
+output "address" {
+  value = aws_db_instance.db.address
 }
 ```
 

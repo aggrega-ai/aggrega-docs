@@ -32,6 +32,7 @@ module "db" {
   engine_version    = "11.4"
   instance_class    = "db.t3.small"
   multi_az          = true
+  port              = 3306
   subnet_id         = "production-private-db-subnets"
 }
 ```

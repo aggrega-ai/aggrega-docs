@@ -5,7 +5,7 @@ different ways from one unchanged Aggregate**: PostgreSQL running in the
 cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that
 already existed before this deployment did.
 
-**The lesson is what does *not* change.** The application declares which keys it
+**The lesson is what does *not* change.** The application names the keys it
 wants from the database and what to call them, once. It never learns which of the
 three answered. The compiler never learns either: it reads the keys the selected
 Recipe published and routes the strings.
@@ -85,23 +85,29 @@ meet at the database's published contract, not at a shared target.
 ```yaml
 # dist/stack/helm/app-deployment.yaml
 - name: DB_HOST
-  value: aws_db_instance.db.endpoint
+  value: ${module.db.address}
 ```
 
 **That value is not a hostname, and nothing in this build turns it into one.**
-The endpoint of an RDS instance does not exist until the instance is created, so
+The address of an RDS instance does not exist until the instance is created, so
 there is nothing for a compiler running ahead of time to look up. What the
-Recipe publishes is a string written in Terraform's own address syntax; the
-compiler pipes it across the edge untouched, the application's Recipe receives
-it verbatim, and it renders into the Kubernetes manifest as the literal
-characters shown above. The container is handed that text.
+Recipe publishes is a Terraform reference to an output of the database's own
+module; the compiler pipes it across the edge untouched, the application's
+Recipe receives it verbatim, and it renders into the Kubernetes manifest as the
+literal characters shown above. The container is handed that text.
+
+`DB_PORT` is different: it renders as `"5432"`, because the Recipe sets the
+instance's port from the Release and publishes that same value, which is known
+before anything exists.
 
 **Native wiring between two components is something a target does inside its own
 output, so there is none to do here.** The two ends of this edge render through
 different targets — the database into Terraform HCL, the application into a
-Kubernetes manifest — and a Terraform address has meaning only inside a Terraform
-configuration. Crossing that seam, the published value is delivered as text like
-any other string.
+Kubernetes manifest — and a Terraform reference has meaning only inside a
+Terraform configuration. Crossing that seam, the published value is delivered as
+text like any other string. A consumer rendered on Terraform as a `source:`
+Recipe, in the same root configuration as the database, receives the same
+reference as one of its module's arguments, and there Terraform resolves it.
 
 This is the general rule rather than a special case for RDS: anything that
 depends on the state of a running system is expressed as a deterministic pointer
@@ -161,21 +167,21 @@ The application's rendered environment, all three side by side:
 
 | variable | self-hosted | managed | external |
 | --- | --- | --- | --- |
-| `DB_HOST` | `db-default` | `aws_db_instance.db.endpoint` | `postgres.data.example.net` |
-| `DB_PORT` | `5432` | `aws_db_instance.db.port` | `5432` |
+| `DB_HOST` | `db-default` | `${module.db.address}` | `postgres.data.example.net` |
+| `DB_PORT` | `5432` | `5432` | `5432` |
 | `DB_USER` | `appuser` | `appuser` | `appuser` |
 | `DB_NAME` | `appdb` | `appdb` | `appdb` |
 | `DB_PROTOCOL` | `postgres` | `postgres` | `postgres` |
 | `POOL_SIZE` | `10` | `10` | `10` |
 
-**Same variables, same order, every time. Only the strings behind two of them
-move.** The application's Recipe names none of these variables: it emits
+**Same variables, same order, every time. Only the string behind one of them
+moves.** The application's Recipe names none of these variables: it emits
 whatever the `uses` edge resolved, which is why one Recipe renders unchanged
 against all three databases.
 
 And the compiler does not know what any of those strings *are*. `db-default` is
-a Kubernetes Service name, `aws_db_instance.db.endpoint` is a Terraform
-expression, `postgres.data.example.net` is a DNS name — to the compiler they are
+a Kubernetes Service name, `${module.db.address}` is a Terraform
+reference, `postgres.data.example.net` is a DNS name — to the compiler they are
 three strings that a Recipe published under the key `host` and an edge asked to
 be delivered as `DB_HOST`. It does not check that any of them is routable, or
 that a port is a number, or that a component called `db` is a database. It

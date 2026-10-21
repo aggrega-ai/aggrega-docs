@@ -32,9 +32,12 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 The rendered `main.tf` lands under `dist/infra/terraform/modules/db/`, with the
 boundary's root configuration, `aggrega.modules.tf`, at `dist/infra/terraform/`
 declaring `db` as a `module` block pointing at it. The body opens with a
-`#`-comment provenance block identifying the build, followed by the resolved
+`#`-comment provenance block identifying the build, followed by a
+`required_providers` block constraining the AWS provider version, the resolved
 `aws_db_instance` resource — storage, HA, and backup values substituted from
-the Release, and RDS-managed credentials via `manage_master_user_password`.
+the Release, and RDS-managed credentials via `manage_master_user_password` — and
+an `address` output carrying the instance's hostname, which the Recipe publishes
+as `host` in the form `${module.db.address}`.
 
 **That `module` block carries no arguments, and the reason is the shape of this
 example.** The Recipe authored the body, so it substituted the Release's values
