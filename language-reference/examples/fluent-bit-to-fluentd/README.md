@@ -9,9 +9,9 @@ Developer-authored `Aggregate` to two deployment realizations:
   `fluent/fluent-bit` and `fluent/fluentd` images directly on Kubernetes (no
   external charts).
 
-The synthesized helm Recipes are the preferred Kubernetes path: they depend only
-on official image tags rather than third-party charts, and their rendered
-resource set is exactly what the workloads declare.
+The synthesized helm Recipes fetch nothing at build time; `helm/fluent-bit-chart`
+and `helm/fluentd-chart` render the Fluent project's own charts instead, for a
+build that can reach a chart repository.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
 Manifest changes per realization.

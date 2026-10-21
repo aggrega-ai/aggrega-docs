@@ -8,9 +8,9 @@ realizations:
 - the **synthesized helm Recipe** running the official upstream `fluent/fluentd`
   image directly on Kubernetes (no external chart).
 
-The synthesized helm Recipe is the preferred Kubernetes path: it depends only on
-an official image tag rather than a third-party chart, and its rendered resource
-set is exactly what the workload declares.
+The synthesized helm Recipe fetches nothing at build time; `helm/fluentd-chart`
+renders the Fluent project's own chart as the same aggregator, for a build that
+can reach a chart repository.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
 Manifest changes per realization.
