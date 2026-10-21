@@ -123,9 +123,8 @@ Each boundary declares a physical output `directory` for its compiled artifacts;
 
 * **One directory, one spelling.** The evaluated path is cleaned once, so `out/a`, `out//a`, `./out/a` and `out/a/` are one directory. Boundaries whose paths clean to the same directory and render through the same provider are assembled together, exactly as boundaries written with identical paths are.
 * **The path stays beneath the output root.** A path that climbs out of the output root (`..`, `../escape`, `a/../..`), an absolute one, or one naming no directory at all — empty, or cleaning to the output root itself — stops the build before anything is written. The message names the Release, the boundary, the field at fault (`directory:` or `subDirectory:`) and the value it evaluated to, since that value is often the result of a template.
-
-* **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
-* **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."` or `subDirectory: ""`.
+* **Safe default.** If `subDirectory` is omitted or empty, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools. A `subDirectory: ""` written out is read exactly as an omitted one, so it takes this default too.
+* **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."`. A `subDirectory` template that evaluates to an empty string — `"{{ .parameters.sub }}"` with `sub` set to `""`, say — disables it as well.
 * **Template variables.** `directory` evaluates with `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}` for cascading data from an enclosing boundary. `subDirectory` evaluates with the same set plus `{{ .component_id }}` (per-component overrides only). The compiler evaluates path templates with `missingkey=error` — referencing an undeclared variable halts the build with a precise diagnostic. See [path-template variables](../path-template-variables.md) for the per-context matrix and parent-boundary cascade rules.
 
 Boundary annotations cascade downward to every contained component; `infra` stays strictly localized to the component targeting it. The recursive `boundaries` map allows arbitrary nesting (boundary inside boundary inside boundary) while the annotation-cascade and local-infra invariants hold at every level.
@@ -156,7 +155,7 @@ spec:
           subDirectory: provisioning 
         postgres-db:
           # Scenario C: The Flat Directory Override.
-          subDirectory: "." # or ""
+          subDirectory: "." # not "", which takes the default
 ```
 
 Annotations cascaded by this mechanism surface in downstream Recipe templates via `.context.annotations.release`; see [Recipe authoring](recipe.md) and the [Template Expansion Matrix](../templates/expansion-matrix.md) for how renderers consume them.

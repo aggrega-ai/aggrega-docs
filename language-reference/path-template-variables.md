@@ -27,7 +27,7 @@ The allowlist is closed by design: surfaces such as `.context.inject`, `.values`
 | `{{ .parent_boundary.* }}` | yes | yes | Cascade access to the enclosing boundary's evaluated values. See [Parent-boundary cascade](#parent-boundary-cascade) below. |
 | `{{ .component_id }}` | — | yes | The contributing component's instance ID. Available in `subDirectory:` only because `directory:` is a per-boundary property — the directory string is computed once per boundary, before any per-component routing happens. |
 
-The `directory:` field defaults to the boundary path (a stable build-time identifier derived from the boundary tree). The `subDirectory:` field defaults to `{{ .capability }}` so that each capability's artifacts land in their own sub-folder under the boundary's directory; setting `subDirectory: "."` or `subDirectory: ""` flattens that grouping.
+The `directory:` field defaults to `boundaries/` followed by the boundary path (a stable build-time identifier derived from the boundary tree); a Release that lists its components without declaring boundaries writes them with no directory segment at all. The `subDirectory:` field defaults to `{{ .capability }}` so that each capability's artifacts land in their own sub-folder under the boundary's directory — whether it is omitted or written as `subDirectory: ""`, which reads exactly as an omitted one. Setting `subDirectory: "."`, or writing a template that evaluates to an empty string, flattens that grouping.
 
 ### What these templates do not decide: `artifacts:` placement
 
