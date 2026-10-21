@@ -27,13 +27,16 @@ The `db` block this example emits:
 module "db" {
   source = "./modules/db"
 
-  allocated_storage = 100
-  db_name           = "appdb"
-  engine_version    = "11.4"
-  instance_class    = "db.t3.small"
-  multi_az          = true
-  port              = 3306
-  subnet_id         = "production-private-db-subnets"
+  allocated_storage       = 100
+  backup_retention_period = 14
+  db_name                 = "appdb"
+  engine_version          = "11.4"
+  instance_class          = "db.t3.small"
+  multi_az                = true
+  port                    = 3306
+  skip_final_snapshot     = false
+  storage_type            = "gp3"
+  subnet_id               = "production-private-db-subnets"
 }
 ```
 
