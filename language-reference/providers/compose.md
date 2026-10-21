@@ -359,6 +359,7 @@ The deep-merge rules:
 - **Scalars: overlay wins.** When both base and overlay set the same scalar field, the overlay's value replaces the base's value.
 - **Maps: merge recursively.** When both base and overlay set the same map field, the merge recurses into the map. Keys present in both follow the same rules; keys present in only one are preserved as-is.
 - **Lists: replace.** When both base and overlay set the same list field, the overlay's list replaces the base's list entirely (no element-wise merging or appending). This matches `docker compose -f base.yaml -f overlay.yaml config` behaviour.
+- **`null`: replaces, and stays.** A key the overlay sets to `null` replaces the base's value like any scalar and is written into the compose file as `key: null`; it does not remove the key. What a `null` then means is Compose's reading of that attribute — an `environment` entry with no value, for one, takes its value from the environment `docker compose` runs in.
 
 The merged document then flows into the Release-level merge alongside any synthesized-mode contributions, with the same per-boundary networking and `depends_on` inference.
 

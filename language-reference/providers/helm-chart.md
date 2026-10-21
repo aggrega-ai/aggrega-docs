@@ -189,6 +189,8 @@ billing-svc:
 
 When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the resulting values map populates this alias-keyed sub-block automatically. That holds for every contributor to the umbrella, not for components alone: a Feature attachment that vendors a chart is a contributor in its own right, so its FeatureRecipe's `valuesMapping:` populates a block of its own, keyed by the name its placed chart declares. See ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
 
+A key the `valuesMapping:` sets to `null` is written into its block as `null`. Installed with Helm 4, a `null` in the umbrella's own `values.yaml` removes the sub-chart's default for that key only when the install also supplies values for that sub-chart; an install supplying none for it drops the `null`, and the sub-chart's default stands. A `null` in the values given to `helm install` removes the default either way.
+
 ## Provider-specific quirks
 
 - **Sub-chart `Chart.yaml` is required.** The copy operation enforces a present `Chart.yaml` at the source-path root. Missing it halts the build before the umbrella step runs.
