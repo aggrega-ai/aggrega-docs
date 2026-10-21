@@ -75,7 +75,8 @@ dist/helm/
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
-    ├── litellm-gateway-config.configmap.yaml
+    ├── litellm-gateway-config/
+    │   └── configmap.yaml
     └── request-guard/
         └── request-guard.yaml
 ```
@@ -103,7 +104,7 @@ model_list:
 ## The guardrail entry
 
 Here is the gateway's configuration body, the `config.yaml` key of
-`dist/helm/router/litellm-gateway-config.configmap.yaml`, from its
+`dist/helm/router/litellm-gateway-config/configmap.yaml`, from its
 `litellm_settings` section on:
 
 ```yaml

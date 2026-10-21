@@ -135,14 +135,15 @@ dist/helm/
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
-    ├── litellm-gateway-config.configmap.yaml
+    ├── litellm-gateway-config/
+    │   └── configmap.yaml
     └── request-guard/
         └── request-guard.yaml
 ```
 
-Under `router/` are the files the router's Recipe emits itself. The second one
-comes from a bundle the Recipe imports rather than writes, so it sits under the
-key it was imported at, `request-guard`.
+Under `router/` are the files the router's Recipe emits itself. Both come from
+bundles the Recipe imports rather than writes, so each sits under the key it was
+imported at, `litellm-gateway-config` and `request-guard`.
 
 Everything an attachment brought sits in the same directory as the component's
 own manifests, carrying two coordinates in its filename: the component it
@@ -169,7 +170,7 @@ convention and the mark it uses for lines left out.
 
 The router's reason to exist is its map, and the map reaches the rendered output
 rather than staying in the authored file. Here is the whole `data` block of
-`dist/helm/router/litellm-gateway-config.configmap.yaml`:
+`dist/helm/router/litellm-gateway-config/configmap.yaml`:
 
 ```yaml
 data:

@@ -89,7 +89,8 @@ dist/helm/
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
-    ├── litellm-gateway-config.configmap.yaml
+    ├── litellm-gateway-config/
+    │   └── configmap.yaml
     └── request-guard/
         └── request-guard.yaml
 ```
@@ -100,7 +101,7 @@ gateway's configuration.
 ## The route, as the gateway reads it
 
 The gateway's configuration body, the `config.yaml` key of
-`dist/helm/router/litellm-gateway-config.configmap.yaml`:
+`dist/helm/router/litellm-gateway-config/configmap.yaml`:
 
 ```yaml
 model_list:
