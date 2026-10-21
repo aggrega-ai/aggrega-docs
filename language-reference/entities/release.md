@@ -119,7 +119,10 @@ See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06
 
 ## Spatial Segregation and Output Paths
 
-Each boundary declares a physical output `directory` for its compiled artifacts; components within a boundary may override via a per-component `subDirectory`. The compiler computes the final artifact path by joining them: `Final_Path = filepath.Join(Evaluated(directory), Evaluated(subDirectory))`.
+Each boundary declares a physical output `directory` for its compiled artifacts; components within a boundary may override via a per-component `subDirectory`. The compiler computes the final artifact path by joining them, in slash-separated form on every platform: `Final_Path = Clean(Join(Evaluated(directory), Evaluated(subDirectory)))`.
+
+* **One directory, one spelling.** The evaluated path is cleaned once, so `out/a`, `out//a`, `./out/a` and `out/a/` are one directory. Boundaries whose paths clean to the same directory and render through the same provider are assembled together, exactly as boundaries written with identical paths are.
+* **The path stays beneath the output root.** A path that climbs out of the output root (`..`, `../escape`, `a/../..`), an absolute one, or one naming no directory at all — empty, or cleaning to the output root itself — stops the build before anything is written. The message names the Release, the boundary, the field at fault (`directory:` or `subDirectory:`) and the value it evaluated to, since that value is often the result of a template.
 
 * **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
 * **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."` or `subDirectory: ""`.
@@ -397,6 +400,8 @@ For the full architectural framing — the DAG execution model, the rationale fo
 ## Feature Attachment
 
 The Release can attach Features both at boundary scope (broad policy) and at component-specific scope (precise targeting), with execution following the 5-Tier Onion Model defined in [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md). Features declared in the Release contribute `type`, `infra`, and `uses`; they cannot declare `values` (see Schema-Level Constraints above).
+
+A Feature attached at a boundary is keyed by an instance name you choose, and that name cannot be `.` or `..`. On a provider that gives each contributor a directory of its own — terraform, under `modules/`, and helm-chart, under `charts/` — a boundary-level Feature's files are written in a directory named for the instance alone, and neither of those names is a directory of its own: the build stops, naming the Release, the boundary and the instance. A name that merely contains dots, such as `audit.v2`, is an ordinary name.
 
 `features:` is the Release's only attachment surface, at both scopes — as it is the Aggregate's. A credential is a Feature carrying the `feature.aggrega.ai/kind: secret` label, so an Operator-attached credential is attached under `features:` like any other Feature, and names its secret in `infra` exactly as one on a connection does (see [Per-edge connection configuration](#per-edge-connection-configuration)) — on a component the Aggregate left without one, or as the sizing of an attachment the Aggregate declared without naming a secret. There is no second attachment keyword at any scope; a document that declares one is rejected at load with an envelope error naming the unexpected property.
 

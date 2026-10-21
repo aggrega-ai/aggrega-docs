@@ -3623,6 +3623,32 @@ The report carries the short code and each finding beneath it carries its catego
 
 **How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or leave `subDirectory:` at its default so each provider's output lands at a sub-path of its own. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
+### A boundary's output directory is not a directory beneath the output root
+
+<!-- covers: internal/compiler/renderer.ErrBoundaryDirectoryNotBeneathOutputRoot -->
+
+A boundary's `directory:` and `subDirectory:` are evaluated and joined into the directory its output is written under, and that path is cleaned once: `out/a`, `out//a`, `./out/a` and `out/a/` are one directory. Where the cleaned path is not a directory beneath the output root, the build stops before anything is written. That is a path climbing out of the output root (`..`, `../escape`, `a/../..`), an absolute one (`/srv/out`), or one naming no directory at all: an empty value, or one cleaning to the output root itself, such as `directory: "."` with the sub-directory disabled.
+
+The path is checked as it was evaluated, so a template's result is judged, not the text written. The message names the field the fault comes from — `directory:` where the directory alone already leaves the output root or where no sub-directory is joined onto it, `subDirectory:` otherwise — together with the value that field evaluated to and the path it produced.
+
+Emitted message:
+> boundary output directory does not name a directory beneath the output root (Release `"<release>"`, boundary `"<boundary>"`, directory: `"<value>"`, output path `"<path>"`). write a directory beneath the output root, such as "deploy/prod" — no leading "/", no ".." climbing above it, and not the output root itself
+
+Where the sub-directory is at fault, the third value reads `subDirectory: "<value>"` instead.
+
+**How to fix:** write the field the message names as a directory beneath the output root. A directory meant to sit beside the output root belongs inside it instead. To write a boundary's output directly in its `directory:`, set `subDirectory: "."` — the directory itself must still name a directory of its own.
+
+### A boundary-level Feature is named `.` or `..`
+
+<!-- covers: internal/compiler/renderer.ErrBoundaryFeatureNameNotADirectory -->
+
+A provider that gives each contributor a directory of its own — terraform, under `modules/`, and helm-chart, under `charts/` — places a Feature attached at a boundary in a directory named for the instance alone, beside the boundary's components. A boundary's `features:` key admits `.` and `..`, and neither is a directory name: `.` would put the Feature's files in the directory holding every contributor, and `..` in the one above it, so the files would land outside the position the provider gave the Feature. The build stops instead. Any other name is untouched, a dotted one such as `audit.v2` included.
+
+Emitted message:
+> boundary-level Feature instance name is not a directory name (Release `"<release>"`, boundary `"<boundary>"`, feature `"<instance>"`). rename the Feature instance under the boundary's features to an ordinary name, such as "audit"
+
+**How to fix:** rename the instance under the boundary's `features:` to an ordinary name.
+
 ### Instance-ID collision across boundaries assembling to the same path
 
 <!-- covers: internal/compiler/renderer.ErrInstanceIDCollision -->
@@ -6224,6 +6250,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0349` | `no Recipe in the workspace's catalog binds to the capability the import's target names` | An import's target names a capability no Recipe in the catalog binds to |
 | `E0350` | `no importer recognises the source` | No importer recognises the source |
 | `E0351` | `provider does not support boundary artifacts` | The provider does not support boundary artifacts |
+| `E0352` | `boundary output directory does not name a directory beneath the output root` | A boundary's output directory is not a directory beneath the output root |
+| `E0353` | `boundary-level Feature instance name is not a directory name` | A boundary-level Feature is named `.` or `..` |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
