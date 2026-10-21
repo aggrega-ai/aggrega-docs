@@ -41,6 +41,9 @@ single line in the Manifest.
   deployment: storage and engine version for the in-cluster one, storage plus
   HA and backup for the managed one, and the address of the existing server for
   the referenced one.
+- [`release-managed-dns.yaml`](release-managed-dns.yaml) — the managed
+  Release once more, with the DNS name the operator gives the instance, so
+  the application is handed a name it can resolve.
 - [`catalog/`](catalog/) — the application's own Component and the one Recipe
   that renders it. Everything on the database side comes from the standard
   library unmodified.
@@ -50,6 +53,7 @@ single line in the Manifest.
 ```bash
 ./build-release.sh selfhosted
 ./build-release.sh managed
+./build-release.sh managed-dns
 ./build-release.sh external
 ```
 
@@ -115,6 +119,49 @@ the runtime resolves, never as a value the compiler fetches. The compiler's part
 is to deliver the pointer unchanged. **Making it resolve where it lands is the
 Recipe author's**: publish an address the consuming side can use, or give both
 components Recipes that render into the same target.
+
+#### Giving the instance a name the application can resolve
+
+`terraform/postgres-rds` takes the first of those as an option the operator
+sets. [`release-managed-dns.yaml`](release-managed-dns.yaml) is the managed
+Release with one addition, the DNS name the operator gives the instance:
+
+```yaml
+db:
+  infra:
+    overrides:
+      host: db.internal.example.net
+```
+
+The Recipe publishes that name as `host` in place of the Terraform reference,
+and the application receives it:
+
+```yaml
+# dist/stack/helm/app-deployment.yaml
+- name: DB_HOST
+  value: db.internal.example.net
+```
+
+| variable | `./build-release.sh managed` | `./build-release.sh managed-dns` |
+| --- | --- | --- |
+| `DB_HOST` | `${module.db.address}` | `db.internal.example.net` |
+| `DB_PORT` | `5432` | `5432` |
+
+That is the only line of the output that moves. The Recipe emits no DNS record
+and no alias for the name, and the build does not look it up: the compiler pipes
+it exactly as it piped the reference. Pointing `db.internal.example.net` at the
+instance once it exists — a record in the operator's own DNS zone, aimed at the
+instance's address — is the operator's, outside the Release. The key is the
+one the referenced realization below reads for the same address, and it takes a
+bare name or IP literal: a value carrying a scheme, a path, a user or a port
+stops the build, since the port is the Release's `infra.port` and a consumer
+composes its connection from the two.
+
+A consumer rendered into the same Terraform configuration as the database
+receives the name too, and with it loses the ordering the reference gave it:
+Terraform acts on a module after a module it references, and a name references
+nothing. Placing that consumer in a boundary of its own that shares the
+database's `directory:` and carries a later `syncWave:` restores the order.
 
 ### External — nobody in this deployment runs the server
 
