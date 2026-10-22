@@ -1,0 +1,583 @@
+{
+  "022f7f2558f12ce4": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "022f7f2558f12ce4",
+    "status": "machine",
+    "text": "**Terraform / OpenTofu** richten cloudresources in vanuit declaratieve HCL en beheren state via een CLI-engine. Aggrega compileert naar statische artefacten en laat de uitvoering van state over aan de runtime; een renderdoel voor Terraform is bereikbaar via de open socket."
+  },
+  "02b773a0cfe71b0b": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "02b773a0cfe71b0b",
+    "status": "machine",
+    "text": "**De oplossing:** Omdat Aggrega volledig agnostisch is, ligt de grens tussen applicatie en infrastructuur volledig bij de gebruiker. Aggrega kan worden gebruikt voor “greenfield”-implementaties van pure infrastructuur, of het kan op aanvraag configuraties genereren voor zakelijke AI-gateways als de ontwikkelaar daar expliciet om vraagt als onderdeel van zijn applicatie. Wanneer daarom wordt gevraagd, gebruikt de compiler WebAssembly-renderingplug-ins en Recipes van Ops om de precieze artefacten voor deze gateways te produceren, zodat de runtime-infrastructuur de semantische caching en fallbackketens over providers heen fysiek kan uitvoeren."
+  },
+  "065ecfa31082a991": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "065ecfa31082a991",
+    "status": "machine",
+    "text": "2. Echte inversie van controle en semantische bedrading"
+  },
+  "0ab5763ba4210f0d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "0ab5763ba4210f0d",
+    "status": "machine",
+    "text": "**Geen zero-copy- of shared-memorysystemen:** Het beveiligingsmodel van Aggrega is gebaseerd op het genereren van configuraties voor onderschepping op netwerkniveau (zoals Envoy-sidecars) om beleid af te dwingen. Als een zwerm agents uitsluitend communiceert via gedeeld systeemgeheugen binnen een node (bijvoorbeeld Ray Core Actors), kunnen de netwerkproxy's die communicatie niet zien en geen guardrails afdwingen."
+  },
+  "0bad2bcf971a5c30": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "0bad2bcf971a5c30",
+    "status": "machine",
+    "text": "Visie en positionering"
+  },
+  "116d41ee90651783": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "116d41ee90651783",
+    "status": "machine",
+    "text": "**Geen CI/CD-pipeline:** Aggrega bouwt geen Docker-images, voert geen unittests uit en beheert geen Git-repository's. Ontwikkelaars moeten bestaande tools gebruiken om hun applicatiecode te bouwen. Aggrega compileert uitsluitend de declaratieve infrastructuurblauwdruk die bij die builds hoort."
+  },
+  "11b0c6b7cc9d2193": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "11b0c6b7cc9d2193",
+    "status": "machine",
+    "text": "**Chef, Puppet en SaltStack** zijn op agents gebaseerde systemen voor configuratiebeheer die de serverstate over vloten heen laten convergeren — een ander probleemdomein dan statische topologiecompilatie."
+  },
+  "12fae7889ed64406": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "12fae7889ed64406",
+    "status": "machine",
+    "text": "**Het probleem:** Het overzetten van een complexe architectuur van een lokale Docker-testomgeving naar Kubernetes in productie vereist het onderhouden van volledig afzonderlijke, gedupliceerde implementatiescripts."
+  },
+  "1757efae47e07262": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1757efae47e07262",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** en **Google Cloud Deployment Manager** zijn de native declaratieve inrichtingsformaten voor hun respectieve clouds. Elk ervan is een doel voor statische artefacten waarnaar een auteur via de open socket kan renderen."
+  },
+  "1b327ad5f9694d58": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "1b327ad5f9694d58",
+    "status": "machine",
+    "text": "**Geen kortstondige JIT-sandboxing (microsegmentatie per verzoek):** Aggrega is een statische AOT-compiler die is ontworpen om langlopende rekenkracht (zoals Kubernetes Deployments) te provisionen. Het ondersteunt niet native kortstondige just-in-time-sandboxing (JIT), waarbij per verzoek een volledige container wordt opgestart en vernietigd om de impactradius te beperken."
+  },
+  "1bb01da909a15f49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1bb01da909a15f49",
+    "status": "machine",
+    "text": "**AWS SAM en het Serverless Framework** vertalen een YAML-specificatie statisch naar resources voor serverless functies en API-gateways — een afgebakende deelverzameling van het artefactdomein waarop de socket van Aggrega zich kan richten."
+  },
+  "1bd874a89258ece3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1bd874a89258ece3",
+    "status": "machine",
+    "text": "Aggrega lost dit op door te fungeren als een **topologische compiler met compilatie vooraf (AOT)**. Wij lossen de meest kritieke knelpunten op in moderne platform engineering en AI-implementatie:"
+  },
+  "1c411a4cedb69f0a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1c411a4cedb69f0a",
+    "status": "machine",
+    "text": "6. Stateful cognitief geheugen en lokale hosting van modellen"
+  },
+  "1ca6ff977ac7db16": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1ca6ff977ac7db16",
+    "status": "machine",
+    "text": "**Crossplane en KubeVela** zijn actieve operators voor het Kubernetes-control plane die de gewenste state van binnenuit een cluster reconciliëren. Een Crossplane- of KubeVela-cluster kan de Kubernetes-uitvoer van Aggrega verwerken zoals elke andere declaratieve YAML; de twee lagen vullen elkaar aan."
+  },
+  "1f41f842f2bac04f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1f41f842f2bac04f",
+    "status": "machine",
+    "text": "**Het probleem:** AI-frameworks gaan ervan uit dat infrastructuur gewoon bestaat, waardoor Ops agents, RAG-pipelines en databases handmatig aan elkaar moet koppelen met gefragmenteerde, hardgecodeerde YAML-bestanden."
+  },
+  "2108313ef1f0d75a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "2108313ef1f0d75a",
+    "status": "machine",
+    "text": "**Het probleem:** Het handmatig aan elkaar rijgen van IP-adressen, databaseverbindingsstrings (DSN's) en netwerkpoorten over microservices heen levert broze architecturen op die aan een omgeving vastzitten. Hoewel organisaties deze verschuivingen momenteel beheren met complexe lagen van variabele-overschrijvingen, Kustomize-patches of gedupliceerde implementatiescripts, brengt het onderhouden van deze handmatige vertaallogica enorme operationele frictie en cognitieve belasting met zich mee bij het promoveren van workloads van een lokale laptop naar een productiecloud."
+  },
+  "21c16c56cf18ec09": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "21c16c56cf18ec09",
+    "status": "machine",
+    "text": "**Spinnaker** is een engine voor continuous delivery die artefacten uitrolt naar VM- en Kubernetes-doelen, stroomafwaarts van de stap voor het genereren van artefacten die Aggrega inneemt."
+  },
+  "232128cd807ee090": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "232128cd807ee090",
+    "status": "machine",
+    "text": "**Geen agents aan de clientzijde:** Aggrega is strikt een orchestrator voor backend-infrastructuur. Het kan geen configuraties genereren voor onbeheerde AI-modellen die volledig in de Chrome-browser of op de mobiele edge van een eindgebruiker draaien."
+  },
+  "2836d603647e5a66": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "2836d603647e5a66",
+    "status": "machine",
+    "text": "Platformgrenzen en anti-doelen (wat Aggrega niet is)"
+  },
+  "2ec241d1bd236968": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "2ec241d1bd236968",
+    "status": "machine",
+    "text": "**AWS CDK en CDKTF** zijn statische AOT-compilers die code voor algemene doeleinden vertalen naar respectievelijk CloudFormation JSON en Terraform JSON. Aggrega richt zich via dezelfde open renderersocket op dezelfde statische eindartefacten, en daarom voegt het plaatsen van de ene tool vóór de andere een compilatielaag toe zonder mogelijkheden toe te voegen."
+  },
+  "332d91de857547eb": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "332d91de857547eb",
+    "status": "machine",
+    "text": "Aggrega-documentatie"
+  },
+  "337813acb49ab46f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "337813acb49ab46f",
+    "status": "machine",
+    "text": "7. Echte agnosticiteit ten opzichte van cloud en mogelijkheden (late binding)"
+  },
+  "3944bb819957d536": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3944bb819957d536",
+    "status": "machine",
+    "text": "**De semantische DSL & operationele ontologie:** Ontwikkelaars brengen hun architectuur in kaart met een gesloten set universele cloudprimitieven (bijv. `server`, `worker`, `stateful-server`) op het gereserveerde label `component.aggrega.ai/type` van Aggrega. Alle geavanceerde context—zoals de autonomie van AI-agents, generatieve mogelijkheden of datacompliance—wordt daarbovenop gelegd via statische Duck-Typing-labels, en een catalogus die componenten op een eigen as classificeert, voegt een eigen labelsleutel toe."
+  },
+  "3b7d0888ec0dbef4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "3b7d0888ec0dbef4",
+    "status": "machine",
+    "text": "Om de architecturale zuiverheid te bewaren en scope creep te voorkomen, werkt Aggrega binnen strikte, niet-onderhandelbare grenzen. Het platform heeft een uitgesproken mening over de problemen die het oplost en bewaakt even zorgvuldig wat het niet doet."
+  },
+  "3cc33863f096cdcd": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3cc33863f096cdcd",
+    "status": "machine",
+    "text": "Taalreferentie"
+  },
+  "3d585960b0018ea7": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "3d585960b0018ea7",
+    "status": "machine",
+    "text": "**Het probleem:** Wanneer ontwikkelaars traditionele IaC schrijven, lekken beperkingen van de fysieke infrastructuur (zoals hardgecodeerde AWS EBS-volumes of EC2-instantiegroottes) vaak in de applicatielogica. Deze nauwe koppeling vermindert de overdraagbaarheid en bindt workloads onbedoeld aan specifieke cloudleveranciers."
+  },
+  "3f7898cb83882558": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3f7898cb83882558",
+    "status": "machine",
+    "text": "Over Aggrega"
+  },
+  "438d55d1dc11e17d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "438d55d1dc11e17d",
+    "status": "machine",
+    "text": "3. Anti-doelen voor beheer en levenscyclus"
+  },
+  "45af7ab53385d3c1": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "45af7ab53385d3c1",
+    "status": "machine",
+    "text": "2. Geen cognitieve logica of applicatiecode"
+  },
+  "465eb6e481f5f514": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "465eb6e481f5f514",
+    "status": "machine",
+    "text": "**De AOT-compiler & de overdracht aan de uitvoering:** Een strikte compilatiepipeline vertaalt de DSL naar een capability-agnostische graaf in tussenrepresentatie (IR). De IR legt de topologie van de componenten vast en de `uses`-randen ertussen (wie gebruikt wie); de compiler geeft deze graaf door aan de WebAssembly (Wasm)-governance-socket om transitieve vertrouwenskwetsbaarheden te detecteren en voert vervolgens Wasm-renderingplug-ins uit om de precieze proxy- en guardrailconfiguraties te genereren. Aggrega schrijft deze artefacten naar schijf en draagt de fysieke uitrol over aan andere tools, zoals CI/CD-pipelines of runtime-orchestrators."
+  },
+  "496123043b3ce83a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "496123043b3ce83a",
+    "status": "machine",
+    "text": "**Pulumi** laat ontwikkelaars infrastructuur schrijven in talen voor algemene doeleinden (TypeScript, Python, Go); de kernwaarde ervan is infrastructuur te behandelen als uitvoerbare code. Het authoringoppervlak van Aggrega is een declaratieve YAML-blauwdruk — ontwikkelaars schrijven tegen de abstractie, niet tegen het API-oppervlak. Elk weerspiegelt een andere filosofie over waar het contract van de ontwikkelaar met de infrastructuur ligt."
+  },
+  "4a8c0815159ed9f2": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "4a8c0815159ed9f2",
+    "status": "machine",
+    "text": "Aggrega is geen AI-agent die “Terraform voor je schrijft”. Het is een deterministische Go-compiler die een strikte domeinspecifieke taal (DSL) parseert om reproduceerbare, controleerbare deployment-artefacten te garanderen. Het hallucineert geen infrastructuur."
+  },
+  "4bd1d2795b3bffc5": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "4bd1d2795b3bffc5",
+    "status": "machine",
+    "text": "**Programmeerbaar beleid & validatie:** De Go-kerncompiler is wiskundig zonder eigen mening. Bedrijfsgovernance wordt volledig aangestuurd door industriestandaarden en inplugbare WebAssembly: JSON Schema 2020-12 (geschreven in een compacte YAML-vormige verkorte notatie of in volledige JSON Schema YAML) voor catalogusvalidatie, de rol `label-transform` van de governance-socket voor dynamische topologietagging en de verdict-rollen ervan voor het beoordelen van architecturale beveiligingsgrenzen."
+  },
+  "4cdf14e699b9233e": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4cdf14e699b9233e",
+    "status": "machine",
+    "text": "5. AI-verkeer centraliseren en gateways beheren"
+  },
+  "4ea1e82abbb0d397": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "4ea1e82abbb0d397",
+    "status": "machine",
+    "text": "**Ansible** is een imperatieve tool voor configuratiebeheer voor sequentiële playbooks op langlevende VM's en on-premises vloten. Aggrega genereert declaratieve topologieartefacten voor container- en cloud-API-doelen. Teams die Ansible gebruiken voor het beheer van serverstate naast gecontaineriseerde workloads, houden het doorgaans voor die rol en gebruiken Aggrega voor de applicatietopologie."
+  },
+  "4fb81ca061e42a84": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4fb81ca061e42a84",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega fungeert als de ultieme topologische vertaler. Door de declaratieve DSL van de ontwikkelaar te compileren, genereert de compiler de precieze configuraties die nodig zijn om complexe redeneerlussen met meerdere agents rechtstreeks in standaard cloudinfrastructuur aan te sluiten, zonder dat ontwikkelaars ook maar één infrastructuurscript schrijven."
+  },
+  "561cd4289c271653": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "561cd4289c271653",
+    "status": "machine",
+    "text": "Aggrega is een opensource taal, ecosysteem en compiler voor het definiëren en renderen van enterprise-architecturen, met een standaardbibliotheek die sterk gespecialiseerd is in AI-toepassingen. Het fungeert als brug tussen de abstracte intentie van de ontwikkelaar (inclusief cognitieve AI-frameworks zoals LangGraph of CrewAI) en de veilige, fysieke cloud-native werkelijkheid."
+  },
+  "567e98fb9c80fc42": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "567e98fb9c80fc42",
+    "status": "machine",
+    "text": "**Het scheidingsmodel (geïnspireerd op OAM):** Een strikte architectuur die de wet van Conway afdwingt en de intentie van de ontwikkelaar (het abstracte “Wat” en “Hoeveel”) netjes scheidt van de fysieke werkelijkheid van Platform Ops (het fysieke “Hoe” en “Waar”)."
+  },
+  "58dde4bbc0cf1d83": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "58dde4bbc0cf1d83",
+    "status": "machine",
+    "text": "[language-reference/](language-reference/README.md) — het “wat” en “hoe te gebruiken” van Aggrega. Begin met [Status van de taal](language-reference/10-status.md) voor de huidige mate van gereedheid en volg daarna bij een eerste lezing de genummerde hoofdstukken 01 tot en met 09 in volgorde. Ongenummerde submappen (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) zijn referentiecatalogi — spring naar specifieke items wanneer nodig."
+  },
+  "5d2ab756e3052d3c": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "5d2ab756e3052d3c",
+    "status": "machine",
+    "text": "4. Door infrastructuur afgedwongen vangrails en MCP-verdediging"
+  },
+  "616cc34cf78353cc": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "616cc34cf78353cc",
+    "status": "machine",
+    "text": "**Geen provisioner voor “dag 0”:** Aggrega gaat er doorgaans van uit dat er al een fundamenteel control plane bestaat (bijvoorbeeld een actief Kubernetes-cluster of AWS-account). Het compileert de applicatiearchitectuur van “dag 1” bovenop dat fundament; het voert niet de initiële scripts uit om een cloudorganisatie voor een bedrijf aan te maken."
+  },
+  "61987507c7b4cf90": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "61987507c7b4cf90",
+    "status": "machine",
+    "text": "**Aangrenzend configuratiebeheer.** Deze tools pakken problemen rond serverstate en het patchen van YAML aan die verschillen van topologiecompilatie, en Aggrega richt zich niet op hun domein."
+  },
+  "6794e2f7e96eaa6e": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "6794e2f7e96eaa6e",
+    "status": "machine",
+    "text": "[architecture/](architecture/README.md) — het “waarom” van Aggrega. Visie, positionering, mentaal model, compilerpipeline op conceptueel niveau, bedrijfsgovernance, catalogus, uitbreidbaarheid, ontwerpkeuzes. Volg bij een eerste lezing de genummerde hoofdstukken 01 tot en met 16 in volgorde."
+  },
+  "697c8a76197d1986": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "697c8a76197d1986",
+    "status": "machine",
+    "text": "**Geen cognitieve statusbeheerder:** De compiler gebruikt plug-ins om de configuraties voor beveiligde netwerkgrenzen en fysieke databases te genereren. Hij bewaakt echter niet de interne geheugenlus van een AI-agent. Als een AI hallucineert of er niet in slaagt naar zijn database te schrijven, is dat het probleem van het applicatieframework."
+  },
+  "6c591f87eb3ef1dc": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6c591f87eb3ef1dc",
+    "status": "machine",
+    "text": "**ArgoCD en Flux** zijn GitOps-controllers die in Git opgeslagen manifesten in een cluster reconciliëren. Ze passen de Kubernetes-uitvoer van Aggrega toe zoals elke andere declaratieve YAML."
+  },
+  "6d83c5e9324975ed": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6d83c5e9324975ed",
+    "status": "machine",
+    "text": "**Het probleem:** Het beheren van LLM-verkeer vereist zeer gespecialiseerde routering (tokenbudgetten, semantische caching, failovers) die standaard microservicegateways missen."
+  },
+  "6e82bf0fd3a81e38": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6e82bf0fd3a81e38",
+    "status": "machine",
+    "text": "3. De ommuurde tuin van AI verbinden met de cloud-native werkelijkheid"
+  },
+  "6f75456b9a8945c1": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6f75456b9a8945c1",
+    "status": "machine",
+    "text": "**Artefactformaten waarnaar Aggrega vandaag rendert.** Dit zijn de uitvoerbestanden die de meegeleverde rendererplugins produceren."
+  },
+  "736c86782c7e9099": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "736c86782c7e9099",
+    "status": "machine",
+    "text": "Fundamentele tools zoals Terraform zijn statusbeheerders. Ze richten fysieke rekenknooppunten in, maar modelleren niet de logische L7-gegevensstromen die *tussen* die knooppunten plaatsvinden. Ze kunnen een architectuur niet native analyseren om de semantische firewalls in te richten die nodig zijn om AI-promptketens te traceren of “Confused Deputy”-aanvallen te stoppen. Omgekeerd werken Kubernetes-native tools (zoals KubeVela) als actieve runtimecontrollers en leveren ze niet de statische, vooraf (ahead-of-time) gegenereerde compliance-artefacten die beveiligingsteams van ondernemingen vereisen."
+  },
+  "759edb9d500b7550": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "759edb9d500b7550",
+    "status": "machine",
+    "text": "**Geen actieve clusterorchestrator (geen GitOps):** Aggrega is een statische compiler die vooraf compileert (AOT), geen actieve clusteragent die continu de toestand afstemt. Het levert standaard Kubernetes-manifesten en Docker Compose-configuraties op die speciale GitOps-tools (zoals ArgoCD of Flux) uitrollen."
+  },
+  "7897406b5e5a2297": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "7897406b5e5a2297",
+    "status": "machine",
+    "text": "5. Verhouding tot aangrenzende tools"
+  },
+  "7d32e6f6bf1ede8a": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "7d32e6f6bf1ede8a",
+    "status": "machine",
+    "text": "[authoring/](authoring/README.md) — het “hoe ga je zitten en schrijf je” van Aggrega. De authoring-lus, de vier samenwerkende rollen, de koppeling van kinds aan rollen en hoe je een AI-assistent verbindt via de Model Context Protocol-server. Begin met [Aan de slag](authoring/getting-started.md)."
+  },
+  "84f4b0651bc842df": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "84f4b0651bc842df",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega steunt op “late binding”. Ontwikkelaars schrijven één abstracte blauwdruk. Platform-Ops kan diezelfde topologie vervolgens naadloos toewijzen aan Docker Compose voor lokaal testen, of aan AWS/EKS voor productie, simpelweg door het lockbestand `Manifest` en de router `Release` te verwisselen. Dit ontkoppelt de cognitieve logica van de applicatie netjes van de fysieke infrastructuur en garandeert een “één keer schrijven, overal uitvoeren”-ervaring voor de kernarchitectuur, terwijl leveranciersbinding een beheerde, bewuste keuze wordt in plaats van een onbedoeld bijproduct."
+  },
+  "8ea6d69632805caa": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ea6d69632805caa",
+    "status": "machine",
+    "text": "Het zakelijke cloudlandschap wordt momenteel beperkt door een hardnekkige semantische kloof: **traditionele tools voor infrastructuur als code (IaC) beheren de fysieke staat, maar missen van nature context van de applicatielaag.**"
+  },
+  "8ecbace279cb5c95": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ecbace279cb5c95",
+    "status": "machine",
+    "text": "**Het probleem:** Vectordatabases en episodische logboeken behandelen als generieke, platte opslag stelt gekaapte agents in staat om kritieke semantische feiten eenvoudig te overschrijven."
+  },
+  "932a4155211777da": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "932a4155211777da",
+    "status": "machine",
+    "text": "**Docker Compose** is de standaard voor lokale ontwikkeling met meerdere containers. De Compose-renderer van Aggrega richt zich er rechtstreeks op, zodat één blauwdruk lokaal draait zonder een afzonderlijk authoringoppervlak."
+  },
+  "9a658c7c52603da9": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "9a658c7c52603da9",
+    "status": "machine",
+    "text": "Het ecosysteem rust op vier pijlers:"
+  },
+  "9aea18defa7233d3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9aea18defa7233d3",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega verplaatst vertrouwensgrenzen uit de applicatiecode naar de netwerkinfrastructuur via een strikte **overdracht van uitvoering**. Na het valideren van de statische applicatiegraaf via de inplugbare WebAssembly-governancesocket voert de compiler renderingplug-ins uit om de precieze configuraties te genereren die nodig zijn voor L7-onderscheppingsproxy's (zoals gegevensmaskering of webhooks voor menselijke goedkeuring). Vervolgens draagt hij deze artefacten over aan de runtime-orchestrator, die de regels fysiek afdwingt en ongeautoriseerde acties blokkeert."
+  },
+  "9c6fef9d442a0b36": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9c6fef9d442a0b36",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega behandelt vectoropslag en lokale modellen als expliciete architecturale knooppunten in de topologiegraaf. Strikt op basis van wat de gebruiker aanvraagt en wat het Ops-team in zijn `Recipes` heeft geïmplementeerd, gebruikt de compiler WebAssembly-plug-ins om de precieze artefacten te produceren die nodig zijn om ze te beveiligen. Dit omvat het genereren van de strikte netwerkpolicy's die nodig zijn om autonome agents aan geïsoleerde geheugenpartities te koppelen, en het opmaken van specifieke planningsbeperkingen (zoals `nodeSelectors` van Kubernetes), zodat de runtime-orchestrator lokale modellen op geoptimaliseerde GPU-hardware plaatst."
+  },
+  "9fa8ec5ab6795ee4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "9fa8ec5ab6795ee4",
+    "status": "machine",
+    "text": "1. Een deterministische compiler, geen IaC-generator"
+  },
+  "a12d04a8d688e472": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "a12d04a8d688e472",
+    "status": "machine",
+    "text": "De inplugbare WebAssembly-(Wasm-)renderingsocket van Aggrega betekent dat de community een rendererplugin voor elke doeltool kan schrijven. Het kernproject levert renderingplugins voor Helm, Helm-chart en Compose — die Kubernetes GitOps, de distributie van herdistribueerbare charts en lokale ontwikkeling dekken — terwijl de open socket teams andere oppervlakken voor statische artefacten laat aansturen zonder de kern aan te raken. Teams die Aggrega evalueren, komen vaak uit ecosystemen die zijn gebouwd rond tools die in nabijgelegen maar afzonderlijke delen van de stack zitten. De tools hieronder zijn gegroepeerd naar hun verhouding tot Aggrega: de artefactformaten waarnaar Aggrega vandaag rendert, het AOT-compilerdomein dat het met hen deelt, de control planes die de uitvoer ervan verwerken, en het aangrenzende domein van configuratiebeheer waarop het zich niet richt."
+  },
+  "aeb44b13d6fa631b": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "aeb44b13d6fa631b",
+    "status": "machine",
+    "text": "Handleiding voor auteurs"
+  },
+  "b8c847cd56125efa": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "b8c847cd56125efa",
+    "status": "machine",
+    "text": "**Geen gedecentraliseerde of P2P-netwerken:** De gegenereerde configuraties zijn afhankelijk van een gecentraliseerd bedrijfs-control plane (Kubernetes/VPC) dat L4/L7-netwerkgrenzen kan afdwingen. De compiler kan geen beveiligde routering genereren voor agents die elkaar dynamisch ontdekken op gedecentraliseerde blockchains of openbare P2P-netwerken."
+  },
+  "bd137db8bc937ff3": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "bd137db8bc937ff3",
+    "status": "machine",
+    "text": "In plaats van handmatig complexe infrastructure-as-code te schrijven of netwerkpoorten hard te coderen, declareren ontwikkelaars eenvoudig *wat* hun applicatie nodig heeft om te overleven. De Aggrega-compiler genereert deterministisch de fysieke infrastructuurconfiguraties (Helm-charts, Kubernetes-manifesten, Docker Compose) die nodig zijn om de applicatie te draaien. Hij vertaalt abstracte verzoeken naar exact de statische artefacten die de doelomgeving nodig heeft om door hardware afgedwongen beveiliging, zero-trust-netwerkgrenzen en L7-dataplane-proxy's in te richten."
+  },
+  "c54931e4c5c0ec49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c54931e4c5c0ec49",
+    "status": "machine",
+    "text": "**Nitric, Klotho en Winglang** zijn cloudbewuste programmeermodellen waarvan de AOT-compilers standaard infrastructuurbestanden genereren uit applicatiecode, in plaats van uit een declaratieve topologieblauwdruk."
+  },
+  "c67f72db693bd7cf": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c67f72db693bd7cf",
+    "status": "machine",
+    "text": "Aggrega handhaaft strikt de wet van Conway en wijst het paradigma van het invoeren van een propriëtaire taal af. Het dwingt ontwikkelaars nooit om hun AI-redeneerlogica, LangGraph-nodes of Python-embeddings te herschrijven in een platformspecifieke cloudtaal. De compiler behandelt de applicatie als een black box. Hij configureert de veilige wegen en muren; de applicatieframeworks besturen de auto's."
+  },
+  "c6c208e0aa8e017e": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c6c208e0aa8e017e",
+    "status": "machine",
+    "text": "**Score.dev** is een declaratieve abstractie voor basiscapaciteit van workloads — CPU, geheugen, poorten — gerenderd naar Docker Compose of Helm. Het dekt een afgebakende deelverzameling van wat Aggrega dekt: topologie over componenten heen, een governance-socket voor beleid, Wasm-adapters en AI-specifieke mogelijkheden vallen buiten de reikwijdte van Score."
+  },
+  "c76b005cc3158515": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c76b005cc3158515",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega delegeert de grens tussen *abstracte capaciteit* en *fysieke mechanica* structureel aan de platformcatalogus. In plaats van te vertrouwen op hardgecodeerde verboden in de compiler, schrijven platformarchitecten strikte JSON Schema 2020-12-declaraties (doorgaans in compacte vorm — een YAML-achtige verkorte notatie die de beperkingen per veld op één regel zet) om precies te bepalen wat ontwikkelaars kunnen aanvragen. Doorgaans zijn ontwikkelaars beperkt tot abstracte overlevingsvereisten (bijv. `storage_size: 100Gi` of `hardware/accelerator: gpu`) en kunnen ze geen willekeurige cloudopslagklassen injecteren, simpelweg omdat het schema van de component ze zal afwijzen. Als een applicatie echt een specifiek fysiek EC2-instantietype nodig heeft, moet de architect die instelling expliciet beschikbaar maken in de interface van de component, zodat leveranciersbinding een bewuste, beheerde keuze wordt in plaats van een onbedoeld lek."
+  },
+  "c8f8e453831d91f0": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c8f8e453831d91f0",
+    "status": "machine",
+    "text": "De semantische kloof in infrastructuur en hoe Aggrega die overbrugt"
+  },
+  "c9f1503025311e0e": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c9f1503025311e0e",
+    "status": "machine",
+    "text": "4. Anti-doelen voor applicatieparadigma en infrastructuur"
+  },
+  "cd74053c54816e47": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "cd74053c54816e47",
+    "status": "machine",
+    "text": "Architectuur"
+  },
+  "cddca72ef82da5a4": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "cddca72ef82da5a4",
+    "status": "machine",
+    "text": "**Het probleem:** Vangrails op softwareniveau falen als een applicatie gecompromitteerd wordt of een AI hallucineert terwijl deze via het Model Context Protocol (MCP) toegang heeft tot interne tools."
+  },
+  "cf242788df1f36de": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "cf242788df1f36de",
+    "status": "machine",
+    "text": "**Kustomize** patcht Kubernetes-YAML zonder templating en is ingebouwd in `kubectl`. Het transformeert bestaande manifesten in plaats van er een topologieblauwdruk naar te compileren."
+  },
+  "d14247b9e127c4e0": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "d14247b9e127c4e0",
+    "status": "machine",
+    "text": "**Helm** is het standaardformaat voor het verpakken en templaten van Kubernetes-software. Aggrega genereert zowel gerenderde Helm-YAML als umbrella-charts als volwaardige uitvoerdoelen, zodat op Helm gebaseerde workflows de uitvoer van Aggrega rechtstreeks verwerken."
+  },
+  "d9ed59332a4a6c39": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "d9ed59332a4a6c39",
+    "status": "machine",
+    "text": "1. Abstracte capaciteit vs. fysieke mechanica"
+  },
+  "db8811e8f657542a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "db8811e8f657542a",
+    "status": "machine",
+    "text": "**Control planes die de uitvoer van Aggrega verwerken.** Deze werken binnen een draaiend cluster en passen declaratieve artefacten toe. Aggrega is strikt ahead-of-time — het produceert de manifesten die deze systemen reconciliëren."
+  },
+  "ddd73edb063f9fa0": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "ddd73edb063f9fa0",
+    "status": "machine",
+    "text": "Dit hoofdstuk legt de fundamentele probleemruimte vast, de strikte anti-doelen van het platform, hoe het zich verhoudt tot het bredere ecosysteem en de overkoepelende filosofieën die het Aggrega-ecosysteem sturen."
+  },
+  "f047e5d870c7fd12": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "f047e5d870c7fd12",
+    "status": "machine",
+    "text": "**De oplossing:** Aggrega vervangt hardgecodeerde infrastructuurafhankelijkheden door **echte inversie van controle** via een expliciet *injectiecontract*. Ontwikkelaars declareren eenvoudig een semantische topologische rand (bijv. “Agent A gebruikt database B”) en bepalen hoe hun code de verbindingsgegevens verwacht te ontvangen (bijv. als omgevingsvariabele of als bestandskoppeling). De compiler lost dynamisch de deterministische verwijzingen van het doel op die Ops heeft toegewezen — of dat nu een interne Kubernetes-DNS-naam is, een Terraform-interpolatiestring of een DSN in Wasm-formaat — en leidt ze rechtstreeks naar de renderingsjablonen. Dit abstraheert fysieke routering en poorten volledig voor moderne workloads. De compiler geeft deterministische strings door; stabiele bedrading van afhankelijkheden over omgevingen heen is een eigenschap van discipline bij het opstellen van een Recipe (Ops levert deterministische verwijzingen die bij de omgeving passen), geen garantie van de kern van de compiler."
+  },
+  "f3e75cdae87e3241": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f3e75cdae87e3241",
+    "status": "machine",
+    "text": "**Microsoft Radius** is een control plane van applicatie tot infrastructuur dat de gewenste state van binnenuit een cluster reconcilieert en declaratieve artefacten verwerkt van het soort dat Aggrega produceert."
+  },
+  "f5accf5964aaf380": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f5accf5964aaf380",
+    "status": "machine",
+    "text": "**Het AOT-compilerdomein.** Deze tools compileren ook abstracte intentie of intentie op codeniveau naar statische artefacten en stoppen vóór de uitrol. Aggrega richt zich via zijn open renderersocket op verschillende van dezelfde eindartefacten; waar vandaag geen rendererplugin wordt meegeleverd, is het doel bereikbaar door er een te schrijven in plaats van de kern te wijzigen."
+  },
+  "f8795487cd2de396": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f8795487cd2de396",
+    "status": "machine",
+    "text": "Ecosysteemfilosofie"
+  },
+  "fab4089a7ac9b242": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "fab4089a7ac9b242",
+    "status": "machine",
+    "text": "Gebruikersgerichte documentatie voor de taal en de compiler Aggrega. Engels is de primaire bron; vertaallagen volgen in een toekomstige i18n-ronde zonder de onderstaande paden te wijzigen."
+  },
+  "fb60e0892da5466b": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "fb60e0892da5466b",
+    "status": "machine",
+    "text": "**Uitzondering (platform-Aggregates en gemengde use cases):** Omdat Aggrega agnostisch is ten opzichte van capabilities, ondersteunt het native “Greenfield”-scenario's. Als een platformarchitect dag-0-infrastructuur (zoals VPC's en Kubernetes-clusters) definieert binnen een `Aggregate` op platformniveau, compileert en rendert Aggrega die op precies dezelfde manier als voor een standaardapplicatie. Dit agnosticisme ondersteunt naadloos gemengde omgevingen: een zware architecturale node — zoals een AI-gateway voor ondernemingen — kan worden gemodelleerd als een reeds bestaande infrastructuurresource (met formatter-plug-ins die alleen verkeer doorgeven), of kan direct naast de applicatie worden uitgerold als een standaard geprovisioneerde component."
+  }
+}

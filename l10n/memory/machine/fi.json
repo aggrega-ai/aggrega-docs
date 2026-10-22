@@ -1,0 +1,583 @@
+{
+  "022f7f2558f12ce4": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "022f7f2558f12ce4",
+    "status": "machine",
+    "text": "**Terraform / OpenTofu** provisioivat pilviresursseja deklaratiivisesta HCL:stä ja hallitsevat tilaa CLI-moottorin kautta. Aggrega kääntää staattisiksi artefakteiksi ja jättää tilan suorittamisen ajonaikaiselle ympäristölle; Terraform-renderöintikohde on saavutettavissa avoimen liitännän kautta."
+  },
+  "02b773a0cfe71b0b": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "02b773a0cfe71b0b",
+    "status": "machine",
+    "text": "**Ratkaisu:** Koska Aggrega on täysin agnostinen, sovelluksen ja infrastruktuurin välinen raja on kokonaan käyttäjän päätettävissä. Aggrega-kääntäjää voidaan käyttää ”greenfield”-käyttöönottoihin, jotka koostuvat pelkästä infrastruktuurista, tai se voi tuottaa pyydettäessä konfiguraatioita yritysten tekoälyyhdyskäytäville, jos kehittäjä nimenomaisesti pyytää niitä osana sovellustaan. Pyydettäessä kääntäjä hyödyntää WebAssembly-renderöintilaajennuksia ja Opsin Recipes-määrittelyjä tuottaakseen näille yhdyskäytäville tarkat artefaktit, jolloin ajonaikainen infrastruktuuri voi fyysisesti suorittaa semanttisen välimuistituksen ja palveluntarjoajien väliset varaketjut."
+  },
+  "065ecfa31082a991": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "065ecfa31082a991",
+    "status": "machine",
+    "text": "2. Todellinen ohjauksen kääntäminen ja semanttinen johdotus"
+  },
+  "0ab5763ba4210f0d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "0ab5763ba4210f0d",
+    "status": "machine",
+    "text": "**Ei nollakopio- eikä jaetun muistin järjestelmiä:** Aggrega-kääntäjän tietoturvamalli perustuu siihen, että se tuottaa määrityksiä verkkotason sieppaukselle (kuten Envoy-sivuvaunuille) käytäntöjen valvomiseksi. Jos agenttiparvi viestii pelkästään solmun sisäisen jaetun järjestelmämuistin kautta (esim. Ray Core Actors), verkon välityspalvelimet eivät näe tätä viestintää eivätkä voi valvoa suojakaiteita."
+  },
+  "0bad2bcf971a5c30": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "0bad2bcf971a5c30",
+    "status": "machine",
+    "text": "Visio ja asemointi"
+  },
+  "116d41ee90651783": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "116d41ee90651783",
+    "status": "machine",
+    "text": "**Ei CI/CD-putki:** Aggrega ei rakenna Docker-levykuvia, suorita yksikkötestejä eikä hallitse Git-repositorioita. Kehittäjien on käytettävä olemassa olevia työkaluja sovelluskoodinsa rakentamiseen. Aggrega kääntää ainoastaan deklaratiivisen infrastruktuurisuunnitelman, joka liittyy näihin koontiversioihin."
+  },
+  "11b0c6b7cc9d2193": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "11b0c6b7cc9d2193",
+    "status": "machine",
+    "text": "**Chef, Puppet ja SaltStack** ovat agenttipohjaisia konfiguraationhallintajärjestelmiä, jotka saattavat palvelintilan yhtenäiseksi koko laitekannassa — eri ongelma-alue kuin staattinen topologian kääntäminen."
+  },
+  "12fae7889ed64406": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "12fae7889ed64406",
+    "status": "machine",
+    "text": "**Ongelma:** Monimutkaisen arkkitehtuurin siirtäminen paikallisesta Docker-testiympäristöstä tuotannon Kubernetesiin edellyttää täysin erillisten, kopioitujen käyttöönottoskriptien ylläpitoa."
+  },
+  "1757efae47e07262": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1757efae47e07262",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** ja **Google Cloud Deployment Manager** ovat omien pilviensä natiivit deklaratiiviset provisiointimuodot. Kukin niistä on staattisten artefaktien kohde, johon laatija voi renderöidä avoimen liitännän kautta."
+  },
+  "1b327ad5f9694d58": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "1b327ad5f9694d58",
+    "status": "machine",
+    "text": "**Ei tilapäistä JIT-hiekkalaatikointia (pyyntökohtainen mikrosegmentointi):** Aggrega on staattinen AOT-kääntäjä, joka on suunniteltu pitkäkestoisten laskentaresurssien (kuten Kubernetes Deployments) provisiointiin. Se ei natiivisti tue tilapäistä juuri oikeaan aikaan tapahtuvaa (JIT) hiekkalaatikointia, jossa kokonainen kontti käynnistetään ja tuhotaan pyyntökohtaisesti vaikutusalueen rajaamiseksi."
+  },
+  "1bb01da909a15f49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1bb01da909a15f49",
+    "status": "machine",
+    "text": "**AWS SAM ja Serverless Framework** kääntävät YAML-määrityksen staattisesti palvelimettomien funktioiden ja API-yhdyskäytävien resursseiksi — rajattu osajoukko siitä artefaktien alueesta, johon Aggrega-kääntäjän liitäntä voi kohdistua."
+  },
+  "1bd874a89258ece3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1bd874a89258ece3",
+    "status": "machine",
+    "text": "Aggrega ratkaisee tämän toimimalla **etukäteen kääntävänä (AOT) topologisena kääntäjänä**. Ratkaisemme modernin alustasuunnittelun ja tekoälyn käyttöönoton kriittisimmät pullonkaulat:"
+  },
+  "1c411a4cedb69f0a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1c411a4cedb69f0a",
+    "status": "machine",
+    "text": "6. Tilallinen kognitiivinen muisti ja mallien paikallinen isännöinti"
+  },
+  "1ca6ff977ac7db16": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1ca6ff977ac7db16",
+    "status": "machine",
+    "text": "**Crossplane ja KubeVela** ovat aktiivisia Kubernetes-ohjaustason operaattoreita, jotka täsmäyttävät halutun tilan klusterin sisältä. Crossplane- tai KubeVela-klusteri voi kuluttaa Aggrega-kääntäjän Kubernetes-tuotosta kuten mitä tahansa muuta deklaratiivista YAMLia; nämä kaksi kerrosta täydentävät toisiaan."
+  },
+  "1f41f842f2bac04f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1f41f842f2bac04f",
+    "status": "machine",
+    "text": "**Ongelma:** Tekoälykehykset olettavat, että infrastruktuuri vain on olemassa, ja jättävät Opsin johdottamaan agentit, RAG-putket ja tietokannat käsin yhteen pirstaleisilla, kovakoodatuilla YAML-tiedostoilla."
+  },
+  "2108313ef1f0d75a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "2108313ef1f0d75a",
+    "status": "machine",
+    "text": "**Ongelma:** IP-osoitteiden, tietokantojen yhteysmerkkijonojen (DSN) ja verkkoporttien käsin yhdistely mikropalveluiden välillä luo hauraita, ympäristöön lukittuja arkkitehtuureja. Vaikka organisaatiot hallitsevat näitä siirtymiä nykyisin monimutkaisilla muuttujien ohituskerroksilla, Kustomize-korjauksilla tai kopioiduilla käyttöönottoskripteillä, tämän manuaalisen käännöslogiikan ylläpito aiheuttaa valtavaa operatiivista kitkaa ja kognitiivista kuormaa, kun työkuormia ylennetään paikalliselta kannettavalta tuotantopilveen."
+  },
+  "21c16c56cf18ec09": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "21c16c56cf18ec09",
+    "status": "machine",
+    "text": "**Spinnaker** on jatkuvan toimituksen moottori, joka ottaa artefakteja käyttöön VM- ja Kubernetes-kohteisiin, Aggrega-kääntäjän hoitaman artefaktien generointivaiheen jälkeen."
+  },
+  "232128cd807ee090": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "232128cd807ee090",
+    "status": "machine",
+    "text": "**Ei asiakaspuolen agentteja:** Aggrega on yksinomaan taustajärjestelmän infrastruktuurin orkestroija. Se ei voi tuottaa määrityksiä hallitsemattomille tekoälymalleille, jotka suoritetaan kokonaan loppukäyttäjän Chrome-selaimessa tai mobiilireunalla."
+  },
+  "2836d603647e5a66": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "2836d603647e5a66",
+    "status": "machine",
+    "text": "Alustan rajat ja ei-tavoitteet (mitä Aggrega ei ole)"
+  },
+  "2ec241d1bd236968": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "2ec241d1bd236968",
+    "status": "machine",
+    "text": "**AWS CDK ja CDKTF** ovat staattisia AOT-kääntäjiä, jotka kääntävät yleiskäyttöistä koodia CloudFormation JSONiksi ja vastaavasti Terraform JSONiksi. Aggrega kohdistuu samoihin lopullisiin staattisiin artefakteihin saman avoimen renderöijäliitännän kautta, minkä vuoksi toisen työkalun sijoittaminen toisen edelle lisää käännöskerroksen lisäämättä kyvykkyyttä."
+  },
+  "332d91de857547eb": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "332d91de857547eb",
+    "status": "machine",
+    "text": "Aggrega-dokumentaatio"
+  },
+  "337813acb49ab46f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "337813acb49ab46f",
+    "status": "machine",
+    "text": "7. Todellinen pilvi- ja kyvykkyysagnostisuus (myöhäinen sidonta)"
+  },
+  "3944bb819957d536": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3944bb819957d536",
+    "status": "machine",
+    "text": "**Semanttinen DSL & operatiivinen ontologia:** Kehittäjät kuvaavat arkkitehtuurinsa suljetulla joukolla universaaleja pilviprimitiivejä (esim. `server`, `worker`, `stateful-server`) Aggrega-projektin varatussa nimiössä `component.aggrega.ai/type`. Kaikki edistyneempi konteksti—kuten tekoälyagenttien autonomia, generatiiviset kyvyt tai tietojen vaatimustenmukaisuus—kerrostetaan sen päälle staattisilla Duck-Typing-nimiöillä, ja luettelo, joka luokittelee komponentteja omalla akselillaan, lisää oman nimiöavaimensa."
+  },
+  "3b7d0888ec0dbef4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "3b7d0888ec0dbef4",
+    "status": "machine",
+    "text": "Arkkitehtuurisen puhtauden säilyttämiseksi ja laajuuden hallitsemattoman kasvun estämiseksi Aggrega toimii tiukkojen, ehdottomien rajojen sisällä. Alustalla on vahvat näkemykset ratkaisemistaan ongelmista, ja se varjelee yhtä tarkasti sitä, mitä se ei tee."
+  },
+  "3cc33863f096cdcd": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3cc33863f096cdcd",
+    "status": "machine",
+    "text": "Kielen viiteopas"
+  },
+  "3d585960b0018ea7": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "3d585960b0018ea7",
+    "status": "machine",
+    "text": "**Ongelma:** Kun kehittäjät kirjoittavat perinteistä IaC:tä, fyysisen infrastruktuurin rajoitteet (kuten kovakoodatut AWS EBS -taltiot tai EC2-instanssien koot) vuotavat usein sovelluslogiikkaan. Tämä tiukka kytkentä heikentää siirrettävyyttä ja sitoo työkuormat tahattomasti tiettyihin pilvitoimittajiin."
+  },
+  "3f7898cb83882558": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3f7898cb83882558",
+    "status": "machine",
+    "text": "Tietoja Aggrega-projektista"
+  },
+  "438d55d1dc11e17d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "438d55d1dc11e17d",
+    "status": "machine",
+    "text": "3. Toimintaan ja elinkaareen liittyvät ei-tavoitteet"
+  },
+  "45af7ab53385d3c1": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "45af7ab53385d3c1",
+    "status": "machine",
+    "text": "2. Ei kognitiivista logiikkaa eikä sovelluskoodia"
+  },
+  "465eb6e481f5f514": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "465eb6e481f5f514",
+    "status": "machine",
+    "text": "**AOT-kääntäjä & luovutus suoritukseen:** Tiukka käännösputki kääntää DSL:n kyvykkyyksistä riippumattomaksi välimuotoesityksen (IR) graafiksi. IR tallentaa komponenttien topologian ja niiden väliset `uses`-kaaret (kuka käyttää ketä); kääntäjä välittää tämän graafin WebAssemblyn (Wasm) hallintasoketille transitiivisten luottamushaavoittuvuuksien havaitsemiseksi ja suorittaa sitten Wasm-renderöintilaajennukset, jotka tuottavat tarkat välityspalvelin- ja suojakaidekonfiguraatiot. Aggrega kirjoittaa nämä artefaktit levylle ja luovuttaa fyysisen käyttöönoton muille työkaluille, kuten CI/CD-putkille tai ajonaikaisille orkestraattoreille."
+  },
+  "496123043b3ce83a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "496123043b3ce83a",
+    "status": "machine",
+    "text": "**Pulumi** antaa kehittäjien laatia infrastruktuuria yleiskäyttöisillä kielillä (TypeScript, Python, Go); sen ydinarvo on infrastruktuurin käsitteleminen suoritettavana koodina. Aggrega-kääntäjän laadintapinta on deklaratiivinen YAML-pohjapiirustus — kehittäjät kirjoittavat abstraktiota vasten, eivät API-pintaa vasten. Kumpikin heijastaa eri filosofiaa siitä, missä kehittäjän sopimus infrastruktuurin kanssa sijaitsee."
+  },
+  "4a8c0815159ed9f2": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "4a8c0815159ed9f2",
+    "status": "machine",
+    "text": "Aggrega ei ole tekoälyagentti, joka ”kirjoittaa Terraformia puolestasi”. Se on deterministinen Go-kääntäjä, joka jäsentää tiukkaa toimialakohtaista kieltä (DSL) taatakseen toistettavat ja auditoitavat käyttöönottoartefaktit. Se ei hallusinoi infrastruktuuria."
+  },
+  "4bd1d2795b3bffc5": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "4bd1d2795b3bffc5",
+    "status": "machine",
+    "text": "**Ohjelmoitavat käytännöt & validointi:** Go-kielinen ydinkääntäjä on matemaattisesti ilman omia näkemyksiä. Yrityksen hallintaa ohjaavat kokonaan alan standardit ja liitettävä WebAssembly: JSON Schema 2020-12 (kirjoitettuna tiiviillä YAML-muotoisella lyhennemerkinnällä tai täydellisenä JSON Schema YAML:na) luettelon validointiin, hallintasoketin `label-transform`-rooli topologian dynaamiseen merkitsemiseen ja sen tuomioroolit arkkitehtuurin tietoturvarajojen arviointiin."
+  },
+  "4cdf14e699b9233e": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4cdf14e699b9233e",
+    "status": "machine",
+    "text": "5. Tekoälyliikenteen keskittäminen ja yhdyskäytävien hallinta"
+  },
+  "4ea1e82abbb0d397": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "4ea1e82abbb0d397",
+    "status": "machine",
+    "text": "**Ansible** on imperatiivinen konfiguraationhallinnan työkalu peräkkäisille playbookeille pitkäikäisissä virtuaalikoneissa ja paikallisissa (on-premise) laitekannoissa. Aggrega tuottaa deklaratiivisia topologia-artefakteja kontti- ja pilvi-API-kohteille. Tiimit, jotka käyttävät Ansiblea palvelintilan hallintaan kontitettujen työkuormien rinnalla, pitävät sen yleensä tässä roolissa ja käyttävät sovellustopologiaan Aggrega-kääntäjää."
+  },
+  "4fb81ca061e42a84": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4fb81ca061e42a84",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega toimii perimmäisenä topologisena muuntimena. Kääntämällä kehittäjän deklaratiivisen DSL:n kääntäjä tuottaa tarkat konfiguraatiot, joita tarvitaan monimutkaisten moniagenttisten päättelysilmukoiden kytkemiseen suoraan tavalliseen pilvi-infrastruktuuriin ilman, että kehittäjät kirjoittavat yhtäkään infrastruktuuriskriptiä."
+  },
+  "561cd4289c271653": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "561cd4289c271653",
+    "status": "machine",
+    "text": "Aggrega on avoimen lähdekoodin kieli, ekosysteemi ja kääntäjä yritysarkkitehtuurien määrittelyyn ja renderöintiin, ja siinä on tekoälysovelluksiin pitkälle erikoistunut standardikirjasto. Se toimii siltana kehittäjän abstraktin aikomuksen (mukaan lukien kognitiiviset tekoälykehykset, kuten LangGraph tai CrewAI) ja turvallisen, fyysisen pilvinatiivin todellisuuden välillä."
+  },
+  "567e98fb9c80fc42": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "567e98fb9c80fc42",
+    "status": "machine",
+    "text": "**Erottelumalli (OAM:n innoittama):** Tiukka arkkitehtuuri, joka toteuttaa Conwayn lakia ja erottaa selkeästi kehittäjän aikomuksen (abstraktin ”Mitä” ja ”Kuinka paljon”) Platform Opsin fyysisestä todellisuudesta (fyysisestä ”Miten” ja ”Missä”)."
+  },
+  "58dde4bbc0cf1d83": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "58dde4bbc0cf1d83",
+    "status": "machine",
+    "text": "[language-reference/](language-reference/README.md) — Aggrega-projektin ”mitä” ja ”miten käytetään”. Nykyisen valmiusasteen osalta aloitetaan sivulta [Kielen tila](language-reference/10-status.md), minkä jälkeen ensimmäisellä lukukerralla luetaan numeroidut luvut 01–09 järjestyksessä. Numeroimattomat alihakemistot (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) ovat viiteluetteloita — tiettyihin kohtiin voi siirtyä tarpeen mukaan."
+  },
+  "5d2ab756e3052d3c": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "5d2ab756e3052d3c",
+    "status": "machine",
+    "text": "4. Infrastruktuurin valvomat suojakaiteet ja MCP-puolustus"
+  },
+  "616cc34cf78353cc": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "616cc34cf78353cc",
+    "status": "machine",
+    "text": "**Ei ”päivän 0” provisiointityökalu:** Aggrega olettaa tyypillisesti, että perustava hallintataso on jo olemassa (esim. aktiivinen Kubernetes-klusteri tai AWS-tili). Se kääntää ”päivän 1” sovellusarkkitehtuurin tämän perustan päälle; se ei suorita alkuvaiheen skriptejä yrityksen pilviorganisaation luomiseksi."
+  },
+  "61987507c7b4cf90": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "61987507c7b4cf90",
+    "status": "machine",
+    "text": "**Viereinen konfiguraationhallinta.** Nämä työkalut ratkaisevat palvelintilan ja YAML-paikkauksen ongelmia, jotka eroavat topologian kääntämisestä, eikä Aggrega kohdistu niiden alueeseen."
+  },
+  "6794e2f7e96eaa6e": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "6794e2f7e96eaa6e",
+    "status": "machine",
+    "text": "[architecture/](architecture/README.md) — Aggrega-projektin ”miksi”. Visio, asemointi, ajattelumalli, kääntäjän putki käsitteellisellä tasolla, yrityksen hallinta, luettelo, laajennettavuus, suunnitteluratkaisut. Ensimmäisellä lukukerralla numeroidut luvut 01–16 kannattaa lukea järjestyksessä."
+  },
+  "697c8a76197d1986": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "697c8a76197d1986",
+    "status": "machine",
+    "text": "**Ei kognitiivisen tilan hallitsija:** Kääntäjä käyttää liitännäisiä tuottaakseen määritykset suojatuille verkkorajoille ja fyysisille tietokannoille. Se ei kuitenkaan valvo tekoälyagentin sisäistä muistisilmukkaa. Jos tekoäly hallusinoi tai ei onnistu kirjoittamaan tietokantaansa, se on sovelluskehyksen ongelma."
+  },
+  "6c591f87eb3ef1dc": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6c591f87eb3ef1dc",
+    "status": "machine",
+    "text": "**ArgoCD ja Flux** ovat GitOps-ohjaimia, jotka täsmäyttävät Gitiin tallennetut manifestit klusteriin. Ne soveltavat Aggrega-kääntäjän Kubernetes-tuotosta kuten mitä tahansa muuta deklaratiivista YAMLia."
+  },
+  "6d83c5e9324975ed": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6d83c5e9324975ed",
+    "status": "machine",
+    "text": "**Ongelma:** LLM-liikenteen hallinta vaatii erittäin erikoistunutta reititystä (token-budjetit, semanttinen välimuistitus, vikasiirrot), joka tavallisista mikropalveluyhdyskäytävistä puuttuu."
+  },
+  "6e82bf0fd3a81e38": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6e82bf0fd3a81e38",
+    "status": "machine",
+    "text": "3. Tekoälyn suljetun puutarhan yhdistäminen pilvinatiiviin todellisuuteen"
+  },
+  "6f75456b9a8945c1": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6f75456b9a8945c1",
+    "status": "machine",
+    "text": "**Artefaktimuodot, joihin Aggrega renderöi tänään.** Nämä ovat tuotoksia, joita toimitetut renderöintilaajennukset tuottavat."
+  },
+  "736c86782c7e9099": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "736c86782c7e9099",
+    "status": "machine",
+    "text": "Perustavat työkalut, kuten Terraform, ovat tilanhallitsijoita. Ne provisioivat fyysisiä laskentasolmuja, mutta eivät mallinna loogisia L7-tietovirtoja, jotka kulkevat näiden solmujen *välillä*. Ne eivät pysty natiivisti analysoimaan arkkitehtuuria provisioidakseen semanttiset palomuurit, joita tarvitaan tekoälyn kehoteketjujen jäljittämiseen tai ”Confused Deputy” -hyökkäysten pysäyttämiseen. Kubernetes-natiivit työkalut (kuten KubeVela) puolestaan toimivat aktiivisina ajonaikaisina ohjaimina eivätkä tarjoa niitä staattisia, etukäteen (ahead-of-time) tuotettuja vaatimustenmukaisuusartefakteja, joita yritysten tietoturvatiimit edellyttävät."
+  },
+  "759edb9d500b7550": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "759edb9d500b7550",
+    "status": "machine",
+    "text": "**Ei aktiivinen klusteriorkestroija (ei GitOpsia):** Aggrega on staattinen ennakkokääntäjä (AOT), ei aktiivinen klusteriagentti, joka jatkuvasti täsmäyttää tilaa. Se tuottaa vakiomuotoisia Kubernetes-manifesteja ja Docker Compose -määrityksiä, jotka erilliset GitOps-työkalut (kuten ArgoCD tai Flux) ottavat käyttöön."
+  },
+  "7897406b5e5a2297": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "7897406b5e5a2297",
+    "status": "machine",
+    "text": "5. Suhde lähialueen työkaluihin"
+  },
+  "7d32e6f6bf1ede8a": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "7d32e6f6bf1ede8a",
+    "status": "machine",
+    "text": "[authoring/](authoring/README.md) — Aggrega-projektin ”miten istutaan alas ja laaditaan”. Laadintasilmukka, neljä yhteistyötä tekevää roolia, kindien ja roolien vastaavuus sekä tekoälyavustajan yhdistäminen Model Context Protocol -palvelimen kautta. Aloittaa kannattaa sivulta [Aloittaminen](authoring/getting-started.md)."
+  },
+  "84f4b0651bc842df": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "84f4b0651bc842df",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega perustuu ”myöhäiseen sidontaan”. Kehittäjät kirjoittavat yhden abstraktin pohjapiirustuksen. Alustan Ops voi sitten saumattomasti kohdistaa täsmälleen saman topologian Docker Composeen paikallista testausta varten tai AWS/EKS:ään tuotantoa varten yksinkertaisesti vaihtamalla `Manifest`-lukitustiedoston ja `Release`-reitittimen. Tämä erottaa sovelluksen kognitiivisen logiikan siististi fyysisestä infrastruktuurista ja takaa ydinarkkitehtuurille ”kirjoita kerran, aja missä tahansa” -kokemuksen, samalla kun toimittajalukituksesta tulee hallittu, tarkoituksellinen valinta eikä vahingossa syntyvä sivutuote."
+  },
+  "8ea6d69632805caa": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ea6d69632805caa",
+    "status": "machine",
+    "text": "Yritysten pilviympäristöä rajoittaa tällä hetkellä pysyvä semanttinen kuilu: **perinteiset infrastruktuuri koodina (IaC) -työkalut hallitsevat fyysistä tilaa, mutta niiltä puuttuu luonnostaan sovelluskerroksen konteksti.**"
+  },
+  "8ecbace279cb5c95": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ecbace279cb5c95",
+    "status": "machine",
+    "text": "**Ongelma:** Vektoritietokantojen ja episodisten lokien käsittely yleisenä, litteänä tallennustilana antaa kaapatuille agenteille mahdollisuuden ylikirjoittaa kriittisiä semanttisia faktoja helposti."
+  },
+  "932a4155211777da": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "932a4155211777da",
+    "status": "machine",
+    "text": "**Docker Compose** on paikallisen monikonttikehityksen standardi. Aggrega-kääntäjän Compose-renderöijä kohdistuu siihen suoraan, joten yksittäinen pohjapiirustus toimii paikallisesti ilman erillistä laadintapintaa."
+  },
+  "9a658c7c52603da9": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "9a658c7c52603da9",
+    "status": "machine",
+    "text": "Ekosysteemi rakentuu neljän pilarin varaan:"
+  },
+  "9aea18defa7233d3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9aea18defa7233d3",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega siirtää luottamusrajat pois sovelluskoodista verkkoinfrastruktuuriin tiukan **suorituksen luovutuksen** avulla. Validoituaan staattisen sovellusgraafin liitettävän WebAssembly-hallintapistokkeen kautta kääntäjä suorittaa renderöintilaajennuksia tuottaakseen tarkat konfiguraatiot, joita L7-sieppausvälityspalvelimet (kuten tietojen peittäminen tai ihmisen hyväksynnän webhookit) tarvitsevat. Sen jälkeen se luovuttaa nämä artefaktit ajonaikaiselle orkestroijalle, joka valvoo sääntöjä fyysisesti ja estää luvattomat toiminnot."
+  },
+  "9c6fef9d442a0b36": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9c6fef9d442a0b36",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega käsittelee vektorivarastoja ja paikallisia malleja topologiagraafin eksplisiittisinä arkkitehtuurisolmuina. Perustuen tiukasti siihen, mitä käyttäjä pyytää ja mitä Ops-tiimi on toteuttanut `Recipes`-määrittelyissään, kääntäjä hyödyntää WebAssembly-laajennuksia tuottaakseen tarkat artefaktit, joita niiden suojaaminen edellyttää. Tähän sisältyy tiukkojen verkkokäytäntöjen tuottaminen, joita tarvitaan autonomisten agenttien kohdistamiseen eristettyihin muistiosioihin, sekä tiettyjen ajoitusrajoitteiden (kuten Kubernetesin `nodeSelectors`) muotoilu, jotta ajonaikainen orkestroija sijoittaa paikalliset mallit optimoidulle GPU-laitteistolle."
+  },
+  "9fa8ec5ab6795ee4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "9fa8ec5ab6795ee4",
+    "status": "machine",
+    "text": "1. Deterministinen kääntäjä, ei IaC-generaattori"
+  },
+  "a12d04a8d688e472": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "a12d04a8d688e472",
+    "status": "machine",
+    "text": "Aggrega-kääntäjän liitännäisenä vaihdettava WebAssembly (Wasm) -renderöintiliitäntä tarkoittaa, että yhteisö voi kirjoittaa renderöintilaajennuksen mille tahansa kohdetyökalulle. Ydinprojekti toimittaa renderöintilaajennukset Helmille, Helm-chartille ja Composelle — ne kattavat Kubernetes GitOpsin, uudelleenjaettavien chartien jakelun ja paikallisen kehityksen —, ja avoin liitäntä antaa tiimien kohdistaa muihin staattisten artefaktien pintoihin koskematta ytimeen. Aggrega-kääntäjää arvioivat tiimit tulevat usein ekosysteemeistä, jotka on rakennettu pinon läheisissä mutta erillisissä osissa toimivien työkalujen ympärille. Alla olevat työkalut on ryhmitelty sen mukaan, miten ne liittyvät Aggrega-kääntäjään: artefaktimuodot, joihin se renderöi tänään, AOT-kääntäjien alue, jonka se jakaa, ohjaustasot, jotka kuluttavat sen tuotosta, ja viereinen konfiguraationhallinnan alue, johon se ei kohdistu."
+  },
+  "aeb44b13d6fa631b": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "aeb44b13d6fa631b",
+    "status": "machine",
+    "text": "Laadintaopas"
+  },
+  "b8c847cd56125efa": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "b8c847cd56125efa",
+    "status": "machine",
+    "text": "**Ei hajautettuja eikä P2P-verkkoja:** Tuotetut määritykset perustuvat keskitettyyn yrityksen hallintatasoon (Kubernetes/VPC), joka pystyy valvomaan L4/L7-verkkorajoja. Kääntäjä ei pysty tuottamaan suojattua reititystä agenteille, jotka löytävät toisensa dynaamisesti hajautetuista lohkoketjuista tai julkisista P2P-verkoista."
+  },
+  "bd137db8bc937ff3": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "bd137db8bc937ff3",
+    "status": "machine",
+    "text": "Sen sijaan, että monimutkainen infrastruktuuri koodina kirjoitettaisiin käsin tai verkkoportit kovakoodattaisiin, kehittäjät yksinkertaisesti ilmoittavat, *mitä* heidän sovelluksensa tarvitsee selviytyäkseen. Aggrega-kääntäjä tuottaa deterministisesti fyysisen infrastruktuurin konfiguraatiot (Helm-chartit, Kubernetes-manifestit, Docker Compose), joita sovelluksen ajaminen edellyttää. Se kääntää abstraktit pyynnöt täsmälleen niiksi staattisiksi artefakteiksi, joita kohdeympäristö tarvitsee laitteistotasolla valvotun tietoturvan, zero-trust-verkkorajojen ja L7-datatason välityspalvelinten luomiseen."
+  },
+  "c54931e4c5c0ec49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c54931e4c5c0ec49",
+    "status": "machine",
+    "text": "**Nitric, Klotho ja Winglang** ovat pilvitietoisia ohjelmointimalleja, joiden AOT-kääntäjät tuottavat vakiomuotoisia infrastruktuuritiedostoja sovelluskoodista eivätkä deklaratiivisesta topologian pohjapiirustuksesta."
+  },
+  "c67f72db693bd7cf": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c67f72db693bd7cf",
+    "status": "machine",
+    "text": "Aggrega noudattaa tiukasti Conwayn lakia ja hylkää omistusoikeudellisen kielen käyttöönoton paradigman. Se ei koskaan pakota kehittäjiä kirjoittamaan tekoälyn päättelylogiikkaa, LangGraph-solmuja tai Python-upotuksia uudelleen alustakohtaisella pilvikielellä. Kääntäjä käsittelee sovellusta mustana laatikkona. Se määrittää turvalliset tiet ja muurit; sovelluskehykset ajavat autoja."
+  },
+  "c6c208e0aa8e017e": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c6c208e0aa8e017e",
+    "status": "machine",
+    "text": "**Score.dev** on deklaratiivinen abstraktio työkuorman peruskapasiteetille — CPU, muisti, portit —, joka renderöidään Docker Composeksi tai Helmiksi. Se kattaa rajatun osajoukon siitä, mitä Aggrega kattaa: komponenttien välinen topologia, käytäntöjen hallintaliitäntä (governance), Wasm-sovittimet ja tekoälykohtaiset kyvykkyydet ovat Scoren laajuuden ulkopuolella."
+  },
+  "c76b005cc3158515": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c76b005cc3158515",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega delegoi rakenteellisesti *abstraktin kapasiteetin* ja *fyysisen mekaniikan* välisen rajan alustan katalogille. Sen sijaan, että alusta-arkkitehdit nojaisivat kääntäjään kovakoodattuihin kieltoihin, he laativat tiukkoja JSON Schema 2020-12 -määrittelyjä (tyypillisesti tiiviissä muodossa — YAML-muotoisena lyhennysmerkintänä, joka mahduttaa kunkin kentän rajoitteet yhdelle riville) säätääkseen tarkasti, mitä kehittäjät voivat pyytää. Tyypillisesti kehittäjät on rajattu abstrakteihin selviytymisvaatimuksiin (esim. `storage_size: 100Gi` tai `hardware/accelerator: gpu`), eivätkä he voi syöttää mielivaltaisia pilvitallennusluokkia yksinkertaisesti siksi, että komponentin skeema hylkää ne. Jos sovellus todella vaatii tietyn fyysisen EC2-instanssityypin, arkkitehdin on nimenomaisesti tuotava tämä säädin esiin komponentin rajapinnassa, jolloin toimittajalukitus on tietoinen, hallittu valinta eikä vahingossa syntyvä vuoto."
+  },
+  "c8f8e453831d91f0": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c8f8e453831d91f0",
+    "status": "machine",
+    "text": "Infrastruktuurin semanttinen kuilu ja miten Aggrega ylittää sen"
+  },
+  "c9f1503025311e0e": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c9f1503025311e0e",
+    "status": "machine",
+    "text": "4. Sovellusparadigmaan ja infrastruktuuriin liittyvät ei-tavoitteet"
+  },
+  "cd74053c54816e47": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "cd74053c54816e47",
+    "status": "machine",
+    "text": "Arkkitehtuuri"
+  },
+  "cddca72ef82da5a4": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "cddca72ef82da5a4",
+    "status": "machine",
+    "text": "**Ongelma:** Ohjelmistotason suojakaiteet pettävät, jos sovellus vaarantuu tai tekoäly hallusinoi samalla, kun sillä on pääsy sisäisiin työkaluihin Model Context Protocolin (MCP) kautta."
+  },
+  "cf242788df1f36de": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "cf242788df1f36de",
+    "status": "machine",
+    "text": "**Kustomize** paikkaa Kubernetes-YAMLia ilman mallipohjia ja on sisäänrakennettu `kubectl`:ään. Se muuntaa olemassa olevia manifesteja sen sijaan, että kääntäisi topologian pohjapiirustuksen niiksi."
+  },
+  "d14247b9e127c4e0": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "d14247b9e127c4e0",
+    "status": "machine",
+    "text": "**Helm** on Kubernetes-ohjelmistojen vakiomuoto paketointiin ja mallipohjiin. Aggrega tuottaa sekä renderöityä Helm-YAMLia että kattochartteja (umbrella charts) täysivaltaisina tuotoskohteina, joten Helmiin perustuvat työnkulut kuluttavat Aggrega-kääntäjän tuotosta suoraan."
+  },
+  "d9ed59332a4a6c39": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "d9ed59332a4a6c39",
+    "status": "machine",
+    "text": "1. Abstrakti kapasiteetti vs. fyysinen mekaniikka"
+  },
+  "db8811e8f657542a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "db8811e8f657542a",
+    "status": "machine",
+    "text": "**Ohjaustasot, jotka kuluttavat Aggrega-kääntäjän tuotosta.** Ne toimivat käynnissä olevan klusterin sisällä ja soveltavat deklaratiivisia artefakteja. Aggrega toimii tiukasti etukäteen (ahead-of-time) — se tuottaa manifestit, joita nämä järjestelmät täsmäyttävät."
+  },
+  "ddd73edb063f9fa0": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "ddd73edb063f9fa0",
+    "status": "machine",
+    "text": "Tämä luku määrittelee perustavan ongelma-alueen, alustan tiukat ei-tavoitteet, sen suhteen laajempaan ekosysteemiin sekä kattavat periaatteet, jotka ohjaavat Aggrega-ekosysteemiä."
+  },
+  "f047e5d870c7fd12": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "f047e5d870c7fd12",
+    "status": "machine",
+    "text": "**Ratkaisu:** Aggrega korvaa kovakoodatut infrastruktuuririippuvuudet **todellisella ohjauksen kääntämisellä** eksplisiittisen *injektiosopimuksen* avulla. Kehittäjät yksinkertaisesti määrittelevät semanttisen topologisen kaaren (esim. ”Agentti A käyttää tietokantaa B”) ja määräävät, miten heidän koodinsa odottaa vastaanottavansa yhteystiedot (esim. ympäristömuuttujana tai liitettynä tiedostona). Kääntäjä ratkaisee dynaamisesti kohteen Opsin määrittämät deterministiset osoittimet — olipa kyseessä sisäinen Kubernetes-DNS-nimi, Terraform-interpolointimerkkijono tai Wasm-muotoinen DSN — ja ohjaa ne suoraan renderöintimalleihin. Tämä abstrahoi fyysisen reitityksen ja portit täysin pois moderneilta työkuormilta. Kääntäjä välittää deterministiset merkkijonot sellaisinaan; ympäristöjen välinen vakaa riippuvuuksien johdotus on Recipe-entiteettien laatimisen kurinalaisuuden ominaisuus (Ops tarjoaa ympäristöön sopivat deterministiset osoittimet), ei kääntäjän ytimen takuu."
+  },
+  "f3e75cdae87e3241": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f3e75cdae87e3241",
+    "status": "machine",
+    "text": "**Microsoft Radius** on sovelluksesta infrastruktuuriin ulottuva ohjaustaso, joka täsmäyttää halutun tilan klusterin sisältä ja kuluttaa sellaisia deklaratiivisia artefakteja, joita Aggrega tuottaa."
+  },
+  "f5accf5964aaf380": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f5accf5964aaf380",
+    "status": "machine",
+    "text": "**AOT-kääntäjien alue.** Myös nämä työkalut kääntävät abstraktin tai kooditason aikomuksen staattisiksi artefakteiksi ja pysähtyvät ennen käyttöönottoa. Aggrega kohdistuu avoimen renderöijäliitäntänsä kautta useisiin samoihin lopullisiin artefakteihin; jos renderöintilaajennusta ei tänään toimiteta, kohde on saavutettavissa kirjoittamalla sellainen eikä muuttamalla ydintä."
+  },
+  "f8795487cd2de396": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f8795487cd2de396",
+    "status": "machine",
+    "text": "Ekosysteemin filosofia"
+  },
+  "fab4089a7ac9b242": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "fab4089a7ac9b242",
+    "status": "machine",
+    "text": "Käyttäjille suunnattu dokumentaatio Aggrega-kielestä ja -kääntäjästä. Ensisijainen lähde on englanti; käännöskerrokset lisätään tulevassa i18n-vaiheessa muuttamatta alla olevia polkuja."
+  },
+  "fb60e0892da5466b": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "fb60e0892da5466b",
+    "status": "machine",
+    "text": "**Poikkeus (alustan Aggregates ja sekakäyttötapaukset):** Koska Aggrega on agnostinen suhteessa kyvykkyyksiin, se tukee natiivisti ”Greenfield”-skenaarioita. Jos alusta-arkkitehti määrittää päivän 0 infrastruktuurin (kuten VPC:t ja Kubernetes-klusterit) alustatason `Aggregate`-entiteetissä, Aggrega kääntää ja renderöi sen täsmälleen samalla tavalla kuin tavallisen sovelluksen. Tämä agnostisuus tukee saumattomasti sekaympäristöjä: raskas arkkitehtuurisolmu — kuten yrityksen tekoälyyhdyskäytävä — voidaan mallintaa valmiiksi olemassa olevana infrastruktuuriresurssina (käyttäen muotoiluliitännäisiä, jotka vain välittävät liikennettä), tai se voidaan ottaa käyttöön suoraan sovelluksen rinnalla tavallisena provisioituna komponenttina."
+  }
+}

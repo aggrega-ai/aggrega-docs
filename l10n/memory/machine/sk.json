@@ -1,0 +1,583 @@
+{
+  "022f7f2558f12ce4": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "022f7f2558f12ce4",
+    "status": "machine",
+    "text": "**Terraform / OpenTofu** zriaďujú cloudové prostriedky z deklaratívneho HCL a spravujú stav pomocou CLI enginu. Aggrega kompiluje do statických artefaktov a vykonávanie stavu ponecháva behovému prostrediu; cieľ renderovania pre Terraform je dosiahnuteľný prostredníctvom otvoreného socketu."
+  },
+  "02b773a0cfe71b0b": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "02b773a0cfe71b0b",
+    "status": "machine",
+    "text": "**Riešenie:** Keďže Aggrega je úplne agnostická, hranica medzi aplikáciou a infraštruktúrou závisí úplne od používateľa. Aggrega sa dá použiť na „greenfield“ nasadenia čisto infraštruktúry alebo môže na požiadanie generovať konfigurácie pre podnikové brány AI, ak ich vývojár výslovne požaduje ako súčasť svojej aplikácie. Na požiadanie kompilátor využíva vykresľovacie pluginy WebAssembly a Recipes tímu Ops na výstup presných artefaktov pre tieto brány, čo infraštruktúre za behu umožňuje fyzicky vykonávať sémantické ukladanie do vyrovnávacej pamäte a záložné reťazce naprieč poskytovateľmi."
+  },
+  "065ecfa31082a991": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "065ecfa31082a991",
+    "status": "machine",
+    "text": "2. Skutočná inverzia riadenia a sémantické prepájanie"
+  },
+  "0ab5763ba4210f0d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "0ab5763ba4210f0d",
+    "status": "machine",
+    "text": "**Žiadne systémy zero-copy ani so zdieľanou pamäťou:** Bezpečnostný model Aggrega sa spolieha na generovanie konfigurácií pre zachytávanie na úrovni siete (napríklad sidecary Envoy), aby vynucoval politiky. Ak roj agentov komunikuje výhradne prostredníctvom zdieľanej systémovej pamäte v rámci uzla (napr. Ray Core Actors), sieťové proxy túto komunikáciu nevidia a nemôžu vynucovať ochranné mantinely."
+  },
+  "0bad2bcf971a5c30": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "0bad2bcf971a5c30",
+    "status": "machine",
+    "text": "Vízia a pozicionovanie"
+  },
+  "116d41ee90651783": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "116d41ee90651783",
+    "status": "machine",
+    "text": "**Nie je CI/CD pipeline:** Aggrega nezostavuje obrazy Dockeru, nespúšťa jednotkové testy ani nespravuje repozitáre Git. Vývojári musia na zostavenie kódu svojich aplikácií používať existujúce nástroje. Aggrega výhradne kompiluje deklaratívny plán infraštruktúry, ktorý tieto zostavenia sprevádza."
+  },
+  "11b0c6b7cc9d2193": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "11b0c6b7cc9d2193",
+    "status": "machine",
+    "text": "**Chef, Puppet a SaltStack** sú systémy na správu konfigurácie založené na agentoch, ktoré zbiehajú stav serverov naprieč flotilami — iná problémová oblasť než statická kompilácia topológie."
+  },
+  "12fae7889ed64406": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "12fae7889ed64406",
+    "status": "machine",
+    "text": "**Problém:** Prenesenie zložitej architektúry z lokálneho testovacieho prostredia Docker do produkčného Kubernetes vyžaduje udržiavanie úplne oddelených, duplikovaných skriptov nasadenia."
+  },
+  "1757efae47e07262": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1757efae47e07262",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** a **Google Cloud Deployment Manager** sú natívne deklaratívne formáty na zriaďovanie v príslušných cloudoch. Každý z nich je cieľom statických artefaktov, do ktorého môže autor renderovať prostredníctvom otvoreného socketu."
+  },
+  "1b327ad5f9694d58": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "1b327ad5f9694d58",
+    "status": "machine",
+    "text": "**Žiadny efemérny JIT sandboxing (mikrosegmentácia pre každú požiadavku):** Aggrega je statický AOT kompilátor navrhnutý na zriaďovanie dlhodobo bežiacich výpočtových prostriedkov (napríklad Kubernetes Deployments). Natívne nepodporuje efemérny sandboxing práve včas (JIT), pri ktorom sa pre každú požiadavku spustí a zničí celý kontajner, aby sa obmedzil dosah prípadného útoku."
+  },
+  "1bb01da909a15f49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1bb01da909a15f49",
+    "status": "machine",
+    "text": "**AWS SAM a Serverless Framework** staticky prekladajú špecifikáciu v YAML na prostriedky serverless funkcií a API brán — úzku podmnožinu priestoru artefaktov, na ktorý môže socket Aggrega cieliť."
+  },
+  "1bd874a89258ece3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1bd874a89258ece3",
+    "status": "machine",
+    "text": "Aggrega to rieši tým, že funguje ako **topologický kompilátor s kompiláciou vopred (AOT)**. Riešime najkritickejšie úzke miesta moderného platformového inžinierstva a nasadzovania AI:"
+  },
+  "1c411a4cedb69f0a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1c411a4cedb69f0a",
+    "status": "machine",
+    "text": "6. Stavová kognitívna pamäť a lokálne hosťovanie modelov"
+  },
+  "1ca6ff977ac7db16": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1ca6ff977ac7db16",
+    "status": "machine",
+    "text": "**Crossplane a KubeVela** sú aktívne operátory riadiacej roviny Kubernetes, ktoré zosúlaďujú požadovaný stav zvnútra klastra. Klaster s Crossplane alebo KubeVela môže spotrebúvať výstup Aggrega pre Kubernetes ako akýkoľvek iný deklaratívny YAML; obe vrstvy sa navzájom dopĺňajú."
+  },
+  "1f41f842f2bac04f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1f41f842f2bac04f",
+    "status": "machine",
+    "text": "**Problém:** Frameworky AI predpokladajú, že infraštruktúra jednoducho existuje, a nechávajú na Ops, aby ručne prepojil agentov, pipeline RAG a databázy pomocou roztrieštených, napevno zadaných súborov YAML."
+  },
+  "2108313ef1f0d75a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "2108313ef1f0d75a",
+    "status": "machine",
+    "text": "**Problém:** Ručné spájanie IP adries, pripájacích reťazcov databáz (DSN) a sieťových portov naprieč mikroslužbami vytvára krehké architektúry viazané na prostredie. Hoci organizácie tieto prechody v súčasnosti zvládajú pomocou zložitých vrstiev prepisov premenných, záplat Kustomize alebo duplikovaných skriptov nasadenia, udržiavanie tejto ručnej prekladovej logiky prináša obrovské prevádzkové trenie a kognitívnu záťaž pri povyšovaní pracovných záťaží z lokálneho notebooku do produkčného cloudu."
+  },
+  "21c16c56cf18ec09": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "21c16c56cf18ec09",
+    "status": "machine",
+    "text": "**Spinnaker** je engine na priebežné doručovanie, ktorý nasadzuje artefakty do cieľov VM a Kubernetes, až za krokom generovania artefaktov, ktorý zaberá Aggrega."
+  },
+  "232128cd807ee090": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "232128cd807ee090",
+    "status": "machine",
+    "text": "**Žiadni agenti na strane klienta:** Aggrega je výhradne orchestrátor backendovej infraštruktúry. Nedokáže generovať konfigurácie pre nespravované AI modely spúšťané úplne v prehliadači Chrome koncového používateľa alebo na mobilnom edge."
+  },
+  "2836d603647e5a66": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "2836d603647e5a66",
+    "status": "machine",
+    "text": "Hranice platformy a necieľe (čím Aggrega nie je)"
+  },
+  "2ec241d1bd236968": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "2ec241d1bd236968",
+    "status": "machine",
+    "text": "**AWS CDK a CDKTF** sú statické AOT kompilátory, ktoré prekladajú kód na všeobecné účely do CloudFormation JSON, resp. Terraform JSON. Aggrega cieli na tie isté výsledné statické artefakty prostredníctvom toho istého otvoreného renderovacieho socketu, a preto umiestnenie jedného nástroja pred druhý pridáva vrstvu kompilácie bez pridania schopností."
+  },
+  "332d91de857547eb": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "332d91de857547eb",
+    "status": "machine",
+    "text": "Dokumentácia Aggrega"
+  },
+  "337813acb49ab46f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "337813acb49ab46f",
+    "status": "machine",
+    "text": "7. Skutočná agnostickosť voči cloudu a schopnostiam (neskorá väzba)"
+  },
+  "3944bb819957d536": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3944bb819957d536",
+    "status": "machine",
+    "text": "**Sémantický DSL & prevádzková ontológia:** Vývojári mapujú svoju architektúru pomocou uzavretej množiny univerzálnych cloudových primitív (napr. `server`, `worker`, `stateful-server`) na vyhradenom štítku `component.aggrega.ai/type` projektu Aggrega. Všetok pokročilý kontext—napríklad autonómia agentov AI, generatívne schopnosti alebo súlad údajov s predpismi—sa na to vrství pomocou statických štítkov Duck-Typing a katalóg, ktorý klasifikuje komponenty podľa vlastnej osi, pridáva vlastný kľúč štítka."
+  },
+  "3b7d0888ec0dbef4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "3b7d0888ec0dbef4",
+    "status": "machine",
+    "text": "Aby si Aggrega zachovala architektonickú čistotu a zabránila nekontrolovanému rozširovaniu rozsahu, funguje v prísnych hraniciach, o ktorých sa nevyjednáva. Platforma má vyhranené názory na problémy, ktoré rieši, a rovnako starostlivo stráži to, čo nerobí."
+  },
+  "3cc33863f096cdcd": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3cc33863f096cdcd",
+    "status": "machine",
+    "text": "Referenčná príručka jazyka"
+  },
+  "3d585960b0018ea7": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "3d585960b0018ea7",
+    "status": "machine",
+    "text": "**Problém:** Keď vývojári píšu tradičný IaC, obmedzenia fyzickej infraštruktúry (napríklad napevno zadané zväzky AWS EBS alebo veľkosti inštancií EC2) často presakujú do aplikačnej logiky. Toto tesné prepojenie znižuje prenosnosť a neúmyselne viaže pracovné záťaže na konkrétnych cloudových dodávateľov."
+  },
+  "3f7898cb83882558": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3f7898cb83882558",
+    "status": "machine",
+    "text": "O projekte Aggrega"
+  },
+  "438d55d1dc11e17d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "438d55d1dc11e17d",
+    "status": "machine",
+    "text": "3. Prevádzkové necieľe a necieľe životného cyklu"
+  },
+  "45af7ab53385d3c1": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "45af7ab53385d3c1",
+    "status": "machine",
+    "text": "2. Žiadna kognitívna logika ani aplikačný kód"
+  },
+  "465eb6e481f5f514": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "465eb6e481f5f514",
+    "status": "machine",
+    "text": "**Kompilátor AOT & odovzdanie na vykonanie:** Prísny kompilačný pipeline prekladá DSL na graf medziľahlej reprezentácie (IR) agnostický voči schopnostiam. IR zachytáva topológiu komponentov a hrany `uses` medzi nimi (kto koho používa); kompilátor odovzdá tento graf socketu správy WebAssembly (Wasm), aby odhalil tranzitívne zraniteľnosti dôvery, a potom spustí vykresľovacie pluginy Wasm, ktoré vygenerujú presné konfigurácie proxy a ochranných mechanizmov. Aggrega zapíše tieto artefakty na disk a fyzické nasadenie odovzdá ďalším nástrojom, ako sú pipeliny CI/CD alebo orchestrátory behového prostredia."
+  },
+  "496123043b3ce83a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "496123043b3ce83a",
+    "status": "machine",
+    "text": "**Pulumi** umožňuje vývojárom opisovať infraštruktúru v jazykoch na všeobecné účely (TypeScript, Python, Go); jeho hlavnou hodnotou je chápanie infraštruktúry ako spustiteľného kódu. Autorským povrchom Aggrega je deklaratívny návrh v YAML — vývojári píšu voči abstrakcii, nie voči povrchu API. Každý z nich odráža inú filozofiu toho, kde sa nachádza zmluva vývojára s infraštruktúrou."
+  },
+  "4a8c0815159ed9f2": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "4a8c0815159ed9f2",
+    "status": "machine",
+    "text": "Aggrega nie je AI agent, ktorý „za vás píše Terraform“. Je to deterministický kompilátor v jazyku Go, ktorý parsuje striktný doménovo špecifický jazyk (DSL), aby zaručil reprodukovateľné a auditovateľné artefakty nasadenia. Infraštruktúru nehalucinuje."
+  },
+  "4bd1d2795b3bffc5": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "4bd1d2795b3bffc5",
+    "status": "machine",
+    "text": "**Programovateľné politiky & validácia:** Jadrový kompilátor v Go je matematicky bez vlastného názoru. Podniková správa je úplne riadená odvetvovými štandardmi a pripojiteľným WebAssembly: JSON Schema 2020-12 (zapísaným kompaktným skráteným zápisom v tvare YAML alebo v úplnom JSON Schema YAML) na validáciu katalógu, rolou `label-transform` socketu správy na dynamické označovanie topológie a jeho rolami verdiktu na vyhodnocovanie architektonických bezpečnostných hraníc."
+  },
+  "4cdf14e699b9233e": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4cdf14e699b9233e",
+    "status": "machine",
+    "text": "5. Centralizácia prevádzky AI a správa brán"
+  },
+  "4ea1e82abbb0d397": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "4ea1e82abbb0d397",
+    "status": "machine",
+    "text": "**Ansible** je imperatívny nástroj na správu konfigurácie pre sekvenčné playbooky na dlhodobo bežiacich VM a on-premise flotilách. Aggrega generuje deklaratívne artefakty topológie pre kontajnerové ciele a ciele cloudových API. Tímy, ktoré používajú Ansible na správu stavu serverov popri kontajnerizovaných úlohách, si ho pre túto úlohu zvyčajne ponechávajú a na topológiu aplikácie používajú Aggrega."
+  },
+  "4fb81ca061e42a84": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4fb81ca061e42a84",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega funguje ako dokonalý topologický prekladač. Kompiláciou deklaratívneho DSL vývojára generuje kompilátor presné konfigurácie potrebné na zapojenie zložitých slučiek uvažovania viacerých agentov priamo do štandardnej cloudovej infraštruktúry bez toho, aby vývojári museli napísať jediný infraštruktúrny skript."
+  },
+  "561cd4289c271653": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "561cd4289c271653",
+    "status": "machine",
+    "text": "Aggrega je open source jazyk, ekosystém a kompilátor na definovanie a vykresľovanie podnikových architektúr so štandardnou knižnicou vysoko špecializovanou na aplikácie AI. Slúži ako most medzi abstraktným zámerom vývojára (vrátane kognitívnych rámcov AI, ako je LangGraph alebo CrewAI) a bezpečnou, fyzickou cloud-native realitou."
+  },
+  "567e98fb9c80fc42": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "567e98fb9c80fc42",
+    "status": "machine",
+    "text": "**Model oddelenia (inšpirovaný OAM):** Prísna architektúra, ktorá uplatňuje Conwayov zákon a čisto oddeľuje zámer vývojára (abstraktné „Čo“ a „Koľko“) od fyzickej reality Platform Ops (fyzického „Ako“ a „Kde“)."
+  },
+  "58dde4bbc0cf1d83": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "58dde4bbc0cf1d83",
+    "status": "machine",
+    "text": "[language-reference/](language-reference/README.md) — „čo“ a „ako používať“ projektu Aggrega. Začať treba stránkou [Stav jazyka](language-reference/10-status.md), ktorá opisuje aktuálny stav pripravenosti, a pri prvom čítaní potom postupovať číslovanými kapitolami 01 až 09 v poradí. Nečíslované podadresáre (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) sú referenčné katalógy — ku konkrétnym položkám možno prechádzať podľa potreby."
+  },
+  "5d2ab756e3052d3c": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "5d2ab756e3052d3c",
+    "status": "machine",
+    "text": "4. Ochranné mantinely vynucované infraštruktúrou a obrana MCP"
+  },
+  "616cc34cf78353cc": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "616cc34cf78353cc",
+    "status": "machine",
+    "text": "**Nie je nástroj na zriaďovanie „dňa 0“:** Aggrega zvyčajne predpokladá, že základná riadiaca rovina už existuje (napr. aktívny klaster Kubernetes alebo účet AWS). Na tomto základe kompiluje aplikačnú architektúru „dňa 1“; nespúšťa počiatočné skripty na vytvorenie firemnej cloudovej organizácie."
+  },
+  "61987507c7b4cf90": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "61987507c7b4cf90",
+    "status": "machine",
+    "text": "**Susedná správa konfigurácie.** Tieto nástroje riešia problémy stavu serverov a záplatovania YAML, ktoré sa líšia od kompilácie topológie, a Aggrega na ich oblasť necieli."
+  },
+  "6794e2f7e96eaa6e": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "6794e2f7e96eaa6e",
+    "status": "machine",
+    "text": "[architecture/](architecture/README.md) — „prečo“ projektu Aggrega. Vízia, pozicionovanie, mentálny model, pipeline kompilátora na koncepčnej úrovni, podniková správa, katalóg, rozšíriteľnosť, návrhové rozhodnutia. Pri prvom čítaní treba postupovať číslovanými kapitolami 01 až 16 v poradí."
+  },
+  "697c8a76197d1986": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "697c8a76197d1986",
+    "status": "machine",
+    "text": "**Nie je správca kognitívneho stavu:** Kompilátor využíva pluginy na generovanie konfigurácií pre zabezpečené sieťové hranice a fyzické databázy. Nesleduje však vnútornú pamäťovú slučku AI agenta. Ak AI halucinuje alebo sa jej nepodarí zapísať do svojej databázy, je to problém aplikačného frameworku."
+  },
+  "6c591f87eb3ef1dc": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6c591f87eb3ef1dc",
+    "status": "machine",
+    "text": "**ArgoCD a Flux** sú kontroléry GitOps, ktoré zosúlaďujú manifesty uložené v Gite do klastra. Výstup Aggrega pre Kubernetes aplikujú ako akýkoľvek iný deklaratívny YAML."
+  },
+  "6d83c5e9324975ed": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6d83c5e9324975ed",
+    "status": "machine",
+    "text": "**Problém:** Riadenie prevádzky LLM vyžaduje vysoko špecializované smerovanie (rozpočty tokenov, sémantické ukladanie do vyrovnávacej pamäte, prepínanie pri zlyhaní), ktoré štandardným bránam mikroslužieb chýba."
+  },
+  "6e82bf0fd3a81e38": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6e82bf0fd3a81e38",
+    "status": "machine",
+    "text": "3. Prepojenie uzavretej záhrady AI s cloudovo natívnou realitou"
+  },
+  "6f75456b9a8945c1": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6f75456b9a8945c1",
+    "status": "machine",
+    "text": "**Formáty artefaktov, do ktorých Aggrega dnes renderuje.** Toto sú výstupy, ktoré vytvárajú dodávané renderovacie pluginy."
+  },
+  "736c86782c7e9099": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "736c86782c7e9099",
+    "status": "machine",
+    "text": "Základné nástroje ako Terraform sú správcovia stavu. Zriaďujú fyzické výpočtové uzly, ale nemodelujú logické dátové toky L7, ktoré prebiehajú *medzi* týmito uzlami. Nedokážu natívne analyzovať architektúru, aby zriadili sémantické firewally potrebné na sledovanie reťazcov promptov AI alebo na zastavenie útokov typu „Confused Deputy“. Naopak, nástroje natívne pre Kubernetes (ako KubeVela) fungujú ako aktívne kontroléry za behu a neposkytujú statické artefakty súladu vytvárané vopred (ahead-of-time), ktoré vyžadujú podnikové bezpečnostné tímy."
+  },
+  "759edb9d500b7550": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "759edb9d500b7550",
+    "status": "machine",
+    "text": "**Nie je aktívny orchestrátor klastrov (žiadne GitOps):** Aggrega je statický kompilátor s predbežnou kompiláciou (AOT), nie aktívny agent v klastri, ktorý priebežne zosúlaďuje stav. Vytvára štandardné manifesty Kubernetes a konfigurácie Docker Compose, ktoré nasadzujú špecializované nástroje GitOps (ako ArgoCD alebo Flux)."
+  },
+  "7897406b5e5a2297": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "7897406b5e5a2297",
+    "status": "machine",
+    "text": "5. Vzťah k súvisiacim nástrojom"
+  },
+  "7d32e6f6bf1ede8a": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "7d32e6f6bf1ede8a",
+    "status": "machine",
+    "text": "[authoring/](authoring/README.md) — „ako si sadnúť a tvoriť“ v Aggrega. Cyklus tvorby, štyri spolupracujúce roly, mapa kindov na roly a postup pripojenia asistenta AI cez server Model Context Protocol. Začať treba stránkou [Začíname](authoring/getting-started.md)."
+  },
+  "84f4b0651bc842df": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "84f4b0651bc842df",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega sa spolieha na „neskorú väzbu“. Vývojári napíšu jediný abstraktný plán. Platformový Ops potom môže bez problémov namapovať presne tú istú topológiu na Docker Compose na lokálne testovanie alebo na AWS/EKS na produkciu, jednoducho výmenou uzamykacieho súboru `Manifest` a smerovača `Release`. Tým sa kognitívna logika aplikácie čisto oddelí od fyzickej infraštruktúry, čo zaručuje skúsenosť „napíš raz, spusti kdekoľvek“ pre základnú architektúru a zároveň robí z viazanosti na dodávateľa riadenú, zámernú voľbu, a nie náhodný vedľajší produkt."
+  },
+  "8ea6d69632805caa": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ea6d69632805caa",
+    "status": "machine",
+    "text": "Podnikové cloudové prostredie je v súčasnosti obmedzené pretrvávajúcou sémantickou medzerou: **tradičné nástroje infraštruktúry ako kódu (IaC) spravujú fyzický stav, ale zo svojej podstaty im chýba kontext aplikačnej vrstvy.**"
+  },
+  "8ecbace279cb5c95": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ecbace279cb5c95",
+    "status": "machine",
+    "text": "**Problém:** Zaobchádzanie s vektorovými databázami a epizodickými logmi ako so všeobecným, plochým úložiskom umožňuje uneseným agentom ľahko prepísať kritické sémantické fakty."
+  },
+  "932a4155211777da": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "932a4155211777da",
+    "status": "machine",
+    "text": "**Docker Compose** je štandard pre lokálny vývoj s viacerými kontajnermi. Renderer Compose v Aggrega naň cieli priamo, takže jediný návrh beží lokálne bez samostatného autorského povrchu."
+  },
+  "9a658c7c52603da9": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "9a658c7c52603da9",
+    "status": "machine",
+    "text": "Ekosystém stojí na štyroch pilieroch:"
+  },
+  "9aea18defa7233d3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9aea18defa7233d3",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega presúva hranice dôvery z kódu aplikácie do sieťovej infraštruktúry prostredníctvom prísneho **odovzdania vykonávania**. Po overení statického grafu aplikácie cez zásuvný riadiaci socket WebAssembly kompilátor spustí vykresľovacie pluginy, aby vygeneroval presné konfigurácie potrebné pre proxy zachytávajúce prevádzku L7 (napríklad maskovanie údajov alebo webhooky na ľudské schválenie). Tieto artefakty potom odovzdá orchestrátoru za behu, ktorý pravidlá fyzicky vynucuje a blokuje neoprávnené akcie."
+  },
+  "9c6fef9d442a0b36": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9c6fef9d442a0b36",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega zaobchádza s vektorovými úložiskami a lokálnymi modelmi ako s explicitnými architektonickými uzlami v grafe topológie. Výhradne na základe toho, čo používateľ požaduje a čo tím Ops implementoval vo svojich `Recipes`, kompilátor využíva pluginy WebAssembly na výstup presných artefaktov potrebných na ich zabezpečenie. To zahŕňa generovanie prísnych sieťových politík potrebných na mapovanie autonómnych agentov na izolované oddiely pamäte a formátovanie konkrétnych obmedzení plánovania (napríklad `nodeSelectors` v Kubernetes), aby orchestrátor za behu umiestnil lokálne modely na optimalizovaný hardvér s GPU."
+  },
+  "9fa8ec5ab6795ee4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "9fa8ec5ab6795ee4",
+    "status": "machine",
+    "text": "1. Deterministický kompilátor, nie generátor IaC"
+  },
+  "a12d04a8d688e472": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "a12d04a8d688e472",
+    "status": "machine",
+    "text": "Zásuvný renderovací socket WebAssembly (Wasm) v Aggrega znamená, že komunita môže vytvoriť renderovací plugin pre akýkoľvek cieľový nástroj. Hlavný projekt dodáva renderovacie pluginy pre Helm, Helm-chart a Compose — pokrývajúce Kubernetes GitOps, distribúciu redistribuovateľných chartov a lokálny vývoj — a otvorený socket umožňuje tímom cieliť na ďalšie povrchy statických artefaktov bez zásahu do jadra. Tímy, ktoré hodnotia Aggrega, často prichádzajú z ekosystémov postavených okolo nástrojov, ktoré zaberajú blízke, no odlišné časti stacku. Nižšie uvedené nástroje sú zoskupené podľa vzťahu k Aggrega: formáty artefaktov, do ktorých Aggrega dnes renderuje, oblasť AOT kompilátorov, ktorú s nimi zdieľa, riadiace roviny, ktoré spotrebúvajú jeho výstup, a susedná oblasť správy konfigurácie, na ktorú necieli."
+  },
+  "aeb44b13d6fa631b": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "aeb44b13d6fa631b",
+    "status": "machine",
+    "text": "Príručka tvorby"
+  },
+  "b8c847cd56125efa": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "b8c847cd56125efa",
+    "status": "machine",
+    "text": "**Žiadne decentralizované ani P2P siete:** Generované konfigurácie sa spoliehajú na centralizovanú podnikovú riadiacu rovinu (Kubernetes/VPC), ktorá dokáže vynucovať sieťové hranice L4/L7. Kompilátor nedokáže vygenerovať zabezpečené smerovanie pre agentov, ktorí sa navzájom dynamicky objavujú na decentralizovaných blockchainoch alebo vo verejných sieťach P2P."
+  },
+  "bd137db8bc937ff3": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "bd137db8bc937ff3",
+    "status": "machine",
+    "text": "Namiesto ručného písania zložitej infraštruktúry ako kódu alebo napevno zadaných sieťových portov vývojári jednoducho deklarujú, *čo* ich aplikácia potrebuje na prežitie. Kompilátor Aggrega deterministicky generuje konfigurácie fyzickej infraštruktúry (Helm charty, manifesty Kubernetes, Docker Compose) potrebné na jej spustenie. Prekladá abstraktné požiadavky na presné statické artefakty, ktoré cieľové prostredie potrebuje na zavedenie hardvérovo vynucovanej bezpečnosti, sieťových hraníc zero-trust a proxy L7 dátovej roviny."
+  },
+  "c54931e4c5c0ec49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c54931e4c5c0ec49",
+    "status": "machine",
+    "text": "**Nitric, Klotho a Winglang** sú programovacie modely s povedomím o cloude, ktorých AOT kompilátory generujú štandardné infraštruktúrne súbory z kódu aplikácie, a nie z deklaratívneho návrhu topológie."
+  },
+  "c67f72db693bd7cf": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c67f72db693bd7cf",
+    "status": "machine",
+    "text": "Aggrega striktne uplatňuje Conwayov zákon a odmieta paradigmu prechodu na proprietárny jazyk. Nikdy nenúti vývojárov prepisovať logiku uvažovania AI, uzly LangGraph ani embeddingy v Pythone do cloudového jazyka špecifického pre platformu. Kompilátor zaobchádza s aplikáciou ako s čiernou skrinkou. Konfiguruje bezpečné cesty a múry; aplikačné frameworky riadia autá."
+  },
+  "c6c208e0aa8e017e": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c6c208e0aa8e017e",
+    "status": "machine",
+    "text": "**Score.dev** je deklaratívna abstrakcia pre základnú kapacitu úlohy — CPU, pamäť, porty — renderovaná do Docker Compose alebo Helmu. Pokrýva úzku podmnožinu toho, čo pokrýva Aggrega: topológia naprieč komponentmi, socket správy (governance) pre politiky, adaptéry Wasm a schopnosti špecifické pre AI sú mimo rozsahu Score."
+  },
+  "c76b005cc3158515": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c76b005cc3158515",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega štrukturálne deleguje hranicu medzi *abstraktnou kapacitou* a *fyzickou mechanikou* na katalóg platformy. Namiesto spoliehania sa na napevno zadané zákazy v kompilátore píšu architekti platformy prísne deklarácie JSON Schema 2020-12 (zvyčajne v kompaktnej forme — skrátenom zápise v tvare YAML, ktorý umožňuje zapísať obmedzenia jednotlivých polí na jeden riadok), aby presne riadili, čo môžu vývojári požadovať. Vývojári sú zvyčajne obmedzení na abstraktné požiadavky na prežitie (napr. `storage_size: 100Gi` alebo `hardware/accelerator: gpu`) a nemôžu vkladať ľubovoľné triedy cloudového úložiska jednoducho preto, že ich schéma komponentu odmietne. Ak aplikácia skutočne vyžaduje konkrétny fyzický typ inštancie EC2, architekt musí toto nastavenie výslovne sprístupniť v rozhraní komponentu, takže viazanosť na dodávateľa je vedomou, riadenou voľbou, a nie náhodným únikom."
+  },
+  "c8f8e453831d91f0": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c8f8e453831d91f0",
+    "status": "machine",
+    "text": "Sémantická medzera v infraštruktúre a ako ju Aggrega preklenuje"
+  },
+  "c9f1503025311e0e": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c9f1503025311e0e",
+    "status": "machine",
+    "text": "4. Necieľe v oblasti aplikačnej paradigmy a infraštruktúry"
+  },
+  "cd74053c54816e47": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "cd74053c54816e47",
+    "status": "machine",
+    "text": "Architektúra"
+  },
+  "cddca72ef82da5a4": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "cddca72ef82da5a4",
+    "status": "machine",
+    "text": "**Problém:** Ochranné mantinely na úrovni softvéru zlyhávajú, ak je aplikácia kompromitovaná alebo ak AI halucinuje, zatiaľ čo má prístup k interným nástrojom cez Model Context Protocol (MCP)."
+  },
+  "cf242788df1f36de": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "cf242788df1f36de",
+    "status": "machine",
+    "text": "**Kustomize** záplatuje Kubernetes YAML bez šablónovania a je zabudovaný do `kubectl`. Transformuje existujúce manifesty namiesto toho, aby do nich kompiloval návrh topológie."
+  },
+  "d14247b9e127c4e0": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "d14247b9e127c4e0",
+    "status": "machine",
+    "text": "**Helm** je štandardný formát na balenie a šablónovanie softvéru pre Kubernetes. Aggrega generuje vyrenderovaný Helm YAML aj zastrešujúce (umbrella) charty ako plnohodnotné výstupné ciele, takže pracovné postupy založené na Helme spotrebúvajú výstup Aggrega priamo."
+  },
+  "d9ed59332a4a6c39": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "d9ed59332a4a6c39",
+    "status": "machine",
+    "text": "1. Abstraktná kapacita vs. fyzická mechanika"
+  },
+  "db8811e8f657542a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "db8811e8f657542a",
+    "status": "machine",
+    "text": "**Riadiace roviny, ktoré spotrebúvajú výstup Aggrega.** Pracujú vnútri bežiaceho klastra a aplikujú deklaratívne artefakty. Aggrega pracuje výlučne vopred (ahead-of-time) — vytvára manifesty, ktoré tieto systémy zosúlaďujú."
+  },
+  "ddd73edb063f9fa0": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "ddd73edb063f9fa0",
+    "status": "machine",
+    "text": "Táto kapitola vymedzuje základný problémový priestor, striktné necieľe platformy, jej vzťah k širšiemu ekosystému a zastrešujúce filozofie, ktorými sa riadi ekosystém Aggrega."
+  },
+  "f047e5d870c7fd12": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "f047e5d870c7fd12",
+    "status": "machine",
+    "text": "**Riešenie:** Aggrega nahrádza napevno zadané infraštruktúrne závislosti **skutočnou inverziou riadenia** prostredníctvom explicitnej *zmluvy o injektáži*. Vývojári jednoducho deklarujú sémantickú topologickú hranu (napr. „Agent A používa databázu B“) a určia, ako ich kód očakáva prijatie údajov o pripojení (napr. ako premennú prostredia alebo pripojený súbor). Kompilátor dynamicky vyhodnotí deterministické ukazovatele cieľa pridelené tímom Ops — či už ide o interný názov DNS v Kubernetes, interpolačný reťazec Terraformu alebo DSN vo formáte Wasm — a odovzdá ich priamo do šablón na vykresľovanie. Tým sa pri moderných pracovných záťažiach úplne abstrahuje fyzické smerovanie a porty. Kompilátor deterministické reťazce iba prepúšťa; stabilné prepojenie závislostí naprieč prostrediami je vlastnosťou disciplíny pri písaní entít Recipe (Ops poskytuje deterministické ukazovatele vhodné pre dané prostredie), nie zárukou jadra kompilátora."
+  },
+  "f3e75cdae87e3241": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f3e75cdae87e3241",
+    "status": "machine",
+    "text": "**Microsoft Radius** je riadiaca rovina od aplikácie po infraštruktúru, ktorá zosúlaďuje požadovaný stav zvnútra klastra a spotrebúva deklaratívne artefakty takého druhu, aký vytvára Aggrega."
+  },
+  "f5accf5964aaf380": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f5accf5964aaf380",
+    "status": "machine",
+    "text": "**Oblasť AOT kompilátorov.** Tieto nástroje tiež kompilujú abstraktný zámer alebo zámer na úrovni kódu do statických artefaktov a zastavia sa pred nasadením. Aggrega cieli na niekoľko rovnakých výsledných artefaktov prostredníctvom svojho otvoreného renderovacieho socketu; tam, kde sa renderovací plugin dnes nedodáva, je cieľ dosiahnuteľný jeho vytvorením, nie zmenou jadra."
+  },
+  "f8795487cd2de396": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f8795487cd2de396",
+    "status": "machine",
+    "text": "Filozofia ekosystému"
+  },
+  "fab4089a7ac9b242": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "fab4089a7ac9b242",
+    "status": "machine",
+    "text": "Používateľská dokumentácia jazyka a kompilátora Aggrega. Primárnym zdrojom je angličtina; prekladové vrstvy pribudnú v budúcom prechode i18n bez zmeny nižšie uvedených ciest."
+  },
+  "fb60e0892da5466b": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "fb60e0892da5466b",
+    "status": "machine",
+    "text": "**Výnimka (platformové Aggregates a zmiešané prípady použitia):** Keďže je Aggrega agnostická voči schopnostiam, natívne podporuje scenáre typu „Greenfield“. Ak platformový architekt definuje infraštruktúru dňa 0 (napríklad VPC a klastre Kubernetes) v rámci platformovej entity `Aggregate`, Aggrega ju skompiluje a vykreslí presne rovnakým spôsobom ako štandardnú aplikáciu. Táto agnostickosť hladko podporuje zmiešané prostredia: ťažký architektonický uzol — napríklad podniková AI brána — môže byť modelovaný ako už existujúci infraštruktúrny prostriedok (pomocou formátovacích pluginov, ktoré len prepúšťajú prevádzku), alebo môže byť nasadený priamo vedľa aplikácie ako štandardný zriadený komponent."
+  }
+}

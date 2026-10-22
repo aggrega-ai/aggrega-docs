@@ -1,0 +1,583 @@
+{
+  "022f7f2558f12ce4": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "022f7f2558f12ce4",
+    "status": "machine",
+    "text": "**Terraform / OpenTofu** jipprovdu riżorsi tal-cloud minn HCL dikjarattiv u jimmaniġġjaw l-istat permezz ta' magna CLI. Aggrega jikkompila f'artifacts statiċi u jħalli l-eżekuzzjoni tal-istat f'idejn l-ambjent tal-eżekuzzjoni; mira tar-rendering ta' Terraform tintlaħaq permezz tas-sokit miftuħ."
+  },
+  "02b773a0cfe71b0b": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "02b773a0cfe71b0b",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Peress li Aggrega huwa kompletament agnostiku, il-konfini bejn l-applikazzjoni u l-infrastruttura jiddependi għalkollox mill-utent. Aggrega jista' jintuża għal implimentazzjonijiet “greenfield” ta' infrastruttura pura, jew jista' jiġġenera konfigurazzjonijiet għall-gateways tal-IA tal-intrapriżi fuq talba jekk l-iżviluppatur jitlobhom espliċitament bħala parti mill-applikazzjoni tiegħu. Meta jintalbu, il-kompilatur juża plugins tar-rendering WebAssembly u r-Recipes ta' Ops biex joħroġ l-artefatti preċiżi għal dawn il-gateways, u jippermetti lill-infrastruttura waqt l-eżekuzzjoni teżegwixxi fiżikament il-caching semantiku u l-ktajjen ta' riżerva bejn fornituri differenti."
+  },
+  "065ecfa31082a991": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "065ecfa31082a991",
+    "status": "machine",
+    "text": "2. Inverżjoni vera tal-kontroll u konnessjoni semantika"
+  },
+  "0ab5763ba4210f0d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "0ab5763ba4210f0d",
+    "status": "machine",
+    "text": "**L-ebda sistema zero-copy jew b'memorja kondiviża:** Il-mudell tas-sigurtà ta' Aggrega jiddependi fuq il-ġenerazzjoni ta' konfigurazzjonijiet għall-interċettazzjoni fil-livell tan-netwerk (bħal sidecars ta' Envoy) biex jinforza l-politiki. Jekk qatgħa ta' aġenti tikkomunika biss permezz tal-memorja tas-sistema kondiviża fi ħdan in-nodu (eż. Ray Core Actors), il-proxies tan-netwerk ma jistgħux jaraw dik il-komunikazzjoni u ma jistgħux jinforzaw il-guardrails."
+  },
+  "0bad2bcf971a5c30": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "0bad2bcf971a5c30",
+    "status": "machine",
+    "text": "Viżjoni u pożizzjonament"
+  },
+  "116d41ee90651783": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "116d41ee90651783",
+    "status": "machine",
+    "text": "**Mhux pipeline CI/CD:** Aggrega ma jibnix immaġni Docker, ma jħaddimx testijiet tal-unità, u ma jimmaniġġjax repożitorji Git. L-iżviluppaturi għandhom jużaw għodod eżistenti biex jibnu l-kodiċi tal-applikazzjoni tagħhom. Aggrega jikkompila biss il-pjan dikjarattiv tal-infrastruttura li jakkumpanja dawk il-builds."
+  },
+  "11b0c6b7cc9d2193": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "11b0c6b7cc9d2193",
+    "status": "machine",
+    "text": "**Chef, Puppet, u SaltStack** huma sistemi tal-ġestjoni tal-konfigurazzjoni bbażati fuq aġenti li jġibu l-istat tas-servers f'konverġenza madwar il-flotot — dominju ta' problemi differenti mill-kumpilazzjoni statika tat-topoloġija."
+  },
+  "12fae7889ed64406": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "12fae7889ed64406",
+    "status": "machine",
+    "text": "**Il-problema:** Biex arkitettura kumplessa tiġi trasferita minn ambjent lokali tal-ittestjar Docker għal Kubernetes tal-produzzjoni, jeħtieġ li jinżammu skripts tal-implimentazzjoni kompletament separati u duplikati."
+  },
+  "1757efae47e07262": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1757efae47e07262",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep**, u **Google Cloud Deployment Manager** huma l-formati nattivi dikjarattivi tal-provvediment għall-clouds rispettivi tagħhom. Kull wieħed minnhom huwa mira ta' artifacts statiċi li awtur jista' jirrendi lejha permezz tas-sokit miftuħ."
+  },
+  "1b327ad5f9694d58": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "1b327ad5f9694d58",
+    "status": "machine",
+    "text": "**L-ebda sandboxing effimeru JIT (mikrosegmentazzjoni għal kull talba):** Aggrega huwa kompilatur statiku AOT iddisinjat biex jipprovdi riżorsi tal-ikkompjutar li jdumu għaddejjin (bħal Kubernetes Deployments). Ma jappoġġjax b'mod nattiv sandboxing effimeru eżatt fil-ħin (JIT), fejn kontenitur sħiħ jinbeda u jinqered għal kull talba biex jiġi limitat ir-raġġ tal-ħsara."
+  },
+  "1bb01da909a15f49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1bb01da909a15f49",
+    "status": "machine",
+    "text": "**AWS SAM u s-Serverless Framework** jittraduċu b'mod statiku speċifikazzjoni YAML f'riżorsi ta' funzjonijiet serverless u API gateways — sottosett iffukat tal-ispazju tal-artifacts li s-sokit ta' Aggrega jista' jimmira lejh."
+  },
+  "1bd874a89258ece3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1bd874a89258ece3",
+    "status": "machine",
+    "text": "Aggrega jsolvi dan billi jaġixxi bħala **kompilatur topoloġiku bil-kompilazzjoni minn qabel (AOT)**. Insolvu l-iktar konġestjonijiet kritiċi fl-inġinerija moderna tal-pjattaformi u fl-implimentazzjoni tal-IA:"
+  },
+  "1c411a4cedb69f0a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1c411a4cedb69f0a",
+    "status": "machine",
+    "text": "6. Memorja konjittiva bi stat u hosting lokali tal-mudelli"
+  },
+  "1ca6ff977ac7db16": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "1ca6ff977ac7db16",
+    "status": "machine",
+    "text": "**Crossplane u KubeVela** huma operaturi attivi tal-control plane ta' Kubernetes li jirrikonċiljaw l-istat mixtieq minn ġewwa cluster. Cluster ta' Crossplane jew KubeVela jista' jikkonsma l-output ta' Kubernetes ta' Aggrega bħal kwalunkwe YAML dikjarattiv ieħor; iż-żewġ saffi jikkumplimentaw lil xulxin."
+  },
+  "1f41f842f2bac04f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "1f41f842f2bac04f",
+    "status": "machine",
+    "text": "**Il-problema:** Il-frameworks tal-IA jassumu li l-infrastruttura sempliċement teżisti, u jħallu lil Ops jgħaqqad manwalment l-aġenti, il-pipelines RAG u d-databases bl-użu ta' fajls YAML frammentati u kkodifikati b'mod fiss."
+  },
+  "2108313ef1f0d75a": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "2108313ef1f0d75a",
+    "status": "machine",
+    "text": "**Il-problema:** Li tgħaqqad manwalment indirizzi IP, strings ta' konnessjoni mad-database (DSN) u portijiet tan-netwerk bejn mikroservizzi joħloq arkitetturi fraġli marbuta ma' ambjent. Għalkemm l-organizzazzjonijiet bħalissa jimmaniġġjaw dawn il-bidliet b'saffi kumplessi ta' overrides tal-varjabbli, patches ta' Kustomize jew skripts tal-implimentazzjoni duplikati, iż-żamma ta' din il-loġika manwali ta' traduzzjoni ddaħħal frizzjoni operattiva enormi u piż konjittiv meta l-kargi tax-xogħol jiġu promossi minn laptop lokali għal cloud tal-produzzjoni."
+  },
+  "21c16c56cf18ec09": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "21c16c56cf18ec09",
+    "status": "machine",
+    "text": "**Spinnaker** huwa magna tal-kunsinna kontinwa li tiskjera artifacts lejn miri VM u Kubernetes, wara l-pass tal-ġenerazzjoni tal-artifacts li jokkupa Aggrega."
+  },
+  "232128cd807ee090": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "232128cd807ee090",
+    "status": "machine",
+    "text": "**L-ebda aġent fuq in-naħa tal-klijent:** Aggrega huwa strettament orkestratur tal-infrastruttura tal-backend. Ma jistax jiġġenera konfigurazzjonijiet għal mudelli tal-AI mhux immaniġġjati li jaħdmu kompletament fil-browser Chrome tal-utent finali jew fl-edge mobbli."
+  },
+  "2836d603647e5a66": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "2836d603647e5a66",
+    "status": "machine",
+    "text": "Il-konfini tal-pjattaforma u l-anti-għanijiet (dak li Aggrega mhuwiex)"
+  },
+  "2ec241d1bd236968": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "2ec241d1bd236968",
+    "status": "machine",
+    "text": "**AWS CDK u CDKTF** huma kompilaturi AOT statiċi li jittraduċu kodiċi għal skopijiet ġenerali f'CloudFormation JSON u Terraform JSON rispettivament. Aggrega jimmira lejn l-istess artifacts statiċi finali permezz tal-istess sokit miftuħ tar-renderer, u għalhekk it-tqegħid ta' għodda waħda qabel l-oħra jżid saff ta' kumpilazzjoni mingħajr ma jżid kapaċità."
+  },
+  "332d91de857547eb": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "332d91de857547eb",
+    "status": "machine",
+    "text": "Dokumentazzjoni ta' Aggrega"
+  },
+  "337813acb49ab46f": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "337813acb49ab46f",
+    "status": "machine",
+    "text": "7. Agnostiċiżmu veru fir-rigward tal-cloud u tal-kapaċitajiet (rabta tardiva)"
+  },
+  "3944bb819957d536": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3944bb819957d536",
+    "status": "machine",
+    "text": "**Id-DSL semantiku & l-ontoloġija operattiva:** L-iżviluppaturi jimmappjaw l-arkitettura tagħhom bl-użu ta' sett magħluq ta' primittivi universali tal-cloud (eż. `server`, `worker`, `stateful-server`) fuq it-tikketta riżervata `component.aggrega.ai/type` ta' Aggrega. Il-kuntest avvanzat kollu—bħall-awtonomija tal-aġenti tal-IA, il-kapaċitajiet ġenerattivi jew il-konformità tad-dejta—jiżdied f'saffi fuqu permezz ta' tikketti statiċi ta' Duck-Typing, u katalgu li jikklassifika l-komponenti fuq assi tiegħu stess iżid ċavetta tat-tikketta tiegħu stess."
+  },
+  "3b7d0888ec0dbef4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "3b7d0888ec0dbef4",
+    "status": "machine",
+    "text": "Biex iżomm il-purità arkitettonika u jevita l-espansjoni bla kontroll tal-ambitu, Aggrega jopera taħt konfini stretti u mhux negozjabbli. Il-pjattaforma għandha fehmiet b'saħħithom dwar il-problemi li ssolvi, u hija daqstant ieħor protettiva ta' dak li ma tagħmilx."
+  },
+  "3cc33863f096cdcd": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3cc33863f096cdcd",
+    "status": "machine",
+    "text": "Referenza tal-lingwa"
+  },
+  "3d585960b0018ea7": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "3d585960b0018ea7",
+    "status": "machine",
+    "text": "**Il-problema:** Meta l-iżviluppaturi jiktbu IaC tradizzjonali, ir-restrizzjonijiet tal-infrastruttura fiżika (bħal volumi AWS EBS jew daqsijiet ta' istanzi EC2 ikkodifikati b'mod fiss) spiss jinfiltraw fil-loġika tal-applikazzjoni. Dan l-akkoppjament strett inaqqas il-portabbiltà u, mingħajr ma jkun intenzjonat, jorbot il-kargi tax-xogħol ma' fornituri speċifiċi tal-cloud."
+  },
+  "3f7898cb83882558": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "3f7898cb83882558",
+    "status": "machine",
+    "text": "Dwar Aggrega"
+  },
+  "438d55d1dc11e17d": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "438d55d1dc11e17d",
+    "status": "machine",
+    "text": "3. Anti-għanijiet operazzjonali u taċ-ċiklu tal-ħajja"
+  },
+  "45af7ab53385d3c1": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "45af7ab53385d3c1",
+    "status": "machine",
+    "text": "2. L-ebda loġika konjittiva jew kodiċi tal-applikazzjoni"
+  },
+  "465eb6e481f5f514": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "465eb6e481f5f514",
+    "status": "machine",
+    "text": "**Il-kompilatur AOT & l-għoti għall-eżekuzzjoni:** Pipeline ta' kompilazzjoni stretta tittraduċi d-DSL fi graff ta' Rappreżentazzjoni Intermedja (IR) agnostiku fir-rigward tal-kapaċitajiet. L-IR jaqbad it-topoloġija tal-komponenti u t-truf `uses` bejniethom (min juża lil min); il-kompilatur jgħaddi dan il-graff lis-sokit tal-governanza WebAssembly (Wasm) biex jiskopri vulnerabbiltajiet tal-fiduċja tranżittivi, imbagħad jeżegwixxi plugins tar-rendering ta' Wasm biex jiġġenera l-konfigurazzjonijiet preċiżi tal-proxy u tal-guardrails. Aggrega tikteb dawn l-artefatti fuq id-diska u tgħaddi l-iskjerament fiżiku lil għodod oħra bħal pipelines CI/CD jew orkestraturi tar-runtime."
+  },
+  "496123043b3ce83a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "496123043b3ce83a",
+    "status": "machine",
+    "text": "**Pulumi** jippermetti lill-iżviluppaturi jiktbu l-infrastruttura f'lingwi għal skopijiet ġenerali (TypeScript, Python, Go); il-valur ewlieni tiegħu huwa li jittratta l-infrastruttura bħala kodiċi eżegwibbli. Il-wiċċ tal-kitba ta' Aggrega huwa blueprint YAML dikjarattiv — l-iżviluppaturi jiktbu kontra l-astrazzjoni, mhux kontra l-wiċċ tal-API. Kull wieħed jirrifletti filosofija differenti dwar fejn jinsab il-kuntratt tal-iżviluppatur mal-infrastruttura."
+  },
+  "4a8c0815159ed9f2": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "4a8c0815159ed9f2",
+    "status": "machine",
+    "text": "Aggrega mhuwiex aġent tal-AI li “jikteb it-Terraform għalik”. Huwa kompilatur Go deterministiku li janalizza Lingwa Speċifika għad-Dominju (DSL) stretta biex jiggarantixxi artifatti ta' implimentazzjoni riproduċibbli u awditjabbli. Ma jallucinax infrastruttura."
+  },
+  "4bd1d2795b3bffc5": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "4bd1d2795b3bffc5",
+    "status": "machine",
+    "text": "**Politiki programmabbli & validazzjoni:** Il-kompilatur ewlieni f'Go huwa matematikament mingħajr opinjoni tiegħu. Il-governanza korporattiva hija mmexxija kompletament minn standards tal-industrija u WebAssembly li jista' jiġi pplaggjat: JSON Schema 2020-12 (miktub permezz ta' shorthand kompatt f'forma ta' YAML jew JSON Schema YAML sħiħ) għall-validazzjoni tal-katalgu, ir-rwol `label-transform` tas-sokit tal-governanza għall-immarkar dinamiku tat-topoloġija, u r-rwoli tal-verdett tiegħu għall-evalwazzjoni tal-konfini tas-sigurtà arkitettonika."
+  },
+  "4cdf14e699b9233e": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4cdf14e699b9233e",
+    "status": "machine",
+    "text": "5. Ċentralizzazzjoni tat-traffiku tal-IA u governanza tal-gateways"
+  },
+  "4ea1e82abbb0d397": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "4ea1e82abbb0d397",
+    "status": "machine",
+    "text": "**Ansible** hija għodda imperattiva tal-ġestjoni tal-konfigurazzjoni għal playbooks sekwenzjali fuq VMs li jdumu żmien twil u flotot on-premise. Aggrega joħroġ artifacts dikjarattivi tat-topoloġija għal miri ta' containers u ta' API tal-cloud. It-timijiet li jħaddmu Ansible għall-ġestjoni tal-istat tas-servers flimkien ma' workloads f'containers normalment iżommuha għal dak ir-rwol u jużaw Aggrega għat-topoloġija tal-applikazzjoni."
+  },
+  "4fb81ca061e42a84": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "4fb81ca061e42a84",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jaġixxi bħala t-traduttur topoloġiku aħħari. Billi jikkompila d-DSL dikjarattiv tal-iżviluppatur, il-kompilatur jiġġenera l-konfigurazzjonijiet preċiżi meħtieġa biex iċ-ċikli kumplessi ta' raġunament b'ħafna aġenti jingħaqdu direttament mal-infrastruttura standard tal-cloud, mingħajr ma l-iżviluppaturi jiktbu skript wieħed tal-infrastruttura."
+  },
+  "561cd4289c271653": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "561cd4289c271653",
+    "status": "machine",
+    "text": "Aggrega hija lingwa, ekosistema u kompilatur b'sors miftuħ għad-definizzjoni u r-rendering ta' arkitetturi intrapriżi, b'librerija standard speċjalizzata ħafna għall-applikazzjonijiet tal-IA. Isservi ta' pont bejn l-intenzjoni astratta tal-iżviluppatur (inklużi oqfsa konjittivi tal-IA bħal LangGraph jew CrewAI) u r-realtà fiżika, sigura u cloud-native."
+  },
+  "567e98fb9c80fc42": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "567e98fb9c80fc42",
+    "status": "machine",
+    "text": "**Il-mudell tas-separazzjoni (ispirat minn OAM):** Arkitettura stretta li tinforza l-Liġi ta' Conway, billi tifred b'mod nadif l-intenzjoni tal-iżviluppatur (il-“X'inhu” u l-“Kemm” astratti) mir-realtà fiżika ta' Platform Ops (il-“Kif” u l-“Fejn” fiżiċi)."
+  },
+  "58dde4bbc0cf1d83": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "58dde4bbc0cf1d83",
+    "status": "machine",
+    "text": "[language-reference/](language-reference/README.md) — il-“x'inhu” u l-“kif jintuża” ta' Aggrega. Wieħed jista' jibda minn [L-istatus tal-lingwa](language-reference/10-status.md) għall-istat attwali tal-prontezza, imbagħad, għall-ewwel qari, isegwi l-kapitoli numerati minn 01 sa 09 f'ordni. Is-sottodirettorji mhux numerati (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) huma katalgi ta' referenza — wieħed jista' jaqbeż għal elementi speċifiċi skont il-ħtieġa."
+  },
+  "5d2ab756e3052d3c": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "5d2ab756e3052d3c",
+    "status": "machine",
+    "text": "4. Baraxxi ta' protezzjoni infurzati mill-infrastruttura u difiża MCP"
+  },
+  "616cc34cf78353cc": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "616cc34cf78353cc",
+    "status": "machine",
+    "text": "**Mhux għodda ta' provvediment għall-“Jum 0”:** Aggrega tipikament jassumi li diġà jeżisti control plane fundamentali (eż. cluster attiv ta' Kubernetes jew kont AWS). Huwa jikkompila l-arkitettura tal-applikazzjoni tal-“Jum 1” fuq dak il-pedament; ma jesegwixxix l-iskripts inizjali biex tinħoloq organizzazzjoni korporattiva fil-cloud."
+  },
+  "61987507c7b4cf90": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "61987507c7b4cf90",
+    "status": "machine",
+    "text": "**Ġestjoni tal-konfigurazzjoni qrib.** Dawn l-għodod jindirizzaw problemi tal-istat tas-servers u tal-patching tal-YAML li huma distinti mill-kumpilazzjoni tat-topoloġija, u Aggrega ma jimmirax lejn id-dominju tagħhom."
+  },
+  "6794e2f7e96eaa6e": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "6794e2f7e96eaa6e",
+    "status": "machine",
+    "text": "[architecture/](architecture/README.md) — il-“għaliex” ta' Aggrega. Viżjoni, pożizzjonament, mudell mentali, il-pipeline tal-kompilatur fil-livell kunċettwali, governanza intrapriża, katalgu, estensibbiltà, għażliet tad-disinn. Għall-ewwel qari, wieħed għandu jsegwi l-kapitoli numerati minn 01 sa 16 f'ordni."
+  },
+  "697c8a76197d1986": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "697c8a76197d1986",
+    "status": "machine",
+    "text": "**Mhux maniġer tal-istat konjittiv:** Il-kompilatur juża plugins biex jiġġenera l-konfigurazzjonijiet għal konfini siguri tan-netwerk u databases fiżiċi. Madankollu, ma jimmonitorjax iċ-ċiklu intern tal-memorja ta' aġent tal-AI. Jekk AI jallucina jew jonqos milli jikteb fid-database tiegħu, dik hija problema tal-framework tal-applikazzjoni."
+  },
+  "6c591f87eb3ef1dc": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6c591f87eb3ef1dc",
+    "status": "machine",
+    "text": "**ArgoCD u Flux** huma kontrolluri GitOps li jirrikonċiljaw manifests maħżuna f'Git ġo cluster. Huma japplikaw l-output ta' Kubernetes ta' Aggrega bħal kwalunkwe YAML dikjarattiv ieħor."
+  },
+  "6d83c5e9324975ed": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6d83c5e9324975ed",
+    "status": "machine",
+    "text": "**Il-problema:** L-immaniġġjar tat-traffiku tal-LLM jeħtieġ routing speċjalizzat ħafna (baġits tat-tokens, caching semantiku, failovers) li l-gateways standard tal-mikroservizzi m'għandhomx."
+  },
+  "6e82bf0fd3a81e38": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "6e82bf0fd3a81e38",
+    "status": "machine",
+    "text": "3. Il-ġnien magħluq tal-IA jingħaqad mar-realtà nattiva tal-cloud"
+  },
+  "6f75456b9a8945c1": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "6f75456b9a8945c1",
+    "status": "machine",
+    "text": "**Formati tal-artifacts li Aggrega jirrendi lejhom illum.** Dawn huma l-outputs li jipproduċu l-plugins tar-renderer inklużi."
+  },
+  "736c86782c7e9099": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "736c86782c7e9099",
+    "status": "machine",
+    "text": "Għodod fundamentali bħal Terraform huma maniġers tal-istat. Huma jipprovdu nodi fiżiċi tal-ikkompjutar, iżda ma jimmudellawx il-flussi loġiċi tad-data L7 li jseħħu *bejn* dawk in-nodi. Ma jistgħux janalizzaw nattivament arkitettura biex jipprovdu l-firewalls semantiċi meħtieġa biex jiġu traċċati l-ktajjen tal-prompts tal-IA jew biex jitwaqqfu l-attakki “Confused Deputy”. Min-naħa l-oħra, l-għodod nattivi għal Kubernetes (bħal KubeVela) joperaw bħala kontrolluri attivi waqt l-eżekuzzjoni, u ma jipprovdux l-artefatti statiċi ta' konformità, iġġenerati minn qabel (ahead-of-time), meħtieġa mit-timijiet tas-sigurtà tal-intrapriżi."
+  },
+  "759edb9d500b7550": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "759edb9d500b7550",
+    "status": "machine",
+    "text": "**Mhux orkestratur attiv tal-cluster (l-ebda GitOps):** Aggrega huwa kompilatur statiku bil-quddiem (AOT), mhux aġent attiv tal-cluster li kontinwament jirrikonċilja l-istat. Huwa joħroġ manifests standard ta' Kubernetes u konfigurazzjonijiet ta' Docker Compose biex jiġu skjerati minn għodod GitOps dedikati (bħal ArgoCD jew Flux)."
+  },
+  "7897406b5e5a2297": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "7897406b5e5a2297",
+    "status": "machine",
+    "text": "5. Ir-relazzjoni ma' għodod qrib"
+  },
+  "7d32e6f6bf1ede8a": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "7d32e6f6bf1ede8a",
+    "status": "machine",
+    "text": "[authoring/](authoring/README.md) — il-“kif wieħed joqgħod u jikteb” ta' Aggrega. Iċ-ċiklu tal-kitba, l-erba' rwoli li jikkollaboraw, il-mappa mill-kinds għar-rwoli, u kif wieħed jgħaqqad assistent tal-IA permezz tas-server Model Context Protocol. Wieħed jista' jibda minn [L-ewwel passi](authoring/getting-started.md)."
+  },
+  "84f4b0651bc842df": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "84f4b0651bc842df",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jistrieħ fuq ir-“rabta tardiva”. L-iżviluppaturi jiktbu pjan astratt wieħed. Imbagħad Ops tal-pjattaforma jista' jimmappja bla xkiel eżattament l-istess topoloġija għal Docker Compose għall-ittestjar lokali, jew għal AWS/EKS għall-produzzjoni, sempliċement billi jissostitwixxi l-fajl tal-lock `Manifest` u r-router `Release`. Dan jifred b'mod nadif il-loġika konjittiva tal-applikazzjoni mill-infrastruttura fiżika, u jiggarantixxi esperjenza ta' “ikteb darba, ħaddem kullimkien” għall-arkitettura ewlenija, filwaqt li r-rabta ma' fornitur issir għażla rregolata u intenzjonata minflok prodott sekondarju aċċidentali."
+  },
+  "8ea6d69632805caa": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ea6d69632805caa",
+    "status": "machine",
+    "text": "Il-pajsaġġ tal-cloud tal-intrapriżi bħalissa huwa limitat minn distakk semantiku persistenti: **l-għodod tradizzjonali tal-infrastruttura bħala kodiċi (IaC) jimmaniġġjaw l-istat fiżiku, iżda min-natura tagħhom jonqoshom il-kuntest tas-saff tal-applikazzjoni.**"
+  },
+  "8ecbace279cb5c95": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "8ecbace279cb5c95",
+    "status": "machine",
+    "text": "**Il-problema:** Meta d-databases vettorjali u r-reġistri episodiċi jiġu ttrattati bħala ħażna ġenerika u ċatta, l-aġenti maħtufa jistgħu faċilment jiktbu fuq fatti semantiċi kritiċi."
+  },
+  "932a4155211777da": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "932a4155211777da",
+    "status": "machine",
+    "text": "**Docker Compose** huwa l-istandard għall-iżvilupp lokali b'diversi containers. Ir-renderer ta' Compose ta' Aggrega jimmira lejh direttament, sabiex blueprint wieħed jaħdem lokalment mingħajr wiċċ ta' kitba separat."
+  },
+  "9a658c7c52603da9": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "9a658c7c52603da9",
+    "status": "machine",
+    "text": "L-ekosistema hija mibnija fuq erba' pilastri:"
+  },
+  "9aea18defa7233d3": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9aea18defa7233d3",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jċaqlaq il-konfini tal-fiduċja barra mill-kodiċi tal-applikazzjoni u ġewwa l-infrastruttura tan-netwerk permezz ta' **għoti tal-eżekuzzjoni** strett. Wara li jivvalida l-graff statiku tal-applikazzjoni permezz tas-sokit tal-governanza WebAssembly li jista' jiġi pplaggjat, il-kompilatur jeżegwixxi plugins tar-rendering biex jiġġenera l-konfigurazzjonijiet eżatti meħtieġa għall-proxies tal-interċettazzjoni L7 (bħal mascheraġġ tad-data jew webhooks għall-approvazzjoni umana). Imbagħad jgħaddi dawn l-artefatti lill-orkestratur waqt l-eżekuzzjoni, li fiżikament jinforza r-regoli u jimblokka azzjonijiet mhux awtorizzati."
+  },
+  "9c6fef9d442a0b36": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "9c6fef9d442a0b36",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jittratta l-ħażniet vettorjali u l-mudelli lokali bħala nodi arkitettoniċi espliċiti fil-graff tat-topoloġija. Abbażi strettament ta' dak li jitlob l-utent u ta' dak li t-tim ta' Ops implimenta fil-`Recipes` tiegħu, il-kompilatur juża plugins WebAssembly biex joħroġ l-artefatti preċiżi meħtieġa biex jiġu protetti. Dan jinkludi l-ġenerazzjoni tal-politiki stretti tan-netwerk meħtieġa biex l-aġenti awtonomi jiġu mmappjati għal partizzjonijiet iżolati tal-memorja, u l-ifformattjar ta' restrizzjonijiet speċifiċi tal-iskedar (bħal `nodeSelectors` ta' Kubernetes) sabiex l-orkestratur waqt l-eżekuzzjoni jqiegħed il-mudelli lokali fuq hardware GPU ottimizzat."
+  },
+  "9fa8ec5ab6795ee4": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "9fa8ec5ab6795ee4",
+    "status": "machine",
+    "text": "1. Kompilatur deterministiku, mhux ġeneratur tal-IaC"
+  },
+  "a12d04a8d688e472": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "a12d04a8d688e472",
+    "status": "machine",
+    "text": "Is-sokit tar-rendering WebAssembly (Wasm) li jista' jiġi mibdul ta' Aggrega jfisser li l-komunità tista' tikteb plugin tar-renderer għal kwalunkwe għodda fil-mira. Il-proġett ewlieni jinkludi plugins tar-rendering għal Helm, Helm-chart u Compose — li jkopru Kubernetes GitOps, id-distribuzzjoni ta' charts li jistgħu jerġgħu jitqassmu, u l-iżvilupp lokali — filwaqt li s-sokit miftuħ iħalli lit-timijiet jimmiraw lejn uċuħ oħra ta' artifacts statiċi mingħajr ma jmissu l-qalba. It-timijiet li jevalwaw Aggrega spiss ġejjin minn ekosistemi mibnija madwar għodod li jinsabu f'partijiet qrib iżda distinti tal-istack. L-għodod hawn taħt huma miġbura skont kif jirrelataw ma' Aggrega: il-formati tal-artifacts li jirrendi lejhom illum, l-ispazju tal-kompilaturi AOT li jaqsam magħhom, il-control planes li jikkunsmaw l-output tiegħu, u d-dominju qrib tal-ġestjoni tal-konfigurazzjoni li ma jimmirax lejh."
+  },
+  "aeb44b13d6fa631b": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "aeb44b13d6fa631b",
+    "status": "machine",
+    "text": "Gwida għall-awtur"
+  },
+  "b8c847cd56125efa": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "b8c847cd56125efa",
+    "status": "machine",
+    "text": "**L-ebda netwerk deċentralizzat jew P2P:** Il-konfigurazzjonijiet iġġenerati jiddependu fuq control plane korporattiv ċentralizzat (Kubernetes/VPC) li kapaċi jinforza konfini tan-netwerk L4/L7. Il-kompilatur ma jistax jiġġenera rotta sigura għal aġenti li jiskopru lil xulxin b'mod dinamiku fuq blockchains deċentralizzati jew netwerks P2P pubbliċi."
+  },
+  "bd137db8bc937ff3": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "bd137db8bc937ff3",
+    "status": "machine",
+    "text": "Minflok ma jiktbu manwalment infrastruttura bħala kodiċi kumplessa jew jikkodifikaw b'mod fiss il-portijiet tan-netwerk, l-iżviluppaturi sempliċement jiddikjaraw *x'inhu* meħtieġ mill-applikazzjoni tagħhom biex tibqa' ħajja. Il-kompilatur Aggrega jiġġenera b'mod deterministiku l-konfigurazzjonijiet tal-infrastruttura fiżika (charts ta' Helm, manifests ta' Kubernetes, Docker Compose) meħtieġa biex titħaddem. Jittraduċi t-talbiet astratti fl-artefatti statiċi eżatti li l-ambjent fil-mira jeħtieġ biex jistabbilixxi sigurtà infurzata mill-hardware, konfini tan-netwerk zero-trust u proxies L7 tal-pjan tad-dejta."
+  },
+  "c54931e4c5c0ec49": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c54931e4c5c0ec49",
+    "status": "machine",
+    "text": "**Nitric, Klotho, u Winglang** huma mudelli ta' programmazzjoni konxji mill-cloud li l-kompilaturi AOT tagħhom joħorġu fajls standard tal-infrastruttura mill-kodiċi tal-applikazzjoni, minflok minn blueprint dikjarattiv tat-topoloġija."
+  },
+  "c67f72db693bd7cf": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c67f72db693bd7cf",
+    "status": "machine",
+    "text": "Aggrega jinforza b'mod strett il-Liġi ta' Conway u jirrifjuta l-paradigma tal-adozzjoni ta' lingwa proprjetarja. Qatt ma jġiegħel lill-iżviluppaturi jerġgħu jiktbu l-loġika ta' raġunament tal-AI, in-nodi LangGraph jew l-embeddings Python tagħhom f'lingwa tal-cloud speċifika għall-pjattaforma. Il-kompilatur jittratta l-applikazzjoni bħala kaxxa sewda. Huwa jikkonfigura t-toroq u l-ħitan siguri; il-frameworks tal-applikazzjoni jsuqu l-karozzi."
+  },
+  "c6c208e0aa8e017e": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "c6c208e0aa8e017e",
+    "status": "machine",
+    "text": "**Score.dev** hija astrazzjoni dikjarattiva għall-kapaċità bażika tal-workload — CPU, memorja, portijiet — irrendata f'Docker Compose jew Helm. Tindirizza sottosett iffukat ta' dak li jkopri Aggrega: it-topoloġija bejn il-komponenti, sokit tal-governanza għall-politiki, l-adapters Wasm, u l-kapaċitajiet speċifiċi għall-AI huma barra mill-ambitu ta' Score."
+  },
+  "c76b005cc3158515": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c76b005cc3158515",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jiddelega strutturalment il-linja bejn il-*kapaċità astratta* u l-*mekkanika fiżika* lill-katalgu tal-pjattaforma. Minflok ma jiddependu fuq projbizzjonijiet ikkodifikati b'mod fiss fil-kompilatur, il-periti tal-pjattaforma jiktbu dikjarazzjonijiet stretti ta' JSON Schema 2020-12 (tipikament f'forma kompatta — notazzjoni qasira f'forma ta' YAML li tqiegħed ir-restrizzjonijiet ta' kull qasam f'linja waħda) biex jirregolaw eżattament x'jistgħu jitolbu l-iżviluppaturi. Tipikament, l-iżviluppaturi huma ristretti għal rekwiżiti astratti ta' sopravivenza (eż. `storage_size: 100Gi` jew `hardware/accelerator: gpu`), u ma jistgħux jinjettaw klassijiet arbitrarji ta' ħażna tal-cloud sempliċement għax l-iskema tal-komponent se tiċħadhom. Jekk applikazzjoni verament teħtieġ tip speċifiku ta' istanza fiżika EC2, il-perit irid jesponi espliċitament dak l-issettjar fl-interfaċċa tal-komponent, u b'hekk ir-rabta ma' fornitur issir għażla konxja u rregolata minflok tnixxija aċċidentali."
+  },
+  "c8f8e453831d91f0": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "c8f8e453831d91f0",
+    "status": "machine",
+    "text": "Id-distakk semantiku tal-infrastruttura u kif Aggrega jgħaqqdu"
+  },
+  "c9f1503025311e0e": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "c9f1503025311e0e",
+    "status": "machine",
+    "text": "4. Anti-għanijiet tal-paradigma tal-applikazzjoni u tal-infrastruttura"
+  },
+  "cd74053c54816e47": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "cd74053c54816e47",
+    "status": "machine",
+    "text": "Arkitettura"
+  },
+  "cddca72ef82da5a4": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "cddca72ef82da5a4",
+    "status": "machine",
+    "text": "**Il-problema:** Il-baraxxi ta' protezzjoni fil-livell tas-softwer ifallu jekk applikazzjoni tiġi kompromessa jew jekk IA jkollha alluċinazzjonijiet waqt li għandha aċċess għal għodod interni permezz tal-Model Context Protocol (MCP)."
+  },
+  "cf242788df1f36de": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "cf242788df1f36de",
+    "status": "machine",
+    "text": "**Kustomize** jagħmel patch lil Kubernetes YAML mingħajr templates u huwa mibni f'`kubectl`. Jittrasforma manifests eżistenti minflok ma jikkompila blueprint tat-topoloġija fihom."
+  },
+  "d14247b9e127c4e0": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "d14247b9e127c4e0",
+    "status": "machine",
+    "text": "**Helm** huwa l-format standard tal-ippakkjar u tat-templates għas-softwer ta' Kubernetes. Aggrega joħroġ kemm Helm YAML irrendut kif ukoll umbrella charts bħala miri tal-output sħaħ, sabiex il-flussi tax-xogħol ibbażati fuq Helm jikkunsmaw l-output ta' Aggrega direttament."
+  },
+  "d9ed59332a4a6c39": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "d9ed59332a4a6c39",
+    "status": "machine",
+    "text": "1. Kapaċità astratta kontra mekkanika fiżika"
+  },
+  "db8811e8f657542a": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "db8811e8f657542a",
+    "status": "machine",
+    "text": "**Control planes li jikkunsmaw l-output ta' Aggrega.** Dawn joperaw ġewwa cluster li qed jaħdem u japplikaw artifacts dikjarattivi. Aggrega jaħdem strettament bil-quddiem (ahead-of-time) — jipproduċi l-manifests li dawn is-sistemi jirrikonċiljaw."
+  },
+  "ddd73edb063f9fa0": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "ddd73edb063f9fa0",
+    "status": "machine",
+    "text": "Dan il-kapitlu jistabbilixxi l-ispazju fundamentali tal-problema, l-anti-għanijiet stretti tal-pjattaforma, kif din hija relatata mal-ekosistema usa', u l-filosofiji ġenerali li jirregolaw l-ekosistema ta' Aggrega."
+  },
+  "f047e5d870c7fd12": {
+    "at": "2026-10-22T00:11:49.019Z",
+    "job": "session-0002-20261022001149",
+    "srcHash": "f047e5d870c7fd12",
+    "status": "machine",
+    "text": "**Is-soluzzjoni:** Aggrega jissostitwixxi d-dipendenzi tal-infrastruttura kkodifikati b'mod fiss b'**inverżjoni vera tal-kontroll** permezz ta' *kuntratt ta' injezzjoni* espliċitu. L-iżviluppaturi sempliċement jiddikjaraw tarf topoloġiku semantiku (eż. “L-Aġent A juża d-Database B”) u jistabbilixxu kif il-kodiċi tagħhom jistenna li jirċievi d-data tal-konnessjoni (eż. bħala varjabbli tal-ambjent jew bħala fajl immuntat). Il-kompilatur jirrisolvi b'mod dinamiku l-pointers deterministiċi tal-mira assenjati minn Ops — kemm jekk ikun isem DNS intern ta' Kubernetes, string ta' interpolazzjoni ta' Terraform jew DSN ifformattjat għal Wasm — u jgħaddihom direttament fil-mudelli tar-rendering. Dan jastratta kompletament ir-routing fiżiku u l-portijiet għall-kargi tax-xogħol moderni. Il-kompilatur sempliċement jgħaddi l-istrings deterministiċi; konnessjoni stabbli tad-dipendenzi bejn l-ambjenti hija proprjetà tad-dixxiplina fil-kitba tar-Recipe (Ops jipprovdi pointers deterministiċi xierqa għall-ambjent), mhux garanzija tal-qalba tal-kompilatur."
+  },
+  "f3e75cdae87e3241": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f3e75cdae87e3241",
+    "status": "machine",
+    "text": "**Microsoft Radius** huwa control plane mill-applikazzjoni għall-infrastruttura li jirrikonċilja l-istat mixtieq minn ġewwa cluster, filwaqt li jikkonsma artifacts dikjarattivi tat-tip li jipproduċi Aggrega."
+  },
+  "f5accf5964aaf380": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f5accf5964aaf380",
+    "status": "machine",
+    "text": "**L-ispazju tal-kompilaturi AOT.** Dawn l-għodod ukoll jikkompilaw intenzjoni astratta jew fil-livell tal-kodiċi f'artifacts statiċi u jieqfu qabel l-iskjerament. Aggrega jimmira lejn diversi mill-istess artifacts finali permezz tas-sokit miftuħ tar-renderer tiegħu; fejn illum ma jkunx inkluż plugin tar-renderer, il-mira tintlaħaq billi wieħed jikteb wieħed minnflok ma jinbidel il-qalba."
+  },
+  "f8795487cd2de396": {
+    "at": "2026-10-22T00:44:56.077Z",
+    "job": "session-0004-20261022004456",
+    "srcHash": "f8795487cd2de396",
+    "status": "machine",
+    "text": "Il-filosofija tal-ekosistema"
+  },
+  "fab4089a7ac9b242": {
+    "at": "2026-10-21T23:57:12.531Z",
+    "job": "session-0001-20261021235712",
+    "srcHash": "fab4089a7ac9b242",
+    "status": "machine",
+    "text": "Dokumentazzjoni għall-utenti tal-lingwa u tal-kompilatur Aggrega. L-Ingliż huwa s-sors primarju; is-saffi tat-traduzzjoni se jaslu f'pass futur ta' i18n mingħajr ma jinbidlu l-mogħdijiet t'hawn taħt."
+  },
+  "fb60e0892da5466b": {
+    "at": "2026-10-22T00:30:13.857Z",
+    "job": "session-0003-20261022003013",
+    "srcHash": "fb60e0892da5466b",
+    "status": "machine",
+    "text": "**Eċċezzjoni (Aggregates tal-pjattaforma u każijiet ta' użu mħallta):** Peress li Aggrega huwa agnostiku fir-rigward tal-kapaċitajiet, jappoġġja b'mod nattiv xenarji “Greenfield”. Jekk perit tal-pjattaforma jiddefinixxi infrastruttura tal-Jum 0 (bħal VPCs u clusters ta' Kubernetes) fi ħdan `Aggregate` tal-pjattaforma, Aggrega jikkompilaha u jirrendiha eżattament bl-istess mod kif jagħmel għal applikazzjoni standard. Dan l-agnostiċiżmu jappoġġja bla xkiel ambjenti mħallta: nodu arkitettoniku tqil — bħal gateway tal-AI tal-intrapriża — jista' jiġi mmudellat bħala riżorsa tal-infrastruttura li diġà teżisti (bl-użu ta' plugins tal-ifformattjar biex sempliċement jgħaddu t-traffiku), jew jista' jiġi skjerat direttament flimkien mal-applikazzjoni bħala komponent standard ipprovdut."
+  }
+}
