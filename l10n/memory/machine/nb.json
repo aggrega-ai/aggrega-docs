@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Ekte invertering av kontroll og semantisk kobling"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Separasjon av ansvarsområder (Conways lov):** Utviklere må aldri skrive kode for fysisk infrastruktur, og Ops må aldri hardkode applikasjonslogikk. Arkitekturen er strengt delt inn i domenedrevne (Domain-Driven) grenser."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet og SaltStack** er agentbaserte systemer for konfigurasjonsstyring som får servertilstanden til å konvergere på tvers av maskinparker — et annet problemdomene enn statisk topologikompilering."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Den strenge leveringskontrakten som kartlegger lokale variabler til målets provides-nøkler (`env`, `file`, `arg`). Denne mekanismen kan utvides."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Problemet:** Å overføre en kompleks arkitektur fra et lokalt Docker-testmiljø til Kubernetes i produksjon krever vedlikehold av helt separate, dupliserte utrullingsskript."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Kapabilitetsagnostisk terminologi:** For å hindre at realitetene i den underliggende infrastrukturen (som Kubernetes-begrepet `namespace`) siver inn i utvikleropplevelsen, bruker plattformen universelle begreper som `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Plattformens grenser og ikke-mål (hva Aggrega ikke er)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Flat kompilering og Feature-atomisitet:** Aggrega håndterer ikke tilstand, pinger ikke endepunkter og tar ikke pause for utrullinger. Kompilatoren evaluerer nestede moduler og løser dem ned til en flat, endimensjonal graf for mellomrepresentasjonen (IR) før dataene sendes til Wasm-renderingsplugins. Avgjørende er det at kompilatoren, selv om grafen flates ut, bevarer **Feature-atomisitet** fullstendig. Hvis en proxyfunksjon selvstendig deklarerer en nettverkskant til et sikkert hvelv, registrerer kompilatoren den semantiske opprinnelsen til denne kanten, slik at Wasm-policymotorer kan utføre $O(1)$-oppslag uten feilaktig å tilskrive tilkoblingen den overordnede komponenten. Til slutt, for å støtte tidsmessig sekvensering, bærer hver grense i Release-entiteten en `syncWave: <integer>`-verdi; hver renderingsplugin oversetter bølgen per grense til det dens eget mål uttrykker rekkefølge med — en annotasjon for kjøringsrekkefølge som den nedstrøms GitOps-kontrolleren leser, eller en avhengighet mellom tjenestene i filen den renderer — mens et mål helt uten mulighet til å uttrykke rekkefølge registrerer bølgen uten å sekvensere etter den."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega er ikke en AI-agent som «skriver Terraform for deg». Det er en deterministisk Go-kompilator som parser et strengt domenespesifikt språk (DSL) for å garantere reproduserbare, reviderbare utrullingsartefakter. Den hallusinerer ikke infrastruktur."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Eksplisitt Plugin-orkestrering:** Kjernekompilatoren i Go fungerer strengt som en nøytral grafbygger og gjetter aldri hvordan en node skal behandles. I stedet orkestreres all domeneintelligens eksplisitt via dedikerte WebAssembly-sockets (Wasm) på to atskilte nivåer. **1. Globale sockets:** Virksomhetens policyer og formatering evalueres av eksplisitt registrerte kompilatorsockets (f.eks. styringsrollen `label-transform` for automatisk merking av metadata, en styringsrolle for avgjørelser om topologisk sikkerhet og renderer-socketen for generering av de endelige artefaktene). **2. Implementasjonspipelines:** Component-spesifikk mutasjonslogikk orkestreres av `Manifest`; når den løser et abstrakt grensesnitt til en konkret `Recipe`, deklarerer denne implementasjonen eksplisitt en sekvensiell `pipeline`-matrise av Wasm-plugins som skal kjøres. Kompilatoren mater ganske enkelt den kapabilitetsagnostiske grafen for mellomrepresentasjonen (IR) inn i disse definerte socketene, og sikrer at all domenespesifikk logikk forblir strengt versjonert i økosystemet i stedet for å være hardkodet i kompilatorkjernen."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Separasjonsmodellen (inspirert av OAM):** En streng arkitektur som håndhever Conways lov og skiller utviklerens intensjon (det abstrakte «Hva» og «Hvor mye») rent fra den fysiske virkeligheten til Platform Ops (det fysiske «Hvordan» og «Hvor»)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Programmerbare policyer (kompilatoren uten egne meninger):** Kjernekompilatoren i Go er en innholdsnøytral, beregnende mekanisme. Den parser YAML, traverserer grafer og evaluerer snitt av etiketter. Den faktiske «intelligensen» (f.eks. å håndheve at modelltrafikk som bærer begrensede data, går gjennom en AI-gateway som maskerer sensitiv tekst) programmeres dynamisk av virksomheten ved hjelp av pluggbare WebAssembly-sockets (Wasm) for mutasjoner av det abstrakte syntakstreet (AST)—endring av den parsede representasjonen av konfigurasjonen i minnet—og for policyvalidering."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Tilgrensende konfigurasjonsstyring.** Disse verktøyene løser problemer med servertilstand og YAML-patching som er atskilt fra topologikompilering, og Aggrega retter seg ikke mot domenet deres."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Den sentrale nyttelasten av kognitiv logikk/forretningslogikk (eid av utviklere)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Skjemaagnostisisme (ordbok med åpen kildekode):** Kjernekompilatoren er agnostisk overfor fysiske kjøringslag. Den har ingen hardkodede skjemaer for Helm, Terraform eller Docker Compose. I stedet er `source`-blokken i en Recipe for Ops en åpen ordbok der nøklene defineres av leverandøren og eksponeres for Recipe-entitetens maler som `.source.*`. Designretningen er at hver leverandørs Wasm-socket definerer og validerer sin egen kildeform — slik at virksomheter kan innføre nye infrastrukturverktøy uten å vente på oppdateringer av kjerneskjemaet; denne Wasm-valideringen av kilden per leverandør er ennå ikke implementert. I dag løser kjernen en *hentet* kilde via en innebygd `{ kind, url, version }`-form (typer: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), noe som allerede frikobler kompilatoren fra skyspråkene den manipulerer. Se Recipe-referansen for `source` for den nåværende hentemodellen og den planlagte Wasm-validerte formen."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Ikke en kognitiv tilstandsbehandler:** Kompilatoren bruker programtillegg til å generere konfigurasjonene for sikre nettverksgrenser og fysiske databaser. Den overvåker imidlertid ikke en AI-agents interne minnesløkke. Hvis en AI hallusinerer eller ikke klarer å skrive til databasen sin, er det applikasjonsrammeverkets problem."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Aggrega-arkitekturen styres av sentrale designprinsipper som balanserer fleksibilitet med forutsigbarhet. Ved å opprettholde tydelige grenser og standardiserte kontrakter kan en grunnleggende generisk kompilator sømløst orkestrere alt fra standard cloud-native-infrastruktur til høyt spesialisert AI-intelligens."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD og Flux** er GitOps-kontrollere som avstemmer manifester lagret i Git inn i en klynge. De anvender Kubernetes-utdataene fra Aggrega som enhver annen deklarativ YAML."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**AOT-renhet (ingen henting fra den levende skyen):** Kompilatoren er agnostisk overfor den levende skyen. Den autentiserer seg aldri mot infrastruktur-API-er og henter aldri levende IP-adresser under kompilering. Den arbeider fullstendig etter *inversjon av kontroll*, kartlegger deterministiske pekere og sender abstrakte injeksjonskontrakter på forhånd, slik at kjøretidsmiljøet trygt kan løse de endelige fysiske tilkoblingene."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Artefaktformater Aggrega renderer til i dag.** Dette er utdataene som de medfølgende renderer-pluginene produserer."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Semantisk utvikleropplevelse (standarden for kartet med 5 nøkkelord):** For å unngå kognitiv friksjon bruker utviklere nøyaktig fem universelt forståtte nøkkelord i en Map-basert YAML-topologi:"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Grunnleggende verktøy som Terraform er tilstandsforvaltere. De klargjør fysiske beregningsnoder, men modellerer ikke de logiske L7-dataflytene som skjer *mellom* disse nodene. De kan ikke nativt analysere en arkitektur for å klargjøre de semantiske brannmurene som trengs for å spore AI-promptkjeder eller stoppe «Confused Deputy»-angrep. Omvendt fungerer Kubernetes-native verktøy (som KubeVela) som aktive kjøretidskontrollere og leverer ikke de statiske samsvarsartefaktene, produsert på forhånd (ahead-of-time), som sikkerhetsteam i bedrifter krever."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Utvikleropplevelsen: intensjon og abstraksjon**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Problemet:** Å behandle vektordatabaser og episodiske logger som generisk, flat lagring gjør det enkelt for kaprede agenter å overskrive kritiske semantiske fakta."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Kompilatoren uten egne meninger: behandling og orkestrering**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Den utskiftbare WebAssembly-(Wasm-)renderingssokkelen i Aggrega betyr at fellesskapet kan skrive en renderer-plugin for et hvilket som helst målverktøy. Kjerneprosjektet leveres med renderings-plugins for Helm, Helm-chart og Compose — som dekker Kubernetes GitOps, distribusjon av videredistribuerbare charts og lokal utvikling — mens den åpne sokkelen lar team rette seg mot andre flater for statiske artefakter uten å røre kjernen. Team som vurderer Aggrega, kommer ofte fra økosystemer bygd rundt verktøy som befinner seg i nærliggende, men atskilte deler av stakken. Verktøyene nedenfor er gruppert etter hvordan de forholder seg til Aggrega: artefaktformatene Aggrega renderer til i dag, AOT-kompilatorområdet den deler, kontrollplanene som konsumerer utdataene dens, og det tilgrensende domenet for konfigurasjonsstyring som den ikke retter seg mot."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: De eksplisitt deklarerte nettverkskantene og avhengighetene (eid av utviklere)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Kjernemekanikk: arkitekturens fysikk**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Økosystemets filosofi"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Ikke-mål for applikasjonsparadigme og infrastruktur"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Den globale miljøkontrakten (f.eks. overføring av dynamiske diskstørrelser)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** patcher Kubernetes-YAML uten maler og er innebygd i `kubectl`. Det transformerer eksisterende manifester i stedet for å kompilere en topologitegning inn i dem."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Det fysiske fotavtrykket og den mekaniske dimensjoneringen (eid av Ops, forbudt i Aggregate-entiteten)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "Dette kapitlet fastsetter det grunnleggende problemområdet, plattformens strenge ikke-mål, hvordan den forholder seg til det bredere økosystemet, og de overordnede filosofiene som styrer Aggrega-økosystemet."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Sen binding (avhengighetsinversjon):** Utviklere ber om abstrakte grensesnitt (f.eks. `type: enterprise-agent`), ikke spesifikke implementasjoner (f.eks. `helm-chart-v2`). Manifest-entiteten løser grensesnittet til riktig implementasjon ved kompileringstid, noe som muliggjør reelle utrullinger til flere mål fra én enkelt kildefil."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

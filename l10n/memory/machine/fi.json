@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Todellinen ohjauksen kääntäminen ja semanttinen johdotus"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Vastuualueiden erottaminen (Conwayn laki):** Kehittäjät eivät saa koskaan kirjoittaa fyysisen infrastruktuurin koodia, eikä Ops saa koskaan kovakoodata sovelluslogiikkaa. Arkkitehtuuri on jaettu tiukasti toimialuelähtöisiin (Domain-Driven) rajoihin."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet ja SaltStack** ovat agenttipohjaisia konfiguraationhallintajärjestelmiä, jotka saattavat palvelintilan yhtenäiseksi koko laitekannassa — eri ongelma-alue kuin staattinen topologian kääntäminen."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Tiukka toimitussopimus, joka yhdistää paikalliset muuttujat kohteen provides-avaimiin (`env`, `file`, `arg`). Tämä mekanismi on laajennettavissa."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Ongelma:** Monimutkaisen arkkitehtuurin siirtäminen paikallisesta Docker-testiympäristöstä tuotannon Kubernetesiin edellyttää täysin erillisten, kopioitujen käyttöönottoskriptien ylläpitoa."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Terminologia, joka on agnostinen suhteessa kyvykkyyksiin:** Jotta taustalla olevan infrastruktuurin todellisuudet (kuten Kubernetesin termi `namespace`) eivät vuotaisi kehittäjäkokemukseen, alusta käyttää yleisiä käsitteitä, kuten `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Alustan rajat ja ei-tavoitteet (mitä Aggrega ei ole)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Litteä kääntäminen ja Feature-atomisuus:** Aggrega ei hallitse tilaa, pingaa päätepisteitä eikä pysähdy odottamaan käyttöönottoja. Kääntäjä arvioi sisäkkäiset moduulit ja ratkaisee ne litteäksi, yksiulotteiseksi välikielen (IR) graafiksi ennen kuin se välittää tiedot Wasm-renderöintiliitännäisille. Ratkaisevaa on, että vaikka graafi litistetään, kääntäjä säilyttää täydellisesti **Feature-atomisuuden**. Jos välityspalvelinominaisuus määrittelee itsenäisesti verkkokaaren suojattuun holviin, kääntäjä tallentaa kaaren semanttisen alkuperän, jotta Wasm-käytäntömoottorit voivat tehdä $O(1)$-hakuja liittämättä yhteyttä virheellisesti yläkomponenttiin. Lopuksi ajallisen järjestyksen tukemiseksi jokainen raja Release-entiteetissä kantaa arvoa `syncWave: <integer>`; jokainen renderöintiliitännäinen kääntää rajakohtaisen aallon siksi, millä sen oma kohde ilmaisee järjestyksen — suoritusjärjestysmerkinnäksi, jonka alavirran GitOps-ohjain lukee, tai riippuvuudeksi sen renderöimän tiedoston palvelujen välillä — kun taas kohde, jolla ei ole lainkaan järjestyksen ilmaisukeinoa, tallentaa aallon järjestämättä sen mukaan."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega ei ole tekoälyagentti, joka ”kirjoittaa Terraformia puolestasi”. Se on deterministinen Go-kääntäjä, joka jäsentää tiukkaa toimialakohtaista kieltä (DSL) taatakseen toistettavat ja auditoitavat käyttöönottoartefaktit. Se ei hallusinoi infrastruktuuria."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Eksplisiittinen Plugin-orkestrointi:** Go-kielinen ydinkääntäjä toimii tiukasti neutraalina graafin rakentajana eikä koskaan arvaa, miten solmu käsitellään. Sen sijaan kaikki toimialueen älykkyys orkestroidaan eksplisiittisesti erillisten WebAssembly (Wasm) -sokettien kautta kahdella erillisellä tasolla. **1. Globaalit soketit:** Yrityksen käytännöt ja muotoilu arvioidaan eksplisiittisesti rekisteröidyillä kääntäjäsoketeilla (esim. hallintaroolilla `label-transform` metatietojen automaattiseen tunnistamiseen, hallinnan päätösroolilla topologista tietoturvaa varten ja renderöintisoketilla lopullisten artefaktien tuottamiseen). **2. Toteutusten putket:** Component-kohtaista mutaatiologiikkaa orkestroi `Manifest`; kun se ratkaisee abstraktin rajapinnan konkreettiseksi `Recipe`:ksi, kyseinen toteutus määrittelee eksplisiittisesti suoritettavien Wasm-liitännäisten peräkkäisen `pipeline`-taulukon. Kääntäjä vain syöttää kyvykkyyksiin nähden agnostisen välikielen (IR) graafin näihin määriteltyihin soketteihin, mikä varmistaa, että kaikki toimialuekohtainen logiikka pysyy tiukasti versioituna ekosysteemissä sen sijaan, että se olisi kovakoodattu kääntäjän ytimeen."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Erottelumalli (OAM:n innoittama):** Tiukka arkkitehtuuri, joka toteuttaa Conwayn lakia ja erottaa selkeästi kehittäjän aikomuksen (abstraktin ”Mitä” ja ”Kuinka paljon”) Platform Opsin fyysisestä todellisuudesta (fyysisestä ”Miten” ja ”Missä”)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Ohjelmoitavat käytännöt (kääntäjä ilman omia näkemyksiä):** Go-kielinen ydinkääntäjä on sisältöneutraali, laskeva mekanismi. Se jäsentää YAML:ää, läpikäy graafeja ja arvioi tunnisteiden leikkauksia. Varsinaisen ”älykkyyden” (esim. sen valvomisen, että rajoitettua dataa kuljettava malliliikenne kulkee arkaluonteisen tekstin peittävän tekoälyyhdyskäytävän kautta) yritys ohjelmoi dynaamisesti liitettävillä WebAssembly (Wasm) -soketeilla abstraktin syntaksipuun (AST) mutaatioita—konfiguraation jäsennetyn muistinsisäisen esityksen muuttamista—ja käytäntöjen validointia varten."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Viereinen konfiguraationhallinta.** Nämä työkalut ratkaisevat palvelintilan ja YAML-paikkauksen ongelmia, jotka eroavat topologian kääntämisestä, eikä Aggrega kohdistu niiden alueeseen."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Kognitiivisen/liiketoimintalogiikan ydinhyötykuorma (kehittäjien omistama)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Skeema-agnostisuus (avoimen lähdekoodin sanakirja):** Ydinkääntäjä on agnostinen suhteessa fyysisiin suorituskerroksiin. Siinä ei ole kovakoodattuja skeemoja Helmille, Terraformille tai Docker Composelle. Sen sijaan Opsin Recipe-entiteetin `source`-lohko on avoin sanakirja, jonka avaimet määrittää palveluntarjoaja ja jotka näkyvät Recipe-entiteetin malleissa muodossa `.source.*`. Suunnittelun suunta on, että kunkin palveluntarjoajan Wasm-soketti määrittää ja validoi oman lähdemuotonsa — jolloin yritykset voivat ottaa käyttöön uusia infrastruktuurityökaluja odottamatta ydinskeeman päivityksiä; tätä palveluntarjoajakohtaista Wasm-lähdevalidointia ei ole vielä toteutettu. Nykyään ydin ratkaisee *haettavan* lähteen sisäänrakennetulla `{ kind, url, version }` -muodolla (lajit: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), mikä jo irrottaa kääntäjän pilvikielistä, joita se käsittelee. Nykyinen hakumalli ja suunniteltu Wasm-validoitu muoto kuvataan Recipe-entiteetin `source`-viitteessä."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Ei kognitiivisen tilan hallitsija:** Kääntäjä käyttää liitännäisiä tuottaakseen määritykset suojatuille verkkorajoille ja fyysisille tietokannoille. Se ei kuitenkaan valvo tekoälyagentin sisäistä muistisilmukkaa. Jos tekoäly hallusinoi tai ei onnistu kirjoittamaan tietokantaansa, se on sovelluskehyksen ongelma."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Aggrega-arkkitehtuuria ohjaavat keskeiset suunnitteluperiaatteet, jotka tasapainottavat joustavuuden ja ennustettavuuden. Selkeiden rajojen ja standardoitujen sopimusten ansiosta pohjimmiltaan yleiskäyttöinen kääntäjä voi saumattomasti orkestroida kaiken tavallisesta pilvinatiivista infrastruktuurista pitkälle erikoistuneeseen tekoälyyn."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD ja Flux** ovat GitOps-ohjaimia, jotka täsmäyttävät Gitiin tallennetut manifestit klusteriin. Ne soveltavat Aggrega-kääntäjän Kubernetes-tuotosta kuten mitä tahansa muuta deklaratiivista YAMLia."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**AOT-puhtaus (ei hakuja elävästä pilvestä):** Kääntäjä on agnostinen suhteessa elävään pilveen. Se ei koskaan todennu infrastruktuurin API-rajapintoihin eikä hae reaaliaikaisia IP-osoitteita käännöksen aikana. Se toimii kokonaan *ohjauksen kääntämisen* varassa: se kuvaa deterministisiä osoittimia ja välittää abstraktit injektiosopimukset etukäteen, jotta ajonaikainen ympäristö voi ratkaista lopulliset fyysiset yhteydet turvallisesti."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Artefaktimuodot, joihin Aggrega renderöi tänään.** Nämä ovat tuotoksia, joita toimitetut renderöintilaajennukset tuottavat."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Semanttinen kehittäjäkokemus (viiden avainsanan Map-standardi):** Kognitiivisen kitkan estämiseksi kehittäjät käyttävät Map-pohjaisessa YAML-topologiassa täsmälleen viittä yleisesti ymmärrettyä avainsanaa:"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Perustavat työkalut, kuten Terraform, ovat tilanhallitsijoita. Ne provisioivat fyysisiä laskentasolmuja, mutta eivät mallinna loogisia L7-tietovirtoja, jotka kulkevat näiden solmujen *välillä*. Ne eivät pysty natiivisti analysoimaan arkkitehtuuria provisioidakseen semanttiset palomuurit, joita tarvitaan tekoälyn kehoteketjujen jäljittämiseen tai ”Confused Deputy” -hyökkäysten pysäyttämiseen. Kubernetes-natiivit työkalut (kuten KubeVela) puolestaan toimivat aktiivisina ajonaikaisina ohjaimina eivätkä tarjoa niitä staattisia, etukäteen (ahead-of-time) tuotettuja vaatimustenmukaisuusartefakteja, joita yritysten tietoturvatiimit edellyttävät."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Kehittäjäkokemus: aikomus ja abstraktio**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Ongelma:** Vektoritietokantojen ja episodisten lokien käsittely yleisenä, litteänä tallennustilana antaa kaapatuille agenteille mahdollisuuden ylikirjoittaa kriittisiä semanttisia faktoja helposti."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Kääntäjä ilman omia näkemyksiä: käsittely ja orkestrointi**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Aggrega-kääntäjän liitännäisenä vaihdettava WebAssembly (Wasm) -renderöintiliitäntä tarkoittaa, että yhteisö voi kirjoittaa renderöintilaajennuksen mille tahansa kohdetyökalulle. Ydinprojekti toimittaa renderöintilaajennukset Helmille, Helm-chartille ja Composelle — ne kattavat Kubernetes GitOpsin, uudelleenjaettavien chartien jakelun ja paikallisen kehityksen —, ja avoin liitäntä antaa tiimien kohdistaa muihin staattisten artefaktien pintoihin koskematta ytimeen. Aggrega-kääntäjää arvioivat tiimit tulevat usein ekosysteemeistä, jotka on rakennettu pinon läheisissä mutta erillisissä osissa toimivien työkalujen ympärille. Alla olevat työkalut on ryhmitelty sen mukaan, miten ne liittyvät Aggrega-kääntäjään: artefaktimuodot, joihin se renderöi tänään, AOT-kääntäjien alue, jonka se jakaa, ohjaustasot, jotka kuluttavat sen tuotosta, ja viereinen konfiguraationhallinnan alue, johon se ei kohdistu."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: Eksplisiittisesti määritellyt verkon kaaret ja riippuvuudet (kehittäjien omistamia)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Ydinmekaniikka: arkkitehtuurin fysiikka**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Ekosysteemin filosofia"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Sovellusparadigmaan ja infrastruktuuriin liittyvät ei-tavoitteet"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Globaali ympäristösopimus (esim. dynaamisten levykokojen välittäminen)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** paikkaa Kubernetes-YAMLia ilman mallipohjia ja on sisäänrakennettu `kubectl`:ään. Se muuntaa olemassa olevia manifesteja sen sijaan, että kääntäisi topologian pohjapiirustuksen niiksi."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Fyysinen jalanjälki ja mekaaninen mitoitus (Opsin omistamia, kielletty Aggregate-entiteetissä)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "Tämä luku määrittelee perustavan ongelma-alueen, alustan tiukat ei-tavoitteet, sen suhteen laajempaan ekosysteemiin sekä kattavat periaatteet, jotka ohjaavat Aggrega-ekosysteemiä."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Myöhäinen sidonta (riippuvuuksien inversio):** Kehittäjät pyytävät abstrakteja rajapintoja (esim. `type: enterprise-agent`), eivät tiettyjä toteutuksia (esim. `helm-chart-v2`). Manifest-entiteetti ratkaisee rajapinnan oikeaksi toteutukseksi käännösaikana, mikä mahdollistaa todelliset monikohdekäyttöönotot yhdestä lähdetiedostosta."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

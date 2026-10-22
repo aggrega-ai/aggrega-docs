@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Raunverulegur viðsnúningur stjórnunar og merkingarleg tenging"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Aðskilnaður ábyrgðarsviða (lögmál Conways):** Forritarar mega aldrei skrifa kóða fyrir efnislega innviði og Ops má aldrei harðkóða forritsrökfræði. Arkitektúrnum er skipt stranglega í lénsdrifin (Domain-Driven) mörk."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet og SaltStack** eru umboðsbundin stillingastjórnunarkerfi sem samræma stöðu netþjóna þvert á vélaflota — annað vandamálasvið en kyrrstæð grannfræðiþýðing."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Strangi afhendingarsamningurinn sem varpar staðværum breytum á provides-lykla marksins (`env`, `file`, `arg`). Hægt er að útvíkka þetta kerfi."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Vandinn:** Til að flytja flókna högun úr staðbundnu Docker-prófunarumhverfi yfir í Kubernetes í framleiðslu þarf að viðhalda algjörlega aðskildum, tvíteknum uppsetningarskriftum."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Hugtakanotkun óháð getu:** Til að koma í veg fyrir að veruleiki undirliggjandi innviða (eins og Kubernetes-hugtakið `namespace`) leki inn í upplifun forritara notar verkvangurinn almenn hugtök eins og `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Mörk verkvangsins og andmarkmið (hvað Aggrega er ekki)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Flöt þýðing og Feature-ódeilanleiki:** Aggrega heldur ekki utan um stöðu, pingar ekki endapunkta og gerir ekki hlé vegna dreifinga. Þýðandinn metur hreiðraðar einingar og leysir þær niður í flatt, einvítt millimálsgraf (IR) áður en hann sendir gögnin til Wasm-birtingarviðbótanna. Það sem skiptir sköpum er að þótt grafið sé flatt út varðveitir þýðandinn fullkomlega **Feature-ódeilanleika**. Ef proxy-eiginleiki lýsir sjálfstætt yfir netbrún að öruggri hirslu skráir þýðandinn merkingarlegan uppruna þeirrar brúnar, svo að Wasm-stefnuvélar geti framkvæmt $O(1)$-uppflettingar án þess að eigna yfireiningunni tenginguna ranglega. Að lokum, til að styðja tímalega röðun, ber hver afmörkun í Release-einingunni gildið `syncWave: <integer>`; hver birtingarviðbót þýðir bylgju hverrar afmörkunar yfir í það sem eigið markkerfi hennar tjáir röð með — athugasemd um keyrsluröð sem GitOps-stýringin neðar í ferlinu les, eða hæði milli þjónusta skrárinnar sem hún birtir — á meðan markkerfi sem hefur alls enga leið til að tjá röð skráir bylgjuna án þess að raða eftir henni."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega er ekki gervigreindarumboðsmaður sem „skrifar Terraform fyrir þig“. Það er ákvarðandi Go-þýðandi sem þáttar strangt sérsviðsmál (DSL) til að tryggja endurtakanlega og endurskoðanlega dreifingargripi. Það ofskynjar ekki innviði."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Skýr Plugin-samræming:** Kjarnaþýðandinn í Go virkar stranglega sem hlutlaus grafsmiður og giskar aldrei á hvernig vinna skuli úr hnút. Þess í stað er öll lénsgreind samræmd skýrt í gegnum sérstaka WebAssembly-tengla (Wasm) á tveimur aðgreindum stigum. **1. Altækir tenglar:** Stefnur og snið fyrirtækisins eru metin af skýrt skráðum þýðandatenglum (t.d. stjórnunarhlutverkinu `label-transform` fyrir sjálfvirka merkingu lýsigagna, stjórnunarhlutverki fyrir úrskurði um grannfræðilegt öryggi og birtingartenglinum fyrir myndun endanlegra afurða). **2. Útfærsluleiðslur:** Breytingarrökfræði sem er sértæk fyrir Component-einingu er samræmd af `Manifest`; þegar það leysir óhlutbundið viðmót í áþreifanlega `Recipe` lýsir sú útfærsla skýrt yfir raðbundnu `pipeline`-fylki Wasm-viðbóta sem á að keyra. Þýðandinn matar einfaldlega getuóháða millimálsgrafið (IR) inn í þessa skilgreindu tengla og tryggir þannig að öll lénssértæk rökfræði haldist stranglega útgáfustýrð í vistkerfinu í stað þess að vera harðkóðuð í kjarna þýðandans."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Aðskilnaðarlíkanið (innblásið af OAM):** Ströng arkitektúr sem framfylgir lögmáli Conways og aðskilur skýrt ásetning forritarans (hið óhlutbundna „Hvað“ og „Hversu mikið“) frá efnislegum veruleika Platform Ops (hinu efnislega „Hvernig“ og „Hvar“)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Forritanlegar stefnur (þýðandinn án eigin skoðana):** Kjarnaþýðandinn í Go er reiknivirki sem er hlutlaust gagnvart efni. Hann þáttar YAML, ferðast um gröf og metur skurðmengi merkja. Hin raunverulega „greind“ (t.d. að framfylgja því að líkanaumferð sem ber takmörkuð gögn fari um gervigreindargátt sem felur viðkvæman texta) er forrituð á breytilegan hátt af fyrirtækinu með tengjanlegum WebAssembly-tenglum (Wasm) fyrir breytingar á óhlutbundnu málskipunartré (AST)—breytingu á þáttaðri framsetningu stillingarinnar í minni—og fyrir sannprófun stefna."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Aðliggjandi stillingastjórnun.** Þessi verkfæri taka á vandamálum varðandi stöðu netþjóna og plástrun YAML sem eru aðskilin frá grannfræðiþýðingu, og Aggrega miðar ekki á svið þeirra."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Kjarnahleðsla hugrænnar/viðskiptalegrar rökfræði (í eigu forritara)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Óhæði skema (orðasafn með opnum kóða):** Kjarnaþýðandinn er óháður efnislegum keyrslulögum. Hann hefur engin harðkóðuð skemu fyrir Helm, Terraform eða Docker Compose. Þess í stað er `source`-bálkur Recipe-einingar fyrir Ops opið orðasafn þar sem veitandinn skilgreinir lyklana og þeir birtast sniðmátum Recipe-einingarinnar sem `.source.*`. Hönnunarstefnan er sú að Wasm-tengill hvers veitanda skilgreini og sannprófi eigið form upprunans — svo fyrirtæki geti tekið upp ný innviðaverkfæri án þess að bíða eftir uppfærslum á kjarnaskemanu; sú sannprófun upprunans með Wasm fyrir hvern veitanda hefur ekki enn verið útfærð. Í dag leysir kjarninn *sóttan* uppruna með innbyggðu `{ kind, url, version }`-formi (tegundir: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), sem aftengir þýðandann nú þegar frá skýjamálunum sem hann meðhöndlar. Sjá tilvísun Recipe-einingarinnar um `source` fyrir núverandi sóknarlíkan og fyrirhugað form sem Wasm sannprófar."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Ekki stjórnandi vitrænnar stöðu:** Þýðandinn notar viðbætur til að búa til stillingarnar fyrir örugg netmörk og efnislega gagnagrunna. Hann vaktar þó ekki innri minnislykkju gervigreindarumboðsmanns. Ef gervigreind ofskynjar eða tekst ekki að skrifa í gagnagrunn sinn er það vandamál forritarammans."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Arkitektúr Aggrega byggir á grundvallarhönnunarreglum sem vega saman sveigjanleika og fyrirsjáanleika. Með því að viðhalda skýrum mörkum og stöðluðum samningum getur í grunninn almennur þýðandi samræmt allt hnökralaust, allt frá hefðbundnum skýjainnviðum (cloud-native) til mjög sérhæfðrar gervigreindar."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD og Flux** eru GitOps-stýringar sem samstilla upplýsingaskrár sem geymdar eru í Git inn í klasa. Þær beita Kubernetes-úttaki Aggrega-þýðandans eins og hverju öðru lýsandi YAML."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**AOT-hreinleiki (engin sókn í lifandi ský):** Þýðandinn er óháður lifandi skýinu. Hann auðkennir sig aldrei hjá forritaskilum innviða né sækir lifandi IP-tölur meðan á þýðingu stendur. Hann starfar alfarið á grundvelli *umsnúnings stýringar*, varpar ákvarðanlegum bendum og afhendir óhlutbundna innspýtingarsamninga fyrir fram svo keyrsluumhverfið geti örugglega leyst endanlegar efnislegar tengingar."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Gripasnið sem Aggrega birtir í dag.** Þetta er úttakið sem birtingarviðbæturnar sem fylgja með framleiða."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Merkingarleg upplifun forritara (staðall kortsins með 5 lykilorðum):** Til að koma í veg fyrir hugrænan núning nota forritarar nákvæmlega fimm almennt skiljanleg lykilorð innan Map-byggðrar YAML-grannfræði:"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Grunnverkfæri á borð við Terraform eru stöðustjórar. Þau úthluta efnislegum reiknihnútum en líkja ekki eftir rökrænu L7-gagnaflæði sem á sér stað *á milli* þessara hnúta. Þau geta ekki greint högun með innbyggðum hætti til að úthluta þeim merkingarlegu eldveggjum sem þarf til að rekja kvaðningakeðjur gervigreindar eða stöðva „Confused Deputy“-árásir. Á hinn bóginn starfa Kubernetes-innbyggð verkfæri (eins og KubeVela) sem virkir keyrslustýringar og veita ekki þá kyrrstæðu samræmisgripi, framleidda fyrir fram (ahead-of-time), sem öryggisteymi fyrirtækja krefjast."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Upplifun forritara: ætlun og óhlutbinding**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Vandinn:** Að meðhöndla vigurgagnagrunna og atburðaskrár sem almenna, flata geymslu gerir yfirteknum umboðsmönnum auðvelt að skrifa yfir mikilvægar merkingarlegar staðreyndir."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Þýðandinn án eigin skoðana: vinnsla og samræming**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Útskiptanlegt WebAssembly (Wasm) birtingartengi í Aggrega-þýðandanum þýðir að samfélagið getur skrifað birtingarviðbót fyrir hvaða markverkfæri sem er. Kjarnaverkefnið fylgir með birtingarviðbótum fyrir Helm, Helm-chart og Compose — sem ná yfir Kubernetes GitOps, dreifingu endurdreifanlegra charta og staðbundna þróun — en opna tengið gerir teymum kleift að miða á aðra fleti fyrir kyrrstæða gripi án þess að snerta kjarnann. Teymi sem meta Aggrega koma oft úr vistkerfum sem byggð eru utan um verkfæri sem eru í nálægum en aðskildum hlutum staflans. Verkfærin hér að neðan eru flokkuð eftir tengslum þeirra við Aggrega: gripasniðin sem þýðandinn birtir í dag, svið AOT-þýðenda sem hann deilir með þeim, stjórnlögin sem nota úttak hans og aðliggjandi svið stillingastjórnunar sem hann miðar ekki á."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: Netbrúnir og hæði sem lýst er skýrt yfir (í eigu forritara)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Kjarnavélfræði: eðlisfræði arkitektúrsins**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Hugmyndafræði vistkerfisins"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Andmarkmið varðandi forritahugmyndafræði og innviði"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Almenni umhverfissamningurinn (t.d. að senda breytilegar diskstærðir)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** plástrar Kubernetes YAML án sniðmáta og er innbyggt í `kubectl`. Það umbreytir fyrirliggjandi upplýsingaskrám frekar en að þýða grannfræðiteikningu inn í þær."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Efnislegt fótspor og vélræn stærðarákvörðun (í eigu Ops, bönnuð í Aggregate-einingunni)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "Þessi kafli skilgreinir grundvallarvandamálasviðið, ströng ekki-markmið vettvangsins, tengsl hans við víðtækara vistkerfi og yfirgripsmiklu hugmyndafræðina sem stýrir Aggrega-vistkerfinu."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Síðbúin binding (umsnúningur hæðis):** Forritarar biðja um óhlutbundin viðmót (t.d. `type: enterprise-agent`), ekki tilteknar útfærslur (t.d. `helm-chart-v2`). Manifest-einingin leysir viðmótið í rétta útfærslu við þýðingu, sem gerir raunverulegar dreifingar á mörg markkerfi mögulegar úr einni frumskrá."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

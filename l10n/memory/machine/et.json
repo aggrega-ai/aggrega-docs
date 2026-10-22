@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Tõeline juhtimise ümberpööramine ja semantiline ühendamine"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Vastutusalade eraldamine (Conway seadus):** Arendajad ei tohi kunagi kirjutada füüsilise taristu koodi ja Ops ei tohi kunagi rakendusloogikat koodi sisse kirjutada. Arhitektuur on rangelt jaotatud domeenipõhisteks (Domain-Driven) piirideks."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet ja SaltStack** on agendipõhised konfiguratsioonihalduse süsteemid, mis viivad serverite oleku masinaparkides ühtlusesse — see on staatilisest topoloogia kompileerimisest erinev probleemivaldkond."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Range edastusleping, mis seob kohalikud muutujad sihtkoha provides-võtmetega (`env`, `file`, `arg`). See mehhanism on laiendatav."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Probleem:** Keeruka arhitektuuri ülekandmine kohalikust Dockeri testkeskkonnast tootmis-Kubernetesesse nõuab täiesti eraldi, dubleeritud juurutusskriptide ülalpidamist."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Võimekuste suhtes agnostiline terminoloogia:** Selleks et alustaristu tegelikkus (nagu Kubernetese termin `namespace`) ei imbuks arendajakogemusse, kasutab platvorm universaalseid mõisteid, nagu `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Platvormi piirid ja mitte-eesmärgid (mis Aggrega ei ole)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Lame kompileerimine ja Feature-atomaarsus:** Aggrega ei halda olekut, ei pingi lõpp-punkte ega peatu juurutuste ootamiseks. Kompilaator hindab pesastatud mooduleid ja lahendab need lamedaks, ühemõõtmeliseks vahekujutuse (IR) graafiks, enne kui annab andmed edasi Wasm-renderduspluginatele. Oluline on, et kuigi graaf lamendatakse, säilitab kompilaator täielikult **Feature-atomaarsuse**. Kui proksifunktsioon deklareerib iseseisvalt võrguserva turvalise hoidlani, salvestab kompilaator selle serva semantilise päritolu, nii et Wasm-poliitikamootorid saavad teha $O(1)$ otsinguid, omistamata ühendust ekslikult vanemkomponendile. Lõpuks kannab ajalise järjestamise toetamiseks iga piir Release-olemis väärtust `syncWave: <integer>`; iga renderdusplugin tõlgib piiripõhise laine selleks, millega tema enda sihtmärk järjekorda väljendab — täitmisjärjekorra annotatsiooniks, mida loeb allavoolu GitOps-kontroller, või sõltuvuseks renderdatava faili teenuste vahel — samas kui sihtmärk, millel pole üldse järjekorra väljendamise võimalust, salvestab laine ilma selle järgi järjestamata."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega ei ole AI-agent, mis „kirjutab teie eest Terraformi“. See on deterministlik Go-kompilaator, mis parsib ranget valdkonnaspetsiifilist keelt (DSL), et tagada korratavad ja auditeeritavad juurutusartefaktid. See ei hallutsineeri taristut."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Selgesõnaline Plugin-orkestreerimine:** Go-keelne tuumkompilaator toimib rangelt neutraalse graafiehitajana ega arva kunagi, kuidas sõlme töödelda. Selle asemel orkestreeritakse kogu domeeniintelligentsus selgesõnaliselt spetsiaalsete WebAssembly (Wasm) pesade kaudu kahel eraldi tasandil. **1. Globaalsed pesad:** Ettevõtte poliitikaid ja vormindust hindavad selgesõnaliselt registreeritud kompilaatoripesad (nt halduse roll `label-transform` metaandmete automaatseks sildistamiseks, halduse otsuseroll topoloogilise turvalisuse jaoks ja renderduspesa lõplike artefaktide genereerimiseks). **2. Teostuste konveierid:** Component-olemipõhist mutatsiooniloogikat orkestreerib `Manifest`; kui see lahendab abstraktse liidese konkreetseks olemiks `Recipe`, deklareerib see teostus selgesõnaliselt käivitatavate Wasm-pluginate järjestikuse massiivi `pipeline`. Kompilaator lihtsalt suunab võimekuste suhtes agnostilise vahekujutuse (IR) graafi nendesse määratletud pesadesse, tagades, et kogu domeenispetsiifiline loogika jääb ökosüsteemis rangelt versioonituks, selle asemel et olla kompilaatori tuuma kõvakodeeritud."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Eraldusmudel (OAM-ist inspireeritud):** Range arhitektuur, mis rakendab Conway seadust ja eraldab selgelt arendaja kavatsuse (abstraktse „Mida“ ja „Kui palju“) Platform Opsi füüsilisest reaalsusest (füüsilisest „Kuidas“ ja „Kus“)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Programmeeritavad poliitikad (ilma oma arvamuseta kompilaator):** Go-keelne tuumkompilaator on sisu suhtes neutraalne arvutusmehhanism. See parsib YAML-i, läbib graafe ja hindab siltide ühisosasid. Tegeliku „intelligentsuse“ (nt nõude, et piiratud andmeid kandev mudeliliiklus läbiks tundlikku teksti maskeeriva tehisintellekti lüüsi) programmeerib ettevõte dünaamiliselt ühendatavate WebAssembly (Wasm) pesade abil abstraktse süntaksipuu (AST) mutatsioonide jaoks—konfiguratsiooni parsitud mälusisese esituse muutmiseks—ja poliitikate valideerimiseks."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Lähedane konfiguratsioonihaldus.** Need tööriistad lahendavad serveri oleku ja YAML-i paikamise probleeme, mis erinevad topoloogia kompileerimisest, ja Aggrega ei sihi nende valdkonda."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Kognitiivse/äriloogika põhikoormus (arendajate omandis)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Skeemide suhtes agnostilisus (avatud lähtekoodiga sõnastik):** Tuumkompilaator on füüsiliste täitmiskihtide suhtes agnostiline. Sellel pole kõvakodeeritud skeeme tööriistade Helm, Terraform ega Docker Compose jaoks. Selle asemel on Opsi Recipe-olemi `source`-plokk avatud sõnastik, mille võtmed määrab pakkuja ja mis jõuavad Recipe-olemi mallidesse kujul `.source.*`. Disainisuund on, et iga pakkuja Wasm-pesa määratleb ja valideerib oma lähtekuju — nii saavad ettevõtted võtta kasutusele uusi taristutööriistu, ootamata tuumskeemi uuendusi; seda pakkujapõhist Wasm-valideerimist lähte jaoks pole veel teostatud. Täna lahendab tuum *toodava* lähte sisseehitatud kuju `{ kind, url, version }` abil (liigid: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), mis juba eraldab kompilaatori pilvekeeltest, millega see manipuleerib. Praeguse toomismudeli ja kavandatud Wasm-valideeritud kuju kohta vaadake Recipe-olemi `source` viidet."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Ei ole kognitiivse oleku haldur:** Kompilaator kasutab pistikprogramme, et genereerida konfiguratsioonid turvaliste võrgupiiride ja füüsiliste andmebaaside jaoks. Siiski ei jälgi see AI-agendi sisemist mälutsüklit. Kui AI hallutsineerib või ei suuda oma andmebaasi kirjutada, on see rakendusraamistiku probleem."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Aggrega arhitektuuri juhivad põhilised disainipõhimõtted, mis tasakaalustavad paindlikkust ja ennustatavust. Selgete piiride ja standardiseeritud lepingute säilitamise abil saab põhimõtteliselt üldine kompilaator sujuvalt orkestreerida kõike alates standardsest pilvepõhisest (cloud-native) taristust kuni väga spetsialiseeritud tehisintellektini."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD ja Flux** on GitOpsi kontrollerid, mis ühtlustavad Gitis hoitavad manifestid klastrisse. Need rakendavad Aggrega Kubernetese väljundit nagu mis tahes muud deklaratiivset YAML-i."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**AOT puhtus (ei mingit toomist elavast pilvest):** Kompilaator on elava pilve suhtes agnostiline. See ei autendi end kompileerimise ajal kunagi taristu API-de juures ega too reaalajas IP-aadresse. See töötab täielikult *juhtimise inversiooni* alusel, kaardistades deterministlikke viitasid ja edastades abstraktsed sisestuslepingud ette, et käituskeskkond saaks lõplikud füüsilised ühendused turvaliselt lahendada."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Artefaktivormingud, millesse Aggrega täna renderdab.** Need on väljundid, mida tarnitud renderdamispistikprogrammid toodavad."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Semantiline arendajakogemus (5 märksõnaga kaardi standard):** Kognitiivse hõõrdumise vältimiseks kasutavad arendajad Map-põhises YAML-topoloogias täpselt viit üldarusaadavat märksõna:"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Alustööriistad nagu Terraform on olekuhaldurid. Need eraldavad füüsilisi arvutussõlmi, kuid ei modelleeri loogilisi L7 andmevooge, mis toimuvad nende sõlmede *vahel*. Need ei suuda arhitektuuri natiivselt analüüsida, et eraldada semantilisi tulemüüre, mida on vaja tehisintellekti viibaahelate jälgimiseks või „Confused Deputy“ rünnakute peatamiseks. Seevastu Kubernetese-natiivsed tööriistad (nagu KubeVela) töötavad aktiivsete käitusaja kontrolleritena ega paku staatilisi, eelnevalt (ahead-of-time) loodud vastavusartefakte, mida ettevõtete turvameeskonnad nõuavad."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Arendajakogemus: kavatsus ja abstraktsioon**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Probleem:** Vektorandmebaaside ja episoodiliste logide käsitlemine üldise, lameda salvestusruumina võimaldab kaaperdatud agentidel kriitilisi semantilisi fakte hõlpsasti üle kirjutada."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Ilma oma arvamuseta kompilaator: töötlemine ja orkestreerimine**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Aggrega pistikuna vahetatav WebAssembly (Wasm) renderdamissokkel tähendab, et kogukond saab kirjutada renderdamispistikprogrammi mis tahes sihttööriista jaoks. Põhiprojekt tarnib renderdamispistikprogrammid Helmi, Helm-charti ja Compose’i jaoks — need katavad Kubernetes GitOpsi, edasilevitatavate chartide levitamise ja kohaliku arenduse —, samal ajal kui avatud sokkel võimaldab meeskondadel sihtida muid staatiliste artefaktide pindu tuuma puutumata. Meeskonnad, kes Aggrega kasutuselevõttu hindavad, tulevad sageli ökosüsteemidest, mis on üles ehitatud tööriistade ümber, mis paiknevad virna lähedastes, kuid eraldiseisvates osades. Allolevad tööriistad on rühmitatud selle järgi, kuidas need on seotud Aggrega-kompilaatoriga: artefaktivormingud, millesse see täna renderdab, AOT-kompilaatorite valdkond, mida see jagab, juhttasandid, mis tarbivad selle väljundit, ja lähedane konfiguratsioonihalduse valdkond, mida see ei sihi."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: Selgesõnaliselt deklareeritud võrgu servad ja sõltuvused (arendajate omandis)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Põhimehaanika: arhitektuuri füüsika**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Ökosüsteemi filosoofia"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Rakendusparadigma ja taristu mitte-eesmärgid"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Globaalne keskkonnaleping (nt dünaamiliste kettasuuruste edastamine)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** paikab Kubernetese YAML-i ilma mallideta ja on sisse ehitatud tööriista `kubectl`. See teisendab olemasolevaid manifeste, selle asemel et kompileerida neisse topoloogiakavand."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Füüsiline jalajälg ja mehaaniline mõõtmestamine (Opsi omandis, Aggregate-olemis keelatud)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "See peatükk määratleb põhilise probleemiruumi, platvormi ranged mitte-eesmärgid, selle suhte laiema ökosüsteemiga ning üldised filosoofiad, mis juhivad Aggrega ökosüsteemi."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Hiline sidumine (sõltuvuste inversioon):** Arendajad taotlevad abstraktseid liideseid (nt `type: enterprise-agent`), mitte konkreetseid teostusi (nt `helm-chart-v2`). Manifest-olem lahendab liidese kompileerimise ajal õigeks teostuseks, võimaldades tõelisi mitme sihtkohaga juurutusi ühest lähtefailist."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

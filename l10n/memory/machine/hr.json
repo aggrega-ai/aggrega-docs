@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Prava inverzija upravljanja i semantičko povezivanje"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Razdvajanje odgovornosti (Conwayev zakon):** Programeri nikada ne smiju pisati kôd fizičke infrastrukture, a Ops nikada ne smije čvrsto kodirati aplikacijsku logiku. Arhitektura je strogo podijeljena na granice vođene domenom (Domain-Driven)."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet i SaltStack** sustavi su za upravljanje konfiguracijom temeljeni na agentima koji usklađuju stanje poslužitelja u flotama — domena problema drukčija od statičkog prevođenja topologije."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Strogi ugovor isporuke koji mapira lokalne varijable na ključeve provides cilja (`env`, `file`, `arg`). Ovaj je mehanizam proširiv."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Problem:** Prenošenje složene arhitekture iz lokalnog Docker okruženja za testiranje u produkcijski Kubernetes zahtijeva održavanje potpuno odvojenih, dupliciranih skripti za implementaciju."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Terminologija agnostična prema mogućnostima:** Kako stvarnosti temeljne infrastrukture (poput Kubernetes pojma `namespace`) ne bi prodirale u iskustvo programera, platforma koristi univerzalne koncepte poput `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Granice platforme i anticiljevi (što Aggrega nije)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Plosnato prevođenje i atomarnost Feature:** Aggrega ne upravlja stanjem, ne pinga krajnje točke niti pauzira radi implementacija. Prevoditelj procjenjuje ugniježđene module i razrješava ih u plosnati, jednodimenzionalni graf međureprezentacije (IR) prije nego što podatke proslijedi Wasm dodacima za renderiranje. Ključno je da, iako se graf spljoštava, prevoditelj savršeno čuva **atomarnost Feature**. Ako proxy značajka samostalno deklarira mrežni brid prema sigurnom trezoru, prevoditelj bilježi semantičko podrijetlo tog brida, osiguravajući da Wasm mehanizmi pravila mogu izvršavati pretraživanja $O(1)$ bez pogrešnog pripisivanja veze nadređenoj komponenti. Konačno, radi podrške vremenskom slijedu, svaka granica u entitetu Release nosi vrijednost `syncWave: <integer>`; svaki dodatak za renderiranje prevodi val po granici u ono čime njegov vlastiti cilj izražava redoslijed — oznaku redoslijeda izvršavanja koju čita nizvodni GitOps kontroler ili ovisnost između servisa datoteke koju renderira — dok cilj bez ikakve površine za redoslijed bilježi val bez određivanja slijeda prema njemu."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega nije AI agent koji „piše Terraform umjesto vas”. To je deterministički Go prevoditelj koji parsira strogi jezik specifičan za domenu (DSL) kako bi jamčio ponovljive artefakte implementacije koji se mogu revidirati. Ne halucinira infrastrukturu."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Izričita orkestracija Plugin:** Temeljni prevoditelj u Go-u djeluje strogo kao neutralni graditelj grafa i nikada ne pogađa kako obraditi čvor. Umjesto toga, sva se domenska inteligencija izričito orkestrira putem namjenskih WebAssembly (Wasm) utičnica na dvjema zasebnim razinama. **1. Globalne utičnice:** Pravila poduzeća i oblikovanje procjenjuju izričito registrirane utičnice prevoditelja (npr. upravljačka uloga `label-transform` za automatsko označavanje metapodataka, upravljačka uloga za presude o topološkoj sigurnosti i utičnica renderera za generiranje konačnih artefakata). **2. Cjevovodi implementacije:** Logiku mutacija specifičnu za Component orkestrira `Manifest`; kada razriješi apstraktno sučelje u konkretni `Recipe`, ta implementacija izričito deklarira sekvencijalno polje `pipeline` Wasm dodataka za izvršavanje. Prevoditelj jednostavno prosljeđuje graf međureprezentacije (IR), agnostičan prema mogućnostima, u te definirane utičnice, osiguravajući da sva logika specifična za domenu ostane strogo verzionirana u ekosustavu umjesto da bude čvrsto kodirana u jezgri prevoditelja."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Model razdvajanja (nadahnut OAM-om):** Stroga arhitektura koja provodi Conwayev zakon, jasno odvajajući namjeru razvojnog programera (apstraktno „Što” i „Koliko”) od fizičke stvarnosti Platform Opsa (fizičkog „Kako” i „Gdje”)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Programabilna pravila (prevoditelj bez vlastitog mišljenja):** Temeljni prevoditelj u Go-u računski je mehanizam neutralan prema sadržaju. Raščlanjuje YAML, obilazi grafove i izračunava presjeke oznaka. Stvarnu „inteligenciju” (npr. nametanje da promet prema modelima koji prenosi ograničene podatke prolazi kroz AI pristupnik koji maskira osjetljiv tekst) poduzeće programira dinamički pomoću priključivih WebAssembly (Wasm) utičnica za mutacije apstraktnog sintaksnog stabla (AST)—mijenjanje raščlanjenog prikaza konfiguracije u memoriji—i za provjeru valjanosti pravila."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Susjedno upravljanje konfiguracijom.** Ovi alati rješavaju probleme stanja poslužitelja i krpanja YAML-a koji se razlikuju od prevođenja topologije, a Aggrega ne cilja na njihovu domenu."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Temeljni teret kognitivne/poslovne logike (u vlasništvu programera)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Agnosticizam prema shemama (rječnik otvorenog koda):** Temeljni prevoditelj agnostičan je prema fizičkim izvršnim slojevima. Nema čvrsto kodirane sheme za Helm, Terraform ili Docker Compose. Umjesto toga, blok `source` entiteta Recipe za Ops otvoreni je rječnik čije ključeve definira pružatelj i koji se predlošcima entiteta Recipe izlažu kao `.source.*`. Smjer dizajna je da Wasm utičnica svakog pružatelja definira i provjerava vlastiti oblik izvora — tako poduzeća mogu uvoditi nove infrastrukturne alate bez čekanja na ažuriranja temeljne sheme; ta provjera izvora putem Wasm po pružatelju još nije implementirana. Danas jezgra razrješava *dohvaćeni* izvor ugrađenim oblikom `{ kind, url, version }` (vrste: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), što već odvaja prevoditelja od jezika oblaka kojima upravlja. Trenutačni model dohvaćanja i planirani oblik koji provjerava Wasm opisani su u referenci za `source` entiteta Recipe."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Nije upravitelj kognitivnog stanja:** Prevoditelj koristi dodatke za generiranje konfiguracija za sigurne mrežne granice i fizičke baze podataka. Međutim, ne prati unutarnju memorijsku petlju AI agenta. Ako AI halucinira ili ne uspije zapisati u svoju bazu podataka, to je problem aplikacijskog okvira."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Arhitekturu Aggrega vode temeljna načela dizajna koja uravnotežuju fleksibilnost i predvidljivost. Održavanjem jasnih granica i standardiziranih ugovora, u osnovi generički prevoditelj može besprijekorno orkestrirati sve, od standardne cloud-native infrastrukture do visoko specijalizirane AI inteligencije."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD i Flux** GitOps su kontroleri koji manifeste pohranjene u Gitu usklađuju u klaster. Kubernetes izlaz alata Aggrega primjenjuju kao bilo koji drugi deklarativni YAML."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**Čistoća AOT-a (bez dohvaćanja iz živog oblaka):** Prevoditelj je agnostičan prema živom oblaku. Tijekom prevođenja nikada se ne autentificira prema API-jima infrastrukture niti dohvaća žive IP adrese. Radi u potpunosti na načelu *inverzije upravljanja*, mapirajući determinističke pokazivače i unaprijed prosljeđujući apstraktne ugovore ubrizgavanja kako bi izvršno okruženje moglo sigurno razriješiti konačne fizičke veze."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Formati artefakata u koje Aggrega danas renderira.** To su izlazi koje proizvode isporučeni dodaci za renderiranje."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Semantičko iskustvo programera (standard mape s 5 ključnih riječi):** Kako bi se spriječilo kognitivno trenje, programeri koriste točno pet univerzalno razumljivih ključnih riječi unutar YAML topologije temeljene na mapama (Map):"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Temeljni alati poput Terraforma upravitelji su stanja. Oni dodjeljuju fizičke računalne čvorove, ali ne modeliraju logičke tokove podataka L7 koji se odvijaju *između* tih čvorova. Ne mogu izvorno analizirati arhitekturu kako bi dodijelili semantičke vatrozide potrebne za praćenje lanaca upita umjetne inteligencije ili zaustavljanje napada tipa „Confused Deputy”. S druge strane, alati izvorni za Kubernetes (poput alata KubeVela) rade kao aktivni kontroleri tijekom izvođenja i ne pružaju statične artefakte usklađenosti stvorene unaprijed (ahead-of-time) koje zahtijevaju sigurnosni timovi poduzeća."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Iskustvo programera: namjera i apstrakcija**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Problem:** Tretiranje vektorskih baza podataka i epizodnih zapisnika kao generičke, ravne pohrane omogućuje otetim agentima da lako prepišu ključne semantičke činjenice."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Prevoditelj bez vlastitog mišljenja: obrada i orkestracija**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Priključivi WebAssembly (Wasm) utor za renderiranje u alatu Aggrega znači da zajednica može napisati dodatak za renderiranje za bilo koji ciljni alat. Osnovni projekt isporučuje dodatke za renderiranje za Helm, Helm-chart i Compose — koji pokrivaju Kubernetes GitOps, distribuciju redistribuiranih chartova i lokalni razvoj — dok otvoreni utor timovima omogućuje ciljanje drugih površina statičkih artefakata bez diranja jezgre. Timovi koji procjenjuju Aggrega često dolaze iz ekosustava izgrađenih oko alata koji se nalaze u bliskim, ali zasebnim dijelovima stoga. Alati u nastavku grupirani su prema svom odnosu prema alatu Aggrega: formati artefakata u koje danas renderira, prostor AOT prevoditelja koji dijeli s njima, kontrolne ravnine koje troše njegov izlaz i susjedna domena upravljanja konfiguracijom na koju ne cilja."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: Izričito deklarirani mrežni bridovi i ovisnosti (u vlasništvu programera)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Temeljna mehanika: fizika arhitekture**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Filozofija ekosustava"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Anticiljevi aplikacijske paradigme i infrastrukture"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Globalni ugovor okruženja (npr. prosljeđivanje dinamičkih veličina diskova)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** krpa Kubernetes YAML bez predložaka i ugrađen je u `kubectl`. Transformira postojeće manifeste umjesto da u njih prevodi nacrt topologije."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Fizički otisak i mehaničko dimenzioniranje (u vlasništvu Opsa, zabranjeni u entitetu Aggregate)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "Ovo poglavlje utvrđuje temeljni problemski prostor, stroge anticiljeve platforme, njezin odnos prema širem ekosustavu i sveobuhvatne filozofije kojima se ravna ekosustav Aggrega."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Kasno povezivanje (inverzija ovisnosti):** Programeri traže apstraktna sučelja (npr. `type: enterprise-agent`), a ne specifične implementacije (npr. `helm-chart-v2`). Entitet Manifest u vrijeme prevođenja razrješava sučelje u ispravnu implementaciju, što omogućuje stvarne implementacije na više ciljeva iz jedne izvorne datoteke."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

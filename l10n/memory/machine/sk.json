@@ -20,6 +20,13 @@
     "status": "machine",
     "text": "2. Skutočná inverzia riadenia a sémantické prepájanie"
   },
+  "07610f4aaa423355": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "07610f4aaa423355",
+    "status": "machine",
+    "text": "**Oddelenie zodpovedností (Conwayov zákon):** Vývojári nikdy nesmú písať kód fyzickej infraštruktúry a Ops nikdy nesmie napevno kódovať aplikačnú logiku. Architektúra je striktne rozdelená podľa hraníc riadených doménou (Domain-Driven)."
+  },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
     "job": "session-0003-20261022003013",
@@ -48,12 +55,26 @@
     "status": "machine",
     "text": "**Chef, Puppet a SaltStack** sú systémy na správu konfigurácie založené na agentoch, ktoré zbiehajú stav serverov naprieč flotilami — iná problémová oblasť než statická kompilácia topológie."
   },
+  "12cfd9faa8651122": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "12cfd9faa8651122",
+    "status": "machine",
+    "text": "`inject`: Striktný kontrakt doručenia, ktorý mapuje lokálne premenné na kľúče provides cieľa (`env`, `file`, `arg`). Tento mechanizmus je rozšíriteľný."
+  },
   "12fae7889ed64406": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "12fae7889ed64406",
     "status": "machine",
     "text": "**Problém:** Prenesenie zložitej architektúry z lokálneho testovacieho prostredia Docker do produkčného Kubernetes vyžaduje udržiavanie úplne oddelených, duplikovaných skriptov nasadenia."
+  },
+  "132c655348efd295": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "132c655348efd295",
+    "status": "machine",
+    "text": "**Terminológia agnostická voči schopnostiam:** Aby reality podkladovej infraštruktúry (ako termín Kubernetes `namespace`) neprenikali do vývojárskeho zážitku, platforma používa univerzálne pojmy ako `boundaries`."
   },
   "1757efae47e07262": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -131,6 +152,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Hranice platformy a necieľe (čím Aggrega nie je)"
+  },
+  "2a62c99f53b7e6a7": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "2a62c99f53b7e6a7",
+    "status": "machine",
+    "text": "**Plochá kompilácia a atomicita Feature:** Aggrega nespravuje stav, nepinguje koncové body ani nečaká na nasadenia. Kompilátor vyhodnocuje vnorené moduly a rozkladá ich do plochého, jednorozmerného grafu medzireprezentácie (IR) predtým, ako dáta odovzdá renderovacím pluginom Wasm. Zásadné je, že hoci sa graf splošťuje, kompilátor dokonale zachováva **atomicitu Feature**. Ak proxy funkcia samostatne deklaruje sieťovú hranu k zabezpečenému trezoru, kompilátor zaznamená sémantický pôvod tejto hrany, takže enginy politík Wasm môžu vykonávať vyhľadávania v $O(1)$ bez toho, aby spojenie mylne pripísali nadradenému komponentu. Napokon, na podporu časového radenia nesie každá hranica v entite Release hodnotu `syncWave: <integer>`; každý renderovací plugin prevádza vlnu danej hranice na čokoľvek, čím jeho vlastný cieľ vyjadruje poradie — anotáciu poradia vykonávania, ktorú číta nadväzujúci radič GitOps, alebo závislosť medzi službami súboru, ktorý renderuje — zatiaľ čo cieľ bez akéhokoľvek prostriedku na vyjadrenie poradia vlnu zaznamená bez toho, aby podľa nej radil."
   },
   "2ec241d1bd236968": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -223,6 +251,13 @@
     "status": "machine",
     "text": "Aggrega nie je AI agent, ktorý „za vás píše Terraform“. Je to deterministický kompilátor v jazyku Go, ktorý parsuje striktný doménovo špecifický jazyk (DSL), aby zaručil reprodukovateľné a auditovateľné artefakty nasadenia. Infraštruktúru nehalucinuje."
   },
+  "4b3a599d5f973da2": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "4b3a599d5f973da2",
+    "status": "machine",
+    "text": "**Explicitná orchestrácia Plugin:** Jadrový kompilátor v Go funguje striktne ako neutrálny tvorca grafu a nikdy nehádá, ako spracovať uzol. Namiesto toho je všetka doménová inteligencia explicitne orchestrovaná prostredníctvom vyhradených soketov WebAssembly (Wasm) na dvoch odlišných úrovniach. **1. Globálne sokety:** Podnikové politiky a formátovanie vyhodnocujú explicitne registrované sokety kompilátora (napr. rola správy `label-transform` na automatické štítkovanie metadát, rola správy pre verdikty o topologickej bezpečnosti a soket renderera na generovanie finálnych artefaktov). **2. Implementačné pipeline:** Logiku mutácií špecifickú pre Component orchestruje `Manifest`; keď preloží abstraktné rozhranie na konkrétny `Recipe`, táto implementácia explicitne deklaruje sekvenčné pole `pipeline` pluginov Wasm na spustenie. Kompilátor jednoducho odovzdáva graf medzireprezentácie (IR), agnostický voči schopnostiam, do týchto definovaných soketov a zabezpečuje tak, že všetka doménovo špecifická logika zostáva striktne verziovaná v ekosystéme, namiesto aby bola napevno zakódovaná v jadre kompilátora."
+  },
   "4bd1d2795b3bffc5": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -265,6 +300,13 @@
     "status": "machine",
     "text": "**Model oddelenia (inšpirovaný OAM):** Prísna architektúra, ktorá uplatňuje Conwayov zákon a čisto oddeľuje zámer vývojára (abstraktné „Čo“ a „Koľko“) od fyzickej reality Platform Ops (fyzického „Ako“ a „Kde“)."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Programovateľné politiky (kompilátor bez vlastného názoru):** Jadrový kompilátor v Go je výpočtový mechanizmus neutrálny voči obsahu. Parsuje YAML, prechádza grafy a vyhodnocuje prieniky štítkov. Skutočnú „inteligenciu“ (napr. vynútenie, aby prevádzka k modelom nesúca údaje s obmedzeným prístupom prechádzala cez AI bránu, ktorá maskuje citlivý text) programuje podnik dynamicky pomocou zásuvných soketov WebAssembly (Wasm) pre mutácie abstraktného syntaktického stromu (AST)—úpravy parsovanej reprezentácie konfigurácie v pamäti—a pre validáciu politík."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -293,6 +335,20 @@
     "status": "machine",
     "text": "**Susedná správa konfigurácie.** Tieto nástroje riešia problémy stavu serverov a záplatovania YAML, ktoré sa líšia od kompilácie topológie, a Aggrega na ich oblasť necieli."
   },
+  "644f3d9152d744e6": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "644f3d9152d744e6",
+    "status": "machine",
+    "text": "`values`: Hlavný náklad kognitívnej/obchodnej logiky (vlastnia vývojári)."
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Agnosticizmus voči schémam (open source slovník):** Jadrový kompilátor je agnostický voči fyzickým vrstvám vykonávania. Nemá napevno zakódované schémy pre Helm, Terraform ani Docker Compose. Namiesto toho je blok `source` entity Recipe pre Ops otvorený slovník, ktorého kľúče definuje poskytovateľ a ktoré sa do šablón entity Recipe dostávajú ako `.source.*`. Smer návrhu je taký, že Wasm soket každého poskytovateľa definuje a validuje vlastný tvar zdroja — podniky tak môžu zavádzať nové infraštruktúrne nástroje bez čakania na aktualizácie schémy jadra; táto validácia zdroja cez Wasm pre jednotlivých poskytovateľov zatiaľ nie je implementovaná. Dnes jadro rieši *načítavaný* zdroj pomocou vstavaného tvaru `{ kind, url, version }` (druhy: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), čo už oddeľuje kompilátor od cloudových jazykov, s ktorými manipuluje. Aktuálny model načítavania a plánovaný tvar validovaný cez Wasm opisuje referencia `source` entity Recipe."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -307,12 +363,26 @@
     "status": "machine",
     "text": "**Nie je správca kognitívneho stavu:** Kompilátor využíva pluginy na generovanie konfigurácií pre zabezpečené sieťové hranice a fyzické databázy. Nesleduje však vnútornú pamäťovú slučku AI agenta. Ak AI halucinuje alebo sa jej nepodarí zapísať do svojej databázy, je to problém aplikačného frameworku."
   },
+  "69b6717e265e36dc": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "69b6717e265e36dc",
+    "status": "machine",
+    "text": "Architektúra Aggrega sa riadi základnými princípmi návrhu, ktoré vyvažujú flexibilitu a predvídateľnosť. Vďaka jasným hraniciam a štandardizovaným kontraktom môže zásadne všeobecný kompilátor hladko orchestrovať všetko od štandardnej cloud-native infraštruktúry až po vysoko špecializovanú AI inteligenciu."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
     "srcHash": "6c591f87eb3ef1dc",
     "status": "machine",
     "text": "**ArgoCD a Flux** sú kontroléry GitOps, ktoré zosúlaďujú manifesty uložené v Gite do klastra. Výstup Aggrega pre Kubernetes aplikujú ako akýkoľvek iný deklaratívny YAML."
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**Čistota AOT (žiadne načítavanie zo živého cloudu):** Kompilátor je agnostický voči živému cloudu. Počas kompilácie sa nikdy neoveruje voči API infraštruktúry ani nenačítava živé IP adresy. Funguje úplne na princípe *inverzie riadenia*: mapuje deterministické ukazovatele a vopred odovzdáva abstraktné injekčné kontrakty, aby behové prostredie mohlo bezpečne vyriešiť konečné fyzické pripojenia."
   },
   "6d83c5e9324975ed": {
     "at": "2026-10-22T00:11:49.019Z",
@@ -335,12 +405,26 @@
     "status": "machine",
     "text": "**Formáty artefaktov, do ktorých Aggrega dnes renderuje.** Toto sú výstupy, ktoré vytvárajú dodávané renderovacie pluginy."
   },
+  "6fab35150a784440": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6fab35150a784440",
+    "status": "machine",
+    "text": "**Sémantický vývojársky zážitok (štandard mapy s 5 kľúčovými slovami):** Aby sa predišlo kognitívnemu treniu, vývojári používajú v YAML topológii založenej na mapách (Map) presne päť všeobecne zrozumiteľných kľúčových slov:"
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Základné nástroje ako Terraform sú správcovia stavu. Zriaďujú fyzické výpočtové uzly, ale nemodelujú logické dátové toky L7, ktoré prebiehajú *medzi* týmito uzlami. Nedokážu natívne analyzovať architektúru, aby zriadili sémantické firewally potrebné na sledovanie reťazcov promptov AI alebo na zastavenie útokov typu „Confused Deputy“. Naopak, nástroje natívne pre Kubernetes (ako KubeVela) fungujú ako aktívne kontroléry za behu a neposkytujú statické artefakty súladu vytvárané vopred (ahead-of-time), ktoré vyžadujú podnikové bezpečnostné tímy."
+  },
+  "74e8a32400d5551a": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "74e8a32400d5551a",
+    "status": "machine",
+    "text": "2. **Vývojársky zážitok: zámer a abstrakcia**"
   },
   "759edb9d500b7550": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -384,6 +468,13 @@
     "status": "machine",
     "text": "**Problém:** Zaobchádzanie s vektorovými databázami a epizodickými logmi ako so všeobecným, plochým úložiskom umožňuje uneseným agentom ľahko prepísať kritické sémantické fakty."
   },
+  "901cdfecb57db52b": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "901cdfecb57db52b",
+    "status": "machine",
+    "text": "3. **Kompilátor bez vlastného názoru: spracovanie a orchestrácia**"
+  },
   "932a4155211777da": {
     "at": "2026-10-22T00:44:56.077Z",
     "job": "session-0004-20261022004456",
@@ -425,6 +516,27 @@
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Zásuvný renderovací socket WebAssembly (Wasm) v Aggrega znamená, že komunita môže vytvoriť renderovací plugin pre akýkoľvek cieľový nástroj. Hlavný projekt dodáva renderovacie pluginy pre Helm, Helm-chart a Compose — pokrývajúce Kubernetes GitOps, distribúciu redistribuovateľných chartov a lokálny vývoj — a otvorený socket umožňuje tímom cieliť na ďalšie povrchy statických artefaktov bez zásahu do jadra. Tímy, ktoré hodnotia Aggrega, často prichádzajú z ekosystémov postavených okolo nástrojov, ktoré zaberajú blízke, no odlišné časti stacku. Nižšie uvedené nástroje sú zoskupené podľa vzťahu k Aggrega: formáty artefaktov, do ktorých Aggrega dnes renderuje, oblasť AOT kompilátorov, ktorú s nimi zdieľa, riadiace roviny, ktoré spotrebúvajú jeho výstup, a susedná oblasť správy konfigurácie, na ktorú necieli."
+  },
+  "a3391d83d9c31031": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a3391d83d9c31031",
+    "status": "machine",
+    "text": "`uses`: Explicitne deklarované sieťové hrany a závislosti (vlastnia vývojári)."
+  },
+  "a68aa1d21a692033": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "a68aa1d21a692033",
+    "status": "machine",
+    "text": "1. **Základná mechanika: fyzika architektúry**"
+  },
+  "acbf1bb32edd872e": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "acbf1bb32edd872e",
+    "status": "machine",
+    "text": "Filozofia ekosystému"
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -489,6 +601,13 @@
     "status": "machine",
     "text": "4. Necieľe v oblasti aplikačnej paradigmy a infraštruktúry"
   },
+  "cab456834c7387cd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "cab456834c7387cd",
+    "status": "machine",
+    "text": "`parameters`: Globálny kontrakt prostredia (napr. odovzdávanie dynamických veľkostí diskov)."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -509,6 +628,13 @@
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** záplatuje Kubernetes YAML bez šablónovania a je zabudovaný do `kubectl`. Transformuje existujúce manifesty namiesto toho, aby do nich kompiloval návrh topológie."
+  },
+  "d0d3a9324140c5f1": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "d0d3a9324140c5f1",
+    "status": "machine",
+    "text": "`infra`: Fyzická stopa a mechanické dimenzovanie (vlastní Ops, zakázané v entite Aggregate)."
   },
   "d14247b9e127c4e0": {
     "at": "2026-10-22T00:44:56.077Z",
@@ -537,6 +663,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "Táto kapitola vymedzuje základný problémový priestor, striktné necieľe platformy, jej vzťah k širšiemu ekosystému a zastrešujúce filozofie, ktorými sa riadi ekosystém Aggrega."
+  },
+  "e73d838f19175dbd": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "e73d838f19175dbd",
+    "status": "machine",
+    "text": "**Neskoré viazanie (inverzia závislostí):** Vývojári požadujú abstraktné rozhrania (napr. `type: enterprise-agent`), nie konkrétne implementácie (napr. `helm-chart-v2`). Entita Manifest pri kompilácii preloží rozhranie na správnu implementáciu, čo umožňuje skutočné nasadenia na viacero cieľov z jediného zdrojového súboru."
   },
   "f047e5d870c7fd12": {
     "at": "2026-10-22T00:11:49.019Z",

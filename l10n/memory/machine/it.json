@@ -1,4 +1,25 @@
 {
+  "00e1e566f7588d8a": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "00e1e566f7588d8a",
+    "status": "machine",
+    "text": "**Significato:** argomenti esterni che modificano dinamicamente lo stato cognitivo o logico dell’applicazione tra gli ambienti (ad es. cambiare `workers: 2` in `workers: 10`). Supporta un **contratto tipizzato** (vedi [data-pillars](../language-reference/vocabulary/data-pillars.md) per la sintassi completa del contratto tipizzato) validato prima dell’interpolazione. Per i flussi di lavoro GitOps che mantengono i valori dei parametri in un file separato, la Release usa la forma `$import:`; il compilatore carica il contenuto del file e sostituisce la mappa inline `parameters:`. La stratificazione su più file si esprime tramite catene `extends:` della Release."
+  },
+  "013fdd45196a8f85": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "013fdd45196a8f85",
+    "status": "machine",
+    "text": "**Aggregate piatto (componenti di primo livello):** i componenti si scrivono sotto `spec.components`, senza `subsystems`. Il compilatore li raccoglie in un sottosistema `default` sintetizzato al caricamento. Le annotazioni di ambito del sottosistema e le feature a livello di sottosistema si applicano solo ai sottosistemi *dichiarati*; la forma piatta non ne porta nessuna."
+  },
+  "018f8f3e8ff1982c": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "018f8f3e8ff1982c",
+    "status": "machine",
+    "text": "**Flusso 1: l’iniezione ambientale (`parameters`):** la pipeline CI/CD inietta le realtà del deployment. Il compilatore valida ogni valore fornito dalla Release rispetto al contratto tipizzato `parameters:`, quindi interpola le variabili di template Go risolte *prima* di eseguire la validazione dello schema `values:` a valle."
+  },
   "022f7f2558f12ce4": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -20,12 +41,47 @@
     "status": "machine",
     "text": "**La soluzione:** poiché Aggrega è completamente agnostico, il confine tra applicazione e infrastruttura dipende interamente dall’utente. Aggrega può essere usato per deployment «greenfield» di sola infrastruttura, oppure può generare su richiesta configurazioni per gli AI Gateway aziendali, se lo sviluppatore le richiede esplicitamente come parte della propria applicazione. Quando vengono richieste, il compilatore usa i plugin di rendering WebAssembly e le Ops Recipes per produrre gli artefatti esatti per questi gateway, consentendo all’infrastruttura di runtime di eseguire fisicamente il caching semantico e le catene di fallback tra provider."
   },
+  "02bee678d9a9fa5e": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "02bee678d9a9fa5e",
+    "status": "machine",
+    "text": "Il plugin `eval` dice al compilatore Go: *«Non fornire risorse di calcolo fisiche. Non produrre file IaC fisici. Esegui semplicemente questa logica WebAssembly per costruire URI complessi, analizzare hash crittografici o creare stringhe di connessione, salva in memoria la stringa formattata risultante e passala ai dipendenti del componente.»*"
+  },
+  "033e96b160c429be": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "033e96b160c429be",
+    "status": "machine",
+    "text": "**`infra` (la realtà fisica - di proprietà di Ops)**"
+  },
+  "034c39ebc0a00d98": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "034c39ebc0a00d98",
+    "status": "machine",
+    "text": "**Significato:** lo stato cognitivo centrale, la logica di business e la configurazione operativa. Matematicamente opaco per il compilatore Go ma validato rigorosamente dalla dichiarazione unificata `schema:` del catalogo (forma compatta o JSON Schema 2020-12)."
+  },
   "04862baf643b0c9f": {
     "at": "2026-10-17T19:24:15.582Z",
     "job": "2b8dc6806d5e",
     "srcHash": "04862baf643b0c9f",
     "status": "machine",
     "text": "Il flag `--trace` del compilatore (vedi [`language-reference/cli/aggrega-build.md`](../language-reference/cli/aggrega-build.md)) offre ad autori e operatori una superficie di verifica per questa invariante. Due compilazioni dello stesso input con `--trace` abilitato producono dump di traccia identici byte per byte; qualsiasi diff in una singola passata localizza una regressione. Il determinismo non è solo una proprietà al momento del rilascio: è osservabile in ogni stato intermedio del compilatore attraverso il layout di traccia per nodo."
+  },
+  "054a81e24744df77": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "054a81e24744df77",
+    "status": "machine",
+    "text": "**Uso consigliato:** i `parameters` sono riservati alla logica cognitiva dell’applicazione che varia tra gli ambienti (ad es. `LOG_LEVEL=debug`, `ENABLE_BETA=true`). Il dimensionamento operativo e gli aspetti dell’infrastruttura fisica — repliche, limiti di CPU, ARN di AWS, hostname di ingress — passano attraverso il blocco `infra` della `Release` e gli overlay dei confini, mantenendo l’`Aggregate` dello sviluppatore concentrato sull’intento applicativo."
+  },
+  "056648e04c3f5179": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "056648e04c3f5179",
+    "status": "machine",
+    "text": "**Pattern sconsigliato:** lo sviluppatore scrive `values: { password: \"123\" }` su un componente."
   },
   "05a49dea4943bb19": {
     "at": "2026-10-17T19:02:11.925Z",
@@ -41,12 +97,33 @@
     "status": "machine",
     "text": "Quando una Release usa `extends`, dichiarare un puntatore `aggregate:` è vietato dallo schema. La Release figlia deve distribuire lo stesso intento dello sviluppatore (Developer Intent) della sua Release padre."
   },
+  "05e9dc15abca936f": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "05e9dc15abca936f",
+    "status": "machine",
+    "text": "**Flusso 5: annotazioni a cascata (metadati contestuali):** i dati contestuali ampi (come domini operativi, namespace o codici di fatturazione) sono gestiti tramite annotazioni a cascata, evitando l’inquinamento dovuto alla diffusione di `infra`. Sono segregati esplicitamente in contenitori di memoria in base alla loro origine, per imporre regole di consumo rigorose:"
+  },
+  "06043789bfc1945f": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "06043789bfc1945f",
+    "status": "machine",
+    "text": "Il confine si traccia dove un bundle contiene qualcosa che un altro componente potrebbe sensatamente usare (`use`) da solo — in particolare infrastruttura esterna come un database, una cache o un message broker che Aggrega modella già come Component a sé. Un bundle del genere non è un solo Component; è un **modulo sotto-aggregato** — il pattern `spec.aggregates` + `exportedComponents` mostrato sopra — che compone un Component per servizio, in modo che ogni servizio sia un nodo indirizzabile con il proprio tipo, i propri archi e la propria superficie di policy e di scalabilità."
+  },
   "065ecfa31082a991": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "065ecfa31082a991",
     "status": "machine",
     "text": "2. Vera inversione del controllo e collegamento semantico"
+  },
+  "068f1bba97926828": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "068f1bba97926828",
+    "status": "machine",
+    "text": "**Flusso 2: intento cognitivo dell’applicazione (`values` nei Components):** definisce la logica intrinseca dell’applicazione. La dichiarazione `schema:` del Component (forma compatta o JSON Schema 2020-12) fornisce un controllo dei tipi e una validazione rigorosi per questo payload, offrendo agli sviluppatori un feedback «Shift-Left» immediato e garantendo che le configurazioni richieste corrispondano perfettamente all’API dell’infrastruttura sottostante."
   },
   "06b94f9638cd92dd": {
     "at": "2026-10-17T19:10:06.976Z",
@@ -55,12 +132,26 @@
     "status": "machine",
     "text": "4. Nessuna infrastruttura fantasma: il compilatore non inventa mai risorse di calcolo o funzionalità"
   },
+  "06d0fd4033ea9bf1": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "06d0fd4033ea9bf1",
+    "status": "machine",
+    "text": "**Un servizio coerente per Component — il confine del singolo workload:** un Component modella **un servizio coerente** — un singolo servizio esposto, oppure il workload o i workload di un servizio insieme ai suoi workload ausiliari solo interni. La sua label `component.aggrega.ai/type` indica la forma operativa di quell’unico servizio. Più workload fisici all’interno di un singolo Component vanno bene quando formano un unico prodotto coerente senza parti utilizzabili in modo indipendente: un servizio il cui chart esegue un controller più un webhook più un injector resta un solo Component. Il criterio non è la presenza di più workload; è l’**utilizzabilità indipendente**."
+  },
   "070f763d08719e5e": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "070f763d08719e5e",
     "status": "machine",
     "text": "ArtifactLibrary"
+  },
+  "072eef95314ac6f0": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "072eef95314ac6f0",
+    "status": "machine",
+    "text": "**Atomicità della Feature:** il pilastro `uses` si applica in modo identico ai Components e alle Features (incluse le Features per credenziali). Questo permette a un proxy sidecar (una Feature) o a un recuperatore di credenziali di dichiarare autonomamente le proprie dipendenze di rete senza inquinare la configurazione del Component padre."
   },
   "07610f4aaa423355": {
     "at": "2026-10-17T20:13:34.254Z",
@@ -69,6 +160,13 @@
     "status": "machine",
     "text": "**Separazione delle responsabilità (legge di Conway):** gli sviluppatori non devono mai scrivere codice di infrastruttura fisica, e gli Ops non devono mai codificare in modo fisso la logica applicativa. L’architettura è rigorosamente suddivisa in confini Domain-Driven."
   },
+  "07758f6b766e2528": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "07758f6b766e2528",
+    "status": "machine",
+    "text": "Cosa il compilatore garantisce e cosa no"
+  },
   "07ed5db1d7476d6f": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -76,12 +174,33 @@
     "status": "machine",
     "text": "Tier 3 — Librerie"
   },
+  "095ae11710a3a921": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "095ae11710a3a921",
+    "status": "machine",
+    "text": "**Scenario C (database self-hosted):** etichettato `internal-trusted`. Eseguito tramite il plugin renderer Helm (fornito fisicamente come StatefulSet di Kubernetes)."
+  },
+  "099c9a866a899c17": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "099c9a866a899c17",
+    "status": "machine",
+    "text": "Un Component per ogni servizio esterno"
+  },
   "0a200fe869576ae4": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
     "srcHash": "0a200fe869576ae4",
     "status": "machine",
     "text": "Ruolo architetturale"
+  },
+  "0a59923295aa5c2d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "0a59923295aa5c2d",
+    "status": "machine",
+    "text": "**4. Esecuzione del compilatore al rendering (il passaggio di consegne)**"
   },
   "0ab5763ba4210f0d": {
     "at": "2026-10-22T00:30:13.857Z",
@@ -104,6 +223,13 @@
     "status": "machine",
     "text": "Visione e posizionamento"
   },
+  "0cb7477e3b600896": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "0cb7477e3b600896",
+    "status": "machine",
+    "text": "Una Feature di credenziale porta l’etichetta `feature.aggrega.ai/kind: secret` sulla propria entità di catalogo. Quell’etichetta è **metadato descrittivo**: dice a un lettore, a un sito di catalogo e a un selettore di etichette a cosa serve la Feature. Nessun ramo del compilatore la legge e nessun comportamento dipende da essa. Il comportamento deriva dalla FeatureRecipe a cui un operatore associa il tipo di Feature."
+  },
   "0dd714e2a1c72ec7": {
     "at": "2026-10-17T19:13:54.748Z",
     "job": "5c185f63f43c",
@@ -111,12 +237,40 @@
     "status": "machine",
     "text": "Questo non significa che i valori siano identici in tutti gli ambienti. Il percorso supportato per la variazione per ambiente è il **sollevamento dei parametri** (Parameter Hoisting):"
   },
+  "0e38efcf58d986a0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "0e38efcf58d986a0",
+    "status": "machine",
+    "text": "**Risorsa referenziabile.** La FeatureRecipe dichiara `source`, `workload`, `artifacts` e/o `valuesMapping`, quindi emette una risorsa — tipicamente un Secret nativo della piattaforma. Pubblica l’identità di quella risorsa tramite i propri `provides`, e un consumatore la rilegge come `.features.<name>.provides.name` / `.provides.key`. Il nome stesso della risorsa deriva dagli stessi `provides` pubblicati, quindi il nome che il consumatore legge e il nome che la risorsa porta sono un’unica stringa valutata anziché due derivazioni che potrebbero divergere."
+  },
+  "0ea45e2179c324d0": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "0ea45e2179c324d0",
+    "status": "machine",
+    "text": "Per la forma piatta (`components` di primo livello), il compilatore **sintetizza un vero ambito `default` al caricamento** e vi raccoglie i componenti di primo livello, così ogni passaggio successivo vede una struttura uniforme dotata di ambiti. L’ambito sintetizzato non è un contenitore nascosto: è un nodo autentico dell’IR, marcato con la sua provenienza, distinguibile da un ambito che uno sviluppatore chiama esplicitamente `default`. È nascosto solo dove l’autore legge i percorsi: la diagnostica e l’indirizzamento mostrano il percorso con la forma della radice `.spec.components[…]` che lo sviluppatore ha effettivamente scritto."
+  },
+  "0faf7378734d1390": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "0faf7378734d1390",
+    "status": "machine",
+    "text": "Se un’applicazione interagisce con un’entità — che sia un database locale, una risorsa cloud gestita, un LLM SaaS o un endpoint di API pubblica generica — quell’entità **DEVE** essere dichiarata come Component distinto nell’`Aggregate`."
+  },
   "1075dfd46901d222": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
     "srcHash": "1075dfd46901d222",
     "status": "machine",
     "text": "Separare l’**interfaccia del catalogo** (dominio 2) dalla **Recipe di infrastruttura** (dominio 3) è ciò che rende possibile il late binding. L’interfaccia definisce *cosa* uno sviluppatore può richiedere; l’implementazione definisce *come* quella richiesta viene realizzata su un provider specifico. Il dominio 4 (il Manifest) instrada tra le due in fase di compilazione, così lo stesso Aggregate può puntare a implementazioni diverse nei vari ambienti senza che il codice dello sviluppatore cambi."
+  },
+  "10dc8ba63ef0be4a": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "10dc8ba63ef0be4a",
+    "status": "machine",
+    "text": "Il Plugin è un’entità di authoring di prima classe — con un proprio kind, un proprio JSON Schema e una propria directory di catalogo — di proprietà di Platform Ops nel Dominio 3. Un Plugin è un riferimento indirizzato per contenuto a un artefatto WebAssembly, che dichiara l’unico tipo di socket che implementa. La tassonomia ha sette membri: `provider` (rende i nodi IR in artefatti nativi del provider), `linter` (solleva diagnostiche sul contenuto scritto), `pipeline-step` (un passo di una feature-recipe-pipeline), `governance` (svolge un ruolo di governance — trasforma label o annotazioni, oppure restituisce un verdetto di accettazione/rifiuto sul grafo IR o sugli artefatti renderizzati), `cli` (aggiunge un sottocomando `aggrega` che un operatore invoca dalla riga di comando), `parser` (trasforma un testo sorgente esterno in un albero strutturato canonico) e `importer` (trasforma una sorgente esterna di infrastruttura o di definizione di agenti in bozze di file di authoring di Aggrega). Un Plugin di rendering del provider (`pluginType: provider`) è l’unità che serve il rendering del provider: dichiara il nome o i nomi di provider che renderizza in `spec.provider.capabilities` e porta il resto dei propri metadati di socket del provider nello stesso blocco `spec.provider`. Il compilatore fissa e instrada il riferimento; il runtime WebAssembly esegue i byte; il compilatore non interpreta ciò che il plugin fa — il plugin è il veicolo dell’intelligenza specifica di dominio che vive in WebAssembly. La sua superficie di authoring e di metadati è documentata in [language-reference/entities/plugin.md](../language-reference/entities/plugin.md)."
   },
   "11398ca2b7d4deb2": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -181,6 +335,20 @@
     "status": "machine",
     "text": "Ruolo"
   },
+  "14b694b3311128dd": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "14b694b3311128dd",
+    "status": "machine",
+    "text": "**Il guardrail di policy (in fase di compilazione):** prima che venga generata qualsiasi configurazione, il motore di policy OPA o Kyverno valuta il grafo. L’azienda scrive una regola semplice: *«Se un nodo interno si connette a un nodo etichettato `untrusted-external`, l’ID di quel nodo di destinazione deve essere elencato esplicitamente nell’array `parameters.approved_egress` dell’ambiente.»* Se uno sviluppatore tenta di instradare dati verso una destinazione esterna non approvata, il motore di policy arresta la build."
+  },
+  "14dc6b31626dc424": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "14dc6b31626dc424",
+    "status": "machine",
+    "text": "**La Release applicativa:** quando lo sviluppatore applicativo è pronto a distribuire il proprio agente IA, il team Ops si limita a indicare il cluster appena creato come `environment` all’interno del file `Release` dell’app."
+  },
   "15042f6e0de37fac": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -195,12 +363,26 @@
     "status": "machine",
     "text": "**Ruolo:** il Platform Architect. Il «programmatore» della piattaforma. Colloca ogni componente nell’ontologia operativa, scrive le policy programmabili (mutatori e validatori Wasm) e stabilisce le etichette semantiche di duck typing."
   },
+  "1668f584549e4299": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "1668f584549e4299",
+    "status": "machine",
+    "text": "**Comportamento del compilatore:** il compilatore Go passa `tcp_keepalive_seconds: 120` nel grafo IR. La Recipe di Ops legge poi `{{ .values.tcp_keepalive_seconds }}` per configurare la spec del pod Kubernetes o l’idle timeout del load balancer del cloud provider, colmando così il divario legacy senza violare lo schema."
+  },
   "16f2275b36c8cbc2": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
     "srcHash": "16f2275b36c8cbc2",
     "status": "machine",
     "text": "Il sistema serve esplicitamente persona funzionali distinte su 4 domini. Separando il carico cognitivo dello sviluppo applicativo dalla meccanica dell’architettura cloud, l’onere della governance viene trasferito in modo sicuro al Platform Catalog. Questo formalizza il confine tra i team che costruiscono le applicazioni e i team che costruiscono la piattaforma, e istituisce al contempo un Credential Pillar dedicato che tratta i segreti come cittadini di prima classe."
+  },
+  "173f2b27c4f5e8dd": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "173f2b27c4f5e8dd",
+    "status": "machine",
+    "text": "Una cosa che una dichiarazione cambia è ciò che la CLI stampa perché un essere umano lo legga. Un valore dichiarato sensibile viene sostituito da un segnaposto fisso nella traccia per passata e nei layout di `inspect`, mantenendo la chiave e nascondendo solo il valore. È una scelta di visualizzazione su superfici che nessuno distribuisce, e gli artefatti renderizzati sono emessi alla lettera perché sono ciò che si distribuisce."
   },
   "1757efae47e07262": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -209,12 +391,26 @@
     "status": "machine",
     "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** e **Google Cloud Deployment Manager** sono i formati nativi di provisioning dichiarativo dei rispettivi cloud. Ciascuno è una destinazione di artefatti statici verso cui un autore può renderizzare tramite il socket aperto."
   },
+  "178a6bcfdfe9af53": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "178a6bcfdfe9af53",
+    "status": "machine",
+    "text": "Il compilatore non interpreta il significato dei valori convogliati. Quando il Component A usa il Component B, il compilatore prende lo scalare che la Recipe del Component B produce tramite `provides` — una stringa, un numero o un booleano — e lo convoglia nel contesto della Recipe del Component A, convertito in stringa in modo deterministico al confine di iniezione. Che quel valore sia un FQDN, un hostname locale, un IP letterale, un numero di porta o un DSN formattato da Wasm non fa alcuna differenza: il compilatore non valida l’instradabilità, la correttezza del protocollo né l’appropriatezza semantica."
+  },
   "189e6eb6e1884734": {
     "at": "2026-10-17T19:16:13.188Z",
     "job": "b69211be1104",
     "srcHash": "189e6eb6e1884734",
     "status": "machine",
     "text": "6. Il confine ABI di WebAssembly: l’intelligenza specifica del dominio vive in Wasm"
+  },
+  "19397c15f7daf1af": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "19397c15f7daf1af",
+    "status": "machine",
+    "text": "**La mappa pre-risolta.** Durante il rendering, il compilatore risolve ogni sorgente di inject — i letterali di self-inject e i riferimenti `from:` rispetto ai `provides` del componente stesso, i riferimenti tra componenti tramite `uses[].inject`, le intercettazioni `injectMapping` della FeatureRecipe — in un unico dizionario appiattito in `.context.inject`. Quando viene eseguito il template `valuesMapping` della Recipe di base, ogni chiave di inject ha già il suo valore stringa finale. Le Recipes iterano direttamente sulla mappa (`{{ range $k, $v := .context.inject.env }}`) senza percorrere la catena di risoluzione."
   },
   "1b327ad5f9694d58": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -237,6 +433,13 @@
     "status": "machine",
     "text": "**AWS SAM e il Serverless Framework** traducono staticamente una specifica YAML in risorse di funzioni serverless e di API gateway: un sottoinsieme mirato dello spazio di artefatti a cui il socket di Aggrega può puntare."
   },
+  "1bc21c6725959e80": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "1bc21c6725959e80",
+    "status": "machine",
+    "text": "È fondamentale notare che l’etichetta semantica (ad es. `untrusted-external`) determina la **policy di sicurezza di rete**, non l’esecuzione. È completamente indipendente dal fatto che la risorsa sia fornita fisicamente da Aggrega."
+  },
   "1bd874a89258ece3": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
@@ -250,6 +453,20 @@
     "srcHash": "1c0c250f3afbf7be",
     "status": "machine",
     "text": "**Il team di piattaforma (domini 2 e 4):** sono i moderni Platform Architect e i CISO. Agiscono come costruttori della strada asfaltata. Scrivono dichiarazioni JSON Schema 2020-12 (di norma in forma compatta), definiscono le policy di sicurezza agnostiche (valutate tramite socket di validazione Wasm) e gestiscono l’instradamento GitOps (`Manifests` e `Releases`). Trattano gli sviluppatori allineati al flusso come i propri clienti interni, garantendo che il distributore automatico eroghi un’architettura sicura."
+  },
+  "1c127a0c2ede5cf6": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "1c127a0c2ede5cf6",
+    "status": "machine",
+    "text": "**Significato:** un’affermazione dichiarativa di fatto che definisce archi di rete e dipendenze (ad es. «Questo agente *usa* questo database»). Analizzata nativamente dal compilatore Go per disegnare il grafo della rappresentazione intermedia (IR). Validata dalla dichiarazione unificata `usesSchema` del catalogo per imporre la sicurezza dei tipi tra nodi."
+  },
+  "1c171b1f115fd2da": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "1c171b1f115fd2da",
+    "status": "machine",
+    "text": "Il compilatore Go assegna alla lettera l’intero dizionario JSON allo stato `.locals` esportato del nodo Oracle in memoria."
   },
   "1c411a4cedb69f0a": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -265,12 +482,61 @@
     "status": "machine",
     "text": "**Crossplane e KubeVela** sono operatori attivi del control plane Kubernetes che riconciliano lo stato desiderato dall’interno di un cluster. Un cluster Crossplane o KubeVela può consumare l’output Kubernetes di Aggrega come qualsiasi altro YAML dichiarativo; i due livelli si completano a vicenda."
   },
+  "1ccb7e0d6ac6a0bb": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "1ccb7e0d6ac6a0bb",
+    "status": "machine",
+    "text": "3. Esempi end-to-end"
+  },
+  "1e0319eb1288cfae": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "1e0319eb1288cfae",
+    "status": "machine",
+    "text": "Il motivo è la rivelazione progressiva: imporre un raggruppamento obbligatorio per casi d’uso banali (una demo con un solo servizio, un rapido prototipo locale) crea attrito inutile. Il test di onboarding «da zero a funzionante in 10 minuti» richiede che uno sviluppatore possa scrivere un Aggregate minimo con un componente, un Manifest e una Release e ottenere un output funzionante senza dover prima capire sottosistemi o confini. L’ambito predefinito è la rampa d’accesso; gli ambiti dichiarati sono dove va un’architettura man mano che cresce."
+  },
+  "1e7cecd03b7e8372": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "1e7cecd03b7e8372",
+    "status": "machine",
+    "text": "2. I flussi di informazioni: chi, quando e per cosa?"
+  },
   "1f41f842f2bac04f": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "1f41f842f2bac04f",
     "status": "machine",
     "text": "**Il problema:** i framework di IA presuppongono che l’infrastruttura esista e basta, lasciando agli Ops il compito di collegare a mano agenti, pipeline RAG e database con file YAML frammentati e codificati in modo fisso."
+  },
+  "203abb8b2148ad79": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "203abb8b2148ad79",
+    "status": "machine",
+    "text": "Si scrive esattamente in due punti, che esprimono affermazioni realmente diverse."
+  },
+  "20953a37662c57ad": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "20953a37662c57ad",
+    "status": "machine",
+    "text": "**Scenario A (API SaaS pubblica):** etichettata `untrusted-external` nel catalogo (attiva i guardrail di egress della policy). Eseguita tramite il plugin formattatore (nessuna risorsa di calcolo fornita)."
+  },
+  "20a32ab1e06f01a3": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "20a32ab1e06f01a3",
+    "status": "machine",
+    "text": "**Forme strutturali: mappe alla radice, array nei payload.** I blocchi di topologia radice — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — sono mappe YAML le cui chiavi, scritte dall’utente, fungono da ID di istanza stabili. Gli array non sono validi in queste posizioni; la chiave della mappa è l’identità che il compilatore usa per i riferimenti incrociati (`target: my-db`), la costruzione dei nodi del grafo e la risoluzione del Manifest. All’interno dei blocchi di payload opachi (`values`, `infra`, `parameters`), gli array sono pienamente consentiti — gli sviluppatori possono scrivere `tools_allowed: [\"sql\", \"web\"]` o `hostnames: [\"stripe.com\", \"twilio.com\"]` nei `values` di un Component. Lo schema dell’Aggregate dichiara questi blocchi di payload come `additionalProperties: true`, quindi sono opachi per il compilatore Go e validati interamente dalla dichiarazione `schema:` incorporata nel catalogo. Questo colloca la volatilità dei framework (nuove forme di API di IA, nuovi formati di payload cloud-native) nel dominio del catalogo, dove può evolvere in modo indipendente, mentre il compilatore Go resta limitato a chiavi indirizzabili alla radice strutturale."
+  },
+  "20d906190436740c": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "20d906190436740c",
+    "status": "machine",
+    "text": "**La best practice:** gli sviluppatori dovrebbero omettere le porte dall’`Aggregate`. La Recipe di Ops gestisce dinamicamente l’instradamento interno."
   },
   "2108313ef1f0d75a": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -285,6 +551,13 @@
     "srcHash": "21419ade249108d6",
     "status": "machine",
     "text": "Dominio 1 — Intento dello sviluppatore"
+  },
+  "217f218331b8b504": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "217f218331b8b504",
+    "status": "machine",
+    "text": "Un albero di artefatti renderizzato è **sensibile quanto il suo attachment che porta più materiale**. Tratta `dist/` di conseguenza: se un qualsiasi attachment porta materiale inline, l’albero contiene materiale."
   },
   "21c16c56cf18ec09": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -321,6 +594,27 @@
     "status": "machine",
     "text": "**`pipeline`:** un array sequenziale di plugin WebAssembly (Wasm) per la mutazione del Workload dopo il rendering (ad es. iniettare un sidecar Envoy tramite JSONPatch o montare un volume di segreti)."
   },
+  "238d625ff00854d0": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "238d625ff00854d0",
+    "status": "machine",
+    "text": "8. Vincoli architetturali e pattern consigliati"
+  },
+  "23a2006b1d6df444": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "23a2006b1d6df444",
+    "status": "machine",
+    "text": "Tra le cinque parole chiave strutturali, `inject` ha una forma diversa dalle altre. `parameters`, `values`, `uses` e `infra` sono stato dichiarativo — lo sviluppatore scrive fatti su che cosa è l’applicazione e da che cosa dipende. `inject` è un comando imperativo — lo sviluppatore detta *come* un valore deve essere consegnato al container in esecuzione, mappando sorgenti di dati astratte (le chiavi `provides` di una destinazione, i valori propri del componente, la risposta del vault di una Feature di credenziale) su meccanismi di consegna concreti (`env`, `file`, `arg` o un meccanismo personalizzato dichiarato dal Component)."
+  },
+  "2543e2e9de696945": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "2543e2e9de696945",
+    "status": "machine",
+    "text": "**1. La libreria standard (lo `schema:` unificato nel catalogo)** Il Platform Architect definisce la struttura dello schema, separando nativamente la logica cognitiva dai target topologici."
+  },
   "25583379ab3f1347": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -335,12 +629,54 @@
     "status": "machine",
     "text": "**Policy programmabili (il compilatore privo di opinioni):** il compilatore Go centrale è un meccanismo di calcolo «stupido». Analizza lo YAML, attraversa i grafi e valuta le intersezioni delle etichette. La vera «intelligenza» (ad es. imporre che il traffico verso i modelli che trasporta dati riservati passi attraverso un gateway AI che maschera il testo sensibile) è programmata dinamicamente dall’azienda tramite socket WebAssembly (Wasm) collegabili, per le mutazioni dell’albero sintattico astratto (AST), che alterano la rappresentazione in memoria della configurazione analizzata, e per la validazione delle policy."
   },
+  "256a7886055d3690": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "256a7886055d3690",
+    "status": "machine",
+    "text": "**Mappe di oggetti:** usate quando sono richiesti contratti di consegna rigorosi (ad es. `databases: { hr_db: { target: \"corporate-hr\", inject: { env: [{ in: DB_URL, from: \"host\" }] } } }`)."
+  },
+  "25f9798e157fcac7": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "25f9798e157fcac7",
+    "status": "machine",
+    "text": "**3. Esecuzione del compilatore e validazione topologica**"
+  },
+  "261660cbdcfa5c47": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "261660cbdcfa5c47",
+    "status": "machine",
+    "text": "Per prevenire collisioni nello spazio dei nomi dei template e la fuoriuscita involontaria di configurazioni dell’infrastruttura fisica nella logica cognitiva dell’applicazione, l’architettura separa esplicitamente i dati in sei flussi distinti:"
+  },
   "267b1989e58ab8d3": {
     "at": "2026-10-17T19:04:59.441Z",
     "job": "cbcce225c931",
     "srcHash": "267b1989e58ab8d3",
     "status": "machine",
     "text": "Il compilatore non indovina lo scopo di un componente dal nome. Un componente chiamato `database-production` non viene riconosciuto come database. Le etichette di tipo semantico come `component.aggrega.ai/type` (quando presenti) sono metadati opachi usati per la corrispondenza delle etichette, non logica di diramazione del compilatore."
+  },
+  "269d6e8f272f12ac": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "269d6e8f272f12ac",
+    "status": "machine",
+    "text": "Una seconda superficie esprime una richiesta diversa. L’annotazione ripetibile del Component `features.aggrega.ai/requiredType.<label>` dichiara un **obbligo di presenza**: almeno un attachment deve portare il tipo di Feature che l’annotazione nomina, con qualsiasi nome e a qualsiasi scope, e un obbligo che nulla soddisfa arresta la build durante la stessa analisi statica con una propria diagnostica. Le due non rispondono mai l’una per l’altra — uno slot chiede se un punto di vincolo con nome è vincolato, un obbligo se qualche attachment porta un tipo con nome — quindi un’entità che ha bisogno che la propria Recipe *legga* ciò che è stato collegato dichiara uno slot, mentre una il cui contratto richiede semplicemente la presenza di una capacità dichiara un obbligo."
+  },
+  "275b201b43fd0153": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "275b201b43fd0153",
+    "status": "machine",
+    "text": "10. Il Provider `eval`: Components virtuali tramite formattatori Wasm"
+  },
+  "2804708463cf9ef3": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "2804708463cf9ef3",
+    "status": "machine",
+    "text": "**Disegno del grafo:** durante la costruzione della topologia, il compilatore Go ignora del tutto il contenuto validato dallo schema. Legge `uses.datastores.finance_memory.target` nativamente dallo YAML e disegna l’arco esplicito nel grafo IR."
   },
   "2836d603647e5a66": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -370,6 +706,13 @@
     "status": "machine",
     "text": "**Senza versione:** `implements: \"core/api-server\"` — corrisponde a qualsiasi versione. Per le Recipes realmente indipendenti dalla versione (ad es. una Recipe generica per worker che usa solo `.context.inject.env` e nessun campo `values` specifico di una versione)."
   },
+  "2bef8b638615c829": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "2bef8b638615c829",
+    "status": "machine",
+    "text": "**Su uno slot di attachment — *qualunque cosa vincoli questo punto gestisce materiale segreto*.** Uno slot di `featuresSchema` dichiara `sensitive: true`:"
+  },
   "2d04dd361d63a3e2": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -383,6 +726,13 @@
     "srcHash": "2dee00bb582ee681",
     "status": "machine",
     "text": "**4. Recipe:** il template di traduzione multi-provider (ad es. Helm o Docker Compose). Stabilisce un contratto API rigoroso 1:1 con il componente del catalogo tramite la parola chiave `implements`. La Recipe mappa i `.values` dello sviluppatore nel formato fisico. Codifica in modo fisso le porte di rete fisiche (ad es. `5432`) e utilizza la pipe `.context.uses` per risolvere dinamicamente i `provides` della destinazione, soddisfacendo il contratto di iniezione senza codificare in modo fisso i nomi dei database."
+  },
+  "2e0446a3a218f70a": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "2e0446a3a218f70a",
+    "status": "machine",
+    "text": "Un attachment il cui nome di istanza corrisponde a uno slot dichiarato **riempie** quello slot. Un attachment con qualsiasi altro nome è un attachment **libero**: l’entità non l’ha richiesto, e viene renderizzato insieme a tutto ciò che l’entità ha richiesto. Lo schema generato per uno slot dichiarato resta aperto, quindi dichiarare uno slot non chiude mai il blocco agli attachment liberi. Una sola forma arresta la build invece di essere renderizzata: un attachment scritto sul componente stesso la cui Feature soddisfa il `selector` di uno slot che nulla vincola lì, che è un riempimento scritto con il nome sbagliato anziché un attachment libero."
   },
   "2e8df8fb78ccaffe": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -440,6 +790,13 @@
     "status": "machine",
     "text": "**Developer Intent** — Aggregate."
   },
+  "30f56a6e9229c37e": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "30f56a6e9229c37e",
+    "status": "machine",
+    "text": "Da queste due dichiarazioni il compilatore deriva, per ogni attachment, se l’attachment gestisce materiale dichiarato sensibile — vero quando la Feature collegata dichiara una foglia sensibile, o quando lo slot che vincola ne dichiara una, bastando l’una o l’altra da sola. Lo deriva dall’attachment così com’è dopo che tutti gli scope di authoring sono stati ripiegati, quindi una dichiarazione di scope più ampio che un riempimento più ristretto ha sostituito non persiste, e la richiesta di uno slot si applica al riempimento che ha effettivamente prevalso. Una Feature di credenziale che non dichiara alcuna foglia sensibile — perché il motore di destinazione possiede il materiale e l’autore non scrive nulla — produce comunque un attachment sensibile quando vincola uno slot sensibile."
+  },
   "332d91de857547eb": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -468,6 +825,27 @@
     "status": "machine",
     "text": "7. Vero agnosticismo rispetto al cloud e alle capacità (late binding)"
   },
+  "361973e8cbaea85a": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "361973e8cbaea85a",
+    "status": "machine",
+    "text": "**Il vocabolario strutturale diretto:** una regola fondamentale della progettazione degli schemi è che le strutture dati radice devono essere parole chiave singole e strutturali. Sebbene l’uso di espressioni colloquiali in inglese (come depends_on o runs_within) possa rendere un DSL YAML più naturale da leggere per uno sviluppatore, introduce complessità strutturale quando si mappano quelle chiavi in template Go programmatici. Per mantenere una mappatura diretta 1:1 delle variabili e prevenire la frammentazione del linguaggio specifico di dominio (DSL), gli schemi JSON delle entità principali del catalogo (`Component`, `Feature`) esprimono una simmetria strutturale quasi totale, guidata dallo stesso insieme centrale di parole chiave strutturali usato in tutti gli slot di istanza scritti. Le Features di credenziale (etichettate `feature.aggrega.ai/kind: secret`) condividono questo identico paradigma — non esiste uno schema separato per i secret."
+  },
+  "36c19d7b9867cd99": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "36c19d7b9867cd99",
+    "status": "machine",
+    "text": "**Dominio 3: la realtà di Ops (normalizzazione)** Per mantenere prevedibili i template Go, il compilatore Go normalizza gli input polimorfici di `uses`. Gli array di riferimenti logici a componenti vengono convertiti in oggetti standard prima di essere passati nel dizionario piatto e rigoroso noto come `.context.uses`."
+  },
+  "37e6adcc7ea83ca0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "37e6adcc7ea83ca0",
+    "status": "machine",
+    "text": "Questa è la sezione portante. Aggrega è un compilatore ahead-of-time, e le sue garanzie sono più ristrette di quanto la parola «secret» induca un lettore a supporre."
+  },
   "3944bb819957d536": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -489,12 +867,40 @@
     "status": "machine",
     "text": "**Dominio 2**"
   },
+  "3a669a6005b623a3": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "3a669a6005b623a3",
+    "status": "machine",
+    "text": "**1. Dominio 1 (l’Aggregate): l’intento dello sviluppatore** Lo sviluppatore richiede un database Oracle legacy. Non gli interessa dove risieda; stabilisce solo che il suo agente chiamante si aspetta di ricevere la stringa di connessione come variabile d’ambiente. Poiché l’IP è statico e noto in anticipo, lo passa tramite i parametri."
+  },
+  "3b362bbaac71da06": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "3b362bbaac71da06",
+    "status": "machine",
+    "text": "**Perché:** se l’Aggregate dichiara `env_workers` come parametro tipizzato (`type: integer`), il compilatore valida prima il valore fornito dalla Release rispetto al contratto. La validazione del contratto dei parametri avviene *prima* dell’interpolazione; l’interpolazione avviene *prima* della validazione dello schema `values:` circostante. Questo preserva la riusabilità dell’Aggregate: Ops fornisce l’intero tramite i `parameters:` della `Release`, il compilatore lo valida rispetto alla dichiarazione tipizzata `parameters:`, sostituisce il valore risolto nel documento e la dichiarazione `schema:` del Component valida con successo l’intero risultante."
+  },
+  "3b36a55ccad0ccd7": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "3b36a55ccad0ccd7",
+    "status": "machine",
+    "text": "Esiste una sola parola chiave di attachment (`features:`), una sola forma del contesto di rendering (`.features.<name>`, e la stessa forma sotto una connessione, `.context.uses.<alias>.features.<slot>`, per un attachment scritto su una connessione), un solo ordine di esecuzione e un solo insieme di coordinate di output — per un attachment su un componente, il componente a cui è collegato e poi il nome con cui è collegato, che il layout del target riporti queste due informazioni come directory `<component>--<instance>/` accanto a quella del componente o come prefisso del nome file `<component>--<instance>--`. Ciò che varia tra gli attachment è **ciò che producono** — un valore iniettato, una risorsa referenziabile, un sidecar, un’identità cloud — non la superficie su cui sono dichiarati."
+  },
   "3b7d0888ec0dbef4": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
     "srcHash": "3b7d0888ec0dbef4",
     "status": "machine",
     "text": "Per mantenere la purezza architetturale ed evitare l’espansione incontrollata dell’ambito, Aggrega opera entro confini rigorosi e non negoziabili. La piattaforma ha opinioni molto nette sui problemi che risolve ed è altrettanto attenta a ciò che non fa."
+  },
+  "3c16b3d9a27b0919": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "3c16b3d9a27b0919",
+    "status": "machine",
+    "text": "Questo crea un meccanismo nativo e ampiamente estensibile con cui Platform Ops può formattare Database Source Name (DSN) complessi, URI di API personalizzati o stringhe di bootstrap Kafka senza dipendere dalla fragilità dei template di testo Go standard."
   },
   "3c6b2d92e8972b42": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -559,6 +965,48 @@
     "status": "machine",
     "text": "Informazioni su Aggrega"
   },
+  "4074bac0e1860843": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4074bac0e1860843",
+    "status": "machine",
+    "text": "**2. L’intento dello sviluppatore (l’Aggregate)** Lo sviluppatore separa nettamente ciò che l’agente fa (`values`) da ciò a cui l’agente si connette (`uses`)."
+  },
+  "408a382454a45729": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "408a382454a45729",
+    "status": "machine",
+    "text": "Molte regole che sembrano regole del compilatore — il contratto Zero-Port, lo stile di catalogo Naked-Base / Flavored-Edges, la scelta della primitiva operativa adatta a un dato componente — sono **contratti sociali**: best practice con vie d’uscita, sostenute dagli architetti di piattaforma che scrivono il catalogo della libreria standard. Il compilatore non le interpreta."
+  },
+  "40d5c4725262bc3f": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "40d5c4725262bc3f",
+    "status": "machine",
+    "text": "**`selector`** — una stringa di selettore di etichette che le etichette della Feature che riempie lo slot devono soddisfare. È qui che l’etichetta `kind=secret` si rende utile: l’autore di un’entità che vuole uno slot riempito solo da una credenziale lo dice con un selettore, e il controllo è una valutazione su un insieme di etichette che il compilatore esegue durante l’analisi statica."
+  },
+  "40e13e1a7c045684": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "40e13e1a7c045684",
+    "status": "machine",
+    "text": "**Non impone un meccanismo di consegna.** Una dichiarazione non può convertire un valore inline in un riferimento a uno store, e non restringe ciò che l’allowlist `inject` di uno slot consente. Imporre la consegna significherebbe emettere una risorsa che l’autore non ha mai dichiarato, che è esattamente ciò che l’invariante di assenza di infrastruttura fantasma vieta — vedi [05-invariants.md](05-invariants.md)."
+  },
+  "410ef959d9d691b0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "410ef959d9d691b0",
+    "status": "machine",
+    "text": "**Esattamente uno, garantito dalla Feature.** Un attachment porta il localizzatore in un solo pilastro, mai in entrambi e mai in nessuno. Lo schema di nessun pilastro può esprimerlo, perché ogni pilastro è validato a sé; lo fa il blocco `assertions` di ciascuna Feature, e un attachment che lo viola arresta la build nominando la Feature, l’attachment e il componente. È il contratto dell’entità di catalogo, rispettato come ogni asserzione di Feature: il compilatore valuta il template scritto dall’autore della Feature e non ha alcuna regola propria su credenziali, pilastri o localizzatori."
+  },
+  "41eeb78a3c18cdde": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "41eeb78a3c18cdde",
+    "status": "machine",
+    "text": "**Flusso 3: intento operativo della Feature (`values` in Features/secret):** nell’Aggregate, lo sviluppatore richiede le capacità infrastrutturali il cui comportamento è intento applicativo e interroga credenziali rigorosamente tipizzate, senza modificare il codice interno. Una Feature i cui input sono tutti operativi non porta `values` dello sviluppatore: le operazioni la collegano nella Release, con il suo `infra` (Flusso 4)."
+  },
   "422955bad14b83b6": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
@@ -573,6 +1021,27 @@
     "status": "machine",
     "text": "Il template `values` del Component vi fa riferimento: `storage_size: \"{{ .parameters.db_size }}\"`."
   },
+  "42d0faa85a519d45": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "42d0faa85a519d45",
+    "status": "machine",
+    "text": "Nessuna applicazione esiste nel vuoto. Un’architettura Aggrega compilata rappresenta un grafo mappato rigorosamente. Tuttavia, i moderni sistemi di IA interagiscono costantemente con entità esterne a questo perimetro compilato — come gli LLM SaaS pubblici (Anthropic, OpenAI), le API pubbliche generiche (Stripe, Twilio) o i database brownfield legacy (Oracle on-premise)."
+  },
+  "42ff4ced87f2fc2f": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "42ff4ced87f2fc2f",
+    "status": "machine",
+    "text": "**Vincolo 4: la Release non può sovrascrivere i valori dello sviluppatore**"
+  },
+  "433a69e2fd44ff7c": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "433a69e2fd44ff7c",
+    "status": "machine",
+    "text": "**Su una foglia di schema — *questo dato è materiale segreto*.** Una foglia di `values`, `infra` o `provides` dichiara `sensitive: true`:"
+  },
   "438d55d1dc11e17d": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -580,12 +1049,40 @@
     "status": "machine",
     "text": "3. Anti-obiettivi operativi e di ciclo di vita"
   },
+  "43cc9f30e4ec325a": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "43cc9f30e4ec325a",
+    "status": "machine",
+    "text": "12. Provisioning greenfield («Aggregates di piattaforma»)"
+  },
+  "43e169f5c6dfe68a": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "43e169f5c6dfe68a",
+    "status": "machine",
+    "text": "Slot e attachment liberi"
+  },
+  "444baf046b982b9e": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "444baf046b982b9e",
+    "status": "machine",
+    "text": "**Flusso 4: dimensionamento dell’infrastruttura fisica (`infra`):** scavalcando completamente lo sviluppatore, il dimensionamento fisico `infra` viene proiettato esplicitamente dalla `Release` specifica dell’ambiente direttamente sui Components con ambito locale e sulle relative Features/secret collegate. Per evitare collisioni nella validazione degli schemi chiusi dovute alla diffusione letterale di dizionari, il dimensionamento `infra` è rigorosamente localizzato al componente esplicito che lo indirizza. Questo garantisce una vera separazione delle responsabilità, collocando limiti di calcolo, repliche e requisiti meccanici di risorse rigorosamente nel dominio Ops."
+  },
   "44bbf45af54b165f": {
     "at": "2026-10-17T19:13:54.748Z",
     "job": "5c185f63f43c",
     "srcHash": "44bbf45af54b165f",
     "status": "machine",
     "text": "La Release valorizza il parametro: `parameters: { db_size: \"100Gi\" }`."
+  },
+  "4582c1fdd2605485": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "4582c1fdd2605485",
+    "status": "machine",
+    "text": "La pipeline di esecuzione passo per passo"
   },
   "45af7ab53385d3c1": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -622,6 +1119,20 @@
     "status": "machine",
     "text": "**Purezza AOT (nessun recupero dal cloud live):** il compilatore è matematicamente cieco al cloud live. Non si autentica mai presso le API dell’infrastruttura né recupera indirizzi IP live durante la compilazione. Opera interamente sull’*inversione del controllo*, mappando puntatori deterministici e passando in anticipo contratti di iniezione astratti, così che l’ambiente di runtime possa risolvere in sicurezza le connessioni fisiche finali."
   },
+  "46dc3bdde68e9f30": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "46dc3bdde68e9f30",
+    "status": "machine",
+    "text": "**`.context.annotations.release` (confini del Dominio 4):** usate esclusivamente per governare le realtà fisiche. Ops instrada esplicitamente queste annotazioni in campi `infra` locali rigorosi tramite template Go (ad es. mappando un namespace regionale su un componente di calcolo)."
+  },
+  "46f4b2144b12a1e1": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "46f4b2144b12a1e1",
+    "status": "machine",
+    "text": "Invece di affidarsi a una logica fissa nel compilatore per governare l’egress di rete, Aggrega delega interamente la sicurezza del perimetro ai motori di policy agnostici dell’azienda e ai plugin di rendering Wasm. Questo garantisce che le configurazioni generate siano rigorosamente conformi alle approvazioni esplicite dell’egress."
+  },
   "47821dacb08d7450": {
     "at": "2026-10-17T19:13:54.748Z",
     "job": "5c185f63f43c",
@@ -636,6 +1147,13 @@
     "status": "machine",
     "text": "**Dominio 4**"
   },
+  "49442eb9dd666680": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "49442eb9dd666680",
+    "status": "machine",
+    "text": "e l’operatore collega al server un target di scraping delle metriche nella Release, perché ogni input che `core/prometheus-exporter` accetta — la porta, il percorso e l’intervallo dello scraping — è operativo, quindi si scrive in `infra`:"
+  },
   "4954b9a011c53a29": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -649,6 +1167,20 @@
     "srcHash": "496123043b3ce83a",
     "status": "machine",
     "text": "**Pulumi** consente agli sviluppatori di scrivere l’infrastruttura in linguaggi di uso generale (TypeScript, Python, Go); il suo valore centrale è trattare l’infrastruttura come codice eseguibile. La superficie di scrittura di Aggrega è un progetto YAML dichiarativo: gli sviluppatori scrivono rispetto all’astrazione, non alla superficie dell’API. Ciascuno riflette una filosofia diversa su dove risieda il contratto dello sviluppatore con l’infrastruttura."
+  },
+  "4a13b2c5f9162a5e": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4a13b2c5f9162a5e",
+    "status": "machine",
+    "text": "Dove il compilatore può identificare il valore per chiave — una foglia dichiarata, o una chiave di consegna che porta materiale da una chiave `provides` dichiarata — la sostituzione è esatta. Un valore che un template ha già scritto in un altro documento non porta alcuna chiave a cui sostituirlo, perché un documento renderizzato non registra nulla su quale dichiarazione abbia prodotto ciascun carattere, e ricostruirlo significherebbe ispezionare il contenuto. Così la traccia mostra un tale documento valutando lo stesso template una seconda volta rispetto a un contesto i cui dati dichiarati sensibili si leggono già come segnaposto, ed etichetta il risultato come un nuovo rendering anziché come ciò che è stato renderizzato: un template che si dirama in base al *contenuto* di un valore viene renderizzato diversamente con un segnaposto, e un dato che nessuna dichiarazione nomina passa invariato. Le superfici, questa etichettatura e i suoi limiti sono in [language-reference/vocabulary/compact-form-authoring.md](../language-reference/vocabulary/compact-form-authoring.md) «Dichiarare sensibile una foglia»."
+  },
+  "4a7ac99439be7be9": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "4a7ac99439be7be9",
+    "status": "machine",
+    "text": "**Flusso 6: la pipe dei metadati (`.context`):** applica i requisiti aziendali globali (tag SOC2) direttamente ai template dell’infrastruttura fisica."
   },
   "4a8c0815159ed9f2": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -699,6 +1231,20 @@
     "status": "machine",
     "text": "5. Centralizzazione del traffico IA e governance dei gateway"
   },
+  "4df235b7fe123681": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "4df235b7fe123681",
+    "status": "machine",
+    "text": "**L’Aggregate di piattaforma:** il team Infrastruttura scrive un `Aggregate.yaml` standard i cui componenti sono `core/aws-vpc`, `core/eks-cluster` e `core/istio-base`."
+  },
+  "4e4600becb55d611": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4e4600becb55d611",
+    "status": "machine",
+    "text": "**Non cambia alcun byte renderizzato sulla maggior parte dei target, e su quelli non lo farà mai.** Due percorsi di rendering distribuiti agiscono sulla dichiarazione in ciò che producono (anche i provider Helm, Helm-Chart e Compose la leggono, solo per tenere un valore marcato fuori dal testo di un errore): il provider Terraform marca l’input di un modulo vendorizzato che porta materiale dichiarato sensibile con l’attributo di sensibilità proprio di Terraform — vedi [language-reference/providers/terraform.md](../language-reference/providers/terraform.md) «Input di modulo dichiarati sensibili»; dove il `valuesMapping` di una Recipe, o quello della FeatureRecipe di una Feature collegata a un componente, inventa i nomi degli input, nessun input può portare l’attributo e la build stampa un avviso che lo segnala, vedi [A declared-sensitive value reaches the target through a values mapping (Un valore dichiarato sensibile raggiunge il target tramite una mappatura dei valori)](../language-reference/errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping) — e il provider CloudFormation rifiuta i vincoli letterali descritti sopra, il che arresta una build anziché cambiarne i byte. Ovunque altrove, aggiungere dichiarazioni in un catalogo esistente lascia identico ogni artefatto renderizzato. Il limite oltre questo è strutturale e non dipende da ciò che è stato costruito: una dichiarazione può raggiungere un artefatto renderizzato solo su una piattaforma di destinazione il cui linguaggio abbia una nozione di sensibilità — una dichiarazione che quella piattaforma comprende, che regola come visualizza un valore anziché come lo memorizza. Su un target privo di tale nozione non c’è nulla in cui una dichiarazione possa trasformarsi, quindi un input identico viene renderizzato in modo identico con o senza di essa, in modo permanente."
+  },
   "4ea1e82abbb0d397": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -706,12 +1252,47 @@
     "status": "machine",
     "text": "**Ansible** è uno strumento imperativo di gestione della configurazione per playbook sequenziali su VM di lunga durata e parchi macchine on-premise. Aggrega emette artefatti di topologia dichiarativi per destinazioni container e API cloud. I team che usano Ansible per la gestione dello stato dei server accanto a workload containerizzati di solito lo mantengono per quel ruolo e usano Aggrega per la topologia applicativa."
   },
+  "4eaa42c4203e671c": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4eaa42c4203e671c",
+    "status": "machine",
+    "text": "Quindi l’enunciato onesto della garanzia è:"
+  },
+  "4f9aa447e3aab0f0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4f9aa447e3aab0f0",
+    "status": "machine",
+    "text": "Il sintetizzatore risolve il riferimento dai `provides` pubblicati dello slot — un `secretKeyRef` Kubernetes per `as: env`, un volume basato su secret per `as: file`. L’autore della Recipe scrive solo il nome dello slot e il meccanismo."
+  },
+  "4f9be570bb813ee9": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "4f9be570bb813ee9",
+    "status": "machine",
+    "text": "Una dichiarazione di sensibilità è un’affermazione dell’intento dell’autore che viaggia con l’entità, così che strumenti e policy possano ragionare su ciò che un deployment gestisce. Non è un meccanismo che lo protegge."
+  },
   "4fb81ca061e42a84": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "4fb81ca061e42a84",
     "status": "machine",
     "text": "**La soluzione:** Aggrega agisce come traduttore topologico definitivo. Compilando il DSL dichiarativo dello sviluppatore, il compilatore genera le configurazioni esatte necessarie per collegare complessi cicli di ragionamento multi-agente direttamente all’infrastruttura cloud standard, senza che gli sviluppatori scrivano un solo script di infrastruttura."
+  },
+  "515daed3d130ed1c": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "515daed3d130ed1c",
+    "status": "machine",
+    "text": "**Validazione locale:** il compilatore Go valuta l’intero oggetto rispetto al JSON Schema risolto durante la risoluzione. Controlla le etichette di catalogo sottostanti di `my_secure_vector_db`. Se il database non avesse l’etichetta `restricted`, il compilatore arresterebbe immediatamente la build con una violazione della sicurezza dei tipi."
+  },
+  "51cf9105c2126083": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "51cf9105c2126083",
+    "status": "machine",
+    "text": "Il file `Aggregate.yaml` dello sviluppatore resta indipendente dalle capacità, del tutto agnostico rispetto al fatto che verrà eseguito su AWS o su un laptop locale."
   },
   "51d0522a147cde9c": {
     "at": "2026-10-17T19:04:59.441Z",
@@ -754,6 +1335,27 @@
     "srcHash": "53d3cbb2a9dbb492",
     "status": "machine",
     "text": "Scala del team (l’analogia dei «cappelli»)"
+  },
+  "54b237c8366b0b53": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "54b237c8366b0b53",
+    "status": "machine",
+    "text": "**L’hook del catalogo (Dominio 2):** quando un architetto definisce un componente SaaS pubblico (ad es. `core/external-api`), vi associa un’etichetta aziendale immutabile (ad es. `security.enterprise.com/zone: \"untrusted-external\"`)."
+  },
+  "54eac8aa44c8965d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "54eac8aa44c8965d",
+    "status": "machine",
+    "text": "**Il percorso di crescita:** quando un’architettura piatta cresce fino a richiedere un raggruppamento (namespace diversi, raggruppamenti logici separati, deployment su più confini), lo sviluppatore sposta i componenti di primo livello in `subsystems` espliciti, oppure Ops introduce `boundaries` espliciti. Poiché le due forme sono mutuamente esclusive, si tratta di un passaggio dalla forma piatta a quella con ambiti — non di una combinazione delle due — e l’identità dei nodi si conserva attraverso la transizione."
+  },
+  "550c4704f7da347f": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "550c4704f7da347f",
+    "status": "machine",
+    "text": "**1. Il catalogo (dominio 2): la dichiarazione `schema:`** L’Architect consente array polimorfici per gli strumenti, ma richiede oggetti rigorosi per i database."
   },
   "5527484bc7c14319": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -804,6 +1406,13 @@
     "status": "machine",
     "text": "**8. Release:** il router di deployment. Lega un `aggregate` a un `manifest` e mappa i componenti su confini di deployment fisici (ad es. `aws-eks-production`). Per mantenere un flusso di lavoro DRY, le Releases supportano l’ereditarietà tramite la parola chiave `extends`, che consente alle release specifiche di un ambiente di ereditare in modo pulito da una release di base globale. Soddisfa il contratto astratto dell’aggregate iniettando le realtà fisiche rigorosamente nel blocco `parameters`, e inietta il dimensionamento fisico (come CPU o porte) tramite il namespace parallelo `infra`. Per proteggere l’Aggregate come unica fonte di verità, lo schema della Release vieta meccanicamente un blocco `values:`: gli Ops non possono dichiarare `values` su alcun Component o Feature da una Release. La variazione per ambiente dei valori rivolti allo sviluppatore passa attraverso il **Parameter Hoisting**: lo sviluppatore espone un campo tipizzato `parameters.*` nell’Aggregate, il template `values` del Component vi fa riferimento e la Release soddisfa il parametro per il proprio ambiente. I valori prodotti differiscono tra gli ambienti, mentre l’Aggregate, la superficie di authoring che stabilisce *quali* valori esistono e *come* fluiscono, resta l’unica fonte di verità. Vedi [§8 Vincolo 4 (stato mutato silenziosamente)](06-data-taxonomy-and-composition.md) per il divieto a livello di schema enunciato esplicitamente. Soprattutto, per impedire deployment non tracciabili che «mutano l’aggregate», quando una Release usa `extends`, la dichiarazione di un `aggregate` viene rifiutata dallo schema della Release (il vincolo dello schema non consente di dichiarare `aggregate` quando si usa `extends`). La release figlia deve corrispondere esattamente allo stesso intento dello sviluppatore della release padre. Il `manifest`, invece, diventa opzionale, abilitando il «late binding»: gli Ops possono ereditare l’intera topologia fisica ma sostituire chirurgicamente il lockfile delle dipendenze."
   },
+  "588f41106929acf0": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "588f41106929acf0",
+    "status": "machine",
+    "text": "**Policy programmabili (il compilatore privo di opinioni):** Il compilatore Go di base è un meccanismo di calcolo neutrale rispetto ai contenuti. Analizza YAML, attraversa grafi e valuta le intersezioni di label. La vera «intelligenza» (ad esempio, imporre che il traffico verso i modelli che trasporta dati riservati passi attraverso un gateway AI che maschera il testo sensibile) viene programmata dinamicamente dall’azienda tramite socket WebAssembly (Wasm) collegabili per le mutazioni dell’albero sintattico astratto (AST)—che alterano la rappresentazione in memoria della configurazione analizzata—e per la validazione delle policy."
+  },
   "58dde4bbc0cf1d83": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -811,12 +1420,68 @@
     "status": "machine",
     "text": "[language-reference/](language-reference/README.md) — il «cosa» e il «come usarlo» di Aggrega. Inizia da [Stato del linguaggio](language-reference/10-status.md) per lo stato attuale di maturità, poi, per una prima lettura, segui in ordine i capitoli numerati da 01 a 09. Le sottodirectory non numerate (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) sono cataloghi di riferimento — passa direttamente alle singole voci secondo necessità."
   },
+  "5947a7134dd84c78": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "5947a7134dd84c78",
+    "status": "machine",
+    "text": "**`uses` (la topologia strutturale - stato dichiarativo)**"
+  },
+  "5a5c8fd609c74674": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "5a5c8fd609c74674",
+    "status": "machine",
+    "text": "3. Astrazione di rete: la convenzione «Zero-Port»"
+  },
+  "5b24b54ccadb7f22": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "5b24b54ccadb7f22",
+    "status": "machine",
+    "text": "**3. La realtà di Ops (dominio 3): la Recipe** Il compilatore Go normalizza il polimorfismo. Ops riceve un dizionario `.context.uses` perfettamente piatto e prevedibile. Basta iterare sulla pipe `.context.inject` nelle sezioni pertinenti del template."
+  },
+  "5bda33903c4148fe": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "5bda33903c4148fe",
+    "status": "machine",
+    "text": "Ciò che il compilatore impone è circoscritto: la validazione degli schemi, il parsing YAML, la costruzione del grafo, la valutazione dei template e il semplice instradamento testuale del contratto di iniezione. Tutto il resto è convenzione, imposta al momento della scrittura del catalogo o all’interno del socket di governance Wasm opzionale."
+  },
+  "5c009ee67d6815fa": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "5c009ee67d6815fa",
+    "status": "machine",
+    "text": "Sensibilità dichiarata"
+  },
+  "5c4a04863c8f8a8d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "5c4a04863c8f8a8d",
+    "status": "machine",
+    "text": "Vantaggi architetturali"
+  },
+  "5c5a269344fa98ef": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "5c5a269344fa98ef",
+    "status": "machine",
+    "text": "Per integrare in modo sicuro questi sistemi esterni, Aggrega separa rigorosamente il **confine di sicurezza** dalla **meccanica di esecuzione**. Il confine di sicurezza è governato dalla **regola universale del Component** e dal **guardrail esplicito sull’egress**."
+  },
   "5cfc63bd65ab1a5a": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "5cfc63bd65ab1a5a",
     "status": "machine",
     "text": "Tratto operativo (incluse le Features di credenziali)"
+  },
+  "5d2a14f0822bc88d": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "5d2a14f0822bc88d",
+    "status": "machine",
+    "text": "Due forme di consegna, scelte dalla FeatureRecipe dell’attachment anziché dallo sviluppatore:"
   },
   "5d2ab756e3052d3c": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -832,12 +1497,33 @@
     "status": "machine",
     "text": "Non può recuperare dati che non esistono ancora (endpoint successivi al provisioning, porte assegnate dinamicamente, nomi di risorse generati automaticamente)."
   },
+  "5e71f22be736b492": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "5e71f22be736b492",
+    "status": "machine",
+    "text": "**Vincolo 5: etichette a livello di istanza nell’Aggregate**"
+  },
   "5e74e6313160fd4d": {
     "at": "2026-10-17T19:24:15.582Z",
     "job": "2b8dc6806d5e",
     "srcHash": "5e74e6313160fd4d",
     "status": "machine",
     "text": "Mappe ordinate dall’autore: ogni mappa il cui ordine di iterazione potrebbe influire sull’output renderizzato usa un contenitore di mappa ordinata, così che l’iterazione segua l’ordine di dichiarazione dell’autore anziché l’ordine degli hash."
+  },
+  "5e75911998c97715": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "5e75911998c97715",
+    "status": "machine",
+    "text": "La tassonomia unificata dei dati e le regole di composizione"
+  },
+  "5f3fe1b9b3bf5ffb": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "5f3fe1b9b3bf5ffb",
+    "status": "machine",
+    "text": "**Esempio:** lo sviluppatore scrive `workers: {{ .parameters.env_workers }}` nel proprio blocco `values`, senza virgolette, così il valore arriva come l’intero che è stato dichiarato."
   },
   "5f5840f9ad25e727": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -888,12 +1574,47 @@
     "status": "machine",
     "text": "**Gestione della configurazione adiacente.** Questi strumenti affrontano problemi di stato dei server e di patching YAML distinti dalla compilazione della topologia, e Aggrega non mira al loro dominio."
   },
+  "61a4643d373ce69c": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "61a4643d373ce69c",
+    "status": "machine",
+    "text": "**Gli Aggregates compositi sono SUPPORTATI (il pattern dei moduli):** gli Aggregates fungono sia da applicazione radice sia da moduli riutilizzabili. Un Aggregate padre può dichiarare un Aggregate figlio esattamente come un componente, passandogli i `parameters`. Per evitare un accoppiamento stretto, gli Aggregates figli espongono un contratto **`exportedComponents:`**, che stabilisce un nome di interfaccia pubblica stabile. Il padre richiede questa interfaccia e il compilatore Go ricollega dinamicamente l’arco topologico al nodo interno corretto. Un modulo può a sua volta riesportare il componente esportato di un modulo annidato sotto il proprio nome di interfaccia — eventualmente rinominandolo — e il compilatore risolve tale catena di riesportazione in modo transitivo fino al nodo interno sottostante, così i moduli si compongono a qualsiasi profondità senza che un padre debba sapere quanto in profondità sia annidata la destinazione. Una destinazione che non si risolve in alcun nodo interno arresta comunque la build in modo esplicito, e una catena di riesportazione che si richiude su sé stessa viene rifiutata anziché seguita all’infinito."
+  },
+  "623bb5945e270eb1": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "623bb5945e270eb1",
+    "status": "machine",
+    "text": "9. Il perimetro di sicurezza & i guardrail espliciti sull’egress (destinazioni fuori perimetro)"
+  },
+  "627e6914bfc0f5a5": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "627e6914bfc0f5a5",
+    "status": "machine",
+    "text": "Nell’architettura Aggrega, le dipendenze topologiche sono mappate esplicitamente tramite il pilastro di schema `uses` per mantenere un payload `values` completamente opaco. Risolvere «chi parla con chi» pone una sfida particolare: dobbiamo mappare topologie applicative complesse e a più nodi senza costringere lo sviluppatore a scrivere instradamenti di rete espliciti, ordini di esecuzione a livello di orchestratore o dipendenze infrastrutturali."
+  },
   "631fa020f704ced0": {
     "at": "2026-10-17T18:55:04.559Z",
     "job": "e3297de5b56f",
     "srcHash": "631fa020f704ced0",
     "status": "machine",
     "text": "Il compilatore di Aggrega è un instradatore di testo Ahead-Of-Time (AOT). Analizza YAML, attraversa grafi, valuta intersezioni di etichette e convoglia stringhe dalle sorgenti alle destinazioni. Non controlla ciò che gli autori inseriscono in `values`, `parameters`, `infra`, `provides` o `locals`. Non impone convenzioni di denominazione, convenzioni sulle porte o le etichette semantiche che un Architect inventa."
+  },
+  "63bcb1cc0e6fa605": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "63bcb1cc0e6fa605",
+    "status": "machine",
+    "text": "**5. Dominio 3 (la Recipe chiamante): adempiere al contratto** La ricetta Helm standard del worker Python itera sui componenti collegati (uses:) e indicizza nativamente il dizionario ricevuto dallo stub `eval`."
+  },
+  "64123a9253b51eb6": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "64123a9253b51eb6",
+    "status": "machine",
+    "text": "Quando un’applicazione interagisce con un database legacy on-premise o con un’API SaaS pubblica (come Stripe), la regola universale del Component stabilisce che queste entità esterne devono essere dichiarate come componenti distinti nell’`Aggregate`. Tuttavia, Aggrega non deve tentare di generare per esse un artefatto fisico di Pod Kubernetes o di istanza AWS RDS."
   },
   "644dce10b1d8fa88": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -909,12 +1630,33 @@
     "status": "machine",
     "text": "`values`: il payload centrale della logica cognitiva/di business (di proprietà degli sviluppatori)."
   },
+  "64a0c327306481ee": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "64a0c327306481ee",
+    "status": "machine",
+    "text": "Il modello mentale in una frase: *esiste un solo tipo di attachment; ciò che varia è ciò che produce.*"
+  },
   "658ae1c1448f9079": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "658ae1c1448f9079",
     "status": "machine",
     "text": "Implementazione di un Component, per provider"
+  },
+  "65926c3e6ba2e10c": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "65926c3e6ba2e10c",
+    "status": "machine",
+    "text": "**Vincolo 1: le credenziali sono allegati, non valori**"
+  },
+  "661e0fc91a95e5a0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "661e0fc91a95e5a0",
+    "status": "machine",
+    "text": "Un Component o una Feature può dichiarare **slot** in `featuresSchema`:"
   },
   "663aeaf54a733824": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -923,12 +1665,61 @@
     "status": "machine",
     "text": "Consulta [La tassonomia delle entità](04-entity-taxonomy.md) per una panoramica visiva delle entità raggruppate per dominio e per le descrizioni dettagliate di ciascuna entità."
   },
+  "671e3af53d7e941e": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "671e3af53d7e941e",
+    "status": "machine",
+    "text": "La realtà della mappatura 1:1"
+  },
+  "672c67b809dbb1b4": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "672c67b809dbb1b4",
+    "status": "machine",
+    "text": "**Agnosticismo rispetto agli schemi (dizionario open source):** Il compilatore di base è agnostico rispetto ai livelli di esecuzione fisici. Non possiede schemi codificati in modo fisso per Helm, Terraform o Docker Compose. Al contrario, il blocco `source` di una Recipe di Ops è un dizionario aperto le cui chiavi sono definite dal provider e arrivano ai template della Recipe come `.source.*`. La direzione di progettazione è che il socket Wasm di ciascun provider definisca e validi la propria forma di source — così le aziende possono introdurre nuovi strumenti di infrastruttura senza attendere aggiornamenti dello schema di base; questa validazione Wasm della source per singolo provider non è ancora implementata. Oggi il core risolve una source *recuperata* tramite una forma integrata `{ kind, url, version }` (kind: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), che già disaccoppia il compilatore dai linguaggi cloud che manipola. Consulta il riferimento `source` della Recipe per l’attuale modello di recupero e per la forma validata da Wasm prevista."
+  },
   "6794e2f7e96eaa6e": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
     "srcHash": "6794e2f7e96eaa6e",
     "status": "machine",
     "text": "[architecture/](architecture/README.md) — il «perché» di Aggrega. Visione, posizionamento, modello mentale, pipeline del compilatore a livello concettuale, governance aziendale, catalogo, estensibilità, scelte di progettazione. Per una prima lettura, segui in ordine i capitoli numerati da 01 a 16."
+  },
+  "67c46252e605ebe2": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "67c46252e605ebe2",
+    "status": "machine",
+    "text": "Il nome «Zero-Port» è l’appellativo storico canonico di questa convenzione; il principio si generalizza a qualsiasi vincolo dell’infrastruttura fisica che un’applicazione legacy codifica in modo fisso. Lo schema seguente usa `tcp_keepalive_seconds` come esempio svolto — una temporizzazione di kernel/rete che l’applicazione si aspetta al livello dei socket — per mantenere l’esempio esplicitamente sull’asse della fuoriuscita di infra, senza nominare un campo la cui collocazione tra values e infra sia essa stessa dibattuta."
+  },
+  "68046ae4d1763371": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "68046ae4d1763371",
+    "status": "machine",
+    "text": "**Array di stringhe:** usati per semplici riferimenti logici a componenti (ad es. `tools: [\"search-api\"]`) quando l’instradamento standard è sufficiente."
+  },
+  "6859fa7f7e10aacf": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "6859fa7f7e10aacf",
+    "status": "machine",
+    "text": "**Perché:** per convenzione i Components sono agnostici rispetto alle capacità. I target hardware fisici risiedono nelle Recipes di Ops o in annotazioni `.context` generiche, non nella logica applicativa cognitiva di base."
+  },
+  "68bd7fae3ba829b0": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "68bd7fae3ba829b0",
+    "status": "machine",
+    "text": "Risoluzione delle dipendenze"
+  },
+  "68ebe471d8ce66fb": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "68ebe471d8ce66fb",
+    "status": "machine",
+    "text": "**La libreria Sprig:** il compilatore registra nativamente la libreria Sprig, standard di Helm, offrendo accesso immediato a pipeline come `| default`, `| quote` e `| toYaml`."
   },
   "690bca2b241e4755": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -951,6 +1742,27 @@
     "status": "machine",
     "text": "L’architettura di Aggrega è guidata da principi di progettazione fondamentali che bilanciano flessibilità e prevedibilità. Mantenendo confini chiari e contratti standardizzati, un compilatore fondamentalmente generico può orchestrare senza soluzione di continuità qualsiasi cosa, dall’infrastruttura cloud-native standard fino all’intelligenza AI altamente specializzata."
   },
+  "6a43415c3edf2694": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "6a43415c3edf2694",
+    "status": "machine",
+    "text": "**Ambito:** usato in modo uniforme all’interno di `components` e dei relativi collegamenti `features` nell’`Aggregate`, Features di credenziale incluse."
+  },
+  "6a480da124d59845": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "6a480da124d59845",
+    "status": "machine",
+    "text": "I due esempi seguenti mostrano i due distinti superpoteri del pilastro esplicito della topologia: l’**esempio A** dimostra *se* una connessione è autorizzata (sicurezza dei tipi tra nodi), e l’**esempio B** dimostra *come* i dati della connessione vengono consegnati fisicamente (polimorfismo & normalizzazione)."
+  },
+  "6b37157a1b954e2b": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "6b37157a1b954e2b",
+    "status": "machine",
+    "text": "I due livelli non sono un duplicato di comodo l’uno dell’altro, e la forma della credenziale referenziabile è il caso concreto che mostra perché. Una credenziale referenziabile pubblica `provides.name` e `provides.key` — il localizzatore della risorsa e la chiave dei dati al suo interno — e **nessuno dei due è sensibile**: il nome di un Secret Kubernetes è pubblico, e lo è anche la chiave al suo interno. Entrambi sono renderizzati in chiaro nel manifest del consumatore come `secretKeyRef`. Eppure lo slot che quella credenziale riempie gestisce indubbiamente materiale segreto. Un solo livello non può esprimere entrambi i fatti: marcare i localizzatori pubblicati per far risultare sensibile lo slot affermerebbe qualcosa di falso su di essi e porterebbe quell’errore ovunque la dichiarazione venga letta."
+  },
   "6c591f87eb3ef1dc": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -965,12 +1777,33 @@
     "status": "machine",
     "text": "Il `Manifest`"
   },
+  "6d382bd38677487b": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "6d382bd38677487b",
+    "status": "machine",
+    "text": "**`inject` (il contratto di consegna - comando imperativo)**"
+  },
+  "6d571b497d192218": {
+    "at": "2026-10-22T01:27:18.778Z",
+    "job": "session-0005-20261022012718",
+    "srcHash": "6d571b497d192218",
+    "status": "machine",
+    "text": "**Purezza AOT (nessun recupero dal cloud live):** Il compilatore è agnostico rispetto al cloud live. Non si autentica mai presso le API dell’infrastruttura né recupera indirizzi IP live durante la compilazione. Opera interamente sull’*inversione del controllo*, mappando puntatori deterministici e passando in anticipo contratti di iniezione astratti, così che l’ambiente di runtime possa risolvere in sicurezza le connessioni fisiche finali."
+  },
   "6d83c5e9324975ed": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "6d83c5e9324975ed",
     "status": "machine",
     "text": "**Il problema:** gestire il traffico verso gli LLM richiede un instradamento altamente specializzato (budget di token, caching semantico, failover) che i gateway standard per microservizi non hanno."
+  },
+  "6dab0283aae21ed0": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "6dab0283aae21ed0",
+    "status": "machine",
+    "text": "4. Il contratto di iniezione e la mappa pre-risolta"
   },
   "6e755ab4c67b36e9": {
     "at": "2026-10-17T19:02:11.925Z",
@@ -1000,12 +1833,26 @@
     "status": "machine",
     "text": "**Formati di artefatto in cui Aggrega renderizza oggi.** Sono gli output prodotti dai plugin di rendering inclusi."
   },
+  "6f7548d461f25705": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "6f7548d461f25705",
+    "status": "machine",
+    "text": "**Neutralità matematica:** il compilatore Go analizza nativamente la struttura `uses` per disegnare il grafo della rappresentazione intermedia (IR). Non tenta mai di analizzare o interrogare la logica applicativa dello sviluppatore (`values`)."
+  },
   "6fab35150a784440": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
     "srcHash": "6fab35150a784440",
     "status": "machine",
     "text": "**Esperienza semantica dello sviluppatore (lo standard della mappa a 5 parole chiave):** per prevenire attriti cognitivi, gli sviluppatori usano esattamente cinque parole chiave universalmente comprese all’interno di una topologia YAML basata su mappe:"
+  },
+  "6ffc8a660378e18a": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "6ffc8a660378e18a",
+    "status": "machine",
+    "text": "1. La regola universale del Component"
   },
   "704d3673a9bf5ce3": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -1028,6 +1875,13 @@
     "status": "machine",
     "text": "Il pattern a tre forme consente alle Recipes di dichiarare il contratto di versione adatto al loro effettivo accoppiamento con lo schema del Component. Le Recipes strettamente legate a una specifica versione dello schema la fissano esattamente; le Recipes che si affidano alle garanzie di compatibilità SemVer del Component usano un intervallo compatibile con la major; le Recipes il cui comportamento non dipende affatto dalla versione del Component restano senza versione. Il risultato è che gli incrementi minor della versione del Component non costringono gli Ops né a fissare le versioni dei Component né a mantenere Recipes parallele per ciascuna versione."
   },
+  "7214ce409535dbc5": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "7214ce409535dbc5",
+    "status": "machine",
+    "text": "**2. L’intento dello sviluppatore (dominio 1): l’Aggregate** Lo sviluppatore usa un array semplice per lo strumento e una mappa esplicita per il database."
+  },
   "7238c6e553aa4345": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -1035,12 +1889,33 @@
     "status": "machine",
     "text": "**Infrastruttura e Cloud Ops (dominio 3):** sono gli ingegneri dell’infrastruttura che gestiscono il livello di esecuzione fisico (Helm, AWS IAM, stato di Terraform). Isolando il dominio 3, l’architettura consente all’azienda di riutilizzare direttamente questo codice di infrastruttura esistente. Gli ingegneri impacchettano i loro file `.tf` standard come `Recipes` e non devono mai imparare linguaggi di policy specifici del catalogo come Rego."
   },
+  "72b0c4cc31d0da27": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "72b0c4cc31d0da27",
+    "status": "machine",
+    "text": "Tassonomia dei dati e composizione"
+  },
+  "73622fb14fc08d4c": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "73622fb14fc08d4c",
+    "status": "machine",
+    "text": "**Perché:** le etichette sono tratti immutabili a livello di catalogo scritti dall’architetto della piattaforma — l’identità semantica che leggono i motori di policy e i selettori. La Release instrada i componenti verso i confini tramite un targeting esplicito per ID basato su mappe (`components: { \"my-agent\": {} }`), che preserva la possibilità di annidare `infra` e override delle feature per ogni componente senza mescolare la paternità delle etichette nell’Aggregate dello sviluppatore."
+  },
   "736c86782c7e9099": {
     "at": "2026-10-22T00:11:49.019Z",
     "job": "session-0002-20261022001149",
     "srcHash": "736c86782c7e9099",
     "status": "machine",
     "text": "Gli strumenti fondamentali come Terraform sono gestori di stato. Effettuano il provisioning di nodi di calcolo fisici, ma non modellano i flussi di dati logici L7 che avvengono *tra* quei nodi. Non sono in grado di analizzare nativamente un’architettura per effettuare il provisioning dei firewall semantici necessari a tracciare le catene di prompt dell’IA o a fermare gli attacchi «Confused Deputy». Al contrario, gli strumenti nativi di Kubernetes (come KubeVela) operano come controller attivi a runtime e non forniscono gli artefatti di conformità statici, prodotti in anticipo (ahead-of-time), richiesti dai team di sicurezza aziendali."
+  },
+  "747419c66e4a4cd2": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "747419c66e4a4cd2",
+    "status": "machine",
+    "text": "**Helper `.tpl` nativi:** Ops scrive file `.tpl` standard (ad es. `helpers/labels.tpl`). Il compilatore Go di Aggrega analizza nativamente la directory `helpers/` tramite `template.ParseGlob` prima del rendering, offrendo l’evidenziazione completa della sintassi negli IDE e le funzionalità standard in stile Helm `{{ include \"macro\" . }}`."
   },
   "747589304cedae1d": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1056,12 +1931,40 @@
     "status": "machine",
     "text": "2. **L’esperienza dello sviluppatore: intento e astrazione**"
   },
+  "75031dbaecc0bb58": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "75031dbaecc0bb58",
+    "status": "machine",
+    "text": "**Significato:** l’impronta fisica e il dimensionamento meccanico iniettati durante il Late Binding (ad es. `cpu_limit: \"4\"`, `port: 5432`). Le istanze di componente dell’Aggregate e i relativi collegamenti `features` non includono un campo `infra` e, insieme a `additionalProperties: false`, rifiutano `infra` durante la validazione dello schema. Validato dalla dichiarazione unificata `schema:` del catalogo."
+  },
   "759edb9d500b7550": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
     "srcHash": "759edb9d500b7550",
     "status": "machine",
     "text": "**Non è un orchestratore attivo di cluster (niente GitOps):** Aggrega è un compilatore statico Ahead-of-Time (AOT), non un agente di cluster attivo che riconcilia continuamente lo stato. Produce manifest Kubernetes standard e configurazioni Docker Compose che strumenti GitOps dedicati (come ArgoCD o Flux) distribuiscono."
+  },
+  "760300f3ba66dc1b": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "760300f3ba66dc1b",
+    "status": "machine",
+    "text": "**Pattern consigliato: sollevamento dei parametri tramite stringhe template**"
+  },
+  "762040086abf8cca": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "762040086abf8cca",
+    "status": "machine",
+    "text": "Il selettore è vincolato alla sua grammatica nel momento in cui viene valutato, cioè una volta per ogni arco collegato attraverso il socket. Un selettore che il motore non riesce a leggere come una delle sue sei forme di requisito — un requisito vuoto lasciato da una virgola di troppo, una chiave che contiene spazi o uno dei caratteri con cui la grammatica distingue le sue forme (`=`, `!`, `(`, `)` e la virgola), oppure un insieme senza la parentesi di chiusura — arresta la build su quell’arco, nominando il requisito, invece di essere letto come un altro selettore. È questa rigidità a mantenere onesto il controllo: letto con indulgenza, `!tier=frontend`, scritto per escludere i frontend, chiederebbe solo che nessuna etichetta sia *chiamata* `tier=frontend`, e ogni destinazione — frontend compresi — passerebbe. La stessa grammatica governa i selettori degli slot di allegato e l’`appliesTo` di una Feature; [la grammatica dei selettori](../language-reference/vocabulary/modifier-system.md) elenca ogni forma e ogni rifiuto. Un socket attraverso cui non è collegato alcun arco non viene mai valutato, quindi un selettore malformato su di esso viene segnalato dalla prima build che ne collega uno."
+  },
+  "76368db6f629fa5c": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "76368db6f629fa5c",
+    "status": "machine",
+    "text": "**Pattern non supportato:** Ops tenta di sovrascrivere la logica cognitiva di uno sviluppatore (ad es. cambiando `workers: 4` in `workers: 10`) dalla `Release`."
   },
   "763d8713c7b806e0": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -1076,6 +1979,13 @@
     "srcHash": "76b09d8ac301ff16",
     "status": "machine",
     "text": "Ne seguono due corollari:"
+  },
+  "773bd1a40e883de2": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "773bd1a40e883de2",
+    "status": "machine",
+    "text": "Una trappola ricorrente nel platform engineering è costringere il router (il nostro file `Release`) a gestire il pesante provisioning dei cluster al Day-0 (ad es. avviare un nuovo cluster AWS EKS prima di distribuirvi l’app). Questo crea file di instradamento lunghi e difficili da leggere."
   },
   "77dc7c6945651292": {
     "at": "2026-10-17T20:13:34.254Z",
@@ -1098,6 +2008,27 @@
     "status": "machine",
     "text": "La Release non può introdurre risorse di calcolo che l’Aggregate non ha dichiarato, né può reindirizzare un arco dichiarato dallo sviluppatore. All’interno dei socket che l’Architect ha dichiarato, la Release può collegare e configurare archi tra componenti esistenti: imposta l’`infra` per arco su un arco collegato dallo sviluppatore, oppure collega a un componente esistente un arco verso un socket dichiarato ma non associato. Non può dichiarare `values` per arco (quelli restano nell’Aggregate), associare un socket che lo `usesSchema` del Component non dichiara, né puntare un arco verso un componente che non esiste: ciascuno di questi casi interrompe la build. Nota quale dichiarazione intende la clausola centrale: il socket deve comparire nello `usesSchema` del **Component di catalogo**. L’autore di un Aggregate può nominare un socket che il suo tipo di componente non dichiara, e la superficie della Release volutamente non viene aperta allo stesso modo: un operatore collega e configura all’interno di un’architettura invece di inventarne una."
   },
+  "783bd0aaf8890650": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "783bd0aaf8890650",
+    "status": "machine",
+    "text": "**I Components non possono contenere sotto-componenti:** i Components sono elementi costitutivi atomici. La composizione avviene a livello di Aggregate tramite sottosistemi e sotto-aggregati. Se un’applicazione richiede più container fisici (come un’API + un sidecar), quell’annidamento fisico vive all’interno del template della Recipe di Ops, non nella definizione del Component."
+  },
+  "783ca1a9632c162a": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "783ca1a9632c162a",
+    "status": "machine",
+    "text": "1. Il compilatore è neutrale rispetto ai contenuti, privo di opinioni e agnostico rispetto all’intento dell’utente"
+  },
+  "7890d065bdf691ab": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "7890d065bdf691ab",
+    "status": "machine",
+    "text": "Aggrega risolve il problema elevando la topologia a pilastro di schema di prima classe chiamato `uses`."
+  },
   "7897406b5e5a2297": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -1119,6 +2050,13 @@
     "status": "machine",
     "text": "Dominio"
   },
+  "7a5f4f89fc229052": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "7a5f4f89fc229052",
+    "status": "machine",
+    "text": "**Pattern non supportato:** l’architetto scrive `aws_instance_type: string` nella dichiarazione `schema:` del Component."
+  },
   "7a86908e94c0de86": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -1132,6 +2070,13 @@
     "srcHash": "7ad83e5a37ad8e0b",
     "status": "machine",
     "text": "Ciò che il compilatore impone è circoscritto: validazione dello schema, analisi YAML, costruzione del grafo, valutazione dei template e l’instradamento stupido del testo dell’Injection Contract. Tutto il resto è convenzione, imposta al momento della scrittura del catalogo o all’interno del socket di governance Wasm attivabile su richiesta."
+  },
+  "7aefaa64f8c19d52": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "7aefaa64f8c19d52",
+    "status": "machine",
+    "text": "Questo garantisce — tramite un ruolo di verdetto di governance che valuta la topologia dichiarata — che l’infrastruttura *dichiarata esplicitamente* sia conforme alla policy di egress senza che il compilatore Go di base debba capire che cosa significhi «esterno». *(Nota: un vero egress zero-trust si basa sul fatto che il cluster di destinazione esegua a runtime una CNI Default Deny; le configurazioni generate si limitano a mappare le eccezioni autorizzate).*"
   },
   "7b009d7df9870c9d": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -1154,6 +2099,20 @@
     "status": "machine",
     "text": "[authoring/](authoring/README.md) — il «come mettersi all’opera e scrivere» di Aggrega. Il ciclo di scrittura, i quattro ruoli che collaborano, la mappa dai kind ai ruoli e come collegare un assistente di IA tramite il server Model Context Protocol. Inizia da [Primi passi](authoring/getting-started.md)."
   },
+  "7ea13ab3304aee43": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "7ea13ab3304aee43",
+    "status": "machine",
+    "text": "**La Release di piattaforma:** il team distribuisce questo aggregato. Il renderer associato a questi componenti di piattaforma produce gli artefatti necessari a creare l’infrastruttura di base."
+  },
+  "810d9dc245a953b4": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "810d9dc245a953b4",
+    "status": "machine",
+    "text": "Questo disaccoppiamento è strutturale. L’Aggregate dello sviluppatore dice «inietta l’host del database come variabile d’ambiente `DB_HOST`» senza nominare l’indirizzo fisico del database, il percorso del vault nell’archivio dei secret o il formato degli hostname del cloud provider. La Recipe di Ops riceve la stringa risolta tramite `.context.inject` e la consuma senza dover scrivere la catena di lookup."
+  },
   "8198e9a805f17ddb": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -1168,12 +2127,61 @@
     "status": "machine",
     "text": "**Nessun sistema zero-copy o a memoria condivisa:** il modello di sicurezza di Aggrega si basa sulla generazione di configurazioni per l’intercettazione a livello di rete (come i sidecar Envoy) per applicare le policy. Se uno sciame di agenti comunica esclusivamente tramite la memoria di sistema condivisa all’interno di un nodo (per esempio Ray Core Actors), i proxy di rete sono ciechi a quella comunicazione e non possono applicare guardrail."
   },
+  "825876bd7c4fcccd": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "825876bd7c4fcccd",
+    "status": "machine",
+    "text": "**Lo YAML dello sviluppatore (Dominio 1):**"
+  },
+  "83a3728673fac75c": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "83a3728673fac75c",
+    "status": "machine",
+    "text": "**Vincolo 3: logica condizionale sui metadati**"
+  },
+  "847ce4e2afb8be54": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "847ce4e2afb8be54",
+    "status": "machine",
+    "text": "**Scenario B (database legacy interno):** etichettato `internal-trusted` (aggira i guardrail di egress, resta dentro la VPC). Eseguito tramite il plugin formattatore (nessuna risorsa di calcolo fornita)."
+  },
+  "84cdf531ad085de6": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "84cdf531ad085de6",
+    "status": "machine",
+    "text": "**La via d’uscita:** se il codice interno di un’applicazione *non può* essere modificato, l’architetto di piattaforma espone esplicitamente un campo `port` nella dichiarazione `schema:`. **Nota architetturale:** la convenzione «Zero-Port» è l’esempio più evidente della più ampia **separazione delle responsabilità** della piattaforma. Questa stessa identica filosofia — tenere la meccanica fisica lontana dallo sviluppatore — si applica alle richieste di CPU, ai limiti di memoria, ai domini operativi e al dimensionamento dei dischi. Ogni volta che un vincolo dell’infrastruttura fisica *deve* filtrare nel payload applicativo dello sviluppatore (a causa di codice legacy o di requisiti hardware rigorosi), deve sempre essere governato da una «via d’uscita» esplicita nella dichiarazione `schema:` dell’architetto, anziché violare le regole fondamentali del compilatore."
+  },
   "84f4b0651bc842df": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "84f4b0651bc842df",
     "status": "machine",
     "text": "**La soluzione:** Aggrega si basa sul «late binding». Gli sviluppatori scrivono un unico progetto astratto. I Platform Ops possono poi mappare senza attriti esattamente la stessa topologia su Docker Compose per i test locali o su AWS/EKS per la produzione, semplicemente sostituendo il lockfile `Manifest` e il router `Release`. Questo separa nettamente la logica cognitiva dell’applicazione dall’infrastruttura fisica, garantendo un’esperienza «scrivi una volta, esegui ovunque» per l’architettura di base e facendo del vendor lock-in una scelta governata e intenzionale anziché un sottoprodotto accidentale."
+  },
+  "850229530e88d932": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "850229530e88d932",
+    "status": "machine",
+    "text": "**Il compilatore non risolve mai una credenziale.** Non si autentica presso un’API cloud, non legge un vault e non recupera materiale durante `aggrega build`. I `values` e l’`infra` di un attachment di credenziale attraversano il grafo ed entrano nel contesto di rendering come scalari opachi, e una FeatureRecipe li renderizza in qualunque artefatto si aspetti la piattaforma di destinazione. La risoluzione avviene dopo, nel cluster o nel gestore di stato IaC, rispetto a ciò a cui punta l’artefatto renderizzato."
+  },
+  "865e4c81f21ba131": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "865e4c81f21ba131",
+    "status": "machine",
+    "text": "Questi otto invarianti sono le regole fondanti di Aggrega. Valgono in tutte le release, nel core del compilatore, nel livello degli schemi, nel catalogo e nella superficie dei plugin Wasm. Ogni decisione di progettazione, ogni funzionalità e ogni entità scritta li rispetta."
+  },
+  "8663bb8733797cdb": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "8663bb8733797cdb",
+    "status": "machine",
+    "text": "Vedi [inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) per il pattern schema-bridge che espone in modo sicuro le manopole dell’infrastruttura specializzata tramite componenti figli — un campo `values:` rivolto allo sviluppatore, dichiarato nello `schema:` del Component, che il template `valuesMapping:` della Recipe convoglia nell’output renderizzato con la forma di `infra:`."
   },
   "878386f73a589693": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -1203,6 +2211,13 @@
     "status": "machine",
     "text": "La suddivisione in quattro domini è **una guida e un’impostazione progettuale, non un’imposizione del compilatore**. Il compilatore (secondo l’Invariante 1) è matematicamente privo di opinioni. Gli utenti sono liberi di:"
   },
+  "8a50dcb05a3ec454": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "8a50dcb05a3ec454",
+    "status": "machine",
+    "text": "**Ecosistema unificato:** in un catalogo Aggrega, questo «stub eval» Wasm è sotto controllo di versione, verificabile e condivisibile proprio come un chart Helm fisico."
+  },
   "8a7ac7501fdf6758": {
     "at": "2026-10-17T19:10:06.976Z",
     "job": "8f628e9b7a80",
@@ -1216,6 +2231,27 @@
     "srcHash": "8a909be5ed012610",
     "status": "machine",
     "text": "1. Il compilatore è stupido, matematicamente privo di opinioni e cieco all’intento dell’utente"
+  },
+  "8aac88b72dadcb08": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "8aac88b72dadcb08",
+    "status": "machine",
+    "text": "Due cose che uno slot può vincolare:"
+  },
+  "8b5d93e6bd71dc97": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "8b5d93e6bd71dc97",
+    "status": "machine",
+    "text": "11. Piping tra pilastri tramite schema bridge: collegare l’intento all’infrastruttura"
+  },
+  "8bcf2bc93d2fc722": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "8bcf2bc93d2fc722",
+    "status": "machine",
+    "text": "**Nessun carattere jolly:** i caratteri jolly (ad es. `[\"*\"]`) sono rifiutati dallo schema per evitare le «dipendenze fantasma» e il collegamento automatico non autorizzato."
   },
   "8e4c8d471d15411d": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -1245,6 +2281,13 @@
     "status": "machine",
     "text": "5. **Governance aziendale: schemi ed ereditarietà**"
   },
+  "8ff1fbe15efa1649": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "8ff1fbe15efa1649",
+    "status": "machine",
+    "text": "Sostituendo le preposizioni colloquiali con parole chiave infrastrutturali rigorose, si ottiene una mappatura 1:1 perfetta. L’ingegnere Ops non deve tradurre la grammatica; si limita a fare riferimento alle chiavi esatte scritte dallo sviluppatore."
+  },
   "901cdfecb57db52b": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -1259,12 +2302,33 @@
     "status": "machine",
     "text": "**Docker Compose** è lo standard per lo sviluppo locale multi-container. Il renderer Compose di Aggrega lo prende direttamente come destinazione, così un unico progetto viene eseguito in locale senza una superficie di scrittura separata."
   },
+  "932d7d38fefa7ca0": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "932d7d38fefa7ca0",
+    "status": "machine",
+    "text": "Chi dà il nome alla credenziale"
+  },
   "936643a9e20c8d88": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "936643a9e20c8d88",
     "status": "machine",
     "text": "**Ruolo:** il Platform Architect (la stessa persona del dominio 2), ma il ruolo entra in gioco solo quando il contenuto del catalogo cresce abbastanza da trarre vantaggio dal riuso degli schemi tra un Component e l’altro o dal riuso tra una Recipe e l’altra di template, forme di workload o bundle di artefatti. Gli autori singoli e i cataloghi piccoli si distribuiscono senza alcuna entità di Tier 3."
+  },
+  "95abcd74f7c52cd0": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "95abcd74f7c52cd0",
+    "status": "machine",
+    "text": "**`.context.annotations.catalog` (catalogo del Dominio 2):** tratti intrinseci immutabili scritti dall’architetto, usati principalmente per la valutazione programmatica delle policy Wasm."
+  },
+  "95fd44791b787643": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "95fd44791b787643",
+    "status": "machine",
+    "text": "Questo scenario mostra come il compilatore gestisce senza attriti sia uno strumento AI a scatola nera (passato come array) sia un database relazionale legacy (che richiede una mappa con un contratto `inject`)."
   },
   "979de5daf6369a2b": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1279,6 +2343,13 @@
     "srcHash": "97a946b86478bc47",
     "status": "machine",
     "text": "L’Aggregate dello sviluppatore (componenti, archi `uses`, collegamenti di Feature)."
+  },
+  "97fdb90a2dd7917b": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "97fdb90a2dd7917b",
+    "status": "machine",
+    "text": "2. Il guardrail esplicito sull’egress (conformità dell’infrastruttura)"
   },
   "982b84c8d4101cce": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1301,6 +2372,13 @@
     "status": "machine",
     "text": "Ogni dominio ha una sola responsabilità:"
   },
+  "9a4186edced0763b": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "9a4186edced0763b",
+    "status": "machine",
+    "text": "**Ambito:** iniettato silenziosamente dal compilatore nei template della `Recipe` di Ops."
+  },
   "9a658c7c52603da9": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
@@ -1315,6 +2393,13 @@
     "status": "machine",
     "text": "**La soluzione:** Aggrega sposta i confini di fiducia fuori dal codice applicativo e dentro l’infrastruttura di rete tramite un rigoroso **passaggio di esecuzione** (Execution Handoff). Dopo aver validato il grafo statico dell’applicazione tramite il socket di governance WebAssembly collegabile, il compilatore esegue i plugin di rendering per generare le configurazioni esatte richieste dai proxy di intercettazione L7 (come il mascheramento dei dati o i webhook di approvazione umana). Poi consegna questi artefatti all’orchestratore di runtime, che applica fisicamente le regole e blocca le azioni non autorizzate."
   },
+  "9b1af28844f3e1cd": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "9b1af28844f3e1cd",
+    "status": "machine",
+    "text": "7. L’ambito predefinito — rivelazione progressiva del raggruppamento"
+  },
   "9b493a3cfcc4210d": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -1322,12 +2407,40 @@
     "status": "machine",
     "text": "**5. FeatureRecipe:** mappa esplicitamente una `Feature` su un’implementazione di infrastruttura concreta tramite la parola chiave `implements`. Impone un `provider` di destinazione (ad es. `helm`, `compose`). Poiché la piattaforma unifica la gestione delle credenziali nell’entità Feature, le FeatureRecipes gestiscono sia le feature operative (mascheramento dei dati, instradamento DNS, iniezione di sidecar) sia le feature di credenziali (generazione di CRD per i vault, montaggio di volumi di segreti). Per coprire tutto questo spettro, supporta tre blocchi di esecuzione distinti:"
   },
+  "9bd4a9ec1e7e5519": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "9bd4a9ec1e7e5519",
+    "status": "machine",
+    "text": "**Non cifra.** Nulla viene incapsulato, sigillato o trasformato."
+  },
+  "9c4a3f7c6f92a96a": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "9c4a3f7c6f92a96a",
+    "status": "machine",
+    "text": "Dichiarare il socket non è però l’*unico* modo di tracciare un arco. L’autore di un Aggregate può nominare, sul proprio componente, un socket che l’entità di catalogo non dichiara — anche su un tipo di componente che non dichiara alcuno `usesSchema` — e l’arco viene costruito. Un catalogo che non dichiara alcuna voce per un socket non ha previsto la connessione, il che non equivale a vietarla, e la topologia dell’applicazione appartiene allo sviluppatore. Un socket di questo tipo si chiama **ad-hoc**, e ciò che costa è esattamente ciò che la dichiarazione offre: non c’è una voce di catalogo, quindi non c’è un selettore né un contratto per arco, e la sicurezza dei tipi tra nodi non ha nulla da valutare. Ciò che l’arco può *trasportare* non cambia: ogni chiave che inietta deve comunque nominare una chiave dichiarata dal `provides` della destinazione, e la destinazione deve comunque esistere. Ogni arco nel grafo emesso registra quale dei due casi è, così un consumatore non deve mai indovinare; vedi [governance-and-compliance](11-governance-and-compliance.md) per sapere come un operatore vieta del tutto i socket ad-hoc."
+  },
   "9c6fef9d442a0b36": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "9c6fef9d442a0b36",
     "status": "machine",
     "text": "**La soluzione:** Aggrega tratta gli archivi vettoriali e i modelli locali come nodi architetturali espliciti nel grafo della topologia. Basandosi strettamente su ciò che l’utente richiede e su ciò che il team Ops ha implementato nelle sue `Recipes`, il compilatore usa i plugin WebAssembly per produrre gli artefatti esatti necessari a proteggerli. Ciò include la generazione delle network policy rigorose necessarie ad associare gli agenti autonomi a partizioni di memoria isolate e la formattazione di vincoli di scheduling specifici (come i `nodeSelectors` di Kubernetes), affinché l’orchestratore di runtime collochi i modelli locali su hardware GPU ottimizzato."
+  },
+  "9c8027249024108f": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "9c8027249024108f",
+    "status": "machine",
+    "text": "Una FeatureRecipe può fare entrambe le cose: riscrivere la pipe di consegna *ed* emettere una risorsa. Può anche dichiarare una `pipeline` di passi Wasm, che vengono eseguiti allo stesso modo per ogni famiglia di attachment — un attachment di credenziale può trasformare i documenti renderizzati del componente ospite su invito esattamente come può farlo un attachment operativo."
+  },
+  "9d10095d10e96ed4": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "9d10095d10e96ed4",
+    "status": "machine",
+    "text": "Due conseguenze da interiorizzare:"
   },
   "9d20c11e2fc1867c": {
     "at": "2026-10-17T18:55:04.559Z",
@@ -1357,6 +2470,13 @@
     "status": "machine",
     "text": "**Ruolo:** lo sviluppatore. Si concentra esclusivamente sull’architettura AI, sui cicli cognitivi e sui requisiti di sopravvivenza dell’applicazione. Non sa nulla di CEL, OPA o porte fisiche."
   },
+  "9eee02f590ce5400": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "9eee02f590ce5400",
+    "status": "machine",
+    "text": "La parola «sensibile» induce un lettore ad aspettarsi un meccanismo di riservatezza. Non lo è, e la garanzia è più ristretta di quanto il nome suggerisca in cinque modi specifici:"
+  },
   "9fa8ec5ab6795ee4": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -1364,12 +2484,40 @@
     "status": "machine",
     "text": "1. Un compilatore deterministico, non un generatore di IaC"
   },
+  "9fd2326b598a8d92": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "9fd2326b598a8d92",
+    "status": "machine",
+    "text": "Per risolvere il problema senza inquinare l’architettura con chart Helm segnaposto, Aggrega introduce un socket di esecuzione programmatica di prima classe: il **plugin `eval`.**"
+  },
+  "a0e25a7e9fa1bcff": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "a0e25a7e9fa1bcff",
+    "status": "machine",
+    "text": "Per stabilire uno schema prevedibile ed eliminare l’attrito cognitivo, la piattaforma utilizza esattamente cinque parole chiave universalmente comprese e una struttura YAML rigorosamente basata su mappe (dizionari), al posto di una terminologia frammentata e di array profondamente annidati."
+  },
+  "a0e81ca0bfd961a1": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "a0e81ca0bfd961a1",
+    "status": "machine",
+    "text": "**Release piatta (componenti di primo livello):** i componenti si scrivono sotto `spec.components`, senza `boundaries`. Il compilatore li raccoglie in un confine `default` sintetizzato il cui output è **piatto** — gli artefatti finiscono direttamente sotto `dist/` (per provider: `dist/compose/`, `dist/helm/`, …), senza alcun segmento con il nome del confine. È il deployment più semplice: `aggrega build` su un target Compose piatto o a cluster singolo, senza dare nomi ai confini. (Un confine che uno sviluppatore *dichiara* e chiama `default` è un normale confine con nome ed emette in `dist/default/` come qualunque altro.)"
+  },
   "a12d04a8d688e472": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
     "srcHash": "a12d04a8d688e472",
     "status": "machine",
     "text": "Il socket di rendering WebAssembly (Wasm) collegabile di Aggrega fa sì che la community possa scrivere un plugin di rendering per qualsiasi strumento di destinazione. Il progetto principale include plugin di rendering per Helm, Helm-chart e Compose — coprendo il GitOps su Kubernetes, la distribuzione di chart ridistribuibili e lo sviluppo locale — mentre il socket aperto consente ai team di puntare ad altre superfici di artefatti statici senza toccare il nucleo. I team che valutano Aggrega provengono spesso da ecosistemi costruiti attorno a strumenti che occupano parti vicine ma distinte dello stack. Gli strumenti qui sotto sono raggruppati in base al loro rapporto con Aggrega: i formati di artefatto in cui renderizza oggi, lo spazio dei compilatori AOT che condivide, i control plane che consumano il suo output e il dominio adiacente della gestione della configurazione, a cui non mira."
+  },
+  "a13989cba7b20e24": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "a13989cba7b20e24",
+    "status": "machine",
+    "text": "**Valore iniettato.** La FeatureRecipe dichiara un `injectMapping` e nessuna risorsa. Il suo output viene unito in profondità nella pipe di consegna del componente consumatore prima che la Recipe di base esegua il rendering, quindi una Recipe che legge `.context.inject.env.<KEY>` riceve il valore. Non viene emesso nulla di autonomo."
   },
   "a14eb2a73cc549f8": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -1385,6 +2533,13 @@
     "status": "machine",
     "text": "`uses`: gli archi di rete e le dipendenze dichiarati esplicitamente (di proprietà degli sviluppatori)."
   },
+  "a5ae13a5835b41c1": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "a5ae13a5835b41c1",
+    "status": "machine",
+    "text": "Per estrarre istruzioni operative senza analizzare il payload applicativo, il sistema si basa su rigorose dichiarazioni JSON Schema 2020-12 che governano strutture YAML esplicitamente separate."
+  },
   "a68aa1d21a692033": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -1392,12 +2547,26 @@
     "status": "machine",
     "text": "1. **Meccaniche di base: la fisica dell’architettura**"
   },
+  "a719f0ece425624e": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "a719f0ece425624e",
+    "status": "machine",
+    "text": "**Nessuna stringa «magica»:** il compilatore preserva le chiavi esatte della mappa dello sviluppatore. Ops accede alle feature in sicurezza tramite l’indicizzazione standard delle mappe Go: `{{ (index .features \"public-route\").infra.hostname }}`."
+  },
   "a83b9c3b3e693c40": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
     "srcHash": "a83b9c3b3e693c40",
     "status": "machine",
     "text": "**Intento esplicito e il «guardrail rumoroso» (nessuna infrastruttura fantasma):** il compilatore non deve mai inventare risorse di calcolo o funzionalità che lo sviluppatore non ha dichiarato esplicitamente. Usare un motore di policy per iniettare silenziosamente un proxy di sicurezza crea «infrastruttura fantasma»: quando si guasta, lo sviluppatore passa settimane a fare il debug di un proxy che non esiste nel suo YAML. Invece di modificare silenziosamente l’architettura, i plugin di policy Wasm agiscono rigorosamente come **guardrail rumorosi**. Se una topologia viola la sicurezza, il compilatore interrompe la build e restituisce un errore molto specifico (ad es. *«Errore: dati PII che fluiscono verso un provider di modelli attraverso il gateway AI `router`. Devi collegarvi esplicitamente la funzionalità `core/data-masking`»*), costringendo lo sviluppatore a correggere la propria unica fonte di verità."
+  },
+  "a983237b29697a3f": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "a983237b29697a3f",
+    "status": "machine",
+    "text": "Il Workload di una Recipe consuma un riempimento referenziabile tramite la mappa `attachments:` di un container:"
   },
   "ab1173eed1d477d9": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1420,12 +2589,33 @@
     "status": "machine",
     "text": "La filosofia dell’ecosistema"
   },
+  "ad0beddb5671bcdf": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "ad0beddb5671bcdf",
+    "status": "machine",
+    "text": "Aggrega garantisce che il compilatore non esegue alcuna risoluzione. Non garantisce che l’output renderizzato non contenga materiale — ciò dipende interamente da quale Feature di credenziale è collegata e da cosa vi ha messo il suo autore, lo sviluppatore in `values` o l’operatore in `infra`."
+  },
   "ad2fd9c1b32c0e57": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "ad2fd9c1b32c0e57",
     "status": "machine",
     "text": "Dominio 1: intento dello sviluppatore (il «cosa»)"
+  },
+  "ada5e7d12c5dcdb2": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "ada5e7d12c5dcdb2",
+    "status": "machine",
+    "text": "Ogni servizio esterno è dichiarato come componente distinto, non raggruppato in un array a più destinazioni. Se un’applicazione chiama cinque diverse API di terze parti, lo sviluppatore dichiara cinque componenti `core/external-service` distinti. È questa dichiarazione per servizio a permettere ai motori di policy e ai plugin Wasm di indirizzare individualmente ogni destinazione in uscita — associando a ciascuna dipendenza esterna policy di egress diverse, feature di proxy diverse o hook di osservabilità diversi."
+  },
+  "ae6694bee24a118b": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "ae6694bee24a118b",
+    "status": "machine",
+    "text": "**3. Dominio 3 (la Recipe formattatrice Wasm): strutturare il passaggio di consegne** L’ingegnere Ops scrive la ricetta stub. Questa mappa i `values` dello sviluppatore in un payload che il plugin Wasm deve elaborare e definisce la stringa `primary_endpoint` attesa nel blocco `locals`."
   },
   "aeb44b13d6fa631b": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -1441,12 +2631,68 @@
     "status": "machine",
     "text": "Recipe"
   },
+  "aed23fda5f623766": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "aed23fda5f623766",
+    "status": "machine",
+    "text": "**`inject`** — i meccanismi di consegna che un Workload può selezionare per ciò che riempie lo slot. Una lista vuota indica uno slot *blackbox*: lo consegna l’infrastruttura interna della Recipe stessa (ad esempio l’opzione `existingSecret` di un chart), e un Workload non può farvi riferimento da un container."
+  },
+  "afcbe7405a911139": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "afcbe7405a911139",
+    "status": "machine",
+    "text": "2. La meccanica del contratto di schema unificato"
+  },
+  "b01e1fc57b9c4398": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "b01e1fc57b9c4398",
+    "status": "machine",
+    "text": "L’euristica, formulata come regola netta: *il chart contiene qualcosa che un altro componente potrebbe sensatamente usare da solo, o per cui Aggrega ha già un Component? Se sì, modellalo come stack — un modulo sotto-aggregato che compone Components per servizio. Se serve sempre e solo questo unico servizio, modellalo come un solo Component.*"
+  },
+  "b07e4ffd54b7f73e": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b07e4ffd54b7f73e",
+    "status": "machine",
+    "text": "Il compilatore esegue poi la ricetta di `my-agent`. Costruisce il canale `.context.uses`, includendo senza soluzione di continuità il dizionario `.locals` valutato del nodo Oracle."
+  },
+  "b08eefc3d5071def": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b08eefc3d5071def",
+    "status": "machine",
+    "text": "**Perché:** l’`Aggregate` è l’unica fonte di verità per l’intento dello sviluppatore. Se un valore è scritto in modo fisso nell’`Aggregate`, è immutabile tra gli ambienti. Se un valore deve cambiare in base all’ambiente, lo sviluppatore usa il sollevamento dei parametri. Lo schema della `Release` lo impone vietando i blocchi `values`, limitando Ops a soddisfare il contratto `parameters` e a definire l’`infra` fisica."
+  },
   "b0a332af4fdfcdb1": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "b0a332af4fdfcdb1",
     "status": "machine",
     "text": "**Ruolo:** il Platform Operator / DevOps."
+  },
+  "b1c2f0268be73f09": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b1c2f0268be73f09",
+    "status": "machine",
+    "text": "Il plugin Wasm costruisce le stringhe richieste e restituisce un dizionario JSON piatto tramite `stdout` (ad es. `{\"primary_endpoint\": \"oracle://...\"}`)."
+  },
+  "b1f9eacda8187e0a": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b1f9eacda8187e0a",
+    "status": "machine",
+    "text": "**2. Dominio 4 (il Manifest): l’instradamento** Ops mappa il tipo di database legacy sulla Recipe che ne formatta la stringa di connessione. Il Manifest nomina una Recipe e nient’altro; la Recipe che nomina dichiara `spec.capability: eval`, ed è quella capability a instradare il nodo verso la valutazione in memoria anziché verso un renderer di chart. L’instradamento resta perfettamente piatto e prevedibile perché la mappa ha esattamente una forma, qualunque sia il target."
+  },
+  "b253676ec5b82a76": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "b253676ec5b82a76",
+    "status": "machine",
+    "text": "**`parameters` (il contratto dell’ambiente globale)**"
   },
   "b3ef57d4676069a8": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -1469,12 +2715,26 @@
     "status": "machine",
     "text": "**Platform Architect** — entità di catalogo Component e Feature."
   },
+  "b4afc0ea86ad1c3e": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b4afc0ea86ad1c3e",
+    "status": "machine",
+    "text": "**Vincolo 2: Components agnostici rispetto alle capacità**"
+  },
   "b5075974f1a9a33a": {
     "at": "2026-10-17T18:55:04.559Z",
     "job": "e3297de5b56f",
     "srcHash": "b5075974f1a9a33a",
     "status": "machine",
     "text": "Molte regole che sembrano regole del compilatore — lo Zero-Port Contract, lo stile di catalogo Naked-Base / Flavored-Edges, la scelta di quale primitiva operativa si adatti a un dato componente — sono **contratti sociali**: best practice con vie d’uscita, sostenute dai Platform Architect che scrivono il catalogo della libreria standard. Il compilatore è cieco a esse."
+  },
+  "b77a534e1c4e4751": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "b77a534e1c4e4751",
+    "status": "machine",
+    "text": "Quindi l’enunciato onesto di ciò che questo asse offre:"
   },
   "b8c847cd56125efa": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -1483,12 +2743,54 @@
     "status": "machine",
     "text": "**Nessuna rete decentralizzata o P2P:** le configurazioni generate si basano su un control plane aziendale centralizzato (Kubernetes/VPC) in grado di imporre confini di rete L4/L7. Il compilatore non può generare un instradamento sicuro per agenti che si scoprono dinamicamente a vicenda su blockchain decentralizzate o su reti P2P pubbliche."
   },
+  "b99a0c4b9b9a55d5": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b99a0c4b9b9a55d5",
+    "status": "machine",
+    "text": "**Dominio 2: lo schema diviso (`usesSchema` & `schema`)** Per evitare che il catalogo della piattaforma si frammenti in file di schema ingestibili, Aggrega utilizza un motore a schema diviso. Lo `usesSchema` in YAML nativo definisce e valida rigorosamente la topologia, mentre `schema:` (JSON Schema 2020-12 — tipicamente scritto tramite l’abbreviazione in forma compatta) valida il contenuto dei pilastri `values` e `infra` e dichiara la forma del pilastro `provides`. I `values` che scrive uno sviluppatore e l’`infra` che imposta un operatore vengono verificati rispetto ai tipi dichiarati; il sotto-schema `provides` dichiara i nomi delle chiavi e i tipi del contratto a valle che una Recipe produce, e il compilatore verifica che ogni riferimento `inject` nomini una chiave `provides` dichiarata — ma i valori `provides` prodotti viaggiano a valle come stringhe opache che il compilatore convoglia senza interpretarle, non come valori di cui verifica il tipo, perché il nucleo non interpreta il significato di un valore convogliato. **Lo `usesSchema` è dove un socket viene *dichiarato*, ed è la dichiarazione a dargli un contratto.** Un socket dichiarato dall’entità di catalogo porta con sé i vincoli di quell’entità: un selettore che indica quali destinazioni può raggiungere, una allowlist `inject` e `valueSchema` / `infraSchema` per arco. All’interno dello `usesSchema`, gli architetti della piattaforma usano il campo `selector:` — letto come la stringa che l’architetto ha scritto, non copiato in alcuno schema generato — e il motore di selettori nativo in Go lo valuta per imporre la **sicurezza dei tipi tra nodi** sui socket dichiarati. Garantisce che, se un socket richiede un database, lo sviluppatore non possa collegarvi un web server."
+  },
+  "b9b8841619b75067": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "b9b8841619b75067",
+    "status": "machine",
+    "text": "**Dominio 1: l’esperienza dello sviluppatore (polimorfismo)** Gli sviluppatori scrivono `uses:` allo stesso livello di `values:` e `features:`. Per garantire una UX senza attriti, lo schema supporta nativamente il polimorfismo:"
+  },
+  "babe880e370e3ce8": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "babe880e370e3ce8",
+    "status": "machine",
+    "text": "Esempio A: validazione topologica e sicurezza dei tipi tra nodi"
+  },
+  "baf0d70403f88b91": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "baf0d70403f88b91",
+    "status": "machine",
+    "text": "Racchiudere un intero prodotto multi-servizio in un singolo Component opaco è un **antipattern** documentato. Il compilatore è **privo di opinioni** e lo accetterà — renderizza tutto ciò che supera la validazione dello schema — ma la libreria standard compone invece Components per servizio in un modulo, perché un involucro monolitico nasconde i servizi modellabili in modo indipendente alla topologia, al selettore e alle policy e alla scalabilità per servizio. Questa disciplina di granularità è un **contratto sociale** — vedi [`../language-reference/vocabulary/social-contracts.md`](../language-reference/vocabulary/social-contracts.md) (granularità del Component)."
+  },
   "bb505265f955f7b8": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "bb505265f955f7b8",
     "status": "machine",
     "text": "Tier 3: librerie (riuso del catalogo)"
+  },
+  "bb5dbe4b07104b15": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "bb5dbe4b07104b15",
+    "status": "machine",
+    "text": "`subsystems` (nell’Aggregate) e `boundaries` (nella Release) sono i costrutti di raggruppamento, ma uno sviluppatore non deve dichiararli fin dall’inizio. Ogni entità offre due forme di scrittura, e sono **mutuamente esclusive**: scrivere i componenti raggruppati sotto ambiti con nome, **oppure** scrivere i componenti direttamente al primo livello — mai entrambe le cose insieme. Un documento che dichiara sia `components` di primo livello sia ambiti con nome si arresta al caricamento con un errore di envelope."
+  },
+  "bb9c23b438a2647d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "bb9c23b438a2647d",
+    "status": "machine",
+    "text": "**La generazione della configurazione (in fase di deploy):** se la policy viene superata, il plugin di rendering Wasm associato all’agente interno valuta l’arco topologico. Poiché vede che la destinazione è un nodo esterno, il plugin genera in modo programmatico gli artefatti di configurazione di egress L4 precisi (ad es. un `ServiceEntry` di Istio o una regola di AWS Security Group) necessari ad autorizzare la connessione. *Lo sviluppatore non scrive mai una regola di firewall.*"
   },
   "bbb9d32d9d7f6f03": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -1511,12 +2813,40 @@
     "status": "machine",
     "text": "Invece di scrivere manualmente infrastructure-as-code complessa o di codificare in modo fisso le porte di rete, gli sviluppatori dichiarano semplicemente *che cosa* serve alla loro applicazione per sopravvivere. Il compilatore Aggrega genera in modo deterministico le configurazioni dell’infrastruttura fisica (chart Helm, manifest Kubernetes, Docker Compose) necessarie per eseguirla. Traduce le richieste astratte negli esatti artefatti statici di cui l’ambiente di destinazione ha bisogno per stabilire una sicurezza imposta dall’hardware, confini di rete zero-trust e proxy L7 del data plane."
   },
+  "bdd2a69bdf766713": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "bdd2a69bdf766713",
+    "status": "machine",
+    "text": "La specifica completa del contratto di iniezione — semantica del contesto a doppio stato, regole di collisione delle chiavi, modello di intercettazione della FeatureRecipe ed esempi svolti — si trova in [topology-triad](../language-reference/vocabulary/topology-triad.md)."
+  },
+  "c0c7f2901da230d2": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "c0c7f2901da230d2",
+    "status": "machine",
+    "text": "1. Lo standard delle mappe a 5 parole chiave e la simmetria totale degli schemi"
+  },
   "c0e0c561611ca410": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
     "srcHash": "c0e0c561611ca410",
     "status": "machine",
     "text": "Che cosa fa"
+  },
+  "c2c9cc7ff5d819a1": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "c2c9cc7ff5d819a1",
+    "status": "machine",
+    "text": "**Lo schema (Dominio 2):**"
+  },
+  "c2eac59d9bd2837f": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "c2eac59d9bd2837f",
+    "status": "machine",
+    "text": "Il **localizzatore** di una credenziale — il nome del secret, la voce dello store da recuperare, il valore da consegnare — è scritto da chi lo conosce, e non sempre è lo sviluppatore. Una connessione che la Release cabla non ha alcuna voce nell’Aggregate, e la Release non scrive `values` da nessuna parte, quindi una credenziale che prendesse il proprio localizzatore solo da `values` non potrebbe mai essere nominata su una tale connessione, né su alcun attachment creato dalla Release."
   },
   "c2ede0a1a826d264": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1525,12 +2855,33 @@
     "status": "machine",
     "text": "Frammenti di template di Workload riutilizzabili"
   },
+  "c2ef6ed3a8190537": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "c2ef6ed3a8190537",
+    "status": "machine",
+    "text": "**Ampiamente estensibile:** Ops può formattare stringhe di connessione, percorsi di API o strutture URI complesse arbitrarie usando WebAssembly programmatico, anziché essere vincolato dal templating di stringhe."
+  },
+  "c34fce1462fae6e8": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "c34fce1462fae6e8",
+    "status": "machine",
+    "text": "**Perché:** la convenzione della libreria standard è che una credenziale venga richiesta come allegato sotto `features:`, indicando un `type` di Feature per credenziali (uno etichettato `feature.aggrega.ai/kind: secret`) e usando i `values` propri di quell’allegato per descrivere la query verso un archivio di segreti. È una convenzione, non un controllo del compilatore: il compilatore non interpreta il significato di una foglia di `values` e trasporta alla lettera un letterale inline. È la superficie degli allegati a rendere disponibile e tipizzata la forma scritta correttamente."
+  },
   "c362c80093eb42a6": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "c362c80093eb42a6",
     "status": "machine",
     "text": "Implementazione di una Feature, per provider"
+  },
+  "c47394426e829c39": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "c47394426e829c39",
+    "status": "machine",
+    "text": "1. La filosofia di fondo: perché `uses`?"
   },
   "c53b0dbad1ef11ca": {
     "at": "2026-10-17T20:13:34.254Z",
@@ -1545,6 +2896,13 @@
     "srcHash": "c54931e4c5c0ec49",
     "status": "machine",
     "text": "**Nitric, Klotho e Winglang** sono modelli di programmazione consapevoli del cloud, i cui compilatori AOT emettono file di infrastruttura standard a partire dal codice applicativo, anziché da un progetto di topologia dichiarativo."
+  },
+  "c627a4b4564096fe": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "c627a4b4564096fe",
+    "status": "machine",
+    "text": "**`.context` (la pipe generica dei metadati)**"
   },
   "c67f72db693bd7cf": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -1574,12 +2932,33 @@
     "status": "machine",
     "text": "7. Separazione delle responsabilità (suddivisione in quattro domini): una guida, non una prigione"
   },
+  "c6f03fbf7e0f921b": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "c6f03fbf7e0f921b",
+    "status": "machine",
+    "text": "In Aggrega una credenziale è una **Feature**. Si collega sulla stessa superficie, con la stessa parola chiave e nella stessa forma di qualsiasi altra Feature. Qui lo sviluppatore collega la credenziale del database nell’Aggregate, scrivendone il localizzatore in `values`:"
+  },
   "c76b005cc3158515": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "c76b005cc3158515",
     "status": "machine",
     "text": "**La soluzione:** Aggrega delega strutturalmente al catalogo della piattaforma il confine tra *capacità astratta* e *meccanica fisica*. Invece di affidarsi a divieti codificati nel compilatore, i Platform Architect scrivono dichiarazioni rigorose in JSON Schema 2020-12 (tipicamente in forma compatta, una notazione abbreviata con l’aspetto di YAML che riporta i vincoli di ogni campo su una sola riga) per stabilire esattamente che cosa gli sviluppatori possono richiedere. Tipicamente gli sviluppatori sono limitati a requisiti astratti di sopravvivenza (per esempio `storage_size: 100Gi` o `hardware/accelerator: gpu`) e non possono iniettare classi di storage cloud arbitrarie, semplicemente perché lo schema del componente le rifiuterà. Se un’applicazione richiede davvero uno specifico tipo di istanza fisica EC2, l’Architect deve esporre esplicitamente quella manopola nell’interfaccia del componente, facendo del vendor lock-in una scelta consapevole e governata anziché una fuga accidentale."
+  },
+  "c83d4cb3d3e300c7": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "c83d4cb3d3e300c7",
+    "status": "machine",
+    "text": "**Il compilatore non sa distinguere un puntatore da un valore materiale.** È agnostico rispetto al significato di uno scalare (vedi [05-invariants.md](05-invariants.md)). Un attachment di credenziale il cui localizzatore porta una coordinata di store (`path`, `key`, un ARN) renderizza un *riferimento* a quella coordinata; un attachment di credenziale il cui localizzatore porta il materiale stesso renderizza il **materiale, alla lettera, nel file di output**. Entrambi sono legittimi, e il compilatore li tratta in modo identico perché non ha modo di distinguerli."
+  },
+  "c8e0a5ecbeea9b7b": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "c8e0a5ecbeea9b7b",
+    "status": "machine",
+    "text": "**`.context.annotations.aggregate` (sottosistemi del Dominio 1):** usate esclusivamente per governare la logica cognitiva e operativa. Queste annotazioni sono instradate esplicitamente nei payload `values` del componente (ad es. propagando a cascata un codice di fatturazione del team fino a una configurazione dell’applicazione)."
   },
   "c8f8e453831d91f0": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -1595,12 +2974,26 @@
     "status": "machine",
     "text": "I percorsi a livello di Recipe sono dichiarazioni in fase di scrittura a un passo di distanza: l’autore della Recipe scrive `source` / `workload` / `artifacts` / `valuesMapping` rispetto a un contratto di Component, e l’Aggregate dello sviluppatore seleziona quali Components partecipano. Una risorsa che compare nell’output renderizzato risale a una dichiarazione nell’Aggregate, nella Release, in un binding di annotazione, oppure alla scrittura della Recipe selezionata dai tipi di componente dell’Aggregate."
   },
+  "c9376d3592044024": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "c9376d3592044024",
+    "status": "machine",
+    "text": "Risoluzione delle dipendenze in Aggrega & il pilastro della topologia strutturale"
+  },
   "c95e1608fa188e74": {
     "at": "2026-10-17T19:24:15.582Z",
     "job": "2b8dc6806d5e",
     "srcHash": "c95e1608fa188e74",
     "status": "machine",
     "text": "L’output deterministico è il contratto che rende Aggrega sicuro da usare come fonte di verità in un ciclo GitOps."
+  },
+  "c9690b236666b04d": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "c9690b236666b04d",
+    "status": "machine",
+    "text": "La **convenzione** della libreria standard è che una credenziale si richiede come attachment anziché scriverla in un blocco `values`, in modo che sostituire un riempimento per lo sviluppo locale con uno basato su uno store sia una modifica al Manifest anziché una modifica all’intento dello sviluppatore. È una convenzione che il catalogo segue, non una regola che il compilatore impone."
   },
   "c9f1503025311e0e": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -1637,6 +3030,20 @@
     "status": "machine",
     "text": "L’espansione guidata dalle annotazioni (il Manifest dichiara i binding annotazione → Feature; l’annotazione su un Component o su un confine è una dichiarazione esplicita)."
   },
+  "cb98f94d44ae4883": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "cb98f94d44ae4883",
+    "status": "machine",
+    "text": "**Perché:** il canale `.context` aggira la validazione `schema:` di ciascun pilastro. Affidarsi a etichette non validate per la logica di base dell’infrastruttura rende fragile la piattaforma. L’oggetto `.context` trasporta tag di metadati (ad es. fatturazione, SOC2); l’instradamento strutturale appartiene ai pilastri validati dallo schema."
+  },
+  "ccc2f7295cd5bf9d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "ccc2f7295cd5bf9d",
+    "status": "machine",
+    "text": "**Pattern non supportato:** lo sviluppatore scrive `labels: {}` su un’istanza di componente dentro l’`Aggregate`."
+  },
   "ccd10ba48d0fa1bf": {
     "at": "2026-10-17T19:10:06.976Z",
     "job": "8f628e9b7a80",
@@ -1644,12 +3051,26 @@
     "status": "machine",
     "text": "Le risorse entrano nel grafo attraverso dichiarazioni esplicite in fase di scrittura:"
   },
+  "cd121bb848828a8e": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "cd121bb848828a8e",
+    "status": "machine",
+    "text": "Il compilatore Go esegue per prima la pipeline `eval` di `legacy-oracle`. Passa i `values` mappati al plugin Wasm."
+  },
   "cd74053c54816e47": {
     "at": "2026-10-21T23:57:12.531Z",
     "job": "session-0001-20261021235712",
     "srcHash": "cd74053c54816e47",
     "status": "machine",
     "text": "Architettura"
+  },
+  "cdc48f14f7fe0eea": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "cdc48f14f7fe0eea",
+    "status": "machine",
+    "text": "5. Il motore di template (DX di Ops)"
   },
   "cddca72ef82da5a4": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -1721,12 +3142,40 @@
     "status": "machine",
     "text": "**Dominio 3**"
   },
+  "d2f3e5a06b2bff70": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "d2f3e5a06b2bff70",
+    "status": "machine",
+    "text": "Questo scenario mostra come un ruolo di verdetto di governance — quando Ops ha configurato la Release per invocarlo — rileva che un agente AI sta per connettersi a un database privo delle etichette di conformità richieste, e arresta la build. Il compilatore Go principale trasmette le etichette in modo opaco; la logica di rilevamento risiede nel plugin Wasm che Ops ha scelto di collegare."
+  },
+  "d478c187bee57fe6": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "d478c187bee57fe6",
+    "status": "machine",
+    "text": "Come una credenziale raggiunge un container"
+  },
   "d4d5f78ccfc923a5": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "d4d5f78ccfc923a5",
     "status": "machine",
     "text": "Router di deployment che lega l’Aggregate al Manifest"
+  },
+  "d5c0ac2661925232": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "d5c0ac2661925232",
+    "status": "machine",
+    "text": "Perciò ogni Feature di credenziale della libreria standard che porta il localizzatore di un chiamante — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` e `core/secret-provided` — lo accetta da entrambi gli autori: lo sviluppatore nei `values` dell’attachment, nell’Aggregate, o l’operatore nella sua `infra`, nella Release. La foglia ha un solo nome, una sola forma e una sola dichiarazione `sensitive: true` in entrambi i pilastri, e ogni realizzazione legge il pilastro che la porta. Il divieto di `values:` nella Release resta intatto: il localizzatore dell’operatore è `infra`. Le Features che non accettano un localizzatore — `core/random-password`, `core/generated-secret` — non sono interessate."
+  },
+  "d5dddd51973e4060": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "d5dddd51973e4060",
+    "status": "machine",
+    "text": "**Ambito:** usato esclusivamente all’interno di definizioni esplicite di destinazione in `uses` e sulle `features` collegate, Features di credenziale incluse."
   },
   "d6475a185f756d5d": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1742,6 +3191,20 @@
     "status": "machine",
     "text": "Tutto ciò che dipende dallo stato di runtime è espresso come **stringa puntatore deterministica** — un nome DNS stabile, una stringa di interpolazione Terraform, un riferimento a una risorsa CloudFormation — fornita dalla Ops Recipe. Il compilatore fa passare il puntatore senza risolverlo. È l’ambiente di runtime (il cluster, il gestore dello stato IaC) a risolvere i dati fisici finali."
   },
+  "d6f89d1d99287ebe": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "d6f89d1d99287ebe",
+    "status": "machine",
+    "text": "Il compilatore non sa distinguere un puntatore da un valore materiale, come dice la sezione precedente — ma un **autore** sì, e può dichiararlo. In Aggrega la sensibilità è un’annotazione su una dichiarazione: l’autore di un’entità di catalogo afferma cosa porta materiale segreto, e il compilatore deriva il resto da quell’affermazione più il cablaggio che ha già costruito. Nulla viene dedotto da un valore e nulla viene indovinato dal nome di un campo."
+  },
+  "d72340eb4c8d9238": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "d72340eb4c8d9238",
+    "status": "machine",
+    "text": "**Significato:** contiene le realtà di deployment risolte universalmente (come `.context.uses`) passate direttamente al motore di template di Ops."
+  },
   "d7895b1c8e12439e": {
     "at": "2026-10-17T18:49:59.090Z",
     "job": "c8133a6b0c32",
@@ -1749,12 +3212,26 @@
     "status": "machine",
     "text": "Queste otto invarianti sono le regole fondanti di Aggrega. Valgono in ogni milestone, nel nucleo del compilatore, nel livello degli schemi, nel catalogo e nella superficie dei plugin Wasm. Ogni decisione di progettazione, ogni funzionalità e ogni entità scritta le rispetta."
   },
+  "d8630cd777ca8529": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "d8630cd777ca8529",
+    "status": "machine",
+    "text": "Trattando le API SaaS esterne e i database legacy come nodi di prima classe nel grafo della rappresentazione intermedia (IR), gli sviluppatori ottengono la possibilità di associare configurazioni di proxy Zero-Trust direttamente alla chiamata in uscita. Per esempio, modellando l’API di Stripe come nodo distinto, uno sviluppatore può associarle senza difficoltà una feature `header-injector`, garantendo che la configurazione generata impedisca all’agente chiamante di tenere il token grezzo dell’API nella propria memoria."
+  },
   "d9ed59332a4a6c39": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
     "srcHash": "d9ed59332a4a6c39",
     "status": "machine",
     "text": "1. Capacità astratta e meccanica fisica"
+  },
+  "daf3253750569e3a": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "daf3253750569e3a",
+    "status": "machine",
+    "text": "Poiché un cluster AWS EKS, un control plane Istio e una VPC AWS sono in definitiva solo risorse cloud fisiche, vengono modellati esattamente come i componenti applicativi."
   },
   "db2df14a5e248754": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -1769,6 +3246,13 @@
     "srcHash": "db8811e8f657542a",
     "status": "machine",
     "text": "**Control plane che consumano l’output di Aggrega.** Operano all’interno di un cluster in esecuzione e applicano artefatti dichiarativi. Aggrega è strettamente ahead-of-time: produce i manifest che questi sistemi riconciliano."
+  },
+  "dba27aed125f0d31": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "dba27aed125f0d31",
+    "status": "machine",
+    "text": "**`values` (l’intento cognitivo - di proprietà dello sviluppatore)**"
   },
   "dbc2329716c540ca": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1791,6 +3275,13 @@
     "status": "machine",
     "text": "Lo schema della Release vieta meccanicamente un blocco `values:`. Gli operatori non possono scrivere `values` su un Component o su una Feature a partire da una Release. Si tratta di un’imposizione dello schema a livello di JSON Schema — non un contratto sociale, non una convenzione — ed è esplicita: ogni documento di entità viene validato rispetto allo schema del suo tipo al caricamento, quindi una Release che contiene `values:` interrompe la build con una diagnostica che indica il file e la chiave incriminata, invece di essere ignorata in silenzio."
   },
+  "dd2be1e529902a8c": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "dd2be1e529902a8c",
+    "status": "machine",
+    "text": "Modello delle credenziali"
+  },
   "ddd73edb063f9fa0": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
@@ -1812,12 +3303,26 @@
     "status": "machine",
     "text": "MappingLibrary"
   },
+  "dfe6583d8160a904": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "dfe6583d8160a904",
+    "status": "machine",
+    "text": "**Cosa resta dov’era.** Ogni altro campo mantiene il proprio pilastro — la chiave dei dati di una credenziale referenziabile si scrive ancora in `values`, quindi un attachment creato dalla sola Release ne legge il valore predefinito — e `core/secret-provided` consegna ancora solo tramite il blocco `inject:` dell’attachment stesso, che solo l’Aggregate scrive e che l’attachment di una connessione non porta mai."
+  },
   "e020e3c67bd0c312": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "e020e3c67bd0c312",
     "status": "machine",
     "text": "Release"
+  },
+  "e04b210684700fed": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "e04b210684700fed",
+    "status": "machine",
+    "text": "Le famiglie `core/secret-value` e `core/referenced-secret` del catalogo stesso includono forme che accettano direttamente un valore. Esistono perché i deployment reali hanno bisogno di un percorso per lo sviluppo locale, e lo dichiarano apertamente: gli esempi distribuiti usano segnaposto evidenti (`dev-root-pw-change-me`) proprio perché il materiale in un esempio renderizzato non sia visibilmente una credenziale reale. Per un deployment che non deve portare materiale, collega una Feature di credenziale basata su uno store la cui FeatureRecipe emette una risorsa di recupero (un `ExternalSecret`, una risorsa personalizzata di recupero da vault, un riferimento a un secret nativo del provider) anziché una che emette dati."
   },
   "e0c83a77b78346c2": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -1826,12 +3331,33 @@
     "status": "machine",
     "text": "La logica specifica del Provider (rendering specifico di Helm, formattazione specifica di Terraform, unione specifica di Compose) non vive mai nel nucleo del compilatore Go. Il compilatore risolve il nome del provider che una Recipe dichiara in `spec.capability` nel Plugin di rendering del provider che lo serve e invia il nodo a quel plugin; la traduzione stessa avviene interamente nel guest Wasm. L’host non contiene codice Go per singolo provider per un provider standard, quindi non c’è nulla nel processo a cui ripiegare: un nome di provider che non si risolve in alcun Plugin che lo serva interrompe la build invece di renderizzare un qualche default integrato."
   },
+  "e215ee100a202c14": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "e215ee100a202c14",
+    "status": "machine",
+    "text": "**Via d’uscita pragmatica:** per team più piccoli, prototipazione rapida o integrazioni CI/CD legacy in cui una separazione rigorosa non è praticabile, i `parameters` possono trasportare configurazioni globali dell’ambiente attraverso lo stack. Il compilatore accetta tutto ciò che supera la validazione dello schema; la raccomandazione precedente è un contratto sociale, non una regola del compilatore."
+  },
   "e26c7d7476c60b06": {
     "at": "2026-10-17T19:13:54.748Z",
     "job": "5c185f63f43c",
     "srcHash": "e26c7d7476c60b06",
     "status": "machine",
     "text": "Lo sviluppatore espone un campo tipizzato `parameters.*` nell’Aggregate."
+  },
+  "e2a50ef90e0926c1": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "e2a50ef90e0926c1",
+    "status": "machine",
+    "text": "**Non garantisce che l’output renderizzato sia privo di materiale.** La garanzia enunciata sopra resta invariata: se un artefatto porta materiale dipende da quale riempimento è stato collegato e da cosa vi ha messo il suo autore. Un valore dichiarato sensibile fornito inline viene renderizzato esattamente come uno non dichiarato ovunque la build lo renderizzi — il rifiuto CloudFormation descritto sopra blocca un letterale anziché renderizzarlo, e una funzione intrinseca viene scritta così come è data, testo incluso — e `dist/` resta sensibile quanto il suo attachment che porta più materiale."
+  },
+  "e3041373b6b83056": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "e3041373b6b83056",
+    "status": "machine",
+    "text": "Un’unica famiglia di attachment"
   },
   "e3470467eb27a76a": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -1875,6 +3401,13 @@
     "status": "machine",
     "text": "**Versione esatta:** `implements: \"core/api-server:1.0.0\"` — corrisponde solo a `1.0.0`. Per le Recipes strettamente legate a una specifica versione dello schema."
   },
+  "e7346f3fded16ad8": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "e7346f3fded16ad8",
+    "status": "machine",
+    "text": "**Pattern non supportato:** Ops scrive `{{ if eq .context.labels.gpu \"true\" }}` in una `Recipe` per cambiare radicalmente la strategia di deployment."
+  },
   "e73d838f19175dbd": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -1882,12 +3415,40 @@
     "status": "machine",
     "text": "**Late binding (inversione delle dipendenze):** gli sviluppatori richiedono interfacce astratte (ad es. `type: enterprise-agent`), non implementazioni specifiche (ad es. `helm-chart-v2`). Il Manifest risolve l’interfaccia nell’implementazione corretta in fase di compilazione, consentendo veri deployment multi-target a partire da un unico file sorgente."
   },
+  "e8439b54ee1a97e7": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "e8439b54ee1a97e7",
+    "status": "machine",
+    "text": "Il blocco `uses` dichiara le dipendenze tra componenti come pura topologia: il Component A dipende dal contratto pubblico `provides` del Component B, non dall’indirizzo fisico o dai dettagli di connessione del Component B. La topologia vive in `uses`; la configurazione vive in `values`. La separazione permette al compilatore di vedere esplicitamente tutti gli archi tra componenti senza dedurli dal contenuto di `values`."
+  },
+  "e9186c27273e39ba": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "e9186c27273e39ba",
+    "status": "machine",
+    "text": "Due superfici, deliberatamente, non sono aperte in questo modo, perché non scrivono la topologia dell’applicazione. Gli `uses` di un allegato di Feature possono nominare solo un socket dichiarato dalla Feature associata, e gli `uses` per arco di una Release possono nominare solo un socket dichiarato dal componente consumatore — un operatore configura e collega all’interno di un’architettura, e una Feature partecipa alla topologia dichiarata dalla propria entità di catalogo. Dichiarare il socket nel catalogo resta inoltre la strada migliore ed è ciò che fa il catalogo della libreria standard: un socket ad-hoc è una via d’uscita, non un nuovo default."
+  },
   "e96a685914a5d697": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
     "srcHash": "e96a685914a5d697",
     "status": "machine",
     "text": "**Features di credenziali:** la piattaforma unifica la gestione delle credenziali nell’entità Feature: una Feature con l’etichetta `feature.aggrega.ai/kind: secret` è una feature di credenziali, che definisce un’interfaccia di interrogazione verso un archivio di segreti (ad es. AWS Secrets Manager, HashiCorp Vault). Si collega sotto `features:` come qualsiasi altra Feature, sulla stessa superficie e con la stessa forma; l’etichetta è un metadato che il catalogo riporta per descrivere ciò che il collegamento produce, e nessun ramo del compilatore la legge. Questa unificazione elimina due tipi di entità (`SecretStore` e `SecretRecipe`) dalla tassonomia: una `SecretRecipe` aveva uno schema identico a una `FeatureRecipe`, la pipeline di recupero e consegna è la stessa per entrambe e il contratto di consegna `inject` (`env`, `file`, `arg`) è condiviso. Un’entità, una parola chiave di collegamento, un percorso di esecuzione dei modificatori attraverso il rendering; e le credenziali si mappano sotto `features.type` nel Manifest."
+  },
+  "e9b7f8b5e4a6240d": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "e9b7f8b5e4a6240d",
+    "status": "machine",
+    "text": "Il compilatore e gli schemi di base impongono le seguenti regole strutturali."
+  },
+  "e9c77478b991b247": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "e9c77478b991b247",
+    "status": "machine",
+    "text": "Aggrega risolve il problema con il principio «tartarughe fino in fondo». Non introduciamo un nuovo blocco `install_infrastructure:` nello schema della `Release`. Usiamo invece gli **Aggregates di piattaforma**."
   },
   "ea26617826fa7c2b": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -1903,6 +3464,13 @@
     "status": "machine",
     "text": "**Perché separare il Manifest dalla Release.** Separare il lockfile del software (Manifest) dal router di deployment (Release) rende possibile una forma che le due entità non potrebbero produrre da sole: DevOps distribuisce una singola applicazione su più router di deployment regionali (diverse Releases che puntano a diverse regioni cloud, tutte con riferimento allo stesso Manifest) senza duplicare i binding delle Recipe tra gli ambienti. Ogni Release regionale porta la propria disposizione dei confini e i parametri specifici dell’ambiente, consumando lo stesso lockfile del software fornito dal Manifest. Lo scaling multi-regione deriva dalla separazione dei domini, non dalla duplicazione del Manifest."
   },
+  "eb9568196cca6ce1": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "eb9568196cca6ce1",
+    "status": "machine",
+    "text": "**Significato:** un comando esplicito e imperativo che detta l’*intento* della consegna (ad es. «Compilatore, *inietta* questo valore mappato come variabile d’ambiente»). Stabilisce il contratto astratto (`env`, `file`, `arg` o meccanismi personalizzati) per un output fisico, un endpoint risolto o una credenziale recuperata, mentre la meccanica fisica di *come* esattamente quel montaggio viene eseguito è delegata interamente alla Recipe di Ops sottostante. Supporta due sintassi equivalenti: una forma compatta a mappa (`{ API_HOST: \"host\" }`) e una forma estesa ad array (`[{ in: API_HOST, from: \"host\" }]`). Entrambe vengono normalizzate internamente in `map[string]string`."
+  },
   "ec1f2182c193da9f": {
     "at": "2026-10-17T19:24:15.582Z",
     "job": "2b8dc6806d5e",
@@ -1916,6 +3484,20 @@
     "srcHash": "ec259d017651604b",
     "status": "machine",
     "text": "4. **L’ontologia semantica: identificazione e tassonomia**"
+  },
+  "ec5d27df742f2839": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "ec5d27df742f2839",
+    "status": "machine",
+    "text": "Esempio B: polimorfismo e `.context.uses` normalizzato"
+  },
+  "edd0e75ac935aab3": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "edd0e75ac935aab3",
+    "status": "machine",
+    "text": "Gli ingegneri di Platform Ops scrivono i template di traduzione e hanno bisogno di tutta la potenza dei template infrastrutturali standard, senza ostacoli proprietari. Aggrega offre un’esperienza Go `text/template` senza attriti:"
   },
   "edf6af44afabe039": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -1959,6 +3541,27 @@
     "status": "machine",
     "text": "**La soluzione:** Aggrega sostituisce le dipendenze infrastrutturali codificate in modo fisso con la **vera inversione del controllo** (True Control Inversion), tramite un *Injection Contract* esplicito. Gli sviluppatori dichiarano semplicemente un arco topologico semantico (per esempio «l’Agente A usa il Database B») e stabiliscono come il loro codice si aspetta di ricevere i dati di connessione (per esempio come variabile d’ambiente o come file montato). Il compilatore risolve dinamicamente i puntatori deterministici assegnati dagli Ops alla destinazione — che si tratti di un nome DNS interno di Kubernetes, di una stringa di interpolazione Terraform o di un DSN formattato da Wasm — e li convoglia direttamente nei template di rendering. Questo astrae completamente l’instradamento fisico e le porte per i workload moderni. Il compilatore fa passare stringhe deterministiche; un collegamento stabile delle dipendenze tra ambienti è una proprietà della disciplina con cui si scrive la Recipe (gli Ops forniscono puntatori deterministici adatti a ciascun ambiente), non una garanzia del nucleo del compilatore."
   },
+  "f07d5c1423001d31": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "f07d5c1423001d31",
+    "status": "machine",
+    "text": "6. Regole di composizione: Aggregates, sottosistemi e Components"
+  },
+  "f1fffea6bf20e5ff": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "f1fffea6bf20e5ff",
+    "status": "machine",
+    "text": "**L’argomento del proxy semantico:** la parola chiave `uses` rappresenta l’intento semantico L7. Se un agente `uses` un database, ciò resta semanticamente vero anche se Platform Ops inserisce tra loro mesh di proxy Wasm trasparenti."
+  },
+  "f3e044ea828e625c": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "f3e044ea828e625c",
+    "status": "machine",
+    "text": "**Zero magia:** il compilatore di base non deve indovinare la formattazione né affidarsi a costruttori di URL fissi; valuta semplicemente la stringa dagli `exports` del plugin Wasm e la passa al `.context` del chiamante."
+  },
   "f3e75cdae87e3241": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -1987,12 +3590,40 @@
     "status": "machine",
     "text": "Il compilatore è matematicamente cieco a ciò che significano i valori convogliati. Quando il Component A usa il Component B, il compilatore prende lo scalare che la Recipe del Component B produce tramite `provides` — una stringa, un numero o un booleano — e lo convoglia nel contesto della Recipe del Component A, convertito in stringa in modo deterministico al confine di iniezione. Che quel valore sia un FQDN, un hostname locale, un indirizzo IP letterale, un numero di porta o un DSN formattato da Wasm non fa alcuna differenza: il compilatore non valida l’instradabilità, la correttezza del protocollo né l’appropriatezza semantica."
   },
+  "f86ed5509356d1d8": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "f86ed5509356d1d8",
+    "status": "machine",
+    "text": "**Raggruppamento logico (l’array `subsystems`):** gli sviluppatori possono applicare metadati logici (proprietà del team, label di conformità) e feature trasversali a decine di componenti contemporaneamente usando `subsystems`. I sottosistemi agiscono come cartelle ricorsive sul piano logico/dell’intento, propagando a cascata le `annotations` verso il basso nel contenitore `.context.annotations.aggregate` e **collegando feature a tutti i componenti contenuti** senza imporre confini fisici. Le feature a livello di sottosistema seguono lo stesso schema delle feature a livello di componente (supportando `type`, `values`, `uses`, `inject`) perché si trovano nel Dominio 1 (intento dello sviluppatore). Durante la finalizzazione del grafo il compilatore appiattisce le feature del sottosistema nell’elenco delle feature di ciascun componente contenuto, posizionandole dopo le feature proprie del componente e prima di qualsiasi feature collegata dalla Release nell’ordine di esecuzione."
+  },
   "f8795487cd2de396": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
     "srcHash": "f8795487cd2de396",
     "status": "machine",
     "text": "Filosofia dell’ecosistema"
+  },
+  "f8ff339a19f527bb": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "f8ff339a19f527bb",
+    "status": "machine",
+    "text": "**Ambito:** usato in modo uniforme all’interno dei `components` di un confine e dei relativi collegamenti `features` nella `Release`."
+  },
+  "f9519b5687a8cbc7": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "f9519b5687a8cbc7",
+    "status": "machine",
+    "text": "**Non cambia il verdetto della build, con un’eccezione.** Nessuna build si arresta perché manca una dichiarazione, e un catalogo le cui entità di credenziale non portano alcuna dichiarazione viene compilato con successo. Nessun valore è accettato o rifiutato perché esiste una dichiarazione, tranne dove il `valuesMapping` di una Recipe o di una FeatureRecipe CloudFormation legge un valore dichiarato sensibile per riempire i parametri di un template sorgente: lì ogni letterale che la mappatura vincola viene rifiutato, quindi aggiungere una dichiarazione può trasformare una build riuscita in una che si arresta — vedi [A secret bound to a CloudFormation parameter would be written into the template (Un secret vincolato a un parametro CloudFormation verrebbe scritto nel template)](../language-reference/errors/fatal-halts.md#a-secret-bound-to-a-cloudformation-parameter-would-be-written-into-the-template). Ovunque altrove, aggiungere dichiarazioni a un catalogo esistente lascia riuscire ogni build che riusciva."
+  },
+  "f9a46a0fab53564a": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "f9a46a0fab53564a",
+    "status": "machine",
+    "text": "Una terza cosa che uno slot può fare è richiedere di risultare vincolato. `required: true` rende obbligatorio il nome dello slot: il compilatore si arresta durante l’analisi statica quando nulla lo vincola, con una diagnostica che nomina lo slot e il tipo di componente che lo ha dichiarato. La richiesta si valuta sull’insieme di attachment che il componente ottiene dopo la cascata di tutti gli scope, quindi un attachment fornito sopra il componente vincola lo slot esattamente come un riempimento scritto sul componente."
   },
   "fab4089a7ac9b242": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -2015,6 +3646,20 @@
     "status": "machine",
     "text": "La logica delle policy (regole di sicurezza, controlli di conformità, calcoli FinOps) non vive mai nel nucleo del compilatore Go. Le policy appartengono al socket di governance Wasm che le aziende scelgono di attivare: un plugin collegato in un ruolo di verdetto (`ir-verdict` / `render-verdict`) per accettare o rifiutare una build, oppure in un ruolo di trasformazione (`label-transform`) per dare forma alle etichette."
   },
+  "fc0037ec809de49a": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "fc0037ec809de49a",
+    "status": "machine",
+    "text": "Il limite, detto chiaramente"
+  },
+  "fc7e1bb0d9209bfb": {
+    "at": "2026-10-22T02:44:28.692Z",
+    "job": "session-0008-20261022024428",
+    "srcHash": "fc7e1bb0d9209bfb",
+    "status": "machine",
+    "text": "Proteggere il materiale resta compito del secret store, del cluster e della pipeline che gestisce l’albero renderizzato — come dice il resto di questo capitolo."
+  },
   "fd3e7574a97d8337": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -2029,6 +3674,13 @@
     "status": "machine",
     "text": "Questa è la **vera inversione del controllo** (True Control Inversion): gli sviluppatori dettano un Injection Contract nell’Aggregate, il compilatore collega puntatori deterministici in anticipo e l’ambiente di runtime risolve i dati fisici finali. I requisiti che richiedono davvero una risoluzione a runtime appartengono alla pipeline Wasm di una Ops Recipe, non al nucleo del compilatore."
   },
+  "fe5e35868b086854": {
+    "at": "2026-10-22T02:10:02.194Z",
+    "job": "session-0007-20261022021002",
+    "srcHash": "fe5e35868b086854",
+    "status": "machine",
+    "text": "Separare la sicurezza dall’esecuzione (lo scenario «brownfield»)"
+  },
   "fea6b72f3f7df8c3": {
     "at": "2026-10-17T19:04:59.441Z",
     "job": "cbcce225c931",
@@ -2042,6 +3694,13 @@
     "srcHash": "fed2f09b12054c2a",
     "status": "machine",
     "text": "Un riferimento di livello 1 il cui file sottostante cambia tra due compilazioni produce un diff legittimo nell’output renderizzato anche se la forma dell’input del compilatore è invariata: la garanzia di output deterministico è preservata (stesso input in byte → stesso output in byte), ma gli input differiscono perché il file locale è cambiato. I cataloghi che hanno bisogno di invarianza tra build per ogni sorgente scaricano gli artefatti da un registry nella cache fissata dal lockfile (livello 3) invece che da una directory del workspace (livello 1/2); il lockfile è l’ancora dell’identità byte per byte."
+  },
+  "fef549c964a7acec": {
+    "at": "2026-10-22T01:47:50.336Z",
+    "job": "session-0006-20261022014750",
+    "srcHash": "fef549c964a7acec",
+    "status": "machine",
+    "text": "**Ambito:** definito alla radice dell’`Aggregate`; soddisfatto dalla `Release` (CI/CD) inline sotto `parameters:` oppure tramite `parameters: { $import: <path> }` che punta a un file di parametri esterno."
   },
   "ff2f778fc9d75fc9": {
     "at": "2026-10-17T20:35:57.134Z",
