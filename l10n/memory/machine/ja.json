@@ -8042,6 +8042,13 @@
     "status": "machine",
     "text": "カタログディレクトリ。繰り返し指定できます。各 --catalog はカタログ検索スタックの先頭に追加されます（最初に一致したものが優先）。スタックはワークスペースの catalog_dirs、またはワークスペース設定が workspace.releases の下で独自のディレクトリを与えている Release の場合はその Release のディレクトリで、ワークスペースのルートに `catalog` ディレクトリがあれば、それがスタックの最後になります。空として書かれた catalog_dirs リストは、ローカルカタログを一切読み込みません。カタログ全体のパスと --release の慣例のパスで使用されます。"
   },
+  "0fda6c545af50c29": {
+    "at": "2026-10-22T11:01:14.074299+00:00",
+    "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
+    "srcHash": "0fda6c545af50c29",
+    "status": "machine",
+    "text": "`aggrega/configInit` — レジストリとその署名の信頼ポリシーを登録して、動作する設定を初期化します。これにより、新しいマシンでも YAML を手で編集せずに署名済みアーティファクトを取得して検証できます。`registry` は省略可能で、値がない場合は公式ハブで初期化されます。これは [`aggrega config init`](aggrega-config.md) と同じデフォルトです。応答の `host` は実際に使われたものを示します。`global` と `workspace` は書き込み先の上書き指定で、両方を送ると拒否されます。**既存の設定ファイルは上書きせずに拒否し**、そのファイルを示します。それでも続行するには `force` を送ります。その場合、レジストリのエントリが既存の内容にマージされ、他の設定は保持されます。`dryRun` は書き込み以外は通常のリクエストと同じ処理をすべて行い、初期化された設定を `content` として返します。これは保存前に作成者にドキュメントを提示するクライアント向けです。この場合は何も作成されず、`written` は false になります。**既存ファイルの拒否は `dryRun` でも適用される**ため、上書きする書き込みが生成するマージ結果を得るには、`force` を併せて送ってください。オフラインのワークスペースでは公式ハブのみ初期化できます。このリクエストは ID も鍵も受け取らないため、他のレジストリは `aggrega/registryAdd` が拒否するのとまったく同じように、短いコードと文も含めて拒否されます。そうしたレジストリは、代わりに手動でポリシーを指定してそのリクエストで追加します。応答には `host`、`scope`、`trust`、`written` が含まれます。また、設定ファイルがすでに存在していた場合（新しいファイルを作成するのではなく、レジストリのエントリがそのファイルにマージされた場合）に true となり、ファイルが作成された場合は存在しない `existed` も含まれます。**これはデフォルトでグローバル設定に書き込みます** — [レジストリへの接続と書き込み](#reaching-a-registry-and-writing)を参照してください。"
+  },
   "0fdba59ae7bf8a20": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -72057,6 +72064,13 @@
     "status": "machine",
     "text": "**`document` は受け付けられますが、ここでは何も変えません。** スロットはソケットのもの、候補は Features のものであり、アタッチメントがどのドキュメントに記述されても同じです。どこに記述されるかは `aggrega/attachmentContainer` が答えます。`aggregate` または `release` 以外の値は引き続き拒否されます。受け付けて無視された値は、送信者には反映された値のように見えてしまうためです。"
   },
+  "91c2d031f9a8ba03": {
+    "at": "2026-10-22T11:01:14.074299+00:00",
+    "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
+    "srcHash": "91c2d031f9a8ba03",
+    "status": "machine",
+    "text": "**`--verify` とは併用できません。** verify はもともとこれらのファイルを一つも書き込みません。この組み合わせでは、フラグが何かを行ったように読めるのに実際には何も行わないため、無視されるのではなく拒否されます。"
+  },
   "91c35233a14c1c7d": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -97663,6 +97677,13 @@
     "status": "machine",
     "text": "**複数の capability が持つ FeatureRecipe 名は、Provider で修飾して参照します。** `provided-secret` はそのような名前であり、標準ライブラリが `terraform`、`cloudformation`、`helm` 向けに提供する `generated-secret` や、`terraform` と `cloudformation` 向けに提供する `random-password` も同様です。修飾なしの `provided-secret:1.0.0` は両方に一致していずれにも解決されず、pull はそこで停止します。Manifest は意図するものを指定します。"
   },
+  "c4804ee82c0a3398": {
+    "at": "2026-10-22T11:35:28.524347+00:00",
+    "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
+    "srcHash": "c4804ee82c0a3398",
+    "status": "machine",
+    "text": "**component 上では、Feature の sensitivity 宣言は、Component の宣言がその Recipe に従うのとまったく同じように、FeatureRecipe の `valuesMapping:` に従います。** FeatureRecipe が `valuesMapping:` を持たない `source:` からレンダリングする場合、ターゲットが受け取る値は Feature が宣言するリーフパスをキーとするため、`sensitive: true` と宣言されたリーフは、レンダリングされたキーをマークします。FeatureRecipe が `valuesMapping:` を宣言する場合、キーはそのテンプレート独自に作り出したものであり、それを指す宣言はないため、ビルドはそのようなリーフごとに、アタッチメント、リーフ、FeatureRecipe を示すアドバイザリを 1 件出力します。境界にアタッチされた Feature ではアドバイザリは出力されません。その `.values` は常に空であり、マークする値を持つ宣言済みリーフが存在しないためです。[A declared-sensitive value reaches the target through a values mapping（sensitive と宣言された値が values mapping を通じてターゲットに到達する）](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping) を参照してください。"
+  },
   "c4835f84d28be7fb": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -100252,6 +100273,13 @@
     "srcHash": "c9a596f75b71852c",
     "status": "machine",
     "text": "ロールは役割であり、人数ではない"
+  },
+  "c9a694d50c1240f0": {
+    "at": "2026-10-22T11:13:32.031992+00:00",
+    "job": "msgbatch_01DH3Lu1cujibr3yj6LABYJQ",
+    "srcHash": "c9a694d50c1240f0",
+    "status": "machine",
+    "text": "ほとんどのルールには、`.aggrega-config.yaml` の `lint.publishing_discipline` 以下にワークスペースごとの設定と、それに対応する CLI オーバーライドがあり、各オーバーライドには `--no-` を付けた対になるフラグがあります。優先順位は、カタログ全体、Release、1 つのエンティティというすべてのスコープで、`--no-<flag>` が `--<flag>` より優先され、それがワークスペース設定の値より優先されます。すべてのルールはデフォルトで有効であり、各デフォルトはプラットフォームの仕組みか、文書化されたカタログの慣例のいずれかに基づいています。これらの設定は、ルールを緩和する理由があるワークスペースのためのオプトアウトです。"
   },
   "c9afa3c50dd1626b": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -106951,6 +106979,13 @@
     "srcHash": "d76b11108db00a98",
     "status": "machine",
     "text": "`--password-stdin` > `AGGREGA_REGISTRY_PASSWORD` > 対話的プロンプト。"
+  },
+  "d76bac5ec66d9d32": {
+    "at": "2026-10-22T11:13:32.031992+00:00",
+    "job": "msgbatch_01DH3Lu1cujibr3yj6LABYJQ",
+    "srcHash": "d76bac5ec66d9d32",
+    "status": "machine",
+    "text": "インベントリ系のツールは、そのことを自身の回答の中で示します。`cache-status` は各キャッシュクラスにその到達範囲を示します。このプロジェクト自身のキャッシュディレクトリ配下にあるアーティファクトキャッシュには `workspace`、すべてのプロジェクトが共有するストアには `machine` を付け、マシン全体に及ぶものは明示的に名前を挙げます。そのため、回収を提案する前にインベントリを読むアシスタントは、そのうちどの部分がこのプロジェクトだけのものではないかを知ることができます。メンテナンス操作も、削除した要素ごとに同じ到達範囲を報告します。4 つの公開系の結果はそれぞれ独自の `reach` を持ち、その中に `registries` と `beyond_this_machine` を保持します。前者は呼び出しが宛先としたすべてのレジストリホストを、それぞれ 1 回ずつ、最初に宛先とした順に並べたものです。後者は呼び出しが要求した内容ではなく、実際に付与した内容から読み取られます。コンテンツをアップロードした時点、または署名、公開日、非推奨マーカーのいずれかを付与した時点で true になり、ドライランの場合や、すべてがすでに存在していた呼び出しの場合は false になります。後者の例としては、完全なバージョンに対して再度実行した公開や、参照がすべてすでに署名済みだった署名バッチがあります。"
   },
   "d76d602596e53ee7": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -116170,6 +116205,13 @@
     "srcHash": "ea1e4a087d8f5424",
     "status": "machine",
     "text": "コンポーネントを提供していないモジュールはこれに該当しません。配置するものがないためです。false の `active:` トグルで除去されたモジュールも該当しません。それはそもそも合成されていないためです。"
+  },
+  "ea205dbe51f344ee": {
+    "at": "2026-10-22T11:01:14.074299+00:00",
+    "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
+    "srcHash": "ea205dbe51f344ee",
+    "status": "machine",
+    "text": "**Provider-rendering [Plugin](../language-reference/entities/plugin.md)** — *プロバイダー*とは、Recipe の入力をプロバイダーネイティブなマニフェストに変換する Wasm ゲストです。これは `pluginType: provider` を持つ Plugin として提供され、レンダリングするプロバイダー名と、そのプロバイダーソケットの契約を宣言します。運用担当（またはプラグイン作成者）がプロバイダーを提供することで、Recipes はレンダリング先のプロバイダーを得られます。同梱されているプロバイダーとその契約については、[Providers Overview](../language-reference/06-providers.md)を参照してください。"
   },
   "ea25a9e33e96c5c8": {
     "at": "2026-10-22T08:23:20.000561+00:00",
