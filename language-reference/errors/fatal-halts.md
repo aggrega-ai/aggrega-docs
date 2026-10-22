@@ -3759,7 +3759,7 @@ The second coordinate follows the contributor here on the same terms as above, s
 
 A cloudformation Recipe's `Outputs:` block is authored CloudFormation, and an entry in it may carry its own `Export:` with a `Name:`; that name reaches the assembled stack exactly as written. Separately, when a `uses` edge crosses from one boundary to another, the provider publishes the consumed value as a stack `Output` with an `Export` under a name it derives from the release, boundary, component, and provided key. This halt fires where the two meet: the name you wrote is the name the derivation produced for the same build, so the stack would declare one export name twice from two places, and an export name has to be unique.
 
-Only the coincidence halts. Declaring an export name on an `Outputs` entry is supported, and one matching no derived name publishes alongside the derived ones without comment.
+Only the coincidence halts. Declaring an export name on an `Outputs` entry is supported, and one matching no derived name publishes alongside the derived ones without comment — on every entry except the stack output a cross-stack reference publishes its own export on, for a key it consumes. An `Export:` there halts unless it carries exactly the derived name; that case is [The output a cross-stack reference publishes on already carries an Export](#the-output-a-cross-stack-reference-publishes-on-already-carries-an-export).
 
 The halt gives the derived export name together with the four parts it was built from, so you can see which cross-boundary reference produced it, and it names the stack output your declaration sits under — marked as a name the provider assembles rather than one a Recipe wrote, because the provider builds that name by encoding the component and the entry into the letters and digits a logical ID admits, so it is not the string either of them was written as. **The export name is the part to search for.** Your entry spells it exactly as the halt does, which is what makes the two a collision, so it is the one string that appears both in the message and in your own files.
 
@@ -3770,6 +3770,33 @@ Emitted message. The condition names the kind of failure and the provider's own 
 > cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of Release `<release>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
 
 **How to fix:** search your Recipes for the export name the halt names — the `Outputs` entry declaring it spells it identically — then either rename that export name so it no longer matches, or remove that entry's `Export:` block and let the cross-stack wiring publish the export itself. Removing it is usually the right move where the entry existed to export the same value the edge consumes: the provider publishes an `Export` for that value anyway, so the authored one adds nothing. Keep the authored `Export:` and rename it instead where the entry exports the value for a different consumer that imports it under a name you chose.
+
+### The output a cross-stack reference publishes on already carries an Export
+
+<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+
+When a `uses` edge crosses from one boundary to another, the provider publishes the consumed value's `Export` on the stack output it assembles for the producing component and the provided key — the same output a cloudformation Recipe reaches when its `Outputs:` block writes an entry under that key. An `Export:` already at that output is kept only when its `Name:` is exactly the name the provider derives: that is the export an earlier cross-stack reference onto the same value already published, so every consumer imports the one name. Any other `Export:` there halts, because writing the provider's export would overwrite what you wrote, and keeping yours would leave every consumer importing a name the reference never published.
+
+The halt fires on four shapes of `Export:` at that output:
+
+- a `Name:` that is a different string;
+- a `Name:` written as a CloudFormation intrinsic, which resolves at deploy time, so the provider cannot read what it spells;
+- an `Export:` block that names nothing;
+- an `Export:` written as a plain value rather than as a block.
+
+An export name you declare on any other `Outputs` entry is compared separately, under [An authored export name is one the build derives for a cross-stack reference](#an-authored-export-name-is-one-the-build-derives-for-a-cross-stack-reference).
+
+Emitted message. The condition names the kind of failure and the provider's own sentence says what happened; the surrounding report also names the `uses` edge being wired:
+> two things a plugin produced occupy one name in its output
+> cloudformation-provider: the stack output a cross-boundary link publishes its export on already carries an Export the link did not write: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of Release `<release>`, and the stack output this provider assembles for that key and component `<what-it-found>`; remove that entry's Export block and let the link publish the export every consumer imports
+
+`<what-it-found>` is one of, in the order of the shapes above:
+> already declares the export name `<name>`
+> already declares an export name that is not a string — one given as an intrinsic, which resolves at deploy time, so this provider cannot read what it spells
+> already carries an Export block declaring no export name
+> already carries an Export that is not a block, where CloudFormation expects one carrying a Name
+
+**How to fix:** in the Recipe of the component the halt names, find the `Outputs` entry written under the provided key it names, and remove that entry's `Export:` block — the cross-stack wiring then publishes the export every consumer imports. Where you need the value exported under a name of your own as well, for a consumer outside this build, write that `Export:` on an `Outputs` entry under a different key: an export name there is supported, as long as it is not one the build derives.
 
 ### Chart-name mismatch on a merged helm-chart umbrella
 
@@ -6188,7 +6215,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have; A rule reads a bound CloudFormation parameter by name; The assembled CloudFormation stack cannot carry a transform |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A valuesMapping key names no parameter of a sourced CloudFormation template; Another component references a CloudFormation parameter a sourced template's binding filled; Two components order one pair of transforms oppositely; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
-| `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
+| `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; The output a cross-stack reference publishes on already carries an Export; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
 | `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
