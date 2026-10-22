@@ -8000,6 +8000,13 @@
     "status": "machine",
     "text": "**对其中两个 AI Gateway 定义使用服务器端应用（server-side apply）**：\n  `aigateway.envoyproxy.io_backendsecuritypolicies.yaml` 和\n  `aigateway.envoyproxy.io_mcproutes.yaml`。它们大于客户端应用（client-side apply）所记录的已应用对象副本，\n  因此客户端应用会拒绝它们。"
   },
+  "0fb36489dd409890": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "0fb36489dd409890",
+    "status": "machine",
+    "text": "只有这种重合才会终止构建。在 `Outputs` 条目上声明导出名称是受支持的，与任何派生名称都不匹配的导出名称会与派生名称一同发布，不会有任何提示——但跨栈引用为其消费的某个键发布自身导出所用的那个栈输出除外。那里的 `Export:` 只要不是恰好携带派生名称就会终止构建；这种情况见 [The output a cross-stack reference publishes on already carries an Export（跨栈引用发布所在的输出已带有 Export）](#the-output-a-cross-stack-reference-publishes-on-already-carries-an-export)。"
+  },
   "0fbed63c566f24a7": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -14874,6 +14881,13 @@
     "status": "machine",
     "text": "每个可以附加的 Feature。"
   },
+  "1daaa3edf2f0cbb5": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "1daaa3edf2f0cbb5",
+    "status": "machine",
+    "text": "每个 Release 都在 `infra.overrides` 下列出运维人员已在运行、供 Recipes 读取的资源：RDS 数据库子网组和数据库的安全组，以及 ECS 集群、任务所接入的子网和安全组，还有 ECS 用于拉取镜像和写入日志的执行角色。服务器的镜像为 `infra.image`。两个服务器 Recipes 都要求提供镜像、集群、子网、安全组和执行角色，Terraform 数据库 Recipe 还要求提供子网组：缺少其中任何一项的构建会停止并指出该键，而不会替你选择网络或角色。"
+  },
   "1db68949de3dae5a": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -20362,6 +20376,13 @@
     "status": "machine",
     "text": "该组件是否出现在编译后的拓扑中。值为一个布尔值，或一个基于 .parameters 的字符串模板，该模板必须解析为布尔值。解析为 false 时，该组件会从拓扑中裁剪掉，并级联到它的 uses 边及其附件。由参数驱动该值，可让 Release 通过满足该参数来切换组件是否存在。省略时默认为 true。默认值：`true`"
   },
+  "2885c48ddeb31508": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "2885c48ddeb31508",
+    "status": "machine",
+    "text": "**只要模板读取这些事实，就要声明该键。** 在未设置该键的 FeatureRecipe 中内联编写的模板（其 `valuesMapping:`、其 `workload:` 或某个 `artifacts:` 条目）若读取 `.context.used_by` 下的 `render_facts`，会在任何内容渲染之前中止构建，并指出该引用及其所在的字段（参见 [fatal-halts.md](../errors/fatal-halts.md) 中的“A template reads its callers' render facts without declaring it（模板读取其调用方的渲染事实但未声明）”）。该检查读取的是模板的书面内容，因此看不到模板运行时构建的引用，也看不到写在从文件或库导入的内容中的引用；而模板若从与 `.context.used_by` 并列的其他列表上读取名为 `render_facts` 的字段，或在与其并列的 `{{ with .context }}` 中以 `.render_facts` 读取宿主自身的事实，都会被视为读取调用方的事实；宿主自身的事实请完整写为 `.context.render_facts`。决定挂载何时渲染的是该键而不是该检查，因此凡是模板读取其调用方渲染事实的 FeatureRecipe，无论以何种方式读取，都应设置该键；设置它的唯一代价是渲染推迟。"
+  },
   "288eb2658dc703e3": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -20466,6 +20487,13 @@
     "srcHash": "28b4e08bc57c2320",
     "status": "machine",
     "text": "以字符串键值对表示的环境变量。K8s：spec.template.spec.containers[].env[]。Compose：services.<name>.environment。"
+  },
+  "28b7b353d2678a5a": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "28b7b353d2678a5a",
+    "status": "machine",
+    "text": "The output a cross-stack reference publishes on already carries an Export（跨栈引用发布所在的输出已带有 Export）"
   },
   "28bcb26db3f73e96": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -26767,6 +26795,13 @@
     "status": "machine",
     "text": "**拓扑构建：拓扑构建器与变更关卡**"
   },
+  "35d6e4989200b461": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "35d6e4989200b461",
+    "status": "machine",
+    "text": "当一条 `uses` 边从一个边界跨到另一个边界时，provider 会把被消费值的 `Export` 发布在它为生产方组件和所提供的键组装的栈输出上——当 cloudformation Recipe 的 `Outputs:` 块在该键下写入条目时，到达的也是同一个输出。该输出上已有的 `Export:` 只有在其 `Name:` 恰好是 provider 派生的名称时才会保留：那是先前指向同一个值的跨栈引用已经发布的导出，因此所有消费者导入的都是同一个名称。那里的任何其他 `Export:` 都会终止构建，因为写入 provider 的导出会覆盖你编写的内容，而保留你的导出则会让所有消费者导入一个该引用从未发布的名称。"
+  },
   "35d6ee6e18e3c448": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -27901,6 +27936,13 @@
     "status": "machine",
     "text": "手动操作时，`aggrega lint` 对目录实体运行发布规范规则，`aggrega inspect` 会解析并展示编译器看到的内容。当整个拓扑准备就绪后，`aggrega build` 将 Release 编译为按边界划分的产物——构建失败时会准确指出需要修复的内容。"
   },
+  "387eab5d60ea58db": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "387eab5d60ea58db",
+    "status": "machine",
+    "text": "在该目录的临时副本上，`tofu init -backend=false` 从磁盘加载根配置\n和内置模块，并且只获取 provider："
+  },
   "38811f4e909a974f": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -28874,6 +28916,13 @@
     "status": "machine",
     "text": "**访问目录未建模的路由器。** 将智能体的 `model` 边指向一个 `core/ai-model/openai-compatible` 组件，并在 Release 中把该路由器的地址写入其 `infra.endpoint`。该组件背后在集群内不运行任何东西，因此地址由运维人员填写，并由其负责与所指向的服务保持一致。"
   },
+  "3a59bee9ef3cdd57": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "3a59bee9ef3cdd57",
+    "status": "machine",
+    "text": "`aggregate.yaml` — 开发者意图：一个类型为\n  `core/datastore/postgres` 的 `db` 组件，其中包含一个由角色\n  `orders_admin` 拥有的逻辑数据库 `orders`；以及一个类型为 `core/compute/server` 的 `api` 组件，\n  它使用该数据库。其中没有任何键或值与 AWS 相关。"
+  },
   "3a59c95af5bc8bb4": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -29650,6 +29699,13 @@
     "srcHash": "3bfe545905e74691",
     "status": "machine",
     "text": "**`compose` 从 artifact 片段中携带 `services:`、`volumes:`、`configs:` 和 `models:`，且仅携带这四项。** 片段在顶层声明的其他任何内容都会被丢弃，且不发出警告——`networks:` 会被丢弃，因为网络是按边界派生的，而不是从贡献者累积而来；同样被丢弃的还有 `secrets:` 块、顶层 `name:`，以及带 `x-` 前缀的扩展键。[compose provider 页面](../language-reference/providers/compose.md#artifacts-emitted-compose-fragments)给出了逐键的合并规则以及跨网络路由的替代方案。"
+  },
+  "3c007af638a3a00b": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "3c007af638a3a00b",
+    "status": "machine",
+    "text": "`<what-it-found>` 为以下之一，顺序与上述形态一致："
   },
   "3c02686655eca4e5": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -31884,6 +31940,13 @@
     "status": "machine",
     "text": "`planned` — 面向 catalog 分发的设计目标。当前的三层解析器（本地路径、工作区 catalog、远程 OCI 仓库）记录在 [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) 中；实体级解析器通过该级联使用 OCI URI，但目前各 provider 尚未接入单个 Recipe 的 `source:` 字段的 OCI 形式。"
   },
+  "407a0c42f5095268": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "407a0c42f5095268",
+    "status": "machine",
+    "text": "每个导出名称由 Release 名称、生产者边界的输出目录、组件和条目拼接而成，因此它在构建时即已确定，消费者可以在任何一个栈存在之前就引用它。这里的两个 Release 都没有声明账户或区域，因此读取方式是同账户的 `Fn::ImportValue`。名称如何构建，以及消费者何时改为跨账户读取，详见[跨栈连接](../../providers/cloudformation.md#cross-stack-wiring)。导入只能解析已经存在的导出，因此数据库的栈要先于服务器的栈创建；这两个栈的创建顺序由运维人员负责，不在构建范围之内。"
+  },
   "407ac45e4697d88e": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -32534,6 +32597,13 @@
     "srcHash": "420d225ca7087185",
     "status": "machine",
     "text": "完全内置的 guest——其规则已编译在内，而不是在挂载时提供——会完全省略 `with`。该通道在每个角色中都是可选的。"
+  },
+  "420f02de33c430e9": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "420f02de33c430e9",
+    "status": "machine",
+    "text": "该边界的根配置生成于\n`dist/one-root/terraform/aggrega.modules.tf`，每个组件自己的文件位于其 `module` 块所指向的目录中：\n内置的 RDS 模块位于 `modules/db/` 下，而服务器的 ECS 模块（在目录中与其 Recipe 放在一起）位于 `modules/api/` 下。完整的根配置："
   },
   "420f13dfd10aa2f3": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -33795,6 +33865,13 @@
     "status": "machine",
     "text": "**标题或注释。**指明这些行来自哪个文件的 `#` 行，或值旁边的简短注释，显然是页面在说话，而不是构建。"
   },
+  "445a15fea5d9fd55": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "445a15fea5d9fd55",
+    "status": "machine",
+    "text": "每次构建都会在 `dist/` 下写入文件，然后停止。它从不运行 Terraform、OpenTofu 或 CloudFormation，从不向 AWS 进行身份验证，也不查找 Releases 所指定的任何标识符。规划和应用根配置、创建这些堆栈，都是你在替换占位符之后，使用自己的凭据对输出执行的步骤。"
+  },
   "445ac7d46c90a651": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -34312,6 +34389,13 @@
     "srcHash": "452ca1c2ed619731",
     "status": "machine",
     "text": "aggrega mcp"
+  },
+  "4531c2b3d5940be1": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "4531c2b3d5940be1",
+    "status": "machine",
+    "text": "服务器请求什么"
   },
   "4533afc51328c0e2": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -35139,6 +35223,13 @@
     "status": "machine",
     "text": "`.yaml` 或 `.yml`"
   },
+  "46cdda2e63cafe29": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "46cdda2e63cafe29",
+    "status": "machine",
+    "text": "**修复方法：**删除主机以及库名之前的所有内容，只保留 `<Library>#/schemas/<Entry>`。如需版本下限，在库名之后写作 `:<version>`。同一规则也适用于 Recipe 和 FeatureRecipe 上的 `$import:` 字段，这些字段在下文“A library `$import:` addresses its library by registry location（库导入按注册表位置寻址其库）”下单独报告。"
+  },
   "46d1d577187aa170": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -35894,6 +35985,13 @@
     "srcHash": "481801d9dec6657a",
     "status": "machine",
     "text": "来自结构形态信号的得分贡献。"
+  },
+  "481da1fd090e3546": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "481da1fd090e3546",
+    "status": "machine",
+    "text": "该输出上的 `Export:` 有四种形态会触发此终止："
   },
   "481f13b6690ef12b": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -36741,6 +36839,13 @@
     "srcHash": "49c8036a6f4d756d",
     "status": "machine",
     "text": "Bash 补全依赖 `bash-completion` 软件包；如果尚未安装，请通过操作系统的包管理器安装。"
+  },
+  "49c84e281fd5eb3c": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "49c84e281fd5eb3c",
+    "status": "machine",
+    "text": "RDS 在创建实例时生成主密码，并将其保存在 AWS Secrets Manager 中。没有任何构建输入携带密码，因此三次构建都不会把密码写入任何文件。服务器接收用户名而不接收其密码；从 Secrets Manager 读取密码的工作留给服务器镜像所运行的代码。"
   },
   "49cc0e24707c815a": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -42713,6 +42818,13 @@
     "status": "machine",
     "text": "发布 Plugin"
   },
+  "557c572249684515": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "557c572249684515",
+    "status": "machine",
+    "text": "两个 CloudFormation 栈"
+  },
   "5584e948f92bac9d": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -43651,6 +43763,13 @@
     "status": "machine",
     "text": "**要点在于规模存放在哪里。** 数据库背后有多少台服务器，既不是开发者写的，也不是 Recipe\n决定的——它是 Release 中的一行运维规模配置，也是两棵渲染树之间的\n全部差异。"
   },
+  "578e6a090f21f222": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "578e6a090f21f222",
+    "status": "machine",
+    "text": "一个 Terraform 根配置"
+  },
   "57908350f83a8b7b": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -43888,6 +44007,13 @@
     "srcHash": "581334013f35b020",
     "status": "machine",
     "text": "在 Aggregate 的 `parameters:` 块上，其中部分关键字还会在读取任何 Release 值之前，对声明本身进行检查。参数自身的 `minLength` 和 `maxLength` 须为零或正数——负值会在 Aggregate 加载时被拒绝——而每个 `pattern`（包括嵌套在 `items`、`properties` 或 `valuesType` 契约中的）都必须是能够编译的正则表达式，因为该模式在读取参数契约时即被编译。任何深度的每个 `format` 都必须是下文的命名格式之一。每种错误都会使构建停止，并指明相应参数，无论是否有 Release 提供该参数。嵌套契约内的长度界限不受此下限约束；各项检查在何处运行，参见 [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary)。"
+  },
+  "58162377d491fe1b": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "58162377d491fe1b",
+    "status": "machine",
+    "text": "`manifest-cloudformation.yaml` — 将数据库绑定到\n  `cloudformation/postgres-rds`，将服务器绑定到 `cloudformation/server-ecs`。"
   },
   "581854be002aa287": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -46136,6 +46262,13 @@
     "status": "machine",
     "text": "说明该实体是什么、用于什么，面向正在决定是否使用它的人。先用一句话点明它是什么，再补充读者正确选择和使用它所需的信息——它对部署有什么要求，以及它的行为中任何出人意料之处。通常写一小段即可。"
   },
+  "5c8053fac15a3843": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "5c8053fac15a3843",
+    "status": "machine",
+    "text": "**修复方法：**在终止信息所指组件的 Recipe 中，找到写在其所指提供键下的 `Outputs` 条目，删除该条目的 `Export:` 块——跨栈连接随后会发布所有消费者导入的导出。如果你还需要以自己的名称导出该值，供本次构建之外的消费者使用，请把该 `Export:` 写在另一个键下的 `Outputs` 条目上：那里的导出名称是受支持的，只要它不是构建派生的名称。"
+  },
   "5c807f66881d789b": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -47970,6 +48103,13 @@
     "status": "machine",
     "text": "这两个放置值，正是边界作用域的 FeatureRecipe 在其 `.boundary` 边列表中同一连接的条目上以 `source_namespace` 和 `source_boundary_path` 读取的值：两种视图以相同方式读取组件的放置位置，因此二者从不冲突。"
   },
+  "60152362cb160656": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "60152362cb160656",
+    "status": "machine",
+    "text": "**这些值全部是占位符**——`123456789012` 是 AWS 文档在示例中使用的账号，而 `example-cluster`、`example-private-db-subnets`、`subnet-…` 和 `sg-…` ID、角色以及 `registry.example.com/orders-api:1.0.0` 代表你自己账号中的资源。\n构建之所以接受它们，是因为构建从不查询这些资源；在执行 plan 或部署之前，请先替换它们。"
+  },
   "60204c860577b691": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -49726,6 +49866,13 @@
     "srcHash": "638e081271ba4a66",
     "status": "machine",
     "text": "这是固定和发布时的拒绝，而非构建时的拒绝。除工作区根目录中并列存放的三种实体（Aggregate、Release 和 Manifest）外，每种实体类型都有自己的目录。已发布的实体在每个版本下是位于一个坐标的一个制品，其编写所在的目录与此相对应：固定步骤写入目录中唯一能容纳的那个 `entity.lock`，而发布则从实体所在目录打包该实体。因此，任何其他类型的实体旁边若有另一个实体，在这两个时机都会被拒绝：由 `aggrega pin` 拒绝，由要求代表作者进行固定的拉取或推送拒绝，以及由 `aggrega push` 拒绝（无论是否进行固定）。拒绝发生在获取任何内容之前，且不会写入任何内容。"
+  },
+  "6394f6a66305d86b": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "6394f6a66305d86b",
+    "status": "machine",
+    "text": "`release-two-stacks.yaml` — 同一意图拆分到两个边界中，因此\n  服务器对数据库的引用会跨越栈的边界。"
   },
   "6399e1f585faaeb7": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -52758,6 +52905,13 @@
     "status": "machine",
     "text": "**失效模式：** 依赖桶意图区分的路由逻辑（例如，Recipe 将 `.context.annotations.release.aggrega.ai/region` 路由到 Terraform 的 `region` 字段）会静默消费桶中出现的任何注解，而不论其编写意图。构建成功；渲染输出可能携带语义错误的值。"
   },
+  "69d6b5a160c65e68": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "69d6b5a160c65e68",
+    "status": "machine",
+    "text": "你在任何其他 `Outputs` 条目上声明的导出名称会单独比较，见 [An authored export name is one the build derives for a cross-stack reference（编写的导出名称与构建为跨栈引用派生的名称相同）](#an-authored-export-name-is-one-the-build-derives-for-a-cross-stack-reference)。"
+  },
   "69d7ccceb6b913bc": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -53205,6 +53359,13 @@
     "srcHash": "6aca613fa4391bb7",
     "status": "machine",
     "text": "A health probe cannot be turned into a compose healthcheck（健康探针无法转换为 compose healthcheck）; A configmap volume has no file behind it（configmap 卷背后没有文件）; What an omits entry left out is still named by the compose file（omits 条目排除的内容仍被 compose 文件引用）; What an omits entry left out is still named by a CloudFormation template（omits 条目排除的内容仍被 CloudFormation 模板引用）; A valuesMapping key names no parameter of a sourced CloudFormation template（valuesMapping 键未指向所引入 CloudFormation 模板的任何参数）; Another component references a CloudFormation parameter a sourced template's binding filled（另一个组件引用了由所引入模板的绑定填充的 CloudFormation 参数）; Two components order one pair of transforms oppositely（两个组件以相反顺序排列同一对 transform）; A cross-boundary reference has no consuming stack to be written into（跨边界引用没有可写入的消费堆栈）; A synthesized StatefulSet has no single service to govern it（合成的 StatefulSet 没有唯一的 service 来管理它）"
+  },
+  "6ad769ad30c0da1e": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "6ad769ad30c0da1e",
+    "status": "machine",
+    "text": "一个 CloudFormation 栈"
   },
   "6ad9d41aafb3c83e": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -54522,6 +54683,13 @@
     "status": "machine",
     "text": "坐标的字节是否为一个归档，实体文档从中解包而来。坐标直接保存实体文档本身时为 false。"
   },
+  "6de21791e2320169": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "6de21791e2320169",
+    "status": "machine",
+    "text": "`protocol` 同样会被发布，但由于没有边读取它，因此不带 `Export`。服务器的栈 `dist/two-stacks-app/cloudformation/cloudformation-stack.json` 按相同名称读回这四个条目中的每一个："
+  },
   "6de41222369eb46d": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -54675,6 +54843,13 @@
     "srcHash": "6e0d26600b702e31",
     "status": "machine",
     "text": "各入口唯一的区别在于读取哪些字节。此命令和会话方法都读取磁盘上的文件，从不读取未保存的缓冲区：从缓冲区写入，会以应用一个条目为名，把你尚未保存的内容写进页面。请先保存，再编辑。"
+  },
+  "6e12c8e7295400c2": {
+    "at": "2026-10-22T22:51:17.853388+00:00",
+    "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
+    "srcHash": "6e12c8e7295400c2",
+    "status": "machine",
+    "text": "**[aws-rds-and-ecs-service](aws-rds-and-ecs-service/)** —— 一个 Aggregate，包含一个\n  PostgreSQL 数据库及读取它的服务器，针对 AWS 以三种方式构建：一个 Terraform 根配置，其中数据库由 terraform-aws-modules 项目发布的 RDS 模块预配，服务器作为 Fargate 上的 Amazon ECS 服务运行；一个 CloudFormation 栈；以及两个栈。服务器以每个目标各自的形式接收数据库地址——模块输出引用、`Fn::GetAtt`、对导出值的 `Fn::ImportValue`——而三者使用的 Aggregate 是同一个文件。RDS 将主密码保存在 AWS Secrets Manager 中，因此没有任何构建会写入密码。需要在旁边检出标准库 catalog。"
   },
   "6e1a74f6439bf614": {
     "at": "2026-10-22T02:18:58.122887+00:00",
@@ -54899,6 +55074,13 @@
     "srcHash": "6e7d50e84f4731ef",
     "status": "machine",
     "text": "结果"
+  },
+  "6e7f4edb75ac1a21": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "6e7f4edb75ac1a21",
+    "status": "machine",
+    "text": "服务器的 `environment` 参数承载边缘所请求的四个值。`DB_HOST` 为 `${module.db.db_instance_address}`：数据库 Recipe\n通过同一根配置中声明为 `module \"db\"` 的模块调用，发布对 RDS 模块自身 `db_instance_address` 输出的引用，因此 Terraform\n在此处于 plan 和 apply 时对其求值，服务器的模块则将该实例的地址作为普通输入接收。其余三个值是编译器预先已知的纯文本——Release 配置的端口，以及 Aggregate 写入的两个名称。"
   },
   "6e81b5253fe6e8f6": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -55781,6 +55963,13 @@
     "srcHash": "7036b9d28161fb9d",
     "status": "machine",
     "text": "`ImportResult`"
+  },
+  "703bdfaa682b8112": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "703bdfaa682b8112",
+    "status": "machine",
+    "text": "`Export:` 块未给出任何名称；"
   },
   "7048e0e043e3f281": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -58449,6 +58638,13 @@
     "status": "machine",
     "text": "**不是主动的集群编排器（不做 GitOps）：**Aggrega 是一个预先（Ahead-of-Time，AOT）静态编译器，而不是持续协调状态的主动集群代理。它输出标准的 Kubernetes 清单和 Docker Compose 配置，交由专门的 GitOps 工具（如 ArgoCD 或 Flux）部署。"
   },
+  "75a2215b661eeba1": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "75a2215b661eeba1",
+    "status": "machine",
+    "text": "`.aggrega-config.yaml` — 将解析指向检出在本文档旁边的\n  标准库目录。"
+  },
   "75a41cf0fa3f0a7c": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -60555,6 +60751,13 @@
     "srcHash": "79ed6fdafc569aea",
     "status": "machine",
     "text": "**每个条目都带有自己的方括号头部——自己的类别和自己的短代码。** 这是诊断头部以下唯一会出现短代码的地方，它并不是上述延续规则的例外，而恰恰是该规则的推论：`note:` 下的条目不是从更深处看到的同一个失败，而是由*另一个*文档引发的*另一个*情况。指出其情况，你才能查找该拒绝并修复文件，而这正是该输出块存在的意义。"
+  },
+  "79eea817185c55c5": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "79eea817185c55c5",
+    "status": "machine",
+    "text": "`manifest-terraform.yaml` — 将数据库绑定到 Recipe\n  `terraform/postgres-rds-terraform-aws-modules`，将服务器绑定到\n  `terraform/server-ecs`。"
   },
   "79f2ab77bca0eb16": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -63552,6 +63755,13 @@
     "status": "machine",
     "text": "**失败的调用不会在网关写入的任何日志中保留请求文本，这会带来两方面的代价。**网关自身为失败调用记录的那一行只保留错误类型，例如 `An error was logged with its text withheld, as log\n  masking is on: BadRequestError`，因此提供方的消息及其回溯信息不会出现在该日志中；此外，失败的调用不会出现在支出日志和每日支出总额中，它们只统计成功的调用。在目录之外配置的日志集成仍可以从失败调用所携带的异常中读取提供方自身的错误消息，而注册在网关自身回调之前的日志集成会原样收到失败调用的文本。"
   },
+  "8060bea6ac999742": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "8060bea6ac999742",
+    "status": "machine",
+    "text": "`dist/`、`.aggrega/` 和 `*.lock` 文件是生成的，不会提交；它们可以从已提交的文件重新生成。"
+  },
   "806192b6efb1a6c5": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -63908,6 +64118,13 @@
     "srcHash": "80fdabecaeb99c75",
     "status": "machine",
     "text": "provider `render_node` 与 `validate_node_input`（`RenderNodeInput`）"
+  },
+  "8101a7b86bfa6b58": {
+    "at": "2026-10-22T22:51:16.626703+00:00",
+    "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
+    "srcHash": "8101a7b86bfa6b58",
+    "status": "machine",
+    "text": "它的断言会在该网关无法满足的情况下中止构建——`restore`、分析器无法识别的实体类型、未连接识别器插槽却列出了实体类型、在 `mask_reasoning` 开启时用模式遮蔽回复——每条断言都会指明该约束以及网关所声明的能力。该网关在其遮蔽的每段文本中都会重新为 `restore` 的替代符编号，因此同一请求中两个人的姓名可能共用同一个替代符，恢复时可能会在原本写着另一个人姓名的位置交给调用方某个人的姓名；该 Feature 把 `restore` 留给能够可靠地将替代符映射回原文的网关，而在这个网关上，附加使用 `redact`，或使用 `refuse`：在后者下，每个列出的模式和实体类型都被配置为拒绝而非遮蔽，凡是此实现原本会遮蔽的地方皆如此。列出的实体类型和列出的模式也会在工具调用参数中被遮蔽，包括请求先前轮次所携带的工具调用和回复中的工具调用，由从网关自身 Recipe 在其配置旁交付的模块中加载的防护规则完成；在 chat、messages 和 responses 路由上，两者也会在这些先前工具调用的结果中被遮蔽，以及在请求于其消息之外携带的其他文本中被遮蔽——例如 messages 请求的系统提示、responses 请求的 instructions、user 字段以及调用方发送的元数据等。参数以及 JSON 形式的结果按值逐一遮蔽，而不是作为一整段文本遮蔽：它们会被解析为 JSON，分析器识别出或模式匹配到的每个字符串值和每个数字都会被遮蔽，键则不会，然后再写回 JSON，因此 JSON 保持有效。被遮蔽的数字会变成字符串形式的占位符，因此 schema 在该处要求数字的工具会拒绝该调用，而不会收到原值；不是 JSON 的结果则作为一整段文本遮蔽。不是 JSON 的参数（空参数除外）永远不会作为一整段文本遮蔽：会话中携带此类参数的请求会在转发前被拒绝，携带此类参数的回复会在发送任何部分之前被拒绝。按模式遮蔽的流式 chat 回复会被暂存，直到全部到达后再整体遮蔽并发送，即在末尾发送而不是边生成边发送，因此匹配项的任何部分都不会在其余部分到达之前被发出；在其他任何路由上流式传输的回复都不会被遮蔽，因此在回复被遮蔽期间，在这些路由上请求流式回复的请求会在转发前被拒绝。回复中被遮蔽的实体类型由从该模块加载的防护规则遮蔽：此时请求流式 chat 回复的请求同样会在转发前被拒绝，除非 Release 在该附加上设置了 `allow_streamed_replies`，在这种情况下，遮蔽后的回复会在末尾一次性到达，而不是边生成边到达。同一防护规则还会遮蔽推理模型在其回复旁返回的推理文本，所涉字段列在 FeatureRecipe 中 `write_masking_guardrails` 步骤旁的注释里，除非 Release 在该附加上将 `mask_reasoning` 设置为 `false`：对其推理进行签名的提供方会拒绝客户端改动后发回的已签名块，因此必须发回这些块的客户端会关闭它，此时推理文本会以未遮蔽的形式到达客户端。列出的模式永远不会与回复的推理文本进行匹配，因此列出 `scope` 为 `response` 或 `both` 的模式的附加，只有在其上将 `mask_reasoning` 设置为 `false` 时才能构建，而该附加随后不会遮蔽回复的任何推理文本；若要遮蔽推理文本，请在单独的附加中列出实体类型。在回复被遮蔽期间（无论按实体类型还是按模式），网关还会遮蔽模型或其提供方在回复文本之外添加的部分——拒绝说明、引用与注释、网页搜索的查询和结果、提供方自有名称下的字段——向调用方扣留遮蔽无法读取的内容——语音音频及其转录文本、图像、模型所选 token 的概率——并在转交失败调用时用固定消息替换提供方返回的消息，因为后者可能引用请求或回复中的文本，除非 Release 在该附加上设置了 `allow_unmasked_reply_parts`，在这种情况下，这些内容会按提供方发送的原样、未经遮蔽地到达调用方。"
   },
   "8103c33dcd036838": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -65287,6 +65504,13 @@
     "srcHash": "83ad65df70ba510a",
     "status": "machine",
     "text": "workspaceconfig: governance attachment `\"<uri>\"` declares no role; set `role:` to one of `<the known roles>`: a governance attachment declares no role or an unknown role（workspaceconfig：该 governance 挂载未声明角色；请将 role 设为已知角色之一：governance 挂载未声明角色或声明了未知角色）"
+  },
+  "83c3408401900a27": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "83c3408401900a27",
+    "status": "machine",
+    "text": "密码归 RDS 自身管理"
   },
   "83c4e9eb85069e71": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -69964,6 +70188,13 @@
     "status": "machine",
     "text": "**编辑器可见性。** 只有当语言服务器在检查 IR 图时运行产物渲染阶段，该类的每个成员才会进入编辑器诊断：即 `aggrega serve --build-on-inspect`，或它所覆盖的 `serve.build_on_inspect` 配置键，该键默认关闭。这一开关会加入构建在渲染时产生的建议性提示，但不会加入任何使构建中止的检查。上述类代码在发布的诊断中与在终端输出行中一样随之传递，因此编辑器客户端匹配的是作者读到的同一个类。每个条目指明的是一个节点和一个目标，而不是某个编写键，因此它显示在 Aggregate 的 `kind:` 键上。"
   },
+  "8d680de6d98df4eb": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "8d680de6d98df4eb",
+    "status": "machine",
+    "text": "two things a plugin produced occupy one name in its output（插件生成的两项内容在其输出中占用了同一个名称）\n> cloudformation-provider: the stack output a cross-boundary link publishes its export on already carries an Export the link did not write: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of Release `<release>`, and the stack output this provider assembles for that key and component `<what-it-found>`; remove that entry's Export block and let the link publish the export every consumer imports（cloudformation-provider：跨边界链接发布其导出所在的栈输出已带有一个并非该链接写入的 Export：该链接为某个 Release 中某个边界内某个组件的某个 provides 键派生出该导出名称，而此 provider 为该键和组件组装的栈输出存在所发现的情况；请删除该条目的 Export 块，让链接发布所有消费者导入的导出）"
+  },
   "8d6c8d60891dd215": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -72805,6 +73036,17 @@
     "srcHash": "934ee6394c202ad4",
     "status": "machine",
     "text": "原样打印全局配置文件本身的字节，保留其注释和格式。"
+  },
+  "935327187abbbcdc": {
+    "at": "2026-10-22T22:51:15.481474+00:00",
+    "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
+    "revision": {
+      "from": "a3dac81fd9bd4cdc",
+      "reviewed": false
+    },
+    "srcHash": "935327187abbbcdc",
+    "status": "machine",
+    "text": "An authored export name is one the build derives for a cross-stack reference（编写的导出名称与构建为跨堆栈引用派生的名称相同）; The output a cross-stack reference publishes on already carries an Export（跨堆栈引用所发布到的输出已带有 Export）; Two entries reach one stack output name（两个条目指向同一个堆栈输出名称）; A CloudFormation fragment writes one key twice（CloudFormation 片段将同一个键写入两次）; Two rendered resources land at one output file（两个渲染出的资源落在同一个输出文件中）"
   },
   "935535bb59a3e179": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -78238,6 +78480,13 @@
     "status": "machine",
     "text": "`workload:` 声明一个 `form:`——即所运行事物的形态，用每个目标都能理解的术语表述，而不是任何单一目标的词汇。有些字段只在某一种 form 上才有意义，而声明了 form 却缺少其所需字段，就没有任何一致的内容可渲染。两个方向都会检查，且在任何目标翻译该 workload 之前进行，因此这种不一致只针对你所写的内容报告一次，而不是每个目标以各自的说法各报告一次。"
   },
+  "9e78cb2365ecff8b": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "9e78cb2365ecff8b",
+    "status": "machine",
+    "text": "本示例使用的实体全部位于该目录中。没有任何内容被复制到\nrelease 文件旁边。"
+  },
   "9e7fa728798e5019": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -82004,6 +82253,13 @@
     "status": "machine",
     "text": "10. 交叉引用"
   },
+  "a5f4376725650c79": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "a5f4376725650c79",
+    "status": "machine",
+    "text": "锁文件存在后，直接运行普通命令即可基于它进行构建："
+  },
   "a5f74b5a9b6b3f59": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -82192,6 +82448,13 @@
     "srcHash": "a63e169f75c12172",
     "status": "machine",
     "text": "**写 ref，而不是提交。** `build` 通过你编写的 ref 查找来自 git 的制品，并与 lockfile 记录的 ref 进行匹配，因此 `ref: v1.2.3` 会基于该标签被固定时的提交进行构建，提交无需出现在你的 Recipe 中。改为在 `version:` 中指定可变标签是行不通的，也并非设计用途：`version:` 按原样匹配，而对于 git 源，lockfile 固定的是提交。"
+  },
+  "a6442c822fd004bf": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "a6442c822fd004bf",
+    "status": "machine",
+    "text": "`aggregate.yaml` 没有任何改动。该 Release 将数据库放在 `data` 边界中，将服务器放在 `app` 边界中，因此二者各自组装为独立的栈，服务器指向数据库的边从一个栈跨越到另一个栈。数据库的栈 `dist/two-stacks-data/cloudformation/cloudformation-stack.json` 将该边消费的每个条目发布为带有 `Export` 的输出。其 `Outputs`："
   },
   "a6447022270e1f5b": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -83984,6 +84247,13 @@
     "srcHash": "aa175a7ded3be9a0",
     "status": "machine",
     "text": "**部署之前，请先阅读[没有凭据则不提供任何服务](#nothing-is-served-without-a-credential)。** 发往该端点的每个请求都携带凭据，也没有任何设置能在没有凭据的情况下处理请求——设置所选择的是由此服务器自行检查 bearer token，还是读取前置代理已检查过的调用方。"
+  },
+  "aa188c42a71cc35a": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "aa188c42a71cc35a",
+    "status": "machine",
+    "text": "一个 Aggregate 包含一个 PostgreSQL 数据库和读取它的服务器。同一个\nAggregate 针对 AWS 以三种方式构建：作为一个 Terraform 根配置，\n数据库由 terraform-aws-modules 项目发布的 RDS 模块预配，\n服务器作为 Fargate 上的 Amazon ECS 服务运行；作为一个同时包含两者的 CloudFormation 栈；以及作为两个 CloudFormation\n栈，数据库在一个栈中，服务器在另一个栈中。"
   },
   "aa18fc840d0e71aa": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -86967,6 +87237,13 @@
     "status": "machine",
     "text": "容纳发起连接的组件的 Release 边界的斜杠分隔路径（例如 'edge' 或 'aws-prod/payments'）——即边界作用域的 FeatureRecipe 在 .boundary uses-edge 列表中同一连接的条目上以 source_boundary_path 读取的值。"
   },
+  "afbaf5bd9efda715": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "afbaf5bd9efda715",
+    "status": "machine",
+    "text": "之所以可行，是因为服务器的 Recipe 是一个 `source:` Recipe：其映射成为服务器 `module` 块的参数，而这是 Terraform\n在声明了相邻模块的作用域中求值的唯一位置——其机制，以及使用方将引用写在其他位置时会出现的问题，参见\n[使用另一个组件发布的值](../../providers/terraform.md#consuming-another-components-published-value)\n和[一个完整的配对示例](../../providers/terraform.md#a-worked-pair)。出于同样的原因，应对此目录（即包含\n`aggrega.modules.tf` 的目录）执行 plan，而不是单独对任一模块目录执行。"
+  },
   "afbbeed479a1f869": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -89669,6 +89946,13 @@
     "status": "machine",
     "text": "已解析的 source 字段内容。在源解析阶段由 Recipe 的 source: 字段经 Go 模板求值后填充。从值映射阶段起可用（valuesMapping、workload、artifacts）。当 Recipe 没有 source: 时求值为 null。字符串形式 = URI 路径；对象形式 = 结构化源（例如带已解析版本的 OCI 描述符）。"
   },
+  "b48124a26c8aaeba": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "b48124a26c8aaeba",
+    "status": "machine",
+    "text": "在输入未变的情况下构建两次，三个 release 各自产生字节完全相同的输出。编译器不解析任何实时数据，因此重新构建不会发现任何可能改变字节的内容。基于 diff 的审查所依赖的正是这一特性。"
+  },
   "b4846fa5efbc18c5": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -91734,6 +92018,13 @@
     "status": "machine",
     "text": "**每个指定 Release 的回答也会指定其锁文件，因此客户端无需自行推算路径。**`aggrega/activeRelease` 以 `lockfile` 携带它，与 `release` 并列；`aggrega/releaseCandidates` 以 `lockfiles` 映射携带，与 `releases` 并列；锁文件缺失错误则在其 `data` 中以 `lockfile` 携带。每一项都是 `aggrega pull --release <release>` 写入、`aggrega build` 读取的文件，也是上述每个请求所检查的文件——因此监视 Release 锁文件以察觉其被写入、重写或删除的客户端，监视的正是守护进程所指的文件。锁文件位于其 Release 旁边，采用 Release 的名称，并将 `.yaml` 或 `.yml` 扩展名替换为 `.lock`；使用其他扩展名命名的 Release 会保留其完整名称，因此 `release.rel` 的锁文件是 `release.rel.lock`。请从回答中读取路径，而不是根据上述描述拼接，这样两者就不会出现偏差。"
   },
+  "b8e6dcdc365b5802": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "b8e6dcdc365b5802",
+    "status": "machine",
+    "text": "在每个目标上，服务器以该目标自身解析的形式接收数据库地址：\n在根配置中是模块输出引用，在单个栈内是 `Fn::GetAtt`，跨两个栈是 `Fn::ImportValue`。\n编译器不对其中任何一个求值。实例创建之前地址并不存在，\n因此构建过程将引用原样传递，由目标在部署时解析。"
+  },
   "b8e7cb5ad2f9d6b9": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -93378,6 +93669,13 @@
     "srcHash": "bbd21338fb550998",
     "status": "machine",
     "text": "必填字段"
+  },
+  "bbd39d6f7c947d2d": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "bbd39d6f7c947d2d",
+    "status": "machine",
+    "text": "服务器在一个名为 `database` 的套接字上声明一条边，并请求数据库发布的条目中的四个，使用其自身配置所读取的环境变量名称："
   },
   "bbd5749bb182aa67": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -96207,6 +96505,13 @@
     "status": "machine",
     "text": "**`workload:`** — 一个抽象的 Workload 规范（平台拥有的 kind），由 provider 合成为 provider 原生清单。该字段接受内联的 YAML 块标量，或指向单个本地文件或库条目的 `$import:`；分派方式由内容形状决定。"
   },
+  "c160a65e4aa25091": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "c160a65e4aa25091",
+    "status": "machine",
+    "text": "already declares the export name `<name>`（已声明该导出名称）\n> already declares an export name that is not a string — one given as an intrinsic, which resolves at deploy time, so this provider cannot read what it spells（已声明一个不是字符串的导出名称——以内部函数给出，在部署时才解析，因此此 provider 无法读出其拼写）\n> already carries an Export block declaring no export name（已带有一个未声明导出名称的 Export 块）\n> already carries an Export that is not a block, where CloudFormation expects one carrying a Name（已带有一个不是块的 Export，而 CloudFormation 期望的是一个带有 Name 的块）"
+  },
   "c161f8e3ba14164e": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -97194,6 +97499,13 @@
     "status": "machine",
     "text": "助手的各项功能与本指南的关系"
   },
+  "c35f2c0b7131f30d": {
+    "at": "2026-10-22T21:48:24.698354+00:00",
+    "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
+    "srcHash": "c35f2c0b7131f30d",
+    "status": "machine",
+    "text": "A `provides:` template could not be evaluated（provides 模板无法求值）"
+  },
   "c35ff61da5a7d9ab": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -97396,6 +97708,13 @@
     "srcHash": "c3b86827def46823",
     "status": "machine",
     "text": "[守护进程](aggrega-serve.md)为编辑器回答同样的问题，依据的是代码而非诊断信息。三者是同一展开内容的三种呈现，而不是恰好一致的三个答案。"
+  },
+  "c3c3158dae986a58": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "c3c3158dae986a58",
+    "status": "machine",
+    "text": "随后 `tofu validate` 输出："
   },
   "c3c5d7cd9352d68c": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -99539,6 +99858,13 @@
     "status": "machine",
     "text": "FeatureRecipes 将抽象的运维意图（例如挂载安全代理或注入 sidecar）绑定到带版本的 WebAssembly（Wasm）插件流水线。运维人员声明一个 Feature 在具体 provider 目标上所需的内容；编译器针对扁平的 IR 图执行所声明的流水线。"
   },
+  "c82592220e70caaf": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "c82592220e70caaf",
+    "status": "machine",
+    "text": "构建不等于部署"
+  },
   "c8375928d9548cc6": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -99678,6 +100004,13 @@
     "srcHash": "c875da627926b5ff",
     "status": "machine",
     "text": "状态分类"
+  },
+  "c877ec7ff8ce0d60": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "c877ec7ff8ce0d60",
+    "status": "machine",
+    "text": "`release-terraform.yaml` — 两个组件位于同一个边界内，通过\n  Terraform Manifest 构建。"
   },
   "c87949e8796d30ee": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -101975,6 +102308,13 @@
     "status": "machine",
     "text": "插件流水线步骤发布具名输出，供后续步骤通过 `{{ .steps.<id>.outputs.<key> }}` 使用。输出形状由每个插件的 provider 定义；步骤输出的作用域限于同一流水线，且仅按声明顺序对后续步骤可见。文档见 [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) 第 11 行。"
   },
+  "cd1c145806174cac": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "cd1c145806174cac",
+    "status": "machine",
+    "text": "组装后的栈位于\n`dist/one-stack/cloudformation/cloudformation-stack.json`，包含三个资源：`Db`，即 RDS 实例；`Api`，即 ECS 服务；以及\n`ApiTaskDefinition`，即该服务运行的任务定义。`ApiTaskDefinition` 中容器的环境变量："
+  },
   "cd1cc8e8e3c4f99a": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -102555,6 +102895,13 @@
     "srcHash": "ce1095df50d69ccc",
     "status": "machine",
     "text": "上面的每种情况都会中止构建。有些情况带有自己的短代码和消息，却从不中止构建；这里将它们一并收录，这样无论你从哪个页面来到这里，手中的代码总能找到对应的条目。"
+  },
+  "ce10a28513036b48": {
+    "at": "2026-10-22T22:51:15.481474+00:00",
+    "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
+    "srcHash": "ce10a28513036b48",
+    "status": "machine",
+    "text": "**链本身不是此步骤关心的内容。** 循环的链和超过深度上限的链，会在合并任何 schema 之前由唯一的一次 `extends:` 遍历拒绝——见上文“Cyclic extends chain（循环的 extends 链）”和“An `extends:` chain runs past the depth bound（继承链超过深度上限）”。"
   },
   "ce10abafc65481d1": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -103437,6 +103784,13 @@
     "srcHash": "cfcd1a53e02abaa8",
     "status": "machine",
     "text": "**未指明文档中所含键的发现，绘制在指明该文档的键上。**文档自身检查就其内容产生的发现、单实体检查的发现，以及构建产生的提示或拒绝，各自绘制在其指明的键上；当它们未指明键，或指明的键不在文档中时，则绘制在文档的 `kind:` 键上，文档未声明 `kind:` 时绘制在其 `metadata.name` 上，仅当文档两者都未声明或无法解析时才绘制在文件开头。文档通常以注释开头——每个目录文件都带有许可证头——绘制在第一行的条目会落在该注释上，读起来像是注释有误，而文档自身的标识是作者亲手写的一行。涉及文档内容以外事物的条目放在文件开头：关于 Release 依赖的 `Dependencies:` 条目、未指明文档中任何内容就停止的阶段、已漂移的 lockfile、渲染不得不拒绝的引用、未能加载的 Release——规则未计算出行号的 `aggrega-lint` 条目也是如此。在位置是陈述而非绘制的地方，未指明键的发现仍然没有键：未指明键的拒绝，其错误应答只在 `data` 中携带文档。"
+  },
+  "cfce5bbf94092d57": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "cfce5bbf94092d57",
+    "status": "machine",
+    "text": "`Name:` 是另一个字符串；"
   },
   "cfce6091e75ce9dd": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -106958,6 +107312,13 @@
     "srcHash": "d7453f118e92e860",
     "status": "machine",
     "text": "**类型：** `string or number`"
+  },
+  "d74f12fe53494021": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "d74f12fe53494021",
+    "status": "machine",
+    "text": "本示例包含三个 release，因此请指定你要构建的那个。每次运行只构建一个 release。在全新克隆的仓库中，每个 release 第一次构建时，请通过辅助脚本传入 `--auto-pull`，以便在构建过程中填充其锁文件。首次 Terraform 构建会从 RDS 模块的 git 仓库获取该模块，所取的提交即该 Recipe 自身的固定版本所记录的提交："
   },
   "d753902f846cab23": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -111236,6 +111597,13 @@
     "status": "machine",
     "text": "SourceArtifactEntry[]"
   },
+  "dfb3bf602e8e5d2c": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "dfb3bf602e8e5d2c",
+    "status": "machine",
+    "text": "`DB_HOST` 是对实例 `Endpoint.Address` 的 `Fn::GetAtt`，作用于数据库 Recipe 根据组件名 `db` 派生出的逻辑 ID `Db`。\nCloudFormation 在创建栈时解析它；由于服务器的任务定义读取 `Db` 的一个属性，CloudFormation 会先创建该实例。参见\n[栈内引用](../../providers/cloudformation.md#intra-stack-references)。"
+  },
   "dfb473890e53895f": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -111907,6 +112275,13 @@
     "srcHash": "e0ec772cccc27b14",
     "status": "machine",
     "text": "同 Component"
+  },
+  "e0f00eeaf86fd776": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "e0f00eeaf86fd776",
+    "status": "machine",
+    "text": "**如何修复：**将该值改写为 `<Library>#<entry-path>`，仅在需要为可选版本设定下限时，才在库名称之后添加 `:<version>`。检查片段是否与字段匹配——在 `workload:` 上使用 `#/mappings/…` 的条目路径，指向的是该字段不读取的表面，会在此报告，而不是作为缺失条目报告。同样的身份形式也适用于 schema 的 `$ref:`，其拒绝情况记录在上文的“A `$ref:` is not written in a form the compiler can resolve（未以编译器能够解析的形式书写）”中。"
   },
   "e0f3cec59fd9572a": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -114351,6 +114726,13 @@
     "status": "machine",
     "text": "**修复方法：**将机密存储在 Secrets Manager 中或作为 Parameter Store 安全字符串存储，并绑定指向它的动态引用——`{{resolve:secretsmanager:<secret>}}` 或 `{{resolve:ssm-secure:<name>}}`——而不是将其拼接到内部函数的文本中；或不绑定该参数，改由 stack 部署时传入值。参见 [cloudformation → 来源模板参数的值](../providers/cloudformation.md#values-for-a-sourced-templates-parameters)。"
   },
+  "e60f9261ad465462": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "e60f9261ad465462",
+    "status": "machine",
+    "text": "该 Aggregate 只指定了数据库的用户，未涉及其密码，也没有任何 Release 为数据库附加凭据。在两个目标上，Manifest 选中的 Recipe 都将密码交给 RDS 管理：在上文的模块块中为 `manage_master_user_password = true`，在每个栈的实例上为 `ManageMasterUserPassword`。单栈模板中数据库的 `Properties`："
+  },
   "e6111fbf6f02c556": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -115212,6 +115594,13 @@
     "status": "machine",
     "text": "provider 渲染 Plugin"
   },
+  "e80aa0ab47e057f4": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "e80aa0ab47e057f4",
+    "status": "machine",
+    "text": "`core/compute/server` 自身未声明任何套接字，因此 `database` 是一个临时套接字：该边不带选择器，也不带注入允许列表，而每个 `from:` 键仍必须是数据库所发布的键——该约束见 [adhoc-uses-socket](../adhoc-uses-socket/)。该 Aggregate 从不指定地址、端口号或云服务提供商，并且对下面的全部三种构建而言都是同一个文件。"
+  },
   "e80aec21c42d91a6": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -115722,6 +116111,13 @@
     "srcHash": "e928bacb3cfa0f25",
     "status": "machine",
     "text": "流式输出的标准输出和标准错误，以及 guest 的退出码。"
+  },
+  "e933b4b7874d165b": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "e933b4b7874d165b",
+    "status": "machine",
+    "text": "`release-one-stack.yaml` — 两个组件位于同一个边界内，通过\n  CloudFormation Manifest 构建，因此两者组装进单个栈。"
   },
   "e93eb28298e68c2e": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -116563,6 +116959,13 @@
     "status": "machine",
     "text": "`helm`、`compose` — 仅 synthesized"
   },
+  "ea978dca5d4b326e": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "ea978dca5d4b326e",
+    "status": "machine",
+    "text": "Terraform Recipes 按目录的 terraform 写法读取这些键（`subnet_group`、`subnet_ids`、`vpc_security_groups`、`cluster`、`execution_role_arn`）；CloudFormation Recipes 则按资源属性自身的名称读取（`DBSubnetGroupName`、`VPCSecurityGroups`、`Cluster`、`Subnets`、`SecurityGroups`、`ExecutionRoleArn`），因此同样的运维值在两个目标上的写法不同。"
+  },
   "ea9a7e95687cbea6": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -117220,6 +117623,13 @@
     "srcHash": "ec1219bd24ddc224",
     "status": "machine",
     "text": "SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary"
+  },
+  "ec133f6cb5965353": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "ec133f6cb5965353",
+    "status": "machine",
+    "text": "`Export:` 写成了普通值而不是块。"
   },
   "ec14b6e3dac90309": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -124592,6 +125002,13 @@
     "status": "machine",
     "text": "编译器加载该文件的内容（一个 Go template），基于标准 Recipe 模板上下文渲染它，并将结果视为映射输出。路径相对于 Recipe 的目录解析——相对路径以包含声明它的 `recipe.yaml` 的目录为基准，而非以调用构建的目录为基准——且路径必须位于该目录之内，详见 [Content paths stay inside the Recipe's own directory](#content-paths-stay-inside-the-recipes-own-directory)。文件模式适用于中到大规模的映射内容（约 50 行以上），以及希望映射变更以独立文件 diff 呈现的评审方式。"
   },
+  "facac812c383e26a": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "facac812c383e26a",
+    "status": "machine",
+    "text": "托管数据库及读取它的服务，基于 Terraform 和 CloudFormation"
+  },
   "fad25f939dd183f1": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -125018,6 +125435,13 @@
     "srcHash": "fbb65858a7c8b8a4",
     "status": "machine",
     "text": "分离签名无法用所提供的密钥验证"
+  },
+  "fbb944df7cb60769": {
+    "at": "2026-10-22T21:42:39.864359+00:00",
+    "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
+    "srcHash": "fbb944df7cb60769",
+    "status": "machine",
+    "text": "`Name:` 以 CloudFormation 内部函数写成，它在部署时才解析，因此 provider 无法读出其拼写；"
   },
   "fbba7124f428fdec": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -125550,6 +125974,13 @@
     "srcHash": "fcdc15e1ad818826",
     "status": "machine",
     "text": "导入能看到工作区目录中的 Components，但看不到其中的 Aggregates，因此不会检查目录是否包含 `core/dify`，条目上方的注释会说明这一点。若目录中没有 `core/dify` 所运行的 API 服务器 `core/ai-agent/dify`，导入会以\n`platform-not-in-catalog` 发出警告，但仍照常起草该条目。"
+  },
+  "fce463720e7c126a": {
+    "at": "2026-10-22T23:05:21.167953+00:00",
+    "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
+    "srcHash": "fce463720e7c126a",
+    "status": "machine",
+    "text": "运维人员提供的内容"
   },
   "fce4d8bcf24ae606": {
     "at": "2026-10-22T02:18:58.122887+00:00",
