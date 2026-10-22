@@ -1,4 +1,4 @@
-# Memcached — one Aggregate, two targets, optional authentication
+# Memcached — one Aggregate, two targets, and a password that is refused
 
 This lean example compiles a single **Memcached** in-memory cache from one
 Developer-authored `Aggregate` to two deployment realizations:
@@ -12,22 +12,21 @@ an official image tag rather than a third-party chart, and its rendered resource
 set is exactly what the workload declares.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per realization. A second Aggregate, `aggregate-auth.yaml`,
-shows the same cache with an inject-value credential attached for the Compose
-path; `aggregate-helm-synth-auth.yaml` attaches a referenceable credential for
-the synthesized helm path.
+Manifest changes per realization. Two further Aggregates attach a password to the
+cache, and their Releases are **negative examples**: the build halts, because no
+realization can enforce a Memcached password.
 
 ## Files
 
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: one `cache` component of type `core/datastore/memcached`, no credential — the cache runs without authentication. |
-| `aggregate-auth.yaml` | The same cache with an inject-value password credential attached to the component's optional `password` slot (Compose path). |
-| `aggregate-helm-synth-auth.yaml` | The same cache with a referenceable credential attached for the synthesized helm path — the value is materialized as a Kubernetes Secret the Deployment references. |
+| `aggregate-auth.yaml` | The same cache with an inject-value password credential attached to the component's optional `password` slot (Compose path). Its build halts. |
+| `aggregate-helm-synth-auth.yaml` | The same cache with a referenceable password credential attached for the synthesized helm path. Its build halts. |
 | `manifest-compose.yaml` | Maps the Memcached type to the Compose Recipe (`memcached`) and the credential to `dotenv-secret`. |
 | `manifest-helm-synth.yaml` | Maps the Memcached type to the synthesized helm Recipe (`helm/memcached`) and the credential to `k8s-secret-from-parameter`. |
-| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations, no authentication. |
-| `release-compose-auth.yaml` / `release-helm-synth-auth.yaml` | Operator records that enable authentication. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations. |
+| `release-negative-compose-auth.yaml` / `release-negative-helm-synth-auth.yaml` | Operator records over the two password Aggregates. Each build is expected to fail. |
 
 ## What it demonstrates
 
@@ -45,14 +44,13 @@ the synthesized helm path.
   the Workload declares. Because both a Compose and a synthesized helm Recipe
   carry the name `memcached`, the Manifests reference them provider-scoped as
   `memcached` (compose) and `helm/memcached`.
-- **Optional authentication via a credential slot.** The component declares one
-  optional `password` slot in its `featuresSchema`. When no credential is
-  attached (the base Aggregate), the Recipe renders the cache with
-  authentication disabled — byte-identically to a Recipe with no slot. When a
-  credential is attached, the Recipe emits `MEMCACHED_USERNAME` and
-  `MEMCACHED_PASSWORD` environment variables. SASL authentication requires a
-  Memcached image built with SASL support; the plain official image ignores
-  these variables and runs without authentication.
+- **A protection a realization cannot give is refused, not dropped.** The
+  component declares an optional `password` slot. The `memcached` image enforces
+  no password: its two authentication modes are SASL, spoken over the binary
+  protocol only, and an ASCII authentication file, and the catalog's Memcached
+  clients use neither. A Recipe that accepted the attachment would render a
+  cache that answers every client while the Aggregate says it is protected, so
+  each Recipe halts the build instead, naming the slot.
 
 ## Build
 
@@ -60,35 +58,39 @@ The workspace catalog supplies the standard-library entities, so no explicit
 catalog flag is needed:
 
 ```sh
-# Local development (Docker Compose), no authentication
+# Local development (Docker Compose)
 aggrega build --release release-compose.yaml
 
-# Kubernetes (synthesized helm Recipe, official image), no authentication
+# Kubernetes (synthesized helm Recipe, official image)
 aggrega build --release release-helm-synth.yaml
-
-# The same realizations with authentication enabled
-aggrega build --release release-compose-auth.yaml
-aggrega build --release release-helm-synth-auth.yaml
 ```
 
 Rendered artifacts land under `dist/`.
 
-## Credential delivery note
+## The control: a password the cache cannot enforce
 
-On the Compose path the credential is an inject-value secret
-(`aggregate-auth.yaml`): its value is delivered on the component's environment
-pipe and becomes the `MEMCACHED_USERNAME` / `MEMCACHED_PASSWORD` service
-environment variables directly.
+The two negative Releases build the password Aggregates, and each build is
+**expected to fail**:
 
-The synthesized helm path uses a referenceable credential
-(`aggregate-helm-synth-auth.yaml`): the value is materialized as a Kubernetes
-Secret, the Deployment references the password through an env `secretKeyRef`,
-and `MEMCACHED_USERNAME` is emitted from the developer value. The plaintext
-password therefore never appears in the Deployment manifest — only in the
-Secret. On both paths these variables enable SASL authentication only for a
-Memcached image built with SASL support; the plain official image ignores them
-and runs without authentication.
+```sh
+aggrega build --release release-negative-compose-auth.yaml
+aggrega build --release release-negative-helm-synth-auth.yaml
+```
 
-The `origin` values in the authenticated Aggregates are development
-placeholders; supply real values through your credential source for any real
-deployment.
+Each halts in the Memcached Recipe, before anything is written:
+
+```text
+a password is attached to the password slot of "cache", but the memcached
+image this Recipe runs cannot enforce a password: it authenticates only through
+SASL over the binary protocol or an ASCII authentication file, which the
+catalog's Memcached clients do not use, so the cache would accept every client
+anyway; remove the attachment, and restrict who can reach the cache through its
+network
+```
+
+The refusal is keyed on the attachment itself, not on how the credential is
+delivered, so every Feature that can fill the slot halts the same way. The
+managed realizations behave alike: Amazon ElastiCache offers no Memcached
+authentication, and its Recipes halt on the attachment too. A Memcached cache
+is therefore protected by who can reach it — the network it is placed on — and
+the base `aggregate.yaml` is the form to build.

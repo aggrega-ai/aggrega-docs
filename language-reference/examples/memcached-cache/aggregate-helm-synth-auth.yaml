@@ -7,22 +7,18 @@ metadata:
   name: aggregate-helm-synth-auth
   version: "1.0.0"
   description: >
-    The same Memcached cache, this time with a referenceable password credential
-    attached to the component's optional `password` slot for the synthesized
-    helm target. A referenced-secret credential materializes a Kubernetes Secret
-    and publishes its locator; the synthesized Recipe references it as an env
-    secretKeyRef (MEMCACHED_PASSWORD) and emits MEMCACHED_USERNAME from the
-    developer value, so the plaintext password never lands in the rendered
-    manifest. SASL authentication requires a Memcached image built with SASL
-    support; the plain official image ignores these variables. Credentials live
-    on the features: pillar (each Feature is labeled feature.aggrega.ai/kind:
-    secret), kept apart from application values.
+    A negative example: the same Memcached cache with a referenceable password
+    credential attached to the component's optional `password` slot, for the
+    synthesized helm target. The build halts in the Recipe, naming the slot,
+    because the memcached image enforces no password and the catalog's
+    Memcached clients speak neither of its authentication modes, so a
+    Kubernetes Secret holding the password would protect nothing. Credentials
+    live on the features: pillar (each Feature is labeled
+    feature.aggrega.ai/kind: secret), kept apart from application values.
 spec:
   components:
     cache:
       type: core/datastore/memcached
-      values:
-        user: cache
       features:
         password:
           type: core/referenced-secret

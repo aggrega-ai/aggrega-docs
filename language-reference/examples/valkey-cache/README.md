@@ -14,9 +14,9 @@ set is exactly what the workload declares.
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
 Manifest changes per realization. Two further Aggregates show the same cache
 with an optional password credential attached: `aggregate-auth.yaml` for the
-Compose path (an inject-value credential surfaced as an environment variable),
-and `aggregate-helm-synth-auth.yaml` for the synthesized helm path (a
-referenceable credential materialized as a Kubernetes Secret).
+Compose path (an inject-value credential the server is started with), and
+`aggregate-helm-synth-auth.yaml` for the synthesized helm path (a referenceable
+credential materialized as a Kubernetes Secret).
 
 ## Files
 
@@ -50,11 +50,10 @@ referenceable credential materialized as a Kubernetes Secret).
   optional `password` slot in its `featuresSchema`. When no credential is
   attached (the base Aggregate), the Recipe renders the cache with
   authentication disabled — byte-identically to a Recipe with no slot. When a
-  credential is attached, the injected value is wired per target: on Compose it
-  surfaces as the `VALKEY_PASSWORD` environment variable; on Kubernetes the
-  synthesized helm path materializes it as a Secret the Deployment references,
-  starting Valkey with `--requirepass` so the server actually requires the
-  password.
+  credential is attached, both targets start Valkey with `--requirepass`, so the
+  server requires the password: on Compose the value reaches the server through
+  the image's `VALKEY_EXTRA_FLAGS` variable; on Kubernetes the synthesized helm
+  path materializes it as a Secret the Deployment references.
 
 ## Build
 
@@ -79,7 +78,15 @@ Rendered artifacts land under `dist/`.
 
 On the Compose path the credential is an inject-value secret
 (`aggregate-auth.yaml`): its value is delivered on the component's environment
-pipe and becomes the `VALKEY_PASSWORD` service environment variable.
+pipe under the variable its `values.key` names, `VALKEY_PASSWORD`, and the
+Recipe hands it to the server as `--requirepass` through the image's
+`VALKEY_EXTRA_FLAGS` variable, so it appears in the service's environment but
+not on its command line. The image's start-up script expands that variable
+unquoted, so a password holding a space stops the server at start, and one
+holding `*`, `?` or `[` is matched against file names in the server's data
+directory, so write the password without either. A
+password attachment whose value reaches the Recipe under no variable it reads
+halts the build, naming the slot, rather than rendering an unprotected cache.
 
 The synthesized helm path uses a referenceable credential
 (`aggregate-helm-synth-auth.yaml`): the value is materialized as a Kubernetes
