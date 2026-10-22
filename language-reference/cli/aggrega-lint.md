@@ -12,6 +12,8 @@ The entity path may be given positionally or with `--entity <path>`. `--release`
 
 `aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at `warn` severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift.
 
+A YAML file under a catalog directory is an Aggrega document when one of its lines starts, unindented, with `apiVersion:` and a value beginning `aggrega.ai/`, quoted or not. An Aggrega document that cannot be read, whose YAML does not parse, or whose `kind`, `metadata` or `spec` is not the shape an entity's envelope takes — a `metadata` written as a list, say — halts the run with [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) once the directories have been read, naming every such file with the reason the read or the parser gave; nothing is linted and no `conventions checked` line is printed. Any other YAML — a Helm chart's templates, which do not parse until they are rendered, chart values, workflow definitions — is passed over. `--release` halts on such a document under its catalog directories the same way.
+
 Which directories it reads depends on the shape of the workspace:
 
 - **A workspace whose configuration gives no Release catalog directories of its own** is checked once, over its search stack: the `--catalog` directories, then `workspace.catalog_dirs`, then the `catalog` directory at the workspace root when there is one.

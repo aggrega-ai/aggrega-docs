@@ -285,7 +285,7 @@ Emitted message, listing every forbidden field the document declared rather than
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
 
-A file a build had to read yielded nothing the surface that named it could use. Either it could not be read from disk, or its bytes were parsed and did not parse cleanly. Nothing downstream runs on it, because there is no content to check against a schema, no components to place, and no template to render.
+A file a build had to read, or an Aggrega document a whole-catalog check read under the catalog directories, yielded nothing the surface that named or read it could use. Either it could not be read from disk, or its bytes were parsed and did not parse cleanly. Nothing downstream runs on it, because there is no content to check against a schema, no components to place, and no template to render.
 
 The condition names no format, and that is deliberate. Most of the files it covers are read as YAML; a Recipe's workload, values-mapping and artifact bodies are read as Go template source and are never parsed at all. A sentence promising YAML would lead a diagnostic about a template file with a claim about that file's format. Which of the two failures happened, and for what kind of file, is what the clause after the sentence says.
 
@@ -321,6 +321,13 @@ with `resolve imported schema path` in place of `read` for the rarer failure to 
 The fragment is what tells a library reference from a path: `<Library>#/mappings/<entry>` resolves against the libraries, and the same text with the fragment gone is an ordinary relative path. It is easy to lose without noticing, because a plain YAML value ends where a space before `#` opens a comment — so `$import: LibBeta:1.0.0 #/workloads/Web` reaches the build as `LibBeta:1.0.0`, and the build then looks for a file of that name beside the Recipe. Quote the whole reference to keep the fragment.
 
 The same three keys on a FeatureRecipe report the same condition and read the same way. An artifacts import is read twice over a Release's life — once when `aggrega pull` freezes its content pin, and again when the entry is rendered — so the same missing file reports this condition at whichever of the two you reach first. A shape fault in the directive itself, such as a sibling key beside `$import:` or a host-bearing `oci://` reference, is a different condition and reports under its own entry.
+
+**Whole-catalog [`aggrega lint`](../cli/aggrega-lint.md) and [`aggrega validate`](../cli/aggrega-validate.md) report here too**, for a document under the catalog directories that declares an Aggrega `apiVersion` — a line starting, unindented, with `apiVersion:` and a value beginning `aggrega.ai/` — and cannot be read, does not parse, or does not decode into the envelope the check reads, such as a `metadata` written as a list. No author wrote a path to it: the check read it because it sits in a catalog directory. Each check reads every file before it halts, so one run names every such document, and it checks nothing else and prints no summary. YAML declaring no Aggrega `apiVersion` — a Helm chart's templates among it — is passed over. The head counts the documents and names their files, and each one is listed beneath it with the read's or the parser's own reason:
+
+> `<n>` documents under the catalog directories declare an Aggrega apiVersion and could not be loaded, so nothing was checked: `<path>`, `<path>`
+> file load failed: the file could not be read, or its bytes did not parse (catalog document, failed to unmarshal YAML: `<the parser's reason>`)
+
+with `failed to decode the envelope:` and the line and what the decoder found there — `line 4: cannot unmarshal !!seq` for a `metadata` written as a list — for a document that parses and does not decode, and `failed to read file:` and the operating system's reason for a file that could not be read.
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
 

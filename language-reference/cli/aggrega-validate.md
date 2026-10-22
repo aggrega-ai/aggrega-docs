@@ -10,7 +10,7 @@ An entity path may be given positionally. `--release` given beside an entity pat
 
 ## Whole-catalog correctness (no argument)
 
-`aggrega validate` with no argument loads every catalog entity under the configured catalog directories and checks it end-to-end:
+`aggrega validate` with no argument loads every catalog entity under the configured catalog directories and checks it end-to-end. Before it loads anything it reads every YAML file under them, and an Aggrega document among them that it cannot load halts the run, as described below. Then:
 
 - **Schema-pillar structure** — each Component's and Feature's `spec.schema:` block is expanded and validated (the same schema-pillar check the build applies), including compact-form expansion.
 - **Cross-document reference resolution** — `$ref` and `$import` references into SchemaLibrary entries resolve, and a SchemaLibrary that cannot resolve or is otherwise invalid is rejected.
@@ -18,7 +18,9 @@ An entity path may be given positionally. `--release` given beside an entity pat
 - **OCI-location collisions** — two distinct catalog identities that would publish to the same registry location are rejected loudly, so a build never silently overwrites one entity's published bytes with another's.
 - **Provider input-kind capability** — a Recipe or FeatureRecipe that declares a `workload:` block bound to a provider that cannot synthesize is flagged as an error, because it can never build.
 
-This is the catalog-wide counterpart to a build's per-Release validation — the place a broken catalog entity is meant to surface, before any Release reaches it. It halts loudly on any schema-pillar violation, unresolvable or invalid library, `extends`-resolution failure, location collision, or input-kind capability error. Schema-pillar-overlap and narrowing-on-extend findings are advisory `notice:` lines that never change the exit code.
+This is the catalog-wide counterpart to a build's per-Release validation — the place a broken catalog entity is meant to surface, before any Release reaches it. It halts loudly on an Aggrega document it cannot load, and on any schema-pillar violation, unresolvable or invalid library, `extends`-resolution failure, location collision, or input-kind capability error. Schema-pillar-overlap and narrowing-on-extend findings are advisory `notice:` lines that never change the exit code.
+
+**An Aggrega document that cannot be loaded halts the run.** A YAML file under a catalog directory is an Aggrega document when one of its lines starts, unindented, with `apiVersion:` and a value beginning `aggrega.ai/`, quoted or not. One that cannot be read, whose YAML does not parse, or whose `kind` or `metadata` is not the shape an entity's envelope takes — a `metadata` written as a list, say — halts the run with [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) once the directories have been read, naming every such file with the reason the read or the parser gave; nothing is checked and no `catalog validation passed` line is printed. Any other YAML — a Helm chart's templates, which do not parse until they are rendered, chart values, workflow definitions — is passed over.
 
 Which directories it reads depends on the shape of the workspace:
 
