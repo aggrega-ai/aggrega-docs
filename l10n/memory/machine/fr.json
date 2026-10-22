@@ -1,4 +1,11 @@
 {
+  "001b4ea0394d5edc": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "001b4ea0394d5edc",
+    "status": "machine",
+    "text": "**Un build, un lint limité à une release et une validation limitée à une release confrontent la configuration de l’espace de travail à l’enregistrement.** Avant que l’un de ces rattachements ne s’exécute, `aggrega build`, `aggrega lint --release` et `aggrega validate --release` — ainsi que les mêmes opérations atteintes via `aggrega serve` et `aggrega mcp` — comparent les rattachements de verdict que nomme la configuration aux entrées que contient l’enregistrement. Un plugin dont le digest d’artefact résolu n’est pas celui enregistré est refusé plutôt qu’exécuté. Une entrée de l’enregistrement dont aucun rattachement de verdict configuré ne rend compte arrête l’exécution : une barrière qui a été relue et qui est maintenant absente laisse une sortie impossible à distinguer d’une sortie que cette barrière a approuvée, ce qui est exactement ce que quelqu’un qui lit la sortie ne peut pas voir. L’arrêt nomme le plugin et propose les deux remèdes qui diffèrent selon ce que vous vouliez — rattachez à nouveau le plugin si le retrait était une erreur, ou exécutez la mise à niveau explicite ci-dessus s’il était voulu — et il affiche cette mise à niveau prête à être exécutée. Le sens inverse — un rattachement que l’enregistrement ne contient pas encore — est la première observation décrite ci-dessus, et aucune des deux comparaisons ne s’arrête sur lui ; l’exigence de signature est la seule contrainte à laquelle un rattachement sans entrée n’échappe pas. Les trois mêmes surfaces confrontent chaque plugin qu’elles lisent depuis le cache à la signature qu’enregistre son entrée, lorsqu’elles le chargent, comme le décrit [la page du build](aggrega-build.md#the-plugin-trust-record) pour un build. Les portées de lint sur l’ensemble du catalogue et sur une seule entité ne consultent aucun enregistrement."
+  },
   "00314ef9373505ee": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -12,6 +19,20 @@
     "srcHash": "00442a956affcea6",
     "status": "machine",
     "text": "**Ce que la cible doit faire tourner.** Une requête n’est satisfaite que là où quelque chose la satisfait. Sur `helm`, c’est le contrôleur, et le compilateur ne peut pas inspecter le cluster pour savoir s’il en tourne un, si bien que les FeatureRecipes helm arrêtent le build à moins que la Release n’affirme le prérequis avec `infra.control_plane_present: true` sur l’attachement. Sur `terraform` et `cloudformation`, l’apply ou la stack génère la valeur elle-même et rien ne doit tourner au préalable."
+  },
+  "004ac1dc5e8a992a": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "004ac1dc5e8a992a",
+    "status": "machine",
+    "text": "**Artefacts source** — la `source:` distante vers laquelle une Recipe ou une FeatureRecipe donnée oriente un provider : un chart Helm (OCI ou HTTPS classique) ou un fragment Compose sur HTTPS. Chacun est récupéré, mis en cache et épinglé."
+  },
+  "0071b1823e850940": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "0071b1823e850940",
+    "status": "machine",
+    "text": "Le lockfile"
   },
   "0082c4dbd950433f": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -132,6 +153,13 @@
     "status": "machine",
     "text": "Tmpfs / emptyDir ; disparaît avec le pod"
   },
+  "0179c318d55a031d": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "0179c318d55a031d",
+    "status": "machine",
+    "text": "`localSourceDigests` — une ligne pour chaque fichier qu’une `source:` nommant un répertoire ou un fichier à côté de l’entité apporte à ce que contient une publication de l’entité, nommant le chemin du fichier à côté de l’entité et le digest de ses octets. Rien n’est récupéré pour une telle source ; le digest de ses fichiers est calculé tels qu’ils sont. Une source écrite sous forme de modèle apporte chaque fichier du répertoire de l’entité, donc chacun d’eux a une ligne."
+  },
   "018f8f3e8ff1982c": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -152,6 +180,13 @@
     "srcHash": "01ff9229ca7a19cf",
     "status": "machine",
     "text": "Exécute l’étape de pull avant le build : résout les dépendances de la Release dans le lockfile et le cache au sein du processus, puis construit à partir d’elles. C’est le même remplissage au sein du processus qu’effectue le paramètre auto_pull du workspace, activé pour un seul build sans modifier la configuration du workspace. Seul, c’est un remplissage incrémental — les pins existants sont respectés, et les références sans pin sont résolues et ajoutées"
+  },
+  "021456c7a75312a2": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "021456c7a75312a2",
+    "status": "machine",
+    "text": "Retirer la dernière entrée laisse le fichier en place et vide plutôt que de le supprimer. Un enregistrement vide ne contient rien, donc il n’épingle rien et n’arrête rien — comme l’absence d’enregistrement — et conserver le fichier fait apparaître le retrait dans son diff comme un retrait."
   },
   "0217cfc5750bfaaa": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -187,6 +222,13 @@
     "srcHash": "0290d1371c2e12b5",
     "status": "machine",
     "text": "**Qui l’écrit ?** L’architecte de plateforme (domaine 2). Il est obligatoire pour chaque composant du catalogue."
+  },
+  "029454510eaa6aa1": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "029454510eaa6aa1",
+    "status": "machine",
+    "text": "Trois choses sont transportées vers la machine déconnectée :"
   },
   "02a32c2cea3005ac": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -251,6 +293,13 @@
     "status": "machine",
     "text": "Cycles de vie Day-2 et exécution temporelle"
   },
+  "0318a4f4cf1782ae": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0318a4f4cf1782ae",
+    "status": "machine",
+    "text": "La résolution ne puise alors que dans ce que la machine contient déjà : la pile de recherche `catalog_dirs` et le cache sous `.aggrega/cache`. Avec un catalogue et un cache qui satisfont chaque référence, un pull hors ligne se termine normalement et écrit un lockfile ordinaire. Le lockfile enregistre l’URI, la version résolue et le digest de chaque dépendance, et jamais lequel de ces endroits a servi les octets — donc un pull hors ligne et un pull en ligne qui résolvent les mêmes versions écrivent le même lockfile."
+  },
   "031b6d48057d2b21": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -307,6 +356,13 @@
     "status": "machine",
     "text": "**La porte de sortie héritée (déclaration explicite) :** lorsqu’un composant hérité possède un port codé en dur et non modifiable, le Platform Architect expose explicitement un champ `port` dans la déclaration `schema:` du Component. Cela donne au Developer un moyen validé de déclarer la contrainte physique. Le compilateur transporte la valeur à travers le pipeline sans la modifier ; la Recipe la consomme via `{{ .values.port }}`."
   },
+  "0360bb629af45d7d": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0360bb629af45d7d",
+    "status": "machine",
+    "text": "**Chaque nom que le cache dérive d’une valeur est accepté à la fois par Windows, Linux et macOS.** Une coordonnée, une version, un hôte de registry ou un digest contient des caractères qu’un nom de fichier ne peut pas contenir : le `/` entre les parties d’une coordonnée, le `:` avant une version, à l’intérieur de `sha256:` et avant le port d’un registry. Chaque valeur est donc transcrite avant de devenir un nom de répertoire ou de fichier — une lettre minuscule, un chiffre, `.`, `_` et `-` sont écrits tels quels, et tout autre caractère est écrit sous forme d’échappement commençant par `+`. `core/devtool/adminer:1.0.0` à la version `1.0.0` correspond à l’emplacement `entities/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, et un emplacement nommé d’après un digest de contenu est `sha256+zx00003a<hex>`. Une lettre majuscule est échappée aussi, de sorte que deux coordonnées qui ne diffèrent que par la casse conservent deux emplacements sur un système de fichiers qui ignore la casse ; un nom que Windows réserve à un périphérique, comme `con`, voit sa première lettre échappée ; et aucun nom ne se termine par un point. Deux valeurs différentes ne partagent jamais un nom, et une valeur a le même nom sur chaque machine. `aggrega cache status` liste chaque entrée d’après les valeurs à partir desquelles ses noms ont été transcrits — une entité de catalogue d’après sa coordonnée et sa version — plutôt que d’après les noms transcrits."
+  },
   "0364d737ecb44f4b": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -334,6 +390,13 @@
     "srcHash": "03d0b5d438059230",
     "status": "machine",
     "text": "Pour une entrée `$import:` de fichier, la clé est également le nom du fichier de sortie. Le fichier importé fournit le *contenu* ; il ne fournit pas le nom, de sorte qu’un auteur qui souhaite un nom de fichier de sortie précis écrit ce nom comme clé :"
+  },
+  "03e41580973a7ad9": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "03e41580973a7ad9",
+    "status": "machine",
+    "text": "**Une dépendance nommée sans registry, dans un workspace qui ne nomme désormais aucun `default_registry`, ne peut pas être interrogée.** Sa ligne a été liée à un registry par le pull qui a enregistré sa signature, et sans registry par défaut, il n’y a aucun registry à interroger. Lorsqu’une telle ligne enregistre une signature qu’un build n’accepte pas, le nouveau pull s’interrompt avec le refus propre au build, en indiquant qu’aucun registry n’est configuré pour interroger à nouveau la ligne, et laisse le lockfile tel qu’il était. Configurer comme `default_registry` le registry d’où provient la dépendance et relancer le pull le répare."
   },
   "03f85f3bab2924e0": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -510,6 +573,13 @@
     "status": "machine",
     "text": "**Usage recommandé :** les `parameters` sont réservés à la logique cognitive de l’application qui varie d’un environnement à l’autre (p. ex. `LOG_LEVEL=debug`, `ENABLE_BETA=true`). Le dimensionnement opérationnel et les questions d’infrastructure physique — réplicas, limites de CPU, ARN AWS, noms d’hôte d’ingress — passent par le bloc `infra` de la `Release` et les overlays de frontière, ce qui garde l’`Aggregate` du développeur centré sur l’intention applicative."
   },
+  "055f89f055087ea0": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "055f89f055087ea0",
+    "status": "machine",
+    "text": "**Une composition que ces contrôles rejettent interrompt le pull.** Une arête `uses:` dont la cible ne satisfait pas le `selector:` de son socket, une Feature rattachée à un composant que son `appliesTo:` n’admet pas, et toute autre violation que ces contrôles signalent arrêtent cette commande, avec le diagnostic qu’affiche un build des mêmes documents — et l’interruption nomme chaque constat en une seule exécution plutôt que le premier seulement, de sorte qu’une passe vous remet toute la liste à corriger. Elle survient avant l’écriture, donc `<release-stem>.lock` et `plugins-trust.yaml` restent exactement tels qu’ils étaient, et une Release qui ne se compile pas n’est jamais enregistrée comme une Release résolue proprement. Ce que cela ne couvre pas, ce sont les rattachements qui renvoient un verdict : aucun rattachement `ir-verdict` ou `render-verdict` ne s’exécute ici, donc un verdict de rejet arrête le build, le lint limité à une release ou la validation limitée à une release qui le déclenche, plutôt que cette commande."
+  },
   "056648e04c3f5179": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -565,6 +635,13 @@
     "srcHash": "05e9dc15abca936f",
     "status": "machine",
     "text": "**Flux 5 : les annotations en cascade (métadonnées contextuelles) :** les données contextuelles larges (comme les domaines opérationnels, les namespaces ou les codes de facturation) sont gérées par des annotations en cascade, ce qui évite la pollution par diffusion de `infra`. Elles sont explicitement séparées en compartiments mémoire selon leur origine afin d’imposer des règles de consommation strictes :"
+  },
+  "05fb65553b8ba580": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "05fb65553b8ba580",
+    "status": "machine",
+    "text": "`aggrega pull --verify` effectue la même comparaison. Il n’écrit aucun des fichiers qu’un pull commite, donc il n’adopte rien ; il indique si ces fichiers décrivent toujours ce qu’un pull résoudrait aujourd’hui, et l’enregistrement est l’un d’eux. Il confronte aussi la signature de chaque entrée à celle que donne la vérification du plugin par le pull lui-même, et signale une entrée dont un pull enregistrerait, remplacerait ou retirerait la signature — ainsi qu’un plugin pour lequel l’enregistrement ne contient aucune entrée là où un build le refuse faute de signature enregistrée — comme le décrit [Il compare les signatures enregistrées, dans les deux fichiers](#it-compares-the-recorded-signatures-in-both-files)."
   },
   "06043789bfc1945f": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -895,6 +972,13 @@
     "status": "machine",
     "text": "Non modifiable par l’utilisateur ; les annotations à préfixe nu déclarées dans le contenu utilisateur sont rejetées au moment de la publication"
   },
+  "092c2625b5f81f90": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "092c2625b5f81f90",
+    "status": "machine",
+    "text": "**Un épinglage désigne des octets, pas un emplacement, donc une entrée de cache qui ne contient plus son épinglage est ignorée plutôt que considérée comme fiable.** Une entité modifiée sur place — un nouveau corps sous la même `version` — laisse dans le cache de contenu le corps antérieur sous ce nom et cette version. Un répertoire de catalogue est lu en premier, donc une entité qu’un tel répertoire fournit encore est épinglée depuis son fichier et l’entrée périmée n’est jamais lue. Le rendu que le pull exécute pour découvrir les entrées externes de la Release lit chaque épinglage comme le fait un build, depuis le répertoire de catalogue qui contient les octets épinglés, et signale l’entrée ignorée avec l’avis qu’affiche [`aggrega build`](aggrega-build.md#how-a-build-reads-what-the-lockfile-pins). Lorsqu’aucun répertoire de catalogue ne fournit l’entité et qu’un registry est joignable, le pull récupère à nouveau la version épinglée, réécrit l’entrée et le signale sur la sortie d’erreur standard, en nommant l’entrée et les deux digests :"
+  },
   "095ae11710a3a921": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -1070,6 +1154,13 @@
     "status": "machine",
     "text": "Le provider compose produit un fragment par composant et nomme ce fragment d’après le composant. Le rendu depuis une source et la synthèse du Workload produisent chacun le fragment de ce composant sous ce nom unique, si bien qu’une Recipe déclarant les deux produit deux fichiers portant le même nom, et le build s’arrête sur la collision :"
   },
+  "0abca9bbff2f0332": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0abca9bbff2f0332",
+    "status": "machine",
+    "text": "**Il respecte les épinglages enregistrés exactement comme le fait un pull.** Une dépendance que le lockfile épingle se résout vers sa version épinglée et est vérifiée par rapport à son digest épinglé, et une entité qu’un répertoire de catalogue local fournit est résolue depuis ce répertoire, comme le décrit [Respecter ou mettre à jour](#honoring-vs-updating). Ainsi :"
+  },
   "0ac5d47d3f3aac7d": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -1217,6 +1308,13 @@
     "status": "machine",
     "text": "Forme de l’identifiant"
   },
+  "0c9ec9b6cec1e225": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0c9ec9b6cec1e225",
+    "status": "machine",
+    "text": "Le contenu récupéré est stocké sous `.aggrega/cache`, réparti entre une sous-arborescence `entities/` pour les entités de catalogue, une sous-arborescence `source-artifacts/` pour les artefacts sources, et une sous-arborescence `inputs/` pour les entrées externes que consomme un rendu. L’emplacement d’une entité de catalogue est nommé d’après sa coordonnée et sa version, celui d’un artefact source d’après l’endroit d’où il a été récupéré, sa version et un préfixe du digest de son contenu, et celui d’une entrée externe d’après le digest de son contenu ; ce qu’un build lit dans chacun d’eux est vérifié par rapport à ce qu’enregistre le lockfile. Des épinglages de version identiques partagent donc un emplacement entre plusieurs Releases. Chaque emplacement d’artefact source contient l’archive faisant autorité, une extraction régénérée et un petit fichier de métadonnées ; l’extraction est régénérée à chaque lecture, donc la sortie du build dépend de l’archive et du lockfile, pas de l’état des fichiers extraits."
+  },
   "0cb7477e3b600896": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -1237,6 +1335,13 @@
     "srcHash": "0cc98516467d04ff",
     "status": "machine",
     "text": "**Où vous fixez la limite.** Le protocole lui-même ne définit aucune autorisation par tool — son authentification porte sur la question de savoir si un client peut se connecter, et non sur les tools qu’il peut ensuite appeler. La décision d’autorisation se trouve dans votre client MCP. Les clients largement utilisés peuvent généralement autoriser et refuser des tools individuels d’un même serveur par leur nom, et désactiver entièrement un serveur pour un projet donné ; le nom et l’emplacement du paramètre diffèrent selon le client, consultez donc la documentation de votre client sur les autorisations des tools. Si vous voulez les lectures et non les écritures, autorisez-y les tools que vous voulez et refusez le reste. Une configuration permissive, ou un client sans un tel paramètre, laisse appelable chaque tool exposé."
+  },
+  "0cf938d0a4c7e5fb": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0cf938d0a4c7e5fb",
+    "status": "machine",
+    "text": "**Les marqueurs de dépréciation ne sont pas comparés.** Un marqueur attaché à un artefact après le pull relève de l’état du registry, et il évolue sans que rien ne change dans le workspace ; une vérification qui échouerait à cause de lui ferait échouer un contrôle portant sur des fichiers que vous n’avez pas touchés. Pour la même raison, un marqueur enregistré avertit un build plutôt que de l’arrêter. Un pull peut donc enregistrer un marqueur sur une entrée qu’une vérification a validée."
   },
   "0cfbbc374054e156": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -1300,6 +1405,13 @@
     "srcHash": "0d8bc57ebec698fd",
     "status": "machine",
     "text": "À chaque démarrage, `aggrega` ajoute une commande pour chaque commande qu’apporte un plugin `cli` configuré, en lisant les commandes et leurs flags dans l’auto-description `describe()` du plugin — depuis le cache de describe lorsqu’il contient le digest épinglé du plugin, et sinon en interrogeant le plugin. Chaque flag déclaré est déclaré sur sa commande, de sorte que `aggrega help <command>` le liste comme il liste les flags d’une commande intégrée ; le plugin reçoit tout de même ses arguments non analysés et lit lui-même ses flags."
+  },
+  "0d9062b7036f1e77": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "0d9062b7036f1e77",
+    "status": "machine",
+    "text": "**`--upgrade` est refusé purement et simplement dans ce mode, et c’est la seule option ici qui l’est.** Une actualisation complète fait flotter chaque dépendance vers la version la plus élevée qu’un registry propose actuellement, elle doit donc demander à un registry ce qu’il sert actuellement. Un pull ordinaire, non : il respecte les épinglages qu’il enregistre déjà, ne résout que ce qui n’en a pas, et peut donc être satisfait à partir de ce que contient la machine. Le refus indique lequel des trois endroits a activé le mode et comment autoriser le réseau pour une exécution."
   },
   "0dac54d5ba9eec68": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -1567,6 +1679,13 @@
     "status": "machine",
     "text": "Le bloc `containers.<name>.attachments` du Workload *fait référence* à des slots déclarés par le `featuresSchema` du Component ; il ne déclare pas de nouveaux slots. Voir [../language-reference/entities/component.md](../language-reference/entities/component.md) pour la surface d’authoring de `featuresSchema`."
   },
+  "112b2b76b9bec12b": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "112b2b76b9bec12b",
+    "status": "machine",
+    "text": "Commitez `<release-stem>.lock` avec la Release, comme vous commitez tout manifeste de dépendances épinglées. Un diff du lockfile montre aux relecteurs exactement quelles versions et quels digests de dépendances ont changé ; un changement de digest d’une bibliothèque nomme les consommateurs qu’il affecte."
+  },
   "112ea6fb107ca234": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -1812,6 +1931,13 @@
     "status": "machine",
     "text": "Désactiver la sortie colorisée (alias de --color=never)."
   },
+  "13ac8224b783a675": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "13ac8224b783a675",
+    "status": "machine",
+    "text": "**Il lit et remplit le cache comme le fait un pull.** Une entrée que le cache contient sous son épinglage — une entité de catalogue, ou le `.wasm` d’un plugin — est lue depuis le cache sans interroger de registry, ce qui permet à une vérification de s’exécuter en [mode hors ligne](#offline) sur un workspace qu’un pull connecté a rempli. Une entrée que le cache ne contient pas est récupérée, comme un pull la récupère, et une entrée qui ne correspond plus à son épinglage est traitée exactement comme un pull la traite. Une vérification peut donc ajouter au cache, et elle ne déplace jamais un épinglage."
+  },
   "13baf5f7af1fadfe": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -1951,6 +2077,13 @@
     "srcHash": "154d6ef221ef940e",
     "status": "machine",
     "text": "**Origine.** Un champ écrit explicitement l’emporte sur un champ apporté par une expansion pilotée par les annotations, quelle que soit la portée d’où provient chacun."
+  },
+  "15575197fe63bcf4": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "15575197fe63bcf4",
+    "status": "machine",
+    "text": "**Une source distante dont les coordonnées sont renseignées à partir d’un modèle** — une `version` lue depuis `.infra`, par exemple. L’artefact qu’elle nomme est décidé par chaque Release qui utilise l’entité, donc chaque version vers laquelle elle se résout est épinglée dans le lockfile de cette Release, et rien la concernant n’est écrit à côté de l’entité."
   },
   "155a74078fa90b43": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -2358,6 +2491,13 @@
     "status": "machine",
     "text": "**Release** exécute l’intégralité du pipeline de compilation jusqu’à l’IR — résolution, expansion des annotations, exécution des gardes, construction de la topologie, construction de l’IR — et rend l’arbre des nœuds par boundary avec les rattachements de Feature de chaque nœud et leur provenance. Les rattachements de gouvernance qui façonnent le graphe s’exécutent dans ce pipeline au lieu d’être ignorés pour une vue, de sorte que ce que vous lisez reflète ce qu’ils ont décidé : les labels d’un rattachement `label-transform` sont en place avant que quoi que ce soit ne soit comparé à eux, et les annotations injectées par un rattachement `annotation-transform` se développent en rattachements de Feature exactement comme une annotation que vous avez rédigée. Un rattachement dont cette commande ne peut pas résoudre le plugin l’arrête, plutôt que de vous laisser un graphe dessiné sans les décisions de ce plugin. `--raw` émet le fichier de la Release tel quel, sans pipeline. `--closure` pose une question différente sur la même Release et n’exécute aucun pipeline ; voir [La clôture de dépendances : `--closure`](#the-dependency-closure---closure)."
   },
+  "1967948fcc311909": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "1967948fcc311909",
+    "status": "machine",
+    "text": "Une dépendance que le cache contient et dont le lockfile n’enregistre pas la signature exigée, ou dont un build n’accepte pas la signature enregistrée, interrompt le pull avec le refus hors ligne, en nommant la dépendance : enregistrer la signature implique d’interroger son registry, comme le décrit [Respecter ou mettre à jour](#honoring-vs-updating). Autoriser le réseau pour cette seule exécution l’enregistre. Une signature enregistrée qu’un build accepte n’est pas consultée à nouveau, elle n’arrête donc pas un pull hors ligne."
+  },
   "19a8e39dbffcb374": {
     "at": "2026-10-22T08:20:04.359Z",
     "job": "session-0025-20261022082004",
@@ -2547,6 +2687,13 @@
     "status": "machine",
     "text": "**AWS SAM et le Serverless Framework** traduisent statiquement une spécification YAML en ressources de fonctions serverless et de passerelles d’API — un sous-ensemble ciblé de l’espace d’artefacts que le socket d’Aggrega peut cibler."
   },
+  "1bc06cfcba50def7": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "1bc06cfcba50def7",
+    "status": "machine",
+    "text": "**Un rattachement dans un rôle qui façonne le graphe s’exécute pendant cette passe, donc un plugin qui ne se résout pas interrompt le pull.** Un rattachement `label-transform` décide des labels des nœuds avant que quoi que ce soit ne soit comparé à eux, et un rattachement `annotation-transform` injecte des annotations qui se développent en rattachements de Feature — tous deux modifient ce que contient le graphe, donc dessiner le graphe implique de les déclencher, et les déclencher implique de disposer des octets propres à chaque plugin. Un plugin dont cette passe ne peut obtenir les octets interrompt l’exécution, en nommant le plugin et ce qui n’a pas pu être trouvé pour lui — le même refus qu’oppose un build du même workspace lorsqu’il ne peut pas les obtenir. Ce qu’elle déclenche est la liste de rattachements que cette passe vient de résoudre, avec les paramètres et les fichiers de définition que le lockfile enregistre pour qu’un build ultérieur les reconstitue, de sorte que les deux passes exécutent le même rattachement sur la même entrée."
+  },
   "1bc21c6725959e80": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -2631,6 +2778,13 @@
     "status": "machine",
     "text": "**Niveau 2 — Workspace et cache.** Une référence sans préfixe de chemin local explicite est d’abord recherchée dans les répertoires listés dans `workspace.catalog_dirs` (des arborescences de catalogue locales au projet, rédigées dans le dépôt ou copiées dans celui-ci — voir le §4 pour la forme de la configuration) — ou, pour une Release à laquelle la configuration attribue ses propres répertoires sous `workspace.releases`, dans ceux de cette Release — puis dans le répertoire `catalog/` de la racine du workspace, puis dans `artifact_cache_dir` (l’emplacement `.aggrega/cache/`, ignoré par git, qui contient les artefacts récupérés lors de résolutions de niveau 3 antérieures, et dont le §4 décrit les sous-arborescences). C’est l’accès au cache à partir du deuxième build qui permet à la boucle interne de se passer du réseau, même lorsque le projet dépend de contenu de catalogue distant."
   },
+  "1c5442eadb75d0d2": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "1c5442eadb75d0d2",
+    "status": "machine",
+    "text": "C’est délibéré et non une lacune, et il n’existe aucun interrupteur pour cela. Un pull qui jetterait un travail correct vous coûterait la partie qui a réussi ; un pull qui resterait silencieux vous remettrait un lockfile qui semble complet et ne l’est pas. Le signaler est la seule issue qui vous laisse en mesure d’agir : relancez le pull depuis un environnement connecté, ou depuis un environnement dont le cache contient déjà le contenu, et la même commande l’épingle."
+  },
   "1c7ad6e232342e6f": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -2701,6 +2855,13 @@
     "status": "machine",
     "text": "`hub.aggrega.ai/schemalibrary/aidatastores:1.0.0` — SchemaLibrary, définitions de schéma partagées ; le `metadata.name` en PascalCase `AIDatastores` passe en minuscules dans le nom du dépôt"
   },
+  "1d4698c2c798803b": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "1d4698c2c798803b",
+    "status": "machine",
+    "text": "**Le digest de chaque fichier importé est recalculé et comparé à sa ligne**, un fichier `boundary.artifacts` exactement comme un fichier `artifacts`. Un fichier modifié après son épinglage arrête le build avec `[CATALOG_ERROR E0026]`, en nommant l’artefact comme le nomme sa ligne, le fichier importé et les deux digests."
+  },
   "1d712b8458f6fc74": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -2763,6 +2924,13 @@
     "srcHash": "1e3e7ab729bc3db1",
     "status": "machine",
     "text": "**Que la liste des tools est toute la surface** — chaque tool que propose ce serveur s’y trouve, et les tools que propose un serveur dépendent de la manière dont il a été configuré, de sorte qu’un assistant lit ce qui est présent dans cette liste et dans `describe-capabilities` au lieu d’en chercher une seconde. Lorsque la connexion a présenté des informations d’identification, elles indiquent que ce sont ces informations d’identification qui décident lesquels de ces tools un appel peut exécuter, et jamais lesquels sont listés : un appel qu’elles n’admettent pas est refusé en nommant le scope qui l’admettrait, et le client peut se reconnecter pour ce scope."
+  },
+  "1e42ca3d8bb9f5ca": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "1e42ca3d8bb9f5ca",
+    "status": "machine",
+    "text": "**Une chose qu’un aperçu avec épinglage ne peut pas toujours montrer en entier, et il le dit quand cela arrive.** Un pull à qui l’on demande d’épingler réécrit l’`entity.lock` à côté de chaque Recipe et FeatureRecipe puis effectue le rendu de la Release pour découvrir ses entrées externes ; un aperçu laisse ces verrous en l’état, donc là où un épinglage qui y est enregistré est devenu périmé — vous avez modifié un fichier importé depuis qu’il a été épinglé, par exemple — ce rendu est confronté au digest périmé que le verrou non écrit enregistre encore, et s’arrête. Tout le reste du rapport est exactement ce qu’un pull écrirait ; seuls les épinglages d’entrées externes du lockfile signalé sont incomplets. L’exécution le dit à la fois dans sa sortie et dans ses diagnostics plutôt que de vous remettre un lockfile qui semble complet. Une première résolution d’un workspace n’est pas concernée, car il n’existe encore aucun digest enregistré par rapport auquel quoi que ce soit pourrait être périmé."
   },
   "1e45fef09f5c87bb": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -2987,6 +3155,13 @@
     "srcHash": "206d713ad48a95b0",
     "status": "machine",
     "text": "Sémantique"
+  },
+  "208f3cd60ccbf5ea": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "208f3cd60ccbf5ea",
+    "status": "machine",
+    "text": "Une Recipe ou une FeatureRecipe peut dépendre d’octets extérieurs à son propre document : un chart ou un fragment récupéré depuis une `source:` distante, un fichier qu’une entrée `artifacts` — ou une entrée du `boundary.artifacts` d’une Recipe — apporte avec `$import`, ou les fichiers d’une `source:` qui nomme un répertoire ou un fichier à côté d’elle. Le digest de chacun d’eux est enregistré dans un fichier nommé `entity.lock`, dans le même répertoire que le fichier de l’entité. Le fichier d’entité que vous avez écrit n’est jamais modifié ; ce qui en a été dérivé vit à côté. Le [schéma du lock d’entité](../schema/other/entity-lock.md) décrit le fichier champ par champ."
   },
   "20953a37662c57ad": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -3373,6 +3548,13 @@
     "status": "machine",
     "text": "Parmi les cinq mots-clés structurels, `inject` a une forme différente des autres. `parameters`, `values`, `uses` et `infra` sont des états déclaratifs — le développeur écrit des faits sur ce qu’est l’application et ce dont elle dépend. `inject` est une commande impérative — le développeur dicte *comment* une valeur doit être livrée au conteneur en cours d’exécution, en mappant des sources de données abstraites (les clés `provides` d’une cible, les valeurs propres du composant, la réponse du coffre d’une Feature d’identifiants) sur des mécanismes de livraison concrets (`env`, `file`, `arg` ou un mécanisme personnalisé que le Component déclare)."
   },
+  "23e6b3deac4b32fc": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "23e6b3deac4b32fc",
+    "status": "machine",
+    "text": "**Une entrée externe est la seule chose qui n’interrompt pas, et elle le signale à la place.** Le rendu qui les trouve ne peut pas récupérer ce qui n’est pas déjà stocké, donc un pull hors ligne sur une Release avec une entrée externe non épinglée se termine, écrit chaque épinglage de dépendance qu’il a résolu, et signale trois choses : que le rendu n’a pas abouti, ce qu’il a épinglé, et qu’un build de cette Release s’interrompra en nommant l’URL. Les épinglages de dépendances qu’il a écrits sont corrects — rien en eux ne dépendait du rendu — ils sont donc conservés plutôt que jetés pour qu’un lecteur les reproduise."
+  },
   "23f18ea7b9488556": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -3743,6 +3925,13 @@
     "srcHash": "27346a0259ee0361",
     "status": "machine",
     "text": "Le compilateur Aggrega s’appuie sur un registre strictement typé, inspiré d’OAM, pour résoudre l’intention abstraite du développeur (Domaine 1) en une réalité Ops concrète (Domaine 3). Pour prendre en charge un écosystème ouvert et distribué tout en préservant une expérience de développement fluide, l’ensemble des schémas, liaisons d’infrastructure, politiques programmables et plugins adaptateurs suit une taxonomie d’URI standardisée de l’Open Container Initiative (OCI). Comme chaque entité du catalogue est adressable par URI, le compilateur les récupère à la demande pendant la compilation. Le workspace local du développeur ne contient que ses fichiers Aggregate et Release, et non une copie du catalogue."
+  },
+  "274304c015845f75": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "274304c015845f75",
+    "status": "machine",
+    "text": "**Une entité de catalogue nommée sans registre est récupérée via le `default_registry` de l’espace de travail, et un chemin de dépôt que contient cette valeur par défaut est l’endroit d’où elle est récupérée.** Avec `default_registry: ghcr.io/acme`, `core/api-server` est récupéré depuis `ghcr.io/acme/component/core/api-server` — là où [`aggrega push`](aggrega-push.md) le publie via la même valeur par défaut — et c’est là que sa signature est recherchée. Le chemin n’indique que l’emplacement : la signature qu’exige un pull, les clés et identités auxquelles il fait confiance et l’identifiant qu’il présente sont ceux conservés pour l’hôte, de sorte que l’entrée `registries` pour `ghcr.io` régit chaque chemin sur cet hôte. Le lockfile enregistre une telle entité par son identité, sa version et ses digests, comme il enregistre une entité récupérée depuis un hôte seul. La syntaxe d’un chemin est décrite dans [comment s’écrit un hôte de registre](configuration.md#how-a-registry-host-is-written)."
   },
   "27446250729339e5": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -4164,6 +4353,13 @@
     "status": "machine",
     "text": "`<enterprise-domain>/` (par ex. `acme.com/`, `my-org.io/`)"
   },
+  "2c4650cfe230fe2c": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "2c4650cfe230fe2c",
+    "status": "machine",
+    "text": "**Ce qui parvient au cache est soumis à deux choses : la forme que décrit le schéma propre de l’entité, et l’emplacement que le cache lui attribue.** Un corps récupéré depuis un registry passe par le schéma de son type — le même contrôle que celui qui le relit — avant d’être mis en cache, donc une entité ou une bibliothèque publiée que le registry sert et que son propre schéma refuse interrompt le pull, en nommant ce qui a été récupéré, plutôt que d’être mise en cache puis rencontrée plus tard comme une anomalie. Et une valeur à partir de laquelle un emplacement de cache est construit et qui placerait un fichier en cache ailleurs qu’à l’endroit que nomme la valeur — une version qui est un chemin plutôt qu’une version, un chemin `url` de source ou un `module_subdir` qui remonte au-dessus de sa place — est refusée là où l’emplacement est construit, en nommant la valeur en cause. Une valeur écrite dans une Recipe ou une FeatureRecipe dont vous êtes l’auteur est soumise de la même manière au moment où l’emplacement de cache est construit à partir d’elle — et le `module_subdir` d’une source git plus tôt, avant que le dépôt ne soit récupéré, comme décrit ci-dessous."
+  },
   "2c4dd9c61a1d8900": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -4346,6 +4542,13 @@
     "status": "machine",
     "text": "**Agnosticisme de schéma (dictionnaire source ouvert) :** le compilateur central est mathématiquement aveugle aux couches d’exécution physiques. Il ne possède aucun schéma codé en dur pour Helm, Terraform ou Docker Compose. Le bloc `source` d’une Recipe Ops est au contraire un dictionnaire ouvert dont les clés sont définies par le fournisseur et apparaissent dans les templates de la Recipe sous la forme `.source.*`. L’orientation de conception veut que le socket Wasm de chaque fournisseur définisse et valide sa propre forme de source, afin que les entreprises puissent introduire de nouveaux outils d’infrastructure sans attendre de mise à jour du schéma central ; cette validation Wasm de la source par fournisseur n’est pas encore implémentée. Aujourd’hui, le noyau résout une source *récupérée* au moyen d’une forme intégrée `{ kind, url, version }` (kinds : `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`), ce qui découple déjà le compilateur des langages cloud qu’il manipule. Consultez la référence de `source` de la Recipe pour le modèle de récupération actuel et la forme prévue validée par Wasm."
   },
+  "2ea22211f5e27e22": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "2ea22211f5e27e22",
+    "status": "machine",
+    "text": "**Une dépendance qu’un pull hors ligne ne peut pas satisfaire localement l’interrompt.** L’entrée n’est jamais ignorée :"
+  },
   "2eae25f5a51e046a": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -4437,6 +4640,13 @@
     "status": "machine",
     "text": "Une Release qui n’émet rien ne dit rien : la clé est absente plutôt que présente et vide, de sorte que sa seule présence vous indique qu’il y a quelque chose à lire."
   },
+  "2f7de553ba83a5bc": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "2f7de553ba83a5bc",
+    "status": "machine",
+    "text": "**Une dépréciation est ajoutée à une entrée que l’enregistrement contient déjà, et ce n’est pas la même chose que la réécrire.** Si un éditeur déprécie un plugin auquel vous faites déjà confiance, le prochain `aggrega pull` enregistre le marqueur sur l’entrée existante de ce plugin — la coordonnée, la version et le digest restent intacts, car l’artefact n’a pas bougé et rien de nouveau n’est adopté. Un simple pull peut donc ajouter un bloc `deprecation`, et seule une mise à niveau explicite change jamais une identité. Un marqueur n’est enregistré que sur l’artefact que l’entrée nomme déjà, et aucun pull ne poursuit un marqueur qui a cessé d’être publié : un marqueur enregistré ne disparaît qu’avec l’entrée qui le portait, c’est-à-dire soit lorsque cette entrée est supprimée, soit lorsqu’une mise à niveau explicite résout à nouveau le plugin et ne trouve aucun marqueur sur les octets que l’entrée enregistre déjà."
+  },
   "2fa97693b70fa87b": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -4478,6 +4688,13 @@
     "srcHash": "2fdfb59424b822fa",
     "status": "machine",
     "text": "`line` et `column` — la position de cette clé, comptée à partir de un, la colonne en unités UTF-16. Absents lorsque le refus ne nomme aucune clé ou que le document ne la contient pas : une position n’est donnée que là où une position a été trouvée."
+  },
+  "2ff2d31832bec1e6": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "2ff2d31832bec1e6",
+    "status": "machine",
+    "text": "**Ce que régit ce respect, c’est ce que fournit un registry ou le cache.** Une entité qu’un répertoire de catalogue local fournit est résolue depuis ce répertoire, dans la version que déclare son fichier, et l’entrée que le lockfile enregistre pour elle n’est pas consultée au passage. Le lockfile enregistre tout de même une telle entité, vous la verrez donc là — mais modifier cette entrée à la main ne maintient pas l’entité à la version que vous avez écrite, et la réconciliation suivante réécrit l’entrée pour qu’elle corresponde au fichier. Pour changer la version d’une entité fournie localement qu’une Release résout, modifiez le fichier du catalogue plutôt que le lockfile."
   },
   "3004402c1a7a2e95": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -4563,6 +4780,13 @@
     "status": "machine",
     "text": "**Qui le consomme ?** Le moteur de politiques (un rôle de verdict de gouvernance)."
   },
+  "30df34ae4f2fb494": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "30df34ae4f2fb494",
+    "status": "machine",
+    "text": "Le cache est ancré au workspace plutôt qu’au répertoire depuis lequel vous avez exécuté la commande, donc un workspace a un seul cache, et un pull exécuté depuis un sous-répertoire remplit le même stockage que celui que lit un build exécuté depuis la racine."
+  },
   "30ea08cf83a7e3d7": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -4639,6 +4863,13 @@
     "srcHash": "31dc0cfab02e19da",
     "status": "machine",
     "text": "**L’exigence de signature est la seule exception.** N’importe quelle couche peut l’activer et aucune ne peut la désactiver, elle nomme donc la première couche qui l’active. Une couche qui écrit `required: false` n’active rien, de sorte que lorsqu’aucune couche ne l’active, le paramètre indique les valeurs par défaut intégrées."
+  },
+  "31e64ace850c7cda": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "31e64ace850c7cda",
+    "status": "machine",
+    "text": "**La signature vérifiée est enregistrée sur une entrée de la même manière, et chaque pull y répond à nouveau.** Le pull vérifie à chaque exécution la signature de chacun de ces plugins par rapport à la politique de confiance de son registre — un plugin servi par un registre est récupéré par sa version à chaque fois, puisque rien ne l’épingle — et enregistre ce qu’il a vérifié sur l’entrée du plugin, là encore sans toucher à l’identité : le mode, le signataire correspondant et le digest du bundle de signature qu’il a mis en cache, la même `signature` que porte une entrée du lockfile. Contrairement à un marqueur, la réponse remplace ce que contenait l’entrée, et là où le pull n’a vérifié aucune signature — le plugin n’en porte aucune et aucune n’est exigée, ou `skip_signature_verification` ou un registre `advisory` l’a admis — l’entrée n’en enregistre aucune. Le bundle de signature vérifié est aussi remis en cache, et une copie en cache qui ne correspond plus à son digest est réécrite. Ainsi, une entrée qui a perdu sa signature, une entrée portant une signature copiée de celle d’un autre plugin, une entrée dont le bundle de signature en cache a été supprimé ou altéré, ou un enregistrement supprimé ou écrit avant qu’une signature ne soit enregistrée, est réparé par le prochain simple `aggrega pull`. Un build confronte chacun de ces plugins à ce fait : voir [L’enregistrement de confiance des plugins](aggrega-build.md#the-plugin-trust-record) sur la page du build."
   },
   "32196f83e0058128": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -4864,12 +5095,26 @@
     "status": "machine",
     "text": "Un serveur atteint via HTTPS"
   },
+  "34d43833ef9dd714": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "34d43833ef9dd714",
+    "status": "machine",
+    "text": "Commitez `plugins-trust.yaml` avec le lockfile, pour la même raison que vous commitez le lockfile : un enregistrement conservé hors du contrôle de version est un enregistrement que personne ne peut relire et auquel rien ne peut être comparé. Commité, il constitue une déclaration partagée unique du plugin vers lequel chacun de ces rattachements s’est résolu, et un diff sur ce fichier nomme l’identité qui a changé."
+  },
   "34df62fc0905a3b3": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
     "srcHash": "34df62fc0905a3b3",
     "status": "machine",
     "text": "**Déport de la complexité.** La génération de CRD propres à un fournisseur ou un rendu complexe (objets de policy propres à un fournisseur, ressources de routage natives du provider) résident dans des plugins Wasm purs opérant sur le graphe IR plat, au lieu de transiter par des déclarations de schéma ou une logique de template au sein des définitions de composants."
+  },
+  "3528e19be6abd8fc": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "3528e19be6abd8fc",
+    "status": "machine",
+    "text": "**La Release et son lockfile.** Committez `<release-stem>.lock` à côté de la Release ; c’est lui qui indique au build vers quelle version et quel digest chaque dépendance s’est résolue."
   },
   "352c050dee9049a7": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -5031,6 +5276,13 @@
     "srcHash": "37133d59e43b946c",
     "status": "machine",
     "text": "Pour les Components et les Features, les segments d’URI correspondent 1:1 aux segments de chemin du système de fichiers. Les Components utilisent un URI à trois segments (`{publisher}/{category}/{name}`) dont le segment de catégorie porte l’une des catégories cognitives d’un ensemble fermé — le même mot que le label `component.aggrega.ai/category` du composant (le miroir 1:1 du répertoire, vérifié par la règle `category-matches-directory` du linter de publication). Les Features restent plates (`{publisher}/{name}`) — un petit ensemble, qui croît lentement. La classification ontologique opérationnelle (`stateful-server`, `server`, etc.) réside dans le label `component.aggrega.ai/type`, jamais dans la structure des répertoires ; les labels de capacité cognitive (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) y superposent des sous-ensembles comportementaux. L’interface web du hub utilise les labels pour le filtrage et la recherche ; les catégories servent à la fois à la navigation dans le système de fichiers et à l’axe de parcours du catalogue."
+  },
+  "3758b1358b1c2792": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "3758b1358b1c2792",
+    "status": "machine",
+    "text": "Par défaut, `aggrega pull` **respecte** un lockfile existant : une dépendance déjà épinglée se résout exactement vers sa version épinglée (vérifiée par rapport à son digest épinglé), seules les références pas encore épinglées sont résolues et ajoutées, et les épinglages des références que la Release n’atteint plus sont supprimés. Ainsi, un nouveau pull d’une Release inchangée ne fait rien — il reproduit le même lockfile octet pour octet (y compris `generated_at`). Ajouter une nouvelle dépendance, ou lancer un pull après qu’une modification manuelle a supprimé un épinglage, résout uniquement cette lacune et laisse tous les autres épinglages intacts."
   },
   "378cdb2f07b5915c": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -5214,6 +5466,13 @@
     "status": "machine",
     "text": "que cette donnée est un contenu secret, ou que ce point de liaison en traite"
   },
+  "39f589bde8e663a5": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "39f589bde8e663a5",
+    "status": "machine",
+    "text": "**`aggrega pull --verify` le vérifie aussi.** Un pull de vérification effectue les trois mêmes comparaisons sur les locks à côté des Recipes et FeatureRecipes qu’atteint la Release dans vos répertoires de catalogue, signale chaque épinglage qu’un build refuserait sous le même code et dans les mêmes termes, se termine avec un code non nul s’il y en a un, et n’écrit aucun lock."
+  },
   "3a0c34fef69458a5": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -5277,6 +5536,13 @@
     "status": "machine",
     "text": "**1. Domaine 1 (l’Aggregate) : l’intention du développeur** Le développeur demande une base de données Oracle héritée. Peu lui importe où elle se trouve ; il indique seulement que son agent appelant attend que la chaîne de connexion lui soit fournie sous forme de variable d’environnement. Comme l’IP est statique et connue à l’avance, il la transmet via des paramètres."
   },
+  "3a85a5fe846a347c": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "3a85a5fe846a347c",
+    "status": "machine",
+    "text": "**`--verify` en mode hors ligne couvre moins, et le signale.** Demander où pointe aujourd’hui une ref de source enregistrée implique d’atteindre son dépôt distant, ce que le mode hors ligne refuse. Un `--verify` hors ligne contrôle donc les dépendances épinglées et saute cet axe, et il affiche une ligne qui le dit plutôt que de signaler une correspondance qu’il n’a jamais établie. Une signature enregistrée que seul son registry peut confirmer — sur une entrée du lockfile dont le bundle de signature en cache a été supprimé ou altéré — est sautée de la même manière, sur une ligne qui nomme chacune de ces entrées :"
+  },
   "3a9b30d0337b5b66": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -5304,6 +5570,13 @@
     "srcHash": "3ac7a344188c2744",
     "status": "machine",
     "text": "[`aggrega auth token`](cli/aggrega-auth.md) — obtient de manière interactive un jeton d’identité OIDC et l’affiche sur stdout, pour une seule authentification valable pour un lot de signatures keyless."
+  },
+  "3ad1b63b550a5733": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "3ad1b63b550a5733",
+    "status": "machine",
+    "text": "Le lock d’entité"
   },
   "3ae13d8ec97b5aa1": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -5458,6 +5731,13 @@
     "srcHash": "3c54ea12f0419c8b",
     "status": "machine",
     "text": "Le pipeline complet s’exécute : résolution, expansion des annotations, exécution des gardes, construction de la topologie, construction de l’IR."
+  },
+  "3c592d424caa6ce3": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "3c592d424caa6ce3",
+    "status": "machine",
+    "text": "**Rien ne bouge sur le disque.** Aucun lockfile n’est écrit ni créé, aucun verrou d’entité n’est écrit ni supprimé, et aucun registre de confiance n’est créé ni modifié. Lorsqu’une capacité est fournie par plus d’un plugin de provider et que rien n’a choisi entre eux, l’exécution s’interrompt en nommant ce qu’il faut fournir plutôt que de proposer d’écrire le choix dans votre configuration — un aperçu ne modifie pas un fichier de configuration au passage."
   },
   "3c6017a1d4d3439e": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -5690,6 +5970,13 @@
     "status": "machine",
     "text": "`aggrega pin <entity-path>` enregistre, dans l’`entity.lock` à côté d’une Recipe ou d’une FeatureRecipe, le pin de contenu de chaque entrée que l’entité lit en dehors de son propre document. C’est l’étape de l’auteur de l’entité : exécutez-la avant que l’entité soit consommée ou publiée, et committez le lock qu’elle écrit."
   },
+  "3e610f038706f43e": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "3e610f038706f43e",
+    "status": "machine",
+    "text": "**Là où aucun lock n’est comparé.** Une Recipe ou une FeatureRecipe résolue depuis un registre plutôt que depuis l’un de vos répertoires de catalogue n’a aucun lock que lise un build ; ses sources sont confrontées au seul lockfile de la Release. Et une source écrite à un `ref:` git est enregistrée dans le lock au commit vers lequel ce ref s’est résolu, alors qu’un build cherche l’épinglage de la source à la version que nomme l’entité, de sorte que cette ligne n’est jamais comparée — ni par un build ni par un pull de vérification. Le lockfile épingle tout de même le commit, et chaque build vérifie l’archive en cache par rapport à lui."
+  },
   "3e629d063a9cda30": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -5822,6 +6109,13 @@
     "srcHash": "4042a0917d90647f",
     "status": "machine",
     "text": "**Interpolation de variables dans l’AST :** les développeurs relient intuitivement les composants dans leurs définitions `values` (par exemple, en référençant l’ID de map d’une base de données)."
+  },
+  "406b9120fdbf9031": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "406b9120fdbf9031",
+    "status": "machine",
+    "text": "**Un Plugin qu’une étape de pipeline nomme et que rien ne contient interrompt aussi le pull.** Chaque Plugin que nomme la `pipeline` d’une Recipe ou d’une FeatureRecipe est résolu avec les autres dépendances de la Release — depuis un répertoire de catalogue, la copie intégrée au binaire du compilateur, le cache de contenu ou le registry — et un Plugin qu’aucune de ces sources ne contient est un Plugin qu’un build ne pourrait pas charger non plus. Le pull s’arrête donc avant d’écrire quoi que ce soit, en nommant le Plugin et la Recipe ou FeatureRecipe dont le pipeline le nomme, avec la condition que soulève un build lorsqu’il atteint cette étape ([A plugin reference is not a Plugin entity (Une référence de plugin n’est pas une entité Plugin)](../errors/fatal-halts.md#a-plugin-reference-is-not-a-plugin-entity)). Cela vaut pour chaque Recipe et FeatureRecipe que le Manifest lie, y compris celle que rien dans cette Release ne rattache, car chacune est résolue et épinglée, qu’elle soit rendue ou non. Publiez le Plugin, ou placez-le dans un répertoire de catalogue avec son `.wasm` compilé à côté, puis relancez le pull."
   },
   "4074bac0e1860843": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -6054,6 +6348,13 @@
     "status": "machine",
     "text": "Une valeur qui transite par une arête `uses` est masquée selon les déclarations de la **cible**, et non du nœud consommateur, et elle est masquée sur les deux surfaces vers lesquelles l’arête la porte. `.context.uses.<alias>.provides` reproduit ce que le composant cible a publié, de sorte que ce qui régit ces valeurs est le schéma de la cible : une clé `provides` que la cible a déclarée sensible se lit comme `<redacted>` dans l’emplacement du consommateur, même lorsque le consommateur ne déclare rien du tout. Lorsque le bloc `inject` propre à l’arête achemine cette clé vers une clé de livraison du composant consommateur, `.context.inject` masque aussi cette clé de livraison — la même règle que suit déjà le mapping `inject` d’un rattachement, en lisant la même déclaration. Le masquage se fait par arête, si bien que deux arêtes publiant le même nom de clé `provides` se résolvent indépendamment : celle dont la cible l’a déclarée est masquée et l’autre s’affiche telle quelle. Le reste de l’arête — sa cible, son socket, ses labels, les noms de clés propres au mapping `inject`, ainsi que les `values` et `infra` par connexion rédigés sur l’arête elle-même — n’est pas ce que régit une déclaration `provides` de la cible, et s’affiche tel quel."
   },
+  "431ed4b9053b9ce3": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "431ed4b9053b9ce3",
+    "status": "machine",
+    "text": "Une entité de catalogue qui ne se résout nulle part interrompt le pull, en nommant la référence et l’endroit d’où elle a été référencée, de sorte que la dépendance manquante et ce qui l’a demandée sont tous deux nommés."
+  },
   "432055f7b6b1136a": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -6074,6 +6375,13 @@
     "srcHash": "434cde3757c174bb",
     "status": "machine",
     "text": "[Fonctions et helpers Sprig](templates/sprig-functions.md) — les helpers Sprig disponibles dans les templates Go, plus les extensions et les helpers de sécurité propres à Aggrega."
+  },
+  "434d5d3e066f1273": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "434d5d3e066f1273",
+    "status": "machine",
+    "text": "Cette forme sans cible abandonne chaque épinglage enregistré, elle demande donc une confirmation avant de faire quoi que ce soit. Répondez-y à l’avance avec `--yes` pour une utilisation non interactive ; si l’entrée standard n’est pas un terminal et que `--yes` est absent, elle refuse plutôt que d’attendre une réponse que personne ne peut donner. Nommer des cibles (`aggrega pull --upgrade --release <release> <uri>`) conserve chaque épinglage non nommé, donc cette forme ne demande rien. `aggrega build --upgrade` exécute la forme sans cible et est soumis aux mêmes conditions."
   },
   "4352102f9d12867b": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -6299,6 +6607,13 @@
     "status": "machine",
     "text": "Le résultat doit être un document que vous auriez pu saisir"
   },
+  "45453a603a07ea62": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "45453a603a07ea62",
+    "status": "machine",
+    "text": "`aggrega pull` résout trois types de dépendances en une seule passe :"
+  },
   "4580bded8674b90b": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -6467,6 +6782,13 @@
     "status": "machine",
     "text": "Plutôt que de s’appuyer sur une logique codée en dur dans le compilateur pour régir l’egress réseau, Aggrega délègue entièrement la sécurité du périmètre aux moteurs de politiques agnostiques de l’entreprise et aux plugins de rendu Wasm. Cela garantit que les configurations générées se conforment strictement aux approbations explicites d’egress."
   },
+  "4702dcea6359ffb0": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "4702dcea6359ffb0",
+    "status": "machine",
+    "text": "**Qui l’écrit.** Une seule étape l’écrit : [`aggrega pin`](aggrega-pin.md), que l’auteur de l’entité exécute, qui ne nécessite aucune Release et qui enregistre chaque classe d’épinglage que contient le lock. `aggrega pull --pin-sources` et `aggrega push --pin-sources` exécutent cette même étape pour le compte de l’auteur et écrivent les mêmes octets. Un pull à qui l’on n’a pas demandé d’épingler n’écrit aucun lock : pour chaque Recipe et FeatureRecipe que la Release construit à partir de vos répertoires de catalogue, il compare ce que l’étape enregistrerait avec ce que contient le lock, et s’arrête là où un épinglage manque ou ne correspond plus à son entrée, en nommant l’entité, chaque entrée et sa classe, ainsi que `aggrega pin`. Les fichiers d’une source locale sont confrontés à leurs épinglages comme un seul ensemble : un lock qui n’en enregistre aucun arrête le pull, tout comme un fichier ajouté, modifié ou supprimé depuis l’épinglage. La clé d’espace de travail `pin_sources_at_pull` fait de l’épinglage le comportement par défaut de chaque pull, et `--pin-sources=false` rétablit l’arrêt pour une exécution. L’épinglage est un devoir de l’auteur, donc un arrêt au premier pull d’un consommateur signifie que l’éditeur de l’entité ne l’a jamais épinglée ; le remède du consommateur est cette clé plutôt qu’une modification manuelle du répertoire de quelqu’un d’autre. [`aggrega pin`](aggrega-pin.md#who-pins-and-when) l’expose en détail."
+  },
   "472049bf2ba09b61": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -6494,6 +6816,13 @@
     "srcHash": "47522b28a2c1d4fb",
     "status": "machine",
     "text": "L’avis nomme la sévérité que l’éditeur a enregistrée — `warning`, `error` ou `retracted` — ainsi que la version sur laquelle le marqueur a été enregistré, la raison, le remplacement lorsqu’il en est nommé un, et la date d’émission. Les trois sévérités sont signalées. C’est un ensemble plus large que celui qui change ce vers quoi un build se résout : une version marquée `retracted` est exclue de la sélection des versions, tandis que `warning` et `error` sont consultatives et toujours sélectionnées. `inspect` vous montre ce qu’un éditeur a déclaré ; il ne décide pas de ce que vous obtenez."
+  },
+  "4762c75a5d9bb280": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "4762c75a5d9bb280",
+    "status": "machine",
+    "text": "En mode hors ligne — la clé de premier niveau `offline` dans un fichier de configuration, `AGGREGA_OFFLINE` dans l’environnement, ou [`--offline`](global-flags.md#--offline) sur la ligne de commande — `aggrega pull` refuse l’accès au réseau. Le refus se produit avant toute tentative de connexion plutôt que sous la forme d’un délai expiré au milieu d’une récupération, donc un pull hors ligne n’atteint aucun registry et aucune source distante. Lorsqu’un fichier committé ou une variable exportée a activé le mode et que vous voulez le contourner pour une commande, `--offline=false` autorise le réseau pour cette seule exécution."
   },
   "4767b72141d4d915": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -6683,6 +7012,13 @@
     "srcHash": "48c976985ebc658f",
     "status": "machine",
     "text": "Considérez `.trace/` comme contenant du matériau sensible et traitez-le comme `dist/` est traité."
+  },
+  "48c9f587fe4d4b21": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "48c9f587fe4d4b21",
+    "status": "machine",
+    "text": "**Le répertoire du cache.** Les entités, les artefacts sources et les entrées épinglées se trouvent tous sous ce répertoire, et tout ce qu’un répertoire `catalog_dirs` local ne fournit pas y est lu."
   },
   "48ca81a3a181b236": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -6901,6 +7237,13 @@
     "status": "machine",
     "text": "3. Le String Pipe : le compilateur ne peut pas déduire le sens"
   },
+  "4b64d2bd5cace720": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "4b64d2bd5cace720",
+    "status": "machine",
+    "text": "Le cache"
+  },
   "4b927f38035523a4": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -7033,6 +7376,13 @@
     "srcHash": "4d2feef7d141a10c",
     "status": "machine",
     "text": "[Composition des entrées de la Recipe](16-recipe-input-composition.md)"
+  },
+  "4d6919db2039738e": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "4d6919db2039738e",
+    "status": "machine",
+    "text": "Une signature enregistrée qu’un pull réécrirait quoi que réponde le registry est tout de même signalée hors ligne, car aucune réponse n’est nécessaire pour le savoir, comme le décrit [Il compare les signatures enregistrées, dans les deux fichiers](#it-compares-the-recorded-signatures-in-both-files)."
   },
   "4d9de3c01011b694": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -7335,6 +7685,13 @@
     "status": "machine",
     "text": "Exprimer les règles du parc dans un langage de politiques"
   },
+  "503a61d262efd582": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "503a61d262efd582",
+    "status": "machine",
+    "text": "**Le fichier n’apparaît que lorsqu’il y a quelque chose à enregistrer.** Un espace de travail qui ne rattache aucun plugin renvoyant un verdict ne résout aucune identité de ce type, donc le pull n’écrit aucun fichier et n’en dit rien — une absence, pas un fichier manquant. Lorsque le pull le crée, il nomme le fichier créé et vous indique de le commiter. Un pull ultérieur ajoute une identité que l’enregistrement ne contient pas encore et laisse chaque identité déjà enregistrée exactement telle qu’elle est."
+  },
   "505cf848734ff01a": {
     "at": "2026-10-22T08:20:04.359Z",
     "job": "session-0025-20261022082004",
@@ -7397,6 +7754,13 @@
     "srcHash": "50e31a3be16041ac",
     "status": "machine",
     "text": "**`PATCH`** — modifications portant uniquement sur la documentation ou les commentaires."
+  },
+  "50f954569dc6d9a0": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "50f954569dc6d9a0",
+    "status": "machine",
+    "text": "**Une entrée d’archive conserve le nom que lui a donné son éditeur, donc sous Windows, une entrée que Windows ne peut pas contenir est refusée.** Les fichiers que contient l’archive d’un artefact source ou d’une entité de catalogue sont disposés sous les noms que l’archive leur donne, et non transcrits par le cache. Lorsque l’extraction s’exécute sous Windows, une entrée contenant une partie que Windows ne peut pas contenir telle qu’elle est écrite — un nom qu’il réserve à un périphérique, comme `NUL` ou `aux`, quelle que soit la casse et avec ou sans extension, ou une partie se terminant par un point ou une espace — est refusée avec [`E0340`](../errors/fatal-halts.md#a-name-the-operation-writes-holds-a-part-windows-cannot-hold), en nommant l’entrée, et rien de cette archive n’est disposé. Sous Linux et macOS, une telle entrée est disposée sous le nom qu’elle porte. Une entrée qui remonte hors du répertoire de l’extraction est refusée sur chaque machine."
   },
   "51016758eacdfdc8": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -7629,6 +7993,13 @@
     "status": "machine",
     "text": "`aggrega registry` gère les registres que connaît l’espace de travail et leur politique de confiance des signatures. L’identité d’un registre est son hôte ; les sous-commandes partagent un même modèle d’adressage :"
   },
+  "52eb589f38d5529b": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "52eb589f38d5529b",
+    "status": "machine",
+    "text": "Une `source:` distante interrompt le pull, en nommant la source et en vous indiquant soit d’autoriser l’accès au réseau, soit de remplir le cache depuis un environnement connecté."
+  },
   "5300f90ac419cbae": {
     "at": "2026-10-22T13:57:55.995Z",
     "job": "session-0040-20261022135755",
@@ -7677,6 +8048,13 @@
     "srcHash": "5375e081b87ca8f2",
     "status": "machine",
     "text": "**C’est votre client qui obtient le jeton, pas vous.** Rien concernant la connexion n’est configuré dans l’entrée : le serveur répond à une requête non authentifiée en nommant le document qui indique quel serveur d’autorisation émet ses jetons, et un client qui parle le flux d’autorisation du protocole lit ce document, vous invite à vous connecter et joint le jeton qu’il reçoit à chaque requête ultérieure. Les noms des scopes qu’il peut demander sont publiés dans ce même document. Un client qui n’implémente pas ce flux ne peut pas atteindre un serveur de ce type, et rien de ce que vous ajoutez à l’entrée ne le remplace."
+  },
+  "538857e1fa1463cf": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "538857e1fa1463cf",
+    "status": "machine",
+    "text": "**Pour adopter une nouvelle identité, demandez-la par son nom :** `aggrega pull --upgrade --release <release> <plugin>`, en nommant le plugin comme le nomme votre rattachement dans `.aggrega-config.yaml`, sans suffixe de version. Cela résout à nouveau ce seul plugin et réécrit son entrée, en laissant intactes toutes les autres dépendances épinglées et toutes les autres identités enregistrées — et cela fonctionne même si le plugin n’a pas d’épinglage dans le lockfile, parce qu’une cible nommée peut aussi nommer l’un de ces rattachements. Un `aggrega pull --upgrade` sans cible, qui résout à nouveau chaque dépendance, résout à nouveau et réécrit aussi chaque identité enregistrée. Il en va de même pour `aggrega build --upgrade`, qui exécute un pull de rafraîchissement complet sans cible et n’a aucun moyen de nommer une cible unique."
   },
   "53a1e69c2ecb6757": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -8133,6 +8511,13 @@
     "status": "machine",
     "text": "La couche d’abstraction doit décrire la forme complète d’une charge de travail, et non un ensemble fixe de clés. Les trois types d’entrées décrits ci-dessous constituent cette abstraction : une Recipe compose sa sortie de manière additive à partir d’un chart ou d’un module chargé de l’extérieur (`source:`), d’une spécification abstraite de Workload que le fournisseur synthétise en manifestes natifs du fournisseur (`workload:`) et de manifestes natifs du fournisseur fondés sur des modèles que la Recipe émet directement (`artifacts:`)."
   },
+  "5767ff6e8cb25fa9": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "5767ff6e8cb25fa9",
+    "status": "machine",
+    "text": "`aggrega pull --dry-run` n’annonce rien de tout cela, parce qu’il ne modifie rien. Il liste plutôt l’enregistrement parmi les fichiers qu’il écrirait, comme le décrit [Prévisualiser ce qu’un pull écrirait](#previewing-what-a-pull-would-write)."
+  },
   "5770b6ee7db22693": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -8168,12 +8553,26 @@
     "status": "machine",
     "text": "Bien que l’architecture définisse quatre rôles distincts, ceux-ci représentent des *personas fonctionnels*, et non un effectif humain obligatoire. Dans une grande entreprise, ce sont des services distincts. Dans une petite startup, un seul développeur peut porter les quatre casquettes. Comme les domaines 2 et 3 (le catalogue et les Recipes) sont des artefacts open source partageables, un développeur seul peut opérer uniquement dans le domaine 1 (intention) en tirant parti des composants préconstruits de l’écosystème Aggrega."
   },
+  "5801387ae4e574df": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "5801387ae4e574df",
+    "status": "machine",
+    "text": "**Une dépendance qu’un nouveau pull lit depuis le cache est enregistrée exactement comme l’a enregistrée le pull qui l’a récupérée.** Sa ligne conserve la version, le `digest` du contenu et le `manifest_digest` — ce dernier tiré du manifest stocké à côté du contenu dans le cache — ainsi que la `signature` et la `deprecation` que ce pull a vérifiées auprès du registry. Rien de tout cela n’est consulté à nouveau tant qu’un build accepterait la ligne, et `--detail` signale une telle dépendance comme `cache-reuse` ; ainsi, un nouveau pull dont toutes les dépendances sont en cache, sur un lockfile qui enregistre chaque signature exigée par la configuration de confiance et uniquement des signatures qu’un build accepte, écrit le même lockfile, que le registry soit joignable ou non."
+  },
   "5809c1dabe2509aa": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
     "srcHash": "5809c1dabe2509aa",
     "status": "machine",
     "text": "Quand les adopter"
+  },
+  "582e47a3ddb0b021": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "582e47a3ddb0b021",
+    "status": "machine",
+    "text": "Les octets récupérés sont confrontés à l’épinglage comme pour toute récupération sous un épinglage, donc un registry qui sert d’autres octets sous cette version interrompt le pull, comme décrit ci-dessous. Lorsqu’aucune source ne contient les octets épinglés — aucun répertoire de catalogue ne fournit l’entité, l’entrée de cache contient d’autres octets, et aucun registry ne sert la version épinglée ou l’exécution n’en atteint aucun — le pull et `aggrega pull --verify` s’interrompent avec `E0135` — ou `E0133` lorsque le manifest de l’entrée de cache n’est pas celui qu’épingle le lockfile — en nommant chaque source lue et ce qu’elle contenait ; lorsque l’exécution n’a atteint aucun registry, l’interruption nomme aussi l’étape qui récupère à nouveau la version épinglée."
   },
   "5841b8cf57098571": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -8216,6 +8615,13 @@
     "srcHash": "5882ad6d569e31c9",
     "status": "machine",
     "text": "**10. `pipeline.aggrega.ai/mode`**"
+  },
+  "5882cc65cdfd5c37": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "5882cc65cdfd5c37",
+    "status": "machine",
+    "text": "`aggrega pull --verify --release <release>` répond à une question : exécuter `aggrega pull` maintenant modifierait-il le lockfile, ou le registre de confiance des plugins situé à côté ? Il effectue la résolution qu’effectuerait un pull, compare le lockfile et le registre avec celle-ci, et s’arrête avant que quoi que ce soit qu’un pull valide ne soit écrit — le lockfile, le registre de confiance des plugins et chaque `entity.lock` restent tels quels. Il se termine avec un code non nul si le lockfile est absent et pour toute différence, en nommant chacune. Les marqueurs de dépréciation ne sont pas comparés, comme décrit [ci-dessous](#it-compares-the-recorded-signatures-in-both-files). Il est refusé avec `--upgrade`, avec `--dry-run` et avec `--pin-sources`, quelle que soit la valeur donnée à cette option : une vérification n’enregistre pas un épinglage manquant dans un `entity.lock` et ne s’interrompt pas non plus pour lui, donc l’option ne changerait rien."
   },
   "58839e9f896dcd4d": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -8356,6 +8762,13 @@
     "srcHash": "59c9d2680056b2dd",
     "status": "machine",
     "text": "[`aggrega search`](cli/aggrega-search.md) — recherche dans l’index local des registries configurés les entités de catalogue publiées et les plugins CLI installables, à partir d’une requête en texte libre et de filtres de facettes facultatifs."
+  },
+  "59ccd7d3e40bb31e": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "59ccd7d3e40bb31e",
+    "status": "machine",
+    "text": "**Les rattachements d’une connexion sont des dépendances exactement comme ceux d’un composant.** La Feature que nomme un rattachement sur une connexion — écrit sur une entrée `uses:` d’un composant dans l’Aggregate, ou sur une entrée de connexion dans la Release — est acquise et enregistrée comme la Feature d’un rattachement écrit sur le composant lui-même, et le champ `referenced_from` de sa ligne nomme l’entrée de connexion écrite par l’auteur, se terminant par `.uses.<socket>.<alias>.features.<slot>.type`. La réalisation que le Manifest lui lie est aussi une ligne, que ce soit `features.type` qui la lie ou `features.name` indexé par le nom du rattachement, `<alias>.<slot>`. Un build confronte les deux à leurs lignes : un lockfile sans l’une d’elles arrête le build en nommant la référence et l’entrée qui la demande, et une Feature dont le contenu a changé depuis le pull l’arrête en nommant les deux digests. Voir [l’entrée de connexion de l’Aggregate](../entities/aggregate.md#a-connections-own-attachments-features-on-a-uses-entry) pour le rattachement lui-même."
   },
   "59dc8b08dc556403": {
     "at": "2026-10-22T14:15:44.761Z",
@@ -8588,6 +9001,13 @@
     "status": "machine",
     "text": "Pour intégrer ces systèmes externes en toute sécurité, Aggrega sépare strictement la **frontière de sécurité** de la **mécanique d’exécution**. La frontière de sécurité est régie par la **règle universelle du Component** et le **garde-fou explicite sur l’egress**."
   },
+  "5c6719201298548f": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "5c6719201298548f",
+    "status": "machine",
+    "text": "Une référence dont le registry a publié une version plus récente depuis le pull n’est pas une dérive. Un pull conserverait son épinglage, le lockfile est donc toujours celui qu’écrirait un pull ; `aggrega pull --upgrade` est la manière d’adopter la version plus récente."
+  },
   "5c88a272bebe873e": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -8643,6 +9063,13 @@
     "srcHash": "5d2ab756e3052d3c",
     "status": "machine",
     "text": "4. Garde-fous imposés par l’infrastructure et défense MCP"
+  },
+  "5d31e90ebe731eb1": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "5d31e90ebe731eb1",
+    "status": "machine",
+    "text": "Vérifier un lockfile sans l’écrire"
   },
   "5d39032662e99f6e": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -9316,6 +9743,20 @@
     "status": "machine",
     "text": "`config capture` — figer les paramètres critiques pour le build"
   },
+  "63fb5e203559a2ea": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "63fb5e203559a2ea",
+    "status": "machine",
+    "text": "Une ligne du lockfile modifiée à la main, une Release modifiée et une entité modifiée dans un répertoire de catalogue local sont chacune signalées, car chacune est une différence entre le lockfile et ce qu’un pull résout maintenant."
+  },
+  "64122cf92c46ca42": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "64122cf92c46ca42",
+    "status": "machine",
+    "text": "Respecter ou mettre à jour"
+  },
   "64123a9253b51eb6": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -9428,6 +9869,13 @@
     "status": "machine",
     "text": "**Contrainte 1 : les identifiants sont des attachements, pas des valeurs**"
   },
+  "65aefd1281b9c98d": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "65aefd1281b9c98d",
+    "status": "machine",
+    "text": "**Une signature exigée que le lockfile n’enregistre pas.** Lorsque la configuration de confiance exige une signature pour une dépendance que le cache fournit et que la ligne du lockfile n’en enregistre aucune — la ligne a été modifiée, le lockfile a été réécrit de zéro sur un cache rempli par un pull antérieur, ou l’exigence a été ajoutée après le pull qui a écrit la ligne — le nouveau pull demande sa signature au registry de cette dépendance, par le digest du manifest stocké à côté d’elle dans le cache, exactement comme il le fait pour une dépendance qu’il récupère, et enregistre la signature vérifiée sur la ligne. Cette ligne est celle qu’un build refuse ([No verified signature is recorded for an artifact that requires one (Aucune signature vérifiée n’est enregistrée pour un artefact qui en exige une)](../errors/fatal-halts.md#no-verified-signature-is-recorded-for-an-artifact-that-requires-one)), c’est donc un nouveau pull qui lève ce refus. Un registry qui n’attache aucune signature, ou une signature que la configuration de confiance n’accepte pas, interrompt le nouveau pull comme il interrompt un pull qui a récupéré la dépendance. Les paramètres qui permettent à un pull d’admettre une dépendance sans signature laissent une telle ligne en l’état et ne demandent rien à son sujet : `skip_signature_verification` au niveau supérieur, le même interrupteur sur l’entrée propre du registry sauf pour un type que la politique de signature de l’ensemble du workspace exige, et un registry marqué `advisory`."
+  },
   "65b0a8075bdf2cd1": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -9469,6 +9917,13 @@
     "srcHash": "65e385b1425eb453",
     "status": "machine",
     "text": "**Ce qu’une source indique sur la façon dont ses parties s’exécutent aboutit dans une ébauche de Release.** Fournir les entrées opérationnelles revient à la Release ; les importateurs MCP, Compose, CrewAI, LangGraph, Google ADK et Agent Framework ébauchent donc une `Release` à côté de l’Aggregate, que nomme son `spec.aggregate` : la Release porte ce qu’indique la source — la ligne de commande ou l’adresse d’un serveur, l’image et le port d’un serveur générique, le point de terminaison d’un modèle — et, dans des commentaires au-dessus de chaque entrée, ce que la source indique sans qu’aucune clé du Component ébauché ne le prenne, comme les volumes d’un service ou l’environnement d’une configuration. Ce qu’aucune source n’indique — l’image qui exécute le programme d’un framework, l’identifiant que présente une connexion, le `metadata.environment` et le `spec.manifest` de la Release — est nommé dans un commentaire à l’endroit voulu, pour que l’opérateur le fournisse, et le build s’arrête en nommant celui de l’image, de l’environnement et du manifeste qui n’est pas encore défini. Une ébauche de plateforme n’écrit aucune Release : le commentaire au-dessus de l’instance de la plateforme nomme ce que fournit la Release — les entrées propres à la plateforme, comme l’image qu’elle exécute ou son compte propriétaire, l’adresse de chaque serveur MCP raccordé et l’identifiant que présente chaque connexion."
+  },
+  "65f32e543ed933a5": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "65f32e543ed933a5",
+    "status": "machine",
+    "text": "Une entrée dont un build accepte la signature enregistrée, et une entrée qui n’en enregistre aucune et pour laquelle rien n’exige de signature, ne sont pas interrogées, ni par un pull ni par une vérification."
   },
   "66173ca13d9d0cf3": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -9561,12 +10016,26 @@
     "status": "machine",
     "text": "**Les commandes intégrées l’emportent toujours.** Un plugin installé ne peut jamais masquer une commande intégrée. Une protection des noms réservés, adossée à une liste de refus, protège à la fois les commandes livrées aujourd’hui et les noms réservés à de futures commandes intégrées, et une collision est refusée à l’installation au lieu de pouvoir remplacer le comportement du cœur. La surface de commandes sur laquelle s’appuie un opérateur reste stable, quoi qu’on installe par-dessus."
   },
+  "6766bfed906f2759": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "6766bfed906f2759",
+    "status": "machine",
+    "text": "**Le digest enregistré régit les plugins que l’espace de travail résout depuis le cache que remplit `aggrega pull`, et rien de ce qu’il résout autrement.** C’est la résolution que suit normalement un rattachement de verdict — rien ne l’épingle dans le lockfile, donc ses octets proviennent du cache, et c’est lors de cette lecture que le digest résolu est comparé à celui enregistré. Un plugin de verdict que l’espace de travail résout autrement n’atteint jamais cette lecture, et il est régi par ce qui régit la manière dont il s’est résolu plutôt que par l’enregistrement : des octets servis depuis la copie intégrée au binaire du compilateur sont identifiés par la version du compilateur qui les porte, un `.wasm` placé à côté de son entité de catalogue est un fichier de votre propre répertoire de catalogue, un chemin explicite du système de fichiers est le chemin que vous avez nommé, et un plugin portant un épinglage dans le lockfile est régi par cet épinglage. L’autre moitié de la confrontation d’une configuration à l’enregistrement n’est pas bornée de cette façon : chaque entrée que contient l’enregistrement doit toujours être justifiée par un rattachement configuré, quelle que soit la manière dont ce plugin se résout. L’enregistrement établit donc que les barrières qu’il nomme sont toujours rattachées, quel que soit ce qui les sert, et il établit l’identité d’artefact de celles servies depuis le cache."
+  },
   "677a2bc1bddcd994": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
     "srcHash": "677a2bc1bddcd994",
     "status": "machine",
     "text": "**Développeur**"
+  },
+  "677e3d277e596999": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "677e3d277e596999",
+    "status": "machine",
+    "text": "**Confronter une configuration à l’enregistrement établit la présence et l’identité, et rien au-delà.** Cela établit que chaque barrière que nomme l’enregistrement est toujours rattachée, et que chacune s’exécute à partir de l’artefact enregistré pour elle. Cela n’établit pas qu’une barrière qui s’est exécutée a bien renvoyé un verdict, et un cas de ce type n’est détecté nulle part : un rattachement dont la `function` nomme un export que le plugin *déclare* bel et bien, qui n’est pas l’export de verdict que lit son socket, et dont la sortie ne porte aucun champ de premier niveau hors de la forme qu’attend ce socket — l’objet vide étant le cas le plus simple — s’exécute, ne renvoie rien sur quoi fonder un rejet et laisse passer le build. Sa sortie est impossible à distinguer de celle d’une barrière qui approuve, et aucune comparaison avec l’enregistrement ne peut le remarquer, parce que rien dans l’enregistrement n’est faux : le plugin qui s’est exécuté est exactement celui enregistré, et il n’a simplement rien exécuté. Deux cas voisins provoquent bien un arrêt, de sorte que la limite n’est pas plus large qu’elle n’y paraît — une `function` nommant un export que le plugin ne déclare pas est refusée au chargement du plugin, et une sortie portant un champ de premier niveau que la forme du socket ne déclare pas est refusée plutôt que lue comme une liste de verdicts qui se trouve être vide. Une identité enregistrée ne suffit donc pas à elle seule pour qu’une barrière ait jugé quoi que ce soit."
   },
   "6789fc6e78c2da3f": {
     "at": "2026-10-22T04:35:29.973Z",
@@ -9666,6 +10135,13 @@
     "status": "machine",
     "text": "Résolution des dépendances"
   },
+  "68d4e02cc2d91145": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "68d4e02cc2d91145",
+    "status": "machine",
+    "text": "Prévisualiser ce qu’un pull écrirait"
+  },
   "68d8b7e3a2b813d7": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -9735,6 +10211,13 @@
     "srcHash": "6949a3707f16149b",
     "status": "machine",
     "text": "La vue par défaut affiche la description du Component s’il en rédige une, puis le schéma résolu (après une éventuelle fusion `extends:`) et les uses-sockets déclarés. Le Component ci-dessus ne rédige aucune description, c’est pourquoi la transcription s’ouvre directement sur le schéma. `--detail` ajoute les mécanismes de self-inject, les Features requises et les labels ; `--list` affiche uniquement l’identifiant du Component et les noms de ses sockets."
+  },
+  "69798a98e3774282": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "69798a98e3774282",
+    "status": "machine",
+    "text": "**Pour mettre à jour les versions épinglées, exécutez `aggrega pull --upgrade --release <release>`** — cette commande abandonne les épinglages existants et résout à nouveau toutes les dépendances vers les dernières versions satisfaisantes. La mise à jour est l’acte explicite ; le comportement par défaut ne fait jamais flotter une dépendance épinglée. Cela reflète la convention de `npm ci` / `cargo` / `go build` (le comportement par défaut réalise le verrou ; la mise à jour est facultative), et c’est ce qui rend sûr le pull automatique d’`aggrega build` — le build résout exactement ce qu’épingle le lockfile, sans jamais déplacer une version en silence."
   },
   "697c8a76197d1986": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -9841,6 +10324,20 @@
     "status": "machine",
     "text": "`aggrega get-schema <kind>` affiche sur la sortie standard le JSON Schema canonique d’un type d’entité ou de contrat. Le schéma est le contrat structurel de référence : les champs obligatoires, les valeurs autorisées et l’imbrication que le compilateur accepte pour ce type. Il est servi à partir des schémas intégrés au binaire, de sorte que la sortie correspond toujours à la version d’`aggrega` que vous exécutez."
   },
+  "6a9fdcfb63572549": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "6a9fdcfb63572549",
+    "status": "machine",
+    "text": "**Une entrée `artifacts` ou `boundary.artifacts` en ligne**, qui fait partie du fichier de l’entité, et **une entrée tirée d’une ArtifactLibrary**, dont le contenu est épinglé par la version de bibliothèque qu’enregistre le lockfile."
+  },
+  "6aa28b9d20713c30": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "6aa28b9d20713c30",
+    "status": "machine",
+    "text": "**Toute autre entrée qu’un pull consulterait à nouveau est interrogée,** car seule la réponse du registry indique si le pull la modifierait : une entrée dont cette vérification a récupéré les octets, et une entrée dont le bundle de signature en cache a été supprimé, est illisible ou a été altéré. La vérification interroge le registry, comme le ferait le pull, et signale l’entrée là où la réponse enregistre, remplace ou efface sa signature. Le bundle de signature qu’elle a vérifié est mis en cache comme un pull le met en cache, donc une entrée dont le bundle en cache a été supprimé, alors que son registry sert toujours la signature enregistrée, passe la vérification et laisse le cache réparé."
+  },
   "6ab390ee4fd11385": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -9910,6 +10407,13 @@
     "srcHash": "6b744b94c99de193",
     "status": "machine",
     "text": "D’où vient la réponse"
+  },
+  "6b7a97903e5b2b4a": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "6b7a97903e5b2b4a",
+    "status": "machine",
+    "text": "Deux des trois sont lus dans les documents que vous avez rédigés. Le troisième non : les entrées externes sont trouvées en effectuant le rendu de la Release, et c’est pourquoi cette commande en effectue un. Exécuter la commande ne nécessite rien de tout cela — [Comment la résolution trouve les entrées externes](#how-the-resolution-finds-external-inputs) l’explique en détail, ainsi que ce que coûte le rendu, ce qui se passe lorsqu’il ne peut pas aboutir et la façon dont un build qui remplit son propre lockfile s’y rapporte."
   },
   "6b7b154e4974dd43": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -10183,6 +10687,13 @@
     "srcHash": "6df794a296c2d468",
     "status": "machine",
     "text": "**Un appel effectue le rendu de la Release une seule fois.** Découvrir quelles références distantes une Release consomme est en soi un rendu, de sorte qu’une résolution a déjà effectué le rendu de la Release dont traite le build — à partir des épinglages mêmes qu’elle vient d’écrire, avec chaque contrôle qu’exécute un build. Le build reçoit sa réponse de ce rendu au lieu de le répéter, c’est pourquoi envoyer `auto_pull` coûte une résolution et non un second rendu. Seul un rendu qui s’est *terminé* est utilisé ainsi : lorsqu’une résolution a épinglé ses dépendances mais n’a pas pu terminer la découverte des références externes, le build effectue son propre rendu à partir des épinglages effectivement écrits, et une référence non épinglée l’arrête alors en la nommant, au lieu de revenir sous la forme d’une liste de fichiers en deçà de ce qu’émet un build."
+  },
+  "6e03fd989bb2ad27": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "6e03fd989bb2ad27",
+    "status": "machine",
+    "text": "La signature qu’un pull a vérifiée pour un artefact fait partie de ce qu’il écrit : la `signature` d’une entrée du lockfile, et celle d’une entrée de `plugins-trust.yaml` pour un plugin rattaché à un rôle de verdict. Une fois que les épinglages concordent, une vérification confronte chaque signature enregistrée à celle qu’un pull enregistrerait maintenant, et signale chacune qu’un pull enregistrerait là où aucune n’est enregistrée, remplacerait ou effacerait, sous [A recorded signature is not the one a pull would record (Une signature enregistrée n’est pas celle qu’un pull enregistrerait)](../errors/fatal-halts.md#a-recorded-signature-is-not-the-one-a-pull-would-record). Chacune de ces entrées, dans l’un ou l’autre fichier, est nommée dans la même exécution."
   },
   "6e0d26600b702e31": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -10541,6 +11052,13 @@
     "status": "machine",
     "text": "Inspecter et entretenir les caches sur disque"
   },
+  "72235162424ef3bf": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "72235162424ef3bf",
+    "status": "machine",
+    "text": "`aggrega pull --dry-run --release <release>` résout les dépendances exactement comme un pull ordinaire puis, au lieu d’écrire, affiche ce qu’il aurait écrit : un en-tête nommant le chemin de chaque fichier, suivi du contenu que ce fichier contiendrait."
+  },
   "72296e9af123d355": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -10764,6 +11282,13 @@
     "srcHash": "748dc174f4529310",
     "status": "machine",
     "text": "**Le résultat doit être un document que vous auriez pu saisir vous-même, et c’est à cette condition qu’est subordonnée l’écriture.** Le document composé est vérifié par rapport au schéma de son propre type et n’atteint le disque que si cette vérification réussit. Une requête qui produirait quelque chose que le schéma refuse est refusée, en nommant la propriété que le schéma n’admettrait pas et son emplacement, et **le fichier reste octet pour octet tel qu’il était** — une modification refusée est donc impossible à distinguer d’une modification jamais tentée, et vous pouvez relancer une requête corrigée sur le document de départ. Une entrée déjà présente qui porte ce que vous avez demandé est sans effet ; une entrée de ce nom qui porte autre chose est refusée plutôt que remplacée."
+  },
+  "749858493e08fed9": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "749858493e08fed9",
+    "status": "machine",
+    "text": "**Cette interruption et une exécution dégradée sont des issues différentes, délibérément.** Un rendu qui ne peut pas aboutir — celui que décrivent à la fois [Comment la résolution trouve les entrées externes](#how-the-resolution-finds-external-inputs) et [Hors ligne](#offline) — laisse chaque épinglage de dépendance correct, donc les épinglages sont écrits et le manque est signalé. Une composition que les contrôles rejettent n’est pas un manque dans ce qui a été résolu : c’est une Release qui ne se compile pas, donc rien n’est épinglé pour elle et l’exécution s’arrête."
   },
   "74ba57bff2d7b471": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -11002,6 +11527,13 @@
     "srcHash": "76c3ea18a0c56ae1",
     "status": "machine",
     "text": "**Azure API Management devant un modèle :** `core/gateway/azure-api-management`, l’AI gateway d’Azure API Management, un service hébergé, sert une API de modèle au moyen d’une API sur une instance API Management qui existe déjà. Sa Recipe terraform lit l’instance et ajoute l’API, son opération de chat completions, le backend vers lequel elle transfère et la politique de l’API, qui retire la clé d’abonnement de l’appelant de ce qu’elle transfère et s’authentifie auprès de l’API du modèle comme l’indique `infra.backend_authentication` : avec l’identité managée de l’instance, avec une clé de fournisseur conservée dans Key Vault, ou sans rien. Ses Recipes helm et compose référencent une API configurée en dehors de la Release et arrêtent le build à tout rattachement. Parmi les contrôles décrits ci-dessous, sa Recipe terraform réalise le cache sémantique, le budget de période, le filtrage des injections de prompt et la politique de nouvelle tentative, chacun écrit dans la politique de l’API. Elle ne réalise pas la limite de concurrence, puisque Microsoft qualifie le plafond qu’applique sa politique de concurrence de jamais tout à fait exact, et de plus bas lorsque plusieurs unités de capacité s’exécutent dans une région, ni la chaîne de repli, puisque l’API transfère vers un seul backend et que le repli propre à Azure, les groupes de priorité d’un pool de backends, écarte les requêtes ultérieures d’un backend dont le disjoncteur s’est déclenché plutôt que d’envoyer une requête en échec vers un autre modèle. Sa réalisation de `core/audit-logging` arrête chaque rattachement en nommant ce qui est hors de sa portée : le journal lui-même, qu’active un paramètre de diagnostic sur l’instance ; le coût d’une requête, tant que `require_cost` est activé, puisque le journal des requêtes de modèle d’Azure enregistre les nombres de tokens et le modèle, mais aucun prix ; et une durée de conservation, lorsque `retention_days` est indiqué, puisqu’une ligne dure aussi longtemps que l’espace de travail Log Analytics où elle aboutit la conserve. Que les politiques s’appliquent et soient appliquées comme le documente Microsoft n’est observé par aucun build."
+  },
+  "773b95142ae390ac": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "773b95142ae390ac",
+    "status": "machine",
+    "text": "**`aggrega build` confronte vos fichiers à ce lock.** Un build lit le lock et effectue trois comparaisons :"
   },
   "773bd1a40e883de2": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -11598,6 +12130,13 @@
     "status": "machine",
     "text": "L’omission se répète, avec son avertissement, à chaque invocation jusqu’à ce que la configuration épingle une version du plugin dont les déclarations sont acceptées. Les champs d’une déclaration de flag sont décrits sous `spec.commands` sur la [page de l’entité `Plugin`](../entities/plugin.md)."
   },
+  "7e3d6c3b6f71b1af": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "7e3d6c3b6f71b1af",
+    "status": "machine",
+    "text": "**Un plugin servi depuis la copie intégrée au binaire du compilateur n’est pas enregistré.** Le pull enregistre ce qu’il a *acquis* — récupéré depuis un registre ou lu depuis le cache — et rien n’est acquis depuis le binaire : ces octets sont identifiés par la version du compilateur qui les porte, donc il n’y a aucune résolution propre à enregistrer. Rattacher un plugin que le binaire porte déjà ne produit donc aucune entrée pour lui. C’est l’enregistrement qui reste cantonné aux artefacts acquis, et non une résolution qui a échoué."
+  },
   "7e465050a7d51405": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -12004,6 +12543,13 @@
     "status": "machine",
     "text": "**La porte de sortie :** si le code interne d’une application *ne peut pas* être modifié, l’architecte de plateforme expose explicitement un champ `port` dans la déclaration `schema:`. **Note d’architecture :** la convention « Zero-Port » est l’exemple le plus marquant de la **séparation des responsabilités** plus large de la plateforme. Exactement la même philosophie — éloigner la mécanique physique du développeur — s’applique aux demandes de CPU, aux limites de mémoire, aux domaines opérationnels et au dimensionnement des disques. Chaque fois qu’une contrainte d’infrastructure physique *doit* fuir dans le payload applicatif du développeur (en raison de code hérité ou d’exigences matérielles strictes), elle doit toujours être régie par une « porte de sortie » explicite dans la déclaration `schema:` de l’architecte, plutôt que d’enfreindre les règles fondamentales du compilateur."
   },
+  "84d4dd4c26cf5d01": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "84d4dd4c26cf5d01",
+    "status": "machine",
+    "text": "**Une ligne dont un build accepte la signature enregistrée n’est pas interrogée à nouveau**, pas plus qu’une ligne qui n’en enregistre aucune et pour laquelle rien n’exige de signature."
+  },
   "84dc244885597523": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -12178,6 +12724,13 @@
     "srcHash": "8667126954d199c3",
     "status": "machine",
     "text": "`position_encoding` nomme les unités dans lesquelles est mesuré le décalage de caractère indiqué : `utf-8`, `utf-16` ou `utf-32`. C’est ici un argument parce qu’aucune des deux révisions de ce protocole n’en négocie un, et sa valeur par défaut est `utf-16`, ce qu’adopte une session d’éditeur lorsqu’un client ne négocie rien — ainsi, un appelant qui ne nomme rien reçoit la même réponse sur les deux surfaces. Une valeur qui n’est aucune des trois est refusée plutôt que remplacée silencieusement par la valeur par défaut, car des décalages mesurés d’une façon et appliqués dans un tampon mesuré d’une autre corrompent le document au premier caractère hors ASCII."
+  },
+  "8675a3325220b064": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "8675a3325220b064",
+    "status": "machine",
+    "text": "**La résolution elle-même s’exécute quand même, donc le cache se remplit quand même.** Les entrées externes qu’une Release consomme sont un produit de son rendu, et une exécution qui renoncerait à résoudre n’aurait rien à signaler, donc `--dry-run` récupère et stocke exactement comme le fait un pull. Le contenu sous `.aggrega/cache` n’est lu qu’à travers les épinglages qu’enregistre un lockfile, donc le remplir ne change rien à ce qu’un build résout ; ce que montre une exécution à blanc est ce qu’un pull écrirait."
   },
   "8699d57959c42c36": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -12865,6 +13418,20 @@
     "status": "machine",
     "text": "Supprimer un identifiant de registry stocké"
   },
+  "8f04c32fb418b552": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "8f04c32fb418b552",
+    "status": "machine",
+    "text": "**Un pull pour lequel aucun workspace n’a été trouvé ni nommé est refusé avant que quoi que ce soit ne soit récupéré.** Lorsque rien ne nomme de racine et que la découverte n’ancre rien — depuis le dossier dans lequel vous l’exécutez ou, pour une Release nommée par un chemin absolu, depuis le dossier propre à cette Release — le dossier serait la racine, et un cache écrit sous celui-ci en ferait un workspace. Le pull s’arrête donc, n’écrit ni lockfile ni cache, et nomme le dossier ainsi que les deux manières d’en sortir : nommez votre workspace avec `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT`, ou donnez à ce dossier un `.aggrega-config.yaml` contenant un bloc `workspace:`. L’outil de pull d’[`aggrega mcp`](aggrega-mcp.md), appelé sans `workspace_root` sur un serveur lancé sans racine, est refusé de la même manière ; [Configuration](configuration.md#the-other-ways-a-project-root-is-recognised) liste les autres commandes pour lesquelles cela vaut."
+  },
+  "8f16746a335f0238": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "8f16746a335f0238",
+    "status": "machine",
+    "text": "**Un pull à qui l’on demande d’épingler écrit un type de fichier supplémentaire.** À côté de chaque Recipe et FeatureRecipe de vos répertoires de catalogue qui importe un fichier d’artefact, pointe vers une `source:` distante que vous avez écrite en entier ou lit une `source:` située à côté d’elle se trouve un `entity.lock` qui enregistre le digest de ce contenu. L’enregistrer est l’étape de l’auteur de l’entité, [`aggrega pin`](aggrega-pin.md), et par défaut un pull ne l’effectue pas : il confronte le lock de chacune de ces entités à ce que l’étape enregistrerait, et s’arrête là où un épinglage manque. `aggrega pull --pin-sources`, ou un espace de travail qui définit `pin_sources_at_pull: true`, exécute l’étape à la place — et l’effet d’un pull s’étend alors au-delà du répertoire où se trouve la Release, bien que les fichiers d’entité que vous avez rédigés ne soient jamais modifiés. [Le lock d’entité](#the-entity-lock) décrit ce fichier, et [Prévisualiser ce qu’un pull écrirait](#previewing-what-a-pull-would-write) montre l’ensemble complet pour votre espace de travail avant que quoi que ce soit ne bouge."
+  },
   "8f45195a9697615f": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -12970,6 +13537,13 @@
     "status": "machine",
     "text": "[Entités par rôle](entities-by-role.md) — chaque type d’entité associé au rôle qui en est généralement propriétaire, pour savoir dans quel fichier chaque préoccupation a sa place."
   },
+  "9130aecc765b5fc2": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "9130aecc765b5fc2",
+    "status": "machine",
+    "text": "**Pour retirer une identité, demandez-le aussi par son nom.** Détacher un plugin de `.aggrega-config.yaml` n’efface pas son entrée, et c’est délibéré : un simple `aggrega pull` n’en retire jamais. Exécutez `aggrega pull --upgrade --release <release> <plugin>`, en nommant le plugin comme le nomme l’enregistrement — sa coordonnée d’identité, qui est la chaîne qu’affiche l’arrêt ci-dessous — et l’entrée est supprimée, en laissant intactes toutes les autres dépendances épinglées et toutes les autres identités enregistrées. Un `aggrega pull --upgrade` sans cible supprime chaque entrée qu’aucun rattachement de verdict ne nomme plus, dans la même passe qui résout à nouveau tout le reste."
+  },
   "9140721ae54d7e48": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -13026,6 +13600,13 @@
     "status": "machine",
     "text": "Vue d’ensemble des Providers"
   },
+  "91c2d031f9a8ba03": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "91c2d031f9a8ba03",
+    "status": "machine",
+    "text": "**Il n’est pas accepté avec `--verify`,** qui n’écrit déjà aucun de ces fichiers. La paire laisserait l’option sans effet tout en donnant l’impression qu’elle a fait quelque chose, elle est donc refusée plutôt qu’ignorée."
+  },
   "91cf9ff0f5e03972": {
     "at": "2026-10-22T06:52:21.462Z",
     "job": "session-0021-20261022065221",
@@ -13053,6 +13634,13 @@
     "srcHash": "9205c2aa601fd100",
     "status": "machine",
     "text": "**Les cibles `uses` du développeur :** `target: data-layer.public_db` — référence à un composant exporté depuis un agrégat imbriqué."
+  },
+  "920b2f742354b14a": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "920b2f742354b14a",
+    "status": "machine",
+    "text": "**Le registre de confiance des plugins est confronté au même pull.** Chaque pull vérifie auprès de son registry la signature de chaque plugin rattaché à un rôle de verdict, et une vérification fait de même, en signalant une entrée dont cette vérification enregistrerait, remplacerait ou effacerait la signature. Un plugin pour lequel le registre ne contient aucune entrée est signalé là où un build le refuse parce qu’il n’enregistre aucune signature, car un pull écrit une entrée portant sa signature et le build refuse le plugin jusque-là. Tout autre est une première observation, qu’une vérification ne signale pas, de même qu’elle ne signale aucune identité que le registre ne contient pas encore. En mode hors ligne, une vérification n’interroge aucun registry sur ces plugins, et [Hors ligne](#offline) décrit ce qu’elle signale à la place."
   },
   "922267858cbcde98": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -13285,6 +13873,13 @@
     "status": "machine",
     "text": "Le mécanisme des artefacts a une seconde portée. Tout ce qui précède est écrit à la position propre du composant dans la sortie de sa boundary ; le `spec.boundary.artifacts` d’une Recipe est la même map — les trois mêmes formes, la même règle de clé à nom de fichier, le même contexte de template — écrite à la place une seule fois pour la boundary dans son ensemble. Elle existe pour un fichier que la cible lit une seule fois pour tout ce qu’une boundary déploie, et qu’aucune position propre d’un composant ne peut contenir : la documentation de Terraform indique qu’un module destiné à être appelé ne doit pas contenir de blocs `provider`, et qu’un module qui en contient ne peut pas être appelé avec `depends_on`, `count` ou `for_each` ; la configuration d’un provider appartient donc à la configuration racine de la boundary plutôt qu’au module d’un composant."
   },
+  "94458aa506dd6159": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "94458aa506dd6159",
+    "status": "machine",
+    "text": "**Le digest des fichiers d’une source locale est recalculé et comparé à leurs lignes, comme un seul ensemble**, avant que le provider ne lise la source. Un fichier modifié, ajouté ou supprimé depuis l’épinglage arrête le build avec `E0305` sous l’instance de composant dont c’est la source, en nommant chacun de ces fichiers et les deux digests ; un fichier à côté de l’entité que la source n’apporte pas n’est pas comparé. Un lock qui n’enregistre aucune ligne pour une source locale ne laisse rien à comparer, comme le décrit [A local source no longer matches the pins recorded beside its Recipe (Une source locale ne correspond plus aux épinglages enregistrés à côté de sa Recipe)](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe)."
+  },
   "9448b2ca38dc6ae2": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -13369,6 +13964,20 @@
     "status": "machine",
     "text": "Résolution du workspace et déterminisme"
   },
+  "95889f0b1c97cc5a": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "95889f0b1c97cc5a",
+    "status": "machine",
+    "text": "Ainsi, une vérification hors ligne passe sur une entrée dont un pull connecté remplacerait ou effacerait la signature — une entrée dont le signataire a été modifié à la main, par exemple, ou une entrée à laquelle son registry n’attache plus de signature — et cette ligne est la seule chose qui le signale. Une vérification sur une machine isolée du réseau reste disponible ; ce qu’elle ne vous dit pas, c’est si une ref a bougé depuis, ou si une signature sautée serait enregistrée à nouveau. Un contrôle qui ne lit que le code de sortie ne couvre ces cas que lorsque la vérification s’exécute connectée."
+  },
+  "9598ef1d747cde7d": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "9598ef1d747cde7d",
+    "status": "machine",
+    "text": "Comme cette commande est la seule étape qui accède à l’extérieur, une seule exécution connectée suffit pour rendre locaux tous les builds ultérieurs. Cette exécution écrit le lockfile et remplit le cache du workspace avec les octets que désignent ces épinglages, et un build n’a ensuite besoin de rien d’autre."
+  },
   "959d60bc8adade91": {
     "at": "2026-10-22T06:00:14.240Z",
     "job": "session-0018-20261022060014",
@@ -13417,6 +14026,13 @@
     "srcHash": "95e4fb7fbc67e350",
     "status": "machine",
     "text": "Rien de cet enregistrement. Elle ne lit que votre lockfile et jamais l’index, donc ce qu’elle indique est le marqueur enregistré pour la version que vous avez épinglée."
+  },
+  "95f05a3ec032d8a2": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "95f05a3ec032d8a2",
+    "status": "machine",
+    "text": "Ce qu’un pull donné *a fait* — si chaque entité a été récupérée à neuf depuis un registre (`fetched-fresh`), a réutilisé un emplacement du cache (`cache-reuse`), a été trouvée dans un catalogue local (`local`), a été servie depuis la copie intégrée au binaire du compilateur (`in-binary`) ou était externe (`external` : l’Aggregate ou le Manifest propre à la Release, lu depuis le fichier ou l’entrée que nomme la Release plutôt que résolu comme l’une de ses dépendances ; un Aggregate que le pull a récupéré depuis un registre est `fetched-fresh` à la place) — est un diagnostic transitoire d’événement de pull affiché sur stdout par `--detail`, et il n’est jamais écrit dans le lockfile. La source qui a servi une entité dépend de l’état local de la machine qui effectue le pull, donc la persister romprait l’identité octet par octet du lockfile d’une machine à l’autre. Il indique ce que *ce pull* a fait, ce qui est irrécupérable ensuite (une entité fraîchement récupérée est mise en cache par l’exécution suivante) ; pour l’*état* de résolution après pull des dépendances d’une Release, utilisez `aggrega inspect`."
   },
   "95f80e38f5d6a839": {
     "at": "2026-10-22T03:40:32.071Z",
@@ -13481,6 +14097,13 @@
     "status": "machine",
     "text": "`aggrega plugin add` l’applique sur chaque voie par laquelle elle résout une référence de plugin non épinglée : par rapport aux versions publiées que votre index local du registre contient déjà, et par rapport à la liste de versions en direct qu’elle consulte lorsque cet index ne contient pas le dépôt. Une version retirée est ignorée, et la substitution annoncée, quelle que soit la voie qui l’a résolue."
   },
+  "96fcdc46607b9fd9": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "96fcdc46607b9fd9",
+    "status": "machine",
+    "text": "**Chaque Recipe et FeatureRecipe que le Manifest lie est une ligne, quel que soit le niveau qui la lie.** Une réalisation que le niveau `name` du Manifest choisit pour une seule instance ou un seul rattachement est acquise et enregistrée exactement comme une réalisation que son niveau `type` choisit pour chaque instance d’un type, et le champ `referenced_from` de sa ligne nomme l’entrée qui la lie — `manifest.spec.mappings.components.name.<instance>` ou `manifest.spec.mappings.features.name.<attachment>`. Un build la confronte à cette ligne, de sorte qu’un lockfile qui ne l’enregistre pas arrête le build, en nommant la réalisation et cette entrée. Voir [Mappage d’URI plat](../entities/manifest.md#flat-uri-mapping) pour les deux niveaux."
+  },
   "971440cd7df33a1b": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -13543,6 +14166,13 @@
     "srcHash": "97b4dc49cfefad35",
     "status": "machine",
     "text": "Cette page parcourt la boucle une fois, à la fois pour une personne qui rédige à la main et pour un assistant IA qui rédige via le serveur Model Context Protocol. Les deux parcours sont la même boucle sur les mêmes sources de référence."
+  },
+  "97c4e9f299be4b6c": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "97c4e9f299be4b6c",
+    "status": "machine",
+    "text": "Une entité sans rien à épingler n’obtient aucun `entity.lock`, et l’étape, exécutée sur une entité qui n’en a plus besoin, le supprime."
   },
   "97d36b4d2439a2aa": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -13803,6 +14433,13 @@
     "status": "machine",
     "text": "**Envoyez `sync` pour mettre plutôt à jour par rapport à la source ce qu’une importation précédente a rédigé**, en ne changeant que ce que l’importation a écrit. Une synchronisation à laquelle aucun `target` n’est envoyé rédige pour la cible que nomme l’enregistrement, et rédige donc le Manifest que l’importation précédente a rédigé ; une synchronisation à laquelle un `target` est envoyé rédige pour celui-ci, et l’enregistrement le nomme ensuite. Une cible enregistrée à laquelle ne se lie aucune Recipe du catalogue est refusée comme une cible envoyée, le refus précisant qu’il s’agit de la cible enregistrée. Chaque partie est jugée de trois façons — ce que l’enregistrement dit que l’importation a écrit là en dernier, ce qui se trouve sur le disque, et ce que la source produit maintenant. Une partie que la source a laissée telle que l’importation l’avait écrite en dernier reste exactement telle qu’elle est sur le disque, qu’un auteur l’ait modifiée ou non. Une partie que la source a changée est réécrite, une partie qu’elle a abandonnée est supprimée — un fichier en brouillon effacé en entier —, et une partie qu’elle a gagnée est ajoutée à côté des parties que le brouillon nomme autour d’elle, chacune uniquement là où ce qui se trouve sur le disque est ce que l’importation a écrit en dernier et ne contient rien qu’un auteur ait ajouté. Tout le reste est conservé octet pour octet : une clé qu’un auteur a ajoutée n’importe où — un paramètre, une Feature, y compris sous une instance de Component en brouillon, un autre Component, l’environnement qu’une Release en brouillon laisse à son auteur —, un commentaire qui n’est pas écrit directement au-dessus d’une clé en brouillon, et chaque fichier que l’enregistrement ne liste pas. Le `drift` de la réponse liste chaque partie mise à jour — ou, sous `dry_run`, chaque partie qui le serait — dans l’ordre où le brouillon les nomme, chacune sous la forme `change` (`added`, `removed` ou `changed`), `file`, le fichier en brouillon où elle se trouve, et `key`, les clés qui y mènent dans un Aggregate ou une Release en brouillon, sous forme de liste, vide lorsque la partie est le fichier entier ; la réponse textuelle nomme chacune sur une ligne à part avec les mots qu’écrit `aggrega import` sur la sortie d’erreur standard, `<change> <key> in <file>` ou `<change> <file>`. Un `drift` vide sous `dry_run` indique que les brouillons sont alignés sur la source. Sous `dry_run`, les brouillons renvoyés sont les fichiers qu’écrirait la synchronisation, avec le contenu qu’elle leur donnerait. **Une synchronisation qui modifierait ou supprimerait une partie qu’un auteur a modifiée, ajouterait une partie là où un auteur en a déjà écrit une, ou supprimerait une partie contenant quelque chose qu’un auteur a ajouté est refusée**, en nommant chacune de ces parties et la raison, et rien n’est écrit ; un commentaire écrit directement au-dessus d’une clé en brouillon modifie cette clé. Une synchronisation sur un Aggregate qu’aucun enregistrement ne liste est refusée en le signalant, de même qu’une synchronisation dont l’enregistrement ne peut pas être lu, et une synchronisation dont l’importateur n’a pas pu aller au bout n’écrit rien. Une synchronisation dans un répertoire ne contenant aucun enregistrement et rien à ses chemins de brouillon écrit le brouillon entier. `drift` est une liste vide pour un appel qui n’est pas une synchronisation."
   },
+  "9a155b3d32f98737": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "9a155b3d32f98737",
+    "status": "machine",
+    "text": "**Entités du catalogue** — les Components, Features, Recipes, FeatureRecipes, bibliothèques de schémas et de mappings et plugins Wasm que la Release référence, résolus de manière transitive (via `extends:`, `implements:`, `aggregate:`, les rattachements de Feature et les sites `$import:` / `$ref:` des bibliothèques) et récupérés depuis le registre lorsqu’ils ne sont pas déjà présents localement."
+  },
   "9a4186edced0763b": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -13957,6 +14594,13 @@
     "status": "machine",
     "text": "Comme ni le build ni la publication ne vérifient la forme, un catalogue qui veut que la convention soit respectée exécute `aggrega lint` délibérément — dans un hook de pré-commit ou comme étape de pipeline. Notez qu’un constat de forme des noms est consultatif : `aggrega lint` le signale et se termine tout de même avec succès, de sorte qu’un pipeline qui veut conditionner son passage à la convention lit les constats signalés plutôt que de se fier au code de sortie."
   },
+  "9bb8ac0db709ee42": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "9bb8ac0db709ee42",
+    "status": "machine",
+    "text": "**Un `--upgrade` sans cible ne demande rien avec cette option.** La confirmation existe parce qu’une actualisation complète abandonne chaque épinglage enregistré, et qu’un aperçu n’en abandonne aucun — donc `aggrega pull --dry-run --upgrade --release <release>` est la forme à utiliser lorsque ce que vous voulez savoir, c’est ce que vous coûterait une actualisation, et elle s’exécute sans réponse."
+  },
   "9bd4a9ec1e7e5519": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -14089,6 +14733,13 @@
     "srcHash": "9d231c685a03e137",
     "status": "machine",
     "text": "Invariants architecturaux"
+  },
+  "9d275899d3fe38f4": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "9d275899d3fe38f4",
+    "status": "machine",
+    "text": "**Ce qu’il ne contient pas :**"
   },
   "9d4c24bfdd022d8d": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -14426,6 +15077,13 @@
     "status": "machine",
     "text": "Par défaut, le build est en lecture seule vis-à-vis des dépendances : il a besoin d’un lockfile et n’en écrit aucun. `--auto-pull`, ainsi que le paramètre de workspace `auto_pull`, ajoutent l’étape de pull au build, de sorte qu’une seule commande résout les dépendances de la Release et compile à partir de ce qu’elle a résolu."
   },
+  "a1794783aab72d20": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "a1794783aab72d20",
+    "status": "machine",
+    "text": "Hors ligne"
+  },
   "a17ab1ae68ecf6c6": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -14516,6 +15174,13 @@
     "srcHash": "a26e37654285af42",
     "status": "machine",
     "text": "zsh"
+  },
+  "a291e83bb8d3e8e7": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "a291e83bb8d3e8e7",
+    "status": "machine",
+    "text": "**Un enregistrement qui ne satisfait pas son schéma arrête chaque commande qui le lit** — un build, un lint limité à une release et un pull, y compris un pull qui n’a rien à enregistrer pour son propre compte. Un enregistrement vidé et un enregistrement endommagé sont délibérément différents : le vider est la manière de retirer la dernière entrée, et un enregistrement vidé reste silencieux, alors qu’un fichier dont le contenu ne s’analyse plus est une anomalie et non un enregistrement vide — le lire comme vide ferait de la troncature du fichier un moyen de désactiver la comparaison. Restaurez-le depuis le contrôle de version pour retrouver les identités relues."
   },
   "a2cf7e1ab0ffd24d": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -14628,6 +15293,13 @@
     "srcHash": "a420b552a283f8da",
     "status": "machine",
     "text": "Compiler un Aggregate et une Release en artefacts natifs du provider sous dist/ à la racine du workspace"
+  },
+  "a432d9c4a9d5fdf5": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "a432d9c4a9d5fdf5",
+    "status": "machine",
+    "text": "**Un pull refusé parce qu’une référence ne s’est résolue en rien indique d’où les entités locales sont lues, où qu’il s’exécute.** Le refus porte le compte rendu propre de l’espace de travail sur les répertoires d’où il a lu les entités locales et sur ce qu’il faut changer pour que l’entité soit lue — la note que montre [D’où les entités locales sont lues](configuration.md#where-local-entities-are-read-from) — et il le porte depuis cette commande, depuis un build qui résout d’abord ses dépendances, depuis l’outil de pull d’[`aggrega mcp`](aggrega-mcp.md) et tout autant depuis la résolution des dépendances d’un éditeur, parce que c’est la résolution qu’ils exécutent tous qui le compose. Le refus de l’outil de pull nomme aussi le code court et le code descriptif de la condition, de même qu’un terminal affiche le code court en tête du refus."
   },
   "a434af2fc7317434": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -14755,6 +15427,13 @@
     "status": "machine",
     "text": "**Sur le chemin d’un agent :** la passerelle publie un `endpoint` et un `model`, les clés que publie un composant de modèle, et porte `model.aggrega.ai/api: openai`, de sorte que le socket `model` d’un agent accepte directement la passerelle et que chaque contrôle qui y est rattaché se tient entre cet agent et les fournisseurs qui se trouvent derrière. Le `model` qu’elle publie est l’alias que nomme son `values.model`, sur lequel le build s’arrête quand aucune des deux parties de la table ne le publie ; il ne peut être omis que lorsque la passerelle sert un seul alias et qu’une entrée de `values.models` le publie, celui-ci étant alors celui qui est publié. Un appelant qui veut un autre alias publié par la table le demande par son nom au même endpoint. `core/gateway/cloudflare-ai-gateway` publie les deux mêmes clés — l’adresse de l’un des endpoints de la passerelle, composée à partir du compte Cloudflare et de l’id de la passerelle, et le modèle que demande un appelant, que la passerelle transmet sans vérification — mais ne porte aucun `model.aggrega.ai/api`, de sorte que le socket `model` d’un agent ne l’accepte pas. `core/gateway/azure-api-management` les publie aussi — l’adresse de son API, composée à partir de l’hôte de l’instance et du chemin de l’API, et le modèle que demande un appelant, transmis sans vérification — et ne porte pas non plus de `model.aggrega.ai/api` : l’API répond à la requête chat completions d’OpenAI, mais par défaut un appelant présente une clé d’abonnement API Management dans son propre en-tête au lieu du bearer token d’OpenAI, de sorte qu’un simple client OpenAI ne suffit pas pour l’appeler."
   },
+  "a610dd15837549ce": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "a610dd15837549ce",
+    "status": "machine",
+    "text": "Certains plugins que l’espace de travail rattache ne façonnent jamais la sortie rendue. Un rattachement `plugins.governance` dans un rôle `ir-verdict` ou `render-verdict`, et chaque rattachement `plugins.linter`, renvoient un verdict d’acceptation ou de rejet et rien d’autre — aucun de leurs octets n’atteint un artefact. Ils ne font donc pas partie de ce qu’un build reproduit octet pour octet, et le lockfile, qui épingle exactement cela, n’est pas le bon endroit pour eux."
+  },
   "a6539305d26db567": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -14810,6 +15489,13 @@
     "srcHash": "a695657c59e2f0d9",
     "status": "machine",
     "text": "[../language-reference/examples/04-secrets.md](../language-reference/examples/04-secrets.md) — la liste de contrôle de rédaction et des exemples complets transparent / blackbox."
+  },
+  "a696305d1d712c08": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "a696305d1d712c08",
+    "status": "machine",
+    "text": "**Une signature enregistrée qu’un build n’accepte pas.** Lorsque la ligne enregistre une signature dont le bundle de signature en cache a été supprimé ou altéré après le pull qui l’a mis en cache — ou une `signature` copiée depuis une autre ligne, dont le bundle est intact mais a été créé pour un autre artefact — un build refuse la ligne quoi que dise l’exigence de signature ([A cached signature bundle does not match the digest recorded for it (Un bundle de signature en cache ne correspond pas au digest enregistré pour lui)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Une signature enregistrée a été créée pour un autre artefact)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Le nouveau pull interroge donc à nouveau le registry de cette dépendance sur sa signature, quoi que dise l’exigence, au moyen de la même vérification que celle d’une dépendance qu’il récupère : ce que cette vérification valide remplace la signature de la ligne, et le bundle qu’elle désigne est remis en cache, une copie en cache qui ne correspond plus à son digest étant réécrite — ainsi la ligne et le cache contiennent ce qu’a laissé le pull qui a récupéré la dépendance. Une signature que la configuration de confiance n’accepte pas interrompt le nouveau pull comme elle interrompt un pull qui a récupéré la dépendance, de même qu’un registry qui n’en attache aucune là où une signature est exigée. Lorsque la vérification n’en enregistre aucune — `skip_signature_verification` là où il s’applique, qui ne demande rien, un registry qui n’attache aucune signature là où aucune n’est exigée, ou un registry `advisory` où rien n’est vérifié — la signature de la ligne est effacée, ce qu’un build admet avec les mêmes paramètres."
   },
   "a6b00d91d19c5c04": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -15028,6 +15714,13 @@
     "status": "machine",
     "text": "Installez le binaire `aggrega`, comme décrit dans [Installer le binaire](#install-the-binary). Sous Windows, gardez `aggrega.exe` dans un répertoire à vous, comme celui que crée l’exemple PowerShell de cette section, plutôt que dans un dossier système comme `C:\\Windows\\System32`, afin de pouvoir le remplacer sans droits d’administrateur."
   },
+  "a8ff0efedc6c8c47": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "a8ff0efedc6c8c47",
+    "status": "machine",
+    "text": "**Une identité résolue en désaccord avec celle enregistrée arrête le pull.** Une entrée enregistrée nomme à la fois une version et un digest, donc le changement de l’un ou de l’autre est le même événement : le plugin qui s’exécuterait n’est pas le plugin pour lequel l’enregistrement a été relu. Le diagnostic nomme le plugin, ce que contient l’enregistrement et ce que cette résolution a rapporté, sur les deux axes à la fois — et le pull s’arrête sans toucher à l’enregistrement, de sorte que l’identité relue reste là pour comparaison. Il s’arrête sur la seule version (une republication dont les octets n’ont pas changé) exactement comme il s’arrête sur le seul digest (un nouveau push à la même version)."
+  },
   "a9046fe9ab61c28d": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -15153,6 +15846,13 @@
     "srcHash": "aa255cf29b091969",
     "status": "machine",
     "text": "Quels fichiers sont livrés avec une entité"
+  },
+  "aa2d4cafd3fcff2c": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "aa2d4cafd3fcff2c",
+    "status": "machine",
+    "text": "`artifactDigests` — une ligne pour chaque entrée `artifacts` ou `boundary.artifacts` fournie par un fichier importé avec `$import`, nommant l’entrée et le digest des octets du fichier. Une entrée `artifacts` est nommée par sa clé, et une entrée `boundary.artifacts` sous la forme `boundary/<key>`, de sorte qu’une entrée de chaque bloc écrite sous une même clé est épinglée séparément."
   },
   "aa4845dcab23659e": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -15315,6 +16015,13 @@
     "status": "machine",
     "text": "*Cette grille couvre les providers distribués avec le compilateur. Un provider fourni séparément déclare de la même manière les types d’entrée qu’il accepte, s’il respecte `omits:` et s’il accepte `boundary.artifacts:`, et le compilateur lit cette déclaration par la même voie — il n’est pas listé ici, car une page publiée ne peut pas énumérer des providers qu’elle n’a jamais vus.*"
   },
+  "abc847efce7bd590": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "abc847efce7bd590",
+    "status": "machine",
+    "text": "La composition que décrivent ces épinglages"
+  },
   "abdc9d99cdeef5b1": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -15455,6 +16162,13 @@
     "status": "machine",
     "text": "[core-importers](plugins/core-importers.md) — les importeurs Langflow, Flowise et n8n du compilateur : ce que chacun lit, leurs paramètres et leur publication avec chaque release du compilateur."
   },
+  "ad5a2d61863d528d": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "ad5a2d61863d528d",
+    "status": "machine",
+    "text": "**L’emplacement d’une entité de catalogue n’est une entrée qu’avec son manifest.** L’emplacement contient le contenu qu’un registry a servi et, à côté, le manifest qui décrit ce contenu. Un emplacement qui ne contient que le contenu — une récupération interrompue entre les deux écritures, ou un fichier placé là à la main — n’est pas une entrée : un pull, et un pull de vérification, le redemandent au registry de l’entité là où il est joignable, tandis qu’un build, qui ne récupère jamais rien, traite l’entité comme manquante, comme le fait un pull lorsqu’aucun registry n’est joignable."
+  },
   "ad6a3d843b7dbe6e": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -15503,6 +16217,27 @@
     "srcHash": "add81717091d424f",
     "status": "machine",
     "text": "`resource` : infrastructure externe, gérée par la plateforme (par ex. AWS RDS PostgreSQL, des buckets S3, un bus d’événements hébergé)."
+  },
+  "ade8625d48841a07": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "ade8625d48841a07",
+    "status": "machine",
+    "text": "**Un nouveau pull consulte à nouveau une signature exactement là où un build refuserait la ligne, et il existe deux lignes de ce type.**"
+  },
+  "adf4bad2a226d5e8": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "adf4bad2a226d5e8",
+    "status": "machine",
+    "text": "**La Release est enregistrée d’après son contenu, pas seulement d’après son nom.** Tout ce que demande la Release — vers quelle version de chart une source se résout, quels composants aboutissent dans quelle frontière — est résolu à partir de ce que contient le fichier, de sorte que `release_documents` enregistre le digest de la Release et de chaque Release qu’elle étend, à côté de `release`, qui la nomme. Modifiez la Release après le pull et le build suivant s’arrête avant tout rendu, en nommant le fichier modifié et en vous indiquant de refaire un pull ; un simple `aggrega pull --release <release>` enregistre la modification tout en respectant chaque autre épinglage. Le digest couvre les octets du fichier tels qu’ils sont, donc une modification d’un commentaire ou d’espaces compte aussi, exactement comme pour l’Aggregate et le Manifest. Un fichier que la Release importe via `parameters` n’est pas enregistré ainsi."
+  },
+  "ae0f41e137da4f09": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "ae0f41e137da4f09",
+    "status": "machine",
+    "text": "**Une entité est enregistrée d’après ce que contient une publication de celle-ci.** Le digest de la ligne d’une entité couvre son document et chaque fichier qu’elle nomme à côté d’elle — la `source:` locale d’une Recipe ou d’une FeatureRecipe, chaque fichier que nomme un `$import:`, l’`entity.lock` à côté d’elle, chaque fichier de schéma qu’un Component ou une Feature importe — le même ensemble que publie [`aggrega push`](aggrega-push.md#bundling). Chaque fichier apporte son chemin et ses octets, et rien d’autre n’y contribue : ni la manière dont une archive a été compressée, ni un horodatage, ni un bit de permission, bit d’exécution compris. Une entité qui ne nomme aucun fichier est enregistrée comme ce seul document. Ainsi, la même entité enregistre le même digest qu’elle ait été lue depuis votre répertoire de catalogue ou récupérée depuis un registre, et un lockfile commité depuis un checkout se vérifie sur un autre checkout du même commit quel que soit son umask, et que le système de ce checkout enregistre ou non quels fichiers sont exécutables. Un chart modifié sous une Recipe, un fichier ajouté à une source qu’elle déclare et un `entity.lock` modifié changent chacun le digest ; un script dont le bit d’exécution a basculé, et une note à côté de l’entité que rien ne nomme, ne le changent pas. L’Aggregate et le Manifest que nomme la Release sont enregistrés de la même manière, chacun comme son unique document. Une bibliothèque est enregistrée par le digest de ses octets, qui sont son document où qu’elle soit lue."
   },
   "ae1c4d71ded11d8f": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -15657,6 +16392,13 @@
     "srcHash": "af56493229242c8a",
     "status": "machine",
     "text": "**Sans cette option, le document est écrit.** Le comportement par défaut est l’écriture, car le produit de cette commande est un document modifié et une commande qui en produit un se doit de le livrer — une requête qui ne dit rien de la livraison modifie le fichier."
+  },
+  "af5e9009eab43415": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "af5e9009eab43415",
+    "status": "machine",
+    "text": "`sourceDigests` — une ligne pour chaque `source:` distante dont vous avez écrit les coordonnées en entier, sans modèle dans `kind`, `url`, `chart`, `module_subdir`, `version` ou `ref`. La ligne porte le `kind` et l’`url` de la source, son `chart` ou son `module_subdir` lorsqu’elle en a un, la version vers laquelle elle s’est résolue — pour une source git, le commit que nommait son `ref` — et le digest de contenu de l’archive récupérée, plus le digest du manifeste pour un chart récupéré via OCI."
   },
   "af7b7946e2fcbcbd": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -15860,6 +16602,13 @@
     "srcHash": "b181f515808c3219",
     "status": "machine",
     "text": "Comme le compilateur central est agnostique vis-à-vis des mécanismes de l’infrastructure physique, il s’appuie entièrement sur des déclarations explicites dans le catalogue pour empêcher la génération de configurations incompatibles."
+  },
+  "b1a061ae442f79dc": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "b1a061ae442f79dc",
+    "status": "machine",
+    "text": "**Une machine isolée du réseau et un workspace hors ligne sont des affirmations différentes, et la différence mérite d’être conservée.** Une machine derrière une isolation réseau peut contenir une copie locale d’un registry, ou un catalogue `catalog_dirs` contenant tout ce dont elle a besoin, auquel cas un pull ordinaire sur cette machine peut être satisfait sans aucun accès à l’extérieur. Le mode hors ligne décrit ce à quoi une commande peut accéder, pas ce que contient la machine ; [Hors ligne](#offline) expose ce qu’il refuse et ce qu’il laisse en l’état."
   },
   "b1c2b73baffd3ed1": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -16960,6 +17709,13 @@
     "status": "machine",
     "text": "Plutôt que d’écrire manuellement une infrastructure-as-code complexe ou de coder en dur des ports réseau, les développeurs déclarent simplement *ce dont* leur application a besoin pour survivre. Le compilateur Aggrega génère de manière déterministe les configurations d’infrastructure physique (charts Helm, manifestes Kubernetes, Docker Compose) nécessaires à son exécution. Il traduit les demandes abstraites en artefacts statiques exacts dont l’environnement cible a besoin pour établir une sécurité imposée par le matériel, des frontières réseau zero-trust et des proxys L7 du plan de données."
   },
+  "bd1df8fc7afc5696": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "bd1df8fc7afc5696",
+    "status": "machine",
+    "text": "Le lockfile épingle chaque dépendance à son URI, à sa version résolue et à son digest de contenu. Il comporte des sections pour les entités du catalogue, les bibliothèques de schémas et de mappings (chacune portant des pointeurs inverses vers les Components et les Features qui la consomment), les plugins Wasm, les artefacts source, les entrées externes (chacune indexée par URL et portant les plugins qui l’ont demandée) et les fichiers de la Release eux-mêmes. Le fichier est écrit sous une forme canonique et déterministe."
+  },
   "bd1f324b921601f3": {
     "at": "2026-10-22T13:57:55.995Z",
     "job": "session-0040-20261022135755",
@@ -17001,6 +17757,13 @@
     "srcHash": "bde5a3857a8f069c",
     "status": "machine",
     "text": "Tous deux décident de ce qui compte en lisant le `kind` propre à chaque document, jamais son nom de fichier. Une Release nommée sans préfixe conventionnel est listée ; un fichier simplement *nommé* comme tel ne l’est pas, et apparaît sous le type qu’il déclare réellement. Un YAML qui ne déclare aucun `kind` — le fichier de valeurs d’un chart, un fichier de configuration qui se trouve dans l’arborescence — n’est pas une entité et n’est pas indiqué, pas plus qu’un document appartenant à un autre projet, comme un manifeste Kubernetes rendu. Un document compte comme entité lorsqu’il déclare à la fois un `kind` et un nom, car c’est ensemble qu’ils le rendent adressable par la suite, et qu’il ne déclare aucune `apiVersion` en dehors du groupe propre à Aggrega. Un document qui ne déclare aucune `apiVersion` est indiqué, puisqu’il s’agit d’un document Aggrega auquel il manque un champ et non du fichier d’un autre projet. `list-releases` ne parcourt aucun répertoire en dehors de la racine de l’espace de travail, de sorte qu’une Release que votre éditeur affiche sous un lien menant à un tel répertoire n’est pas listée ; `unread_linked_dirs` nomme chaque lien qui se trouve là où la liste lirait un répertoire et qui mène hors de la racine — par le chemin propre du lien relatif à la racine, jamais par sa destination —, sous les deux formes et sur les deux transports, et il est vide là où il n’y en a pas. Il ne lit pas non plus de fichier hors de la racine à travers un lien : `unread_linked_files` nomme, de la même façon, chaque lien dont le nom propre se termine par `.yaml` ou `.yml` et qui mène à un fichier hors de la racine, quel que soit le contenu de ce fichier, de sorte qu’une Release atteinte uniquement par un tel lien n’est pas listée — sauf si la configuration de l’espace de travail nomme cette Release, comme `build.authoring_release` ou comme clé de `workspace.releases`, auquel cas elle est lue et listée à l’emplacement propre du lien et n’est pas nommée. `list-entities` ne lit pas non plus de document derrière un lien menant hors de l’espace de travail — il ne parcourt aucun répertoire en dehors de la racine et ne lit aucun fichier hors de celle-ci, quoi que ce fichier déclare — et nomme chacun de ces liens de la même façon, dans ses propres `unread_linked_dirs` et `unread_linked_files`, sous les deux formes et sur les deux transports. Cela vaut quoi que déclare le document, avec la seule exception que fait `list-releases` : une Release que nomme la configuration de l’espace de travail, comme `build.authoring_release` ou comme clé de `workspace.releases`, est lue et listée à l’emplacement propre du lien et n’est pas nommée, tandis qu’un fichier nommé par l’un de ces paramètres qui déclare autre chose qu’une Release n’est pas listé, et son lien est nommé. Les répertoires de catalogue configurés sont le moyen par lequel un espace de travail lit d’autres entités conservées ailleurs, de sorte qu’un lien vers un répertoire que la configuration liste sous `catalog_dirs`, ou vers un répertoire situé en dessous, n’est nommé par aucune des deux listes : la configuration l’a atteint. Les Features que `list-entities` prend dans les répertoires de catalogue n’en incluent jamais une derrière un lien menant hors du répertoire dans lequel les lectures d’un répertoire de catalogue doivent rester — l’espace de travail, pour un répertoire de catalogue qui s’y trouve, ou le répertoire lui-même, pour un répertoire que la configuration nomme en dehors de celui-ci —, de sorte qu’une entité nommée comme se trouvant derrière un lien non lu n’est jamais listée à côté de ce nom. Un lien que la liste écarte — par son nom, par son emplacement ou par un `.gitignore` — n’est pas nommé, et avec `release` pas davantage un lien situé sous un répertoire de catalogue que seules d’autres Releases lisent ; un `.gitignore` qui est lui-même un lien menant hors de l’espace de travail n’est pas lu. Lorsque l’une de ces listes nomme un lien, la réponse textuelle se termine par une ligne à part qui le signale."
+  },
+  "be36f7770bf1e29a": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "be36f7770bf1e29a",
+    "status": "machine",
+    "text": "**Chaque modification de ce fichier est annoncée, et rien d’autre ne l’est.** Un pull qui modifie l’enregistrement affiche une ligne par entrée modifiée, nommant le plugin et la nature du changement : une identité enregistrée pour la première fois, une identité adoptée à la place de celle détenue (en nommant les deux, pour que vous voyiez ce qui a été remplacé), une dépréciation enregistrée sur l’artefact qu’une entrée nomme déjà, une dépréciation retirée d’une entrée, une signature enregistrée sur une entrée ou retirée de celle-ci, ou l’entrée supprimée. La ligne de création ci-dessus est distincte et porte sur le fichier plutôt que sur une entrée, de sorte qu’une première résolution dit les deux : ce fichier est nouveau et doit être commité, et voici les identités qu’il contient désormais."
   },
   "be4e8763b0cee910": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -17709,6 +18472,13 @@
     "status": "machine",
     "text": "une instance de composant sous un conteneur de composants"
   },
+  "c5d686feec30e779": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "c5d686feec30e779",
+    "status": "machine",
+    "text": "**Entrées externes** — les documents distants qu’un provider demande à l’hôte pendant son rendu, comme un `$ref` dans le `values.schema.json` d’un chart qui pointe vers une URL. Chacune est récupérée, stockée sous son digest de contenu et épinglée."
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -17988,6 +18758,13 @@
     "srcHash": "c8d9ffe98140d8f6",
     "status": "machine",
     "text": "Force allow_direct_x_aggrega_extensions=false"
+  },
+  "c8de00b7f8f5d7b1": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "c8de00b7f8f5d7b1",
+    "status": "machine",
+    "text": "**Là où le lockfile n’a aucun enregistrement du contenu propre de l’entité, ce sont les trois comparaisons qu’un build rencontre.** Une Recipe ou une FeatureRecipe que le Manifest nomme par une référence qui est aussi le nom d’un Component ou d’une Feature qu’atteint la Release n’a pas d’entrée propre : l’entrée du lockfile pour cette référence enregistre le Component ou la Feature, de sorte que rien ne bouge dans le lockfile quand les fichiers de la Recipe bougent, et un build et un pull de vérification signalent le fichier modifié avec le code ci-dessus. La comparaison des lignes de source est aussi ce qu’un build rencontre lorsque l’entrée `source_artifacts` du lockfile est l’enregistrement qui a changé alors que le lock à côté de l’entité n’a pas changé."
   },
   "c8e0a5ecbeea9b7b": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -18493,6 +19270,13 @@
     "status": "machine",
     "text": "Comme un fournisseur appose la provenance là où son propre format de sortie la porte, un fournisseur dont le format n’offre pas un tel emplacement pour un fichier donné émet ce fichier sans le modifier et le signale. Compose est le cas à connaître : son emplacement de provenance est le bloc `labels:` d’un service, de sorte qu’un fragment d’artefact compose qui ne fournit que des `networks:`, `volumes:` ou `configs:` de premier niveau ne porte aucune provenance, et le build émet un avertissement « skipped provenance label injection (injection des labels de provenance ignorée) » nommant l’artefact. Cet avertissement est attendu pour un fragment de cette forme et n’est pas le signe d’un problème — les services qu’émet le même composant portent l’ensemble complet, et rien ne change dans les octets émis. Ce qu’il exclut, c’est la troisième possibilité : un fichier quittant le build sans provenance sans être nommé."
   },
+  "cec94e6800a3a480": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "cec94e6800a3a480",
+    "status": "machine",
+    "text": "Lancez le build sur la machine déconnectée comme d’habitude. Activer le mode hors ligne sur cette machine en vaut la peine même si un build sur un lockfile complet lit sa clôture depuis le cache : cela transforme un éventuel accès réseau en un refus immédiat qui nomme le mode, plutôt qu’en une tentative de connexion qui doit d’abord expirer. Tout ce que le cache ne contient pas, et toute entrée externe que le lockfile n’épingle pas, interrompt le build en nommant ce qui manque et la résolution qui l’épinglerait — rien n’est récupéré en silence pour combler le manque."
+  },
   "cf08b5dcba2a2c8b": {
     "at": "2026-10-22T08:20:04.359Z",
     "job": "session-0025-20261022082004",
@@ -18563,12 +19347,26 @@
     "status": "machine",
     "text": "Aucune valeur de paramètre n’atteint un plugin de linter, dans aucune portée. La valeur d’un paramètre peut être elle-même un credential — l’`origin` d’un attachement secret peut être un template lisant un paramètre que la Release satisfait, et le secret est alors la valeur de ce paramètre — et le plugin qu’attache un workspace peut être un plugin qu’il n’a pas écrit, de sorte que chaque document est transmis avec ses valeurs de paramètres retenues :"
   },
+  "cf87106a144cbb88": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "cf87106a144cbb88",
+    "status": "machine",
+    "text": "**Il nomme chaque fichier, pas seulement le lockfile.** Le lockfile, l’`entity.lock` à côté de chaque Recipe et FeatureRecipe dont les épinglages enregistrés bougeraient sous `--pin-sources`, et le registre de confiance des plugins apparaissent tous dans le même rapport, car un aperçu qui ne montrerait que le lockfile vous apprendrait que le lockfile est tout ce qui bouge. Un pull qui s’interromprait sur une entité non épinglée s’interrompt aussi sous `--dry-run`, pour la même raison : ce que montre un aperçu est ce que ferait le pull. Les fichiers qu’un pull laisserait identiques octet pour octet n’apparaissent pas du tout — un nom dans le rapport signifie que ce fichier est sur le point de changer. La dernière ligne les compte, et un workspace qu’un pull ne modifierait pas signale un total de zéro."
+  },
   "cf9301febbee39dc": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
     "srcHash": "cf9301febbee39dc",
     "status": "machine",
     "text": "Lorsque la politique est définie, la règle de forme des noms ne signale plus rien du tout. Elle peut aussi être définie pour une seule invocation avec `aggrega lint --allow-nonstandard-names`, ou désactivée de force à nouveau avec `--no-allow-nonstandard-names`. Les usages légitimes sont les catalogues qui ne seront jamais publiés, les expérimentations multi-éditeurs et les entités à usage spécial."
+  },
+  "cfcab97b15b924cd": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "cfcab97b15b924cd",
+    "status": "machine",
+    "text": "La commande écrit le résultat dans `<release-stem>.lock` à côté de la Release. Un espace de travail qui rattache un plugin renvoyant un verdict d’acceptation ou de rejet obtient aussi un second fichier dans ce répertoire — l’[enregistrement de confiance des plugins](#the-plugin-trust-record)."
   },
   "cfd4ae615b8005ed": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -18590,6 +19388,13 @@
     "srcHash": "cfe48cbf36b51b03",
     "status": "machine",
     "text": "**Un répertoire, une entité.** Un répertoire contient un seul `entity.lock`, l’étape refuse donc une Recipe ou une FeatureRecipe qui partage son répertoire avec toute autre entité, que l’une ou l’autre ait ou non quelque chose à pinner, en nommant chaque entité gênante — le refus est [An entity shares its directory with another entity (Une entité partage son répertoire avec une autre entité)](../errors/fatal-halts.md#an-entity-shares-its-directory-with-another-entity). Chaque type a son propre répertoire, sauf Aggregate, Release et Manifest, qui peuvent cohabiter ; un push soumet l’entité qu’il publie à la même règle, comme l’explique [Une entité par répertoire](aggrega-push.md#one-entity-per-directory). L’étape ne juge que ce pour quoi elle écrit un lock, de sorte qu’un Component ou tout autre type pour lequel elle n’a rien à pinner est signalé comme n’ayant rien à pinner, et le refus atteint cette entité lorsqu’elle est publiée. Un fichier à côté de l’entité qui n’est pas un document d’entité — un fichier de chart, le fichier importé lui-même — ne gêne pas. Chaque document à côté de l’entité n’est lu que depuis l’intérieur du workspace ou, pour un document que vous nommez en dehors de celui-ci, depuis l’intérieur de son propre répertoire — où se trouve aussi le lock — de sorte qu’un document qui est un lien menant vers l’extérieur arrête l’étape en nommant le lien, sans le lire, comme l’explique [la frontière du workspace](workspace-boundary.md#halted)."
+  },
+  "cfec9fad654cf4bd": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "cfec9fad654cf4bd",
+    "status": "machine",
+    "text": "Si les octets d’une version épinglée dans le registry ne correspondent plus au digest que le lockfile a enregistré (une violation de l’immuabilité en amont), `pull` s’interrompt avec une erreur d’intégrité plutôt que d’adopter en silence les octets modifiés — exécutez `--upgrade` pour épingler à nouveau délibérément."
   },
   "d00eca1bae674280": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -18773,6 +19578,13 @@
     "status": "machine",
     "text": "**Domaine 3**"
   },
+  "d22ad7f8c1725db9": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "d22ad7f8c1725db9",
+    "status": "machine",
+    "text": "**Répondre à l’arrêt.** Si vous avez modifié le fichier importé volontairement, exécutez `aggrega pin` sur l’entité : l’étape enregistre le nouveau digest du fichier, et le build suivant l’accepte. Sinon, restaurez le fichier. Une source locale qui a bougé admet les deux mêmes réponses : épinglez à nouveau l’entité, ou restaurez les fichiers que nomme l’arrêt. Pour une ligne de source en désaccord avec le lockfile, restaurez `entity.lock` depuis le contrôle de version, ou exécutez `aggrega pin` sur l’entité pour le réécrire."
+  },
   "d2691b3beb220061": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -18786,6 +19598,13 @@
     "srcHash": "d27218240ee0347b",
     "status": "machine",
     "text": "Noms descriptifs des modes"
+  },
+  "d28523a9af84cddf": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "d28523a9af84cddf",
+    "status": "machine",
+    "text": "**Commitez-le à côté de l’entité.** Chaque Recipe et FeatureRecipe utilise le même nom de fichier, et le répertoire où il se trouve indique à quelle entité il appartient, de sorte que le lock voyage avec ce répertoire. Il ne contient aucun horodatage et ses lignes sont conservées dans un ordre fixe, de sorte que l’étape exécutée sur des entrées inchangées le laisse identique octet pour octet, et qu’un diff sur ce fichier nomme la source, le fichier importé ou le fichier de la source locale qui a bougé. Un répertoire contient un seul lock, donc l’étape refuse une Recipe ou une FeatureRecipe à côté de laquelle se trouve une autre entité — chaque type a son propre répertoire sauf Aggregate, Release et Manifest — et un pull à qui l’on demande d’épingler refuse une telle entité avant que quoi que ce soit ne soit résolu ; [Une entité par répertoire](aggrega-push.md#one-entity-per-directory) expose la règle. Un pull qui n’épingle pas n’écrit rien à côté d’une entité et ne juge pas son répertoire."
   },
   "d28f253dc96f6161": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -18814,6 +19633,13 @@
     "srcHash": "d2cbba7062521e69",
     "status": "machine",
     "text": "[Manifest](entities/manifest.md) — lockfile de dépendances par projet. Lie les types abstraits Component et Feature à des URI concrets de Recipe et de FeatureRecipe, regroupés par provider, avec une résolution à trois niveaux (`name` > `type` versionné > `type` non versionné)."
+  },
+  "d2ea9fdb97b70e79": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "d2ea9fdb97b70e79",
+    "status": "machine",
+    "text": "**Un lockfile écrit avant la modification provoque l’arrêt en premier, et un pull nomme le fichier.** Le lockfile enregistre l’entité d’après ce qu’elle contient, et le lock ainsi que chaque fichier que lisent ces comparaisons en font partie, de sorte qu’un build — ou `aggrega pull --verify` — qui utilise un lockfile écrit avant qu’un fichier importé, un fichier d’une source locale ou le lock lui-même ne bouge s’arrête avant qu’aucune des trois comparaisons ne s’exécute : [The lockfile no longer matches what the release resolves to (Le lockfile ne correspond plus à ce vers quoi la release se résout)](../errors/fatal-halts.md#the-lockfile-no-longer-matches-what-the-release-resolves-to), en nommant l’entité et les deux digests. Un simple `aggrega pull` nomme alors le fichier, parce qu’il confronte le lock à ce que l’étape d’épinglage enregistrerait et refuse l’entrée dont l’épinglage ne correspond plus : [An entity reads an input the lock beside it records no pin for (Une entité lit une entrée pour laquelle le lock à côté d’elle n’enregistre aucun épinglage)](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for)."
   },
   "d2f1352f327e4d9a": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -19129,6 +19955,13 @@
     "srcHash": "d719ea429d6a2639",
     "status": "machine",
     "text": "Générer des entités Plugin du catalogue à partir du describe() du guest et d’un overlay rédigé"
+  },
+  "d71acf1bb7c3b3c9": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "d71acf1bb7c3b3c9",
+    "status": "machine",
+    "text": "Il compare les signatures enregistrées, dans les deux fichiers"
   },
   "d72340eb4c8d9238": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -19466,6 +20299,13 @@
     "status": "machine",
     "text": "**Un format est une capacité, pas une fonctionnalité du compilateur.** Un importateur annonce les formats qu’il prend en charge sous forme de capacités — `import:langflow`, `import:flowise`, `import:n8n`, `import:mcp`, `import:compose`, `import:dify`, `import:crewai`, `import:langgraph`, `import:google-adk`, `import:agent-framework`, etc. — et l’hôte résout un importateur d’après le format demandé, l’exécute et récupère les entités qu’il a ébauchées. C’est le même modèle drop-in, fondé sur les capacités annoncées, que suit le socket des analyseurs avec `parse:<format>` : le cœur du compilateur ne contient aucune liste intégrée de formats importables, de sorte que prendre en charge un nouveau format revient à livrer un plugin d’import qui l’annonce, jamais une nouvelle version du cœur."
   },
+  "dbbd5804ddfe1be1": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "dbbd5804ddfe1be1",
+    "status": "machine",
+    "text": "Leurs identités vont plutôt dans un second fichier commité : `plugins-trust.yaml`, à côté du lockfile. Il porte une entrée par plugin de ce type, enregistrant la coordonnée d’identité du plugin, la version sélectionnée pour lui et le digest de contenu de l’artefact résolu — plus la signature que le pull a vérifiée pour cet artefact, lorsqu’il en a vérifié une, et, lorsque l’éditeur a déprécié cet artefact depuis sa publication, le marqueur que le pull a trouvé et vérifié. Le [schéma de l’enregistrement de confiance des plugins](../schema/other/plugins-trust.md) décrit le fichier champ par champ."
+  },
   "dbc0f2ee86410882": {
     "at": "2026-10-22T05:26:40.584Z",
     "job": "session-0016-20261022052640",
@@ -19697,6 +20537,13 @@
     "status": "machine",
     "text": "Ce chapitre pose l’espace de problèmes fondamental, les anti-objectifs stricts de la plateforme, sa relation avec l’écosystème plus large et les philosophies d’ensemble qui gouvernent l’écosystème Aggrega."
   },
+  "dddd0d08866002ac": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "dddd0d08866002ac",
+    "status": "machine",
+    "text": "**Le choix des entrées du lockfile qu’elle consulte appartient au pull lui-même.** Un nouveau pull interroge un registry sur la signature d’une entrée exactement là où le décrit [Respecter ou mettre à jour](#honoring-vs-updating), et une vérification reprend ce même choix :"
+  },
   "dde5a870824fc4c2": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -19745,6 +20592,13 @@
     "srcHash": "de2f7289e6065339",
     "status": "machine",
     "text": "`aggrega completion <shell>` affiche sur stdout un script de complétion pour `bash`, `zsh`, `fish` ou `powershell`. Le script est généré à partir de l’arborescence de commandes active de la CLI au moment où vous l’exécutez, il reflète donc toujours les commandes et les flags du binaire qui l’a produit — il n’y a aucun fichier statique à régénérer à mesure que la CLI évolue."
+  },
+  "de47cd46869ac331": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "de47cd46869ac331",
+    "status": "machine",
+    "text": "Compiler là où le réseau est inaccessible"
   },
   "de4dde7018f4e355": {
     "at": "2026-10-22T03:54:29.551Z",
@@ -19934,6 +20788,13 @@
     "srcHash": "e04b210684700fed",
     "status": "machine",
     "text": "Les familles `core/secret-value` et `core/referenced-secret` du catalogue lui-même comprennent des formes qui acceptent directement une valeur. Elles existent parce que les déploiements réels ont besoin d’un chemin pour le développement local, et elles l’assument : les exemples fournis utilisent des valeurs fictives évidentes (`dev-root-pw-change-me`) précisément pour que le matériel d’un exemple rendu ne soit visiblement pas un véritable identifiant. Pour un déploiement qui ne doit pas porter de matériel, attachez une Feature d’identifiant adossée à un magasin dont la FeatureRecipe émet une ressource de récupération (un `ExternalSecret`, une ressource personnalisée de récupération depuis un coffre, une référence de secret native du provider) plutôt qu’une ressource qui émet des données."
+  },
+  "e0504206bbe3a108": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "e0504206bbe3a108",
+    "status": "machine",
+    "text": "**Une validation est confrontée à l’enregistrement parce qu’elle exécute les mêmes vérifications qu’un build.** `aggrega validate --release` atteint chaque vérification qu’atteint `aggrega build`, à l’écriture des artefacts près, plugins de barrière compris — c’est ce qui fait que « cela se valide » signifie la même chose que « cela se construit » — de sorte que l’identité du plugin qu’elle exécute est comparée à l’enregistrement exactement comme celle d’un build. Les autres portées d’`aggrega validate` n’y sont pas soumises : valider l’ensemble du catalogue, une seule entité ou un binaire de plugin ne lit pas du tout les rattachements de plugins de l’espace de travail, donc aucun plugin de verdict ne s’y exécute et il n’y a rien qu’un enregistrement puisse contraindre."
   },
   "e08f578fef7f46f2": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -20250,6 +21111,13 @@
     "status": "machine",
     "text": "L’`Aggregate.yaml` du développeur reste indépendant des capacités, entièrement aveugle au fait qu’il s’exécutera sur AWS ou sur un ordinateur portable local."
   },
+  "e4098765ca8685d5": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "e4098765ca8685d5",
+    "status": "machine",
+    "text": "**`plugins-trust.yaml`, lorsque le workspace rattache un plugin qui renvoie un verdict.** Un build compare les rattachements de verdict que nomme sa configuration à ce registre avant qu’aucun d’eux ne s’exécute, donc emporter le registre est ce qui soumet le build déconnecté aux identités qui ont été revues et aux signatures que le pull a vérifiées pour elles. Committez-le à côté du lockfile, comme le décrit [Le registre de confiance des plugins](#the-plugin-trust-record)."
+  },
   "e41fb7ea3764b110": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -20291,6 +21159,13 @@
     "srcHash": "e4bb74c031051b0c",
     "status": "machine",
     "text": "Inspecter et gérer la configuration du workspace"
+  },
+  "e4c1f941525afec1": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "e4c1f941525afec1",
+    "status": "machine",
+    "text": "**Un plugin rattaché à un rôle de verdict et servi par un registry est le point où une vérification hors ligne et un pull hors ligne se séparent.** Un tel plugin n’est jamais épinglé dans le lockfile, donc chaque pull résout son `.wasm` depuis son registry, et un pull hors ligne sur un workspace qui en rattache un s’arrête là, en nommant le plugin comme un plugin dont il n’a pas pu résoudre le `.wasm` — même lorsque le cache de contenu le contient, et que ce registry soit marqué `advisory` ou qu’il saute la vérification des signatures, ou non. Une vérification hors ligne, elle, ne demande rien au registry sur le plugin : elle lit le plugin depuis le cache de contenu, comme le lit un build, et s’arrête là où le cache ne contient pas son `.wasm` ou en contient un qui ne correspond plus au digest que nomme son manifest publié. Elle confronte toujours l’identité du plugin au registre de confiance des plugins et revérifie ses fonctions hôtes par rapport à ce `.wasm`, et elle s’interrompt là où l’un ou l’autre diverge, exactement comme le fait une vérification connectée. Elle signale le plugin là où un pull réécrit son entrée quoi que réponde le registry, c’est-à-dire là où un build refuse le plugin à cause de son entrée : parce qu’il n’enregistre aucune signature, son entrée n’en enregistrant aucune ou le registre ne contenant aucune entrée pour lui, ou parce que la signature qu’enregistre son entrée a été créée pour un autre artefact, que le pull remplace par celle du plugin lui-même. Toute autre entrée — une entrée dont un build accepte la signature, et une entrée dont le bundle de signature en cache a été supprimé ou altéré — elle la nomme sur une ligne indiquant que sa signature n’a pas été contrôlée, et ne signale rien sur cette signature :"
   },
   "e4e53f8dfe4e4d43": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -20347,6 +21222,13 @@
     "srcHash": "e5949d2d30ac3125",
     "status": "machine",
     "text": "**Forme du nom** — chaque type d’entité a une convention de forme de nom (nombre de segments pour les types cloud-native ; PascalCase pour les types de bibliothèque). Active par défaut ; désactivable avec `allow_nonstandard_names`."
+  },
+  "e5d9cf6d9e08b8cd": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "e5d9cf6d9e08b8cd",
+    "status": "machine",
+    "text": "Un registry qui sert désormais des octets différents sous une version épinglée interrompt la vérification avec l’erreur d’intégrité qui interrompt un pull, plutôt que de signaler le changement comme une dérive."
   },
   "e5e3119f3766f61c": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -21027,6 +21909,13 @@
     "status": "machine",
     "text": "Formes par type d’entité :"
   },
+  "edcc5d39210d5016": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "edcc5d39210d5016",
+    "status": "machine",
+    "text": "**Deux sont signalées sans interroger de registry,** car un pull les réécrit quoi que réponde le registry : une entrée que le cache fournit et qui n’enregistre aucune signature là où la configuration de confiance en exige une — le pull enregistre la signature de l’artefact, ou s’arrête là où aucune ne peut être établie — et une entrée dont la signature enregistrée a été créée pour un autre artefact, que le pull remplace par celle de l’artefact lui-même."
+  },
   "edd0e75ac935aab3": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -21594,6 +22483,13 @@
     "status": "machine",
     "text": "La chaîne `extends:` est appliquée ; les mappings de composants et de features résolus sont présentés."
   },
+  "f540b82551e7e04e": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "f540b82551e7e04e",
+    "status": "machine",
+    "text": "**Un pull qui laisse l’enregistrement exactement tel qu’il était n’en dit rien.** Une ligne sur ce fichier signifie donc que le fichier commité a bougé et que son diff mérite d’être lu — ce qui compte ici davantage que pour le lockfile. Tout ce que le lockfile épingle fait aussi partie de ce qu’un build reproduit octet pour octet, de sorte qu’un changement à cet endroit a un second endroit où apparaître ; l’identité d’un plugin de verdict n’en a aucun. Ce fichier est le seul endroit où une barrière remplacée est consignée."
+  },
   "f573776c63c11408": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -21965,6 +22861,13 @@
     "status": "machine",
     "text": "**Un workspace dont la configuration n’attribue à aucune Release de répertoires de catalogue propres** est vérifié une seule fois, sur sa pile de recherche : les répertoires `--catalog`, puis `workspace.catalog_dirs`, puis le répertoire `catalog` à la racine du workspace s’il existe."
   },
+  "f9e8d60a73926ad4": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "f9e8d60a73926ad4",
+    "status": "machine",
+    "text": "**Un dépôt git est archivé depuis son propre checkout.** Pour une source `git-repository`, le pull extrait le dépôt au commit qu’il épingle et archive le répertoire que nomme `module_subdir`, ou le dépôt entier. Un `module_subdir` qui remonte au-dessus du dépôt tel qu’il est écrit — `../shared`, ou `..\\shared` — est refusé avant que le dépôt ne soit récupéré, avec [`E0307`](../errors/fatal-halts.md#a-value-would-place-a-cached-file-outside-the-cache) citant la valeur, donc rien à côté du checkout n’est lu. Un lien symbolique que le dépôt committe est archivé comme le fichier ou le répertoire vers lequel il pointe lorsque celui-ci se trouve à l’intérieur du dépôt — `module_subdir` lui-même peut être un tel lien. Un lien qui mène hors du dépôt interrompt le pull avec [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside), en nommant le lien et l’endroit où il mène, et rien n’est mis en cache, de sorte qu’un dépôt depuis lequel vous faites un pull ne peut pas amener le pull à copier un fichier de votre machine dans l’artefact. Le checkout est supprimé dès que le pull s’arrête, donc le message nomme le lien par son emplacement dans le dépôt, ainsi que le dépôt et la révision que nomme la source, plutôt qu’un répertoire qui n’existe plus. C’est au dépôt de modifier le lien. [La frontière du workspace](workspace-boundary.md) énonce la règle qui s’applique ici."
+  },
   "f9f9d9554cf70946": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -22021,6 +22924,13 @@
     "status": "machine",
     "text": "Aggrega abandonne la logique d’orchestration codée en dur au profit d’un pipeline de compilation anticipée (AOT) strict, à ordre fixe. Déclenché par l’**orchestrateur CLI**, le compilateur agit comme un agent de circulation ultrarapide, faisant passer le graphe plat entre des sockets WebAssembly (Wasm) isolés pour évaluer l’architecture avant de produire les artefacts physiques."
   },
+  "fa8480a09528d035": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "fa8480a09528d035",
+    "status": "machine",
+    "text": "**Chaque ligne de source est comparée au digest que le lockfile de la Release enregistre pour la même source.** Un désaccord arrête le build avec `[FETCH_ERROR E0135]`, en nommant le lock et les deux digests. Les deux fichiers sont écrits par deux résolutions de la même source — celle de l’étape d’épinglage et celle du pull — de sorte qu’ils divergent lorsque ces résolutions ont obtenu des octets différents, ou lorsque l’un des deux fichiers a été modifié. Des octets différents sous une même version, c’est à cela que ressemble un amont qui a republié une version."
+  },
   "fa9285f92ef4de54": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -22069,6 +22979,13 @@
     "srcHash": "fadb34b23c3d6c2a",
     "status": "machine",
     "text": "L’arborescence ci-dessous est illustrative dans son contenu et exacte dans sa forme. Là où une entité est dessinée en entier, elle descend jusqu’à son fichier feuille, de sorte qu’un chemin réel complet peut être lu sur le diagramme : quel niveau de répertoire porte quel segment d’URI, où se trouve le segment de version obligatoire et quel nom de fichier chaque type d’entité utilise à la feuille. Elle montre une poignée d’entrées par niveau plutôt que le contenu complet du catalogue — `...` marque une élision, et les noms écrits à côté sont d’autres entrées de ce même niveau."
+  },
+  "fb4d90f13e4a2d6c": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "fb4d90f13e4a2d6c",
+    "status": "machine",
+    "text": "Ainsi, un pull hors ligne est un refus de toucher au réseau plutôt qu’un résultat réduit pour tout ce que nomme un document, et pour les entrées externes, c’est une résolution achevée qui vous dit ce qu’elle n’a pas pu atteindre. Un lockfile qui existe est un lockfile dont la résolution des dépendances s’est achevée ; savoir si ses entrées externes sont complètes, c’est ce que vous dit la sortie propre du pull, et ce à quoi un build le soumet ensuite."
   },
   "fb540b5afbc2a5ee": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -22146,6 +23063,13 @@
     "srcHash": "fc0037ec809de49a",
     "status": "machine",
     "text": "Le plafond, énoncé clairement"
+  },
+  "fc029703c14c96e8": {
+    "at": "2026-10-22T16:24:02.036Z",
+    "job": "session-0046-20261022162402",
+    "srcHash": "fc029703c14c96e8",
+    "status": "machine",
+    "text": "**Ce qu’il contient.** Trois listes, dont chaque ligne nomme une entrée :"
   },
   "fc0a5d7027dc3ff5": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -22335,6 +23259,13 @@
     "srcHash": "fe5e35868b086854",
     "status": "machine",
     "text": "Découpler la sécurité de l’exécution (le scénario « brownfield »)"
+  },
+  "fe6d221cd40f5d2c": {
+    "at": "2026-10-22T17:21:40.169Z",
+    "job": "session-0048-20261022172140",
+    "srcHash": "fe6d221cd40f5d2c",
+    "status": "machine",
+    "text": "Un lockfile épingle ce qu’un build de cette Release consommera, donc la résolution dessine la composition que dessine ce build : elle résout les documents, applique les transformations que déclarent les rattachements du workspace, et soumet le résultat aux contrôles qu’un build effectue sur un graphe achevé. Il en découle deux choses, et toutes deux surviennent lors de la passe qui écrit le lockfile plutôt que lors du premier build qui le lit."
   },
   "fea6b72f3f7df8c3": {
     "at": "2026-10-17T19:04:59.441Z",
