@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-terraform
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-terraform
+  boundaries:
+    # One boundary holds both components, so both are module blocks of one
+    # Terraform root configuration — the one place the server's reference to
+    # the database's module output resolves.
+    #
+    # Every account-specific value below is a placeholder: 123456789012 is the
+    # account number AWS documentation uses in examples, and the subnet,
+    # security group, cluster, role and image names stand for resources the
+    # operator already runs. Replace them with your own before planning.
+    aws:
+      directory: one-root
+      components:
+        db:
+          infra:
+            engine_version: "16"
+            storage:
+              size: 50Gi
+              type: gp3
+            ha:
+              enabled: true
+              read_replicas: 0
+            backup:
+              enabled: true
+              retention_days: 14
+            # The Recipe requires subnet_group, the name of an RDS DB subnet
+            # group that already exists in the account: it never chooses a
+            # network for the operator, and the build halts while it is
+            # missing.
+            overrides:
+              subnet_group: example-private-db-subnets
+              vpc_security_groups:
+                - sg-0123456789abcdef0
+        api:
+          infra:
+            image: registry.example.com/orders-api:1.0.0
+            port: 8080
+            replicas: 2
+            # The Recipe requires the cluster the service runs in, the subnets
+            # and security groups its tasks attach to, and the role ECS pulls
+            # the image and writes logs with. Each exists outside this Release,
+            # and the build halts while any is missing.
+            overrides:
+              cluster: example-cluster
+              subnet_ids:
+                - subnet-0123456789abcdef0
+                - subnet-0fedcba9876543210
+              vpc_security_groups:
+                - sg-0fedcba9876543210
+              execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution

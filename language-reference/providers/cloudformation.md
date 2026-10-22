@@ -251,7 +251,7 @@ These annotations are opaque to the compiler — it pipes their values through t
 
 ## Intra-stack references
 
-When a `uses` edge connects two components that land in the **same** boundary — the same stack — the consumed value is wired as an `Fn::GetAtt` against the producer resource's logical ID within the one template. The producer's `provides` value flows into the consumer's rendered input as a native intra-stack reference; no export or import is needed.
+When a `uses` edge connects two components that land in the **same** boundary — the same stack — the consumed value is wired as an `Fn::GetAtt` against the producer resource's logical ID within the one template. The producer's `provides` value flows into the consumer's rendered input as a native intra-stack reference; no export or import is needed. The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example shows it in an Amazon ECS task definition reading an RDS instance's address in one stack.
 
 ## Cross-stack wiring
 
@@ -264,16 +264,18 @@ When a `uses` edge crosses **from one boundary to another** — the two componen
 
 The producer stack always publishes the `Export`, even when a particular consumer reads it cross-account through `Fn::GetStackOutput`. An unused export is inert, and publishing it unconditionally keeps the producer template independent of how each consumer chooses to read the value.
 
+The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example builds the same-account case: an RDS instance's stack exports each entry a server's edge consumes, and the server's stack reads each back with `Fn::ImportValue`.
+
 > **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
 
 ### How an export name is built
 
 The four parts are joined with a **double hyphen**, and each part is written into the letters, digits and hyphens an export name is made of. A letter or digit is carried through as written, and so is a hyphen inside a part — `payments-db` stays `payments-db`. Any other character is written as a short escape opening with `-z`: a slash as `-zs`, an underscore as `-zu`, a dot as `-zd`. A part with no value at all is written `-ze`. A stack name is built the same way from the release and the boundary.
 
-So the export publishing `host` from component `db`, in boundary `dist/stack-a/cloudformation` of release `orders`, is:
+So the export publishing `host` from component `db`, in the boundary whose output directory beneath `dist/` is `stack-a/cloudformation`, of release `orders`, is:
 
 ```
-aggrega--orders--dist-zsstack-a-zscloudformation--db--host
+aggrega--orders--stack-a-zscloudformation--db--host
 ```
 
 Reading it back is unambiguous, and that is the point rather than a nicety: because a part never contains two hyphens in a row and never ends with one, the double hyphens are always the joins. Two different sets of parts therefore always produce two different names. `payments-db` and `payments_db` reach two separate exports rather than converging on one, and a hyphen at the edge of one part cannot be read as belonging to its neighbour.

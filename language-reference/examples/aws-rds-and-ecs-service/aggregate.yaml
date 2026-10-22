@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database and the server that reads it. This is the whole of the
+    developer-authored surface, and it is the same document for all three builds
+    in this example: one Terraform root configuration, one CloudFormation stack,
+    and two CloudFormation stacks. Which target a build produces is decided by
+    the Release and the Manifest it names, never here.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    # The developer states intent: a logical database named orders, owned by
+    # the orders_admin role. Nothing here says where the database runs, how
+    # large it is, or who holds its password — those are decided below the
+    # Aggregate. On both targets in this example the database is an RDS
+    # instance, orders_admin is its master user, and RDS generates the master
+    # password and keeps it in AWS Secrets Manager.
+    db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+
+    # ── Server ──────────────────────────────────────────────────────────
+    # The server declares that it uses the database and which of the
+    # database's published entries it wants, under the environment variable
+    # names its own configuration reads. It never names an address: the
+    # database's address does not exist until the target creates the
+    # instance, so what the server receives is a reference the target
+    # resolves when it deploys.
+    #
+    # `database` is an ad-hoc socket: core/compute/server declares no socket
+    # of its own, so the edge carries no selector and no inject allowlist,
+    # while each from: key must still be one the database publishes.
+    api:
+      type: core/compute/server
+      uses:
+        database:
+          db:
+            target: db
+            inject:
+              env:
+                - in: DB_HOST
+                  from: host
+                - in: DB_PORT
+                  from: port
+                - in: DB_USER
+                  from: user
+                - in: DB_NAME
+                  from: database

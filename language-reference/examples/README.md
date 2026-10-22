@@ -264,6 +264,16 @@ cross-boundary networking across providers.
   and an export read back by name in the second. A third release halts: it
   attaches the alarm twice to one component, and the build names both colliding
   ends and which of the stack's two name spaces they reached.
+- **[aws-rds-and-ecs-service](aws-rds-and-ecs-service/)** — one Aggregate, a
+  PostgreSQL database and the server that reads it, built three ways against
+  AWS: one Terraform root configuration, with the database provisioned by the
+  terraform-aws-modules project's published RDS module and the server run as an
+  Amazon ECS service on Fargate; one CloudFormation stack; and two. The server
+  receives the database's address in each target's own form — a module output
+  reference, an `Fn::GetAtt`, an `Fn::ImportValue` of an export — and the
+  Aggregate is the same file for all three. RDS keeps the master password in
+  AWS Secrets Manager, so no build writes one. Needs the standard-library
+  catalog checked out beside it.
 - **[cross-boundary-networking](cross-boundary-networking/)** — one developer
   intent (an Adminer UI reaching a database across a boundary seam) deployed
   **two ways**: the Docker Compose variant uses the standard-library

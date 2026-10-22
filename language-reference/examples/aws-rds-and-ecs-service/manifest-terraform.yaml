@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-terraform
+  version: "1.0.0"
+  description: >
+    Ops mapping for AWS through Terraform. The PostgreSQL component type binds
+    the Recipe that vendors the terraform-aws-modules project's published RDS
+    module, and the server type binds the Recipe that runs it as an Amazon ECS
+    service on Fargate. Both are sourced Recipes, so each component becomes a
+    module block of the boundary's one root configuration.
+spec:
+  mappings:
+    components:
+      type:
+        # Recipe references are provider-qualified (provider/name:version)
+        # because the standard-library catalog ships several Recipes for each
+        # of these component types, one per target and realization. The
+        # mapping is what chooses them.
+        core/datastore/postgres:1.0.0: terraform/postgres-rds-terraform-aws-modules:1.0.0
+        core/compute/server:1.0.0: terraform/server-ecs:1.0.0

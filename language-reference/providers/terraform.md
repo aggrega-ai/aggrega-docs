@@ -136,6 +136,8 @@ module "store" {
 
 Terraform resolves `module.store.endpoint` because the same configuration declares `module "store"`, and the value reaches the consumer's module as an ordinary input.
 
+The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example builds this pair from standard-library Recipes: a PostgreSQL database provisioned by the published RDS module and a server run on Amazon ECS, whose `environment` argument carries `${module.db.db_instance_address}` in the root configuration that declares `module "db"`.
+
 #### Three ways this goes wrong, and what each looks like
 
 **A Recipe that authors its own body cannot consume a cross-component reference.** An `artifacts:` Recipe resolves its values into the body it writes, and that body emits into the component's own directory. The reference is then sitting in a scope that declares no module calls:

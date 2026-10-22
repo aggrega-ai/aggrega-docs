@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-one-stack
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-cloudformation
+  boundaries:
+    # One boundary holds both components, so both assemble into a single
+    # stack, and the server reads the database's address as a reference
+    # inside that one template.
+    #
+    # Every account-specific value below is a placeholder: 123456789012 is the
+    # account number AWS documentation uses in examples, and the subnet,
+    # security group, cluster, role and image names stand for resources the
+    # operator already runs. Replace them with your own before deploying.
+    # The CloudFormation Recipes read their keys under the resource
+    # properties' own names.
+    aws:
+      directory: one-stack
+      components:
+        db:
+          infra:
+            engine_version: "16"
+            storage:
+              size: 50Gi
+              type: gp3
+            ha:
+              enabled: true
+              read_replicas: 0
+            backup:
+              enabled: true
+              retention_days: 14
+            overrides:
+              DBSubnetGroupName: example-private-db-subnets
+              VPCSecurityGroups:
+                - sg-0123456789abcdef0
+        api:
+          infra:
+            image: registry.example.com/orders-api:1.0.0
+            port: 8080
+            replicas: 2
+            # The Recipe requires the cluster, the subnets, the security groups
+            # and the execution role, and the build halts while any is missing.
+            overrides:
+              Cluster: example-cluster
+              Subnets:
+                - subnet-0123456789abcdef0
+                - subnet-0fedcba9876543210
+              SecurityGroups:
+                - sg-0fedcba9876543210
+              ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution

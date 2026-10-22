@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-two-stacks
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-cloudformation
+  boundaries:
+    # The same developer intent, split across two stacks instead of one.
+    # Nothing in the Aggregate changed: the server still declares that it uses
+    # the database, and the operator decides here that the two are provisioned
+    # separately. The reference between them crosses a stack edge as a result:
+    # the database's stack exports the values the server reads, and the
+    # server's stack imports them by name.
+    #
+    # The values are the same placeholders as the one-stack Release.
+    data:
+      directory: two-stacks-data
+      components:
+        db:
+          infra:
+            engine_version: "16"
+            storage:
+              size: 50Gi
+              type: gp3
+            ha:
+              enabled: true
+              read_replicas: 0
+            backup:
+              enabled: true
+              retention_days: 14
+            overrides:
+              DBSubnetGroupName: example-private-db-subnets
+              VPCSecurityGroups:
+                - sg-0123456789abcdef0
+    app:
+      directory: two-stacks-app
+      components:
+        api:
+          infra:
+            image: registry.example.com/orders-api:1.0.0
+            port: 8080
+            replicas: 2
+            overrides:
+              Cluster: example-cluster
+              Subnets:
+                - subnet-0123456789abcdef0
+                - subnet-0fedcba9876543210
+              SecurityGroups:
+                - sg-0fedcba9876543210
+              ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution
