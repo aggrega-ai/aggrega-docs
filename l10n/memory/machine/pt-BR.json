@@ -34,6 +34,20 @@
     "status": "machine",
     "text": "**Artefatos de origem** — a `source:` remota para a qual uma Recipe ou FeatureRecipe específica direciona um provider: um chart do Helm (OCI ou HTTPS clássico) ou um fragmento do Compose via HTTPS. Cada um é obtido, armazenado em cache e fixado."
   },
+  "006481df2e81cabe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "006481df2e81cabe",
+    "status": "machine",
+    "text": "`aggrega/scaffoldEntity` — um documento inicial para um tipo de entidade: exatamente os campos que o schema desse tipo exige, com os valores fixos `apiVersion` e `kind` preenchidos e um placeholder em todo lugar onde um valor é necessário. `kind` é obrigatório e é o token de schema em minúsculas com hífens — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` e assim por diante; `aggrega/getSchema` sem `kind` informa quais tokens você pode enviar, e um token ao qual nenhum schema corresponde é recusado com esse conjunto na mensagem, de modo que um erro de digitação é corrigido sem uma segunda chamada. Um cliente que oferece ao autor a escolha de um tipo lê `entityKinds` desse método, que é o conjunto de tipos dos quais um documento pode ser escrito. `name` é opcional e inicializa `metadata.name` para os tipos cujo schema exige um. A resposta traz `kind` e `skeleton`. Veja [O que uma resposta de scaffold lhe dá](#what-a-scaffold-response-gives-you), porque a resposta é um documento a ser escrito e não um documento que foi escrito. O esqueleto é derivado do mesmo schema que `aggrega/getSchema` informa, então os dois respondem a partir de uma única fonte."
+  },
+  "0065f9fce41f5405": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0065f9fce41f5405",
+    "status": "machine",
+    "text": "`$/cancelRequest` — do cliente para o servidor: interrompe a solicitação em andamento enviada com esse id. O daemon cancela o trabalho dessa solicitação; uma operação percebe o cancelamento no próximo limite de etapa, e não instantaneamente, então o trabalho já em andamento continua por um momento. Cancelar um id para o qual nada está em execução é uma operação nula segura."
+  },
   "0071b1823e850940": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -110,6 +124,13 @@
     "srcHash": "0104726172ad5797",
     "status": "machine",
     "text": "O invariante de saída determinística se aplica em **tempo de build**: os mesmos arquivos-fonte + o mesmo lockfile + a mesma versão do compilador resultam em saída idêntica byte a byte. A propriedade complementar em **tempo de lock** (os mesmos arquivos-fonte + o mesmo estado do registry resultam no mesmo lockfile) é mais fraca — registries são mutáveis (novas versões podem ser publicadas; sidecars podem ser adicionados; metadados por componente podem evoluir), então duas invocações de lock sobre os mesmos arquivos-fonte em momentos diferentes podem produzir lockfiles diferentes. Esse é o propósito do lockfile, espelhando as convenções de npm, Cargo e Go. A partir de um lockfile novo, o build produz saída determinística. A separação entre os dois momentos é o que torna tolerável a mutabilidade do lado do registry: um sidecar publicado no tempo T2 altera a próxima invocação de lock; ele não altera builds feitos contra o lockfile gerado em T1."
+  },
+  "011ac91721dde939": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "011ac91721dde939",
+    "status": "machine",
+    "text": "O identificador que um programa compara e o que uma pessoa cita"
   },
   "013405a6d9fb4632": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -201,6 +222,13 @@
     "srcHash": "0217cfc5750bfaaa",
     "status": "machine",
     "text": "**Procedência e artefatos do helm-chart.** A procedência é mesclada em `metadata.labels` e `metadata.annotations` (conforme a divisão por conjunto de caracteres descrita acima) para arquivos carregados com `$import:` que sobrevivem a um ciclo de ida e volta por YAML com seus tokens do Helm preservados — arquivos que usam apenas o contexto do Aggrega `[[ ]]` ou com `{{ }}` do Helm apenas em posições de escalares entre aspas. Arquivos com ações de template do Helm estruturais (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` em posições em que emitem estrutura YAML em vez de folhas escalares), ou arquivos com `{{ ... }}` sem aspas em posições de valor, não sobrevivem ao ciclo de ida e volta por YAML do Aggrega; o build emite um aviso “skipped provenance label injection” (injeção de rótulos de procedência ignorada) que nomeia o artefato e repassa o arquivo sem alterações. **Esse aviso é esperado para qualquer arquivo de artefato do helm-chart carregado com `$import:` que use ações de template do Helm estruturais ou substituições de valores do Helm sem aspas** — é o caso comum na escrita de Helm em produção, não o caso extremo. Autores que precisam de rótulos de procedência nesses arquivos os injetam por meio do template `aggrega.commonLabels` no `_helpers.tpl` do chart ou de um mecanismo equivalente do lado do Helm, e não por meio da injeção pré-template do Aggrega."
+  },
+  "0221afb1afaa11c6": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0221afb1afaa11c6",
+    "status": "machine",
+    "text": "`aggrega/explainError` transforma qualquer um dos identificadores de uma condição no que o compilador declara sobre ela e nas entradas publicadas que ensinam a correção na autoria. É a mesma expansão que [`aggrega explain`](aggrega-explain.md) realiza em um terminal e que a ferramenta `explain-error` realiza para um assistente, e os três respondem a partir de um único lugar, então um código expandido aqui e o mesmo código expandido lá são uma única resposta, e não três que por acaso coincidem."
   },
   "022f7f2558f12ce4": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -334,6 +362,13 @@
     "srcHash": "032f23b947c3d482",
     "status": "machine",
     "text": "O que ela adiciona"
+  },
+  "0337a50e0af3f2c7": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0337a50e0af3f2c7",
+    "status": "machine",
+    "text": "`aggrega/getSchema` — o JSON Schema de um tipo de entidade ou de contrato, lido da cópia compilada no binário em execução. `kind` é o token de schema em minúsculas com hífens — `component`, `aggregate`, `release`, `recipe`, `ir`, `wasm-provider` e assim por diante — e é opcional, porque seleciona qual de duas perguntas você está fazendo. Indique um tipo e a resposta traz `kind` e `schema`, o schema como documento JSON em vez de uma string que contém um. Não indique nenhum e a resposta traz em vez disso `kinds` e `entityKinds`: quais tipos você pode indicar, em duas amplitudes. `kinds` é cada token que pode ser pedido a este binário, na mesma ordem em que [`aggrega get-schema --list`](aggrega-get-schema.md) os imprime. `entityKinds` é o conjunto mais restrito de tipos dos quais um autor escreve um documento, e cada entrada traz o token `kind` a ser enviado de volta, o valor `documentKind` que vai no próprio campo `kind:` do documento e `acceptedBy`, que diz se a validação de uma única entidade, a publicação e a inspeção por nome aceitam um documento desse tipo. Veja [Quais tipos você pode oferecer a um autor](#which-kinds-you-may-offer-an-author) antes de construir um seletor a partir de qualquer um dos dois. A resposta com o schema e a enumeração nunca são combinadas, então é possível ler na resposta qual pergunta foi respondida. Um token ao qual nenhum schema corresponde é recusado com todo o conjunto válido na mensagem, de modo que um erro de digitação é corrigido sem uma segunda chamada. Ele não toma nada do workspace, não contata nenhum registry e não grava nada, então responde em um workspace que não contém absolutamente nada — e é isso que o torna utilizável para ligar a associação de schemas de um editor ao binário que o editor está realmente controlando, em vez de a qualquer cópia dos schemas instalada em outro lugar."
   },
   "033937545eeefce9": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -537,6 +572,13 @@
     "srcHash": "04f6b2055e69dfbb",
     "status": "machine",
     "text": "uma entidade publicada como seu documento"
+  },
+  "04f8ebff8b363eab": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "04f8ebff8b363eab",
+    "status": "machine",
+    "text": "`aggrega/setActiveRelease` — registra uma Release como padrão do workspace que a solicitação nomeou, gravando o marcador `.aggrega/active-release` desse workspace, e responde exatamente como `aggrega/activeRelease` responde depois que o marcador é gravado. Aceita o workspace e `release`: um caminho relativo à raiz do workspace que nomeia uma Release dentro dela, sujeito ao mesmo contrato que o `release` de `aggrega/irGraph` — um caminho absoluto, um que sai do workspace e um valor vazio são recusados, assim como um que sai por meio de um link, a menos que a configuração do seu workspace nomeie essa Release. O marcador é uma linha que nomeia a Release de forma relativa à raiz, a forma que a cascata descrita abaixo lê. Ele é gravado dentro do workspace e em nenhum outro lugar: quando `.aggrega`, ou o próprio marcador, é um link que leva para fora do workspace — exista ou não ainda o lugar para onde ele leva —, a solicitação é recusada com o erro invalid-params, cuja mensagem é a frase da própria condição precedida do seu código curto, `E0320: …` ([fatal-halts.md](../errors/fatal-halts.md) §“A path the operation writes leads through a link out of the directory it must stay inside (Um caminho que a operação grava leva, por meio de um link, para fora do diretório dentro do qual deve permanecer)”), nomeando o link e para onde ele leva, e nada é gravado; um link que permanece dentro do workspace é seguido na gravação. A resposta nomeia aquilo em que a cascata se fixa em vez de repetir o que você enviou, e os dois diferem quando `build.authoring_release` nomeia uma Release, já que a configuração tem precedência sobre o marcador. Registre um padrão dessa forma em vez de gravar o arquivo você mesmo, para que o lugar onde o marcador vai parar seja avaliado pela regra à qual todo arquivo que o produto grava no workspace está sujeito — consulte [O limite do workspace](workspace-boundary.md)."
   },
   "04fd26362c4b2d7d": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -1665,6 +1707,13 @@
     "status": "machine",
     "text": "Diretório de catálogo; repetível. Cada --catalog é adicionado no início da pilha de busca de catálogos (a primeira correspondência vence): os catalog_dirs do workspace ou, para uma Release à qual a configuração do workspace dá diretórios próprios sob workspace.releases, os dessa Release; a pilha termina com o diretório `catalog` na raiz do workspace, quando existe um. Uma lista catalog_dirs escrita vazia não lê nenhum catálogo local. Usado pelas passagens de convenções sobre o catálogo inteiro e com --release."
   },
+  "0fda6c545af50c29": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "0fda6c545af50c29",
+    "status": "machine",
+    "text": "`aggrega/configInit` — inicializa uma configuração funcional registrando um registro e sua política de confiança de assinaturas, para que uma máquina nova possa baixar e verificar artefatos assinados sem editar YAML à mão. `registry` é opcional, e um valor ausente inicializa o hub oficial, o mesmo padrão que [`aggrega config init`](aggrega-config.md) usa; o `host` da resposta nomeia o que foi usado. `global` e `workspace` são as substituições do destino de gravação, e enviar ambos é recusado. Ele **se recusa a sobrescrever um arquivo de configuração existente**, nomeando o arquivo — envie `force` para prosseguir mesmo assim, o que mescla a entrada do registro ao que já existe e preserva as demais configurações. `dryRun` faz tudo o que a solicitação simples faz, exceto gravar, respondendo com a configuração inicializada como `content`, para um cliente que mostra o documento ao autor antes de salvá-lo; nada é criado nesse modo e `written` é false. **A recusa por arquivo existente também se aplica com `dryRun`**, então envie `force` junto com ele para receber como resposta a mesclagem que uma gravação com sobrescrita produziria. Em um workspace offline, apenas o hub oficial pode ser inicializado: esta solicitação não aceita identidades nem chave, de modo que qualquer outro registro é recusado exatamente como `aggrega/registryAdd` o recusa, código curto e frase incluídos, e deve ser adicionado por meio dessa solicitação com uma política fornecida à mão. A resposta traz `host`, `scope`, `trust` e `written`, e `existed`, true quando o arquivo de configuração já existia — de modo que a entrada do registro é mesclada a ele em vez de um novo arquivo ser criado — e ausente quando o arquivo é criado. **Isto grava a configuração global por padrão** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing)."
+  },
   "101150c631a12495": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -2084,6 +2133,13 @@
     "srcHash": "1460a5b20a38df14",
     "status": "machine",
     "text": "Verificar a correção no catálogo, em uma Release ou em uma única entidade"
+  },
+  "146aedbb621150b0": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "146aedbb621150b0",
+    "status": "machine",
+    "text": "`aggrega/activeRelease` — para qual Release o workspace que a solicitação nomeou aponta, como caminho absoluto em um campo `release`, para um cliente que decide o que selecionar por padrão. Aceita o workspace e nada mais. O campo está sempre presente, e um valor vazio significa que o workspace não aponta para nenhuma — uma resposta bem-sucedida, e não um erro, de modo que um cliente que a atualiza a cada reinício do daemon não é obrigado a tratar um workspace comum como uma falha. Quando o valor está vazio, a resposta também traz `reason`, um resumo de uma linha do que a cascata procurou, e `trace`, o relato etapa por etapa; ambos são omitidos quando uma Release foi resolvida. Quando uma Release foi resolvida, a resposta traz em vez disso `lockfile`, o caminho absoluto do lockfile dessa Release, que é omitido quando nenhuma foi resolvida. A Release que ela nomeia não precisa ser uma das que `aggrega/releaseCandidates` lista — um marcador pode nomear uma Release em um diretório que essa listagem deixa de fora, como `vendor/`, ou uma nomeada sem extensão YAML —, então é nesta resposta que um cliente lê o lockfile da Release padrão. Consulte [Onde fica o lockfile de uma Release](#where-a-releases-lockfile-is). Pergunte por ela em vez de deduzir a resposta a partir de uma das entradas da cascata: uma entrada que a cascata acabou não usando nomeia uma Release diferente da que ela escolheu. A resposta é calculada quando você pergunta, de modo que perguntar de novo depois de gravar um marcador, editar a configuração ou adicionar um arquivo de Release informa a nova resposta, e não o workspace como estava quando o daemon foi iniciado."
   },
   "14736a2eb9f4159f": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -2659,6 +2715,13 @@
     "status": "machine",
     "text": "**Onde um proxy na frente já valida tokens, `mcp.authorization.trusted_proxy` diz a este servidor para ler o chamador a partir dele em vez de verificar um token uma segunda vez.** Informe `principal_header`, o header que esse proxy define para dizer quem é o chamador, e opcionalmente `scopes_header`, um segundo header que traz os scopes desse chamador separados por espaços. Cada um é um nome de header HTTP como `X-Forwarded-User`, sem espaço nem dois-pontos; um nome em qualquer outra forma é recusado quando a configuração é carregada, indicando a chave, e o mesmo vale para um `principal_header` vazio — omita o bloco para deixar este modo desativado. Esses dois headers são os únicos lidos: nenhum header de endereço encaminhado nem qualquer outro header participa. Uma requisição que chega sem o header do principal recebe `401`, e **nenhum token é lido neste modo** — uma requisição com um token que este servidor teria recusado de outra forma é atendida quando seu header do principal está presente, e uma com um token que este servidor teria aceitado é recusada mesmo assim quando esse header está ausente."
   },
+  "19f72f7dd06d7098": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "19f72f7dd06d7098",
+    "status": "machine",
+    "text": "**Uma entrada cujo código nomeia uma classe traz apenas `code`.** A classe de um aviso de renderização e a identidade de uma constatação de convenções vinda de um linter seu — uma regra que o Aggrega não declara, ou o código que uma constatação que não nomeia nenhuma regra traz — são identificadores reais pelos quais você pode agrupar e suprimir, e nenhum dos dois é uma condição registrada — então não há número a citar nem nada no endereço que os descreva. Uma referência enviada mesmo assim seria um link que abre uma página que não trata do problema do leitor, e é por isso que nenhuma é enviada. Essa é a forma comum na camada `aggrega-build`, embora um aviso de build que de fato nomeia uma condição registrada traga as três como qualquer outro. Na camada `aggrega-lint`, a forma comum é o conjunto completo: uma regra do conjunto de regras do linter de publicação que o Aggrega declara é uma condição registrada, então sua constatação traz o mesmo `shortCode` que `aggrega lint` imprime no início da linha da constatação, e a referência ao lado."
+  },
   "1a1180604b726709": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -2672,6 +2735,13 @@
     "srcHash": "1a12d3b6ff70ab35",
     "status": "machine",
     "text": "Dois outros diretórios podem aparecer ao lado desses três, e nenhum deles contém conteúdo de dependências fixadas: `index/` traz os snapshots pesquisáveis por registry que `aggrega registry update` grava (§8), e `signatures/` armazena em cache cada pacote de assinatura verificado sob o seu próprio digest, de modo que uma leitura posterior verifica novamente o blob em cache contra o digest sob o qual ele foi registrado, em vez de buscar o pacote outra vez."
+  },
+  "1a1394cc5daa2bef": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "1a1394cc5daa2bef",
+    "status": "machine",
+    "text": "Em uma entrada `aggrega-lint` — uma constatação sobre as convenções de publicação — o código é a identidade da constatação: a identidade da regra que a produziu ou, para uma constatação que não nomeia nenhuma regra — que um linter seu pode informar sob um código próprio —, esse código. É o identificador que `aggrega lint` imprime na linha da constatação, depois do código curto quando houver um, e o valor que `aggrega lint --output json` traz para essa mesma constatação, como `ruleId`, ou como `code` para uma constatação que não nomeia nenhuma regra. Uma constatação mantém uma única identidade entre as interfaces, então um cliente que agrupa ou suprime uma regra no editor agrupa e suprime a mesma regra no terminal. Cada regra do conjunto de regras do linter de publicação que o Aggrega declara está registrada como condição sob essa identidade, então está listada na [tabela de todas as condições](../errors/sentinels.md#every-condition-by-short-code) sob o código curto que `aggrega lint` imprime no início da linha da mesma constatação e que `aggrega lint --output json` traz nela como `shortCode`. Uma regra de um linter seu que o Aggrega não declara não nomeia nenhuma condição registrada, e tampouco uma constatação que não nomeia nenhuma regra, mesmo quando seu próprio código reproduz a identidade de uma regra que o Aggrega declara — então nenhuma das duas está listada ali. As regras são descritas na [referência de `aggrega lint`](./aggrega-lint.md)."
   },
   "1a2d1e32094d235c": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -2714,6 +2784,13 @@
     "srcHash": "1a685b96b5355007",
     "status": "machine",
     "text": "Antes de ler a referência, familiarize-se com o modelo mental que os capítulos de arquitetura estabelecem. O capítulo [Os quatro domínios e Team Topologies](../architecture/03-team-topologies-and-domains.md) explica como Aggrega separa as preocupações de Developer Intent, Platform Catalog, Platform Ops e Platform Operator em superfícies de criação distintas; o capítulo [Taxonomia de entidades](../architecture/04-entity-taxonomy.md) nomeia as entidades (Aggregate, Component, Feature, Recipe, FeatureRecipe, Plugin, Manifest, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) e suas funções nesses domínios. Cada capítulo da referência após este pressupõe que o leitor tenha essa visão."
+  },
+  "1a69645b5afc4afe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "1a69645b5afc4afe",
+    "status": "machine",
+    "text": "Observe qual objeto traz o quê: isto é uma **string** em uma entrada de diagnóstico, distinta do `code` **numérico** em um envelope de erro JSON-RPC descrito abaixo em [Códigos de erro](#error-codes). Uma resposta traz um ou outro, nunca ambos no mesmo lugar."
   },
   "1a7a0d2274e5ff97": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -3534,6 +3611,13 @@
     "status": "machine",
     "text": "Um arquivo irmão referenciado que não carrega interrompe o comando imediatamente — uma Release apontando para um Aggregate ausente, uma entidade de catálogo quebrada na pilha de busca. Ele é interrompido com uma mensagem clara em vez de renderizar uma saída parcial, e não há modo continue-on-error para uma falha de carregamento: assim que um documento de que a resolução precisa fica ilegível, não há mais nada a resolver. Quando a resolução de um nome é interrompida em um documento de catálogo que o carregamento recusa, a mensagem declara essa recusa uma única vez: um cabeçalho com a categoria e, quando a recusa nomeia uma condição, seu código curto, depois o documento, depois o que há de errado com ele — para um documento que o esquema do seu tipo recusa, a linha e a restrição que ele viola. Ela não traz nenhuma sugestão de mover o arquivo — o catálogo o leu, e é por isso que ele foi recusado."
   },
+  "21fce41584d8a483": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "21fce41584d8a483",
+    "status": "machine",
+    "text": "Em uma entrada `aggrega` — uma constatação sobre os documentos escritos — o código é a string sob a qual a condição está registrada, escrita como o pacote declarante seguido da regra em kebab-case. É o mesmo valor que um consumidor Go lê com `CodeOf`, cuja forma e superfície comparável são descritas na [referência de sentinelas de erro](../errors/sentinels.md)."
+  },
   "220b22219250bfb2": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -3568,6 +3652,13 @@
     "srcHash": "2237ee7e5d842dc4",
     "status": "machine",
     "text": "As três capitalizações não são intercambiáveis. Um autor de Recipe que escreve `{{ .context.instanceId }}` (camelCase) interrompe o build: `.context` declara suas chaves, e `instanceId` não é uma delas, então a referência é recusada antes que qualquer coisa seja gerada e o diagnóstico lista as chaves que `.context` define — veja [`errors/fatal-halts.md`](errors/fatal-halts.md) “Template references a root the render context does not define (O template referencia uma raiz que o contexto de renderização não define)”. Um desenvolvedor que escreve `web.server` (com ponto) esbarra na rejeição do padrão de nomes de instância, porque o ponto é reservado como separador de caminho. O objetivo da disciplina: tenha em mente as três convenções ao ler ou escrever; apoie-se nas fronteiras (onde você está no YAML ou no template) para saber qual capitalização se aplica."
+  },
+  "22450ea24cd6c926": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "22450ea24cd6c926",
+    "status": "machine",
+    "text": "**Onde uma entrada fica depende do assunto dela, e não de qual camada a gerou.** Uma constatação sobre algo que o autor escreveu é posicionada na chave sob a qual ele o escreveu, para que o editor a desenhe onde a edição deve ser feita. Uma constatação sobre a forma da topologia implantada nomeia um componente e uma chave de entrega em vez de uma linha — essas são coordenadas na topologia implantada, não no documento —, então ela é desenhada na chave `kind:` do documento e nomeia suas coordenadas na mensagem. Os dois tipos chegam à camada `aggrega-build`, porque uma build gera ambos. Uma recusa que uma build gerou durante a renderização também chega a essa camada, no documento para o qual a própria recusa aponta — um Workload que não satisfaz suas verificações, na chave `workload` da sua Recipe; a asserção com falha de uma Recipe, na própria chave dessa asserção; uma entrada que a composição do grafo recusa, na chave sob a qual a Release ou o Aggregate a escreveu; e cada constatação de uma recusa que reúne várias, no seu próprio documento e na sua própria chave — e, quando não aponta para nenhum documento, na chave `kind:` do Aggregate; [Uma recusa gerada durante a renderização](#a-refusal-raised-while-rendering) descreve isso. Então um cliente posiciona cada entrada pelos seus próprios `line` e `column` e nunca deduz uma posição a partir da camada."
   },
   "224d7c9851946fd9": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -4359,6 +4450,13 @@
     "srcHash": "28a7aec6e815a52c",
     "status": "machine",
     "text": "**A pasta do workspace é onde é respondida cada solicitação que não indica um workspace próprio.** O Claude Desktop inicia o servidor em uma pasta escolhida por ele, e não no seu projeto, então o pacote passa a pasta que você escolheu para o servidor como a variável `AGGREGA_WORKSPACE_ROOT` no ambiente dele, em vez de como um argumento na linha de comando que o aplicativo monta. O servidor toma essa pasta como a própria raiz do workspace, assim como `--workspace-root` é tomado em cada comando: ele não procura acima dela um workspace que a contenha, então escolha a pasta que contém `.aggrega-config.yaml`, e não uma dentro dela. Para trabalhar em outro workspace, altere a configuração e reinicie o aplicativo como na etapa 4."
+  },
+  "28e08db9a26c337a": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "28e08db9a26c337a",
+    "status": "machine",
+    "text": "`aggrega/entityDefinition` — aquilo em que a entidade nomeada se resolve: seu `kind`, seu próprio `name` e sua `version`, sua `description` e seu `publishScope` quando os tem, o `file` em que foi declarada, a `authoredLength` do texto escrito pelo autor por trás dela e sua `definition` como documento YAML com a herança já aplicada. `file` é informado para todo kind, como um caminho que você pode abrir — relativo à raiz do workspace para um documento dentro dela, absoluto para um fora dela, conforme [Como um caminho informado é escrito](#how-a-reported-path-is-spelled). Ele fica vazio em um caso: uma entidade resolvida a partir de um registro não tem, nesta máquina, nenhum documento escrito a nomear. `authoredLength` responde a uma pergunta diferente — quanto texto escrito pelo autor a resolução reteve —, e apenas um Aggregate é servido com algum, então leia os dois separadamente, e não como um par. `name` é a identidade de uma entidade, escrita da forma como uma entidade referencia outra, e pode trazer um sufixo de versão. Esta é a única solicitação aqui que parte de um nome em vez de um cursor, então é a que você deve fazer quando já sabe a qual entidade se refere. `release` é opcional e resolve o nome nos termos dessa Release — consulte [Responder nos termos de uma Release](#answering-in-one-releases-terms). Um nome que não se resolve em nada é recusado em vez de respondido com um documento vazio; consulte [Diferenciar as duas recusas por nome](#telling-the-two-by-name-refusals-apart). `name` pode, em vez disso, ser uma referência de registro — `oci://<host>/<repository>:<tag>`, ou `@<digest>` no lugar de `:<tag>` —, e a resposta é então a entidade publicada nessa coordenada, lida do seu registro, com `published` nomeando o que foi lido; consulte [Perguntar sobre uma coordenada](#asking-about-a-coordinate)."
   },
   "28e4bfad14be6c63": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -6005,6 +6103,13 @@
     "status": "machine",
     "text": "O lock da entidade"
   },
+  "3ae03612b59b6028": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "3ae03612b59b6028",
+    "status": "machine",
+    "text": "**Uma entrada que nomeia uma condição registrada traz as três.** `shortCode` é resolvido, e a referência leva à lista em que ele é resolvido."
+  },
   "3ae13d8ec97b5aa1": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -6810,6 +6915,13 @@
     "status": "machine",
     "text": "**Restrição 4: a Release não pode sobrescrever os valores do desenvolvedor**"
   },
+  "43042e2ebf15175c": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "43042e2ebf15175c",
+    "status": "machine",
+    "text": "`aggrega/pluginGenCatalog` — gera uma entidade Plugin por convidado selecionado, mesclando os campos de contrato derivados da autodescrição do convidado com um overlay por plugin escrito à mão. `fromEmbedded` e `plugin` são os dois modos de seleção e **exatamente um se aplica**: todos os convidados que este binário traz, ou um módulo em um caminho que você indica; indicar ambos, ou nenhum, é recusado em vez de resolvido. `overlay` é obrigatório, e é um diretório de overlays com `fromEmbedded` ou um único arquivo de overlay com `plugin` — quando há vários, um overlay é associado a um convidado pela identidade, e quando há apenas um não há nada a associar. `outputDir` é obrigatório **nas duas formas de entrega**, e `dryRun` não dispensa dele: uma execução de teste muda para onde o conteúdo vai, não de qual arquivo ele é conteúdo, então cada documento retornado continua indicando o caminho a que se destina, e esse caminho é composto a partir deste diretório. Os três caminhos aqui não são julgados da mesma forma, e a distinção segue o que a geração faz com cada um. `plugin` e `overlay` são lidos, e ambos são arquivos que você selecionou — um módulo fica no diretório em que sua toolchain o compila, e seu overlay é escrito ao lado dele —, então cada um pode ser absoluto e é lido onde realmente está. Em `outputDir` se escreve, então ele é relativo à raiz do workspace e é recusado quando é absoluto ou quando se resolve fora dela, como escrito ou por meio de um link — um diretório ainda não criado abaixo de um diretório vinculado que leva para fora é recusado como esse diretório é. Executar de novo sobre entradas inalteradas produz entidades idênticas byte a byte. **Isto grava as entidades geradas em `outputDir`, dentro do workspace, a menos que `dryRun` as peça como conteúdo.** Veja [O que uma alteração de plugin informa a você](#what-a-plugin-change-tells-you)."
+  },
   "43094f6320ecef95": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -6872,6 +6984,13 @@
     "srcHash": "436c8cd8436b33eb",
     "status": "machine",
     "text": "**agentgateway na frente dos modelos:** `core/gateway/agentgateway`, o agentgateway de código aberto, serve os modelos conectados ao seu próprio socket `models` a partir de um único arquivo de configuração que suas Recipes renderizam. Cada modelo conectado é uma entrada desse arquivo, nomeada pelo alias da conexão e escrita a partir do `endpoint` e do `model` que o modelo publica como um provedor de chat completions compatível com OpenAI, então todo modelo conectado é servido sob `/v1` no próprio endereço do gateway e é o nome de modelo que uma requisição traz que o escolhe: a requisição alcança o modelo pedindo o nome de modelo que o modelo publica, e um nome que nenhuma conexão traz é respondido com HTTP 404. O gateway apresenta a credencial própria de cada conexão como um bearer token, que o arquivo nomeia como uma variável que o gateway lê do seu ambiente quando lê o arquivo, sendo que uma variável ausente ali o impede de iniciar, e uma conexão que alcança um modelo cujo `model.aggrega.ai/api` não é `openai` interrompe o build. Ele publica essa URL base `/v1` como seu `endpoint` e o alias que seu `values.model` nomeia como seu `model`, e traz `model.aggrega.ai/api: openai`, então o socket `model` de um agente o aceita como aceita o gateway de IA; sem nada conectado, publica ambas as chaves vazias. Duas Recipes executam a mesma imagem, fixada por digest: `agentgateway-chart` renderiza o chart Helm standalone do projeto, obtido do registry do projeto, e realiza os controles abaixo, e `agentgateway` executa a imagem como um único serviço Docker Compose e não realiza nenhum deles, nem chamadores, então uma vinculação ali interrompe o build informando seu tipo; use o chart no Kubernetes, onde o build consegue alcançar esse registry. No chart, uma Release pode nomear os chamadores do gateway em `infra.callers` e suas chaves pelo slot `caller_keys`, como no APISIX: cada chamador é uma chave de API do arquivo, verificada em modo estrito e lida pelo nome desse Secret, então uma requisição de modelo que não apresenta nenhuma chave declarada como `Authorization: Bearer <key>` é recusada com HTTP 401, e a chave é removida da requisição encaminhada; sem chamadores, as rotas de modelos ficam abertas. O agentgateway insere cada chave que o arquivo nomeia dessa forma, a de um modelo conectado em qualquer uma das Recipes e a de um chamador no chart, no texto do arquivo antes de ler o arquivo como YAML, então uma chave precisa ser um token simples — letras, dígitos e `-`, `.`, `_`, `~`, `+`, `/` e `=` — e outros caracteres podem ser carregados como uma chave diferente ou parar o gateway. O gateway lê seu arquivo novamente quando ele muda, então um chamador removido da Release é recusado assim que o arquivo montado é atualizado. Enquanto `core/audit-logging`, ou `core/period-budget` com escopo `caller`, estiver vinculado, a Recipe de chart dá ao gateway um armazenamento, um arquivo SQLite em um volume próprio, e executa uma única réplica. Dos controles abaixo, ele realiza o mascaramento de dados, os padrões de negação de prompts, o orçamento por período, o registro de auditoria e a política de retry, cada um escrito no arquivo, e recusa pelo nome cada valor que não consegue manter. O mascaramento de dados substitui cada correspondência dos padrões que a vinculação lista por `<masked>`, ou, sob `refuse`, responde à requisição ou à resposta com HTTP 403, nos prompts de sistema e de desenvolvedor de uma requisição, em suas outras mensagens e nos argumentos e resultados de suas chamadas de ferramentas, e no texto da mensagem de uma resposta que chega inteira; ele não reconhece tipos de entidade e não restaura nada. O agentgateway não mascara uma resposta em streaming, então, enquanto as respostas são mascaradas, uma requisição de modelo que pede uma resposta em streaming é recusada com HTTP 403 antes de ser encaminhada, assim como qualquer requisição de modelo cujo corpo seja maior que os 2 MiB que o gateway lê para essa verificação, em streaming ou não. Uma recusa por um guard, incluída a de um padrão de negação, é HTTP 403 com o corpo “The request was rejected due to inappropriate content” (A requisição foi rejeitada devido a conteúdo inadequado). O orçamento, os registros e o retry são descritos em “Orçamento por período”, “Registro de auditoria” e “Resiliência” abaixo. Suas realizações da cadeia de fallback, da seleção de destino, do cache semântico, da validação de respostas e da triagem de injeção de prompt interrompem toda vinculação, cada uma informando o motivo, e o limite de concorrência não se vincula a ele, já que ele não traz nenhum valor `dataplane.aggrega.ai/concurrency-cap`."
+  },
+  "43706e113bd7d772": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "43706e113bd7d772",
+    "status": "machine",
+    "text": "Assim, os três casos se distinguem apenas pelas chaves: nenhum `code` significa nada a nomear, um `code` sem `shortCode` ao lado significa um identificador que não se resolve além disso, e o conjunto completo significa um identificador com um lugar onde ler sobre ele. Trate as duas novas chaves como opcionais, da mesma forma que `code`, e ofereça ao leitor algo para abrir apenas onde `codeDescription` tiver chegado."
   },
   "4371787c92357bf7": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -8987,6 +9106,13 @@
     "status": "machine",
     "text": "Publicar um Plugin"
   },
+  "55af80a9b8fbe887": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "55af80a9b8fbe887",
+    "status": "machine",
+    "text": "`aggrega/explainError` — o que o compilador declara sobre a condição que um código nomeia, e as entradas publicadas que ensinam a correção na autoria. `code` é obrigatório e aceita qualquer um dos identificadores de uma condição: o código curto que um diagnóstico traz em `shortCode`, ou o descritivo em `code`. É a expansão de um código que os diagnósticos neste canal já trazem, e é a mesma resposta que [`aggrega explain`](aggrega-explain.md) imprime em um terminal. A resposta sempre traz a condição — `shortCode`, `code` e `message` —, porque essa parte é declarada dentro do binário e não precisa de rede; `entries` traz o passo a passo publicado, e `note` diz por que ele está ausente, onde estiver. **Isto adquire o pacote de documentação quando a máquina não tem nenhuma cópia que a própria verificação de assinaturas do workspace admita** — veja [Alcançar um registry e gravar](#reaching-a-registry-and-writing). Veja [Expandir um código que um diagnóstico trazia](#expanding-a-code-a-diagnostic-carried)."
+  },
   "55b5dac136235bb6": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -9309,6 +9435,13 @@
     "status": "machine",
     "text": "**O esquema** é a estrutura exata: campos obrigatórios, valores permitidos e aninhamento. Na linha de comando, `aggrega get-schema <kind>` o imprime; `aggrega get-schema --list` lista cada tipo que você pode solicitar. Um assistente lê os mesmos bytes do recurso `schema://<kind>`. Consulte a referência de [`aggrega get-schema`](../language-reference/cli/aggrega-get-schema.md)."
   },
+  "589cf2f7dc158ce8": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "589cf2f7dc158ce8",
+    "status": "machine",
+    "text": "`aggrega/effectiveConfiguration` — a configuração em vigor para o workspace que a solicitação nomeou, e a camada de onde veio cada configuração. Aceita o workspace e nada mais: a resposta é uma propriedade desse workspace. `layers` lista os arquivos de configuração e as substituições de ambiente que contribuíram, começando pela de menor precedência; `settings` traz cada configuração atribuída com seu nome pontuado, seu valor efetivo e a `source` que a determinou. Uma `source` é escrita exatamente como a entrada correspondente em `layers`, de modo que as duas se combinam diretamente. Consulte [O que a resposta de configuração efetiva abrange](#what-the-effective-configuration-response-covers) para saber qual camada uma `source` nomeia e quais são os limites do que uma linha significa."
+  },
   "58b44fc7933b3220": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -9539,6 +9672,13 @@
     "srcHash": "5aa10c4d4906233a",
     "status": "machine",
     "text": "`Status` informa `Valid`, e o requerente começa com `CN=Cognitio S.r.l.`. `NotSigned` ou `HashMismatch` significa que o arquivo não é o que a release publicou, ou que foi alterado depois de assinado."
+  },
+  "5aa4fad3f773a7a7": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "5aa4fad3f773a7a7",
+    "status": "machine",
+    "text": "Leia a chave em vez de deduzir a partir dos diagnósticos, porque as duas respostas podem parecer idênticas. Um documento bem formado validado sem Release responde com uma lista de diagnósticos vazia, que é exatamente o que um veredito completo limpo responde, então `checked` é a única coisa que separa “nada está errado” de “nada que precise de uma Release foi examinado”. Uma consequência decorre da mesma regra: um lockfile é reconhecido pela sua correlação com a Release que a solicitação nomeou, então uma solicitação que não nomeia nenhuma não reconhece nenhum lockfile e não informa nada sobre um."
   },
   "5adb47333d691c18": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -10093,6 +10233,13 @@
     "status": "machine",
     "text": "**A seleção de formato é declarativa, nunca adivinhada.** O host nunca inspeciona o conteúdo de um arquivo para decidir o que ele é. Ele escolhe um formato por meio de sinais declarados, em uma ordem de preferência fixa. Um provider de renderização pode declarar o formato de cada arquivo que emite, e o host prefere sem ressalvas esse formato declarado pelo produtor — o provider que escreveu os bytes é a autoridade sobre como lê-los. Para um arquivo que o produtor não marcou, um mapa fixo de extensões de arquivo é a alternativa — `.tf` seleciona HCL, `.toml` seleciona TOML, `.yaml` seleciona YAML, `.json` seleciona JSON. Escolher por um formato declarado ou por uma extensão fixa mantém a análise determinística e legível: a mesma entrada sempre é encaminhada ao mesmo analisador, e um operador consegue saber qual analisador será executado sem conhecer os bytes do arquivo. Inspecionar o conteúdo faria a escolha depender do payload, e o Aggrega não faz isso."
   },
+  "6084421c9c1a13fc": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6084421c9c1a13fc",
+    "status": "machine",
+    "text": "**Nomear uma Release é opcional, e a resposta diz qual das duas coisas você pediu.** Nomeie uma e você recebe tudo o que foi descrito acima. Não nomeie nenhuma e você recebe as verificações que um documento responde por si só — se ele pode ser analisado, se sua própria forma é admissível e, para uma entidade de catálogo de um tipo validado como entidade única, quais placeholders ele ainda deve —, sem resolver nenhuma Release, percorrer nenhum fechamento nem ler nenhum lockfile; a resposta traz então `checked: \"document\"`. Nomeie uma Release e essa chave fica ausente, porque essa resposta é o veredito completo do método e não tem nada a qualificar."
+  },
   "60871828805e4c8a": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -10148,6 +10295,13 @@
     "srcHash": "60c970e0d518de42",
     "status": "machine",
     "text": "**Ramo de catálogo**"
+  },
+  "60d037bfde9c873a": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "60d037bfde9c873a",
+    "status": "machine",
+    "text": "**O texto explicativo em si não está na entrada, e isso é proposital.** Um diagnóstico é emitido a cada edição, então uma explicação que viajasse com cada um republicaria os mesmos parágrafos a cada tecla pressionada para um leitor que geralmente já os leu. Um cliente que quer o texto o pede uma vez, com [`aggrega/explainError`](#expanding-a-code-a-diagnostic-carried) abaixo; um cliente que pode seguir um link não precisa de nenhum dos dois."
   },
   "60e232db4cd3fc76": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -10744,6 +10898,13 @@
     "status": "machine",
     "text": "Autenticação"
   },
+  "6688703b25ce9107": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6688703b25ce9107",
+    "status": "machine",
+    "text": "**Um workspace que não contém nenhuma Release recebe resposta em vez de recusa, e é isso que mantém o resto do daemon utilizável ali.** A validação é o que alimenta o cache de análise que toda outra operação de arquivo lê, então um repositório só de catálogo, um scaffold com um único Aggregate ou um diretório de rascunho continuam recebendo hover, autocompletar, ir para a definição, referências, implementações e diagnósticos em cache. Recusar levaria tudo isso junto, justamente nos workspaces em que um cliente não tem nenhuma Release a nomear."
+  },
   "671867706d53b701": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -10841,6 +11002,13 @@
     "srcHash": "67c46252e605ebe2",
     "status": "machine",
     "text": "O nome “Zero-Port” é a designação histórica canônica dessa convenção; o princípio se generaliza para qualquer restrição de infraestrutura física que uma aplicação legada codifica de forma fixa. O schema abaixo usa `tcp_keepalive_seconds` como exemplo prático — um tempo de kernel/rede que a aplicação espera na camada de sockets — para manter o exemplo explicitamente no eixo do vazamento de infra, sem nomear um campo cujo posicionamento entre values e infra seja ele próprio debatido."
+  },
+  "67e91039b12d3a82": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "67e91039b12d3a82",
+    "status": "machine",
+    "text": "A resposta sempre traz `shortCode`, `code` e `message`: os dois identificadores da condição e a frase com que começa todo diagnóstico que a nomeia. Eles são declarados dentro do binário, então chegam sem rede e sem cache, e é isso que permite responder mesmo a um workspace que não contém nenhuma documentação. `reference` é o mesmo endereço que o `codeDescription` de um diagnóstico traz, para um cliente que prefere enviar seu leitor à documentação em vez de exibir o texto."
   },
   "67f60f9032bb339a": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -11576,6 +11744,13 @@
     "srcHash": "6f3eae21bbe091bd",
     "status": "machine",
     "text": "`component.aggrega.ai/type` é a chave do Aggrega, e seu conjunto de valores é fechado: o esquema publicado do Component enumera as primitivas, e um documento que traga qualquer outro valor é recusado ao ser carregado, com `E0215` nomeando o rótulo e listando o que ele aceita. Um catálogo que precisa de uma classificação que o Aggrega não define adiciona **sua própria chave de rótulo** ao lado dela — o esquema do Component aceita qualquer chave de rótulo adicional com valor de string —, de modo que um novo eixo custa uma chave sua e nenhuma nova versão do compilador, enquanto a chave reservada mantém um único significado em todo lugar. É isso que faz uma Feature escrita para `component.aggrega.ai/type in (stateful-server)` funcionar com Components de autores que nunca se conheceram."
+  },
+  "6f57dad0627768da": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6f57dad0627768da",
+    "status": "machine",
+    "text": "A chave é **omitida** quando nada do que produziu a entrada atribuiu um código, e todo tipo tem esse caso. Um buffer que nenhum parser de YAML consegue ler informa o próprio texto do parser e nenhum código, porque nenhuma condição própria do Aggrega está por trás dele; uma etapa que informa uma falha sem nomear uma condição também não tem nenhuma a informar; e um aviso ao qual quem o gerou não atribuiu nenhum código chega sem ele. Então trate `code` como opcional, da mesma forma que `end_line` e `end_column`, e ramifique com base nele apenas quando estiver presente. Um código é o que um diagnóstico informa e nunca o que seleciona um: nenhuma solicitação aceita um código, e escrever um de volta no seu próprio código lhe dá uma string em vez de uma forma de comparar."
   },
   "6f6fdefb454e7671": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -12501,6 +12676,13 @@
     "status": "machine",
     "text": "1. O compilador é neutro quanto ao conteúdo, sem opiniões próprias e agnóstico em relação à intenção do usuário"
   },
+  "785ffb55adc86643": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "785ffb55adc86643",
+    "status": "machine",
+    "text": "`aggrega/releaseClosure` — o fechamento de dependências de uma Release: quais entidades ela alcança e em quais versões resolvidas, em `entities`, `libraries` e `plugins`, junto com as identidades `aggregate` e `manifest` em que seus dois ponteiros se resolveram, quaisquer `mappingDiagnostics` que a resolução tenha gerado e as `deprecations` registradas contra o que ela alcançou. `release` é um caminho relativo à raiz do workspace que nomeia uma Release dentro dela, o mesmo valor que `aggrega/irGraph` aceita, recusado nas mesmas formas, e exige um lockfile pelo mesmo motivo. Nada é renderizado. Suas entradas não nomeiam nenhuma `source`: elas dizem de que a Release depende, não o que uma execução fez, que é o que `aggrega/resolveDependencies` informa. Consulte [Um fechamento não é o grafo](#a-closure-is-not-the-graph), porque um cliente que já recebe o grafo não tem isto."
+  },
   "7860d48b4829e1ce": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -12998,6 +13180,13 @@
     "status": "machine",
     "text": "`tmpfs: { size }` (em memória; aviso se a semântica for diferente)"
   },
+  "7e1714ef4a8d1c16": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "7e1714ef4a8d1c16",
+    "status": "machine",
+    "text": "**Qual usar depende de quem está lendo.** Compare com `code` na sua extensão; mostre `shortCode` ao autor. Uma extensão que mostrasse apenas `code` deixaria o leitor com um identificador destinado a um programa, e uma que comparasse com `shortCode` estaria comparando um número que não diz nada sobre a condição. Essa divisão é o motivo pelo qual os dois trafegam, e não apenas um."
+  },
   "7e3d50dd9d9c4283": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -13166,6 +13355,13 @@
     "status": "machine",
     "text": "Publicar um artefato de dados independente (como um pacote de documentação) em um registry OCI"
   },
+  "80ba42d1ed0c0f81": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "80ba42d1ed0c0f81",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — procura no registro configurado um plugin de um tipo nomeado e o adiciona à configuração. `type` e `query` são ambos obrigatórios: `type` é um entre `provider`, `governance`, `linter`, `importer` e `cli`, e `query` é comparado com os nomes dos plugins desse tipo e deve se resolver em exatamente um, de modo que uma consulta que corresponde a vários é recusada com os candidatos em vez de resolvida arbitrariamente. `capability` nomeia a capacidade que um binding `provider` atende e é obrigatório nesse caso; `role` nomeia o papel de uma anexação `governance` — `label-transform`, `ir-verdict` ou `render-verdict` — e é obrigatório nesse caso; cada um é lido apenas para seu próprio tipo e recusado em qualquer outro, porque um campo que silenciosamente não fizesse nada pareceria ter funcionado. `acceptCapabilities` é obrigatório para `cli` e confirma as capacidades declaradas desse plugin: o comando no terminal obtém essa decisão perguntando, e esta superfície não tem a quem perguntar, então quem chama a obtém e a envia. `global` e `workspace` são as substituições do destino de gravação, e enviar ambos é recusado. `dryRun` faz tudo o que a solicitação simples faz, exceto gravar, respondendo com a configuração resultante como `content`; nada é criado ou modificado e `written` é false. O registro ainda é consultado e a versão ainda é resolvida, porque a identidade nesse conteúdo é a identidade que uma gravação teria fixado. **`dryRun` é recusado no tipo `cli`**, em vez de ignorado: o que a adição de uma extensão de comando registra é o digest do conteúdo dos bytes que ela verificou, um registro que o compilador mantém, e não um conteúdo que alguém edita, e a adição armazena esses bytes em cache à medida que avança — por isso ela é gravada em vez de devolvida. A versão é fixada para você — a consulta se resolve em um plugin e a versão publicada mais alta dele é gravada na entrada. **Isto acessa um registro, e uma adição do tipo `cli` que não nomeia nenhum dos dois escopos grava a configuração global** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing). Consulte [O que uma alteração de plugin informa](#what-a-plugin-change-tells-you)."
+  },
   "80c2b05ed2f609d6": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -13207,6 +13403,13 @@
     "srcHash": "814975c74ed60d8f",
     "status": "machine",
     "text": "**O resumo diz o que existe aqui e em que quantidade.** `list-entities` informa a raiz do workspace — retida via HTTP, como explica [O que uma resposta diz sobre o sistema de arquivos do servidor](#what-an-answer-says-about-the-servers-filesystem) —, o número total de entidades e uma contagem por tipo; `list-releases` informa o total e uma contagem por diretório de nível superior, para que você saiba quantas Releases existem e em que parte da árvore elas estão. As duas divisões são lidas dos próprios documentos, então um workspace organizado de um jeito que ninguém previu é resumido com a mesma precisão que qualquer outro. As duas trazem uma linha por tipo, ou por diretório de nível superior, então seu tamanho acompanha quantos tipos um workspace declara e em quantos diretórios suas Releases estão, e não quantos documentos ele contém: multiplique por cem os documentos de um workspace, sem alterar seus tipos, e o resumo cresce apenas os poucos bytes necessários para escrever os números maiores. Declarar mais tipos é o que o torna mais longo. Nenhuma das duas é uma primeira página de registros, e a diferença é justamente essa: “aqui estão algumas das entidades” é uma resposta diferente de “é disto que o workspace é feito”, e só a segunda diz se você quer algum registro, e quais."
+  },
+  "81506d26ec7d5175": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "81506d26ec7d5175",
+    "status": "machine",
+    "text": "`aggrega/shutdown` — inicia um esvaziamento cooperativo: as solicitações em andamento terminam, as novas solicitações são recusadas e então o daemon é encerrado."
   },
   "817474cd1f4cacb8": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -13271,6 +13474,13 @@
     "status": "machine",
     "text": "Remover um registry e sua política de confiança de um arquivo de configuração"
   },
+  "824e4f6c6a76511a": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "824e4f6c6a76511a",
+    "status": "machine",
+    "text": "A cada `aggrega/validate`, o daemon valida o buffer do editor contra o schema do documento e retorna diagnósticos apontando para a chave problemática — o mesmo veredito que uma build daria, sobre conteúdo não salvo. Uma solicitação que não envia `content` pergunta sobre o arquivo como ele está em disco; um `content` enviado vazio é um buffer vazio, não uma solicitação do arquivo. Um arquivo enviado sem seu conteúdo precisa ser um que o workspace contenha e que possa ser lido — um arquivo fora do workspace, um alcançado por meio de um link que leva para fora dele ou um que não existe é recusado com o código invalid-params. Entidades de catálogo, Aggregates, Manifests e Releases são reconhecidos pelo seu `apiVersion` e `kind`. Os dois documentos que não trazem tal cabeçalho — a configuração do workspace `.aggrega-config.yaml` e o lockfile da Release que a solicitação nomeou — são reconhecidos pelo nome do arquivo, de modo que uma chave lixo ou malformada em qualquer um deles também é sublinhada em tempo real. Arquivos que não são documentos do Aggrega — templates de charts do Helm, arquivos do Compose, manifestos do Kubernetes e arquivos `.lock` de outros ecossistemas, como `Cargo.lock` ou `flake.lock` — não recebem diagnósticos; o daemon nunca informa nada sobre arquivos alheios."
+  },
   "824f0f89a08c16b6": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -13298,6 +13508,13 @@
     "srcHash": "8283495b1bff9905",
     "status": "machine",
     "text": "`publish-entity` recebe `entity`, o documento a publicar, e um Plugin também precisa de `plugin`, o executável publicado dentro do seu manifesto. `publish-artifact` recebe `file` com o `name` e a `tag` sob os quais ele é publicado. Todo argumento de caminho aqui é absoluto ou relativo à raiz do workspace, o mesmo contrato que todas as outras ferramentas desta superfície usam, e `workspace_root` indica o workspace a que a chamada se refere — em um servidor acessado por entrada e saída padrão. Um servidor acessado por HTTPS recusa `workspace_root` e exige que cada um desses caminhos seja resolvido dentro do workspace que ele atende, como explica [Um processo, um workspace](#one-process-one-workspace). `registry` é o destino e tem como padrão o configurado no workspace; não enviar nenhum dos dois, sem padrão configurado, é recusado indicando o que enviar. `sign-artifacts` recebe `references`, um ou mais endereços de registry em vez de caminhos. `deprecate-artifact` recebe ou `reference` com `severity` e `reason`, ou `from` indicando um arquivo de lote — e recusa argumentos de conteúdo enviados junto com um arquivo de lote em vez de descartá-los, porque um arquivo de lote fornece os seus próprios e um argumento ignorado silenciosamente parece um que foi respeitado."
+  },
+  "8286334e06e91502": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "8286334e06e91502",
+    "status": "machine",
+    "text": "**Uma falha é informada uma única vez.** A própria validação de um documento e uma build podem encontrar a mesma falha nele: a verificação de entidade única renderiza uma Recipe que uma build também renderiza, a validação compõe o grafo que uma build compõe, e uma Release cujas dependências não se resolvem faz ambas falharem. Enquanto uma build informa tal falha em um documento, a validação desse documento não a informa uma segunda vez: uma entrada `aggrega` que nomeia a mesma condição — o mesmo `code` — que a recusa de uma build no mesmo documento, posicionada no mesmo intervalo ou em nenhuma chave própria — desenhada onde é desenhada uma entrada que não nomeia nenhuma chave, ou no início do arquivo —, é omitida de toda resposta e de toda publicação para esse documento, e o relato da build fica sozinho. O relato da build é a entrada da recusa na camada `aggrega-build`; ou, para `aggrega/build`, `aggrega/buildPreview` ou `aggrega/irGraph` recusados com `1004` porque uma dependência não se resolve, essa própria resposta — que nada publica — no documento que seu `data.file` nomeia, senão seu `data.lockfile`, senão a Release que a solicitação nomeou, sendo a mais recente dessas respostas para uma Release a que conta. A validação mantém o que encontrou: assim que nenhuma build informa mais a falha — a próxima execução publica a camada sem ela, a próxima resposta de build, prévia ou grafo para essa Release é qualquer outra coisa, ou um cliente se conecta sem ter recebido tal resposta `1004` —, a entrada própria do documento volta a ser informada, e onde nenhuma build foi executada nada é omitido. Uma entrada `aggrega` posicionada em uma chave onde não há nenhuma recusa de build permanece, mesmo quando nomeia a mesma condição, porque pode ser uma segunda falha desse tipo que a build não informou."
   },
   "8298860f672eff88": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -13698,6 +13915,13 @@
     "status": "machine",
     "text": "O determinismo é preservado por um pequeno número de disciplinas que toda transformação respeita:"
   },
+  "86c48bf2672ab8be": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "86c48bf2672ab8be",
+    "status": "machine",
+    "text": "As camadas respondem a perguntas diferentes sobre um mesmo arquivo, então uma entrada de cada uma pode estar na mesma linha sem que uma seja duplicata da outra: uma diz que o deployment não está correto, outra que a entidade não pode ser publicada. Um cliente que as mostrasse como uma única lista informaria um único problema duas vezes, e ler `source` é o que as separa."
+  },
   "86c81f446f1b74c3": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -13739,6 +13963,13 @@
     "srcHash": "872887e563e75957",
     "status": "machine",
     "text": "Exemplo:"
+  },
+  "874dc8fa1f1b8723": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "874dc8fa1f1b8723",
+    "status": "machine",
+    "text": "**Uma entrada que não nomeia nada não traz nenhum identificador.**"
   },
   "8758bf53d6ac5444": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -13991,6 +14222,13 @@
     "srcHash": "89f3e882003f4c20",
     "status": "machine",
     "text": "resolve novamente cada dependência e regrava o lockfile; execute `aggrega pull --upgrade` como uma etapa própria"
+  },
+  "8a1571e6da952478": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "8a1571e6da952478",
+    "status": "machine",
+    "text": "`aggrega/releaseCandidates` — os documentos Release do workspace que a solicitação nomeou, como caminhos absolutos. Aceita o workspace e nada mais: o conjunto é uma propriedade dessa raiz do workspace. A pertinência é decidida pelo kind do documento — o `kind:` do arquivo é `Release` — e não pelo nome do arquivo, de modo que uma Release nomeada sem um prefixo convencional é oferecida, e um arquivo que apenas tem nome de Release não é. É isso que o seletor “qual Release?” de um editor deve listar, porque é o mesmo conjunto do qual a cascata da Release ativa descrita abaixo escolhe. A resposta também traz `lockfiles`, que mapeia cada Release listada — usando como chave exatamente a string sob a qual `releases` a lista — para o caminho absoluto do seu lockfile; ele está sempre presente, e é um objeto vazio quando o workspace não contém nenhuma Release. Ela traz também `unreadLinkedDirs`, nomeando — relativo à raiz, onde o link está — cada link que fica onde a listagem leria um diretório e leva a um diretório fora da raiz do workspace: nenhum diretório fora da raiz é percorrido, de modo que uma Release que seu editor mostra dentro de um deles não é listada, e esse campo é o que permite a um seletor explicar o motivo. Um link para um diretório que a configuração do seu workspace lista em `catalog_dirs` não é nomeado: a configuração o alcançou, como diretório de catálogo e não como um lugar onde Releases são mantidas. Ele está sempre presente, e vazio quando não há nenhum link desse tipo. Ao lado dele, `unreadLinkedFiles` nomeia da mesma forma cada link cujo próprio nome termina em `.yaml` ou `.yml` e que leva a um arquivo fora da raiz do workspace: nenhum arquivo desse tipo é lido, seja qual for seu conteúdo, de modo que uma Release alcançada apenas por um desses links não é listada, e a etapa da cascata relativa a uma única Release não a conta. A exceção é um arquivo que a configuração do seu workspace nomeia como Release — como `build.authoring_release` ou como chave de `workspace.releases`, avaliado pelo arquivo ao qual o link leva, de modo que nomear o link ou esse arquivo conta da mesma forma —, que é lido e listado no próprio lugar do link, e não nomeado, desde que declare uma Release; um que declare qualquer outra coisa não é listado, e seu link é nomeado. Ele está sempre presente, e vazio quando não há nenhum link desse tipo. Quando o próprio arquivo de configuração do workspace, ou o overlay mantido pela CI ao lado dele, é ele mesmo um link que leva para fora do workspace, esse arquivo é nomeado aqui independentemente de como a busca o trate, e a listagem é lida sem nada configurado, de modo que uma Release que a configuração teria nomeado por meio de um link não é listada; consulte [Raiz do workspace e Release ativa](#workspace-root-and-active-release). Consulte [Onde fica o lockfile de uma Release](#where-a-releases-lockfile-is)."
   },
   "8a2af795cce8a567": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -14608,6 +14846,13 @@
     "status": "machine",
     "text": "**Composição.** O engenheiro de Ops escreve uma declaração `schema:` estrita (forma compacta ou JSON Schema 2020-12 completo) que define `values`, `infra` e `provides`. Essa declaração é o contrato próprio da entidade e é compilada separadamente: nem o fragmento de slots nem a tabela de sockets são incorporados a ela. Cada superfície é verificada onde reside o seu objeto, de modo que uma falha de socket é relatada na entrada de socket que o arquiteto escreveu, e não em um caminho dentro do bloco `schema:` — e o engenheiro de Ops continua sem escrever nenhum código repetitivo de `uses`."
   },
+  "917fe5b9230ef507": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "917fe5b9230ef507",
+    "status": "machine",
+    "text": "**Um placeholder ainda pendente é nomeado em sua chave, com o que ele aceita.** Uma entidade de catálogo de um tipo que [`aggrega validate`](aggrega-validate.md#placeholders-still-owed) verifica como entidade única também é lida em busca dos valores obrigatórios que deixa como string vazia, pela leitura que esse comando aplica, de modo que o daemon nomeia cada placeholder que o comando nomeia para os mesmos bytes. Cada placeholder é uma entrada: seu `message` diz que a chave é um placeholder ainda pendente, seu `suggest` diz o que o valor aceita, e seu `keyPath` traz o caminho com pontos da chave. A entrada substitui a constatação do próprio schema para esse valor vazio, e todas as demais constatações sobre o documento são informadas como a verificação do schema as informa. Um placeholder que o schema admite vazio também é nomeado, embora a verificação do schema não informe nada sobre ele — `capability` e `implements` de uma Recipe ou FeatureRecipe em rascunho são os que você vai encontrar. Onde a verificação do schema também recusa o documento, cada entrada traz o código dessa verificação, `E0215`, e onde ela o aceita, as entradas não trazem código: os mesmos identificadores que o relatório do comando traz para esses bytes. Uma entrada é desenhada na chave que contém o valor vazio, na linha em que o comando a nomeia — mesmo em uma chave cujo próprio nome contém um ponto, como o label `component.aggrega.ai/type`, em que uma constatação que a verificação do schema informa sobre essa chave é desenhada na chave que a envolve —, e `keyPath` nomeia a chave por completo. Isso vale quer a solicitação nomeie uma Release ou não, porque é uma pergunta que o documento responde por si só, e a um documento que ainda deve um valor ainda não se pergunta sobre as convenções de publicação: essa camada é limpa para ele, como ocorre com um documento cuja forma o schema recusa."
+  },
   "9188c68fdf366cc9": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -14656,6 +14901,13 @@
     "srcHash": "91d608780ef9bf3f",
     "status": "machine",
     "text": "Como o compilador do Aggrega é um compilador matematicamente sem opiniões próprias, ele não possui nenhum conhecimento codificado de frameworks de IA, orçamentos de tokens ou particionamento de memória. Em vez disso, os esquemas genéricos nativos de nuvem funcionam como um recipiente vazio. Em vez de ser codificada no núcleo do compilador, a inteligência de domínio altamente especializada é distribuída por todo o ecossistema extensível do Aggrega. Ela é encapsulada no catálogo da plataforma por meio de `components`, `features` e `recipes` especializados. Os desenvolvedores preservam sua intenção de aplicação específica em seus blocos `values` e `uses` — rigorosamente governados pelas declarações `schema:` do arquiteto (forma compacta ou JSON Schema 2020-12 completo) —, enquanto a tradução física dessa inteligência é executada por plugins WebAssembly específicos de cada destino."
+  },
+  "91e35487fcb29132": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "91e35487fcb29132",
+    "status": "machine",
+    "text": "O que uma entrada de diagnóstico traz"
   },
   "9200eb420570de43": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -14971,6 +15223,13 @@
     "srcHash": "94892667536f2dc0",
     "status": "machine",
     "text": "`validate` nomeia `target`, e `release` para uma Release, em relação à raiz; para o catálogo inteiro, `target` é a raiz e é retido. Um lugar em `diagnostics` ou `notices` segue a regra do texto."
+  },
+  "9499bfea65bf8447": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "9499bfea65bf8447",
+    "status": "machine",
+    "text": "**Em qual documento uma entrada é publicada decorre da mesma regra.** Uma validação que nomeia uma Release responde sobre dois documentos: o Aggregate dessa Release e a própria Release. Uma constatação posicionada na Release — a recusa de uma entrada que a Release escreve em uma das conexões de um componente, do dimensionamento que ela dá a essa conexão, de um anexo que ela preenche ou dimensiona ali, de uma conexão que ela liga, de uma Feature que apenas a Release anexa a um componente ou a uma fronteira, ou do `infra` que ela dá a um anexo — é publicada quando o documento da Release é validado, na chave da Release que a escreveu, e de forma alguma no Aggregate. Todas as demais constatações que a validação dessa Release gera, incluindo as constatações no nível de dependências, são publicadas no Aggregate. Assim, uma constatação sobre o que o operador escreveu aparece enquanto a Release está aberta, seja qual for a etapa da build que a gerou; um editor que valida cada documento aberto contra a Release a mostra ali. Uma Release cujas dependências não podem ser resolvidas de forma alguma não gera nenhuma dessas constatações, e a falha em resolvê-las é uma única entrada no início do próprio documento da Release e de todo outro documento validado contra ela que o daemon reconhece, como descreve [Validação em tempo real](#live-validation), e não verifica como entidade única — seu Aggregate, seu Manifest, uma biblioteca, outra Release, a configuração do workspace —, com o prefixo `Dependencies:` e trazendo o próprio relato da resolução sobre o que a interrompeu. No próprio documento da Release, a entrada é esse relato e nada mais. Em todo outro documento, ela primeiro diz que o documento é verificado contra essa Release e nomeia a Release como uma solicitação a nomeia — `Dependencies: this document is checked against the Release <release>, whose dependencies cannot be resolved:` seguido do relato —, porque nada nesse documento diz contra qual Release ele foi verificado: um editor que verifica cada documento aberto contra a única Release selecionada coloca a entrada em documentos que não têm nada a ver com essa Release, e o nome é o que lhe diz que a seleção é a causa. Um arquivo que o daemon não reconhece não traz nenhuma entrada desse tipo, seja qual for a Release nomeada com ele."
   },
   "94b8394f61627343": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -15630,6 +15889,13 @@
     "status": "machine",
     "text": "**5. FeatureRecipe:** mapeia explicitamente uma `Feature` para uma implementação de infraestrutura concreta por meio da palavra-chave `implements`. Ela exige um `provider` de destino (por exemplo, `helm`, `compose`). Como a plataforma unifica o gerenciamento de credenciais na entidade Feature, as FeatureRecipes tratam tanto funcionalidades operacionais (mascaramento de dados, roteamento DNS, injeção de sidecar) quanto funcionalidades de credenciais (geração de CRDs de cofre, montagem de volumes de segredos). Para cobrir todo esse espectro, ela suporta três blocos de execução distintos:"
   },
+  "9b5a1b58a51a094a": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "9b5a1b58a51a094a",
+    "status": "machine",
+    "text": "`aggrega/insertionPoint` — onde, em um documento escrito pelo autor, fica uma nova entrada sob um contêiner nomeado, expresso de forma que um cliente a aplique sem analisar o documento por conta própria. `file` nomeia um documento que o workspace contém, relativo à raiz do workspace, absoluto ou como seu endereço `file://`; um documento fora da raiz, como escrito ou por meio de um link que leva para fora dela — para o arquivo ou para um diretório no caminho —, é recusado independentemente da grafia que o nomeie, e quer você tenha ou não uma cópia dele; `container` é o caminho estrutural da raiz do documento até o contêiner em que a entrada vai, sendo cada elemento uma chave de mapping ou uma posição de sequência escrita em decimal. **Esse caminho é você quem fornece** — o daemon lê a própria estrutura do documento e nunca deduz onde algo deve ficar a partir do nome que tem. Consulte [O que uma resposta de ponto de inserção informa](#what-an-insertion-point-response-tells-you), porque a posição sozinha não basta para aplicar a edição."
+  },
   "9b5c60a2666e10d5": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -15755,6 +16021,13 @@
     "srcHash": "9c551dbfff534b20",
     "status": "machine",
     "text": "**Uma recusa responde nos mesmos campos, preenchidos até onde a execução chegou.** Depois que a resolução é calculada, `resolved` é trazido qualquer que seja o veredito — um veredito de deriva acima de tudo, já que essa é a recusa sobre a qual um chamador precisa decidir o que mudar. Uma recusa anterior a esse ponto, como um caminho de Release que não é resolvido, traz a correção como texto e nenhuma resolução, porque não havia nenhuma a trazer."
+  },
+  "9c5c6f5f700612cb": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "9c5c6f5f700612cb",
+    "status": "machine",
+    "text": "`aggrega/connectionCandidates` — ao que a entidade nomeada pode se conectar. `node` é o `metadata.name` de uma entidade, a mesma coordenada que `aggrega/attachCandidates` aceita com esse nome. Consulte [O que uma resposta de candidatos a conexão informa](#what-a-connection-candidate-response-tells-you) abaixo, porque as duas metades da resposta não são igualmente completas e a resposta diz qual é qual."
   },
   "9c68d834275c7b26": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -16035,6 +16308,13 @@
     "srcHash": "9fd2326b598a8d92",
     "status": "machine",
     "text": "Para resolver isso sem poluir a arquitetura com charts Helm de espaço reservado, o Aggrega introduz um socket de execução programática de primeira classe: o **plugin `eval`.**"
+  },
+  "9fdadca53a6db39b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "9fdadca53a6db39b",
+    "status": "machine",
+    "text": "Validação em tempo real"
   },
   "9fed1fe65f7c60bc": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -16442,6 +16722,13 @@
     "status": "machine",
     "text": "Referência por entidade"
   },
+  "a3daac60def70d98": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "a3daac60def70d98",
+    "status": "machine",
+    "text": "`aggrega/signArtifacts` — assina artefatos já publicados e anexa cada assinatura. `references` traz um ou mais endereços de registro em vez de caminhos, de modo que não estão sujeitos a nenhum contrato relativo ao workspace; uma lista vazia, ou uma entrada vazia nela, é recusada. Uma única identidade atende ao lote inteiro e é resolvida antes que qualquer referência seja assinada, de modo que um lote sem nenhuma credencial disponível é recusado no início, e não no meio do caminho. O mesmo vale para um lote cujas referências precisariam de credenciais diferentes: uma solicitação não nomeia nenhuma chave, então trata-se da configuração do workspace que nomeia uma chave disponível para o registro de uma referência e nenhuma, ou outra chave, para o de uma segunda — nada é assinado, e a recusa nomeia os registros de cada lado, como descreve [References signed together need different signing credentials (Referências assinadas juntas precisam de credenciais de assinatura diferentes)](../errors/fatal-halts.md#references-signed-together-need-different-signing-credentials). Assinar uma referência em que nada foi publicado é recusado em vez de anexado a nada, e uma referência que já traz uma assinatura que a política de confiança do seu registro verifica é deixada como está e contada como assinada, como descreve [`aggrega sign`](aggrega-sign.md#what-it-does). A resposta traz `signed`, em que cada entrada nomeia uma `reference` e o `digest` publicado com o qual sua assinatura se compromete, junto com `reach`; um lote em que qualquer referência falhou é respondido como uma falha que nomeia cada uma delas, e não como um resultado com uma lista mais curta. **Isto grava em um registro e vai além desta máquina** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing)."
+  },
   "a3e4955de9d7d66f": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -16546,6 +16833,13 @@
     "srcHash": "a4f1312160b9981e",
     "status": "machine",
     "text": "A exclusão atua sempre que um comando **escolhe** uma versão para você. Essa é a regra, e ela determina se uma resolução específica está coberta."
+  },
+  "a4f57ae32347bea1": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a4f57ae32347bea1",
+    "status": "machine",
+    "text": "Expandir um código que um diagnóstico trazia"
   },
   "a4ff8b7aba639891": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -16701,6 +16995,13 @@
     "status": "machine",
     "text": "**Uma assinatura registrada que um build não aceita.** Quando a linha registra uma assinatura cujo pacote de assinatura em cache foi removido ou alterado depois do pull que o colocou em cache — ou uma `signature` copiada de outra linha, cujo pacote está intacto, mas foi criado para outro artefato —, um build recusa a linha, não importa o que diga o requisito de assinatura ([A cached signature bundle does not match the digest recorded for it (Um pacote de assinatura em cache não corresponde ao digest registrado para ele)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Uma assinatura registrada foi criada para um artefato diferente)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Por isso, o novo pull pergunta novamente ao registry dessa dependência sobre sua assinatura, não importa o que diga o requisito, por meio da mesma verificação pela qual passa uma dependência que ele baixa: o que essa verificação confirma substitui a assinatura da linha, e o pacote que ela indica é colocado em cache novamente, com uma cópia em cache que não corresponde mais ao seu digest sendo regravada — assim, a linha e o cache contêm o que o pull que baixou a dependência deixou. Uma assinatura que a configuração de confiança não aceita interrompe o novo pull como interrompe um pull que baixou a dependência, e o mesmo faz um registry que não anexa nenhuma onde uma assinatura é exigida. Quando a verificação não registra nenhuma — `skip_signature_verification` onde se aplica, que não pergunta nada, um registry que não anexa nenhuma assinatura onde nenhuma é exigida, ou um registry `advisory` onde nada é verificado —, a assinatura da linha é apagada, o que um build admite com as mesmas configurações."
   },
+  "a6ad064a43c7960e": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a6ad064a43c7960e",
+    "status": "machine",
+    "text": "Seja qual for a camada, a chave responde a uma única pergunta — o que é isto, em termos que uma máquina pode comparar —, então uma extensão de editor que destaca, agrupa ou suprime uma classe de constatações se baseia no código e continua funcionando quando a redação de uma mensagem muda."
+  },
   "a6b00d91d19c5c04": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -16833,6 +17134,13 @@
     "srcHash": "a792338c97d878fa",
     "status": "machine",
     "text": "Depois que o cliente reinicia e se conecta, os prompts, recursos e ferramentas de criação de Aggrega ficam disponíveis. Consulte [Primeiros passos](getting-started.md) para saber o que fazer com eles e a referência de [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) para o comando em si."
+  },
+  "a7b933953326941b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a7b933953326941b",
+    "status": "machine",
+    "text": "**`codeDescription` é onde a condição é publicada**, trazido como `{ \"href\": … }`, que é a estrutura própria do protocolo para uma referência a ser aberta para saber mais sobre um diagnóstico. Um editor que conhece o protocolo a transforma em uma opção “saiba mais” sem precisar aprender nada sobre o Aggrega, e nenhum cliente precisa de uma cópia das explicações. O endereço leva à lista publicada de todas as condições, onde a entrada de um `shortCode` nomeia a condição e continua com o passo a passo da correção na autoria."
   },
   "a7bfe57cf574ca04": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -17618,6 +17926,13 @@
     "status": "machine",
     "text": "4. Preencha os campos pelos quais sua função é responsável"
   },
+  "aed15a2d618a4541": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "aed15a2d618a4541",
+    "status": "machine",
+    "text": "**Pedir ao próprio processo que pare alcança o daemon nas mesmas condições.** Uma interrupção vinda de um terminal, ou uma solicitação de encerramento vinda de um supervisor ou de um runtime de contêineres, inicia o esvaziamento que `aggrega/shutdown` inicia: as solicitações em andamento terminam, as novas solicitações são recusadas e então o daemon é encerrado. Uma segunda solicitação encerra o processo imediatamente. Um cliente que inicia o daemon pode pará-lo de qualquer uma das formas, e um que o para pelo protocolo e um que lhe envia um sinal obtêm o mesmo esvaziamento."
+  },
   "aed23fda5f623766": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -17757,6 +18072,13 @@
     "srcHash": "b00784066ca33c24",
     "status": "machine",
     "text": "A mesma etapa nas outras superfícies"
+  },
+  "b01c85c4818679bf": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b01c85c4818679bf",
+    "status": "machine",
+    "text": "`aggrega/import` — transforma a descrição de uma origem externa em rascunhos de arquivos de autoria do Aggrega, a mesma conversão que [`aggrega import`](aggrega-import.md) realiza em um terminal. `source` é obrigatório e indica o arquivo ou o diretório a converter, como caminho absoluto ou relativo à raiz do workspace — uma descrição exportada por outra ferramenta fica onde você a salvou, então ela é lida onde realmente está, e não apenas dentro do workspace. Um diretório é lido como [`aggrega import`](aggrega-import.md) lê um: limitado aos arquivos dele que os padrões de arquivo declarados pelo importador selecionam, e restrito a si mesmo onde quer que esteja, de modo que nenhum link dentro dele é seguido para fora. `outputDir` é opcional e indica o diretório para onde vão os rascunhos, e **não** segue esse contrato: nele se escreve, então é um caminho dentro do workspace, e um valor absoluto, ou um que se resolve fora da raiz — como escrito, ou por meio de um link, incluindo um diretório ainda não criado abaixo dele — é recusado. Se você o omitir, os rascunhos vão para baixo da raiz do workspace, onde [`aggrega import`](aggrega-import.md) os grava quando não indica nenhum destino — também com `dryRun`. `format` indica explicitamente o formato da origem; se você o omitir, o formato é reconhecido pelas assinaturas que os importadores declaram — tanto os do catálogo do workspace quanto os [importadores principais](../plugins/core-importers.md) do compilador —, e uma origem que nenhum reconhece, ou que importadores de mais de um formato reconhecem, é recusada pedindo `format` em vez de ser adivinhada. `target` indica uma capability de provider, como `compose` ou `helm` — a palavra à qual o `spec.capability` de uma Recipe se vincula — e gera como rascunho, ao lado dos rascunhos do importador, o Manifest contra o qual a Release em rascunho é construída para esse provider, exatamente como `aggrega import --target` faz: `manifest.yaml`, que mapeia cada tipo de componente que o Aggregate em rascunho declara para a única Recipe dessa capability que o catálogo do workspace oferece para ele, pelo seu nome qualificado pela capability e sem versão, com o `spec.manifest` da Release definido para ele; um tipo sem tal Recipe, ou com Recipes de mais de um nome, fica sem mapeamento com uma constatação `warn` que o nomeia. Um `target` ao qual nenhuma Recipe do catálogo se vincula é recusado antes de o importador ser executado, nomeando-o junto com as capabilities às quais as Recipes do catálogo se vinculam, e nada é gravado; se você o omitir, nenhum Manifest é gerado — exceto com `sync`, que gera o rascunho para o destino que o registro da importação anterior nomeia. Um importador principal que a máquina ainda não tem é baixado pela primeira importação que precisa dele — veja [O que uma resposta de importação informa a você](#what-an-import-response-tells-you). `dryRun` faz tudo o que a solicitação simples faz, exceto gravar, respondendo com os rascunhos como conteúdo, para um cliente que os mostra primeiro ao autor; nada é criado nesse modo e `written` fica vazio. `sync` atualiza em relação à origem o que uma importação anterior gerou em `outputDir`, alterando apenas o que a importação gravou, como `aggrega import --sync` faz; sem ele, uma solicitação cujos rascunhos sobrescreveriam um Aggregate já existente é recusada. A resposta traz `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` e `halted`. Veja [O que uma resposta de importação informa a você](#what-an-import-response-tells-you), porque uma origem que o importador não conseguiu converter por completo é uma resposta bem-sucedida e não um erro."
   },
   "b01e1fc57b9c4398": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -17940,6 +18262,13 @@
     "status": "machine",
     "text": "**Uma máquina isolada da rede e um workspace offline são afirmações diferentes, e vale a pena manter a diferença.** Uma máquina atrás de um isolamento de rede pode conter uma cópia local de um registry, ou um catálogo `catalog_dirs` com tudo de que precisa, caso em que um pull comum nessa máquina pode ser satisfeito sem acessar o exterior de forma alguma. O modo offline descreve o que um comando pode acessar, não o que a máquina contém; [Offline](#offline) expõe o que ele recusa e o que deixa como está."
   },
+  "b1be7509b4ca672d": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b1be7509b4ca672d",
+    "status": "machine",
+    "text": "`aggrega/publishArtifact` — publica um artefato de dados independente, como um bundle de documentação. `file` é um caminho relativo à raiz do workspace, sujeito ao mesmo contrato, e seus bytes são publicados literalmente: nenhum envelope de entidade é analisado e nenhum despacho é feito com base em um kind. `name` e `tag` nomeiam como ele é publicado, e ambos são obrigatórios. `mediaType` tem como padrão o tipo de bundle de documentação. A resposta traz `reference`, `tag`, `mediaType`, o par `size`, o `digest` publicado, `alreadyPublished`, `dryRun` e `reach`. Não assina nada — um artefato publicado é assinado depois, por referência, com `aggrega/signArtifacts`, que precisa apenas da referência que esta resposta informa. **Isto grava em um registro e vai além desta máquina** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing)."
+  },
   "b1c2b73baffd3ed1": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -17974,6 +18303,13 @@
     "srcHash": "b1e2db72e94bcb63",
     "status": "machine",
     "text": "[Governança e conformidade](11-governance-and-compliance.md)"
+  },
+  "b1e598d441cbb73b": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b1e598d441cbb73b",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — empacota uma entidade do catálogo e a publica em um registro. `entity` é um caminho relativo à raiz do workspace que nomeia o documento a publicar, recusado nas mesmas três formas que `release`: ausente, absoluto ou resolvido fora da raiz. Uma entidade Plugin também precisa de `plugin`, o mesmo tipo de caminho, que nomeia o executável publicado dentro do manifesto da própria entidade. `registry` é o destino e, por padrão, é o configurado no workspace. `dryRun` calcula o bundle e o digest em que uma publicação dele resultaria, e não contata nenhum registro. Omitir `sign` segue a política do próprio registro de destino, que é o que a linha de comando faz quando seu flag está ausente, enquanto enviá-lo é escolha de quem chama — e nenhum dos dois atenua a recusa, porque uma política do registro ou do workspace que exige uma assinatura recusa uma publicação não assinada, diga o campo o que disser. `pinSources: true` executa a etapa de pin do autor da entidade sobre a entidade antes que ela seja empacotada, de modo que o `entity.lock` que a etapa grava ao lado dela faz parte do que é publicado — a mesma etapa que `aggrega/pin` executa. Ela é executada antes de qualquer recusa que avalie o conteúdo da entidade — uma política de assinatura, a proteção de imutabilidade —, de modo que uma publicação recusada nesse ponto ainda deixa o lock gravado; uma recusa sobre a própria solicitação, como um workspace offline ou a ausência de destino, vem primeiro e não fixa nada, assim como a recusa de uma entidade que compartilha seu diretório com outra entidade, no qual a etapa não deve gravar um lock. Se ausente, segue a configuração `pin_sources_at_push` do workspace; se enviado, substitui essa configuração nos dois sentidos. Com `dryRun`, a etapa informa o lock que gravaria e não grava nada. **Uma publicação que não executa a etapa recusa uma Recipe ou FeatureRecipe cujo `entity.lock` não registra nenhum pin para uma entrada que ela lê**, ou um pin ao qual a entrada não corresponde mais, antes que qualquer coisa seja empacotada — também com `dryRun` —, nomeando `aggrega pin`, `pinSources` e `pin_sources_at_push`; é a recusa que `aggrega/resolveDependencies` gera sobre o mesmo lock. A resposta traz `reference`, `tag`, `kind`, `mediaType`, o par `size`, o `digest` publicado — com `dryRun`, o digest em que essa publicação resultaria, o que [`aggrega push --dry-run`](aggrega-push.md) imprime —, `signed`, `alreadyPublished`, `dryRun` e `reach`; `pin` — a mesma resposta que `aggrega/pin` dá — onde a etapa foi executada; e `wholeDirectorySource` onde a fonte local da entidade é escrita como template, nomeando essa fonte como foi escrita. Uma fonte assim só escolhe seu diretório quando uma Release preenche o template, de modo que a publicação leva todos os arquivos do diretório da entidade, e não apenas os arquivos que a entidade nomeia, e esse campo é como quem chama fica sabendo que isso aconteceu — também em uma execução de teste. Ela também traz `windowsUnusableEntries` onde o arquivo compactado que a publicação leva contém entradas que o Windows não consegue manter como estão escritas — um caminho com uma parte nomeada como um dispositivo, como `CON`, `AUX` ou `NUL`, em qualquer combinação de maiúsculas e minúsculas e com qualquer extensão em seguida, ou uma parte que termina em ponto ou espaço —, nomeando cada uma, primeiro o nome de arquivo do próprio documento da entidade, depois os arquivos que ele leva; o campo está ausente onde não há nenhuma, o que inclui uma entidade publicada apenas como seu documento. O `aggrega` em execução no Windows se recusa a descompactar uma entrada assim, de modo que um workspace no Windows não pode usar a versão. Essas são as entradas sobre as quais [`aggrega push`](aggrega-push.md) emite avisos, e uma solicitação que pediu para receber relatórios lê as mesmas linhas de aviso no progresso da publicação; nenhum dos dois recusa nada, de modo que a publicação prossegue ou é recusada exatamente como seria sem elas, também com `dryRun`. **Isto grava em um registro e vai além desta máquina**, e com a etapa de pin também grava ao lado da entidade — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing)."
   },
   "b1f3c673344e95aa": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -18268,6 +18604,13 @@
     "srcHash": "b474a99a2705e23c",
     "status": "machine",
     "text": "fish"
+  },
+  "b4846fa5efbc18c5": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b4846fa5efbc18c5",
+    "status": "machine",
+    "text": "**Uma entidade de catálogo nomeada junto com uma Release é verificada como entidade única, nos termos dessa Release.** Um `file` que contém um Component, uma Feature, uma Recipe, uma FeatureRecipe ou um Plugin, enviado com uma `release`, recebe a verificação que [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) executa, sobre o buffer não salvo do editor: suas referências — o Component que uma Recipe implementa, uma biblioteca a que um pilar se refere — são resolvidas pelos diretórios de catálogo que a configuração do workspace atribui a essa Release, então um mesmo arquivo pode estar limpo nos termos da Release que é construída com ele e falhar nos termos de uma Release cujos diretórios não contêm aquilo a que ele se refere. Esse é o veredito que a linha de comando e a ferramenta `validate` de [`aggrega mcp`](aggrega-mcp.md) dão para a mesma entidade ao lado da mesma Release e, como o delas, não percorre nenhum fechamento e não lê nenhum lockfile. Uma constatação bloqueante é uma entrada de erro com as próprias palavras da verificação e trazendo seus códigos, desenhada na chave que ela nomeia na entidade e, onde não nomeia nenhuma, na chave `kind:` da entidade, como descreve [O que uma entrada de diagnóstico traz](#what-a-diagnostic-entry-carries) — a menos que uma build já informe essa falha no arquivo, caso em que a entrada da build é o único relato; um aviso que a verificação gera ao ler o catálogo é uma entrada de alerta antes dela; uma verificação limpa sobre diretórios que existem todos não retorna nenhuma entrada. Uma asserção com falha — uma que chama `fail`, na Recipe ou no Component que ela implementa — não é aqui uma constatação bloqueante, mas uma entrada de alerta, com as palavras da verificação e trazendo seus códigos, encerrada pela frase `A Release must satisfy this assertion before a build of it can pass.`, e desenhada onde a constatação bloqueante estaria: a asserção de uma Recipe na própria chave dessa asserção sob `assertions`, a de um Component na chave `kind:` da Recipe. Como uma constatação bloqueante, ela cede lugar à entrada de uma build que informa a mesma falha no arquivo. A verificação constrói a entidade em torno de placeholders e valores padrão do schema em vez dos valores que uma Release define, então não consegue distinguir uma asserção que espera por uma Release de uma que está quebrada, e deixa o veredito para uma build, que informa a mesma asserção como erro ([uma asserção com falha é um alerta](aggrega-validate.md#a-failed-assertion-is-a-warning)). Um diretório que a configuração do workspace lista para a Release, mas onde nada existe, é lido como vazio, como todo comando o lê, então o veredito da verificação é aquele que ela dá sem esse diretório na lista — e uma entrada de alerta antes de todas as outras nomeia o diretório, na linha que `aggrega pull` e `aggrega build` imprimem para ele ([De onde as entidades locais são lidas](configuration.md#where-local-entities-are-read-from)). Uma `release` que não nomeia nenhum arquivo, ou que nomeia um diretório, recebe resposta no arquivo com a frase com que a linha de comando a recusa, em vez de ser verificada nos termos do workspace. O que uma build de uma única entidade não consegue substituir é julgado como a linha de comando o julga, e o que a linha de comando deixa de lado ou não verifica não gera entrada aqui — veja [o que a correção de uma entidade única não verifica](aggrega-validate.md#what-single-entity-correctness-does-not-check) e, para uma Recipe cujo template lê um valor que apenas uma aresta da topologia ou uma credencial anexada fornece, [correção de uma entidade única](aggrega-validate.md#single-entity-correctness-an-entity-path). O próprio Aggregate da Release, um Manifest, uma Release e uma biblioteca não são verificados um de cada vez, porque a verificação de entidade única não aceita esses tipos; para eles ficam as verificações do fechamento descritas acima. Um buffer com conteúdo Workload é lido como YAML que não é um documento do Aggrega, porque esse conteúdo é escrito dentro do campo `workload:` de uma Recipe ou de uma FeatureRecipe e é verificado ali, onde está; a linha de comando e a ferramenta `validate`, ao receberem um arquivo Workload por caminho, verificam sua forma isoladamente."
   },
   "b48cb47d8111b74a": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -18682,6 +19025,13 @@
     "status": "machine",
     "text": "**A anotação de credencial de métricas corresponde a provides** (`metrics-credential-annotation-matches-provides`) — um Component pode declarar dois fatos sobre suas métricas. Sua anotação `observability.aggrega.ai/metrics-credential` declara como as métricas do produto se autenticam: `none`, elas são servidas sem credencial; `target-key`, elas aceitam a chave que o Component exige de todo chamador, a que seu slot `api_key` contém; `separate-token`, elas aceitam um token próprio. A chave provides `metrics_credential_required`, declarada no pilar `provides` do seu `spec.schema`, é o que cada uma das suas Recipes publica para dizer se as métricas de uma instância precisam de uma credencial — o que pode depender de como a instância está configurada, já que métricas atrás da chave do chamador só precisam de uma enquanto uma chave estiver anexada, então a anotação não pode substituí-la. As duas declaram um único fato sobre o produto, então esta regra exige que concordem: um Component anotado com `none` que declara a chave, e um anotado com `target-key` ou `separate-token` que não a declara, são cada um relatados, e a constatação nomeia o Component, o valor da anotação e a chave que sobra ou falta. Um Component sem a anotação, ou com qualquer outro valor, não produz nada. A regra lê o Component tal como está escrito, então um Component que estende outro — cujo schema é o da sua base — não produz nada e sua base é lida onde está declarada, e um pilar `provides` escrito como referência, como composição ou como corpo escapado escrito como texto não é um que ela consiga enumerar, então esse Component também não produz nada. Ativada por padrão para Components; não tem nenhuma configuração."
   },
+  "b9279f20eb5aa630": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b9279f20eb5aa630",
+    "status": "machine",
+    "text": "Cada entrada se posiciona com `line` e `column`, ambos com base 1 na codificação de posição negociada no handshake, e adiciona `end_line` e `end_column` quando abrange um token inteiro. `message` é o texto que um cliente mostra ao usuário, `severity` o classifica, e `source` nomeia qual das camadas do daemon a gerou, como descrito acima."
+  },
   "b936a28e9f414ce6": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -18731,12 +19081,26 @@
     "status": "machine",
     "text": "**Domínio 1: a experiência do desenvolvedor (polimorfismo)** Os desenvolvedores escrevem `uses:` no mesmo nível de `values:` e `features:`. Para garantir uma UX sem atritos, o esquema oferece suporte nativo a polimorfismo:"
   },
+  "b9c3ec81670751cf": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b9c3ec81670751cf",
+    "status": "machine",
+    "text": "`aggrega/pluginSync` — alinha os registros mantidos pela máquina de uma entidade Plugin ao seu módulo: o conjunto de funções de host derivado das importações do próprio módulo e o espelho de comandos lido da autodescrição do módulo. Nenhum dos dois registros é escrito à mão, porque ambos têm sua fonte de verdade no módulo. Ambos os campos são obrigatórios e nenhum tem valor padrão — os registros são derivados do módulo, então um alinhamento que não nomeia nenhum não tem a que se alinhar —, e ambos são caminhos relativos à raiz do workspace, recusados quando são absolutos ou se resolvem fora dela, como escritos ou por meio de um link. Apenas esses dois blocos mudam: todo outro byte é mantido literalmente, incluindo comentários, linhas em branco e estilo de aspas, e um arquivo que já registra o que o módulo implica é deixado idêntico byte a byte e informado como inalterado. **Isto grava o arquivo de entidade que você nomeia, dentro do workspace**, e não contata nenhum registro. Consulte [O que uma alteração de plugin informa](#what-a-plugin-change-tells-you)."
+  },
   "b9cb2d6c88554b2a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
     "srcHash": "b9cb2d6c88554b2a",
     "status": "machine",
     "text": "[Component](../language-reference/entities/component.md), [Feature](../language-reference/entities/feature.md)"
+  },
+  "b9e6a9abe0db645d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b9e6a9abe0db645d",
+    "status": "machine",
+    "text": "**Uma resposta traz todas as camadas presentes no arquivo, por mais que a validação tenha avançado.** A resposta de `aggrega/validate` é todo o estado atual do arquivo: o que esta validação encontrou, as entradas `aggrega-build` que uma build, uma prévia ou uma solicitação de grafo publicou no arquivo, e suas constatações sobre as convenções de publicação, cada uma sob seu próprio `source`. Uma validação que para no buffer — um que não pode ser analisado, ou um documento cujo envelope o schema recusa — responde da mesma forma: informa sua própria constatação e mantém todas as entradas de build no arquivo, porque não aprendeu nada sobre a build. Então um cliente pode substituir o que mantém para o arquivo, camada por camada, a partir de qualquer resposta."
   },
   "b9f0addcbd75da82": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -18835,6 +19199,13 @@
     "srcHash": "ba534cdb84fd5dcd",
     "status": "machine",
     "text": "Artefatos inline e carregados de arquivo"
+  },
+  "ba5f10e4a144741b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "ba5f10e4a144741b",
+    "status": "machine",
+    "text": "`entries` traz o passo a passo publicado, cada entrada como o `heading` que a abre e o `body` abaixo dele, na ordem em que a própria documentação os associa à condição. Ele é **omitido** quando o passo a passo não pôde ser adicionado, e `note` diz então por quê: a página publicada ainda não documenta nenhuma entrada para esta condição, ou este workspace não consegue ler a documentação — a máquina não tem nenhuma cópia, ou só uma que a verificação de assinaturas do workspace recusa. De qualquer forma, a condição acima continua valendo — a resposta não é uma falha, e um cliente mostra o que chegou com a nota ao lado. `entries` e `note` nunca chegam juntos."
   },
   "ba667b50b2015fee": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -19186,6 +19557,13 @@
     "status": "machine",
     "text": "Ambas decidem o que conta lendo o próprio `kind` de cada documento, nunca o nome do arquivo. Uma Release nomeada sem um prefixo convencional é listada; um arquivo apenas *nomeado* como tal não é, e aparece sob o tipo que realmente declara. Um YAML que não declara nenhum `kind` — o arquivo de valores de um chart, um arquivo de configuração que por acaso está na árvore — não é uma entidade e não é informado, assim como não o é um documento pertencente a outro projeto, como um manifesto do Kubernetes renderizado. Um documento conta como entidade quando declara tanto um `kind` quanto um nome, porque são esses dois juntos que o tornam endereçável depois, e não declara nenhuma `apiVersion` fora do grupo próprio do Aggrega. Um que não declara nenhuma `apiVersion` é informado, por ser um documento do Aggrega com um campo faltando, e não um arquivo de outro projeto. `list-releases` não procura em nenhum diretório fora da raiz do workspace, então uma Release que seu editor mostra sob um link que leva a um desses diretórios não é listada; `unread_linked_dirs` nomeia cada link que está onde a listagem leria um diretório e que leva para fora da raiz — pelo próprio caminho do link relativo à raiz, nunca pelo destino —, nos dois formatos e nos dois transportes, e fica vazio onde não há nenhum. Ela também não lê um arquivo fora da raiz por meio de um link: `unread_linked_files` nomeia, da mesma forma, cada link cujo próprio nome termina em `.yaml` ou `.yml` e que leva a um arquivo fora da raiz, seja qual for o conteúdo desse arquivo, então uma Release alcançada apenas por meio de um desses links não é listada — a menos que a configuração do workspace nomeie essa Release, como `build.authoring_release` ou como chave de `workspace.releases`, caso em que ela é lida e listada no próprio local do link e não é nomeada. `list-entities` também não lê nenhum documento atrás de um link que leva para fora do workspace — não procura em nenhum diretório fora da raiz e não lê nenhum arquivo fora dela, seja o que for que esse arquivo declare — e nomeia cada um desses links da mesma forma, em seus próprios `unread_linked_dirs` e `unread_linked_files`, nos dois formatos e nos dois transportes. Isso vale seja o que for que o documento declare, com a única exceção que `list-releases` faz: uma Release que a configuração do workspace nomeia, como `build.authoring_release` ou como chave de `workspace.releases`, é lida e listada no próprio local do link e não é nomeada, enquanto um arquivo nomeado por uma dessas configurações que declara algo diferente de uma Release não é listado, e seu link é nomeado. Os diretórios de catálogo configurados são a forma pela qual um workspace lê outras entidades mantidas em outro lugar, então um link para um diretório que a configuração lista em `catalog_dirs`, ou para um diretório abaixo de um deles, não é nomeado por nenhuma das duas listagens: a configuração chegou até ele. As Features que `list-entities` obtém dos diretórios de catálogo nunca incluem uma atrás de um link que leva para fora do diretório dentro do qual as leituras de um diretório de catálogo devem permanecer — o workspace, para um diretório de catálogo dentro dele, ou o próprio diretório, para um que a configuração nomeia fora dele —, então uma entidade nomeada como estando atrás de um link que não foi lido nunca é listada ao lado desse nome. Um link que a listagem deixa de fora — pelo nome, pela localização ou por um `.gitignore` — não é nomeado, e com `release` também não o é um que esteja sob um diretório de catálogo que só outras Releases leem; um `.gitignore` que seja ele próprio um link que leva para fora do workspace não é lido. Onde qualquer uma dessas listas nomeia um link, a resposta em texto termina com uma linha própria dizendo isso."
   },
+  "be0f265df384ccfe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "be0f265df384ccfe",
+    "status": "machine",
+    "text": "Um código que nada resolve é **recusado** em vez de ser respondido com uma condição cujos campos estão todos vazios, e cada recusa diz de qual caso se trata: um código sob o qual nenhuma condição está registrada, um número que já nomeou uma condição e nunca nomeia outra, ou um código que este binário não declara quando a lista publicada não pôde ser lida de forma alguma — este último deixa as duas correções em aberto, pois uma lista publicada para uma versão diferente pode nomear uma condição que este binário não declara."
+  },
   "be36f7770bf1e29a": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -19248,6 +19626,13 @@
     "srcHash": "bebc6a9321453f36",
     "status": "machine",
     "text": "aggrega build"
+  },
+  "bed21c75bcc6e35c": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "bed21c75bcc6e35c",
+    "status": "machine",
+    "text": "`code` é obrigatório e aceita qualquer um dos identificadores — o `shortCode` que um diagnóstico trazia, ou o `code` ao lado dele —, porque um cliente que tem um deles não tem como obter o outro sem perguntar. Um valor vazio é recusado indicando o que enviar."
   },
   "bed3a7eb2dad6143": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -19479,6 +19864,13 @@
     "srcHash": "c0fe27c232203a6c",
     "status": "machine",
     "text": "**Estágio 3 — Expansão de `$ref:` entre documentos.** Para referências a SchemaLibrary via `$ref:` (a forma de identidade `<Library>#/schemas/<entry>`), o compilador percorre a cadeia de referências em tempo de compilação propagando uma pilha de resolução; o conteúdo referenciado é incorporado ao esquema do consumidor. Cada propriedade na forma resolvida carrega uma anotação `x-aggrega-source` que a atribui à entrada de biblioteca pai imediata. A expansão preserva a detecção de ciclos (ciclos interrompem o build com um erro que nomeia a cadeia), a proteção identidade-e-não-localização (uma referência que carrega um host de registry interrompe o build orientando para a forma de identidade — as referências endereçam bibliotecas pela identidade, não pela localização física) e a composição de fonte única (blocos `$ref:` aceitam apenas a referência pura; sobrescritas do lado do consumidor se compõem via `allOf:` do JSON Schema). Consulte [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md) para a semântica de resolução."
+  },
+  "c11755eba7d10548": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "c11755eba7d10548",
+    "status": "machine",
+    "text": "`$/progress` — do servidor para o cliente: o que uma operação longa está fazendo enquanto faz, no token em que a solicitação pediu para receber relatórios. Enviado apenas para uma solicitação que trazia um. Veja [Acompanhar uma operação longa](#watching-a-long-operation)."
   },
   "c11bcd00d04b963e": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -20159,6 +20551,13 @@
     "status": "machine",
     "text": "Um repositório oficial `aggrega-catalog` (e qualquer catálogo de terceiros em conformidade) é organizado para impor fisicamente a separação de responsabilidades. A estrutura separa explicitamente as interfaces abstratas de suas implementações concretas de infraestrutura."
   },
+  "c812f01bac6e5a47": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "c812f01bac6e5a47",
+    "status": "machine",
+    "text": "`aggrega/catalogIndex` — o índice de entidades: o `kind`, o `name`, a `apiVersion`, a `description`, os `labels`, o arquivo de origem e a `origin` de cada entidade no workspace que a solicitação nomeou. Aceita o workspace e, opcionalmente, `release`: o conjunto é uma propriedade dessa raiz do workspace e dos diretórios de catálogo que ela configura ou, com `release`, dos diretórios que a configuração atribui a essa Release — consulte [Responder nos termos de uma Release](#answering-in-one-releases-terms). Ele abrange os dois lugares de onde uma entidade vem — os documentos do Aggrega sob a raiz do workspace e as Features que os diretórios de catálogo configurados contêm —, porque esta é a superfície com a qual um cliente faz o join quando precisa dos campos descritivos de uma entidade, e um índice que conhecesse apenas um dos dois deixaria parte de cada lista de candidatos impossível de resolver. Um documento do workspace conta como entidade quando declara tanto um `kind:` quanto um `metadata.name` e não declara nenhuma `apiVersion` pertencente ao grupo de outro projeto, de modo que um YAML que por acaso esteja na árvore — o arquivo de valores de um chart, uma configuração de CI, um manifesto do Kubernetes renderizado — é ignorado em vez de listado. Um documento que não declara nenhuma `apiVersion` é informado: é um documento do Aggrega sem um campo, e vê-lo listado é como você descobre que ele está ali para ser corrigido. Consulte [Como uma entidade é endereçada](#how-an-entity-is-addressed) para saber o que `origin` e um `file` vazio significam. Nenhum documento atrás de um link que leva para fora da raiz do workspace é lido: um diretório fora da raiz não é percorrido, e um arquivo fora dela não é lido, declare o que declarar, de modo que uma entidade que seu editor mostra sob um link assim não é listada como sendo do próprio workspace — nem oferecida por `aggrega/attachCandidates` ou `aggrega/connectionCandidates`, que leem os mesmos documentos, mesmo enquanto seu editor está com esse documento aberto. Isso vale seja o que for que o documento declare. A única exceção é uma Release que a configuração do seu workspace nomeia — como `build.authoring_release` ou como chave de `workspace.releases`, avaliada pelo arquivo ao qual o link leva, de modo que nomear o link ou esse arquivo conta da mesma forma —, que é lida a partir do arquivo ao qual o link leva, listada no próprio lugar do link, como `aggrega/releaseCandidates` a lista, e não nomeada; um arquivo nomeado por uma dessas configurações que declara algo diferente de uma Release não é listado, e seu link é nomeado. Os diretórios de catálogo configurados são a forma como um workspace lê outras entidades mantidas em outro lugar, de modo que um link para um diretório que a configuração lista em `catalog_dirs` — para o workspace ou para uma Release — não é percorrido como os documentos do próprio workspace e também não é nomeado: a configuração o alcançou, e suas Features são listadas a partir do catálogo, como as de todo diretório de catálogo configurado. As Features listadas a partir dos diretórios de catálogo nunca incluem uma que esteja atrás de um link que leva para fora do diretório dentro do qual as leituras de um diretório de catálogo devem permanecer — o workspace, para um diretório de catálogo dentro dele, ou o próprio diretório, para um que a configuração nomeia fora dele —, de modo que uma entidade que a resposta nomeia como estando atrás de um link que ela não leu nunca é listada também ao lado desse nome. A resposta nomeia cada link desse tipo em `unreadLinkedDirs`, para um link para um diretório, e em `unreadLinkedFiles`, para um link cujo próprio nome termina em `.yaml` ou `.yml` e que leva a um arquivo — relativo à raiz, onde o link está, na ordem em que o workspace é percorrido —, para que um cliente possa explicar o motivo. Um link que a busca deixa de fora, pelo nome, pela localização ou por um `.gitignore`, não é nomeado, e em uma resposta nos termos de uma Release também não o é um link sob um diretório de catálogo que apenas outras Releases leem. Um link sob um diretório de catálogo fora do workspace não tem um lugar relativo à raiz em que possa ser nomeado, e não é nomeado. Ambos os campos estão sempre presentes, e vazios quando não há nenhum link desse tipo. Quando o próprio arquivo de configuração do workspace, ou o overlay mantido pela CI ao lado dele, é ele mesmo um link que leva para fora do workspace, esse arquivo é nomeado em `unreadLinkedFiles` independentemente de como a busca o trate, e o índice é a leitura própria do workspace sem nada configurado — nenhum diretório de catálogo é lido para ele, e um índice nos termos de uma Release é recusado; consulte [Raiz do workspace e Release ativa](#workspace-root-and-active-release)."
+  },
   "c81bda0c96db37bb": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -20523,6 +20922,13 @@
     "status": "machine",
     "text": "**O que um workspace vazio significa, e o que o modelo pode fazer a respeito** — o parágrafo que difere conforme o transporte, abaixo."
   },
+  "cc1bb40ea7ac0de8": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "cc1bb40ea7ac0de8",
+    "status": "machine",
+    "text": "`aggrega/connectionAtPosition` — dentro da entrada de qual conexão cai uma posição em um Aggregate ou em uma Release, respondido nos termos em que as duas solicitações acima aceitam uma conexão. `file` nomeia o documento da forma como `aggrega/insertionPoint` nomeia um, e ele é lido primeiro a partir do que a sessão mantém para ele; `position` é o lugar nele, uma `line` e um `character` contados a partir de zero na codificação da sessão; `release` nomeia a Release cujo grafo compilado registra as conexões, e é obrigatório também para uma posição no Aggregate, porque um nó do grafo e uma conexão existem apenas em um grafo compilado. A resposta traz `graphNode` e `connection` — seu `socket`, seu `alias` e o `document` em que a posição foi lida — para passar sem alterações a `aggrega/attachCandidates` e `aggrega/attachmentContainer`, ou `noConnectionReason` onde nenhuma conexão está escrita ali. Consulte [O que uma resposta de conexão em uma posição informa](#what-a-connection-at-position-response-tells-you)."
+  },
   "cc2f3d7aa395669c": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -20663,6 +21069,13 @@
     "status": "machine",
     "text": "Arquitetura"
   },
+  "cd78b0ffa9111bfa": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "cd78b0ffa9111bfa",
+    "status": "machine",
+    "text": "`aggrega/pluginRemove` — remove a entrada de um plugin configurado para que ele deixe de participar. `type` é o mesmo conjunto que uma adição aceita, e `query` identifica a entrada: o nome curto do plugin, sua referência fixada ou — para `provider` — a capacidade que o binding atende. Ambos são obrigatórios. `global` e `workspace` são as mesmas substituições do destino de gravação, recusadas em conjunto da mesma forma. Uma consulta que não corresponde a nenhuma entrada é recusada em vez de respondida como um sucesso sobre uma configuração inalterada, de modo que nunca se diz a quem chama que um plugin deixou de participar quando isso não aconteceu, e um erro de digitação nunca remove um plugin diferente. Não contata nenhum registro: uma remoção opera apenas sobre o texto da configuração. **Uma remoção do tipo `cli` que não nomeia nenhum dos dois escopos grava a configuração global** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing). Consulte [O que uma alteração de plugin informa](#what-a-plugin-change-tells-you)."
+  },
   "cd7d0c33b0c958c2": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -20746,6 +21159,13 @@
     "srcHash": "ce54f0e22dbb39de",
     "status": "machine",
     "text": "Component"
+  },
+  "ce61a30dc26b1308": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "ce61a30dc26b1308",
+    "status": "machine",
+    "text": "**Uma condição traz dois identificadores, e eles são para dois leitores diferentes.** `code` é o de cima: qualificado e com hífens, de modo que um programa que ramifica com base nele se lê como o que significa. `shortCode` é a letra `E` seguida de quatro dígitos — `E0164` — e é o que uma **pessoa** pode ler em voz alta, digitar em uma caixa de busca ou colar em uma issue. Ambos nomeiam a mesma condição e nenhum é abreviação do outro."
   },
   "ce7261662b58af84": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -20879,6 +21299,13 @@
     "srcHash": "cfcab97b15b924cd",
     "status": "machine",
     "text": "O comando grava o resultado em `<release-stem>.lock` ao lado da Release. Um workspace que vincula um plugin que retorna um veredito de aceitação ou rejeição também ganha um segundo arquivo nesse diretório — o [registro de confiança de plugins](#the-plugin-trust-record)."
+  },
+  "cfcd1a53e02abaa8": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "cfcd1a53e02abaa8",
+    "status": "machine",
+    "text": "**Uma constatação que não nomeia nenhuma chave que o documento contenha é desenhada na chave que nomeia o documento.** Uma constatação que as próprias verificações de um documento geram sobre o que ele diz, a constatação da verificação de entidade única e um aviso ou uma recusa que uma build gera são cada um desenhados na chave que nomeiam; quando não nomeiam nenhuma, ou nomeiam uma chave que o documento não contém, são desenhados na chave `kind:` do documento, ou no seu `metadata.name` quando ele não declara nenhum `kind:`, e no início do arquivo apenas quando o documento não declara nenhum dos dois ou não pode ser analisado. Um documento costuma começar com um comentário — todo arquivo de catálogo traz um cabeçalho de licença —, e uma entrada desenhada na sua primeira linha ficaria sobre esse comentário e pareceria uma falha nele, enquanto a própria identidade do documento é uma linha que seu autor escreveu. Uma entrada sobre algo diferente do que o documento diz é posicionada no início do arquivo: uma entrada `Dependencies:` sobre as dependências da Release, uma etapa que parou sem nomear nada no documento, um lockfile divergente, uma referência que uma renderização teve de recusar, uma Release que não foi carregada — e também uma entrada `aggrega-lint` cuja regra não calculou nenhuma linha. Onde uma posição é declarada em vez de desenhada, uma constatação que não nomeia nenhuma chave continua sem ter uma: a resposta de erro de uma recusa que não nomeia nenhuma chave traz apenas o documento no seu `data`."
   },
   "cfd4ae615b8005ed": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -21349,6 +21776,13 @@
     "status": "machine",
     "text": "Como uma credencial chega a um contêiner"
   },
+  "d48cb06fafd5eb94": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "d48cb06fafd5eb94",
+    "status": "machine",
+    "text": "`aggrega/editDocument` — aplica uma edição estruturada e delimitada a um documento escrito pelo autor, preservando todo byte que ela não toca. É a outra metade dos dois métodos de localização acima: aqueles dizem onde uma entrada fica e deixam para você compô-la e aplicá-la, este compõe uma e a aplica. `edit` nomeia qual das quatro — `add-component`, `attach-feature`, `wire-edge`, `set-value` —, e um valor fora delas é recusado em vez de interpretado; `node` é o caminho estrutural a partir da raiz do documento, uma lista de segmentos exatamente na forma que `aggrega/insertionPoint` aceita; `name` é a chave sob a qual a entrada é escrita e `value` o que ela contém, cujo significado decorre de `edit`; `socket` é lido para `wire-edge` e ignorado nos demais casos. `dryRun` faz tudo o que a solicitação simples faz, exceto gravar, respondendo com o documento editado como `content`, para um cliente que mostra o resultado ao autor primeiro; nada é criado nesse modo e `written` fica vazio. `file` nomeia o documento de forma relativa à raiz do workspace ou pelo seu caminho absoluto, e um documento fora da raiz — como escrito, ou por meio de um link que leva para fora dela, para o arquivo ou para um diretório no caminho — é recusado sem que nada seja lido ou gravado. **Isto grava o documento que você nomeia, dentro do workspace** — não resolve nenhuma dependência, não acessa nenhum registro e não toca a rede em nenhuma das duas formas de entrega, e a gravação depende de o documento composto ser validado com o esquema do seu próprio kind. Consulte [O que uma resposta de edição de documento informa](#what-a-document-edit-response-tells-you), porque o padrão é a gravação e uma recusa deixa o arquivo idêntico byte a byte ao que era."
+  },
   "d48f718d7e540d61": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -21404,6 +21838,13 @@
     "srcHash": "d55dc238b13b8ffc",
     "status": "machine",
     "text": "É isso que resolve a questão de governança que uma baseline compartilhada levanta — quais restrições um filho pode declarar em relação à sua base. Para um Component, a resposta é estrutural e não fiscalizada: o contrato declarado do filho simplesmente *é* o da base, então uma restrição da base não pode ser afrouxada, removida ou ter seu tipo alterado por um filho, e nenhuma verificação em tempo de publicação é necessária para manter a baseline intacta. Um filho que legitimamente precisa de uma regra *mais rígida* do que a que sua base declara expressa isso como uma entrada adicionada em seu bloco `assertions:`, que se compõe ao lado das regras da base em vez de substituí-las."
+  },
+  "d56dde9e540ddbd3": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "d56dde9e540ddbd3",
+    "status": "machine",
+    "text": "`aggrega/configCapture` — congela a configuração efetiva crítica para o build no arquivo de configuração próprio deste workspace, para que o workspace seja compilado da mesma forma sem a configuração global da máquina por baixo. Não aceita nenhum destino de gravação: o congelamento existe para tornar um workspace autossuficiente, então ele sempre grava o arquivo desse workspace. `allPlugins` amplia o conjunto congelado dos sockets que determinam a saída renderizada — os bindings de provider e as anexações de governança de transformação de labels — para todo socket de plugin, adicionando os gates de governança de veredito e de linter e o socket de importação. A resposta traz `configFile`, `workspaceRoot`, `captured`, `sockets` e `catalogDirs`. Consulte [O que uma gravação de configuração deixa para trás](#what-a-configuration-write-leaves-behind), porque a resposta nomeia um documento que agora existe e a próxima ação de um cliente é abri-lo."
   },
   "d59f9a223da0afa8": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -21615,6 +22056,13 @@
     "status": "machine",
     "text": "Ao tratar APIs SaaS externas e bancos de dados legados como nós de primeira classe no grafo da representação intermediária (IR), os desenvolvedores ganham a capacidade de anexar configurações de proxy Zero-Trust diretamente à chamada de saída. Por exemplo, ao modelar a API do Stripe como um nó distinto, um desenvolvedor pode anexar a ela sem esforço uma funcionalidade `header-injector`, garantindo que a configuração gerada impeça o agente chamador de manter o token bruto da API em sua própria memória."
   },
+  "d86821d83eb3a88d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "d86821d83eb3a88d",
+    "status": "machine",
+    "text": "**Notificações:**"
+  },
   "d86843a572a600bd": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -21733,6 +22181,13 @@
     "srcHash": "da0d5b41168cc636",
     "status": "machine",
     "text": "**Se ela lida com material que um autor declarou sensível**, e quais de suas chaves de entrega carregam esse material. Ambos são derivados de declarações — uma folha `sensitive` no esquema de uma Feature, um slot `sensitive` no Component consumidor, seja um que ele declara para suas próprias vinculações ou um no socket pelo qual uma conexão é ligada —, nunca da inspeção de um valor."
+  },
+  "da157d42a4a6f97d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "da157d42a4a6f97d",
+    "status": "machine",
+    "text": "A documentação é lida do pacote armazenado em cache para o workspace que a solicitação nomeia, **adquirido no primeiro uso quando está ausente**, que é a única coisa para a qual esta solicitação alcança um registry — veja [Alcançar um registry e gravar](#reaching-a-registry-and-writing). Nada é gravado no workspace. Nenhuma validação o aciona: uma expansão acontece porque uma solicitação a pediu, então um registry nunca é alcançado enquanto um documento está sendo validado ou inspecionado."
   },
   "da30d04dca8e2ba1": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -21943,6 +22398,13 @@
     "srcHash": "dc1f0fa2825493da",
     "status": "machine",
     "text": "**O endpoint nunca responde a esses dois caminhos.** `GET /healthz` e `GET /readyz` no endereço que `mcp.listen` nomeia recebem `404`, exatamente como qualquer outro caminho que esse endpoint não serve, com token ou sem. Responder ali a uma sonda daria a qualquer coisa que alcance o endpoint uma leitura gratuita de se o processo está ativo, junto com uma forma gratuita de fazê-lo trabalhar — em um listener que, de resto, recusa toda solicitação que não traz credencial."
+  },
+  "dc2fd99b0498a443": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "dc2fd99b0498a443",
+    "status": "machine",
+    "text": "**Cada solicitação nomeia a Release a que se refere, e o daemon não guarda nenhuma própria.** As verificações semânticas resolvem o fechamento de dependências dessa Release e leem o lockfile dessa Release para obter seus pins — ou, para uma entidade de catálogo, leem os diretórios de catálogo com os quais essa Release é construída, como descreve o próximo parágrafo —, então duas solicitações que nomeiam duas Releases são respondidas sobre a Release que cada uma nomeou. Nada passa de uma para a outra: não há uma Release selecionada a mudar, e mudar a Release contra a qual você valida é um valor diferente na próxima solicitação, e não algo que o daemon precise ser instruído a esquecer."
   },
   "dc469bfc1cd9a894": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -22216,6 +22678,13 @@
     "srcHash": "de5320dc9fa57250",
     "status": "machine",
     "text": "Slots marcados como `inject: []` (caixa-preta) no `featuresSchema` do Component não podem aparecer em blocos `attachments:` do Workload — esses slots são entregues pela estrutura interna da Recipe (por exemplo, via `existingSecret` do Helm), e não pela exposição no Workload."
+  },
+  "de7f8c8612ff9806": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "de7f8c8612ff9806",
+    "status": "machine",
+    "text": "**As duas chaves estão presentes exatamente quando a entrada nomeia uma condição registrada, e ausentes juntas caso contrário.** O que as decide é o que está por trás da entrada, e não qual camada a publicou, então leia as chaves, e não a camada:"
   },
   "de85885890389369": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -22896,6 +23365,13 @@
     "status": "machine",
     "text": "Registry, tag e endereçamento por conteúdo"
   },
+  "e5d4a2d552ca87f9": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "e5d4a2d552ca87f9",
+    "status": "machine",
+    "text": "`code` é um código estável e comparável por máquina para o que a entrada informa, de modo que um cliente pode ramificar com base nele sem comparar o texto da mensagem. **Uma única chave traz o código, seja quem for que o atribuiu**, e `source` diz qual tipo você tem em mãos, porque as camadas nomeiam as coisas a partir de vocabulários diferentes."
+  },
   "e5d9cf6d9e08b8cd": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -22951,6 +23427,13 @@
     "srcHash": "e6704f7a45284f3d",
     "status": "machine",
     "text": "Ele sempre grava e não oferece `--dry-run`. Isso vale mesmo que ele grave *dentro* de um arquivo de entidade que você criou — a linha é traçada sobre o conteúdo, não sobre o arquivo. Os registros que o compilador mantém sobre si mesmo não são seus para editar, então não há nada a revisar antes que sejam aplicados; o documento ao redor permanece intacto byte a byte, e só esses blocos mudam."
+  },
+  "e676394b28971283": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "e676394b28971283",
+    "status": "machine",
+    "text": "`aggrega/attachCandidates` — quais Features podem ser anexadas a um nó: aquelas cuja aplicabilidade declarada é satisfeita pelos labels do nó. Envie exatamente uma coordenada. `node` nomeia um documento do workspace pelo seu `metadata.name`; `graphNode` nomeia um nó no grafo compilado de `release`, pelo id sob o qual esse grafo o indexa; `labels` traz diretamente um conjunto de labels e não nomeia nada, para um cliente que já tem um. A resposta repete a coordenada para a qual respondeu — vazia quando não havia nenhuma a repetir —, traz `nodeLabels`, os pares de labels com os quais a correspondência foi avaliada, `labelSource`, que diz de que tipo de conjunto de labels se trata, e cada candidato como o `kind`, o `name`, o arquivo de origem e a `origin` que o endereçam. Devolver os labels é o que torna a resposta auditável por si mesma: um cliente pode explicar por que uma Feature foi oferecida sem formar sua própria ideia dos labels do nó, que é como a resposta de um cliente e a do compilador acabam divergindo. Para um nó do grafo, as Features oferecidas são as que a Release desse nó alcança. Ao lado de `graphNode`, `connection` nomeia uma conexão que o componente desse nó traça — seu `socket` e seu `alias` —, e a resposta então também traz `slots`, cada slot que o socket dessa conexão declara com as Features que podem preenchê-lo, ou `noSlotReason` onde nenhum pode ser preenchido. Consulte [O que uma resposta de candidatos a anexação informa](#what-an-attach-candidate-response-tells-you)."
   },
   "e68ee04dff59551b": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -23078,6 +23561,13 @@
     "status": "machine",
     "text": "O bloco `uses` declara dependências entre componentes como topologia pura: o Component A depende do contrato público `provides` do Component B, não do endereço físico ou dos detalhes de conexão do Component B. A topologia vive em `uses`; a configuração vive em `values`. A separação permite que o compilador veja explicitamente todas as arestas entre componentes sem inferi-las do conteúdo de `values`."
   },
+  "e850e66bb3d34085": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "e850e66bb3d34085",
+    "status": "machine",
+    "text": "Em uma entrada `aggrega-build` — um aviso que uma build gerou — o código é o que o ponto que o gerou atribuiu, e esta camada traz avisos de dois vocabulários diferentes, porque uma build gera avisos sobre dois tipos diferentes de coisa. Um aviso sobre a **forma da topologia implantada** traz um código de classe, como `unsupported-field`, atribuído onde quer que tenha sido gerado, seja um plugin de renderização ou a própria renderização; um código de classe nomeia uma classe de aviso em vez de uma condição registrada, então não tem linha na referência de sentinelas, e a [referência de alertas](../errors/warnings.md) descreve a classe `unsupported-field` e a flag que a silencia. Um aviso sobre os **documentos escritos** — um nome a uma edição de distância de um declarado, um parâmetro que nada lê — traz a string sob a qual sua condição está registrada, na mesma forma que uma entrada `aggrega` e com uma linha na referência de sentinelas. De qualquer forma, o código nomeia o que a constatação é, e não quem a encontrou, então uma única classe chega até você sob um único código, por mais lugares que a gerem, e ler o código em vez da camada é o que lhe diz qual dos dois você tem em mãos. A recusa em que uma build parou durante a renderização é a única entrada aqui que não é um aviso, e ela traz da mesma forma a string sob a qual sua condição está registrada."
+  },
   "e8580e7345873e98": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -23196,6 +23686,13 @@
     "srcHash": "e96b7516cd106e46",
     "status": "machine",
     "text": "Construção da topologia, análise estática ou estágio de renderização"
+  },
+  "e96de37d95976245": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "e96de37d95976245",
+    "status": "machine",
+    "text": "`aggrega/deprecateArtifact` — anexa um marcador de descontinuação assinado a um artefato já publicado. Envie uma única `reference` com sua `severity` e seu `reason`, ou `from` nomeando um arquivo de lote relativo à raiz do workspace — enviar ambos é recusado. Os campos de conteúdo são obrigatórios em vez de solicitados interativamente: ninguém está acompanhando este fluxo, de modo que uma solicitação sem um deles é recusada indicando o que enviar. As mesmas entradas sem chave que as duas solicitações de assinatura aceitam se aplicam aqui, porque o marcador é assinado pelo próprio digest, e as entradas de um arquivo de lote ficam vinculadas a uma única credencial exatamente como as referências de um lote de assinatura. A resposta traz `marked`, em que cada entrada nomeia a `reference` retirada, sua `severity`, o carimbo `issuedOn` e o `digest` do manifesto do próprio marcador — o marcador é anexado como referrer sem tag do artefato que ele retira, de modo que nada mais o endereça —, junto com `reach`. **Isto grava em um registro e vai além desta máquina** — consulte [Acessar um registro e gravar](#reaching-a-registry-and-writing)."
   },
   "e96efc00ad55807a": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -24121,6 +24618,13 @@
     "status": "machine",
     "text": "Ferramentas internas, marcação de procedência"
   },
+  "f344d7653fb4e893": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "f344d7653fb4e893",
+    "status": "machine",
+    "text": "`aggrega/invalidate` — um sinal de invalidação de cache vindo do observador de arquivos do editor."
+  },
   "f36819e0ff47d1c6": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -24639,6 +25143,13 @@
     "status": "machine",
     "text": "`aggrega/resolveDependencies` — resolve as dependências de catálogo e de origem da Release no cache, fixa as entradas externas que sua renderização consome no armazenamento endereçado por conteúdo e escreve seu lockfile. `release` é um caminho relativo à raiz do workspace, o mesmo valor que `aggrega/irGraph` recebe, e é recusado nas mesmas formas. `upgrade` descarta as fixações registradas e resolve novamente, levando cada dependência à versão mais alta disponível; `targets` restringe isso às referências de entidade que nomeia, mantendo todas as outras fixações. `verify` compara a resolução registrada com aquela que esta solicitação realizaria sem ele, respeitando da mesma forma as fixações registradas, e não escreve nenhum lockfile, [registro de confiança de plugins](aggrega-pull.md#the-plugin-trust-record) ou `entity.lock` — o cache é lido e preenchido como seria sem ele — respondendo `verified: true` e o `toolchain` que o lockfile registra. `verify` é recusado como parâmetros inválidos junto com `upgrade`, junto com `targets` e junto com `pinSources`, qualquer que seja o valor que traga, antes que qualquer coisa seja resolvida ou qualquer progresso seja informado: um upgrade descarta as fixações que um verify existe para respeitar, alvos nomeados só são resolvidos novamente por um upgrade, e `pinSources` decide se uma resolução registra as fixações que faltam em um `entity.lock` ou recusa por causa delas, e nenhuma dessas coisas é feita por uma comparação que não escreve nenhum `entity.lock`. A linha de comando e a ferramenta do assistente recusam os mesmos pares. A resposta nomeia o `lockfile` que escreveu ou com o qual comparou e cada referência que fixou, em `entities`, `libraries` e `plugins`, cada entrada trazendo a `version` para a qual se resolveu e sua `source` — de onde esta execução obteve a referência, na palavra que [`aggrega pull --detail`](aggrega-pull.md#the-lockfile) imprime para a mesma resolução: `fetched-fresh`, `cache-reuse`, `local`, `in-binary` ou `external` — junto com `sourceArtifacts`, `trustedPlugins`, `externalInputs` — quantas entradas externas o lockfile fixa quando a execução termina, contando tanto as mantidas quanto as que esta execução descobriu — e quaisquer `notices` que a resolução tenha gerado. 🔴 **Uma resposta bem-sucedida não significa, por si só, que a fixação das entradas externas esteja completa.** Onde a execução fixou todas as dependências, mas não conseguiu terminar de descobrir quais entradas externas a Release consome, ela responde com `incompleteExternalInputs` dizendo o que interrompeu a descoberta, e ainda assim responde como sucesso — as fixações de dependências estão completas e em disco, então informar a solicitação inteira como falha diria a você para refazer um trabalho que já está correto. **Leia esse campo antes de tratar um lockfile como totalmente fixado:** ele fica ausente quando nada ficou sem ser descoberto, então sua presença é o sinal. Não há parâmetro de diretório de catálogo: a pilha de busca é a que o workspace configura. **Esta é a única solicitação de fixação da sessão para uma Release, e é onde as entradas externas também são fixadas** — quais URLs uma renderização consome decorre do que ela renderiza, então esta solicitação renderiza a Release para descobrir, e uma solicitação de build é depois atendida a partir do que ela registrou. Uma Recipe ou FeatureRecipe que a Release constrói cujo `entity.lock` não registra nenhuma fixação para uma entrada que a entidade lê faz a solicitação ser recusada, nomeando `aggrega pin` e cada entrada não registrada; `pinSources: true` executa em vez disso essa etapa de fixação sobre essas entidades, escrevendo o `entity.lock` ao lado de cada uma — a mesma etapa que `aggrega/pin` executa, escrevendo os mesmos bytes. Ausente, `pinSources` segue o `pin_sources_at_pull` do workspace; enviado, substitui essa configuração nos dois sentidos, de modo que `false` recusa mesmo em um workspace configurado para fixar. Esta solicitação alcança registries e escreve — consulte [Alcançar um registry, e escrever](#reaching-a-registry-and-writing)."
   },
+  "f8e3e817a5f04df2": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "f8e3e817a5f04df2",
+    "status": "machine",
+    "text": "`aggrega/attachmentContainer` — em qual documento fica a anexação de uma Feature para um nó, e em qual contêiner dentro dele. `graphNode` nomeia um nó no grafo compilado de `release`, pelo id sob o qual esse grafo o indexa, e ambos são obrigatórios: o id de um nó é uma chave do grafo de uma Release e não significa nada sem ela. A resposta traz `node`, `file` e `container` — uma lista de segmentos exatamente na forma que `aggrega/insertionPoint` aceita, de modo que o par se compõe sem nada a deduzir no meio. Para uma anexação em uma conexão que o componente do nó traça, adicione `connection` com seu `socket`, seu `alias` e o `document` — `aggregate` ou `release` —, e a resposta nomeia o contêiner `features` próprio dessa conexão nesse documento. Consulte [O que uma resposta de contêiner de anexação informa](#what-an-attachment-container-response-tells-you), porque `file` faz parte da resposta, e não algo que você já sabe."
+  },
   "f8e45189ecab2c56": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -25079,6 +25590,13 @@
     "srcHash": "fcdaf6f58d8d91f5",
     "status": "machine",
     "text": "**3. `component.aggrega.ai/hosting`**"
+  },
+  "fce4d8bcf24ae606": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "fce4d8bcf24ae606",
+    "status": "machine",
+    "text": "`aggrega/publishDiagnostics` — um conjunto de diagnósticos enviado pelo servidor (usado para avisos de divergência do lockfile e para o estado na inicialização). Cada entrada traz um `source` que nomeia qual das camadas de diagnóstico do daemon a gerou: `aggrega` para uma constatação sobre os documentos escritos, `aggrega-build` para um aviso que uma build gerou — cada aviso que ela gerou, que é o mesmo conjunto que `aggrega build` imprime — e `aggrega-lint` para uma constatação sobre as convenções de publicação, as mesmas constatações que `aggrega lint` imprime. O campo está sempre presente em cada entrada, então um cliente pode agrupá-las em vez de mostrar uma única lista indiferenciada, e nunca precisa distinguir uma origem ausente de uma das camadas. Um frame é enviado para um arquivo apenas quando seu conjunto difere daquele de que este cliente foi informado por último, então uma solicitação que recalcula as mesmas constatações não envia nada; o primeiro frame de um arquivo, e um frame que esvazia o conjunto de um arquivo, são ambos diferenças e são sempre enviados."
   },
   "fd1a2bd21c73aa15": {
     "at": "2026-10-22T07:22:08.562Z",

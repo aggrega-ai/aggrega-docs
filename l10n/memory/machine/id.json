@@ -34,6 +34,20 @@
     "status": "machine",
     "text": "**Artefak sumber** — `source:` jarak jauh yang ditunjuk oleh suatu Recipe atau FeatureRecipe untuk sebuah provider: chart Helm (OCI atau HTTPS klasik) atau fragmen Compose melalui HTTPS. Masing-masing diambil, di-cache, dan di-pin."
   },
+  "006481df2e81cabe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "006481df2e81cabe",
+    "status": "machine",
+    "text": "`aggrega/scaffoldEntity` — dokumen awal untuk suatu jenis entitas: tepat field yang diwajibkan oleh skema jenis tersebut, dengan `apiVersion` dan `kind` yang tetap sudah terisi dan placeholder di setiap tempat yang memerlukan nilai. `kind` wajib diisi dan merupakan token skema berhuruf kecil dengan tanda hubung — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature`, dan seterusnya; `aggrega/getSchema` tanpa `kind` melaporkan token mana yang boleh Anda kirim, dan token yang tidak sesuai dengan skema mana pun ditolak dengan himpunan itu dicantumkan di pesan sehingga salah ketik dapat diperbaiki tanpa panggilan kedua. Klien yang menawarkan pilihan jenis kepada penulis membaca `entityKinds` dari metode tersebut, yaitu himpunan jenis yang dokumennya dapat ditulis. `name` bersifat opsional dan mengisi awal `metadata.name` untuk jenis yang skemanya mewajibkannya. Respons berisi `kind` dan `skeleton`. Lihat [Apa yang diberikan respons scaffold kepada Anda](#what-a-scaffold-response-gives-you), karena jawabannya adalah dokumen yang harus ditulis, bukan dokumen yang sudah ditulis. Kerangka tersebut diturunkan dari skema yang sama yang dilaporkan `aggrega/getSchema`, sehingga keduanya menjawab dari satu sumber."
+  },
+  "0065f9fce41f5405": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0065f9fce41f5405",
+    "status": "machine",
+    "text": "`$/cancelRequest` — dari klien ke server: menghentikan permintaan yang sedang berjalan yang dikirim dengan id tersebut. Daemon membatalkan pekerjaan permintaan itu; sebuah operasi menyadari pembatalan pada batas langkah berikutnya, bukan seketika, sehingga pekerjaan yang sudah berjalan masih berlanjut sesaat. Membatalkan id yang tidak sedang menjalankan apa pun adalah operasi tanpa efek yang aman."
+  },
   "0071b1823e850940": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -110,6 +124,13 @@
     "srcHash": "0104726172ad5797",
     "status": "machine",
     "text": "Invarian Output Deterministik berlaku pada **waktu build**: dengan file sumber yang sama + lockfile yang sama + versi kompiler yang sama, output identik byte demi byte. Properti pendampingnya pada **waktu lock** (dengan file sumber yang sama + status registry yang sama, lockfile yang sama) lebih lemah — registry dapat berubah (versi baru dapat diterbitkan; sidecar dapat ditambahkan; metadata per komponen dapat berkembang), sehingga dua pemanggilan lock terhadap file sumber yang sama pada waktu berbeda dapat menghasilkan lockfile yang berbeda. Itulah tujuan lockfile, mengikuti konvensi di npm, Cargo, dan Go. Dari lockfile yang baru, build menghasilkan output deterministik. Pemisahan dua momen inilah yang membuat perubahan di sisi registry dapat ditoleransi: sidecar yang diterbitkan pada waktu T2 mengubah pemanggilan lock berikutnya; sidecar itu tidak mengubah build terhadap lockfile yang dihasilkan pada T1."
+  },
+  "011ac91721dde939": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "011ac91721dde939",
+    "status": "machine",
+    "text": "Pengenal yang dicocokkan program, dan pengenal yang dikutip manusia"
   },
   "013405a6d9fb4632": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -201,6 +222,13 @@
     "srcHash": "0217cfc5750bfaaa",
     "status": "machine",
     "text": "**Provenans dan artefak helm-chart.** Provenans digabungkan ke dalam `metadata.labels` dan `metadata.annotations` (sesuai pemisahan berdasarkan charset di atas) untuk file yang dimuat dengan `$import:` yang lolos round-trip YAML dengan token Helm tetap terjaga — file yang hanya memakai konteks Aggrega `[[ ]]` atau dengan `{{ }}` Helm hanya pada posisi skalar berkutip. File dengan aksi template Helm struktural (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` pada posisi tempat aksi tersebut menghasilkan struktur YAML alih-alih daun skalar), atau file dengan `{{ ... }}` tanpa kutip pada posisi nilai, tidak lolos round-trip YAML Aggrega; build mengeluarkan peringatan “skipped provenance label injection” (injeksi label provenans dilewati) yang menyebut nama artefak dan meneruskan file tanpa perubahan. **Peringatan ini memang diharapkan untuk setiap file artefak helm-chart yang dimuat dengan `$import:` yang memakai aksi template Helm struktural atau substitusi nilai Helm tanpa kutip** — ini adalah kasus umum dalam penulisan Helm di produksi, bukan kasus pinggiran. Penulis yang memerlukan label provenans pada file seperti itu menginjeksikannya melalui template `aggrega.commonLabels` di `_helpers.tpl` milik chart atau mekanisme setara di sisi Helm, bukan melalui injeksi pra-template Aggrega."
+  },
+  "0221afb1afaa11c6": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0221afb1afaa11c6",
+    "status": "machine",
+    "text": "`aggrega/explainError` mengubah salah satu dari dua pengenal sebuah kondisi menjadi apa yang dideklarasikan compiler tentangnya dan entri terbitan yang mengajarkan perbaikan authoring-nya. Ini adalah ekspansi yang sama dengan yang dilakukan [`aggrega explain`](aggrega-explain.md) di terminal dan yang dilakukan alat `explain-error` untuk asisten, dan ketiganya menjawab dari satu tempat, sehingga kode yang diekspansi di sini dan kode yang sama yang diekspansi di sana adalah satu jawaban, bukan tiga jawaban yang kebetulan sama."
   },
   "022f7f2558f12ce4": {
     "at": "2026-10-17T19:52:32.862Z",
@@ -334,6 +362,13 @@
     "srcHash": "032f23b947c3d482",
     "status": "machine",
     "text": "Apa yang ditambahkannya"
+  },
+  "0337a50e0af3f2c7": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "0337a50e0af3f2c7",
+    "status": "machine",
+    "text": "`aggrega/getSchema` — JSON Schema untuk suatu jenis entitas atau kontrak, dibaca dari salinan yang dikompilasi ke dalam biner yang sedang berjalan. `kind` adalah token skema berhuruf kecil dengan tanda hubung — `component`, `aggregate`, `release`, `recipe`, `ir`, `wasm-provider`, dan seterusnya — dan bersifat opsional, karena token ini memilih pertanyaan mana dari dua pertanyaan yang Anda ajukan. Sebutkan suatu jenis dan respons berisi `kind` dan `schema`, yaitu skema sebagai dokumen JSON, bukan sebagai string yang memuatnya. Jangan sebutkan jenis apa pun dan respons berisi `kinds` dan `entityKinds`: jenis mana yang boleh Anda sebutkan, dalam dua cakupan. `kinds` adalah setiap token yang dapat diminta dari biner ini, dalam urutan yang sama dengan yang dicetak oleh [`aggrega get-schema --list`](aggrega-get-schema.md). `entityKinds` adalah himpunan yang lebih sempit berupa jenis yang dokumennya ditulis oleh penulis, dengan setiap entri berisi token `kind` yang harus dikirim kembali, nilai `documentKind` yang masuk ke field `kind:` milik dokumen itu sendiri, dan `acceptedBy`, yang menyatakan apakah validasi entitas tunggal, publikasi, dan inspeksi berdasarkan nama menerima dokumen jenis tersebut. Lihat [Jenis mana yang boleh Anda tawarkan kepada penulis](#which-kinds-you-may-offer-an-author) sebelum Anda membangun pemilih dari salah satunya. Jawaban skema dan enumerasi tidak pernah digabungkan, sehingga pertanyaan mana yang dijawab dapat dibaca dari respons. Token yang tidak sesuai dengan skema mana pun ditolak dengan seluruh himpunan yang valid dicantumkan di pesan, sehingga salah ketik dapat diperbaiki tanpa panggilan kedua. Perintah ini tidak mengambil apa pun dari workspace, tidak menghubungi registry, dan tidak menulis apa pun, sehingga dapat menjawab di workspace yang sama sekali kosong — dan itulah yang membuatnya dapat digunakan untuk menghubungkan asosiasi skema editor dengan biner yang benar-benar dikendalikan oleh editor tersebut, alih-alih dengan salinan skema mana pun yang terpasang di tempat lain."
   },
   "033937545eeefce9": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -537,6 +572,13 @@
     "srcHash": "04f6b2055e69dfbb",
     "status": "machine",
     "text": "entitas yang dipublikasikan sebagai dokumennya"
+  },
+  "04f8ebff8b363eab": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "04f8ebff8b363eab",
+    "status": "machine",
+    "text": "`aggrega/setActiveRelease` — mencatat sebuah Release sebagai default workspace yang dinamai permintaan, dengan menulis penanda `.aggrega/active-release` milik workspace tersebut, dan menjawab persis seperti `aggrega/activeRelease` menjawab setelah penanda ditulis. Menerima workspace dan `release`: path relatif terhadap root workspace yang menamai Release di dalamnya, terikat pada kontrak yang sama dengan `release` milik `aggrega/irGraph` — path absolut, path yang keluar dari workspace, dan nilai kosong ditolak, begitu pula path yang mengarah ke luar melalui link, kecuali konfigurasi workspace Anda menamai Release tersebut. Penanda adalah satu baris yang menamai Release relatif terhadap root, bentuk yang dibaca cascade di bawah. Penanda ditulis di dalam workspace dan tidak di tempat lain: jika `.aggrega`, atau penanda itu sendiri, merupakan link yang mengarah ke luar workspace — baik tempat yang dituju sudah ada maupun belum — permintaan ditolak dengan error invalid-params, yang pesannya adalah kalimat milik kondisi itu sendiri dengan kode pendeknya di depan, `E0320: …` ([fatal-halts.md](../errors/fatal-halts.md) §“A path the operation writes leads through a link out of the directory it must stay inside (Path yang ditulis operasi mengarah melalui link ke luar direktori tempat path itu harus tetap berada)”), yang menamai link dan tujuannya, dan tidak ada yang ditulis; link yang tetap berada di dalam workspace ditulis melaluinya. Respons menamai apa yang ditetapkan cascade alih-alih mengulang apa yang Anda kirim, dan keduanya berbeda jika `build.authoring_release` menamai sebuah Release, karena konfigurasi lebih diutamakan daripada penanda. Catat default dengan cara ini alih-alih menulis file sendiri, sehingga tempat penanda berakhir dinilai berdasarkan aturan yang berlaku untuk setiap file yang ditulis produk di workspace — lihat [Batas workspace](workspace-boundary.md)."
   },
   "04fd26362c4b2d7d": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -1665,6 +1707,13 @@
     "status": "machine",
     "text": "Direktori katalog; dapat diulang. Setiap --catalog ditambahkan di depan tumpukan pencarian katalog (kecocokan pertama yang menang): catalog_dirs milik workspace, atau, untuk Release yang diberi direktori sendiri oleh konfigurasi workspace di bawah workspace.releases, milik Release tersebut; tumpukan diakhiri dengan direktori `catalog` di root workspace bila ada. Daftar catalog_dirs yang ditulis kosong tidak membaca katalog lokal sama sekali. Digunakan oleh pass konvensi seluruh katalog dan --release."
   },
+  "0fda6c545af50c29": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "0fda6c545af50c29",
+    "status": "machine",
+    "text": "`aggrega/configInit` — menyiapkan konfigurasi yang berfungsi dengan mendaftarkan registri beserta kebijakan kepercayaan tanda tangannya, sehingga mesin baru dapat menarik dan memverifikasi artefak bertanda tangan tanpa mengedit YAML secara manual. `registry` bersifat opsional dan nilai yang tidak ada akan menyiapkan hub resmi, default yang sama yang digunakan [`aggrega config init`](aggrega-config.md); `host` dalam respons menamai registri mana yang digunakan. `global` dan `workspace` adalah override target penulisan dan mengirim keduanya ditolak. Permintaan ini **menolak menimpa file konfigurasi yang sudah ada**, dengan menamai file tersebut — kirim `force` untuk tetap melanjutkan, yang menggabungkan entri registri ke dalam apa yang sudah ada dan mempertahankan pengaturan lainnya. `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dengan menjawab menggunakan konfigurasi yang disiapkan sebagai `content`, untuk klien yang menampilkan dokumen kepada penulis sebelum disimpan; tidak ada yang dibuat dalam mode ini dan `written` bernilai false. **Penolakan karena file sudah ada juga berlaku di bawah `dryRun`**, jadi kirim `force` bersamanya untuk mendapatkan jawaban berupa penggabungan yang akan dihasilkan oleh penulisan yang menimpa. Di workspace offline hanya hub resmi yang dapat disiapkan: permintaan ini tidak menerima identitas atau kunci, sehingga registri lain mana pun ditolak persis seperti `aggrega/registryAdd` menolaknya, termasuk kode pendek dan kalimatnya, dan harus ditambahkan melalui permintaan tersebut dengan kebijakan yang diberikan secara manual. Respons memuat `host`, `scope`, `trust`, dan `written`, serta `existed`, bernilai true jika file konfigurasi sudah ada — sehingga entri registri digabungkan ke dalamnya alih-alih membuat file baru — dan tidak ada jika file dibuat. **Ini menulis konfigurasi global secara default** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
+  },
   "101150c631a12495": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -2084,6 +2133,13 @@
     "srcHash": "1460a5b20a38df14",
     "status": "machine",
     "text": "Memeriksa kebenaran di seluruh katalog, sebuah Release, atau satu entitas"
+  },
+  "146aedbb621150b0": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "146aedbb621150b0",
+    "status": "machine",
+    "text": "`aggrega/activeRelease` — Release mana yang ditunjuk oleh workspace yang dinamai permintaan, sebagai path absolut dalam field `release`, untuk klien yang memutuskan apa yang dipilih secara default. Menerima workspace dan tidak ada yang lain. Field ini selalu ada, dan nilai kosong berarti workspace tidak menunjuk Release apa pun — respons yang berhasil, bukan error, sehingga klien yang memperbaruinya setiap kali daemon dimulai ulang tidak dipaksa memperlakukan workspace biasa sebagai kegagalan. Jika nilainya kosong, respons juga memuat `reason`, ringkasan satu baris tentang apa yang dicari cascade, dan `trace`, uraian langkah demi langkahnya; keduanya dihilangkan jika sebuah Release berhasil di-resolve. Jika sebuah Release berhasil di-resolve, respons memuat `lockfile` sebagai gantinya, path absolut lockfile Release tersebut, yang dihilangkan jika tidak ada yang di-resolve. Release yang dinamainya tidak harus salah satu yang dicantumkan `aggrega/releaseCandidates` — penanda dapat menamai Release di direktori yang dikecualikan daftar tersebut, seperti `vendor/`, atau Release yang dinamai tanpa ekstensi YAML — sehingga respons inilah tempat klien membaca lockfile Release default. Lihat [Letak lockfile sebuah Release](#where-a-releases-lockfile-is). Tanyakan hal ini alih-alih menyimpulkan jawabannya dari salah satu input cascade: input yang pada akhirnya tidak digunakan cascade menamai Release yang berbeda dari yang dipilihnya. Jawaban dihitung saat Anda bertanya, sehingga bertanya lagi setelah menulis penanda, mengedit konfigurasi, atau menambahkan file Release melaporkan jawaban yang baru, bukan workspace sebagaimana keadaannya saat daemon dimulai."
   },
   "14736a2eb9f4159f": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -2659,6 +2715,13 @@
     "status": "machine",
     "text": "**Jika proxy di depan sudah memvalidasi token, `mcp.authorization.trusted_proxy` memberi tahu server ini untuk membaca pemanggil darinya alih-alih memeriksa token untuk kedua kalinya.** Berikan `principal_header`, header yang ditetapkan proxy tersebut untuk menyatakan siapa pemanggilnya, dan secara opsional `scopes_header`, header kedua yang memuat scope pemanggil tersebut dipisahkan spasi. Masing-masing adalah nama header HTTP seperti `X-Forwarded-User`, tanpa spasi atau titik dua; nama dalam bentuk lain apa pun ditolak saat konfigurasi dimuat, dengan menyebut kuncinya, begitu pula `principal_header` yang kosong — hilangkan blok tersebut agar mode ini tetap nonaktif. Kedua header itu adalah satu-satunya yang dibaca: tidak ada header alamat yang diteruskan maupun header lain yang ikut berperan. Permintaan yang tiba tanpa header principal dijawab `401`, dan **dalam mode ini sama sekali tidak ada token yang dibaca** — permintaan yang membawa token yang sebenarnya akan ditolak server ini tetap dilayani jika header principal-nya ada, dan permintaan yang membawa token yang akan diterima server ini tetap ditolak jika header tersebut tidak ada."
   },
+  "19f72f7dd06d7098": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "19f72f7dd06d7098",
+    "status": "machine",
+    "text": "**Entri yang kodenya menyebutkan kelas hanya membawa `code`.** Kelas saran render, dan identitas temuan konvensi dari linter milik Anda sendiri — aturan yang tidak dideklarasikan Aggrega, atau kode yang dibawa temuan yang tidak menyebutkan aturan — adalah pengenal nyata yang dapat Anda gunakan untuk mengelompokkan dan menekan, dan keduanya bukan kondisi terdaftar — sehingga tidak ada angka untuk dikutip dan tidak ada apa pun di alamat tersebut yang menjelaskannya. Referensi yang tetap dikirim akan menjadi tautan yang membuka halaman yang tidak membahas masalah pembaca, itulah sebabnya tidak ada yang dikirim. Ini adalah bentuk biasa pada lapisan `aggrega-build`, meskipun saran build yang memang menyebutkan kondisi terdaftar membawa ketiganya seperti entri lainnya. Pada lapisan `aggrega-lint`, bentuk biasanya adalah set lengkap: aturan dalam set aturan linter publikasi yang dideklarasikan Aggrega adalah kondisi terdaftar, sehingga temuannya membawa `shortCode` yang sama dengan yang dicetak `aggrega lint` di awal baris temuan, beserta referensi di sampingnya."
+  },
   "1a1180604b726709": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -2672,6 +2735,13 @@
     "srcHash": "1a12d3b6ff70ab35",
     "status": "machine",
     "text": "Dua direktori lain dapat muncul di samping ketiganya, dan tidak satu pun menyimpan konten dependensi yang disematkan: `index/` membawa snapshot yang dapat dicari per registry yang ditulis oleh `aggrega registry update` (§8), dan `signatures/` men-cache setiap bundel tanda tangan yang terverifikasi di bawah digest-nya sendiri, sehingga pembacaan berikutnya memeriksa ulang blob yang di-cache terhadap digest tempat blob itu dicatat alih-alih mengambil bundel lagi."
+  },
+  "1a1394cc5daa2bef": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "1a1394cc5daa2bef",
+    "status": "machine",
+    "text": "Pada entri `aggrega-lint` — temuan konvensi publikasi — kode adalah identitas temuan tersebut: identitas aturan yang menghasilkannya, atau, untuk temuan yang tidak menyebutkan aturan — yang dapat dilaporkan linter milik Anda sendiri dengan kodenya sendiri — kode tersebut. Ini adalah pengenal yang dicetak `aggrega lint` pada baris temuan, setelah kode pendek jika ada, dan nilai yang dibawa `aggrega lint --output json` untuk temuan yang sama, sebagai `ruleId`, atau sebagai `code` untuk temuan yang tidak menyebutkan aturan. Satu temuan mempertahankan satu identitas di seluruh antarmuka, sehingga klien yang mengelompokkan atau menekan sebuah aturan di editor mengelompokkan dan menekan aturan yang sama di terminal. Setiap aturan dalam set aturan linter publikasi yang dideklarasikan Aggrega didaftarkan sebagai kondisi dengan identitas tersebut, sehingga tercantum di [tabel semua kondisi](../errors/sentinels.md#every-condition-by-short-code) dengan kode pendek yang dicetak `aggrega lint` di awal baris temuan yang sama dan yang dibawa `aggrega lint --output json` padanya sebagai `shortCode`. Aturan dari linter milik Anda sendiri yang tidak dideklarasikan Aggrega tidak menyebutkan kondisi terdaftar, demikian pula temuan yang tidak menyebutkan aturan, bahkan jika kodenya sendiri mengeja identitas aturan yang dideklarasikan Aggrega — sehingga keduanya tidak tercantum di sana. Aturan-aturan tersebut dijelaskan di [referensi `aggrega lint`](./aggrega-lint.md)."
   },
   "1a2d1e32094d235c": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -2714,6 +2784,13 @@
     "srcHash": "1a685b96b5355007",
     "status": "machine",
     "text": "Sebelum membaca Referensi, pahami terlebih dahulu model mental yang ditetapkan bab-bab arsitektur. Bab [Empat domain dan Team Topologies](../architecture/03-team-topologies-and-domains.md) menjelaskan bagaimana Aggrega memisahkan perhatian Developer Intent, Platform Catalog, Platform Ops, dan Platform Operator ke dalam permukaan penulisan yang berbeda; bab [Taksonomi entitas](../architecture/04-entity-taxonomy.md) menyebutkan entitas-entitasnya (Aggregate, Component, Feature, Recipe, FeatureRecipe, Plugin, Manifest, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) beserta perannya di domain-domain tersebut. Setiap bab Referensi setelah bab ini mengasumsikan pembaca sudah memiliki gambaran itu."
+  },
+  "1a69645b5afc4afe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "1a69645b5afc4afe",
+    "status": "machine",
+    "text": "Perhatikan objek mana yang membawa apa: ini adalah **string** pada entri diagnostik, berbeda dari `code` **numerik** pada amplop error JSON-RPC yang dijelaskan di bawah pada [Kode error](#error-codes). Sebuah respons membawa salah satunya, tidak pernah keduanya di satu tempat."
   },
   "1a7a0d2274e5ff97": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -3534,6 +3611,13 @@
     "status": "machine",
     "text": "Berkas terkait yang dirujuk dan gagal dimuat akan langsung menghentikan perintah — Release yang menunjuk ke Aggregate yang tidak ada, entitas katalog yang rusak di tumpukan pencarian. Perintah berhenti dengan pesan yang jelas alih-alih merender output parsial, dan tidak ada mode continue-on-error untuk kegagalan pemuatan: begitu dokumen yang dibutuhkan resolusi tidak dapat dibaca, tidak ada lagi yang dapat diresolusi. Jika resolusi sebuah nama berhenti pada dokumen katalog yang ditolak pemuatan, pesan menyatakan penolakan itu satu kali: kepala yang memuat kategori dan, jika penolakan menyebutkan sebuah kondisi, kode pendeknya, lalu dokumennya, lalu apa yang salah dengannya — untuk dokumen yang ditolak skema jenisnya, baris dan batasan yang dilanggarnya. Pesan itu tidak menyarankan untuk memindahkan berkas — katalog membacanya, dan karena itulah berkas itu ditolak."
   },
+  "21fce41584d8a483": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "21fce41584d8a483",
+    "status": "machine",
+    "text": "Pada entri `aggrega` — temuan tentang dokumen yang ditulis — kode adalah string tempat kondisi tersebut didaftarkan, ditulis sebagai paket yang mendeklarasikan diikuti aturan dalam kebab-case. Ini adalah nilai yang sama yang dibaca konsumen Go dengan `CodeOf`, yang bentuk dan permukaan yang dapat dicocokkannya dijelaskan di [referensi sentinel error](../errors/sentinels.md)."
+  },
   "220b22219250bfb2": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -3568,6 +3652,13 @@
     "srcHash": "2237ee7e5d842dc4",
     "status": "machine",
     "text": "Ketiga gaya penulisan huruf ini tidak dapat dipertukarkan. Penulis Recipe yang menulis `{{ .context.instanceId }}` (camelCase) menghentikan build: `.context` mendeklarasikan kuncinya, dan `instanceId` bukan salah satunya, sehingga referensi itu ditolak sebelum apa pun dirender dan diagnostiknya mencantumkan kunci yang memang didefinisikan `.context` — lihat [`errors/fatal-halts.md`](errors/fatal-halts.md) “Template references a root the render context does not define (Template mereferensikan akar yang tidak didefinisikan konteks render)”. Pengembang yang menulis `web.server` (dengan titik) terkena penolakan pola nama instans karena titik dicadangkan sebagai pemisah jalur. Sasaran disiplinnya: ingat ketiga konvensi saat membaca atau menulis; andalkan batas-batasnya (di mana Anda berada dalam YAML atau template) untuk mengetahui gaya penulisan mana yang berlaku."
+  },
+  "22450ea24cd6c926": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "22450ea24cd6c926",
+    "status": "machine",
+    "text": "**Letak sebuah entri bergantung pada apa yang dibahasnya, bukan pada lapisan mana yang memunculkannya.** Temuan tentang sesuatu yang ditulis penulis ditempatkan pada key tempat penulis menuliskannya, sehingga editor menggambarnya di tempat suntingan seharusnya dilakukan. Temuan tentang bentuk topologi yang di-deploy menyebutkan sebuah komponen dan key pengiriman, bukan baris — itu adalah koordinat dalam topologi yang di-deploy, bukan dalam dokumen — sehingga digambar pada key `kind:` dokumen dan sebagai gantinya menyebutkan koordinatnya di pesan. Kedua jenis tersebut mencapai lapisan `aggrega-build`, karena build memunculkan keduanya. Penolakan yang dimunculkan build saat melakukan render juga mencapai lapisan itu, pada dokumen yang ditunjuk oleh penolakan itu sendiri — Workload yang tidak memenuhi pemeriksaannya pada key `workload` milik Recipe-nya, asersi Recipe yang gagal pada key milik asersi itu sendiri, entri yang ditolak oleh komposisi graf pada key tempat Release atau Aggregate menuliskannya, dan setiap temuan dari penolakan yang menggabungkan beberapa temuan pada dokumen dan key-nya sendiri — dan, jika tidak menunjuk ke dokumen mana pun, pada key `kind:` milik Aggregate; [Penolakan yang dimunculkan saat render](#a-refusal-raised-while-rendering) menjelaskannya. Jadi klien menempatkan setiap entri berdasarkan `line` dan `column` miliknya sendiri dan tidak pernah menyimpulkan posisi dari lapisan."
   },
   "224d7c9851946fd9": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -4359,6 +4450,13 @@
     "srcHash": "28a7aec6e815a52c",
     "status": "machine",
     "text": "**Folder workspace adalah tempat setiap permintaan yang tidak menyebutkan workspace sendiri dijawab.** Claude Desktop menjalankan server di folder pilihannya sendiri, bukan di proyek Anda, sehingga paket meneruskan folder yang Anda pilih ke server sebagai variabel `AGGREGA_WORKSPACE_ROOT` di lingkungannya, bukan sebagai argumen pada baris perintah yang disusun aplikasi. Server mengambil folder itu sebagai root workspace itu sendiri, sebagaimana `--workspace-root` diambil pada setiap perintah: server tidak mencari workspace yang melingkupinya di atas folder itu, jadi pilih folder yang berisi `.aggrega-config.yaml`, bukan folder di dalamnya. Untuk bekerja di workspace lain, ubah pengaturan dan mulai ulang aplikasi seperti pada langkah 4."
+  },
+  "28e08db9a26c337a": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "28e08db9a26c337a",
+    "status": "machine",
+    "text": "`aggrega/entityDefinition` — hasil resolve entitas yang dinamai: `kind`-nya, `name` dan `version` miliknya sendiri, `description` dan `publishScope`-nya jika ada, `file` tempat entitas itu dideklarasikan, `authoredLength` dari teks tulisan penulis di baliknya, dan `definition`-nya sebagai dokumen YAML dengan pewarisan yang sudah diterapkan. `file` dilaporkan untuk setiap kind, sebagai path yang dapat Anda buka — relatif terhadap root workspace untuk dokumen di dalamnya, absolut untuk dokumen di luarnya, sesuai [Cara penulisan path yang dilaporkan](#how-a-reported-path-is-spelled). Field ini kosong dalam satu kasus: entitas yang di-resolve dari registri tidak memiliki dokumen tulisan penulis di mesin ini untuk dinamai. `authoredLength` menjawab pertanyaan yang berbeda — seberapa banyak teks tulisan penulis yang dipertahankan oleh resolusi — dan hanya Aggregate yang disajikan dengan teks semacam itu, jadi bacalah keduanya secara terpisah, bukan sebagai pasangan. `name` adalah identitas entitas, ditulis dengan cara satu entitas mereferensikan entitas lain, dan dapat membawa sufiks versi. Ini adalah satu-satunya permintaan di sini yang berangkat dari nama, bukan dari kursor, sehingga inilah yang perlu ditanyakan ketika Anda sudah tahu entitas mana yang Anda maksud. `release` bersifat opsional dan me-resolve nama dalam konteks Release tersebut — lihat [Menjawab dalam konteks satu Release](#answering-in-one-releases-terms). Nama yang tidak ter-resolve ke apa pun ditolak alih-alih dijawab dengan dokumen kosong; lihat [Membedakan dua penolakan berdasarkan nama](#telling-the-two-by-name-refusals-apart). `name` juga dapat berupa referensi registri — `oci://<host>/<repository>:<tag>`, atau `@<digest>` sebagai pengganti `:<tag>` — dan responsnya kemudian adalah entitas yang dipublikasikan pada koordinat tersebut, dibaca dari registrinya, dengan `published` yang menamai apa yang dibaca; lihat [Menanyakan sebuah koordinat](#asking-about-a-coordinate)."
   },
   "28e4bfad14be6c63": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -6005,6 +6103,13 @@
     "status": "machine",
     "text": "Lock entitas"
   },
+  "3ae03612b59b6028": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "3ae03612b59b6028",
+    "status": "machine",
+    "text": "**Entri yang menyebutkan kondisi terdaftar membawa ketiganya.** `shortCode` teresolusi, dan referensinya mengarah ke daftar tempat kode itu teresolusi."
+  },
   "3ae13d8ec97b5aa1": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -6810,6 +6915,13 @@
     "status": "machine",
     "text": "**Batasan 4: Release tidak dapat menimpa nilai pengembang**"
   },
+  "43042e2ebf15175c": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "43042e2ebf15175c",
+    "status": "machine",
+    "text": "`aggrega/pluginGenCatalog` — menghasilkan satu entitas Plugin per guest yang dipilih, dengan menggabungkan field kontrak yang diturunkan dari laporan diri guest dengan overlay per plugin yang ditulis secara manual. `fromEmbedded` dan `plugin` adalah dua mode pemilihan dan **tepat satu yang berlaku**: setiap guest yang dibawa biner ini, atau satu modul di jalur yang Anda sebutkan; menyebutkan keduanya, atau tidak menyebutkan keduanya, ditolak alih-alih diselesaikan. `overlay` wajib diisi, dan berupa direktori overlay di bawah `fromEmbedded` atau satu file overlay di bawah `plugin` — sebuah overlay dicocokkan dengan guest berdasarkan identitas jika ada beberapa, dan tidak ada yang perlu dicocokkan jika hanya ada satu. `outputDir` wajib diisi **di kedua cara pengiriman**, dan `dryRun` tidak membebaskannya: uji coba mengubah ke mana konten pergi, bukan untuk file mana konten itu, sehingga setiap dokumen yang dikembalikan tetap menyebutkan jalur yang menjadi tujuannya dan jalur itu disusun dari direktori ini. Ketiga jalur di sini tidak dinilai dengan cara yang sama, dan pembedaannya mengikuti apa yang dilakukan proses pembuatan terhadap masing-masing. `plugin` dan `overlay` dibaca, dan keduanya adalah file yang Anda pilih — sebuah modul berada di direktori mana pun tempat toolchain-nya melakukan build, dan overlay-nya ditulis di sampingnya — sehingga masing-masing boleh absolut dan dibaca di tempat sebenarnya berada. `outputDir` ditulisi, sehingga bersifat relatif terhadap root workspace dan ditolak jika absolut atau teresolusi ke luar root tersebut, baik sebagaimana tertulis maupun melalui tautan — direktori yang belum dibuat di bawah direktori bertautan yang mengarah ke luar ditolak sebagaimana direktori itu ditolak. Menjalankan ulang dengan input yang tidak berubah menghasilkan entitas yang identik byte demi byte. **Ini menulis entitas yang dihasilkan di bawah `outputDir`, di dalam workspace, kecuali `dryRun` memintanya sebagai konten.** Lihat [Apa yang disampaikan perubahan plugin kepada Anda](#what-a-plugin-change-tells-you)."
+  },
   "43094f6320ecef95": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -6872,6 +6984,13 @@
     "srcHash": "436c8cd8436b33eb",
     "status": "machine",
     "text": "**agentgateway di depan model:** `core/gateway/agentgateway`, agentgateway sumber terbuka, melayani model yang terhubung ke soket `models` miliknya sendiri dari satu file konfigurasi yang dirender oleh Recipes miliknya. Setiap model yang terhubung adalah entri dalam file tersebut, dinamai dengan alias koneksi dan ditulis dari `endpoint` dan `model` yang diterbitkan model sebagai penyedia chat completions yang kompatibel dengan OpenAI, sehingga setiap model yang terhubung dilayani di bawah `/v1` pada alamat gateway itu sendiri dan nama model yang dibawa permintaan yang memilihnya: permintaan mencapai model dengan meminta nama model yang diterbitkan model, dan nama yang tidak dibawa koneksi mana pun dijawab dengan HTTP 404. Gateway menyajikan kredensial milik setiap koneksi sebagai bearer token, yang dinamai file sebagai variabel yang dibaca gateway dari lingkungannya saat membaca file, dan variabel yang tidak ada di sana mencegahnya dimulai; koneksi yang mencapai model yang `model.aggrega.ai/api`-nya bukan `openai` menghentikan build. Gateway ini menerbitkan URL dasar `/v1` tersebut sebagai `endpoint`-nya dan alias yang dinamai `values.model` miliknya sebagai `model`-nya, serta membawa `model.aggrega.ai/api: openai`, sehingga soket `model` milik agen menerimanya sebagaimana menerima gateway AI; tanpa apa pun yang terhubung, gateway ini menerbitkan kedua kunci dalam keadaan kosong. Dua Recipes menjalankan image yang sama, yang disematkan dengan digest: `agentgateway-chart` merender chart Helm mandiri milik proyek, yang diambil dari registry proyek, dan merealisasikan kontrol di bawah ini, sedangkan `agentgateway` menjalankan image sebagai satu layanan Docker Compose dan tidak merealisasikan satu pun di antaranya, begitu pula pemanggil, sehingga pemasangan di sana menghentikan build dengan menyebut jenisnya; gunakan chart di Kubernetes, tempat build dapat mencapai registry tersebut. Pada chart, Release dapat menamai pemanggil gateway di `infra.callers` dan kunci mereka melalui slot `caller_keys`, seperti pada APISIX: setiap pemanggil adalah kunci API dari file, yang diperiksa dalam mode ketat dan dibaca berdasarkan nama dari Secret tersebut, sehingga permintaan model yang tidak menyajikan kunci terdeklarasi sebagai `Authorization: Bearer <key>` ditolak dengan HTTP 401, dan kunci dihapus dari permintaan yang diteruskan; tanpa pemanggil, rute model terbuka. agentgateway menyisipkan setiap kunci yang dinamai file dengan cara ini, kunci model yang terhubung pada kedua Recipe dan kunci pemanggil pada chart, ke dalam teks file sebelum membaca file sebagai YAML, sehingga kunci harus berupa token biasa — huruf, angka, dan `-`, `.`, `_`, `~`, `+`, `/`, serta `=` — dan karakter lain dapat termuat sebagai kunci yang berbeda atau menghentikan gateway. Gateway membaca ulang filenya saat file berubah, sehingga pemanggil yang dihapus dari Release ditolak segera setelah file yang di-mount diperbarui. Selama `core/audit-logging`, atau `core/period-budget` dengan cakupan `caller`, terpasang, Recipe chart memberi gateway sebuah penyimpanan, yaitu file SQLite pada volume tersendiri, dan menjalankan satu replika. Dari kontrol di bawah ini, gateway ini merealisasikan penyamaran data, pola penolakan prompt, anggaran periode, pencatatan audit, dan kebijakan retry, masing-masing ditulis ke dalam file, dan menolak dengan menyebut nama setiap nilai yang tidak dapat dipenuhinya. Penyamaran data mengganti setiap kecocokan pola yang dicantumkan pemasangan dengan `<masked>`, atau di bawah `refuse` menjawab permintaan atau balasan dengan HTTP 403, pada prompt sistem dan developer dari sebuah permintaan, pesan-pesan lainnya, serta argumen dan hasil panggilan alatnya, dan pada teks pesan dari balasan yang tiba secara utuh; fitur ini tidak mengenali jenis entitas apa pun dan tidak memulihkan apa pun. agentgateway tidak menyamarkan balasan yang di-stream, sehingga selama balasan disamarkan, permintaan model yang meminta balasan yang di-stream ditolak dengan HTTP 403 sebelum diteruskan, begitu pula setiap permintaan model yang body-nya lebih besar dari 2 MiB yang dibaca gateway untuk pemeriksaan tersebut, baik di-stream maupun tidak. Penolakan oleh sebuah guard, termasuk oleh pola penolakan, adalah HTTP 403 dengan body “The request was rejected due to inappropriate content” (Permintaan ditolak karena konten yang tidak pantas). Anggaran, catatan, dan retry dijelaskan dalam “Anggaran periode”, “Pencatatan audit”, dan “Ketahanan” di bawah. Realisasinya atas rantai fallback, pemilihan target, cache semantik, validasi respons, dan penyaringan prompt injection menghentikan setiap pemasangan, masing-masing dengan menyebutkan alasannya, dan batas konkurensi tidak dapat dipasang padanya, karena gateway ini tidak membawa nilai `dataplane.aggrega.ai/concurrency-cap`."
+  },
+  "43706e113bd7d772": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "43706e113bd7d772",
+    "status": "machine",
+    "text": "Jadi ketiga kasus dapat dibedakan dari key-nya saja: tidak ada `code` berarti tidak ada yang disebutkan, `code` tanpa `shortCode` di sampingnya berarti pengenal yang tidak teresolusi lebih jauh, dan set lengkap berarti pengenal dengan tempat untuk membaca tentangnya. Perlakukan kedua key baru itu sebagai opsional, sama seperti `code`, dan tawarkan sesuatu untuk dibuka kepada pembaca hanya jika `codeDescription` tiba."
   },
   "4371787c92357bf7": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -8987,6 +9106,13 @@
     "status": "machine",
     "text": "Memublikasikan Plugin"
   },
+  "55af80a9b8fbe887": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "55af80a9b8fbe887",
+    "status": "machine",
+    "text": "`aggrega/explainError` — apa yang dideklarasikan compiler tentang kondisi yang disebutkan oleh sebuah kode, beserta entri terbitan yang mengajarkan perbaikan authoring-nya. `code` wajib diisi dan menerima salah satu dari dua pengenal sebuah kondisi: kode pendek yang dibawa diagnostik di `shortCode`, atau kode deskriptif di `code`. Ini adalah ekspansi dari kode yang sudah dibawa oleh diagnostik di jalur ini, dan merupakan jawaban yang sama dengan yang dicetak [`aggrega explain`](aggrega-explain.md) di terminal. Jawaban selalu berisi kondisinya — `shortCode`, `code`, dan `message` — karena bagian itu dideklarasikan di dalam biner dan tidak memerlukan jaringan; `entries` berisi panduan langkah demi langkah yang diterbitkan, dan `note` menyatakan mengapa panduan itu tidak ada, jika memang tidak ada. **Ini memperoleh bundel dokumentasi jika mesin tidak memiliki salinan yang diterima oleh pemeriksaan tanda tangan milik workspace itu sendiri** — lihat [Menjangkau registry, dan menulis](#reaching-a-registry-and-writing). Lihat [Mengekspansi kode yang dibawa diagnostik](#expanding-a-code-a-diagnostic-carried)."
+  },
   "55b5dac136235bb6": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -9309,6 +9435,13 @@
     "status": "machine",
     "text": "**Skema** adalah struktur yang persis: field wajib, nilai yang diizinkan, dan penyarangan. Dari baris perintah, `aggrega get-schema <kind>` mencetaknya; `aggrega get-schema --list` menyebutkan setiap jenis yang dapat Anda minta. Asisten membaca byte yang sama dari resource `schema://<kind>`. Lihat referensi [`aggrega get-schema`](../language-reference/cli/aggrega-get-schema.md)."
   },
+  "589cf2f7dc158ce8": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "589cf2f7dc158ce8",
+    "status": "machine",
+    "text": "`aggrega/effectiveConfiguration` — konfigurasi yang berlaku untuk workspace yang dinamai permintaan, dan lapisan asal setiap pengaturan. Menerima workspace dan tidak ada yang lain: respons adalah properti dari workspace tersebut. `layers` mencantumkan file konfigurasi dan override lingkungan yang berkontribusi, dimulai dari prioritas terendah; `settings` memuat setiap pengaturan yang diatribusikan sebagai nama bertitiknya, nilai efektifnya, dan `source` yang menentukannya. Sebuah `source` dieja persis seperti entri yang cocok di `layers`, sehingga keduanya dapat digabungkan secara langsung. Lihat [Cakupan respons konfigurasi efektif](#what-the-effective-configuration-response-covers) untuk lapisan mana yang dinamai sebuah `source` dan batasan arti sebuah baris."
+  },
   "58b44fc7933b3220": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -9539,6 +9672,13 @@
     "srcHash": "5aa10c4d4906233a",
     "status": "machine",
     "text": "`Status` melaporkan `Valid`, dan subjeknya diawali `CN=Cognitio S.r.l.`. `NotSigned` atau `HashMismatch` berarti file tersebut bukan yang dipublikasikan oleh rilis, atau telah diubah setelah ditandatangani."
+  },
+  "5aa4fad3f773a7a7": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "5aa4fad3f773a7a7",
+    "status": "machine",
+    "text": "Baca key tersebut alih-alih menyimpulkan dari diagnostik, karena kedua jawaban dapat terlihat identik. Dokumen yang tersusun dengan baik dan divalidasi tanpa Release membalas dengan daftar diagnostik kosong, yang persis sama dengan balasan putusan lengkap yang bersih, sehingga `checked` adalah satu-satunya hal yang membedakan “tidak ada yang salah” dari “tidak ada hal yang memerlukan Release yang diperiksa”. Satu konsekuensi mengikuti dari aturan yang sama: lockfile dikenali dari korelasinya dengan Release yang disebutkan permintaan, sehingga permintaan yang tidak menyebutkan Release tidak mengenali lockfile apa pun dan tidak melaporkan apa pun tentangnya."
   },
   "5adb47333d691c18": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -10093,6 +10233,13 @@
     "status": "machine",
     "text": "**Pemilihan format bersifat deklaratif, tidak pernah ditebak.** Host tidak pernah memeriksa konten berkas untuk memutuskan apa berkas itu. Host memilih format melalui sinyal yang dideklarasikan dalam urutan preferensi yang tetap. Provider render dapat mendeklarasikan format setiap berkas yang dihasilkannya, dan host langsung mengutamakan format yang dideklarasikan produsen itu — provider yang menulis byte tersebut adalah otoritas tentang cara membacanya. Untuk berkas yang tidak diberi tanda oleh produsen, peta ekstensi berkas yang tetap menjadi cadangan — `.tf` memilih HCL, `.toml` memilih TOML, `.yaml` memilih YAML, `.json` memilih JSON. Memilih berdasarkan format yang dideklarasikan atau ekstensi yang tetap menjaga penguraian tetap deterministik dan mudah dipahami: input yang sama selalu diarahkan ke parser yang sama, dan operator dapat mengetahui parser mana yang akan berjalan tanpa mengetahui byte di dalam berkas. Content-sniffing akan membuat pilihan bergantung pada payload, dan Aggrega tidak melakukannya."
   },
+  "6084421c9c1a13fc": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6084421c9c1a13fc",
+    "status": "machine",
+    "text": "**Menyebutkan Release bersifat opsional, dan jawabannya menyatakan mana dari keduanya yang Anda minta.** Sebutkan satu dan Anda mendapatkan semua yang dijelaskan di atas. Jangan sebutkan apa pun dan Anda mendapatkan pemeriksaan yang dijawab dokumen untuk dirinya sendiri — apakah dokumen dapat diurai, apakah bentuknya sendiri dapat diterima, dan, untuk entitas katalog dengan jenis yang divalidasi sebagai entitas tunggal, placeholder mana yang masih terutang — tanpa meresolusi Release, menelusuri closure, atau membaca lockfile; balasan kemudian berisi `checked: \"document\"`. Sebutkan Release dan key tersebut tidak ada, karena jawaban itu adalah putusan lengkap metode dan tidak ada yang perlu dikualifikasi."
+  },
   "60871828805e4c8a": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -10148,6 +10295,13 @@
     "srcHash": "60c970e0d518de42",
     "status": "machine",
     "text": "**Cabang katalog**"
+  },
+  "60d037bfde9c873a": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "60d037bfde9c873a",
+    "status": "machine",
+    "text": "**Teks penjelasannya sendiri tidak ada di entri, dan itu disengaja.** Diagnostik dipancarkan pada setiap suntingan, sehingga penjelasan yang menyertai masing-masing akan menerbitkan ulang paragraf yang sama pada setiap ketukan tombol kepada pembaca yang biasanya sudah membacanya. Klien yang menginginkan teks memintanya sekali, dengan [`aggrega/explainError`](#expanding-a-code-a-diagnostic-carried) di bawah; klien yang dapat mengikuti tautan tidak memerlukan keduanya."
   },
   "60e232db4cd3fc76": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -10744,6 +10898,13 @@
     "status": "machine",
     "text": "Autentikasi"
   },
+  "6688703b25ce9107": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6688703b25ce9107",
+    "status": "machine",
+    "text": "**Workspace yang tidak memuat Release dijawab alih-alih ditolak, dan itulah yang membuat bagian lain daemon tetap dapat digunakan di sana.** Validasi adalah hal yang mengisi cache penguraian yang dibaca setiap operasi file lainnya, sehingga repositori yang hanya berisi katalog, scaffold dengan satu Aggregate, atau direktori coretan tetap mendapatkan hover, pelengkapan, buka definisi, referensi, implementasi, dan diagnostik yang di-cache. Menolaknya akan menghilangkan semua itu, tepat di workspace tempat klien tidak memiliki Release untuk disebutkan."
+  },
   "671867706d53b701": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -10841,6 +11002,13 @@
     "srcHash": "67c46252e605ebe2",
     "status": "machine",
     "text": "Nama “Zero-Port” adalah sebutan historis kanonis untuk konvensi ini; prinsipnya berlaku umum untuk setiap batasan infrastruktur fisik yang di-hardcode oleh aplikasi lama. Skema di bawah ini menggunakan `tcp_keepalive_seconds` sebagai contoh kerja — pengaturan waktu kernel/jaringan yang diharapkan aplikasi di lapisan soket — agar contoh tetap secara eksplisit berada di sumbu kebocoran infra tanpa menyebut field yang penempatannya antara values dan infra masih diperdebatkan."
+  },
+  "67e91039b12d3a82": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "67e91039b12d3a82",
+    "status": "machine",
+    "text": "Jawaban selalu membawa `shortCode`, `code`, dan `message`: dua pengenal kondisi dan kalimat pembuka setiap diagnostik yang menyebutkannya. Semua itu dideklarasikan di dalam biner, sehingga tiba tanpa jaringan dan tanpa cache, dan itulah yang memungkinkan workspace yang tidak memuat dokumentasi tetap dijawab. `reference` adalah alamat yang sama dengan yang dibawa `codeDescription` sebuah diagnostik, untuk klien yang lebih suka mengarahkan pembacanya ke dokumentasi daripada merender teks."
   },
   "67f60f9032bb339a": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -11576,6 +11744,13 @@
     "srcHash": "6f3eae21bbe091bd",
     "status": "machine",
     "text": "`component.aggrega.ai/type` adalah kunci milik Aggrega, dan himpunan nilainya tertutup: skema Component yang dipublikasikan mengenumerasi primitifnya, dan dokumen yang membawa nilai lain akan ditolak saat dimuat, dengan `E0215` menyebutkan label tersebut dan mencantumkan nilai yang diterimanya. Katalog yang membutuhkan klasifikasi yang tidak didefinisikan Aggrega menambahkan **kunci labelnya sendiri** di sampingnya — skema Component menerima kunci label tambahan apa pun dengan nilai string — sehingga sumbu baru hanya membutuhkan kunci milik Anda sendiri tanpa rilis kompiler baru, sementara kunci yang dicadangkan tetap memiliki satu makna di mana pun. Itulah yang membuat sebuah Feature yang ditulis untuk `component.aggrega.ai/type in (stateful-server)` berfungsi dengan Components dari penulis yang tidak pernah saling bertemu."
+  },
+  "6f57dad0627768da": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "6f57dad0627768da",
+    "status": "machine",
+    "text": "Key ini **dihilangkan** jika tidak ada apa pun yang menghasilkan entri tersebut menetapkan kode, dan setiap jenis memiliki kasus itu. Buffer yang tidak dapat dibaca parser YAML mana pun melaporkan teks parser itu sendiri dan tanpa kode, karena tidak ada kondisi milik Aggrega sendiri di baliknya; tahap yang melaporkan kegagalan tanpa menyebutkan kondisi juga tidak memiliki kondisi untuk dilaporkan; dan saran yang pemunculnya tidak menetapkan kode tiba tanpa kode. Jadi perlakukan `code` sebagai opsional, sama seperti `end_line` dan `end_column`, dan bercabanglah berdasarkan kode itu hanya jika ada. Kode adalah apa yang dilaporkan diagnostik dan tidak pernah apa yang memilihnya: tidak ada permintaan yang menerima kode, dan menuliskan kembali kode ke dalam kode Anda sendiri memberi Anda string, bukan cara untuk mencocokkan."
   },
   "6f6fdefb454e7671": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -12501,6 +12676,13 @@
     "status": "machine",
     "text": "1. Compiler netral terhadap konten, tanpa opini sendiri, dan agnostik terhadap niat pengguna"
   },
+  "785ffb55adc86643": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "785ffb55adc86643",
+    "status": "machine",
+    "text": "`aggrega/releaseClosure` — closure dependensi sebuah Release: entitas mana yang dijangkaunya dan pada versi ter-resolve mana, di `entities`, `libraries`, dan `plugins`, bersama identitas `aggregate` dan `manifest` yang menjadi hasil resolve kedua pointernya, `mappingDiagnostics` apa pun yang dimunculkan resolusi, dan `deprecations` yang tercatat terhadap apa yang dijangkaunya. `release` adalah path relatif terhadap root workspace yang menamai Release di dalamnya, nilai yang sama yang diterima `aggrega/irGraph` dan ditolak dalam bentuk yang sama, dan memerlukan lockfile karena alasan yang sama. Tidak ada yang di-render. Entri-entrinya tidak menamai `source` apa pun: entri tersebut menyatakan apa yang menjadi dependensi Release, bukan apa yang dilakukan satu eksekusi, yang merupakan hal yang dilaporkan `aggrega/resolveDependencies`. Lihat [Closure bukan graf](#a-closure-is-not-the-graph), karena klien yang sudah menerima graf tidak memiliki informasi ini."
+  },
   "7860d48b4829e1ce": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -12998,6 +13180,13 @@
     "status": "machine",
     "text": "`tmpfs: { size }` (dalam memori; peringatan jika semantiknya berbeda)"
   },
+  "7e1714ef4a8d1c16": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "7e1714ef4a8d1c16",
+    "status": "machine",
+    "text": "**Mana yang dipakai bergantung pada siapa yang membaca.** Cocokkan berdasarkan `code` di ekstensi Anda; tampilkan `shortCode` kepada penulis. Ekstensi yang hanya menampilkan `code` membuat pembaca memegang pengenal yang ditujukan untuk program, dan ekstensi yang mencocokkan berdasarkan `shortCode` mencocokkan angka yang tidak mengatakan apa pun tentang kondisi tersebut. Pembagian itulah alasan keduanya dikirim, bukan hanya satu."
+  },
   "7e3d50dd9d9c4283": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -13166,6 +13355,13 @@
     "status": "machine",
     "text": "Memublikasikan artefak data mandiri (seperti bundel dokumentasi) ke registry OCI"
   },
+  "80ba42d1ed0c0f81": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "80ba42d1ed0c0f81",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — mencari plugin dengan tipe yang dinamai di registri yang dikonfigurasi dan menambahkannya ke konfigurasi. `type` dan `query` sama-sama wajib: `type` adalah salah satu dari `provider`, `governance`, `linter`, `importer`, dan `cli`, dan `query` dicocokkan dengan nama plugin bertipe tersebut dan harus ter-resolve ke tepat satu, sehingga kueri yang cocok dengan beberapa plugin ditolak dengan menyertakan kandidatnya alih-alih di-resolve secara sembarang. `capability` menamai kapabilitas yang dilayani binding `provider` dan wajib untuk tipe tersebut; `role` menamai peran lampiran `governance` — `label-transform`, `ir-verdict`, atau `render-verdict` — dan wajib untuk tipe tersebut; masing-masing hanya dibaca untuk tipenya sendiri dan ditolak pada tipe lain, karena field yang diam-diam tidak melakukan apa pun akan tampak seolah-olah berhasil. `acceptCapabilities` wajib untuk `cli` dan mengonfirmasi kapabilitas yang dideklarasikan plugin tersebut: perintah terminal memperoleh keputusan itu dengan bertanya, sedangkan permukaan ini tidak memiliki siapa pun untuk ditanya, sehingga pemanggil yang memperolehnya dan mengirimkannya. `global` dan `workspace` adalah override target penulisan dan mengirim keduanya ditolak. `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dengan menjawab menggunakan konfigurasi yang dihasilkan sebagai `content`; tidak ada yang dibuat atau diubah dan `written` bernilai false. Registri tetap dicari dan versi tetap di-resolve, karena identitas dalam konten tersebut adalah identitas yang akan di-pin oleh penulisan. **`dryRun` ditolak pada tipe `cli`**, alih-alih diabaikan: yang dicatat oleh penambahan ekstensi perintah adalah digest konten dari byte yang telah diverifikasinya, catatan yang dipelihara compiler, bukan konten yang diedit siapa pun, dan penambahan tersebut menyimpan byte itu di cache seiring berjalannya proses — sehingga hasilnya ditulis alih-alih dikembalikan. Versi di-pin untuk Anda — kueri ter-resolve ke satu plugin dan versi terpublikasi tertingginya ditulis ke dalam entri. **Ini menjangkau registri, dan penambahan bertipe `cli` yang tidak menamai salah satu dari kedua cakupan menulis konfigurasi global** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing). Lihat [Apa yang diberitahukan perubahan plugin](#what-a-plugin-change-tells-you)."
+  },
   "80c2b05ed2f609d6": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -13207,6 +13403,13 @@
     "srcHash": "814975c74ed60d8f",
     "status": "machine",
     "text": "**Ringkasan menyebutkan apa yang ada di sini dan berapa banyak.** `list-entities` melaporkan root workspace — yang ditahan melalui HTTP, sebagaimana dijelaskan dalam [Apa yang dikatakan jawaban tentang sistem file server](#what-an-answer-says-about-the-servers-filesystem) — jumlah total entitas, dan jumlah per jenis; `list-releases` melaporkan total dan jumlah per direktori tingkat atas, sehingga Anda mengetahui berapa banyak Releases yang ada dan di bagian pohon mana Releases tersebut berada. Kedua rincian dibaca dari dokumen itu sendiri, sehingga workspace yang disusun dengan cara yang tidak diantisipasi siapa pun diringkas seakurat workspace lainnya. Keduanya memuat satu baris per jenis, atau per direktori tingkat atas, sehingga ukurannya mengikuti berapa banyak jenis yang dideklarasikan workspace dan di berapa direktori Releases-nya berada, bukan berapa banyak dokumen yang dimuatnya: kalikan dokumen dalam sebuah workspace seratus kali tanpa mengubah jenisnya, dan ringkasan hanya bertambah beberapa byte yang diperlukan untuk menulis angka yang lebih besar. Mendeklarasikan lebih banyak jenislah yang membuatnya lebih panjang. Keduanya bukan halaman pertama rekaman, dan justru di situlah perbedaannya: “berikut sebagian entitasnya” adalah jawaban yang berbeda dari “inilah susunan workspace ini”, dan hanya yang kedua yang memberi tahu Anda apakah Anda menginginkan rekaman sama sekali, dan rekaman yang mana."
+  },
+  "81506d26ec7d5175": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "81506d26ec7d5175",
+    "status": "machine",
+    "text": "`aggrega/shutdown` — memulai pengosongan kooperatif: permintaan yang sedang berjalan diselesaikan, permintaan baru ditolak, lalu daemon keluar."
   },
   "817474cd1f4cacb8": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -13271,6 +13474,13 @@
     "status": "machine",
     "text": "Menghapus registry dan kebijakan kepercayaannya dari file konfigurasi"
   },
+  "824e4f6c6a76511a": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "824e4f6c6a76511a",
+    "status": "machine",
+    "text": "Pada setiap `aggrega/validate`, daemon memvalidasi buffer editor terhadap skema dokumen dan mengembalikan diagnostik yang menunjuk ke key yang bermasalah — putusan yang sama dengan yang akan diberikan build, atas konten yang belum disimpan. Permintaan yang tidak mengirim `content` menanyakan file sebagaimana adanya di disk; `content` yang dikirim kosong adalah buffer kosong, bukan permintaan atas file. File yang dikirim tanpa kontennya harus merupakan file yang ada di workspace dan dapat dibaca — file di luar workspace, file yang dijangkau melalui tautan yang mengarah ke luar, atau file yang tidak ada ditolak dengan kode invalid-params. Entitas katalog, Aggregates, Manifests, dan Releases dikenali dari `apiVersion` dan `kind`-nya. Dua dokumen yang tidak memiliki header semacam itu — konfigurasi workspace `.aggrega-config.yaml` dan lockfile Release yang disebutkan permintaan — dikenali dari nama filenya, sehingga key sampah atau key yang salah bentuk di salah satunya juga langsung diberi garis bawah berlekuk. File yang bukan dokumen Aggrega — template chart Helm, file Compose, manifest Kubernetes, dan file `.lock` dari ekosistem lain seperti `Cargo.lock` atau `flake.lock` — tidak menerima diagnostik; daemon tidak pernah melaporkan apa pun tentang file asing."
+  },
   "824f0f89a08c16b6": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -13298,6 +13508,13 @@
     "srcHash": "8283495b1bff9905",
     "status": "machine",
     "text": "`publish-entity` menerima `entity`, dokumen yang akan dipublikasikan, dan sebuah Plugin juga memerlukan `plugin`, file eksekusi yang dipublikasikan di dalam manifesnya. `publish-artifact` menerima `file` beserta `name` dan `tag` yang digunakan untuk memublikasikannya. Setiap argumen jalur di sini bersifat absolut atau relatif terhadap root workspace, kontrak yang sama yang digunakan oleh setiap alat lain di permukaan ini, dan `workspace_root` menyebutkan workspace yang dimaksud oleh panggilan — pada server yang dijangkau melalui input dan output standar. Server yang dijangkau melalui HTTPS menolak `workspace_root` dan mengharuskan setiap jalur tersebut ter-resolve di dalam workspace yang dilayaninya, sebagaimana dijelaskan dalam [Satu proses, satu workspace](#one-process-one-workspace). `registry` adalah tujuan dan secara default bernilai registry yang dikonfigurasi di workspace; tidak mengirim keduanya, tanpa default yang dikonfigurasi, akan ditolak dengan menyebutkan apa yang harus dikirim. `sign-artifacts` menerima `references`, satu atau beberapa alamat registry, bukan jalur. `deprecate-artifact` menerima `reference` beserta `severity` dan `reason`, atau `from` yang menyebutkan file batch — dan menolak argumen konten yang dikirim bersama file batch alih-alih membuangnya, karena file batch menyediakan argumennya sendiri dan argumen yang diabaikan secara diam-diam terbaca seperti argumen yang dihormati."
+  },
+  "8286334e06e91502": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "8286334e06e91502",
+    "status": "machine",
+    "text": "**Satu kesalahan dilaporkan satu kali.** Validasi milik dokumen itu sendiri dan build dapat menemukan kesalahan yang sama di dalamnya: pemeriksaan entitas tunggal melakukan render atas Recipe yang juga di-render oleh build, validasi menyusun graf yang disusun build, dan Release yang dependensinya tidak teresolusi membuat keduanya gagal. Selama build melaporkan kesalahan semacam itu pada sebuah dokumen, validasi dokumen itu tidak melaporkannya untuk kedua kalinya: entri `aggrega` yang menyebutkan kondisi yang sama — `code` yang sama — dengan penolakan build pada dokumen yang sama, yang ditempatkan pada rentang yang sama atau tidak pada key miliknya sendiri — digambar di tempat entri tanpa key digambar, atau di awal file — dihilangkan dari setiap jawaban dan setiap publikasi untuk dokumen tersebut, dan laporan build berdiri sendiri. Laporan build adalah entri penolakan pada lapisan `aggrega-build`; atau, untuk `aggrega/build`, `aggrega/buildPreview`, atau `aggrega/irGraph` yang ditolak dengan `1004` karena sebuah dependensi tidak teresolusi, jawaban itu sendiri — yang tidak dipublikasikan oleh apa pun — pada dokumen yang disebutkan `data.file`-nya, atau jika tidak ada, `data.lockfile`-nya, atau jika tidak ada, Release yang disebutkan permintaan, dengan jawaban semacam itu yang terakhir untuk sebuah Release sebagai yang berlaku. Validasi tetap menyimpan apa yang ditemukannya: begitu tidak ada build yang melaporkan kesalahan tersebut — eksekusi berikutnya memublikasikan lapisan tanpa kesalahan itu, jawaban build, pratinjau, atau graf berikutnya untuk Release tersebut berupa hal lain, atau terhubung klien yang tidak pernah menerima jawaban `1004` semacam itu — entri milik dokumen itu sendiri dilaporkan kembali, dan jika belum ada build yang berjalan, tidak ada yang dihilangkan. Entri `aggrega` yang ditempatkan pada key yang tidak memiliki penolakan build tetap ada, bahkan jika menyebutkan kondisi yang sama, karena entri itu bisa jadi kesalahan kedua dari jenis tersebut yang belum dilaporkan build."
   },
   "8298860f672eff88": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -13698,6 +13915,13 @@
     "status": "machine",
     "text": "Determinisme dijaga oleh sejumlah kecil disiplin yang dipatuhi setiap transformasi:"
   },
+  "86c48bf2672ab8be": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "86c48bf2672ab8be",
+    "status": "machine",
+    "text": "Lapisan-lapisan tersebut menjawab pertanyaan yang berbeda tentang satu file, sehingga entri dari masing-masing dapat berada di baris yang sama tanpa ada yang menjadi duplikat dari yang lain: satu menyatakan bahwa deployment tidak benar, yang lain bahwa entitas tidak dapat dipublikasikan. Klien yang menampilkannya sebagai satu daftar akan melaporkan satu masalah dua kali, dan membaca `source` adalah hal yang memisahkannya."
+  },
   "86c81f446f1b74c3": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -13739,6 +13963,13 @@
     "srcHash": "872887e563e75957",
     "status": "machine",
     "text": "Contoh:"
+  },
+  "874dc8fa1f1b8723": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "874dc8fa1f1b8723",
+    "status": "machine",
+    "text": "**Entri yang tidak menyebutkan apa pun tidak membawa pengenal sama sekali.**"
   },
   "8758bf53d6ac5444": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -13991,6 +14222,13 @@
     "srcHash": "89f3e882003f4c20",
     "status": "machine",
     "text": "menyelesaikan ulang setiap dependensi dan menulis ulang lockfile; jalankan `aggrega pull --upgrade` sebagai langkah tersendiri"
+  },
+  "8a1571e6da952478": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "8a1571e6da952478",
+    "status": "machine",
+    "text": "`aggrega/releaseCandidates` — dokumen Release dari workspace yang dinamai permintaan, sebagai path absolut. Menerima workspace dan tidak ada yang lain: himpunannya adalah properti dari root workspace tersebut. Keanggotaan ditentukan oleh kind dokumen — `kind:` file tersebut adalah `Release` — dan bukan oleh nama file, sehingga Release yang dinamai tanpa prefiks konvensional tetap ditawarkan, sedangkan file yang sekadar dinamai seperti Release tidak. Inilah yang seharusnya dicantumkan pemilih “Release yang mana?” di editor, karena ini adalah himpunan yang sama yang menjadi sumber pilihan cascade Release aktif di bawah. Respons juga memuat `lockfiles`, yang memetakan setiap Release yang dicantumkan — dengan kunci berupa string yang persis sama dengan yang digunakan `releases` untuk mencantumkannya — ke path absolut lockfile-nya; field ini selalu ada, dan berupa objek kosong jika workspace tidak memuat Release apa pun. Respons juga memuat `unreadLinkedDirs`, yang menamai — relatif terhadap root, di tempat link itu berada — setiap link yang berada di tempat daftar akan membaca direktori dan mengarah ke direktori di luar root workspace: tidak ada direktori di luar root yang ditelusuri, sehingga Release yang ditampilkan editor Anda di dalam direktori tersebut tidak dicantumkan, dan field inilah yang memungkinkan pemilih menjelaskan alasannya. Link ke direktori yang dicantumkan konfigurasi workspace Anda di bawah `catalog_dirs` tidak dinamai: konfigurasi telah menjangkaunya, sebagai direktori katalog, bukan sebagai tempat Releases disimpan. Field ini selalu ada, dan kosong jika tidak ada link seperti itu. Di sampingnya, `unreadLinkedFiles` menamai dengan cara yang sama setiap link yang namanya sendiri diakhiri `.yaml` atau `.yml` dan yang mengarah ke file di luar root workspace: tidak ada file seperti itu yang dibaca, apa pun isinya, sehingga Release yang hanya dapat dijangkau melalui salah satu link ini tidak dicantumkan, dan langkah Release tunggal dalam cascade di bawah tidak menghitungnya. Pengecualiannya adalah file yang dinamai konfigurasi workspace Anda sebagai Release — sebagai `build.authoring_release`, atau sebagai kunci dari `workspace.releases`, dinilai berdasarkan file yang dituju link, sehingga menamai link atau file tersebut dihitung sama — yang dibaca dan dicantumkan di tempat link itu sendiri, dan tidak dinamai, asalkan file tersebut mendeklarasikan Release; file yang mendeklarasikan hal lain tidak dicantumkan, dan link-nya dinamai. Field ini selalu ada, dan kosong jika tidak ada link seperti itu. Jika file konfigurasi milik workspace itu sendiri, atau overlay milik CI di sampingnya, merupakan link yang mengarah ke luar workspace, file tersebut dinamai di sini bagaimanapun pencarian memperlakukannya, dan daftar dibaca tanpa konfigurasi apa pun, sehingga Release yang akan dinamai konfigurasi melalui link tidak dicantumkan; lihat [Root workspace dan Release aktif](#workspace-root-and-active-release). Lihat [Letak lockfile sebuah Release](#where-a-releases-lockfile-is)."
   },
   "8a2af795cce8a567": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -14608,6 +14846,13 @@
     "status": "machine",
     "text": "**Komposisi.** Insinyur Ops menulis deklarasi `schema:` yang ketat (bentuk ringkas atau JSON Schema 2020-12 penuh) yang mendefinisikan `values`, `infra`, dan `provides`. Deklarasi itu adalah kontrak milik entitas itu sendiri dan dikompilasi tersendiri: baik fragmen slot maupun tabel soket tidak dilebur ke dalamnya. Setiap permukaan diperiksa di tempat subjeknya berada, sehingga kesalahan soket dilaporkan pada entri soket yang ditulis arsitek, bukan pada path di dalam blok `schema:` — dan insinyur Ops tetap tidak menulis boilerplate `uses` apa pun."
   },
+  "917fe5b9230ef507": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "917fe5b9230ef507",
+    "status": "machine",
+    "text": "**Placeholder yang masih terutang disebutkan pada key-nya, beserta apa yang diterimanya.** Entitas katalog dengan jenis yang diperiksa [`aggrega validate`](aggrega-validate.md#placeholders-still-owed) sebagai entitas tunggal juga dibaca untuk nilai wajib yang dibiarkannya sebagai string kosong, dengan pembacaan yang diterapkan perintah tersebut, sehingga daemon menyebutkan setiap placeholder yang disebutkan perintah untuk byte yang sama. Setiap placeholder adalah satu entri: `message`-nya menyatakan bahwa key tersebut adalah placeholder yang masih terutang, `suggest`-nya menyatakan apa yang diterima nilai tersebut, dan `keyPath`-nya membawa jalur bertitik dari key tersebut. Entri ini menggantikan temuan skema itu sendiri untuk nilai kosong tersebut, dan setiap temuan lain pada dokumen dilaporkan sebagaimana pemeriksaan skema melaporkannya. Placeholder yang oleh skema diizinkan kosong juga disebutkan, meskipun pemeriksaan skema tidak melaporkan apa pun tentangnya — `capability` dan `implements` dari Recipe atau FeatureRecipe yang didraf adalah yang akan Anda temui. Jika pemeriksaan skema juga menolak dokumen tersebut, setiap entri membawa kode pemeriksaan itu, `E0215`, dan jika menerimanya, entri tidak membawa kode: pengenal yang sama dengan yang dibawa laporan perintah untuk byte tersebut. Sebuah entri digambar pada key yang memuat nilai kosong, di baris tempat perintah menyebutkannya — bahkan untuk key yang namanya sendiri mengandung titik, seperti label `component.aggrega.ai/type`, di mana temuan yang dilaporkan pemeriksaan skema pada key itu digambar pada key yang melingkupinya — dan `keyPath` menyebutkan key tersebut secara lengkap. Hal ini berlaku baik permintaan menyebutkan Release maupun tidak, karena ini adalah pertanyaan yang dijawab dokumen itu sendiri, dan dokumen yang masih berutang nilai belum ditanyai tentang konvensi publikasi: lapisan itu dikosongkan untuknya, sebagaimana untuk dokumen yang bentuknya ditolak skema."
+  },
   "9188c68fdf366cc9": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -14656,6 +14901,13 @@
     "srcHash": "91d608780ef9bf3f",
     "status": "machine",
     "text": "Karena kompiler Aggrega secara matematis tanpa opini sendiri, kompiler ini sama sekali tidak memiliki pengetahuan hardcode tentang framework AI, anggaran token, atau partisi memori. Sebaliknya, skema cloud-native generik berfungsi sebagai wadah kosong. Alih-alih di-hardcode ke dalam inti kompiler, kecerdasan domain yang sangat terspesialisasi didistribusikan ke seluruh ekosistem Aggrega yang dapat diperluas. Kecerdasan itu dienkapsulasi di dalam katalog platform melalui `components`, `features`, dan `recipes` yang terspesialisasi. Pengembang mempertahankan maksud aplikasi spesifik mereka di dalam blok `values` dan `uses` — yang diatur ketat oleh deklarasi `schema:` milik Arsitek (bentuk ringkas atau JSON Schema 2020-12 lengkap) — sementara terjemahan fisik dari kecerdasan itu dieksekusi oleh plugin WebAssembly khusus target."
+  },
+  "91e35487fcb29132": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "91e35487fcb29132",
+    "status": "machine",
+    "text": "Apa yang dibawa entri diagnostik"
   },
   "9200eb420570de43": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -14971,6 +15223,13 @@
     "srcHash": "94892667536f2dc0",
     "status": "machine",
     "text": "`validate` menyebutkan `target`, dan `release` untuk sebuah Release, secara relatif terhadap root; untuk seluruh katalog, `target` adalah root dan ditahan. Tempat dalam `diagnostics` atau `notices` mengikuti aturan untuk teks."
+  },
+  "9499bfea65bf8447": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "9499bfea65bf8447",
+    "status": "machine",
+    "text": "**Pada dokumen mana sebuah entri dipublikasikan mengikuti aturan yang sama.** Validasi yang menyebutkan Release menjawab dua dokumen: Aggregate milik Release tersebut, dan Release itu sendiri. Temuan yang ditempatkan di Release — penolakan atas entri yang ditulis Release pada salah satu koneksi sebuah komponen, atas ukuran yang diberikannya pada koneksi itu, atas lampiran yang diisi atau diberi ukurannya di sana, atas koneksi yang dirangkainya, atas Feature yang hanya dilampirkan Release ke sebuah komponen atau ke sebuah batas, atau atas `infra` yang diberikannya kepada sebuah lampiran — dipublikasikan ketika dokumen Release divalidasi, pada key di Release yang menuliskannya, dan sama sekali tidak pada Aggregate. Setiap temuan lain yang dimunculkan validasi Release tersebut, termasuk temuan tingkat dependensinya, dipublikasikan pada Aggregate. Jadi temuan tentang apa yang ditulis operator muncul saat Release terbuka, tahap build mana pun yang memunculkannya; editor yang memvalidasi setiap dokumen yang terbuka terhadap Release menampilkannya di sana. Release yang dependensinya sama sekali tidak dapat diresolusi tidak memunculkan satu pun temuan tersebut, dan kegagalan meresolusinya menjadi satu entri di awal dokumen milik Release itu sendiri dan setiap dokumen lain yang divalidasi terhadapnya yang dikenali daemon, sebagaimana dijelaskan [Validasi langsung](#live-validation), dan tidak diperiksanya sebagai entitas tunggal — Aggregate-nya, Manifest-nya, sebuah pustaka, Release lain, konfigurasi workspace — dengan awalan `Dependencies:` dan membawa penjelasan resolusi itu sendiri tentang apa yang menghentikannya. Pada dokumen milik Release itu sendiri, entri tersebut adalah penjelasan itu dan tidak lebih. Pada setiap dokumen lain, entri tersebut pertama-tama menyatakan bahwa dokumen diperiksa terhadap Release tersebut dan menyebutkan Release itu sebagaimana permintaan menyebutkannya — `Dependencies: this document is checked against the Release <release>, whose dependencies cannot be resolved:` diikuti penjelasannya — karena tidak ada apa pun di dokumen itu yang menyatakan terhadap Release mana dokumen itu diperiksa: editor yang memeriksa setiap dokumen yang terbuka terhadap satu Release yang dipilih menempatkan entri tersebut pada dokumen yang tidak ada hubungannya dengan Release itu, dan namanyalah yang memberi tahu Anda bahwa pilihan tersebut adalah penyebabnya. File yang tidak dikenali daemon tidak membawa entri semacam itu, Release mana pun yang disebutkan bersamanya."
   },
   "94b8394f61627343": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -15630,6 +15889,13 @@
     "status": "machine",
     "text": "**5. FeatureRecipe:** Secara eksplisit memetakan sebuah `Feature` ke implementasi infrastruktur konkret melalui kata kunci `implements`. Ia mewajibkan `provider` target (misalnya `helm`, `compose`). Karena platform menyatukan manajemen kredensial ke dalam entitas Feature, FeatureRecipes menangani fitur operasional (penyamaran data, perutean DNS, injeksi sidecar) sekaligus fitur kredensial (pembuatan CRD vault, pemasangan volume secret). Untuk mendukung spektrum penuh ini, ia mendukung tiga blok eksekusi yang berbeda:"
   },
+  "9b5a1b58a51a094a": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "9b5a1b58a51a094a",
+    "status": "machine",
+    "text": "`aggrega/insertionPoint` — tempat sebuah entri baru di bawah kontainer yang dinamai seharusnya berada dalam dokumen tulisan penulis, dinyatakan sedemikian rupa sehingga klien dapat menerapkannya tanpa mem-parse dokumen itu sendiri. `file` menamai dokumen yang dimuat workspace, relatif terhadap root workspace, absolut, atau sebagai alamat `file://`-nya; dokumen di luar root, sebagaimana ditulis atau melalui link yang mengarah ke luar root — ke file, atau ke direktori di sepanjang jalan — ditolak dengan ejaan apa pun yang menamainya, dan terlepas dari apakah Anda memiliki salinannya atau tidak; `container` adalah path struktural dari root dokumen ke kontainer tempat entri dimasukkan, dengan setiap elemen berupa kunci mapping atau posisi sequence yang ditulis dalam desimal. **Path tersebut Anda yang menyediakan** — daemon membaca struktur dokumen itu sendiri dan tidak pernah menyimpulkan tempat sesuatu seharusnya berada dari namanya. Lihat [Apa yang diberitahukan respons titik penyisipan](#what-an-insertion-point-response-tells-you), karena posisi saja tidak cukup untuk menerapkan pengeditan."
+  },
   "9b5c60a2666e10d5": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -15755,6 +16021,13 @@
     "srcHash": "9c551dbfff534b20",
     "status": "machine",
     "text": "**Penolakan menjawab dalam field yang sama, diisi sejauh proses berjalan.** Setelah resolusi dihitung, `resolved` dibawa apa pun putusannya — terutama putusan pergeseran, karena itulah penolakan yang mengharuskan pemanggil memutuskan apa yang akan diubah. Penolakan sebelum titik itu, seperti jalur Release yang tidak dapat di-resolve, membawa koreksi sebagai teksnya dan tidak membawa resolusi, karena tidak ada resolusi untuk dibawa."
+  },
+  "9c5c6f5f700612cb": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "9c5c6f5f700612cb",
+    "status": "machine",
+    "text": "`aggrega/connectionCandidates` — apa yang dapat dihubungkan dengan entitas yang dinamai. `node` adalah `metadata.name` sebuah entitas, koordinat yang sama yang diterima `aggrega/attachCandidates` dengan nama tersebut. Lihat [Apa yang diberitahukan respons kandidat koneksi](#what-a-connection-candidate-response-tells-you) di bawah, karena kedua bagian respons tidak sama lengkapnya dan respons menyatakan mana yang mana."
   },
   "9c68d834275c7b26": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -16035,6 +16308,13 @@
     "srcHash": "9fd2326b598a8d92",
     "status": "machine",
     "text": "Untuk mengatasi hal ini tanpa mencemari arsitektur dengan chart Helm pengganti, Aggrega memperkenalkan soket eksekusi terprogram kelas satu: **plugin `eval`.**"
+  },
+  "9fdadca53a6db39b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "9fdadca53a6db39b",
+    "status": "machine",
+    "text": "Validasi langsung"
   },
   "9fed1fe65f7c60bc": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -16442,6 +16722,13 @@
     "status": "machine",
     "text": "Referensi per entitas"
   },
+  "a3daac60def70d98": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "a3daac60def70d98",
+    "status": "machine",
+    "text": "`aggrega/signArtifacts` — menandatangani artefak yang sudah dipublikasikan dan melampirkan setiap tanda tangan. `references` memuat satu atau beberapa alamat registri, bukan path, sehingga tidak berlaku kontrak relatif terhadap workspace; daftar kosong, atau entri kosong di dalamnya, ditolak. Satu identitas melayani seluruh batch dan di-resolve sebelum referensi mana pun ditandatangani, sehingga batch yang sama sekali tidak memiliki kredensial yang tersedia ditolak di awal, bukan di tengah jalan. Begitu pula batch yang referensinya akan memerlukan kredensial berbeda: permintaan tidak menamai kunci apa pun, jadi itu berarti konfigurasi workspace menamai kunci yang dimiliki untuk registri satu referensi dan tidak ada kunci, atau kunci lain, untuk registri referensi kedua — tidak ada yang ditandatangani, dan penolakan menamai registri di setiap sisi, seperti yang dijelaskan [References signed together need different signing credentials (Referensi yang ditandatangani bersama memerlukan kredensial penandatanganan yang berbeda)](../errors/fatal-halts.md#references-signed-together-need-different-signing-credentials). Menandatangani referensi yang tidak memiliki publikasi apa pun ditolak alih-alih dilampirkan ke ketiadaan, dan referensi yang sudah membawa tanda tangan yang diverifikasi oleh kebijakan kepercayaan registrinya dibiarkan apa adanya dan dihitung sebagai sudah ditandatangani, seperti yang dijelaskan [`aggrega sign`](aggrega-sign.md#what-it-does). Respons memuat `signed`, dengan setiap entri menamai sebuah `reference` dan `digest` yang dipublikasikan yang menjadi komitmen tanda tangannya, bersama `reach`; batch yang salah satu referensinya gagal dijawab sebagai kegagalan yang menamai masing-masing referensi tersebut, bukan sebagai hasil dengan daftar yang lebih pendek. **Ini menulis ke registri dan menjangkau ke luar mesin ini** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
+  },
   "a3e4955de9d7d66f": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -16546,6 +16833,13 @@
     "srcHash": "a4f1312160b9981e",
     "status": "machine",
     "text": "Pengecualian berlaku di mana pun sebuah perintah **memilih** versi untuk Anda. Itulah aturannya, dan aturan itu menentukan apakah suatu resolusi tertentu tercakup."
+  },
+  "a4f57ae32347bea1": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a4f57ae32347bea1",
+    "status": "machine",
+    "text": "Mengekspansi kode yang dibawa diagnostik"
   },
   "a4ff8b7aba639891": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -16701,6 +16995,13 @@
     "status": "machine",
     "text": "**Tanda tangan tercatat yang tidak diterima build.** Jika baris mencatat tanda tangan yang bundel tanda tangannya di cache telah dihapus atau diubah setelah pull yang menyimpannya ke cache — atau `signature` yang disalin dari baris lain, yang bundelnya utuh tetapi dibuat untuk artefak lain — build menolak baris tersebut apa pun bunyi persyaratan tanda tangannya ([A cached signature bundle does not match the digest recorded for it (Bundel tanda tangan dalam cache tidak cocok dengan digest yang tercatat untuknya)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Tanda tangan yang tercatat dibuat untuk artefak yang berbeda)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Jadi pull ulang menanyakan lagi tanda tangan dependensi tersebut kepada registry-nya, apa pun bunyi persyaratannya, melalui verifikasi yang sama dengan yang dijalani dependensi yang diambilnya: apa yang diverifikasi menggantikan tanda tangan baris tersebut, dan bundel yang disebutnya disimpan lagi ke cache, dengan salinan di cache yang tidak lagi cocok dengan digest-nya ditulis ulang — sehingga baris dan cache berisi apa yang ditinggalkan pull yang mengambil dependensi tersebut. Tanda tangan yang tidak diterima konfigurasi kepercayaan menghentikan pull ulang sebagaimana ia menghentikan pull yang mengambil dependensi tersebut, begitu pula registry yang tidak melampirkan tanda tangan di tempat tanda tangan diwajibkan. Jika verifikasi tidak mencatat apa pun — `skip_signature_verification` di tempat ia berlaku, yang tidak menanyakan apa pun, registry yang tidak melampirkan tanda tangan di tempat tidak ada yang diwajibkan, atau registry `advisory` di tempat tidak ada yang terverifikasi — tanda tangan baris tersebut dihapus, yang diterima build dengan pengaturan yang sama."
   },
+  "a6ad064a43c7960e": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a6ad064a43c7960e",
+    "status": "machine",
+    "text": "Apa pun lapisannya, key ini menjawab satu pertanyaan — apa ini, dalam istilah yang dapat dicocokkan mesin — sehingga ekstensi editor yang menyorot, mengelompokkan, atau menekan satu kelas temuan berpatokan pada kode, dan tetap berfungsi ketika susunan kata pesan berubah."
+  },
   "a6b00d91d19c5c04": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -16833,6 +17134,13 @@
     "srcHash": "a792338c97d878fa",
     "status": "machine",
     "text": "Setelah klien dimulai ulang dan terhubung, prompt, resource, dan tool penulisan Aggrega menjadi tersedia. Lihat [Memulai](getting-started.md) untuk apa yang dapat dilakukan dengannya dan referensi [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) untuk perintah itu sendiri."
+  },
+  "a7b933953326941b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "a7b933953326941b",
+    "status": "machine",
+    "text": "**`codeDescription` adalah tempat kondisi tersebut dipublikasikan**, dibawa sebagai `{ \"href\": … }`, yaitu struktur milik protokol itu sendiri untuk referensi yang dapat dibuka guna mengetahui lebih lanjut tentang sebuah diagnostik. Editor yang memahami protokol mengubahnya menjadi opsi “pelajari lebih lanjut” tanpa perlu diajari apa pun tentang Aggrega, dan tidak ada klien yang memerlukan salinan penjelasannya. Alamat tersebut mengarah ke daftar terbitan semua kondisi, tempat entri untuk sebuah `shortCode` menyebutkan kondisinya dan berlanjut ke panduan langkah demi langkah perbaikan authoring-nya."
   },
   "a7bfe57cf574ca04": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -17618,6 +17926,13 @@
     "status": "machine",
     "text": "4. Isi field yang menjadi tanggung jawab peran Anda"
   },
+  "aed15a2d618a4541": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "aed15a2d618a4541",
+    "status": "machine",
+    "text": "**Meminta proses itu sendiri untuk berhenti menjangkau daemon dengan ketentuan yang sama.** Interupsi dari terminal, atau permintaan penghentian dari supervisor atau runtime kontainer, memulai pengosongan yang sama dengan yang dimulai `aggrega/shutdown`: permintaan yang sedang berjalan diselesaikan, permintaan baru ditolak, lalu daemon keluar. Permintaan kedua langsung mengakhiri proses. Klien yang menjalankan daemon dapat menghentikannya dengan cara mana pun, dan klien yang menghentikannya melalui protokol maupun yang mengirim sinyal kepadanya mendapatkan pengosongan yang sama."
+  },
   "aed23fda5f623766": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -17757,6 +18072,13 @@
     "srcHash": "b00784066ca33c24",
     "status": "machine",
     "text": "Langkah yang sama di permukaan lain"
+  },
+  "b01c85c4818679bf": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b01c85c4818679bf",
+    "status": "machine",
+    "text": "`aggrega/import` — mengubah deskripsi sumber asing menjadi draf file authoring Aggrega, konversi yang sama yang dilakukan [`aggrega import`](aggrega-import.md) di terminal. `source` wajib diisi dan menyebutkan file atau direktori yang akan dikonversi, baik sebagai jalur absolut maupun relatif terhadap root workspace — deskripsi yang diekspor oleh alat lain berada di mana pun Anda menyimpannya, sehingga dibaca di tempat sebenarnya berada, bukan hanya di dalam workspace. Sebuah direktori dibaca sebagaimana [`aggrega import`](aggrega-import.md) membacanya: hanya file di dalamnya yang dipilih oleh pola file yang dideklarasikan importer, dan dibatasi pada dirinya sendiri di mana pun letaknya, sehingga tidak ada tautan di dalamnya yang diikuti ke luar. `outputDir` bersifat opsional dan menyebutkan direktori tempat draf disimpan, dan **tidak** mengikuti kontrak tersebut: direktori ini ditulisi, sehingga berupa jalur di dalam workspace, dan nilai absolut, atau nilai yang teresolusi ke luar root — sebagaimana tertulis, atau melalui tautan, termasuk direktori yang belum dibuat di bawahnya — ditolak. Jika dihilangkan, draf ditempatkan di bawah root workspace, tempat [`aggrega import`](aggrega-import.md) menulisnya ketika tidak menyebutkan tujuan — termasuk di bawah `dryRun`. `format` menyebutkan format sumber secara eksplisit; jika dihilangkan, format dikenali dari tanda tangan yang dideklarasikan importer — baik importer dari katalog workspace maupun [importer inti](../plugins/core-importers.md) compiler — dan sumber yang tidak dikenali oleh importer mana pun, atau dikenali oleh importer dari lebih dari satu format, ditolak dengan meminta `format` alih-alih ditebak. `target` menyebutkan capability provider, seperti `compose` atau `helm` — kata yang diikat oleh `spec.capability` sebuah Recipe — dan membuat draf, di samping draf importer, Manifest yang menjadi acuan build Release yang didraf untuk provider tersebut, persis seperti yang dilakukan `aggrega import --target`: `manifest.yaml`, yang memetakan setiap tipe komponen yang dideklarasikan Aggregate yang didraf ke satu-satunya Recipe dengan capability tersebut yang ditawarkan katalog workspace untuknya, berdasarkan nama yang dikualifikasi capability tanpa versi, dengan `spec.manifest` milik Release diatur ke manifest tersebut; tipe tanpa Recipe semacam itu, atau dengan Recipes yang memiliki lebih dari satu nama, dibiarkan tidak terpetakan dengan temuan `warn` yang menyebutkannya. `target` yang tidak diikat oleh Recipe mana pun di katalog ditolak sebelum importer berjalan, dengan menyebutkan target tersebut dan capability yang diikat oleh Recipes di katalog, dan tidak ada yang ditulis; jika dihilangkan, tidak ada Manifest yang didraf — kecuali di bawah `sync`, yang membuat draf untuk target yang disebutkan oleh catatan impor sebelumnya. Importer inti yang belum dimiliki mesin akan diambil oleh impor pertama yang membutuhkannya — lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you). `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dan menjawab dengan draf sebagai konten, untuk klien yang terlebih dahulu menampilkannya kepada penulis; tidak ada yang dibuat dalam mode ini dan `written` kosong. `sync` memperbarui apa yang didraf oleh impor sebelumnya di `outputDir` agar sesuai dengan sumber, hanya mengubah apa yang ditulis oleh impor tersebut, seperti yang dilakukan `aggrega import --sync`; tanpa opsi ini, permintaan yang drafnya akan menimpa Aggregate yang sudah ada ditolak. Jawaban berisi `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions`, dan `halted`. Lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you), karena sumber yang tidak dapat dikonversi sepenuhnya oleh importer merupakan jawaban yang berhasil, bukan error."
   },
   "b01e1fc57b9c4398": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -17940,6 +18262,13 @@
     "status": "machine",
     "text": "**Mesin yang terisolasi dari jaringan dan workspace luring adalah klaim yang berbeda, dan perbedaannya layak dipertahankan.** Mesin di balik isolasi jaringan dapat memuat salinan lokal sebuah registry, atau katalog `catalog_dirs` yang membawa semua yang dibutuhkannya, dan dalam hal itu pull biasa di mesin tersebut dapat dipenuhi tanpa menjangkau ke luar sama sekali. Mode luring menjelaskan apa yang boleh dijangkau sebuah perintah, bukan apa yang dimuat mesin; [Luring](#offline) menguraikan apa yang ditolaknya dan apa yang dibiarkannya."
   },
+  "b1be7509b4ca672d": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b1be7509b4ca672d",
+    "status": "machine",
+    "text": "`aggrega/publishArtifact` — memublikasikan artefak data mandiri, seperti bundel dokumentasi. `file` adalah path relatif terhadap root workspace, dengan kontrak yang sama, dan byte-nya dipublikasikan apa adanya: tidak ada amplop entitas yang di-parse dan tidak ada dispatch berdasarkan kind. `name` dan `tag` menamai sebagai apa artefak itu dipublikasikan, dan keduanya wajib. `mediaType` secara default adalah tipe bundel dokumentasi. Respons memuat `reference`, `tag`, `mediaType`, pasangan `size`, `digest` yang dipublikasikan, `alreadyPublished`, `dryRun`, dan `reach`. Permintaan ini tidak menandatangani apa pun — artefak yang dipublikasikan ditandatangani setelahnya berdasarkan referensi dengan `aggrega/signArtifacts`, yang hanya memerlukan referensi yang dilaporkan respons ini. **Ini menulis ke registri dan menjangkau ke luar mesin ini** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
+  },
   "b1c2b73baffd3ed1": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -17974,6 +18303,13 @@
     "srcHash": "b1e2db72e94bcb63",
     "status": "machine",
     "text": "[Tata kelola dan kepatuhan](11-governance-and-compliance.md)"
+  },
+  "b1e598d441cbb73b": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b1e598d441cbb73b",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — membundel entitas katalog dan memublikasikannya ke registri. `entity` adalah path relatif terhadap root workspace yang menamai dokumen yang akan dipublikasikan, ditolak dalam tiga bentuk yang sama seperti `release` — tidak ada, absolut, atau ter-resolve di luar root. Entitas Plugin juga memerlukan `plugin`, jenis path yang sama, yang menamai executable yang dipublikasikan di dalam manifest milik entitas itu sendiri. `registry` adalah tujuan dan secara default adalah registri yang dikonfigurasi di workspace. `dryRun` menghitung bundel dan digest yang akan dihasilkan oleh publikasinya, dan tidak menghubungi registri mana pun. Menghilangkan `sign` mengikuti kebijakan registri tujuan itu sendiri, yang merupakan perilaku command line ketika flag-nya tidak ada, sedangkan mengirimkannya adalah pilihan pemanggil — dan keduanya tidak melonggarkan penolakan, karena kebijakan registri atau workspace yang mewajibkan tanda tangan menolak publikasi tanpa tanda tangan apa pun isi field tersebut. `pinSources: true` menjalankan langkah pin milik penulis entitas pada entitas sebelum dibundel, sehingga `entity.lock` yang ditulis langkah tersebut di sampingnya menjadi bagian dari apa yang dipublikasikan — langkah yang sama yang dijalankan `aggrega/pin`. Langkah ini berjalan sebelum penolakan apa pun yang menilai isi entitas — kebijakan penandatanganan, penjaga imutabilitas — sehingga publikasi yang ditolak di sana tetap meninggalkan lock yang sudah ditulis; penolakan yang menyangkut permintaan itu sendiri, seperti workspace offline atau tidak adanya tujuan, datang lebih dulu dan tidak mem-pin apa pun, demikian pula penolakan terhadap entitas yang berbagi direktori dengan entitas lain, yang tidak boleh ditulisi lock oleh langkah tersebut. Jika tidak ada, field ini mengikuti `pin_sources_at_push` milik workspace; jika dikirim, field ini menimpa pengaturan tersebut ke kedua arah. Di bawah `dryRun`, langkah tersebut melaporkan lock yang akan ditulisnya dan tidak menulis apa pun. **Publikasi yang tidak menjalankan langkah tersebut menolak Recipe atau FeatureRecipe yang `entity.lock`-nya tidak mencatat pin untuk input yang dibacanya**, atau pin yang tidak lagi cocok dengan input tersebut, sebelum apa pun dibundel — juga di bawah `dryRun` — dengan menyebut `aggrega pin`, `pinSources`, dan `pin_sources_at_push`; ini adalah penolakan yang dimunculkan `aggrega/resolveDependencies` atas lock yang sama. Respons memuat `reference`, `tag`, `kind`, `mediaType`, pasangan `size`, `digest` yang dipublikasikan — di bawah `dryRun`, digest yang akan dihasilkan publikasi tersebut, yaitu yang dicetak oleh [`aggrega push --dry-run`](aggrega-push.md) — `signed`, `alreadyPublished`, `dryRun`, dan `reach`; `pin` — respons yang sama dengan yang diberikan `aggrega/pin` — jika langkah tersebut dijalankan; dan `wholeDirectorySource` jika sumber lokal entitas ditulis sebagai template, dengan menamai sumber tersebut sebagaimana ditulis. Sumber seperti itu baru memilih direktorinya setelah sebuah Release mengisi template tersebut, sehingga publikasi membawa setiap file di direktori entitas, bukan hanya file yang dinamai entitas, dan field ini adalah cara pemanggil mengetahui bahwa hal itu terjadi — juga pada dry run. Respons juga memuat `windowsUnusableEntries` jika arsip yang dibawa publikasi berisi entri yang tidak dapat disimpan Windows sebagaimana ditulis — path dengan bagian yang dinamai sesuai perangkat, seperti `CON`, `AUX`, atau `NUL`, dalam huruf besar atau kecil apa pun dan dengan ekstensi apa pun yang mengikutinya, atau bagian yang diakhiri titik atau spasi — dengan menamai masing-masing, nama file dokumen entitas itu sendiri terlebih dahulu, lalu file-file yang dibawanya; field ini tidak ada jika tidak ada entri seperti itu, termasuk untuk entitas yang dipublikasikan hanya sebagai dokumennya. `aggrega` yang berjalan di Windows menolak membongkar entri seperti itu, sehingga workspace Windows tidak dapat menggunakan versi tersebut. Inilah entri yang diperingatkan oleh [`aggrega push`](aggrega-push.md), dan permintaan yang meminta laporan membaca baris peringatan yang sama di antara progres publikasi; keduanya tidak menolak apa pun, sehingga publikasi berlanjut atau ditolak persis seperti yang akan terjadi tanpa entri tersebut, juga di bawah `dryRun`. **Ini menulis ke registri dan menjangkau ke luar mesin ini**, dan dengan langkah pin juga menulis di samping entitas — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
   },
   "b1f3c673344e95aa": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -18268,6 +18604,13 @@
     "srcHash": "b474a99a2705e23c",
     "status": "machine",
     "text": "fish"
+  },
+  "b4846fa5efbc18c5": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b4846fa5efbc18c5",
+    "status": "machine",
+    "text": "**Entitas katalog yang disebutkan bersama Release diperiksa sebagai entitas tunggal, menurut ketentuan Release tersebut.** `file` yang memuat Component, Feature, Recipe, FeatureRecipe, atau Plugin, yang dikirim dengan `release`, mendapatkan pemeriksaan yang dijalankan [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms), atas buffer editor yang belum disimpan: referensinya — Component yang diimplementasikan sebuah Recipe, pustaka yang dirujuk sebuah pilar — diresolusi melalui direktori katalog yang diberikan konfigurasi workspace kepada Release tersebut, sehingga satu file dapat bersih menurut ketentuan Release yang melakukan build dengannya dan gagal menurut ketentuan Release yang direktorinya tidak memuat apa yang dirujuknya. Itulah putusan yang diberikan baris perintah dan alat `validate` dari [`aggrega mcp`](aggrega-mcp.md) untuk entitas yang sama di samping Release yang sama, dan seperti keduanya, pemeriksaan ini tidak menelusuri closure dan tidak membaca lockfile. Temuan yang memblokir adalah satu entri error dengan kata-kata pemeriksaan itu sendiri dan membawa kodenya, digambar pada key yang disebutkannya di entitas dan, jika tidak menyebutkan key apa pun, pada key `kind:` entitas, sebagaimana dijelaskan [Apa yang dibawa entri diagnostik](#what-a-diagnostic-entry-carries) — kecuali jika build sudah melaporkan kesalahan itu pada file tersebut, dan dalam hal itu entri build menjadi satu-satunya laporan; saran yang dimunculkan pemeriksaan saat membaca katalog adalah entri peringatan yang mendahuluinya; pemeriksaan bersih atas direktori yang semuanya ada tidak menghasilkan entri. Asersi yang gagal — asersi yang memanggil `fail`, di dalam Recipe atau di dalam Component yang diimplementasikannya — di sini bukan temuan yang memblokir melainkan entri peringatan, dengan kata-kata pemeriksaan dan membawa kodenya, ditutup dengan kalimat `A Release must satisfy this assertion before a build of it can pass.`, dan digambar di tempat temuan yang memblokir akan berada: asersi Recipe pada key milik asersi itu sendiri di bawah `assertions`, asersi Component pada key `kind:` milik Recipe. Seperti temuan yang memblokir, entri ini mengalah kepada entri build yang melaporkan kesalahan yang sama pada file tersebut. Pemeriksaan membangun entitas di sekitar placeholder dan nilai default skema, bukan nilai yang ditetapkan Release, sehingga tidak dapat membedakan asersi yang menunggu Release dari asersi yang rusak, dan menyerahkan putusan kepada build, yang melaporkan asersi yang sama sebagai error ([asersi yang gagal adalah peringatan](aggrega-validate.md#a-failed-assertion-is-a-warning)). Direktori yang dicantumkan konfigurasi workspace untuk Release tetapi tidak ada apa pun di sana dibaca sebagai kosong, sebagaimana setiap perintah membacanya, sehingga putusan pemeriksaan adalah putusan yang diberikannya jika direktori itu tidak dicantumkan — dan entri peringatan yang mendahului semua entri lain menyebutkan direktori tersebut, dalam baris yang dicetak `aggrega pull` dan `aggrega build` untuknya ([Dari mana entitas lokal dibaca](configuration.md#where-local-entities-are-read-from)). `release` yang tidak menyebutkan file, atau yang menyebutkan direktori, dijawab pada file dengan kalimat yang digunakan baris perintah untuk menolaknya, alih-alih diperiksa menurut ketentuan workspace. Apa yang tidak dapat digantikan oleh build satu entitas dinilai sebagaimana baris perintah menilainya, dan apa yang dikesampingkan atau tidak diperiksa baris perintah tidak menghasilkan entri di sini — lihat [apa yang tidak diperiksa oleh kebenaran entitas tunggal](aggrega-validate.md#what-single-entity-correctness-does-not-check), dan, untuk Recipe yang template-nya membaca nilai yang hanya disediakan oleh sisi topologi atau kredensial yang dilampirkan, [kebenaran entitas tunggal](aggrega-validate.md#single-entity-correctness-an-entity-path). Aggregate milik Release itu sendiri, Manifest, Release, dan pustaka tidak diperiksa satu per satu, karena pemeriksaan entitas tunggal tidak menerima jenis-jenis tersebut; jenis-jenis itu tetap mendapatkan pemeriksaan closure di atas. Buffer yang memuat konten Workload dibaca sebagai YAML yang bukan dokumen Aggrega, karena konten itu ditulis di dalam field `workload:` milik Recipe atau FeatureRecipe dan diperiksa di sana, tempat konten itu berada; baris perintah dan alat `validate`, ketika diberi file Workload melalui jalur, memeriksa bentuknya secara tersendiri."
   },
   "b48cb47d8111b74a": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -18682,6 +19025,13 @@
     "status": "machine",
     "text": "**Anotasi kredensial metrik cocok dengan provides** (`metrics-credential-annotation-matches-provides`) — sebuah Component dapat menyatakan dua fakta tentang metriknya. Anotasi `observability.aggrega.ai/metrics-credential` miliknya menyatakan bagaimana metrik produk diautentikasi: `none`, metrik disajikan tanpa kredensial; `target-key`, metrik menerima kunci yang diwajibkan Component dari setiap pemanggil, yaitu kunci yang disimpan slot `api_key` miliknya; `separate-token`, metrik menerima token tersendiri. Kunci provides `metrics_credential_required`, yang dideklarasikan di pilar `provides` dari `spec.schema` miliknya, adalah apa yang dipublikasikan oleh masing-masing Recipes miliknya untuk menyatakan apakah metrik sebuah instans memerlukan kredensial — yang dapat bergantung pada cara instans dikonfigurasi, karena metrik di balik kunci pemanggil hanya memerlukannya selama sebuah kunci terlampir, sehingga anotasi tidak dapat menggantikannya. Keduanya menyatakan satu fakta tentang produk, jadi aturan ini mengharuskan keduanya selaras: Component yang dianotasi `none` yang mendeklarasikan kunci tersebut, dan Component yang dianotasi `target-key` atau `separate-token` yang tidak mendeklarasikannya, masing-masing dilaporkan, dan temuannya menyebutkan Component, nilai anotasi, serta kunci yang berlebih atau hilang. Component tanpa anotasi tersebut, atau dengan nilai lain, tidak menghasilkan apa pun. Aturan ini membaca Component sebagaimana ditulis, sehingga Component yang memperluas Component lain — yang schema-nya adalah schema basisnya — tidak menghasilkan apa pun dan basisnya dibaca di tempat ia dideklarasikan, dan pilar `provides` yang ditulis sebagai referensi, komposisi, atau badan ter-escape yang ditulis sebagai teks bukanlah pilar yang dapat dienumerasinya, sehingga Component tersebut juga tidak menghasilkan apa pun. Aktif secara default untuk Components; aturan ini tidak memiliki pengaturan."
   },
+  "b9279f20eb5aa630": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b9279f20eb5aa630",
+    "status": "machine",
+    "text": "Setiap entri menentukan posisinya dengan `line` dan `column`, keduanya berbasis 1 dalam encoding posisi yang dinegosiasikan saat handshake, dan menambahkan `end_line` dan `end_column` jika mencakup satu token utuh. `message` adalah teks yang ditampilkan klien kepada pengguna, `severity` mengklasifikasikannya, dan `source` menyebutkan lapisan daemon mana yang memunculkannya, seperti dijelaskan di atas."
+  },
   "b936a28e9f414ce6": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -18731,12 +19081,26 @@
     "status": "machine",
     "text": "**Domain 1: Pengalaman pengembang (polimorfisme)** Pengembang menulis `uses:` sejajar dengan `values:` dan `features:`. Untuk memastikan UX tanpa hambatan, skema mendukung polimorfisme secara bawaan:"
   },
+  "b9c3ec81670751cf": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "b9c3ec81670751cf",
+    "status": "machine",
+    "text": "`aggrega/pluginSync` — menyelaraskan catatan milik mesin dari sebuah entitas Plugin dengan modulnya: himpunan fungsi host yang diturunkan dari import modul itu sendiri, dan cermin perintah yang dibaca dari laporan diri modul. Tidak satu pun dari kedua catatan tersebut ditulis secara manual, karena keduanya bersumber kebenaran pada modul. Kedua field wajib dan tidak satu pun memiliki default — catatan diturunkan dari modul, sehingga penyelarasan yang tidak menamai keduanya tidak memiliki apa pun untuk diselaraskan — dan keduanya adalah path relatif terhadap root workspace, ditolak jika absolut atau ter-resolve di luarnya, sebagaimana ditulis atau melalui link. Hanya kedua blok itu yang berubah: setiap byte lain dipertahankan apa adanya, termasuk komentar, baris kosong, dan gaya kutipan, dan file yang sudah mencatat apa yang disiratkan modul dibiarkan identik byte demi byte dan dilaporkan sebagai tidak berubah. **Ini menulis file entitas yang Anda namai, di dalam workspace**, dan tidak menghubungi registri apa pun. Lihat [Apa yang diberitahukan perubahan plugin](#what-a-plugin-change-tells-you)."
+  },
   "b9cb2d6c88554b2a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
     "srcHash": "b9cb2d6c88554b2a",
     "status": "machine",
     "text": "[Component](../language-reference/entities/component.md), [Feature](../language-reference/entities/feature.md)"
+  },
+  "b9e6a9abe0db645d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "b9e6a9abe0db645d",
+    "status": "machine",
+    "text": "**Sebuah jawaban membawa setiap lapisan yang ada pada file, sejauh apa pun validasi berjalan.** Jawaban `aggrega/validate` adalah seluruh status file saat ini: apa yang ditemukan validasi ini, entri `aggrega-build` yang dipublikasikan pada file oleh build, pratinjau, atau permintaan graf, dan temuan konvensi publikasinya, masing-masing di bawah `source`-nya sendiri. Validasi yang berhenti pada buffer — buffer yang tidak dapat diurai, atau dokumen yang amplopnya ditolak skema — menjawab dengan cara yang sama: melaporkan temuannya sendiri dan membiarkan setiap entri build pada file tetap ada, karena validasi itu tidak mempelajari apa pun tentang build. Jadi klien dapat mengganti apa yang dipegangnya untuk file tersebut, lapisan demi lapisan, dari jawaban mana pun."
   },
   "b9f0addcbd75da82": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -18835,6 +19199,13 @@
     "srcHash": "ba534cdb84fd5dcd",
     "status": "machine",
     "text": "Artefak inline dan yang dimuat dari file"
+  },
+  "ba5f10e4a144741b": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "ba5f10e4a144741b",
+    "status": "machine",
+    "text": "`entries` membawa panduan langkah demi langkah yang diterbitkan, setiap entri sebagai `heading` yang membukanya dan `body` di bawahnya, dalam urutan yang digunakan dokumentasi itu sendiri untuk memasangkannya dengan kondisi tersebut. Field ini **dihilangkan** jika panduan tidak dapat ditambahkan, dan `note` kemudian menyatakan alasannya: halaman terbitan belum mendokumentasikan entri untuk kondisi ini, atau workspace ini tidak dapat membaca dokumentasi — mesin tidak memiliki salinan, atau hanya memiliki salinan yang ditolak oleh pemeriksaan tanda tangan workspace. Bagaimanapun, kondisi di atasnya tetap berlaku — jawabannya bukan kegagalan, dan klien menampilkan apa yang tiba beserta catatan di sampingnya. `entries` dan `note` tidak pernah tiba bersamaan."
   },
   "ba667b50b2015fee": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -19186,6 +19557,13 @@
     "status": "machine",
     "text": "Keduanya menentukan apa yang dihitung dengan membaca `kind` milik setiap dokumen itu sendiri, tidak pernah nama filenya. Release yang dinamai tanpa prefiks konvensional tetap dicantumkan; file yang sekadar *dinamai* seperti Release tidak, dan muncul di bawah jenis apa pun yang benar-benar dideklarasikannya. YAML yang sama sekali tidak mendeklarasikan `kind` — file values sebuah chart, file konfigurasi yang kebetulan berada di dalam pohon — bukan entitas dan tidak dilaporkan, begitu pula dokumen milik proyek lain, seperti manifest Kubernetes yang telah dirender. Sebuah dokumen dihitung sebagai entitas jika mendeklarasikan `kind` sekaligus nama, karena keduanya bersama-samalah yang membuatnya dapat dialamatkan setelahnya, dan tidak mendeklarasikan `apiVersion` di luar grup milik Aggrega sendiri. Dokumen yang sama sekali tidak mendeklarasikan `apiVersion` tetap dilaporkan, karena merupakan dokumen Aggrega yang kehilangan satu field, bukan file proyek lain. `list-releases` tidak menelusuri direktori apa pun di luar root workspace, sehingga Release yang ditampilkan editor Anda di bawah link yang mengarah ke direktori semacam itu tidak dicantumkan; `unread_linked_dirs` menyebutkan setiap link yang berada di tempat daftar akan membaca sebuah direktori dan mengarah ke luar root — berdasarkan path link itu sendiri yang relatif terhadap root, tidak pernah berdasarkan tujuannya — dalam kedua bentuk dan pada kedua transport, dan kosong jika tidak ada. Tool ini juga tidak membaca file di luar root melalui link: `unread_linked_files` menyebutkan, dengan cara yang sama, setiap link yang namanya sendiri berakhiran `.yaml` atau `.yml` dan mengarah ke file di luar root, apa pun isi file tersebut, sehingga Release yang hanya dapat dijangkau melalui link semacam itu tidak dicantumkan — kecuali konfigurasi workspace menyebutkan Release tersebut, sebagai `build.authoring_release` atau sebagai kunci dari `workspace.releases`, dan dalam hal ini Release tersebut dibaca dan dicantumkan di tempat link itu sendiri dan tidak disebutkan. `list-entities` juga tidak membaca dokumen apa pun di balik link yang mengarah ke luar workspace — tool ini tidak menelusuri direktori apa pun di luar root, dan tidak membaca file apa pun di luarnya apa pun yang dideklarasikan file tersebut — dan menyebutkan setiap link semacam itu dengan cara yang sama, dalam `unread_linked_dirs` dan `unread_linked_files` miliknya sendiri, dalam kedua bentuk dan pada kedua transport. Hal itu berlaku apa pun yang dideklarasikan dokumen tersebut, dengan satu pengecualian yang juga dibuat `list-releases`: Release yang disebutkan konfigurasi workspace, sebagai `build.authoring_release` atau sebagai kunci dari `workspace.releases`, dibaca dan dicantumkan di tempat link itu sendiri dan tidak disebutkan, sedangkan file yang disebutkan salah satu pengaturan tersebut yang mendeklarasikan sesuatu selain Release tidak dicantumkan, dan link-nya disebutkan. Direktori katalog yang dikonfigurasi adalah cara workspace membaca entitas lain yang disimpan di tempat lain, sehingga link ke direktori yang dicantumkan konfigurasi di bawah `catalog_dirs`, atau ke direktori di bawahnya, tidak disebutkan oleh kedua daftar: konfigurasi telah menjangkaunya. Features yang diambil `list-entities` dari direktori katalog tidak pernah mencakup Feature di balik link yang mengarah ke luar direktori tempat pembacaan sebuah direktori katalog harus tetap berada — workspace, untuk direktori katalog di dalamnya, atau direktori itu sendiri, untuk direktori yang disebutkan konfigurasi di luarnya — sehingga entitas yang disebutkan berada di balik link yang tidak dibaca tidak pernah dicantumkan di samping nama tersebut. Link yang dikecualikan daftar — karena namanya, letaknya, atau sebuah `.gitignore` — tidak disebutkan, dan dengan `release` begitu pula link di bawah direktori katalog yang hanya dibaca oleh Releases lain; `.gitignore` yang dirinya sendiri merupakan link yang mengarah ke luar workspace tidak dibaca. Jika salah satu daftar ini menyebutkan sebuah link, jawaban teks ditutup dengan baris tersendiri yang menyatakan hal itu."
   },
+  "be0f265df384ccfe": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "be0f265df384ccfe",
+    "status": "machine",
+    "text": "Kode yang tidak dapat diresolusi oleh apa pun **ditolak** alih-alih dijawab dengan kondisi yang semua field-nya kosong, dan setiap penolakan menyatakan kasus mana yang terjadi: kode yang tidak memiliki kondisi terdaftar, angka yang pernah menyebutkan sebuah kondisi dan tidak pernah menyebutkan kondisi lain, atau kode yang tidak dideklarasikan biner ini ketika daftar terbitan sama sekali tidak dapat dibaca — kasus terakhir membiarkan kedua perbaikan tetap terbuka, karena daftar yang diterbitkan untuk versi lain dapat menyebutkan kondisi yang tidak dideklarasikan biner ini."
+  },
   "be36f7770bf1e29a": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -19248,6 +19626,13 @@
     "srcHash": "bebc6a9321453f36",
     "status": "machine",
     "text": "aggrega build"
+  },
+  "bed21c75bcc6e35c": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "bed21c75bcc6e35c",
+    "status": "machine",
+    "text": "`code` wajib diisi dan menerima salah satu pengenal — `shortCode` yang dibawa diagnostik, atau `code` di sampingnya — karena klien yang memegang salah satunya tidak memiliki cara untuk memperoleh yang lain tanpa bertanya. Nilai kosong ditolak dengan menyebutkan apa yang harus dikirim."
   },
   "bed3a7eb2dad6143": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -19479,6 +19864,13 @@
     "srcHash": "c0fe27c232203a6c",
     "status": "machine",
     "text": "**Tahap 3 — Ekspansi `$ref:` lintas dokumen.** Untuk referensi SchemaLibrary melalui `$ref:` (bentuk identitas `<Library>#/schemas/<entry>`), kompiler menelusuri rantai referensi pada waktu kompilasi dengan meneruskan tumpukan resolusi; konten yang dirujuk disisipkan ke dalam skema konsumen. Setiap properti dalam bentuk yang telah diresolusi membawa anotasi `x-aggrega-source` yang mengatribusikannya ke entri pustaka induk langsung. Ekspansi ini mempertahankan deteksi siklus (siklus menghentikan build dengan galat yang menyebut rantainya), pengaman identitas-bukan-lokasi (referensi yang membawa host registry menghentikan build dengan arahan ke bentuk identitas — referensi menunjuk pustaka berdasarkan identitas, bukan lokasi fisik), dan komposisi sumber tunggal (blok `$ref:` hanya menerima referensi polos; override di sisi konsumen dikomposisikan melalui `allOf:` milik JSON Schema). Lihat [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md) untuk semantik resolusinya."
+  },
+  "c11755eba7d10548": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "c11755eba7d10548",
+    "status": "machine",
+    "text": "`$/progress` — dari server ke klien: apa yang sedang dilakukan operasi panjang selama operasi itu berlangsung, pada token yang diminta oleh permintaan untuk menerima laporan. Hanya dikirim untuk permintaan yang membawa token tersebut. Lihat [Memantau operasi panjang](#watching-a-long-operation)."
   },
   "c11bcd00d04b963e": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -20159,6 +20551,13 @@
     "status": "machine",
     "text": "Repositori resmi `aggrega-catalog` (dan setiap katalog pihak ketiga yang patuh) diorganisasikan untuk menegakkan Pemisahan Tanggung Jawab secara fisik. Strukturnya secara eksplisit memisahkan antarmuka abstrak dari implementasi infrastruktur konkretnya."
   },
+  "c812f01bac6e5a47": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "c812f01bac6e5a47",
+    "status": "machine",
+    "text": "`aggrega/catalogIndex` — indeks entitas: `kind`, `name`, `apiVersion`, `description`, `labels`, file sumber, dan `origin` dari setiap entitas di workspace yang dinamai permintaan. Menerima workspace dan, secara opsional, `release`: himpunannya adalah properti dari root workspace tersebut dan direktori katalog yang dikonfigurasinya, atau, dengan `release`, dari direktori yang diberikan konfigurasi kepada Release tersebut — lihat [Menjawab dalam konteks satu Release](#answering-in-one-releases-terms). Indeks ini mencakup kedua tempat asal entitas — dokumen Aggrega di bawah root workspace, dan Features yang dimuat direktori katalog yang dikonfigurasi — karena inilah permukaan yang digunakan klien untuk melakukan join ketika memerlukan field deskriptif sebuah entitas, dan indeks yang hanya mengetahui salah satu dari keduanya akan membuat sebagian setiap daftar kandidat tidak dapat di-resolve. Dokumen workspace dihitung sebagai entitas ketika mendeklarasikan `kind:` sekaligus `metadata.name` dan tidak mendeklarasikan `apiVersion` yang termasuk dalam grup proyek lain, sehingga YAML yang kebetulan berada di pohon direktori — file values sebuah chart, konfigurasi CI, manifest Kubernetes yang sudah di-render — dilewati alih-alih dicantumkan. Dokumen yang sama sekali tidak mendeklarasikan `apiVersion` dilaporkan: itu adalah dokumen Aggrega yang kekurangan satu field, dan melihatnya tercantum adalah cara Anda mengetahui bahwa dokumen itu ada dan perlu diperbaiki. Lihat [Cara sebuah entitas dialamatkan](#how-an-entity-is-addressed) untuk arti `origin` dan `file` yang kosong. Tidak ada dokumen di balik link yang mengarah ke luar root workspace yang dibaca: direktori di luar root tidak ditelusuri, dan file di luarnya tidak dibaca apa pun yang dideklarasikannya, sehingga entitas yang ditampilkan editor Anda di bawah link seperti itu tidak dicantumkan sebagai milik workspace — dan tidak ditawarkan oleh `aggrega/attachCandidates` atau `aggrega/connectionCandidates`, yang membaca dokumen yang sama, bahkan ketika editor Anda sedang membuka dokumen tersebut. Hal itu berlaku apa pun yang dideklarasikan dokumen tersebut. Satu-satunya pengecualian adalah Release yang dinamai konfigurasi workspace Anda — sebagai `build.authoring_release`, atau sebagai kunci dari `workspace.releases`, dinilai berdasarkan file yang dituju link, sehingga menamai link atau file tersebut dihitung sama — yang dibaca dari file yang dituju link, dicantumkan di tempat link itu sendiri, sebagaimana `aggrega/releaseCandidates` mencantumkannya, dan tidak dinamai; file yang dinamai salah satu pengaturan tersebut yang mendeklarasikan sesuatu selain Release tidak dicantumkan, dan link-nya dinamai. Direktori katalog yang dikonfigurasi adalah cara workspace membaca entitas lain yang disimpan di tempat lain, sehingga link ke direktori yang dicantumkan konfigurasi di bawah `catalog_dirs` — untuk workspace atau untuk sebuah Release — tidak ditelusuri seperti dokumen milik workspace sendiri dan juga tidak dinamai: konfigurasi telah menjangkaunya, dan Features-nya dicantumkan dari katalog, sebagaimana Features milik setiap direktori katalog yang dikonfigurasi. Features yang dicantumkan dari direktori katalog tidak pernah menyertakan Feature di balik link yang mengarah ke luar direktori tempat pembacaan direktori katalog harus tetap berada — workspace, untuk direktori katalog di dalamnya, atau direktori itu sendiri, untuk direktori yang dinamai konfigurasi di luar workspace — sehingga entitas yang dinamai respons sebagai berada di balik link yang tidak dibacanya tidak pernah juga dicantumkan di samping nama tersebut. Respons menamai setiap link seperti itu di `unreadLinkedDirs`, untuk link ke direktori, dan di `unreadLinkedFiles`, untuk link yang namanya sendiri diakhiri `.yaml` atau `.yml` dan yang mengarah ke file — relatif terhadap root, di tempat link itu berada, dalam urutan penelusuran workspace — sehingga klien dapat menjelaskan alasannya. Link yang dikecualikan oleh pencarian, karena namanya, karena letaknya, atau karena `.gitignore`, tidak dinamai, dan dalam respons dalam konteks sebuah Release, begitu pula link di bawah direktori katalog yang hanya dibaca oleh Releases lain. Link di bawah direktori katalog di luar workspace tidak memiliki tempat relatif terhadap root untuk dinamai, dan tidak dinamai. Keduanya selalu ada, dan kosong jika tidak ada link seperti itu. Jika file konfigurasi milik workspace itu sendiri, atau overlay milik CI di sampingnya, merupakan link yang mengarah ke luar workspace, file tersebut dinamai di `unreadLinkedFiles` bagaimanapun pencarian memperlakukannya, dan indeksnya adalah pembacaan milik workspace sendiri tanpa konfigurasi apa pun — tidak ada direktori katalog yang dibaca untuknya, dan indeks dalam konteks sebuah Release ditolak; lihat [Root workspace dan Release aktif](#workspace-root-and-active-release)."
+  },
   "c81bda0c96db37bb": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -20523,6 +20922,13 @@
     "status": "machine",
     "text": "**Apa arti workspace yang kosong, dan apa yang boleh dilakukan model terhadapnya** — paragraf yang berbeda menurut transport, di bawah."
   },
+  "cc1bb40ea7ac0de8": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "cc1bb40ea7ac0de8",
+    "status": "machine",
+    "text": "`aggrega/connectionAtPosition` — di dalam entri koneksi mana sebuah posisi dalam Aggregate atau Release berada, dijawab dalam istilah yang digunakan kedua permintaan di atas untuk menerima koneksi. `file` menamai dokumen dengan cara `aggrega/insertionPoint` menamai dokumen, dan dokumen tersebut dibaca terlebih dahulu dari apa yang dimiliki sesi untuknya; `position` adalah tempat di dalamnya, sebuah `line` dan sebuah `character` yang dihitung dari nol dalam encoding sesi; `release` menamai Release yang graf terkompilasinya mencatat koneksi, dan wajib juga untuk posisi di dalam Aggregate, karena node graf dan koneksi hanya ada pada graf terkompilasi. Respons memuat `graphNode` dan `connection` — `socket`, `alias`, dan `document` tempat posisi tersebut dibaca — untuk diteruskan tanpa perubahan ke `aggrega/attachCandidates` dan `aggrega/attachmentContainer`, atau `noConnectionReason` jika tidak ada koneksi yang ditulis di sana. Lihat [Apa yang diberitahukan respons koneksi pada posisi](#what-a-connection-at-position-response-tells-you)."
+  },
   "cc2f3d7aa395669c": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -20663,6 +21069,13 @@
     "status": "machine",
     "text": "Arsitektur"
   },
+  "cd78b0ffa9111bfa": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "cd78b0ffa9111bfa",
+    "status": "machine",
+    "text": "`aggrega/pluginRemove` — menghapus entri plugin yang dikonfigurasi sehingga plugin tersebut tidak lagi berpartisipasi. `type` adalah himpunan yang sama yang diterima penambahan, dan `query` mengidentifikasi entri: nama pendek plugin, referensinya yang di-pin, atau — untuk `provider` — kapabilitas yang dilayani binding. Keduanya wajib. `global` dan `workspace` adalah override target penulisan yang sama, yang ditolak bersama-sama dengan cara yang sama. Kueri yang tidak cocok dengan entri apa pun ditolak alih-alih dijawab sebagai keberhasilan atas konfigurasi yang tidak berubah, sehingga pemanggil tidak pernah diberi tahu bahwa sebuah plugin berhenti berpartisipasi padahal tidak, dan salah ketik tidak pernah menghapus plugin yang berbeda. Permintaan ini tidak menghubungi registri apa pun: penghapusan hanya bekerja pada teks konfigurasi. **Penghapusan bertipe `cli` yang tidak menamai salah satu dari kedua cakupan menulis konfigurasi global** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing). Lihat [Apa yang diberitahukan perubahan plugin](#what-a-plugin-change-tells-you)."
+  },
   "cd7d0c33b0c958c2": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -20746,6 +21159,13 @@
     "srcHash": "ce54f0e22dbb39de",
     "status": "machine",
     "text": "Component"
+  },
+  "ce61a30dc26b1308": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "ce61a30dc26b1308",
+    "status": "machine",
+    "text": "**Sebuah kondisi membawa dua pengenal, dan keduanya ditujukan untuk dua pembaca yang berbeda.** `code` adalah pengenal di atas: terkualifikasi dan memakai tanda hubung, sehingga program yang bercabang berdasarkan pengenal itu terbaca sesuai maknanya. `shortCode` adalah huruf `E` dan empat digit — `E0164` — dan merupakan pengenal yang dapat dibacakan oleh **manusia**, diketik di kotak pencarian, atau ditempelkan ke sebuah issue. Keduanya menyebutkan kondisi yang sama dan tidak ada yang merupakan singkatan dari yang lain."
   },
   "ce7261662b58af84": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -20879,6 +21299,13 @@
     "srcHash": "cfcab97b15b924cd",
     "status": "machine",
     "text": "Perintah ini menulis hasilnya ke `<release-stem>.lock` di samping Release. Workspace yang melampirkan plugin yang mengembalikan putusan terima-atau-tolak juga mendapatkan file kedua di direktori tersebut — [catatan kepercayaan plugin](#the-plugin-trust-record)."
+  },
+  "cfcd1a53e02abaa8": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "cfcd1a53e02abaa8",
+    "status": "machine",
+    "text": "**Temuan yang tidak menyebutkan key yang ada di dokumen digambar pada key yang menamai dokumen tersebut.** Temuan yang dimunculkan pemeriksaan milik dokumen itu sendiri tentang isinya, temuan pemeriksaan entitas tunggal, serta saran atau penolakan yang dimunculkan build masing-masing digambar pada key yang disebutkannya; jika tidak menyebutkan key apa pun, atau menyebutkan key yang tidak ada di dokumen, temuan itu digambar pada key `kind:` dokumen, atau pada `metadata.name`-nya jika dokumen tidak mendeklarasikan `kind:`, dan di awal file hanya jika dokumen tidak mendeklarasikan keduanya atau tidak dapat diurai. Dokumen umumnya dibuka dengan komentar — setiap file katalog membawa header lisensi — dan entri yang digambar di baris pertamanya akan berada di atas komentar itu dan terbaca sebagai kesalahan di dalamnya, padahal identitas dokumen itu sendiri adalah baris yang ditulis penulisnya. Entri tentang sesuatu selain isi dokumen ditempatkan di awal file: entri `Dependencies:` tentang dependensi Release, tahap yang berhenti tanpa menyebutkan apa pun di dokumen, lockfile yang bergeser, referensi yang terpaksa ditolak oleh render, Release yang tidak termuat — dan demikian pula entri `aggrega-lint` yang aturannya tidak menghitung baris apa pun. Jika posisi dinyatakan alih-alih digambar, temuan yang tidak menyebutkan key tetap tidak memilikinya: jawaban error dari penolakan yang tidak menyebutkan key hanya membawa dokumen di dalam `data`-nya."
   },
   "cfd4ae615b8005ed": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -21349,6 +21776,13 @@
     "status": "machine",
     "text": "Bagaimana kredensial mencapai kontainer"
   },
+  "d48cb06fafd5eb94": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "d48cb06fafd5eb94",
+    "status": "machine",
+    "text": "`aggrega/editDocument` — menerapkan satu pengeditan terstruktur yang terbatas ke dokumen tulisan penulis, dengan mempertahankan setiap byte yang tidak disentuhnya. Ini adalah separuh lain dari dua metode penentuan lokasi di atas: keduanya menyatakan tempat sebuah entri berada dan menyerahkan kepada Anda untuk menyusun dan menerapkannya, sedangkan yang ini menyusun dan menerapkan satu entri. `edit` menamai yang mana dari empat — `add-component`, `attach-feature`, `wire-edge`, `set-value` — dan nilai di luar keempatnya ditolak alih-alih ditafsirkan; `node` adalah path struktural dari root dokumen, daftar segmen tepat dalam bentuk yang diterima `aggrega/insertionPoint`; `name` adalah kunci tempat entri ditulis dan `value` adalah isinya, yang maknanya mengikuti `edit`; `socket` dibaca untuk `wire-edge` dan diabaikan selain itu. `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dengan menjawab menggunakan dokumen yang telah diedit sebagai `content`, untuk klien yang menampilkan hasilnya kepada penulis terlebih dahulu; tidak ada yang dibuat dalam mode ini dan `written` kosong. `file` menamai dokumen relatif terhadap root workspace atau berdasarkan path absolutnya, dan dokumen di luar root — sebagaimana ditulis, atau melalui link yang mengarah ke luar root, ke file atau ke direktori di sepanjang jalan — ditolak tanpa ada yang dibaca atau ditulis. **Ini menulis dokumen yang Anda namai, di dalam workspace** — tidak me-resolve dependensi apa pun, tidak menjangkau registri apa pun, dan tidak menyentuh jaringan dalam kedua cara pengiriman, dan penulisan bergantung pada validasi dokumen yang disusun terhadap skema kind-nya sendiri. Lihat [Apa yang diberitahukan respons pengeditan dokumen](#what-a-document-edit-response-tells-you), karena perilaku default-nya adalah menulis dan penolakan membiarkan file identik byte demi byte seperti semula."
+  },
   "d48f718d7e540d61": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -21404,6 +21838,13 @@
     "srcHash": "d55dc238b13b8ffc",
     "status": "machine",
     "text": "Itulah yang menyelesaikan pertanyaan tata kelola yang dimunculkan baseline bersama — batasan apa yang boleh dideklarasikan turunan relatif terhadap basisnya. Untuk sebuah Component, jawabannya struktural, bukan diawasi: kontrak terdeklarasi milik turunan memang *adalah* kontrak basis, sehingga batasan basis tidak dapat dilonggarkan, dihapus, atau diubah tipenya oleh turunan, dan tidak diperlukan pemeriksaan pada waktu penerbitan untuk menjaga baseline tetap utuh. Turunan yang secara sah membutuhkan aturan yang *lebih ketat* daripada yang dideklarasikan basisnya menyatakannya sebagai entri tambahan dalam blok `assertions:`-nya, yang disusun berdampingan dengan aturan basis alih-alih menggantikannya."
+  },
+  "d56dde9e540ddbd3": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "d56dde9e540ddbd3",
+    "status": "machine",
+    "text": "`aggrega/configCapture` — membekukan konfigurasi efektif yang penting bagi build ke dalam file konfigurasi milik workspace ini sendiri, sehingga workspace di-build dengan hasil yang sama tanpa konfigurasi global mesin di bawahnya. Tidak menerima target penulisan: pembekuan ada untuk membuat satu workspace mandiri, sehingga selalu menulis file milik workspace tersebut. `allPlugins` memperluas himpunan yang dibekukan dari socket yang menentukan output yang di-render — binding provider dan lampiran governance transformasi label — ke setiap socket plugin, dengan menambahkan gate governance verdict dan linter serta socket import. Respons memuat `configFile`, `workspaceRoot`, `captured`, `sockets`, dan `catalogDirs`. Lihat [Apa yang ditinggalkan penulisan konfigurasi](#what-a-configuration-write-leaves-behind), karena respons menamai dokumen yang kini ada dan tindakan klien berikutnya adalah membukanya."
   },
   "d59f9a223da0afa8": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -21615,6 +22056,13 @@
     "status": "machine",
     "text": "Dengan memperlakukan API SaaS eksternal dan database lama sebagai node kelas satu dalam graf representasi perantara (IR), pengembang memperoleh kemampuan untuk melampirkan konfigurasi proxy Zero-Trust langsung ke panggilan keluar. Misalnya, dengan memodelkan API Stripe sebagai node tersendiri, pengembang dapat dengan mulus melampirkan fitur `header-injector` padanya, sehingga konfigurasi yang dihasilkan mencegah agen pemanggil menyimpan token API mentah di memorinya sendiri."
   },
+  "d86821d83eb3a88d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "d86821d83eb3a88d",
+    "status": "machine",
+    "text": "**Notifikasi:**"
+  },
   "d86843a572a600bd": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -21733,6 +22181,13 @@
     "srcHash": "da0d5b41168cc636",
     "status": "machine",
     "text": "**Apakah lampiran menangani materi yang dideklarasikan sensitif oleh penulis**, dan kunci pengiriman mana yang membawa materi itu. Keduanya diturunkan dari deklarasi — leaf `sensitive` pada skema sebuah Feature, slot `sensitive` pada Component yang mengonsumsi, baik slot yang dideklarasikannya untuk lampirannya sendiri maupun slot pada soket yang dilalui koneksi — tidak pernah dari pemeriksaan nilai."
+  },
+  "da157d42a4a6f97d": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "da157d42a4a6f97d",
+    "status": "machine",
+    "text": "Dokumentasi dibaca dari bundel yang di-cache untuk workspace yang disebutkan permintaan, **diperoleh pada penggunaan pertama jika tidak ada**, dan itulah satu-satunya hal yang membuat permintaan ini menjangkau registry — lihat [Menjangkau registry, dan menulis](#reaching-a-registry-and-writing). Tidak ada yang ditulis ke workspace. Tidak ada validasi yang memicunya: ekspansi terjadi karena sebuah permintaan memintanya, sehingga registry tidak pernah dijangkau saat dokumen sedang divalidasi atau diinspeksi."
   },
   "da30d04dca8e2ba1": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -21943,6 +22398,13 @@
     "srcHash": "dc1f0fa2825493da",
     "status": "machine",
     "text": "**Endpoint tidak pernah menjawab kedua path tersebut.** `GET /healthz` dan `GET /readyz` pada alamat yang disebutkan `mcp.listen` dijawab `404`, persis seperti setiap path lain yang tidak dilayani endpoint itu, baik dengan token maupun tanpa token. Menjawab probe di sana akan memberi apa pun yang menjangkau endpoint itu pembacaan gratis tentang apakah proses aktif, bersama dengan cara gratis untuk membuatnya bekerja — pada listener yang selain itu menolak setiap permintaan yang tidak membawa kredensial."
+  },
+  "dc2fd99b0498a443": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "dc2fd99b0498a443",
+    "status": "machine",
+    "text": "**Setiap permintaan menyebutkan Release yang dimaksud, dan daemon tidak menyimpan Release miliknya sendiri.** Pemeriksaan semantik meresolusi closure dependensi Release tersebut dan membaca lockfile Release tersebut untuk pin-nya — atau, untuk entitas katalog, membaca direktori katalog yang digunakan Release tersebut untuk build, seperti dijelaskan paragraf berikutnya — sehingga dua permintaan yang menyebutkan dua Releases masing-masing dijawab tentang Release yang disebutkannya. Tidak ada yang terbawa di antara keduanya: tidak ada Release terpilih yang perlu diubah, dan mengubah Release yang menjadi acuan validasi Anda hanyalah nilai yang berbeda pada permintaan berikutnya, bukan sesuatu yang harus diperintahkan kepada daemon untuk dilupakan."
   },
   "dc469bfc1cd9a894": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -22216,6 +22678,13 @@
     "srcHash": "de5320dc9fa57250",
     "status": "machine",
     "text": "Slot yang ditandai `inject: []` (blackbox) dalam `featuresSchema` milik Component tidak boleh muncul dalam blok `attachments:` Workload — slot tersebut dikirim oleh mekanisme internal Recipe (misalnya melalui `existingSecret` Helm), bukan melalui eksposur Workload."
+  },
+  "de7f8c8612ff9806": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "de7f8c8612ff9806",
+    "status": "machine",
+    "text": "**Kedua key ada tepat ketika entri menyebutkan kondisi terdaftar, dan tidak ada bersama-sama jika sebaliknya.** Yang menentukannya adalah apa yang berada di balik entri, bukan lapisan mana yang memublikasikannya, jadi bacalah key-nya, bukan lapisannya:"
   },
   "de85885890389369": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -22896,6 +23365,13 @@
     "status": "machine",
     "text": "Registry, tag, dan pengalamatan berbasis konten"
   },
+  "e5d4a2d552ca87f9": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "e5d4a2d552ca87f9",
+    "status": "machine",
+    "text": "`code` adalah kode yang stabil dan dapat dicocokkan mesin untuk apa yang dilaporkan entri, sehingga klien dapat bercabang berdasarkan kode itu tanpa mencocokkan teks pesan. **Satu key membawa kode tersebut, siapa pun yang menetapkannya**, dan `source` memberi tahu Anda jenis mana yang sedang Anda pegang, karena lapisan-lapisan menamai sesuatu dari kosakata yang berbeda."
+  },
   "e5d9cf6d9e08b8cd": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -22951,6 +23427,13 @@
     "srcHash": "e6704f7a45284f3d",
     "status": "machine",
     "text": "Perintah ini selalu menulis, dan tidak menawarkan `--dry-run`. Hal itu berlaku meskipun perintah ini menulis *ke dalam* file entitas yang Anda tulis — batasnya ditarik pada konten, bukan pada file. Catatan yang dikelola compiler tentang dirinya sendiri bukan milik Anda untuk diedit, sehingga tidak ada yang perlu ditinjau sebelum catatan tersebut diterapkan; dokumen di sekitarnya tetap tidak tersentuh byte demi byte, dan hanya blok-blok tersebut yang berubah."
+  },
+  "e676394b28971283": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "e676394b28971283",
+    "status": "machine",
+    "text": "`aggrega/attachCandidates` — Features mana yang dapat dilampirkan ke sebuah node: Features yang applicability-nya yang dideklarasikan dipenuhi oleh label node tersebut. Kirim tepat satu koordinat. `node` menamai dokumen workspace berdasarkan `metadata.name`-nya; `graphNode` menamai node pada graf terkompilasi milik `release`, berdasarkan id yang digunakan graf tersebut sebagai kuncinya; `labels` membawa himpunan label secara langsung dan tidak menamai apa pun, untuk klien yang sudah memilikinya. Respons mengulangi koordinat yang dijawabnya — kosong jika tidak ada yang perlu diulang — memuat `nodeLabels`, pasangan label yang digunakan untuk mengevaluasi kecocokan, `labelSource` yang menyatakan jenis himpunan label tersebut, dan setiap kandidat sebagai `kind`, `name`, file sumber, dan `origin` yang mengalamatkannya. Mengembalikan label itulah yang membuat respons dapat diaudit dari dirinya sendiri: klien dapat menjelaskan mengapa sebuah Feature ditawarkan tanpa membentuk gagasannya sendiri tentang label node, yang merupakan cara jawaban klien dan jawaban compiler menjadi berbeda. Untuk node graf, Features yang ditawarkan adalah Features yang dijangkau oleh Release milik node tersebut. Di samping `graphNode`, `connection` menamai satu koneksi yang ditarik komponen node tersebut — `socket` dan `alias`-nya — dan respons kemudian juga memuat `slots`, setiap slot yang dideklarasikan socket koneksi tersebut beserta Features yang dapat mengisinya, atau `noSlotReason` jika tidak ada yang dapat diisi. Lihat [Apa yang diberitahukan respons kandidat lampiran](#what-an-attach-candidate-response-tells-you)."
   },
   "e68ee04dff59551b": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -23078,6 +23561,13 @@
     "status": "machine",
     "text": "Blok `uses` mendeklarasikan dependensi lintas komponen sebagai topologi murni: Component A bergantung pada kontrak publik `provides` milik Component B, bukan pada alamat fisik atau detail koneksi Component B. Topologi berada di `uses`; konfigurasi berada di `values`. Pemisahan ini memungkinkan kompiler melihat semua edge lintas komponen secara eksplisit tanpa menyimpulkannya dari isi `values`."
   },
+  "e850e66bb3d34085": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "e850e66bb3d34085",
+    "status": "machine",
+    "text": "Pada entri `aggrega-build` — saran yang dimunculkan build — kode adalah apa pun yang ditetapkan oleh titik yang memunculkannya, dan lapisan ini membawa saran dari dua kosakata yang berbeda karena build memunculkan saran tentang dua jenis hal yang berbeda. Saran tentang **bentuk topologi yang di-deploy** membawa kode kelas, seperti `unsupported-field`, yang ditetapkan di mana pun saran itu dimunculkan, baik di plugin rendering maupun di render itu sendiri; kode kelas menamai kelas saran, bukan kondisi terdaftar, sehingga tidak memiliki baris di referensi sentinel, dan [referensi peringatan](../errors/warnings.md) menjelaskan kelas `unsupported-field` dan flag yang membungkamnya. Saran tentang **dokumen yang ditulis** — nama yang berjarak satu suntingan dari nama yang dideklarasikan, parameter yang tidak dibaca apa pun — membawa string tempat kondisinya didaftarkan, dalam bentuk yang sama dengan entri `aggrega` dan dengan baris di referensi sentinel. Bagaimanapun, kode menamai apa temuan itu, bukan siapa yang menemukannya, sehingga satu kelas sampai kepada Anda dengan satu kode berapa pun banyaknya tempat yang memunculkannya, dan membaca kode alih-alih lapisan adalah hal yang memberi tahu Anda mana dari keduanya yang sedang Anda pegang. Penolakan tempat build berhenti saat melakukan render adalah satu-satunya entri di sini yang bukan saran, dan entri itu membawa string tempat kondisinya didaftarkan dengan cara yang sama."
+  },
   "e8580e7345873e98": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -23196,6 +23686,13 @@
     "srcHash": "e96b7516cd106e46",
     "status": "machine",
     "text": "Konstruksi topologi, analisis statis, atau tahap render"
+  },
+  "e96de37d95976245": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "e96de37d95976245",
+    "status": "machine",
+    "text": "`aggrega/deprecateArtifact` — melampirkan penanda deprecation yang ditandatangani ke artefak yang sudah dipublikasikan. Kirim satu `reference` beserta `severity` dan `reason`-nya, atau `from` yang menamai file batch relatif terhadap root workspace — mengirim keduanya ditolak. Field konten bersifat wajib alih-alih ditanyakan secara interaktif: tidak ada yang memantau stream ini, sehingga permintaan yang kekurangan salah satunya ditolak dengan menyebutkan apa yang harus dikirim. Input tanpa kunci yang sama yang diterima kedua permintaan penandatanganan berlaku di sini, karena penanda ditandatangani berdasarkan digest-nya sendiri, dan entri file batch terikat pada satu kredensial persis seperti referensi dalam batch penandatanganan. Respons memuat `marked`, dengan setiap entri menamai `reference` yang ditarik, `severity`-nya, cap waktu `issuedOn`, dan `digest` manifest milik penanda itu sendiri — penanda dilampirkan sebagai referrer tanpa tag dari artefak yang ditariknya, sehingga tidak ada hal lain yang mengalamatkannya — bersama `reach`. **Ini menulis ke registri dan menjangkau ke luar mesin ini** — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
   },
   "e96efc00ad55807a": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -24121,6 +24618,13 @@
     "status": "machine",
     "text": "Perangkat internal, pencapan provenans"
   },
+  "f344d7653fb4e893": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "f344d7653fb4e893",
+    "status": "machine",
+    "text": "`aggrega/invalidate` — sinyal invalidasi cache dari pemantau file editor."
+  },
   "f36819e0ff47d1c6": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -24639,6 +25143,13 @@
     "status": "machine",
     "text": "`aggrega/resolveDependencies` — meresolusi dependensi katalog dan sumber Release ke dalam cache, mem-pin input eksternal yang dikonsumsi rendernya ke dalam penyimpanan beralamat konten, dan menulis lockfile-nya. `release` adalah path relatif terhadap root workspace, nilai yang sama yang diterima `aggrega/irGraph`, dan ditolak dalam bentuk yang sama. `upgrade` membuang pin yang tercatat dan meresolusi ulang, menaikkan setiap dependensi ke versi tertinggi yang tersedia; `targets` mempersempitnya ke referensi entitas yang disebutkannya, mempertahankan setiap pin lainnya. `verify` memeriksa resolusi yang tercatat terhadap resolusi yang akan dilakukan permintaan ini tanpanya, dengan menghormati pin yang tercatat dengan cara yang sama, dan tidak menulis lockfile, [catatan kepercayaan plugin](aggrega-pull.md#the-plugin-trust-record), maupun `entity.lock` — cache dibaca dan diisi sebagaimana tanpanya — dan menjawab `verified: true` serta `toolchain` yang dicatat lockfile. `verify` ditolak sebagai parameter tidak valid jika disertai `upgrade`, disertai `targets`, dan disertai `pinSources` apa pun nilainya, sebelum apa pun diresolusi atau progres apa pun dilaporkan: upgrade membuang pin yang justru harus dihormati verify, target yang disebutkan hanya diresolusi ulang oleh upgrade, dan `pinSources` menentukan apakah resolusi mencatat pin yang kurang dari `entity.lock` atau menolak karenanya, dan tidak satu pun dari keduanya dilakukan oleh perbandingan yang tidak menulis `entity.lock`. Baris perintah dan alat asisten menolak pasangan yang sama. Jawabannya menyebutkan `lockfile` yang ditulisnya atau yang dibandingkannya dan setiap referensi yang di-pin-nya, dalam `entities`, `libraries`, dan `plugins`, setiap entri membawa `version` hasil resolusinya dan `source`-nya — dari mana proses ini mengambil referensi tersebut, dalam kata yang dicetak [`aggrega pull --detail`](aggrega-pull.md#the-lockfile) untuk resolusi yang sama: `fetched-fresh`, `cache-reuse`, `local`, `in-binary`, atau `external` — bersama `sourceArtifacts`, `trustedPlugins`, `externalInputs` — berapa banyak input eksternal yang di-pin lockfile setelah proses selesai, menghitung baik yang dibawa dari sebelumnya maupun yang ditemukan proses ini — dan `notices` apa pun yang dimunculkan resolusi. 🔴 **Jawaban yang berhasil tidak dengan sendirinya berarti pin input eksternal sudah lengkap.** Jika proses telah mem-pin setiap dependensi tetapi tidak dapat menyelesaikan penentuan input eksternal mana yang dikonsumsi Release, proses tersebut menjawab dengan `incompleteExternalInputs` yang menyatakan apa yang menghentikan penemuan, dan tetap menjawab sebagai keberhasilan — pin dependensi sudah lengkap dan ada di disk, sehingga melaporkan seluruh permintaan sebagai gagal akan menyuruh Anda mengulang pekerjaan yang sudah benar. **Baca field tersebut sebelum memperlakukan lockfile sebagai sepenuhnya ter-pin:** field ini tidak ada ketika tidak ada yang tersisa belum ditemukan, sehingga keberadaannya adalah sinyalnya. Tidak ada parameter direktori katalog: tumpukan pencarian adalah yang dikonfigurasi workspace. **Ini adalah satu-satunya permintaan pin dalam sesi untuk suatu Release, dan di sinilah input eksternal juga di-pin** — URL mana yang dikonsumsi render bergantung pada apa yang direndernya, sehingga permintaan ini merender Release untuk mengetahuinya, dan permintaan build kemudian dilayani dari apa yang dicatatnya. Recipe atau FeatureRecipe yang dibangun Release dan `entity.lock`-nya tidak mencatat pin untuk input yang dibaca entitas tersebut membuat permintaan ditolak, dengan menyebutkan `aggrega pin` dan setiap input yang tidak tercatat; `pinSources: true` menjalankan langkah pin tersebut atas entitas-entitas itu sebagai gantinya, menulis `entity.lock` di samping masing-masing — langkah yang sama yang dijalankan `aggrega/pin`, menulis byte yang sama. Jika tidak ada, `pinSources` mengikuti `pin_sources_at_pull` milik workspace; jika dikirim, nilainya menimpa pengaturan tersebut ke dua arah, sehingga `false` menolak bahkan di workspace yang dikonfigurasi untuk mem-pin. Permintaan ini menjangkau registry dan menulis — lihat [Menjangkau registry, dan menulis](#reaching-a-registry-and-writing)."
   },
+  "f8e3e817a5f04df2": {
+    "at": "2026-10-23T00:20:00.768Z",
+    "job": "session-0056-20261023002000",
+    "srcHash": "f8e3e817a5f04df2",
+    "status": "machine",
+    "text": "`aggrega/attachmentContainer` — dokumen mana yang menjadi tempat lampiran Feature untuk sebuah node, dan kontainer mana di dalamnya. `graphNode` menamai node pada graf terkompilasi milik `release`, berdasarkan id yang digunakan graf tersebut sebagai kuncinya, dan keduanya wajib: id node adalah kunci graf milik satu Release dan tidak berarti apa-apa tanpanya. Respons memuat `node`, `file`, dan `container` — daftar segmen tepat dalam bentuk yang diterima `aggrega/insertionPoint`, sehingga pasangan tersebut dapat digabungkan tanpa ada yang perlu disimpulkan di antaranya. Untuk lampiran pada satu koneksi yang ditarik komponen node, tambahkan `connection` dengan `socket`, `alias`, dan `document`-nya — `aggregate` atau `release` — dan respons menamai kontainer `features` milik koneksi tersebut di dokumen itu. Lihat [Apa yang diberitahukan respons kontainer lampiran](#what-an-attachment-container-response-tells-you), karena `file` merupakan bagian dari respons, bukan sesuatu yang sudah Anda ketahui."
+  },
   "f8e45189ecab2c56": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -25079,6 +25590,13 @@
     "srcHash": "fcdaf6f58d8d91f5",
     "status": "machine",
     "text": "**3. `component.aggrega.ai/hosting`**"
+  },
+  "fce4d8bcf24ae606": {
+    "at": "2026-10-23T01:24:44.067Z",
+    "job": "session-0058-20261023012444",
+    "srcHash": "fce4d8bcf24ae606",
+    "status": "machine",
+    "text": "`aggrega/publishDiagnostics` — himpunan diagnostik yang didorong oleh server (digunakan untuk peringatan pergeseran lockfile dan status saat startup). Setiap entri membawa `source` yang menyebutkan lapisan diagnostik daemon mana yang memunculkannya: `aggrega` untuk temuan tentang dokumen yang ditulis, `aggrega-build` untuk saran yang dimunculkan oleh build — setiap saran yang dimunculkannya, yaitu himpunan yang sama dengan yang dicetak `aggrega build` — dan `aggrega-lint` untuk temuan tentang konvensi publikasi, temuan yang sama dengan yang dicetak `aggrega lint`. Field ini selalu ada di setiap entri, sehingga klien dapat mengelompokkannya alih-alih menampilkan satu daftar yang tidak dibedakan, dan tidak pernah perlu membedakan sumber yang tidak ada dari salah satu lapisan. Sebuah frame dikirim untuk sebuah file hanya jika himpunannya berbeda dari himpunan yang terakhir diberitahukan kepada klien ini, sehingga permintaan yang menghitung ulang temuan yang sama tidak mengirim apa pun; frame pertama sebuah file, dan frame yang mengosongkan himpunan sebuah file, keduanya merupakan perbedaan dan selalu dikirim."
   },
   "fd1a2bd21c73aa15": {
     "at": "2026-10-22T07:22:08.562Z",
