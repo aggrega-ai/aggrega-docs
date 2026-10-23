@@ -53,9 +53,9 @@ wire protocol, the `valkey-cache` example wraps the Valkey fork instead.
   optional `password` slot in its `featuresSchema`. When no credential is
   attached (the base Aggregate), the Recipe renders the cache with
   authentication disabled — byte-identically to a Recipe with no slot. When a
-  credential is attached, the value enables authentication for the target: on
-  Compose (`aggregate-auth.yaml`) it surfaces as the `REDIS_PASSWORD`
-  environment variable; on the synthesized Kubernetes path
+  credential is attached, both targets start Redis with `--requirepass`, so the
+  server requires the password: on Compose (`aggregate-auth.yaml`) the value is
+  passed to the server as that argument; on the synthesized Kubernetes path
   (`aggregate-helm-synth-auth.yaml`) it is materialized as a Secret the
   Deployment references.
 
@@ -82,9 +82,11 @@ Rendered artifacts land under `dist/`.
 
 On the Compose path the credential is an inject-value secret
 (`aggregate-auth.yaml`): its value is delivered on the component's environment
-pipe and becomes a service environment variable directly. The `REDIS_PASSWORD`
-variable enables authentication for images that read it, while the plain
-upstream image expects the password through its configuration instead.
+pipe under the variable its `values.key` names, `REDIS_PASSWORD`, and the Recipe
+hands it to the server as `--requirepass`. The official `redis` image reads no
+password variable, so the value is passed as an argument and shows in the
+service's command. An attachment whose value reaches the Recipe under no variable
+it reads halts the build, naming the slot, rather than leaving the cache open.
 
 The synthesized helm path uses a referenceable credential
 (`aggregate-helm-synth-auth.yaml`): the value is materialized as a Kubernetes
