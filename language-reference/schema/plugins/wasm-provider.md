@@ -512,6 +512,7 @@ The generalized, domain-agnostic per-edge payload the host assembles for a uses 
 | `socket` | string | yes | The socket alias the uses edge is bound under. |
 | `provides` | map of string | yes | The consumed endpoint's provides output, an author-ordered key set exposing the target's declared outputs. Preserves author order so the payload is byte-identical across runs of identical input. |
 | `inject` | object | yes | The consuming endpoint's inject mapping, keyed by delivery mechanism to an author-ordered key set, describing how the consuming end receives the consumed endpoint's output. Preserves author order so the payload is byte-identical across runs of identical input. |
+| `read_provides_keys` | string[] | no | The keys of the consumed endpoint's provides output that the consuming endpoint's templates read directly through .context.uses, whether or not the inject mapping also delivers them, in the author order of provides. Each entry is one of the keys provides carries. The list rides on the edge so the producer-side publish and the consumer-side resolve read one list. Absent when the consuming endpoint read no provides key directly, and a provider handed none wires the link exactly as it would if the field did not exist. |
 
 _Additional properties are not permitted._
 
