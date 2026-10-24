@@ -43,7 +43,8 @@ served at `aggrega.ai/docs`.
 ## Versions
 
 Documentation versions are Git tags of this repository. Each version is built from
-the checked-out tree with its own base path; the latest is served at `/docs`, every other
+its own tag — the tag's pages, rendered by this site project — with its own base
+path; the newest tag is the latest version, served at `/docs`, every other
 version under a version-prefixed path such as `/docs/v0.1`. Only the latest is
 indexed — older versions emit `noindex,follow` and a canonical link to the latest
 equivalent page — and a version switcher lists the available versions. The

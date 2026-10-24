@@ -1,6 +1,6 @@
 # Aggrega Documentation
 
-User-facing documentation for the Aggrega language and compiler. English is the primary source; translation overlays land in a future i18n pass without changing the paths below.
+User-facing documentation for the Aggrega language and compiler, written in English and translated into every other language the site offers.
 
 ## About Aggrega
 
