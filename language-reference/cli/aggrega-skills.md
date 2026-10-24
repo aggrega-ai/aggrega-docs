@@ -39,10 +39,16 @@ version you have.
 Write the Aggrega skill into the skill folder of each assistant named with
 --agent, so the assistant knows how to install and use Aggrega.
 
-By default the skill goes into the assistant's project skill folder inside the
-directory you run the command in, which is where a project's own skills are
-committed. With --global it goes into the assistant's per-user skill folder
-in your home directory instead, where the assistant reads it in every project.
+By default the skill goes into the assistant's project skill folder at the root
+of your workspace — the one found from the directory you run the command in, or
+named with --workspace-root; a directory no workspace marks is its own root —
+which is where a project's own skills are committed. With --global it goes
+into the assistant's per-user skill folder in your home directory instead,
+where the assistant reads it in every project.
+
+Every folder and file a project installation writes is held to the workspace:
+a skill folder reached through a link leading out of it is refused, and
+nothing is written.
 
 --agent may be given more than once. Where several of the named assistants read
 the same folder, the skill is written there once.
@@ -83,7 +89,7 @@ https://aggrega.ai/docs/authoring/setup/ describes.
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--agent` | `[]` | Assistant to install the skill for, by identifier (for example claude-code, codex, cursor or gemini-cli). Repeatable; the help lists every identifier and the folder each one writes. |
-| `--global` | `false` | Install into each assistant's per-user skill folder in your home directory, which it reads in every project, instead of the project skill folder in the directory you run the command in. |
+| `--global` | `false` | Install into each assistant's per-user skill folder in your home directory, which it reads in every project, instead of the project skill folder at the root of your workspace. |
 
 **`aggrega skills list` description**
 
@@ -110,7 +116,7 @@ Installed the aggrega skill for Claude Code at /home/you/project/.claude/skills/
 
 ## Where the skill lands
 
-Without `--global`, the skill goes into the assistant's project skill folder inside the directory you run the command in — run it from your project's root, where the assistant looks for the project's skills and where you commit them. With `--global`, it goes into the assistant's per-user skill folder in your home directory, which the assistant reads in every project. The table in the description above gives both folders for every assistant; each is the folder that assistant's own documentation names, and `~` stands for your home directory.
+Without `--global`, the skill goes into the assistant's project skill folder at the root of your workspace, where the assistant looks for the project's skills and where you commit them. The workspace is the one every command finds — the one `--workspace-root` names, or the one found from the directory you run the command in, so running it from a sub-folder still installs at the root — and a directory no workspace marks is its own root. With `--global`, it goes into the assistant's per-user skill folder in your home directory, which the assistant reads in every project. The table in the description above gives both folders for every assistant; each is the folder that assistant's own documentation names, and `~` stands for your home directory.
 
 Several assistants read the shared `.agents/skills` folder. Naming more than one of them writes the skill there once and names them all in the one line that reports it:
 
@@ -128,6 +134,7 @@ Every file the command writes carries one comment line, just after the frontmatt
 
 - **A copy carrying the line is replaced.** Running the command again after upgrading Aggrega brings the skill up to the new version, and the line it prints says `Replaced` rather than `Installed`.
 - **A file without the line is refused.** A `SKILL.md` already at the target that the command did not write is yours, so the command names its path, writes nothing anywhere, and exits non-zero. Move the file aside or remove it, then run the command again. To keep changes of your own, keep them in a skill with another name.
+- **A folder reached through a link leading out of the workspace is refused.** Without `--global`, every folder and file the command would write is held to the workspace: where an assistant's skill folder, or a folder on the way to it, is a link leading out of the workspace, the command names the link and where it leads, writes nothing anywhere, and exits non-zero — the condition described in [A path the operation writes leads through a link out of the directory it must stay inside](../errors/fatal-halts.md#a-path-the-operation-writes-leads-through-a-link-out-of-the-directory-it-must-stay-inside). A link that stays inside the workspace is written through.
 
 Every target is checked before anything is written, so a refusal for one assistant leaves every other assistant's folder as it was too. Files in the skill's folder that the skill does not write are left alone.
 
