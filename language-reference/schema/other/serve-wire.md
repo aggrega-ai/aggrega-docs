@@ -179,7 +179,7 @@ The answer to a request that succeeded, carrying the identifier of the request i
 | --- | --- | --- | --- |
 | `jsonrpc` | ProtocolVersion | yes | The JSON-RPC version every message carries. Only 2.0 is spoken. |
 | `id` | RequestId | yes | The caller's identifier for a request, echoed on the response that answers it. A message carrying no identifier is a notification and is never answered. |
-| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or PinResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ConnectionAtPositionResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult | yes | The answer, in the shape the method that was asked returns. |
+| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or PinResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ConnectionAtPositionResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult or SkillsInstallResult or SkillsListResult | yes | The answer, in the shape the method that was asked returns. |
 
 _Additional properties are not permitted._
 
@@ -1015,6 +1015,19 @@ Answers with a kind's schema, or — when no kind is named — with which kinds 
 
 _Additional properties are not permitted._
 
+### `SkillsInstallParams`
+
+Writes the assistant skill built into the binary into the skill folder of each named assistant. Without global it writes each assistant's project folder inside the workspace the request names, and every path it would write there is held to that workspace; with global it writes each assistant's per-user folder under the home directory. Every target is checked before anything is written, so a refusal leaves every folder as it was.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
+| `agents` | string[] | no | The assistants to install the skill for, by the identifiers the listing reports. A request naming none is refused, and so is an identifier no skill folder is known for, by name. An identifier given twice is installed once. |
+| `global` | boolean | no | Write each assistant's per-user skill folder under the home directory, which it reads in every project, instead of its project folder in the workspace. |
+
+_Additional properties are not permitted._
+
 ### `ServerCapabilities`
 
 What the daemon will do in this session, settled against what the client said it can handle.
@@ -1216,6 +1229,17 @@ How far a credential change reaches. The store is shared by every project on the
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `machineWide` | boolean | yes | Whether the store the change touched is shared across the machine. |
+| `workspaceRoot` | string | yes | The workspace the request named. |
+
+_Additional properties are not permitted._
+
+### `SkillFolderScope`
+
+How far a skill installation reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for the per-user folders, which an assistant reads in every project, that reading is wrong.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `machineWide` | boolean | yes | Whether the folders written are the per-user ones under the home directory, which the assistant reads in every project on the machine. |
 | `workspaceRoot` | string | yes | The workspace the request named. |
 
 _Additional properties are not permitted._
@@ -2496,5 +2520,64 @@ A kind's schema, or — where the request named none — which kinds can be name
 | `schema` | any | no | The schema itself, carried through as the binary holds it. |
 | `kinds` | string[] | no | Every token this binary answers to. |
 | `entityKinds` | EntityKindDescriptor[] | no | The narrower set an author writes a document of, each pairing the token a request names with the kind the document's own header declares. |
+
+_Additional properties are not permitted._
+
+### `SkillsInstallResult`
+
+What installing the assistant skill wrote, and where.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `skill` | string | yes | The skill that was written. |
+| `installed` | SkillsInstalledFolder[] | yes | Each skill folder written, in the order the request named the assistants. Assistants reading one shared folder share one entry, because the skill is written there once. |
+| `scope` | SkillFolderScope | yes | How far a skill installation reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for the per-user folders, which an assistant reads in every project, that reading is wrong. |
+
+_Additional properties are not permitted._
+
+### `SkillsInstalledFolder`
+
+One skill folder an installation wrote.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `agents` | string[] | yes | The identifiers of the named assistants that read this folder, in the order the request named them. |
+| `folder` | string | yes | The skill's folder, as an absolute path. |
+| `replaced` | boolean | yes | Whether a copy carrying the comment line every written copy of the skill carries — one an earlier installation wrote, or one taken from the published skills repository — was there and has been replaced. A file there without that line is refused rather than replaced. |
+
+_Additional properties are not permitted._
+
+### `SkillsListResult`
+
+The skills the binary ships and every assistant an installation can write them for. Nothing is written and nothing is reached.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `skills` | SkillsListedSkill[] | yes | Each skill the binary ships, in a fixed order. |
+| `agents` | SkillsListedAgent[] | yes | Each assistant an installation knows a skill folder for, ordered by identifier. |
+
+_Additional properties are not permitted._
+
+### `SkillsListedSkill`
+
+One skill the binary ships.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The skill's name, which is also the name of the folder an installation writes. |
+| `description` | string | yes | When an assistant uses the skill, as the skill itself declares it. |
+
+_Additional properties are not permitted._
+
+### `SkillsListedAgent`
+
+One assistant an installation can write a skill for, with the two folders it reads skills from.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The identifier a request names the assistant by. |
+| `name` | string | yes | The assistant's own name. |
+| `projectFolder` | string | yes | The folder, relative to a project's root and separated by slashes, that the assistant reads a project's skills from. A project installation writes the skill's folder inside it, in the workspace the request names. |
+| `userFolder` | string | yes | The folder, relative to the home directory and separated by slashes, that the assistant reads the user's own skills from in every project. An installation with global writes the skill's folder inside it. |
 
 _Additional properties are not permitted._
