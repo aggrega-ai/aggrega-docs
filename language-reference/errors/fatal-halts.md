@@ -3161,14 +3161,14 @@ Emitted message, with the offending positions separated by semicolons:
 
 Each delivery mechanism in an `inject:` block — `env`, `file`, `arg`, or a mechanism named beside them — is a list of entries, each carrying `in:` and exactly one of `from:` or `value:`. A mechanism holding anything else, such as a mapping of names to keys, delivers nothing the compiler can read, so it is refused rather than dropped.
 
-The authoring schema admits only the list, so a document read the ordinary way is refused before the graph is built, as a document that does not match its kind's schema. This is the check standing behind that one, over the structures the graph is assembled from, so a set of components that reached the builder by some other route is still refused rather than having the delivery vanish. It covers the blocks an Aggregate carries — a component's own, an attachment's, and those on the connections either draws; a block on a connection a Release attachment draws is checked by the Release's schema alone.
+The authoring schema admits only the list, so a document read the ordinary way is refused before the graph is built, as a document that does not match its kind's schema. This is the check standing behind that one, over the structures the graph is assembled from, so a set of components that reached the builder by some other route is still refused rather than having the delivery vanish. It covers every block either document carries: in the Aggregate, a component's own, an attachment's, and those on the connections either draws; in the Release, those on the connections its attachments draw.
 
 Every offending mechanism in the build is reported at once, each named by the block it sits in and the mechanism's name, one message per block.
 
 Emitted message for one block, with its offending mechanisms separated by semicolons:
 > inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:`: .spec.components["`<component>`"].inject.env; .spec.components["`<component>`"].inject.`<mechanism>`
 
-A block on a connection is named through the socket and alias the connection was written under, as `.spec.components["<component>"].uses["<socket>"]["<alias>"].inject.<mechanism>`.
+A block on a connection is named through the socket and alias the connection was written under, as `.spec.components["<component>"].uses["<socket>"]["<alias>"].inject.<mechanism>`. A block in the Release is named by the key path the Release was written with, through the attachment that draws the connection — `.spec.boundaries["<boundary>"].features["<attachment>"].uses["<socket>"]["<alias>"].inject.<mechanism>` for one attached boundary-wide, `.spec.boundaries["<boundary>"].components["<component>"].features["<attachment>"]…` for one on a component, with `.boundaries["<name>"]` for each nested boundary and `.aggregates["<module>"]` for each routing entry a component is named through. The Aggregate's findings are reported before the Release's.
 
 **How to fix:** write each mechanism the message names as a list. An entry `DB_URL: host` under `env:` becomes `- in: DB_URL` with `from: host` when `host` names a `provides:` key — the connected component's on a connection, the component's own on its own block — or with `value: host` when it is a literal this side supplies.
 
