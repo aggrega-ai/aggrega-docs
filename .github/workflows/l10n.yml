@@ -26,13 +26,14 @@
 #     the output under l10n/<locale>/ (`adapter.outDir: "."`);
 #   - the API key in the repository secret ANTHROPIC_API_KEY, the variable
 #     `backend.apiKeyEnv` names; a workflow receives only the secrets it names;
-#   - the package vendored as its published archive under vendor/, the one
-#     cognitio-modules.json names, and no package.json at the repository root;
-#     the install reads no secret and names no version. Moving to a new version
-#     is the cognitio-modules command's `upgrade` — `sh install.sh upgrade` at
-#     this repository's root, or, from a repository holding this one as a
-#     submodule, the same command with `--cwd` naming its directory — and no
-#     change here.
+#   - the package vendored as its published archive under l10n/vendor/, the one
+#     l10n/cognitio-modules.json names, and no package.json at the repository
+#     root; the install reads no secret and names no version. Moving to a new
+#     version is the cognitio-modules command's `upgrade` —
+#     `sh l10n/install.sh --cwd l10n upgrade` at this repository's root, or,
+#     from a repository holding this one as a submodule, the same command with
+#     the script's path and `--cwd` naming the submodule's l10n/ directory — and
+#     no change here.
 #
 # It never runs for a pull request: it holds the translation API key.
 name: Translate
@@ -65,12 +66,12 @@ jobs:
           node-version: 24
 
       # The package is installed here alone, from the vendored archive whose path
-      # `sh install.sh path` reads from cognitio-modules.json, its dependencies
-      # from the public registry, and saved nowhere: the repository root has no
-      # package.json, so the documentation site builds from a plain clone without
-      # it.
+      # `sh l10n/install.sh --cwd l10n path` reads from l10n/cognitio-modules.json,
+      # its dependencies from the public registry, and saved nowhere: the
+      # repository root has no package.json, so the documentation site builds
+      # from a plain clone without it.
       - name: Install
-        run: npm install --no-save --no-audit --no-fund "$(sh install.sh path @cognitio/l10n)"
+        run: npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)"
 
       - name: Collect, submit and push the translation memory
         run: npx l10n ci --config l10n/l10n.config.json

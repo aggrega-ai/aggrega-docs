@@ -43,12 +43,12 @@ jobs:
           node-version: 24
 
       # The package is installed here alone, from the vendored archive whose path
-      # `sh install.sh path` reads from cognitio-modules.json, its dependencies
-      # from the public registry, and saved nowhere: the repository root has no
-      # package.json, so the documentation site builds from a plain clone without
-      # it.
+      # `sh l10n/install.sh --cwd l10n path` reads from l10n/cognitio-modules.json,
+      # its dependencies from the public registry, and saved nowhere: the
+      # repository root has no package.json, so the documentation site builds
+      # from a plain clone without it.
       - name: Install
-        run: npm install --no-save --no-audit --no-fund "$(sh install.sh path @cognitio/l10n)"
+        run: npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)"
 
       - name: Collect, submit and push the translation memory
         run: npx l10n ci --config l10n/l10n.config.json

@@ -57,10 +57,11 @@ instruction file per language. Two workflows (`.github/workflows/l10n.yml` and
 translations on the branch `l10n-memory`. Both run only when started by hand:
 no push and no schedule starts a translation, which is paid for per run. They
 install the translation package themselves, from its published archive kept
-under `vendor/` and named in `cognitio-modules.json`, so the site still builds
-from a plain clone and no credential is needed to install it. A maintainer
-holding a credential for the package's host moves it to a newer version with
-`sh install.sh upgrade` at the repository root, and commits the change.
+under `l10n/vendor/` and named in `l10n/cognitio-modules.json`, so the site
+still builds from a plain clone and no credential is needed to install it. A
+maintainer holding a credential for the package's host moves it to a newer
+version with `sh l10n/install.sh --cwd l10n upgrade` at the repository root, and
+commits the change.
 
 ## Reference pages
 
