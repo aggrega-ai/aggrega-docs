@@ -3155,6 +3155,23 @@ Emitted message, with the offending positions separated by semicolons:
 
 **How to fix:** open each position the message names and delete whichever of the two the entry does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies.
 
+### An `inject:` delivery is not a list of entries
+
+<!-- covers: internal/compiler/ir.ErrInjectDeliveryShape -->
+
+Each delivery mechanism in an `inject:` block — `env`, `file`, `arg`, or a mechanism named beside them — is a list of entries, each carrying `in:` and exactly one of `from:` or `value:`. A mechanism holding anything else, such as a mapping of names to keys, delivers nothing the compiler can read, so it is refused rather than dropped.
+
+The authoring schema admits only the list, so a document read the ordinary way is refused before the graph is built, as a document that does not match its kind's schema. This is the check standing behind that one, over the structures the graph is assembled from, so a set of components that reached the builder by some other route is still refused rather than having the delivery vanish. It covers the blocks an Aggregate carries — a component's own, an attachment's, and those on the connections either draws; a block on a connection a Release attachment draws is checked by the Release's schema alone.
+
+Every offending mechanism in the build is reported at once, each named by the block it sits in and the mechanism's name, one message per block.
+
+Emitted message for one block, with its offending mechanisms separated by semicolons:
+> inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:`: .spec.components["`<component>`"].inject.env; .spec.components["`<component>`"].inject.`<mechanism>`
+
+A block on a connection is named through the socket and alias the connection was written under, as `.spec.components["<component>"].uses["<socket>"]["<alias>"].inject.<mechanism>`.
+
+**How to fix:** write each mechanism the message names as a list. An entry `DB_URL: host` under `env:` becomes `- in: DB_URL` with `from: host` when `host` names a `provides:` key — the connected component's on a connection, the component's own on its own block — or with `value: host` when it is a literal this side supplies.
+
 ### The Feature filling an attachment slot does not satisfy the slot's selector
 
 <!-- covers: internal/compiler/analyzer.ErrSlotSelectorUnsatisfied -->
@@ -6302,6 +6319,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0352` | `boundary output directory does not name a directory beneath the output root` | A boundary's output directory is not a directory beneath the output root |
 | `E0353` | `boundary-level Feature instance name is not a directory name` | A boundary-level Feature is named `.` or `..` |
 | `E0354` | `a template does more than copy a value it reads off a cross-boundary link` | A template did more than copy a value it read off a cross-boundary link |
+| `E0355` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` | An `inject:` delivery is not a list of entries |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
