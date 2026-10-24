@@ -116,6 +116,8 @@ Once the client restarts and connects, the Aggrega authoring prompts, resources,
 
 **Nothing in the entry selects a protocol revision.** Aggrega speaks both `2026-07-28` and `2025-06-18`, on standard input and output and over HTTPS alike, so a client of either connects and reaches the same prompts, resources, and tools. Which one a client asks for is settled on the wire rather than in your configuration.
 
+**An assistant that can run commands can do all of this itself** — install the binary, add the Aggrega skill, and connect to the server — from one prompt you paste into it: see [Use Aggrega from your AI assistant](ai-assistant.md).
+
 ### Where each client keeps its server list
 
 | Client | Where the list lives | What the entry is called |
@@ -123,13 +125,16 @@ Once the client restarts and connects, the Aggrega authoring prompts, resources,
 | Claude Code | `claude mcp add`, or an `.mcp.json` file in the project | `mcpServers` |
 | Claude Desktop | its extension settings for a local server; its connector settings for one reached over HTTPS | see [Claude Desktop](#claude-desktop) |
 | Cursor | `.cursor/mcp.json` for one workspace, or a user-scoped `mcp.json` for every workspace | `mcpServers` |
+| Gemini CLI | `gemini mcp add`, or `~/.gemini/settings.json` for every project and `.gemini/settings.json` for one | `mcpServers` |
+| Codex CLI | `codex mcp add`, or `~/.codex/config.toml` for every project and `.codex/config.toml` for one trusted project | a `[mcp_servers.aggrega]` table — see [Codex CLI](#codex-cli) |
+| Zed | Settings → AI → MCP Servers, which writes the entry into Zed's settings file | `context_servers` — see [Zed](#zed) |
 | Visual Studio Code | `mcp.json` in your user profile, or `.vscode/mcp.json` for one workspace | `servers` — see [Visual Studio Code](#visual-studio-code) |
 | GitHub Copilot CLI | `copilot mcp add`, or the `mcp-config.json` file it keeps in your home directory | `mcpServers` |
 | Antigravity | the `mcp_config.json` file reachable from its settings | `mcpServers` |
 | Windsurf | the `mcp_config.json` file reachable from its settings | `mcpServers` |
 | Cline | its MCP settings, backed by a `cline_mcp_settings.json` file | `mcpServers` |
 
-Every client in that table except the two with a section of their own below takes the entry exactly as written above, at the path in its row. A client not listed connects the same way if it reads a server list of either shape.
+Every client in that table except the four with a section of their own below takes the entry exactly as written above, at the path in its row. A client not listed connects the same way if it reads a server list of one of these shapes.
 
 ### A note on `PATH`
 
@@ -150,6 +155,35 @@ Visual Studio Code keeps its servers under `servers` rather than `mcpServers`, a
   }
 }
 ```
+
+### Codex CLI
+
+Codex keeps its servers in TOML rather than JSON — in `~/.codex/config.toml` for every project, or in `.codex/config.toml` for one project Codex trusts — each as a table named after the server:
+
+```toml
+[mcp_servers.aggrega]
+command = "aggrega"
+args = ["mcp"]
+```
+
+`codex mcp add aggrega -- aggrega mcp` writes the same table for you. The Codex IDE extension and the ChatGPT desktop app read the same file, so the one entry serves all three.
+
+### Zed
+
+Zed keeps its servers under `context_servers` in its settings file. Add the server from **Settings → AI → MCP Servers** — **Add Server**, then **Add Local Server** — which writes the entry into that file, or run `zed: open settings file` from the command palette and add the entry yourself:
+
+```json
+{
+  "context_servers": {
+    "aggrega": {
+      "command": "aggrega",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Zed supports the protocol's tools and prompts, so its agent reaches Aggrega's tools and authoring prompts but not the resources the server also offers.
 
 ### Claude Desktop
 
@@ -190,7 +224,7 @@ Every entry above launches the server itself. A server someone else runs — one
 }
 ```
 
-The path is always `/mcp`; the host is whatever the operator published for that server. Ask them for it.
+The path is always `/mcp`; the host is whatever the operator published for that server. Ask them for it. Gemini CLI takes the address under `httpUrl` rather than `url`: it reads `url` as a server on the older event-stream transport, and `httpUrl` as one on the streamable HTTP transport, which is the one this server speaks.
 
 **Your client obtains the token, not you.** Nothing about signing in is configured in the entry: the server answers an unauthenticated request by naming the document that says which authorization server issues its tokens, and a client that speaks the protocol's authorization flow reads that document, sends you to sign in, and attaches the token it receives to every later request. The scope names it may ask for are published in that same document. A client that does not implement the flow cannot reach a server of this kind, and nothing you add to the entry substitutes for it.
 

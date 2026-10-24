@@ -57,18 +57,20 @@ as it was.
 
 The assistants it installs for, and the folders each one reads:
 
-  --agent         assistant       project folder    per-user folder
-  amp             Amp             .agents/skills    ~/.config/amp/skills
-  claude-code     Claude Code     .claude/skills    ~/.claude/skills
-  cline           Cline           .cline/skills     ~/.cline/skills
-  codex           Codex           .agents/skills    ~/.agents/skills
-  cursor          Cursor          .cursor/skills    ~/.cursor/skills
-  gemini-cli      Gemini CLI      .gemini/skills    ~/.gemini/skills
-  github-copilot  GitHub Copilot  .github/skills    ~/.copilot/skills
-  goose           Goose           .agents/skills    ~/.agents/skills
-  opencode        OpenCode        .opencode/skills  ~/.config/opencode/skills
-  windsurf        Windsurf        .devin/skills     ~/.codeium/windsurf/skills
-  zed             Zed             .agents/skills    ~/.agents/skills
+  --agent          assistant        project folder    per-user folder
+  amp              Amp              .agents/skills    ~/.config/amp/skills
+  antigravity      Antigravity      .agents/skills    ~/.gemini/config/skills
+  antigravity-cli  Antigravity CLI  .agents/skills    ~/.gemini/antigravity-cli/skills
+  claude-code      Claude Code      .claude/skills    ~/.claude/skills
+  cline            Cline            .cline/skills     ~/.cline/skills
+  codex            Codex            .agents/skills    ~/.agents/skills
+  cursor           Cursor           .cursor/skills    ~/.cursor/skills
+  gemini-cli       Gemini CLI       .gemini/skills    ~/.gemini/skills
+  github-copilot   GitHub Copilot   .github/skills    ~/.copilot/skills
+  goose            Goose            .agents/skills    ~/.agents/skills
+  opencode         OpenCode         .opencode/skills  ~/.config/opencode/skills
+  windsurf         Windsurf         .devin/skills     ~/.codeium/windsurf/skills
+  zed              Zed              .agents/skills    ~/.agents/skills
 
 An assistant that is not listed is refused by name. It can still use Aggrega
 through its MCP server: connect it to "aggrega mcp" as

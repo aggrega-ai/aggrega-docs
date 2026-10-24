@@ -192,7 +192,7 @@ process exits. A second request ends the process at once.
 
 `aggrega mcp` runs a Model Context Protocol server. **Two transports reach it, and `--transport` chooses between them**: `stdio` or `http`, with `mcp.transport` in the workspace configuration as the key the flag overrides, and `stdio` as the default.
 
-Over `stdio`, the default, it speaks over the process's standard input and output. In that shape it is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
+Over `stdio`, the default, it speaks over the process's standard input and output. In that shape it is not a command you run interactively — an MCP-capable client launches it as a subprocess and speaks the protocol over stdio; [Setup](../../authoring/setup.md#where-each-client-keeps-its-server-list) lists where each client keeps the entry that launches it. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
 
 Over `http` it serves the protocol over HTTP instead: one long-running process on a host, reached by callers who are not at its keyboard, listening on the address `--listen` names, or `mcp.listen` when the flag is absent. See [Reaching the server over HTTPS](#reaching-the-server-over-https) for how that listener is configured and what it accepts.
 

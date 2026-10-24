@@ -21,7 +21,7 @@ The ecosystem is built on four pillars:
 
 ## Authoring Guide
 
-[authoring/](authoring/README.md) — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Getting Started](authoring/getting-started.md).
+[authoring/](authoring/README.md) — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Getting Started](authoring/getting-started.md); to have your AI assistant install and set up Aggrega itself, paste the prompt in [Use Aggrega from your AI assistant](authoring/ai-assistant.md).
 
 ## Language Reference
 

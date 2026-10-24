@@ -9,7 +9,8 @@ The guide is written for two audiences at once: a person authoring by hand in an
 1. [Getting Started](getting-started.md) — the end-to-end authoring loop: pick your role, learn the shape, scaffold, fill, validate, build. Start here.
 2. [Personas](personas.md) — the four collaborating authoring roles (developer, architect, operations, operator) and the guidance-not-enforcement framing behind them.
 3. [Entities by Role](entities-by-role.md) — every entity kind mapped to the role that typically owns it, so you know which file each concern belongs in.
-4. [Setup](setup.md) — install the `aggrega` binary and connect the authoring assistant to your MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline).
+4. [Setup](setup.md) — install the `aggrega` binary and connect the authoring assistant to your MCP-capable client; [its client table](setup.md#where-each-client-keeps-its-server-list) says where each client keeps the entry.
+5. [Use Aggrega from your AI assistant](ai-assistant.md) — one prompt to paste into an assistant that can run commands, so it installs Aggrega, adds the Aggrega skill and connects itself to the server.
 
 ## How the assistant surfaces relate to this guide
 
