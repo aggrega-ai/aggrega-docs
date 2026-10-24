@@ -4,7 +4,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 ## Install the binary
 
-Aggrega ships as a single executable. One command installs it; the manual steps after it do the same by hand. Both put it in one folder of your own, the same one each time, and neither needs administrator rights: `~/.local/bin/aggrega` on Linux and macOS, and `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows.
+Aggrega ships as a single executable. One command installs it; the manual steps after it do the same by hand. Both put it in one folder of your own, the same one each time, and neither needs administrator rights: `~/.local/bin/aggrega` on Linux and macOS, and `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows. Homebrew, on macOS and Linux, and Scoop, on Windows, install it too, each into its own folders: see [Install with a package manager](#install-with-a-package-manager).
 
 ### Install with one command
 
@@ -57,6 +57,29 @@ In PowerShell, set it in the window first; it stays set there until you remove i
 $env:AGGREGA_VERSION = "<version>"
 irm https://aggrega.ai/install.ps1 | iex
 ```
+
+### Install with a package manager
+
+Every release also updates a Homebrew formula and a Scoop manifest, so the package manager you already use can install Aggrega and keep it current. Each installs the same default binary the install command does, checked against the SHA-256 digest the release's `SHA256SUMS` gives it.
+
+On macOS and Linux, with [Homebrew](https://brew.sh):
+
+```bash
+brew install aggrega-ai/tap/aggrega
+```
+
+Homebrew adds the `aggrega-ai/tap` tap the first time and installs the binary for your system and processor: macOS on Apple silicon or on Intel, Linux on 64-bit x86 or on 64-bit ARM. After a new release, `brew upgrade` updates it, with every other formula you installed.
+
+On Windows, with [Scoop](https://scoop.sh), add the Aggrega bucket once and install from it:
+
+```powershell
+scoop bucket add aggrega https://github.com/aggrega-ai/scoop-bucket
+scoop install aggrega
+```
+
+Scoop installs the Windows binary as `aggrega.exe` and makes it reachable as `aggrega` through the folder of shims it keeps on your `PATH`. After a new release, `scoop update` refreshes the buckets and `scoop update aggrega` updates it.
+
+Each package manager installs into its own folders rather than into `~/.local/bin` or `%LOCALAPPDATA%\Programs\aggrega`, and updates only the copy it installed. Use one way of installing on a machine: a copy installed by the install command or by hand and another installed by a package manager are two copies, and whichever folder comes first on your `PATH` decides which one runs.
 
 ### Install it by hand
 
