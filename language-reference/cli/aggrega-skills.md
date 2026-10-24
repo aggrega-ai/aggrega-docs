@@ -31,6 +31,7 @@ version you have.
 | Command | Description |
 | --- | --- |
 | `aggrega skills install` | Write the Aggrega skill into an AI assistant's skill folder |
+| `aggrega skills list` | List the skills this binary ships and the assistants it can install them for |
 
 **`aggrega skills install` description**
 
@@ -83,6 +84,14 @@ https://aggrega.ai/docs/authoring/setup/ describes.
 | --- | --- | --- |
 | `--agent` | `[]` | Assistant to install the skill for, by identifier (for example claude-code, codex, cursor or gemini-cli). Repeatable; the help lists every identifier and the folder each one writes. |
 | `--global` | `false` | Install into each assistant's per-user skill folder in your home directory, which it reads in every project, instead of the project skill folder in the directory you run the command in. |
+
+**`aggrega skills list` description**
+
+```
+List the skills built into this binary, and the assistants "aggrega skills
+install" can write them for, with the project folder and the per-user folder
+each assistant reads skills from. It writes nothing.
+```
 <!-- END GENERATED: cli-skills -->
 
 ## What it does
@@ -144,4 +153,12 @@ Bring an installed copy up to the binary you have just upgraded to:
 
 ```bash
 aggrega skills install --agent claude-code
+```
+
+## Listing what it knows
+
+`aggrega skills list` prints the skills built into this binary with their descriptions, then every assistant `aggrega skills install` knows, with its project folder and its per-user folder. It writes nothing.
+
+```bash
+aggrega skills list
 ```
