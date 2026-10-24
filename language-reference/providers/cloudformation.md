@@ -270,6 +270,17 @@ The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example buil
 
 > **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
 
+### A value read off the connection rather than injected
+
+A consumer's Recipe can read a producer's values directly off the connection, through `.context.uses.<alias>.provides`, instead of receiving them through the connection's `inject` block. Across a stack boundary such a read is wired the same way an injected value is:
+
+- **A value that is a CloudFormation intrinsic** — a short-form tag such as `!GetAtt Db.Endpoint.Address`, or a long-form `Ref` or `Fn::` mapping — names something only the producer's stack declares, so the consumer receives the same cross-stack reference an injected value does: the producer stack publishes an `Export` for that key, and the consumer reads it with `Fn::ImportValue`, or with `Fn::GetStackOutput` where the two boundaries declare placements that differ.
+- **A value that is plain text** — a port, a protocol, a database name — means the same in either stack, so the consumer receives the value itself and no export is published for it. It lands in the form CloudFormation reads it: a value written whole renders as it would have without the boundary, and a number-shaped value written inside quotes lands as a number.
+
+Whether a value is an intrinsic is decided by this provider, reading the value the way it reads the producer's own `provides` block. The compiler hands the value over as the producer's Recipe wrote it and does not interpret it.
+
+**A template may only copy such a value.** It may write the value whole, or inside a larger string, or pass it through a function that leaves it as it is, such as `quote`. A comparison, a branch, a length or a function that changes the value — `eq`, `if`, `len`, `upper` — would be decided against something other than the value, because on such a connection the template is handed a stand-in that the provider replaces once both stacks are assembled. The build halts instead, naming the template and each value it read, with the connection it read it off and the component on each end; branch on a value of the consuming component's own. The same holds for an attached FeatureRecipe's `injectMapping` and for a boundary-scope FeatureRecipe reading the boundary's connections. A value written inside a larger string meets the provider's own limit as well: a cross-stack reference can only stand as a whole value, so an intrinsic written inside a longer string halts, as it does for an injected value.
+
 ### How an export name is built
 
 The four parts are joined with a **double hyphen**, and each part is written into the letters, digits and hyphens an export name is made of. A letter or digit is carried through as written, and so is a hyphen inside a part — `payments-db` stays `payments-db`. Any other character is written as a short escape opening with `-z`: a slash as `-zs`, an underscore as `-zu`, a dot as `-zd`. A part with no value at all is written `-ze`. A stack name is built the same way from the release and the boundary.

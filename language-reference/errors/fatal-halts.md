@@ -4447,6 +4447,21 @@ Emitted message:
 
 **How to fix:** the commonest cause is a value the consuming side interpolated into a longer string. A cross-reference has to stand as the whole of the value it is injected as, so change the Recipe's mapping to deliver it whole and compose around it in the target's own vocabulary instead. Where the value stands whole and the placeholder still survives, the fault is on the provider's side of the resolution and belongs to whoever publishes that plugin.
 
+### A template did more than copy a value it read off a cross-boundary link
+
+<!-- covers: internal/compiler/renderer.ErrCrossBoundaryLinkValueNotCopied -->
+
+A template can read a producer's values directly off a connection, at `.context.uses.<alias>.provides` — or, in a boundary-scope FeatureRecipe, off the boundary's connections under `.boundary`. Where the connection joins two components that render into different outputs and the provider wires it with a reference of its own, each of those values reaches the template as a placeholder the provider replaces once both outputs are assembled: with a cross-stack reference, or with the value itself. So a template may only **copy** such a value — write it whole, inside a larger string, or through a function that leaves it as it is, such as `quote`.
+
+A comparison, a branch, a length, or a function that changes the value — `eq`, `if`, `len`, `upper`, `trimPrefix` — would be decided against the placeholder rather than the value, silently. The build checks for that by evaluating the template twice, once over the placeholders and once over the real values, and halts where the two disagree once each placeholder is written back. It applies to every template that reads such a connection: a Recipe's own templates, an attached FeatureRecipe's `injectMapping:`, and a boundary-scope FeatureRecipe's templates. The plugin computing a boundary's consumer environment overrides from those connections is held to the same check.
+
+The message names the template — the field and the Recipe it belongs to — and, for each provides value the difference turns on, the consuming component, the connection's alias and socket, and the producing component. A value the template only copied is not named.
+
+Emitted message:
+> a template does more than copy a value it reads off a cross-boundary link (template `"<template>"`, provides key `"<key>"` that component `"<consumer>"` reads off its connection `"<alias>"` on socket `"<socket>"` to component `"<producer>"`). Copy the value as it stands, whole or inside a larger string, because the provider writes in its place what the value becomes in the other output, and branch on a value of the component's own instead
+
+**How to fix:** copy the value the message names rather than testing or transforming it, and base the decision on a value the consuming component authors itself — one of its own `values` or `infra` keys — rather than on what its connection reads. The [CloudFormation provider](../providers/cloudformation.md#a-value-read-off-the-connection-rather-than-injected) describes what a copied value becomes in the other stack.
+
 ### A provider named a directory for a contributor that is not one directory
 
 <!-- covers: internal/compiler/renderer.ErrNestSegmentNotOneDirectory -->
@@ -6286,6 +6301,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0351` | `provider does not support boundary artifacts` | The provider does not support boundary artifacts |
 | `E0352` | `boundary output directory does not name a directory beneath the output root` | A boundary's output directory is not a directory beneath the output root |
 | `E0353` | `boundary-level Feature instance name is not a directory name` | A boundary-level Feature is named `.` or `..` |
+| `E0354` | `a template does more than copy a value it reads off a cross-boundary link` | A template did more than copy a value it read off a cross-boundary link |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
