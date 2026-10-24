@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/gateway/litellm, core/security/nemo-guardrails, core/security/trustyai-huggingface-detector]
+  shows: [connections, features]
+---
+
 # An AI gateway that screens each request for an attempt to override the model
 
 A support assistant's users can type anything, and some of what they type tries

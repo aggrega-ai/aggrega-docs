@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/postgres]
+  shows: []
+---
+
 # PostgreSQL bootstrap scripts and custom configuration — synthesized helm
 
 `core/datastore/postgres` exposes two optional developer values that shape the

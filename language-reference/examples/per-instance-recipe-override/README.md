@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: []
+  shows: [recipe-selection]
+---
+
 # Per-instance recipe override
 
 This example teaches one Manifest feature: the **`name` mapping tier**, which

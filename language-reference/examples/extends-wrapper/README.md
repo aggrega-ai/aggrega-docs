@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/devtool/adminer, core/gateway/nginx]
+  shows: [catalog-authoring, guardrails]
+---
+
 # A published wrapper, served by its base's Recipe
 
 This example teaches one thing: a Component that `extends` another inherits that

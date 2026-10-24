@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/messaging/rabbitmq]
+  shows: [multi-target, credentials]
+---
+
 # RabbitMQ — one Aggregate, two targets, optional authentication
 
 This example compiles a single **RabbitMQ** message broker (AMQP) from one
-Developer-authored `Aggregate` to two deployment targets:
+Developer-authored `Aggregate` to two targets:
 
 - **Docker Compose** for local development, and
 - **Kubernetes**, via the synthesized helm Recipe that runs the official

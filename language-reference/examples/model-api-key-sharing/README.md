@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-agent/crewai, core/ai-model/openai-compatible]
+  shows: [connections, credentials, parameters]
+---
+
 # Sharing a credential — per-consumer, shared, and both at once
 
 Two CrewAI agents behind one OpenAI-compatible gateway. Each agent's `model`

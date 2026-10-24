@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/ai-tool/mcp]
+  shows: [multi-target, connections, credentials, catalog-authoring]
+---
+
 # A tool's address from a Secret — a Model Context Protocol server that reads its key from its address
 
 Some Model Context Protocol servers that someone else runs read their key from

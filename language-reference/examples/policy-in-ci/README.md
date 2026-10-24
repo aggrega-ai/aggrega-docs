@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: []
+  shows: [policy]
+---
+
 # Policy in CI, over the build output
 
 Two ready-to-use rule scripts that read an Aggrega build's output directory and

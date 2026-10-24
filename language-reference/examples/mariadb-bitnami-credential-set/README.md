@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/mariadb]
+  shows: [credentials, catalog-authoring, external-sources]
+---
+
 # MariaDB (Bitnami chart) — one multi-key credential Secret
 
 A single MariaDB database realized by the **Bitnami Helm chart**, whose

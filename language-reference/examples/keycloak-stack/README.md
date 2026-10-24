@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/postgres, core/security/keycloak]
+  shows: [modules]
+---
+
 # Keycloak stack — a database-backed identity server composed as a module
 
 This example compiles a small, real stack — a **database-backed identity

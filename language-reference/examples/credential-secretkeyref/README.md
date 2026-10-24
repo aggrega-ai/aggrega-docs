@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/postgres]
+  shows: [multi-target, credentials, guardrails]
+---
+
 # Credential delivery — `secretKeyRef` end-to-end
 
 A single PostgreSQL database whose password is supplied by the credential

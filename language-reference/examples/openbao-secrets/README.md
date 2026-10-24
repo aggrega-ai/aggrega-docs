@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/security/openbao]
+  shows: [external-sources]
+---
+
 # OpenBao — Kubernetes secrets-management server
 
 This example compiles a small, real stack — a single **OpenBao** secrets

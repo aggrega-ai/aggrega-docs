@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/datastore/redis]
+  shows: [multi-target, credentials]
+---
+
 # Redis — one Aggregate, two targets, optional authentication
 
 This lean example compiles a single **Redis** in-memory cache (Redis wire
-protocol) from one Developer-authored `Aggregate` to two deployment realizations:
+protocol) from one Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `redis` image

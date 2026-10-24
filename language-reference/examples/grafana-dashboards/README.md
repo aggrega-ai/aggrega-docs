@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/observability/grafana]
+  shows: [multi-target, credentials]
+---
+
 # Grafana — one Aggregate, two targets, optional admin credential
 
 This example compiles a single **Grafana** dashboards and visualization server
-from one Developer-authored `Aggregate` to two deployment realizations:
+from one Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `grafana/grafana`

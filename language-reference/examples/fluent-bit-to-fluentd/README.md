@@ -1,8 +1,15 @@
+---
+example:
+  level: start
+  products: [core/observability/fluent-bit, core/observability/fluentd]
+  shows: [multi-target, connections]
+---
+
 # Fluent Bit to Fluentd — a two-tier log pipeline, two targets
 
 This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping
 records to a **Fluentd** aggregator over the forward protocol — from one
-Developer-authored `Aggregate` to two deployment realizations:
+Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipes** running the official upstream

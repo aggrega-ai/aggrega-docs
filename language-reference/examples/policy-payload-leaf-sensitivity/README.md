@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/mariadb]
+  shows: [policy, guardrails, credentials, cloud-infrastructure]
+---
+
 # A policy keyed on the one leaf the author wrote
 
 This example teaches one house rule and the fact that makes it expressible:

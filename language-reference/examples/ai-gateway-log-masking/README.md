@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/openai, core/gateway/litellm, core/security/presidio-analyzer, core/security/presidio-anonymizer]
+  shows: [connections]
+---
+
 # An AI gateway that keeps personal data out of its logs
 
 A support assistant has to work with customers' names and email addresses, so

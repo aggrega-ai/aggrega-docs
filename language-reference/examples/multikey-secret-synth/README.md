@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: []
+  shows: [credentials, catalog-authoring]
+---
+
 # Multi-key credentials on a synthesized helm Deployment
 
 A single stateless app rendered on Kubernetes by the helm provider's Workload

@@ -1,8 +1,15 @@
+---
+example:
+  level: start
+  products: [core/devtool/adminer, core/gateway/nginx]
+  shows: [multi-target, connections]
+---
+
 # NGINX gateway — reverse-proxy routing to an upstream, two targets
 
 This example compiles a small, real stack — an **NGINX** reverse-proxy gateway
 fronting a **web backend** — from one Developer-authored `Aggregate` to two
-deployment targets:
+targets:
 
 - **Docker Compose** for local development, and
 - **synthesized Kubernetes manifests** for a cluster.

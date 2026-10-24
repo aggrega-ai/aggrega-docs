@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/openai, core/ai-model/tei, core/datastore/cognee]
+  shows: [connections, credentials, parameters]
+---
+
 # Credentials on connections — a key per connection, and one key at both ends
 
 A semantic-memory store reaching two models and presenting a different key to

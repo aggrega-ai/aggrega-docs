@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/storage/s3-object-store]
+  shows: [multi-target, credentials, guardrails]
+---
+
 # S3-compatible object store — one component, two targets, a required key pair
 
 This example compiles one **S3-compatible object store**, the

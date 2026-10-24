@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/mariadb]
+  shows: [cloud-infrastructure, credentials]
+---
+
 # Terraform RDS (vendored module)
 
 The same MariaDB intent as the `terraform-rds` example, rendered through the

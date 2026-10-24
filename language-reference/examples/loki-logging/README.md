@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/observability/loki]
+  shows: [external-sources]
+---
+
 # Loki — Kubernetes log-aggregation server
 
 This example compiles a small, real stack — a **Grafana Loki** log-aggregation

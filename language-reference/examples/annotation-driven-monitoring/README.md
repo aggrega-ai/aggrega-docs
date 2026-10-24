@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: []
+  shows: [features, boundaries]
+---
+
 # Annotation-driven monitoring — one annotation, many components
 
 This example attaches a monitoring Feature to **six services across a nested

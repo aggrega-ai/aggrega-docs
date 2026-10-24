@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/mariadb, core/devtool/adminer]
+  shows: [connections, credentials]
+---
+
 # Catalog-only — MariaDB + Adminer with zero platform authoring
 
 This example deploys a small, real stack — a **MariaDB** database with an

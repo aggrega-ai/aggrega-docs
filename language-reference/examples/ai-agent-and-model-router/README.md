@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-agent/langgraph, core/datastore/valkey, core/gateway/litellm]
+  shows: [connections, features, credentials, parameters]
+---
+
 # An agent, a router, and two upstream models
 
 An agent application that reaches two upstream provider models through one

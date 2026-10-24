@@ -1,8 +1,15 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/mariadb, core/devtool/adminer]
+  shows: [multi-target, catalog-authoring, connections, credentials, external-sources]
+---
+
 # MariaDB + Adminer — a runnable dual-target example
 
 This example compiles a small, real stack — a **MariaDB** database with an
 **Adminer** web UI in front of it — from a single Developer-authored
-`Aggregate` to **two deployment targets**:
+`Aggregate` to **two targets**:
 
 - **Docker Compose** for local development, and
 - **Kubernetes** manifests for a local cluster (kind / minikube / k3d).

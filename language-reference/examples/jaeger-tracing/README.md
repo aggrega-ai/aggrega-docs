@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/observability/jaeger]
+  shows: []
+---
+
 # Jaeger — Kubernetes single-node tracing backend
 
 This example compiles a small, real stack — a **Jaeger** distributed-tracing

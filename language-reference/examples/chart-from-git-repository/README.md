@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: []
+  shows: [external-sources, catalog-authoring, guardrails]
+---
+
 # A chart held in a git repository
 
 A Helm chart does not have to come from a chart registry. This example sources one

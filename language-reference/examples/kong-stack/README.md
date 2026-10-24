@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/postgres, core/gateway/kong]
+  shows: [modules]
+---
+
 # Kong stack — a database-backed API gateway composed as a module
 
 This example compiles a small, real stack — a **database-backed API gateway** —

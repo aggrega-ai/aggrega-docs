@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/openai, core/gateway/apisix]
+  shows: [connections, features]
+---
+
 # An APISIX gateway that holds its models to a token budget
 
 A team puts two OpenAI models behind one gateway and wants a ceiling on what the

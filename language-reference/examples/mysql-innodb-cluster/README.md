@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/mysql-innodb-cluster, core/datastore/mysql-operator]
+  shows: []
+---
+
 # One Aggregate, two sizes of MySQL cluster
 
 A MySQL InnoDB Cluster and the control plane that reconciles it, built **twice

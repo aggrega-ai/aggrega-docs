@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/documentdb, core/datastore/ferretdb, core/observability/thanos-query, core/observability/thanos-store, core/storage/minio]
+  shows: [modules, boundaries]
+---
+
 # Module boundary routing — placing whole sub-modules into boundaries
 
 This example compiles two capabilities — a **Thanos metrics read tier** over

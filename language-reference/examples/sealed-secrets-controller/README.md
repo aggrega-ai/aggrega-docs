@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/security/sealed-secrets]
+  shows: [external-sources]
+---
+
 # sealed-secrets — Kubernetes SealedSecret decryption controller
 
 This example compiles a small, real stack — the **sealed-secrets** controller —

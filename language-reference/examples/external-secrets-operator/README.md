@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/security/external-secrets]
+  shows: [external-sources]
+---
+
 # external-secrets — Kubernetes secrets-synchronization operator
 
 This example compiles a small, real stack — the **external-secrets** operator —

@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/postgres, core/devtool/adminer]
+  shows: [multi-target, boundaries, connections, catalog-authoring]
+---
+
 # Cross-boundary networking — one intent, two deployments
 
 A two-component stack — an **Adminer** database UI and a **PostgreSQL** database

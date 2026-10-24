@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/postgres]
+  shows: [multi-target, recipe-selection, credentials]
+---
+
 # One developer intent, two credential delivery shapes
 
 How a credential reaches a running container is a property of **where you

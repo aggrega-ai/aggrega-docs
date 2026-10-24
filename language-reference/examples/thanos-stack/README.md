@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/observability/thanos-query, core/observability/thanos-store, core/storage/minio]
+  shows: [modules]
+---
+
 # Thanos stack — a metrics read tier over object storage, composed as a module
 
 This example compiles a small, real stack — the **read/query tier of a Thanos

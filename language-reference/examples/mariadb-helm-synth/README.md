@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/mariadb]
+  shows: [credentials]
+---
+
 # MariaDB on Kubernetes — synthesized helm (StatefulSet), two-slot credentials
 
 A single MariaDB database rendered on Kubernetes by the helm provider's Workload

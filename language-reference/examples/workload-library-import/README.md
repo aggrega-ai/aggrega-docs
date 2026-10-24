@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: []
+  shows: [catalog-authoring]
+---
+
 # Workload library import — a shared Workload body via `$import`
 
 A single stateless web service whose Recipe synthesizes its Kubernetes Workload

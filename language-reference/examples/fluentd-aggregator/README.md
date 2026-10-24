@@ -1,8 +1,14 @@
+---
+example:
+  level: start
+  products: [core/observability/fluentd]
+  shows: [multi-target]
+---
+
 # Fluentd — a log aggregator, two targets
 
 This example compiles a **Fluentd** log aggregator — the receiving end of a log
-pipeline — from one Developer-authored `Aggregate` to two deployment
-realizations:
+pipeline — from one Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `fluent/fluentd`

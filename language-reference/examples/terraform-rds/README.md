@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/mariadb]
+  shows: [cloud-infrastructure, credentials]
+---
+
 # Terraform RDS (inline HCL artifact)
 
 A single MariaDB database authored once as developer intent and rendered to a

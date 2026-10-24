@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/gateway/contour]
+  shows: [external-sources]
+---
+
 # Contour gateway — a Kubernetes-native ingress controller
 
 This example compiles a small, real stack — a **Contour** ingress gateway — from

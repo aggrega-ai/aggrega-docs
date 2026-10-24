@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/etcd, core/gateway/apisix]
+  shows: [modules, parameters, credentials]
+---
+
 # APISIX stack — a dynamic API gateway composed as a module
 
 This example compiles a small, real stack — a **dynamic API gateway** — to

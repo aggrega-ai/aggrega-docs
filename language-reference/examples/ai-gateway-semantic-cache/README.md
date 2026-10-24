@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/openai, core/ai-model/openai-embedding, core/datastore/redis, core/gateway/litellm]
+  shows: [connections, features]
+---
+
 # An AI gateway that answers from what it already said
 
 A support assistant is asked the same questions all day in slightly different

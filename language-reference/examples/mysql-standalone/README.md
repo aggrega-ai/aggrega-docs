@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/datastore/mysql]
+  shows: [multi-target, credentials]
+---
+
 # MySQL — one Aggregate, two targets
 
 This lean example compiles a single **MySQL** database from Developer-authored
-`Aggregate`s to two deployment targets:
+`Aggregate`s to two targets:
 
 - **Kubernetes** via the helm provider's Workload synthesis (a StatefulSet
   rendered directly on the official `mysql` image, no external chart), and

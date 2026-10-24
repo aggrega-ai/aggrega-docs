@@ -1,8 +1,15 @@
+---
+example:
+  level: start
+  products: [core/messaging/nats]
+  shows: [multi-target, credentials]
+---
+
 # NATS — one Aggregate, two targets, optional authentication
 
 This example compiles a single **NATS** messaging server (pub-sub,
 request-reply, queueing) from one Developer-authored `Aggregate` to two
-deployment realizations:
+realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `nats` image

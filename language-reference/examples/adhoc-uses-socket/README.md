@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/anthropic, core/datastore/mariadb, core/devtool/adminer]
+  shows: [connections, guardrails]
+---
+
 # A socket nobody declared, delivering real values
 
 This example teaches one line, and both halves of it:

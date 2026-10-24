@@ -1,3 +1,10 @@
+---
+example:
+  level: authoring
+  products: []
+  shows: [catalog-authoring, features]
+---
+
 # Binding a workload to what an attachment publishes
 
 A single stateless app rendered on Kubernetes by the helm provider's Workload

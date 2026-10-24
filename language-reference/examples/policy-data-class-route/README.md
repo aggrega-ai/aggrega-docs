@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/ai-agent/langgraph, core/ai-model/openai, core/datastore/valkey, core/gateway/litellm, core/security/presidio-analyzer, core/security/presidio-anonymizer]
+  shows: [policy, guardrails, connections, features, catalog-authoring]
+---
+
 # A policy that halts a build when restricted data reaches a managed model unmasked
 
 An estate runs a claims assistant that handles restricted customer data, and a

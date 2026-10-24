@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-model/ollama, core/gateway/nginx]
+  shows: [connections, features]
+---
+
 # A model server that only its gateway may call
 
 A model server running in a cluster answers whoever reaches its address. On a

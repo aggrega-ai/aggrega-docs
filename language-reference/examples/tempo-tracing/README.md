@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/observability/tempo]
+  shows: []
+---
+
 # Tempo — Kubernetes distributed-tracing server
 
 This example compiles a small, real stack — a **Grafana Tempo** distributed-tracing

@@ -3,6 +3,9 @@
 Complete, forkable workspaces you can compile with the `aggrega` CLI. Each is a
 self-contained directory — a Developer-authored `Aggregate` and one or more
 `Release`/`Manifest` pairs — that builds with no setup beyond what its page names.
+To find one by the product it deploys or by what it shows, use
+[Examples by product and capability](by-product-and-capability.md), which lists
+every example here.
 
 The examples come in two modes — the two ends of one curriculum:
 
@@ -326,3 +329,67 @@ cross-boundary networking across providers.
 
 *Pipeline steps run today — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).
 Planned — the `eval` provider joins this tier when it ships.*
+
+## The header on each example
+
+Each example's README opens with a short header, written as YAML front matter,
+saying what the example is: its level, the products it deploys and what it
+shows. [Examples by product and capability](by-product-and-capability.md) is
+generated from these headers.
+
+```yaml
+---
+example:
+  level: start
+  products: [core/datastore/mariadb, core/devtool/adminer]
+  shows: [connections, credentials]
+---
+```
+
+`level` is one of the three levels this page is arranged by:
+
+<!-- example-header: level -->
+- `start` — the Catalog-only level: assembled from catalog entities, with
+  nothing authored but the Aggregate, the Manifest and the Release.
+- `authoring` — the Authoring level: authors a Component, a Feature or a Recipe,
+  or shows how one is shaped.
+- `advanced` — the Advanced level: boundaries, governance policy,
+  annotation-driven Features and assembled cloud stacks.
+
+`products` lists each catalog Component the example deploys, by the name its
+catalog entry carries. A generic compute component (`core/compute/server`, say)
+and an entity the example declares for itself are not listed, so an example can
+list none.
+
+`shows` lists what the example demonstrates, each entry taken from this list:
+
+<!-- example-header: shows -->
+- `multi-target` — one Aggregate built for two or more targets, or realized two
+  or more ways.
+- `recipe-selection` — the Manifest choosing which Recipe realizes a component,
+  or which FeatureRecipe realizes an attachment: per type, per instance or per
+  target.
+- `modules` — a catalog Aggregate imported as a module.
+- `connections` — components wired through `uses` sockets, with values piped
+  across each edge.
+- `credentials` — credential attachments and how each target delivers them.
+- `parameters` — values hoisted to parameters that a Release fulfils.
+- `features` — Features attached for something other than a credential, such as
+  routing, monitoring, a budget, a cache or masking.
+- `boundaries` — components or modules placed in boundaries, and what crosses
+  between them.
+- `policy` — governance policy that accepts or refuses a build, during the build
+  or over its output.
+- `guardrails` — a Release that is meant to halt, and the message it halts with.
+- `catalog-authoring` — a Component, Feature or Recipe written for the example,
+  kept beside it or published to the catalog.
+- `cloud-infrastructure` — Terraform or CloudFormation output for managed cloud
+  services.
+- `external-sources` — a Recipe that fetches what it renders: an upstream chart,
+  a git repository or a module.
+
+An example lists at least one product or one capability, so the index can place
+it. `scripts/gen-examples-index.sh --check`, run from the root of this
+repository, checks every header against these lists, refuses an example with
+neither an executable `check.sh` nor a `build-release.sh`, and confirms the
+index is current; run it without `--check` to write the index again.

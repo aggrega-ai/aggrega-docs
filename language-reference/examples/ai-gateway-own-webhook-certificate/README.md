@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/gateway/envoy-ai-gateway-operator]
+  shows: [external-sources, catalog-authoring, guardrails]
+---
+
 # A webhook certificate of your own: leaving a chart's generated Secret out
 
 This is an advanced example. It teaches the Recipe field `omits:`, which most

@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/messaging/kafka]
+  shows: []
+---
+
 # Kafka — Kubernetes single-node event-streaming broker
 
 This example compiles a small, real stack — an **Apache Kafka** event-streaming

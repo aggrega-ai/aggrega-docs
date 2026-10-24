@@ -4,16 +4,26 @@ import { glob } from "astro/loaders";
 import type { Loader, LoaderContext } from "astro/loaders";
 import { docsSchema } from "@astrojs/starlight/schema";
 
-// The documentation corpus is authored as plain Markdown with no frontmatter,
-// so each page's title is its first level-one heading. Starlight's docs schema
-// requires a title; the loader below reads that heading at load time and
-// supplies it before schema validation. The corpus is read in place from the
-// repository root (the collection base is the parent of this project) — there
-// is no second copy of any content under this project.
+// The documentation corpus is authored as plain Markdown, and no page sets its
+// title in front matter, so each page's title is its first level-one heading.
+// Starlight's docs schema requires a title; the loader below reads that heading
+// at load time and supplies it before schema validation. The corpus is read in
+// place from the repository root (the collection base is the parent of this
+// project) — there is no second copy of any content under this project.
+//
+// Some pages do open with front matter: each runnable example's README carries a
+// header saying what the example is. The docs schema declares none of its keys,
+// so it drops them, and the heading scan skips the block, so a line inside it is
+// never read as the title.
 
 function firstHeading(markdown: string): string | undefined {
   let inFence = false;
-  for (const line of markdown.split(/\r?\n/)) {
+  const lines = markdown.split(/\r?\n/);
+  if (lines[0] === "---") {
+    const close = lines.findIndex((line, i) => i > 0 && (line === "---" || line === "..."));
+    if (close > 0) lines.splice(0, close + 1);
+  }
+  for (const line of lines) {
     if (/^\s*(```|~~~)/.test(line)) {
       inFence = !inFence;
       continue;

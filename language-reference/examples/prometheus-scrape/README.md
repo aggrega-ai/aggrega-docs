@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/observability/grafana, core/observability/prometheus]
+  shows: [multi-target, connections]
+---
+
 # Prometheus — one server, two scrape targets
 
 This example compiles a small, real stack — a **Prometheus** metrics server

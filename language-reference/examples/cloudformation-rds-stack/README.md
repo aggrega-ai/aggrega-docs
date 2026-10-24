@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/mariadb]
+  shows: [cloud-infrastructure, features, boundaries, guardrails]
+---
+
 # CloudFormation stack with attachments
 
 A managed database and the application that reads it, authored once as developer

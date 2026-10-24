@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: []
+  shows: [cloud-infrastructure, parameters]
+---
+
 # Declared sensitivity, rendered as Terraform's own `sensitive`
 
 A declaration that a value carries secret material is authored once, on a

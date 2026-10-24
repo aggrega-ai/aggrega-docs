@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/ai-agent/crewai, core/ai-model/openai, core/datastore/redis, core/gateway/envoy-ai-gateway-operator, core/gateway/envoy-gateway, core/security/cert-manager]
+  shows: [connections, features]
+---
+
 # Envoy Gateway in front of OpenAI, with a monthly token budget
 
 A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling

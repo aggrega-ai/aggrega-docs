@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/devtool/harbor]
+  shows: [modules, parameters, credentials, external-sources]
+---
+
 # Harbor stack — a container registry deployed as one release
 
 This example compiles a real container registry to Kubernetes manifests from one

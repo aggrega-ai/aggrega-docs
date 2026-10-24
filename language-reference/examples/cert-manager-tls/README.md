@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/security/cert-manager]
+  shows: [external-sources]
+---
+
 # cert-manager — Kubernetes TLS-certificate lifecycle controller
 
 This example compiles a small, real stack — a **cert-manager** certificate

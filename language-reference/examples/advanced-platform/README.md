@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/mariadb, core/devtool/adminer]
+  shows: [boundaries, parameters, features, credentials, catalog-authoring, external-sources]
+---
+
 # Advanced platform — a multi-boundary Kubernetes platform
 
 A multi-boundary Kubernetes platform that exercises the compiler frontier from a

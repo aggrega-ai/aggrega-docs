@@ -1,3 +1,10 @@
+---
+example:
+  level: advanced
+  products: [core/datastore/postgres]
+  shows: [multi-target, cloud-infrastructure, connections, external-sources]
+---
+
 # A managed database and the service reading it, on Terraform and CloudFormation
 
 One Aggregate holds a PostgreSQL database and the server that reads it. The same

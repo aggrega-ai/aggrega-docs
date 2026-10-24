@@ -1,3 +1,10 @@
+---
+example:
+  level: start
+  products: [core/datastore/documentdb, core/datastore/ferretdb]
+  shows: [modules]
+---
+
 # FerretDB stack — a document database composed as a module
 
 This example compiles a small, real stack — a **document database** exposing

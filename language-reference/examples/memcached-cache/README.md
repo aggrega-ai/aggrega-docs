@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/datastore/memcached]
+  shows: [multi-target, credentials, guardrails]
+---
+
 # Memcached — one Aggregate, two targets, and a password that is refused
 
 This lean example compiles a single **Memcached** in-memory cache from one
-Developer-authored `Aggregate` to two deployment realizations:
+Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `memcached`

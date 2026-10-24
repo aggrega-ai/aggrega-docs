@@ -1,7 +1,14 @@
+---
+example:
+  level: start
+  products: [core/datastore/valkey]
+  shows: [multi-target, credentials]
+---
+
 # Valkey — one Aggregate, two targets, optional authentication
 
 This lean example compiles a single **Valkey** in-memory cache (Redis wire
-protocol) from one Developer-authored `Aggregate` to two deployment realizations:
+protocol) from one Developer-authored `Aggregate` to two realizations:
 
 - **Docker Compose** for local development, and
 - the **synthesized helm Recipe** running the official upstream `valkey/valkey`

@@ -1,9 +1,16 @@
+---
+example:
+  level: authoring
+  products: [core/datastore/postgres]
+  shows: [multi-target, recipe-selection, cloud-infrastructure, connections, catalog-authoring]
+---
+
 # One contract, three realizations
 
 A PostgreSQL database and the application that reads it, deployed **three
 different ways from one unchanged Aggregate**: PostgreSQL running in the
 cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that
-already existed before this deployment did.
+already existed before this Release was deployed.
 
 **The lesson is what does *not* change.** The application names the keys it
 wants from the database and what to call them, once. It never learns which of the
