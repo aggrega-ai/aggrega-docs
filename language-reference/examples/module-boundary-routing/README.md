@@ -1,7 +1,7 @@
 ---
 example:
   level: advanced
-  products: [core/datastore/documentdb, core/datastore/ferretdb, core/observability/thanos-query, core/observability/thanos-store, core/storage/minio]
+  products: [core/datastore/documentdb, core/datastore/ferretdb, core/observability/thanos-query, core/observability/thanos-store, core/storage/s3-object-store]
   shows: [modules, boundaries]
 ---
 
@@ -24,7 +24,7 @@ it.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: imports the metrics module (`core/thanos`) and the document-database module (`core/ferretdb`). |
-| `manifest.yaml` | Maps every component type the two modules contribute to its synth helm Recipe, the credential Feature the metrics module attaches to the realization that emits a Secret from the module's credential parameter, and the scrape Feature to its FeatureRecipe. |
+| `manifest.yaml` | Maps every component type the two modules contribute to its synth helm Recipe, the credential Feature the metrics module attaches to the realization that emits a Secret from each of the module's two key parameters, and the scrape Feature to its FeatureRecipe. |
 | `release.yaml` | Operator record: routes each module into its own boundary, sizes one component of one module, and attaches the scrape Feature to it. |
 
 ## What it demonstrates
@@ -94,9 +94,10 @@ metadata:
     aggrega.ai/boundary-path: observability
 ```
 
-The same holds for the two Secrets the metrics module's credential Feature emits
-for the object store and the store gateway: each lands under `observability`
-with that namespace, beside the workload that reads it.
+The same holds for the four Secrets the metrics module's credential Feature
+emits for the object store's key pair and the one the store gateway presents to
+it: each lands under `observability` with that namespace, beside the workload
+that reads it.
 
 The scrape Feature attached to the routed `query` component renders its own
 artifact under that same boundary, carrying the operator's scrape settings:

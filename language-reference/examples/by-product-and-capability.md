@@ -266,14 +266,11 @@ described in [The header on each example](README.md#the-header-on-each-example).
 
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 
-### `core/storage/minio`
-
-- [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
-- [thanos-stack](thanos-stack/README.md) (`start`) — This example compiles a small, real stack — the **read/query tier of a Thanos metrics system** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
-
 ### `core/storage/s3-object-store`
 
+- [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
+- [thanos-stack](thanos-stack/README.md) (`start`) — This example compiles a small, real stack — the **read/query tier of a Thanos metrics system** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 
 ## By capability
 
