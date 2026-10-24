@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-auth
+  version: "1.0.0"
+  description: >
+    The same object store with its key pair attached for the Compose target.
+    Each slot holds an inject-value credential delivered on the component's
+    environment pipe under the variable the Compose Recipe reads,
+    AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Each origin is a Compose
+    variable reference, so the rendered file carries the reference and Docker
+    Compose fills in the key when the stack starts. Credentials are attachments
+    on the features: pillar (each Feature is labeled
+    feature.aggrega.ai/kind: secret), kept apart from the component's values.
+spec:
+  components:
+    store:
+      type: core/storage/s3-object-store
+      values:
+        bucket: media
+      features:
+        access_key_id:
+          type: core/secret-value
+          values:
+            key: AWS_ACCESS_KEY_ID
+            origin: "${S3_ACCESS_KEY_ID}"
+        secret_access_key:
+          type: core/secret-value
+          values:
+            key: AWS_SECRET_ACCESS_KEY
+            origin: "${S3_SECRET_ACCESS_KEY}"

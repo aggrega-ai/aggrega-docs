@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-compose
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Docker Compose target. The object store is realized by
+    compose/s3-object-store, which runs SeaweedFS from its project's published
+    image; the two keys, inject-value secrets, are realized by the
+    dotenv-secret FeatureRecipe. An Aggregate attaching no key halts the build
+    in the Recipe, naming the empty slot.
+spec:
+  mappings:
+    components:
+      type:
+        core/storage/s3-object-store:1.0.0: compose/s3-object-store:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: compose/dotenv-secret:1.0.0

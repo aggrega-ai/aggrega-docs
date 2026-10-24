@@ -413,11 +413,11 @@ An attachment written on a connection is listed beneath that connection's line i
 - **`[sensitive]`** — the attachment handles material an author declared sensitive, because the attached Feature declares a sensitive leaf, because the slot it fills declares `sensitive: true`, or both.
 - **`[realization: <name>:<version>]`** — the FeatureRecipe the Release's Manifest binds for the attachment: by the attachment's own name where the Manifest maps that name — for an attachment written on a connection, the alias and the slot joined by a dot — otherwise by its Feature type. It is the realization a build of the same documents renders the attachment with, and the same value the compiled graph carries on the attachment as `realization` (see [`--ir-graph`](#the-compiled-graph---ir-graph)), so this view and the graph cannot name different ones. It comes last in the clause.
 
-When several facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity. With a Manifest that maps each Feature type to a FeatureRecipe, each line also names its realization:
+When several facts apply they share one clause. `core/storage/s3-object-store` declares a `secret_access_key` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity. With a Manifest that maps each Feature type to a FeatureRecipe, each line also names its realization:
 
 ```text
     Features:
-    - root_password (core/generated-secret:1.0.0)    [slot: root_password, sensitive, realization: generated-secret:1.0.0]    [explicit]
+    - secret_access_key (core/generated-secret:1.0.0)    [slot: secret_access_key, sensitive, realization: generated-secret:1.0.0]    [explicit]
     - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free, realization: k8s-dns-patcher:1.0.0]    [explicit]
 ```
 

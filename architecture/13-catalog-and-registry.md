@@ -75,7 +75,7 @@ aggrega-catalog/
 │   │   ├── devtool/          # developer-facing tooling
 │   │   │   └── ...           # adminer, promptlayer, …
 │   │   └── storage/          # object/file storage
-│   │       └── minio/
+│   │       └── s3-object-store/
 │   │           └── 1.0.0/
 │   │               └── component.yaml
 │   └── example/              # a second publisher, same three-segment shape

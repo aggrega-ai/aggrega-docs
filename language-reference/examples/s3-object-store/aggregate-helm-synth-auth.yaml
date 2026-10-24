@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-helm-synth-auth
+  version: "1.0.0"
+  description: >
+    The same object store with its key pair attached for the synthesized helm
+    target. Each slot holds a referenceable credential: a Kubernetes Secret
+    carrying the key, whose name the realization publishes, and the
+    synthesized Recipe reads each key from that Secret through an env
+    secretKeyRef, so neither key lands in the rendered StatefulSet. Credentials
+    are attachments on the features: pillar (each Feature is labeled
+    feature.aggrega.ai/kind: secret), kept apart from the component's values.
+spec:
+  components:
+    store:
+      type: core/storage/s3-object-store
+      values:
+        bucket: media
+      features:
+        access_key_id:
+          type: core/referenced-secret
+          values:
+            key: access-key-id
+            origin: dev-store-key-id-change-me
+        secret_access_key:
+          type: core/referenced-secret
+          values:
+            key: secret-access-key
+            origin: dev-store-secret-key-change-me

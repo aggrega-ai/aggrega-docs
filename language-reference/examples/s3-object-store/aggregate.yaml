@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    One S3-compatible object store holding the bucket media, with nothing in
+    its access_key_id and secret_access_key slots. The Component declares both
+    slots optional, because a managed service takes no key from a bucket, but
+    the self-hosted SeaweedFS realizations take the pair as the server's S3
+    account and have no default for it, so building this Aggregate on either
+    of them halts, naming the empty slot, before anything renders. The two
+    Aggregates beside it fill both slots, one for each target's way of
+    delivering a credential.
+spec:
+  components:
+    store:
+      type: core/storage/s3-object-store
+      values:
+        bucket: media
