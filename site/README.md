@@ -29,11 +29,21 @@ served at `aggrega.ai/docs`.
   a JSON-LD graph (a site descriptor, an article or API-reference descriptor, and
   a breadcrumb trail). A sitemap and `public/robots.txt` are served at the site
   root.
+- **Files for AI assistants.** The latest version's build writes `llms.txt` and
+  `llms-full.txt` at the site root (`src/pages/[file].txt.ts`, rendered by
+  `src/llms/format.mjs`). `llms.txt` follows the [llmstxt.org](https://llmstxt.org)
+  shape: the product's name, the opening paragraph of the root page as its
+  summary, then one section per sidebar group listing each page by title, with
+  the page's first paragraph cut to one line as its description. `llms-full.txt`
+  carries the same pages' Markdown in the same order, each under its address.
+  Both are built from the same content collection and sidebar as the pages, in
+  sidebar order; a published page the sidebar does not link follows under
+  "Other pages". The same input always produces the same bytes.
 
 ## Versions
 
-Documentation versions are Git tags of this repository. The site is built once
-per version from its tag; the latest version is served at `/docs` and every other
+Documentation versions are Git tags of this repository. Each version is built from
+the checked-out tree with its own base path; the latest is served at `/docs`, every other
 version under a version-prefixed path such as `/docs/v0.1`. Only the latest is
 indexed — older versions emit `noindex,follow` and a canonical link to the latest
 equivalent page — and a version switcher lists the available versions. The
