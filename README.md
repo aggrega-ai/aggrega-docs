@@ -15,6 +15,10 @@ The ecosystem is built on four pillars:
 3. **Programmable Policies & Validation:** The core Go compiler is mathematically unopinionated. Corporate governance is driven entirely by industry standards and pluggable WebAssembly: JSON Schema 2020-12 (authored via a compact YAML-shaped shorthand or full JSON Schema YAML) for catalog validation, the governance socket's `label-transform` role for dynamic topology tagging, and its verdict roles for evaluating architectural security boundaries.
 4. **The AOT Compiler & Execution Handoff:** A strict compilation pipeline translates the DSL into a capability-agnostic Intermediate Representation (IR) graph. The IR captures the topology of components and the `uses` edges between them (who uses whom); the compiler passes this graph to the WebAssembly (Wasm) governance socket to detect transitive trust vulnerabilities, then executes Wasm rendering plugins to generate the precise proxy and guardrail configurations. Aggrega writes these artifacts to disk and hands off physical deployment to other tools like CI/CD pipelines or runtime orchestrators.
 
+## Install
+
+`curl -fsSL https://aggrega.ai/install.sh | sh` on Linux and macOS, or `irm https://aggrega.ai/install.ps1 | iex` in PowerShell on Windows, installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, the manual download, and connecting an AI assistant.
+
 ## Architecture
 
 [architecture/](architecture/README.md) — the "why" of Aggrega. Vision, positioning, mental model, compiler pipeline at conceptual level, enterprise governance, catalog, extensibility, design choices. Follow the numbered chapters 01 through 16 in order for first-time reading.

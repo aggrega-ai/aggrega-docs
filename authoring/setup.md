@@ -4,10 +4,79 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 ## Install the binary
 
-Aggrega ships as a single executable. Install it by whichever route fits your platform, then put it on your `PATH`.
+Aggrega ships as a single executable. One command installs it; the manual steps after it do the same by hand. Both put it in one folder of your own, the same one each time, and neither needs administrator rights: `~/.local/bin/aggrega` on Linux and macOS, and `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows.
 
-- **Prebuilt binary.** Each release carries prebuilt binaries for Linux on 64-bit x86 and on 64-bit ARM, for Windows on 64-bit x86, and for macOS on Apple silicon and on Intel. Download the executable for your operating system and processor — [Choosing the file](#choosing-the-file) below names each — mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
-- **From source.** With a Go toolchain installed, build the `aggrega` command from the source tree and place the resulting binary on your `PATH`.
+### Install with one command
+
+On Linux and macOS, in a terminal:
+
+```bash
+curl -fsSL https://aggrega.ai/install.sh | sh
+```
+
+On Windows, in PowerShell:
+
+```powershell
+irm https://aggrega.ai/install.ps1 | iex
+```
+
+Those two addresses redirect to the install scripts the latest release attaches, so the same commands also run with the release's own addresses:
+
+```bash
+curl -fsSL https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/install.sh | sh
+```
+
+```powershell
+irm https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/install.ps1 | iex
+```
+
+What the command does:
+
+- **It picks the default binary for your machine** from the latest release: Linux and macOS on 64-bit x86 or 64-bit ARM, Windows on 64-bit x86. It refuses any other system or processor with a message saying which it found or where to turn instead. On a Mac with Apple silicon it picks the Apple silicon binary, even from a shell running through Rosetta 2.
+- **It checks the binary against the release's `SHA256SUMS`** before installing anything. A download whose SHA-256 digest differs from the one the list gives is deleted, nothing is installed, and the command stops with a message naming both digests.
+- **It installs the binary for you alone**, as `~/.local/bin/aggrega` on Linux and macOS and as `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows, creating the folder when it is missing and replacing an earlier copy there in one step, so running the command again updates the one you have. It never uses `sudo`. On Windows it also removes the mark a file downloaded from the internet can carry, as `Unblock-File` does in [the manual steps](#the-windows-prebuilt-binary). On macOS it downloads with `curl`, so the binary it installs carries no quarantine mark (see [The macOS prebuilt binary](#the-macos-prebuilt-binary)).
+- **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints the line that puts it there and names the file your shell reads it from: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, which takes a `fish_add_path` line, and `~/.profile` for any other shell. It edits none of them: add the line and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it.
+- **It prints the installed version** by running the binary, and adds a note when another `aggrega` comes before the one it installed on your `PATH`.
+
+`install.sh`, the Linux and macOS script, needs `curl` or `wget`, `uname`, and `sha256sum` or `shasum`. `install.ps1`, the Windows one, runs in Windows PowerShell 5.1 and in PowerShell 7.
+
+**Two settings change what it installs**, each read from the environment the script runs in:
+
+- **`AGGREGA_VERSION`** names the release to install, such as `0.8.7`, written with or without its leading `v`. Unset, the command installs the latest release — the one GitHub marks as latest, which is never a prerelease, so a prerelease is installed only by naming it here.
+- **`AGGREGA_INSTALL_DIR`** names the folder to install into in place of the default. The binary is `aggrega` there, `aggrega.exe` on Windows, and the command makes that folder reachable as above.
+
+On Linux and macOS, put the setting before `sh`, not before `curl`, so that the script receives it:
+
+```bash
+curl -fsSL https://aggrega.ai/install.sh | AGGREGA_VERSION=<version> sh
+```
+
+In PowerShell, set it in the window first; it stays set there until you remove it with `Remove-Item Env:AGGREGA_VERSION`:
+
+```powershell
+$env:AGGREGA_VERSION = "<version>"
+irm https://aggrega.ai/install.ps1 | iex
+```
+
+### Install it by hand
+
+Each release carries prebuilt binaries for Linux on 64-bit x86 and on 64-bit ARM, for Windows on 64-bit x86, and for macOS on Apple silicon and on Intel, on the release page at [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Download the executable for your operating system and processor — [Choosing the file](#choosing-the-file) below names each — and check it against the release's `SHA256SUMS`, as described there. Then mark it executable and move it to `~/.local/bin/aggrega`. On Linux, from the directory the download is in, with `<version>` replaced by the version you downloaded, and `amd64` by `arm64` on 64-bit ARM:
+
+```bash
+chmod +x aggrega-<version>-linux-amd64
+mkdir -p ~/.local/bin
+mv aggrega-<version>-linux-amd64 ~/.local/bin/aggrega
+```
+
+On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
+
+When `~/.local/bin` is not on your `PATH`, add this line to the file your shell reads when it starts — `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS) — and open a new terminal:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+**From source**, with a Go toolchain installed, build the `aggrega` command from the source tree and put the resulting binary in the same folder.
 
 Confirm the install:
 
@@ -29,12 +98,12 @@ A release names each executable `aggrega-<version>-<system>-<processor>`, with `
 | macOS | Apple silicon | `aggrega-<version>-darwin-arm64` |
 | macOS | Intel | `aggrega-<version>-darwin-amd64` |
 
-That file is the one to download. Two variants of it sit beside it, and each installs the same way:
+That file is the one the install command installs, and the one to download by hand. Two variants of it sit beside it; the install command installs neither, and each installs by hand the same way:
 
 - **`aggrega-debug-<version>-…`** is the same program with its debug information, which a debugger or a profiler reads. It runs and reports its version exactly as the default file does, and is larger.
 - **`aggrega-light-<version>-…`** is built without the embedded plugins: it resolves every plugin through the plugin cascade, as the workspace configures it, rather than finding the core ones inside itself.
 
-Each release also carries `SHA256SUMS`, the SHA-256 digest of every other file it attaches, in the form `sha256sum` reads. To check a download on Linux, with `SHA256SUMS` in the same directory:
+Each release also carries `SHA256SUMS`, the SHA-256 digest of every other file it attaches, the two install scripts included, in the form `sha256sum` reads. The install command makes this check itself. To check a download by hand on Linux, with `SHA256SUMS` in the same directory:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS
@@ -44,7 +113,7 @@ The file you downloaded is reported `OK`; any other report means it is not the f
 
 ### The Windows prebuilt binary
 
-The Windows executable is `aggrega-<version>-windows-amd64.exe` (the debug and light variants beside it in the release install the same way). Rename it to `aggrega.exe` and move it into a directory listed in your `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, keeping it in a directory of your own and adding that directory to your user `PATH`, with `<version>` replaced by the version you downloaded:
+The Windows executable is `aggrega-<version>-windows-amd64.exe` (the debug and light variants beside it in the release install the same way). Rename it to `aggrega.exe`, move it into `%LOCALAPPDATA%\Programs\aggrega`, the folder the install command uses, and add that folder to your user `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, with `<version>` replaced by the version you downloaded:
 
 ```powershell
 $dir = "$env:LOCALAPPDATA\Programs\aggrega"
@@ -80,22 +149,22 @@ A signature names the publisher; it does not make every warning go away. Which o
 
 The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The debug and light variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
 
-Rename the file to `aggrega`, mark it executable, and move it into a directory listed in your `PATH`. From Terminal, in the directory the download is in, for example, with `<version>` replaced by the version you downloaded, and `arm64` by `amd64` on an Intel Mac:
+Rename the file to `aggrega`, mark it executable, and move it into `~/.local/bin`, the folder the install command uses. From Terminal, in the directory the download is in, for example, with `<version>` replaced by the version you downloaded, and `arm64` by `amd64` on an Intel Mac:
 
 ```bash
 chmod +x aggrega-<version>-darwin-arm64
 xattr -d com.apple.quarantine aggrega-<version>-darwin-arm64
-sudo mkdir -p /usr/local/bin
-sudo mv aggrega-<version>-darwin-arm64 /usr/local/bin/aggrega
+mkdir -p ~/.local/bin
+mv aggrega-<version>-darwin-arm64 ~/.local/bin/aggrega
 ```
 
-`/usr/local/bin` is on the `PATH` macOS gives a new terminal, and the `mkdir` creates it on a Mac where it does not exist yet. The `xattr` line is explained below; on a file that carries no quarantine mark it reports *No such xattr*, which is harmless.
+The `mkdir` creates the folder where it does not exist yet. `~/.local/bin` is not on the `PATH` macOS gives a new terminal, so add the line from [Install it by hand](#install-it-by-hand) to `~/.zshrc`, or to `~/.bash_profile` for bash, unless it is there already. The `xattr` line is explained below; on a file that carries no quarantine mark it reports *No such xattr*, which is harmless.
 
 **The executables are not signed with an Apple Developer ID and are not notarized by Apple.** Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark — the mark a web browser adds to a file it downloads — and refuses one that is not notarized: macOS reports that the developer cannot be verified, or that Apple could not verify the file is free of malware, and offers to move it to the Trash. The wording and the buttons depend on the macOS version. To proceed:
 
 - **Remove the mark.** `xattr -d com.apple.quarantine <file>`, as in the example above, removes it, and Gatekeeper then does not assess the file when it runs. Do it before the first run, or after a refusal and then run the command again.
 - **Or allow the file from the system settings.** After a refusal, open **System Settings** → **Privacy & Security** (before macOS 13, **System Preferences** → **Security & Privacy** → **General**). A line there names the blocked file and offers **Open Anyway** for about an hour after the refusal. Select it (macOS may ask for your password), run the command again, and confirm when macOS asks once more; the button reads **Open** or **Open Anyway**, depending on the version. macOS remembers the choice for that file.
-- **A file fetched with `curl` carries no quarantine mark**, so it runs without that assessment: `curl` does not add the mark a browser does.
+- **A file fetched with `curl` carries no quarantine mark**, so it runs without that assessment: `curl` does not add the mark a browser does. That is also why the binary the install command puts in place runs without it.
 
 ## Connect an MCP client
 
@@ -138,7 +207,7 @@ Every client in that table except the four with a section of their own below tak
 
 ### A note on `PATH`
 
-Clients launched from a graphical environment do not always inherit the same `PATH` as your terminal. If a client reports that it cannot find the `aggrega` command, replace `"command": "aggrega"` with the absolute path to the binary (for example `"command": "/usr/local/bin/aggrega"`). Everything else stays the same.
+Clients launched from a graphical environment do not always inherit the same `PATH` as your terminal. If a client reports that it cannot find the `aggrega` command, replace `"command": "aggrega"` with the absolute path to the binary (for example `"command": "/home/you/.local/bin/aggrega"`, the install location on Linux for a user named `you`). Everything else stays the same.
 
 ### Visual Studio Code
 
@@ -191,9 +260,9 @@ Claude Desktop installs a local server from an extension package — the server 
 
 Aggrega's package carries no program of its own. It launches the `aggrega` executable you name, with the single `mcp` argument, and speaks the protocol over that process's standard input and output — the same server every entry above starts. It starts the file at the path you give it rather than looking `aggrega` up on your `PATH`, and it hands that server the workspace you choose. To add it:
 
-1. Install the `aggrega` binary, as described in [Install the binary](#install-the-binary). On Windows, keep `aggrega.exe` in a directory of your own, such as the one the PowerShell example there creates, rather than in a system folder such as `C:\Windows\System32`, so that you can replace it without administrator rights.
+1. Install the `aggrega` binary, as described in [Install the binary](#install-the-binary). The install command and the manual steps there both keep it in a folder of your own — on Windows `%LOCALAPPDATA%\Programs\aggrega` rather than a system folder such as `C:\Windows\System32` — so that you can replace it without administrator rights.
 2. Install `aggrega-<version>.mcpb` from Claude Desktop's extension settings.
-3. Set the package's two required settings. **Path to the aggrega executable** is the executable you installed — on Windows, the full path ending in `aggrega.exe`. **Workspace folder** is the folder of the Aggrega workspace the assistant works in: the folder that holds your project's `.aggrega-config.yaml`. Set both: Claude Desktop saves the settings with **Workspace folder** left empty and starts the server all the same, and the server then answers every request the assistant makes in the workspace with a refusal saying the **Workspace folder** setting is empty and telling you to set it to the folder that holds your workspace's `.aggrega-config.yaml`, rather than working in the folder Claude Desktop started it in.
+3. Set the package's two required settings. **Path to the aggrega executable** is the full path of the executable you installed — on macOS and Linux the `aggrega` in `.local/bin` in your home folder, such as `/Users/you/.local/bin/aggrega`; on Windows the full path ending in `aggrega.exe`, such as `C:\Users\you\AppData\Local\Programs\aggrega\aggrega.exe`. **Workspace folder** is the folder of the Aggrega workspace the assistant works in: the folder that holds your project's `.aggrega-config.yaml`. Set both: Claude Desktop saves the settings with **Workspace folder** left empty and starts the server all the same, and the server then answers every request the assistant makes in the workspace with a refusal saying the **Workspace folder** setting is empty and telling you to set it to the folder that holds your workspace's `.aggrega-config.yaml`, rather than working in the folder Claude Desktop started it in.
 4. Quit Claude Desktop fully, then start it again. A server the application has already started keeps running, and renaming the executable does not stop it, so a changed setting takes effect only once the application has quit and started again. On Windows, Task Manager shows whether an `aggrega` process is still running.
 
 **The workspace folder is where every request that names no workspace of its own is answered.** Claude Desktop starts the server in a folder of its own choosing rather than in your project, so the package passes the folder you chose to the server as the `AGGREGA_WORKSPACE_ROOT` variable in its environment, rather than as an argument on the command line the application composes. The server takes that folder as the workspace root itself, as `--workspace-root` is taken on every command: it does not look above it for an enclosing workspace, so choose the folder that holds `.aggrega-config.yaml` rather than one inside it. To work in another workspace, change the setting and restart the application as in step 4.
