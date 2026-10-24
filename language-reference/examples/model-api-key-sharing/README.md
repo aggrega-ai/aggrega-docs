@@ -248,6 +248,7 @@ usesSchema:
   model:
     selector: "component.aggrega.ai/category in (ai-model, gateway), model.aggrega.ai/api"
     required: true
+    inject: [env, file]
     featuresSchema:
       credential:
         selector: "feature.aggrega.ai/kind=secret"
