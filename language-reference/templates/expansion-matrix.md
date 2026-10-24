@@ -95,7 +95,6 @@ Self-inject resolution is the first half of inject hydration, and it runs after 
 
 1. **Literal `value:` strings:** If the value contains Go template expressions, the compiler evaluates them with the context from row #4 of the matrix (`.values`, `.infra`, `.context.instance_id`, etc.). Plain strings pass through unchanged.
 2. **`from:` references:** The compiler looks up the key in the node's own `provides` dictionary, already resolved by then. If the key doesn't exist, the compiler halts the build with an invalid-inject-key error.
-3. **Compact form:** Treated as literal `value:` (compact form in `component.inject` context is always a literal).
-4. **Collision check:** Before merging into the `.context.inject` pipe, the compiler verifies no key collides with the uses-inject keys that the second half of inject hydration resolves. Collisions halt the build with a duplicate-delivery-key error.
+3. **Collision check:** Before merging into the `.context.inject` pipe, the compiler verifies no key collides with the uses-inject keys that the second half of inject hydration resolves. Collisions halt the build with a duplicate-delivery-key error.
 
 The resulting strings are merged into `.context.inject.env`, `.context.inject.file`, `.context.inject.arg` (and any custom mechanisms), alongside those uses-inject resolutions. By the time inject mapping (`injectMapping`) runs, the pipe contains all developer-authored inject values from both sources.

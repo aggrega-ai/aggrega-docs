@@ -42,21 +42,12 @@ To implement this without tightly coupling Developers to Ops, Aggrega uses the P
 
 All three forms populate the same `.context.inject` pipe. The Recipe reads a single, unified pipe regardless of how many sources contributed to it.
 
-The `inject` schema defines standard enums (`env`, `file`, `arg`) for tooling, but leaves `additionalProperties` completely open for infinite extensibility (e.g., `ssm_param` for AWS Systems Manager Parameter Store).
+The `inject` schema defines standard enums (`env`, `file`, `arg`) for tooling, but leaves `additionalProperties` open, so a custom mechanism may be named (e.g., `ssm_param` for AWS Systems Manager Parameter Store).
 
-**Polymorphic Inject Syntax:** The `inject` block supports two syntaxes: a compact map form and a verbose array form. The compact form's meaning depends on placement context. The verbose form uses explicit keywords (`from:` or `value:`) that are unambiguous everywhere.
+**Inject Entry Syntax:** Under an `inject` block, each delivery mechanism — `env`, `file`, `arg`, or a custom one — is a list of entries, and every placement uses the same entry shape. The keyword an entry carries, not the placement it sits in, says what its string is, so an entry reads the same wherever it appears. A mechanism written as a map instead of a list, or an entry carrying both keywords, halts the build at the Aggregate's document envelope, naming the path in the Aggregate where the shape is wrong.
 
-**Compact Form Disambiguation (Placement-Based):**
-The compact form `KEY: "string"` has different semantics depending on where it appears. The YAML structure is the discriminator — no sigils or prefixes required:
-
-| Placement | Compact `KEY: "string"` | `"string"` means |
-| :--- | :--- | :--- |
-| `component.inject` | Literal value | Always a **literal string** (sugar for `value:`) |
-| `uses[target].inject` | Provides key reference | Always a **provides key** (sugar for `from:`) |
-| `features[<name>].inject` | Provides key reference | Always a **provides key** — resolved against the attachment's own `provides` |
-
-**Verbose Form Keywords (`from:` and `value:`):**
-The verbose form uses the `in` keyword for the local identifier plus exactly one of `from:` (provides key reference) or `value:` (literal string):
+**Entry Keywords (`from:` and `value:`):**
+Each entry uses the `in` keyword for the local identifier — an environment variable name, a file path, an argument flag — plus exactly one of `from:` (provides key reference) or `value:` (literal string). A `from:` resolves against the `provides` of the node its placement names: the component's own in `component.inject`, the target's in `uses[target].inject`, and the attachment's own in `features[<name>].inject`:
 
 | Keyword | Meaning | Allowed in `component.inject` | Allowed in `uses[].inject` |
 | :--- | :--- | :--- | :--- |

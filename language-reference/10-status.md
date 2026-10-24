@@ -40,13 +40,11 @@ See [`entities/recipe.md`](entities/recipe.md) for the Recipe authoring surface 
 
 ## Inject syntax
 
-The `inject:` block accepts two equivalent syntaxes — a compact map form and a verbose array form. Both produce identical runtime behaviour; the compiler normalizes both to a `map[string]string` shape during parsing.
+The `inject:` block has one syntax at every placement — a component's own `inject`, a `uses` connection's, and an attachment's.
 
-- **Compact form (`KEY: "string"`) — available.** A flat map keyed by local identifier (env var name, file path, arg flag); the value's semantics depend on placement (literal in `component.inject`, provides-key reference in `uses[].inject` and in an attachment's own `inject`).
+- **A list of entries per mechanism (`[{in: ..., from: ...}]`, `[{in: ..., value: ...}]`) — available.** Each delivery mechanism is a list; each entry names its local identifier (env var name, file path, arg flag) with `in:` and carries exactly one of `from:` (provides-key reference) or `value:` (literal string). A mechanism written as a map rather than a list, or an entry carrying both keywords, halts the build at the Aggregate's document envelope, naming the path.
 
-- **Verbose form (`[{in: ..., from: ..., value: ...}]`) — available.** An array of objects with explicit `in:`, `from:` (provides-key reference), and `value:` (literal string) keys. Disambiguates the placement-dependent semantics of the compact form.
-
-The verbose form is documented as the long-term authoring surface; the compact form is planned for removal in a future iteration so the language presents a single, unambiguous `inject:` syntax. Authors targeting forward compatibility can author against the verbose form today.
+- **`value:` in `uses[].inject` or in an attachment's own `inject` — accepted but inert.** `value:` is not valid in `uses[].inject`; a literal belongs in the component's own `inject`. The build accepts such an entry and resolves nothing from it into the component's `.context.inject` pipe, without a warning.
 
 See [`vocabulary/topology-triad.md`](vocabulary/topology-triad.md) for the full Injection Contract specification, including the dual-state context semantics, key-collision rules, and worked examples.
 

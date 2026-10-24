@@ -147,7 +147,7 @@ spec:
 ```
 
 **3. Dev Domain: The Aggregate**
-The developer declares two components and an explicit topological edge. The `inject` block uses **compact form**: each key is the local environment variable name, each value is the target's `provides` key.
+The developer declares two components and an explicit topological edge. Each `inject` mechanism is a list of entries: `in:` names the local environment variable, and `from:` names the target's `provides` key it receives.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
