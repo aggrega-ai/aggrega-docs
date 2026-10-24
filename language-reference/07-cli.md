@@ -23,6 +23,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
 - [`aggrega scaffold`](cli/aggrega-scaffold.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. It writes no file; redirect it where you want it.
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server, over standard input and output or over HTTP, so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
+- [`aggrega skills`](cli/aggrega-skills.md) — install the skill that teaches an AI assistant to install and use Aggrega into that assistant's skill folder, for one project or, with `--global`, for every project of yours.
 - [Configuration](cli/configuration.md) — which file a setting belongs in, and how the layers combine. Start here: it opens with the two files most projects need and keeps the mechanisms a larger project reaches for behind that.
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity, and the offline posture). Offline is reachable as a configuration setting and an environment variable too — see [Configuration](cli/configuration.md), the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
 - [The workspace boundary](cli/workspace-boundary.md) — what lies inside a workspace, what a symbolic link leading out of it does to each kind of path, the paths that reach outside on purpose, and what to do when one is refused.
@@ -54,6 +55,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega search` | Search the local index of configured registries |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
+| `aggrega skills` | Install the Aggrega skill into an AI assistant |
 | `aggrega validate` | Check correctness across the catalog, a Release, or one entity |
 | `aggrega version` | Print the aggrega CLI version |
 <!-- END GENERATED: command-list -->
