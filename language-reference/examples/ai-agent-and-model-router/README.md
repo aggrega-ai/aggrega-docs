@@ -359,10 +359,10 @@ The first came from the attachment the `model` edge carries, and the helm
 provider writes such an entry, read from a Secret, ahead of the plain ones; the
 next two came off the `model` edge, and the last two off the `checkpointer_db`
 edge. Note what the Aggregate did **not** have to say: neither edge carries an
-`inject` block, because the delivery is the
-consuming Recipe's own decision. The developer declares that the agent uses a
-model; which variable the model's endpoint arrives under is the Recipe's answer,
-and it is the one the client library reads.
+`inject` block, because the consuming Recipe delivers each connection under
+default names, which an `inject` block on the edge would replace. The developer
+declares that the agent uses a model; the variable its endpoint arrives under is
+the one the client library reads, and it stays whatever the edge dictates.
 
 Note also `LANGGRAPH_CHECKPOINTER_PORT: "6379"`. The Release declares
 `checkpointer: {}` and configures nothing, so that port is the cache Component's

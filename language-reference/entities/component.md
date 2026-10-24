@@ -392,7 +392,6 @@ Each entry — list element or map alias — becomes one edge, preserved in auth
 | `valueSchema` | object | — | Optional per-edge contract for developer-authored `values` on an edge wired through this socket (authored in the Aggregate). JSON Schema 2020-12 in the same authoring forms as `schema:`. Omission means the socket declares no `values` contract. |
 | `infraSchema` | object | — | Optional per-edge contract for operator-authored `infra` on an edge wired through this socket (authored in the Release). Same authoring forms as `valueSchema`. Omission means the socket declares no `infra` contract. |
 | `featuresSchema` | map | — | The attachment slots each connection wired through this socket may fill, keyed by slot name, each slot taking the keys a Component-level slot takes. Omission means a connection through this socket carries no attachment. See "Slots each connection fills" below. |
-| `description` | string | — | Human documentation, rendered by IDE and hub. |
 
 **Where a socket's `inject` allowlist is enforced.** The allowlist is the socket's statement of whether a consumer may choose the delivery form at all, and if so which forms — so it is checked against every `uses:` edge wired through the socket, once the edge and the socket's declaration are both in hand. Two refusals follow from one rule, and both halt the build:
 
