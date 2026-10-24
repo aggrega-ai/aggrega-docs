@@ -6,7 +6,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 Aggrega ships as a single executable. Install it by whichever route fits your platform, then put it on your `PATH`.
 
-- **Prebuilt binary.** Each release carries prebuilt binaries for Linux and for Windows, both on 64-bit x86, and for macOS on Apple silicon and on Intel. Download the executable for your operating system, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
+- **Prebuilt binary.** Each release carries prebuilt binaries for Linux on 64-bit x86 and on 64-bit ARM, for Windows on 64-bit x86, and for macOS on Apple silicon and on Intel. Download the executable for your operating system and processor — [Choosing the file](#choosing-the-file) below names each — mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
 - **From source.** With a Go toolchain installed, build the `aggrega` command from the source tree and place the resulting binary on your `PATH`.
 
 Confirm the install:
@@ -17,9 +17,34 @@ aggrega version
 
 A version string means the binary is found and runnable. That is everything the MCP integration needs.
 
+### Choosing the file
+
+A release names each executable `aggrega-<version>-<system>-<processor>`, with `.exe` on Windows:
+
+| System | Processor | File |
+|---|---|---|
+| Linux | 64-bit x86 (`uname -m` prints `x86_64`) | `aggrega-<version>-linux-amd64` |
+| Linux | 64-bit ARM (`uname -m` prints `aarch64`) | `aggrega-<version>-linux-arm64` |
+| Windows | 64-bit x86 | `aggrega-<version>-windows-amd64.exe` |
+| macOS | Apple silicon | `aggrega-<version>-darwin-arm64` |
+| macOS | Intel | `aggrega-<version>-darwin-amd64` |
+
+That file is the one to download. Two variants of it sit beside it, and each installs the same way:
+
+- **`aggrega-debug-<version>-…`** is the same program with its debug information, which a debugger or a profiler reads. It runs and reports its version exactly as the default file does, and is larger.
+- **`aggrega-light-<version>-…`** is built without the embedded plugins: it resolves every plugin through the plugin cascade, as the workspace configures it, rather than finding the core ones inside itself.
+
+Each release also carries `SHA256SUMS`, the SHA-256 digest of every other file it attaches, in the form `sha256sum` reads. To check a download on Linux, with `SHA256SUMS` in the same directory:
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS
+```
+
+The file you downloaded is reported `OK`; any other report means it is not the file the release published.
+
 ### The Windows prebuilt binary
 
-The Windows executable is `aggrega-<version>-windows-amd64.exe` (the light and stripped variants beside it in the release install the same way). Rename it to `aggrega.exe` and move it into a directory listed in your `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, keeping it in a directory of your own and adding that directory to your user `PATH`, with `<version>` replaced by the version you downloaded:
+The Windows executable is `aggrega-<version>-windows-amd64.exe` (the debug and light variants beside it in the release install the same way). Rename it to `aggrega.exe` and move it into a directory listed in your `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, keeping it in a directory of your own and adding that directory to your user `PATH`, with `<version>` replaced by the version you downloaded:
 
 ```powershell
 $dir = "$env:LOCALAPPDATA\Programs\aggrega"
@@ -53,7 +78,7 @@ A signature names the publisher; it does not make every warning go away. Which o
 
 ### The macOS prebuilt binary
 
-The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The light and stripped variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
+The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The debug and light variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
 
 Rename the file to `aggrega`, mark it executable, and move it into a directory listed in your `PATH`. From Terminal, in the directory the download is in, for example, with `<version>` replaced by the version you downloaded, and `arm64` by `amd64` on an Intel Mac:
 
