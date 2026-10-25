@@ -2913,7 +2913,7 @@ and continues with the construction path the compiler expects, which is a note f
 
 <!-- covers: internal/compiler/topology.ErrMutatorPatchRejected -->
 
-A governance plugin attached in a label-transform role is handed a labels-only view of the graph — one entry per node, each carrying that node's labels and nothing else — and returns patches against it. The host applies them and then checks that what came back is still that same view: the same nodes, each carrying only labels, each label value a string.
+A governance plugin attached in a label-transform role is handed a projection of the graph — one entry per node, carrying that node's labels and the values its instance declares, with any value its Component declares sensitive withheld — and returns patches against the node labels. The host applies them to the labels alone and then checks that what came back is still that labels view: the same nodes, each carrying only labels, each label value a string.
 
 Anything else is refused and the build stops. Adding or removing a node, or changing a node field other than its labels, is precisely the silent appearance of infrastructure nobody declared — so rather than absorb a change the role does not cover, the build says which confinement rule the patch broke. Labels are the whole of the role's surface, and an operator who attached the plugin declared that much and no more.
 

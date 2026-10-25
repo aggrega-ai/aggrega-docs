@@ -21,7 +21,7 @@ Next, it performs an in-memory interpolation in three sub-steps: parameter contr
 **Topology construction — The Topology Builder & Mutation Gate**
 
 * **Mechanism:** AST Expansion + the governance socket's `label-transform` role.
-* **Action:** The compiler natively reads the explicitly declared `uses` blocks from the validated components to deterministically draw topological edges between nodes in the graph, leaving the `values` block completely opaque. It then evaluates the **Mutation Gate**, passing a labels-only projection of the graph, with the Release's name and environment, to a governance plugin attached at the `label-transform` role. The plugin evaluates the context and returns JSONPatches to dynamically auto-tag the graph (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on the Release's environment).
+* **Action:** The compiler natively reads the explicitly declared `uses` blocks from the validated components to deterministically draw topological edges between nodes in the graph, leaving the `values` block completely opaque. It then evaluates the **Mutation Gate**, passing a projection of the graph — each node's labels and the `values` its instance declares, which the compiler hands over without reading — with the Release's name and environment, to a governance plugin attached at the `label-transform` role. The plugin evaluates the context and returns JSONPatches to dynamically auto-tag the graph (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on the Release's environment, or `datastore.aggrega.ai/engine: vector` based on a database's declared extensions); the patches reach labels alone.
 
 **Graph finalization**
 

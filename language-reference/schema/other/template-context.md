@@ -101,7 +101,7 @@ Boundary-scope context — populated only when evaluating a FeatureRecipe whose 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `path` | string | no | The boundary's evaluated directory path (post-template-evaluation). Same string used for per-(path, provider) dispatch grouping at orchestrator-time. |
+| `path` | string | no | The boundary's evaluated directory path (post-template-evaluation). The same string groups the components that share an output directory and a provider when Aggrega builds the Release. |
 | `boundary_name` | string | no | The boundary's name (the map key in release.spec.boundaries). |
 | `components` | object | no | Map of instance_id to ComponentInfo for every component in the boundary's subtree (recursive, includes nested-boundary components). Each entry carries the component's resolved type URI, instance ID, and provided values from per-component provides evaluation. |
 | `internal_uses_edges` | object[] | no | Uses edges where source AND target are both in this boundary's subtree. |

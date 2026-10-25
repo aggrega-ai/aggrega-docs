@@ -56,7 +56,8 @@ deny contains msg if {
 
 **Only `ir-verdict` sees these facts.** A `render-verdict` policy receives the
 rendered artifacts and no graph; a `label-transform` policy receives a
-labels-only projection of the nodes, which carries no attachments at all; an
+projection of the nodes' labels and values, its declared-sensitive values withheld
+as here, which carries no attachments at all; an
 `annotation-transform` policy receives the components it may annotate. A rule
 that reads attachment facts belongs at `ir-verdict`, and moving it to another
 role produces a rule that never fires rather than an error, because a path that

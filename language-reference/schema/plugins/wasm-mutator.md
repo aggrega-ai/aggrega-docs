@@ -15,12 +15,12 @@ The wire shapes the mutator.wasm plugin socket consumes (MutatorInput) and emits
 
 ### `MutatorInput`
 
-The payload the host hands the mutator plugin on each invocation: release-level compilation context plus a labels-only projection of the topology graph.
+The payload the host hands the mutator plugin on each invocation: release-level compilation context plus a projection of the topology graph carrying each node's labels and the values its instance declares.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `compilation_context` | CompilationContext | yes | Release-level metadata the mutator reads when deciding which compliance, FinOps, or governance rules apply to the build. |
-| `graph` | MutatorGraph | yes | The labels-only projection of the topology graph exposed to the mutator plugin. Intentionally narrower than the full topology result: edges, values, and feature payloads are not exposed because the mutator's job is labelling, not topology reshaping. |
+| `graph` | MutatorGraph | yes | The projection of the topology graph exposed to the mutator plugin: each node's Component, its resolved version, its labels and the values its instance declares. Intentionally narrower than the full topology result: edges and feature payloads are not exposed because the mutator's job is labelling, not topology reshaping. The values are there to be read, so a configuration the developer declared can decide a label; a patch reaches labels and nothing else, so the plugin cannot change them. |
 | `sources` | MutatorSource[] | no | Definition files the host reads and hands to the plugin verbatim, as an ordered list sorted by path. The host reads the bytes as opaque content and does not parse them. Absent when the attachment declares no sources. |
 | `settings` | object | no | A free-form settings object the host hands to the plugin verbatim. The host does not parse or act on its content. Absent when the attachment declares no settings. |
 
@@ -50,7 +50,7 @@ _Additional properties are not permitted._
 
 ### `MutatorGraph`
 
-The labels-only projection of the topology graph exposed to the mutator plugin. Intentionally narrower than the full topology result: edges, values, and feature payloads are not exposed because the mutator's job is labelling, not topology reshaping.
+The projection of the topology graph exposed to the mutator plugin: each node's Component, its resolved version, its labels and the values its instance declares. Intentionally narrower than the full topology result: edges and feature payloads are not exposed because the mutator's job is labelling, not topology reshaping. The values are there to be read, so a configuration the developer declared can decide a label; a patch reaches labels and nothing else, so the plugin cannot change them.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -60,13 +60,14 @@ _Additional properties are not permitted._
 
 ### `MutatorNode`
 
-The minimum per-node projection the mutator plugin needs to evaluate compliance rules: which Component the node implements, which version of that Component resolved, and which labels the node carries.
+The per-node projection the mutator plugin evaluates its rules against: which Component the node implements, which version of that Component resolved, which labels the node carries, and which values its instance declares.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `component` | string | yes | The name of the underlying Component the node instantiates. |
 | `resolved_version` | string | yes | The exact Semantic Version of the Component the resolver pinned for this node. |
 | `labels` | map of string | yes | The node's duck-typing and ontology labels. |
+| `values` | object | no | The values the node's component instance declares in the Aggregate, keyed as the author wrote them and in the author's order. Every template in the Aggregate has already been evaluated against its parameters, so a value hoisted into a parameter arrives as the value the Release supplied, or as the parameter's default. Only the instance's own values are here: a default the Component's schema declares, and anything a Recipe or a Feature contributes, are not. A value the Component declares sensitive arrives withheld, exactly as the governance verdict over the whole graph receives it: in its place sits the same single-key withheld-marker object that verdict carries, naming the reason declared, and a sibling value no declaration reaches arrives as written. A plugin reads them to decide which labels to add; a patch cannot reach them. Absent when the instance declares no values. |
 
 _Additional properties are not permitted._
 

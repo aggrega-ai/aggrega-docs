@@ -109,11 +109,13 @@ that should serve two roles is attached twice — once per role.
   this role adds to a build a capability the developer did not type.
 - **`label-transform`** — the guest reports label changes to apply, during topology
   construction: after the graph is built, and before the graph is judged. The
-  payload carries a labels-only projection of the build's nodes — each with the
-  Component it instantiates, the version resolved for it, and the labels it
-  currently carries — plus the Release's name and environment. Use it for
-  derived metadata a developer should never have to type: compliance scope,
-  ownership, cost attribution.
+  payload carries a projection of the build's nodes — each with the Component it
+  instantiates, the version resolved for it, the labels it currently carries, and
+  the values its instance declares, read-only and with every value its Component
+  declares sensitive withheld as the graph verdict withholds it — plus the Release's name and
+  environment. Use it for derived metadata a developer should never have to type
+  (compliance scope, ownership, cost attribution) and for a capability label a
+  developer's declared configuration earns.
 
 The roles carry different payloads because they act at different moments and answer
 different questions. All four carry the same operator-supplied input channel
@@ -449,7 +451,7 @@ the wire gives it.
 
 **The build graph sits at a different path in the two roles that carry one.** A
 verdict over the graph receives the whole graph document, so its nodes are at
-`input.graph.spec.nodes`; the label-shaping role receives a labels-only projection,
+`input.graph.spec.nodes`; the label-shaping role receives a projection of the nodes,
 so its nodes are at `input.graph.nodes`. A rule moved between those two roles is
 therefore edited, not copied — and the symptom of forgetting is a rule that never
 fires rather than an error, because a path that is not there is simply undefined.
@@ -458,7 +460,7 @@ fires rather than an error, because a path that is not there is simply undefined
 | --- | --- |
 | `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). The list is always present: a build with no route between components carries an empty list. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
-| `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
+| `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version`, `labels`, and `values`: the values the node's instance declares in the Aggregate, with its templates evaluated against its parameters, absent when it declares none. A value the node's Component declares sensitive reads as `{"aggrega_withheld": "declared"}`, as it does at `ir-verdict`, and its undeclared siblings read as written. A rule reads `input.graph.nodes[id].values` to decide a label; it cannot change a value. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
 Every role additionally carries `input.sources` — the attachment's own files, each
