@@ -504,7 +504,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0014` | `inject-entry-ambiguous` | ``inject entry carries both `value:` and `from:`; schema requires exactly one`` |
 | `E0015` | `uses-inject-forbidden` | `uses-edge inject dictates a delivery mechanism the socket does not permit` |
 | `E0016` | `patch-test-operation-failed` | `jsonpatch: test operation failed` |
-| `E0017` | `annotation-injection-rejected` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` |
+| `E0017` | `annotation-injection-rejected` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply, or carries a value that is not a string or an object of subkeys` |
 | `E0018` | `policy-settings-invalid` | `policy attachment settings do not satisfy the plugin's declared settings schema` |
 | `E0019` | `endpoint-requires-reference-form` | `endpoint requires form: reference` |
 | `E0020` | `invalid-cron-schedule` | `schedule is not a valid cron expression` |

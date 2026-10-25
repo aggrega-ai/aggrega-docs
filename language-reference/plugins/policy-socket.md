@@ -461,7 +461,7 @@ fires rather than an error, because a path that is not there is simply undefined
 | `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). The list is always present: a build with no route between components carries an empty list. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version`, `labels`, and `values`: the values the node's instance declares in the Aggregate, with its templates evaluated against its parameters, absent when it declares none. A value the node's Component declares sensitive reads as `{"aggrega_withheld": "declared"}`, as it does at `ir-verdict`, and its undeclared siblings read as written. A rule reads `input.graph.nodes[id].values` to decide a label; it cannot change a value. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
-| `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
+| `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and the `annotations` the Release writes on the component itself, each value as written: a string, an object of subkeys, or `null` where the component opts out of an annotation it would inherit. Every key the component carries is present whatever its value, so a rule can leave alone a key someone already wrote. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
 Every role additionally carries `input.sources` — the attachment's own files, each
 with its base-name `path` and its `content` — and `input.settings`, the attachment's
@@ -600,9 +600,40 @@ annotations contains {
 The field names a decision writes are the field names it read its targets under, so
 the convention is learnable from the payload alone. Reading `input.binding_keys`
 lets a policy inject only keys the Manifest has registered a meaning for — those
-are the ones that expand into a Feature attachment. An annotation value is a string.
-A decision naming a component the payload does not carry is refused by the build,
-naming the coordinate and the annotation.
+are the ones that expand into a Feature attachment.
+
+A decision's value is one you could write on that annotation yourself: a string,
+or an object of subkeys. A binding that routes one subkey takes a string; a binding
+that routes several takes an object naming each of them, exactly as an operator
+writes it in the Release:
+
+```rego
+annotations contains {
+    "boundary_path": target.boundary_path,
+    "component_name": target.component_name,
+    "annotation_key": "feature.aggrega.ai/monitoring",
+    "annotation_value": {"interval": "30s", "port": "metrics", "path": "/metrics"},
+} if {
+    some target in input.targets
+    not target.annotations["feature.aggrega.ai/monitoring"]
+}
+```
+
+The build reads an injected value exactly as it reads the same value written in the
+Release, so it expands the same way and is checked against the bound Feature the
+same way. The engine holds an object's keys sorted, so the subkeys reach the build
+in sorted order. A value of any other shape — `null`, a list, a number, a boolean,
+or an object with no subkeys — is refused by the build, naming the injection: the
+role adds annotations, and `null` or an empty object reads as the opt-out an author
+writes to remove one. A decision naming a component the payload does not carry is
+refused the same way, naming the coordinate and the annotation.
+
+Where the build refuses an injected annotation for how it routes or what it carries
+— a string fed to a binding that routes several subkeys, a subkey value the bound
+Feature's schema does not admit, or a subkey routed through the `values` pillar,
+which a Release-side annotation may not use — the refusal names the plugin that
+injected it and the governance role it is attached at, so the value is traced to the
+policy that decided it rather than to a line of the Release nobody wrote.
 
 ### Attaching a whole policy set as one archive
 
@@ -963,10 +994,24 @@ an empty key or an empty component name is not something a policy meant to ask f
 boundary a component sits under can legitimately be named by the empty string, so that
 field must be present but may be empty.
 
+The value is one you could write on that annotation yourself: a string, or a map of
+subkeys, which is what feeds a binding that routes several subkeys at once —
+`"annotation_value": {"interval": "30s", "port": "metrics", "path": "/metrics"}`. The
+engine writes a map's subkeys in sorted order, since the expression language fixes no
+order for a map, and passes the value on as the expression produced it; a value the
+JSON model cannot hold — bytes, a timestamp, a duration — is refused rather than
+turned into text. The build then reads the value exactly as it reads the same value
+written in the Release, and refuses `null`, a list, a number, a boolean or an empty
+map, naming the injection. Two decisions for one component and key with different
+values are ordered by the value's JSON. A target's `annotations` carry each existing
+value as written — a string, a map, or `null` for an opt-out — so testing
+`"feature.aggrega.ai/monitoring" in t.annotations` finds a key whatever its value.
+
 A decision naming a component the payload does not carry is refused by the build,
-naming the coordinate and the annotation. As with labels, **reach one decision per
-component and annotation key**, resolving the value inside the expression rather than
-emitting two decisions for one key.
+naming the coordinate and the annotation. Where the build refuses an injected
+annotation for its routing, its subkey values or its pillar, the refusal names the
+plugin that injected it and the role it is attached at. As with labels, **reach one decision per component and annotation key**, resolving
+the value inside the expression rather than emitting two decisions for one key.
 
 ### When a policy or a decision cannot be read
 

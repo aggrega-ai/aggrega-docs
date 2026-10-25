@@ -217,7 +217,12 @@ with one attached plugin and several attachments of it:
   a policy adds annotations to the build's components; an annotation under a key
   the Manifest registers a binding for expands into a Feature attachment, so a
   corporate rule can supply the wrap a component needs rather than merely rejecting
-  its absence.
+  its absence. A decision writes any value an operator could write on that
+  annotation — a string, or an object of subkeys for a binding that routes several —
+  and the build reads it exactly as it reads the same value written in the Release.
+  It may only add: a value that would remove or opt out of an annotation is refused,
+  and an injected value the build cannot route or the bound Feature does not admit is
+  refused naming the plugin that injected it.
 
 A rule reads what the payload carries and reports its decision under a named key:
 

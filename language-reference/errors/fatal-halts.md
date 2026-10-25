@@ -1196,7 +1196,9 @@ Emitted message (undeclared-subkey variant):
 
 > annotation subkey does not conform to the target Feature's schema at the routed pillar: annotation subkey `<subkey>` is not declared at Feature `<feature-uri>` spec.schema.`<pillar>`.`<subkey>`
 
-The halt is raised during annotation expansion, so the diagnostic is wrapped with the scope the value was authored at — the boundary and component for a Release-side annotation, the component path for an Aggregate-side one — and the annotation key it came from.
+The halt is raised over the annotation as written, before it is expanded into a Feature attachment, so the diagnostic names the document and the scope the value was written at — the boundary and component for a Release-side annotation, the component path for an Aggregate-side one — and the annotation key it came from.
+
+**An annotation a governance plugin injected is judged the same way, and the diagnostic says who wrote it.** A plugin attached to inject annotations sets its value on a Release component, so the value is checked exactly as one an operator wrote there — but the Release line the diagnostic points at is one nobody wrote. The diagnostic therefore adds which plugin injected the value and the governance role it is attached at, and the fix is in that plugin's decision rather than in the Release.
 
 **How to fix:** correct the bound value to satisfy the declared sub-schema, or widen that property's schema if the value is legitimate. The undeclared-subkey variant is usually pre-empted by the binding-target halt above; reaching it means the binding declares the path and the Feature's schema does not carry it, so correct whichever of the two is wrong. When an intermediate composition operator makes a path unresolvable and the runtime later rejects it, narrow the schema to surface the property at the binding's path directly.
 
@@ -1214,7 +1216,9 @@ Emitted message:
 
 > annotation routes through a pillar its authoring side may not use: annotation `<key>` at `<source>` routes through pillar `<pillar>` at path `<path>`, but `<side>`-side annotations may only route through pillar `<permitted-pillar>`
 
-**How to fix:** route the annotation from the side whose pillar the binding targets, or add a binding — under its own annotation key — whose paths target the pillar the authoring side is permitted. Where one binding declares the same path in both pillar lists, split it into two bindings so each side has a path it can reach.
+An annotation a governance plugin injected sits on a Release component, so it is a Release-side annotation and the same partition applies to it. Its diagnostic adds which plugin injected it and the governance role it is attached at, because the Release key it points at is one nobody wrote.
+
+**How to fix:** route the annotation from the side whose pillar the binding targets, or add a binding — under its own annotation key — whose paths target the pillar the authoring side is permitted. Where one binding declares the same path in both pillar lists, split it into two bindings so each side has a path it can reach. Where the diagnostic names an injecting plugin, the annotation comes from that plugin's decision: correct the plugin, or the binding it injects under.
 
 ### Authored values or infra do not conform to the declared schema
 
@@ -1833,20 +1837,23 @@ Both are refused up front rather than skipped, and the reason is what a skip wou
 
 **How to fix:** nothing in your files produces either, and there is no authoring change that clears one — the fault is in how the build was wired rather than in what it was asked to build. Report it with the command you ran and the workspace configuration it ran against.
 
-### An annotation-transform plugin names a component it was not given
+### An annotation-transform plugin names a component it was not given, or injects a value no annotation takes
 
 <!-- covers: internal/compiler/pipeline.ErrAnnotationInjectionRejected -->
 
-An operator may attach a governance plugin in a role that adds annotations, and that attachment is a declaration: the operator asked for the transformation, so what the plugin adds is explicit rather than injected behind anyone's back. The role is confined to match. The plugin is handed the component coordinates your documents declare, and may add string-valued annotations onto those. The shape it returns admits nothing else — no other field, no other kind of value — so the one confinement left to check after its output is applied is whether every injection named a coordinate it was given.
+An operator may attach a governance plugin in a role that adds annotations, and that attachment is a declaration: the operator asked for the transformation, so what the plugin adds is explicit rather than injected behind anyone's back. The role is confined to match. The plugin is handed the component coordinates your documents declare, and may add annotations onto those, each carrying a value you could have written on that annotation yourself: a string, or an object of subkeys. The shape it returns admits no other field, so what is left to check when its output is applied is whether every injection named a coordinate it was given, and whether every value is one an annotation takes.
 
 An injection naming a boundary-and-component pair outside that set stops the build. A plugin reaching a component your documents never exposed would be configuring infrastructure nobody declared, and the annotations it adds are expanded into Feature attachments exactly as authored ones are, so the effect would be resources appearing from a component the operator did not put in front of it.
 
+An injection whose value is null, a list, a number, a boolean, or an object with no subkeys stops the build too. Null and an empty object read as the value you write to opt a component out of an annotation it would inherit, and the role adds annotations rather than removing them; the other shapes are not values an annotation takes. The whole output is checked before any of it is applied, so a refused output changes nothing.
+
 Each accepted injection also carries a companion annotation, `aggrega.ai/injected-by`, naming the plugin that made it. The host writes that annotation; a plugin cannot supply one, so what it says about where an injected annotation came from is not the plugin's to shape.
 
-Emitted message:
-> annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply: injection targets boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`)
+Emitted message, for a coordinate the plugin was not given and for a value no annotation takes:
+> annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply, or carries a value that is not a string or an object of subkeys: injection targets boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`)
+> annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply, or carries a value that is not a string or an object of subkeys: injection for boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`) carries a list; an injected annotation value is a string or an object of subkeys
 
-**How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input. Where the component in the message is one you expected the plugin to see, check that the Release declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
+**How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input, and only a string or an object of subkeys as a value. Where the component in the message is one you expected the plugin to see, check that the Release declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
 
 ### A plugin reference is not a Plugin entity
 
@@ -6020,7 +6027,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0014` | ``inject entry carries both `value:` and `from:`; schema requires exactly one`` | An `inject:` entry carries both a literal and a source key |
 | `E0015` | `uses-edge inject dictates a delivery mechanism the socket does not permit` | `uses` edge dictates delivery on a socket that allowlists none; `uses` edge dictates a delivery mechanism outside the socket's allowlist |
 | `E0016` | `jsonpatch: test operation failed` | A patch's `test` operation did not match the document |
-| `E0017` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` | An annotation-transform plugin names a component it was not given |
+| `E0017` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply, or carries a value that is not a string or an object of subkeys` | An annotation-transform plugin names a component it was not given, or injects a value no annotation takes |
 | `E0018` | `policy attachment settings do not satisfy the plugin's declared settings schema` | A governance attachment's settings do not match the plugin's declared schema |
 | `E0019` | `endpoint requires form: reference` | A `workload:` form and the fields beside it do not agree |
 | `E0020` | `schedule is not a valid cron expression` | A workload `schedule:` is not an expression the check accepts |
