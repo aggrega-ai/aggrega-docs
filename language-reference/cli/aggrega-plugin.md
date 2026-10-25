@@ -218,8 +218,7 @@ command defaults to the global config shared across every workspace. --global an
 
 ```
 Load a .wasm guest from a filesystem path, call one of its declared
-exports with an optional payload, and write the guest's response bytes to
-stdout.
+exports with an optional payload, and write the guest's answer to stdout.
 
 The guest is addressed directly by --plugin path; it is not resolved through
 the workspace plugin cascade. The export named by --export must be one the
@@ -249,6 +248,14 @@ shape from the export's name, so it covers each export a socket calls by
 default; an entry function an attachment or a pipeline step names under a name
 of its own receives the payload as written. The authored payload stays JSON
 either way.
+
+The answer is converted the same way in reverse. An export a socket calls
+answers in that binary encoding, so its answer is read as the export's output
+shape and written to stdout as indented JSON; an answer that is not that shape
+is reported as an error naming the export rather than printed. A cli_run
+export's answer, and an entry function under a name of its own, are written to
+stdout exactly as the guest wrote them. When the guest exits non-zero, what it
+wrote is passed through unchanged.
 
 In the artifact form, --type optionally names a plugin type the guest's
 describe() self-report must agree with, or the load is rejected before the

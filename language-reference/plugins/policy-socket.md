@@ -459,13 +459,38 @@ fires rather than an error, because a path that is not there is simply undefined
 | Role | What a policy reads |
 | --- | --- |
 | `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). The list is always present: a build with no route between components carries an empty list. |
-| `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
+| `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. `format` is the format the provider that rendered the file declared for it — the Terraform provider declares `hcl` for every `.tf` file it emits and `json` for every `.tf.json` file, a vendored module's files included — and the empty string where no provider declared one, as for a file a Recipe contributes to a boundary's shared output. Such a file is still parsed by its extension, so its `documents` are there either way. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version`, `labels`, and `values`: the values the node's instance declares in the Aggregate, with its templates evaluated against its parameters, absent when it declares none. A value the node's Component declares sensitive reads as `{"aggrega_withheld": "declared"}`, as it does at `ir-verdict`, and its undeclared siblings read as written. A rule reads `input.graph.nodes[id].values` to decide a label; it cannot change a value. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and the `annotations` the Release writes on the component itself, each value as written: a string, an object of subkeys, or `null` where the component opts out of an annotation it would inherit. Every key the component carries is present whatever its value, so a rule can leave alone a key someone already wrote. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
 Every role additionally carries `input.sources` — the attachment's own files, each
-with its base-name `path` and its `content` — and `input.settings`, the attachment's
-settings object, which is also the policy's `data` document.
+with its base-name `path` and its `content`. A policy runs only as one of those files,
+so wherever a rule reads the list it holds at least that file.
+
+`input.settings` is the attachment's settings object, the same object as the
+policy's `data` document, and it is there when the attachment declares settings.
+When the attachment declares none, what a rule finds depends on the role: at
+`ir-verdict`, `label-transform` and `annotation-transform` the field is absent, so
+`input.settings` is undefined like any path the payload does not carry, and at
+`render-verdict` it is the empty object. So a rule that depends on whether a
+setting was configured tests the setting it reads rather than the object, which
+behaves the same at every role — a configured `max_nodes` is read, and an
+unconfigured one leaves `input.settings.max_nodes` undefined and the rule silent:
+
+```rego
+package example
+
+import rego.v1
+
+deny contains msg if {
+    limit := input.settings.max_nodes
+    count(input.graph.spec.nodes) > limit
+    msg := sprintf("this build declares more than %v nodes", [limit])
+}
+```
+
+The CEL engine treats an undeclared settings object differently, and says so in its
+own section below.
 
 `attached_features` and `binding_keys` are lists rather than objects, so a policy
 tests membership with `in`:
@@ -703,9 +728,10 @@ above, and they are identical for both engines — one wire, read under one root
 The attachment's own files are at `input.sources` and its settings at
 `input.settings`, so an operator-supplied threshold is read as
 `input.settings.max_nodes`. There is no second document to learn: settings are part of
-`input` like everything else. Both are always present as a value — empty when the
-attachment declares none — so an expression addressing them does not have to guard for
-their absence.
+`input` like everything else. Both are always present as a value — the settings are the
+empty object at every role when the attachment declares none — so an expression
+addressing them does not have to guard for their absence, and whether one setting was
+configured is a test on its key: `has(input.settings.max_nodes)`.
 
 ### The two authored forms, and the file name that chooses between them
 
@@ -1049,7 +1075,7 @@ A render-stage adapter reasons over the build's **rendered output** rather than
 its IR graph. The render payload carries the emitted artifacts — each with its
 output path and its rendered content, and, where they apply, the format it was
 rendered in and a parsed structured view of it — plus the attachment's own sources
-and settings. An adapter reads that content for the output shape it targets,
+and settings, each where the attachment declares it. An adapter reads that content for the output shape it targets,
 evaluates a policy over the structured result, and maps the outcome to
 `halt` / `warn` / `info` verdicts. Because the payload names no output shape of its
 own, one adapter pattern serves any render target; a new output shape is a new
