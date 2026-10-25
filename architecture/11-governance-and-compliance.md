@@ -1,6 +1,6 @@
 # Governance and Compliance
 
-This chapter defines how Platform Teams enforce corporate compliance, manage Day-2 lifecycle events, and ensure the physical infrastructure scales safely across multiple environments.
+This chapter defines how Platform Teams enforce corporate compliance across every build — through the governance socket, the catalog's baselines and schemas, and the conventions catalog authors follow — without hardcoding policy into the compiler. Day-2 lifecycle events are the subject of [Day-2 Lifecycles](12-day-two-lifecycles.md).
 
 ## Enterprise Governance & Compliance Patterns
 
@@ -24,7 +24,7 @@ metadata:
   name: acme/corporate-baseline
   version: 1.0.0
   labels:
-    component.aggrega.ai/type: "server" # Placeholder, safely overwritten by child components during Two-Tiered Merge
+    component.aggrega.ai/type: "server" # Placeholder; an extending child replaces it with its own type label
 spec:
   schema:
     values:
@@ -73,13 +73,13 @@ deny contains msg if {
 The value is always present on every edge, whichever way the edge was authored, so a policy never has to read an absent field as "declared". And it is an axis of its own: it says where the socket came from, not who drew the edge, so it composes with `origin_feature` and `origin_release` rather than overlapping them — a policy can forbid free-form connections while still allowing the Release to wire declared ones.
 
 **Centralized Enterprise Governance (Evaluating Complete Reality):**
-Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to govern architecture is a weak workaround. All governance is localized in the compiler's governance verdict roles. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Ops Engineer's `Release`, the policy engine evaluates the complete reality before physical artifacts are generated. Policies can fatally halt the build if a developer requests an unapproved Component, if Ops maps a component to an unapproved Recipe in the Manifest, or if an insecure Wasm mutation is attached to a Component carrying a `restricted` subsystem label.
+Out-of-band mechanisms (like `CODEOWNERS` on a git repository) review the files that change, not the architecture they compile to. The governance verdict roles judge the architecture itself. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Platform Operator's `Release`, a policy at the `ir-verdict` role evaluates the complete reality before physical artifacts are generated, and one at the `render-verdict` role evaluates the artifacts themselves. Policies can fatally halt the build if a developer requests an unapproved Component, or — reading the `aggrega.ai/recipe-uri` provenance stamped on each rendered object — if the Manifest maps a component to an unapproved Recipe.
 
 ### 2. The Wasm Mutator Gate (Dynamic Compliance)
 
 Developers should not be forced to manually type environmental compliance tags (e.g., `environment: production` or `soc2_in_scope: true`) into their `Aggregate`, as these change depending on the GitOps target.
 
-For dynamic metadata, enterprises utilize the **Mutation Gate — the governance socket's `label-transform` role**, which runs during topology construction. After the graph is expanded, and before static analysis evaluates it, the compiler executes the Wasm plugin the enterprise attached. That plugin reads the Release's environment and the labels the nodes already declare, and names the labels the build's nodes should carry — so the required metadata reaches the component without the developer typing it (e.g., the label `compliance.aggrega.ai/data-class: restricted` decided from environment boundaries).
+For dynamic metadata, enterprises utilize the **Mutation Gate — the governance socket's `label-transform` role**, which runs during topology construction. After the graph is expanded, and before static analysis evaluates it, the compiler executes the Wasm plugin the enterprise attached. That plugin reads the Release's environment and the labels the nodes already declare, and names the labels the build's nodes should carry — so the required metadata reaches the component without the developer typing it (e.g., the label `compliance.aggrega.ai/data-class: restricted` decided from the Release's environment).
 
 A policy at this role **names the label** — the node, the key, and the value it takes — rather than writing the edit instruction the build applies. The reason matters to whoever authors one: the instruction addresses a label by path, and an Aggrega label key routinely contains a `/`, which is the path separator, so a hand-written path would address a nested location instead of one label. The build addresses the label the decision names, and the labels-only projection this role receives puts its nodes one level shallower than a verdict over the whole graph.
 
@@ -108,19 +108,19 @@ The practical consequence for a platform team closing the compliance circle: exp
 
 ### 3. Preserving Domain Intelligence (The Configurations & Safety)
 
-Because the Aggrega compiler is mathematically unopinionated, it possesses zero hardcoded knowledge of AI frameworks, token budgets, or memory partitioning. Instead, the generic cloud-native schemas act as an empty vessel. Rather than being hardcoded into the compiler core, highly specialized domain intelligence is distributed across the entire extensible Aggrega ecosystem. It is encapsulated within the Platform Catalog through specialized `components`, `features`, and `recipes`. Developers preserve their specific application intent within their `values` and `uses` blocks — strictly governed by the Architect's `schema:` declarations (compact form or full JSON Schema 2020-12) — while the physical translation of that intelligence is executed by target-specific WebAssembly plugins.
+Because the Aggrega compiler is unopinionated, it possesses zero hardcoded knowledge of AI frameworks, token budgets, or memory partitioning. Instead, the generic cloud-native schemas act as an empty vessel. Rather than being hardcoded into the compiler core, highly specialized domain intelligence is distributed across the entire extensible Aggrega ecosystem. It is encapsulated within the Platform Catalog through specialized `components`, `features`, and `recipes`. Developers preserve their specific application intent within their `values` and `uses` blocks — strictly governed by the Architect's `schema:` declarations (compact form or full JSON Schema 2020-12) and `usesSchema` sockets — while the physical translation of that intelligence is executed by target-specific WebAssembly plugins.
 
 **A. Modeling Domain-Specific Implementations (Validated via Split Schemas)**
 
 Platform Architects can leverage the Split Schema pipeline to model any complex architecture, completely independent of the core compiler:
 
 * **Opaque Execution Logic (`values`):** If an enterprise deploys an AI Gateway, the Developer configures the gateway's own behaviour — on the standard library's AI gateway, the `models` map publishing each alias a caller may ask for and the upstream each one resolves to. The core compiler does not parse these concepts. They reside safely in the opaque `values` payload, strictly validated by the component's `schema:` declaration. The compiler simply passes this payload to the Wasm plugin to generate the gateway's configuration. Controls that several gateway products share, such as a fallback chain, a retry count or the choice between entries publishing the same alias, are Features attached to the gateway rather than values on it, each realized for a gateway in that gateway's own terms.
-* **Topological Dependency Mapping (`uses`):** If an AI framework requires `tools_allowed` arrays or explicitly maps agents to vector datastores, these configurations dictate *who talks to whom*. Therefore, they must be declared in the `uses` pillar. The compiler draws these explicit edges in the IR Graph verbatim. This allows downstream Wasm rendering plugins to programmatically generate the network policies and physical boundaries required to secure the connections, without the compiler understanding the underlying AI framework.
-* **Complex Data Structures (e.g., CoALA):** Rather than being limited to flat arrays, Architects can use JSON Schema 2020-12 (in compact form or full form) to enforce deeply structured dictionaries in the `uses` block. For example, to implement the CoALA framework, an Architect can mandate `semantic_memory`, `episodic_memory`, and `working_memory` as distinct topological targets. The generic policy engines evaluate these structured edges to mandate granular access control guardrails for each distinct cognitive lobe.
+* **Topological Dependency Mapping (`uses`):** Where an AI framework wires an agent to its tools or to a vector datastore, that wiring dictates *who talks to whom*, so it is declared in the `uses` pillar; a list of names kept in `values`, such as the standard library's `tools_allowed`, is a convention that draws no edge. The compiler draws these explicit edges in the IR Graph verbatim. This allows downstream Wasm rendering plugins to programmatically generate the network policies and physical boundaries required to secure the connections, without the compiler understanding the underlying AI framework.
+* **Complex Data Structures (e.g., CoALA):** Rather than being limited to one flat list of targets, Architects declare as many sockets in `usesSchema` as a structure needs, each with its own selector and its own per-edge `valueSchema`. For example, to implement the CoALA framework, an Architect can declare `semantic_memory`, `episodic_memory`, and `working_memory` as distinct sockets, so each memory store is a distinct topological target. The generic policy engines evaluate these structured edges to mandate granular access control guardrails for each distinct cognitive lobe.
 
 **B. Core Security & Indirection Mechanisms**
 
-While the payload is unopinionated, the generic schema enforces strict structural mechanisms to guarantee secure artifact generation:
+While the payload is unopinionated, the generic schema enforces strict structural mechanisms that support secure artifact generation:
 
 * **The Attachment-Not-A-Value Pattern:** the standard-library convention is that a credential is requested as an *attachment*, never written into a `values` block where it would be an inline literal the compiler carries verbatim. A credential attachment names a credential Feature `type` (one labeled `feature.aggrega.ai/kind: secret`) and uses its own `values` to describe the query against a secret store. Credential routing is then capability-agnostic late binding, and the core compiler never resolves or exposes the material — it pipes the pointer the Ops Recipe supplied. This is a **convention** the catalog and the schemas encourage, not a compiler check: the compiler does not interpret what a `values` leaf means, so an author who inlines material inlines it. What the schema *does* guarantee is that the attachment surface exists and is typed.
 * **Abstract Trust Verification:** Because the `values` block is broadly extensible, Architects can mandate abstract directives like `tls_pinning` or `required_signatures: 2` (for Quorum consensus). The core compiler passes these schema-validated objects into the flat IR graph verbatim. A custom Wasm rendering plugin can then read these values to generate artifacts for hardware-level Human-in-the-Loop (HITL) approval gates. If an application attempts to bypass consensus rules, the physically deployed proxy blocks the execution until a webhook approval is received.
@@ -141,9 +141,9 @@ Developers do not write network policies directly; the required network boundari
 
 ### 5. Compile-Time Provenance Stamping
 
-The compiler builds a provenance record during compilation, capturing compiler version, catalog digests, and the build timestamp. Helm and helm-chart renderers emit this as the `aggrega.ai/compiler-version` label on generated Kubernetes manifests; enterprise security teams use this to identify which deployments were built by which compiler version — critical when a vulnerability is discovered in a specific compiler release and affected deployments need to be audited.
+The compiler builds a provenance record during compilation, capturing the compiler version and the versions of the Aggregate, Manifest and Release it compiled — and no timestamp, so the record never breaks byte-identical output. Helm and helm-chart renderers emit the compiler version as the `aggrega.ai/compiler-version` label on generated Kubernetes manifests; enterprise security teams use this to identify which rendered artifacts were built by which compiler version — important when a vulnerability is discovered in a specific compiler release and the affected artifacts need to be audited.
 
-*The compose provider stamps provenance in its native tagging mechanism as its renderer adds that capability; the in-memory provenance record exists for every compilation today.*
+*The compose provider stamps the same provenance keys as service labels, the terraform provider as a provenance file in each module it assembles, and the cloudformation provider under each resource's `Metadata`; the in-memory provenance record exists for every compilation today.*
 
 ### 6. Metadata and Annotations as the Extension Surface
 
@@ -236,7 +236,7 @@ deny contains msg if {
 ```
 
 A rule that follows data along the graph reads the routes the payload enumerates.
-[`language-reference/examples/policy-data-class-route/`](../language-reference/examples/policy-data-class-route/)
+[`language-reference/examples/policy-data-class-route/`](../language-reference/examples/policy-data-class-route/README.md)
 is one, end to end: it halts a build where a component holding data of one class
 reaches a component of another class along a route with no declassifying Feature
 attached on it, and the same Aggregate completes when a Release routes that traffic
@@ -284,7 +284,7 @@ What a child Component does compose is **structure**: its attachment slots (`fea
 
 The publishing-discipline plugin is the home for **cross-cutting rules that apply across the catalog**: supply-chain rules (e.g., "every Recipe must `implements:` a Component that exists in the catalog"), enterprise compliance rules (e.g., "every Component with `compliance.aggrega.ai/scope: pci-dss` must `extends:` the corporate pci baseline"). These rules cross multiple entities, evaluate the workspace as a unit, or enforce conventions at publish time rather than at build time.
 
-The per-Component / per-Feature `schema:` declaration is the home for **per-entity constraints**: per-field types, ranges, patterns, enums; cross-field rules expressed in the dedicated `assertions:` block (chapter 08). These constraints are local to one entity and travel with it through the catalog.
+The per-Component / per-Feature `schema:` declaration is the home for **per-entity constraints**: per-field types, ranges, patterns, enums; cross-field rules expressed in the dedicated [`assertions:` block](../language-reference/templates/assertions-block.md). These constraints are local to one entity and travel with it through the catalog.
 
 The split is not arbitrary. A rule like "every required field must be present" is a per-entity constraint that belongs in `required:` arrays. A rule like "every child entity that extends a `pci-dss` parent must declare a workspace-level governance label" is a cross-entity rule that the policy plugin enforces. The two rule classes never overlap because they answer different questions: the schema validates "does this instance match its contract"; the policy plugin validates "does this catalog satisfy the cross-cutting rules the workspace requires".
 
@@ -307,6 +307,6 @@ Sub-domain prefixes under `<sub-domain>.aggrega.ai/` are the catalog-convention 
 
 Enterprise-domain prefixes (`acme.com/...`, `my-org.io/...`) are the platform-extension surface. The Aggrega compiler treats them as opaque metadata; enterprise Wasm plugins consume them. Enterprises author whatever prefix structure fits their governance — flat (`acme.com/owner: team-payments`), sub-domain (`security.acme.com/scope: pii`), or hierarchical (`org.acme.com/billing-center: finance`). The platform does not constrain enterprise prefix layout; the only rule is that enterprise prefixes do not collide with `aggrega.ai/` or its sub-domains.
 
-The discipline matters because annotations cascade — labels authored on an Aggregate's subsystem propagate to every component in the subsystem; annotations on a Release boundary propagate to every component in the boundary. Without prefix discipline, an Aggregate-side annotation could silently override a platform-emitted provenance key, or an enterprise annotation could collide with a catalog-convention key. The prefix table makes the audiences explicit and the collision-prevention rule enforceable at publish time.
+The discipline matters because annotations cascade — annotations authored on an Aggregate's subsystem propagate to every component in the subsystem; annotations on a Release boundary propagate to every component in the boundary. Without prefix discipline, an Aggregate-side annotation could silently override a platform-emitted provenance key, or an enterprise annotation could collide with a catalog-convention key. The prefix table makes the audiences explicit and the collision-prevention rule enforceable at publish time.
 
 See [`language-reference/vocabulary/labels-and-annotations.md`](../language-reference/vocabulary/labels-and-annotations.md) for the per-entity annotation surface enumeration and the three-bucket cascade semantics (`.context.annotations.release` / `.context.annotations.catalog` / `.context.annotations.aggregate`).

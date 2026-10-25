@@ -4,14 +4,14 @@
 
 A capability-agnostic Ahead-of-Time (AOT) compiler inherently creates a gap between declarative intent (Day-1) and operational reality (Day-2). The cloud is not perfectly deterministic, deployment requires temporal sequencing, and developers require imperative triggers for maintenance tasks.
 
-Aggrega structurally bridges these gaps through specific architectural polyfills and GitOps-native routing, ensuring the generated configurations are fully equipped to handle real-world enterprise chaos without compromising the purity of the core compiler.
+Aggrega structurally bridges these gaps through specific architectural polyfills and GitOps-native routing, so the generated configurations meet these operational needs without compromising the purity of the core compiler.
 
 ### 1. The DAG Execution Model (Temporal Sequencing)
 
 **The Problem:** Infrastructure deployment is a Directed Acyclic Graph (DAG) of *time*. A database migration `task` must run to completion *before* the web `server` boots up. However, AOT compilers generate flat folders of static YAML or Terraform. If you hand these flat folders to a GitOps controller (like ArgoCD), it applies everything simultaneously, causing the web server to crash-loop while waiting for the database.
 
 **The Solution: per-boundary `syncWave` in the Release**
-We leave the Developer's `Aggregate` completely untouched. Because sequencing is a physical operational reality, it is strictly managed in Domain 4 (the `Release`). Each boundary in the Release carries an optional `syncWave: <integer>` field, allowing DevOps to explicitly stage deployment ordering at the boundary level.
+The Developer's `Aggregate` is left untouched. Because sequencing is a physical operational reality, it is strictly managed in Domain 4 (the `Release`). Each boundary in the Release carries an optional `syncWave: <integer>` field, allowing the Platform Operator to explicitly stage rollout order at the boundary level.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -53,7 +53,7 @@ The compiler propagates each boundary's wave value to every rendered manifest in
 * **For Compose:** the compose provider expresses the ordering as `depends_on` between the services of the file a boundary renders into, gated on the target's health where the target declares a `healthcheck` and on its start where it does not. `depends_on` names a service inside one file, so ordering across two compose files is not expressible; operators sequence separate compose projects at the `docker compose up` invocation layer.
 * **For CloudFormation:** the cloudformation provider expresses the ordering as `DependsOn` between the resources of the stack template a dispatch group assembles into, each resource naming the resources of the immediately-preceding populated wave and the target chaining the rest. The attribute governs deletion order in reverse as well as creation order; it expresses no readiness condition, because a template has no notion of a resource being serviceable. `DependsOn` names a resource inside one template, so ordering across two stacks is not expressible; operators sequence separate stacks at the deployment layer.
 
-The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` label continues to ship alongside the ArgoCD annotation for observability and provenance use (queryable via `kubectl get -l aggrega.ai/sync-wave=1`); the annotation is what GitOps controllers consume.
+The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` key continues to ship alongside the ArgoCD annotation for observability and provenance use — as an annotation on helm output, as a service label on compose — while the ArgoCD annotation is what GitOps controllers consume.
 
 #### Wave-authoring vs deployable unit
 
@@ -69,15 +69,15 @@ Cross-Application sequencing (when an operator runs multiple ArgoCD Applications
 
 **The Problem:** The cloud is non-deterministic at creation time. Resources like AWS RDS instances or S3 buckets generate random URL hashes *only after* they are physically provisioned. Because the AOT compiler generates configuration *before* the cloud provisions anything, it is physically impossible for the compiler to inject the literal database URL into a container's environment variable.
 
-**The Solution: Deterministic Pointers via the Credential Pillar**
-Aggrega solves this by leveraging the existing `inject` mechanism, shifting the definition of "deterministic" from a literal IP address to a *deterministic pointer*. The generated configuration does not pass the URL; it passes the path to a Cloud Vault where the URL *will* exist.
+**The Solution: Deterministic Pointers via Credential Features**
+Aggrega solves this by leveraging the existing credential Features, shifting the definition of "deterministic" from a literal IP address to a *deterministic pointer*. The generated configuration does not pass the URL; it passes the path to a Cloud Vault where the URL *will* exist.
 
 * **Example 1: The Output Generation (Terraform RDS)**
   The Ops Recipe for the database creates the AWS RDS instance. Crucially, the Recipe is authored to natively output that newly generated dynamic URL into AWS Systems Manager (SSM) Parameter Store at a deterministically named path (e.g., `/aggrega/prod/db-url`).
 * **Example 2: The Input Injection (Kubernetes App)**
-  The Developer writes `inject: { env: [{ in: DB_URL, from: "host" }] }`. During compilation, Aggrega maps the deterministic pointer string (`"/aggrega/prod/db-url"`) through the IR graph edges. The Wasm rendering plugin for the worker application translates this edge into a generated Kubernetes `ExternalSecret` configuration and a Pod environment variable mapped to `valueFrom: secretKeyRef`.
+  The Developer attaches the credential Feature `core/referenced-secret` to the worker, in a slot its Component declares, with `origin` set to the deterministic pointer string (`"/aggrega/prod/db-url"`). On a Kubernetes target the Manifest binds that attachment to `helm/k8s-external-secret`, which renders a Kubernetes `ExternalSecret` asking the cluster's secret-store operator to fetch that entry into a Secret, and publishes the Secret's name and data key; the worker's Recipe reads them through its container's `attachments:` and renders a Pod environment variable mapped to `valueFrom: secretKeyRef` (see [How a credential reaches a container](08-credential-model.md#how-a-credential-reaches-a-container)). The compiler pipes the pointer string and never reads the URL.
 
-At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the vault, and connects flawlessly. The AOT compiler generated the relationships via stable pointer strings without ever needing the literal IP address.
+At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the Secret reconciled from the vault, and connects. The AOT compiler generated the relationships via stable pointer strings without ever needing the literal IP address.
 
 ### 3. Imperative Actions (The Executable Handoff)
 
@@ -103,14 +103,14 @@ When `aggrega build` is invoked by a CI/CD runner, the pipeline explicitly passe
 
 ### 5. Shift-Left FinOps (Cost Estimation via Policies)
 
-**The Problem:** Accidental misconfigurations (e.g., requesting `workers: 500`) can bypass financial safeguards and trigger massive cloud overruns.
+**The Problem:** Accidental misconfigurations (e.g., requesting `workers: 500`) can bypass financial safeguards and trigger large cloud overruns.
 
 **The Solution (Enterprise Wasm Policies):**
 Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate exact deployment costs prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and slot it into their governance verdict or `linter.wasm` CI/CD gates. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and return a fatal failure to the compiler if the calculated cost exceeds the enterprise's internally defined budget limits.
 
 ### 6. The "Brownfield" Import Lifecycle
 
-**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega generates configurations to connect to unmanaged infrastructure via Wasm formatter stubs (pass-through networking), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
+**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega is designed to connect a build to unmanaged infrastructure through the planned `eval` formatter (pass-through networking; see [the `eval` provider](06-data-taxonomy-and-composition.md#10-the-eval-provider-virtual-components-via-wasm-formatters)), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
 
 **The Solution (Future Implementation):**
 Aggrega will introduce the `core/resource-adoption` feature to manage the import lifecycle.
@@ -121,10 +121,10 @@ When a developer models the existing database in their `Aggregate` and attaches 
 
 While the core compiler relies on stable, internal node IDs (e.g., `support-db`) in the flat IR Graph, physical cloud providers (like AWS, Azure, and GCP) often require globally unique strings for physical infrastructure (e.g., S3 Bucket names, IAM Role names, or API Gateway domains).
 
-If a Platform Ops engineer hardcodes a physical name in their baseline template (e.g., `bucket_name: "enterprise-data-bucket"`), the generated artifacts will deploy flawlessly the first time. However, if a developer deploys a second environment (e.g., `staging` vs `prod`), the cloud provider will reject the deployment at runtime due to a naming collision.
+If a Platform Ops engineer hardcodes a physical name in their baseline template (e.g., `bucket_name: "enterprise-data-bucket"`), the generated artifacts will apply cleanly the first time. However, if a developer deploys a second environment (e.g., `staging` vs `prod`), the cloud provider will reject the second environment's resources at runtime due to a naming collision.
 
 **The Deterministic Output Rule (GitOps Safety):**
-Because GitOps controllers (ArgoCD, Flux) perform byte-level diff detection on rendered artifacts, the compiler guarantees that identical inputs produce byte-identical outputs. Maps that flow through the template context (`.context.inject.env`, `.values`, `.infra`, and the rest of the runtime view) are backed by ordered-map structures that preserve author insertion order across the data layer; `{{ range }}` over those maps iterates in author order, not in alphabetical order. Ops engineers can rely on iteration order being deterministic across runs of the same input. The Sprig `keys` function, however, returns Go-map iteration order (which is non-deterministic by language design); templates that compose a deterministic key sequence from `keys` output must pipe through `sortAlpha` (e.g., `{{ keys .values | sortAlpha }}`) to recover determinism.
+Because GitOps controllers (ArgoCD, Flux) perform byte-level diff detection on rendered artifacts, the compiler guarantees that identical inputs produce byte-identical outputs. Maps that flow through the template context (`.context.inject.env`, `.values`, `.infra`, and the rest of the runtime view) are backed by ordered-map structures that preserve author insertion order across the data layer, and the template boundary is the one exception: `{{ range }}` over those maps iterates in alphabetical key order, as Go templates do, not in author order. Ops engineers can rely on that iteration order being deterministic across runs of the same input; where sequence carries meaning, it is authored as a list rather than recovered from a map. The Sprig `keys` function, however, returns Go-map iteration order (which is non-deterministic by language design); templates that compose a deterministic key sequence from `keys` output must pipe through `sortAlpha` (e.g., `{{ keys .values | sortAlpha }}`) to recover determinism.
 
 **The Golden Rule for Ops Recipes (The Helm Pattern):**
 Platform Ops engineers must **never** hardcode physical cloud resource names. Instead, they must construct deterministically unique names by concatenating the Aggrega deployment context during the template evaluation phase. This is a **reusability and collision-safety rule**, not a determinism rule — hardcoded names produce stable output but fatally collide when the same Recipe renders multiple component instances or when the same Aggregate deploys across multiple Releases.
