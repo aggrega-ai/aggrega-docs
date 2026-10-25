@@ -4077,6 +4077,21 @@ The condition it is recorded under is `schedule is not a valid cron expression`,
 
 **How to fix:** count the fields first — a schedule with four or six of them is the commonest cause, and a stray space inside one field splits it into two. Replace a named day or month with its number, and reach for a macro where one says what you meant.
 
+### A workload `suspend:` is set on a form other than `scheduled`
+
+<!-- covers: internal/compiler/rendercore.ErrSuspendRequiresScheduledForm -->
+
+`suspend: true` holds a `form: scheduled` workload's recurring schedule: the scheduled resource is rendered, and no run starts from its schedule until it is resumed. No other form carries a schedule, so on any other form there is nothing for the field to hold, and the build halts rather than rendering a workload that silently drops it. The check runs with the other form pairings, before any target translates the workload, and an omitted `form:` reads as `stateless` here too.
+
+Emitted message:
+> workload declares suspend but is not form: scheduled; declare form: scheduled with a schedule or remove suspend
+
+It is positioned at the component instance whose workload was being read, and reported as a translation fault. The condition it is recorded under is `suspend requires form: scheduled`, which is what its short code resolves to.
+
+**The rule runs one way only, and only on `true`.** A `form: scheduled` workload without `suspend:` is ordinary and runs on its schedule, and `suspend: false`, the default, draws nothing on any form.
+
+**How to fix:** where the workload was meant to run only when someone starts it, make it `form: scheduled` with a `schedule:` and keep `suspend: true`; otherwise keep the form as written and remove `suspend:`, which no other form reads.
+
 ### A library `$import:` is not written in the bare-name form
 
 <!-- covers: internal/compiler/renderer.ErrArtifactImportShape, internal/compiler/renderer.ErrMappingImportShape, internal/compiler/renderer.ErrWorkloadImportShape -->
@@ -6320,6 +6335,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0353` | `boundary-level Feature instance name is not a directory name` | A boundary-level Feature is named `.` or `..` |
 | `E0354` | `a template does more than copy a value it reads off a cross-boundary link` | A template did more than copy a value it read off a cross-boundary link |
 | `E0355` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` | An `inject:` delivery is not a list of entries |
+| `E0356` | `suspend requires form: scheduled` | A workload `suspend:` is set on a form other than `scheduled` |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

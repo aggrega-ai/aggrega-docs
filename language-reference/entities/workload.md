@@ -121,6 +121,8 @@ containers:
 
 The helm provider emits the field as the CronJob's `spec.suspend: true`. On Kubernetes, `kubectl create job <name> --from=cronjob/<cronjob>` starts a run from the suspended CronJob, and the schedule resumes once `spec.suspend` is `false` again. `suspend: false` renders exactly as an omitted `suspend` does, so the field changes no output until it is set. The compose provider has no scheduled shape and halts on any `form: scheduled` workload, suspended or not.
 
+`suspend: true` on any other form is a build-time halt naming the fix: no other form carries a schedule for it to hold.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
