@@ -4,7 +4,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 ## Install the binary
 
-Aggrega ships as a single executable. One command installs it; the manual steps after it do the same by hand. Both put it in one folder of your own, the same one each time, and neither needs administrator rights: `~/.local/bin/aggrega` on Linux and macOS, and `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows. Homebrew, on macOS and Linux, and Scoop, on Windows, install it too, each into its own folders: see [Install with a package manager](#install-with-a-package-manager).
+Aggrega ships as a single executable. One command installs it; the manual steps after it do the same by hand. Both put it in one folder of your own, the same one each time, and neither needs administrator rights: `~/.local/bin/aggrega` on Linux and macOS, and `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows. On Windows, the Windows installer and winget install it into that same folder, also without administrator rights, and list it among your installed apps: see [Install with the Windows installer](#install-with-the-windows-installer) and [Install with winget](#install-with-winget). Homebrew, on macOS and Linux, and Scoop, on Windows, install it too, each into its own folders: see [Install with a package manager](#install-with-a-package-manager).
 
 ### Install with one command
 
@@ -58,6 +58,28 @@ $env:AGGREGA_VERSION = "<version>"
 irm https://aggrega.ai/install.ps1 | iex
 ```
 
+### Install with the Windows installer
+
+Each release carries a Windows installer, `aggrega-<version>-windows-amd64-setup.exe`, on the release page at [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Download it and run it. It installs the default `aggrega.exe` for you alone, without administrator rights and without asking for them:
+
+- **It installs into `%LOCALAPPDATA%\Programs\aggrega`**, the folder the install command uses, and adds that folder to your user `PATH` unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with.
+- **It lists Aggrega among your installed apps**, published by Cognitio S.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
+- **Run again, it installs over what is there**, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
+- **Beside `aggrega.exe`, the folder holds `uninstall.exe`** and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
+
+When `aggrega.exe` is running — started by an editor or an AI client — the installer cannot replace it, and stops with a message saying so; close what started it and run the installer again. The uninstaller stops the same way, before it has removed anything.
+
+**To install with no window**, from a script or a tool that installs software on many machines, run the installer with `/S`, written in capitals; it then installs without a window or a question, and reports a failure through its exit code, which is not `0`. The uninstaller takes the same switch:
+
+```powershell
+.\aggrega-<version>-windows-amd64-setup.exe /S
+& "$env:LOCALAPPDATA\Programs\aggrega\uninstall.exe" /S
+```
+
+The installer is signed as the executables are, with the publisher **Cognitio S.r.l.** and a timestamp: the checks in [The Windows prebuilt binary](#the-windows-prebuilt-binary) apply to it as they do to `aggrega.exe`, and so does what it says about the prompts Windows may show for a downloaded file. `SHA256SUMS` lists its digest as it does every other file of the release.
+
+Where the installer does not suit, the install command above and [the manual steps](#the-windows-prebuilt-binary) install the same `aggrega.exe` into the same folder.
+
 ### Install with a package manager
 
 Every release also updates a Homebrew formula and a Scoop manifest, so the package manager you already use can install Aggrega and keep it current. Each installs the same default binary the install command does, checked against the SHA-256 digest the release's `SHA256SUMS` gives it.
@@ -79,7 +101,19 @@ scoop install aggrega
 
 Scoop installs the Windows binary as `aggrega.exe` and makes it reachable as `aggrega` through the folder of shims it keeps on your `PATH`. After a new release, `scoop update` refreshes the buckets and `scoop update aggrega` updates it.
 
-Each package manager installs into its own folders rather than into `~/.local/bin` or `%LOCALAPPDATA%\Programs\aggrega`, and updates only the copy it installed. Use one way of installing on a machine: a copy installed by the install command or by hand and another installed by a package manager are two copies, and whichever folder comes first on your `PATH` decides which one runs.
+Homebrew and Scoop each install into their own folders rather than into `~/.local/bin` or `%LOCALAPPDATA%\Programs\aggrega`, and update only the copy they installed. Use one way of installing on a machine: a copy installed by the install command or by hand and another installed by Homebrew or Scoop are two copies, and whichever folder comes first on your `PATH` decides which one runs.
+
+### Install with winget
+
+On Windows, with [winget](https://learn.microsoft.com/windows/package-manager/winget/), the Windows Package Manager:
+
+```powershell
+winget install Cognitio.Aggrega
+```
+
+winget downloads the [Windows installer](#install-with-the-windows-installer) of the release from its release page, checks it against the SHA-256 digest the package's manifest gives, and runs it unattended. The result is the installer's own: `aggrega.exe` in `%LOCALAPPDATA%\Programs\aggrega`, that folder on your user `PATH`, and Aggrega in your list of installed apps, all without administrator rights. winget does not change the `PATH` of the terminal it runs in, so open a new terminal before running `aggrega version`.
+
+`winget upgrade Cognitio.Aggrega` installs a later release over it, and `winget uninstall Cognitio.Aggrega` runs its uninstaller. winget, the installer and the install command all install into the same folder, so whichever runs last puts the `aggrega.exe` there.
 
 ### Install it by hand
 
@@ -125,6 +159,8 @@ That file is the one the install command installs, and the one to download by ha
 
 - **`aggrega-debug-<version>-…`** is the same program with its debug information, which a debugger or a profiler reads. It runs and reports its version exactly as the default file does, and is larger.
 - **`aggrega-light-<version>-…`** is built without the embedded plugins: it resolves every plugin through the plugin cascade, as the workspace configures it, rather than finding the core ones inside itself.
+
+For Windows the release also carries `aggrega-<version>-windows-amd64-setup.exe`, the [Windows installer](#install-with-the-windows-installer), which installs the default file for you.
 
 Each release also carries `SHA256SUMS`, the SHA-256 digest of every other file it attaches, the two install scripts included, in the form `sha256sum` reads. The install command makes this check itself. To check a download by hand on Linux, with `SHA256SUMS` in the same directory:
 
