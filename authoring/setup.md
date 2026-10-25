@@ -176,18 +176,24 @@ Rename the file to `aggrega`, mark it executable, and move it into `~/.local/bin
 
 ```bash
 chmod +x aggrega-<version>-darwin-arm64
-xattr -d com.apple.quarantine aggrega-<version>-darwin-arm64
 mkdir -p ~/.local/bin
 mv aggrega-<version>-darwin-arm64 ~/.local/bin/aggrega
 ```
 
-The `mkdir` creates the folder where it does not exist yet. `~/.local/bin` is not on the `PATH` macOS gives a new terminal, so add the line from [Install it by hand](#install-it-by-hand) to `~/.zshrc`, or to `~/.bash_profile` for bash, unless it is there already. The `xattr` line is explained below; on a file that carries no quarantine mark it reports *No such xattr*, which is harmless.
+The `mkdir` creates the folder where it does not exist yet. `~/.local/bin` is not on the `PATH` macOS gives a new terminal, so add the line from [Install it by hand](#install-it-by-hand) to `~/.zshrc`, or to `~/.bash_profile` for bash, unless it is there already.
 
-**The executables are not signed with an Apple Developer ID and are not notarized by Apple.** Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark — the mark a web browser adds to a file it downloads — and refuses one that is not notarized: macOS reports that the developer cannot be verified, or that Apple could not verify the file is free of malware, and offers to move it to the Trash. The wording and the buttons depend on the macOS version. To proceed:
+**The executables are signed and notarized.** Each carries a code signature made with the Developer ID of **Cognitio S.r.l.** — the certificate Apple issues to a developer for software distributed outside the Mac App Store — with the hardened runtime and a secure timestamp, and Apple's notary service has checked each one and notarized it. Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark, the mark a web browser adds to a file it downloads, and accepts one that Apple has notarized, so a file downloaded from the release page runs as it is. A notarization ticket cannot be attached to a single executable file, so Gatekeeper finds the ticket online the first time the file runs; on a Mac that is offline at that moment, Gatekeeper may block the file until the Mac can reach Apple.
 
-- **Remove the mark.** `xattr -d com.apple.quarantine <file>`, as in the example above, removes it, and Gatekeeper then does not assess the file when it runs. Do it before the first run, or after a refusal and then run the command again.
-- **Or allow the file from the system settings.** After a refusal, open **System Settings** → **Privacy & Security** (before macOS 13, **System Preferences** → **Security & Privacy** → **General**). A line there names the blocked file and offers **Open Anyway** for about an hour after the refusal. Select it (macOS may ask for your password), run the command again, and confirm when macOS asks once more; the button reads **Open** or **Open Anyway**, depending on the version. macOS remembers the choice for that file.
-- **A file fetched with `curl` carries no quarantine mark**, so it runs without that assessment: `curl` does not add the mark a browser does. That is also why the binary the install command puts in place runs without it.
+To check a downloaded file before you run it, from Terminal, with the file name you downloaded:
+
+```bash
+codesign --verify --strict --verbose=2 aggrega-<version>-darwin-arm64
+codesign --display --verbose=2 aggrega-<version>-darwin-arm64
+```
+
+The first reports that the file is *valid on disk* and *satisfies its Designated Requirement*. The second lists the signature's authorities, the first of them `Developer ID Application: Cognitio S.r.l.` followed by the team identifier in parentheses, and a `Timestamp`. A file that fails either is not the one the release published, or was changed after it was signed.
+
+A file fetched with `curl` carries no quarantine mark, so Gatekeeper does not assess it at all: `curl` does not add the mark a browser does. That is also why the binary the install command puts in place runs without that assessment.
 
 ## Connect an MCP client
 
