@@ -21,13 +21,13 @@ The separation is guidance, not a rule the compiler enforces. A solo author is f
 Every entity kind has a canonical JSON Schema and a field-by-field reference page. Read both before you write:
 
 - **The schema** is the exact structure: required fields, allowed values, and nesting. From the command line, `aggrega get-schema <kind>` prints it; `aggrega get-schema --list` names every kind you can ask for. An assistant reads the same bytes from the `schema://<kind>` resource. See the [`aggrega get-schema`](../language-reference/cli/aggrega-get-schema.md) reference.
-- **The reference page** explains what each field *means* and how the fields relate. The entity pages live under [`language-reference/entities/`](../language-reference/entities/) — for example [component](../language-reference/entities/component.md) or [aggregate](../language-reference/entities/aggregate.md). An assistant reads the same page from the `langref://entities/<kind>` resource.
+- **The reference page** explains what each field *means* and how the fields relate. The entity pages live under [`language-reference/entities/`](../language-reference/03-entities.md) — for example [component](../language-reference/entities/component.md) or [aggregate](../language-reference/entities/aggregate.md). An assistant reads the same page from the `langref://entities/<kind>` resource.
 
 The schema tells you what is structurally valid; the reference tells you what is *sensible*. Read the schema to avoid rejection at validation time and the reference to author something that does what you intend.
 
 ## 3. Start from a skeleton
 
-Starting from a skeleton is faster and less error-prone than a blank file. An assistant connected to the MCP server calls the `scaffold` tool with a kind and a name to get a minimal starting point carrying every field the kind requires, with a placeholder wherever a value is still owed. Authoring by hand, copy the closest [worked example](../language-reference/examples/) and pare it down to what you need.
+Starting from a skeleton is faster and less error-prone than a blank file. An assistant connected to the MCP server calls the `scaffold` tool with a kind and a name to get a minimal starting point carrying every field the kind requires, with a placeholder wherever a value is still owed. Authoring by hand, copy the closest [worked example](../language-reference/examples/README.md) and pare it down to what you need.
 
 Either way, the skeleton already carries the required top-level fields (`apiVersion`, `kind`, `metadata.name`) in the right shape, so you spend your attention on the fields your role owns rather than on boilerplate.
 

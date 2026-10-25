@@ -11,6 +11,7 @@ The guide is written for two audiences at once: a person authoring by hand in an
 3. [Entities by Role](entities-by-role.md) — every entity kind mapped to the role that typically owns it, so you know which file each concern belongs in.
 4. [Setup](setup.md) — install the `aggrega` binary and connect the authoring assistant to your MCP-capable client; [its client table](setup.md#where-each-client-keeps-its-server-list) says where each client keeps the entry.
 5. [Use Aggrega from your AI assistant](ai-assistant.md) — one prompt to paste into an assistant that can run commands, so it installs Aggrega, adds the Aggrega skill and connects itself to the server.
+6. [Use Aggrega in Visual Studio Code](editor.md) — the Aggrega extension for Visual Studio Code: what it needs, the welcome page, its panels and the topology graph, and every setting and command.
 
 ## How the assistant surfaces relate to this guide
 
