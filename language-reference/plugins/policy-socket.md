@@ -119,7 +119,17 @@ that should serve two roles is attached twice — once per role.
 
 The roles carry different payloads because they act at different moments and answer
 different questions. All four carry the same operator-supplied input channel
-described below.
+described below. To see a payload rather than read about it,
+[`aggrega build --release <release> --policy-input <dir>`](../cli/aggrega-build.md)
+writes the payload each role hands a plugin attached there — a role with nothing
+attached included — as one JSON file per role, or per attachment where a role's
+attachments receive different payloads, and combined with `--dry-run` it writes those
+files and nothing else. At `annotation-transform`, `label-transform` and `ir-verdict`
+the file is the `input` document a policy reads. At `render-verdict` the policy engine
+reshapes the payload before a policy reads it — each artifact's `documents` are parsed
+from it — so a `render-verdict` policy is tested by running the engine itself,
+`aggrega plugin run-local --plugin <engine.wasm> --export verdict_render --with @<dir>/render-verdict.json`,
+which gives the build's decision.
 
 ## Verdicts and severities
 
