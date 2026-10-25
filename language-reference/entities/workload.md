@@ -115,6 +115,24 @@ containers:
     command: ["/report"]
 ```
 
+### `suspend`
+
+`suspend` holds the recurring schedule of a `form: scheduled` workload. It is a boolean and defaults to `false`. With `suspend: true` the scheduled resource is still rendered with its `schedule` in place, but no run starts from that schedule until it is resumed, and a run can still be started from the resource by hand. That is the shape for a task that should run only when someone asks for it.
+
+The helm provider emits the field as the CronJob's `spec.suspend: true`. On Kubernetes, `kubectl create job <name> --from=cronjob/<cronjob>` starts a run from the suspended CronJob, and the schedule resumes once `spec.suspend` is `false` again. `suspend: false` renders exactly as an omitted `suspend` does, so the field changes no output until it is set. The compose provider has no scheduled shape and halts on any `form: scheduled` workload, suspended or not.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+form: scheduled
+schedule: "0 2 * * *"        # documents when it would run; nothing starts it while suspended
+suspend: true
+containers:
+  report:
+    image: "reporter:1.0"
+    command: ["/report"]
+```
+
 ### `replicas`
 
 A single integer for the workload's replica count. Defaults to 1 when omitted. Use a template expression to drive replicas from Ops-declared sizing:
