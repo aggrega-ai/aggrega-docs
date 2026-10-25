@@ -2,7 +2,7 @@
 
 ## Aggrega Dependency Resolution & The Structural Topology Pillar
 
-In the Aggrega architecture, topological dependencies are mapped explicitly via the `uses` schema pillar to maintain a fully opaque `values` payload. Resolving "who talks to whom" presents a unique challenge: we must map complex, multi-node application topologies without forcing the Developer to write explicit network routing, orchestrator-level execution orders, or infrastructure dependencies.
+In the Aggrega architecture, topological dependencies are mapped explicitly via the `uses` schema pillar to maintain a fully opaque `values` payload. Resolving "who talks to whom" presents a specific challenge: complex, multi-node application topologies must be mapped without forcing the Developer to write explicit network routing, orchestrator-level execution orders, or infrastructure dependencies.
 
 ### 1. The Core Philosophy: Why `uses`?
 
@@ -27,14 +27,14 @@ The selector is held to its grammar at the moment it is evaluated, which is once
 
 Declaring the socket is not, however, the *only* way to draw an edge. An Aggregate author may name a socket on their own component that the catalog entity does not declare — including on a component type that declares no `usesSchema` at all — and the edge is built. A catalog that declares no entry for a socket has not anticipated the connection, which is not the same as forbidding it, and the developer owns the application's topology. Such a socket is called **ad-hoc**, and what it costs is exactly what declaring it buys: there is no catalog entry, so there is no selector and no per-edge contract, and cross-node type safety has nothing to evaluate. What the edge may *carry* is unchanged — every key it injects must still name a key the target's `provides` declares, and the target must still exist. Every edge in the emitted graph records which of the two it is, so a consumer never has to guess; see [governance-and-compliance](11-governance-and-compliance.md) for how an operator forbids ad-hoc sockets outright.
 
-Two surfaces are deliberately not open this way, because they do not author the application's topology. A Feature attachment's `uses` may only name a socket the attached Feature declares, and a Release's per-edge `uses` may only name a socket the consuming component declares — an operator configures and wires within an architecture, and a Feature participates in the topology its own catalog entity declares. Declaring the socket in the catalog also remains the better path and is what the standard-library catalog does: an ad-hoc socket is an escape hatch, not a new default.
+Two surfaces are deliberately not open this way, because they do not author the application's topology. A Feature attachment's `uses` may only name a socket the attached Feature declares, and a Release's per-edge `uses` may only name a socket the consuming component's catalog entity declares in its `usesSchema`, never one the Aggregate authored ad hoc — an operator configures and wires within an architecture, and a Feature participates in the topology its own catalog entity declares. Declaring the socket in the catalog also remains the better path and is what the standard-library catalog does: an ad-hoc socket is an escape hatch, not a new default.
 
 **Domain 1: The Developer Experience (Polymorphism)**
 Developers write `uses:` as a sibling to `values:` and `features:`. To ensure a frictionless UX, the schema natively supports polymorphism:
 
 * **Arrays of Strings:** Used for simple logical component references (e.g., `tools: ["search-api"]`) where standard routing is sufficient.
 * **Maps of Objects:** Used when strict delivery contracts are required (e.g., `databases: { hr_db: { target: "corporate-hr", inject: { env: [{ in: DB_URL, from: "host" }] } } }`).
-* **No Wildcards:** Wildcards (e.g., `["*"]`) are rejected by the schema to prevent "Ghost Dependencies" and unauthorized auto-wiring.
+* **No Wildcards:** There is no wildcard form, which prevents "Ghost Dependencies" and unauthorized auto-wiring: every entry names one component, so `["*"]` halts the build as a target that does not exist — no component name can contain `*`.
 
 **Domain 3: The Ops Reality (Normalization)**
 To maintain predictable Go templates, the Go compiler normalizes the polymorphic `uses` inputs. Arrays of logical component references are converted into standard objects before being passed into the strict, flat dictionary known as `.context.uses`.
@@ -43,11 +43,11 @@ To maintain predictable Go templates, the Go compiler normalizes the polymorphic
 
 ### 3. End-to-End Examples
 
-The following two examples demonstrate the two distinct superpowers of the explicit Topology Pillar: **Example A** proves *whether* a connection is authorized (Cross-Node Type Safety), and **Example B** proves *how* the connection data is physically delivered (Polymorphism & Normalization).
+The following two examples demonstrate the two distinct properties of the explicit Topology Pillar: **Example A** proves *whether* a connection is authorized (Cross-Node Type Safety), and **Example B** proves *how* the connection data is physically delivered (Polymorphism & Normalization).
 
 #### Example A: Topological Validation & Cross-Node Type Safety
 
-This scenario traces how a governance verdict role — when Ops has configured the Release to invoke it — detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The core Go compiler pipes labels opaquely; the detection logic lives inside the Wasm plugin that Ops has chosen to wire in.
+This scenario traces how the selector on a declared socket detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The compiler evaluates the label selector the Architect wrote against the target's labels, as strings; it does not interpret what a label means, and no policy plugin is involved.
 
 **1. The Standard Library (The Unified `schema:` in the Catalog)**
 The Platform Architect defines the schema structure, separating cognitive logic from topological targets natively.
@@ -97,7 +97,7 @@ components:
 
 #### Example B: Polymorphism & The Normalized `.context.uses`
 
-This scenario demonstrates how the compiler seamlessly handles both a black-box AI tool (passed as an array) and a legacy relational database (requiring a map with an `inject` contract).
+This scenario demonstrates how the compiler handles both a black-box AI tool (passed as an array) and a legacy relational database (requiring a map with an `inject` contract).
 
 **1. The Catalog (Domain 2): The `schema:` declaration**
 The Architect allows polymorphic arrays for tools, but demands strict objects for databases.
@@ -128,23 +128,24 @@ components:
     type: core/python-worker:1.0.0
     values:
       system_prompt: "You are an HR bot."
-      
-uses:
-        # 1. Polymorphic Array: Simple logical component reference
-        tools:
-          - "corporate-search-api" 
-            
-        # 2. Strict Map: Dictating the environment variable delivery
-        databases:
-          corporate-hr-db:
-            inject:
-              env:
-                - in: HR_DATABASE_URI # Local env var
-                  from: "host"        # Target provides key
+
+    uses:
+      # 1. Polymorphic Array: Simple logical component reference
+      tools:
+        - "corporate-search-api"
+
+      # 2. Strict Map: Dictating the environment variable delivery
+      databases:
+        hr_db:
+          target: corporate-hr-db
+          inject:
+            env:
+              - in: HR_DATABASE_URI # Local env var
+                from: "host"        # Target provides key
 ```
 
 **3. The Ops Reality (Domain 3): The Recipe**
-The Go Compiler normalizes the polymorphism. Ops receives a perfectly flat, predictable `.context.uses` dictionary. They simply loop through the `.context.inject` pipe in the relevant sections of their template.
+The Go Compiler normalizes the polymorphism. Ops receives a flat, predictable `.context.uses` dictionary. They simply loop through the `.context.inject` pipe in the relevant sections of their template.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -162,7 +163,7 @@ spec:
     
   valuesMapping: |
     env:
-      # Ops uses the pre-resolved inject map, perfectly separated from values and topology loops
+      # Ops uses the pre-resolved inject map, kept apart from values and topology loops
       {{- range $key, $value := .context.inject.env }}
       - name: {{ $key }}
         value: "{{ $value }}"
