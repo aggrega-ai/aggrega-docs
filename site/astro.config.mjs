@@ -103,8 +103,10 @@ export default defineConfig({
       sidebar: [
         { label: "Start Here", link: "/" },
         {
+          // The group opens on the setup page, whose first section installs the
+          // binary, so a reader starting here installs it before reading on.
           label: "Getting Started",
-          items: ["language-reference/01-getting-started"],
+          items: ["authoring/setup", "language-reference/01-getting-started"],
         },
         {
           label: "Concepts & Architecture",

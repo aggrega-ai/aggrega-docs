@@ -8,7 +8,7 @@ Authoring in Aggrega is a short, repeatable loop. Whichever entity you are writi
 4. **Fill in the fields your role owns**, leaving the rest to their owners.
 5. **Validate**, then compile.
 
-This page walks the loop once, both for a person authoring by hand and for an AI assistant authoring through the Model Context Protocol server. The two paths are the same loop over the same reference surfaces.
+This page walks the loop once, both for a person authoring by hand and for an AI assistant authoring through the Model Context Protocol server. The two paths are the same loop over the same reference surfaces. Both need the `aggrega` binary: [Install the binary](setup.md#install-the-binary) installs it with one command.
 
 ## 1. Pick the entity your role owns
 
