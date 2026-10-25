@@ -82,7 +82,7 @@ honours the key.
 
 The provider runs in two phases per assembly path:
 
-1. **Per-contributor copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-contributor output map; the assembler names `charts` as the sub-directory its contributors sit under, and the orchestrator gives each contributor a directory of its own there when assembling the umbrella — `charts/<instance_id>/` for a component. A Feature attachment that vendors a chart is a contributor too, and gets a directory beside the component's rather than inside it; see ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
+1. **Per-contributor copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-contributor output map; the assembler names `charts` as the sub-directory its contributors sit under, and the orchestrator gives each contributor a directory of its own there when assembling the umbrella — `charts/<instance_id>/` for a component. A Feature attachment is a contributor too — whether it vendors a chart or renders manifests through the helm provider — and gets a directory beside the component's rather than inside it; see ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
 2. **Per-`(path, provider)` umbrella assembly.** Once all per-node copies for the path complete, the assembler emits an umbrella `Chart.yaml` + `values.yaml` at the assembly path's root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks. When the assembly path receives contributors from more than one boundary (boundaries with shared `directory:`), every contributor lands as a dependency in the same umbrella.
 
 The umbrella `Chart.yaml` has the shape:
@@ -145,6 +145,20 @@ cfr-zh-api-zh-guardrail:          # the chart the Feature attached under `guardr
 ```
 
 **This is the only route those values have.** A chart a Feature brings arrives with its files as its author wrote them — apart from the single manifest field described in ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns) — so nothing writes your values into that chart, and the umbrella's block is what supplies them. A chart whose block never arrived is not a broken chart: it renders the defaults its own `values.yaml` ships and reports success, so give a default a value you would notice if you want to see the difference while authoring.
+
+#### An attachment whose FeatureRecipe renders through the helm provider
+
+A FeatureRecipe of the `helm` capability, attached to a component on this target, brings finished Kubernetes manifests rather than a chart. They land in the attachment's own directory exactly as the [helm provider](helm.md) rendered them, and the provider gives that directory the two things that make it a chart Helm installs: a minimal `Chart.yaml`, declaring the attachment's own name at version `0.1.0`, and one template, `templates/rendered.yaml`, which emits each rendered YAML file through Helm's `.Files.Get` by its name:
+
+```text
+charts/api--guardrail/
+├── Chart.yaml               # apiVersion: v2, name: cfr-zh-api-zh-guardrail, version: 0.1.0
+├── guardrail-config.yaml    # the manifest the helm provider rendered
+└── templates/
+    └── rendered.yaml        # {{ .Files.Get "guardrail-config.yaml" }}
+```
+
+The declared name is the one a chart the same attachment vendored would declare, so the umbrella's dependency entry and its values block are addressed exactly as described above. `.Files.Get` returns a file's bytes as they are rather than evaluating them a second time, so a manifest carrying literal template braces — an alerting rule's `{{ $labels.instance }}`, a dashboard's query — installs with them intact. Its values were resolved into those manifests when the helm provider rendered them, so the block the umbrella's `values.yaml` carries under that name is read by nothing.
 
 ### The chart name the umbrella owns
 
