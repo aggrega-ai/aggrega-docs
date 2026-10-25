@@ -47,13 +47,14 @@ spec:
 * Nested boundaries do not implicitly inherit. A nested boundary that does not declare `syncWave` defaults to `0` regardless of the outer boundary's declaration. Operators wanting "all of `outer` is wave 1, including its `inner` sub-boundary" declare `syncWave: 1` on both.
 
 **The Compiler Effect:**
-The compiler propagates each boundary's wave value to every rendered manifest in that boundary. Providers emit native sequencing primitives:
+The compiler propagates each boundary's wave value to the rendered manifests in that boundary. Providers emit native sequencing primitives:
 
-* **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart providers emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
+* **For Kubernetes (ArgoCD/Flux):** the helm provider emits `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest, and a resource the chart marks as a Helm hook additionally receives `helm.sh/hook-weight: "<N>"` for native Helm hook ordering. The helm-chart provider emits the annotation only on the template files a Recipe adds to a chart through `artifacts:`; it copies the chart's own templates unchanged, so those carry no wave.
 * **For Compose:** the compose provider expresses the ordering as `depends_on` between the services of the file a boundary renders into, gated on the target's health where the target declares a `healthcheck` and on its start where it does not. `depends_on` names a service inside one file, so ordering across two compose files is not expressible; operators sequence separate compose projects at the `docker compose up` invocation layer.
 * **For CloudFormation:** the cloudformation provider expresses the ordering as `DependsOn` between the resources of the stack template a dispatch group assembles into, each resource naming the resources of the immediately-preceding populated wave and the target chaining the rest. The attribute governs deletion order in reverse as well as creation order; it expresses no readiness condition, because a template has no notion of a resource being serviceable. `DependsOn` names a resource inside one template, so ordering across two stacks is not expressible; operators sequence separate stacks at the deployment layer.
+* **For Terraform:** the terraform provider expresses the ordering as `depends_on` between the `module` blocks of the root configuration a boundary assembles into, each module naming the modules of the immediately-preceding populated wave and Terraform chaining the rest. It orders the actions Terraform performs and expresses no readiness condition, because a configuration has no notion of a resource being serviceable. `depends_on` names a module inside one configuration, so ordering across two root configurations is not expressible; sequencing them is the operator's concern.
 
-The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` key continues to ship alongside the ArgoCD annotation for observability and provenance use — as an annotation on helm output, as a service label on compose — while the ArgoCD annotation is what GitOps controllers consume.
+The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` key continues to ship alongside the ArgoCD annotation for observability and provenance use — as an annotation on helm output and on the template files a Recipe adds to a helm-chart chart, as a service label on compose, as a line of the provenance comment in each terraform module, and under each cloudformation resource's `Metadata."aggrega.ai/provenance"` — while the ArgoCD annotation is what GitOps controllers consume.
 
 #### Wave-authoring vs deployable unit
 
@@ -99,7 +100,54 @@ Aggrega solves this by preserving strict AOT purity. It generates configurations
 **The Solution:**
 A pure AOT compiler cannot ping Active Directory or fetch cloud credentials to figure out who is running the build. To prevent unauthorized generation before CI/CD ever runs, the architecture relies on explicit context injection.
 
-When `aggrega build` is invoked by a CI/CD runner, the pipeline explicitly passes the execution context (e.g., `--context approval=standard`) to the CLI. The enterprise's custom governance verdict plugin evaluates this injected context against the enterprise's `Workspace` rules and the `Release` mapping (e.g., returning a failure array if `context.approval !== "platform-approved" && release.environment === "production-aws"`). This isolates RBAC from the compiler's native logic, ensuring the compiler acts purely as a deterministic evaluator of the provided data.
+When `aggrega build` is invoked by a CI/CD runner, the pipeline writes the execution context into a configuration file it passes with `--config`, as the `with.settings` of the governance attachment that judges it (e.g., `approval: standard`). The file lists its attachments under `governance_append`, so they add to the governance plugins the workspace's own configuration attaches rather than being replaced by them. A policy at the `ir-verdict` role reads those settings as `input.settings`. It receives the assembled graph and not the Release, so the Release's environment reaches it as a label: a policy at the `label-transform` role reads `input.compilation_context.environment` and labels each node with it. The verdict compares the two and halts the build when they disagree — here, a production build whose settings do not carry `approval: platform-approved`:
+
+```yaml
+# ci-governance.yaml — written by the CI/CD runner, passed as `aggrega build --config ci-governance.yaml`
+plugins:
+  governance_append:
+    - uri: governance/rego:<version>
+      role: label-transform
+      with:
+        sources:
+          - policies/environment.rego
+    - uri: governance/rego:<version>
+      role: ir-verdict
+      with:
+        sources:
+          - policies/approval.rego
+        settings:
+          approval: standard
+```
+
+```rego
+# policies/environment.rego — evaluated by the governance label-transform role, during topology construction
+package acme.context
+
+import rego.v1
+
+labels contains {"node": id, "key": "acme.com/environment", "value": input.compilation_context.environment} if {
+    some id, _ in input.graph.nodes
+}
+```
+
+```rego
+# policies/approval.rego — evaluated by the governance ir-verdict role over the assembled graph
+package acme.approval
+
+import rego.v1
+
+approved if input.settings.approval == "platform-approved"
+
+deny contains msg if {
+    not approved
+    some node in input.graph.spec.nodes
+    node.labels["acme.com/environment"] == "production"
+    msg := "a production build needs the approval platform-approved in the pipeline's governance settings."
+}
+```
+
+A run whose settings carry no approval at all is refused too, because the rule asks whether the approval is present rather than whether a different one is. This isolates RBAC from the compiler's native logic, ensuring the compiler acts purely as a deterministic evaluator of the provided data.
 
 ### 5. Shift-Left FinOps (Cost Estimation via Policies)
 

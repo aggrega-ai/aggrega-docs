@@ -12,28 +12,48 @@ To solve this, Aggrega provides the **Wasm socket mechanisms** for compliance, w
 
 ### 1. The "Bring Your Own Baseline" (BYOB) + Wasm Validation Gate
 
-For static, developer-provided data (such as team ownership or data classification), enterprises should never rely on the raw open-source catalog directly. Instead, the Platform Architect authors a corporate baseline component that enforces their specific schema constraints, and uses a governance verdict role to enforce its use.
+For static, developer-provided data (such as team ownership or data classification), enterprises should never rely on the raw open-source catalog directly. Instead, the Platform Architect authors a corporate baseline — the fields every internal component must carry, declared once in a SchemaLibrary entry — and uses a governance verdict role to enforce its use.
 
 **The Catalog Contract:**
 The enterprise creates a baseline that requires specific tags but provisions no infrastructure.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
+kind: SchemaLibrary
+metadata:
+  name: CorporateBaseline
+  version: 1.0.0
+spec:
+  schemas:
+    Ownership:
+      type: object
+      properties:
+        owner: { type: string }
+        cost_center: { type: string }
+      # The developer MUST provide these, or the schema validator halts the build
+      required: [owner, cost_center]
+```
+
+Every internal component (e.g., `acme/datastore/postgres`) references the entry from its own `schema:` and adds the values that are its own, so the shared fields and the component's own fields are validated together:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: acme/corporate-baseline
+  name: acme/datastore/postgres
   version: 1.0.0
   labels:
-    component.aggrega.ai/type: "server" # Placeholder; an extending child replaces it with its own type label
+    component.aggrega.ai/type: stateful-server
 spec:
   schema:
     values:
-      # The developer MUST provide these, or the schema validator halts the build
-      owner: { type: string, required: true }
-      cost_center: { type: string, required: true }
+      $ref: "CorporateBaseline#/schemas/Ownership"
+      properties:
+        database: { type: string }
+      required: [database]
 ```
 
-All internal components (e.g., `acme/postgres`) must use `extends: "acme/corporate-baseline"`.
+The baseline is a library entry rather than a base Component because a Component that writes `extends:` receives its base's `schema:` whole and declares no values of its own (see [Inheritance and publishing discipline](#inheritance-and-publishing-discipline)).
 
 **The Wasm Validation Failsafe:**
 To prevent a developer from bypassing the internal catalog and pulling a naked `core/postgres` component directly from the public hub, the enterprise registers a topological validation plugin. It is evaluated during static analysis — after the graph is assembled and before any artifact is rendered — which is why it sees the whole topology rather than one component at a time.
@@ -47,7 +67,7 @@ import rego.v1
 deny contains msg if {
     some id, _ in input.graph.spec.nodes
     not input.graph.spec.values_mapping[id].owner
-    msg := sprintf("node %v declares no owner; use a component that extends 'acme/corporate-baseline'.", [id])
+    msg := sprintf("node %v declares no owner; use a component whose schema references 'CorporateBaseline#/schemas/Ownership'.", [id])
 }
 ```
 
@@ -141,7 +161,7 @@ Developers do not write network policies directly; the required network boundari
 
 ### 5. Compile-Time Provenance Stamping
 
-The compiler builds a provenance record during compilation, capturing the compiler version and the versions of the Aggregate, Manifest and Release it compiled — and no timestamp, so the record never breaks byte-identical output. Helm and helm-chart renderers emit the compiler version as the `aggrega.ai/compiler-version` label on generated Kubernetes manifests; enterprise security teams use this to identify which rendered artifacts were built by which compiler version — important when a vulnerability is discovered in a specific compiler release and the affected artifacts need to be audited.
+The compiler builds a provenance record during compilation, capturing the compiler version and the versions of the Aggregate, Manifest and Release it compiled — and no timestamp, so the record never breaks byte-identical output. The helm renderer emits the compiler version as the `aggrega.ai/compiler-version` label on generated Kubernetes manifests, and the helm-chart renderer on the template files a Recipe adds to a chart, since it copies the chart's own templates unchanged; enterprise security teams use this to identify which rendered artifacts were built by which compiler version — important when a vulnerability is discovered in a specific compiler release and the affected artifacts need to be audited.
 
 *The compose provider stamps the same provenance keys as service labels, the terraform provider as a provenance file in each module it assembles, and the cloudformation provider under each resource's `Metadata`; the in-memory provenance record exists for every compilation today.*
 
