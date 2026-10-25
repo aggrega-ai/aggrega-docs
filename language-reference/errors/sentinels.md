@@ -93,6 +93,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `ErrImporterVersionUnsatisfiable()` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
+| `ErrNameMappingMatchedNothing()` | `name-mapping-matched-nothing` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` |
 | `ErrNoImporterForFormat()` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `ErrNoParserForFormat()` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
 | `ErrNoRecipeResolved()` | `no-recipe-resolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
@@ -820,6 +821,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0354` | `cross-boundary-link-value-not-copied` | `a template does more than copy a value it reads off a cross-boundary link` |
 | `E0355` | `inject-delivery-shape` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` |
 | `E0356` | `suspend-requires-scheduled-form` | `suspend requires form: scheduled` |
+| `E0357` | `name-mapping-matched-nothing` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

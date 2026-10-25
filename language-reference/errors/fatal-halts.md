@@ -1335,6 +1335,24 @@ A feature instance reports the same three cases in a shape of its own: `feature 
 
 **How to fix:** add the mapping the message asks for, under `spec.mappings.components.type` in the Manifest, keyed by the component type and valued with the Recipe. Where the message lists candidates, pick one of them — that list is exactly the Recipes declaring they implement the type at the version the build resolves it to. Where it names a Recipe not in the catalog, either correct the value or add the Recipe to a catalog directory the build reads; a version in the value has to match a version the catalog holds. Where nothing implements the type, the missing piece is the Recipe itself.
 
+### A Manifest `name` mapping names nothing in the build
+
+<!-- covers: pkg/catalog.ErrNameMappingMatchedNothing -->
+
+A key under `spec.mappings.components.name` or `spec.mappings.features.name` names no component instance, or no attachment, that the build holds. The `name` tier is matched by the exact name of the thing being realized: a `components.name` key against a component instance's name as the Aggregate writes it, and a `features.name` key against an **attachment's own name** — the key it is written under in a component's `features:`, or `<alias>.<slot>` for an attachment written on a connection — never against the name of the component the attachment sits on. A key that names nothing would never be consulted: every instance it was meant for would resolve through the `type` tier, and the build would finish without a word about the entry it ignored. So the build halts instead, before anything renders.
+
+The message names the Manifest, the key and the section it is written in, the names of that kind the build does hold — narrowed to the type the entry's Recipe or FeatureRecipe implements, where that type is known and the build holds one of it — and, where it can tell, the name you probably meant: for a `features.name` key that is the name of a component, the attachments of that type the component carries; for a `components.name` key that is the name of an attachment, the component carrying it; and otherwise a name one edit away.
+
+Emitted message, for a `features.name` key written as the name of the component the attachment sits on:
+> a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `"<manifest>"`, key `"<component>"` under mappings.features.name: no attachment in this build is named `"<component>"`; a features.name key names an attachment by its own name — the key it is written under in a component's features, or `<alias>.<slot>` for one written on a connection — never the component it is attached to; attachments of type `"<feature-type>"` in this build: `"<attachments>"`; `"<component>"` is a component, and a features.name key names the attachment rather than the component it is attached to — did you mean `"<attachment>"`?
+
+And for a `components.name` key one edit from an instance's name:
+> a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `"<manifest>"`, key `"<key>"` under mappings.components.name: no component instance in this build is named `"<key>"`; a components.name key names a component instance exactly as the Aggregate writes it; component instances of type `"<component-type>"` in this build: `"<instances>"`; did you mean `"<instance>"`?
+
+Every key that names nothing is reported in one build, in the order the Manifest writes them.
+
+**How to fix:** rename the key to the name the message suggests, or to one of the names it lists — for an attachment, the name it is written under, not its component's. Where the entry is no longer wanted, remove it; the instances of that type then resolve through the `type` tier.
+
 ### A Manifest maps two version-distinct keys onto one type
 
 <!-- covers: pkg/catalog.ErrAmbiguousTypeMapping -->
@@ -6343,6 +6361,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0354` | `a template does more than copy a value it reads off a cross-boundary link` | A template did more than copy a value it read off a cross-boundary link |
 | `E0355` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` | An `inject:` delivery is not a list of entries |
 | `E0356` | `suspend requires form: scheduled` | A workload `suspend:` is set on a form other than `scheduled` |
+| `E0357` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` | A Manifest `name` mapping names nothing in the build |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
