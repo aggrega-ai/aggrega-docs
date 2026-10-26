@@ -10,7 +10,7 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 | 2 | Credential Feature `schema:` | **Define** the vault-query contract for the credential type. The Feature carries the `feature.aggrega.ai/kind: secret` label and declares the values keys (e.g., `path`, `key`) that authors supply when requesting the credential. |
 | 3 | Aggregate component instance `features:` block | **Request** the credential at the developer's authoring surface — the one attachment keyword, the same one an operational Feature uses. The attachment specifies the credential Feature `type`, the store-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
 | 4 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | **Implement** the credential's runtime resolution. The Fetcher plugin generates the cloud-specific CRD (`ExternalSecret`, `VaultSecret`, etc.) referencing the developer's vault path; the Injector plugin mounts the resolved Kubernetes Secret to the target container at the developer's requested key. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable. |
-| 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. Provider dispatch flows from each resolved FeatureRecipe's capability at orchestrator time. |
+| 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. The build dispatches each resolved FeatureRecipe to the provider its `capability` names. |
 | 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes it — on the `helm` target `{{ .context.rendered_name }}-{{ .locals.secret_target_<slot> }}`, the local carrying the suffix the Recipe chooses (or the equivalent Recipe-published pointer) — and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `attachments:` block carries the delivery directly. |
 
 The split between White-Box and Black-Box determines how many touch-points a particular credential pattern requires. White-Box covers the first five surfaces above; Black-Box covers all six — the heavier of the two, and the one Recipe authors most often implement when sourcing packaged infrastructure (Bitnami charts, managed services, etc.).
@@ -110,7 +110,7 @@ spec:
   implements: core/aws-secrets-manager:1.0.0
   pipeline:
     - id: "eso_fetcher"
-      plugin: secrets/aws-eso-crd-generator:1.0.0
+      plugin: pipeline-step/aws-eso-crd-generator:1.0.0
       function: generate_external_secret
       with: |
         secret_path: "{{ .values.path }}"
@@ -189,13 +189,13 @@ metadata:
 spec:
   components:
     cache-db:
-      type: core/redis:1.0.0
+      type: core/datastore/redis:1.0.0
       features:
         admin_password:
           type: core/aws-secrets-manager:1.0.0   # Uses credential Feature from Example 11
           values:
             path: /prod/redis
-            key: "master_pass"
+            key: "admin_pass"
           # inject: ← BANNED by the slot's auto-generated schema rule. Developer cannot dictate delivery.
       values: {}
 ```
@@ -211,11 +211,12 @@ metadata:
   version: 1.0.0
 spec:
   capability: helm
-  implements: core/redis:1.0.0
+  implements: core/datastore/redis:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.example.com
+    kind: helm-https-chart
+    url: https://charts.example.com
     chart: redis
     version: 18.0.0
   locals:
@@ -233,10 +234,10 @@ spec:
       existingSecretPasswordKey: "redis-password"
 ```
 
-For a runnable end-to-end walkthrough of the `.features.<slot>.provides.name` → chart `existingSecret` flow — a sourced Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/) example.
+For a runnable end-to-end walkthrough of the `.features.<slot>.provides.name` → chart `existingSecret` flow — a sourced Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/README.md) example.
 
 **4. Ops Domain: The FeatureRecipe**
-The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.attachment_name` context variable (`"admin_password"`) to extract the dictated suffix, and prefixes the host's rendered name, which an attachment's templates read as `.context.rendered_name` — the same two parts the Recipe's `existingSecret` joins, so the Secret the Fetcher generates is the one the chart mounts.
+The Fetcher step's `with:` block indexes the Base Recipe's exported key using the `.attachment_name` context variable (`"admin_password"`) to extract the dictated suffix, and prefixes the host's rendered name, which an attachment's templates read as `.context.rendered_name` — the same two parts the Recipe's `existingSecret` joins, so the Secret the Fetcher generates is the one the chart mounts.
 
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
@@ -251,7 +252,7 @@ spec:
   implements: core/aws-secrets-manager:1.0.0
   pipeline:
     - id: "eso_fetcher"
-      plugin: secrets/aws-eso-crd-generator:1.0.0
+      plugin: pipeline-step/aws-eso-crd-generator:1.0.0
       function: generate_external_secret
       with: |
         secret_path: "{{ .values.path }}"
@@ -370,7 +371,7 @@ spec:
         core/referenced-secret: helm/k8s-secret-from-parameter:1.0.0
 ```
 
-**What the build renders.** The credential FeatureRecipe emits the Secret; the guard FeatureRecipe emits its own Deployment, carrying the reference to it. Both excerpts below omit the provenance labels every rendered resource carries.
+**What the build renders.** The credential FeatureRecipe emits the Secret; the guard FeatureRecipe emits its own Deployment, carrying the reference to it. Both excerpts below show each Deployment's containers.
 
 ```yaml
 # the guard Feature's own Deployment
@@ -381,13 +382,13 @@ containers:
       - name: proxy
         containerPort: 8443
     env:
-      - name: GUARD_ACTION
-        value: redact
       - name: GUARD_API_KEY
         valueFrom:
           secretKeyRef:
             name: finance-agent-guard-api-key
             key: api-key
+      - name: GUARD_ACTION
+        value: redact
 ```
 
 ```yaml
@@ -507,7 +508,7 @@ spec:
 
 The Release fulfils `openai_key_secret` — with this realization, the key of the entry to fetch — as `openai-team-a`.
 
-**What the build renders.** One resource more than a build of the same documents with no attachment on any connection: the `gpt` connection's credential, rendered on the gateway's side. The excerpt omits the provenance labels and annotations every rendered resource carries.
+**What the build renders.** One resource more than a build with no attachment on any connection: the `gpt` connection's credential, rendered on the gateway's side. The excerpt omits the provenance labels and annotations every rendered resource carries.
 
 ```yaml
 # helm/router--gpt-zdcredential--router-externalsecret-router-gpt-credential.yaml

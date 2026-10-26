@@ -353,7 +353,7 @@ spec:
 ```
 
 **3. Platform Catalog: Feature with `DoesNotExist` (Exclusion Pattern)**
-This Feature auto-binds to all servers and workers, but explicitly excludes components carrying a generative model capability.
+This Feature can be attached to any server or worker, but explicitly excludes components carrying a generative model capability.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -413,7 +413,7 @@ spec:
 ```
 
 **2. Dev Domain: The Aggregate**
-The developer attaches the approval gate Feature to the email tool, not to the agent. The compiler traces the topological edge from the agent to the tool and generates the interception proxy configuration on the tool's ingress path.
+The developer attaches the approval gate Feature to the email tool, not to the agent. The compiler draws the edge from the agent to the tool; the FeatureRecipe the Manifest binds for the gate renders the interception proxy configuration on the tool's ingress path.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -447,7 +447,7 @@ spec:
 
 ## Example 10: Programmable Policies — Wasm Mutators & OPA Validators
 
-The compiler pipeline executes two Wasm gates. The `label-transform` role auto-tags the graph. A governance verdict role evaluates security boundaries. Both are authored by the Platform Architect in Domain 2.
+The compiler pipeline executes two Wasm gates. The `label-transform` role auto-tags the graph. A governance verdict role evaluates security boundaries. Both run in governance plugins the operator attaches under `plugins.governance` in the workspace configuration.
 
 **1. The Wasm Mutator (topology construction — graph enrichment)**
 Auto-tags every AI gateway — a router that parses the model payload it forwards to an upstream provider — as a point where prompts leave for a model provider.
@@ -455,7 +455,7 @@ Auto-tags every AI gateway — a router that parses the model payload it forward
 ```javascript
 // governance label-transform guest (compiled from JS/Go/Rust into WebAssembly)
 // Input: each node from the flat IR graph
-// Output: mutated labels dictionary
+// Output: JSON Patch operations on the nodes' labels
 if (node.labels["gateway.aggrega.ai/intelligence"] === "semantic") {
     node.labels["compliance.aggrega.ai/egress"] = "model-provider";
 }
@@ -494,4 +494,4 @@ full authoring surface — the payload each role exposes, the decision keys, and
 to name your own.
 
 **3. Practical Trigger**
-Using the `masked-router` Aggregate from Example 7: the mutator tags the gateway `router` as a model-provider egress, and the gateway's edges to the analyzer and the anonymizer are paths through it. If the developer removes the `pii-filter` Feature from `router`, the policy halts compilation with the message the rule composed. With the masking Feature attached, the same policy reaches no decision and the build proceeds. A rule over paths sees a node only where an edge reaches or leaves it — a path has at least two nodes — so a gateway wired to nothing appears on no path; a policy that must cover that case also reads the nodes themselves at `input.graph.spec.nodes`.
+Using the `masked-router` Aggregate from Example 7: the mutator tags the gateway `router` as a model-provider egress, and the gateway's edges to the model, the analyzer and the anonymizer are paths through it. If the developer removes the `pii-filter` Feature from `router`, the policy halts compilation with the message the rule composed. With the masking Feature attached, the same policy reaches no decision and the build proceeds. A rule over paths sees a node only where an edge reaches or leaves it — a path has at least two nodes — so a gateway wired to nothing appears on no path; a policy that must cover that case also reads the nodes themselves at `input.graph.spec.nodes`.
