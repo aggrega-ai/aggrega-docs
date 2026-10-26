@@ -106,7 +106,7 @@ An entry of that name carrying something else is refused rather than replaced, b
 ```bash
 aggrega edit-document wire-edge storefront.aggregate.yaml \
   --node spec --node components --node web \
-  --socket database --name replica --value spec.components.store
+  --socket database --name replica --value store
 ```
 
 **It takes a segment at a time rather than one dotted path on purpose, and the reason is a correctness one.** A dot is a legal character in a name you type, so nothing outside the document can tell a structural dot from one inside a name. A joined path would read correctly and address a key nobody wrote — and because `add-component` may create a container the document does not carry, the entry would land under that invented key rather than being refused. Segments remove the ambiguity instead of moving it.
@@ -197,11 +197,12 @@ aggrega edit-document attach-feature storefront.aggregate.yaml \
   --name audit-log --value core/observability/audit-log:1.0.0
 ```
 
-Set an operator concern on a Release's component:
+Set a value on a component authored inside a subsystem:
 
 ```bash
-aggrega edit-document set-value prod.release.yaml \
-  --node spec --node components --node web --name replicas --value 5
+aggrega edit-document set-value storefront.aggregate.yaml \
+  --node spec --node subsystems --node billing --node components --node ledger \
+  --name replicas --value 5
 ```
 
 Review the result before anything is written:
@@ -209,7 +210,7 @@ Review the result before anything is written:
 ```bash
 aggrega edit-document wire-edge storefront.aggregate.yaml \
   --node spec --node components --node web \
-  --socket cache --name sessions --value spec.components.redis --dry-run
+  --socket cache --name sessions --value redis --dry-run
 ```
 
 To find out which container an entry belongs in before you name one, and to read a position without applying anything, see [`aggrega serve`](aggrega-serve.md).

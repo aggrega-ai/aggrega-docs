@@ -211,6 +211,12 @@ The editor-facing daemon is the exception. It resolves references on demand whil
 it serves an editor, and that resolution chooses versions without consulting the
 withdrawal records, so a version recorded as retracted can still be selected there.
 
+Where nothing is chosen there is nothing for the exclusion to act on: a reference
+naming an exact version resolves to that version, and the withdrawal is announced
+rather than acted on. Nor does any of this change what you are told at build time —
+`aggrega build` reports every marker the lockfile records, whatever route pinned
+the version.
+
 ## See also
 
 - [./aggrega-sign.md](./aggrega-sign.md) — a marker is signed by its own digest, so the signing modes
@@ -221,9 +227,3 @@ withdrawal records, so a version recorded as retracted can still be selected the
 - [./aggrega-mcp.md](./aggrega-mcp.md) — the same capability as the `deprecate-artifact` tool, which
   an assistant can call. Read what that page says about allowing it before you do: a withdrawal
   changes what every consumer of that registry resolves.
-
-Where nothing is chosen there is nothing for the exclusion to act on: a reference
-naming an exact version resolves to that version, and the withdrawal is announced
-rather than acted on. Nor does any of this change what you are told at build time —
-`aggrega build` reports every marker the lockfile records, whatever route pinned
-the version.

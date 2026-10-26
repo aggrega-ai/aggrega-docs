@@ -87,7 +87,7 @@ aggrega build --release release.yaml || aggrega explain E0209
 Explain a code a program matched on:
 
 ```bash
-aggrega explain unsupported-compose-port-protocol
+aggrega explain plugin-value-not-representable
 ```
 
 ## The same answer from an assistant
