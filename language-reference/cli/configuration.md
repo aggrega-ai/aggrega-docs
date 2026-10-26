@@ -427,10 +427,12 @@ configuration file is the only one collected, so files in directories below it d
 That keeps a pinned root's configuration the same wherever the command is run from.
 
 Every file collected this way is read from inside the project. One that is a symbolic link leading
-out of the project — or that sits in a directory reached through such a link — is not read, and the
-command stops on it, naming the link, rather than configuring the project from the files that remain;
-the same holds for a pipeline's file, below. The editor's language server and an assistant's tools
-read the configuration the same way, and still start over such a project so that it can be listed:
+out of the project — or that sits in a directory reached through such a link — is not read, and every
+command that reads the configuration stops on it, naming the link, rather than configuring the project
+from the files that remain; the same holds for a pipeline's file, below. The few commands that never
+read it, such as `aggrega version` and `aggrega help`, run with a warning naming the link. The editor's
+language server and an assistant's tools read the configuration the same way, and still start over
+such a project so that it can be listed:
 their Release and entity listings answer, read with nothing configured, and name the file among the
 links not read, while every other request the configuration decides halts on it, naming the link. A
 configuration kept outside the project is read by

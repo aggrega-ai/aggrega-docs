@@ -141,13 +141,16 @@ leads, and leaves the place the link points to exactly as it was:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
-  Every command, the language server and an assistant's tools read the configuration before anything
-  else, so one of these files that is a link leading out stops each of them there rather than letting
-  them run on a configuration made from whatever remained:
+  Every command that reads the configuration, the language server and an assistant's tools read it
+  before anything else, so one of these files that is a link leading out stops each of them there
+  rather than letting them run on a configuration made from whatever remained:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
-  The language server, and an assistant's server speaking over its own streams, still start over such
-  a workspace, so that what it holds can be listed: the Release and entity listings answer, read with
-  no catalog directory and nothing else configured, and name the file among the links not read. Every
+  The `aggrega` commands that never read it — `version`, `help`, `completion`, `explain`, `get-schema`,
+  `scaffold`, `skills list`, `plugin run-local`, `plugin sync`, `auth token` and `logout` — run as
+  usual, with a warning naming the link. The language server, and an assistant's server speaking over
+  its own streams, still start over such a workspace, so that what it holds can be listed: the Release
+  and entity listings answer, read with no catalog directory and nothing else configured, and name the
+  file among the links not read. Every
   other request the configuration decides — a build, a preview, a graph, a validation, a lint, a
   description, the effective configuration, the default Release — halts with `E0321` naming the link,
   and so does an assistant's server asked to listen over HTTP, whose address and authorization the
