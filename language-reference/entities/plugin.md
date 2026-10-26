@@ -100,7 +100,7 @@ The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structur
 
 An ordered array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that this provider reads, together with the behavior applied when each is absent. Each entry carries a `key` (the provider-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), and an optional `defaultBehavior` (what the provider does when the annotation is absent). `key` and `purpose` are required; entries preserve author order.
 
-The field is documentation-of-contract: it describes which platform directives the provider reads, for catalog readers and the `aggrega inspect` surface. The compiler does not consume it to gate, branch, or reject a build — it never cross-checks the annotations a deployment actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
+The field is documentation-of-contract: it describes which platform directives the provider reads, for catalog readers and the `aggrega inspect` surface. The compiler does not consume it to gate, branch, or reject a build — it never cross-checks the annotations a build actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
 
 ```yaml
 metadata:
