@@ -17,7 +17,7 @@ A single positional argument routes by content shape; no subcommand is needed. T
 `--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors. `--list` and `--detail` are mutually exclusive — passing both is refused rather than silently resolved.
 
 - **`--list`** — identifiers only. A Component lists its name and its uses-socket names; a MappingLibrary lists its mapping names; an Aggregate lists its component names with their types.
-- **default** — a structured overview tuned for interactive use. It opens with the entity's identity and, where the entity authors one, its description; an entity with no description prints none rather than an empty line. The rest of the shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges with the attachments each connection carries, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments, each one written on a connection listed beneath that connection.
+- **default** — a structured overview tuned for interactive use. It opens with the entity's identity and, for every kind but a Manifest and a Release, with its description where the entity authors one; an entity with no description prints none rather than an empty line. The rest of the shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges with the attachments each connection carries, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments, each one written on a connection listed beneath that connection.
 - **`--detail`** — full field bodies. Everything the kind carries: a Component adds its self-inject mechanisms, required Features, and labels; a MappingLibrary expands each mapping's full template body; a Recipe adds its workload body, provides, and assertions.
 
 A few kinds use the levels to surface progressively more of an authored body. A MappingLibrary at `--list` shows mapping names; at the default level it adds each mapping's synthesized usage example; at `--detail` it expands the full template body.
@@ -37,7 +37,7 @@ A Release answers two further questions, and each is a different document with i
 
 ## Per-kind defaults
 
-`inspect` knows ten standalone-inspectable kinds. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
+`inspect` knows the standalone-inspectable kinds in the table below. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
 
 | Kind | Default | What "resolved" means |
 | --- | --- | --- |
@@ -47,6 +47,8 @@ A Release answers two further questions, and each is a different document with i
 | FeatureRecipe | as-authored | `--show-implements` resolves the `spec.implements` Feature reference. |
 | MappingLibrary | as-authored | Entries are opaque Go-template strings; rendering happens at consumption time. |
 | SchemaLibrary | as-authored | Entries are reusable schema and template definitions resolved at consumption time. |
+| WorkloadLibrary | as-authored | Entries are reusable Workload bodies a Recipe imports, evaluated at consumption time. |
+| ArtifactLibrary | as-authored | Entries are reusable artifact bundles a Recipe imports, rendered at consumption time. |
 | Plugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Addressable by file path, or by its `<pluginType>/<name>` coordinate against the catalog. |
 | Manifest | resolved | The `extends:` chain is applied; the resolved component and feature mappings are laid out. |
 | Aggregate | resolved | The topology is built — the uses-graph and ordering are computed. |
