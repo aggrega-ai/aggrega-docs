@@ -178,10 +178,13 @@ The head carries this condition's short code, `E0351`.
 
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface. This rule is checked when the Recipe is loaded.
 
+A Recipe file of that shape meets the Recipe schema first: on any provider other than `eval` the schema requires one of `source`, `valuesMapping`, `workload` or `artifacts`, so the document envelope check refuses the file under `E0215` before this rule runs, with one branch for each key:
+> document envelope validation failed (Recipe, at `<path>`); `<line>`:`<column>`: spec: no anyOf branch matched: branch[0]: validation: required: missing properties: ["source"]; branch[1]: validation: required: missing properties: ["valuesMapping"]; branch[2]: validation: required: missing properties: ["workload"]; branch[3]: validation: required: missing properties: ["artifacts"]. correct the document to match its kind's schema
+
 Emitted message:
 > Recipe: at least one input kind required (Recipe `<name>:<version>`, rule input-kinds, at `<path>`). declare one of: source (with valuesMapping), workload, artifacts
 
-**How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
+**How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below. That provider is planned: no provider serves it today, so a Recipe bound to it halts at render with an `unknown provider` error (`E0061`).
 
 #### `artifacts:` entry keys must be unique
 
@@ -217,10 +220,13 @@ A collision in a FeatureRecipe carries the attachment as well:
 
 A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
 
+The Recipe schema itself forbids those fields beside `capability: eval` — and `omits:` and `boundary:` with them — so a Recipe file declaring one meets the document envelope check first, under `E0215`, with one finding for each such field:
+> document envelope validation failed (Recipe, at `<path>`); `<line>`:`<column>`: spec.workload: value matches a shape that is not allowed here. correct the document to match its kind's schema
+
 Emitted message:
 > recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
 
-**How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
+**How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts. The `eval` provider is planned: no provider serves it today, so an eval Recipe that passes this rule still halts at render with an `unknown provider` error (`E0061`).
 
 #### An output-label key uses a reserved namespace
 
@@ -276,10 +282,13 @@ A FeatureRecipe binds the `eval` provider and also declares one or more of `sour
 
 `injectMapping:` is **not** one of the forbidden fields and stays available here. It transforms what an attachment delivers rather than rendering anything, which is exactly the work an eval FeatureRecipe exists to do.
 
+The FeatureRecipe schema itself forbids those fields beside `capability: eval` — and `omits:` with them — so a FeatureRecipe file declaring one meets the document envelope check first, under `E0215`, with one finding for each such field:
+> document envelope validation failed (FeatureRecipe, at `<path>`); `<line>`:`<column>`: spec.artifacts: value matches a shape that is not allowed here. correct the document to match its kind's schema
+
 Emitted message, listing every forbidden field the document declared rather than the first one found:
 > featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
 
-**How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits.
+**How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits. The `eval` provider is planned, and no provider serves it today.
 
 ### A file cannot be read, or its bytes do not parse
 
@@ -613,6 +622,11 @@ A Release fulfils the parameters an Aggregate declared in one of two ways, and t
 
 Three shapes are refused. A `parameters:` value that is not a mapping at all — a scalar, or a list. A mapping carrying `$import:` alongside other keys, which asks for the imported values and the written ones at once and gives no rule for combining them. And an `$import:` whose value is not a plain string, which names no file.
 
+The Release schema declares the same two shapes, so a Release file carrying any of the three meets the document envelope check first, under `E0215`, which tries both shapes and says why each failed — here for a list:
+> document envelope validation failed (Release, at `<path>`); `<line>`:`<column>`: spec.parameters: no oneOf branch matched (2 branches tried): branch[0]: type: expected object, got array; branch[1]: type: expected object, got array. correct the document to match its kind's schema
+
+For `$import:` beside another key the second branch ends `additionalProperties: unexpected property: "<key>"`, and for an `$import:` written as a list rather than a string it ends `validation: type: array has type "array", want "string"`.
+
 Emitted message, where the value is not a mapping. The number after `kind` is the document shape the reader found where a mapping was required:
 > parameters: shape must be an inline object or {$import: <local-path>}: got kind `<shape>` at line `<line>`
 
@@ -629,6 +643,11 @@ and where `$import:` shares the mapping with something else, or names something 
 Three fields a Recipe or FeatureRecipe writes — an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:` — accept the same two shapes. Either the body is written in place, as a string scalar (a `|` block is the usual spelling for anything multi-line), or the value is a mapping of exactly one key, `$import:`, naming where the body lives instead. What an `$import:` may name differs by field: an artifacts entry imports a local path or a bundle out of an ArtifactLibrary, while `valuesMapping:` and `workload:` import a local path or an entry out of a library by identity.
 
 One reader checks all three, so the refusals are the same three whichever field is at fault: a mapping carrying more than one key, a mapping whose single key is not `$import`, and an `$import:` whose value is not a plain string. A value that is neither a scalar nor a mapping — a list, most often — is refused on its shape alone.
+
+The Recipe and FeatureRecipe schemas declare the same two shapes for each of the three fields, so a file carrying any of these meets the document envelope check first, under `E0215`, which names the field and says why each shape failed — the first branch is the written-in-place shape, the second the `$import:` one:
+> document envelope validation failed (Recipe, at `<path>`); `<line>`:`<column>`: spec.artifacts.`<name>`: no oneOf branch matched (2 branches tried): branch[0]: validation: type: object has type "object", want "string"; branch[1]: additionalProperties: unexpected property: "`<key>`". correct the document to match its kind's schema
+
+That is a mapping carrying a key beside `$import:`. A single key that is not `$import` ends `required: missing required property: $import, additionalProperties: unexpected property: "<key>"`, a list ends `type: expected object, got array`, and an `$import:` that is not a string names the type found where a string was wanted, as in `type: array has type "array", want "string"`.
 
 Emitted messages. Each opens with the sentence for the field at fault, then says what the reader found and where:
 > artifacts entry: shape must be a string scalar or {$import: <local-path>}: got `<n>` keys at line `<line>`
@@ -967,6 +986,9 @@ an inert `function:` on a provider binding:
 
 and an inert `with:`, which reports in the same shape and names where the configuration belongs instead:
 > workspaceconfig: the provider socket binding for capability `"<capability>"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket
+
+A `function:` written in `.aggrega-config.yaml` does not reach its sentence above: the workspace configuration's schema declares no such key on a provider binding, so the file is refused first, under `E0224`, and the remedy is the same — remove the key:
+> workspaceconfig: `<file>`: plugins.providers[`<index>`].function: against /$defs/FixedEntryPluginRef: unexpected property: "function": file failed schema validation
 
 **How to fix:** the fix is in `.aggrega-config.yaml` and each message names the exact edit. On a governance, linter or importer attachment, replace the `capability:` with the `uri:` of the plugin you meant to attach. On a provider binding, remove the named key — and where it was `with:`, move that configuration into the Recipe that renders through the provider, which is the surface that reads it.
 
@@ -4086,7 +4108,11 @@ The conditions they are recorded under, which is what their short codes resolve 
 
 **One pairing runs one way only.** A `form: stateful` workload with no per-replica claim template is ordinary and draws nothing — the rule is that a claim template needs the stable per-replica identity only that form gives, not that the form needs a claim template. The other two pairings run both ways, because an endpoint and a schedule each have exactly one form they mean anything on.
 
-**An omitted `form:` reads as `stateless`**, so a workload that declares an endpoint and no form at all meets the endpoint pairing rather than passing unchecked.
+**The two `endpoint` pairings are in the Workload schema as well**, so a workload breaking either is refused at the schema stage, under `E0214`, before its sentence above is reached. An `endpoint:` on any form other than `reference` — an omitted `form:` included, since it reads as `stateless` — is refused as
+> workload validation failed (Workload in Recipe `<name>:<version>`, at `<path>`, schema stage):
+>   .endpoint: value matches a shape that is not allowed here
+
+and `form: reference` with no `endpoint:` ends `.endpoint: missing required property: endpoint` instead. The remedy is the one the pairing's sentence gives.
 
 **How to fix:** each sentence names the two fields and gives both answers. Add the field the form needs, or change the form to the one the field belongs on, or remove the field where it was left behind by an edit — deleting a `schedule:` value and leaving the key is the shape this attracts most.
 
@@ -5269,7 +5295,7 @@ They fall into four kinds, and the difference is worth knowing before you go loo
 - **An advisory.** The build reports it and carries on, and the rendered output is the same whether or not you act on it. Each is taught in full on [warnings.md](./warnings.md) — what makes it fire, where in the compilation it is read, what it prints, and what to do about it — and the entries below say which section, rather than repeating it here.
 - **A condition the editor absorbs.** It is answered by the editor integration itself and reaches neither a build's output nor a diagnostic.
 - **A safeguard behind an earlier refusal.** The rule it protects is enforced ahead of it by a condition that does halt, so a build meets the earlier one first.
-- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry, editing a document, turning a foreign source description into draft authoring files, and checking a catalog against the publishing conventions are where these are met, and each entry says which command it belongs to and who holds the fix.
+- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing or signing an artifact, pinning an entity's inputs, adding a registry, editing a document, turning a foreign source description into draft authoring files, and checking a whole catalog — for correctness or against the publishing conventions — are where these are met, and each entry says which command it belongs to and who holds the fix.
 
 ### An annotation binding declares one path in both pillar lists
 
@@ -5297,12 +5323,12 @@ Taught under "Attachment-slot near-miss lint" in [warnings.md](./warnings.md), w
 
 <!-- covers: pkg/resolver.ErrUsesSocketNearMiss -->
 
-An advisory. A component's own `uses:` block names a socket its type does not declare but which sits within a single edit of one. A developer owns their application's topology and may name a socket the catalog did not anticipate, so an undeclared socket name is legal on that surface and nothing halts. What the advisory names is the consequence: the misspelled name draws an ad-hoc connection of its own, carrying no selector and no per-edge contract, while the socket you meant stays unwired.
+An advisory. A component's own `uses:` block names a socket its type does not declare but which sits within a single edit of one. A developer owns the topology the Aggregate declares and may name a socket the catalog did not anticipate, so a socket name the type does not declare is legal on that surface and nothing halts. What the advisory names is the consequence: the misspelled name draws an ad-hoc connection of its own, carrying no selector and no per-edge contract, while the socket you meant stays unwired.
 
 Its message opens:
 > uses socket name is a near miss for a declared socket
 
-Taught under "Uses-socket near-miss lint" in [warnings.md](./warnings.md). The two neighbouring surfaces where an undeclared socket name **does** halt are covered under "`uses:` socket not declared in the target's `usesSchema`" above.
+Taught under "Uses-socket near-miss lint" in [warnings.md](./warnings.md). The two neighbouring surfaces where a socket name missing from the owning entity's `usesSchema` **does** halt are covered under "`uses:` socket not declared in the target's `usesSchema`" above.
 
 ### A Recipe publishes a `provides` key its Component does not declare
 
@@ -5372,7 +5398,7 @@ It is catalogued because it is declared and carries a code of its own, so a code
 
 <!-- covers: internal/compiler/analyzer.ErrOverriddenAnnotation -->
 
-An advisory. Annotation-driven expansion turns an annotation a deployment carries into a Feature attachment with configuration of its own. Where the same attachment also carries configuration written explicitly — on the component, on a scope above it, or in the deployment — the explicit value wins at each key the two both cover. That is the intended rule and the emitted output is not wrong, so the build finishes. What the advisory names is the consequence: the annotation's contribution to that key is no longer visible anywhere in the output, and the author who wrote the annotation may not know it was suppressed.
+An advisory. Annotation-driven expansion turns an annotation an Aggregate or a Release carries into a Feature attachment with configuration of its own. Where the same attachment also carries configuration written explicitly — on the component, on a scope above it, or in the Release — the explicit value wins at each key the two both cover. That is the intended rule and the emitted output is not wrong, so the build finishes. What the advisory names is the consequence: the annotation's contribution to that key is no longer visible anywhere in the output, and the author who wrote the annotation may not know it was suppressed.
 
 It reports **every** displacement rather than only the ones that changed something. The merge overwrites the suppressed value, so there is no comparison left to make and nothing that could say whether the two agreed — the record that a displacement happened is the whole of the evidence. It is read once the whole attachment cascade and the expansion have been folded together, which is the earliest point at which that record exists.
 
@@ -5557,10 +5583,10 @@ A refusal on publishing, not on a build. Each publishable entity kind has a medi
 
 **No build reaches it.** The one other place the same lookup runs treats a missing entry as "this is not a library" and carries on, so the condition is never surfaced there.
 
-Emitted message, which is the condition's own sentence:
-> oci: unknown entity kind for mediatype dispatch
+Emitted message, the condition's own sentence framed by the command and the file it was packaging:
+> aggrega push: bundle `<path>`: oci: unknown entity kind for mediatype dispatch
 
-**How to fix:** check the `kind:` field of the file you are publishing against the entity kinds the language reference lists — a misspelled or unsupported kind reports here, and correcting the field is the whole remedy. Where the kind is one the language reference documents as publishable, that is a gap in the toolchain rather than in your entity, and it is worth reporting with the kind quoted.
+**How to fix:** check the `kind:` field of the file you are publishing against the kinds `aggrega push --list-kinds` prints — a misspelled or unsupported kind reports here, and correcting the field is the whole remedy. Where the kind is one that list carries, that is a gap in the toolchain rather than in your entity, and it is worth reporting with the kind quoted.
 
 ### A published archive carries an entry Windows cannot use
 
@@ -5587,8 +5613,8 @@ A refusal on checking a whole catalog, not on a build. Where an entity is publis
 
 The check runs over the whole catalog at once, because a collision is a property of a pair rather than of either entity on its own — neither is wrong by itself, and reading either in isolation shows nothing.
 
-Emitted message. The condition's own sentence opens it, and every colliding group follows, each naming the shared location and the identities that reach it:
-> oci: distinct catalog identities map to the same OCI repository location:
+Emitted message. The catalog check's frame opens it, then the condition's own sentence, then every colliding group, each naming the shared location and the identities that reach it:
+> catalog validation failed: oci: distinct catalog identities map to the same OCI repository location:
 >   - `<location>` <- `<identity>`, `<identity>`
 
 **How to fix:** rename one of the entities the message names, in its `metadata.name` and in the directory that mirrors it. Which one to rename is yours to choose; the case-only pairs are the common shape, and picking one spelling and using it consistently is what stops the pair recurring. Renaming is a real change to an entity's identity, so anything referring to the old name has to move with it — that is a reason to settle the collision before either name is published rather than after.
@@ -5717,8 +5743,8 @@ A refusal on a document edit, not on a build. One structured edit — adding a c
 
 **A document that was already invalid reports it too.** The check runs even where the edit changed nothing, so an edit against a document the product would refuse to read says so rather than reporting success.
 
-Emitted message, carrying the schema's own objection after the sentence — the document kind and the file, then the position, the key at fault and what the schema said there:
-> the edit was refused because the resulting document would not be valid, and nothing was written: document envelope validation failed (`<kind>`, at `<path>`); `<line>`:`<column>`: `<field-path>`: … `<the schema's own objection>`
+Emitted message, carrying the schema's own objection after the sentence — the document kind and the file, then the position, the key at fault and what the schema said there — and closing with the advice:
+> the edit was refused because the resulting document would not be valid, and nothing was written: document envelope validation failed (`<kind>`, at `<path>`); `<line>`:`<column>`: `<field-path>`: … `<the schema's own objection>`. correct the document to match its kind's schema
 
 **How to fix:** open the document at the position the message quotes and read the objection, which says what the schema wanted at that key. The change to make is usually to the request rather than to the document — ask for an entry the schema admits in that place, and the same request applies cleanly. Where the key is one that document's kind may not carry at all, it belongs on the authoring surface that may, and the entity page for the kind names the fields it declares. What is *semantically* admissible is not decided at this point — whether a dependency socket is one the producer declares, say — so this refusal is always about the shape of the document, never about what may be consumed across a connection.
 
@@ -5733,7 +5759,7 @@ A Release routes its Aggregate's components one of two ways: named boundaries un
 **A chain whose links agree is untouched.** Every link declaring named boundaries composes normally, and so does every link declaring top-level components. It is the mix that stops.
 
 Emitted message, naming the two files and the key each declares:
-> release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both
+> release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both (Release `<release-file>`, boundaries declared by `"<file>"`, components declared by `"<file>"`)
 
 **How to fix:** choose the routing shape the chain should use and write it the whole way down. Where the base declares named boundaries, a child that wants to configure components addresses them inside the boundary that holds them rather than at the Release root — which is also what lets it change one component's sizing without restating the topology. Where the base declares top-level components, a child that needs named boundaries is describing a different routing shape than its base, and is better authored as its own Release than as a child of that one.
 
@@ -5872,7 +5898,7 @@ Its message opens:
 
 A refusal on the check that precedes publication, not on a build. The version being published is compared against the version already published before it, and the difference between them is classified against a documented rubric. This condition reports that the difference is one the rubric objects to.
 
-**It needs a published predecessor to compare against**, so it is the one rule in this group that cannot run over local content alone: with no registry consulted there is nothing to compare, and the check is skipped rather than passed.
+**It needs a published predecessor to compare against**, so it and the bump check below are the two rules in this group that cannot run over local content alone: with no registry consulted there is nothing to compare, and the check is skipped rather than passed.
 
 Its message opens:
 > the version being published changes the published predecessor in a way the documented evolution rubric objects to
@@ -6028,7 +6054,7 @@ The table below pairs the two, scoped to this page: for every condition catalogu
 
 Where one entry appears against two short codes, it covers two distinct conditions and each registers its own sentence; read the sentences rather than the shared heading to tell which one a build reported.
 
-`aggrega explain <code>` does this lookup for you at the terminal, taking either of the condition's codes and printing the condition together with the entry below that documents it. It is described in [aggrega explain](../cli/aggrega-explain.md).
+`aggrega explain <code>` does this lookup for you at the terminal, taking either of the condition's codes and printing the condition together with the entry above that documents it. It is described in [aggrega explain](../cli/aggrega-explain.md).
 
 <!-- BEGIN GENERATED: halt-condition-sentences -->
 | Short code | Opens with | Documented under |
@@ -6369,8 +6395,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 
 ## The linter domain (not fatal)
 
-The compiler is strictly unopinionated about *execution*. It never halts the build for patterns that are merely suspicious — unused values, orphaned secrets, disconnected targets. Those belong to the linter domain, where enterprises opt in to Wasm plugins that enforce their own conventions.
+The compiler is strictly unopinionated about *execution*. It never halts the build for patterns that are merely suspicious — unused values, orphaned secrets, disconnected targets. At most such a pattern draws an advisory — the build's own, for the few catalogued under "Conditions that do not halt a build" above, such as a declared parameter nothing reads — and the rest belong to the linter domain, where enterprises opt in to Wasm plugins that enforce their own conventions.
 
 ### Orphaned credentials
 
-A Secret declared without an `inject:` delivery contract is not a compile error. The core compiler preserves the declaration in the IR graph and emits no warning. Enterprise `linter.wasm` plugins may detect and warn on this pattern; enterprise renderers may also choose to mount orphaned secrets implicitly under their own Black-Box conventions. Because both interpretations are valid, the core compiler takes neither side.
+A credential Feature attached without an `inject:` delivery contract is not a compile error. The core compiler preserves the declaration in the IR graph and emits no warning. Enterprise `linter.wasm` plugins may detect and warn on this pattern; enterprise renderers may also choose to mount orphaned secrets implicitly under their own Black-Box conventions. Because both interpretations are valid, the core compiler takes neither side.
