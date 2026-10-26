@@ -2516,7 +2516,7 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 
 <!-- covers: internal/compiler/topology.ErrDanglingUsesTarget -->
 
-A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
+A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the undeclared-socket halt below: whichever socket a connection is wired into, its target must resolve to an existing component before the edge is type-checked.
 
 Emitted message. The refusal comes first, then the target that answers to nothing and the socket the connection was wired into — then what to do about it:
 > uses edge target does not exist (`"<target>"`, wired into socket `"<socket>"`). Point the target at a component the Aggregate declares, or declare a component under that name.
@@ -2550,10 +2550,10 @@ Some shapes are named less exactly. An attachment name declared at more than one
 
 A `uses:` block names a socket that the entity owning the surface does not declare in its `usesSchema`, on one of the two surfaces where only a declared socket may be named: a **Feature attachment's** `uses:`, where the socket must be declared on the attached Feature, and a **Release's** per-edge `uses:`, where it must be declared on the consuming Component. A Release may wire or configure edges only within sockets the Component's `usesSchema` already declares.
 
-A **component's own** `uses:` block is deliberately not one of those surfaces, so this halt does not fire for it. A developer owns the application's topology and may name a socket the catalog did not declare; catalog silence about a socket means the connection was not anticipated, not that it is forbidden. Such a socket is legal and its edge is built — what it gives up is the selector and the per-edge contract a declared socket carries. A misspelled socket name there is therefore not a halt but an ad-hoc connection of its own, and is reported as a warning naming both spellings — see [warnings.md](warnings.md) "Uses-socket near-miss lint".
+A **component's own** `uses:` block is deliberately not one of those surfaces, so this halt does not fire for it. A developer owns the topology the Aggregate declares and may name a socket the catalog did not declare; catalog silence about a socket means the connection was not anticipated, not that it is forbidden. Such a socket is legal and its edge is built — what it gives up is the selector and the per-edge contract a declared socket carries. A misspelled socket name there is therefore not a halt but an ad-hoc connection of its own, and is reported as a warning naming both spellings — see [warnings.md](warnings.md) "Uses-socket near-miss lint".
 
 Emitted message:
-> unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare (socket `<socket-name>` not defined in component type `<component-type>` usesSchema (valid: `[<declared-sockets>]`))
+> unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare (Release `<release-name>`, at `.spec.components.<component>`, `"<component-type>"`, `"<socket-name>"`, `"<declared-sockets>"`)
 
 The attachment arm names the feature type in place of the component type; an attached Feature that declares no `usesSchema` at all reports instead that `uses:` declarations are not allowed for it.
 
@@ -2737,7 +2737,7 @@ A Component declares a socket in its `usesSchema` marked `required: true`, and n
 Two shapes that look like they should populate the socket do not. A Release entry naming no `target:` configures a connection that must already exist rather than creating one, so it wires nothing (and, where it carries `infra:`, is reported by its own halt above). And a Feature attachment's `uses:` names sockets declared on the attached Feature, a separate socket set on a separate entity, so an attachment can never populate a Component's own socket.
 
 Emitted message:
-> required uses socket not populated (`<socket-name>`, declared required by component type `<component-type>`)
+> required uses socket not populated (Component, at `.spec.components.<instance>.uses.<socket>`, `"<socket-name>"`, declared required by component type `"<component-type>"`)
 
 The finding is positioned at the socket entry the author has to write, `.spec.components.<instance>.uses.<socket>`. The instance name in it is the name the component carries in the document that declares it, so for a component an imported Aggregate contributed the locator names a key that Aggregate's own file contains rather than the prefixed name the composition gave it.
 
@@ -2760,7 +2760,7 @@ Emitted message:
 
 <!-- covers: internal/compiler/ir.ErrFeatureTypeMismatch -->
 
-The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`.
+The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`, and the Release's attachment reaches the component from a boundary's `features:`. Where the Release writes it on its own entry for the component instead, the same conflict is refused earlier and reported as `E0153`, under "Manifest merge strategy" above.
 
 Emitted message:
 > feature type mismatch between Aggregate and Release (node `<node-id>`, attachment `<instance-name>`, existing type `<type-in-aggregate>` conflicts with `<type-in-release>`)
@@ -2774,7 +2774,7 @@ Emitted message:
 A Component's `extends:` chain or a Feature's `extends:` chain loops back on itself.
 
 Emitted message, with `Feature` in place of `Component` when a Feature chain is the one that loops:
-> cyclic extends chain (Component `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which is already in the chain). Remove the extends on `<entity>`, or point it at an entity outside the chain
+> cyclic extends chain (Component `<name>`, rule extends). `<entity>` extends `<reference>`, which is already in the chain; remove the extends on `<entity>`, or point it at an entity outside the chain
 
 **How to fix:** open the entity the edge names — which along a chain of three or more is not the entity named at the head of the message — and remove or repoint its `extends:`.
 
@@ -2882,7 +2882,7 @@ Composing an Aggregate flattens every component into a single set, and a compone
 
 This halt is the one raised as a module's components are merged in, and the authoring surface does not offer the names that would produce it. Every component a module contributes carries that module's name ahead of its own; an instance name is written from letters, digits, `-` and `_`, so it cannot carry the dot the two are joined with, and two identifiers built from different module names cannot meet. Two modules imported under one name are one duplicate key, and the document is refused as it loads. So this backstops a composition assembled by something other than the ordinary authoring path, and meeting one is worth reporting rather than working around.
 
-Two components of one Aggregate reaching one identifier is a **different halt**, and it is one twelve lines of ordinary YAML produce — see [Two subsystems declare a component under one name](#two-subsystems-declare-a-component-under-one-name) below.
+Two components of one Aggregate reaching one identifier is a **different halt**, and ordinary authoring produces it — see [Two subsystems declare a component under one name](#two-subsystems-declare-a-component-under-one-name) below.
 
 Emitted message:
 > flattened node ID collision: rename one of the colliding instances so their flattened IDs differ (id `"<identifier>"`, path `"<path in the composition>"`, collides with existing entry from `"<the other contributor>"`)
@@ -2900,7 +2900,7 @@ The document is well formed — the two are separate keys in separate blocks, wh
 The same name twice inside **one** subsystem is a different fault: those are two entries under one key, and the document is refused as it is read.
 
 Emitted message:
-> components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity (`"<identifier>"`, declared under subsystems `"<first>, <second>"`)
+> components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity (Aggregate, at `.spec.subsystems.<second>.components.<identifier>`, `"<identifier>"`, declared under subsystems `"<first>, <second>"`)
 
 **How to fix:** rename one of the two components, in the document that declares it and in every Release entry that addresses it. Where the two are genuinely the same component wanted in two places, declare it once and depend on it from the other subsystem. Renaming the subsystem does not help: the subsystem is not part of the name.
 
@@ -2923,9 +2923,9 @@ Emitted message:
 
 <!-- covers: internal/compiler/topology.ErrUnnormalizedAggregate -->
 
-An application written with components at its top level and one written with named subsystems become the same shape as they are read: the top-level components are folded into a subsystem the compiler supplies, and the top level is cleared. That fold is what lets everything downstream ask one question of one shape.
+An Aggregate written with components at its top level and one written with named subsystems become the same shape as they are read: the top-level components are folded into a subsystem the compiler supplies, and the top level is cleared. That fold is what lets everything downstream ask one question of one shape.
 
-An application arriving at graph building with **both** populated was not produced by that reading. The two shapes are mutually exclusive where they are authored — a document declaring both is refused as it loads — and the fold is what makes them one shape afterwards, so nothing an author can write reaches this. It backstops an application assembled by something other than the ordinary load path, and meeting one is worth reporting rather than working around.
+An Aggregate arriving at graph building with **both** populated was not produced by that reading. The two shapes are mutually exclusive where they are authored — a document declaring both is refused as it loads — and the fold is what makes them one shape afterwards, so nothing an author can write reaches this. It backstops an Aggregate assembled by something other than the ordinary load path, and meeting one is worth reporting rather than working around.
 
 Its message opens:
 > aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)
@@ -2957,7 +2957,7 @@ or the result of applying it was not the view the host handed over:
 
 ### Intentional omission: the topology is not required to be acyclic
 
-Unlike tools that enforce a Directed Acyclic Graph on infrastructure dependencies, Aggrega allows cycles in the topology. Agent-to-agent architectures, callback patterns, and mutual-authentication pairs all produce cyclic edges, and the compiler accepts them. Ordering at deploy time is the renderer's concern (through per-boundary `syncWave` or equivalent), not the IR graph's.
+Aggrega allows cycles in the topology: it does not require the dependency graph to be a Directed Acyclic Graph. Agent-to-agent architectures, callback patterns, and mutual-authentication pairs all produce cyclic edges, and the compiler accepts them. Ordering at deploy time is the renderer's concern (through per-boundary `syncWave` or equivalent), not the IR graph's.
 
 ## When checking inject contracts
 
@@ -2978,10 +2978,10 @@ A `value:` entry carries a literal and is resolved against nothing, so a literal
 The Release's own per-edge `uses:` surface carries `target` and `infra` and no `inject:`, so a connection wired there dictates no delivery and has no `from:` key to check.
 
 Emitted message, for a `from:` read on a Component's own `inject:` block. The refusal comes first, then the key at fault, the component type it was resolved against, and that type's declared keys in sorted order — the alternatives to pick from:
-> invalid inject key: the from-key must name a declared provides key of the target component type (`"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
+> invalid inject key: the from-key must name a declared provides key of the target component type (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<delivery-key>`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
 
 For a `from:` read on a `uses:` connection, the same refusal leads and the mechanism and delivery key the entry was written under come ahead of the key at fault:
-> invalid inject key: the from-key must name a declared provides key of the target component type (`"<mechanism>"`, `"<delivery-key>"`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`)
+> invalid inject key: the from-key must name a declared provides key of the target component type (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>`, `"<mechanism>"`, `"<delivery-key>"`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`)
 
 When the target declares no `provides:` keys at all there are no alternatives to list, so the message ends after the component type.
 
@@ -3058,7 +3058,10 @@ The first value is the Feature whose list names the other — the one the senten
 
 An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
 
-Emitted message:
+Emitted message, where the attachment dictates a delivery its slot does not accept — the slot, then the mechanism:
+> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<slot>"`, `"<mechanism>"`)
+
+and where it carries a key the slot does not declare:
 > attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.<key>`, attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema)
 
 An attachment declared at a broader scope — subsystem-wide, cascading onto every component beneath it — is held to the same shape, and it is checked against the slot on each component it reaches. The same attachment can therefore be in shape for one component and out of shape for another, so this form names the component and the slot it failed against, and locates the attachment at the scope where it was declared rather than at a key inside its delivery block:
@@ -3114,7 +3117,7 @@ A key claimed by a Feature attached to the component meets the same shared space
 The developer wrote a component-level `inject:` block, but the Component catalog entity does not declare `spec.inject`. Components without a `spec.inject` allowlist are Black-Box types — they receive no developer-authored injection.
 
 Emitted message:
-> self-inject on component without spec.inject allowlist (`"inject"`, `"<component-type>"`)
+> self-inject on component without spec.inject allowlist (Aggregate `<name>`, at `.spec.components.<component>.inject`, `"inject"`, `"<component-type>"`)
 
 The report is positioned at the `inject:` block itself, which is the element to remove.
 
@@ -3127,7 +3130,7 @@ The report is positioned at the `inject:` block itself, which is the element to 
 The developer wrote a component-level `inject:` block using a mechanism (for example, `env` or a specific file-mount form) that is not listed in the Component's `spec.inject` allowlist.
 
 Emitted message:
-> self-inject on component without spec.inject allowlist (`"<component-type>"`, `"<mechanism>"`, `"<allowlisted-mechanism-1>"`, `"<allowlisted-mechanism-2>"`, ...)
+> self-inject on component without spec.inject allowlist (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>`, `"<component-type>"`, `"<mechanism>"`, `"<allowlisted-mechanism-1>"`, `"<allowlisted-mechanism-2>"`, ...)
 
 The mechanisms the type does allow follow the one that was dictated, so the message carries both what was written and what the type permits. A type declaring no allowlist at all reports the dictated mechanism with nothing after it.
 
@@ -3396,9 +3399,9 @@ The check reads the path a reference **resolves** to rather than its keystrokes,
 
 A template references a top-level root — the first path segment after the leading dot — that its render context does not define: a misspelling such as `{{ .valeus.port }}`, or a root that does not exist on the surface being authored. The check is a positive allowlist over root *names*, and the admitted set is derived from the render context's own shape rather than kept as a separate list beside it, so the set the build refuses and the set the context actually delivers cannot drift apart. The diagnostic names the offending reference and lists the roots that context does define.
 
-The halt fires identically whether the reference is bare or wrapped in a `default`, `if`, `with`, or `range` fallback, and the wrapped spelling is the one that matters most: a wrapper can supply a fallback for an absent *key* under a defined root, but never for an absent *root*, so without this halt the wrapped form would resolve quietly to an empty value and let the build finish successfully. An absent key under a defined root is untouched and still follows the `missingkey=zero` policy for value templates described in "Missing template key" below, so optional-key idioms such as `{{ .values.optional_field | default "fallback" }}` keep working exactly as before.
+The halt fires identically whether the reference is bare or wrapped in a `default`, `if`, `with`, or `range` fallback, and the wrapped spelling is the one that matters most: a wrapper can supply a fallback for an absent *key* under a defined root, but never for an absent *root*, so without this halt the wrapped form would resolve quietly to an empty value and let the build finish successfully. An absent key under a defined root is untouched and still follows the `missingkey=zero` policy for value templates described in "Missing template key — asymmetric policy" below, so optional-key idioms such as `{{ .values.optional_field | default "fallback" }}` keep working exactly as before.
 
-**The same halt covers a mistyped key one level down, under a pillar whose shape is declared.** Some pillars have a fixed set of keys the compiler defines: `.context`, `.metadata`, `.inject`, `.workload` and `.boundary` on the Recipe and FeatureRecipe render context, and `.manifest` on a path template. A reference to a key one of those pillars does not define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — halts exactly as a wrong root does, and the diagnostic lists the keys that pillar defines. Other pillars are **open**, because what they hold is keyed data rather than a set the compiler declares — among them `.values`, `.infra`, `.locals`, `.provides`, `.features` and `.steps` on the render context, and `.parameters` and `.parent_boundary` on a path template. An open pillar accepts any key. An absent key under an open pillar is not this halt — it follows the surface's missing-key policy described in "Missing template key" below, so `{{ .values.optional_field | default "fallback" }}` and every other optional-key idiom keep working unchanged.
+**The same halt covers a mistyped key one level down, under a pillar whose shape is declared.** Some pillars have a fixed set of keys the compiler defines: `.context`, `.metadata`, `.inject`, `.workload` and `.boundary` on the Recipe and FeatureRecipe render context, and `.manifest` on a path template. A reference to a key one of those pillars does not define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — halts exactly as a wrong root does, and the diagnostic lists the keys that pillar defines. Other pillars are **open**, because what they hold is keyed data rather than a set the compiler declares — among them `.values`, `.infra`, `.locals`, `.provides`, `.features` and `.steps` on the render context, and `.parameters` and `.parent_boundary` on a path template. An open pillar accepts any key. An absent key under an open pillar is not this halt — it follows the surface's missing-key policy described in "Missing template key — asymmetric policy" below, so `{{ .values.optional_field | default "fallback" }}` and every other optional-key idiom keep working unchanged.
 
 Which pillars are declared and which are open is a property of the surface, not something a template can influence: the compiler reads it from the shape of the render context it is about to deliver. That is what lets the typo halt and the optional key render on the same template.
 
@@ -3558,7 +3561,7 @@ A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is
 
 One halt covers the two label expressions a catalog author writes to constrain what may be wired or attached, because both fail the same way: a label set that does not satisfy an expression a catalog entity declared.
 
-**A `uses:` edge whose target fails its socket's `selector:`.** A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
+**A `uses:` edge whose target fails its socket's `selector:`.** A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation.
 
 Emitted message:
 > selector violation ("<selector-expression>", declared on socket "<socket-name>", not satisfied by the labels of "<target-id>"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
@@ -3589,12 +3592,12 @@ and the same attachment written on the component in the Aggregate reads `[DEVELO
 
 <!-- covers: internal/compiler/renderer.ErrUnknownProvider -->
 
-A Recipe declares `provider: <name>` where `<name>` names no provider the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
+A Recipe declares `capability: <name>` where `<name>` names no provider the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
 
 Emitted message:
 > unknown provider: `<provider-name>`
 
-**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `spec.provider.capabilities`) is present in the catalog workspace the build is pointed at.
+**How to fix:** confirm the provider name is spelled correctly — `cloudformation`, `compose`, `helm`, `helm-chart` and `terraform` are the names the embedded provider plugins serve. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `spec.provider.capabilities`) is present in the catalog workspace the build is pointed at.
 
 ### A capability is served by more than one provider plugin
 
@@ -3637,9 +3640,9 @@ Path templates are validated at parse time, before any rendering work begins, ag
 This halt is about the *variable*. A mistyped key **under** a variable that is allowed — `{{ .manifest.recipe_nmae }}` — reports "Template references a root the render context does not define" above instead, naming the keys `.manifest` does define, because the variable itself was admitted and only the key was wrong.
 
 Emitted message:
-> path template references a field not in the documented allowlist: boundary `<boundary-name>` references unknown field `<dotted-path>`; allowlist: see aggrega-docs/language-reference/path-template-variables.md
+> path template references a field not in the documented allowlist (`"<dotted-path>"`, written in `"<directory|subDirectory>"`, the render context defines `"<the variables that field may read>"`)
 
-**How to fix:** correct the field name to one in the path-template allowlist, or remove the reference. The allowlist for `directory:` is `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}`; `subDirectory:` adds `{{ .component_id }}`. Other surfaces (Recipe `valuesMapping`, FR `injectMapping`, etc.) use a different context shape; references to `.context.*`, `.values`, `.infra`, or `.locals` are deliberately not exposed to path templates because path emission is a structural concern, not a value-rendering concern.
+**How to fix:** correct the field name to one in the path-template allowlist, or remove the reference. The allowlist for `directory:` is `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}`; `subDirectory:` adds `{{ .component_id }}`. Other surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping`, etc.) use a different context shape; references to `.context.*`, `.values`, `.infra`, or `.locals` are deliberately not exposed to path templates because path emission is a structural concern, not a value-rendering concern.
 
 ### Path collision: two contributors emit at incompatible paths
 
@@ -3870,7 +3873,7 @@ A FeatureRecipe with `executionScope: boundary` references a per-component-only 
 Emitted message:
 > FeatureRecipe template references a per-component-only field with executionScope: boundary: FeatureRecipe `<name>` with `executionScope: boundary` references per-component-only field `<dotted-path>` in `<label>`; boundary-scope FRs use `.boundary.*` pillars in place of `.context.*` / `.workload` / `.attachment_name` / `.inject` — see the FeatureRecipe entity reference
 
-**How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FRs reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FRs reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
+**How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FeatureRecipes reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FeatureRecipes reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
 
 ### Self-inject value template references cross-node data
 
@@ -4341,7 +4344,7 @@ The Feature-and-FeatureRecipe pairing reports the same condition through the att
 
 There it reports the first missing key in sorted order and stops, so that pairing names one key per build while the Component pairing names all of them. Keys are walked in sorted order either way, which is what makes both the same across runs.
 
-**How to fix:** add the missing key to the realizer's `provides:` block, or remove it from the abstract entity's `schema.provides` where nothing is expected to publish it. A key whose template renders to nothing is still published, with the empty string as its value, so an entry that is present and empty fulfils the contract and does not report here. Where an empty value must stop the build, refuse it in an assertion: a Recipe's assertions read its resolved `provides:` values.
+**How to fix:** add the missing key to the `provides:` block of the Recipe or FeatureRecipe, or remove it from the Component's or Feature's `schema.provides` where nothing is expected to publish it. A key whose template renders to nothing is still published, with the empty string as its value, so an entry that is present and empty fulfils the contract and does not report here. Where an empty value must stop the build, refuse it in an assertion: a Recipe's assertions read its resolved `provides:` values.
 
 ### An assertion stopped the build
 
@@ -4354,7 +4357,7 @@ Assertions are evaluated at two points, so a rule reads the state it is about: t
 **A reference to a key nothing supplies also reports here.** The surface evaluates with strict missing-key handling, precisely so a predicate whose reference rendered as empty cannot compare against nothing and quietly pass — a single typo would otherwise retire the rule the assertion was written to enforce. This is why a plain `default` does not supply a fallback on this surface: the bare reference stops the evaluation before the fallback can run. Gate the reference with `hasKey`, or use the `optional` helper; reading it through `index` halts too, naming the key, as "A template indexes a map with a key the map does not hold" describes.
 
 Emitted message, naming the entity kind and type, the instance, and the assertion, then carrying the message the assertion itself wrote:
-> `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"`: assertion failed: `<the message the assertion wrote>`
+> `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"`: template: `<kind>/<type>/<instance>/<name>`:`<line>`:`<column>`: executing `"<kind>/<type>/<instance>/<name>"` at `<fail …>`: error calling fail: assertion failed: `<the message the assertion wrote>`
 
 and where the evaluation failed rather than the predicate:
 > `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"` parse: `<what the parse reported>`
@@ -4497,7 +4500,7 @@ Where a dependency connection crosses between two assembled outputs, the value i
 
 This condition is what a placeholder that survived that replacement reports. Surviving means the resolution never reached it: the value landed somewhere the provider could not address — spliced into a larger string rather than standing as a whole value, most often — or a crossing was stamped with nothing on the other side to resolve it. A placeholder is never valid output, so the build stops rather than ship a file containing one.
 
-The message names the provider that wrote the file and the path the file stands at: a path is unique only within one assembly, so the two together are what identify one file. Every offending file is reported rather than the first, and each is reported once however many boundaries fed the assembly it stands in. It is reported against the Release document as a whole rather than against a boundary inside it — the fault is in the translation rather than in anything you wrote, so no boundary declaration is the thing to change.
+The message names the provider that wrote the file and the path the file stands at: a path is unique only within one assembly, so the two together are what identify one file. Every offending file is reported rather than the first, and each is reported once however many boundaries fed the assembly it stands in. It is reported against the Release document as a whole rather than against a boundary inside it — the fault is in how a value reached the file rather than in a boundary declaration, so no boundary declaration is the thing to change.
 
 Emitted message:
 > assembled output retains an unresolved cross-boundary link placeholder (`"<provider>"`, `"<output-path>"`)
@@ -4767,10 +4770,10 @@ Both are checked for ordinary containers and for containers that run before the 
 
 **Emitted messages.** Both report the same condition — a provider with no expression for something the build declares — and the provider's own sentence is what says which field:
 > a plugin has no expression for a construct this build declares
-> compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive: compose has no lifecycle-hook primitive; container declares lifecycle hooks
+> compose: node `"<node>"` container `"<container>"`: compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive: compose has no lifecycle-hook primitive; container declares lifecycle hooks
 
 > a plugin has no expression for a construct this build declares
-> compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive: compose has no env-from-object primitive; container declares envFrom
+> compose: node `"<node>"` container `"<container>"`: compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive: compose has no env-from-object primitive; container declares envFrom
 
 **How to fix:** for a compose target, remove the field and do its work another way — start-up work belongs in a container that runs before the main one, and shutdown work in the container's own signal handling; bulk environment can be written out as explicit variables, or supplied from a file the compose target can read. Where the field is what you meant, render that boundary through a provider whose target has the primitive.
 
@@ -4813,7 +4816,7 @@ A published compose port carries its transport as a suffix on the entry, and tha
 
 Emitted message. The condition names the kind of failure — a value with no representation in what the provider emits — and the provider's own sentence follows it:
 > a plugin has no representation for a value it was given
-> compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
+> compose: node `"<node>"` apply service ports: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
 
 **How to fix:** for a compose target, declare the port's transport as one of the two compose can spell, or leave it undeclared and let the entry publish without a suffix. Where the transport is what you meant, render that boundary through a provider whose target can express it.
 
@@ -4825,21 +4828,21 @@ A container's processor and memory quantities, and its `nvidia.com/gpu` count, a
 
 **Emitted messages.** Each opens with the condition — a value with no representation in what the provider emits — then names the resource, whether the value is a request or a limit, its path in the Workload and the value. A value that is not a quantity is followed by what made it not one and the form a quantity takes:
 > a plugin has no representation for a value it was given
-> compose: the `<cpu|memory|nvidia.com/gpu>` `<request|limit>` at `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei): resources quantity cannot be converted to a compose deploy.resources value
+> compose: node `"<node>"` container `"<container>"`: compose: the `<cpu|memory|nvidia.com/gpu>` `<request|limit>` at `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei): resources quantity cannot be converted to a compose deploy.resources value
 
 A quantity compose cannot represent is followed by the range compose holds for that resource:
 > a plugin has no representation for a value it was given
-> compose: the memory `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose memory value is a whole number of bytes from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
+> compose: node `"<node>"` container `"<container>"`: compose: the memory `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose memory value is a whole number of bytes from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
 
 > a plugin has no representation for a value it was given
-> compose: the cpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose cpus value is a core count from 0 to 9223372036.854775807 with at most nine decimal places: resources quantity cannot be converted to a compose deploy.resources value
+> compose: node `"<node>"` container `"<container>"`: compose: the cpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose cpus value is a core count from 0 to 9223372036.854775807 with at most nine decimal places: resources quantity cannot be converted to a compose deploy.resources value
 
 > a plugin has no representation for a value it was given
-> compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
+> compose: node `"<node>"` container `"<container>"`: compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
 
 A GPU request and limit asking for different counts name both paths and both counts:
 > a plugin has no representation for a value it was given
-> compose: the nvidia.com/gpu request at `<path>` and the limit at `<path>` ask for different counts (`<request>` and `<limit>`); compose reserves one device count for a service, so write the same count in both or only the limit: resources quantity cannot be converted to a compose deploy.resources value
+> compose: node `"<node>"` container `"<container>"`: compose: the nvidia.com/gpu request at `<path>` and the limit at `<path>` ask for different counts (`<request>` and `<limit>`); compose reserves one device count for a service, so write the same count in both or only the limit: resources quantity cannot be converted to a compose deploy.resources value
 
 Where the Workload's template reads a value an author declared sensitive, no message quotes the value it refused, and the two counts are left out the same way.
 
@@ -4901,10 +4904,10 @@ A declared health probe becomes a compose healthcheck, and two things can stop t
 
 **Emitted messages.** Both report the same condition — something the provider requires that it could not resolve to exactly one value — and the provider's own sentence says which:
 > a plugin could not resolve something it requires to exactly one value
-> probe http: requires at least one container port; container declares none
+> compose: node `"<node>"` container `"<container>"`: probe http: requires at least one container port; container declares none
 
 > a plugin could not resolve something it requires to exactly one value
-> probe declares no shape (http/tcp/exec)
+> compose: node `"<node>"` container `"<container>"`: probe declares no shape (http/tcp/exec)
 
 **How to fix:** declare the port the check should be made against on the same container as the probe — a probe over HTTP reads the first container port, so the port has to exist for the check to be built. Where the container genuinely publishes nothing, check it another way: a probe that runs a command needs no port. For a probe with no way of checking declared, give it one of the three.
 
@@ -5187,7 +5190,7 @@ It is a dispatch failure and not a transport one: nothing was attempted, because
 Emitted message, naming the kind that was asked for:
 > sourceresolver: kind=`<kind>`: sourceresolver: no adapter registered for source kind
 
-**How to fix:** correct the kind on the Recipe's `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the spelling is quoted in it, so the first thing to check is the Recipe against the source kinds the language reference lists. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead.
+**How to fix:** correct the kind on the Recipe's `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the spelling is quoted in it, so the first thing to check is the Recipe against the source kinds [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) lists. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead.
 
 ### A source artifact is cached without a workspace root to anchor it
 
