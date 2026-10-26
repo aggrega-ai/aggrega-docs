@@ -19,7 +19,7 @@ spec:
 
 The compiler folds these into a synthesized `default` subsystem. Node identity is unchanged — `api` stays `api`, never `default.api` — so an Aggregate authored this way is interchangeable with the explicit single-subsystem form, and addressing it (in `uses:` targets, in diagnostics) uses the bare `spec.components[…]` path. The synthesized scope is recorded honestly in the exported IR (carrying a synthesized-subsystem marker), but it never appears in the paths an author writes or reads.
 
-**Multiple scopes (Level 2).** When components fall into distinct cross-cutting groups, declare named subsystems under `subsystems:`. Each subsystem carries its own components and annotation cascade, and may nest further subsystems.
+**Multiple scopes.** When components fall into distinct cross-cutting groups, declare named subsystems under `subsystems:`. Each subsystem carries its own components and annotation cascade, and may nest further subsystems.
 
 **Mutual exclusivity.** `spec.components:` and `spec.subsystems:` are mutually exclusive at the Aggregate root — author one or the other, never both. A document declaring both halts at load with an envelope error. (A subsystem a developer explicitly names `default` is an ordinary declared subsystem, addressed at its qualified `spec.subsystems.default.components[…]` path — the synthesized-scope elision keys on provenance, not on the name.)
 
@@ -201,7 +201,7 @@ For the broader parameter-hoisting checklist (Aggregate declaration → values r
 
 A `uses` edge is the Aggregate's statement that one component calls another. The compiler pipes the values the target publishes into the caller and restricts nothing: on its own, an edge neither admits the caller nor refuses anyone else, and a workload that reaches the target's address without an edge reaches it all the same.
 
-Restricting who may call a component, and what it may call, is the operator's decision, made per environment in the Release. Where a Release attaches the standard-library catalog's `core/caller-allowlist` Feature to a component, the build writes a network policy admitting exactly the components whose `uses` edges point at it, that component's own pods and the sources the attachment names. Its outbound counterpart, `core/egress-allowlist`, lets the component it is attached to reach only the components its own `uses` edges point at, its own pods, the cluster's DNS and the address ranges the Release lists. A call the Aggregate does not declare as an edge can then be refused by the cluster at either end, wherever its network plugin enforces network policy. So write an edge for every call your components make, including one that injects no value: an edge that is missing is a call a fenced component may refuse. [model-server-caller-allowlist](../examples/model-server-caller-allowlist/) shows a model server reachable only through the gateway in front of it.
+Restricting who may call a component, and what it may call, is the operator's decision, made per environment in the Release. Where a Release attaches the standard-library catalog's `core/caller-allowlist` Feature to a component, the build writes a network policy admitting exactly the components whose `uses` edges point at it, that component's own pods and the sources the attachment names. Its outbound counterpart, `core/egress-allowlist`, lets the component it is attached to reach only the components its own `uses` edges point at, its own pods, the cluster's DNS and the address ranges the Release lists. A call the Aggregate does not declare as an edge can then be refused by the cluster at either end, wherever its network plugin enforces network policy. So write an edge for every call your components make, including one that injects no value: an edge that is missing is a call a fenced component may refuse. [model-server-caller-allowlist](../examples/model-server-caller-allowlist/README.md) shows a model server reachable only through the gateway in front of it.
 
 ## A connection's own attachments: `features` on a `uses` entry
 
@@ -290,7 +290,7 @@ Subsystems and component instances both carry an `annotations:` field. Developer
 
 ### Value shapes
 
-Each annotation value carries one of three forms, distinguishing "I'm silent" from "I declare a value" from "I opt out":
+Each annotation key takes one of four forms, distinguishing "I'm silent" from "I declare a value" — a scalar or a structured object — from "I opt out":
 
 * **Absent key** — the scope declares no value for this annotation. Nested subsystems and contained components inherit any binding from an ancestor scope.
 * **A scalar string** — a single value. The Manifest binding must declare exactly one path total; the scalar routes to that path.
@@ -305,11 +305,14 @@ spec:
         feature.myco/db-pool: "shared-pool"   # scalar value — propagates to api and worker
       components:
         api:
+          type: core/server:1.0.0
           # inherits feature.myco/db-pool: "shared-pool"
         worker:
+          type: core/server:1.0.0
           annotations:
             feature.myco/db-pool: null         # opts out for this component only
         special:
+          type: core/server:1.0.0
           annotations:
             feature.myco/db-pool: "vip-pool"   # closer-level override
 ```
@@ -328,11 +331,13 @@ spec:
           read_replicas: 5
       components:
         api:
+          type: core/server:1.0.0
           annotations:
             feature.myco/db-pool:
               db_name: "api-override"   # closer-level override at subkey granularity
               # read_replicas not listed → inherits 5 from parent
         analytics:
+          type: core/server:1.0.0
           annotations:
             feature.myco/db-pool:
               read_replicas: null       # per-subkey opt-out
@@ -361,9 +366,6 @@ metadata:
   name: anchored-app
   version: 1.0.0
 defs:
-  - &standard_labels
-    aggregate.aggrega.ai/tier: "infrastructure"
-    aggregate.aggrega.ai/compliance: "pci-dss"
   - &default_log_level "info"
 spec:
   components:

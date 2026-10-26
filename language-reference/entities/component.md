@@ -6,7 +6,7 @@ The conceptual role of the Component entity (the abstract compute-node interface
 
 If the base types are purely cloud-native, the operational and cognitive intelligence of the architecture is layered entirely through semantic duck-typing.
 
-The core Go compiler does not read these labels. The compiler builds the flat Intermediate Representation (IR) graph without interpreting label semantics. These labels represent the **Standard Library Convention**—immutable "genetic markers" authored by the Platform Architect in Domain 2. They provide the explicit semantic hooks the Wasm policy validators and the physical Ops Recipes use to govern the architecture.
+The core Go compiler does not interpret these labels. The compiler builds the flat Intermediate Representation (IR) graph without interpreting label semantics. These labels represent the **Standard Library Convention**—immutable "genetic markers" authored by the Platform Architect in Domain 2. They provide the explicit semantic hooks the Wasm policy validators and the physical Ops Recipes use to govern the architecture.
 
 **(A) The Generic Cloud Layer**
 These labels describe universal behaviors, allowing policy engines and generated L7 proxies to govern standard enterprise architectures without needing to natively understand AI frameworks.
@@ -60,15 +60,15 @@ These represent the foundational enterprise tags that drive Zero-Trust validatio
 
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
-| `component.aggrega.ai/hosting` | `self-hosted`, `managed`, `external` | Records who operates a component's underlying resource — the trust-boundary axis. Policy engines read it to calculate Data Exfiltration risk (e.g., internal data routed to a `managed` third-party API leaves the operator's boundary). Cross-cutting: the same values describe a managed database, a managed model API, and a self-run inference server alike. |
-| `compliance.aggrega.ai/data-class` | `public`, `internal`, `restricted` | The class of the data a component holds. The compiler carries it to the build graph as a string and ranks nothing; a policy an operator attaches at the `ir-verdict` role gives the classes their order in its own settings and reads the label along the routes the compiler enumerates — halting, for instance, a build where a `restricted` component reaches a component of another class with no declassifying Feature attached on the route ([policy-data-class-route](../examples/policy-data-class-route/)). No standard-library Component carries it: the class is a statement about how an estate uses a component, carried by the estate's own Component — a specialization through `extends`, for one. |
-| `compliance.aggrega.ai/contains-pii` | `true`, `false` | Explicitly flags workloads for GDPR/CCPA scope. A policy an operator attaches can read it to require specific Features on the routes such a workload's traffic takes — `core/data-masking` on an AI gateway it sends model traffic through, for instance, the shape [policy-data-class-route](../examples/policy-data-class-route/) checks for a data class. No standard-library Component carries it; like the data class, it is an estate's statement about its own components. |
+| `component.aggrega.ai/hosting` | `self-hosted`, `managed`, `external`, `mixed` | Records who operates a component's underlying resource — the trust-boundary axis. Policy engines read it to calculate Data Exfiltration risk (e.g., internal data routed to a `managed` third-party API leaves the operator's boundary). Cross-cutting: the same values describe a managed database, a managed model API, and a self-run inference server alike. `mixed` marks a component whose Recipes span more than one posture — a datastore run self-hosted by its Helm and Compose Recipes and managed by its RDS Recipes — so a Release's posture follows the Recipe its Manifest selects. |
+| `compliance.aggrega.ai/data-class` | `public`, `internal`, `restricted` | The class of the data a component holds. The compiler carries it to the build graph as a string and ranks nothing; a policy an operator attaches at the `ir-verdict` role gives the classes their order in its own settings and reads the label along the routes the compiler enumerates — halting, for instance, a build where a `restricted` component reaches a component of another class with no declassifying Feature attached on the route ([policy-data-class-route](../examples/policy-data-class-route/README.md)). No standard-library Component carries it: the class is a statement about how an estate uses a component, carried by the estate's own Component — a specialization through `extends`, for one. |
+| `compliance.aggrega.ai/contains-pii` | `true`, `false` | Explicitly flags workloads for GDPR/CCPA scope. A policy an operator attaches can read it to require specific Features on the routes such a workload's traffic takes — `core/data-masking` on an AI gateway it sends model traffic through, for instance, the shape [policy-data-class-route](../examples/policy-data-class-route/README.md) checks for a data class. No standard-library Component carries it; like the data class, it is an estate's statement about its own components. |
 | `hardware.aggrega.ai/accelerator` | `gpu`, `tpu`, `npu` | Used by DevOps in the `Release` file. They explicitly route these components into physical hardware pool boundaries (e.g., a GPU-capable cluster) via the `components: {}` map, while a governance verdict role can enforce that GPU-labeled components are never placed in non-GPU boundaries. |
-| `state.aggrega.ai/retention` | `retain`, `delete` | **Solves the AOT Deletion Gap.** If a developer deletes a database from their `Aggregate`, a GitOps orchestrator will physically drop the disk. A governance `label-transform` plugin can read the `retain` label and automatically mutate the output artifacts to include orchestrator-native protection (e.g., `helm.sh/resource-policy: keep`). |
+| `state.aggrega.ai/retention` | `retain`, `delete` | **Solves the AOT Deletion Gap.** If a developer deletes a database from their `Aggregate`, a GitOps orchestrator will physically drop the disk. A Recipe's `pipeline:` step can read the `retain` label and add orchestrator-native protection to the rendered artifacts (e.g., `helm.sh/resource-policy: keep`). |
 | `state.aggrega.ai/backup-tier` | `mission-critical`, `standard`, `ephemeral` | **SOC2 Availability Hook.** Tells the Ops `FeatureRecipe` whether to physically generate automated Snapshot/Volume Backup configurations for the resource. |
 
 **(D) The Dynamic Business Context (Cascading Annotations)**
-While `labels` define the immutable Catalog DNA, dynamic business contexts (like SOC2 audit scoping or FinOps cost tracking) change depending on who deploys the application and where it runs. These are governed by **Annotations** injected dynamically by the Developer's `subsystems`, the Ops `Release` boundaries, or the governance `label-transform` auto-tagger.
+While `labels` define the immutable Catalog DNA, dynamic business contexts (like SOC2 audit scoping or FinOps cost tracking) change depending on who deploys the application and where it runs. These are governed by **Annotations** injected dynamically by the Developer's `subsystems`, the Ops `Release` boundaries, or a governance plugin attached in the `annotation-transform` role.
 
 | Annotation Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
@@ -106,6 +106,9 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
   name: core/datastore/mariadb
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: stateful-server
 spec:
   schema:
     values:
@@ -135,7 +138,7 @@ components:
 
 The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both during base rendering, mapping the abstract pillars into the concrete shape their target provider expects.
 
-Three `infra` conventions matter across every capability-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is `core/datastore/mariadb` in the standard-library catalog — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates all three patterns.
+Three `infra` conventions matter across every capability-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is `core/datastore/mariadb` in the standard-library catalog — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates the first and the third.
 
 ### `infra.overrides`
 
@@ -194,14 +197,12 @@ absent pin falls through to the version the Recipe was authored against:
 
 ```yaml
 source:
-  # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
-  # The built-in resolver today uses the { kind, url, version } form.
-  registry: oci://registry-1.docker.io/bitnamicharts
-  chart: mariadb
+  kind: helm-oci-chart
+  url: oci://registry-1.docker.io/bitnamicharts/mariadb
   version: "{{ optional .infra `source_version` `25.0.8` }}"
 ```
 
-Recipe `source` strings (and string-valued sub-fields of a structured `source:` map) are evaluated as Go templates against the same self-contained context as Recipe `locals` — `.context.instance_id`, `.values`, `.infra`, and the node's whole resolved `.locals` — with `.context.inject`, `.context.uses` and `.provides` all forbidden. `.infra` being on that context is what makes the override above work, and `.locals` lets a Recipe compute a source fragment once and read it back here. A source template never reads its own node's provides: that pillar is not part of the context, and a template reaching for it halts the build — a fixed property of the surface rather than a gap awaiting later work. See [Template Expansion Matrix row #5](../templates/expansion-matrix.md) for the full availability rules. Changing `infra.source_version` away from the Recipe's default does not guarantee that the Recipe's `valuesMapping` is wire-compatible with the new upstream version; the inline comment on the Component schema's `source_version` declaration carries that warning.
+Recipe `source` strings (and string-valued sub-fields of a structured `source:` map) are evaluated as Go templates. A remote coordinate — such as the `version` above — is evaluated when `aggrega pull` pins the artifact, against `.values`, `.infra` and `.locals` with no `.context` root; a source naming a path in the workspace is evaluated as the entity renders, against the same self-contained context as Recipe `locals` — `.context.instance_id`, `.values`, `.infra`, and the node's whole resolved `.locals`. `.context.inject`, `.context.uses` and `.provides` are forbidden on both. `.infra` being on that context is what makes the override above work, and `.locals` lets a Recipe compute a source fragment once and read it back here. A source template never reads its own node's provides: that pillar is not part of the context, and a template reaching for it halts the build — a fixed property of the surface rather than a gap awaiting later work. See [Template Expansion Matrix row #5](../templates/expansion-matrix.md) for the full availability rules. Changing `infra.source_version` away from the Recipe's default does not guarantee that the Recipe's `valuesMapping` is wire-compatible with the new upstream version; the `description` on the Component schema's `source_version` declaration carries that warning.
 
 ### `infra.ha.*`
 
@@ -220,7 +221,7 @@ infra:
 | :--- | :--- | :--- |
 | Helm (Bitnami MariaDB chart) | activates the `secondary` StatefulSet block | sets `secondary.replicaCount` |
 | Terraform (AWS RDS) | sets `multi_az = true` on the primary `aws_db_instance` | creates N separate `aws_db_instance` read-replica resources |
-| CloudFormation (AWS RDS) | sets `MultiAZ: true` on the `AWS::RDS::DBInstance` | creates N separate `AWS::RDS::DBInstance` replica resources |
+| CloudFormation (AWS RDS) | sets `MultiAZ: true` on the `AWS::RDS::DBInstance` | provisions one instance, so N above 0 halts the build |
 | Compose (local dev container) | ignored — no HA mechanism at this layer | ignored — no replica mechanism at this layer |
 
 Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider (Kubernetes pods are replicas of a StatefulSet) and as a category error elsewhere — RDS has no "replicas" concept on the primary, CloudFormation mirrors RDS, Compose has no horizontal-replica abstraction at all. Intent vocabulary translates: every provider has some concept of "make this database highly available" and some concept of "I want N read-only copies," and the Recipe carries the per-provider translation. A provider whose target lacks an HA equivalent (Compose) treats `ha.*` as advisory.
@@ -239,6 +240,9 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
   name: core/datastore/mariadb
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: stateful-server
 spec:
   schema:
     values:
@@ -255,6 +259,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
   name: mariadb-bitnami
+  version: 1.0.0
 spec:
   capability: helm
   implements: core/datastore/mariadb:1.0.0
@@ -273,7 +278,7 @@ spec:
 
 **The provides-then-inject evaluation split.** The compiler evaluates `provides:` templates at provides evaluation against the self-contained template context (`.context.instance_id`, `.context.rendered_name` where the node's provider reports one, `.values`, `.infra`, and the Recipe's resolved `locals:` on the same node) — no caller state is visible. The node's locals resolve in that stage's preamble, ahead of its provides, which is what lets a `provides:` template read `.locals`. At inject hydration, which runs next, the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. Splitting the two guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until inject hydration runs.
 
-**Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `implements:` interface version (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
+**Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `metadata.version` (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
 
 **Recipe-side teaching.** For the `provides:` template authoring grammar, the per-template availability matrix, and worked examples of cross-namespace and cross-region routing, see [entities/recipe.md](recipe.md) "The `provides:` block" and [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md).
 
@@ -333,6 +338,9 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
   name: core/ai-agent/orchestrator
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: server
 spec:
   usesSchema:
     primary_datastore:
@@ -375,7 +383,7 @@ uses:
   # Use when the connections need distinct names or per-edge inject.
   databases:
     primary: { target: orders-db,    inject: { env: [{ in: DB_URL, from: url }] } }
-    replica: { target: orders-db-ro, inject: { env: [{ in: DB_URL, from: url }] } }
+    replica: { target: orders-db-ro, inject: { env: [{ in: DB_REPLICA_URL, from: url }] } }
 ```
 
 An alias always maps to an entry object, never to a bare target name: `databases: { primary: orders-db }` is rejected at load, and so is an entry object that omits `target:`. To wire a single target with no alias to invent, reach for the compact form — `primary_datastore: [vector-db-instance]` — which names the target once and derives the alias from it.
@@ -469,7 +477,7 @@ Per-edge `values:` on an ad-hoc socket is accepted and reaches the consuming Rec
 
 Every edge in the emitted graph records which of the two it is, so a consumer never has to infer it, and an organisation that wants every connection to go through a declared socket can require that as a governance policy. Declaring the socket here remains the better path and is what the standard-library catalog does: a declared socket carries a `selector` constraining which components the edge may reach, an `inject:` allowlist, a per-edge contract with its own defaults, and a description — a reviewable statement of an anticipated connection, versioned with the entity that makes it. The ad-hoc form is an escape hatch, not a new default. Two surfaces are deliberately not open this way — a Feature attachment's `uses` may only name a socket the attached Feature declares, and a Release's per-edge `uses` may only name a socket the consuming Component declares.
 
-The worked example [`examples/adhoc-uses-socket/`](../examples/adhoc-uses-socket/) builds both kinds of edge on one consumer and shows the two delivered values side by side in the rendered output, alongside the halt an undeclared `from:` key produces.
+The worked example [`examples/adhoc-uses-socket/`](../examples/adhoc-uses-socket/README.md) builds both kinds of edge on one consumer and shows the two delivered values side by side in the rendered output, alongside the halt an undeclared `from:` key produces.
 
 **Socket-name typos surface as an advisory, not a halt.** Because an undeclared socket name is legal, a misspelled socket name becomes an ad-hoc connection of its own rather than wiring the socket the author meant — and the build stays green while nothing flows over it. The compiler reports a socket name that is within one edit of a name this `usesSchema` declares as a warning naming both spellings — see [errors/warnings.md](../errors/warnings.md) "Uses-socket near-miss lint". The warning never changes the build's verdict; the compiler does not police what an author names a socket.
 
@@ -655,6 +663,9 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
   name: core/web-server
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: server
 spec:
   inject: [env, file]
   schema:
@@ -676,13 +687,15 @@ components:
     inject:
       env:
         - in: LOG_LEVEL
-          value: "{{ .values.log_level }}"
+          value: '{{"{{"}} .values.log_level }}'
         - in: TLS_ENABLED
-          value: "{{ .values.tls_enabled }}"
+          value: '{{"{{"}} .values.tls_enabled }}'
       file:
         - in: /etc/web/health-probe
           from: health_endpoint
 ```
+
+Each `value:` template opens with `{{"{{"}}` rather than `{{`. The Aggregate's whole text is read once as a template, for parameter interpolation, before self-inject resolution runs, and `.values` does not exist at that point; the escape puts `{{` back for self-inject resolution to evaluate. See [Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces).
 
 **Field semantics.** `spec.inject:` is an array of mechanism names. Three values are defined:
 
@@ -694,7 +707,7 @@ The semantics mirror `usesSchema[].inject` and `featuresSchema[].inject` exactly
 
 **Authoring discipline.** A `core/web-server` Component declaring `spec.inject: [env, file]` opts into transparent delivery — the Aggregate author dictates which env-var names carry which values. A Component declaring `spec.inject: []` (or omitting the field) keeps delivery opaque — the Recipe's `valuesMapping:` decides which fields flow into which container variables, and the developer cannot override at the Aggregate. The Black-Box pattern suits stable contract Components (a `core/postgres-db` Component whose Recipe knows how to wire the DB password into a `POSTGRES_PASSWORD` env var); the transparent pattern suits Components where the developer's intent legitimately names delivery details (a `core/web-server` whose application reads `LOG_LEVEL` from a non-standard variable name the developer wants to customize).
 
-**Error modes.** A developer's Aggregate using an `inject:` block on a Component whose `spec.inject:` is missing or empty halts the build at workspace load with `ErrSelfInjectForbidden`. An `inject:` block using a mechanism not in the allowlist halts with `ErrInvalidInjectKey`. A delivery-key collision across self-inject, cross-component inject, and credential inject halts with `ErrInjectKeyCollision`. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.
+**Error modes.** A developer's Aggregate using an `inject:` block on a Component whose `spec.inject:` is missing or empty halts the build at workspace load ("Self-inject on a component without an allowlist"). An `inject:` block using a mechanism not in the allowlist halts with the same condition, naming the mechanism and the ones the allowlist permits ("Self-inject mechanism not in the component's allowlist"). A delivery-key collision across self-inject, cross-component inject, and credential inject halts too ("Duplicate delivery key across inject sources"). See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.
 
 ## Catalog Authoring: Extending Base Components
 
