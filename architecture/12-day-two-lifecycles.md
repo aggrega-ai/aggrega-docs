@@ -54,7 +54,7 @@ The compiler propagates each boundary's wave value to the rendered manifests in 
 * **For CloudFormation:** the cloudformation provider expresses the ordering as `DependsOn` between the resources of the stack template a dispatch group assembles into, each resource naming the resources of the immediately-preceding populated wave and the target chaining the rest. The attribute governs deletion order in reverse as well as creation order; it expresses no readiness condition, because a template has no notion of a resource being serviceable. `DependsOn` names a resource inside one template, so ordering across two stacks is not expressible; operators sequence separate stacks at the deployment layer.
 * **For Terraform:** the terraform provider expresses the ordering as `depends_on` between the `module` blocks of the root configuration a boundary assembles into, each module naming the modules of the immediately-preceding populated wave and Terraform chaining the rest. It orders the actions Terraform performs and expresses no readiness condition, because a configuration has no notion of a resource being serviceable. `depends_on` names a module inside one configuration, so ordering across two root configurations is not expressible; sequencing them is the operator's concern.
 
-The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` key continues to ship alongside the ArgoCD annotation for observability and provenance use — as an annotation on helm output and on the template files a Recipe adds to a helm-chart chart, as a service label on compose, as a line of the provenance comment in each terraform module, and under each cloudformation resource's `Metadata."aggrega.ai/provenance"` — while the ArgoCD annotation is what GitOps controllers consume.
+The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` key ships alongside the ArgoCD annotation for observability and provenance use — as an annotation on helm output and on the template files a Recipe adds to a helm-chart chart, as a service label on compose, as a line of the provenance comment in each terraform module, and under each cloudformation resource's `Metadata."aggrega.ai/provenance"` — while the ArgoCD annotation is what GitOps controllers consume.
 
 #### Wave-authoring vs deployable unit
 
@@ -160,10 +160,10 @@ Because the IR Graph contains the complete topology and the `Release` contains t
 
 **The Problem:** Enterprises already have most of their infrastructure running. While Aggrega is designed to connect a build to unmanaged infrastructure through the planned `eval` formatter (pass-through networking; see [the `eval` provider](06-data-taxonomy-and-composition.md#10-the-eval-provider-virtual-components-via-wasm-formatters)), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
 
-**The Solution (Future Implementation):**
-Aggrega will introduce the `core/resource-adoption` feature to manage the import lifecycle.
+**The Solution (planned):**
+A `core/resource-adoption` Feature is planned to manage the import lifecycle.
 
-When a developer models the existing database in their `Aggregate` and attaches the `resource-adoption` feature in a sequentially executed pipeline, the Wasm rendering plugin will evaluate the baseline Ops `Recipe` payload. Instead of emitting standard creation configurations, the plugin will output the target platform's explicit adoption syntax (e.g., returning a JSONPatch with Terraform `import {}` blocks or Crossplane `ObserveOnly` management policies). This allows enterprises to safely generate configurations that absorb legacy architecture into the GitOps control plane without downtime.
+When a developer models the existing database in their `Aggregate` and attaches the `resource-adoption` feature in a sequentially executed pipeline, the Wasm rendering plugin is designed to evaluate the baseline Ops `Recipe` payload. Instead of emitting standard creation configurations, the plugin is designed to output the target platform's explicit adoption syntax (e.g., returning a JSONPatch with Terraform `import {}` blocks or Crossplane `ObserveOnly` management policies). This allows enterprises to safely generate configurations that absorb legacy architecture into the GitOps control plane without downtime.
 
 ### 7. Ops Best Practices & Deterministic Naming
 

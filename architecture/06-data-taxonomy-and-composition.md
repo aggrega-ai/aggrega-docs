@@ -2,7 +2,7 @@
 
 ## The Unified Data Taxonomy & Composition Rules
 
-To establish a predictable schema and eliminate cognitive friction, the platform utilizes exactly five universally understood keywords and a strictly Map-based (Dictionary) YAML structure, replacing disjointed terminology and deeply nested arrays.
+To establish a predictable schema and eliminate cognitive friction, the platform utilizes exactly five universally understood keywords and a strictly Map-based (Dictionary) YAML structure, with maps rather than nested arrays at the structural root.
 
 ### 1. The 5-Keyword Map Standard & Total Schema Symmetry
 
@@ -55,7 +55,7 @@ To prevent template namespace collisions and the unintended leaking of physical 
 * **The Escape Hatch:** If an application's internal code *cannot* be changed, the Platform Architect explicitly exposes a `port` field in the `schema:` declaration.
 **Architectural Note:** The "Zero-Port" convention is the most prominent example of the platform's broader **Separation of Concerns**. This exact same philosophy — abstracting the physical mechanics away from the developer — applies to CPU requests, memory limits, operational domains, and disk sizing. Whenever a physical infrastructure constraint *must* leak into the developer's application payload (due to legacy code or strict hardware requirements), it must always be governed by an explicit "Escape Hatch" in the Architect's `schema:` declaration, the declaration the developer's payload is validated against.
 
-The "Zero-Port" name is the canonical historical handle for this convention; the principle generalizes to any physical-infrastructure constraint a legacy application hardcodes. The schema below uses `tcp_keepalive_seconds` as the worked exemplar — a kernel/network timing the application expects at the socket layer — to keep the example explicitly on the infra-leak axis without naming a field whose values-vs-infra placement is itself debated.
+The "Zero-Port" name stands for this convention; the principle generalizes to any physical-infrastructure constraint a legacy application hardcodes. The schema below uses `tcp_keepalive_seconds` as the worked exemplar — a kernel/network timing the application expects at the socket layer — because it sits clearly on the infra-leak axis.
 
 **The Schema (Domain 2):**
 

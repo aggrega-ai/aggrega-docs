@@ -1,12 +1,12 @@
 # Recipe Input Composition — Three Input Kinds, Workload, Artifacts
 
-A Recipe produces manifest files for its target provider. This chapter covers how Recipes compose their output from three orthogonal input kinds — sourced, synthesized, and artifacts — how each input kind is structured, and which provider produces which output today. The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a single physical provider) lives in [04-entity-taxonomy.md](04-entity-taxonomy.md); the Recipe authoring surface at keyword level lives in [../language-reference/entities/recipe.md](../language-reference/entities/recipe.md).
+A Recipe produces manifest files for its target provider. This chapter covers how Recipes compose their output from three orthogonal input kinds — sourced, synthesized, and artifacts — how each input kind is structured, and which provider produces which output. The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a single physical provider) lives in [04-entity-taxonomy.md](04-entity-taxonomy.md); the Recipe authoring surface at keyword level lives in [../language-reference/entities/recipe.md](../language-reference/entities/recipe.md).
 
 ## Rationale
 
 Each provider's native rendering tool — Helm, Docker Compose — already knows how to render provider-native manifests. A Recipe's job is to declare WHAT those manifests should say: which container images, which ports, which environment variables, which volumes, which services, which resource limits.
 
-An early approach extracts a fixed key set (e.g., `image`, `environment`, `ports`, `replicas`) from a Recipe's `valuesMapping` output and constructs a Kubernetes Deployment + Service from scratch. That approach is structurally unable to express:
+A Recipe has to express more than a fixed key set (e.g., `image`, `environment`, `ports`, `replicas`) mapped onto a Deployment and a Service can carry, among it:
 
 - `resources` (CPU/memory requests/limits)
 - Liveness, readiness, or startup probes
@@ -85,7 +85,7 @@ spec:
       $import: ./artifacts/other.yaml         # per-entry $import: for file or library content
 ```
 
-*Every field above is accepted by the Recipe schema, and the compiler consumes all three input kinds today — sourced rendering, Workload synthesis, and artifacts emission all ship. What differs is per-provider support — which provider renders which input kind — captured in the Provider Capability Matrix at the end of this chapter.*
+*Every field above is accepted by the Recipe schema, and the compiler consumes all three input kinds — sourced rendering, Workload synthesis, and artifacts emission. What differs is per-provider support — which provider renders which input kind — captured in the Provider Capability Matrix at the end of this chapter.*
 
 ### Load-Time Validation Rules
 
@@ -108,12 +108,12 @@ Workload is a platform kind and a compiler concept, not a separate entity in the
 
 ### One Workload per Recipe
 
-A Recipe declares exactly one `workload:`. The Workload represents the single deployment unit associated with the Component this Recipe implements. A FeatureRecipe likewise declares at most one `workload:` of its own — a Feature-owned deployment unit synthesized through the same Workload kind — see [FeatureRecipe](../language-reference/entities/featurerecipe.md). Use cases requiring additional side-workloads are expressed via:
+A Recipe declares at most one `workload:`. The Workload represents the single unit of compute associated with the Component this Recipe implements. A FeatureRecipe likewise declares at most one `workload:` of its own — a Feature-owned unit of compute synthesized through the same Workload kind — see [FeatureRecipe](../language-reference/entities/featurerecipe.md). Use cases requiring additional side-workloads are expressed via:
 
 - `artifacts:` — additional manifests alongside the workload, in the same Recipe (inline or via per-entry `$import:`).
 - Features with Resource Generation — cross-cutting side-workloads (e.g., a backup sidecar attached to databases) declared as separate catalog entities, where the FeatureRecipe synthesizes its own `workload:` (or renders via `source:` / `artifacts:`). See [14-extensibility.md](14-extensibility.md) for FeatureRecipe Resource Generation.
 
-This preserves the one-deployment-unit-per-author model: a Recipe synthesizes the Component's workload; a FeatureRecipe synthesizes its own.
+This preserves the one-unit-of-compute-per-author model: a Recipe synthesizes the Component's workload; a FeatureRecipe synthesizes its own.
 
 ### The Full Surface
 
@@ -122,7 +122,7 @@ The Workload's field set is large and it grows. Rather than restate it here, whe
 - **[The generated Workload schema reference](../language-reference/schema/entities/workload.md)** — every field, its type, its default and its constraints, generated from the published JSON Schema and compared against it on every build, so it cannot describe a shape the compiler does not accept.
 - **[The Workload authoring page](../language-reference/entities/workload.md)** — field-level authoring guidance: what each field means, what each provider renders it to, and which combinations the build refuses.
 
-*The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary. Recipe-side `workload:` consumption (inline or `$import:`) and the helm and compose synthesizers ship today; see the Provider Capability Matrix for per-provider support.*
+*The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary. The helm and compose providers synthesize a Recipe's `workload:`, inline or `$import:`-loaded; see the Provider Capability Matrix for per-provider support.*
 
 ### Secrets Integration with `featuresSchema`
 
@@ -251,11 +251,11 @@ spec:
 
 The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling. It is the documented translation contract, declared by convention on providers that synthesize — but synthesis support is determined by the provider itself, not by this field's presence. A Recipe targeting a provider that cannot synthesize with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error, whether or not the provider declares `workloadSchema`.
 
-*The Plugin schema declares `spec.provider.workloadSchema` today — its body is compiled to JSON Schema 2020-12 when the Plugin loads — and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound provider's reported capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega validate`, run over the whole catalog, additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build, where the catalog holds that provider's Plugin entity.*
+*The Plugin schema declares `spec.provider.workloadSchema` — its body is compiled to JSON Schema 2020-12 when the Plugin loads — and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound provider's reported capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega validate`, run over the whole catalog, additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build, where the catalog holds that provider's Plugin entity.*
 
 ### Auxiliary Resources Live Outside the Workload
 
-The Workload spec has no `additionalResources` field, no `extras`, no inline ConfigMap/Secret/CRD declarations. The Workload models the workload shape only: containers, volumes, services, replicas, scheduling, security context, service account — everything that describes how the single deployment unit runs.
+The Workload spec has no `additionalResources` field, no `extras`, no inline ConfigMap/Secret/CRD declarations. The Workload models the workload shape only: containers, volumes, services, replicas, scheduling, security context, service account — everything that describes how the single unit of compute runs.
 
 Auxiliary resources have two legitimate homes outside the Workload:
 
@@ -264,7 +264,7 @@ Auxiliary resources have two legitimate homes outside the Workload:
 
 The line between Feature and artifact is a social convention. If an auxiliary resource is cross-cutting (applies to many Recipes, or is attached conditionally via selectors), it's a Feature. If it's intrinsic to this one Recipe (the Recipe can't do its job without emitting that resource), it's an artifact. Authors choose based on reuse and attachment semantics; the compiler does not police the choice.
 
-Features and Recipe artifacts together cover every auxiliary-resource case currently known.
+Features and Recipe artifacts together cover the auxiliary resources a Recipe needs.
 
 ## The Artifacts Mechanism
 
@@ -389,7 +389,7 @@ The shape with no site here is a template or fragment declaring no resource — 
 
 ### Per-Provider Artifact Semantics
 
-*The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today.*
+*The per-provider semantics below describe how each provider integrates artifacts into its native output.*
 
 **helm provider:** artifacts are Kubernetes YAML documents written under a directory named for the component that declared them, inside the output directory holding the manifests rendered from the chart and synthesized from the Workload. The reason is the naming: a rendered or synthesized manifest is named by the provider from the component it belongs to, while an artifact is named by the key its author wrote, which says nothing about which component that is — so two components bound to one Recipe would write one path with neither author able to separate them. The directory is the component's own name, so the file the author reads back in the output is the name they wrote, one level down.
 
@@ -419,7 +419,7 @@ The artifacts mechanism has a second scope. Everything above is written to the c
 
 **How contributors meet.** The files every contributor to one dispatch group declared are merged by name. One name declared with identical bytes is one file; one name declared with different bytes, or a name the provider's assembly writes itself, stops the build naming the file and every contributor — the same refusal two contributors writing one output path meets. So a provider configuration two Recipes need is written by both under one name, and the build checks they agree.
 
-**Who accepts it.** Whether a file placed beside a boundary's assembled output means anything is a property of the provider's target, so it is the provider's own claim, read from the provider's own declaration like its input kinds. A Recipe declaring the block for a provider that does not claim it is refused before anything renders. The grid below carries the claim as its last column; today terraform makes it.
+**Who accepts it.** Whether a file placed beside a boundary's assembled output means anything is a property of the provider's target, so it is the provider's own claim, read from the provider's own declaration like its input kinds. A Recipe declaring the block for a provider that does not claim it is refused before anything renders. The grid below carries the claim as its last column; of the providers distributed with the compiler, terraform makes it.
 
 ### What Artifacts Is Not
 
@@ -451,7 +451,7 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 *This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts, whether it honours `omits:` and whether it accepts `boundary.artifacts:`, in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: provider-capability-matrix -->
 
-*Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
+*Cells marked `✅` are rendered; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per assembly path, so boundaries sharing a `directory:` share one file.*
 
 ### What each provider accepts, in full
 
