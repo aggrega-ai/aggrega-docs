@@ -20,9 +20,9 @@ Class A disciplines are the strongest guarantees the language carries. The compi
 
 ### Class B — Wasm-enforced
 
-The discipline is enforced by a Wasm plugin running at one of the documented socket points (the governance `label-transform` role at topology construction; the governance `ir-verdict` role at static analysis; out-of-band `linter.wasm`). A violation produces either a build-halting policy failure (in-band sockets) or an advisory warning (out-of-band sockets), depending on the socket's gating semantics.
+The discipline is enforced by a Wasm plugin running at one of the documented socket points (the governance `label-transform` role at topology construction; the governance `ir-verdict` role at static analysis; the out-of-band linter socket). A violation produces either a build-halting policy failure (in-band sockets) or an advisory warning (out-of-band sockets), depending on the socket's gating semantics.
 
-Class B disciplines today are mostly **future-shipping** — the Wasm runtime ships and invokes plugins at the documented socket points (see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)), but a discipline reaches Class B only once the specific plugin that enforces it exists, and most of those plugins are not yet authored. When such a plugin ships, the discipline it enforces transitions from Class C (convention-enforced) to Class B (Wasm-enforced). Examples currently chartered for future Class B status: hermeticity enforcement (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and a future `linter.wasm` plugin could flag their use); cloud-resource naming pattern matching (a future `linter.wasm` plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline").
+Class B disciplines today are mostly **future-shipping** — the Wasm runtime ships and invokes plugins at the documented socket points (see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)), but a discipline reaches Class B only once the specific plugin that enforces it exists, and most of those plugins are not yet authored. When such a plugin ships, the discipline it enforces transitions from Class C (convention-enforced) to Class B (Wasm-enforced). Examples currently chartered for future Class B status: hermeticity enforcement (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and a future linter plugin could flag their use); cloud-resource naming pattern matching (a future linter plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline").
 
 For the Wasm plugin contract surface and the placement criterion (the linter socket vs the governance verdict roles), see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md).
 
@@ -68,7 +68,7 @@ The compiler does not reject custom prefixes that conflict with the reserved set
 
 **Failure mode:** Custom annotations under reserved prefixes collide with future platform annotations under the same name; the platform's expected behaviour silently overwrites or coexists with the enterprise's authored value depending on order.
 
-A future Wasm-linter plugin (`linter.wasm`) could enforce reserved-prefix discipline at publish time; the discipline transitions from Class C to Class B when the plugin ships. Today the discipline is convention-enforced.
+The publishing linter, run by [`aggrega lint`](../cli/aggrega-lint.md), flags a catalog entity's annotation key under `aggrega.ai/` that is not one of the platform's well-known annotations, and one under `feature.aggrega.ai/` on an entity other than a Feature, as an advisory finding. Label keys, the other reserved prefixes, and annotations outside an entity's `metadata.annotations` — those a Release writes, for instance — are not checked, so for them the discipline stays convention-enforced.
 
 ### 4. Recipe `provides:` self-containment
 
@@ -157,9 +157,9 @@ The classification distinction matters because each class signals where the resp
 
 Three Class C contracts have chartered Wasm-linter rules planned today:
 
-- **Determinism enforcement** (contract 5) — a future `linter.wasm` rule statically analyses template surfaces for non-hermetic helper invocations.
-- **Cloud-resource naming** (contract 8) — a future `linter.wasm` rule flags `valuesMapping:` outputs referencing cloud-resource-name fields without `release_name` / `instance_id` interpolation.
-- **Reserved-prefix discipline** (contract 3) — a future `linter.wasm` rule (or publishing-discipline plugin) flags annotation / label keys under reserved prefixes that collide with the standard library's vocabulary.
+- **Determinism enforcement** (contract 5) — a future linter rule statically analyses template surfaces for non-hermetic helper invocations.
+- **Cloud-resource naming** (contract 8) — a future linter rule flags `valuesMapping:` outputs referencing cloud-resource-name fields without `release_name` / `instance_id` interpolation.
+- **Reserved-prefix discipline** (contract 3) — the publishing linter already flags a catalog entity's annotation keys under `aggrega.ai/` and `feature.aggrega.ai/` (see contract 3 above); a future linter rule (or publishing-discipline plugin) flags label keys under reserved prefixes that collide with the standard library's vocabulary.
 
 Each is `planned` per the four-label taxonomy at [`10-status.md`](../10-status.md). When each ships, the entry above's classification updates from Class C to Class B; the documentation alignment lands in lockstep with the plugin shipping.
 
@@ -175,5 +175,5 @@ The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C.
 - [`entities/recipe.md`](../entities/recipe.md) — Cloud-resource naming discipline + worked examples.
 - [`entities/workload.md`](../entities/workload.md) — Workload `variables:` dual-source semantic.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Recipe `provides:` self-containment as compiler-enforced rule.
-- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — `linter.wasm` placement criterion + the future Class B promotion path.
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the linter socket's placement criterion.
 - [`10-status.md`](../10-status.md) — readiness state for chartered Wasm-linter rules.

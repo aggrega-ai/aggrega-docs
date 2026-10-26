@@ -37,15 +37,15 @@ The discipline target — what the buckets are *intended* to express:
 
 When authors honour the separation, downstream tooling can read the right bucket for the right concern. When authors violate it (e.g., putting cognitive metadata in `release` annotations because the Release file is convenient), the runtime still works but the bucket's intent is muddled.
 
-### `linter.wasm` opportunity — cross-bucket reads
+### Linter socket opportunity — cross-bucket reads
 
-A future `linter.wasm` plugin (out-of-band advisory; see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the placement criterion) can flag cross-bucket reads where a Recipe's template pulls from a bucket whose intent doesn't match the field being routed. The criterion:
+A linter plugin (out-of-band advisory; see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the placement criterion) can flag cross-bucket reads where a Recipe's template pulls from a bucket whose intent doesn't match the field being routed. The criterion:
 
 - Reading `.context.annotations.release` to populate a `values:` field — flag (cognitive metadata should come from the `aggregate` bucket).
 - Reading `.context.annotations.aggregate` to populate an `infra:` field — flag (physical metadata should come from the `release` bucket).
 - Reading `.context.annotations.catalog` to populate either `values:` or `infra:` — typically advisory only (catalog annotations are intrinsic traits; routing them into pillars is unusual but not always wrong).
 
-The criterion is forward-looking — `linter.wasm` is `planned` per the Wasm plugin contract page; no in-compiler enforcement today. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
+The criterion is forward-looking — the linter socket ships (the Wasm plugin contract page lists it **available**, run by [`aggrega lint`](../cli/aggrega-lint.md)), and none of the publishing linter's rules applies this criterion; no in-compiler enforcement today. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
 
 ## Prefix discipline
 
@@ -96,7 +96,7 @@ backwards.
   or Feature selects on them. The key and its values are declared so that an estate's
   own Components and the policies it attaches share one spelling; a selector or a
   policy naming a value matches only in a catalog whose Components carry it.
-  [policy-data-class-route](../examples/policy-data-class-route/) shows one such
+  [policy-data-class-route](../examples/policy-data-class-route/README.md) shows one such
   Component and the policy that reads it.
 
 ### A reservation and a platform-defined key are not the same thing
@@ -232,6 +232,6 @@ For the canonical cascading-annotation design, see [`architecture/06-data-taxono
 - [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — per-provider boundary annotation matrix and provenance label emission asymmetry.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Surface 6).
 - [`vocabulary/publishing-surface.md`](publishing-surface.md) — uniform metadata vocabulary that complements labels/annotations on the publishing side.
-- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — `linter.wasm` placement criterion for advisory checks on cross-bucket reads.
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the linter socket's placement criterion for advisory checks on cross-bucket reads.
 - [`architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) — canonical cascading-annotation design.
 - [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md) — 5-Tier Onion Model that orders Feature attachment.

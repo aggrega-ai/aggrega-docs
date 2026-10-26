@@ -154,7 +154,7 @@ A run whose settings carry no approval at all is refused too, because the rule a
 **The Problem:** Accidental misconfigurations (e.g., requesting `workers: 500`) can bypass financial safeguards and trigger large cloud overruns.
 
 **The Solution (Enterprise Wasm Policies):**
-Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate exact deployment costs prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and slot it into their governance verdict or `linter.wasm` CI/CD gates. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and return a fatal failure to the compiler if the calculated cost exceeds the enterprise's internally defined budget limits.
+Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate the exact cost of what a Release deploys prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and attach it to the governance socket in a verdict role. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and stop the build if the calculated cost exceeds the enterprise's internally defined budget limits.
 
 ### 6. The "Brownfield" Import Lifecycle
 

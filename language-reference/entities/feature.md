@@ -135,7 +135,7 @@ The standard-library convention is **one Feature, one internal function** — an
 
 The core Go compiler does not enforce this convention. Feature definitions with mixed concerns are syntactically legal and compile cleanly. Enforcement is opt-in:
 
-* Enterprises authoring internal catalogs may author a custom `linter.wasm` plugin that inspects Feature definitions in CI/CD and warns when a single Feature's `appliesTo` labels span unrelated capability domains.
+* Enterprises authoring internal catalogs may author a custom linter plugin that inspects Feature definitions in CI/CD and warns when a single Feature's `appliesTo` labels span unrelated capability domains.
 * A Feature author who records, in `interoperability.conflictsWith`, that two Features would overlap opts into a build-time check: the compiler halts wherever the two reach one component. It compares the declared names and nothing more, so it enforces the declaration an author wrote rather than the purity convention itself.
 
 Open-source standard-library Features follow the purity convention by authoring discipline; enterprise catalogs are free to deviate when a tightly-coupled composite genuinely fits the deployment model.

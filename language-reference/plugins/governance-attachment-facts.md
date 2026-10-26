@@ -302,10 +302,10 @@ leaves they name, wherever they sit:
 - **a node's own `values` and `infra`**, under `values_mapping` and
   `infra_mapping`, by the node's own `sensitive_payload_leaves`.
 
-What a policy reasons on is unchanged. The type, the resolved version, the
+What a policy reasons on is intact. The type, the resolved version, the
 labels, the catalog annotations, `binding`, `connection`, `realization`,
 `origin` and its provenance maps, all three sensitivity facts, and every leaf no
-declaration marks arrive as before. The key of a withheld leaf survives too, so a policy
+declaration marks arrive as written. The key of a withheld leaf survives too, so a policy
 still sees which leaves a payload carries and which of them carry declared
 material — only the value is absent. A rule about where declared-sensitive
 material travels, and by which route, is therefore fully expressible; a rule
