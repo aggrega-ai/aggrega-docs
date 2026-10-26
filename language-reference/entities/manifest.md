@@ -191,7 +191,7 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
     * Strings under `Manifest.mappings.*.components.type` or `Manifest.mappings.*.components.name` expand to `/recipe/`.
     * Strings under `Manifest.mappings.*.features.type` or `Manifest.mappings.*.features.name` expand to `/feature-recipe/`. This includes credential Features (labeled `feature.aggrega.ai/kind: secret`) — they use the same FeatureRecipe path.
     * Strings assigned to `pipeline[].plugin` expand to `/plugin/`.
-3. **Three-Tier Precedence:** Before applying the OCI inference, the compiler checks local paths (Tier 1) and workspace directories (Tier 2) as defined in the [Three-Tier Entity Resolution Model](../../architecture/13-catalog-and-registry.md). OCI inference only applies when the entity reaches Tier 3 (remote registry).
+3. **Three-Tier Precedence:** Before applying the OCI inference, the compiler searches the workspace's catalog directories and the artifact cache (Tier 2) as defined in the [Three-Tier Entity Resolution Model](../../architecture/13-catalog-and-registry.md). OCI inference only applies when the entity reaches Tier 3 (remote registry). A mapping key or value is never read as a file path: a Recipe or FeatureRecipe authored locally sits in a catalog directory — `catalog/` at the workspace root, or one `workspace.catalog_dirs` lists — and is named by its reference.
 
 **The Shorthand in Action:**
 

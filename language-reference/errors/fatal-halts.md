@@ -1769,7 +1769,7 @@ A semantic guard reached for the catalog entity behind a component's type, and t
 
 The build stops rather than skipping the guard. Skipping would retire a check with nothing to say that it had gone, and the components the guard was about would pass unexamined while the build reported success.
 
-A type written as a relative path — beginning `./` or `../` — is a local file rather than a catalog identity, so it legitimately has no catalog entity and is skipped rather than reported. Only a bare-token catalog reference reaches this halt.
+A type written as a relative path — beginning `./` or `../` — is not judged here: a type is never read as a file, so such a value names no catalog entity at all and is refused earlier, when the Release's dependencies are resolved, as a reference no catalog holds. Only a bare-token catalog reference reaches this halt.
 
 Wherever the condition is met, it reports in the same words, so the text names the type and the fault rather than the check that raised it.
 
@@ -1778,7 +1778,7 @@ It also names no document and no key inside one, which is deliberate and is the 
 Emitted message:
 > the compiler's own views of the catalog disagree (internal error: this build resolved a component type that the catalog it reads then held no entry for. This is a fault in the compiler rather than in an authored document, so there is nothing to correct in the Aggregate, the Release or the catalog. Please report it, naming the command that produced this build and the type the views disagree on: `"<type>"`)
 
-**How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine; if you need to get past it while the defect is investigated, writing the type as a relative path to a local entity file takes that component off the catalog-resolution path.
+**How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine.
 
 ### A reference names no entity the catalog holds
 
@@ -5534,7 +5534,7 @@ So every path an entity writes for content it carries is read against the direct
 
 **It is refused wherever the entity is read.** A whole-catalog `aggrega validate`, `aggrega validate` on the entity's own file, `aggrega pull` and `aggrega build` refuse it as the entity's file is read, and so do `aggrega pin` of a Recipe or a FeatureRecipe and `aggrega push` of any of the four kinds, before anything is fetched, written or published. A `source:` written as a template names nothing until the build evaluates it, so a template producing a path outside the directory is refused by the build, at the moment the value exists.
 
-**A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type: ./local` reference names another entity rather than content the Aggregate carries, and is resolved on its own terms too.
+**A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type` names another entity by its identity rather than content the Aggregate carries, and is resolved on its own terms too: through the catalog directories, the cache and the registry, never as a file path.
 
 Emitted message, naming the path as written:
 > a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a path that leaves it points at a file that would not travel with the entity
