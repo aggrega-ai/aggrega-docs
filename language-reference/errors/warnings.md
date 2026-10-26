@@ -34,14 +34,14 @@ Two bounds on what the table covers, and both are worth knowing before you concl
 
 **Fires when** a Component or Feature declares the same property name in both the `values:` and `infra:` pillars of its `spec.schema:` block at the same nesting depth. Schema authors who put the same field name in both pillars usually mean to put it in one or the other; the lint flags the duplication so the author can resolve which pillar owns the field.
 
-**Pipeline placement.** The lint runs in the validation pass after schema unification, before topology construction. It walks the resolved schema (after compact-form expansion and `$ref:` resolution against SchemaLibrary entries) and reports each overlapping property as a separate warning.
+**Pipeline placement.** The lint runs in the validation pass after schema unification, before topology construction. It walks the schema after compact-form expansion, without following a `$ref:` (see the soft-skip discipline below), and reports each overlapping property as a separate warning.
 
 **Emit shape:**
 
 <!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
-LINT: Component "core/web-server" at ./catalog/component/core/web-server.yaml declares property "storage_size" in both values: and infra: pillars (path: storage_size)
+  notice: LINT: Component "core/compute/web-server:1.0.0" at ./catalog/component/core/compute/web-server/1.0.0/component.yaml declares property "storage_size" in both values: and infra: pillars (path: storage_size)
 ```
 
 For nested properties, the path is the dotted path to the property from the pillar's root:
@@ -49,14 +49,14 @@ For nested properties, the path is the dotted path to the property from the pill
 <!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
-LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "timeout" in both values: and infra: pillars (path: connection.timeout)
+  notice: LINT: Feature "core/db-pool:1.0.0" at ./catalog/feature/core/db-pool/1.0.0/feature.yaml declares property "timeout" in both values: and infra: pillars (path: connection.timeout)
 ```
 
-A whole-catalog load names each entity by the file it was read from, as above. A build, or a validation of one Release, reads only the entities that Release reaches and names each by its name and version — `at core/db-pool:1.0.0` — once per entity, however many references in the Release reach it: an Aggregate naming a Feature by its bare name and a Manifest mapping it by name and version reach one Feature, which is reported once.
+A whole-catalog load — `aggrega validate` with no argument — names each entity by its name and version and by the file it was read from, as above. A build, or a validation of one Release, reads only the entities that Release reaches and names each by its name and version — `at core/db-pool:1.0.0` — once per entity, however many references in the Release reach it: an Aggregate naming a Feature by its bare name and a Manifest mapping it by name and version reach one Feature, which is reported once.
 
 **Editor visibility.** The finding reaches editor diagnostics through the language server, at warning severity, at the head of the file rather than on a key — it names a catalog entity rather than a position inside the document you are editing, so there is no authoring key for a marker to sit on. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
-**Soft-skip discipline.** The walker terminates without warning when a schema branch carries one of the JSON Schema 2020-12 escape hatches that prevent statically-derivable property sets: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), and the composition operators `oneOf` / `anyOf` / `allOf` (disjunctions and conjunctions whose branches may declare divergent property sets). Walking these branches would either require evaluating the referenced or composed schema at lint time (a class of work the lint does not perform) or produce false positives when one branch's `values:` property name happens to collide with another branch's `infra:` property name. The lint emits no warning for the affected nesting depth; deeper levels of the same schema are still walked and lintable.
+**Soft-skip discipline.** The walker terminates without warning when a schema branch carries one of the JSON Schema 2020-12 escape hatches that prevent statically-derivable property sets: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), `additionalProperties` set to `true` or to a schema (properties the branch admits without naming them), and the composition operators `oneOf` / `anyOf` / `allOf` (disjunctions and conjunctions whose branches may declare divergent property sets). Walking these branches would either require evaluating the referenced or composed schema at lint time (a class of work the lint does not perform) or produce false positives when one branch's `values:` property name happens to collide with another branch's `infra:` property name. The lint emits no warning for the affected nesting depth; deeper levels of the same schema are still walked and lintable.
 
 **Authoring note.** The compiler does not reject pillar-name overlaps — the lint is advisory. A Component with `storage_size` in both pillars compiles; the developer-side `values.storage_size` and the operator-side `infra.storage_size` are validated independently by their pillar schemas, and the Recipe's `valuesMapping:` template chooses which pillar's value flows into the rendered output. The lint exists because the authoring pattern is almost always a mistake; conscious cross-pillar duplication is rare enough that authors who genuinely want it can ignore the warning. For the broader cross-pillar mechanics — including the rare cases where deliberate cross-pillar piping is justified — see [vocabulary/data-pillars.md](../vocabulary/data-pillars.md) "Cross-pillar mechanics".
 
@@ -113,7 +113,7 @@ The first quoted value is the name the attachment was written under, which is wh
 
 **Fires when** a component's own `uses:` block names a socket that is not one of its Component type's declared `usesSchema` sockets, but is within one edit of one — a single inserted, deleted, or substituted character, or two adjacent characters swapped. That is the shape a socket-name typo takes, and the lint names both spellings so the author can see the pair.
 
-**Why it exists.** Declaring a socket does not close the `uses:` surface on a developer's own component: a socket name no `usesSchema` entry declares is legal, because catalog silence about a socket means the connection was not anticipated rather than forbidden, and the developer owns the application's topology. The cost is that a misspelled socket name becomes an *ad-hoc connection* of its own rather than wiring the socket the author meant — the build succeeds, the intended socket simply stays unwired, and the ad-hoc edge carries no selector and no per-edge contract. The lint is the disclosed mitigation for exactly that case. For what an ad-hoc socket gives up and what it keeps, see [entities/component.md](../entities/component.md) "Topology Sockets: `usesSchema`".
+**Why it exists.** Declaring a socket does not close the `uses:` surface on a developer's own component: a socket name no `usesSchema` entry declares is legal, because catalog silence about a socket means the connection was not anticipated rather than forbidden, and the developer owns the Aggregate's topology. The cost is that a misspelled socket name becomes an *ad-hoc connection* of its own rather than wiring the socket the author meant — the build succeeds, the intended socket simply stays unwired, and the ad-hoc edge carries no selector and no per-edge contract. The lint is the disclosed mitigation for exactly that case. For what an ad-hoc socket gives up and what it keeps, see [entities/component.md](../entities/component.md) "Topology Sockets: `usesSchema`".
 
 **Which surface it covers.** The component's own `uses:` block only — the one surface where an undeclared socket name is accepted. A Feature attachment's `uses:` may only name a socket the attached Feature declares, and a Release's per-edge `uses:` may only name a socket the consuming Component declares; a wrong name on either of those already halts the build, so there is nothing for a warning to add.
 
@@ -217,7 +217,7 @@ The order is fixed: the node's `.values`, then its `.infra`, then each `uses` al
 
 **Fires when** an Aggregate declares an entry under `spec.parameters:` and no `{{ .parameters.<key> }}` reference in that Aggregate's own text reads it.
 
-A declared parameter is the authoring surface for varying one value per deployment: the Release fulfils the declaration, and a reference carries the fulfilled value into the component values it belongs to. A declaration nothing reads leaves that variation with nowhere to land — whatever a Release supplies for it, the rendered output is the same. It is the parameter-scoped form of the same smell an authored values key nothing consumes carries.
+A declared parameter is the authoring surface for varying one value per Release: the Release fulfils the declaration, and a reference carries the fulfilled value into the component values it belongs to. A declaration nothing reads leaves that variation with nowhere to land — whatever a Release supplies for it, the rendered output is the same. It is the parameter-scoped form of the same smell an authored values key nothing consumes carries.
 
 **A default is not an exemption.** A default no reference reads reaches the output no more than a Release-supplied value does, so a defaulted declaration is reported exactly as a bare one is.
 

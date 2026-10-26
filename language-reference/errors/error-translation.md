@@ -1,6 +1,6 @@
 # Error translation discipline
 
-Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming up to two things — a category, which says which concern to look at (for most values, the authoring surface at fault), and the short code of the condition that halted the build — followed by a source pointer and a message. Where a plugin raised the condition, the code is qualified by the plugin that raised it, because a code is unique only within whoever handed it out. This page documents the shape of that output so authors interpret error messages directly.
+Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming up to two things — a category, which says which concern to look at (for most values, the authoring surface at fault), and the short code of the condition that halted the build — followed by a source pointer and a message. Where a plugin raised the condition, the code is qualified by the plugin that raised it, because more than one plugin can report the same condition. This page documents the shape of that output so authors interpret error messages directly.
 
 For the per-error catalog (every fatal halt with how-to-fix guidance), see [`fatal-halts.md`](fatal-halts.md). For the four schema-validation layers and how their error shapes interact, see [`vocabulary/validation-surface.md`](../vocabulary/validation-surface.md).
 
@@ -11,9 +11,9 @@ A category tag says which concern to look at. Most of them name the authoring su
 - **`[DEVELOPER_ERROR]`** — the failure attaches to Aggregate authoring. The fix is in the Aggregate YAML or in the developer-authored portion of the catalog (Component values, `uses` sockets, Feature attachments). Example surfaces: resolver halts on Aggregate-side issues; selector and `appliesTo` violations on what the Aggregate wrote.
 - **`[OPS_ERROR]`** — the failure attaches to the operator's own documents, the Release and the Manifest. The fix is in the Release YAML (boundary topology, parameter values, Feature attachments at the Release level) or in the Manifest YAML (which Recipe a type is deployed through, and the annotation bindings written beside it). Example surfaces: Release schema validation; boundary-path template evaluation; `subDirectory` collisions across providers; Manifest mapping and annotation-binding refusals; a rule refusing a connection the Release wires, or an attachment it fills on a connection — a socket's selector, a slot's selector, a slot a socket declares required; a rule refusing a Feature only the Release attaches, to a component or to a boundary — the Feature's `appliesTo`, a slot's selector, its declared schema.
 - **`[CATALOG_ERROR]`** — the failure attaches to a catalog entity (Recipe, FeatureRecipe, Component, Feature, Plugin). The fix is in the catalog content. Example surfaces: Recipe shape rules; Workload `featuresSchema` cross-checks; template parse errors in catalog-authored templates.
-- **`[TRANSLATION_ERROR]`** — the failure attaches to provider-side synthesis (the helm, helm-chart, or compose provider attempting to translate a Workload, valuesMapping output, or sourced overlay into provider-native artifacts). The fix is typically in the Workload's `services` / `containers` / `volumes` shape, the Recipe's `valuesMapping` template output, or the source-mode overlay structure.
+- **`[TRANSLATION_ERROR]`** — the failure attaches to provider-side synthesis (a provider plugin attempting to translate a Workload, valuesMapping output, or sourced overlay into provider-native artifacts). The fix is typically in the Workload's `services` / `containers` / `volumes` shape, the Recipe's `valuesMapping` template output, or the source-mode overlay structure.
 - **`[FETCH_ERROR]`** — the failure attaches to fetching a pinned dependency from a registry or remote source, not to any authoring surface. The fix is usually operational: authenticate to the registry (`docker login <registry>`), restore connectivity, or re-pin a drifted or tampered artifact (`aggrega pull --upgrade --release <release>`). Example surfaces: a catalog entity or chart not found at the registry; authentication required or failed; the network unreachable; a cached artifact's digest not matching the lockfile. Fetch errors carry a concrete remediation pointer in the message.
-- **`[POLICY_ERROR]`** — the build was rejected by a policy plugin attached at a governance verdict role. This is not an authoring-surface fault: the input is well-formed, but it fails a governance rule (compliance, FinOps, or security) the plugin enforces. The fix is to bring the deployment into compliance with the enforced policy, or to reconsider the policy attachment. The message names the rejecting plugin and carries the rule message it supplied.
+- **`[POLICY_ERROR]`** — the build was rejected by a policy plugin attached at a governance verdict role. This is not an authoring-surface fault: the input is well-formed, but it fails a governance rule (compliance, FinOps, or security) the plugin enforces. The fix is to bring what you authored into compliance with the enforced policy, or to reconsider the policy attachment. The message names the rejecting plugin and carries the rule message it supplied.
 - **`[TRUST_ERROR]`** — the trust and signing layer refused the operation. This category names a concern rather than an authoring surface, and it covers two remedies you can tell apart from the short code beside it. **Your trust configuration is wrong:** a trust policy that cannot be read, a pinned trust root that cannot be loaded, a keyless policy declaring no trusted identity, a signing policy that requires a signature for the artifact kind you are publishing, or a plugin recorded as trusted for a verdict attachment your configuration no longer attaches. **This artifact failed verification:** a signature that does not verify against the trust anchor, an artifact carrying no signature where one is required, a signature from a real but untrusted signer, or a plugin whose recorded trusted identity no longer matches what resolves. The fix in the first case is in your configuration or in the committed trust record; in the second it is a decision about the artifact — restore the reviewed one, or review and re-record what changed.
 
 ### A finding about a Feature attachment follows the document that wrote it
@@ -46,9 +46,9 @@ The head carries two tokens, and they answer different questions. The category i
 
 ### A code a plugin raised is qualified by the plugin that raised it
 
-A short code is unique only within whoever handed it out. Aggrega's own codes cannot collide with one another: a condition declared under a number another condition already holds is refused before the compiler reads any input. Nothing holds that across plugin authors — each allocates codes for their own plugin's conditions, and no author can see another's allocations — so two plugins can publish the same short code for two conditions that have nothing to do with each other.
+Every short code names a condition Aggrega declares, and no two conditions share one: a condition declared under a number another condition already holds is refused before the compiler reads any input. A plugin allocates no codes of its own. When it reports a failure it names one of the conditions Aggrega declares — one of a few general conditions describing how a plugin failed, or a more specific one where one fits — and supplies the sentence saying what actually happened. So two plugins can report the same short code, and when they do they are reporting the same condition.
 
-The plugin's identity is what tells those apart, and a head reporting a condition a plugin raised carries it immediately before the code:
+What the code cannot say is which plugin met the condition, and a head reporting a condition a plugin raised carries the plugin's identity immediately before the code:
 
 <!-- unregistered-output: an output grammar, whose metavariables stand in for whichever plugin and condition were met rather than quoting one -->
 
@@ -59,7 +59,7 @@ The plugin's identity is what tells those apart, and a head reporting a conditio
 
 **The short code is always the final segment** — the letter `E` and four digits, after the last `/`. A plugin's identity carries separators of its own, and may carry a version, so reading from the end rather than from the first `/` is what makes the code recoverable from any head. Everything before that final segment is the plugin.
 
-Where you resolve the code depends on which of the two segments you are holding. A plugin that ships with Aggrega declares its conditions the same way the compiler does, so its codes are listed beside the compiler's in the table of every condition in [`sentinels.md`](sentinels.md), and `aggrega explain` resolves them. A plugin you obtained elsewhere allocates its own codes, and they are the plugin author's to document: that table lists the conditions Aggrega declares, and a code it does not list is one to look up in the plugin's own reference. Either way, quote the final segment alone to `aggrega explain` — the qualifier says whose code it is, not which code it is.
+The final segment resolves like any other short code, whichever plugin raised it: the table of every condition in [`sentinels.md`](sentinels.md) lists it, and `aggrega explain` resolves it. Quote the final segment alone — the qualifier says which plugin met the condition, not which condition it is. A plugin that names a code Aggrega does not declare — a number no condition holds, or a retired one — does not get that code printed: the build halts on `E0293`, qualified by that plugin, and its message quotes the code the plugin offered, names those general conditions, and keeps the plugin's own sentence.
 
 A head printing a bare short code is reporting a condition Aggrega itself raised, which includes the case where a plugin failed and named no condition of its own. There the compiler's generic plugin-failure condition is what halted the build, and the plugin's message carries the detail.
 
@@ -116,9 +116,8 @@ An error often crosses more than one surface on its way to the CLI: a load phase
 ```text
 [CATALOG_ERROR E0094] aggrega-catalog
   catalog load
-  caused by: [CATALOG_ERROR] aggrega-catalog/recipe/compose/mariadb-copy/recipe.yaml
-    recipe identity "compose/mariadb:1.0.0" already declared in this catalog directory
-    caused by: duplicate entity identity within a single catalog directory
+  caused by: [CATALOG_ERROR] aggrega-catalog/recipe/compose/mariadb-copy/1.0.0/recipe.yaml
+    duplicate entity identity within a single catalog directory (recipe identity "compose/mariadb:1.0.0")
 ```
 
 **Only the head carries a short code, and the continuations carry their category alone.** The condition is named once, at the point the reader meets the failure; the frames beneath a `caused by:` marker are that same failure seen from further in, so repeating its identifier on each would add lines without adding facts. A `note:` block is not a continuation and does not follow this rule — it reports *other* documents' conditions rather than the same one from further in; [the section below](#a-refused-catalog-file-and-the-failure-it-explains) covers it. The code the head prints is the one the chain names — here the rule at the very bottom — so a phase-context frame at the top still identifies the condition underneath it.
@@ -221,7 +220,7 @@ The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entiti
 
 ## Multi-error chains
 
-When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain via Go's `errors.Join`. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
+When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
 
 ```text
 [DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge.uses.reviewed_upstream.internal
@@ -231,7 +230,7 @@ When a single compile detects multiple independent violations (most commonly dur
   selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
 ```
 
-The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. Each sub-error is a failure in its own right rather than a detail of its neighbour, so each carries a full head: its own category, and its own short code. Two violations of one rule name the same short code, as above; two violations of different rules name different ones.
+The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. Each sub-error is a failure in its own right rather than a detail of its neighbour, so each carries a head of its own: its own category and its own short code, each where it has one, as [the section on absent tokens](#either-token-may-be-absent-and-an-absent-one-is-omitted) describes. Two violations of one rule name the same short code, as above; two violations of different rules name different ones.
 
 ## Reading an error end-to-end
 
