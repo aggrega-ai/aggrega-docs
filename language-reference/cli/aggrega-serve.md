@@ -260,7 +260,7 @@ A connection a component draws can carry attachments of its own, filling the slo
 - `ad-hoc-socket` — the socket is one the Component does not declare. The author named it, which is legal, and an undeclared socket declares no slot.
 - `no-slot-declared` — the Component declares the socket with no slot on it.
 
-`noSlotReason` is absent wherever a slot exists, and `slots` and `noSlotReason` are both absent from an answer to a request that named no connection — so every request that names no connection is answered exactly as before the field existed.
+`noSlotReason` is absent wherever a slot exists, and `slots` and `noSlotReason` are both absent from an answer to a request that named no connection — so a request that names no connection is answered with neither field.
 
 **`document` is accepted and changes nothing here.** The slots are the socket's and the candidates the Features', the same whichever document an attachment is written in; where it goes is `aggrega/attachmentContainer`'s answer. A value other than `aggregate` or `release` is still refused, because a value accepted and ignored reads to its sender as one that was honoured.
 
@@ -685,8 +685,8 @@ The field is optional, and the three things you can mean by it are distinguishab
 | a workspace root | that workspace | that workspace |
 | the empty string | nowhere — no diagnostic is ever pushed | an empty root |
 
-Sending nothing is what a client that predates the field sends, and it keeps receiving exactly the
-diagnostics it received before. Sending the empty string is the honest declaration for a caller that
+Sending nothing leaves pushes on the workspace the process was launched over, so a client that
+declares nothing receives the diagnostics for that workspace. Sending the empty string is the honest declaration for a caller that
 is not an editor and has no problem list to keep in sync: every finding still reaches it, on the
 response to the request that produced it.
 
@@ -964,7 +964,7 @@ A request that refuses answers with an error envelope, and the findings the run 
 
 **A value an author declared sensitive is withheld here exactly as the command line withholds it.** The refusal's text is the text the compiler raised, nothing on this surface rewords it, and the compiler withholds a declared value where the refusal is raised — `<redacted>` in its place — so this answer, this entry and the terminal carry it in the same words; [what a refusal says about a declared value](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) states how, and which refusals sit outside it.
 
-**A refusal from a gate that runs before the render is not this.** The checks listed above answer as they always have. An assertion a Component or a Feature declares, and a refusal over the composed graph, sit between the two: each is raised before the render, by every request that resolves a Release's graph, so `aggrega/irGraph` answers and publishes it as above with the rendering stage off as well; `aggrega/releaseClosure`, `aggrega/attachCandidates` and `aggrega/attachmentContainer` asked about a graph node, and `aggrega/connectionAtPosition`, answer it with the same envelope and publish nothing, because they own no problems surface.
+**A refusal from a gate that runs before the render is not this.** The checks listed above answer as [What a refused run still tells you](#what-a-refused-run-still-tells-you) describes. An assertion a Component or a Feature declares, and a refusal over the composed graph, sit between the two: each is raised before the render, by every request that resolves a Release's graph, so `aggrega/irGraph` answers and publishes it as above with the rendering stage off as well; `aggrega/releaseClosure`, `aggrega/attachCandidates` and `aggrega/attachmentContainer` asked about a graph node, and `aggrega/connectionAtPosition`, answer it with the same envelope and publish nothing, because they own no problems surface.
 
 ## Error codes
 

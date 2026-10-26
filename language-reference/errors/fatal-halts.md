@@ -1180,7 +1180,7 @@ It halts as an ordinary envelope violation, so the diagnostic takes that class's
 
 **How to fix:** remove the `aggregate:` field from the child Release. Inheritance intentionally forces the child to deploy the same Developer Intent as its parent; if you need to deploy a different Aggregate, author a fresh Release without `extends:`.
 
-### Manifest merge strategy
+### A feature attached by both the Aggregate and the Release cannot be merged
 
 <!-- covers: pkg/resolver.ErrFeatureMergeConflict -->
 
@@ -2603,7 +2603,7 @@ Some shapes are named less exactly. An attachment name declared at more than one
 
 **How to fix:** give one of the two connections an alias of its own. For a list naming one target twice, list the target once, or write the two connections as keyed entries under two aliases. For one alias on two sockets, rename one of the two keys. An attachment wiring a socket under an alias the component already uses takes a different key in its own `uses:` block.
 
-### `uses:` socket not declared in the target's `usesSchema`
+### `uses:` socket not declared in the owning entity's `usesSchema`
 
 <!-- covers: pkg/resolver.ErrUnknownUsesSocket -->
 
@@ -2819,7 +2819,7 @@ Emitted message:
 
 <!-- covers: internal/compiler/ir.ErrFeatureTypeMismatch -->
 
-The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`, and the Release's attachment reaches the component from a boundary's `features:`. Where the Release writes it on its own entry for the component instead, the same conflict is refused earlier and reported as `E0153`, under "Manifest merge strategy" above.
+The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`, and the Release's attachment reaches the component from a boundary's `features:`. Where the Release writes it on its own entry for the component instead, the same conflict is refused earlier and reported as `E0153`, under "A feature attached by both the Aggregate and the Release cannot be merged" above.
 
 Emitted message:
 > feature type mismatch between Aggregate and Release (node `<node-id>`, attachment `<instance-name>`, existing type `<type-in-aggregate>` conflicts with `<type-in-release>`)
@@ -2978,7 +2978,7 @@ Emitted message:
 
 **How to fix:** nothing in your files produces it, and there is no authoring change that clears it. Report it with the command you ran and the alias chain the message names, which is the detail that says where the loop closed.
 
-### An application reached graph building without being normalised
+### An Aggregate reached graph building without being normalised
 
 <!-- covers: internal/compiler/topology.ErrUnnormalizedAggregate -->
 
@@ -3304,7 +3304,7 @@ A Component's own attachment surface is open: an attachment under a name no slot
 
 Left alone, such an attachment is a free attachment while the slot it was meant for stays empty — and an optional slot left empty builds green and delivers nothing. The rule holds for every Feature, not only for credentials.
 
-Everything else on the surface stays free. An attachment whose Feature fits no declared slot builds; so does an extra attachment beside a slot something already binds, as long as no other slot it fits is left empty. An attachment the component inherits from a subsystem or a Release boundary is never judged, so the shared shape — one credential attached once at a scope several components sit in, with no component filling the slot — builds as it always has. A slot declaring no `selector:` says nothing about which Feature it is for, so no attachment is held to it this way. An attachment a connection carries is not judged here either: a socket's slots are a closed set, and any other name on a connection halts under "A connection carries an attachment under a name its socket declares no slot for".
+Everything else on the surface stays free. An attachment whose Feature fits no declared slot builds; so does an extra attachment beside a slot something already binds, as long as no other slot it fits is left empty. An attachment the component inherits from a subsystem or a Release boundary is never judged, so the shared shape — one credential attached once at a scope several components sit in, with no component filling the slot — builds. A slot declaring no `selector:` says nothing about which Feature it is for, so no attachment is held to it this way. An attachment a connection carries is not judged here either: a socket's slots are a closed set, and any other name on a connection halts under "A connection carries an attachment under a name its socket declares no slot for".
 
 Emitted message. The condition's sentence comes first, then the name the attachment was written under, the component, the Feature it attaches and the empty slot it fits — then what to do about it:
 > attachment written under a name no slot declares fits a slot its component leaves empty (`"<attachment>"`, on component `"<component>"`, attaching the Feature `"<feature-type>"`, which fits the empty slot `"<slot>"`). Attach it as `"<slot>"` to fill the slot.
@@ -3458,9 +3458,9 @@ The check reads the path a reference **resolves** to rather than its keystrokes,
 
 A template references a top-level root — the first path segment after the leading dot — that its render context does not define: a misspelling such as `{{ .valeus.port }}`, or a root that does not exist on the surface being authored. The check is a positive allowlist over root *names*, and the admitted set is derived from the render context's own shape rather than kept as a separate list beside it, so the set the build refuses and the set the context actually delivers cannot drift apart. The diagnostic names the offending reference and lists the roots that context does define.
 
-The halt fires identically whether the reference is bare or wrapped in a `default`, `if`, `with`, or `range` fallback, and the wrapped spelling is the one that matters most: a wrapper can supply a fallback for an absent *key* under a defined root, but never for an absent *root*, so without this halt the wrapped form would resolve quietly to an empty value and let the build finish successfully. An absent key under a defined root is untouched and still follows the `missingkey=zero` policy for value templates described in "Missing template key — asymmetric policy" below, so optional-key idioms such as `{{ .values.optional_field | default "fallback" }}` keep working exactly as before.
+The halt fires identically whether the reference is bare or wrapped in a `default`, `if`, `with`, or `range` fallback, and the wrapped spelling is the one that matters most: a wrapper can supply a fallback for an absent *key* under a defined root, but never for an absent *root*, so without this halt the wrapped form would resolve quietly to an empty value and let the build finish successfully. An absent key under a defined root is untouched and still follows the `missingkey=zero` policy for value templates described in "Missing template key — asymmetric policy" below, so optional-key idioms such as `{{ .values.optional_field | default "fallback" }}` keep working.
 
-**The same halt covers a mistyped key one level down, under a pillar whose shape is declared.** Some pillars have a fixed set of keys the compiler defines: `.context`, `.metadata`, `.inject`, `.workload` and `.boundary` on the Recipe and FeatureRecipe render context, and `.manifest` on a path template. A reference to a key one of those pillars does not define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — halts exactly as a wrong root does, and the diagnostic lists the keys that pillar defines. Other pillars are **open**, because what they hold is keyed data rather than a set the compiler declares — among them `.values`, `.infra`, `.locals`, `.provides`, `.features` and `.steps` on the render context, and `.parameters` and `.parent_boundary` on a path template. An open pillar accepts any key. An absent key under an open pillar is not this halt — it follows the surface's missing-key policy described in "Missing template key — asymmetric policy" below, so `{{ .values.optional_field | default "fallback" }}` and every other optional-key idiom keep working unchanged.
+**The same halt covers a mistyped key one level down, under a pillar whose shape is declared.** Some pillars have a fixed set of keys the compiler defines: `.context`, `.metadata`, `.inject`, `.workload` and `.boundary` on the Recipe and FeatureRecipe render context, and `.manifest` on a path template. A reference to a key one of those pillars does not define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — halts exactly as a wrong root does, and the diagnostic lists the keys that pillar defines. Other pillars are **open**, because what they hold is keyed data rather than a set the compiler declares — among them `.values`, `.infra`, `.locals`, `.provides`, `.features` and `.steps` on the render context, and `.parameters` and `.parent_boundary` on a path template. An open pillar accepts any key. An absent key under an open pillar is not this halt — it follows the surface's missing-key policy described in "Missing template key — asymmetric policy" below, so `{{ .values.optional_field | default "fallback" }}` and every other optional-key idiom keep working.
 
 Which pillars are declared and which are open is a property of the surface, not something a template can influence: the compiler reads it from the shape of the render context it is about to deliver. That is what lets the typo halt and the optional key render on the same template.
 
@@ -4005,7 +4005,7 @@ A `source:` field calling the function itself is reported the same way, naming t
 
 A template reads a map through `index` — `{{ index .values "replicas" }}`, or `{{ index .context.inject.env $apiKeyVar }}` with a key name the template computed — and the map does not hold the key it is asked for. `index` halts there and names the key, on every surface that evaluates a template: value templates, `locals:` and `provides:` entries, path templates, assertions, a structured `source:` coordinate, parameter interpolation in an Aggregate and its parameters' `validate:` predicates, and the `x-aggrega-when:` and `x-aggrega-validate:` predicates of a schema.
 
-**This is a property of `index` alone, and no surface's missing-key policy changes it.** A dot read of an unset key under an open pillar still renders nothing on a value template, as "Missing template key — asymmetric policy" above describes, and a template testing whether the author supplied such a key keeps working. What halts is asking `index` for a key the map does not hold. `index` is how a template reaches a key whose name it computes — a credential read under the variable name the consuming Recipe chose, say — and without the halt that read would put the template engine's placeholder text `<no value>` into the artifact while the build succeeded: a server started with that text as its key. Every other answer `index` gives is the template engine's own: a position in a list or a string, an out-of-range position, a key the map holds — including one whose value is null, which prints `<no value>`.
+**This is a property of `index` alone, and no surface's missing-key policy changes it.** A dot read of an unset key under an open pillar still renders nothing on a value template, as "Missing template key — asymmetric policy" above describes, and a template testing whether the author supplied such a key is unaffected. What halts is asking `index` for a key the map does not hold. `index` is how a template reaches a key whose name it computes — a credential read under the variable name the consuming Recipe chose, say — and without the halt that read would put the template engine's placeholder text `<no value>` into the artifact while the build succeeded: a server started with that text as its key. Every other answer `index` gives is the template engine's own: a position in a list or a string, an out-of-range position, a key the map holds — including one whose value is null, which prints `<no value>`.
 
 Emitted message, as the last line of the report — the frames above it name the node and the field the template sits in, and on a Recipe or FeatureRecipe value template the head carries this condition's code:
 > template: `<template>`:`<line>`:`<column>`: executing `"<template>"` at `<index <map> <key>>`: error calling index: template indexes a map with a key the map does not hold (key `"<key>"`). read a key that may be absent through a function that tests for it first, such as optional, get or hasKey
@@ -4389,7 +4389,7 @@ Emitted message, naming the component instance, the entry inside the block, and 
 
 **How to fix:** open the Recipe's `provides:` block at the key the message names and read the reported reason — it usually names a parse position or a function. Missing-key handling on this surface renders an absent final key as nothing rather than failing, so a failure here is a structural fault: a template that does not parse, a reference descending through a container that was never supplied, or an `index` read of a key the map does not hold, which the reported reason names. Where the value is genuinely optional, read it through the `optional` helper rather than descending into something that may not be there.
 
-### A realizer does not publish a `provides` key its contract declares
+### A Recipe or FeatureRecipe does not publish a `provides` key its contract declares
 
 <!-- covers: internal/compiler/renderer.ErrProvidesContractUnfulfilled -->
 
@@ -5365,7 +5365,7 @@ An advisory. A component's own `uses:` block names a socket its type does not de
 Its message opens:
 > uses socket name is a near miss for a declared socket
 
-Taught under "Uses-socket near-miss lint" in [warnings.md](./warnings.md). The two neighbouring surfaces where a socket name missing from the owning entity's `usesSchema` **does** halt are covered under "`uses:` socket not declared in the target's `usesSchema`" above.
+Taught under "Uses-socket near-miss lint" in [warnings.md](./warnings.md). The two neighbouring surfaces where a socket name missing from the owning entity's `usesSchema` **does** halt are covered under "`uses:` socket not declared in the owning entity's `usesSchema`" above.
 
 ### A Recipe publishes a `provides` key its Component does not declare
 
@@ -6112,7 +6112,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0052` | `pipeline PATCH targets a document the node did not emit` | A pipeline step addresses documents the node does not have |
 | `E0053` | `pipeline plugin is not compatible with the rendering provider` | A pipeline step's plugin does not claim the provider rendering what it addresses |
 | `E0054` | `provider rejected node input` | A provider refused a node's input |
-| `E0055` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` | A realizer does not publish a `provides` key its contract declares |
+| `E0055` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` | A Recipe or FeatureRecipe does not publish a `provides` key its contract declares |
 | `E0056` | `provides template evaluation failed` | A `provides:` template could not be evaluated |
 | `E0057` | `provides block references a root outside the self-contained set` | `provides:` template references a non-self-contained root |
 | `E0058` | `provider render is not deterministic` | A provider rendered the same input twice and produced different output |
@@ -6132,7 +6132,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0072` | `sub-aggregate load failed` | A module a composition imports cannot be loaded, or imports itself |
 | `E0073` | `flattened node ID collision: rename one of the colliding instances so their flattened IDs differ` | Two instances flatten to one identifier |
 | `E0074` | `release per-edge configuration has no edge to apply to` | Release per-edge configuration has no edge to apply to |
-| `E0075` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` | An application reached graph building without being normalised |
+| `E0075` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` | An Aggregate reached graph building without being normalised |
 | `E0076` | `` sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` `` | A sub-module's components are placed in no boundary |
 | `E0077` | `uses edge target was pruned because its active toggle resolved to false` | A `uses` edge targets a component an `active:` toggle removed |
 | `E0078` | `producer-consumption re-entry denied: a producer reached through the host may not issue a further producer-consumption call` | A plugin asks the host to parse a source while a parse is already running for it |
@@ -6209,7 +6209,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0150` | `attachment does not conform to its declared slot shape` | Attachment does not conform to its declared slot shape |
 | `E0151` | `component declared in more than one boundary: declare each component in exactly one boundary` | A component is placed in more than one boundary |
 | `E0152` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` | The Release directory declares one Aggregate or Manifest twice |
-| `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Manifest merge strategy |
+| `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | A feature attached by both the Aggregate and the Release cannot be merged |
 | `E0154` | `the compiler's own views of the catalog disagree` | A guard needs a catalog entity the build resolved and cannot see |
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
 | `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
@@ -6224,7 +6224,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0168` | `authored pillar does not conform to its declared schema` | Authored values or infra do not conform to the declared schema |
 | `E0169` | `self-inject on component without spec.inject allowlist` | Self-inject on a component without an allowlist; Self-inject mechanism not in the component's allowlist |
 | `E0170` | `aggregate/manifest reference unresolvable` | A Release's `aggregate:` or `manifest:` reference resolves to nothing |
-| `E0171` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | `uses:` socket not declared in the target's `usesSchema` |
+| `E0171` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | `uses:` socket not declared in the owning entity's `usesSchema` |
 | `E0172` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` | A Release reached resolution without passing through the load path |
 | `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
 | `E0174` | `uses socket name is a near miss for a declared socket` | A `uses:` socket name is one edit from a declared socket |
