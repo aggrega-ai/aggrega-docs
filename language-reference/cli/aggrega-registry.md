@@ -354,9 +354,9 @@ the offline posture that fetch is refused before anything is dialled, so the reg
 never asked. Adding a registry other than the official hub is then **refused** — adding a
 registry is the one moment its trust is pinned, and an entry written without the policy
 would trust nothing while every later pull held the registry to it. The refusal carries the
-short code `E0310` and names both ways forward: pass `--offline=false` to register it once
-while online, or pin the policy by hand with `--identity` or `--key`, which registers exactly
-what you supply and makes no fetch at all. The official hub is added on its built-in
+short code `E0310` and names both ways forward: register it once while online, which
+`--offline=false` allows for one run, or pin the policy by hand with `--identity` or `--key`,
+which registers exactly what you supply and makes no fetch at all. The official hub is added on its built-in
 baseline, with a notice saying the hub was not asked for its trust policy because the
 workspace is offline and the baseline is used instead, and `--fetch-trust=false` registers
 the entry from its flags exactly as it does online. The

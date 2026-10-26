@@ -195,6 +195,7 @@ The directory layout is per-boundary, per-instance:
             ├── 08-workload-synthesis.yaml
             ├── 09-artifact-evaluation/
             │   └── <per-artifact-file>.yaml
+            ├── 09b-feature-rendering-boundary.yaml
             ├── 10-engine-synthesis/
             │   └── <per-synthesized-file>.yaml
             ├── 11-engine-emission.log
@@ -203,7 +204,7 @@ The directory layout is per-boundary, per-instance:
 
 Each slot captures a specific compiler state:
 
-- `01-pillars-initial.yaml` — the per-node `TemplateContext` snapshot after resolution and before any per-stage mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
+- `01-pillars-initial.yaml` — the per-node snapshot of the context a template reads, taken after resolution and before any per-stage mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
 - `02-provides-evaluation.yaml` — the resolved `provides:` outputs after provides evaluation.
 - `03-inject-hydration.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
 - `04-inject-mapping.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites.
@@ -212,11 +213,12 @@ Each slot captures a specific compiler state:
 - `07-values-mapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.
 - `08-workload-synthesis.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-artifact-evaluation/` onward, once it is settled rather than in flight.
 - `09-artifact-evaluation/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
+- `09b-feature-rendering-boundary.yaml` — the context as the node's render ends, once the FeatureRecipes attached to it have generated their resources, with the parsed `workload` beside it. Written for every node.
 - `10-engine-synthesis/` — one file per synthesized manifest the provider produced from the Workload (helm/compose workload-mode). Present only when the provider ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
 - `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
 
-The trace writer is non-blocking: events go through a bounded channel and a dedicated goroutine drains to disk. Compile latency is unaffected by trace I/O — the same compile finishes in the same wall-clock time whether `--trace` is on or off.
+The trace writer is non-blocking: the trace is written to disk alongside the compile rather than in its path. Compile latency is unaffected by trace I/O — the same compile finishes in the same wall-clock time whether `--trace` is on or off.
 
 ### Declared-sensitive values in the trace
 
