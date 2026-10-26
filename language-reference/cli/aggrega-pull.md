@@ -316,21 +316,12 @@ The lockfile pins content fetched from registries and remote sources, and record
 
 ## Authentication
 
-Aggrega keeps no credential store of its own for remote registries: [`aggrega login <registry>`](aggrega-login.md) stores a credential in the shared store `docker login` also writes, and authentication reads the standard tooling configs in priority order:
+Registry credentials are read from the Docker credential configuration alone: `config.json` in the directory `DOCKER_CONFIG` names, or `~/.docker/config.json` when that variable is unset, together with any credential helper or OS keychain the file delegates to through `credsStore` or `credHelpers`. [`aggrega login <registry>`](aggrega-login.md) writes a credential there, and so does `docker login <registry>`; run either before `aggrega pull` for a private OCI catalog or chart registry. The files `podman login` and `helm registry login` write are not read.
 
-- `~/.docker/config.json` (Docker login)
-- `containers/auth.json` inside the directory `XDG_RUNTIME_DIR` names (Podman / Skopeo)
-- `~/.config/helm/registry/config.json` (Helm OCI)
+The other source kinds read no credential store:
 
-Credential-helper delegation via `credsStore` and `credHelpers` is honored across all three locations, so OS-keychain integration via delegated helper binaries works without further configuration. For a private OCI catalog or chart repository, run `aggrega login <registry>` — or `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) — before `aggrega pull`. The credentials persist in the standard config file; Aggrega reads them automatically.
-
-Other source kinds use their native authentication conventions:
-
-- Helm classic HTTPS chart repositories (non-OCI) read `~/.config/helm/repositories.yaml` per Helm's own convention.
-- Git module sources use the standard Git transport credentials — SSH agent, `~/.netrc`, gitconfig credential helpers.
-- Plain HTTPS fragment sources are fetched without credentials, so a fragment must be readable anonymously; a server that answers the request with 401 or 403 stops the pull as an unauthorized fetch.
-
-The goal across kinds is to let each kind's native tooling continue to own its authentication story. Aggrega does not interpose its own credential store or auth layer.
+- Helm classic HTTPS chart repositories (non-OCI) and plain HTTPS fragment sources carry a credential only when one is written into the URL; `~/.config/helm/repositories.yaml` is not read. A source whose URL carries none must be readable anonymously, and a server that answers 401 or 403 stops the pull as an unauthorized fetch.
+- Git module sources authenticate over SSH through the SSH agent, and over HTTPS only with a credential written into the URL; `~/.netrc` and Git credential helpers are not read.
 
 ## Environment variables
 

@@ -340,6 +340,28 @@ with `failed to decode the envelope:` and the line and what the decoder found th
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
 
+### A path names content outside the entity's own directory
+
+<!-- covers: internal/sourceref.ErrContentOutsideEntityDirectory -->
+
+An entity's content lives in the entity's own directory, because every file a publication of the entity carries is taken from there. A path that leaves it points at a file that would not travel with the entity, so the file is not there for anyone who receives the entity, and a pin recorded over it vouches for bytes they cannot obtain.
+
+So every path an entity writes for content it carries is read against the directory holding the entity's file and must stay inside it. That covers a Recipe's and a FeatureRecipe's `source:` — a bare path, or the `url:` of the structured form — the file each `valuesMapping:`, `workload:` and `artifacts:` entry imports with `$import:`, and every schema a Component or a Feature imports, whole, per pillar, or for a `usesSchema` socket's `valueSchema` and `infraSchema`. Three shapes leave the directory: a path that climbs above it, an absolute path, which names a place on the machine it was written on, and a path written inside the directory that a symbolic link on the way carries out of it — a directory along the path, as well as the file at its end, that is a link leading outside the entity's directory. A path that climbs and comes back inside — `./charts/../values.tmpl` — is an ordinary path inside the directory, and so is one through a link that leads elsewhere inside it. A climb that re-enters the directory by its own name — `../1.0.0/values.tmpl` written in a directory called `1.0.0` — is refused, because the directory's name is not part of what travels: a published entity is read from a directory the consumer's cache names, where that name finds nothing. A path through a link leading out is refused because a publication would otherwise carry the bytes the link points at, from wherever it points, under a name inside the entity.
+
+**It is refused wherever the entity is read.** A whole-catalog `aggrega validate`, `aggrega validate` on the entity's own file, `aggrega pull` and `aggrega build` refuse it as the entity's file is read, and so do `aggrega pin` of a Recipe or a FeatureRecipe and `aggrega push` of any of the four kinds, before anything is fetched, written or published. A `source:` written as a template names nothing until the build evaluates it, so a template producing a path outside the directory is refused by the build, at the moment the value exists.
+
+**A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type` names another entity by its identity rather than content the Aggregate carries, and is resolved on its own terms too: through the catalog directories, the cache and the registry, never as a file path.
+
+Emitted message, naming the path as written:
+> a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a path that leaves it points at a file that would not travel with the entity
+
+and, for a path a link carries out of the directory, naming the link and where it leads:
+> a path names content outside the entity's own directory (`"./frag/fragment.yaml"`, the link `<entity-directory>/frag` leads to `<elsewhere>/frag`). remediation: replace the link with a copy of what it leads to, placed inside the directory holding the entity. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a link leading out of it would carry the bytes it points at under a name inside the entity
+
+The field it was read from is named on the line above the message: `resolve Recipe source …`, `resolve Recipe artifact "<key>" $import target …`, `spec.schema.values: imported schema …`, or, for a templated source, `node "<name>" source`.
+
+**How to fix:** move the file into the entity's directory, or a directory beneath it, and write its path relative to that directory. Where a link carries the path out, replace the link with a copy of what it leads to inside the entity's directory. A chart several Recipes share is copied into each Recipe's directory, since each is published on its own; a schema several Components share belongs in a SchemaLibrary, which each Component then references by identity, and a mapping, workload or artifact body several Recipes share belongs in the matching library kind.
+
 ### A `{{ .parameters.* }}` reference cannot be interpolated
 
 <!-- covers: pkg/resolver.ErrInvalidParameterRef -->
@@ -1729,6 +1751,21 @@ Emitted message:
 > assertion name declared twice across the extends chain (Component `<name>`:`<version>`, rule assertions, at `.spec.assertions.<key>`). assertion `"<key>"` is already declared by the base Component `"<base>"`, carrying a different rule; rename the extending entity's assertion; an extending entity's assertions add to the base's and never replace one
 
 **How to fix:** rename the extending entity's assertion, which the message names along with the base that already declares it. Where you meant to *replace* the base's rule, that is not something extending supports — narrow the base's assertion so it holds for every entity extending it, or move the rule down onto the entities that actually need it. Where the two rules are meant to be the same, make them textually identical and the collision goes away.
+
+### A Release chain's links disagree about the routing shape
+
+<!-- covers: pkg/resolver.ErrReleaseChainComposesBothRoutingKeys -->
+
+A Release routes its Aggregate's components one of two ways: named boundaries under `boundaries:`, or top-level components under `components:`. The two are mutually exclusive, and a single document declaring both is refused as it is read. This condition is the same rule across an `extends:` chain: a base that declares named boundaries and a child that declares top-level components are each well-formed on their own, and it is only folding them together that brings the two choices into one resolved Release.
+
+**Neither document is wrong by itself**, which is why the message names both of them and both keys. A diagnostic naming only the Release the build was pointed at would send you to the file with nothing wrong in it.
+
+**A chain whose links agree is untouched.** Every link declaring named boundaries composes normally, and so does every link declaring top-level components. It is the mix that stops.
+
+Emitted message, naming the two files and the key each declares:
+> release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both (Release `<release-file>`, boundaries declared by `"<file>"`, components declared by `"<file>"`)
+
+**How to fix:** choose the routing shape the chain should use and write it the whole way down. Where the base declares named boundaries, a child that wants to configure components addresses them inside the boundary that holds them rather than at the Release root — which is also what lets it change one component's sizing without restating the topology. Where the base declares top-level components, a child that needs named boundaries is describing a different routing shape than its base, and is better authored as its own Release than as a child of that one.
 
 ### An external input's URL uses a scheme that is not allowed
 
@@ -5553,28 +5590,6 @@ Emitted message, naming the entity, every entity beside it, and the files to mov
 
 **How to fix:** move each entity the message names into a directory of its own, taking with it the files only it reads — a local chart, an imported file, and the `entity.lock` if it records that entity's pins — and run `aggrega pin` on each one that reads a remote source or imports a file, so each lock records its own entity. Laying each out as `<kind>/<provider-or-publisher>/…/<name>/<version>/` keeps it where the standard-library catalog keeps every entity. A catalog directory is found by walking it, so a build over the catalog renders the same output after the move.
 
-### A path names content outside the entity's own directory
-
-<!-- covers: internal/sourceref.ErrContentOutsideEntityDirectory -->
-
-An entity's content lives in the entity's own directory, because every file a publication of the entity carries is taken from there. A path that leaves it points at a file that would not travel with the entity, so the file is not there for anyone who receives the entity, and a pin recorded over it vouches for bytes they cannot obtain.
-
-So every path an entity writes for content it carries is read against the directory holding the entity's file and must stay inside it. That covers a Recipe's and a FeatureRecipe's `source:` — a bare path, or the `url:` of the structured form — the file each `valuesMapping:`, `workload:` and `artifacts:` entry imports with `$import:`, and every schema a Component or a Feature imports, whole, per pillar, or for a `usesSchema` socket's `valueSchema` and `infraSchema`. Three shapes leave the directory: a path that climbs above it, an absolute path, which names a place on the machine it was written on, and a path written inside the directory that a symbolic link on the way carries out of it — a directory along the path, as well as the file at its end, that is a link leading outside the entity's directory. A path that climbs and comes back inside — `./charts/../values.tmpl` — is an ordinary path inside the directory, and so is one through a link that leads elsewhere inside it. A climb that re-enters the directory by its own name — `../1.0.0/values.tmpl` written in a directory called `1.0.0` — is refused, because the directory's name is not part of what travels: a published entity is read from a directory the consumer's cache names, where that name finds nothing. A path through a link leading out is refused because a publication would otherwise carry the bytes the link points at, from wherever it points, under a name inside the entity.
-
-**It is refused wherever the entity is read.** A whole-catalog `aggrega validate`, `aggrega validate` on the entity's own file, `aggrega pull` and `aggrega build` refuse it as the entity's file is read, and so do `aggrega pin` of a Recipe or a FeatureRecipe and `aggrega push` of any of the four kinds, before anything is fetched, written or published. A `source:` written as a template names nothing until the build evaluates it, so a template producing a path outside the directory is refused by the build, at the moment the value exists.
-
-**A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type` names another entity by its identity rather than content the Aggregate carries, and is resolved on its own terms too: through the catalog directories, the cache and the registry, never as a file path.
-
-Emitted message, naming the path as written:
-> a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a path that leaves it points at a file that would not travel with the entity
-
-and, for a path a link carries out of the directory, naming the link and where it leads:
-> a path names content outside the entity's own directory (`"./frag/fragment.yaml"`, the link `<entity-directory>/frag` leads to `<elsewhere>/frag`). remediation: replace the link with a copy of what it leads to, placed inside the directory holding the entity. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a link leading out of it would carry the bytes it points at under a name inside the entity
-
-The field it was read from is named on the line above the message: `resolve Recipe source …`, `resolve Recipe artifact "<key>" $import target …`, `spec.schema.values: imported schema …`, or, for a templated source, `node "<name>" source`.
-
-**How to fix:** move the file into the entity's directory, or a directory beneath it, and write its path relative to that directory. Where a link carries the path out, replace the link with a copy of what it leads to inside the entity's directory. A chart several Recipes share is copied into each Recipe's directory, since each is published on its own; a schema several Components share belongs in a SchemaLibrary, which each Component then references by identity, and a mapping, workload or artifact body several Recipes share belongs in the matching library kind.
-
 ### An entity kind has no artifact media type
 
 <!-- covers: pkg/oci.ErrUnknownEntityKind -->
@@ -5747,21 +5762,6 @@ Emitted message, carrying the schema's own objection after the sentence — the 
 > the edit was refused because the resulting document would not be valid, and nothing was written: document envelope validation failed (`<kind>`, at `<path>`); `<line>`:`<column>`: `<field-path>`: … `<the schema's own objection>`. correct the document to match its kind's schema
 
 **How to fix:** open the document at the position the message quotes and read the objection, which says what the schema wanted at that key. The change to make is usually to the request rather than to the document — ask for an entry the schema admits in that place, and the same request applies cleanly. Where the key is one that document's kind may not carry at all, it belongs on the authoring surface that may, and the entity page for the kind names the fields it declares. What is *semantically* admissible is not decided at this point — whether a dependency socket is one the producer declares, say — so this refusal is always about the shape of the document, never about what may be consumed across a connection.
-
-### A Release chain's links disagree about the routing shape
-
-<!-- covers: pkg/resolver.ErrReleaseChainComposesBothRoutingKeys -->
-
-A Release routes its Aggregate's components one of two ways: named boundaries under `boundaries:`, or top-level components under `components:`. The two are mutually exclusive, and a single document declaring both is refused as it is read. This condition is the same rule across an `extends:` chain: a base that declares named boundaries and a child that declares top-level components are each well-formed on their own, and it is only folding them together that brings the two choices into one resolved Release.
-
-**Neither document is wrong by itself**, which is why the message names both of them and both keys. A diagnostic naming only the Release the build was pointed at would send you to the file with nothing wrong in it.
-
-**A chain whose links agree is untouched.** Every link declaring named boundaries composes normally, and so does every link declaring top-level components. It is the mix that stops.
-
-Emitted message, naming the two files and the key each declares:
-> release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both (Release `<release-file>`, boundaries declared by `"<file>"`, components declared by `"<file>"`)
-
-**How to fix:** choose the routing shape the chain should use and write it the whole way down. Where the base declares named boundaries, a child that wants to configure components addresses them inside the boundary that holds them rather than at the Release root — which is also what lets it change one component's sizing without restating the topology. Where the base declares top-level components, a child that needs named boundaries is describing a different routing shape than its base, and is better authored as its own Release than as a child of that one.
 
 ### An annotation key uses a prefix the platform reserves
 

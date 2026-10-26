@@ -171,7 +171,7 @@ Precedence is flag > environment > config > default. See [environment-variables.
 
 ## Authentication
 
-`aggrega push` uses the same standard registry authentication as `aggrega pull` — Docker / Podman / Helm config files and credential helpers. Run [`aggrega login <registry>`](aggrega-login.md), which needs no other tool, or `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) before pushing to a private registry. See [`aggrega-pull.md`](aggrega-pull.md#authentication) for the full priority order.
+`aggrega push` reads registry credentials as `aggrega pull` does — from the Docker credential configuration and the credential helpers it names. Run [`aggrega login <registry>`](aggrega-login.md), which needs no other tool, or `docker login <registry>` before pushing to a private registry. See [`aggrega-pull.md`](aggrega-pull.md#authentication) for where that configuration is read.
 
 ## See also
 

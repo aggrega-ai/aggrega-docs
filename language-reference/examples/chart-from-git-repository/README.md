@@ -29,9 +29,9 @@ source:
 Three coordinates, and each answers a different question:
 
 - **`url`** — the repository to clone. `https://`, `ssh://`, `git+ssh://` and
-  `git://` are all accepted, and the credential sources git already reads — an
-  SSH key, a `~/.netrc`, a credential helper — are honoured, so a private
-  repository needs no configuration of its own here.
+  `git://` are all accepted. A private repository is reached over SSH through
+  the SSH agent, or over HTTPS with a credential written into the URL, as
+  [Authentication](../../cli/aggrega-pull.md#authentication) describes.
 - **`ref`** — the reference to read the repository at: a tag, a branch, or a
   commit. It is whatever the repository's own authors named, which is not always
   a bare version — here the tag carries the chart's name as well.
