@@ -543,7 +543,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0052` | `pipeline-target-not-emitted` | `pipeline PATCH targets a document the node did not emit` |
 | `E0053` | `plugin-provider-incompatible` | `pipeline plugin is not compatible with the rendering provider` |
 | `E0054` | `provider-node-input-invalid` | `provider rejected node input` |
-| `E0055` | `provides-contract-unfulfilled` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` |
+| `E0055` | `provides-contract-unfulfilled` | `Recipe or FeatureRecipe does not publish a provides key its abstract entity's schema.provides contract declares` |
 | `E0056` | `provides-evaluation-failed` | `provides template evaluation failed` |
 | `E0057` | `provides-self-containment` | `provides block references a root outside the self-contained set` |
 | `E0058` | `render-nondeterministic` | `provider render is not deterministic` |
@@ -822,6 +822,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0355` | `inject-delivery-shape` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` |
 | `E0356` | `suspend-requires-scheduled-form` | `suspend requires form: scheduled` |
 | `E0357` | `name-mapping-matched-nothing` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` |
+| `E0358` | `uses-target-not-exported` | `uses edge target names a component its module does not export` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

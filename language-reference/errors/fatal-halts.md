@@ -2296,7 +2296,7 @@ and checking a credential as it is stored:
 > oci: verify credential for `"<host>"`: `<what the registry replied>`: oci: authentication required or failed
 
 Where the failure is surfaced by a step that supplies remediation, the line ends with the login to run against the host it derived:
-> remediation: docker login `<host>` (or helm registry login `<host>` for Helm-specific OCI) before re-running aggrega pull --release `<release>`
+> remediation: aggrega login `<host>` (or docker login `<host>`) before re-running aggrega pull --release `<release>`
 
 **How to fix:** this is the operator's rather than the entity author's — nothing in an Aggregate, Component or Recipe causes it. Log in to the host the message names and run the acquisition again. Where you are already logged in, the credential in the store is not one that host accepts for that repository: log in again to refresh it, and check that the account has read access to the repository the reference resolves to, since a private repository answers exactly this way to an account that cannot see it. Where the reference resolves to a host you did not expect, the registry alias or the default registry in `.aggrega-config.yaml` is pointing somewhere else.
 
@@ -4400,10 +4400,10 @@ A Component and a Feature each declare, under `schema.provides`, the keys anythi
 **Every shortfall is reported.** A Recipe short of three keys raises three findings, each positioned at its own entry in that Recipe's `provides:` block, so all three are corrected from one build. The message names the missing key, the type whose contract declares it, and the instance the Recipe was bound to — the last of which is what tells two findings apart when one Recipe serves several instances of one type.
 
 Emitted message:
-> realizer does not publish a provides key its abstract entity's schema.provides contract declares (`"<key>"`, declared by component type `"<type>"`, bound to component instance `"<instance>"`)
+> Recipe or FeatureRecipe does not publish a provides key its abstract entity's schema.provides contract declares (`"<key>"`, declared by component type `"<type>"`, bound to component instance `"<instance>"`)
 
 The Feature-and-FeatureRecipe pairing reports the same condition through the attachment's own resolution, naming the pair and the key:
-> realizer does not publish a provides key its abstract entity's schema.provides contract declares (`<attachment context>`, `<the FeatureRecipe>` does not publish provides key `"<key>"` declared by `<the Feature>`'s schema.provides contract)
+> Recipe or FeatureRecipe does not publish a provides key its abstract entity's schema.provides contract declares (`<attachment context>`, `<the FeatureRecipe>` does not publish provides key `"<key>"` declared by `<the Feature>`'s schema.provides contract)
 
 There it reports the first missing key in sorted order and stops, so that pairing names one key per build while the Component pairing names all of them. Keys are walked in sorted order either way, which is what makes both the same across runs.
 
@@ -6112,7 +6112,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0052` | `pipeline PATCH targets a document the node did not emit` | A pipeline step addresses documents the node does not have |
 | `E0053` | `pipeline plugin is not compatible with the rendering provider` | A pipeline step's plugin does not claim the provider rendering what it addresses |
 | `E0054` | `provider rejected node input` | A provider refused a node's input |
-| `E0055` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` | A Recipe or FeatureRecipe does not publish a `provides` key its contract declares |
+| `E0055` | `Recipe or FeatureRecipe does not publish a provides key its abstract entity's schema.provides contract declares` | A Recipe or FeatureRecipe does not publish a `provides` key its contract declares |
 | `E0056` | `provides template evaluation failed` | A `provides:` template could not be evaluated |
 | `E0057` | `provides block references a root outside the self-contained set` | `provides:` template references a non-self-contained root |
 | `E0058` | `provider render is not deterministic` | A provider rendered the same input twice and produced different output |

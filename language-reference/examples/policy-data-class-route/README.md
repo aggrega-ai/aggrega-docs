@@ -107,7 +107,7 @@ than per Release.
   ```text
   [E0138]
     auto-pull: resolving the plugins the Release depends on: resolve: resolve wasm plugin entity "pipeline-step/litellm-gateway-config:1.0.0": catalog: tier-3 pull pipeline-step/litellm-gateway-config:1.0.0: resolve "1.0.0": HEAD "https://hub.aggrega.ai/v2/plugin/pipeline-step/litellm-gateway-config/manifests/1.0.0": basic credential not found: oci: authentication required or failed
-    remediation: docker login hub.aggrega.ai (or helm registry login hub.aggrega.ai for Helm-specific OCI) before re-running aggrega pull --release <release>
+    remediation: aggrega login hub.aggrega.ai (or docker login hub.aggrega.ai) before re-running aggrega pull --release <release>
   ```
 
   `aggrega login` and `docker login` store the credential in the same place, so
