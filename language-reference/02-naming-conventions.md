@@ -4,7 +4,7 @@ This chapter covers the naming and casing rules that apply to authored Aggrega c
 
 ## Instance Names
 
-User-authored instance names — the keys the developer writes for components, features, secrets, aggregates, subsystems, boundaries, `uses` sockets and aliases, and Manifest provider sections — all match a single pattern: `^[a-zA-Z0-9_-]+$`. Both **kebab-case** (`pii-filter`, `my-agent`) and **snake_case** (`openai_key`, `db_credentials`) are valid; teams may adopt whichever convention they prefer.
+User-authored instance names — the keys the developer writes for components, features, aggregates, subsystems, boundaries, and `uses` sockets and aliases — all match a single pattern: `^[a-zA-Z0-9_-]+$`. Both **kebab-case** (`pii-filter`, `my-agent`) and **snake_case** (`openai_key`, `db_credentials`) are valid; teams may adopt whichever convention they prefer.
 
 **Allowed characters:** alphanumeric (`a-z`, `A-Z`, `0-9`), hyphens (`-`), and underscores (`_`). No other characters are permitted.
 
@@ -76,14 +76,14 @@ What that reaches, and what it does not:
 
 The separator is the usual reason a name is written longer than it reads, but it is not the only one. Two shapes an authored name may legally take also cannot be carried through as written, because leaving them would make an escape ambiguous: a name ending in a hyphen, and a name whose hyphen is immediately followed by `z`. Each is written out in the same way, at the same cost. Every other authored name comes back byte for byte, so a name built from letters, digits, underscores and hyphens between words is unaffected by any of this.
 
-Socket names in a developer's `uses` block must match a key in the catalog entity's `usesSchema`. A `uses` socket with no matching `usesSchema` key fails with an unknown-uses-socket validation error at resolution. A catalog entity with no `usesSchema` at all cannot have instances that declare `uses`.
+A socket name in a component's own `uses` block either matches a key in the catalog entity's `usesSchema` — a declared socket — or names an ad-hoc socket of the developer's own, which builds even on an entity that declares no `usesSchema` at all; a name one edit away from a declared socket draws a warning naming both spellings. A Release's per-edge `uses`, and a Feature attachment's, may name only a socket the entity declares, and any other name fails with an unknown-uses-socket validation error.
 
 ## Field Casing
 
 The DSL separates developer-facing YAML (authored by humans) from internal compiler contracts (consumed by templates and tooling):
 
 * **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Plugin schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `featuresSchema`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToAnyOf`, `conflictsWith`. Follows Kubernetes API conventions.
-* **Internal contracts (snake_case):** Multi-word field names in the IR Graph schema and the Template Context schema use snake_case. User-facing examples Recipe authors encounter: `instance_id` (in `.context.instance_id` — the Recipe's identity), `inject_raw` (in `.inject_raw`, a top-level pillar alongside `.inject` rather than a key under `.context` — the unmutated injection contract), `attachment_name` (in credential FeatureRecipe context — identifies which declared secret slot the FeatureRecipe is processing). Follows JSON API conventions and aligns with Go's JSON struct tag generation.
+* **Internal contracts (snake_case):** Multi-word field names in the IR Graph schema and the Template Context schema use snake_case. User-facing examples Recipe authors encounter: `instance_id` (in `.context.instance_id` — the Recipe's identity), `inject_raw` (in `.inject_raw`, a top-level pillar alongside `.inject` rather than a key under `.context` — the unmutated injection contract), `attachment_name` (in an attachment FeatureRecipe's context — identifies the slot the attachment fills, or the name it was attached under). Follows JSON API conventions and aligns with Go's JSON struct tag generation.
 * **Single-word fields:** Lowercase regardless of context. Examples: `values`, `infra`, `inject`, `provides`, `locals`, `features`, `labels`, `annotations`, `boundaries`, `components`, `subsystems`, `pipeline`, `source`.
 
 Developers do not encounter snake_case in their authored YAML, and template authors do not encounter camelCase in their Go templates. Schema additions follow these conventions.
@@ -147,12 +147,11 @@ Both registers name the same conditions from two directions, and neither replace
 
 A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's featuresSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
 
-**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesized-Workload positions Wasm Injector plugins receive in the plugin pipeline through their step's `with` payload. One grammar, multiple consuming surfaces.
+**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6902 JSON Patch documents whose paths are RFC 6901 pointers (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesized-Workload positions Wasm Injector plugins receive in the plugin pipeline through their step's `with` payload. One grammar, multiple consuming surfaces.
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 
-* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. Example:
-  * `targetPath` — a schema-defined field naming the path the Wasm Injector should patch.
+* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. No entity schema declares such a field today; the document paths an author writes are the `.locals` export keys below.
 * **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface — read by the Recipe's own subsequent templates, and by a Wasm plugin pipeline through the `pipeline[].with` payload that references `.locals` — so they follow the snake_case convention. Examples:
   * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesized Workload's volumes-array position.
   * `containers_path` — `.locals.containers_path: "/spec/template/spec/containers"` exposing the containers-array position.
@@ -189,7 +188,7 @@ spec:
 
 The `*_path` keys are Recipe-private exports; the `containers_path` / `volumes_path` values are RFC 6901 JSON Pointer strings. The Injector plugin consumes the strings to position its JSONPatch output against the rendered Workload's AST. The attachment reaches them on its own `.locals` pillar — there is no `.context.uses[].locals` field, so a consumer cannot read its target's locals across a `uses` edge; what crosses an edge is the target's `provides`.
 
-For the broader format-string inventory (Go template syntax, Sprig functions, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6901 patches, see [`plugins/plugin-contract.md`](plugins/plugin-contract.md).
+For the broader format-string inventory (Go template syntax, Sprig functions, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6902 patches addressed by RFC 6901 pointers, see [`plugins/plugin-contract.md`](plugins/plugin-contract.md).
 
 ## Comment Syntax
 

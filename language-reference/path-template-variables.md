@@ -20,7 +20,7 @@ The allowlist is closed by design: surfaces such as `.context.inject`, `.values`
 
 | Variable | `directory:` | `subDirectory:` | Description |
 | --- | :-: | :-: | --- |
-| `{{ .capability }}` | yes | yes | The rendering capability (`helm`, `helm-chart`, `compose`) the contributing component's Recipe declares, for the artifacts emitting at this path. |
+| `{{ .capability }}` | yes | yes | The rendering capability (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`) the contributing component's Recipe declares, for the artifacts emitting at this path. |
 | `{{ .boundary_name }}` | yes | yes | The boundary's authored name in the Release (e.g., `production`, `eu-prod`). |
 | `{{ .parameters.X }}` | yes | yes | Any typed parameter declared on the Aggregate and fulfilled by the Release. Strict access — referencing `.parameters.unknown` halts the build. |
 | `{{ .manifest.recipe_name }}` | yes | yes | The Recipe name resolved through the Manifest for the contributing component. Useful for routing per-Recipe artifacts into per-Recipe sub-folders. |
@@ -54,7 +54,7 @@ Available fields under `.parent_boundary`:
 | `.parent_boundary.parameters` | The same `.parameters.*` map the parent boundary saw (parameter values are Release-global, but the alias is provided for symmetry). |
 | `.parent_boundary.annotations` | The parent boundary's cascade-resolved annotations. |
 
-The canonical pattern: a parent boundary that authors a `directory:` once, plus child boundaries that route their artifacts under the parent by declaring `directory: "{{ .parent_boundary.directory }}"`. This collapses the children onto the parent's assembly path, producing one merged output that contains contributors from every child. The compose-bridge proof case relies on exactly this: a parent boundary holding the bridge feature, two child boundaries (for example `services-net` and `data-net`) sharing the parent's `directory:`, and one merged `docker-compose.yaml` containing every component plus the bridge service.
+The canonical pattern: a parent boundary that authors a `directory:` once, plus child boundaries that route their artifacts under the parent by declaring `directory: "{{ .parent_boundary.directory }}"`. This collapses the children onto the parent's assembly path, producing one merged output that contains contributors from every child. The `core/compose-bridge` Feature relies on exactly this: a parent boundary holding the bridge feature, two child boundaries (for example `services-net` and `data-net`) sharing the parent's `directory:`, and one merged `docker-compose.yaml` containing every component plus the bridge service.
 
 The mirror inverts: omit `.parent_boundary.directory` on the children (or evaluate to a distinct path) and each child gets its own assembly. Both shapes are first-class.
 
@@ -158,5 +158,5 @@ The path-template surface halts the build in each of the following situations, a
 - [`providers/architecture.md`](providers/architecture.md) — provider dispatch and the per-`(path, provider)` assembly model.
 - [`providers/compose.md`](providers/compose.md) — compose-side per-`(path, provider)` output, including the merged-path scenario.
 - [`providers/helm-chart.md`](providers/helm-chart.md) — helm-chart umbrella composition and the chart-name cascade rule for merged paths.
-- [`entities/featurerecipe.md`](entities/featurerecipe.md) — boundary-scope FeatureRecipes (the compose-bridge proof case relies on the merged-path assembly model documented here).
+- [`entities/featurerecipe.md`](entities/featurerecipe.md) — boundary-scope FeatureRecipes (the `core/compose-bridge` Feature relies on the merged-path assembly model documented here).
 - [`errors/fatal-halts.md`](errors/fatal-halts.md) — full diagnostic catalogue including the path-dispatch halts enumerated above.
