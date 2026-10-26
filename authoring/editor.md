@@ -134,7 +134,7 @@ of the Commands panel name the current selection.
 It is an ordinary editor tab rather than a dialog on purpose: every step asks you to point at
 something in your own workspace, and a dialog would be covering the files that hold the answers. It
 sits in the editor area rather than in the Aggrega view, so it costs the sidebar no space and can say
-what the product is — which a narrow column had no room for. It is Aggrega's own tab, reached and
+what the product is — which a narrow column has no room for. It is Aggrega's own tab, reached and
 closed on its own terms, and it offers no route into the editor's own welcome page.
 
 **The page carries that decision at its foot, centred, and the Command Palette carries it too.**
