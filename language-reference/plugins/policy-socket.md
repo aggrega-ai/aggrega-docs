@@ -309,7 +309,7 @@ policy needs a host-provided builtin the adapter does not implement, the adapter
 **fails loudly** — refusing the module rather than returning an allow — so an
 unevaluable policy stops the build instead of passing silently. Regenerating the
 baked module from its Rego source is an authoring step run with the OPA CLI, not
-a build-time dependency. [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/)
+a build-time dependency. [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/README.md)
 builds that adapter around a module of its own, and gives the commands that
 regenerate both.
 
@@ -534,7 +534,7 @@ and the one it reaches — reads the route's `nodes` in order and each node's ow
 attachments, at `input.graph.spec.feature_values_mapping[<node>]`; asked of
 `attached_features`, the same question passes a route on which the Feature sits
 beyond the second component.
-[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) is
+[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/README.md) is
 written that way, for the Rego engine, the CEL engine and OPA.
 
 A node object carries no id of its own: the id is the key it sits under in
@@ -899,7 +899,7 @@ Three consequences shape a rule that walks a route:
   produces twice is reported twice: the sort described below orders what a key
   collected, and does not remove a repeat.
 
-[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) carries
+[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/README.md) carries
 a CEL rule written under all three, beside the same rule for the Rego engine.
 
 ### Decision keys and severities
@@ -1095,8 +1095,8 @@ Each render-stage adapter is an adapter in the sense above: it speaks the Aggreg
 ABI outward and absorbs a target-specific format or a foreign policy engine's
 contract inward, so the compiler stays free of any output-format or policy logic.
 The Rego engine in the compiler serves the `render-verdict` role directly; beyond
-it, two reference render-stage adapters ship as worked examples, one per common
-output shape.
+it, two reference render-stage adapters ship as worked examples among the plugin
+development kit's Rust examples, one per common output shape.
 
 ### YAML, JSON, and Terraform HCL output — the reference Rego render adapter
 
@@ -1144,7 +1144,7 @@ policy written to expect the compiler to produce one will never fire.
 When an artifact's content does not parse, the adapter does not silently allow it:
 it keeps the raw content, exposes no parsed documents for that artifact, and
 records the parser's message under `input.artifacts[_].parse_error`, so a policy
-can stop the build on a malformed artifact explicitly. As with the `ir`-stage guest, a
+can stop the build on a malformed artifact explicitly. As with the Rego engine in the compiler, a
 policy that calls a builtin the embedded evaluator does not implement **fails
 loudly** — a fault naming the plugin, never a silent allow.
 
@@ -1288,7 +1288,7 @@ pipeline already installs.
 
 Two ready-to-use rule scripts, each with the pipeline step that invokes it and
 both refusals they produced over real builds, are at
-[`examples/policy-in-ci/`](../examples/policy-in-ci/). They use
+[`examples/policy-in-ci/`](../examples/policy-in-ci/README.md). They use
 [`yq`](https://github.com/mikefarah/yq) and nothing else, so they run with no
 policy toolchain installed; the shape they show — read the output directory,
 decide, exit non-zero with the offending artifacts named — is the shape any tool
@@ -1351,9 +1351,9 @@ rules over what that build wrote.
 - [`../schema/other/aggrega-config.md`](../schema/other/aggrega-config.md) — the
   workspace configuration schema, including the `plugins.governance` attachment
   surface.
-- [`../examples/policy-in-ci/`](../examples/policy-in-ci/) — two runnable rule
+- [`../examples/policy-in-ci/`](../examples/policy-in-ci/README.md) — two runnable rule
   scripts over a build's output, with the pipeline step for each.
-- [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) — one
+- [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/README.md) — one
   `ir-verdict` rule over routes, written for the Rego engine, the CEL engine and OPA
   behind the reference adapter guest, attached per build by one `--config` file per
   engine, with a script checking that all three reach the same outcome on every

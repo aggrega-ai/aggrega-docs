@@ -523,16 +523,6 @@ The placement criterion phrased as a single rule: **if the check should halt the
 
 Both are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the governance verdict roles are dispatched in-band during `aggrega build` when a workspace attaches a verdict-role plugin. Note that a verdict role carries its own severities — a policy may itself emit `warn` and `info` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [governance socket page](policy-socket.md) for the severity model.
 
-## Design surfaces without current code anchors
-
-One design surface named elsewhere in the corpus is not yet fully anchored in current code today:
-
-- **Full Wasm-socket role enumeration.** The current typed surface is the governance socket (its transform and verdict roles) plus the linter socket; the broader role design documented across architecture chapters is not centralized in a Go type registry.
-
-The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
-
-The pipeline placement table at the top of this page reflects today's state plus the planned placements; readers interested in the full architectural design target should consult [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) and [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md).
-
 ## Cross-references
 
 - [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for either of the two engines that ship inside the compiler, wrapping a foreign policy engine, and the reference guests.

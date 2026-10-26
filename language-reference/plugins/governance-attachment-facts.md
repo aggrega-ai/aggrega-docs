@@ -1,7 +1,7 @@
 # The attachment facts a governance policy reads
 
 A governance plugin attached at the `ir-verdict` role receives the whole build
-graph, and every Feature attachment in the deployment arrives with it. Each
+graph, and every Feature attachment in the build arrives with it. Each
 attachment carries a fixed set of facts about itself: which Feature it names,
 which slot it fills, which connection it was written on when it was written on
 one, which FeatureRecipe realizes it, what the catalog author declared about it,
@@ -89,8 +89,8 @@ That verbatim carry is what lets a policy be keyed on a label the compiler has
 no reason to know exists. A catalog author who marks credential Features with a
 label of their own invention can write a rule against that label directly.
 
-Both are empty when the Feature declares none, and when its `type` resolves to
-no catalog entity.
+Each is absent from the attachment when the Feature declares none, and when its
+`type` resolves to no catalog entity.
 
 `catalog_annotations` describes the **entity the attachment names**. It is a
 different question from `annotation_key` and `annotation_source` below, which
@@ -258,7 +258,7 @@ annotation-driven expansion produced:
 
 `annotation_key` names the annotation that triggered a synthetic attachment,
 and `annotation_source` locates its declaration as
-`<release-file-path>:<dotted-yaml-key-path>`. Both are empty when `origin` is
+`<release-file-path>:<dotted-yaml-key-path>`. Both are absent when `origin` is
 `explicit`.
 
 ## The authored payloads: `values`, `infra`, and `inject`
@@ -383,7 +383,7 @@ present.
 This answers *what the entity is*, so it deliberately does not vary with what a
 particular author wrote. It reads the Feature's declarations rather than
 the subset of sensitive leaves this attachment happened to fill, because a
-field that was sensitive in one deployment and not another would be unusable to
+field that was sensitive in one Release and not another would be unusable to
 a policy reasoning about the catalog entity.
 
 The two halves are independent, and each holds on its own. A Feature that
@@ -400,7 +400,7 @@ key, with the referenced `provides` key as the value.
 
 A delivery key filling from a `provides` key the Feature marked sensitive
 appears here; one filling from an unmarked key does not, even on the same
-attachment and the same mechanism. Empty when the attachment declares no
+attachment and the same mechanism. Absent when the attachment declares no
 delivery mechanism, or references no sensitive `provides` key.
 
 ### `sensitive_payload_leaves` — one answer per payload leaf
@@ -431,7 +431,7 @@ Leaves arrive in the order the payload holds them, the `values` pillar's before
 the `infra` pillar's — the same order the payloads themselves carry, which is
 what keeps the wire byte-identical across runs of identical input.
 
-This unit answers *where this attachment put data*, which varies by deployment
+This unit answers *where this attachment put data*, which varies by Release
 necessarily. That is why it intersects with what was authored while `sensitive`
 does not: the two are answers to different questions, and applying either
 rule to the other field would break it.
@@ -495,8 +495,10 @@ would carry if the marking did not exist. That omission is what makes the
 misreading easy, and it is why the direction is worth stating plainly.
 
 The clearest case is an attachment that is sensitive and lists no leaf at all.
-Take the attachment above and change one thing — the author writes only
-the locator, leaving the declared-sensitive leaf unfilled:
+Take the attachment above and change two things — the author writes only
+the locator, leaving the declared-sensitive leaf unfilled, and fills the
+environment key from the Feature's unmarked `name` provides key instead of
+`password`:
 
 ```json
 {
@@ -513,7 +515,7 @@ the locator, leaving the declared-sensitive leaf unfilled:
 
 `sensitive` is still true — the Feature's declarations did not change — while
 both narrower units are gone. The attachment still handles secret material; it
-simply does not do so through a leaf this attachment carries. A policy keyed
+simply does not do so through a leaf or a delivery key this attachment carries. A policy keyed
 on the roll-up denies this build, and a policy keyed on the per-leaf marking
 lets it through. Both are defensible rules, and which one a policy wants is a
 decision the policy author makes deliberately.

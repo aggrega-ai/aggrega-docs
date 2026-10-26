@@ -24,7 +24,8 @@ source blocks are the files to create rather than files to check out.
 
 - The Go toolchain, which compiles to WebAssembly with no extra tooling.
 - A checkout of the plugin development kit, which the
-  [plugin developer guide](plugin-developer-guide.md) introduces.
+  [plugin developer guide](plugin-developer-guide.md) introduces, and of the
+  ABI package the kit builds on: the guest's `go.mod` below points at both.
 - The `aggrega` binary.
 
 ## The shape of the finished thing
@@ -39,6 +40,7 @@ The workspace this walkthrough ends with:
 dotenv-walkthrough/
   guest/                  the Go module that compiles to the .wasm
     go.mod
+    go.sum
     main.go
   catalog/                the Component and Recipe you author
     component/example/compute/checkout/1.0.0/component.yaml
@@ -307,15 +309,17 @@ A guest is an ordinary Go build with the WebAssembly target selected:
 
 ```sh
 cd guest
+go mod tidy
 GOWORK=off GOOS=wasip1 GOARCH=wasm go build -trimpath -buildvcs=false \
   -ldflags "-X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Version=0.1.0 \
             -X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Commit=walkthru" \
   -buildmode=c-shared -o ../dotenv.wasm ./
 ```
 
-`-trimpath` and `-buildvcs=false` keep build-path and version-control stamps
-out of the binary, so the same source at the same commit produces the same
-bytes. The two `-ldflags` values stamp the guest's own version into it, which
+`go mod tidy` writes `go.sum`, the dependencies' checksums, which the build
+refuses to run without. `-trimpath` and `-buildvcs=false` keep build-path and
+version-control stamps out of the binary, so the same source at the same
+commit produces the same bytes. The two `-ldflags` values stamp the guest's own version into it, which
 the next step reads.
 
 Confirm the exports before going further:
@@ -371,6 +375,7 @@ metadata:
   name: dotenv
   version: 0.1.0
   pluginType: provider
+  description: Render artifact bodies into environment files, quoting and escaping each value as the format requires.
 spec:
   abiVersion: v1alpha1
   exports:
@@ -564,8 +569,10 @@ aggrega build --release release.yaml --auto-pull
 ```
 
 ```text
-Pull complete: release.lock (entities=5, source_artifacts=0)
 warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
+[… omitted: three lines saying the Release could not be rendered to discover its external inputs, the first carrying the error below]
+Pull complete: release.lock (entities=5, source_artifacts=0, external_inputs=0)
+[… omitted: a line saying again that external inputs were not fully discovered]
 [CATALOG_ERROR E0265] app
   provider does not support the node's input kind (node "app"). provider "dotenv" does not support artifacts-only recipes (this provider supports: none); declare one of the supported input kinds, or target a provider that supports artifacts-only
 ```
@@ -641,6 +648,7 @@ cp dotenv.wasm dev-catalog/plugin/provider/dotenv/0.1.0/provider--dotenv.wasm
 The regenerated entity now carries the contract, read from the binary:
 
 ```yaml
+[… omitted: the header comments and the metadata block, unchanged from the first generation]
 spec:
   abiVersion: v1alpha1
   exports:
@@ -656,8 +664,11 @@ spec:
 
 **Regenerating the entity after every guest rebuild is part of the loop.** The
 entity restates what the binary reports, and the two are cross-checked when the
-guest loads, so an entity left behind by a rebuild is a mismatch the build
-halts on rather than a stale file nobody notices.
+guest loads: an export or a contract value the entity claims and the binary
+does not report is a mismatch the build halts on, naming the claim. A claim the
+entity leaves out is not checked, so an entity left behind by a rebuild that
+added to the binary — as this step did — still loads, while no longer
+describing it.
 
 ## 9. The build that renders
 
@@ -666,8 +677,8 @@ aggrega build --release release.yaml --auto-pull
 ```
 
 ```text
-Pull complete: release.lock (entities=5, source_artifacts=0)
 warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
+Pull complete: release.lock (entities=5, source_artifacts=0, external_inputs=0)
 [… omitted: a line reporting total build time, which differs on every run]
 Build completed: 1 files written to <workspace>/dist
 ```
@@ -733,6 +744,7 @@ declares no value:
 ```
 
 ```text
+[… omitted: the unverified-plugin warning, and the pull's lines saying the Release could not be rendered to discover its external inputs]
 [CATALOG_ERROR] app
   rendering node "app"
   caused by: wasm: plugin "provider/dotenv:0.1.0" call to render_node: dotenv: app.env line 2: "this line declares no value" declares no value; an entry is KEY=value
