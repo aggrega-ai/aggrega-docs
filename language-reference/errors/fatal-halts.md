@@ -2082,8 +2082,13 @@ The file beside the entity is named from the entity's plugin type and name, and 
 Emitted messages. The pull's refusal, pointing at the directory it expected the file in, with the resolution it asked about beneath it:
 > plugin artifact not found on this machine (Plugin entity `"<reference>"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory
 
-a plugin a build or an import loads with no source holding its bytes — and a plugin attached at a verdict role that `aggrega pull --verify` under the offline posture reads from the content cache as a build does:
-> plugin `"<reference>"` not resolvable through any tier (embed, colocated, local, cache): plugin artifact not found on this machine
+a plugin a build or an import loads with no source holding its bytes — and a plugin attached at a verdict role that `aggrega pull --verify` under the offline posture reads from the content cache as a build does. Where the plugin's `Plugin` entity sits in a catalog folder, naming the version it is at and where its module goes:
+> plugin `"<reference>"` at version `<version>` is not on this machine; place its module, named `<file>`, beside its Plugin entity in `<directory>`: plugin artifact not found on this machine
+
+and otherwise, naming each place the module was looked for:
+> plugin `"<reference>"` is not on this machine: the binary does not carry its module, no catalog folder holds its Plugin entity and the content cache a pull fetches into does not hold it: plugin artifact not found on this machine
+
+A lint, which looks only in the binary, names the first of those places alone.
 
 and the same for a reference written as a registry location:
 > plugin `"<reference>"` not resolvable: an OCI plugin URI requires a prior `aggrega pull --release <release>` (so its bytes are cached) or an explicit local path; plugin resolution does not fetch from a registry: plugin artifact not found on this machine
@@ -2474,12 +2479,12 @@ A signature was found and checked, and the check failed. It is the general negat
 Where a registry's entry marks verification as advisory, the same text is reported as a notice and the run continues.
 
 **Emitted messages.** From the check itself, quoting what the verifier reported:
-> signing: signing: signature bundle does not verify: `<what the verifier reported>`
+> signing: signature bundle does not verify: `<what the verifier reported>`
 
 and, where the cryptographic check holds and the reading of which artifact the signature was made for does not agree:
-> signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for
+> signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for
 
-> signing: signing: signature bundle does not verify: its cryptographic check holds, but it is in a form from which the artifact it was made for cannot be read
+> signing: signature bundle does not verify: its cryptographic check holds, but it is in a form from which the artifact it was made for cannot be read
 
 each framed by the reference being verified:
 > verifying the signature of `<uri>`: `<the message above>`
@@ -2498,10 +2503,10 @@ The signature checked out — the certificate chain roots in the trust material 
 **Both halves of an identity are compared**, the subject and the issuer that vouched for it, and either can be the one that did not match. The message names both where they can be read off the certificate, because a signer presenting an expected subject under an issuer nobody accepted looks identical to a wrong subject unless both are shown.
 
 Emitted messages. With both halves readable:
-> signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `"<issuer>"` with identity `"<subject>"`, but no trusted identity permits that issuer
+> signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `"<issuer>"` with identity `"<subject>"`, but no trusted identity permits that issuer
 
 and where they cannot be read, falling back to the verifier's own report:
-> signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`
+> signing: signature identity is not trusted for this registry: `<what the verifier reported>`
 
 **How to fix:** this is the operator's decision, and it is a real one rather than a formality. Compare the issuer and identity in the message against the trusted identities configured for that registry in `.aggrega-config.yaml`. Where the signer is one you mean to accept, add it — an entry names an identity, or a pattern matching one, together with the issuer, and both have to be right. Where it is not, the artifact was signed by somebody you have not accepted, and adding the identity to make the build pass is the one response to avoid. Registries that advertise their own trust policy can have it pinned when the registry is added, which is the way to get the intended identities in without transcribing them.
 
@@ -2538,10 +2543,10 @@ Signing and verifying against a held key use one key profile, and a key of any o
 **The two moments it reports at are different jobs.** One is loading a key to sign with, which happens where an artifact is published; the other is checking a signature against a key pinned for a registry, which happens where an artifact is verified. The refusal is the same in both.
 
 **Emitted messages**, each naming the type of key that was actually supplied. A pinned verification key:
-> signing: signing: unsupported held-key type: pinned key is `<the type supplied>`, want ECDSA P-256
+> signing: unsupported held-key type: pinned key is `<the type supplied>`, want ECDSA P-256
 
 and a key loaded to sign with:
-> signing: signing: unsupported held-key type: held key is `<the type supplied>`, want ECDSA P-256
+> signing: unsupported held-key type: held key is `<the type supplied>`, want ECDSA P-256
 
 **How to fix:** supply a key of the profile the message names. Where you are verifying, the key is the one pinned for the registry in `.aggrega-config.yaml` and it has to be the public half of the key the publisher signs with — a mismatch here usually means the wrong file was pinned, since a key that is the right type but the wrong key reports as a signature that does not verify instead. Where you are signing, generate a key of the named profile, or use the keyless path, which needs no held key at all.
 
@@ -5244,16 +5249,16 @@ Emitted message:
 
 ### A Recipe's `source:` names a kind nothing knows how to acquire
 
-<!-- covers: pkg/sourceresolver.ErrUnknownKind -->
+<!-- covers: pkg/sourcekind.ErrUnknownKind -->
 
-A Recipe's `source:` says what kind of thing it points at — a chart, a module, a compose project — and each kind is acquired by the part that knows how to acquire that kind. This condition reports a kind with nothing registered to serve it, so there is nothing to route the request to.
+A Recipe's `source:` says what kind of thing it points at — a chart, a module, a compose project — and each kind is acquired by the source adapter that serves that kind. This condition reports a kind no source adapter serves, so nothing this program carries can fetch the source. A FeatureRecipe's `source:` is held to the same rule.
 
-It is a dispatch failure and not a transport one: nothing was attempted, because there was nothing to attempt it with. That is what separates it from an acquisition that ran and failed.
+It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it. Nothing was attempted, because nothing could attempt it — which is what separates it from an acquisition that ran and failed.
 
-Emitted message, naming the kind that was asked for:
-> sourceresolver: kind=`<kind>`: sourceresolver: no adapter registered for source kind
+Emitted message, naming the document, the kind as written and the kinds that are served:
+> no source adapter serves the source kind (Recipe `<name>:<version>`, rule source-kind, at `<file>`). the source names kind `"<kind>"`; name a kind a source adapter serves (`<the served kinds>`), or write the source as a single URI whose shape names its kind
 
-**How to fix:** correct the kind on the Recipe's `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the spelling is quoted in it, so the first thing to check is the Recipe against the source kinds [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) lists. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead.
+**How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
 
 ### A source artifact is cached without a workspace root to anchor it
 
@@ -5710,7 +5715,7 @@ The negative outcome of checking a bare signature over a payload against a publi
 **Nothing in the shipped toolchain reaches it.** The check it belongs to has no caller outside its own tests, so no command a user runs — build, pull or publish — reports it. It is catalogued here so that the code resolves to something, not because a build can print it. The verification a pull actually performs is over a full signature bundle and reports separately.
 
 Emitted message, quoting what the verifier reported:
-> signing: signing: signature does not verify: `<what the verifier reported>`
+> signing: signature does not verify: `<what the verifier reported>`
 
 **How to fix:** nothing in your entity files causes this, and nothing you can write in a catalog or a workspace clears it. Where you are running the published command-line tool, this is not a condition you can reach, and a signature problem you are actually looking at is being reported by one of the bundle-verification conditions above instead. Where you use the signing package directly from software of your own, the payload, the signature and the key have to be the three that belong together — a payload re-serialised between signing and verifying is the usual cause, since the bytes then differ even though the content reads the same.
 
@@ -6239,7 +6244,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0183` | `signing: registry requires signatures; refusing to push unsigned content` | An unsigned publish targets a registry or a policy that requires a signature |
 | `E0184` | `signing: unsupported held-key type` | A pinned verification key is not the key profile the verifier accepts |
 | `E0185` | `signing: signature identity is not trusted for this registry` | A signature verifies but its signer is not one the registry trusts |
-| `E0186` | `sourceresolver: no adapter registered for source kind` | A Recipe's `source:` names a kind nothing knows how to acquire |
+| `E0186` | `no source adapter serves the source kind` | A Recipe's `source:` names a kind nothing knows how to acquire |
 | `E0187` | `cacheslot: empty workspaceRoot` | A source artifact is cached without a workspace root to anchor it |
 | `E0188` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` | An inline-or-import field is written in neither shape |
 | `E0189` | `artifactlibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |

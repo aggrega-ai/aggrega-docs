@@ -325,6 +325,12 @@ A few names appear in more than one package. Those are re-exports of one shared 
 - `ErrFetchIntegrity()` is the same value as `pkg/oci.ErrFetchIntegrity()`, so a match against either name succeeds.
 - `ErrFetchNotFound()` is the same value as `pkg/oci.ErrFetchNotFound()`, so a match against either name succeeds.
 
+### pkg/sourcekind
+
+| Sentinel | Code | Message |
+| --- | --- | --- |
+| `ErrUnknownKind()` | `unknown-source-kind` | `no source adapter serves the source kind` |
+
 ### pkg/sourceresolver
 
 | Sentinel | Code | Message |
@@ -333,7 +339,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrFetchNetworkUnreachable()` | `fetch-network-unreachable` | `oci: network unreachable` |
 | `ErrFetchNotFound()` | `fetch-not-found` | `oci: artifact not found at remote source` |
 | `ErrFetchUnauthorized()` | `fetch-unauthorized` | `oci: authentication required or failed` |
-| `ErrUnknownKind()` | `unknown-source-kind` | `sourceresolver: no adapter registered for source kind` |
+| `ErrNoAdapterRegistered()` | `source-adapter-not-registered` | `no source adapter is registered in this program for the source kind` |
 
 - `ErrFetchIntegrity()` is the same value as `pkg/oci.ErrFetchIntegrity()`, so a match against either name succeeds.
 - `ErrFetchNetworkUnreachable()` is the same value as `pkg/oci.ErrFetchNetworkUnreachable()`, so a match against either name succeeds.
@@ -670,7 +676,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0183` | `unsigned-push-refused` | `signing: registry requires signatures; refusing to push unsigned content` |
 | `E0184` | `unsupported-key` | `signing: unsupported held-key type` |
 | `E0185` | `untrusted-identity` | `signing: signature identity is not trusted for this registry` |
-| `E0186` | `unknown-source-kind` | `sourceresolver: no adapter registered for source kind` |
+| `E0186` | `unknown-source-kind` | `no source adapter serves the source kind` |
 | `E0187` | `empty-workspace-root` | `cacheslot: empty workspaceRoot` |
 | `E0188` | `artifact-entry-shape` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` |
 | `E0189` | `artifact-library-entry-shape` | `artifactlibrary: entry must be a mapping of filename to a string body` |
@@ -823,6 +829,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0356` | `suspend-requires-scheduled-form` | `suspend requires form: scheduled` |
 | `E0357` | `name-mapping-matched-nothing` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` |
 | `E0358` | `uses-target-not-exported` | `uses edge target names a component its module does not export` |
+| `E0359` | `source-adapter-not-registered` | `no source adapter is registered in this program for the source kind` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

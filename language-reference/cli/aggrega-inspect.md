@@ -582,7 +582,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the catalog search stack (first match wins): the workspace catalog_dirs, or, for a Release the workspace configuration gives directories of its own under workspace.releases, that Release's; the stack ends with the `catalog` directory at the workspace root when there is one. A catalog_dirs list written empty reads no local catalog at all. |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog `<dir>` is prepended to the catalog search stack (first match wins): the workspace catalog_dirs, or, for a Release the workspace configuration gives directories of its own under workspace.releases, that Release's; the stack ends with the directory named catalog at the workspace root when there is one. A catalog_dirs list written empty reads no local catalog at all. |
 | `--closure` | `false` | Report the Release's dependency closure — every catalog entity it reaches, at the version each resolved to — in place of the resolved-node view. Applies to a Release, which is the only kind that resolves a closure; any other kind refuses the request rather than silently dropping it. |
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |
@@ -591,7 +591,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 | `--list` | `false` | Render identifiers only. |
 | `--no-color` | `false` | Disable colorized output (alias for --color=never). |
 | `--output`, `-o` | `text` | Output format: text\|yaml. |
-| `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports, before `aggrega plugin sync` records them in a Plugin entity. Takes no identifier argument. |
+| `--plugin` | — | Filesystem path to a raw `<file.wasm>` artifact; derives and prints the host functions it imports, before aggrega plugin sync records them in a Plugin entity. Takes no identifier argument. |
 | `--raw` | `false` | Render the entity as authored, without resolution. |
 | `--release` | — | Look a catalog name up in the terms of this Release file: through the catalog directories the workspace configuration gives that Release, with --catalog prepended. Applies to a name; a file or a registry reference is inspected as it stands and refuses it. A relative path resolves against the directory you run the command in, not against the workspace root. Where that directory is in no workspace and no root is named, an absolute path finds the workspace from the Release's own folder |
 | `--resolved` | `false` | Render the entity fully resolved. |

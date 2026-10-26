@@ -332,7 +332,7 @@ aggrega inspect --plugin dotenv.wasm
 Plugin .wasm: dotenv.wasm
 Exports:
   render_node
-hostFunctions (derived from binary, not yet stamped): (none)
+hostFunctions (derived from binary, not yet recorded by aggrega plugin sync): (none)
 ```
 
 This guest imports no host functions, which is the least-privilege default: it

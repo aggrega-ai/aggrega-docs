@@ -135,6 +135,12 @@ The machine-wide stores are kept where each platform keeps a user's caches: on W
 
 `aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `prune` never removes a documentation bundle, since no lockfile references one, and reports the store as not prune-eligible; `clear` acts on everything, which is why it asks before it starts.
 
+**A workspace root that cannot be used.** Where the workspace root the command is given is a file or a path that does not exist, `status`, `evict` and `clear` act on the machine-wide stores alone, exit as they otherwise would, and say so on standard error, in the words every other command refuses that root with:
+
+> note: --workspace-root names the workspace root `"<root>"`, which is not a directory: `<root>`; only the machine-wide caches are acted on
+
+A path that does not exist reads `which cannot be used:` and the reason in place of `which is not a directory:`. `prune` stops instead, since it needs the workspace's lockfiles.
+
 **This applies wherever the operation is invoked from, not only at a terminal.** The same operations are reachable from an editor session and from an assistant's tool call, and their answers carry the same reach for the same reason. Where an assistant may invoke them on your behalf, see [`aggrega mcp`](aggrega-mcp.md).
 
 ## A link in the artifact cache

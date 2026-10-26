@@ -64,9 +64,9 @@ carrying the same detail.
 
 Version strings are v-less (1.0.0, not v1.0.0), homogeneous with the
 version form catalog entities use. Tagged release builds report the
-release version; source builds report the literal "(devel)".
-Operators who see "(devel)" know they are running an unreleased
-build.
+release version, a build stamped with a version reports that version,
+and a build carrying no version stamp reports the literal "(devel)",
+which marks an unreleased build.
 ```
 
 **Flags**
