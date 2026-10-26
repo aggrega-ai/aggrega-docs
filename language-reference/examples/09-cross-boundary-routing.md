@@ -115,16 +115,16 @@ spec:
 
 **Compilation Trace:**
 
-1. **Provides evaluation:** `app-db`'s Recipe resolves `provides: { host: "app-db", port: "5432" }`.
+1. **Provides evaluation:** `app-db`'s Recipe `provides` evaluates to `{ host: "app-db", port: "5432" }`.
 2. **Inject hydration:** `web-server`'s inject pipe is pre-hydrated: `DB_HOST: "app-db"`.
-3. **Inject mapping:** The `k8s-dns-patcher` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
+3. **Inject mapping:** The `k8s-dns-rewriter` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
 4. **Base rendering:** The web server's `valuesMapping` renders with the FQDN already in `.context.inject.env`.
 
 ---
 
 ## Example 26: The Complete Wasm Handshake (stdin/stdout)
 
-This traces the payload the Go compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
+This traces the payload the compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
 
 **1. Dev Domain: The Aggregate**
 
@@ -173,7 +173,7 @@ spec:
     image: "{{ .values.image }}"
 ```
 
-**3. The Wasm Input (Go Compiler → Wasm `stdin`)**
+**3. The Wasm Input (Compiler → Plugin)**
 During the plugin pipeline, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload's content; the wire carries it in the canonical binary encoding, and the exact contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). The plugin pipeline runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
 
 ```json
@@ -210,7 +210,7 @@ During the plugin pipeline, the compiler feeds the Injector plugin its step inpu
 }
 ```
 
-**4. The Wasm Output (Wasm `stdout` → Go Compiler)**
+**4. The Wasm Output (Plugin → Compiler)**
 The plugin returns its patch appending the Volume and VolumeMount. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, carried in the same canonical binary encoding, per the [Wasm plugin contract](../plugins/plugin-contract.md).
 
 ```json
@@ -245,4 +245,4 @@ The plugin returns its patch appending the Volume and VolumeMount. The JSON belo
 }
 ```
 
-The Go compiler merges this patch into the base Deployment AST, producing the final rendered artifact.
+The compiler applies the patches to the base Deployment, producing the final rendered artifact.

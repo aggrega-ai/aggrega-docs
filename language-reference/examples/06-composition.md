@@ -19,7 +19,7 @@ spec:
       required: true
   components:
     main-db:
-      type: core/postgres:1.0.0             # Uses Component from Example 2
+      type: core/postgres:2.0.0             # Uses Component from Example 4
       values:
         db_name: "{{ .parameters.env_db_name }}"
   exportedComponents:
@@ -43,7 +43,7 @@ spec:
 
   aggregates:
     data-layer:
-      type: local/db-module:1.0.0
+      type: db-module:1.0.0
       parameters:
         env_db_name: "{{ .parameters.corp_db_name }}"
 

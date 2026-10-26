@@ -39,7 +39,7 @@ spec:
 ```
 
 **2. Ops Domain: The FeatureRecipe**
-The FeatureRecipe renders its own Helm chart, from a `chart/` directory beside it. The compiler appends the generated objects to the base component's AST. An excerpt, with its prerequisite assertion and the namespace it reads from the Release's annotations left out:
+The FeatureRecipe renders its own Helm chart, from a `chart/` directory beside it, and what that chart renders is written beside the base component's own output. An excerpt, with its prerequisite assertion and the namespace it reads from the Release's annotations left out:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -119,7 +119,7 @@ spec:
         "core/postgres": "postgres:1.0.0"
       name:
         # Granular override — this specific instance uses a custom Recipe
-        "legacy-billing-agent": "custom/legacy-worker:3.0.0"
+        "legacy-billing-agent": "legacy-worker:3.0.0"
     features:
       type:
         "core/data-masking": "data-masking-litellm:1.0.0"

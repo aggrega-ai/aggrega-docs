@@ -40,12 +40,14 @@ spec:
           {{ $k }}: "{{ $v }}"
           {{- end }}
           LOG_LEVEL: "{{ optional .values `log_level` `info` }}"
+        {{- if .features }}
         attachments:
           {{- range $name, $attachment := .features }}
           {{ upper $name | replace "-" "_" }}:
             from: {{ $name }}
             as: env
           {{- end }}
+        {{- end }}
         ports:
           web: {{ .locals.port }}
         resources:
@@ -65,12 +67,12 @@ spec:
 
 Synthesized output for `instance_id: api`, `values.port: 8080`, `infra.replicas: 2`:
 
-- `dist/boundaries/production/api-deployment.yaml` — Kubernetes Deployment
-- `dist/boundaries/production/api-service.yaml` — Kubernetes ClusterIP Service
+- `dist/boundaries/production/helm/api-deployment.yaml` — Kubernetes Deployment
+- `dist/boundaries/production/helm/api-http-service.yaml` — Kubernetes ClusterIP Service
 
 ## Example 20: Multi-container synthesized Recipe with ConfigMap volumes
 
-Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
+Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, a PersistentVolumeClaim for the `cache` volume, and two ConfigMap YAML files.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -156,7 +158,7 @@ spec:
         name: {{ .context.rendered_name }}-{{ .locals.app_cm }}
       data:
         config.yaml: |
-          listen: 0.0.0.0:{{ .workload.containers.main.ports.web }}
+          listen: 0.0.0.0:{{ .workload.containers.main.ports.web.port }}
           log_level: {{ optional .values `log_level` "info" }}
 
     envoy-config.yaml: |
@@ -173,7 +175,7 @@ spec:
                 # ... full envoy config
 ```
 
-The artifact templates reference `.workload.containers.main.ports.web` rather than duplicating the port literal. This is self-containment in action: the Recipe emits both the ConfigMaps and the Workload that consumes them, all templated from the Recipe's own context.
+The artifact templates reference `.workload.containers.main.ports.web.port` rather than duplicating the port literal: a container port reaches `.workload` as an object carrying its number under `port`, whichever form the Workload wrote it in. This is self-containment in action: the Recipe emits both the ConfigMaps and the Workload that consumes them, all templated from the Recipe's own context.
 
 Each ConfigMap is named after `.context.rendered_name` — the release name the helm provider names the workload's resources after, spelled in the characters a Kubernetes name allows — followed by the suffix a local carries. A local cannot read the rendered name, so the volume and the artifact each join the two, and the name a volume mounts is the name the artifact emits.
 
@@ -199,8 +201,8 @@ spec:
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: oci://registry-1.docker.io/bitnamicharts
-    chart: mariadb
+    kind: helm-oci-chart
+    url: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "{{ optional .infra `source_version` `25.0.8` }}"
 
   valuesMapping: |
@@ -241,14 +243,14 @@ spec:
   capability: helm
   implements: core/compute/server:1.0.0
   workload:
-    $import: ./workload.yaml
+    $import: ./workload/workload.yaml
   artifacts:
     networkpolicy:
       $import: ./artifacts/networkpolicy.yaml
 ```
 
 ```yaml
-# workload.yaml (relative to recipe.yaml)
+# workload/workload.yaml (relative to recipe.yaml)
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
 replicas: {{ optional .infra `replicas` 1 }}

@@ -460,7 +460,7 @@ spec:
         core/secret-value: helm/vault-secret:1.0.0
 ```
 
-The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Recipe URI is at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the bare one-segment form resolves whenever a single recipe carries the name. The Manifest itself is capability-agnostic; capability determination flows from each resolved Recipe's `spec.capability` field at orchestrator-time.
+The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Recipe URI is at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the bare one-segment form resolves whenever a single recipe carries the name. The Manifest itself is capability-agnostic; the build dispatches each resolved Recipe to the provider its `spec.capability` field names.
 
 ## The Release
 
