@@ -8,7 +8,7 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 ### Layer 1 — JSON Schema envelope
 
-**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/). Workload has one there as well, and it is the one kind in that set an author writes inside another entity — a Recipe's or FeatureRecipe's `workload:` block, or a WorkloadLibrary entry — rather than as a catalog file of its own; the same envelope check governs it wherever it is written, and `aggrega validate` accepts a Workload file directly as a single-entity target.
+**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) has its own JSON Schema, documented in the [schema reference](../schema/README.md). Workload has one there as well, and it is the one kind in that set an author writes inside another entity — a Recipe's or FeatureRecipe's `workload:` block, or a WorkloadLibrary entry — rather than as a catalog file of its own; the same envelope check governs it wherever it is written, and `aggrega validate` accepts a Workload file directly as a single-entity target.
 
 **Validation runs.** At resolution (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
 
@@ -48,7 +48,7 @@ The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the devel
 
 A related guardrail protects provider dispatch itself: when more than one provider-rendering Plugin serves the same target, the workspace resolves the ambiguity via a provider binding in `.aggrega-config.yaml`, chosen at `aggrega pull` and recorded in the lockfile. With no binding and exactly one candidate Plugin, that candidate is used; with no binding and more than one candidate, the build halts loudly, naming the candidate plugins. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
-> **Honest-pending — per-provider Workload-content validation.** The provider-Plugin's `spec.provider.workloadSchema` does not validate Workload bodies today; it is a documented contract and a synthesis-support marker, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
+> **Per-provider Workload-content validation.** The provider-Plugin's `spec.provider.workloadSchema` does not validate Workload bodies today; it is a documented contract and a synthesis-support marker, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
 
 ### Layer 4 — Annotation-binding value validation
 
@@ -70,7 +70,7 @@ For the full inventory of Aggrega-prefixed sentinels and the surfaces that produ
 
 ## Layer interaction when fields overlap
 
-The same authored field can be governed by more than one layer. The most common overlap is a Workload's `containers.<name>.ports.<port>: <number>` field. **This walkthrough describes the end-state of per-provider `workloadSchema` content validation, which is honest-pending** (see the Layer 3 note above and the roadmap's Wasm-based Workload synthesizers item): today the Workload body is validated against the platform-owned embedded Workload schema, not the per-provider `workloadSchema`.
+The same authored field can be governed by more than one layer. The most common overlap is a Workload's `containers.<name>.ports.<port>: <number>` field. **This walkthrough describes the end-state of per-provider `workloadSchema` content validation, which has not shipped** (see the Layer 3 note above): today the Workload body is validated against the platform-owned embedded Workload schema, not the per-provider `workloadSchema`.
 
 - Layer 1 (envelope) accepts it as part of the Workload schema's structural shape.
 - Layer 2 (pillar schemas) does not constrain it directly — Workload content is a Recipe-internal structure, not a Component pillar.
@@ -86,7 +86,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
-| 3 — Provider-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
+| 3 — Provider-capability gate (per-provider `workloadSchema` content validation not yet shipped) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open the authoring document's own domain — `[DEVELOPER_ERROR]` from an Aggregate, `[OPS_ERROR]` from a Release |
 
 ## Cross-references

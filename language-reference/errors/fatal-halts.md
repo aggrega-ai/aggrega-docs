@@ -2,7 +2,7 @@
 
 A fatal halt is a compile-time error that stops the build before any output is produced. Each halt names the file, the entity, and the field at fault, explains what the compiler could not resolve, and points at the concrete authoring change that fixes it. The compiler never silently repairs or rewrites your input — if something is wrong, the build stops and tells you where.
 
-This catalog is organized by the stage of compilation at which each halt fires. Entries marked **[pending]** describe halts whose implementation is not yet complete; the rule is declared but the error message below is the intended user-facing behavior, not what currently ships.
+This catalog is organized by the stage of compilation at which each halt fires.
 
 Each entry below quotes the **message** a build prints for the condition it documents: the fixed sentence stating the condition, then whatever that occurrence supplied. In a terminal that message appears inside a frame — a bracketed head carrying the category and the condition's short code, a pointer to the file and key at fault, and the message on the line beneath — so a whole line pasted from a build will not match an entry here, while the message inside it will; [error-translation.md](error-translation.md) sets out the frame in full.
 
@@ -132,7 +132,7 @@ The head carries the category and this condition's short code, `E0265`, which is
 
 **How to fix:** either bind the Recipe to a provider that synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
-> **Honest-pending — per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt). See the roadmap's Wasm-based Workload synthesizers item.
+> **Per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt).
 
 #### The provider does not support omits
 
@@ -533,7 +533,7 @@ A finding that quotes no value — a missing key, a key the Workload does not ad
 
 The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` block is written by the Recipe's author rather than by the Aggregate or the Release.
 
-**How to fix:** open the Recipe at the field paths listed and correct each one. The paths are given from the Workload's own root, so `.containers.main.health.ready` is the `ready` block under the `main` container's `health` key. A named container is addressed by its key and an init container by its position, which is why the two read differently. What each field accepts is in the Workload authoring reference.
+**How to fix:** open the Recipe at the field paths listed and correct each one. The paths are given from the Workload's own root, so `.containers.main.health.ready` is the `ready` block under the `main` container's `health` key. A named container is addressed by its key and an init container by its position, which is why the two read differently. What each field accepts is in the [Workload authoring reference](../entities/workload.md).
 
 **A field the schema wants as text, refused because the value is a number or a boolean, almost always means an unquoted template expression.** A `workload:` block is rendered before it is checked, so an expression written without quotes expands into bare text and YAML then reads that text as whatever it looks like. A whole-core sizing quantity, a version made only of digits, a port, and the words `yes`, `no`, `on` and `off` all read as something other than text. The finding says which type YAML read, and the remedy is to quote the expression in the Recipe — `cpu: "{{ .infra.compute.cpu }}"` rather than `cpu: {{ .infra.compute.cpu }}` — so the value stays text whatever the operator supplies. Note that the operator's own value is not at fault here and quoting it in the Release changes nothing: the quotes have to be in the Recipe, around the expression.
 
@@ -1129,7 +1129,7 @@ What you meet instead is the halt for an instance the Manifest maps to nothing, 
 
 <!-- covers: pkg/validator/envelope.ErrEntityEnvelope -->
 
-A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer. The Release JSON Schema rejects this shape at schema validation (Layer 1 envelope validation) via an `allOf` constraint: when `extends:` is present, `aggregate:` is forbidden; when `extends:` is absent, both `aggregate:` and `manifest:` are required.
+A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer. The Release JSON Schema rejects this shape at schema validation ([Layer 1](../vocabulary/validation-surface.md#layer-1--json-schema-envelope), the envelope check) via an `allOf` constraint: when `extends:` is present, `aggregate:` is forbidden; when `extends:` is absent, both `aggregate:` and `manifest:` are required.
 
 It halts as an ordinary envelope violation, so the diagnostic takes that class's shape — see "The document-envelope failure class" in [error-translation.md](error-translation.md) — and the finding points at the key that is not permitted here:
 > document envelope validation failed (Release, at `<path>`); `<line>`:`<column>`: spec.aggregate: value matches a shape that is not allowed here. correct the document to match its kind's schema
@@ -1145,7 +1145,7 @@ When a local Manifest `extends` a base Manifest, the two tiers (`type:` map, `na
 When the same feature instance name appears on both the Aggregate side and the Release side with conflicting non-mergeable state (beyond the permitted `infra` layering), the compiler halts and positions the diagnostic on the attachment it could not reconcile. The two conflicting declarations follow in a fixed order — the type the Aggregate declared first, then the type the Release declared — so you can tell which document said which without opening both.
 
 Emitted message:
-> feature merge conflict: reconcile the Aggregate and Release declarations for the feature (`"<aggregate-declared-type>"`, `"<release-declared-type>"`)
+> feature merge conflict: reconcile the Aggregate and Release declarations for the feature (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<aggregate-declared-type>"`, `"<release-declared-type>"`)
 
 The same holds for an attachment a connection carries. When the Aggregate's connection entry and the Release's entry for the same connection both write an attachment under one slot and name different Features, the build halts at the Release's entry — where the second type was written — once the composition is flattened, naming both types, the slot, the connection, the socket and the component:
 > feature merge conflict: reconcile the Aggregate and Release declarations for the feature (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.uses.<socket>.<alias>`, the Aggregate names `"<aggregate-declared-type>"`, the Release names `"<release-declared-type>"`, for the slot `"<slot>"`, on the connection `"<alias>"`, through socket `"<socket>"`, of component `"<component>"`). Drop the type from the Release's entry so it sizes the attachment the Aggregate declares, or name the same Feature in both documents.
@@ -1208,7 +1208,7 @@ The halt is raised over the annotation as written, before it is expanded into a 
 
 Annotations are partitioned by authoring side, and the partition is the same one that governs every other authored pillar: an **Aggregate**-side annotation may route only through a binding path targeting `values`, and a **Release**-side annotation only through a path targeting `infra`. Any other pairing halts.
 
-The partition is what stops the annotation shortcut from becoming a way to author the other side's pillar. A developer's annotation contributes application values; an operator's contributes infrastructure sizing. A binding that declares paths in both pillars is not itself an error — each side routes the subset it is permitted, and the other side's paths are simply not reachable from it.
+The partition is what stops the annotation shortcut from becoming a way to author the other side's pillar. A developer's annotation contributes `values`; an operator's contributes `infra` sizing. A binding that declares paths in both pillars is not itself an error — each side routes the subset it is permitted, and the other side's paths are simply not reachable from it.
 
 A binding declaring one path in **both** pillar lists is the case that reaches this halt most often. The routing tie-break sends such a path through `infra`, which makes it unreachable from the Aggregate side, and an Aggregate-side annotation routing to it halts here. The advisory that names that binding shape before a build reaches this halt is described in [warnings.md](./warnings.md).
 
@@ -1234,7 +1234,7 @@ The **infra** pillar is the operator's sizing surface, and it is checked only wh
 
 The check measures the sizing of every component the Release **placed**, and an entry that writes no `infra:` block at all is measured too: an absent block is an empty one, so a `required:` key carrying no `default:` is reported as missing — which is the case such a key exists to catch. Both ways of placing a component count. Naming it under a boundary's `components` places it, and so does routing the sub-module that contributes it under `aggregates`; a routing entry places components without saying anything about any one of them, so a component placed that way starts from an empty sizing block and a defaultless `required:` key on its type is reported as missing. A component the Release places by neither route is not measured against this contract at all. It has a different fault, and the build reports that one instead: a component placed in no boundary, with the two ways to place it named.
 
-The contract binds a component wherever it was authored: a component a sub-module contributes is measured exactly as one the deployment's own Aggregate declares. How deeply a component is nested does not change which of its type's constraints apply.
+The contract binds a component wherever it was authored: a component a sub-module contributes is measured exactly as one the Release's own Aggregate declares. How deeply a component is nested does not change which of its type's constraints apply.
 
 **Feature attachments** are validated the same way, against the attached Feature's declared `schema.values` / `schema.infra`. Attachments share one surface, so a credential Feature — one labeled `feature.aggrega.ai/kind: secret` — is measured against its own declared schema exactly as any other attachment is. The value checked is the **effective merged result** after attachment values cascade across scopes (component, subsystem, boundary, and component-specific) — so a value introduced legally at one scope but overridden to an illegal value at a more specific scope is caught on the merged result, not the fragment. An attachment whose type declares no schema is not validated; attachment infra is validated against the attachment's own `schema.infra` (an attachment is an overlay and carries no provider union).
 
@@ -1254,12 +1254,12 @@ The same attachment written on the component in the Aggregate reports `[DEVELOPE
 **A leaf declared `sensitive: true` has its constraint failure withheld.** The failure text quotes the offending value, and a build diagnostic is read by anyone watching the build, so on a declared-sensitive leaf — or anywhere inside a declared-sensitive object — the `<constraint failure>` below reads `<redacted>` instead. The entity, the field path, the pillar and the contract name are all still named, so the diagnostic still tells you which leaf failed; only the text that would reproduce the value is dropped. Sensitivity is read per pillar, so a leaf named the same way in `values` and `infra` is withheld only in the pillar that declares it.
 
 Emitted message:
-> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, values pillar does not conform to the Component schema: `<constraint failure>`)
-> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.infra.<field>`, infra pillar does not conform to the declared infra schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, "values.`<field>`", "`<keyword>`", "`<constraint failure>`")
+> authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.infra.<field>`, "infra.`<field>`", "`<keyword>`", "`<constraint failure>`")
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.features.<attachment>.infra.<field>`, infra pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
-> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, values pillar does not conform to the socket valueSchema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, "values.`<field>`", "`<keyword>`", "`<constraint failure>`")
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.uses.<socket>.<alias>.infra.<field>`, "infra.`<field>`", "`<keyword>`", "`<constraint failure>`")
@@ -1529,7 +1529,7 @@ Emitted messages:
 > no provider-rendering plugin version satisfies the recipe's provider version pin: capability `"<capability>"` pins `"<version>"` but no provider-rendering plugin serves it
 > no provider-rendering plugin version satisfies the recipe's provider version pin: capability `"<capability>"` pins `"<version>"` but no serving plugin version satisfies it
 
-**How to fix:** widen or correct the pin in the Recipe's `provider:` field, or add the plugin version it asks for to the catalog. A caret pin matches versions at or above the floor within the same major, so a pin of `^2.0.0` is not satisfied by a `1.x` plugin however recent. Where the message says nothing serves the capability, the pin is not the problem: the plugin is missing entirely, and dropping the pin will not help.
+**How to fix:** widen or correct the pin in the Recipe's `capability:` field, or add the plugin version it asks for to the catalog. A caret pin matches versions at or above the floor within the same major, so a pin of `^2.0.0` is not satisfied by a `1.x` plugin however recent. Where the message says nothing serves the capability, the pin is not the problem: the plugin is missing entirely, and dropping the pin will not help.
 
 ### No plugin advertises a requested parse or import format
 
