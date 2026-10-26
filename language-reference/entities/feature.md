@@ -96,6 +96,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Feature
 metadata:
   name: core/queue
+  version: 1.0.0
 spec:
   appliesTo: "component.aggrega.ai/type=worker"
   schema:
@@ -110,6 +111,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Feature
 metadata:
   name: core/kafka-queue
+  version: 1.0.0
 spec:
   extends: core/queue:1.0.0
   schema:
@@ -123,7 +125,7 @@ The merged `core/kafka-queue` inherits `appliesTo` from the parent, inherits the
 
 **Inheritance is schema-merge, not interface-binding.** A Feature `extends:` chain produces one resolved Feature, not a polymorphic family. The base Feature URI from the chain is not what a Manifest binding's `feature:` field references — Manifests bind by the leaf Feature's URI, and the resolved schema includes the inherited properties. The Feature contract a FeatureRecipe `implements:` is similarly the leaf URI; FeatureRecipes do not navigate the inheritance chain.
 
-**Error modes.** Cyclic `extends:` chains and missing parent URIs halt catalog load with explicit error sentinels (`ErrCyclicExtension` / `ErrInheritanceMerge`) naming the offending Feature, the parent reference that failed, and the chain reconstruction. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.
+**Error modes.** A cyclic `extends:` chain, and a parent no catalog entity provides, halt the build, naming the Feature the resolution started from, the Feature whose `extends:` line to open, and the reference it declares. The messages are at [Cyclic extends on Components or Features](../errors/fatal-halts.md#cyclic-extends-on-components-or-features) and [An `extends:` chain cannot be assembled](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled).
 
 For the broader inheritance / interface vocabulary across Components, Features, and credential Features, see [vocabulary/inheritance-and-interface.md](../vocabulary/inheritance-and-interface.md).
 
@@ -199,7 +201,7 @@ Because materialization uses the same schema resolution as validation, a default
 
 One consequence is worth stating plainly, because validation alone will not reveal it: a `required:` field that also carries a `default:` is satisfied by that default, so omitting it is legal — and the value the check accepted on is the value the rendered output carries.
 
-The compiler's template context exposes the Feature's instance state to the bound FeatureRecipe through the `.features.<alias>` field (containing `.type`, `.values`, `.infra` per attachment). Templates inside the FeatureRecipe read the Feature's own `values:` via `.values.<field>` at the FeatureRecipe's own template scope; the host Component's `values:` are not directly visible to the FeatureRecipe's templates unless the Feature explicitly declares a `uses:` socket to the host Component.
+The compiler's template context exposes the Feature's instance state to the bound FeatureRecipe through the `.features.<alias>` field (containing `.type`, `.resolved_version`, `.labels`, `.values`, `.infra` and `.provides` per attachment). Templates inside the FeatureRecipe read the Feature's own `values:` via `.values.<field>` at the FeatureRecipe's own template scope; the host Component's `values:` are not directly visible to the FeatureRecipe's templates unless the Feature explicitly declares a `uses:` socket to the host Component.
 
 This scope separation makes Features composable: an `autoscaler` Feature does not depend on which Component it attaches to; its `schema:` describes the autoscaling intent regardless of host. The host Component's `values:` are the host's concern; the Feature's `values:` are the Feature's concern; the two pillars compose without leaking field names across the boundary.
 
