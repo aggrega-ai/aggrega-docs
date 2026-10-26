@@ -826,7 +826,7 @@ Each result carries the facts rather than a transcript: where the artifact lande
 
 **No tool is an exception, `lint` included.** No tool answers with a field of its own named `text_answer`, so the field never stands in for one. `lint`'s structured result keeps its `summary` — the number of entities checked and of findings, in total and by severity, under the names [`aggrega lint`](aggrega-lint.md) writes with `-o json` — and carries `text_answer` beside it. `describe-capabilities` keeps its own fields too: `version_summary`, the version line on its own, where it is sent no arguments, and in each entry of its `index` a `summary`, that tool's one-line purpose.
 
-**No tool advertises an output schema.** A tool's listing carries a schema for the arguments it takes and none for its result, so `text_answer` is named here rather than in a schema. An output schema a tool advertises declares `text_answer` as a required string.
+**No tool advertises an output schema.** A tool's listing carries a schema for the arguments it takes and none for its result, so `text_answer` is named here rather than in a schema.
 
 **An answer with no structured result is its text alone.** A refusal of a call's arguments, and any other failure for which the operation had nothing structured to report, comes back as its text and nothing else, and the text is then the only part a client has to show its model.
 

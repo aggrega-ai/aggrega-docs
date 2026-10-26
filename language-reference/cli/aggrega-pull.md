@@ -316,13 +316,13 @@ The lockfile pins content fetched from registries and remote sources, and record
 
 ## Authentication
 
-Aggrega does not implement its own authentication for remote registries. Authentication uses the standard tooling configs in priority order:
+Aggrega keeps no credential store of its own for remote registries: [`aggrega login <registry>`](aggrega-login.md) stores a credential in the shared store `docker login` also writes, and authentication reads the standard tooling configs in priority order:
 
 - `~/.docker/config.json` (Docker login)
 - `containers/auth.json` inside the directory `XDG_RUNTIME_DIR` names (Podman / Skopeo)
 - `~/.config/helm/registry/config.json` (Helm OCI)
 
-Credential-helper delegation via `credsStore` and `credHelpers` is honored across all three locations, so OS-keychain integration via delegated helper binaries works without further configuration. For a private OCI catalog or chart repository, run `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) before `aggrega pull`. The credentials persist in the standard config file; Aggrega reads them automatically.
+Credential-helper delegation via `credsStore` and `credHelpers` is honored across all three locations, so OS-keychain integration via delegated helper binaries works without further configuration. For a private OCI catalog or chart repository, run `aggrega login <registry>` — or `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) — before `aggrega pull`. The credentials persist in the standard config file; Aggrega reads them automatically.
 
 Other source kinds use their native authentication conventions:
 
@@ -334,7 +334,7 @@ The goal across kinds is to let each kind's native tooling continue to own its a
 
 ## Environment variables
 
-The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE` (see [Offline](#offline), and [`--offline`](global-flags.md#--offline) for the flag above it), `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — every pull logs a warning when verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
+The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE` (see [Offline](#offline), and [`--offline`](global-flags.md#--offline) for the flag above it), `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — wherever a pull would have checked a signature, it logs a warning that verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
 
 ## See also
 
