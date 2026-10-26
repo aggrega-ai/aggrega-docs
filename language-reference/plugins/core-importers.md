@@ -12,7 +12,7 @@ publishes them with every compiler release:
 | `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
 | `importer/dify` | `import:dify` | an application exported from Dify in its DSL, as YAML |
 | `importer/crewai` | `import:crewai` | the agents and tasks a CrewAI project declares — `config/agents.yaml` and `config/tasks.yaml`, as YAML, or `crew.jsonc` and `agents/<name>.jsonc`, or their strict-JSON spellings `crew.json` and `agents/<name>.json`, as JSON with comments |
-| `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and of an environment file it names and the import is handed under `with.sources` the variables' names alone |
+| `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and, of an environment file the configuration names, the variables' names alone, where the import is handed that file under `with.sources` |
 | `importer/google-adk` | `import:google-adk` | the agents declared in the Agent Config files of an application built on Google ADK — `root_agent.yaml` and the configurations its sub-agents name — as YAML |
 | `importer/agent-framework` | `import:agent-framework` | a Microsoft Agent Framework declarative agent, a document of kind `Prompt` under any name, as YAML |
 
@@ -147,7 +147,8 @@ declares:
   declarative agent naming no model, or writing its kind in another letter case or as `Agent`, is
   imported by naming `--format agent-framework`.
 
-No source matches two of them. The Langflow, Flowise, n8n and LangGraph importers read their source
+A source matching two of them is refused naming both formats, and is imported by naming the one with
+`--format`. The Langflow, Flowise, n8n and LangGraph importers read their source
 through the parser that serves `parse:json`, the MCP importer a configuration listing its servers under
 `servers` through the one that serves `parse:jsonc` and every other source through the one that serves
 `parse:json`, the Compose, Dify, Google ADK and Agent Framework importers through the one that serves `parse:yaml`, and the
@@ -163,7 +164,7 @@ importer declares the four client file names, so a directory is read through the
 configurations it holds; the Compose importer declares the eight Compose file names, so a
 directory is read through the Compose files it holds; the CrewAI importer declares the six
 names of a project's declarations, so a project's directory is read through its declarations and
-nothing else; and the LangGraph importer declares `langgraph.json`, so an application's directory is
+nothing else; the LangGraph importer declares `langgraph.json`, so an application's directory is
 read through its configuration alone, and neither its code nor an environment file is ever read; and
 the Google ADK importer declares `root_agent.yaml`, so an application's directory is read through its
 root configuration alone — the configurations its sub-agents name reaching the importer only under
@@ -336,7 +337,7 @@ spec:
         model:
           chatopenai-0:
             target: chatopenai-0
-    # swap to core/ai-model/openai-embedding (score 0.3250) by setting type: core/ai-model/openai-embedding
+    # swap to core/ai-model/azure-openai (score 0.4000) by setting type: core/ai-model/azure-openai
     chatopenai-0:
       type: core/ai-model/openai
       values:
@@ -1223,7 +1224,7 @@ services:
       CACHE_URL: redis://cache:6379/0
 ```
 
-is drafted, with no setting, as:
+is drafted, with no setting, over a catalog holding the standard library's `core/datastore/postgres`, as:
 
 ```yaml
 # aggregate.yaml
