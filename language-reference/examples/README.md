@@ -89,9 +89,10 @@ or jump to the tier that matches what you're doing.
 
 ## Catalog-only
 
-The smallest surface: an Aggregate + Release that reference existing catalog
-entities, authoring no Components, Features, or Recipes of their own — the
-developer surface and the String Pipe with zero platform authoring.
+The smallest surface: an Aggregate, a Manifest and a Release that reference
+existing catalog entities, authoring no Components, Features, or Recipes of
+their own — the developer surface and the String Pipe with zero platform
+authoring.
 
 - **[catalog-only](catalog-only/)** — a MariaDB database with an Adminer web
   UI, assembled entirely from standard-library entities and compiled to

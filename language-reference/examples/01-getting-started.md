@@ -103,7 +103,7 @@ spec:
 
 ## Example 2: Connecting Components — The Injection Contract
 
-A web application connects to a Postgres database. The developer declares *what* they need and *how* their code reads connection data. The compiler resolves the physical addresses.
+A web application connects to a Postgres database. The developer declares *what* they need and *how* their code reads connection data. The compiler pipes the address the database's Recipe publishes into the web application's environment.
 
 **1. Platform Catalog: The Postgres Component**
 The Architect defines the database interface. The `provides` block in the schema declares the Public API keys downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
@@ -188,7 +188,7 @@ spec:
 > ```
 
 **4. Ops Domain: The Postgres Recipe**
-Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, and static strings — and, in a Recipe naming a chart in `source:`, `.context.rendered_name`). This invariant enables cyclic dependency safety. The host is built from `.context.rendered_name`, the name the helm provider gives the chart, and the chart's `fullnameOverride` is pinned to the same key, so the address `provides` publishes is the Service the chart emits — see [Naming a Rendered Resource](../templates/rendered-resource-names.md).
+Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, the Recipe's own `.locals`, and static strings — and, in a Recipe naming a chart in `source:`, `.context.rendered_name`). This invariant enables cyclic dependency safety. The host is built from `.context.rendered_name`, the name the helm provider gives the chart, and the chart's `fullnameOverride` is pinned to the same key, so the address `provides` publishes is the Service the chart emits — see [Naming a Rendered Resource](../templates/rendered-resource-names.md).
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -202,7 +202,8 @@ spec:
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.example.com
+    kind: helm-https-chart
+    url: https://charts.example.com
     chart: postgresql
     version: 12.1.0
   locals:
@@ -219,7 +220,7 @@ spec:
 ```
 
 **5. Ops Domain: The Web Server Recipe**
-The web server's Recipe consumes the pre-hydrated `.context.inject.env` pipe. By the time this template renders, the compiler has already resolved `DB_HOST` → `"app-db"` and `DB_PORT` → `"5432"`.
+The web server's Recipe consumes the pre-hydrated `.context.inject.env` pipe. By the time this template renders, the compiler has already filled it: `DB_HOST` → `"app-db"` and `DB_PORT` → `"5432"`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -274,7 +275,7 @@ spec:
         web-server: {}
 ```
 
-**Compilation Trace (rendering — the three-pass model):**
+**Compilation Trace (rendering):**
 
 1. **Provides evaluation:** The compiler evaluates `app-db`'s Recipe `provides` → `{ host: "app-db", port: "5432" }`.
 2. **Inject hydration:** The compiler maps `web-server`'s inject contract: `DB_HOST` → target `app-db`'s `provides["host"]` → `"app-db"`. `DB_PORT` → `provides["port"]` → `"5432"`. The `.context.inject.env` pipe is now `{ "DB_HOST": "app-db", "DB_PORT": "5432" }`.

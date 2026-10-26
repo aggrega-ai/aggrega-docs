@@ -57,7 +57,7 @@ metadata:
   environment: production
 spec:
   aggregate: scalable-datastore
-  manifest: web-app-manifest
+  manifest: global-manifest                # Maps core/postgres to the Recipe below; shown in Example 5
   boundaries:
     corporate-cloud:
       directory: "deploy/corporate"
@@ -85,7 +85,8 @@ spec:
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.example.com
+    kind: helm-https-chart
+    url: https://charts.example.com
     chart: postgresql
     version: 12.1.0
   locals:

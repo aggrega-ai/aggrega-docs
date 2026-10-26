@@ -34,8 +34,9 @@ point where they were left out:
 [… omitted: what was left out]
 ```
 
-Here is that in use. This is a plan for the Terraform example, where the point
-being made is about one attribute:
+Here is that in use. This is a plan for the
+[terraform-declared-sensitivity](terraform-declared-sensitivity/README.md)
+example, where the point being made is about one attribute:
 
 ```text
   # module.store.terraform_data.reference will be created
