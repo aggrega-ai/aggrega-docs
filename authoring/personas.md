@@ -16,19 +16,19 @@ What the developer owns: the components the Aggregate declares, the `values` it 
 
 The architect authors **Components** and **Features**: the reusable, versioned contracts developers consume. A Component declares the values a developer may supply (as a JSON Schema), the outputs it provides to consumers, and the sockets it exposes for wiring. A Feature declares an attachable capability. The architect builds the "paved road" — the vending machine developers order from — and guarantees that what it dispenses is well-shaped.
 
-What the architect owns: the `schema:` that validates developer values, the `provides` outputs, the `uses`/`usesSchema` sockets, and the labels that carry semantic identity. Architects do not write physical infrastructure; they define the interface to it.
+What the architect owns: the `schema:` that validates developer values, the `provides` outputs, the `usesSchema` sockets, and the labels that carry semantic identity. Architects do not write physical infrastructure; they define the interface to it.
 
 ### Platform operations — infrastructure recipes
 
 Operations authors **Recipes**, **FeatureRecipes**, and provider-rendering **Plugins**: the provider-specific translations that turn a catalog contract into rendered infrastructure. A Recipe maps a Component's declared values onto a concrete provider — Helm, Docker Compose, Terraform — without changing the developer-facing values the Component declares. A FeatureRecipe does the same for a Feature at binding time.
 
-What operations owns: the `infra` sizing, the templates that render provider-native output, and the `provides` values a Recipe pipes to consumers. Operations engineers reuse their existing infrastructure code by packaging it as Recipes; they are never required to learn a catalog-specific policy language.
+What operations owns: the templates that render provider-native output from the developer's `values` and the operator's `infra` sizing, and the `provides` values a Recipe pipes to consumers. Operations engineers reuse their existing infrastructure code by packaging it as Recipes; they are never required to learn a catalog-specific policy language.
 
 ### Platform operator — deployment wiring
 
 The operator authors **Manifests** and **Releases**: the routing layer and the per-environment compilation input. A Manifest tells the compiler which Recipe realizes each Component for a given target, so the same Aggregate can hit different implementations across environments. A Release is the single compilation input — it points at the Aggregate and Manifest, fulfills the parameters the developer exposed, attaches the Features whose inputs are operational, sizes with `infra` the ones the developer attached, and wires edges of its own within the sockets the architect declared.
 
-What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, the attachments of the Features whose inputs are operational, and the per-edge `infra` a Release writes on a connection. The operator fulfills the developer's exposed variation points; the Release cannot introduce new application values or new compute — those come only from the Aggregate.
+What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, the `infra` sizing each component gets, the attachments of the Features whose inputs are operational, and the per-edge `infra` a Release writes on a connection. The operator fulfills the developer's exposed variation points; the Release cannot introduce new application values or new compute — those come only from the Aggregate.
 
 ## Roles are hats, not headcount
 

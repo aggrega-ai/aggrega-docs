@@ -18,7 +18,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 ## Platform architect
 
-**[Component](../language-reference/entities/component.md)** — a reusable, versioned contract for one kind of building block. It declares, via a JSON Schema, the `values` a developer may supply; the `provides` outputs it pipes to consumers; and the `uses`/`usesSchema` sockets it exposes for wiring. Components carry the semantic labels that drive policy and rendering. The architect keeps the Component's contract stable so developers can depend on it.
+**[Component](../language-reference/entities/component.md)** — a reusable, versioned contract for one kind of building block. It declares, via a JSON Schema, the `values` a developer may supply; the `provides` outputs it pipes to consumers; and the `usesSchema` sockets it exposes for wiring. Components carry the semantic labels that drive policy and rendering. The architect keeps the Component's contract stable so developers can depend on it.
 
 **[Feature](../language-reference/entities/feature.md)** — an attachable capability a developer or operator can add to a component: a metrics exporter, masking of sensitive text on an AI gateway, a credential binding. A Feature declares what it needs and what it is incompatible with; how it is realized — the resources it generates, or the settings it writes into what its component already renders — lives in its FeatureRecipe.
 
@@ -50,7 +50,7 @@ These kinds serve authors across roles rather than belonging to one.
 
 **[Plugin](../language-reference/entities/plugin.md)** — the extension kind. Beyond provider rendering, Plugins package the WebAssembly code that supplies domain-specific intelligence — policy validation, mutation, linting, and other sockets. Plugin authoring is a platform-team concern that supports every other role.
 
-**[Workload](../language-reference/entities/workload.md)** — a platform-owned compiler kind, not a file a developer or operator hand-writes as a top-level entity. It is consumed inside a Recipe's `workload:` block, where the compiler translates a normalized workload shape into each provider's native form. Recipe authors interact with it through that block; the [Workload reference](../language-reference/entities/workload.md) documents the shape.
+**[Workload](../language-reference/entities/workload.md)** — a platform-owned compiler kind, not a file a developer or operator hand-writes as a top-level entity. It is consumed inside a Recipe's `workload:` block, where the provider the Recipe renders with translates the normalized workload shape into its native form. Recipe authors interact with it through that block; the [Workload reference](../language-reference/entities/workload.md) documents the shape.
 
 ## Next
 
