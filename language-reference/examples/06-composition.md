@@ -1,6 +1,6 @@
 # Composition
 
-## Example 14: Nested Aggregates & Exported Components
+## Example 15: Nested Aggregates & Exported Components
 
 Aggregates can import other Aggregates as parameterized modules, enabling team-level composition. The `exportedComponents` block defines the sub-module's Public API.
 
@@ -95,7 +95,7 @@ spec:
 
 ---
 
-## Example 15: External Services & Parameter Hoisting
+## Example 16: External Services & Parameter Hoisting
 
 External SaaS APIs and legacy databases are first-class graph nodes. They produce no compute artifacts but participate in topology, policy validation, and inject resolution.
 
@@ -216,7 +216,7 @@ spec:
 
 ---
 
-## Example 16: Subsystems — Logical Grouping with Cascading Annotations
+## Example 17: Subsystems — Logical Grouping with Cascading Annotations
 
 Subsystems organize components into logical groups within an Aggregate. Annotations cascade down to every component in the subsystem, and Features attached at the subsystem level apply to all nested components.
 
@@ -289,7 +289,7 @@ spec:
 
 ---
 
-## Example 17: Feature Atomicity & Attachment-Owned Topology
+## Example 18: Feature Atomicity & Attachment-Owned Topology
 
 A Feature attachment can autonomously declare its own `uses` edges, creating independent topological connections without polluting the parent component. Attachments share one surface: an operational Feature and a credential Feature — one labeled `feature.aggrega.ai/kind: secret` — are attached under the same `features:` keyword and in the same shape, and either may carry a `uses` block of its own.
 
@@ -304,7 +304,7 @@ metadata:
 spec:
   components:
     search-api:
-      type: core/external-service:1.0.0     # Uses Component from Example 15
+      type: core/external-service:1.0.0     # Uses Component from Example 16
       values:
         hostname: "api.search.com"
 

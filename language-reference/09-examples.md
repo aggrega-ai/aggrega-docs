@@ -11,10 +11,10 @@ Use this chapter set in two modes. For pattern lookup, jump directly to the chap
 - [Features and Policies](examples/03-features-and-policies.md) — Examples 7 through 10: attaching a Feature that masks sensitive text on the AI gateway, Duck-Typing labels plus semantic selectors and interoperability constraints, Human-in-the-Loop approval gates, programmable policies — a Wasm mutator and an OPA validator.
 - [Secrets](examples/04-secrets.md) — Examples 11 through 14: White-Box secrets where the Developer controls delivery, Black-Box secrets where Ops controls delivery, a Feature's own credential declared on the Feature and delivered to the workload that Feature renders, and a credential carried on one connection.
 - [Credential Features](examples/05-credential-features.md) — the `core/secret-value` abstract credential Feature and its provider-specific FeatureRecipes walked through end-to-end.
-- [Composition](examples/06-composition.md) — Examples 14 through 17: Nested Aggregates and Exported Components, External Services and Parameter Hoisting, Subsystems with cascading annotations, Feature Atomicity and attachment-owned topology.
-- [Input Kinds](examples/07-input-kinds.md) — Examples 22 through 25: Recipe composition exercising the three input kinds (synthesized-only stateless service, multi-container synthesized Recipe with ConfigMap volumes, sourced chart with artifacts, external-file Workload loaded via `workload: { $import: ... }`).
-- [Advanced Patterns](examples/08-advanced-patterns.md) — Examples 20 through 21: FeatureRecipe Resource Generation via `source:` + `valuesMapping:`, the Manifest Name-Tier Override with YAML Anchors.
-- [Cross-Boundary Routing](examples/09-cross-boundary-routing.md) — Examples 18 through 19: Pre-Render Injection Interception via `injectMapping`, the complete Wasm stdin/stdout handshake for plugin authors.
+- [Composition](examples/06-composition.md) — Examples 15 through 18: Nested Aggregates and Exported Components, External Services and Parameter Hoisting, Subsystems with cascading annotations, Feature Atomicity and attachment-owned topology.
+- [Input Kinds](examples/07-input-kinds.md) — Examples 19 through 22: Recipe composition exercising the three input kinds (synthesized-only stateless service, multi-container synthesized Recipe with ConfigMap volumes, sourced chart with artifacts, external-file Workload loaded via `workload: { $import: ... }`).
+- [Advanced Patterns](examples/08-advanced-patterns.md) — Examples 23 through 24: FeatureRecipe Resource Generation via `source:` + `valuesMapping:`, the Manifest Name-Tier Override with YAML Anchors.
+- [Cross-Boundary Routing](examples/09-cross-boundary-routing.md) — Examples 25 through 26: Pre-Render Injection Interception via `injectMapping`, the complete Wasm stdin/stdout handshake for plugin authors.
 
 ## Runnable example workspaces
 

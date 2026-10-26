@@ -2,7 +2,7 @@
 
 Four worked Recipes exercising the three input kinds (sourced, synthesized, artifacts) in different combinations. The conceptual composition model — how the three kinds compose by addition — lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The Workload kind's authoring surface lives in [../entities/workload.md](../entities/workload.md); the Recipe entity's keyword surface in [../entities/recipe.md](../entities/recipe.md); and the pillar context (`.values`, `.infra`, `.context`, `.locals`, `.features`) in [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md).
 
-## Example 22: Minimal synthesized Recipe (stateless HTTP service)
+## Example 19: Minimal synthesized Recipe (stateless HTTP service)
 
 Pattern: **synthesized mode** — no `source:`, no `artifacts:`; the Workload alone drives all output. Pillars exercised: `.values`, `.infra`, `.context.inject`, `.features`. Expected output: one Deployment + one ClusterIP Service per node.
 
@@ -68,7 +68,7 @@ Synthesized output for `instance_id: api`, `values.port: 8080`, `infra.replicas:
 - `dist/boundaries/production/api-deployment.yaml` — Kubernetes Deployment
 - `dist/boundaries/production/api-service.yaml` — Kubernetes ClusterIP Service
 
-## Example 23: Multi-container synthesized Recipe with ConfigMap volumes
+## Example 20: Multi-container synthesized Recipe with ConfigMap volumes
 
 Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
 
@@ -177,7 +177,7 @@ The artifact templates reference `.workload.containers.main.ports.web` rather th
 
 Each ConfigMap is named after `.context.rendered_name` — the release name the helm provider names the workload's resources after, spelled in the characters a Kubernetes name allows — followed by the suffix a local carries. A local cannot read the rendered name, so the volume and the artifact each join the two, and the name a volume mounts is the name the artifact emits.
 
-## Example 24: Mixed sourced Recipe with artifacts
+## Example 21: Mixed sourced Recipe with artifacts
 
 Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.context.rendered_name`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
 
@@ -231,7 +231,7 @@ spec:
 
 The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. The ServiceMonitor's own name and its selector read `.context.rendered_name`, the release name the chart renders its resources under: the chart stamps that name on its resources' `app.kubernetes.io/instance` label, so a selector built from `.context.instance_id` would match nothing for a Component whose name carries an underscore or a capital. The artifact key is the output filename, used as written, so the build halts if a chart template also produced a file named `servicemonitor.yaml`.
 
-## Example 25: External workload file (`workload: { $import: ... }`)
+## Example 22: External workload file (`workload: { $import: ... }`)
 
 Pattern: **synthesized with artifacts**, using `$import:` on the `workload:` field to keep the Workload grammar in a dedicated file rather than inline. Pillars exercised: `.values`, `.infra`. Expected output: synthesized Deployment + a NetworkPolicy artifact.
 

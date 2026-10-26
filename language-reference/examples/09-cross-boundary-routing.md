@@ -10,7 +10,7 @@ In the meantime, the architectural primitives that compose into cross-boundary r
 * Release boundary annotations that Features consume to build FQDNs and routing metadata: [entities/release.md](../entities/release.md)
 * The `provides` / `inject` / `uses` contract: [vocabulary/topology-triad.md](../vocabulary/topology-triad.md)
 
-## Example 18: Pre-Render Injection Interception (`injectMapping`)
+## Example 25: Pre-Render Injection Interception (`injectMapping`)
 
 When a component is deployed to a different Kubernetes namespace than its target, the local service name must be rewritten to an FQDN. The `injectMapping` block on a FeatureRecipe natively intercepts the `.context.inject` memory pipe *before* the Base Recipe renders — no WebAssembly needed.
 
@@ -122,7 +122,7 @@ spec:
 
 ---
 
-## Example 19: The Complete Wasm Handshake (stdin/stdout)
+## Example 26: The Complete Wasm Handshake (stdin/stdout)
 
 This traces the payload the Go compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
 

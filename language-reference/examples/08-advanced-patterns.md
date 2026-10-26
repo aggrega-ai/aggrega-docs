@@ -1,6 +1,6 @@
 # Advanced Patterns
 
-## Example 20: FeatureRecipe Resource Generation (Source + ValuesMapping)
+## Example 23: FeatureRecipe Resource Generation (Source + ValuesMapping)
 
 A FeatureRecipe can generate entirely new infrastructure resources (like an Ingress) alongside the base component. This uses the `source` + `valuesMapping` pattern rather than a `pipeline`. The standard library's `core/public-ingress` is built this way.
 
@@ -98,7 +98,7 @@ A path that differs from one environment to the next is a parameter the Aggregat
 
 ---
 
-## Example 21: The Manifest Name-Tier Override & YAML Anchors
+## Example 24: The Manifest Name-Tier Override & YAML Anchors
 
 When a single instance requires a non-standard Recipe, the `name` tier overrides the `type` tier. YAML anchors keep the Manifest DRY.
 

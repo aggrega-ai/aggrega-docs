@@ -195,7 +195,7 @@ spec:
 ```
 
 **4. Routing Domain: The Local Dev Release (Permissive Escape Hatch)**
-A flat, single boundary with compose-friendly parameters. The developer runs `aggrega build --release local-release.yaml` and gets a Docker Compose file.
+A flat, single boundary with laptop-sized `infra`. The developer runs `aggrega build --release local-release.yaml`, and `main-db` renders through the Helm Recipe the base Manifest maps it to, into `dist/deploy/local/helm/`. The swapped credential mapping changes nothing in that output: this Aggregate attaches no Feature to `main-db`, so no credential Feature is realized at all.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -207,9 +207,6 @@ metadata:
 spec:
   aggregate: scalable-datastore
   manifest: local-manifest
-  parameters:
-    dev_bypass_networking: "true"
-    dev_bypass_l7_proxies: "true"
   boundaries:
     local-machine:
       directory: "deploy/local"
