@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/workloadlibrary-v1alpha1.schema.json`
 
 A reusable collection of Workload template fragments that Recipes consume at render time via `workload: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe workload reuse. Single authoring mode: Go templates only.
 
-See the [workloadlibrary authoring reference](../../entities/workloadlibrary.md) for prose guidance on authoring workloadlibrary entities; this page documents the structural schema that reference describes.
+See the [WorkloadLibrary authoring reference](../../entities/workloadlibrary.md) for prose guidance on authoring WorkloadLibrary entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -25,8 +25,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes | PascalCase identifier for the library. It is the <Library> name in the bare-name identity reference <Library>#/workloads/<name>; the version is supplied by the per-Release lockfile and no registry host enters the reference or any derived identifier. |
-| `version` | string | yes | Strict Semantic Versioning of the library (e.g., 1.0.0). A consumer may assert this as an optional `:<version>` minimum-version floor in a bare-name reference (<Library>:<version>#/workloads/<name>); the per-Release lockfile owns the resolved version. |
+| `name` | string | yes | PascalCase identifier for the library. It is the <Library> name in the bare-name identity reference <Library>#/workloads/<name>; the version is supplied by the per-Release lockfile and no registry host enters the reference or any derived identifier. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
+| `version` | string | yes | Strict Semantic Versioning of the library (e.g., 1.0.0). A consumer may assert this as an optional `:<version>` minimum-version floor in a bare-name reference (<Library>:<version>#/workloads/<name>); the per-Release lockfile owns the resolved version. Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
 | `description` | string | no | A concise summary of what the library covers. |
 | `labels` | map of string | no | Author-declared labels. The compiler does not interpret label values; labels are metadata for discovery + hub UI surfacing. |
 | `annotations` | map of string | no | Author-declared annotations. Same opaque-metadata posture as labels. |
@@ -39,6 +39,6 @@ The WorkloadLibrary's content. spec.workloads is required and must declare at le
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workloads` | map of string | yes | Named map of reusable Workload template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. Keys: PascalCase identifier. Entry keys appear in canonical reference URLs (`#/workloads/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
+| `workloads` | map of string | yes | Named map of reusable Workload template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. Keys: PascalCase identifier. Entry keys appear in canonical reference URLs (`#/workloads/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. Pattern: `^[A-Z][A-Za-z0-9]*$`. At least 1 entry. |
 
 _Additional properties are not permitted._

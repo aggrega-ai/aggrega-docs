@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/workload-v1alpha1.schema.json`
 
 Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). A Workload carries no metadata of its own — no name, no labels, no annotations. Identity and labelling come from the component instance that declares it: the target provider derives each rendered resource's name from that instance and stamps the resource with the aggrega.ai/* provenance keys for that node. The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, which the aggrega-cli binary consumes directly (rebound in its pkg/schemas/jsonschema package) for in-binary Workload validation; there is no separate embedded copy.
 
-See the [workload authoring reference](../../entities/workload.md) for prose guidance on authoring workload entities; this page documents the structural schema that reference describes.
+See the [Workload authoring reference](../../entities/workload.md) for prose guidance on authoring Workload entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -18,12 +18,12 @@ See the [workload authoring reference](../../entities/workload.md) for prose gui
 | `kind` | const "Workload" | yes | Constant: `"Workload"` |
 | `form` | string (enum) | no | Abstract controller-shape intent for the workload. Chooses the kind of runtime lifecycle the workload has, independent of any target platform: stateless (interchangeable long-running replicas), stateful (replicas with stable per-replica identity and per-replica storage), daemon (one instance per eligible host), scheduled (recurring, time-triggered runs), task (a single run to completion), reference (an external endpoint with no compute — no controller; helm emits an ExternalName Service, compose carries the endpoint through the injection contract). Empty is treated as stateless. Each target provider maps the form to its own native shape; the form carries no platform-native resource kinds itself. A persistentTemplate volume is a companion of stateful and is only valid on a stateful workload. A reference workload declares endpoint (and optionally port) and no containers, and carries no credential field of its own, because the environment-variable name belongs to the consumer rather than to the endpoint. A consumer that needs a credential for the endpoint declares the slot on its own Component's featuresSchema and fills it from its container's attachments block, where that slot's inject list permits the delivery. Allowed values: `"stateless"`, `"stateful"`, `"daemon"`, `"scheduled"`, `"task"`, `"reference"` Default: `"stateless"` |
 | `endpoint` | string | no | External endpoint for form: reference — a host or URL. The compiler pipes it through as a deterministic pointer string; it is never resolved at compile time (AOT). Required when form is reference and only meaningful then. helm emits it as an ExternalName Service's externalName (the host portion); compose carries it to consumers through the recipe's provides. |
-| `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. |
+| `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. Minimum: `1`. Maximum: `65535`. |
 | `schedule` | string | no | Cron schedule for form: scheduled — a standard 5-field crontab expression (for example '0 0 * * *') or one of the macros @hourly, @daily, @weekly, @monthly, @yearly. Required when form is scheduled and only meaningful then; the target provider pipes it verbatim into the scheduled resource's schedule field. |
 | `suspend` | boolean | no | Holds the recurring schedule of a form: scheduled workload. When true, the scheduled resource is rendered with its schedule in place, but no run starts from that schedule until it is resumed; a run can still be created from the resource by hand — on Kubernetes, kubectl create job <name> --from=cronjob/<cronjob>. suspend: false renders exactly as an absent suspend does. Only meaningful with form: scheduled. helm emits it as the CronJob's spec.suspend. compose has no scheduled shape and halts on a form: scheduled workload whether or not it is suspended. Default: `false` |
-| `replicas` | integer | no | Number of replicas. Default 1. On a compose target the value reaches no part of the output, and a warning reports it whenever it is authored — including an explicit `1`. Default: `1` |
+| `replicas` | integer | no | Number of replicas. Default 1. On a compose target the value reaches no part of the output, and a warning reports it whenever it is authored — including an explicit `1`. Minimum: `0`. Default: `1` |
 | `initContainers` | container[] | no | Ordered list of containers that run to completion before the main containers start. |
-| `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. |
+| `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. At least 1 entry. |
 | `volumes` | map of volume | no | Ordered map of volume name → volume spec. Each volume spec declares exactly one of: ephemeral, configmap, secret, persistent, persistentTemplate. |
 | `services` | map of service | no | Ordered map of service name → service spec. On helm each entry becomes a separate K8s Service, and an entry whose type is Loopback halts the build. On compose there is no separate service primitive, so entries do not map one to one: an entry whose type is NodePort or LoadBalancer publishes its ports on every host interface of the workload's own compose service, an entry whose type is Loopback publishes its ports there on the host's loopback address only, an entry whose type is ClusterIP or Headless publishes nothing, and every published port is collected into that one service's port list with the host port matching the container port. On helm each Service is named `<name>-<key>`: the name the workload's own Deployment (or other controller) carries, then a hyphen and the entry's key, so a Workload declaring `services.http` whose Deployment is named `api-server` renders a Service named `api-server-http`. On compose a key names nothing in the output. |
 | `scheduling` | object | no | K8s-native scheduling constraints. Translated directly for helm. On a compose target these constraints reach no part of the output, and a warning reports the block when it is authored. |
@@ -32,7 +32,7 @@ See the [workload authoring reference](../../entities/workload.md) for prose gui
 | `imagePullSecrets` | string[] | no | Names of image-pull Secrets for pulling images from private registries. helm emits pod.imagePullSecrets. compose has no in-file analog — registry authentication is configured out-of-band via docker login — and omits it. |
 | `priorityClassName` | string | no | Name of the PriorityClass governing this workload's scheduling priority. helm emits pod.priorityClassName. compose has no single-host scheduling-priority analog and omits it. |
 | `runtimeClassName` | string | no | Name of the RuntimeClass selecting the container runtime this workload runs under (for example a GPU-enabled runtime such as 'nvidia'). The compiler pipes the name through verbatim; the cluster resolves it to a configured RuntimeClass at schedule time. helm emits pod.runtimeClassName. compose has no runtime-class analog and omits it. Compute-only: not permitted on a reference workload. |
-| `terminationGracePeriodSeconds` | integer | no | Seconds between SIGTERM and SIGKILL on shutdown. helm emits pod.terminationGracePeriodSeconds; compose emits stop_grace_period. |
+| `terminationGracePeriodSeconds` | integer | no | Seconds between SIGTERM and SIGKILL on shutdown. helm emits pod.terminationGracePeriodSeconds; compose emits stop_grace_period. Minimum: `0`. |
 | `dnsPolicy` | string (enum) | no | Pod DNS policy. helm emits pod.dnsPolicy. compose has no DNS-policy analog and omits it (compose maps dnsConfig nameservers/searches directly instead). Allowed values: `"Default"`, `"ClusterFirst"`, `"ClusterFirstWithHostNet"`, `"None"` |
 | `dnsConfig` | object | no | Custom pod DNS configuration. helm emits pod.dnsConfig. compose maps nameservers to dns and searches to dns_search; options have no compose analog and are omitted there. |
 | `hostAliases` | object[] | no | Static hostname-to-IP mappings injected into the pod's hosts file. helm emits pod.hostAliases; compose emits extra_hosts (one hostname:ip entry per hostname). |
@@ -98,7 +98,7 @@ _Additional properties are not permitted._
 | `args` | string[] | no | Arguments passed to command (or image entrypoint if command is absent). K8s: .args. Compose: command. |
 | `variables` | map of string | no | Environment variables as string key-value pairs. K8s: spec.template.spec.containers[].env[]. Compose: services.<name>.environment. |
 | `attachments` | map of containerAttachment | no | Ordered map of env-or-file name → { from, as, key?, path?, connection? }. Each entry references a slot declared in the Component's featuresSchema — or, when the entry names a connection, a slot that connection's socket declares — and delivers what the attachment filling that slot published. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
-| `envFrom` | any[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
+| `envFrom` | object[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
 | `ports` | map of integer or object | no | Named container ports. A port is authored either as the bare port number (`web: 8080`) or as an object carrying the number together with the transport protocol the port carries (`dns: { port: 53, protocol: UDP }`); where no protocol is declared the two forms mean the same thing. The allowed protocol values are `TCP`, `UDP` and `SCTP`, and omitting the key leaves the target's own default in force. Port names are referenced by `services.*.ports` and by an http probe's port resolution, and a service port takes its transport from the container port its name resolves to, so the transport is declared once. K8s: containerPort, carrying protocol only where one is declared. Compose: a container port reaches the output only where a service spec publishes it; the container port itself has no separate compose field, and a published port carries a declared transport as the `/protocol` suffix on the published entry — a transport compose cannot spell halts the build rather than publishing a port that would carry a different one. |
 | `resources` | object | no |  |
 | `health` | object | no | The container's health probes — ready, live and startup — each declared as http, tcp or exec. Translated to K8s httpGet/tcpSocket/exec for helm. For compose, a service carries a single healthcheck: http and tcp become CMD-SHELL tests, exec becomes a CMD test, and where more than one probe is declared only one is kept — a warning names the probe translated and the ones dropped. |
@@ -213,13 +213,13 @@ _Any other property is not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `http` | string | no | HTTP GET probe. Path is probed against the first container port (alphabetical by name) unless explicit port is supplied via namespaced form (deferred — single-string form is the current contract). |
-| `tcp` | integer | no | TCP socket probe on the given container port number. |
-| `exec` | string[] | no | Exec probe — the command to run inside the container. |
-| `timeoutSeconds` | integer | no |  |
-| `initialDelaySeconds` | integer | no |  |
-| `periodSeconds` | integer | no |  |
-| `failureThreshold` | integer | no |  |
-| `successThreshold` | integer | no |  |
+| `tcp` | integer | no | TCP socket probe on the given container port number. Minimum: `1`. Maximum: `65535`. |
+| `exec` | string[] | no | Exec probe — the command to run inside the container. At least 1 entry. |
+| `timeoutSeconds` | integer | no | Minimum: `1`. |
+| `initialDelaySeconds` | integer | no | Minimum: `0`. |
+| `periodSeconds` | integer | no | Minimum: `1`. |
+| `failureThreshold` | integer | no | Minimum: `1`. |
+| `successThreshold` | integer | no | Minimum: `1`. |
 
 _Additional properties are not permitted._
 
@@ -227,7 +227,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `exec` | string[] | no |  |
+| `exec` | string[] | no | At least 1 entry. |
 | `httpGet` | object | no | The K8s-native httpGet shape (path, port, scheme, host, httpHeaders). Passed through to helm. On a compose target a workload declaring a lifecycle hook halts, because compose has no lifecycle-hook primitive — the hook is never silently dropped. |
 
 _Additional properties are not permitted._
@@ -276,7 +276,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `size` | string | yes | K8s quantity (e.g., '10Gi'). |
 | `class` | string | no | StorageClassName. Optional. |
-| `accessModes` | string (enum)[] | no | PVC access modes. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose volumes have no access-mode concept and omit it. |
+| `accessModes` | string (enum)[] | no | PVC access modes. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose volumes have no access-mode concept and omit it. Allowed values for each entry: `"ReadWriteOnce"`, `"ReadOnlyMany"`, `"ReadWriteMany"`, `"ReadWriteOncePod"`. |
 
 _Additional properties are not permitted._
 
@@ -288,7 +288,7 @@ Per-replica claim template. Requires form: stateful, because only the stateful s
 | --- | --- | --- | --- |
 | `size` | string | yes |  |
 | `class` | string | no |  |
-| `accessModes` | string (enum)[] | no | PVC access modes for the per-replica claim template. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose has no access-mode concept and omits it. |
+| `accessModes` | string (enum)[] | no | PVC access modes for the per-replica claim template. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose has no access-mode concept and omits it. Allowed values for each entry: `"ReadWriteOnce"`, `"ReadOnlyMany"`, `"ReadWriteMany"`, `"ReadWriteOncePod"`. |
 
 _Additional properties are not permitted._
 

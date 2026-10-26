@@ -28,9 +28,9 @@ _Additional properties are not permitted._
 | `url` | string | yes | The authored source URL the digest pins — the identity URL as written in spec.source.url (a repo root or a direct .tgz for helm-https). Build reconstructs this same URL offline, so it is the stable identity the pin is keyed on, not a resolved artifact location. |
 | `chart` | string | no | The chart name for a repo-root helm source (spec.source.chart), part of the resolved-source identity so two charts served from one repo root at the same version pin distinctly. Absent for a direct .tgz, OCI, compose, or git source, none of which selects a chart within the URL. |
 | `moduleSubdir` | string | no | The directory within a git-sourced repository that is the artifact (spec.source.module_subdir), part of the resolved-source identity so two directories of one repository at the same commit pin distinctly. Absent when the whole repository is the artifact, and for every kind that reaches its artifact by URL rather than by descending into a clone. |
-| `version` | string | yes | The concrete pinned version the source resolved to — a chart version for a helm-* kind, the commit a git-repository reference resolved to. Recorded as a single path segment, because it builds the cache slot the build reads the source back from, so it carries no `/`, no `\` and no `..`. |
-| `digest` | string | yes | The content digest of the fetched source archive, in `sha256:` followed by 64 lowercase hex characters, verified against the cached bytes at build. |
-| `manifestDigest` | string | no | The OCI manifest digest for an OCI-distributed source — the independent root of trust — in `sha256:` followed by 64 lowercase hex characters. Present only for an OCI source (a helm-oci-chart); absent for an https or git source, which carries no manifest by construction. |
+| `version` | string | yes | The concrete pinned version the source resolved to — a chart version for a helm-* kind, the commit a git-repository reference resolved to. Recorded as a single path segment, because it builds the cache slot the build reads the source back from, so it carries no `/`, no `\` and no `..`. Pattern: `^([^/\\.]\|\.[^/\\.])*\.?$`. |
+| `digest` | string | yes | The content digest of the fetched source archive, in `sha256:` followed by 64 lowercase hex characters, verified against the cached bytes at build. Pattern: `^sha256:[a-f0-9]{64}$`. |
+| `manifestDigest` | string | no | The OCI manifest digest for an OCI-distributed source — the independent root of trust — in `sha256:` followed by 64 lowercase hex characters. Present only for an OCI source (a helm-oci-chart); absent for an https or git source, which carries no manifest by construction. Pattern: `^sha256:[a-f0-9]{64}$`. |
 
 _Additional properties are not permitted._
 
@@ -39,7 +39,7 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | yes | Which artifact's $import file this entry pins: the artifacts: map key for an entry of artifacts, and boundary/ followed by the key for an entry of a Recipe's boundary.artifacts — so an entry of each block written under one key is pinned apart. |
-| `digest` | string | yes | The content digest of the imported file's bytes, in `sha256:` followed by 64 lowercase hex characters, verified at build. |
+| `digest` | string | yes | The content digest of the imported file's bytes, in `sha256:` followed by 64 lowercase hex characters, verified at build. Pattern: `^sha256:[a-f0-9]{64}$`. |
 
 _Additional properties are not permitted._
 
@@ -48,7 +48,7 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `path` | string | yes | The file's path relative to the directory holding the entity document, written with forward slashes — charts/app/templates/deployment.yaml, for instance. |
-| `digest` | string | yes | The content digest of the file's bytes, in `sha256:` followed by 64 lowercase hex characters, verified at build. |
+| `digest` | string | yes | The content digest of the file's bytes, in `sha256:` followed by 64 lowercase hex characters, verified at build. Pattern: `^sha256:[a-f0-9]{64}$`. |
 
 _Additional properties are not permitted._
 
@@ -70,7 +70,7 @@ The plugin that served the entity's capability in the author's workspace when th
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `ref` | string | yes | The plugin's entity reference, `<pluginType>/<name>:<version>`. |
-| `digest` | string | yes | The digest of the plugin's entity document, in `sha256:` followed by 64 lowercase hex characters. |
+| `digest` | string | yes | The digest of the plugin's entity document, in `sha256:` followed by 64 lowercase hex characters. Pattern: `^sha256:[a-f0-9]{64}$`. |
 | `patterns` | string[] | no | The ignore patterns the plugin declared, as it declared them. |
 | `files` | string[] | no | The names of the ignore files the plugin declared its ecosystem honours inside a source. |
 

@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/component-v1alpha1.schema.json`
 
 The abstract definition of an atomic building block.
 
-See the [component authoring reference](../../entities/component.md) for prose guidance on authoring component entities; this page documents the structural schema that reference describes.
+See the [Component authoring reference](../../entities/component.md) for prose guidance on authoring Component entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -25,8 +25,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes |  |
-| `version` | string | yes | Strict Semantic Versioning of the interface (e.g., 1.0.0). |
+| `name` | string | yes | At least 1 character long. |
+| `version` | string | yes | Strict Semantic Versioning of the interface (e.g., 1.0.0). Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
 | `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from a deployment, and anything surprising about how it behaves. A short paragraph is the usual length. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |

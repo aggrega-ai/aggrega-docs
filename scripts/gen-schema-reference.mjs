@@ -59,8 +59,12 @@ const CLI_DIR = join(dirname(REPO_ROOT), "aggrega-cli");
 const SCHEMA_DIR = process.env.AGGREGA_SCHEMA_OUT || join(REPO_ROOT, "language-reference", "schema");
 
 // How deep nested inline objects are expanded before the reference stops
-// recursing. Deep enough to be useful, shallow enough to stay readable.
-const MAX_DEPTH = 3;
+// recursing. Deep enough to be useful, shallow enough to stay readable: deep
+// enough that every object an author fills in has its fields listed somewhere —
+// the Plugin entity's `spec.provider.contract.inputKinds` and its importer's
+// `detect[].match[]` predicates sit four levels down — and bounded so a
+// recursive or very deep schema cannot run away.
+const MAX_DEPTH = 4;
 
 // The catalog and authoring entities that also have a hand-authored prose page
 // under language-reference/entities/. Each generated schema page for these
@@ -586,13 +590,70 @@ function describeKeyPattern(pattern) {
   return { clause: clauses.join(", "), admitsDot };
 }
 
-// A length bound on a key, stated as a sentence.
+// Inline code for a value that may itself carry a backtick — a pattern admitting
+// one, say. The fence is one backtick longer than the longest run inside the
+// value, and padded with a space where the value starts or ends with a backtick,
+// which is how Markdown lets a code span hold one; a single-backtick fence would
+// close at the first backtick inside the value and break the rest of the cell.
+function code(text) {
+  const value = String(text);
+  const runs = value.match(/`+/g) || [];
+  const fence = "`".repeat(runs.reduce((longest, run) => Math.max(longest, run.length), 0) + 1);
+  const pad = value.startsWith("`") || value.endsWith("`") ? " " : "";
+  return `${fence}${pad}${value}${pad}${fence}`;
+}
+
+// A count with its noun, singular for exactly one.
+function counted(n, singular, plural) {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
+
+// A length bound on a key or a string value, stated as a sentence.
 function describeLengthBound(minLength, maxLength) {
   if (minLength !== undefined && maxLength !== undefined) {
-    return `Between ${minLength} and ${maxLength} characters long.`;
+    return `Between ${minLength} and ${counted(maxLength, "character", "characters")} long.`;
   }
-  if (minLength !== undefined) return `At least ${minLength} characters long.`;
-  return `At most ${maxLength} characters long.`;
+  if (minLength !== undefined) return `At least ${counted(minLength, "character", "characters")} long.`;
+  return `At most ${counted(maxLength, "character", "characters")} long.`;
+}
+
+// A bound on how many entries a list or a map holds, stated as a sentence.
+function describeCountBound(min, max) {
+  if (min !== undefined && max !== undefined) return `Between ${min} and ${counted(max, "entry", "entries")}.`;
+  if (min !== undefined) return `At least ${counted(min, "entry", "entries")}.`;
+  return `At most ${counted(max, "entry", "entries")}.`;
+}
+
+// What a value itself may be, beyond its type: the pattern a string matches,
+// its length, a number's bounds, how many entries a list or map holds, whether
+// a list's entries are unique, and the values or pattern each entry of a list
+// takes. The schema refuses a value outside any of these, so a property row
+// that left them out would present a constrained field as an open one; they
+// are published as the schema states them, the expression verbatim, because a
+// paraphrase of a pattern this did not read could be wrong.
+function valueConstraints(schema) {
+  const parts = [];
+  if (typeof schema.pattern === "string") parts.push(`Pattern: ${code(schema.pattern)}.`);
+  if (schema.minLength !== undefined || schema.maxLength !== undefined) {
+    parts.push(describeLengthBound(schema.minLength, schema.maxLength));
+  }
+  if (schema.minimum !== undefined) parts.push(`Minimum: \`${schema.minimum}\`.`);
+  if (schema.exclusiveMinimum !== undefined) parts.push(`Greater than \`${schema.exclusiveMinimum}\`.`);
+  if (schema.maximum !== undefined) parts.push(`Maximum: \`${schema.maximum}\`.`);
+  if (schema.exclusiveMaximum !== undefined) parts.push(`Less than \`${schema.exclusiveMaximum}\`.`);
+  if (schema.minItems !== undefined || schema.maxItems !== undefined) {
+    parts.push(describeCountBound(schema.minItems, schema.maxItems));
+  }
+  if (schema.minProperties !== undefined || schema.maxProperties !== undefined) {
+    parts.push(describeCountBound(schema.minProperties, schema.maxProperties));
+  }
+  if (schema.uniqueItems === true) parts.push("No entry may appear twice.");
+  const items = schema.type === "array" && schema.items && typeof schema.items === "object" ? schema.items : null;
+  if (items && Array.isArray(items.enum)) {
+    parts.push("Allowed values for each entry: " + items.enum.map((v) => `\`${JSON.stringify(v)}\``).join(", ") + ".");
+  }
+  if (items && typeof items.pattern === "string") parts.push(`Each entry matches the pattern ${code(items.pattern)}.`);
+  return parts;
 }
 
 // What a key of this object may look like, as one sentence sequence, or an empty
@@ -671,13 +732,24 @@ function patternValueSchema(schema) {
   return value && typeof value === "object" ? value : null;
 }
 
+// Whether an alternative only constrains a value whose shape is declared beside
+// it — `{ "required": ["secret"] }` under an object's `oneOf`, say — rather than
+// naming a shape of its own. Alternatives of this kind choose between field
+// combinations of one object; they carry no type, so naming them would label
+// the value `any` when the schema declares what it is.
+function constrainsOnly(alternative) {
+  if (!alternative || typeof alternative !== "object") return false;
+  const shapeKeys = ["type", "$ref", "const", "enum", "oneOf", "anyOf", "properties", "items", "additionalProperties", "patternProperties"];
+  return !shapeKeys.some((key) => key in alternative);
+}
+
 // A short human type label for one subschema, suitable for a table cell.
 function describeType(schema) {
   if (!schema || typeof schema !== "object") return "any";
   if (schema.$ref) return refName(schema.$ref);
   if (schema.const !== undefined) return `const ${JSON.stringify(schema.const)}`;
   if (schema.enum) return schema.type ? `${labelOfType(schema.type)} (enum)` : "enum";
-  if (schema.oneOf || schema.anyOf) {
+  if ((schema.oneOf || schema.anyOf) && !(schema.type && (schema.oneOf || schema.anyOf).every(constrainsOnly))) {
     // A name is published once however many alternatives carry it.
     //
     // Alternatives may differ in SHAPE while sharing a TYPE — an object
@@ -809,6 +881,7 @@ function describeProp(schema) {
   for (const sentence of shapeConstraints(schema)) parts.push(sentence);
   const keys = keyConstraint(schema);
   if (keys) parts.push(`Keys: ${keys}`);
+  for (const sentence of valueConstraints(schema)) parts.push(sentence);
   if (schema.enum) {
     parts.push("Allowed values: " + schema.enum.map((v) => `\`${JSON.stringify(v)}\``).join(", "));
   } else if (schema.const !== undefined) {
@@ -910,11 +983,16 @@ function renderPage(kind, schema) {
   if (schema.description) out.push(paragraph(schema.description), "");
 
   if (ENTITY_KINDS.has(kind)) {
-    // Link to the prose page's built route (a base-relative directory URL), not
-    // its source path, so the link resolves in the static build and stays
-    // portable across the version-prefixed builds that share this source tree.
+    // The link names the prose page by its source path, relative to this page,
+    // so it resolves in the repository as written; the site build rewrites a
+    // `.md` target to that page's route, so it resolves on the built site too.
+    //
+    // The sentence names the entity by the `kind` value its documents carry —
+    // `FeatureRecipe`, not the schema's file name `featurerecipe` — because that
+    // is the spelling an author writes and the one the prose page teaches.
+    const entityName = (schema.properties && schema.properties.kind && schema.properties.kind.const) || kind;
     out.push(
-      `See the [${kind} authoring reference](../../entities/${kind}.md) for prose guidance on authoring ${kind} entities; this page documents the structural schema that reference describes.`,
+      `See the [${entityName} authoring reference](../../entities/${kind}.md) for prose guidance on authoring ${entityName} entities; this page documents the structural schema that reference describes.`,
       ""
     );
   }

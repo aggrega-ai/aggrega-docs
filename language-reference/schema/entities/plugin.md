@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/plugin-v1alpha1.schema.json`
 
 A Wasm plugin: a WebAssembly module published to an OCI registry and identified by its `metadata.pluginType` — the socket it implements — plus its bare `metadata.name`, declaring the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity and its `.wasm` publish as one OCI manifest tagged by metadata.version — the entity YAML as the manifest's config blob, the `.wasm` as an inline layer, signed once. Identity is the `metadata.pluginType`/`metadata.name` coordinate plus the entity's metadata.version; the `.wasm` location is derived from that coordinate plus the configured registry, and the resolved content digest lives in the lockfile, not in the entity. The closure records the digest and the per-registry trust policy verifies the artifact's signature at pull. The compiler does not interpret the plugin's behavior — it routes the reference; the WebAssembly runtime executes the bytes.
 
-See the [plugin authoring reference](../../entities/plugin.md) for prose guidance on authoring plugin entities; this page documents the structural schema that reference describes.
+See the [Plugin authoring reference](../../entities/plugin.md) for prose guidance on authoring Plugin entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -25,8 +25,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes |  |
-| `version` | string | yes | Strict Semantic Versioning of the Plugin entity (e.g., 1.0.0). |
+| `name` | string | yes | At least 1 character long. |
+| `version` | string | yes | Strict Semantic Versioning of the Plugin entity (e.g., 1.0.0). Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
 | `pluginType` | string (enum) | yes | The socket type this plugin implements. A plugin implements exactly one socket type, drawn from the plugin-type taxonomy the runtime recognises: `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), `pipeline-step` (a feature-recipe-pipeline step that transforms IR within a pipeline), `governance` (serves the build-pipeline governance roles — transforming node labels at topology construction, or rendering an accept/reject verdict over the IR graph at static analysis or over the rendered artifacts at rendering; the role it is attached at, not its kind, fixes what it may emit), `cli` (contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line — a runtime socket, distinct from the compile-time render and pipeline sockets), `parser` (turns a foreign source text into a canonical structured tree so a consumer reads the tree without carrying its own language parser, advertising the formats it handles as `parse:<format>` capabilities), `importer` (turns a foreign infrastructure or agent-definition source into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities). Allowed values: `"provider"`, `"linter"`, `"pipeline-step"`, `"governance"`, `"cli"`, `"parser"`, `"importer"` |
 | `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from a deployment, and anything surprising about how it behaves. A short paragraph is the usual length. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
@@ -83,8 +83,8 @@ Optional execution constraints the host applies when loading and running the plu
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `maxMemoryPages` | integer | no | Caps the plugin's linear memory in Wasm pages (64 KiB per page). Zero or absent applies the platform default cap, so a load is never unbounded; an attachment that needs more raises this value. |
-| `timeoutMs` | integer | no | Caps how long the plugin's own code may run during one call, in milliseconds, not counting time spent inside the host functions it calls. On Linux the measure is processor time, so time spent waiting for a processor on a busy machine does not count; on other systems it is elapsed time. The first call to a freshly loaded plugin also counts the plugin's own start-up. Zero or absent applies the platform default cap, so a call is never uncancellable; an attachment that runs longer raises this value. |
+| `maxMemoryPages` | integer | no | Caps the plugin's linear memory in Wasm pages (64 KiB per page). Zero or absent applies the platform default cap, so a load is never unbounded; an attachment that needs more raises this value. Minimum: `0`. |
+| `timeoutMs` | integer | no | Caps how long the plugin's own code may run during one call, in milliseconds, not counting time spent inside the host functions it calls. On Linux the measure is processor time, so time spent waiting for a processor on a busy machine does not count; on other systems it is elapsed time. The first call to a freshly loaded plugin also counts the plugin's own start-up. Zero or absent applies the platform default cap, so a call is never uncancellable; an attachment that runs longer raises this value. Minimum: `0`. |
 | `hostFunctions` | string[] | no | Derived from the published .wasm at publish, stamped, verified at pull; machine-owned, do not author. The host functions the plugin imports are read from the .wasm import section at publish time and stamped here in canonical (sorted, de-duplicated) form; the value reflects the published binary. Pull re-derives from the verified binary and halts if the stamp diverges. The host registers exactly this derived set and validates every entry against the curated allowlist. |
 | `configKV` | map of string | no | Plugin-specific configuration the runtime hands to the plugin at start, as string-to-string key/value pairs. Entries preserve author order so the emitted record is byte-identical across runs. Absent leaves the runtime's default empty configuration in effect. |
 
@@ -94,7 +94,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes | The export's ABI name — the name the host dispatches to (for example `render_node`, `lint_naming`, `step`). |
+| `name` | string | yes | The export's ABI name — the name the host dispatches to (for example `render_node`, `lint_naming`, `step`). At least 1 character long. |
 | `operates` | string (enum) | no | The pipeline operation this export performs: `patch` (modify an existing rendered document) or `emit` (add a new document). Absent carries no operation claim. Allowed values: `"patch"`, `"emit"` |
 | `scope` | string (enum) | no | The document root this export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). Absent carries no scope claim. Allowed values: `"own"`, `"host"` |
 | `selector` | string | no | A free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers; the compiler does not interpret it. |
@@ -105,7 +105,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes | The command verb the host registers — the `aggrega <name>` token an operator invokes, and the discriminator the host hands the plugin at invocation so a single plugin backing several commands routes on which command was called. |
+| `name` | string | yes | The command verb the host registers — the `aggrega <name>` token an operator invokes, and the discriminator the host hands the plugin at invocation so a single plugin backing several commands routes on which command was called. At least 1 character long. |
 | `description` | string | no | The command's one-line short-help text, shown in the command listing and help output. Documentation only; the host does not act on it. |
 | `flags` | object[] | no | The command's flags, in declared order. Each entry contributes one flag the host registers on the command so aggrega help <command> renders it like a core command's flag. A command with no flags leaves it empty. Within a command each flag name and each shorthand appears once, and none reuses a flag every aggrega command already has — `--help`, `-h` and the global flags; the host checks this when it adds the plugin's commands, and a plugin whose declarations fail is not added, with a warning. |
 
@@ -115,8 +115,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. |
-| `shorthand` | string | no | The flag's optional short alias — the -x form an operator may pass instead of the long name — as a single ASCII letter or digit. Absent means the flag has no short alias. |
+| `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. At least 1 character long. |
+| `shorthand` | string | no | The flag's optional short alias — the -x form an operator may pass instead of the long name — as a single ASCII letter or digit. Absent means the flag has no short alias. Pattern: `^[A-Za-z0-9]$`. |
 | `description` | string | no | The flag's one-line help text, shown in the command's help output. It is optional documentation; the host neither validates nor acts on it. |
 | `type` | string (enum) | no | The flag's value type — `string`, `bool` or `int` — and the kind of flag help renders it as. Absent renders it as a string flag. Allowed values: `"string"`, `"bool"`, `"int"` |
 | `default` | string | no | The flag's default value when the operator does not pass it, expressed as a string. For a `bool` or `int` flag it is a value of that type. Absent means the flag declares no default. |
@@ -140,10 +140,10 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | string | yes | The platform-native well-known annotation key the provider reads (e.g., aggrega.ai/namespace). Sits under the platform-reserved aggrega.ai/ annotation namespace — the provider-read platform directives. |
+| `key` | string | yes | The platform-native well-known annotation key the provider reads (e.g., aggrega.ai/namespace). Sits under the platform-reserved aggrega.ai/ annotation namespace — the provider-read platform directives. Pattern: `^aggrega\.ai/.+`. |
 | `purpose` | string | yes | What the annotation controls — the rendering behavior it influences when present. |
 | `defaultBehavior` | string | no | The behavior the provider applies when this annotation is absent. |
-| `scope` | string (enum)[] | no | Where this provider reads the key. The first three values are the Recipe input kinds and name the render path the key is read on — `sourced` a vendored file set, `synthesized` a Workload the provider materialises, `artifactsStandalone` a node whose whole output is imported artifact documents. Each of those must be an input kind this provider's `contract.inputKinds` claims; naming one it does not halts the build. `boundary` is for a key resolved once per boundary rather than per node — the name of an assembled artifact, or the placement context a cross-boundary reference is shaped from — where input kind is not a meaningful axis, so it is not matched against `contract.inputKinds`. A key read on more than one path lists every one. Absent makes no per-path claim: nothing is checked, and the key states only that the provider reads it somewhere. |
+| `scope` | string (enum)[] | no | Where this provider reads the key. The first three values are the Recipe input kinds and name the render path the key is read on — `sourced` a vendored file set, `synthesized` a Workload the provider materialises, `artifactsStandalone` a node whose whole output is imported artifact documents. Each of those must be an input kind this provider's `contract.inputKinds` claims; naming one it does not halts the build. `boundary` is for a key resolved once per boundary rather than per node — the name of an assembled artifact, or the placement context a cross-boundary reference is shaped from — where input kind is not a meaningful axis, so it is not matched against `contract.inputKinds`. A key read on more than one path lists every one. Absent makes no per-path claim: nothing is checked, and the key states only that the provider reads it somewhere. At least 1 entry. No entry may appear twice. Allowed values for each entry: `"sourced"`, `"synthesized"`, `"artifactsStandalone"`, `"boundary"`. |
 
 _Additional properties are not permitted._
 
@@ -163,6 +163,51 @@ The provider's self-declared render-behavior contract: the input kinds it render
 | `boundaryArtifacts` | boolean | no | Whether the provider accepts the files a Recipe contributes to the shared output of the boundary it renders in, under the Recipe's `spec.boundary.artifacts`: the compiler writes each such file once, in the directory holding the boundary's assembled output, and the provider's target treats it as part of that output. It is the publish-time record of the `boundary_artifacts` claim the provider's `describe()` reports, and a value that differs from that report halts at load. Absent (false) declares no such support, and a Recipe declaring the block for this provider is refused before anything renders. |
 | `nestSegment` | string | no | The directory this provider's target places each contributor's own sub-directory under, for a provider whose `boundaryAssembly` is `nest` — `charts` for a chart umbrella, `modules` for a root module. The compiler joins this directory, the contributor's name, and each file's own path. Read only for a nesting provider. Absent places each contributor's sub-directory directly at the boundary's own directory. The value names one directory and never a path. |
 | `sourceIgnore` | object | no | The files this provider's ecosystem never ships beside a source it renders, as ignore rules in gitignore syntax — the publish-time record of the `source_ignore` rules its `describe()` reports. When an author pins a Recipe or FeatureRecipe whose capability this provider serves for them, these rules are composed with the author's own `.aggregaignore` and recorded in the `entity.lock` beside the entity, together with this plugin's reference and digest, and every later publication, comparison and render of the entity's local source applies the recorded rules. Where present it must equal what `describe()` reports, and the load refuses a plugin whose report differs; absent makes no claim and is not compared. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.provider.contract.inputKinds`
+
+Which of the three Recipe input kinds this plugin renders: a sourced file set, a synthesized workload, and a standalone artifacts-only node. Each field is an independent claim.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `sourced` | boolean | no | Renders a sourced file set (a chart, a module, a compose file). |
+| `synthesized` | boolean | no | Renders a synthesized workload into provider-native artifacts. |
+| `artifactsStandalone` | boolean | no | Renders a standalone artifacts-only node — one carrying imported artifact documents and no source or workload. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.provider.contract.artifactDelimiters`
+
+The Go-template delimiter pair the plugin applies to imported artifact files. Absent means the default `{{`/`}}` pair; a plugin whose target syntax collides with that pair declares an alternate pair here.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `left` | string | yes | The opening delimiter. |
+| `right` | string | yes | The closing delimiter. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.provider.contract.assemblyNameAnnotation`
+
+The boundary annotation whose resolved value names the artifact the plugin assembles from a dispatch group. A plugin that folds a group's contributing boundaries into one named assembly declares the annotation key it reads and whether every contributing boundary must agree on that annotation's resolved value. Absent means the plugin names its assembly from the dispatch path alone.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `annotation` | string | yes | The boundary annotation key the plugin reads the assembled artifact's name from. |
+| `requireUnique` | boolean | no | Whether every boundary contributing to one dispatch group must agree on the annotation's resolved value. When true, a group whose contributing boundaries resolve the annotation to different values halts the build; when false, the plugin accepts the first resolved value. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.provider.contract.sourceIgnore`
+
+The files this provider's ecosystem never ships beside a source it renders, as ignore rules in gitignore syntax — the publish-time record of the `source_ignore` rules its `describe()` reports. When an author pins a Recipe or FeatureRecipe whose capability this provider serves for them, these rules are composed with the author's own `.aggregaignore` and recorded in the `entity.lock` beside the entity, together with this plugin's reference and digest, and every later publication, comparison and render of the entity's local source applies the recorded rules. Where present it must equal what `describe()` reports, and the load refuses a plugin whose report differs; absent makes no claim and is not compared.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `patterns` | string[] | no | The ecosystem's own ignore patterns, each scoped to the root of the local source directory, in the order they apply. |
+| `files` | string[] | no | The names of the ignore files the ecosystem honours inside a source — `.helmignore` for a chart. Each such file's lines are further patterns, scoped to the directory holding it. |
 
 _Additional properties are not permitted._
 
@@ -201,8 +246,19 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `syntax` | string | yes | The syntactic format the source is parsed as — `json` or `yaml`, for example — which is the format a parser plugin advertises as `parse:<syntax>`. The source is parsed through the parser the workspace's catalog serves for that syntax, or, for a syntax the catalog serves none for, through the one the compiler carries, at most once whatever number of signatures name the syntax, and a source that does not parse in it matches no signature naming it. A syntax neither serves a parser for stops the recognition with that parser's absence named. |
+| `syntax` | string | yes | The syntactic format the source is parsed as — `json` or `yaml`, for example — which is the format a parser plugin advertises as `parse:<syntax>`. The source is parsed through the parser the workspace's catalog serves for that syntax, or, for a syntax the catalog serves none for, through the one the compiler carries, at most once whatever number of signatures name the syntax, and a source that does not parse in it matches no signature naming it. A syntax neither serves a parser for stops the recognition with that parser's absence named. At least 1 character long. |
 | `files` | string[] | no | The file-name patterns the signature applies to, matched against the end of the source's name with its separators read as forward slashes: a pattern of one segment against the file's own name, and a pattern of several slash-separated segments against that many trailing segments of its path, so `.vscode/mcp.json` matches a file named `mcp.json` in a directory named `.vscode`. Within a segment `*` matches any run of characters, `?` one character, and `[...]` one character of a class. The signature applies when any pattern matches. Absent or empty applies it to a source that is one file, whatever it is called, and to no file of a directory. The patterns of an importer's signatures are also what decide which files of a directory `aggrega import` hands it. |
 | `match` | object[] | no | The predicates the parsed tree must satisfy, all of them, in declared order. Absent or empty asks nothing of the tree beyond parsing in the syntax. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.importer.detect[].match[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | yes | Where in the tree the predicate looks, written as keys joined by dots from the top of the tree: `data.nodes` names the `nodes` member of the top-level `data` object. A segment written as a whole number, 0 or greater, selects that position of an array counting from zero, so `nodes.0.type` names the type of the first node; every other segment selects a member of an object. At least 1 character long. |
+| `is` | string (enum) | yes | What the path must reach: `present` holds when it reaches a value of any kind, null included; `absent` holds when it reaches nothing; `object`, `array`, `string`, `number` and `boolean` each hold when it reaches a value of that kind. Allowed values: `"present"`, `"absent"`, `"object"`, `"array"`, `"string"`, `"number"`, `"boolean"` |
+| `equals` | string | no | A string the value the path reaches must equal exactly; a value that is not a string never equals it. At most one of `equals` and `prefix` is declared on one predicate. At least 1 character long. |
+| `prefix` | string | no | A string the value the path reaches must begin with; a value that is not a string never begins with it. At most one of `equals` and `prefix` is declared on one predicate. At least 1 character long. |
 
 _Additional properties are not permitted._

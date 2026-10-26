@@ -68,7 +68,7 @@ One flag a CLI plugin declares on a command, as reported in describe(). The host
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. |
+| `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. At least 1 character long. |
 | `shorthand` | string | no | The flag's optional single-character short alias — the -x form an operator may pass instead of the long name. Absent means the flag has no short alias. |
 | `description` | string | no | The flag's one-line help text, shown in the command's help output. It is optional documentation; the host neither validates nor acts on it. |
 | `type` | string | no | The flag's value type — for example string, bool, or int. Absent carries no type claim. |
@@ -170,7 +170,7 @@ One way a source is recognised: the syntax the source is read in, the file names
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `syntax` | string | yes | The syntactic format the source is parsed as — json or yaml, for example — which is the format a parser plugin advertises as parse:<syntax>. The host parses the source through the parser the workspace's catalog serves for that syntax, or, for a syntax the catalog serves none for, through the one the compiler carries, at most once whatever number of signatures name the syntax, and a source that does not parse in it matches no signature naming it. A syntax neither serves a parser for stops the recognition with that parser's absence named, rather than being passed over. |
+| `syntax` | string | yes | The syntactic format the source is parsed as — json or yaml, for example — which is the format a parser plugin advertises as parse:<syntax>. The host parses the source through the parser the workspace's catalog serves for that syntax, or, for a syntax the catalog serves none for, through the one the compiler carries, at most once whatever number of signatures name the syntax, and a source that does not parse in it matches no signature naming it. A syntax neither serves a parser for stops the recognition with that parser's absence named, rather than being passed over. At least 1 character long. |
 | `files` | string[] | no | The file-name patterns the signature applies to, matched against the end of the source's name with its separators read as forward slashes: a pattern of one segment is matched against the file's own name, and a pattern of several slash-separated segments against that many trailing segments of its path, so .vscode/mcp.json matches a file named mcp.json in a directory named .vscode. Within a segment, * matches any run of characters, ? matches one character, and [...] matches one character of a class. The signature applies when any pattern matches. A pattern that is not well formed is refused at load. Absent or empty applies the signature to a source that is one file, whatever it is called, and to no file of a directory. The patterns of an importer's signatures are also what decide which files of a directory an import hands it. |
 | `match` | PathMatch[] | no | The predicates the parsed tree must satisfy, all of them, in declared order. Absent or empty asks nothing of the tree beyond parsing in the syntax. |
 
@@ -182,9 +182,9 @@ One predicate over the parsed tree: the value a path reaches, the kind of value 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `path` | string | yes | Where in the tree the predicate looks, written as keys joined by dots from the top of the tree: data.nodes names the nodes member of the top-level data object. A segment written as a whole number, 0 or greater, selects that position of an array counting from zero, so nodes.0.type names the type of the first node; every other segment selects a member of an object. A key that itself contains a dot cannot be named. |
+| `path` | string | yes | Where in the tree the predicate looks, written as keys joined by dots from the top of the tree: data.nodes names the nodes member of the top-level data object. A segment written as a whole number, 0 or greater, selects that position of an array counting from zero, so nodes.0.type names the type of the first node; every other segment selects a member of an object. A key that itself contains a dot cannot be named. At least 1 character long. |
 | `is` | string (enum) | yes | What the path must reach: present holds when it reaches a value of any kind, null included; absent holds when it reaches nothing; object, array, string, number and boolean each hold when it reaches a value of that kind. Allowed values: `"present"`, `"absent"`, `"object"`, `"array"`, `"string"`, `"number"`, `"boolean"` |
-| `equals` | string | no | A string the value the path reaches must equal exactly. A value that is not a string never equals it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. |
-| `prefix` | string | no | A string the value the path reaches must begin with. A value that is not a string never begins with it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. |
+| `equals` | string | no | A string the value the path reaches must equal exactly. A value that is not a string never equals it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. At least 1 character long. |
+| `prefix` | string | no | A string the value the path reaches must begin with. A value that is not a string never begins with it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. At least 1 character long. |
 
 _Additional properties are not permitted._

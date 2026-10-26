@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/aggregate-v1alpha1.schema.json`
 
 The recursive, parameterized AI architecture. Acts as both the root application and reusable module.
 
-See the [aggregate authoring reference](../../entities/aggregate.md) for prose guidance on authoring aggregate entities; this page documents the structural schema that reference describes.
+See the [Aggregate authoring reference](../../entities/aggregate.md) for prose guidance on authoring Aggregate entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -26,8 +26,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | yes |  |
-| `version` | string | yes | Strict Semantic Versioning of the aggregate module. |
+| `name` | string | yes | At least 1 character long. |
+| `version` | string | yes | Strict Semantic Versioning of the aggregate module. Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
 | `description` | string | no |  |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |
@@ -68,7 +68,7 @@ _Additional properties are not permitted._
 
 A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
 
-**Type:** `any[]`
+**Type:** `object[]`
 
 ### `inject_block`
 
