@@ -299,13 +299,36 @@ function cell(text) {
 }
 
 // Renders a free-standing description block: paragraph breaks are preserved,
-// single line breaks fold into spaces.
+// single line breaks fold into spaces, and indented lines become a list.
+//
+// A line break is read as a wrap, so folding it reads the prose as written. An
+// indented line is not a wrap: a schema writes one under a lead sentence to set
+// out a sequence — the stages of a pipeline, say — and folding those lines into
+// the lead runs every entry into one sentence a reader has to take apart again.
+// Each indented line therefore opens one list entry, and a line that is not
+// indented continues the entry above it, so a long entry wrapped at the margin
+// stays one entry.
 function paragraph(text) {
   return String(text)
     .split(/\n\s*\n/)
-    .map((block) => block.replace(/\s+/g, " ").trim())
+    .map(renderBlock)
     .filter((block) => block.length > 0)
     .join("\n\n");
+}
+
+function renderBlock(block) {
+  const lines = block.split(/\r?\n/);
+  const first = lines.findIndex((line, index) => index > 0 && /^[ \t]+\S/.test(line));
+  const fold = (text) => text.replace(/\s+/g, " ").trim();
+  if (first < 0) return fold(block);
+  const lead = fold(lines.slice(0, first).join(" "));
+  const entries = [];
+  for (const line of lines.slice(first)) {
+    if (/^[ \t]+\S/.test(line) || entries.length === 0) entries.push(fold(line));
+    else entries[entries.length - 1] = fold(`${entries[entries.length - 1]} ${line}`);
+  }
+  const list = entries.filter((entry) => entry.length > 0).map((entry) => `- ${entry}`);
+  return lead.length > 0 ? `${lead}\n\n${list.join("\n")}` : list.join("\n");
 }
 
 function refName(ref) {
@@ -786,7 +809,19 @@ function describeType(schema) {
     }
     return "object";
   }
-  if (Array.isArray(schema.type)) return schema.type.join(" or ");
+  if (Array.isArray(schema.type)) {
+    // Each member is labelled as it would be on its own, so a list that may
+    // also be null still names what it lists — `Location[] or null`, not
+    // `array or null`, which drops the one fact a reader needs about the
+    // entries.
+    return schema.type
+      .map((member) => {
+        if (member === "array") return schema.items ? `${describeType(schema.items)}[]` : "array";
+        if (member === "object") return describeType({ ...schema, type: "object" });
+        return member;
+      })
+      .join(" or ");
+  }
   if (schema.type) return schema.type;
   return "any";
 }
@@ -875,6 +910,40 @@ function shapeConstraints(schema) {
 function describeProp(schema) {
   const parts = [];
   if (schema.description) parts.push(String(schema.description));
+  for (const sentence of describeFacets(schema, true)) parts.push(sentence);
+  return parts.join(" ");
+}
+
+// The values a schema allows when it writes them as alternatives, each one
+// constant with a description of its own — a closed set of codes, say, where
+// what each code means is the half of the contract a client acts on. The Type
+// column names the constants and nothing else, so the descriptions are
+// published beside them. Null unless every alternative is a described
+// constant: a partial list would present an open set as a closed one.
+function describedConstants(schema) {
+  const alternatives = schema && (schema.oneOf || schema.anyOf);
+  if (!Array.isArray(alternatives) || alternatives.length === 0) return null;
+  const described = alternatives.every(
+    (alternative) =>
+      alternative &&
+      typeof alternative === "object" &&
+      alternative.const !== undefined &&
+      typeof alternative.description === "string" &&
+      alternative.description.trim().length > 0
+  );
+  if (!described) return null;
+  return alternatives.map((alternative) => ({ value: alternative.const, description: alternative.description }));
+}
+
+// Everything a value's row says beyond its prose: shape, key and value
+// constraints, the allowed values, the constant and the default. One list
+// serves a property row and a definition rendered without a table, so a value
+// is described the same way wherever it is documented. Described constants are
+// written inline only where asked: a table cell has no room for a list, and a
+// definition section sets them out as one instead.
+function describeFacets(schema, inlineConstants) {
+  const constants = describedConstants(schema);
+  const parts = [];
   // Directly after the prose, because these qualify what that prose describes:
   // the prose names the shapes a value may take, and these say what one of them
   // may not contain. The key facets that follow are about a map's keys instead.
@@ -886,11 +955,58 @@ function describeProp(schema) {
     parts.push("Allowed values: " + schema.enum.map((v) => `\`${JSON.stringify(v)}\``).join(", "));
   } else if (schema.const !== undefined) {
     parts.push(`Constant: \`${JSON.stringify(schema.const)}\``);
+  } else if (constants && inlineConstants) {
+    parts.push(
+      "Allowed values: " +
+        constants.map((entry) => `\`${JSON.stringify(entry.value)}\` — ${String(entry.description).trim()}`).join(" ")
+    );
   }
   if (schema.default !== undefined) {
     parts.push(`Default: \`${JSON.stringify(schema.default)}\``);
   }
-  return parts.join(" ");
+  return parts;
+}
+
+// Which schema one property takes for each value of another, when the object
+// says so as a set of conditions — `allOf` entries each reading "if `method` is
+// this constant, then `params` is that shape". The property table can show
+// neither half: it lists `params` once, with the type it has before any
+// condition applies, so without this a reader cannot tell which shape goes with
+// which method, and the method names themselves appear nowhere.
+//
+// Only that exact form is read: every entry an `if` naming one property bound
+// to one constant (and requiring it), a `then` naming one property, no `else`,
+// and every entry naming the same two properties. A condition of any other
+// shape yields null and nothing is said, so this never paraphrases a condition
+// it did not read. A branch's `then` may require its property where the object
+// itself does not, and the Required column reports that per value.
+function discriminatedBranches(schema, requiredSet) {
+  const entries = schema.allOf;
+  if (!Array.isArray(entries) || entries.length === 0) return null;
+  let key = null;
+  let target = null;
+  const rows = [];
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object" || entry.else !== undefined) return null;
+    const cond = entry.if;
+    const then = entry.then;
+    if (!cond || !then || typeof cond !== "object" || typeof then !== "object") return null;
+    const condKeys = Object.keys(cond.properties || {});
+    const thenKeys = Object.keys(then.properties || {});
+    if (condKeys.length !== 1 || thenKeys.length !== 1) return null;
+    const bound = cond.properties[condKeys[0]];
+    if (!bound || typeof bound !== "object" || bound.const === undefined || Object.keys(bound).length !== 1) return null;
+    if (!Array.isArray(cond.required) || !cond.required.includes(condKeys[0])) return null;
+    if (key === null) {
+      key = condKeys[0];
+      target = thenKeys[0];
+    } else if (key !== condKeys[0] || target !== thenKeys[0]) {
+      return null;
+    }
+    const required = requiredSet.has(target) || (Array.isArray(then.required) && then.required.includes(target));
+    rows.push({ value: bound.const, schema: then.properties[target], required });
+  }
+  return { key, target, rows };
 }
 
 // Renders one object schema as a properties table, then recurses into any
@@ -965,6 +1081,17 @@ function renderObjectSection(schema, path, depth, headingLevel, showDescription)
     out.push("_Additional properties are permitted._", "");
   }
 
+  const branches = discriminatedBranches(schema, requiredSet);
+  if (branches) {
+    out.push(`**\`${branches.target}\` for each \`${branches.key}\`:**`, "");
+    out.push(`| \`${branches.key}\` | \`${branches.target}\` | Required |`);
+    out.push("| --- | --- | --- |");
+    for (const branch of branches.rows) {
+      out.push(`| \`${cell(JSON.stringify(branch.value))}\` | ${cell(describeType(branch.schema))} | ${branch.required ? "yes" : "no"} |`);
+    }
+    out.push("");
+  }
+
   const childHashes = "#".repeat(Math.min(headingLevel, 6));
   for (const [childPath, childSchema] of children) {
     out.push(`${childHashes} \`${childPath}\``, "");
@@ -1023,8 +1150,22 @@ function renderPage(kind, schema) {
       if (def.type === "object" || def.properties) {
         out.push(renderObjectSection(def, defName, 0, 4, true));
       } else {
+        // A definition that is not an object has no table to carry its facets,
+        // so they follow the type line: without them a closed set of values —
+        // every method a request may name, say — is published as a bare type,
+        // and the reader is never told what the set holds.
         if (def.description) out.push(paragraph(def.description), "");
         out.push(`**Type:** \`${cell(describeType(def))}\``, "");
+        const constants = describedConstants(def);
+        if (constants) {
+          out.push("Allowed values:", "");
+          for (const entry of constants) {
+            out.push(`- \`${JSON.stringify(entry.value)}\` — ${cell(entry.description)}`);
+          }
+          out.push("");
+        }
+        const facets = describeFacets(def, false);
+        if (facets.length > 0) out.push(cell(facets.join(" ")), "");
       }
     }
   }

@@ -22,6 +22,8 @@ The JSON-RPC version every message carries. Only 2.0 is spoken.
 
 **Type:** `const "2.0"`
 
+Constant: `"2.0"`
+
 ### `RequestId`
 
 The caller's identifier for a request, echoed on the response that answers it. A message carrying no identifier is a notification and is never answered.
@@ -52,17 +54,23 @@ Every method a request may name. The set is closed: a request naming anything el
 
 **Type:** `string (enum)`
 
+Allowed values: `"aggrega/activeRelease"`, `"aggrega/attachCandidates"`, `"aggrega/attachmentContainer"`, `"aggrega/build"`, `"aggrega/buildPreview"`, `"aggrega/cacheClear"`, `"aggrega/cacheEvict"`, `"aggrega/cachePrune"`, `"aggrega/cacheStatus"`, `"aggrega/catalogIndex"`, `"aggrega/completion"`, `"aggrega/configCapture"`, `"aggrega/configInit"`, `"aggrega/connectionAtPosition"`, `"aggrega/connectionCandidates"`, `"aggrega/deprecateArtifact"`, `"aggrega/diagnostics"`, `"aggrega/editDocument"`, `"aggrega/effectiveConfiguration"`, `"aggrega/entityDefinition"`, `"aggrega/explainError"`, `"aggrega/findImplementations"`, `"aggrega/findReferences"`, `"aggrega/getSchema"`, `"aggrega/hover"`, `"aggrega/import"`, `"aggrega/initialize"`, `"aggrega/insertionPoint"`, `"aggrega/invalidate"`, `"aggrega/irGraph"`, `"aggrega/lint"`, `"aggrega/logout"`, `"aggrega/pin"`, `"aggrega/pluginAdd"`, `"aggrega/pluginGenCatalog"`, `"aggrega/pluginRemove"`, `"aggrega/pluginSync"`, `"aggrega/publishArtifact"`, `"aggrega/publishEntity"`, `"aggrega/registryAdd"`, `"aggrega/registryList"`, `"aggrega/registryRemove"`, `"aggrega/registryUpdate"`, `"aggrega/releaseCandidates"`, `"aggrega/releaseClosure"`, `"aggrega/resolve"`, `"aggrega/resolveDependencies"`, `"aggrega/scaffoldEntity"`, `"aggrega/search"`, `"aggrega/setActiveRelease"`, `"aggrega/signArtifacts"`, `"aggrega/skillsInstall"`, `"aggrega/skillsList"`, `"aggrega/validate"`
+
 ### `ClientNotificationMethod`
 
 Every method a client notification may name. The set is closed, and neither notification is answered.
 
 **Type:** `string (enum)`
 
+Allowed values: `"$/cancelRequest"`, `"aggrega/shutdown"`
+
 ### `DaemonNotificationMethod`
 
 Every method a notification the daemon sends may name. The set is closed.
 
 **Type:** `string (enum)`
+
+Allowed values: `"$/progress"`, `"aggrega/publishDiagnostics"`
 
 ### `Request`
 
@@ -77,6 +85,65 @@ A request the client sends and the daemon answers. The method names what is bein
 
 _Additional properties are not permitted._
 
+**`params` for each `method`:**
+
+| `method` | `params` | Required |
+| --- | --- | --- |
+| `"aggrega/initialize"` | InitializeParams | no |
+| `"aggrega/validate"` | ValidateParams | no |
+| `"aggrega/invalidate"` | InvalidateParams | no |
+| `"aggrega/diagnostics"` | DiagnosticsParams | no |
+| `"aggrega/irGraph"` | IrGraphParams | no |
+| `"aggrega/build"` | BuildParams | no |
+| `"aggrega/buildPreview"` | BuildPreviewParams | no |
+| `"aggrega/entityDefinition"` | EntityDefinitionParams | no |
+| `"aggrega/releaseClosure"` | ReleaseClosureParams | no |
+| `"aggrega/resolveDependencies"` | ResolveDependenciesParams | no |
+| `"aggrega/pin"` | PinParams | no |
+| `"aggrega/cacheStatus"` | WorkspaceAndProgressParams | no |
+| `"aggrega/cachePrune"` | WorkspaceAndProgressParams | no |
+| `"aggrega/cacheEvict"` | CacheEvictParams | no |
+| `"aggrega/cacheClear"` | WorkspaceAndProgressParams | no |
+| `"aggrega/registryList"` | WorkspaceAndProgressParams | no |
+| `"aggrega/search"` | SearchParams | no |
+| `"aggrega/registryAdd"` | RegistryAddParams | no |
+| `"aggrega/registryRemove"` | RegistryRemoveParams | no |
+| `"aggrega/registryUpdate"` | RegistryUpdateParams | no |
+| `"aggrega/logout"` | LogoutParams | no |
+| `"aggrega/publishEntity"` | PublishEntityParams | no |
+| `"aggrega/publishArtifact"` | PublishArtifactParams | no |
+| `"aggrega/signArtifacts"` | SignArtifactsParams | no |
+| `"aggrega/deprecateArtifact"` | DeprecateArtifactParams | no |
+| `"aggrega/resolve"` | ResolveParams | no |
+| `"aggrega/findReferences"` | FindReferencesParams | no |
+| `"aggrega/findImplementations"` | FindImplementationsParams | no |
+| `"aggrega/hover"` | HoverParams | no |
+| `"aggrega/completion"` | CompletionParams | no |
+| `"aggrega/catalogIndex"` | CatalogIndexParams | no |
+| `"aggrega/attachCandidates"` | AttachCandidatesParams | no |
+| `"aggrega/connectionCandidates"` | ConnectionCandidatesParams | no |
+| `"aggrega/insertionPoint"` | InsertionPointParams | no |
+| `"aggrega/attachmentContainer"` | AttachmentContainerParams | no |
+| `"aggrega/connectionAtPosition"` | ConnectionAtPositionParams | no |
+| `"aggrega/releaseCandidates"` | WorkspaceAndProgressParams | no |
+| `"aggrega/activeRelease"` | WorkspaceAndProgressParams | no |
+| `"aggrega/setActiveRelease"` | SetActiveReleaseParams | no |
+| `"aggrega/editDocument"` | EditDocumentParams | no |
+| `"aggrega/effectiveConfiguration"` | WorkspaceAndProgressParams | no |
+| `"aggrega/configInit"` | ConfigInitParams | no |
+| `"aggrega/configCapture"` | ConfigCaptureParams | no |
+| `"aggrega/import"` | ImportParams | no |
+| `"aggrega/scaffoldEntity"` | ScaffoldEntityParams | no |
+| `"aggrega/lint"` | LintParams | no |
+| `"aggrega/pluginAdd"` | PluginAddParams | no |
+| `"aggrega/pluginRemove"` | PluginRemoveParams | no |
+| `"aggrega/pluginSync"` | PluginSyncParams | no |
+| `"aggrega/pluginGenCatalog"` | PluginGenCatalogParams | no |
+| `"aggrega/explainError"` | ExplainErrorParams | no |
+| `"aggrega/getSchema"` | GetSchemaParams | no |
+| `"aggrega/skillsInstall"` | SkillsInstallParams | no |
+| `"aggrega/skillsList"` | WorkspaceAndProgressParams | no |
+
 ### `ClientNotification`
 
 A notification the client sends. It carries no identifier and is never answered.
@@ -89,6 +156,13 @@ A notification the client sends. It carries no identifier and is never answered.
 
 _Additional properties are not permitted._
 
+**`params` for each `method`:**
+
+| `method` | `params` | Required |
+| --- | --- | --- |
+| `"$/cancelRequest"` | CancelRequestParams | yes |
+| `"aggrega/shutdown"` | ShutdownParams | no |
+
 ### `DaemonNotification`
 
 A notification the daemon sends. It carries no identifier and is never answered.
@@ -100,6 +174,13 @@ A notification the daemon sends. It carries no identifier and is never answered.
 | `params` | object | yes |  |
 
 _Additional properties are not permitted._
+
+**`params` for each `method`:**
+
+| `method` | `params` | Required |
+| --- | --- | --- |
+| `"$/progress"` | ProgressParams | yes |
+| `"aggrega/publishDiagnostics"` | PublishDiagnosticsParams | yes |
 
 ### `CancelRequestParams`
 
@@ -167,7 +248,7 @@ The findings for one file, pushed by the daemon when a validation produced them 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `file` | string | yes | The file the findings are about. |
-| `diagnostics` | array or null | yes | The findings, in the order they were produced. |
+| `diagnostics` | Diagnostic[] or null | yes | The findings, in the order they were produced. |
 
 _Additional properties are not permitted._
 
@@ -212,6 +293,19 @@ _Additional properties are not permitted._
 The condition the answer reports. The negative codes are the protocol's own reserved set; the four-digit codes are conditions this daemon raises, each naming a state a client can act on. The set is closed.
 
 **Type:** `const -32700 or const -32600 or const -32601 or const -32602 or const -32603 or const 1001 or const 1003 or const 1004 or const 1005 or const 1006`
+
+Allowed values:
+
+- `-32700` — The message could not be parsed as JSON.
+- `-32600` — The message parsed but is not a well-formed request.
+- `-32601` — No method of that name exists.
+- `-32602` — The params the request carried are not admissible: a field the method does not accept, a field of the wrong type, or a value the method refuses.
+- `-32603` — The daemon failed while doing the work.
+- `1001` — The daemon holds no reading of the file and is producing none. The client seeds one by asking for a validation, then retries.
+- `1003` — The lockfile for the Release the request named is absent, and the operation needs one.
+- `1004` — The entity the request named could not be resolved from the catalog or from the Release the request named.
+- `1005` — The daemon is shutting down and is refusing new work. The client does not retry against the same daemon.
+- `1006` — A validation of the file is running now and did not finish within the budget the waiting request allowed. The client waits and asks again, sending nothing in the meantime.
 
 ### `ErrorData`
 
@@ -824,7 +918,7 @@ One connection a graph node's component draws, addressed by the socket it is wir
 | --- | --- | --- | --- |
 | `socket` | string | yes | The dependency socket the connection is wired through. |
 | `alias` | string | yes | The name the connection carries within its socket. |
-| `document` | const "aggregate" or const "release" | no | The document an attachment on the connection is written in. The set is closed, and a value outside it is refused. |
+| `document` | const "aggregate" or const "release" | no | The document an attachment on the connection is written in. The set is closed, and a value outside it is refused. Allowed values: `"aggregate"` — The Aggregate, where the developer writes an attachment on the connection's entry. `"release"` — The Release, where the operator writes an attachment on the per-edge entry for the connection. |
 
 _Additional properties are permitted._
 
@@ -1084,9 +1178,9 @@ What a dependency resolution pinned and acquired.
 | --- | --- | --- | --- |
 | `lockfile` | string | yes | The lockfile the resolution wrote, or the one a verify compared against. |
 | `verified` | boolean | no | Whether the request was a verify, which compared the recorded lockfile and wrote no lockfile, plugin trust record or `entity.lock`. |
-| `entities` | array or null | yes | The entities the resolution pinned, or a verify compared. |
-| `libraries` | array or null | yes | The libraries the resolution pinned, or a verify compared. |
-| `plugins` | array or null | yes | The plugins the resolution pinned, or a verify compared. |
+| `entities` | ClosureEntity[] or null | yes | The entities the resolution pinned, or a verify compared. |
+| `libraries` | ClosureEntity[] or null | yes | The libraries the resolution pinned, or a verify compared. |
+| `plugins` | ClosureEntity[] or null | yes | The plugins the resolution pinned, or a verify compared. |
 | `sourceArtifacts` | integer | yes | How many source artifacts were acquired. |
 | `trustedPlugins` | integer | yes | How many of the pinned plugins carried a verified signature. |
 | `toolchain` | ToolchainReport | no | The compiler that resolved, and the plugins it carries. |
@@ -1112,7 +1206,7 @@ How far a cache answer reaches. Two of the cache classes are shared by every pro
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `machineWideClasses` | array or null | yes | The cache classes this answer touched that are shared across every project on the machine. |
+| `machineWideClasses` | string[] or null | yes | The cache classes this answer touched that are shared across every project on the machine. |
 | `workspaceRoot` | string | yes | The workspace the request named. |
 
 _Additional properties are not permitted._
@@ -1140,7 +1234,7 @@ One cache the daemon reports on.
 | `name` | string | yes | Which cache this is. |
 | `reach` | string | yes | Whether the cache belongs to this workspace or is shared across the machine. |
 | `prunable` | boolean | yes | Whether reclaiming this cache is something the daemon will do. |
-| `elements` | array or null | yes | What the cache holds. |
+| `elements` | CacheElement[] or null | yes | What the cache holds. |
 
 _Additional properties are not permitted._
 
@@ -1150,7 +1244,7 @@ Which identities a cached artifact was acquired under, and how widely it is shar
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `identities` | array or null | yes | The identities the artifact is attributed to. |
+| `identities` | string[] or null | yes | The identities the artifact is attributed to. |
 | `sharedBy` | integer | no | How many holders share the artifact. |
 
 _Additional properties are not permitted._
@@ -1180,7 +1274,7 @@ What a reclamation left behind, and what would reclaim it, so a caller reading a
 | `size` | integer | yes | How many bytes they occupy. |
 | `sizeText` | string | yes | The same size written the way a person reads one. |
 | `reach` | string | yes | Whether that cache belongs to this workspace or is shared across the machine. |
-| `reclaimedBy` | array or null | yes | What would reclaim them. |
+| `reclaimedBy` | string[] or null | yes | What would reclaim them. |
 
 _Additional properties are not permitted._
 
@@ -1292,7 +1386,7 @@ One socket on an entity, and what may be wired into it.
 | `declaration` | string | yes | Where the socket is declared. |
 | `selector` | string | yes | The label selector a target must satisfy. |
 | `required` | boolean | yes | Whether the socket must be wired for the build to proceed. |
-| `targets` | array or null | yes | The entities that may be wired into it. |
+| `targets` | WorkspaceEntityRef[] or null | yes | The entities that may be wired into it. |
 
 _Additional properties are not permitted._
 
@@ -1322,7 +1416,7 @@ One entity the workspace index holds.
 | `name` | string | yes | The entity name. |
 | `apiVersion` | string | yes | The schema version the document declares. |
 | `description` | string | yes | What the document says the entity is for. |
-| `labels` | object or null | yes | The labels the document declares. |
+| `labels` | map of string or null | yes | The labels the document declares. |
 | `file` | string | yes | The document declaring it, as a path relative to the workspace root. |
 | `origin` | string | yes | Where the entity was read from. |
 
@@ -1456,8 +1550,8 @@ What an index refresh did for one registry.
 | `indexed` | integer | yes | How many records were written. |
 | `deprecationsExamined` | boolean | yes | Whether the walk looked for deprecation markers at all. It is separate from the count because 'this registry published none' and 'this run had no basis to judge one' are different facts. |
 | `deprecationsRecorded` | integer | yes | How many markers were honoured. |
-| `skipped` | array or null | yes | The repositories the walk passed over. |
-| `deprecations` | array or null | yes | The markers the walk met. |
+| `skipped` | SkippedRepo[] or null | yes | The repositories the walk passed over. |
+| `deprecations` | DeprecationNote[] or null | yes | The markers the walk met. |
 | `error` | string | no | What failed for this host, so a walk over several reports which of them failed without the caller correlating anything. |
 | `unreachable` | boolean | no | Whether this registry could not be reached: its name did not resolve, a connection to it was refused or could not be opened, or a secure connection to it could not be established. It is read from the failure itself rather than from error, it is set only beside error, and only where the failure shows the registry was never reached; a registry that answered, whatever it answered, leaves it absent. |
 
@@ -1473,7 +1567,7 @@ One version the index holds for a reference: the manifest digest its tag resolve
 | `manifestDigest` | string | yes | The digest of the manifest the version's tag resolved to when the index was built, which addresses the version by the bytes it names rather than by its tag. |
 | `signer` | VerifiedSignature | no | A signature that verified against a registry's trust policy: how it verified, the signer it verified as, and the digest of the signature bundle that verified. |
 | `publishedAt` | string | no | When the version was published, as an RFC 3339 timestamp in UTC to the second. Where it came from is `publishedAtSource`, and the two are present together or not at all. |
-| `publishedAtSource` | const "transparency-log" or const "publisher" | no | Where `publishedAt` came from, so a time a transparency log attests is never mistaken for one the publisher states. The set is closed. |
+| `publishedAtSource` | const "transparency-log" or const "publisher" | no | Where `publishedAt` came from, so a time a transparency log attests is never mistaken for one the publisher states. The set is closed. Allowed values: `"transparency-log"` — The time a transparency log recorded the version's keyless signature, which the trust policy the index was built under verified along with the log's signed promise of that time. For a version signed as it was published, it is the publication; for one signed afterwards, it is when that signature was made. `"publisher"` — The time the publication stated beside what it published, from the publishing machine's own clock. Nothing attests it. A publication states one where its signature carries no attested time: a keyed signature, or none. Where several are attached, the earliest is taken. |
 
 _Additional properties are not permitted._
 
@@ -1486,7 +1580,7 @@ A signature that verified against a registry's trust policy: how it verified, th
 | `bundleDigest` | string | yes | The digest of the signature bundle that verified, as `sha256:` followed by 64 lowercase hex characters. |
 | `identity` | string | no | The signer the signature verified as: for a keyless signature, the identity the signing certificate was issued for, which is its subject alternative name; for a keyed signature, `keyed:sha256:` followed by the lowercase hex SHA-256 of the pinned public key's PEM text. |
 | `issuer` | string | no | The OIDC issuer recorded in the signing certificate, for a keyless signature. It is absent for a keyed signature. |
-| `mode` | const "keyless" or const "keyed" | yes | How the signature verified. The set is closed. |
+| `mode` | const "keyless" or const "keyed" | yes | How the signature verified. The set is closed. Allowed values: `"keyless"` — Against a signing certificate whose identity and issuer match one the policy trusts, which chains to the trust root the policy pins or, where it pins none, to the public-good Sigstore root, and whose signature a transparency log records. `"keyed"` — Against the public key the policy pins. |
 
 _Additional properties are not permitted._
 
@@ -1644,7 +1738,7 @@ What a convention check found in one document.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `file` | string | yes | The document. |
-| `diagnostics` | array or null | yes | The findings in it. |
+| `diagnostics` | Diagnostic[] or null | yes | The findings in it. |
 
 _Additional properties are not permitted._
 
@@ -1742,7 +1836,7 @@ One socket a freeze wrote, with the attachments it froze onto it.
 | --- | --- | --- | --- |
 | `socket` | string | yes | The socket. |
 | `field` | string | yes | The configuration field the socket is written under. |
-| `attachments` | array or null | yes | The attachments that were frozen onto it. |
+| `attachments` | ConfigCapturedAttachment[] or null | yes | The attachments that were frozen onto it. |
 
 _Additional properties are not permitted._
 
@@ -1801,7 +1895,7 @@ What checking found, and how much was checked.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `diagnostics` | array or null | yes | The findings. It is null rather than an empty list when the check found nothing. |
+| `diagnostics` | Diagnostic[] or null | yes | The findings. It is null rather than an empty list when the check found nothing. |
 | `checked` | string | no | How much was checked — one document, or what the workspace holds. |
 
 _Additional properties are not permitted._
@@ -1822,7 +1916,7 @@ The findings the daemon already holds for the document.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `diagnostics` | array or null | yes | The findings. It is null rather than an empty list when there are none. |
+| `diagnostics` | Diagnostic[] or null | yes | The findings. It is null rather than an empty list when there are none. |
 
 _Additional properties are not permitted._
 
@@ -1843,7 +1937,7 @@ What a build wrote.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `outputDirectory` | string | yes | The directory the artifacts were written into. |
-| `files` | array or null | yes | The artifacts that were written, as paths relative to the output directory. |
+| `files` | string[] or null | yes | The artifacts that were written, as paths relative to the output directory. |
 | `notices` | BuildNotice[] | no | Anything the build wants the caller to know that is neither a finding nor a failure. |
 | `dependencyResolution` | DependencyResolutionReport | no | What a dependency resolution pinned and acquired. |
 
@@ -1855,7 +1949,7 @@ What a build would have written. Nothing was written, so there is no output dire
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `files` | array or null | yes | The artifacts writing would have produced. |
+| `files` | string[] or null | yes | The artifacts writing would have produced. |
 | `notices` | BuildNotice[] | no | Anything the compile wants the caller to know that is neither a finding nor a failure. |
 
 _Additional properties are not permitted._
@@ -1901,11 +1995,11 @@ Everything a Release depends on, as resolution reached it. It reports the closur
 | `aggregate` | string | yes | The Aggregate it deploys. |
 | `manifest` | string | yes | The Manifest it resolves through. |
 | `environment` | string | yes | The environment it names. |
-| `entities` | array or null | yes | The entities the closure reaches. |
-| `libraries` | array or null | yes | The libraries the closure reaches. |
-| `plugins` | array or null | yes | The plugins the closure reaches. |
-| `mappingDiagnostics` | array or null | yes | What resolving the Manifest's mappings had to say. |
-| `deprecations` | array or null | yes | The deprecation markers the closure met. |
+| `entities` | ClosureEntity[] or null | yes | The entities the closure reaches. |
+| `libraries` | ClosureEntity[] or null | yes | The libraries the closure reaches. |
+| `plugins` | ClosureEntity[] or null | yes | The plugins the closure reaches. |
+| `mappingDiagnostics` | string[] or null | yes | What resolving the Manifest's mappings had to say. |
+| `deprecations` | string[] or null | yes | The deprecation markers the closure met. |
 
 _Additional properties are not permitted._
 
@@ -1917,9 +2011,9 @@ What a dependency resolution pinned and acquired, plus anything it wants the cal
 | --- | --- | --- | --- |
 | `lockfile` | string | yes | The lockfile the resolution wrote, or the one a verify compared against. |
 | `verified` | boolean | no | Whether the request was a verify, which compared the recorded lockfile and wrote no lockfile, plugin trust record or `entity.lock`. |
-| `entities` | array or null | yes | The entities the resolution pinned, or a verify compared. |
-| `libraries` | array or null | yes | The libraries the resolution pinned, or a verify compared. |
-| `plugins` | array or null | yes | The plugins the resolution pinned, or a verify compared. |
+| `entities` | ClosureEntity[] or null | yes | The entities the resolution pinned, or a verify compared. |
+| `libraries` | ClosureEntity[] or null | yes | The libraries the resolution pinned, or a verify compared. |
+| `plugins` | ClosureEntity[] or null | yes | The plugins the resolution pinned, or a verify compared. |
 | `sourceArtifacts` | integer | yes | How many source artifacts were acquired. |
 | `trustedPlugins` | integer | yes | How many of the pinned plugins carried a verified signature. |
 | `toolchain` | ToolchainReport | no | The compiler that resolved, and the plugins it carries. |
@@ -1965,8 +2059,8 @@ What the caches serving this workspace hold.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `classes` | array or null | yes | Each cache and what it holds. |
-| `provenance` | array or null | yes | Which identities the cached artifacts were acquired under. |
+| `classes` | CacheClass[] or null | yes | Each cache and what it holds. |
+| `provenance` | CacheProvenance[] or null | yes | Which identities the cached artifacts were acquired under. |
 | `totalCount` | integer | yes | How many entries the caches hold in total. |
 | `totalSize` | integer | yes | How many bytes they occupy in total. |
 | `totalSizeText` | string | yes | The same total written the way a person reads one. |
@@ -1980,15 +2074,15 @@ What a reclamation removed, what it kept, and what it could not reclaim.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `removed` | array or null | yes | What was removed. |
-| `heldOpen` | array or null | yes | What the prune would have removed but left in place because another process had it open. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries are counted as neither removed nor kept, none of their bytes count as reclaimed, and a later prune reclaims them; an entry that is a directory may already have lost the files in it that were not open. |
+| `removed` | CacheRemoval[] or null | yes | What was removed. |
+| `heldOpen` | CacheRemoval[] or null | yes | What the prune would have removed but left in place because another process had it open. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries are counted as neither removed nor kept, none of their bytes count as reclaimed, and a later prune reclaims them; an entry that is a directory may already have lost the files in it that were not open. |
 | `retainedCount` | integer | yes | How many entries were kept. |
 | `reclaimedBytes` | integer | yes | How many bytes were reclaimed. |
 | `reclaimedBytesText` | string | yes | The same figure written the way a person reads one. |
 | `unattributedCount` | integer | yes | How many entries no holder claims. |
 | `unattributedSize` | integer | yes | How many bytes those occupy. |
 | `unattributedSizeText` | string | yes | The same figure written the way a person reads one. |
-| `notPruneEligible` | array or null | yes | What was left behind, and what would reclaim it. |
+| `notPruneEligible` | CacheShortfall[] or null | yes | What was left behind, and what would reclaim it. |
 | `scope` | CacheScope | yes | How far a cache answer reaches. Two of the cache classes are shared by every project on the machine, so every cache answer names which ones it touched — a session opened over one workspace would otherwise be read as reporting only about that workspace. |
 
 _Additional properties are not permitted._
@@ -2000,8 +2094,8 @@ What reclaiming down to a size removed, and what remains.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `withinCapBefore` | boolean | yes | Whether what was held already fitted under the size, so nothing needed removing. |
-| `removed` | array or null | yes | What was removed. |
-| `heldOpen` | array or null | yes | What the reclaiming would have removed but left in place because another process had it open; it went on to the next-oldest entry instead. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries still count toward the bytes that remain, and a later reclaiming can remove them. |
+| `removed` | CacheRemoval[] or null | yes | What was removed. |
+| `heldOpen` | CacheRemoval[] or null | yes | What the reclaiming would have removed but left in place because another process had it open; it went on to the next-oldest entry instead. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries still count toward the bytes that remain, and a later reclaiming can remove them. |
 | `totalBefore` | integer | yes | How many bytes were held before. |
 | `totalBeforeText` | string | yes | The same figure written the way a person reads one. |
 | `reclaimedBytes` | integer | yes | How many bytes were reclaimed. |
@@ -2020,7 +2114,7 @@ What emptying the caches reclaimed.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `cleared` | array or null | yes | Each cache that was emptied. |
+| `cleared` | CacheCleared[] or null | yes | Each cache that was emptied. |
 | `reclaimedBytes` | integer | yes | How many bytes were reclaimed. |
 | `reclaimedBytesText` | string | yes | The same figure written the way a person reads one. |
 | `scope` | CacheScope | yes | How far a cache answer reaches. Two of the cache classes are shared by every project on the machine, so every cache answer names which ones it touched — a session opened over one workspace would otherwise be read as reporting only about that workspace. |
@@ -2033,7 +2127,7 @@ The registries this workspace resolves through.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `registries` | array or null | yes | Each configured registry. |
+| `registries` | Registry[] or null | yes | Each configured registry. |
 | `credentialStateIsMachineWide` | boolean | yes | Whether the credential presence reported for each registry is a machine-wide fact rather than a workspace one. It is reported so a session-scoped answer is not read as denying the wider reach. |
 
 _Additional properties are not permitted._
@@ -2044,9 +2138,9 @@ What the local registry indexes offered for the search.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `records` | array or null | yes | The records that matched. |
-| `indexes` | array or null | yes | Each searched host and when its index was last refreshed. |
-| `missingIndexHosts` | array or null | yes | The configured hosts with no local index to search, so a short answer is explained rather than left to be inferred. |
+| `records` | RegistrySearchRecord[] or null | yes | The records that matched. |
+| `indexes` | RegistrySearchIndex[] or null | yes | Each searched host and when its index was last refreshed. |
+| `missingIndexHosts` | string[] or null | yes | The configured hosts with no local index to search, so a short answer is explained rather than left to be inferred. |
 | `stale` | boolean | yes | Whether any searched index is old enough to be worth refreshing. |
 | `registriesConfigured` | boolean | yes | Whether any registry is configured at all, which distinguishes 'nothing matched' from 'nothing was searched'. |
 
@@ -2081,8 +2175,8 @@ What refreshing the local indexes did, per host.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `hosts` | array or null | yes | What the refresh did for each host. |
-| `failed` | array or null | yes | The hosts the refresh could not complete. |
+| `hosts` | HostUpdate[] or null | yes | What the refresh did for each host. |
+| `failed` | string[] or null | yes | The hosts the refresh could not complete. |
 | `indexRoot` | string | yes | The directory the indexes were written under. |
 | `registriesConfigured` | boolean | yes | Whether any registry is configured at all. |
 | `reachedRegistries` | boolean | yes | Always true on this answer: refreshing the indexes goes out to the registries themselves, where listing them and searching answer from configuration and from a local index. Whether a given registry was in fact reached is stated on its own entry in hosts, by unreachable. |
@@ -2149,7 +2243,7 @@ What was signed, and where the signatures landed.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `signed` | array or null | yes | Each reference that was signed. |
+| `signed` | SignedArtifact[] or null | yes | Each reference that was signed. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 
 _Additional properties are not permitted._
@@ -2160,7 +2254,7 @@ What was marked deprecated, and where the markers landed.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `marked` | array or null | yes | Each version that was marked. |
+| `marked` | DeprecationMarked[] or null | yes | Each version that was marked. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 
 _Additional properties are not permitted._
@@ -2181,7 +2275,7 @@ Where the thing under the cursor is referred to.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `locations` | array or null | yes | Each place it is referred to. |
+| `locations` | Location[] or null | yes | Each place it is referred to. |
 
 _Additional properties are not permitted._
 
@@ -2191,7 +2285,7 @@ Which documents implement the thing under the cursor.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `locations` | array or null | yes | Each place it is implemented. |
+| `locations` | Location[] or null | yes | Each place it is implemented. |
 
 _Additional properties are not permitted._
 
@@ -2211,7 +2305,7 @@ What may be written at the cursor.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `items` | array or null | yes | Each thing that may be written. |
+| `items` | CompletionItem[] or null | yes | Each thing that may be written. |
 
 _Additional properties are not permitted._
 
@@ -2221,7 +2315,7 @@ Every entity the workspace index holds, and the links leading out of the workspa
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `entities` | array or null | yes | Each entity. |
+| `entities` | CatalogEntity[] or null | yes | Each entity. |
 | `unreadLinkedDirs` | string[] | yes | Each link under the workspace root that leads to a directory outside it, named relative to the root where the link itself sits, in the order the workspace is searched. No directory outside the root is searched, so no document behind one of these links is among entities as the workspace's own, and a client listing entities can say why. Not named: a link to a directory inside the root, which is searched, or left out, where it actually sits; a link wherever a directory would be left out, whether by where it sits, by its name or by a .gitignore; a link that cannot be resolved, because it leads nowhere or round a loop; and, in an answer given in a Release's terms, a link under a catalog directory only other Releases read. Empty when the workspace holds none. |
 | `unreadLinkedFiles` | string[] | yes | Each link under the workspace root that is named like a YAML file, its own name ending in .yaml or .yml, and leads to a file outside the root, named relative to the root where the link itself sits, in the order the workspace is searched. Such a file is not read for the index, whatever it declares, so the entity it declares is not among entities as the workspace's own, and a client listing entities can say why; the configured catalog directories are how entities outside the workspace are read. Not named: a link to a file that the workspace configuration names as a Release, as build.authoring_release or as a key of workspace.releases, and that declares one, which is read and listed in entities at the link's own place; a link to a file inside the root, which is read at the link's own place; a link a .gitignore leaves out, or one inside a directory the search leaves out; a link that leads to no file, whether to a directory, which unreadLinkedDirs names where it leads out of the root, or nowhere, or round a loop; and, in an answer given in a Release's terms, a link under a catalog directory only other Releases read. A workspace configuration file that is a link leading out of the workspace, its own .aggrega-config.yaml or the CI-owned overlay beside it, is named whether or not the search met it, after the links the search named: the workspace's configuration is then not read at all, this answer is the workspace's own index read with nothing configured, so no catalog directory is read for it, and every request the configuration decides, an index in a Release's terms included, is refused for that workspace with the read hold's condition. Empty when the workspace holds none. |
 
@@ -2234,11 +2328,11 @@ Which Features may be attached to the entity, and the labels they were judged ag
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `node` | string | yes | The entity the candidates were judged for. |
-| `nodeLabels` | object or null | yes | The labels the judgement was made against. |
+| `nodeLabels` | map of string or null | yes | The labels the judgement was made against. |
 | `labelSource` | string | yes | Which label set was used, which is not cosmetic: a document's declared labels are what a reading of the source can see, while a graph node's are the finalised set the build itself judges against. An answer computed over the second is a statement about what the build will do. |
-| `candidates` | array or null | yes | Each Feature that may be attached. |
+| `candidates` | SourcedEntityRef[] or null | yes | Each Feature that may be attached. |
 | `slots` | SlotCandidacy[] | no | Present only when the request named a connection: each slot the connection's socket declares, in the order the Component declares them, with the Features that may fill it. Empty when no slot may be filled on the connection, and noSlotReason then says why — which a client reads rather than taking an empty list for slots no Feature matched. |
-| `noSlotReason` | const "feature-created-connection" or const "ad-hoc-socket" or const "no-slot-declared" | no | Present only when the request named a connection and no slot may be filled on it: why nothing may attach there. Absent wherever the socket declares a slot. The set is closed. |
+| `noSlotReason` | const "feature-created-connection" or const "ad-hoc-socket" or const "no-slot-declared" | no | Present only when the request named a connection and no slot may be filled on it: why nothing may attach there. Absent wherever the socket declares a slot. The set is closed. Allowed values: `"feature-created-connection"` — A Feature drew the connection, and an attachment is written only on a connection a component or the Release draws. `"ad-hoc-socket"` — The socket is one the Component does not declare, so it declares no slot for a connection to fill. `"no-slot-declared"` — The Component declares the socket and declares no slot on it. |
 
 _Additional properties are not permitted._
 
@@ -2250,7 +2344,7 @@ Which entities each socket on the entity may be wired to.
 | --- | --- | --- | --- |
 | `node` | string | yes | The entity whose sockets these are. |
 | `adHocSocketsAccepted` | boolean | yes | Whether a socket the entity's own definition does not pre-declare may still be authored. |
-| `sockets` | array or null | yes | Each socket and what may be wired into it. |
+| `sockets` | SocketCandidacy[] or null | yes | Each socket and what may be wired into it. |
 
 _Additional properties are not permitted._
 
@@ -2261,15 +2355,15 @@ Where in the document a new entry under the named container belongs, and what a 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `file` | string | yes | The document. |
-| `container` | array or null | yes | The path through the document to the container. |
+| `container` | string[] or null | yes | The path through the document to the container. |
 | `positionEncoding` | string | yes | The encoding the positions in this answer are expressed in. |
 | `position` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 | `precededByLineBreak` | boolean | yes | Whether the text written at the position has to begin with a line break, because the position sits at the end of a line the document already carries. It is false only where the document carries nothing for the entry to follow. |
-| `missingContainerKeys` | array or null | yes | The container path's segments the document does not carry yet, outermost first. Each has to be written as a key of its own, indented one step further than the one before it, before the entry can go inside the innermost one. It is null where the whole path is already there. |
+| `missingContainerKeys` | string[] or null | yes | The container path's segments the document does not carry yet, outermost first. Each has to be written as a key of its own, indented one step further than the one before it, before the entry can go inside the innermost one. It is null where the whole path is already there. |
 | `entryIndent` | integer | yes | The column the entry's own first line starts at, counted in spaces from the start of the line. |
 | `indentStep` | integer | yes | How much further each nesting level is indented. |
 | `indentStepMeasured` | boolean | yes | Whether the step was measured from this document's own nesting. Where it is false the document exhibits no nesting to measure and the step is a fallback, so a client that would rather impose its own knows it is free to. |
-| `entryShape` | const "mapping" or const "sequence" or const "unknown" | yes | The shape the container carries its entries in, which is what decides how the entry's own text is composed. It is read off the container the document already carries and is never inferred from what the container is called. The set is closed. |
+| `entryShape` | const "mapping" or const "sequence" or const "unknown" | yes | The shape the container carries its entries in, which is what decides how the entry's own text is composed. It is read off the container the document already carries and is never inferred from what the container is called. The set is closed. Allowed values: `"mapping"` — The container is a block mapping, so an entry appended to it is a key and its value. `"sequence"` — The container is a block sequence, so an entry appended to it is a dash and its value. `"unknown"` — The document does not carry the container, or carries it with nothing in it, so which shape an entry takes is the client's to decide. |
 
 _Additional properties are not permitted._
 
@@ -2281,7 +2375,7 @@ Which document, and where in it, an attachment on the graph node, or on the conn
 | --- | --- | --- | --- |
 | `node` | string | yes | The graph node the attachment is for. |
 | `file` | string | yes | The document the attachment belongs in. |
-| `container` | array or null | yes | The path through that document to where it belongs. |
+| `container` | string[] or null | yes | The path through that document to where it belongs. |
 
 _Additional properties are not permitted._
 
@@ -2293,7 +2387,7 @@ The connection whose entry the position falls inside, or why none is reported. E
 | --- | --- | --- | --- |
 | `graphNode` | string | no | The id of the node whose component draws the connection, as the compiled graph keys it — the value the candidacy and container requests take as graphNode. |
 | `connection` | ConnectionCoordinate | no | The connection, by its socket and its alias, with document naming the document the position was read in — the value the candidacy and container requests take as connection. |
-| `noConnectionReason` | const "no-connection-entry" or const "feature-created-connection" or const "unknown-connection" | no | Present only where no connection is reported: why. The set is closed. |
+| `noConnectionReason` | const "no-connection-entry" or const "feature-created-connection" or const "unknown-connection" | no | Present only where no connection is reported: why. The set is closed. Allowed values: `"no-connection-entry"` — The position is on no entry an attachment is written in: neither a connection a component draws, written under its alias, nor a per-edge entry in the Release. A connection written as a list of targets, and one a Feature's own block draws, carry no such entry. `"feature-created-connection"` — The position is on the Release's entry for a connection a Feature drew, and an attachment is written only on a connection a component or the Release draws. `"unknown-connection"` — The position is on an entry the Release writes for a connection the compiled graph does not carry. |
 
 _Additional properties are not permitted._
 
@@ -2303,7 +2397,7 @@ The Releases the workspace holds, and the links leading out of it, to directorie
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `releases` | array or null | yes | Each Release document. |
+| `releases` | string[] or null | yes | Each Release document. |
 | `lockfiles` | map of string | yes | The lockfile of each Release listed, keyed by the Release exactly as it is listed. Each is the file a pull writes for that Release and a build reads, so a client reads where it lives rather than working it out. Empty when the workspace holds no Release. |
 | `unreadLinkedDirs` | string[] | yes | Each link under the workspace root that leads to a directory outside it, named relative to the root where the link itself sits, in the order the workspace is searched. No directory outside the root is searched, so a Release reached only through one of these links is not in releases, and a client offering Releases can say why. Not named: a link to a directory inside the root, which is searched, or left out, where it actually sits; a link wherever a directory would be left out, whether by where it sits or by its name; and a link that cannot be resolved, because it leads nowhere or round a loop. Empty when the workspace holds none. |
 | `unreadLinkedFiles` | string[] | yes | Each link under the workspace root that is named like a YAML file, its own name ending in .yaml or .yml, and leads to a file outside the root, named relative to the root where the link itself sits, in the order the workspace is searched. Such a file is not read, so a Release reached only through one of these links is not in releases, and a client offering Releases can say why. Whether a file is a Release is not known without reading it, so each such link is named whatever the file holds. Not named: a link to a file the workspace configuration names as a Release, as build.authoring_release or as a key of workspace.releases, which is read and listed in releases at the link's own place; a link to a file inside the root, which is read; a link inside a directory the search leaves out; and a link that leads to no file, whether to a directory, which unreadLinkedDirs names where it leads out of the root, or nowhere, or round a loop. A workspace configuration file that is a link leading out of the workspace, its own .aggrega-config.yaml or the CI-owned overlay beside it, is named whether or not the search met it, after the links the search named: the workspace's configuration is then not read at all, this answer is read with nothing configured, so no Release the configuration names through a link is listed, and every request the configuration decides is refused for that workspace with the read hold's condition. Empty when the workspace holds none. |
@@ -2331,9 +2425,9 @@ What the edit wrote, and where. After a write the daemon's reading of the docume
 | --- | --- | --- | --- |
 | `file` | string | yes | The document that was edited. |
 | `edit` | string | yes | Which edit was applied. |
-| `container` | array or null | yes | The path through the document to where the edit landed. |
-| `createdContainers` | array or null | yes | The containers the edit had to create on the way. |
-| `written` | array or null | yes | The documents that were written. |
+| `container` | string[] or null | yes | The path through the document to where the edit landed. |
+| `createdContainers` | string[] or null | yes | The containers the edit had to create on the way. |
+| `written` | string[] or null | yes | The documents that were written. |
 | `content` | string | yes | The composed document, for a request that asked to be shown the result rather than have it written. |
 
 _Additional properties are not permitted._
@@ -2344,8 +2438,8 @@ The configuration the workspace resolved, and which document each setting came f
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `layers` | array or null | yes | The configuration documents that were merged, in the order they were merged. |
-| `settings` | array or null | yes | Each resolved setting and where it came from. |
+| `layers` | string[] or null | yes | The configuration documents that were merged, in the order they were merged. |
+| `settings` | EffectiveConfigurationSetting[] or null | yes | Each resolved setting and where it came from. |
 
 _Additional properties are not permitted._
 
@@ -2373,8 +2467,8 @@ What freezing the resolved configuration wrote into this workspace's own documen
 | `configFile` | string | yes | The document that was written. It is always this workspace's own, since the whole purpose is to make one workspace self-contained. |
 | `workspaceRoot` | string | yes | The workspace the request named. |
 | `captured` | boolean | yes | Whether anything was frozen. |
-| `sockets` | array or null | yes | Each socket that was frozen, with its attachments. |
-| `catalogDirs` | array or null | yes | The catalog directories that were frozen. |
+| `sockets` | ConfigCapturedSocket[] or null | yes | Each socket that was frozen, with its attachments. |
+| `catalogDirs` | string[] or null | yes | The catalog directories that were frozen. |
 
 _Additional properties are not permitted._
 
@@ -2386,10 +2480,10 @@ What converting a foreign source produced, and what it could not convert.
 | --- | --- | --- | --- |
 | `format` | string | yes | The source format that was converted. |
 | `outputDir` | string | yes | The directory every path in the answer is relative to, and the one the files were written into. |
-| `written` | array or null | yes | Each file that reached disk, in the order written: the drafts, then the record of what the import wrote. Under sync, only the drafts the sync changed and the record where it changed. Empty under dryRun. |
-| `files` | array or null | yes | Each file the request writes, with its text, under dryRun and without it: every draft, then the record of what the import wrote. Under sync, each draft the sync changes, with its new text, then the record where that changes too, so a sync in step answers an empty list. |
+| `written` | string[] or null | yes | Each file that reached disk, in the order written: the drafts, then the record of what the import wrote. Under sync, only the drafts the sync changed and the record where it changed. Empty under dryRun. |
+| `files` | ImportedFile[] or null | yes | Each file the request writes, with its text, under dryRun and without it: every draft, then the record of what the import wrote. Under sync, each draft the sync changes, with its new text, then the record where that changes too, so a sync in step answers an empty list. |
 | `drift` | ImportDrift[] | yes | Each part a sync brought up to date with the source, or under dryRun would, in the order the draft names them; a drafted file the sync deletes is one of them, removed with no keys. An empty list for a request that is not a sync, for a sync in step, and for a sync whose conversion stopped, which writes nothing. |
-| `diagnostics` | array or null | yes | What could not be converted. |
+| `diagnostics` | ImportDiagnostic[] or null | yes | What could not be converted. |
 | `decisions` | ImportDecision[] | yes | How the importer mapped each source node, in the importer's order and exactly as it reported it: what tells you where the conversion guessed. Carried under both deliveries and whether or not the conversion stopped, and an empty list for an importer that reports none. |
 | `halted` | boolean | yes | Whether the conversion stopped rather than finishing with findings. |
 
@@ -2419,9 +2513,9 @@ What the convention check found, counted by severity and listed per document. A 
 | `errors` | integer | yes | How many of them are errors. |
 | `warnings` | integer | yes | How many of them are warnings. |
 | `infos` | integer | yes | How many of them are informational. |
-| `files` | array or null | yes | The findings, per document. |
+| `files` | LintFileFindings[] or null | yes | The findings, per document. |
 | `halted` | boolean | yes | Whether the check stopped rather than finishing with findings. |
-| `passes` | array or null | no | The whole-catalog check one pass at a time, present only where it ran once for each Release because the workspace names Releases under workspace.releases. Each pass says which Releases its findings were found for. Absent for a workspace that names none, which is checked once over its own directories, and for a check of one entity or of a Release's closure. |
+| `passes` | LintPass[] or null | no | The whole-catalog check one pass at a time, present only where it ran once for each Release because the workspace names Releases under workspace.releases. Each pass says which Releases its findings were found for. Absent for a workspace that names none, which is checked once over its own directories, and for a check of one entity or of a Release's closure. |
 
 _Additional properties are not permitted._
 
@@ -2431,14 +2525,14 @@ One pass of a whole-catalog convention check in a workspace that gives its Relea
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `releases` | array or null | yes | The Releases the pass was run for, each as a path relative to the workspace root. Releases that read the same catalog directories share one pass. |
-| `catalogDirs` | array or null | yes | The catalog directories the pass read, in the order they are searched, each relative to the workspace root where it lies inside it. Empty where its Releases read no catalog directory, so the pass checked nothing and failed none of the others. |
+| `releases` | string[] or null | yes | The Releases the pass was run for, each as a path relative to the workspace root. Releases that read the same catalog directories share one pass. |
+| `catalogDirs` | string[] or null | yes | The catalog directories the pass read, in the order they are searched, each relative to the workspace root where it lies inside it. Empty where its Releases read no catalog directory, so the pass checked nothing and failed none of the others. |
 | `checked` | integer | yes | How many documents the pass checked. |
 | `findings` | integer | yes | How many findings the pass found. |
 | `errors` | integer | yes | How many of them are errors. |
 | `warnings` | integer | yes | How many of them are warnings. |
 | `infos` | integer | yes | How many of them are informational. |
-| `files` | array or null | yes | The pass's findings, per document. |
+| `files` | LintFileFindings[] or null | yes | The pass's findings, per document. |
 
 _Additional properties are not permitted._
 
@@ -2479,8 +2573,8 @@ What aligning a Plugin entity's machine-owned records with its module changed.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `entity` | string | yes | The Plugin entity document that was aligned. |
-| `hostFunctions` | array or null | yes | The host functions the module declares it needs. |
-| `commands` | array or null | yes | The commands the module contributes. |
+| `hostFunctions` | string[] or null | yes | The host functions the module declares it needs. |
+| `commands` | PluginCLICommand[] or null | yes | The commands the module contributes. |
 | `changed` | boolean | yes | Whether anything in the document actually moved. |
 
 _Additional properties are not permitted._

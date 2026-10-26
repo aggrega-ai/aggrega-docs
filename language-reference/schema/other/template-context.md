@@ -6,7 +6,13 @@ Schema id: `https://aggrega.ai/schemas/template-context-v1alpha1.schema.json`
 
 The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during rendering. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context, .context.render_facts with what its host's provider reported about the host's render, and, on the templates that produce the attachment's own resources, .context.used_by with the components that use its host. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
 
-Base-rendering stage availability, in the order the stages run: Provides evaluation (locals preamble, then provides): node-local pillars only. A locals entry reads the entries above it in its own block; a provides template reads the node's whole resolved .locals. Self-reference banned (no provides entry reads another). Source resolution (locals publication + source eval): all pillars; .source and .workload absent. Those locals are published onto .locals here, then source: is evaluated against them. Values mapping (valuesMapping): all pillars + .source; .workload absent. Workload synthesis (workload eval): all pillars + .source; .workload being evaluated (absent from self-reference). Artifact evaluation (artifacts): all pillars + .source + .workload (fullest context).
+Base-rendering stage availability, in the order the stages run:
+
+- Provides evaluation (locals preamble, then provides): node-local pillars only. A locals entry reads the entries above it in its own block; a provides template reads the node's whole resolved .locals. Self-reference banned (no provides entry reads another).
+- Source resolution (locals publication + source eval): all pillars; .source and .workload absent. Those locals are published onto .locals here, then source: is evaluated against them.
+- Values mapping (valuesMapping): all pillars + .source; .workload absent.
+- Workload synthesis (workload eval): all pillars + .source; .workload being evaluated (absent from self-reference).
+- Artifact evaluation (artifacts): all pillars + .source + .workload (fullest context).
 
 **Top-level type:** `object`
 
