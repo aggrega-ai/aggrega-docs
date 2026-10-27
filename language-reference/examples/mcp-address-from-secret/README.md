@@ -250,7 +250,7 @@ written.
   Release attaching both an `endpoint` and a `credential` to `search` prints:
 
   ```text
-  [… omitted: the notice about core/secret-value]
+  [… omitted: what resolving the lockfile prints, the same halt among it, and the notice about core/secret-value]
   [OPS_ERROR E0318] release-compose.yaml at .spec.boundaries.main.components.agent.uses.tools.search.features.credential
     duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered ("value", mechanism "env", attachment "search.credential", delivered first by attachment "search.endpoint")
   ```

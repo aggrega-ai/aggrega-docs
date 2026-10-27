@@ -50,9 +50,9 @@ Everything the wrapper does not mention, it inherits. `aggrega inspect
 example/gateway/nginx-reviewed --resolved` shows the merged entity, and two
 things in it are worth reading closely:
 
-- **Two `uses` sockets**, not one: `upstream` (the base's, selector
-  `component.aggrega.ai/type=server`) and `reviewed_upstream` (the wrapper's).
-  Extending *adds* a socket; it does not replace the set.
+- **Three `uses` sockets**, not one: `upstream` and `guard` (the base's, `upstream`
+  selecting `component.aggrega.ai/type=server`) and `reviewed_upstream` (the
+  wrapper's). Extending *adds* a socket; it does not replace the set.
 - **The base's three pillars, verbatim** — `values.upstream_path`,
   `infra.port` / `engine_version` / `compute` / `overrides`, and
   `provides.host` / `port` / `protocol`, each with the base's own descriptions.
@@ -142,6 +142,7 @@ The rendered `dist/compose/docker-compose.yaml` carries the evidence:
     labels:
       [… omitted: the other provenance labels every rendered document carries]
       aggrega.ai/recipe-uri: nginx:1.0.0
+    [… omitted: the service's network, its depends_on naming internal, and its healthcheck]
 ```
 
 Three readings, in order of what they prove:
@@ -175,9 +176,10 @@ wrapper — and it is **expected to fail**:
 
 ```bash
 ./build-release.sh negative-unreviewed -- --auto-pull
+[… omitted: the helper's report of the binary it used, and its # example, # rule and # command lines]
 # [DEVELOPER_ERROR E0007] aggregate-unreviewed.yaml at .spec.components.edge.uses.reviewed_upstream.internal
 #   selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
-# exit status: 1
+# build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
 
 The halt is the lesson. The base satisfies its own `upstream` socket — it is

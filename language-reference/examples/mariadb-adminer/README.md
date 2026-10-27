@@ -9,13 +9,13 @@ example:
 
 This example compiles a small, real stack — a **MariaDB** database with an
 **Adminer** web UI in front of it — from a single Developer-authored
-`Aggregate` to **two targets**:
+`Aggregate` to **two platforms**:
 
 - **Docker Compose** for local development, and
-- **Kubernetes** manifests for a local cluster (kind / minikube / k3d).
+- **Kubernetes** for a local cluster (kind / minikube / k3d), rendered three ways.
 
-The same Aggregate drives both. Only the *Recipe layer* loaded at build time
-changes. Every file here compiles with the shipped `aggrega` CLI, and the
+The same Aggregate drives both. Only the Release, its Manifest and the *Recipe
+layer* loaded at build time change. Every file here compiles with the shipped `aggrega` CLI, and the
 rendered output runs: bring the stack up, open Adminer in a browser, and log
 in to the live database.
 
@@ -67,8 +67,8 @@ in to the live database.
   `values.yaml` routes each component's mapped values — including the piped
   database host — under that component's alias.
 - **Provider selection by component type.** The Recipe that renders each
-  component is chosen by the component *type* it implements, drawn from
-  whichever catalog layer the build loads.
+  component is the one the target's Manifest maps its component *type* to,
+  drawn from whichever catalog layer the build loads.
 
 ## Authoring and consumption — a mixed workspace
 
@@ -76,7 +76,7 @@ This example works both ends of the catalog at once: it **authors** some entitie
 locally and **consumes** others from Aggrega's standard library. The MariaDB
 database Component, its credential Features, and the per-target Recipes are built
 from scratch in the local `catalog-*/` directories — one Aggregate renders that
-locally-authored database across four providers. The Adminer web UI, by contrast,
+locally-authored database across four targets. The Adminer web UI, by contrast,
 is **consumed**: the `web` component references the shipped `core/devtool/adminer`
 Component directly, and each target authors only a local Recipe that implements
 it. The same workspace therefore shows entity *authoring* on the database side
@@ -117,8 +117,8 @@ mariadb-adminer/
 Each `catalog-*` directory carries the locally-authored MariaDB Component and
 Feature definitions plus the Recipes for that one target. The Adminer Component
 is not among them — it resolves from the standard library. A build loads one
-`catalog-*` layer over that standard library, so each component type resolves to
-exactly one Recipe.
+`catalog-*` layer over that standard library, and the target's Manifest maps
+each component type to a Recipe in it.
 
 The Release, its `aggregate:`, and its `manifest:` are siblings in this
 directory; the catalog directory each Release builds against is named for it in
@@ -148,7 +148,7 @@ spec:
             env: [{ in: MARIADB_PASSWORD, from: value }]
 
     web:
-      type: app/adminer
+      type: core/devtool/adminer
       values:
         design: pepa-linha-dark
       uses:
@@ -192,9 +192,10 @@ not change.
 
 ## Target 1 — Docker Compose
 
-Build:
+Pull, then build — the pull writes `release-compose.lock`, which the build reads:
 
 ```bash
+aggrega pull --release release-compose.yaml
 aggrega build --release release-compose.yaml
 ```
 
@@ -240,6 +241,7 @@ and stays a `Deployment` — persistence is a property of the Workload, not a
 different component.
 
 ```bash
+aggrega pull --release release-helm-synth.yaml
 aggrega build --release release-helm-synth.yaml
 ```
 
@@ -346,6 +348,7 @@ spec:
 Build it:
 
 ```bash
+aggrega pull --release release-helm-chart.yaml
 aggrega build --release release-helm-chart.yaml
 ```
 
@@ -409,10 +412,12 @@ output is a chart to `helm install` or vendor — not a set of applied manifests
 
 ## How a target is selected
 
-Recipe selection is by **component type**. Each catalog layer contains exactly
-one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
-to the compose Recipe, while loading `catalog-helm-synth` binds it to the
-Kubernetes one. The provider that renders a node is the `spec.capability`
-of whichever Recipe was bound. Swapping targets is swapping the catalog
-directory `.aggrega-config.yaml` names for a Release — the Aggregate never
-changes.
+Recipe selection is by **component type**: each target's Manifest maps every
+type to a Recipe in the catalog layer its Release loads, so `manifest-compose.yaml`
+binds `core/datastore/mariadb` to the compose Recipe, while
+`manifest-helm-synth.yaml` binds it to the Kubernetes one. A type the Manifest
+does not map halts the build, naming the Recipes that implement it, even where
+the loaded layer holds only one. The provider that renders a node is the
+`spec.capability` of whichever Recipe was bound. Swapping targets is swapping
+the Release, with its Manifest and the catalog directory `.aggrega-config.yaml`
+names for it — the Aggregate never changes.

@@ -42,6 +42,7 @@ Name wins over type, so `greeter-special` deploys through `greeter-green` and
 ## Build it
 
 ```bash
+aggrega pull --release release.yaml     # writes release.lock, which the build reads
 aggrega build --release release.yaml
 ```
 

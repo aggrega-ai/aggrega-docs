@@ -34,37 +34,38 @@ single line in the Manifest.
 
 ## Files
 
-- [`aggregate.yaml`](aggregate.yaml) — developer intent, and the **same document
+- `aggregate.yaml` — developer intent, and the **same document
   for all three deployments**: a `db` component of type
   `core/datastore/postgres`, an `app` that `uses` it, and the five keys the
   application asks for. Nothing here names a target, a cloud, or a Recipe.
-- [`manifest-selfhosted.yaml`](manifest-selfhosted.yaml),
-  [`manifest-managed.yaml`](manifest-managed.yaml),
-  [`manifest-external.yaml`](manifest-external.yaml) — the Ops mappings. They
+- `manifest-selfhosted.yaml`,
+  `manifest-managed.yaml`,
+  `manifest-external.yaml` — the Ops mappings. They
   differ in **one line**: which Recipe the PostgreSQL component type binds.
-- [`release-selfhosted.yaml`](release-selfhosted.yaml),
-  [`release-managed.yaml`](release-managed.yaml),
-  [`release-external.yaml`](release-external.yaml) — the operator's sizing per
+- `release-selfhosted.yaml`,
+  `release-managed.yaml`,
+  `release-external.yaml` — the operator's sizing per
   deployment: storage and engine version for the in-cluster one, storage plus
   HA and backup for the managed one, and the address of the existing server for
   the referenced one.
-- [`release-managed-dns.yaml`](release-managed-dns.yaml) — the managed
+- `release-managed-dns.yaml` — the managed
   Release once more, with the DNS name the operator gives the instance, so
   the application is handed a name it can resolve.
-- [`catalog/`](catalog/) — the application's own Component and the one Recipe
+- `catalog/` — the application's own Component and the one Recipe
   that renders it. Everything on the database side comes from the standard
   library unmodified.
 
 ## Build
 
 ```bash
-./build-release.sh selfhosted
-./build-release.sh managed
-./build-release.sh managed-dns
-./build-release.sh external
+./build-release.sh selfhosted -- --auto-pull
+./build-release.sh managed -- --auto-pull
+./build-release.sh managed-dns -- --auto-pull
+./build-release.sh external -- --auto-pull
 ```
 
-Each writes to `dist/`, and a build **adds** its files rather than clearing what
+`--auto-pull` writes each Release's lockfile on its first build; later builds
+need no flag. Each writes to `dist/`, and a build **adds** its files rather than clearing what
 an earlier one left. Remove `dist/` between runs to read one realization's output
 on its own:
 
@@ -130,7 +131,7 @@ components Recipes that render into the same target.
 #### Giving the instance a name the application can resolve
 
 `terraform/postgres-rds` takes the first of those as an option the operator
-sets. [`release-managed-dns.yaml`](release-managed-dns.yaml) is the managed
+sets. `release-managed-dns.yaml` is the managed
 Release with one addition, the DNS name the operator gives the instance:
 
 ```yaml
@@ -159,9 +160,9 @@ and no alias for the name, and the build does not look it up: the compiler pipes
 it exactly as it piped the reference. Pointing `db.internal.example.net` at the
 instance once it exists — a record in the operator's own DNS zone, aimed at the
 instance's address — is the operator's, outside the Release. The key is the
-one the referenced realization below reads for the same address, and it takes a
-bare name or IP literal: a value carrying a scheme, a path, a user or a port
-stops the build, since the port is the Release's `infra.port` and a consumer
+one the referenced realization below reads for the same address; this Recipe
+takes it as a bare name or IP literal, and a value carrying a scheme, a path, a
+user or a port stops the build, since the port is the Release's `infra.port` and a consumer
 composes its connection from the two.
 
 A consumer rendered into the same Terraform configuration as the database
@@ -177,6 +178,7 @@ Service that maps an in-cluster name onto the address the Release supplies:
 
 ```yaml
 # dist/stack/helm/db-service.yaml
+[… omitted: the Service's apiVersion, kind and metadata — its name, db, and the labels and annotations every rendered document carries]
 spec:
   type: ExternalName
   externalName: postgres.data.example.net
@@ -209,6 +211,7 @@ has an address or it has nothing, so the Recipe refuses rather than emitting a
 Service that aliases an empty name:
 
 ```text
+[… omitted: what resolving the lockfile prints, the same halt among it, then [CATALOG_ERROR E0033], the Recipe's assertion external_host_supplied, its template position and source, and "error calling fail:"]
 assertion failed: the Manifest selects the referenced realization of
 PostgreSQL, which addresses a server it does not provision, but no address was
 supplied: set infra.overrides.host on this component in the Release to the DNS
@@ -221,15 +224,15 @@ The application's rendered environment, all three side by side:
 
 | variable | self-hosted | managed | external |
 | --- | --- | --- | --- |
-| `DB_HOST` | `db-default` | `${module.db.address}` | `postgres.data.example.net` |
-| `DB_PORT` | `5432` | `5432` | `5432` |
-| `DB_USER` | `appuser` | `appuser` | `appuser` |
-| `DB_NAME` | `appdb` | `appdb` | `appdb` |
-| `DB_PROTOCOL` | `postgres` | `postgres` | `postgres` |
 | `POOL_SIZE` | `10` | `10` | `10` |
+| `DB_HOST` | `db-default` | `${module.db.address}` | `postgres.data.example.net` |
+| `DB_NAME` | `appdb` | `appdb` | `appdb` |
+| `DB_PORT` | `5432` | `5432` | `5432` |
+| `DB_PROTOCOL` | `postgres` | `postgres` | `postgres` |
+| `DB_USER` | `appuser` | `appuser` | `appuser` |
 
 **Same variables, same order, every time. Only the string behind one of them
-moves.** The application's Recipe names none of these variables: it emits
+moves.** The application's Recipe names none of the `DB_` variables: it emits
 whatever the `uses` edge resolved, which is why one Recipe renders unchanged
 against all three databases.
 

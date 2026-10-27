@@ -93,7 +93,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-hello-world
-  [… omitted: the labels and annotations every rendered document carries]
+  [… omitted: the chart's own labels, and the labels and annotations every rendered document carries]
 spec:
   replicas: 2
   [… omitted: the selector and the pod template's own labels]
@@ -176,12 +176,14 @@ repository does not carry:
 ```
 
 ```text
+[… omitted: the helper's report of the binary it used, and its # example, # rule and # command lines]
 # [E0137]
 #   auto-pull: resolving the source of each Recipe and FeatureRecipe the Release
 #   uses: resolve: resolve source for recipe
 #   "helm/hello-world-git-missing-ref:1.0.0": sourceresolver: kind=git-repository
 #   url=https://github.com/helm/examples.git version=: oci: artifact not found at
 #   remote source (cause: reference not found)
+[… omitted: the rest of that line, a remediation naming the URL and version to check, and the helper's closing line reporting aggrega's exit status]
 ```
 
 The repository is reachable and the clone succeeds; there is simply no such

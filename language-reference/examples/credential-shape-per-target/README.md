@@ -99,7 +99,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: db-password
-  [… omitted: the labels and annotations naming the aggregate, component, environment, provider and boundary — the same set every rendered document carries]
+  [… omitted: the labels and annotations naming the aggregate, component, environment, compiler and provider versions, boundary and Recipe — the same set every rendered document carries]
 stringData:
   POSTGRES_PASSWORD: "postgres-superuser-password"
 ```

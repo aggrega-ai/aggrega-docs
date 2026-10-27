@@ -213,10 +213,9 @@ Features, Recipes, Manifests, and the provider matrix.
   Terraform, and a server that already existed, referenced by a Recipe that
   provisions nothing. One Aggregate, three Manifests differing in a single line.
   The consuming application's rendered environment carries the same variables in
-  the same order in all three — only the strings behind `DB_HOST` and `DB_PORT`
-  move — and on the managed target those two are Terraform expressions the
-  compiler pipes through without resolving, because what they name does not
-  exist yet.
+  the same order in all three — only the string behind `DB_HOST` moves — and on
+  the managed target it is a Terraform expression the compiler pipes through
+  without resolving, because what it names does not exist yet.
 - **[mcp-address-from-secret](mcp-address-from-secret/)** — an agent reaching a
   Model Context Protocol server someone else runs, which reads its key from its
   own address rather than from a request header, compiled to Kubernetes and to
