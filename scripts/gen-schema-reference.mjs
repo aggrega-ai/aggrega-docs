@@ -1100,6 +1100,59 @@ function renderObjectSection(schema, path, depth, headingLevel, showDescription)
   return out.join("\n");
 }
 
+// The top-level keyword under which a plugin socket schema maps each export the
+// host calls a guest with to the definition of its input and the definition of
+// its output. A schema carrying it declares no union of its payloads at its root,
+// because one document can be a valid payload of several exports: which shape a
+// payload has is named by the export it crosses, and this table is where a reader
+// looks that up.
+const EXPORT_TABLE_KEYWORD = "x-aggrega-exports";
+
+// The definition an export-table pointer addresses.
+//
+// A pointer is a JSON Pointer fragment into the same schema's `$defs`, and the
+// page names the definition it addresses, which is documented once under
+// Definitions below. A pointer addressing anything else would publish a row
+// naming a shape the reader cannot find on the page, so the generation refuses
+// rather than rendering it, as it refuses a reference it cannot resolve.
+function exportTableDefinition(kind, schema, exportName, direction, pointer) {
+  const prefix = "#/$defs/";
+  const name = typeof pointer === "string" && pointer.startsWith(prefix) ? pointer.slice(prefix.length) : "";
+  if (name === "" || name.includes("/") || !(schema.$defs && Object.hasOwn(schema.$defs, name))) {
+    refuse(
+      `${kind}: the ${EXPORT_TABLE_KEYWORD} table gives ${exportName} the ${direction} ${JSON.stringify(pointer)}, ` +
+        "which addresses no definition the schema declares."
+    );
+  }
+  return name;
+}
+
+// Renders a schema's export table, or nothing when the schema carries none: one
+// row per export, in the order the schema writes them, naming the definition of
+// the export's input and the definition of its output.
+function renderExportTable(kind, schema) {
+  const table = schema[EXPORT_TABLE_KEYWORD];
+  if (table === undefined) return [];
+  if (table === null || typeof table !== "object" || Array.isArray(table) || Object.keys(table).length === 0) {
+    refuse(`${kind}: the ${EXPORT_TABLE_KEYWORD} table is not an object mapping at least one export.`);
+  }
+  const out = [
+    "## Exports",
+    "",
+    `The schema's \`${EXPORT_TABLE_KEYWORD}\` table maps each export the host calls a guest with to the definition of its input and the definition of its output. A payload's shape is the definition its export names.`,
+    "",
+    "| Export | Input | Output |",
+    "| --- | --- | --- |",
+  ];
+  for (const [exportName, row] of Object.entries(table)) {
+    const input = exportTableDefinition(kind, schema, exportName, "input", row && row.input);
+    const output = exportTableDefinition(kind, schema, exportName, "output", row && row.output);
+    out.push(`| \`${cell(exportName)}\` | \`${input}\` | \`${output}\` |`);
+  }
+  out.push("");
+  return out;
+}
+
 // Builds the full Markdown page for one schema kind.
 function renderPage(kind, schema) {
   const title = schema.title ? `${schema.title} schema` : `${kind} schema`;
@@ -1141,6 +1194,8 @@ function renderPage(kind, schema) {
     }
     out.push("");
   }
+
+  out.push(...renderExportTable(kind, schema));
 
   if (schema.$defs && Object.keys(schema.$defs).length > 0) {
     out.push("## Definitions", "");
