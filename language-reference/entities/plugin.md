@@ -10,7 +10,7 @@ A `Plugin` ties a logical plugin identity to a concrete `.wasm` artifact and to 
 
 A Plugin's declarations are grouped by socket type, and that grouping is where reading the entity starts:
 
-- **One block per socket type** — `spec.provider`, `spec.pipelineStep`, `spec.parser`, `spec.importer`. A plugin carries the one block its `metadata.pluginType` names, and every block holds a `capabilities:` list whose meaning belongs to that block alone: a provider's list names the capabilities it serves, a pipeline step's names the provider capabilities its step is compatible with, and a parser's and an importer's name source formats, written `parse:<format>` and `import:<format>`. Containment is what carries the meaning — a capability entry cannot be reached without first reading the block that says which kind of claim it is.
+- **One block per socket type** — `spec.provider`, `spec.pipelineStep`, `spec.parser`, `spec.importer`. A plugin carries the one block its `metadata.pluginType` names, and every block holds a `capabilities:` list — recorded from the plugin's own `describe()` by `aggrega plugin gen-catalog` — whose meaning belongs to that block alone: a provider's list names the capabilities it serves, a pipeline step's names the provider capabilities its step is compatible with, and a parser's and an importer's name source formats, written `parse:<format>` and `import:<format>`. Containment is what carries the meaning — a capability entry cannot be reached without first reading the block that says which kind of claim it is.
 - **A provider block carries more than its list** — `spec.provider` also declares how the plugin translates the Workload kind, which platform-native annotations it reads, and its render-behavior contract (`spec.provider.contract`: input kinds, boundary assembly, artifact delimiters, instance reuse). Those describe render *behavior* rather than a served dimension, which is why they sit beside the provider's capability list rather than inside it.
 - **A cross-cutting socket declares no capabilities** — a `linter`, `governance`, or `cli` plugin carries none of the four blocks, because it serves no render dimension and no source format.
 
@@ -24,6 +24,7 @@ metadata:
 spec:
   abiVersion: v1alpha1
   pipelineStep:
+    # capabilities is recorded by `aggrega plugin gen-catalog` from the plugin's describe(); an author may narrow it.
     capabilities:
       - helm
       - compose
@@ -66,7 +67,7 @@ The host/guest ABI version the plugin targets. `v1alpha1` is the accepted value;
 
 ## Declaring capabilities: one block per socket type
 
-A *capability* is what a consumer asks a plugin for — a render capability a Recipe requests, or a source format a build needs read. A plugin declares the capabilities it serves inside the block belonging to its socket type, so which block the list sits in is what fixes what its entries mean:
+A *capability* is what a consumer asks a plugin for — a render capability a Recipe requests, or a source format a build needs read. A plugin's capabilities are recorded inside the block belonging to its socket type, so which block the list sits in is what fixes what its entries mean:
 
 | `metadata.pluginType` | Where its capabilities are declared | What an entry names |
 | --- | --- | --- |
@@ -76,7 +77,7 @@ A *capability* is what a consumer asks a plugin for — a render capability a Re
 | `importer` | [`spec.importer.capabilities`](#specimporter) | A foreign source format this plugin drafts entities from, written `import:<format>`. |
 | `linter`, `governance`, `cli` | — | Nothing. These sockets serve no capability, so they carry none of the four blocks. |
 
-A plugin implements exactly one socket type, so it declares one block. Entries preserve author order in every block, and each block's list is an explicit, tested claim rather than an aspiration: declare what the plugin is actually built and tested against, because a consumer resolves against exactly what is listed.
+A plugin implements exactly one socket type, so its entity carries one block. The list is the plugin's own report: `aggrega plugin gen-catalog` reads the plugin's `describe()` and writes each capability it reports into the block. An author may narrow the list before publishing, leaving out a capability the plugin reports that the published entity should not offer; `aggrega validate <entity> --plugin <file.wasm>` and `aggrega push` accept a narrowed list and print a notice naming each capability the plugin reports that the list leaves out. A consumer resolves against exactly what is listed.
 
 ## `spec.provider`
 
@@ -84,7 +85,7 @@ The provider-socket block for a `pluginType: provider` plugin: the capabilities 
 
 ### `spec.provider.capabilities`
 
-The capabilities this provider serves — capability names such as `helm` or `compose` — whose output shape it renders. A provider is generic across artifacts that share a capability's output shape, not across all capabilities, so the list is an explicit, tested-compatibility claim. Entries preserve author order.
+The capabilities this provider serves — capability names such as `helm` or `compose` — whose output shape it renders. A provider is generic across artifacts that share a capability's output shape, not across all capabilities, so the list names the capabilities the plugin itself reports: `aggrega plugin gen-catalog` records it from the plugin's `describe()`, and an author may narrow it before publishing. Entries keep the order they are recorded in.
 
 A Recipe's requested provider target (`spec.capability: helm`) resolves to the provider plugin whose list contains that target. When more than one provider plugin lists the same target, the workspace chooses: the `plugins.providers` selection in the workspace configuration names which plugin to use, resolved at `aggrega pull` and recorded in the lockfile. With no selection and exactly one candidate, that candidate is used; with no selection and more than one candidate, the build halts and names every candidate. Ambiguity is settled per workspace at the point of use rather than by a catalog-wide uniqueness rule. An empty or absent list declares no capability claim, so the plugin serves no target.
 
@@ -108,7 +109,7 @@ metadata:
 spec:
   abiVersion: v1alpha1
   provider:
-    capabilities:
+    capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - helm
     workloadSchema: |
       # how the Workload kind translates to this provider's native output
@@ -139,7 +140,7 @@ metadata:
   pluginType: provider
 spec:
   provider:
-    capabilities:
+    capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - helm-chart
     contract:
       inputKinds:
@@ -155,9 +156,9 @@ spec:
 
 ## `spec.pipelineStep`
 
-The pipeline-step block for a `pluginType: pipeline-step` plugin. Its one field, `capabilities`, names the providers whose rendered output the plugin's step knows how to transform — capability names such as `helm` or `compose`. A step is written against one provider's output shape at a time, so the list is an explicit, tested-compatibility claim; entries preserve author order. The block is present only on pipeline-step plugins.
+The pipeline-step block for a `pluginType: pipeline-step` plugin. Its one field, `capabilities`, names the providers whose rendered output the plugin's step knows how to transform — capability names such as `helm` or `compose`. A step is written against one provider's output shape at a time, so the list names the providers the plugin itself reports; entries keep the order they are recorded in. The block is present only on pipeline-step plugins.
 
-The block is the catalog-readable record of that claim, recorded from the plugin's own `describe()` self-report. The enforcement reads the same claim from the plugin: when a step touches a scope, the build halts unless the provider rendering that scope's documents is among the ones the plugin claims. An empty or absent list declares no compatibility claim, so no scope admits the step. Declare every provider whose output the plugin is tested against.
+The block is the catalog-readable record of that claim: `aggrega plugin gen-catalog` records it from the plugin's own `describe()` self-report, and an author may narrow it before publishing. The enforcement reads the same claim from the plugin: when a step touches a scope, the build halts unless the provider rendering that scope's documents is among the ones the plugin claims. An empty or absent list declares no compatibility claim, so no scope admits the step.
 
 ```yaml
 metadata:
@@ -165,14 +166,14 @@ metadata:
 spec:
   abiVersion: v1alpha1
   pipelineStep:
-    capabilities:
+    capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - helm
       - compose
 ```
 
 ## `spec.parser`
 
-The parser block for a `pluginType: parser` plugin. Its one field, `capabilities`, names the source formats the plugin turns into a canonical structured tree, each written `parse:<format>`. The prefix is part of the entry, so a plugin that reads several formats lists one entry per format; entries preserve author order. The block is present only on parser plugins.
+The parser block for a `pluginType: parser` plugin. Its one field, `capabilities`, names the source formats the plugin turns into a canonical structured tree, each written `parse:<format>`. The prefix is part of the entry, so a plugin that reads several formats lists one entry per format. `aggrega plugin gen-catalog` records the list from the plugin's own `describe()`, an author may narrow it before publishing, and entries keep the order they are recorded in. The block is present only on parser plugins.
 
 A requested format resolves to the parser whose list contains the matching entry. A format no parser advertises halts the build, and a format advertised by more than one parser plugin halts as ambiguous, naming the candidates — there is no fallback, because a parser has no zero-configuration default to fall back to. An empty or absent list declares no format claim, so the plugin parses nothing.
 
@@ -182,14 +183,14 @@ metadata:
 spec:
   abiVersion: v1alpha1
   parser:
-    capabilities:
+    capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - parse:hcl
       - parse:toml
 ```
 
 ## `spec.importer`
 
-The importer block for a `pluginType: importer` plugin. Its `capabilities` field names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format; entries preserve author order. The block is present only on importer plugins.
+The importer block for a `pluginType: importer` plugin. Its `capabilities` field names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format. `aggrega plugin gen-catalog` records the list from the plugin's own `describe()`, an author may narrow it before publishing, and entries keep the order they are recorded in. The block is present only on importer plugins.
 
 A requested import format resolves to the importer whose list contains the matching entry. A format no importer advertises halts the import, and a format advertised by more than one importer plugin halts as ambiguous, naming the candidates, unless a `plugins.importer` entry in the workspace configuration attaches one of them, which is then the one that runs. An empty or absent list declares no format claim, so the plugin imports nothing.
 
@@ -209,7 +210,7 @@ metadata:
 spec:
   abiVersion: v1alpha1
   importer:
-    capabilities:
+    capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - import:langflow
     detect:
       - syntax: json
