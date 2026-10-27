@@ -77,18 +77,19 @@ the Manifests reference them provider-scoped as `compose/fluentd` and
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 # Local development (Docker Compose)
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 
 # Kubernetes (synthesized helm Recipe, official image)
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 
 # Kubernetes with a durable buffer volume
-aggrega build --release release-helm-synth-buffer.yaml
+aggrega build --release release-helm-synth-buffer.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`.
@@ -140,7 +141,7 @@ buffered records survive restarts.
 ## Run it (Compose)
 
 ```sh
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 docker compose -f dist/app/compose/docker-compose.yaml up -d
 ```
 

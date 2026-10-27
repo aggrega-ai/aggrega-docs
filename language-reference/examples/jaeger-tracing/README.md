@@ -46,12 +46,13 @@ reads them back from the UI.
   receiver host and port through the `uses` topology, so a trace producer wires
   to it and pushes spans there.
 - **Reproducible images.** The Recipe pins the Jaeger server image to a
-  resolvable tag so the rendered workload references an immutable version.
+  resolvable tag so the rendered workload references a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -76,5 +77,5 @@ The build emits the Jaeger server as four Kubernetes objects:
 - a headless `Service` — the governing Service the StatefulSet requires for
   stable per-replica identity.
 
-The Jaeger image is pinned to its release tag, so the workload references an
-immutable image.
+The Jaeger image is pinned to its release tag, so the workload references a
+pinned image tag.

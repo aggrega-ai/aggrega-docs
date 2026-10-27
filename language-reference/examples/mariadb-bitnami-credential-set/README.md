@@ -26,9 +26,11 @@ there is no re-derivation and no convention for the two sides to agree on.
 ## Building
 
 ```bash
-./build-release.sh
-# equivalent: aggrega build --release release.yaml
+./build-release.sh -- --auto-pull
+# equivalent: aggrega build --release release.yaml --auto-pull
 ```
+
+`--auto-pull` writes the lockfile a fresh clone lacks during the build.
 
 The `mariadb-bitnami` Recipe resolves from this example's own local `catalog/`
 copy — an enterprise-authored local sourced Recipe — while the

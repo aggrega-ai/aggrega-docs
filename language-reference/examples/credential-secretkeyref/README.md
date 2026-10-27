@@ -19,14 +19,16 @@ This example has three releases. Build one per run with the helper script, which
 echoes the equivalent direct `aggrega build` command before running it:
 
 ```bash
-./build-release.sh helm       # release-helm.yaml
-./build-release.sh compose    # release-compose.yaml
-./build-release.sh negative   # release-negative.yaml — expected to fail (see below)
+./build-release.sh helm -- --auto-pull       # release-helm.yaml
+./build-release.sh compose -- --auto-pull    # release-compose.yaml
+./build-release.sh negative -- --auto-pull   # release-negative.yaml — expected to fail (see below)
 ```
 
-The `helm` and `compose` releases resolve their catalog entities from the
-configured/hub catalog, so no `--catalog` flag is needed. The commands shown per
-provider below spell the invocation out in full for reference.
+Every release resolves its catalog entities through this workspace's
+`.aggrega-config.yaml` — the catalog checkout beside this one, or the hub
+registry from a standalone clone — so no `--catalog` flag is needed, and
+`--auto-pull` writes the lockfile a fresh clone lacks during the build. The
+commands shown per provider below are the ones the helper echoes.
 
 ## Helm — a referenceable Secret + `secretKeyRef`
 
@@ -37,7 +39,7 @@ The postgres helm Recipe references the slot through `containers.attachments`, w
 the synthesizer renders as an env `secretKeyRef`.
 
 ```bash
-aggrega build --release release-helm.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
+aggrega build --release release-helm.yaml --auto-pull
 ```
 
 The generated Secret (`dist/helm/helm/db--password--db-secret-db-password.yaml`) and the
@@ -70,7 +72,7 @@ to `dotenv-secret`, which delivers the value on the inject pipe; the postgres
 compose Recipe reads `.context.inject.env.POSTGRES_PASSWORD`.
 
 ```bash
-aggrega build --release release-compose.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
+aggrega build --release release-compose.yaml --auto-pull
 # dist/compose/compose/docker-compose.yaml → POSTGRES_PASSWORD: dev-pw-change-me
 ```
 
@@ -83,8 +85,11 @@ resource to point at, but an inject-value credential publishes none — so the b
 halts loudly:
 
 ```bash
-aggrega build --release release-negative.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
-# halts: workload secret slot is not a referenceable secret
+aggrega build --release release-negative.yaml --auto-pull
+# [… omitted: the pull's lines, which carry the same halt, and two lint notices]
+# [CATALOG_ERROR E0212] db
+#   rendering node "db"
+# [… omitted: the cause, "workload attachment slot is not referenceable", naming the Recipe and its path in your catalog, then one line each for the "name" and the "key" the slot's provides does not expose]
 ```
 
 This release is expected to fail — the halt is the lesson. `./build-release.sh
@@ -93,9 +98,9 @@ reporting success, so the guardrail is visible to a reader and to any wrapping
 script:
 
 ```bash
-./build-release.sh negative
-# ... halts: workload secret slot is not a referenceable secret
-# exit status: 1
+./build-release.sh negative -- --auto-pull
+# [… omitted: the helper's report of which aggrega binary it used, its header, and the pull's lines and the halt shown above]
+# build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
 
 The fix is to attach a referenceable credential (`core/referenced-secret`), as in

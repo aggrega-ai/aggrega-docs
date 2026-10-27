@@ -51,12 +51,13 @@ family ships a Helm Recipe only; there is no Compose target.
   `infra.port` and can change the service type through
   `infra.overrides.service_type`.
 - **Reproducible images.** The Recipe re-pins the Contour and Envoy images to
-  explicit release tags so the rendered workloads reference immutable versions.
+  explicit release tags so the rendered workloads reference pinned versions.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -76,6 +77,7 @@ The build emits the full ingress-controller stack:
 - an `IngressClass` named `contour`,
 - a `LoadBalancer` `Service` fronting Envoy on HTTP port 80 and HTTPS port 443,
 
-alongside the supporting `ConfigMap`, certificate-generation `Job`,
-`NetworkPolicy`, RBAC, and `ServiceAccount`. The Contour and Envoy images are
-pinned to their release tags, so every workload references an immutable image.
+alongside the supporting `ConfigMap`, certificate-generation `Job`, the
+control plane's `Service`, `NetworkPolicy`, RBAC, and `ServiceAccount`. The
+Contour and Envoy images are pinned to their release tags, so every workload
+references a pinned image tag.

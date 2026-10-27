@@ -22,12 +22,13 @@ each the way its slot demands.
 ## Building
 
 ```bash
-./build-release.sh
-# equivalent to: aggrega build --release release.yaml
+./build-release.sh -- --auto-pull
+# equivalent to: aggrega build --release release.yaml --auto-pull
 ```
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
-so no `--catalog` flag is needed. Four manifests land under `dist/helm/helm/`.
+so no `--catalog` flag is needed, and `--auto-pull` writes the lockfile a fresh
+clone lacks during the build. Four manifests land under `dist/helm/helm/`.
 
 ## root_password — Black-Box, delivered on the inject pipe
 
@@ -67,10 +68,12 @@ underscore appears there as an escape rather than as a hyphen.
 
 ```yaml
 # db--user-zupassword--db-secret-db-user-password.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
-  name: "db-user-password"
+  name: db-user-password
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
-  "MARIADB_PASSWORD": "dev-user-pw-change-me"
+  MARIADB_PASSWORD: "dev-user-pw-change-me"
 
 # db-statefulset.yaml (container env)
 - name: MARIADB_PASSWORD

@@ -53,12 +53,13 @@ its metrics.
   permissions it needs.
 - **Reproducible images.** The chart ships resolvable release tags; the Recipe
   re-pins the controller, webhook, CA-injector, and ACME solver images to those
-  tags so the rendered workloads reference immutable versions.
+  tags so the rendered workloads reference pinned versions.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -77,7 +78,7 @@ controller, the webhook, and the CA injector), the six cert-manager
 webhook `Service`, the controller `ServiceAccount`s, and the RBAC set of
 `ClusterRole`s, `ClusterRoleBinding`s, and leader-election `Role`s and
 `RoleBinding`s. It also includes a post-install `Job` (the startup API check
-that blocks until the certificate API is serving) and a metrics `Service` for
-the controller — **50** Kubernetes objects in all. The controller, webhook,
-CA-injector, and ACME-solver images are pinned to their release tags, so every
-workload references an immutable image.
+that blocks until the certificate API is serving) and a metrics `Service` each
+for the controller and the CA injector — **50** Kubernetes objects in all. The
+controller, webhook, CA-injector, and ACME-solver images are pinned to their
+release tags, so every workload references a pinned image tag.

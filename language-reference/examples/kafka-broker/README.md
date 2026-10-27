@@ -49,12 +49,13 @@ endpoint and exchanges records there.
   and client port through the `uses` topology, so a producer or consumer wires
   to it and connects there.
 - **Reproducible images.** The Recipe pins the Kafka server image to a
-  resolvable tag so the rendered workload references an immutable version.
+  resolvable tag so the rendered workload references a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -75,5 +76,5 @@ The build emits the Kafka server as three Kubernetes objects:
 - a headless `Service` — the governing Service the StatefulSet requires for
   stable per-replica identity.
 
-The Kafka image is pinned to its release tag, so the workload references an
-immutable image.
+The Kafka image is pinned to its release tag, so the workload references a
+pinned image tag.

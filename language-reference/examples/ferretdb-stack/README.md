@@ -46,7 +46,7 @@ internal components in the Release.
   internal component names.
 - **Operator sizing of internal components.** The Release addresses the module's
   internal components by their module-scoped IDs (`database.backend`,
-  `database.proxy`) to set storage and compute, without the developer's Aggregate
+  `database.proxy`) to set compute, without the developer's Aggregate
   restating physical sizing.
 - **A shared credential.** The proxy delegates authentication to its PostgreSQL
   backend, so the two share one password. This example uses a shared inline
@@ -61,11 +61,12 @@ internal components in the Release.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`. The Kubernetes target renders plain

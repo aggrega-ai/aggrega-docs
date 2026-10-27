@@ -64,11 +64,11 @@ the module's component in the Release.
   component by its module-scoped ID (`harbor.registry`) to set compute, without
   the developer's Aggregate restating physical sizing.
 - **Completeness rules on a grouped value.** `infra.compute` carries a CPU and a
-  memory key, and the Recipe halts on a group that names only one of them. A
+  memory key, and the Recipe halts on a group that leaves either of them empty. A
   control plane rendered with a CPU limit and no memory limit is materially
   different from the one the Component's declared defaults describe, and nothing
   in the rendered output would say so — so the build stops and names the missing
-  key instead.
+  key instead. A key the group leaves out takes the Component's default.
 - **Six keys with no default.** The key the token service signs the registry's
   tokens with, together with its certificate; the three secrets the registry's
   own services authenticate to each other and sign upload state with; the
@@ -121,9 +121,10 @@ the module's component in the Release.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed. The Recipe fetches a chart, so resolve the dependencies
-into the lockfile first:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed. The Recipe fetches a chart, so resolve the dependencies into the lockfile
+first:
 
 ```sh
 aggrega pull --release release-helm-synth.yaml
@@ -179,6 +180,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: harbor-zdregistry
+  [… omitted: the namespace, the chart's labels, and the labels and annotations every rendered document carries]
 spec:
   type: ClusterIP
   ports:

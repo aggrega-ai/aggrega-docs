@@ -55,8 +55,9 @@ it.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 aggrega build --release release.yaml --auto-pull
@@ -92,6 +93,7 @@ metadata:
   [… omitted: the labels every rendered document carries]
   annotations:
     aggrega.ai/boundary-path: observability
+    [… omitted: the annotation naming the Recipe that rendered it]
 ```
 
 The same holds for the four Secrets the metrics module's credential Feature

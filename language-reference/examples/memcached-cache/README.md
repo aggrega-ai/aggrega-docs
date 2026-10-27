@@ -30,7 +30,7 @@ realization can enforce a Memcached password.
 | `aggregate.yaml` | Developer intent: one `cache` component of type `core/datastore/memcached`, no credential — the cache runs without authentication. |
 | `aggregate-auth.yaml` | The same cache with an inject-value password credential attached to the component's optional `password` slot (Compose path). Its build halts. |
 | `aggregate-helm-synth-auth.yaml` | The same cache with a referenceable password credential attached for the synthesized helm path. Its build halts. |
-| `manifest-compose.yaml` | Maps the Memcached type to the Compose Recipe (`memcached`) and the credential to `dotenv-secret`. |
+| `manifest-compose.yaml` | Maps the Memcached type to the Compose Recipe (`compose/memcached`) and the credential to `dotenv-secret`. |
 | `manifest-helm-synth.yaml` | Maps the Memcached type to the synthesized helm Recipe (`helm/memcached`) and the credential to `k8s-secret-from-parameter`. |
 | `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations. |
 | `release-negative-compose-auth.yaml` / `release-negative-helm-synth-auth.yaml` | Operator records over the two password Aggregates. Each build is expected to fail. |
@@ -50,7 +50,7 @@ realization can enforce a Memcached password.
   manifests with no external chart. The rendered resource set is exactly what
   the Workload declares. Because both a Compose and a synthesized helm Recipe
   carry the name `memcached`, the Manifests reference them provider-scoped as
-  `memcached` (compose) and `helm/memcached`.
+  `compose/memcached` and `helm/memcached`.
 - **A protection a realization cannot give is refused, not dropped.** The
   component declares an optional `password` slot. The `memcached` image enforces
   no password: its two authentication modes are SASL, spoken over the binary
@@ -61,15 +61,16 @@ realization can enforce a Memcached password.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 # Local development (Docker Compose)
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 
 # Kubernetes (synthesized helm Recipe, official image)
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`.
@@ -80,11 +81,12 @@ The two negative Releases build the password Aggregates, and each build is
 **expected to fail**:
 
 ```sh
-aggrega build --release release-negative-compose-auth.yaml
-aggrega build --release release-negative-helm-synth-auth.yaml
+aggrega build --release release-negative-compose-auth.yaml --auto-pull
+aggrega build --release release-negative-helm-synth-auth.yaml --auto-pull
 ```
 
-Each halts in the Memcached Recipe, before anything is written:
+Each halts in the Memcached Recipe, before anything is written, and the halt
+ends with the Recipe's own message:
 
 ```text
 a password is attached to the password slot of "cache", but the memcached

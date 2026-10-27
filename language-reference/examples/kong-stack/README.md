@@ -62,11 +62,12 @@ the module's internal components in the Release.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`. The Kubernetes target renders plain

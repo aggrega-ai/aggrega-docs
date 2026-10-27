@@ -47,12 +47,13 @@ Kubernetes `Secret`s.
   output is byte-identical across runs of the same input.
 - **A reproducible image.** The Recipe pins all three container images to a
   resolvable release tag (`ghcr.io/external-secrets/external-secrets:v2.7.0`),
-  so the rendered workloads reference an immutable version.
+  so the rendered workloads reference a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -80,4 +81,4 @@ The build emits the external-secrets operator as a set of Kubernetes objects:
   serving certificate at runtime.
 
 All three container images are pinned to their release tag, so the workloads
-reference immutable images.
+reference pinned images.

@@ -43,12 +43,13 @@ dashboards server reads them back over the query API.
   it and pushes streams there.
 - **Reproducible images.** The Recipe pins the Loki server image and the
   config-reload sidecar image to resolvable tags so the rendered workload
-  references immutable versions.
+  references pinned versions.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -72,4 +73,4 @@ objects:
 No distributed read/write/backend workloads, object-store subchart, cache, or
 operator render — the render is a single Loki workload. The Loki server and
 config-reload sidecar images are pinned to their release tags, so the workload
-references immutable images.
+references pinned images.
