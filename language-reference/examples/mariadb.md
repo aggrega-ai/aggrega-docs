@@ -14,11 +14,10 @@ The example organises catalog content into per-entity directories, under a works
 .aggrega-config.yaml                        # Marks the workspace root
 catalog/
 ├── components/
-│   ├── core/
-│   │   └── datastore/
-│   │       └── mariadb/
-│   │           └── component.yaml          # The Component definition
 │   └── my-org/
+│       ├── datastore/
+│       │   └── mariadb/
+│       │       └── component.yaml          # The Component definition
 │       └── server/
 │           └── checkout-api/
 │               └── component.yaml          # The API server's Component
@@ -129,11 +128,11 @@ The secondary pool is written out as an object of its own rather than as a `$ref
 ## The Component
 
 ```yaml
-# catalog/components/core/datastore/mariadb/component.yaml
+# catalog/components/my-org/datastore/mariadb/component.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/datastore/mariadb
+  name: my-org/datastore/mariadb
   version: 1.0.0
   labels:
     component.aggrega.ai/type: stateful-server
@@ -309,7 +308,7 @@ metadata:
 
 spec:
   capability: helm
-  implements: core/datastore/mariadb:^1.0.0
+  implements: my-org/datastore/mariadb:^1.0.0
 
   source:
     # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
@@ -475,7 +474,7 @@ spec:
 
   components:
     db:
-      type: core/datastore/mariadb:1.0.0
+      type: my-org/datastore/mariadb:1.0.0
       values:
         architecture: '{{ if eq .parameters.environment "prod" }}replication{{ else }}standalone{{ end }}'
         primary:
@@ -533,7 +532,7 @@ spec:
   mappings:
     components:
       type:
-        core/datastore/mariadb: helm/mariadb-bitnami:1.0.0
+        my-org/datastore/mariadb: helm/mariadb-bitnami:1.0.0
         my-org/server/checkout-api: helm/checkout-api:1.0.0
 
     features:
@@ -607,7 +606,7 @@ The build prints:
 
 ```text
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
-Total build time:               4.1s
+Total build time:               4.0s
 Build completed: 13 files written to <workspace>/dist
 ```
 
