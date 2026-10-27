@@ -148,7 +148,7 @@ authoring.
   refuses it if so, compiled to Kubernetes as the gateway, the guard and the
   classifier's service. The catalog names an image for neither the guard nor the
   classifier, so the Release supplies both. The README spends as long on what the
-  shield does not do as on what it does. Needs a hub registry credential.
+  shield does not do as on what it does.
 - **[ai-gateway-semantic-cache](ai-gateway-semantic-cache/)** — an AI gateway
   that answers a question from the reply it gave an earlier, similarly worded
   one, keeping the replies in a Redis wired to it, compiled to Kubernetes. The
@@ -156,7 +156,7 @@ authoring.
   edge, and the cache's configuration names only the variables. The README is
   mostly about who is served from one stored reply: one end user under the
   default scope, every holder of the key under the other — and why the end user
-  a request names is not proof of who sent it. Needs a hub registry credential.
+  a request names is not proof of who sent it.
 - **[apisix-token-budget](apisix-token-budget/)** — Apache APISIX in front of two
   OpenAI models, wired to its `models` socket, with a token budget on everything
   the gateway serves, compiled to Kubernetes through the project's own chart. The

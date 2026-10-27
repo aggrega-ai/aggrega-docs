@@ -58,20 +58,12 @@ This workspace resolves the catalog entities through the `catalog_dirs` in
 `.aggrega-config.yaml`. The shield's realization runs one plugin that ships in
 neither the compiler nor the catalog, the gateway configuration step
 `pipeline-step/litellm-gateway-config`, which the resolution fetches from the
-registry `default_registry` names, `hub.aggrega.ai`. The registry refuses
-anonymous reads, so the build needs a credential for it. Log in once:
-
-```bash
-aggrega login hub.aggrega.ai
-```
-
-`aggrega login` and `docker login` store the credential in the same place, so
-either answers it.
+registry `default_registry` names, `hub.aggrega.ai`.
 
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the resolution's summary and a total build time, which differ per run]
+[… omitted: a line reporting on the gateway configuration step's plugin, a warning that the upstream_key credential's declared-sensitive origin reaches the target with no per-key sensitivity marking, because the realization maps it through a valuesMapping, the resolution's summary, a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 10 files written to <workspace>/dist
 ```
 
@@ -231,16 +223,18 @@ Each of these is a sentence the build prints, naming what to change:
   strict` and leave the guard at its default:
 
   ```text
+  [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0010] router
     node "router": pipeline step failed
-    [… omitted: the step and the template position]
+    [… omitted: the step, the template position and the template's own source]
   error calling fail: core/prompt-injection-shield attachment "shield" on "router" asks for sensitivity strict, which this realization runs as the guard's threshold 0.001, but the guard "guard" runs at 0.5; set values.threshold of "guard" to 0.001
   ```
 
-- **No guard wired.** Remove the `guard` edge and the build halts before
-  anything renders, naming the socket:
+- **No guard wired.** Remove the gateway's `uses` block, which holds only the
+  `guard` edge, and the build halts before anything renders, naming the socket:
 
   ```text
+  [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "prompt-injection-shield-litellm" instance "router" assertion "guard_is_wired": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/prompt-injection-shield attachment "shield" on "router" needs a guard to send the gateway's model requests through, but nothing is wired to its guard socket; wire a core/security/nemo-guardrails to the guard socket of "router"
@@ -250,10 +244,12 @@ Each of these is a sentence the build prints, naming what to change:
   that model's own endpoint with its connection's own key, past the guard. Wire
   a `core/ai-model/openai` to the socket as `fast`, with a credential on the
   connection, beside the typed alias — setting `values.model: assistant`, since
-  the gateway then serves two aliases and publishes one — and the build halts
-  before anything renders, naming the connection:
+  the gateway then serves two aliases and publishes one, and naming `fast` in the
+  Release and its Recipe in the Manifest — and the build halts before anything
+  renders, naming the connection:
 
   ```text
+  [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "prompt-injection-shield-litellm" instance "router" assertion "no_wired_models": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/prompt-injection-shield attachment "shield" on "router" sends every model request through the guard, which forwards it to its own upstream with its own credential, but the models socket of "router" holds fast, each sent to its own model's endpoint with its own connection's credential, past the guard; remove those connections and reach that model through the guard's upstream, or remove the shield attachment

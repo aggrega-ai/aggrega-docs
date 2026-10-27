@@ -53,8 +53,8 @@ than shipped, so a fresh clone has none. Resolve one first, or let the build
 fill it:
 
 ```bash
-aggrega pull --release release.yaml --pin-sources   # resolve once, then build with no flag
-./build-release.sh -- --auto-pull                   # or resolve during the build
+aggrega pull --release release.yaml      # resolve once, then build with no flag
+./build-release.sh -- --auto-pull        # or resolve during the build
 ```
 
 Resolving pins the APISIX chart the gateway's Recipe renders, fetched from the
@@ -64,7 +64,7 @@ catalog entities through the `catalog_dirs` in `.aggrega-config.yaml`.
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the resolution's summary and a total build time, which differ per run]
+[… omitted: two warnings, one per model connection's credential, that the declared-sensitive origin reaches the target with no per-key sensitivity marking, because the realization maps it through a valuesMapping, the resolution's summary, a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 8 files written to <workspace>/dist
 ```
 
@@ -201,6 +201,7 @@ Each of these is a sentence the build prints, naming what to change:
   before anything renders:
 
   ```text
+  [… omitted: what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "period-budget-apisix" instance "gateway" assertion "unit_is_a_token_count": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/period-budget attachment "budget" on "gateway" asks for unit usd, but core/gateway/apisix, which declares dataplane.aggrega.ai/period-budget: tokens, counts the tokens each model's reply reports and prices nothing, so it keeps no budget in US dollars; set unit to total_tokens, prompt_tokens or completion_tokens, or attach the Feature to a gateway that counts cost
@@ -215,6 +216,9 @@ Each of these is a sentence the build prints, naming what to change:
 - **A second `core/period-budget` attachment on the gateway**, which runs one
   token rate limit on a route.
 - **Nothing wired to the `models` socket**, which leaves no model route to count.
+  Remove the two connections alone and the gateway's own Component halts first,
+  asking for the etcd store and the Admin API key a gateway with no model keeps
+  its routes through.
 - **The other realization.** Map `core/gateway/apisix` to `helm/apisix` in the
   Manifest and the build halts on the `models` connections, naming
   `helm/apisix-chart`: that realization runs APISIX 3.17.0 with its routes in
@@ -240,6 +244,7 @@ The Manifest already routes the Feature to its APISIX realization, and the build
 halts:
 
 ```text
+[… omitted: what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: FeatureRecipe "semantic-caching-apisix" instance "gateway" assertion "scope_is_one_the_gateway_keeps": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "gateway" asks for scope end_user, which keeps each end user the gateway identifies apart, but core/gateway/apisix tells its callers apart only by the key each presents, and cannot tell apart the end users behind one key: a value a request names for one is whatever the caller sent, which the gateway does not verify. Set scope to key, which keeps each caller infra.callers declares apart, or attach the Feature to a gateway that identifies end users
@@ -252,6 +257,7 @@ verifies, and nothing finer: set `scope: key` and the build halts again, now on
 the callers it has not been given:
 
 ```text
+[… omitted: what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: FeatureRecipe "semantic-caching-apisix" instance "gateway" assertion "callers_are_declared": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "gateway" asks for scope key, but infra.callers of "gateway" declares no caller, so the gateway authenticates no key and every request on a route would share one cache, a reply generated for one caller served to another; declare the callers in infra.callers, with their keys through the caller_keys slot
@@ -296,7 +302,8 @@ attachment as `embedding_model: embedder`, with `scope: key`:
             target: cache
 ```
 
-with the `embeddings` component (`core/ai-model/openai-embedding`) and the
+with the `embeddings` component (`core/ai-model/openai-embedding`, its
+`values.model` set to `text-embedding-3-small`) and the
 `cache` component (`core/datastore/redis`) declared beside the models, each
 placed in the Release, and the Manifest mapping both and
 `core/referenced-secret-set` to its realization, `helm/k8s-secret-set`, which

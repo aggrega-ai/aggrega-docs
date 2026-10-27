@@ -62,20 +62,12 @@ This workspace resolves the catalog entities through the `catalog_dirs` in
 `.aggrega-config.yaml`. The cache's realization runs one plugin that ships in
 neither the compiler nor the catalog, the gateway configuration step
 `pipeline-step/litellm-gateway-config`, which the resolution fetches from the
-registry `default_registry` names, `hub.aggrega.ai`. The registry refuses
-anonymous reads, so the build needs a credential for it. Log in once:
-
-```bash
-aggrega login hub.aggrega.ai
-```
-
-`aggrega login` and `docker login` store the credential in the same place, so
-either answers it.
+registry `default_registry` names, `hub.aggrega.ai`.
 
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the resolution's summary and a total build time, which differ per run, and a notice that core/referenced-secret declares origin in both of its pillars]
+[… omitted: a line reporting on the gateway configuration step's plugin, five warnings, one per credential attachment, that the declared-sensitive origin reaches the target with no per-key sensitivity marking, because the realization maps it through a valuesMapping, the resolution's summary and a total build time, which differ per run, and a notice that core/referenced-secret declares origin in both of its pillars]
 Build completed: 13 files written to <workspace>/dist
 ```
 
@@ -299,6 +291,7 @@ Each of these is a sentence the build prints, naming what to change:
   halts before anything renders:
 
   ```text
+  [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "semantic-caching-litellm" instance "router" assertion "gateway_checks_the_caller": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "router" needs core/gateway/litellm to check every caller's key before a cached reply is served, but its api_key credential slot is not attached, so the gateway checks no caller and a cache bucket would be made only of what each caller claims. Attach a credential to the api_key slot of "router"

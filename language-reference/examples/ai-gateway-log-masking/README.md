@@ -66,7 +66,7 @@ build runs no plugin beyond those the compiler carries.
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the resolution's summary and a total build time, which differ per run]
+[… omitted: the resolution's summary, a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 9 files written to <workspace>/dist
 ```
 
@@ -276,6 +276,7 @@ Adding one named `masked` to the gateway, with its realization bound in the
 Manifest, prints:
 
 ```text
+[… omitted: what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
 [DEVELOPER_ERROR E0033]
   Component/Feature assertions
   caused by: Component "core/gateway/litellm" instance "router" assertion "log_masking_not_beside_data_masking": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: "router" lists what to mask in its logs under values.log_masking, and the core/data-masking attachment "masked" is on it too: that attachment's realization turns the gateway's logging of message contents off, so log masking would have nothing left to act on, and a reader could take the two for one protection. Remove values.log_masking to mask what travels, or the "masked" attachment to mask only what is logged
@@ -300,9 +301,9 @@ understanding of the text.
 
 ## Adapting it
 
-- **Mask patterns only.** Drop `entities` from `values.log_masking` and the two
-  recognizer components with their edges; the patterns are matched inside the
-  gateway and need neither service.
+- **Mask patterns only.** Drop `entities` from `values.log_masking`, and the two
+  recognizer components with their edges and their entries in the Release; the
+  patterns are matched inside the gateway and need neither service.
 - **Mask more entity types.** Add them to `entities`, in the recognizer's own
   vocabulary; a type the analyzer does not recognize in English halts the build
   and names the ones it does.

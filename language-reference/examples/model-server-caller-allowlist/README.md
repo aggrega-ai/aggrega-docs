@@ -71,11 +71,11 @@ aggrega pull --release release.yaml      # resolve once, then build with no flag
 This workspace resolves the catalog entities through the `catalog_dirs` in
 `.aggrega-config.yaml`; nothing is fetched from a chart repository.
 
-The build prints:
+The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the resolution's summary and a total build time, which differ per run]
   warning: node "model" (provider "helm"): target "helm" does not support annotation aggrega.ai/namespace on artifacts-only input and ignored it
+[… omitted: the resolution's summary and a total build time, which differ per run]
 Build completed: 6 files written to <workspace>/dist
 ```
 
@@ -201,6 +201,7 @@ Each of these is a sentence the build prints, naming what to change:
   from the Release:
 
   ```text
+  [… omitted: what resolving the lockfile prints, the same halt among it, and the halt's heading, the template position and the assertion's own source]
   error calling fail: assertion failed: core/caller-allowlist attachment "allowlist" on "model" writes a network policy, which restricts connections only where the cluster's network plugin enforces network policy; once the target cluster's plugin does, affirm it by setting infra.control_plane_present to true on this attachment in the Release
   ```
 
@@ -209,6 +210,7 @@ Each of these is a sentence the build prints, naming what to change:
   Deployment is emitted with none:
 
   ```text
+  [… omitted: what resolving the lockfile prints, the same halt among it, and the halt's heading, the artifact being rendered, the template position and the template's own source]
   error calling fail: core/caller-allowlist attachment "allowlist" on "model": "gateway" connects to "model" through its "upstream" socket, but the Deployment "gateway" it renders is emitted into no namespace, so the policy cannot name where its pods run; set aggrega.ai/namespace on the boundary holding "gateway", or on its own entry, in the Release, or have the manifest that carries it write one
   ```
 

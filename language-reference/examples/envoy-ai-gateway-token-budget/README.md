@@ -94,12 +94,13 @@ the network. This workspace resolves the catalog entities through the
 Building with `--auto-pull` prints, with `<workspace>` standing for this example's folder:
 
 ```text
+[… omitted: the helper's report of which aggrega binary it used]
 # example : envoy-ai-gateway-token-budget
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release.yaml --auto-pull
 
 Pull complete: release.lock (entities=26, source_artifacts=3, external_inputs=0)
-[… omitted: the total build time, which differs per run]
+[… omitted: a notice that core/referenced-secret declares origin in both of its pillars, and the total build time, which differs per run]
 Build completed: 113 files written to <workspace>/dist
 ```
 
@@ -395,6 +396,7 @@ Each of these is a sentence the build prints, naming what to change:
   halts before anything renders:
 
   ```text
+  [… omitted: what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "period-budget-envoy-gateway" instance "edge" assertion "unit_is_a_token_count": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/period-budget attachment "budget" on "edge" asks for unit usd, but core/gateway/envoy-gateway, which declares dataplane.aggrega.ai/period-budget: tokens, counts the tokens each model's reply reports and prices nothing, so it keeps no budget in US dollars; set unit to total_tokens, prompt_tokens or completion_tokens, or attach the Feature to a gateway that counts cost
@@ -412,6 +414,8 @@ Each of these is a sentence the build prints, naming what to change:
   budget onto the route serving its models.
 - **Nothing wired to the `models` socket**, which leaves no model route to
   count, **or to the `cache` socket**, which leaves the count nowhere to live.
+  Remove the model's connection alone and the gateway's own Component halts
+  first, on `values.model` naming an alias nothing serves.
 - **A store on the `cache` socket that does not speak the Redis protocol** —
   one publishing a protocol other than `redis` or `valkey`.
 - **The gateway placed outside `envoy-gateway-system`** while the controller is
