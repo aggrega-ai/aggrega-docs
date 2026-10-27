@@ -20,15 +20,15 @@ how the layer underneath is made.
 
 ## The three files
 
-- **[`aggregate.yaml`](aggregate.yaml)** — the Developer's intent: *what*
+- **`aggregate.yaml`** — the Developer's intent: *what*
   the stack is. Two components picked from the catalog by `type:`, a
   required credential as a slot-filling attachment, and one `uses` edge wiring
   the database into Adminer's `databases` socket.
-- **[`release.yaml`](release.yaml)** — the Operator's per-environment
+- **`release.yaml`** — the Operator's per-environment
   fulfillment: *how big and where*. The `infra:` blocks (engine version,
   storage size, published port) belong to the Operator; the Aggregate never
   carries them.
-- **[`manifest.yaml`](manifest.yaml)** — the Operator's routing: *which
+- **`manifest.yaml`** — the Operator's routing: *which
   Recipe realises each type on this target*. See below for why the
   references are provider-qualified.
 
@@ -66,14 +66,15 @@ From this directory, with a checkout of the standard-library catalog
 available (in this repository layout it sits four levels up):
 
 ```bash
+aggrega pull --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
 aggrega build --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
-The build resolves every referenced entity, pins it in `release.lock`
-(identity + content digest; regenerate a stale lockfile with
-`aggrega pull --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog`,
-naming the catalog the build reads), and renders
-`dist/compose/docker-compose.yaml`. The Release authors its components
+The pull resolves every referenced entity and pins it in `release.lock`
+(identity + content digest; run it again to regenerate a stale lockfile,
+naming the catalog the build reads). The build reads that lockfile — without
+it, the build halts and names the two ways forward, the pull or `--auto-pull`
+— and renders `dist/compose/docker-compose.yaml`. The Release authors its components
 directly (no `boundaries:` block), so the compiler folds them into the
 synthesized default scope and emits flat under `dist/` — one boundary, no
 boundary-name segment in the path.

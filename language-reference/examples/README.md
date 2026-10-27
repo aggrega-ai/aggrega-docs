@@ -123,7 +123,7 @@ authoring.
   last read from one hoisted parameter so they cannot drift apart. Also shows
   where the compiler does not interpret: the address and the alias the agent receives are
   read off what the router publishes, and the compiler pipes both without
-  reading them. Needs a hub registry credential.
+  reading them.
 - **[connection-credentials](connection-credentials/)** — a semantic-memory
   store reaching two models and presenting a different key to each, compiled to
   Kubernetes: a hosted model whose key is fetched from a cluster secret store,

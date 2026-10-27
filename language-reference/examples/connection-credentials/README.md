@@ -79,12 +79,14 @@ aggrega build --release release-matched.yaml
 The pull prints:
 
 ```text
+[… omitted: a warning that the declared-sensitive origin of llm.credential reaches the target with no per-key sensitivity marking, because its realization maps it through a valuesMapping]
 Pull complete: release-matched.lock (entities=15, source_artifacts=0, external_inputs=0)
 ```
 
 and the build, with `<workspace>` standing for this example's folder:
 
 ```text
+[… omitted: the same warning about llm.credential the pull printed]
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 8 files written to <workspace>/dist

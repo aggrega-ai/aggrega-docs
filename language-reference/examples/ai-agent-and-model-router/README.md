@@ -79,23 +79,15 @@ aggrega build --release release.yaml
 The realization of the router's `selection` attachment runs one plugin that
 ships in neither the compiler nor the catalog, the gateway configuration step
 `pipeline-step/litellm-gateway-config`, which the resolution fetches from the
-registry `default_registry` names, `hub.aggrega.ai`. The registry refuses
-anonymous reads, so the build needs a credential for it. Log in once:
-
-```bash
-aggrega login hub.aggrega.ai
-```
-
-`aggrega login` and `docker login` store the credential in the same place, so
-either answers it.
+registry `default_registry` names, `hub.aggrega.ai`.
 
 **Several sections below ask you to change a line and rebuild.** The lockfile
 pins a digest for every entity the release resolved, including the Aggregate and
 the Manifest in this directory, and records the Release itself by the digest of
 its content — so editing any of these three files puts the lockfile out of date,
 and the next build halts rather than rendering against a stale pin. The message
-reports which file changed and prints the digest it recorded beside the one it
-found. A pull records the change while honouring every other pin:
+names what changed — the Release by its file, the Aggregate or the Manifest by
+its name — and prints the digest it recorded beside the one it found. A pull records the change while honouring every other pin:
 
 ```bash
 aggrega pull --release release.yaml
@@ -110,6 +102,7 @@ The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
   verify: plugin pipeline-step/litellm-gateway-config:1.0.0 host functions match the published .wasm
+[… omitted: three warnings, one per credential attachment, that the declared-sensitive origin reaches the target with no per-key sensitivity marking, because the realization maps it through a valuesMapping]
 Pull complete: release.lock (entities=24, source_artifacts=0, external_inputs=0)
 [… omitted: a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 12 files written to <workspace>/dist
@@ -125,7 +118,7 @@ file it came from and what would make it agree:
 aggrega lint --release release.yaml
 ```
 
-which here reports `conventions checked: 18 entities, 0 advisory finding(s)`.
+which here reports `conventions checked: 19 entities, 0 advisory finding(s)`.
 
 ## The rendered tree
 
