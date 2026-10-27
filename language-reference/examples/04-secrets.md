@@ -19,7 +19,7 @@ The four worked examples below demonstrate the pattern across the canonical scen
 
 ## Example 11: White-Box Secrets — Developer Controls Delivery
 
-When deploying custom code, the developer *must* tell the system how their application reads credentials. The Component's pillar schema enforces the `inject` requirement.
+When deploying custom code, the developer may tell the system how their application reads credentials. The Component's credential slot permits it: the slot's `inject:` allowlist names the delivery mechanisms an attachment may dictate — here `env` and `file` — and does not require an attachment to dictate one.
 
 **1. Platform Catalog: The Component (White-Box Enforcement)**
 
@@ -32,21 +32,14 @@ metadata:
   labels:
     component.aggrega.ai/type: "worker"
 spec:
+  featuresSchema:
+    openai_key:
+      required: true
+      inject: [env, file]                   # White-Box: the developer may dictate delivery.
+      description: OpenAI API key.
   schema:
     values:
       image: { type: string, required: true }
-    # White-Box: developer MUST dictate delivery
-    features:
-      type: object
-      additionalProperties:
-        type: object
-        properties:
-          inject:
-            type: object
-            properties:
-              env:  { type: array, items: { type: object } }
-              file: { type: array, items: { type: object } }
-        required: [inject]
 ```
 
 **2. Platform Catalog: The Credential Feature**
@@ -94,6 +87,8 @@ spec:
                 from: "api_token"    # Target provides key
 ```
 
+The `inject:` block is the developer's choice, not a requirement. With it, the credential's FeatureRecipe receives the directive at `.inject.env` — `{"OPENAI_API_KEY":"api_token"}` — and hands it to the Injector below. Without it, the attachment still fills the slot and the build accepts it; the FeatureRecipe receives no directive, so delivery is left to the FeatureRecipe. A block naming a mechanism the slot does not list halts the build: `arg`, for example, because the slot permits only `env` and `file`.
+
 **4. Ops Domain: The FeatureRecipe (Fetcher + Injector Pipeline)**
 The FeatureRecipe implements the credential Feature. The Two-Part Plugin Principle splits the work: the Fetcher generates the cloud-specific CRD, the Injector mounts it. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable.
 
@@ -125,7 +120,7 @@ spec:
       with: |
         k8s_secret_name: "{{ .steps.eso_fetcher.outputs.k8s_secret_name }}"
         target_container: "{{ .locals.primary_compute }}"
-        env_injections: {{ toJson .inject.env }}
+        env_injections: {{ if .inject }}{{ toJson .inject.env }}{{ else }}{}{{ end }}
 ```
 
 **5. Routing Domain: Manifest**

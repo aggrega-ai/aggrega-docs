@@ -120,7 +120,7 @@ spec:
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: external-formatter
+  name: external-service-reference
   version: 1.0.0
 spec:
   capability: helm
@@ -182,7 +182,7 @@ spec:
 ```
 
 **3. Routing Domain: Manifest & Release**
-The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-formatter`, binds the `helm` provider with a `form: reference` Workload, so neither external node provisions compute: the build writes one ExternalName Service for each, carrying its `hostname`, and `billing-agent` receives `STRIPE_URL: api.stripe.com` and `ORACLE_DSN: 10.0.4.55` through the inject contract. Kubernetes treats an `externalName` as a DNS name, so the legacy database's Service does not resolve to its IP address; `billing-agent` reaches the database at the address `ORACLE_DSN` carries. The Release fulfills the parameter contract.
+The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-service-reference`, binds the `helm` provider with a `form: reference` Workload, so neither external node provisions compute: the build writes one ExternalName Service for each, carrying its `hostname`, and `billing-agent` receives `STRIPE_URL: api.stripe.com` and `ORACLE_DSN: 10.0.4.55` through the inject contract. Kubernetes treats an `externalName` as a DNS name, so the legacy database's Service does not resolve to its IP address; `billing-agent` reaches the database at the address `ORACLE_DSN` carries. The Release fulfills the parameter contract.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -195,7 +195,7 @@ spec:
     components:
       type:
         "core/python-worker": "python-worker-helm:1.0.0"
-        "core/external-service": "external-formatter:1.0.0"
+        "core/external-service": "external-service-reference:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

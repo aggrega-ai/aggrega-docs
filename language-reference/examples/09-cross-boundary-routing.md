@@ -122,7 +122,7 @@ spec:
 
 ---
 
-## Example 26: The Complete Wasm Handshake (stdin/stdout)
+## Example 26: The Complete Wasm Handshake (Step Input and Patch)
 
 This traces the payload the compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
 

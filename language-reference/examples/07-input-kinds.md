@@ -6,6 +6,34 @@ Four worked Recipes exercising the three input kinds (sourced, synthesized, arti
 
 Pattern: **synthesized mode** — no `source:`, no `artifacts:`; the Workload alone drives all output. Pillars exercised: `.values`, `.infra`, `.context.inject`, `.features`. Expected output: one Deployment + one ClusterIP Service per node.
 
+The Recipes of Examples 19, 20 and 22 implement one example Component, `example/compute/api-server`, which declares the `values` and `infra` they read and the `provides` they publish:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: example/compute/api-server
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: "server"
+spec:
+  schema:
+    values:
+      image:       { type: string, required: true }
+      tag:         { type: string }
+      port:        { type: integer }
+      log_level:   { type: string }
+      health_path: { type: string }
+    infra:
+      replicas:       { type: integer }
+      cpu_request:    { type: string }
+      memory_request: { type: string }
+    provides:
+      host:     { type: string }
+      port:     { type: string }
+      protocol: { type: string }
+```
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -17,7 +45,7 @@ metadata:
       email: e@example.com
 spec:
   capability: helm
-  implements: core/compute/server:1.0.0
+  implements: example/compute/api-server:1.0.0
 
   locals:
     port: "{{ optional .values `port` 8080 }}"
@@ -82,7 +110,7 @@ metadata:
   version: 1.0.0
 spec:
   capability: helm
-  implements: core/compute/server:1.0.0
+  implements: example/compute/api-server:1.0.0
 
   locals:
     # The suffix each ConfigMap's name carries after the rendered name
@@ -92,6 +120,7 @@ spec:
   provides:
     host: "{{ .context.rendered_name }}-http"
     port: "8080"
+    protocol: http
 
   workload: |
     apiVersion: aggrega.ai/v1alpha1
@@ -241,7 +270,11 @@ Pattern: **synthesized with artifacts**, using `$import:` on the `workload:` fie
 # recipe.yaml
 spec:
   capability: helm
-  implements: core/compute/server:1.0.0
+  implements: example/compute/api-server:1.0.0
+  provides:
+    host: "{{ .context.rendered_name }}-http"
+    port: "8080"
+    protocol: http
   workload:
     $import: ./workload/workload.yaml
   artifacts:
@@ -263,3 +296,5 @@ containers:
 ```
 
 The `workload.yaml` file is Go-templated against the full pillar context before parsing. Same templating rules apply as for inline `workload:`.
+
+The file the `artifacts:` entry imports is pinned before a build reads it. Run `aggrega pin <recipe-dir>/recipe.yaml` once, and again whenever that file changes: it writes an `entity.lock` beside `recipe.yaml` recording the file's digest, and the lock is committed with the Recipe. A build halts, naming this command, while the lock records no pin for the imported file or the file no longer matches its pin. The `workload:` import needs no pin.
