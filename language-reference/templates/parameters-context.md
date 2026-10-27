@@ -2,8 +2,8 @@
 
 The `parameters:` pillar carries the Release-fulfilled, contract-validated parameter values. Two parallel mental models govern its accessibility:
 
-- **Value-template surfaces** (component / feature / sub-aggregate `values:` strings inside the Aggregate, plus Recipe `valuesMapping`, FeatureRecipe `injectMapping` and `provides`, Workload bodies) consume the parameter values as **already-interpolated literals**. The interpolation pass inside resolution evaluates the Aggregate's whole text as a template and substitutes every `{{ .parameters.<slot> }}` reference with the resolved value; downstream value-template surfaces never see `.parameters` directly in their TemplateContext.
-- **Path-template surfaces** (operator-authored `directory:` and `subDirectory:` templates on Release boundaries) read `.parameters.<slot>` directly at path-template evaluation during rendering. The merged parameter map remains alive through end-of-pipeline so the orchestrator can construct the path-template TemplateContext that includes `.parameters` against the closed allowlist.
+- **Value-template surfaces** (component / feature / sub-aggregate `values:` strings inside the Aggregate, plus Recipe `valuesMapping`, FeatureRecipe `injectMapping` and `provides`, Workload bodies) consume the parameter values as **already-interpolated literals**. The interpolation pass inside resolution evaluates the Aggregate's whole text as a template and substitutes every `{{ .parameters.<slot> }}` reference with the resolved value; downstream value-template surfaces never see `.parameters` directly in their template context.
+- **Path-template surfaces** (operator-authored `directory:` and `subDirectory:` templates on Release boundaries) read `.parameters.<slot>` directly at path-template evaluation during rendering. The merged parameter map remains readable to the end of rendering so a path template can read `.parameters` against the closed allowlist.
 
 The asymmetric grant — path templates read `.parameters` directly; value templates do not — keeps each layer owning what it needs: developer-side `values:` carry already-resolved environment-specific data forward to value templates; operator-side path templates reference region / environment / account-id parameters without round-tripping through the Aggregate's `values` schema.
 
@@ -16,10 +16,10 @@ The compiler resolves parameters in four ordered phases:
 1. **Contract read** — the Aggregate's `spec.parameters:` block is checked on its own terms before any Release value is looked at, so a slot that could constrain nothing halts the build even when no Release supplies it. A negative `minLength` or `maxLength` on a parameter's own declaration is refused when the Aggregate loads, naming the parameter and the key. Every `pattern` — on the slot itself and inside any nested contract under `items`, `properties` or `valuesType` — is compiled as a regular expression, and one that does not compile is refused naming the parameter, the pattern and the reason. A length bound inside a nested contract is not held to that floor; see [`entities/aggregate.md`](../entities/aggregate.md#parameter-slot-vocabulary).
 2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. The `.parameters` map is in scope at this point.
 3. **Parameter contract validation** — each value in the merged map, whether the Release supplied it or a `default:` filled it, validates against the Aggregate's `spec.parameters.<slot>` declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints; a `pattern` is matched against the expression compiled when the contract was read. The `.parameters` map exists in the validator's in-memory context as the structured payload being checked.
-4. **Interpolation** — the compiler evaluates the Aggregate's whole text as a template, before reading it as YAML, and replaces every `{{ .parameters.<slot> }}` reference with the resolved value; any other `{{` in the text is read as template syntax too, so a value carrying double braces of its own writes each `{{` as `{{"{{"}}` (see [Text that carries its own double braces](#text-that-carries-its-own-double-braces)). The interpolation is the substitution path for value-template surfaces — after this pass, value-template TemplateContexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
-The merged map stays readable after interpolation, through the whole of rendering, specifically to support path-template evaluation. Its readable lifetime is bounded by the build's: the compiler hands the resolved view to the compilation that consumes it rather than returning it to a caller, so nothing outside that build can reach the map. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` at orchestrator time against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
+4. **Interpolation** — the compiler evaluates the Aggregate's whole text as a template, before reading it as YAML, and replaces every `{{ .parameters.<slot> }}` reference with the resolved value; any other `{{` in the text is read as template syntax too, so a value carrying double braces of its own writes each `{{` as `{{"{{"}}` (see [Text that carries its own double braces](#text-that-carries-its-own-double-braces)). The interpolation is the substitution path for value-template surfaces — after this pass, value-template contexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
+The merged map stays readable after interpolation, through the whole of rendering, specifically to support path-template evaluation. Its readable lifetime is bounded by the build's: the compiler hands the resolved view to the compilation that consumes it rather than returning it to a caller, so nothing outside that build can reach the map. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` during rendering against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
 
-Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax during the interpolation pass. Templates inside Recipe and FeatureRecipe files do NOT receive `.parameters` in their TemplateContext (see "Boundary with downstream template contexts" below for the per-surface contract).
+Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax during the interpolation pass. Templates inside Recipe and FeatureRecipe files do NOT receive `.parameters` in their template context (see "Boundary with downstream template contexts" below for the per-surface contract).
 
 ## Text that carries its own double braces
 
@@ -132,7 +132,7 @@ Each element the Release supplies is checked against the `items` contract before
 The Sprig template library is available during interpolation, providing helpers like `join` for compact array-to-string conversions:
 
 ```yaml
-hosts: "{{ join \",\" .parameters.allowed_hosts }}"
+hosts: "{{ join `,` .parameters.allowed_hosts }}"
 ```
 
 ## Default fill semantics
@@ -162,7 +162,7 @@ spec:
 # Release supplies timeout_seconds: "thirty" — validation rejects (type mismatch)
 ```
 
-Required parameters (slots with no `default:` and no `required: false` opt-out — required is the implicit default) trigger a build-time error when the Release omits them. The error names the slot, the declared type, and the contract location for the author to fix.
+A slot marked `required: true` with no `default:` triggers a build-time error when the Release omits it (`E0165`). The error names the slot and its location in the contract for the author to fix. A slot with neither `required: true` nor a `default:` is optional: omitted, each reference to it interpolates as empty, and the Component's `values:` schema then judges the result.
 
 ### Nested-object parameters
 
@@ -239,10 +239,10 @@ The three-case dispatch is per-sibling at every nesting depth. A parent authored
 The asymmetric grant — path templates read `.parameters` directly; value templates do not — is the load-bearing distinction at this boundary. The boundary semantics per surface:
 
 - An **Aggregate component-`values:` template** that writes `{{ .parameters.X }}` resolves correctly at interpolation. The resolved literal is written into the YAML string in place.
-- A **Recipe `valuesMapping:` template** that writes `{{ .parameters.X }}` is a value-template surface; the TemplateContext does not carry `.parameters`. Authors needing per-environment variation in `valuesMapping:` express it through the resolved `.values.<key>` consumption path — the Aggregate exposes a parameter, references it from a Component's `values:`, the Release fulfils it, and the post-interpolation value flows through to the Recipe.
-- A **FeatureRecipe `injectMapping:`, `provides:`, or `pipeline.with:` template** is a value-template surface; same as Recipe `valuesMapping:`. `.parameters` is not in the TemplateContext.
+- A **Recipe `valuesMapping:` template** that writes `{{ .parameters.X }}` is a value-template surface; the template context does not carry `.parameters`. Authors needing per-environment variation in `valuesMapping:` express it through the resolved `.values.<key>` consumption path — the Aggregate exposes a parameter, references it from a Component's `values:`, the Release fulfils it, and the post-interpolation value flows through to the Recipe.
+- A **FeatureRecipe `injectMapping:`, `provides:`, or `pipeline.with:` template** is a value-template surface; same as Recipe `valuesMapping:`. `.parameters` is not in the template context.
 - A **Workload body template** (`workload:` content inside a Recipe) is a value-template surface; same.
-- A **path template** (Release boundary `directory:` / `subDirectory:`) is the carve-out. The path-template TemplateContext includes `.parameters.<slot>` against the closed allowlist; references resolve at render-orchestration-time path emission. See [`path-template-variables.md`](../path-template-variables.md) for the full path-template variable matrix.
+- A **path template** (Release boundary `directory:` / `subDirectory:`) is the carve-out. The path-template context includes `.parameters.<slot>` against the closed allowlist; references resolve when rendering places each boundary's output. See [`path-template-variables.md`](../path-template-variables.md) for the full path-template variable matrix.
 
 The four-domain ownership boundary is preserved by **which surface receives parameters**, not by whether the parameter map exists in memory at a given pipeline stage. Path templates are operator-authored and operator-owned; granting them direct parameter access keeps operator concerns (per-environment artifact layout) inside the operator surface. Value templates are catalog-authored; denying them direct parameter access keeps catalog-side authoring loosely coupled to the Aggregate-as-Single-Source-of-Truth contract.
 

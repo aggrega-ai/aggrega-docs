@@ -19,14 +19,13 @@ The field is optional on each. Entities without cross-field rules omit the field
 
 The assertion evaluation phases sit between schema validation and rendering in the compilation pipeline:
 
-1. Parameter resolution, parameter validation, parameter interpolation.
-2. Graph assembly.
-3. Selector resolution: `uses:` sockets matched to provider Components.
-4. Schema validation against `schema:` / `usesSchema:` / `featuresSchema:`.
-5. **Component / Feature assertions** evaluated against each instance.
-6. Recipe binding.
-7. **Recipe / FeatureRecipe assertions** evaluated against the bound instance.
-8. Rendering: mapping templates evaluated, output produced.
+1. Resolution: parameter validation and interpolation, then schema validation against `schema:` / `usesSchema:` / `featuresSchema:`.
+2. Topology construction and graph finalization: the graph is assembled.
+3. Static analysis: each `uses:` socket's selector checked against the labels of the components its connections reach.
+4. **Component / Feature assertions** evaluated against each instance.
+5. Recipe binding.
+6. **Recipe / FeatureRecipe assertions** evaluated against the bound instance.
+7. Rendering: mapping templates evaluated, output produced.
 
 The two assertion phases run before any rendering — no charts rendered, no Compose files generated. The one thing a provider is asked before the Recipe assertions run is the name it gives each bound node's resources, which a Recipe's `provides` may read. A failing assertion halts the build immediately with the assertion's specific error message; subsequent steps do not execute.
 
@@ -38,15 +37,15 @@ For Component and Feature `assertions:`, the template context exposes the resolv
 
 - `.values` — the developer's `values` content.
 - `.infra` — the Ops `infra` content (from Aggregate or Release).
-- `.uses` — the resolved `uses:` connections (post-selector-resolution), in the shape the author writes them: keyed by **socket name**, and under each socket by the **alias** of every connection on it — the name the author gave the connection under the socket, or, for a connection written as a list entry, its target. Each connection's entry describes the connection and carries nothing its target published. `target` is the resolved target's instance id, `alias` repeats the name it is keyed by, and `origin_feature` is present when a Feature attachment drew the connection. Beside them sit three facts under the names a Recipe template reads them by on the same connection's `.context.uses.<alias>` entry, where [template-context-contract.md](template-context-contract.md#contextuses--join-projection-enrichededge) describes what each holds: `labels` — the **target's** labels, never the labels of the component the assertion runs on — `values`, the values written on the connection, and `features`, the attachments written on the connection, keyed by the slot each fills. Each of the three is present on every connection, empty where the connection carries none, and an attachment under `features` has the shape `.features` gives one below. So `.uses.<socket>.<alias>.target` reads one connection's resolved target, `.uses.<socket>.<alias>.labels` that target's labels, a socket holding several connections holds an entry for each, and a reference reaching through this map for a value the target published halts, because the entry carries no such field.
+- `.uses` — the resolved `uses:` connections, each already checked against its socket's selector, in the shape the author writes them: keyed by **socket name**, and under each socket by the **alias** of every connection on it — the name the author gave the connection under the socket, or, for a connection written as a list entry, its target. Each connection's entry describes the connection and carries nothing its target published. `target` is the resolved target's instance id, `alias` repeats the name it is keyed by, and `origin_feature` is present when a Feature attachment drew the connection. Beside them sit three facts under the names a Recipe template reads them by on the same connection's `.context.uses.<alias>` entry, where [template-context-contract.md](template-context-contract.md#contextuses--join-projection-enrichededge) describes what each holds: `labels` — the **target's** labels, never the labels of the component the assertion runs on — `values`, the values written on the connection, and `features`, the attachments written on the connection, keyed by the slot each fills. Each of the three is present on every connection, empty where the connection carries none, and an attachment under `features` has the shape `.features` gives one below. So `.uses.<socket>.<alias>.target` reads one connection's resolved target, `.uses.<socket>.<alias>.labels` that target's labels, a socket holding several connections holds an entry for each, and a reference reaching through this map for a value the target published halts, because the entry carries no such field.
 - `.features` — the resolved attachments, keyed by the instance name the author gave each one. Each entry carries `type` (the attached Feature's catalog URI), `resolved_version` (the version bound for this build), and `values` (the attachment's own developer-intent content). An attachment written on one of the component's connections is not among them, exactly as it is not among a Recipe template's `.features`: it is read under its connection, at `.uses.<socket>.<alias>.features.<slot>`, in this same shape.
-- `.metadata` — the entity's metadata.
+- `.metadata` — the instance being evaluated: its `instance_id`, its `component` type and `resolved_version`, its `boundary_path`, and the build's `aggregate_name`, `aggregate_version` and `release_version`.
 
 For Recipe and FeatureRecipe `assertions:`, the context adds Recipe-specific fields:
 
 - `.provides` — the resolved `provides:` values of the component being evaluated, already computed by the time the assertion runs. A *target's* published values are not on this surface; they reach a caller in the render context instead.
 - `.locals` — the Recipe's locals.
-- `.recipe.metadata` — the Recipe's metadata.
+- `.recipe.metadata` — the Recipe's `name` and `version`, and its `capability`.
 - `.recipe.source` — the Recipe's source pointer.
 
 Field access uses standard Go template syntax (`.values.architecture`, `.uses.databases.primary.target`); the halting construct is `{{ fail "message" }}` per the Loud Guardrails contract — a failed assertion produces a clear, specific build-time error naming the violated invariant.
@@ -124,6 +123,9 @@ kind: Component
 metadata:
   name: core/datastore/mariadb
   version: 1.0.0
+  labels:
+    component.aggrega.ai/type: stateful-server
+    component.aggrega.ai/category: datastore
 spec:
   schema:
     values:
@@ -165,6 +167,7 @@ metadata:
   name: bitnami/datastore/mariadb/k8s
   version: 1.0.0
 spec:
+  capability: helm
   implements: core/datastore/mariadb:^1.0.0
   source:
     # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
@@ -200,7 +203,7 @@ The two roles look similar (both run `{{ fail }}` halts on cross-field rules), b
 - **Component assertions are part of the contract.** When the developer authors `architecture: replication` with `secondary.replicaCount: 1`, the build refuses regardless of which Recipe binds. A future alternative Recipe doesn't change that.
 - **Recipe assertions are part of the implementation.** When the architect chooses Bitnami chart 20.x as the Recipe, the chart has specific quirks (the `serviceMonitor.namespace` requirement, the ARM-node bug). These don't apply to a different chart.
 
-Co-locating both rule types on the Component would entangle the contract with its implementations: the Component would need to reference its bound Recipe to know which implementation rules to enforce, breaking the Component-Recipe separation. Splitting the rules to their natural location keeps the responsibility model clean. The runtime cost of splitting is negligible; both phases run pre-rendering and produce identical Loud Guardrails errors.
+Co-locating both rule types on the Component would entangle the contract with its implementations: the Component would need to reference its bound Recipe to know which implementation rules to enforce, breaking the Component-Recipe separation. Splitting the rules to their natural location keeps the responsibility model clean. The runtime cost of splitting is negligible; both phases run pre-rendering and halt with the same Loud Guardrails diagnostic, `E0033`, naming the entity, the instance and the rule.
 
 ## The `fail` message convention
 

@@ -4,11 +4,11 @@ The Aggrega template engine wires the [Sprig v3](https://github.com/Masterminds/
 
 🔴 **Read "the renderer evaluates" as the scope it is, because one authoring surface sits outside it.** A structured `source:` coordinate is resolved so the artifact it names can be pinned, and that resolution is not a rendering pass: it registers **Aggrega's own helpers and nothing else**, so a Sprig call in a `source:` field, or in a `locals:` entry it reads, halts the pull. An entry no `source:` field reads is evaluated by the render alone, with the full set. Resolving a coordinate fixes what gets pinned rather than producing an artifact, which is why its function set is deliberately narrower — see [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Resolving a `source:` coordinate registers a narrower function set" for the halt and the portable form to use instead.
 
-The Sprig surface is registered through `sprig.FuncMap()` at the parameter-interpolation pass and through Aggrega's own helper bundle (which embeds the Sprig set) at the renderer's value-template surfaces. The version pin lives in `aggrega-cli/go.mod`.
+The Sprig set is registered on its own for parameter interpolation, and together with Aggrega's own helpers on the renderer's value-template surfaces.
 
 ## What is wired
 
-`sprig.FuncMap()` exposes the full Sprig helper surface — roughly 200 functions across the categories below. This page sketches the categories with the common helpers in each; the canonical per-function reference is the upstream Sprig documentation.
+Sprig v3 exposes its full helper surface — roughly 200 functions across the categories below. This page sketches the categories with the common helpers in each; the canonical per-function reference is the upstream Sprig documentation.
 
 - **Strings** — `upper`, `lower`, `title`, `trim`, `trimAll`, `trimPrefix`, `trimSuffix`, `replace`, `contains`, `hasPrefix`, `hasSuffix`, `substr`, `quote`, `squote`, `cat`, `indent`, `nindent`, `repeat`, case helpers (`snakecase`, `camelcase`, `kebabcase`), abbreviation helpers (`abbrev`, `abbrevboth`, `trunc`), checksum helpers (`sha1sum`, `sha256sum`, `sha512sum`, `adler32sum`), `toString`.
 - **Lists** — `list`, `tuple`, `first`, `last`, `rest`, `initial`, `append`/`push`, `prepend`, `concat`, `reverse`, `uniq`, `without`, `has`, `slice`, `chunk`, `join`, `splitList`, `split`, `splitn`, `sortAlpha`, `compact`.
@@ -33,7 +33,7 @@ Aggrega guarantees byte-identical output for byte-identical input. A subset of S
 - **Environment readers** — `env`, `expandenv` (read process environment variables, which differ across operator workstations and CI runners).
 - **Network resolvers** — `getHostByName`.
 
-These helpers are not blocked by the engine; they are wired by Sprig's default `FuncMap()`. The discipline of avoiding them in render-path templates is upheld by reviewers and by the deterministic-output guarantee that authors and the standard-library catalog rely on.
+These helpers are not blocked by the engine; they are part of the Sprig v3 set. The discipline of avoiding them in render-path templates is upheld by reviewers and by the deterministic-output guarantee that authors and the standard-library catalog rely on.
 
 ## Aggrega-specific helpers
 
@@ -128,7 +128,7 @@ Helm extends Go's `text/template` with chart-template helpers that are commonly 
 
 - **`include`** — Helm's preferred form for invoking a defined template fragment with a pipeable string output. Aggrega's renderer does not register it. Use standard Go template's `{{ template "name" . }}` instead (the side-effect-only form); for pipeable output, compose using MappingLibrary fragments and `$import:` directives.
 - **`tpl`** — re-evaluates a string as a nested template against the current context. Aggrega does not register it; nested re-evaluation is not part of the template surface. Authors needing computed values should compose them with Sprig's string helpers and emit the final value directly.
-- **`required`** — fails the chart-render with a custom message when the named value is missing. Aggrega does not register it. Aggrega's required-field enforcement lives at the typed-parameter-contract layer (Aggregate `parameters:` slots with `required: true` produce `ErrParameterMissing` there, with file:line provenance); per-template required-marker checks use Sprig's `fail` to raise a fatal template error carrying the supplied string.
+- **`required`** — fails the chart-render with a custom message when the named value is missing. Aggrega does not register it. Aggrega's required-field enforcement lives at the typed-parameter-contract layer (an Aggregate `parameters:` slot with `required: true` that the Release leaves unfilled halts the build with `E0165`, naming the slot and where the Aggregate declares it); per-template required-marker checks use Sprig's `fail` to raise a fatal template error carrying the supplied string.
 - **`warn`** — emits a non-fatal note to the operator's terminal. Aggrega does not register it. Templates that need to halt the render with an explanatory message should use Sprig's `fail`; templates that need to fall back without halting should rely on standard Go `if`/`else` branches.
 
 ### Cross-engine helper inventory (load-bearing for MappingLibrary authors)
@@ -140,7 +140,7 @@ MappingLibrary fragments can target either of two consumption sites:
 
 The two helper sets share the Sprig surface but diverge on the engine-specific extensions. MappingLibrary entries that target Helm chart-internal consumption use Helm conventions (`.Values.<key>` capital-V root, `| default`, `include`-based composition); entries that target Aggrega-side consumption use Aggrega conventions (lowercase `.values.<key>`, `optional` for presence-aware fallback). The library entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render.
 
-Aggrega's custom helpers on top of Sprig are `optional` and `capitalizedWords`, both documented above, and its `index` replaces Go's, as documented above. The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
+Aggrega's custom helpers on top of Sprig are `optional` and `capitalizedWords`, both documented above, and its `index` replaces Go's, as documented above. The remainder of the helper surface is exactly the Sprig v3 set.
 
 ## Cross-references
 
