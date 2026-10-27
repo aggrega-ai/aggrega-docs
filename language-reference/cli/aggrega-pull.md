@@ -318,10 +318,23 @@ The lockfile pins content fetched from registries and remote sources, and record
 
 Registry credentials are read from the Docker credential configuration alone: `config.json` in the directory `DOCKER_CONFIG` names, or `~/.docker/config.json` when that variable is unset, together with any credential helper or OS keychain the file delegates to through `credsStore` or `credHelpers`. [`aggrega login <registry>`](aggrega-login.md) writes a credential there, and so does `docker login <registry>`; run either before `aggrega pull` for a private OCI catalog or chart registry. The files `podman login` and `helm registry login` write are not read.
 
-The other source kinds read no credential store:
+A classic Helm chart repository or chart archive (`helm-https-chart`), a compose fragment (`compose-https-fragment`) and a Git repository reached over HTTP or HTTPS (`git-repository`) authenticate with the **netrc file**, the per-user credential file curl and Git also read. It is the only credential store these three kinds read: `~/.config/helm/repositories.yaml` and Git credential helpers are not read. A Git repository reached over SSH authenticates through the SSH agent and reads no netrc file.
 
-- Helm classic HTTPS chart repositories (non-OCI) and plain HTTPS fragment sources carry a credential only when one is written into the URL; `~/.config/helm/repositories.yaml` is not read. A source whose URL carries none must be readable anonymously, and a server that answers 401 or 403 stops the pull as an unauthorized fetch.
-- Git module sources authenticate over SSH through the SSH agent, and over HTTPS only with a credential written into the URL; `~/.netrc` and Git credential helpers are not read.
+```text
+machine charts.example.com
+  login deploy-bot
+  password <token>
+```
+
+**Which file is read.** The file the `NETRC` environment variable names, when it is set. Otherwise `.netrc` in your home directory; on Windows, `_netrc` in `%USERPROFILE%` when that file exists, and `.netrc` there when it does not. A missing file holds no credentials and is not an error. A file that exists and cannot be read, or does not follow the netrc format, stops the command with `E0360`, naming the file — and, for a format fault, the line — but never what the file holds: [The netrc file cannot be read](../errors/fatal-halts.md#the-netrc-file-cannot-be-read). On Linux and macOS, a netrc file that other users of the machine can read draws one warning naming it; make it readable by you alone (`chmod 600`).
+
+**Which entry answers a request.** Each request is looked up by its host — the host name without the port, ignoring letter case — and is answered by the first `machine` entry naming that host, or by the `default` entry when none does. The entry's `login` and `password` are sent as HTTP basic credentials, over http and https alike; an entry missing either sends nothing. A repository whose index places its charts on another host is answered per request: the index request takes the repository host's entry, and the chart request the chart host's. A request that goes without a credential must be readable anonymously, and a server that answers 401 or 403 stops the pull as an unauthorized fetch, whose remedy names the entry to add and the file it was looked for in.
+
+**The credential is written nowhere.** It is read when a fetch runs and sent with the request: the lockfile, the `entity.lock` beside the Recipe, the source cache and every message carry the source's URL as you wrote it.
+
+**A source URL carries no credential.** A Recipe or FeatureRecipe whose source `url` writes a user before its host — `https://user:token@charts.example.com/…`, or a token written alone as `https://token@charts.example.com/…` — is refused with `E0361` as the document is read, before anything is fetched: validating the Recipe refuses it, and so does every pull, pin and build that reaches it. The message names the host and never the credential: [A source URL carries a credential](../errors/fatal-halts.md#a-source-url-carries-a-credential). Put the credential in a `machine` entry of the netrc file instead. Over SSH, a user written alone — `ssh://git@github.com/…` — names an account rather than a secret and is accepted, while a password written there is refused too.
+
+**The check reads only the part of the URL before the host.** A token carried in a query string or a path — `…/index.yaml?access_token=…` — is not detected, so do not write one there: the URL is recorded as written in the lockfile, in the `entity.lock` and in the source cache, the names of the cache's directories included.
 
 ## Environment variables
 

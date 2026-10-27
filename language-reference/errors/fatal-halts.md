@@ -2278,6 +2278,24 @@ Where the failure is surfaced by a step that supplies remediation, the line ends
 
 **How to fix:** this is the operator's rather than the entity author's — nothing in an Aggregate, Component or Recipe causes it. Log in to the host the message names and run the acquisition again. Where you are already logged in, the credential in the store is not one that host accepts for that repository: log in again to refresh it, and check that the account has read access to the repository the reference resolves to, since a private repository answers exactly this way to an account that cannot see it. Where the reference resolves to a host you did not expect, the registry alias or the default registry in `.aggrega-config.yaml` is pointing somewhere else.
 
+### The netrc file cannot be read
+
+<!-- covers: pkg/sourceresolver/netrc.ErrNetrcFileUnreadable -->
+
+A classic Helm chart repository or chart archive, a compose fragment and a Git repository fetched over http or https take their credential from the netrc file, which is read when such a source is fetched — by a pull, a pin, or a build filling its lockfile. Which file is read, and which entry answers a request, is set out in [Authentication](../cli/aggrega-pull.md#authentication). This condition reports a netrc file that exists and could not be used: it could not be read — it is a directory, say, or you have no permission to read it — or it does not follow the netrc format. The format is read strictly, because a word read in the wrong place shifts every word after it: a misspelt keyword would otherwise turn the password after it into the next keyword, and the request would go out with no credential, or the wrong one, while the file looked fine.
+
+A file that does not exist is not this condition: it holds no credentials, and a request that needs one is answered by the server's refusal. A file other users of the machine can read is not this condition either: on Linux and macOS it draws one warning naming the file, and it is still read.
+
+The message names the file and, for a format fault, the line, and says what is wrong in terms of the format alone — never a word the file holds, since a misplaced word may be a password. The diagnostic carries no category: the netrc file is your own credential file rather than a document the build reads.
+
+Emitted message for a format fault, which is one of a word standing where a keyword is expected, a keyword not followed by its value, a `login`, `password` or `account` standing before any `machine` or `default` entry, and a quoted word not closed on the line it opens:
+> the netrc file could not be read (file `<path>`, line `<line>`, a word stands where a keyword is expected (machine, default, login, password, account or macdef)). Correct the file, or set NETRC to the path of another netrc file to read instead
+
+and for a file that could not be read, quoting why:
+> the netrc file could not be read (file `<path>`, `<why it could not be read>`). Correct the file, or set NETRC to the path of another netrc file to read instead
+
+**How to fix:** open the file the message names. For a format fault, go to the line it names: each entry is `machine <host>` — or `default` — followed by `login <user>` and `password <secret>`, and a keyword misspelt or left without its value is the usual cause. For a file that could not be read, make it a file you can read, readable by you alone (`chmod 600`). Where the file is not the one you meant to be read, set `NETRC` to the path of the one you meant.
+
 ### The registry could not be reached
 
 <!-- covers: pkg/oci.ErrFetchNetworkUnreachable -->
@@ -5246,6 +5264,22 @@ Emitted message, naming the document, the kind as written and the kinds that are
 
 **How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
 
+### A source URL carries a credential
+
+<!-- covers: pkg/sourceresolver/netrc.ErrSourceURLCarriesCredential -->
+
+A source `url` is recorded as you wrote it — in the Release's lockfile, in the `entity.lock` beside the Recipe and in the source cache — and the Recipe itself is a file you commit and may publish. So a credential written into the URL would travel everywhere the URL does. This condition reports a Recipe's `source:` whose `url` writes a user before its host: `https://user:token@host/…`, or a token written alone as `https://token@host/…`, since a service reached over HTTP commonly takes a token in the user's place. Over http and https any user written there counts; over another scheme only a password does, because a user written alone there names an account — `ssh://git@github.com/…` is accepted, and the SSH agent supplies its key. A FeatureRecipe's `source:` is held to the same rule.
+
+It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it, in a validation, a pull, a pin or a build. The message names the host and never the credential. The check reads the part of the URL written before the host and nothing else, so a token carried in a query string or a path is not detected — and is recorded as written, like the rest of the URL.
+
+Emitted message over http or https, naming the document, the key and the host, then where the credential belongs:
+> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a user or password for host `<host>`; remove it from the URL and write the credential in the netrc file instead, as an entry "machine `<host>` login `<user>` password `<secret>`" (the file NETRC names, else .netrc in your home directory, or _netrc in %USERPROFILE% on Windows)
+
+and over another scheme, where the remedy is removing the password:
+> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a password for host `<host>`; remove it from the URL, which is written into the lockfile and the cache as authored
+
+**How to fix:** remove the user and password from the `url`, leaving the URL that names the host. For a source fetched over http or https, put the credential in a `machine` entry for that host in your netrc file, which every fetch of a classic Helm chart repository, a compose fragment or a Git repository over HTTP or HTTPS reads — [Authentication](../cli/aggrega-pull.md#authentication) describes which file and which entry. For a Git repository over SSH, the SSH agent supplies the key, and the user may stay. Where the Recipe was already committed or published with the credential in it, the credential is in that history: change it at the server as well.
+
 ### A source artifact is cached without a workspace root to anchor it
 
 <!-- covers: pkg/sourceresolver/cacheslot.ErrEmptyWorkspaceRoot -->
@@ -6381,6 +6415,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0356` | `suspend requires form: scheduled` | A workload `suspend:` is set on a form other than `scheduled` |
 | `E0357` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` | A Manifest `name` mapping names nothing in the build |
 | `E0358` | `uses edge target names a component its module does not export` | A `uses` target names a module's component the module does not export |
+| `E0360` | `the netrc file could not be read` | The netrc file cannot be read |
+| `E0361` | `the source URL carries a credential` | A source URL carries a credential |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
