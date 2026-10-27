@@ -215,10 +215,10 @@ so the first-win search stack resolves local entities before the shared ones.
 `core/compose-bridge` and `core/k8s-dns-resolver` Features with their compose and helm
 FeatureRecipes, and the `compose`/`helm` providers come from the standard catalog. What
 stays local is the example-specific teaching content: the per-target Adminer recipes. The
-helm `db` recipe is the standard library's `helm/postgres`, whose `provides.host` is now a
+helm `db` recipe is the standard library's `helm/postgres`, whose `provides.host` is a
 **bare, self-contained** service name. The consumer
 qualifies it with the target namespace caller-side via the standard-library
-`core/k8s-dns-resolver` routing feature, so the recipe no longer hardcodes a boundary
+`core/k8s-dns-resolver` routing feature, so the recipe hardcodes no boundary
 namespace.
 
 Two categories of file meet in a built variant: **authored** inputs (everything

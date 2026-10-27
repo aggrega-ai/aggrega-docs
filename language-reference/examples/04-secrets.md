@@ -121,6 +121,7 @@ spec:
         k8s_secret_name: "{{ .steps.eso_fetcher.outputs.k8s_secret_name }}"
         target_container: "{{ .locals.primary_compute }}"
         env_injections: {{ if .inject }}{{ toJson .inject.env }}{{ else }}{}{{ end }}
+        file_injections: {{ if .inject }}{{ toJson .inject.file }}{{ else }}{}{{ end }}
 ```
 
 **5. Routing Domain: Manifest**
@@ -208,8 +209,7 @@ spec:
   capability: helm
   implements: core/datastore/redis:1.0.0
   source:
-    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
-    # The built-in resolver today uses the { kind, url, version } form.
+    # A chart repository root paired with the chart's name.
     kind: helm-https-chart
     url: https://charts.example.com
     chart: redis

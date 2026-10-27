@@ -70,9 +70,8 @@ The packaged Grafana server is **AGPL-3.0**.
 ## Not modelled here
 
 Grafana is deployed standalone. Wiring a metrics or logs source — for example a
-Prometheus server — into Grafana as a provisioned datasource through a `uses`
-socket is a natural next refinement, and is not modelled by this component
-today.
+Prometheus server — into Grafana as a provisioned datasource is not modelled:
+the component declares no `uses` socket.
 
 ## Build
 

@@ -311,7 +311,7 @@ spec:
   implements: my-org/datastore/mariadb:^1.0.0
 
   source:
-    # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
+    # An OCI chart: the registry path and the chart's name in one URL.
     kind: helm-oci-chart
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "25.0.8"

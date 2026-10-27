@@ -83,8 +83,7 @@ spec:
   capability: helm
   implements: core/postgres:2.0.0
   source:
-    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
-    # The built-in resolver today uses the { kind, url, version } form.
+    # A chart repository root paired with the chart's name.
     kind: helm-https-chart
     url: https://charts.example.com
     chart: postgresql

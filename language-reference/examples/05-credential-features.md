@@ -330,4 +330,4 @@ Because the name is published rather than agreed, changing which FeatureRecipe i
 
 Whether each consumer holds its own credential or several share one is a choice made where the credential is attached, not a property of the catalog entity. [`model-api-key-sharing/`](model-api-key-sharing/README.md) builds both shapes with two consumers each — the multiplicity at which they differ — on the credential each agent's connection carries, and shows what each renders, including a shared default that one connection overrides with an attachment of its own.
 
-*Vault-backed delivery is available today through the chart-rendered route: `k8s-external-secret` renders an External Secrets `ExternalSecret`. A FeatureRecipe's `pipeline:` array chains Wasm plugins, and its `provides` contract publishes what it materializes.*
+*Vault-backed delivery takes the chart-rendered route: `k8s-external-secret` renders an External Secrets `ExternalSecret`. A FeatureRecipe's `pipeline:` array chains Wasm plugins, and its `provides` contract publishes what it materializes.*

@@ -326,7 +326,7 @@ cross-boundary networking across providers.
   naming itself. A script beside it builds all four Releases and checks every
   outcome. Needs the standard-library catalog checked out beside it.
 
-*Pipeline steps run today — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).*
+*A build can also run plugins over what it renders — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).*
 
 ## The header on each example
 

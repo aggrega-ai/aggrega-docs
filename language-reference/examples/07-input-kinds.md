@@ -228,8 +228,7 @@ spec:
     protocol: mariadb
 
   source:
-    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
-    # The built-in resolver today uses the { kind, url, version } form.
+    # An OCI chart: the registry path and the chart's name in one URL.
     kind: helm-oci-chart
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "{{ optional .infra `source_version` `25.0.8` }}"

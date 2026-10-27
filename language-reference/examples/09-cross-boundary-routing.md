@@ -2,9 +2,9 @@
 
 When components deployed in different Release boundaries need to communicate, the target's `provides.host` is a string the compiler cannot introspect — it cannot decide on its own whether that string is valid across boundaries. Cross-boundary routing handles this through a Feature-and-FeatureRecipe pattern: a Feature attached to the caller declares which injected variable needs rewriting; its FeatureRecipe declares how to rewrite it per provider.
 
-*Worked examples for cross-boundary routing are under active development. The standard-library routing Features and their FeatureRecipes will land as the catalog expands; this chapter populates with examples when they ship.*
+*The standard library ships the routing Feature `core/k8s-dns-resolver` and its FeatureRecipe `helm/k8s-dns-resolver`; the [cross-boundary networking example](cross-boundary-networking/README.md) builds it on Kubernetes, beside its Docker Compose counterpart.*
 
-In the meantime, the architectural primitives that compose into cross-boundary routing solutions are documented in their own homes:
+The architectural primitives that compose into cross-boundary routing solutions are documented in their own homes:
 
 * The `injectMapping` mechanism for caller-side variable rewriting: [entities/featurerecipe.md](../entities/featurerecipe.md)
 * Release boundary annotations that Features consume to build FQDNs and routing metadata: [entities/release.md](../entities/release.md)
@@ -187,8 +187,6 @@ spec:
   source: "./charts/worker"
   locals:
     primary_compute: "worker-container"
-    containers_path: "/spec/template/spec/containers"
-    volumes_path: "/spec/template/spec/volumes"
   valuesMapping: |
     image: "{{ .values.image }}"
 ```
@@ -204,10 +202,8 @@ During the plugin pipeline, the compiler feeds the Injector plugin its step inpu
     "with": {
       "k8s_secret_name": "data-worker-db-credentials",
       "target_container": "worker-container",
-      "containers_path": "/spec/template/spec/containers",
-      "volumes_path": "/spec/template/spec/volumes",
-      "file_injections": { "/etc/secrets/db.json": "password" },
-      "env_injections": {}
+      "env_injections": "",
+      "file_injections": { "/etc/secrets/db.json": "password" }
     }
   },
   "base_objects": [
@@ -231,7 +227,7 @@ During the plugin pipeline, the compiler feeds the Injector plugin its step inpu
 ```
 
 **4. The Wasm Output (Plugin → Compiler)**
-The plugin returns its patch appending the Volume and VolumeMount. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, carried in the same canonical binary encoding, per the [Wasm plugin contract](../plugins/plugin-contract.md).
+The plugin returns its patch appending the Volume and VolumeMount that `file_injections` asks for: the secret's `password` key mounted at `/etc/secrets/db.json` in `worker-container`. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, carried in the same canonical binary encoding, per the [Wasm plugin contract](../plugins/plugin-contract.md).
 
 ```json
 {
@@ -252,7 +248,7 @@ The plugin returns its patch appending the Volume and VolumeMount. The JSON belo
                 {
                   "name": "vault-vol-db",
                   "mountPath": "/etc/secrets/db.json",
-                  "subPath": "db.json",
+                  "subPath": "password",
                   "readOnly": true
                 }
               ]
