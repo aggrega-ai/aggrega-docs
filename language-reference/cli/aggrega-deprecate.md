@@ -23,7 +23,7 @@ Deprecate amends an already-published artifact by attaching a deprecation marker
 | `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. When omitted, the public-good Fulcio instance is used. |
 | `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
 | `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
-| `--message` | — | Optional legacy message retained for audit and for the recorded build-time diagnostic; defaults to --reason when unset. |
+| `--message` | — | Optional message retained for audit and for the recorded build-time diagnostic; defaults to --reason when unset. |
 | `--reason` | — | Human-readable reason for the deprecation — why it is deprecated and what to do instead. Required unless --from or an interactive prompt supplies it. |
 | `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |
 | `--replacement` | — | Optional artifact reference that replaces the deprecated one. |

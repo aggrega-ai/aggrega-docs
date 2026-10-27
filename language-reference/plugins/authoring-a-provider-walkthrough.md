@@ -570,7 +570,7 @@ aggrega build --release release.yaml --auto-pull
 
 ```text
 warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
-[… omitted: three lines saying the Release could not be rendered to discover its external inputs, the first carrying the error below]
+[… omitted: the notice saying the Release could not be rendered to discover its external inputs, carrying the error below beneath its first line]
 Pull complete: release.lock (entities=5, source_artifacts=0, external_inputs=0)
 [… omitted: a line saying again that external inputs were not fully discovered]
 [CATALOG_ERROR E0265] app
