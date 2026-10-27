@@ -1,30 +1,39 @@
 # MariaDB worked example
 
-This page walks through a full production-grade MariaDB Component end-to-end: the SchemaLibrary entry that holds the bulk of the schema, the Component definition that consumes it, the MappingLibrary entry that holds the bulk of the Recipe mapping, the Recipe definition that consumes it, the Aggregate composing MariaDB with an API server, the Manifest binding selectors to Recipes, and the Release supplying production parameter values.
+This page walks through a full production-grade MariaDB Component end-to-end: the SchemaLibrary entry that holds the bulk of the schema, the Component definition that consumes it, the MappingLibrary entry that holds the bulk of the Recipe mapping, the Recipe definition that consumes it, the Aggregate composing MariaDB with an API server, the Manifest binding component and Feature types to Recipes, and the Release supplying production parameter values.
 
-The example is realistic. It covers standalone and replication architectures, primary and secondary node pools with full resource specifications, metrics configuration with Prometheus ServiceMonitor, backup configuration with S3 destination, full credential management for root + optional replication credentials, and the Bitnami chart 20.x-specific implementation invariants the Recipe enforces. Every authoring surface uses the compact form for schema content, JSON Schema 2020-12 cross-document `$ref:` for library composition, and Go templates with `$import:` for mapping library reuse.
+The example is realistic. It covers standalone and replication architectures, primary and secondary node pools with full resource specifications, metrics configuration with a Prometheus ServiceMonitor, a backup contract with an S3 destination, credentials for the root account, the application user and replication, and the Bitnami chart 25.x-specific implementation invariants the Recipe enforces. Every authoring surface uses the compact form for schema content, cross-document `$ref:` for library composition, and Go templates with `$import:` for mapping library reuse.
+
+The files below are a workspace you can build. Write each one at the path its first line names and run the two commands under [End-to-end build](#end-to-end-build); the output blocks on this page are copied from a build of these files, as [Reading the output on these pages](reading-the-output.md) describes.
 
 ## The catalog structure
 
-The example organises catalog content into per-entity directories:
+The example organises catalog content into per-entity directories, under a workspace root:
 
 ```text
+.aggrega-config.yaml                        # Marks the workspace root
 catalog/
 ├── components/
-│   └── core/
-│       └── datastore/
-│           └── mariadb/
-│               └── component.yaml          # The Component definition
+│   ├── core/
+│   │   └── datastore/
+│   │       └── mariadb/
+│   │           └── component.yaml          # The Component definition
+│   └── my-org/
+│       └── server/
+│           └── checkout-api/
+│               └── component.yaml          # The API server's Component
 ├── recipe/
 │   └── helm/
-│       └── mariadb-bitnami/
-│           └── recipe.yaml                 # The Helm Recipe
+│       ├── mariadb-bitnami/
+│       │   └── recipe.yaml                 # The Helm Recipe
+│       └── checkout-api/
+│           └── recipe.yaml                 # The API server's Recipe
 ├── schemalibs/
 │   └── aggrega-datastores/
 │       └── library.yaml                    # SchemaLibrary with MariaDBPayload + helpers
 ├── mappinglibs/
 │   └── aggrega-bitnami-helpers/
-│       └── library.yaml                    # MappingLibrary with MariaDBBitnamiCore + helpers
+│       └── library.yaml                    # MappingLibrary with MariaDBBitnamiCore
 ├── aggregates/
 │   └── checkout-service.yaml               # Aggregate composing API + MariaDB
 ├── manifests/
@@ -33,16 +42,24 @@ catalog/
     └── prod-release.yaml                   # Release with production values
 ```
 
-Each file is shown in full below.
+Each file is shown in full below. The first is the workspace configuration:
+
+```yaml
+# .aggrega-config.yaml
+workspace: {}
+default_registry: hub.aggrega.ai
+```
+
+The `workspace:` block marks the folder as the workspace root, and the `catalog` directory beside it is read as the workspace's catalog without being named. The example also uses two standard-library entities it does not show — the `core/secret-value` credential Feature and its `helm/env-secret` FeatureRecipe — and `default_registry` names the registry they are pulled from.
 
 ## The SchemaLibrary entry
 
 ```yaml
-# schemalibs/aggrega-datastores/library.yaml
+# catalog/schemalibs/aggrega-datastores/library.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: SchemaLibrary
 metadata:
-  name: aggrega/datastores
+  name: Datastores
   version: 1.0.0
   description: "Shared schemas for stateful datastore Components."
 
@@ -50,11 +67,11 @@ spec:
   schemas:
     PodResources:
       requests:
-        cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
-        memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
+        cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$", default: "250m" }
+        memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$", default: "512Mi" }
       limits:
-        cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
-        memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
+        cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$", default: "500m" }
+        memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$", default: "1Gi" }
 
     PersistenceSpec:
       size: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$", required: true }
@@ -66,8 +83,8 @@ spec:
 
     NodePool:
       replicaCount: { type: integer, min: 1, max: 9, default: 1 }
-      resources: { $ref: "#/schemas/PodResources" }
-      persistence: { $ref: "#/schemas/PersistenceSpec" }
+      resources: { $ref: "Datastores#/schemas/PodResources" }
+      persistence: { $ref: "Datastores#/schemas/PersistenceSpec" }
       nodeSelector: { type: object, valuesType: string }
       podAntiAffinityPreset: { type: string, enum: [soft, hard, ""], default: soft }
 
@@ -79,16 +96,19 @@ spec:
     MariaDBPayload:
       architecture: { type: string, enum: [standalone, replication], default: standalone }
       image:
-        tag: { type: string, default: "11.4.4-debian-12-r0" }
+        tag: { type: string }
         pullPolicy: { type: string, enum: [Always, IfNotPresent, Never], default: IfNotPresent }
-      auth: { $ref: "#/schemas/MariaDBAuth", required: true }
-      primary: { $ref: "#/schemas/NodePool", required: true }
+      auth: { $ref: "Datastores#/schemas/MariaDBAuth", required: true }
+      primary: { $ref: "Datastores#/schemas/NodePool", required: true }
       secondary:
-        $ref: "#/schemas/NodePool"
         when: '{{ eq $.architecture "replication" }}'
         required: true
         properties:
-          replicaCount: { min: 2 }
+          replicaCount: { type: integer, min: 2, max: 8, default: 2 }
+          resources: { $ref: "Datastores#/schemas/PodResources" }
+          persistence: { $ref: "Datastores#/schemas/PersistenceSpec" }
+          nodeSelector: { type: object, valuesType: string }
+          podAntiAffinityPreset: { type: string, enum: [soft, hard, ""], default: soft }
       metrics:
         enabled: { type: boolean, default: false }
         serviceMonitor:
@@ -102,12 +122,14 @@ spec:
         s3_bucket: { type: string, format: uri, validate: '{{ hasPrefix "s3://" . }}', validateMessage: "s3_bucket must use s3:// URI scheme" }
 ```
 
-The library carries five named schemas (`PodResources`, `PersistenceSpec`, `NodePool`, `MariaDBAuth`, `MariaDBPayload`) with full field constraints, pattern validation, conditional shape via `when:`, per-field custom validation via `validate:` / `validateMessage:`, and cross-references via `$ref:`. The library is published to OCI; consumer Components reference it via the canonical `$ref:` URL.
+The library carries five named schemas (`PodResources`, `PersistenceSpec`, `NodePool`, `MariaDBAuth`, `MariaDBPayload`) with full field constraints, defaults, pattern validation, conditional shape via `when:`, per-field custom validation via `validate:` / `validateMessage:`, and cross-references via `$ref:`. A reference names the library by its `metadata.name` — `Datastores#/schemas/<entry>` — and never by where the library is stored. That holds inside the library as well, which is why `NodePool` reaches `PodResources` as `Datastores#/schemas/PodResources`. The same reference resolves whether the library sits in the workspace's catalog, as here, or is published to a registry.
+
+The secondary pool is written out as an object of its own rather than as a `$ref:` to `NodePool`, because a cross-document `$ref:` takes only `properties`, `required` and `description` beside it, and the pool needs a `when:`. What `when:` does there is covered under [The Aggregate](#the-aggregate).
 
 ## The Component
 
 ```yaml
-# components/core/datastore/mariadb/component.yaml
+# catalog/components/core/datastore/mariadb/component.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
@@ -131,28 +153,24 @@ spec:
       host: { type: string, format: hostname }
       port: { type: integer, min: 1024, max: 65535 }
       connection_url: { type: string, format: uri }
-      replicas:
-        type: object
-        properties:
-          primary: { type: integer }
-          secondary: { type: integer }
 
   usesSchema: {}    # MariaDB is a leaf in the dependency graph
 
   featuresSchema:
     root_credentials:
       required: true
-      inject:
-        username: auth.rootUser
-        password: auth.rootPassword
-      description: "Root credentials for MariaDB administration."
+      inject: []
+      description: "Root password for MariaDB administration."
+
+    user_credentials:
+      required: true
+      inject: []
+      description: "Password of the application user auth.username names."
 
     replication_credentials:
       required: false
-      inject:
-        username: auth.replicationUser
-        password: auth.replicationPassword
-      description: "Replication credentials, required when architecture: replication."
+      inject: []
+      description: "Replication password, required when architecture: replication."
 
   assertions:
     # Architectural rule: replication requires at least 2 secondary replicas.
@@ -166,136 +184,128 @@ spec:
     # Architectural rule: replication requires the replication credential.
     replication-needs-credentials: |
       {{- if eq .values.architecture "replication" -}}
-        {{- if not .features.replication_credentials -}}
+        {{- if not (hasKey .features "replication_credentials") -}}
           {{- fail "architecture=replication requires replication_credentials secret to be supplied" -}}
         {{- end -}}
       {{- end -}}
 
     # Architectural rule: backup requires a schedule when enabled.
     backup-needs-schedule: |
-      {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
+      {{- if and .values.backup.enabled (not (optional .values.backup "schedule" "")) -}}
         {{- fail "backup.schedule is required when backup.enabled=true" -}}
       {{- end -}}
 
     # Architectural rule: total node count cap.
     total-node-count-within-cap: |
-      {{- $total := add .values.primary.replicaCount (default 0 .values.secondary.replicaCount) -}}
+      {{- $secondary := 0 -}}
+      {{- if eq .values.architecture "replication" -}}
+        {{- $secondary = .values.secondary.replicaCount -}}
+      {{- end -}}
+      {{- $total := add .values.primary.replicaCount $secondary -}}
       {{- if gt $total 9 -}}
-        {{- fail (printf "total node count exceeds 9: got %d (primary=%d, secondary=%d)"
-                         $total .values.primary.replicaCount
-                         (default 0 .values.secondary.replicaCount)) -}}
+        {{- fail (printf "total node count exceeds 9: got %v (primary=%v, secondary=%v)"
+                         $total .values.primary.replicaCount $secondary) -}}
       {{- end -}}
 ```
 
-The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares two slots: a required root credential and an optional replication credential. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
+The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares three slots: required root and application-user credentials, and an optional replication credential. Each slot's `inject: []` leaves delivery to the Recipe: the developer attaches a credential and the Recipe decides where its value goes. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
 
 ## The MappingLibrary entry
 
 ```yaml
-# mappinglibs/aggrega-bitnami-helpers/library.yaml
+# catalog/mappinglibs/aggrega-bitnami-helpers/library.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: MappingLibrary
 metadata:
-  name: aggrega/bitnami-helpers
+  name: BitnamiHelpers
   version: 1.0.0
   description: "Shared mapping fragments for Bitnami chart conventions."
 
 spec:
   mappings:
-    BitnamiPodResources: |
-      {{ define "BitnamiPodResources" }}
-      requests:
-        cpu: {{ .requests.cpu | default "250m" | quote }}
-        memory: {{ .requests.memory | default "512Mi" | quote }}
-      limits:
-        cpu: {{ .limits.cpu | default "500m" | quote }}
-        memory: {{ .limits.memory | default "1Gi" | quote }}
-      {{ end }}
-
-    BitnamiPersistence: |
-      {{ define "BitnamiPersistence" }}
-      enabled: true
-      size: {{ .size | default "20Gi" | quote }}
-      {{- if .storageClass }}
-      storageClass: {{ .storageClass | quote }}
-      {{- end }}
-      accessModes:
-      {{- range .accessModes | default (list "ReadWriteOnce") }}
-        - {{ . | quote }}
-      {{- end }}
-      {{ end }}
-
     MariaDBBitnamiCore: |
+      {{- define "BitnamiNodePool" }}
+        resources:
+          requests:
+            cpu: {{ .pool.resources.requests.cpu | quote }}
+            memory: {{ .pool.resources.requests.memory | quote }}
+          limits:
+            cpu: {{ .pool.resources.limits.cpu | quote }}
+            memory: {{ .pool.resources.limits.memory | quote }}
+        persistence:
+          enabled: true
+          size: {{ .pool.persistence.size | quote }}
+          {{- with optional .pool.persistence "storageClass" "" }}
+          storageClass: {{ . | quote }}
+          {{- end }}
+          accessModes:
+          {{- range .pool.persistence.accessModes }}
+            - {{ . | quote }}
+          {{- end }}
+        nodeSelector:
+          kubernetes.io/arch: {{ .arch | quote }}
+          {{- range $k, $v := optional .pool "nodeSelector" dict }}
+          {{ $k }}: {{ $v | quote }}
+          {{- end }}
+        podAntiAffinityPreset: {{ .pool.podAntiAffinityPreset | quote }}
+      {{- end }}
       {{- with .values -}}
+      fullnameOverride: {{ $.context.rendered_name | quote }}
+      {{- with optional $.infra "kubernetes_version" "" }}
+      kubeVersion: {{ . | quote }}
+      {{- end }}
       image:
-        tag: {{ .image.tag | quote }}
+        {{- with optional .image "tag" "" }}
+        tag: {{ . | quote }}
+        {{- end }}
         pullPolicy: {{ .image.pullPolicy }}
       architecture: {{ .architecture }}
       auth:
         username: {{ .auth.username | quote }}
         database: {{ .auth.database | quote }}
-        {{- if .auth.existingSecret }}
-        existingSecret: {{ .auth.existingSecret | quote }}
+        {{- with optional .auth "existingSecret" "" }}
+        existingSecret: {{ . | quote }}
+        {{- else }}
+        rootPassword: {{ $.context.inject.env.MARIADB_ROOT_PASSWORD | quote }}
+        password: {{ $.context.inject.env.MARIADB_PASSWORD | quote }}
+        {{- if eq .architecture "replication" }}
+        replicationPassword: {{ $.context.inject.env.MARIADB_REPLICATION_PASSWORD | quote }}
         {{- end }}
-        rootUser: {{ $.features.root_credentials.username | quote }}
-        rootPassword: {{ $.features.root_credentials.password | quote }}
-        {{- if .secondary }}
-        replicationUser: {{ $.features.replication_credentials.username | quote }}
-        replicationPassword: {{ $.features.replication_credentials.password | quote }}
         {{- end }}
       primary:
         name: primary
-        replicaCount: {{ .primary.replicaCount }}
-        resources:
-          {{- include "BitnamiPodResources" .primary.resources | nindent 4 }}
-        persistence:
-          {{- include "BitnamiPersistence" .primary.persistence | nindent 4 }}
-        nodeSelector:
-          {{- range $k, $v := .primary.nodeSelector }}
-          {{ $k }}: {{ $v | quote }}
-          {{- end }}
-        podAntiAffinityPreset: {{ .primary.podAntiAffinityPreset | quote }}
+      {{- template "BitnamiNodePool" (dict "pool" .primary "arch" $.infra.cpu_arch) }}
       {{- if eq .architecture "replication" }}
       secondary:
         name: secondary
         replicaCount: {{ .secondary.replicaCount }}
-        resources:
-          {{- include "BitnamiPodResources" .secondary.resources | nindent 4 }}
-        persistence:
-          {{- include "BitnamiPersistence" .secondary.persistence | nindent 4 }}
-        nodeSelector:
-          {{- range $k, $v := .secondary.nodeSelector }}
-          {{ $k }}: {{ $v | quote }}
-          {{- end }}
-        podAntiAffinityPreset: {{ .secondary.podAntiAffinityPreset | quote }}
+      {{- template "BitnamiNodePool" (dict "pool" .secondary "arch" $.infra.cpu_arch) }}
       {{- end }}
       metrics:
         enabled: {{ .metrics.enabled }}
         serviceMonitor:
           enabled: {{ .metrics.serviceMonitor.enabled }}
-          {{- if .metrics.serviceMonitor.namespace }}
-          namespace: {{ .metrics.serviceMonitor.namespace | quote }}
+          {{- with optional .metrics.serviceMonitor "namespace" "" }}
+          namespace: {{ . | quote }}
           {{- end }}
           interval: {{ .metrics.serviceMonitor.interval | quote }}
       {{- end }}
 ```
 
-The mapping uses two helper templates (`BitnamiPodResources`, `BitnamiPersistence`) defined within the library and the main `MariaDBBitnamiCore` entry references them via `include`. The mapping handles the standalone-vs-replication architecture variants, credential injection from `.features.*`, and the metrics block. Consumer Recipes import the entire `MariaDBBitnamiCore` entry via library-form `$import:`.
+The entry renders the chart's values. A helper template, `BitnamiNodePool`, writes one node pool's resources, persistence, node selector and anti-affinity preset; the entry declares it with `define` and invokes it with `template`, for the primary pool and, under replication, the secondary pool. The helper is declared inside the entry that uses it, because a Recipe imports one entry and a definition travels with the entry that holds it. The library's defaults fill every resource field the Aggregate leaves out, so the helper reads them without a fallback. The mapping handles the standalone-vs-replication architecture variants, the credentials the attachments deliver (read from `.context.inject.env`), and the metrics block. Consumer Recipes import the entire `MariaDBBitnamiCore` entry via library-form `$import:`.
 
-*Note on the `| default` filter, the `.Values` capital-V convention, and the `include` directive in this MappingLibrary: the fragments shown above are shaped for downstream consumption by Helm's chart-template engine, where Helm conventions are the established idiom — `.Values.X` for chart values, `default` for absent-field fallback, `include` for composing helper templates. The `optional` helper that Aggrega adds for absent-field fallback on its own renderer (Recipe `valuesMapping:` content, FeatureRecipe `injectMapping:`, and similar) is not registered in Helm's template engine. Likewise `include` is not registered in Aggrega's renderer. The MappingLibrary entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render. The Bitnami-flavored library above renders Helm chart values; the Aggrega-side authoring shape uses lowercase `.values.X` and the presence-aware `optional` helper for fallback — see [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback) for the Aggrega convention.*
+*Note on the functions this fragment uses: Aggrega's renderer evaluates it, so it uses that renderer's functions — Sprig's, plus Aggrega's presence-aware `optional` for a key that may be absent (see [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback)). Helm's `include`, whose output can be piped through `nindent`, is not registered in Aggrega's renderer; `template` writes its output exactly where it stands, so the helper's lines are written at the depth they take under `primary:` and `secondary:`. Helm then renders the chart with the values the fragment produces.*
 
 ## The Recipe
 
 ```yaml
-# recipe/helm/mariadb-bitnami/recipe.yaml
+# catalog/recipe/helm/mariadb-bitnami/recipe.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
   name: mariadb-bitnami
   version: 1.0.0
-  labels:
-    recipe.aggrega.ai/scope: kubernetes
-  description: "Bitnami MariaDB Helm chart 20.x for Kubernetes."
+  description: "Bitnami MariaDB Helm chart 25.x for Kubernetes."
 
 spec:
   capability: helm
@@ -303,46 +313,102 @@ spec:
 
   source:
     # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
-    chart: oci://registry-1.docker.io/bitnamicharts/mariadb
-    version: "20.0.0"
+    kind: helm-oci-chart
+    url: oci://registry-1.docker.io/bitnamicharts/mariadb
+    version: "25.0.8"
 
   valuesMapping:
     $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 
-  provides: |
-    host: {{ .recipe.metadata.name }}-primary.{{ .recipe.metadata.namespace }}.svc.cluster.local
-    port: 3306
-    connection_url: mysql://{{ .values.auth.username }}:****@{{ .recipe.metadata.name }}-primary.{{ .recipe.metadata.namespace }}.svc.cluster.local:3306/{{ .values.auth.database }}
-    replicas:
-      primary: {{ .values.primary.replicaCount }}
-      {{- if eq .values.architecture "replication" }}
-      secondary: {{ .values.secondary.replicaCount }}
-      {{- else }}
-      secondary: 0
-      {{- end }}
+  provides:
+    host: "{{ .context.rendered_name }}{{ if eq .values.architecture `replication` }}-primary{{ end }}"
+    port: "3306"
+    connection_url: "mysql://{{ .values.auth.username }}@{{ .context.rendered_name }}{{ if eq .values.architecture `replication` }}-primary{{ end }}:3306/{{ .values.auth.database }}"
 
   assertions:
-    # Bitnami chart 20.x: serviceMonitor namespace required for replication.
-    service-monitor-namespace-required: |
-      {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
-        {{- if not .values.metrics.serviceMonitor.namespace -}}
-          {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
-        {{- end -}}
+    # Bitnami chart 25.x: one primary server.
+    one-primary: |
+      {{- if gt .values.primary.replicaCount 1 -}}
+        {{- fail (printf "the Bitnami MariaDB chart runs one primary server, and primary.replicaCount is %v: set it to 1 and size reads with secondary.replicaCount" .values.primary.replicaCount) -}}
       {{- end -}}
 
-    # Bitnami 20.x: ARM64 incompatible with podAntiAffinityPreset=hard.
-    arm64-rejects-hard-anti-affinity: |
-      {{- if and (eq .values.primary.podAntiAffinityPreset "hard") (eq .infra.cpu_arch "arm64") -}}
-        {{- fail "Bitnami MariaDB 20.x is incompatible with ARM64 nodes when podAntiAffinityPreset=hard; use 'soft' or omit" -}}
+    # Bitnami chart 25.x: no backup job.
+    no-backup: |
+      {{- if .values.backup.enabled -}}
+        {{- fail "the Bitnami MariaDB chart renders no backup job, and backup.enabled is true: set it to false, or map this Component to a Recipe that runs backups" -}}
+      {{- end -}}
+
+    # Bitnami chart 25.x: the ServiceMonitor renders only beside the metrics exporter.
+    service-monitor-needs-metrics: |
+      {{- if and .values.metrics.serviceMonitor.enabled (not .values.metrics.enabled) -}}
+        {{- fail "the Bitnami MariaDB chart renders its ServiceMonitor only when metrics.enabled is true: set metrics.enabled to true, or metrics.serviceMonitor.enabled to false" -}}
       {{- end -}}
 ```
 
-The Recipe is small. The mapping body lives in the MappingLibrary; the Recipe imports it via library-form `$import:`. The `provides:` block computes connection details from the rendered chart's deterministic-naming output. The `assertions:` block carries two rules tied to Bitnami chart 20.x — implementation invariants distinct from the Component-level contract invariants.
+The Recipe is small. The mapping body lives in the MappingLibrary; the Recipe imports it via library-form `$import:`. The `source:` names the chart in its OCI registry at version 25.0.8. The mapping pins the chart's `fullnameOverride` to the name the build gives the component, `.context.rendered_name`, so the `provides:` block computes the primary's Service name instead of assuming it: the chart names the primary `<name>-primary` under replication and `<name>` alone in standalone mode. The `assertions:` block carries three rules tied to Bitnami chart 25.x — implementation invariants distinct from the Component-level contract invariants. The chart runs one primary server, renders no backup job, and renders its ServiceMonitor only beside the metrics exporter, so the Recipe refuses each of those values rather than letting it reach a chart that would drop it.
 
 ## The Aggregate
 
+The API server the Aggregate composes with MariaDB is a small Component and Recipe of their own. The Component declares the values the API reads and one dependency socket, `primary_db`, whose selector admits a stateful server; the Recipe synthesizes a Deployment and reads the database's published `provides` through that connection:
+
 ```yaml
-# aggregates/checkout-service.yaml
+# catalog/components/my-org/server/checkout-api/component.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: my-org/server/checkout-api
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: server
+    component.aggrega.ai/category: server
+  description: "The checkout service's HTTP API."
+
+spec:
+  schema:
+    values:
+      log_level: { type: string, enum: [debug, info, warn, error], default: info }
+      cache_ttl_seconds: { type: integer, min: 1, max: 86400, default: 60 }
+      region: { type: string }
+
+  usesSchema:
+    primary_db:
+      selector: "component.aggrega.ai/type=stateful-server"
+      required: true
+```
+
+```yaml
+# catalog/recipe/helm/checkout-api/recipe.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: checkout-api
+  version: 1.0.0
+  description: "The checkout API as a Kubernetes Deployment."
+
+spec:
+  capability: helm
+  implements: my-org/server/checkout-api:^1.0.0
+
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    replicas: 2
+    containers:
+      main:
+        image: "registry.example.com/checkout-api:1.0.0"
+        variables:
+          LOG_LEVEL: "{{ .values.log_level }}"
+          CACHE_TTL_SECONDS: "{{ .values.cache_ttl_seconds }}"
+          REGION: "{{ .values.region }}"
+          DATABASE_HOST: "{{ .context.uses.db.provides.host }}"
+          DATABASE_PORT: "{{ .context.uses.db.provides.port }}"
+          DATABASE_URL: "{{ .context.uses.db.provides.connection_url }}"
+        ports:
+          http: 8080
+```
+
+```yaml
+# catalog/aggregates/checkout-service.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -372,7 +438,7 @@ spec:
         secondary_replicas:
           type: integer
           min: 2
-          max: 9
+          max: 8
           default: 2
           description: "Secondary node-pool size, applied where the architecture resolves to replication."
         size:
@@ -385,6 +451,9 @@ spec:
             enabled:
               type: boolean
               default: false
+            schedule:
+              type: string
+              default: "0 3 * * *"
             retention_days:
               type: integer
               min: 1
@@ -421,18 +490,30 @@ spec:
           database: checkout
         backup:
           enabled: {{ .parameters.database.backup.enabled }}
+          schedule: '{{ .parameters.database.backup.schedule }}'
           retention_days: {{ .parameters.database.backup.retention_days }}
+      features:
+        root_credentials:
+          type: core/secret-value:1.0.0
+          values: { key: MARIADB_ROOT_PASSWORD }
+        user_credentials:
+          type: core/secret-value:1.0.0
+          values: { key: MARIADB_PASSWORD }
+        replication_credentials:
+          type: core/secret-value:1.0.0
+          values: { key: MARIADB_REPLICATION_PASSWORD }
 
     api:
       type: my-org/server/checkout-api:1.0.0
       values:
         log_level: '{{ .parameters.api.log_level }}'
         cache_ttl_seconds: {{ .parameters.api.cache_ttl_seconds }}
+        region: '{{ .parameters.region }}'
       uses:
         primary_db: [db]    # Reference to the db Component above
 ```
 
-The Aggregate composes a MariaDB Component (`db`) with an API server Component (`api`). The typed `parameters:` block declares environment, region, database configuration, and API configuration with nested-structure parameters. The `db.values` template selects the architecture from `.parameters.environment`. The `api.uses.primary_db` socket declares the dependency edge in the graph; the compiler resolves it to the Component instance during selector resolution.
+The Aggregate composes a MariaDB Component (`db`) with an API server Component (`api`). The typed `parameters:` block declares environment, region, database configuration, and API configuration with nested-structure parameters. The `db.values` template selects the architecture from `.parameters.environment`. The `db.features` block attaches one `core/secret-value` credential to each slot and names the key it delivers under — the keys the mapping reads; the Release supplies the secret values themselves. The `api.uses.primary_db` socket declares the dependency edge in the graph: the build checks `db` against the socket's selector, and the API's Recipe receives what `db`'s Recipe publishes under `.context.uses.db`, since a connection listed by target is keyed by the target's name.
 
 An expression decides a **value**, never whether a key is present. The document has to be well-formed YAML before any expression is evaluated, so an expression sits where a value goes — inside a quoted scalar for `architecture`, bare for the numeric hoists that must stay numbers. That is why `secondary:` is declared unconditionally here rather than wrapped in a branch that would emit or withhold whole lines.
 
@@ -441,7 +522,7 @@ Deciding *whether* the secondary pool applies is the Component's job rather than
 ## The Manifest
 
 ```yaml
-# manifests/k8s-prod.yaml
+# catalog/manifests/k8s-prod.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
 metadata:
@@ -457,15 +538,15 @@ spec:
 
     features:
       type:
-        core/secret-value: helm/vault-secret:1.0.0
+        core/secret-value: helm/env-secret:1.0.0
 ```
 
-The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Recipe URI is at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the bare one-segment form resolves whenever a single recipe carries the name. The Manifest itself is capability-agnostic; the build dispatches each resolved Recipe to the provider its `spec.capability` field names.
+The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Recipe URI is at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the bare one-segment form resolves whenever a single recipe carries the name. The `features` tier binds the credential Feature to `helm/env-secret`, which delivers each attachment's value into the component's inject pipe under the attachment's key. The Manifest itself is capability-agnostic; the build dispatches each resolved Recipe to the provider its `spec.capability` field names.
 
 ## The Release
 
 ```yaml
-# releases/prod-release.yaml
+# catalog/releases/prod-release.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
@@ -475,104 +556,167 @@ metadata:
 
 spec:
   aggregate: my-org/checkout-service:1.0.0
-  manifest: my-org/k8s-prod-manifest:1.0.0
+  manifest: ../manifests/k8s-prod.yaml
 
   parameters:
     environment: prod
     region: us-east-1
     database:
-      replicas: 3
+      secondary_replicas: 3
       size: "200Gi"
-      backup:
-        enabled: true
-        retention_days: 90
     api:
       log_level: warn
       cache_ttl_seconds: 300
+
+  boundaries:
+    prod:
+      components:
+        db:
+          features:
+            root_credentials:
+              infra: { origin: "replace-with-the-root-password" }
+            user_credentials:
+              infra: { origin: "replace-with-the-app-user-password" }
+            replication_credentials:
+              infra: { origin: "replace-with-the-replication-password" }
+        api: {}
 ```
 
-The Release supplies parameter values for production. The Aggregate's typed-parameter defaults are overridden by the Release's explicit values; the resolved parameters drive the Aggregate's compilation.
+The Release supplies parameter values for production. The Aggregate's typed-parameter defaults are overridden by the Release's explicit values; the resolved parameters drive the Aggregate's compilation. The Release names its Manifest by path, because a Manifest is not catalog-indexed: it is found in the Release's own directory or at the path the Release gives. The `boundaries:` block places both components in one boundary, `prod`, and supplies each credential's value as the attachment's `infra.origin` — the operator's half of an attachment the developer declared (see [Who names the credential](05-credential-features.md#who-names-the-credential-values-or-infra-exactly-one)). The three `origin` values are placeholders: `helm/env-secret` delivers a value as written, and the chart writes it into the Secret it renders. The other members of the [credential Feature family](05-credential-features.md#the-credential-feature-family) name a secret that already exists or have the target generate one, so no value enters the build.
 
 ## End-to-end build
 
-`aggrega build --release releases/prod-release.yaml` runs the compilation pipeline:
+From the workspace root, pull the Release's dependencies once — the standard-library Feature and FeatureRecipe from the hub, the chart from its OCI registry — and build:
 
-1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates.
-2. **Topology construction.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
-3. **Graph finalization.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
-4. **Schema validation.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.
-5. **Assertion evaluation.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block); pass.
-6. **Recipe binding.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
-7. **Recipe assertion evaluation.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
-8. **Rendering.** MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
-
-Unlike the example directories, this page walks through a catalog that is not shipped as a workspace you can build, so the values below show the shape the mapping produces rather than output you can regenerate and compare against line by line. Every example directory prints output you can — see [Reading the output on these pages](reading-the-output.md).
-
-```yaml
-# Chart values for MariaDB — the shape the mapping renders
-image:
-  tag: "11.4.4-debian-12-r0"
-  pullPolicy: IfNotPresent
-architecture: replication
-auth:
-  username: "app_user"
-  database: "checkout"
-  rootUser: "<from-vault>"
-  rootPassword: "<from-vault>"
-  replicationUser: "<from-vault>"
-  replicationPassword: "<from-vault>"
-primary:
-  name: primary
-  replicaCount: 3
-  resources:
-    requests:
-      cpu: "250m"
-      memory: "512Mi"
-    limits:
-      cpu: "500m"
-      memory: "1Gi"
-  persistence:
-    enabled: true
-    size: "200Gi"
-    accessModes:
-      - "ReadWriteOnce"
-  podAntiAffinityPreset: "soft"
-secondary:
-  name: secondary
-  replicaCount: 2
-  resources:
-    requests:
-      cpu: "250m"
-      memory: "512Mi"
-    limits:
-      cpu: "500m"
-      memory: "1Gi"
-  persistence:
-    enabled: true
-    size: "200Gi"
-    accessModes:
-      - "ReadWriteOnce"
-  podAntiAffinityPreset: "soft"
-metrics:
-  enabled: false
-  serviceMonitor:
-    enabled: false
-    interval: "30s"
+```bash
+aggrega pull --release catalog/releases/prod-release.yaml
+aggrega build --release catalog/releases/prod-release.yaml
 ```
 
-The chart values are what the Helm provider plugin consumes; the rendered output lands at `dist/boundaries/<boundary>/` and is deployable via standard kubectl + Helm tooling.
+The build runs the compilation pipeline:
+
+1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates. Each component's `values` and `infra` are validated against its schema here: the compact form is compiled to JSON Schema 2020-12, the SchemaLibrary's `MariaDBPayload` is expanded through cross-document `$ref:`, and its `when:` gate is applied.
+2. **Topology construction.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
+3. **Graph finalization.** Each credential attachment is validated against the Feature's schema; `api`'s `primary_db` socket selector is checked against `db`'s labels.
+4. **Assertion evaluation.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block, and the `core/secret-value` rule that each attachment carries its `origin` in exactly one pillar); pass.
+5. **Recipe binding.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); the three credential attachments bound to `helm/env-secret` per the Manifest's `features.type` mapping.
+6. **Recipe assertion evaluation.** Recipe assertions evaluated (the three Bitnami-specific rules from the Recipe's `assertions:` block); pass.
+7. **Rendering.** `helm/env-secret` delivers each credential into the inject pipe; the MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders the chart's values, and the helm provider renders the chart with them; the API Recipe's Workload is synthesized into a Deployment.
+
+The build prints:
+
+```text
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+Total build time:               4.1s
+Build completed: 13 files written to <workspace>/dist
+```
+
+The notice is [by design](05-credential-features.md#who-names-the-credential-values-or-infra-exactly-one): `core/secret-value` declares `origin` in both pillars so that either author can write it.
+
+The output lands in `dist/boundaries/prod/helm/` — the API's Deployment and the twelve documents the chart renders:
+
+```text
+api-deployment.yaml
+db-configmap-default-db-primary.yaml
+db-configmap-default-db-secondary.yaml
+db-networkpolicy-default-db.yaml
+db-poddisruptionbudget-default-db-primary.yaml
+db-poddisruptionbudget-default-db-secondary.yaml
+db-secret-default-db.yaml
+db-service-default-db-headless.yaml
+db-service-default-db-primary.yaml
+db-service-default-db-secondary.yaml
+db-serviceaccount-default-db.yaml
+db-statefulset-default-db-primary.yaml
+db-statefulset-default-db-secondary.yaml
+```
+
+The secondary pool shows what the mapping handed the chart — the Release's three replicas and `200Gi` volumes, the node selector built from `infra.cpu_arch`, and the resources the library's defaults filled:
+
+```yaml
+# dist/boundaries/prod/helm/db-statefulset-default-db-secondary.yaml
+[… omitted: apiVersion, kind and the metadata block]
+spec:
+  replicas: 3
+  [… omitted: revisionHistoryLimit, the selector, serviceName, updateStrategy, the pod template's metadata, the service-account settings and the affinity]
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      [… omitted: the pod's securityContext and its init container]
+      containers:
+        - name: mariadb
+          image: registry-1.docker.io/bitnami/mariadb:latest
+          [… omitted: imagePullPolicy and the container's securityContext]
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MARIADB_REPLICATION_MODE
+              value: "slave"
+            - name: MARIADB_MASTER_HOST
+              value: db-primary
+          [… omitted: the remaining environment, the port and the two probes]
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          [… omitted: the container's volume mounts and the pod's volumes]
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        [… omitted: the labels]
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "200Gi"
+```
+
+The image tag is the chart's own default, because the Aggregate sets no `image.tag`; set one to pin the server version.
+
+The API receives what the database's Recipe published, through the `primary_db` connection:
+
+```yaml
+# dist/boundaries/prod/helm/api-deployment.yaml
+[… omitted: everything above the container's env]
+          env:
+            - name: LOG_LEVEL
+              value: warn
+            - name: CACHE_TTL_SECONDS
+              value: "300"
+            - name: REGION
+              value: us-east-1
+            - name: DATABASE_HOST
+              value: db-primary
+            - name: DATABASE_PORT
+              value: "3306"
+            - name: DATABASE_URL
+              value: mysql://app_user@db-primary:3306/checkout
+```
+
+A Recipe assertion stops a value the chart cannot honour before anything renders. Set `replicas: 3` under `database` in the Release, pull and build again, and the build stops on the Recipe's `one-primary` rule:
+
+```text
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+[CATALOG_ERROR E0033]
+  Recipe/FeatureRecipe assertions
+  caused by: Recipe "mariadb-bitnami" instance "db" assertion "one-primary": assertion "Recipe/mariadb-bitnami/db/one-primary": template: Recipe/mariadb-bitnami/db/one-primary:2:6: executing "Recipe/mariadb-bitnami/db/one-primary" at <fail (printf "the Bitnami MariaDB chart runs one primary server, and primary.replicaCount is %v: set it to 1 and size reads with secondary.replicaCount" .values.primary.replicaCount)>: error calling fail: assertion failed: the Bitnami MariaDB chart runs one primary server, and primary.replicaCount is 3: set it to 1 and size reads with secondary.replicaCount
+```
 
 ## Line count comparison
 
-The compact form's compactness, measured against the same schema surface authored in alternative forms:
+The compact form's compactness, counted as non-blank lines of the files on this page:
 
 | Form | Lines | Notes |
 | --- | --- | --- |
-| JSON Schema YAML | ~198 | Same schema content authored in JSON Schema YAML directly |
-| **Compact form** | **~79** | Same schema content; equivalent expressivity |
-| Compact form + library extraction | **~30** (Component) + ~50 (library) = ~80 total, **~30 per consumer** | The pattern when the library is shared across multiple Components; per-Component cost drops |
+| **Compact form** | **60** | The Component's `schema:` block (10 lines) with the library's five entries (51 lines) in place of its one `$ref:` line |
+| Compact form + library extraction | **10** (Component `schema:`) + **60** (library file) | The pattern when the library is shared across multiple Components: the library is written once, and each Component's `values` pillar is a single `$ref:` line |
 
-The compact form stays compact while using YAML throughout (familiar to Helm/Kubernetes users) and producing a JSON Schema 2020-12 sidecar consumable by external tooling. The library extraction pattern is where the catalog pays back: as more Components share the schema, the per-Component authoring cost drops.
+Written as JSON Schema YAML, the same content runs longer: each field's one-line map becomes a nested block, and every object adds `type: object`, `properties:` and a `required:` list. `when:` and `validate:` are compact-form keywords with no JSON Schema keyword of their own.
+
+The compact form stays compact while using YAML throughout (familiar to Helm/Kubernetes users) and compiling to JSON Schema 2020-12 before any value is validated against it. The library extraction pattern is where the catalog pays back: as more Components share the schema, the per-Component authoring cost drops.
 
 The MariaDB example covers the full surface needed for production usage. **No `$jsonschema:` escape hatch is needed** for this realistic catalog content. The compact form's vocabulary covers everything this Component requires.
 
@@ -586,7 +730,7 @@ If a future Component needs `$dynamicRef` for recursive types, complex `unevalua
 
 ### Multiple Recipes per Component
 
-The example shows one Recipe (Bitnami chart for Kubernetes). A real catalog might have alternatives: a hand-rolled chart, a different vendor's chart, a Compose-based variant, an AWS RDS Terraform Recipe. The Component contract is the same; the Recipes vary per provider and per implementation. The Manifest's flat URI mapping selects the appropriate Recipe per workspace.
+The example shows one Recipe for the MariaDB Component (the Bitnami chart for Kubernetes). A real catalog might have alternatives: a hand-rolled chart, a different vendor's chart, a Compose-based variant, an AWS RDS Terraform Recipe. The Component contract is the same; the Recipes vary per provider and per implementation. The Manifest's flat URI mapping selects the Recipe each Release builds with.
 
 ### Complex multi-component coordination
 
