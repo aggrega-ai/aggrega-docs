@@ -126,6 +126,26 @@ spec:
 
 This traces the payload the compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
 
+The worker is an example Component, `example/compute/data-worker`, whose `db_credentials` slot takes a file delivery:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: example/compute/data-worker
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: "worker"
+spec:
+  featuresSchema:
+    db_credentials:
+      inject: [file]                        # White-Box: the developer may mount it as a file.
+      description: Database credential.
+  schema:
+    values:
+      image: { type: string, required: true }
+```
+
 **1. Dev Domain: The Aggregate**
 
 ```yaml
@@ -137,12 +157,12 @@ metadata:
 spec:
   components:
     data-worker:
-      type: core/python-worker:2.0.0        # Uses Component from Example 11
+      type: example/compute/data-worker:1.0.0
       values:
         image: "corp/finance-worker:v2"
       features:
         db_credentials:
-          type: core/aws-secrets-manager:1.0.0
+          type: core/aws-secrets-manager:1.0.0   # Uses credential Feature from Example 11
           values:
             path: "arn:aws:secretsmanager:us-east-1:123456:secret:prod/db"
             key: "password"
@@ -163,7 +183,7 @@ metadata:
   version: 1.0.0
 spec:
   capability: helm
-  implements: core/python-worker:2.0.0
+  implements: example/compute/data-worker:1.0.0
   source: "./charts/worker"
   locals:
     primary_compute: "worker-container"
