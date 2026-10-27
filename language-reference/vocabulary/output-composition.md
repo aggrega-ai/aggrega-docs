@@ -1,6 +1,6 @@
 # Output composition
 
-A single Aggrega build produces output files into per-boundary directories under `dist/` through six distinct mechanisms — sourced rendering, workload synthesis, FeatureRecipe Resource Generation, FeatureRecipe plugin-pipeline patches, Release-level composition, and direct artifact emission. The mechanisms run in a defined order; outputs collide deterministically when two mechanisms produce a file with the same name in the same boundary directory; the build halts before emission under the `CATALOG_ERROR` category, naming every contributor, when a collision is detected.
+A single Aggrega build produces output files into per-boundary directories under `dist/` through six distinct mechanisms — sourced rendering, workload synthesis, FeatureRecipe Resource Generation, FeatureRecipe plugin-pipeline patches, Release-level composition, and direct artifact emission. The mechanisms run in a defined order; outputs collide deterministically when two mechanisms produce a file with the same name in the same boundary directory; the build halts before emission, naming every contributor, when a collision is detected, under the category the collision rule names.
 
 This page documents the six mechanisms in one place and names the rendering order across them. The per-chapter and per-entity references cover their own surfaces; the collision-detection rules across all six live here.
 
@@ -22,13 +22,13 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 ### 2 — Recipe Workload synthesis (`workload:`)
 
-**Authoring surface.** Recipe declares `workload:` carrying a Workload document. The field accepts inline content (block scalar) or `$import:` (file path) per the unified file-import vocabulary.
+**Authoring surface.** Recipe declares `workload:` carrying a Workload document. The field accepts inline content (block scalar) or `$import:` (file path).
 
 **Pipeline placement.** Base rendering, after the Recipe's valuesMapping resolves (the Workload body is itself a Go-templated string evaluated with full TemplateContext).
 
 **Output shape.** Provider-specific:
 
-- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task, CronJob for scheduled) + per-service Service + one PVC per `persistent` volume. **Two naming shapes, and they are not the same:** the controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml` — while a per-resource file is named for **the resource it carries**, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, because each is named from that resource's own `metadata.name` (see [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention"). A Workload whose only exposure is an external name emits `<nodeID>-service.yaml` instead, there being no service key to carry.
+- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task, CronJob for scheduled) + per-service Service + one PVC per `persistent` volume. **Two naming shapes, and they are not the same:** the controller object is named for the node's release name and its kind — `<release name>-deployment.yaml`, `<release name>-statefulset.yaml`, `<release name>-daemonset.yaml`, `<release name>-job.yaml`, `<release name>-cronjob.yaml` — while a per-resource file is named for **the resource it carries**, with the kind last: `<release name>-<svcName>-service.yaml` and `<release name>-<volName>-pvc.yaml`, because each is named from that resource's own `metadata.name`. The release name is the node's identity written in the alphabet a Kubernetes name admits, so it equals the node ID wherever that carries no underscore and no capital letter: node `my_api` writes `my-zuapi-deployment.yaml` (see [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention"). A Workload whose only exposure is an external name emits `<release name>-service.yaml` instead, there being no service key to carry.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition.
 - **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart provider reports no synthesis capability).
 
@@ -103,7 +103,7 @@ The order matters because downstream mechanisms can read upstream outputs — fo
 
 ## Collision-detection rule set
 
-When two mechanisms produce a file with the same name in the same boundary directory, the build halts under the `CATALOG_ERROR` category, naming every contributor. The rule set:
+When two mechanisms produce a file with the same name in the same boundary directory, the build halts, naming every contributor, under the category each rule below names. The rule set:
 
 ### Recipe shape rule: `artifacts:` entry-key collision
 
@@ -131,11 +131,11 @@ A helm-chart sub-chart sits at `charts/<instance_id>/` and its values are scoped
 
 ### Helm rendered-resource name collision
 
-Within a boundary, two nodes that render to the same Kubernetes resource name produce two YAML files with overlapping `metadata.name` fields. The file names differ, because each is prefixed with its own naming basis, while the `metadata.name` inside them may still meet — so the helm provider does not detect this at render time and Kubernetes rejects the apply instead, which surfaces the collision after the build rather than during it.
+Within a boundary, two nodes that render to the same Kubernetes resource name produce two YAML files with overlapping `metadata.name` fields. The file names differ, because each is prefixed with its own naming basis, while the `metadata.name` inside them may still meet — so the build checks the names the rendered resources carry, and two contributors deriving one name for one kind in one namespace halt it under the `TRANSLATION_ERROR` category before anything is written, naming the name and each component, and each attachment, that derived it (see [`errors/fatal-halts.md`](../errors/fatal-halts.md#the-same-name-is-derived-more-than-once-inside-the-output)).
 
-**The largest case is closed by construction rather than checked.** A sourced chart that names its resources after the release name can no longer produce this between two components, because two naming bases that differ at all arrive at two release names — see [`providers/helm.md`](../providers/helm.md) "How the release name is derived". Two cases remain. A chart that writes a resource name into its templates literally is one, and no derivation can tell such a name apart from any other literal. The other is two Feature attachments on **one** component that each deliver a chart their author wrote: both render against that component's release name, by design, so two charts naming a resource after `.Release.Name` meet there — give the two charts' resources distinct names, or attach them to different components.
+**The largest case is closed by construction rather than checked.** A sourced chart that names its resources after the release name can no longer produce this between two components, because two naming bases that differ at all arrive at two release names — see [`providers/helm.md`](../providers/helm.md) "How the release name is derived". Two cases remain, and the check above is what reports them. A chart that writes a resource name into its templates literally is one, and no derivation can tell such a name apart from any other literal. The other is two Feature attachments on **one** component that each deliver a chart their author wrote: both render against that component's release name, by design, so two charts naming a resource after `.Release.Name` meet there — give the two charts' resources distinct names, or attach them to different components.
 
-Every synthesized name opens with the node's own identity — the controller object's, and each per-resource name through the synthesized Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention") — which makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesized Deployment's `metadata.name`).
+Every synthesized name opens with the node's own identity — the controller object's, and each per-resource name through the synthesized Service-name convention `<release name>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention") — which makes cross-node collisions structurally impossible by construction. Authors whose build halts on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesized Deployment's `metadata.name`).
 
 ## Cross-mechanism interaction patterns
 
@@ -151,9 +151,9 @@ A single Aggregate can have one component bound to a sourced helm Recipe (mechan
 
 ### Compose Release-level merge across boundaries
 
-The compose capability's boundary assembly is unusual — it gathers per-node fragments not just within one boundary but across every compose-targeted boundary in the Release into a **single** `docker-compose.yaml`. This is the canonical compose shape (one compose file per project); the per-boundary fragmentation is intermediate state.
+The compose capability's boundary assembly gathers the per-node fragments of one boundary into that boundary's own `docker-compose.yaml`; two compose-targeted boundaries in one Release write two files, each in its own output directory.
 
-Service-name collisions across boundaries are therefore real and detected at the Release-level merge per the rule above. Two compose-targeted boundaries that each declare a service named `api` collide unless the boundaries are isolated (different Releases, different `dist/` directories).
+Service-name collisions are therefore detected within a boundary, at its Release-level merge, per the rule above. Two compose-targeted boundaries that each declare a service named `api` do not collide: each boundary's file carries its own.
 
 ## Cross-references
 
@@ -164,7 +164,7 @@ Service-name collisions across boundaries are therefore real and detected at the
 - [`providers/compose.md`](../providers/compose.md) — compose provider's per-node fragmentation + Release-level composition (mechanism 5).
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — the Recipe shape rules on unique `artifacts:` entry keys and on cross-input-kind filename collision.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site evaluation timing across the rendering order.
-- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the plugin-pipeline contract surface (mechanism 4 design target).
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the plugin-pipeline contract surface (mechanism 4).
 - [`10-status.md`](../10-status.md) — current readiness state for mechanism 6 (`artifacts:`) and mechanism 4's plugin-pipeline runtime.
 - [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md) — full compilation pipeline including the order of the rendering stages.
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — three Recipe input kinds (the upstream framing for mechanisms 1 + 2 + 6).

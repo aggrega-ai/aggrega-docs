@@ -24,7 +24,7 @@ The reference resolves at compile time. The expander inlines the referenced cont
 secondary:
   allOf:
     - { $ref: "#/$defs/NodePool" }
-    - replicaCount: { min: 2 }
+    - replicaCount: { type: integer, min: 2 }
     - description: "Replication-mode secondary instances."
 ```
 
@@ -47,7 +47,7 @@ spec:
 
 The compiler emits `required: [database, display_name]` at the parent scope.
 
-**`$ref:`-bearing consumers** — leaf-level markers are silently dropped. The cross-document sibling collector reads only the top-level `required:` SequenceNode of the consumer's object scope; leaf-level markers inside `$ref:`-pulled subtrees do not contribute. Authors of `$ref:`-bearing consumers should declare the requirement set explicitly at the parent level:
+**`$ref:`-bearing consumers** — beside a cross-document `$ref:` only `properties`, `required` and `description` may be written, and the requirements the consumer adds are the ones in a parent-level `required:` array there. The referenced entry's own requirements — leaf-level markers in its inferred form, or a `required:` array of its own — apply through the reference unchanged. Authors of `$ref:`-bearing consumers should declare the requirement set explicitly at the parent level:
 
 ```yaml
 spec:
@@ -61,7 +61,7 @@ The authoring criterion is simple: any consumer that uses `$ref:` to pull a libr
 
 ## Library-to-library chain expansion
 
-A SchemaLibrary entry may itself contain a `$ref:` pointing into another SchemaLibrary entry, producing a chain. The compactform compiler walks the chain at compile time via resolution-stack threading: each `$ref:` encountered during expansion pushes the source library onto the stack, the referenced entry is expanded, then the stack is popped.
+A SchemaLibrary entry may itself contain a `$ref:` pointing into another SchemaLibrary entry, producing a chain. The compactform compiler walks the chain at compile time: each `$ref:` met while an entry is expanded is itself expanded, in the terms of the library that holds it.
 
 ```yaml
 # Library A
@@ -92,7 +92,7 @@ The expander annotates each property in the rendered shape with `x-aggrega-sourc
 - `host` in the expanded `DatabasePayload` carries `x-aggrega-source: <library-A>/DatabasePayload`.
 - `username` in the expanded `credentials` carries `x-aggrega-source: <library-A>/DatabasePayload` (the immediate parent in the chain), not `<library-B>/BasicAuth`.
 
-The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — `aggrega explain` reports the immediate-parent attribution; the chain can be reconstructed by recursive library lookup if needed. A future authoring polish may surface chain depth via an `x-aggrega-source-chain:` extension; until then, the immediate-parent attribution is the contract.
+The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — the chain can be reconstructed by recursive library lookup if needed. A future authoring polish may surface chain depth via an `x-aggrega-source-chain:` extension; until then, the immediate-parent attribution is the contract.
 
 ## Consumer narrows library entry
 
@@ -114,10 +114,11 @@ spec:
   schema:
     values:
       $ref: "Tools#/schemas/ToolContract"
-      side_effects:
-        type: array
-        items: { type: string, enum: [read] }
-        default: [read]
+      properties:
+        side_effects:
+          type: array
+          items: { type: string, enum: [read] }
+          default: [read]
 ```
 
 In the merged shape, `side_effects` reflects the consumer's narrower contract (`enum: [read]`, with a `default`); the library entry's broader `enum: [read, write, delete]` is gone. The `x-aggrega-source` annotation on the consumer's `side_effects` property is dropped — the property is consumer-authored.
@@ -129,4 +130,4 @@ This is the expected behaviour: consumers refining a library entry's property is
 - For catalog-entity inheritance (Component-extends-Component, Feature-extends-Feature), see [inheritance-and-interface.md](inheritance-and-interface.md).
 - For inheritance between the deployment-side documents, whose references name files rather than catalog entities: a Release extending a Release is documented at [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance), and a Manifest extending a Manifest at [`entities/manifest.md`](../entities/manifest.md).
 - For provider-specific source pointers (`Recipe.spec.source.chart:`, `Recipe.spec.source.modulePath:`), see the per-entity Recipe documentation. Provider source pointers are not unified under `$ref:`; the provider plugin consumes them directly.
-- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, publisher expansion), see [uri-grammar.md](uri-grammar.md).
+- For OCI URI shorthand expansion rules (domain default, contextual entity expansion, resolution precedence, version handling), see [uri-grammar.md](uri-grammar.md).

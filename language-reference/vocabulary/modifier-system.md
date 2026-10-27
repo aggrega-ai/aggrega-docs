@@ -121,7 +121,7 @@ engine evaluates it identically. For the three-axis label scheme the
 standard catalog uses, see
 [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md);
 for the per-label teaching, see
-[architecture/09-ai-features.md](../../architecture/09-ai-features.md) §1.3.
+[architecture/09-ai-features.md](../../architecture/09-ai-features.md) §1.2.
 
 ## Selector kinship across the language
 

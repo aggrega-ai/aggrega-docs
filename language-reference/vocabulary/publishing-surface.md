@@ -10,7 +10,7 @@ The following fields appear on every Domain 2 (Component, Feature) and Domain 3 
 
 | Field | Type | Purpose | Consumer |
 | --- | --- | --- | --- |
-| `description` | string | Human-readable summary of the entity | Editor hover cards (`aggrega serve`); the `describe` tool an assistant calls (`aggrega mcp`); a searchable annotation on the published artifact (`aggrega push`); `aggrega inspect`, for the library kinds only |
+| `description` | string | Human-readable summary of the entity | Editor hover cards (`aggrega serve`); the `describe` tool an assistant calls (`aggrega mcp`); a searchable annotation on the published artifact (`aggrega push`); `aggrega inspect` |
 | `maintainers` | array of objects | Who owns the entity (name, email, url) | Per-node `catalog_metadata` in the IR, on Component nodes |
 | `license` | string | Legal compliance (typically SPDX identifier) | Per-node `catalog_metadata` in the IR, on Component nodes |
 | `repository` | string (URL) | Git repository where source lives | Per-node `catalog_metadata` in the IR, on Component nodes — nothing else reads it |
@@ -54,7 +54,7 @@ The three types share the word "description" but live at structurally distinct l
 
 The three types do not cascade and do not collide, and each reaches a different surface — or none:
 
-- **Envelope description** — editor hover cards, the published artifact's searchable annotations, and `aggrega inspect` for the library kinds, per the Consumer column above.
+- **Envelope description** — editor hover cards, the published artifact's searchable annotations, and `aggrega inspect`, per the Consumer column above.
 - **Field description** — appears verbatim in the schema excerpt a Component's or a Feature's hover card renders. The excerpt covers `spec.schema` only and is truncated to its opening lines, so a description deeper in the block — or one inside `featuresSchema:` or `usesSchema:` — does not appear there.
 - **Instance description** — declared and carried with the entity; no shipped surface renders it on its own. `aggrega inspect` lists a Component's sockets and feature slots without their descriptions.
 
@@ -76,20 +76,20 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 
 | Entity | Additional required fields | Rationale |
 | --- | --- | --- |
-| Component | `spec.schema`; `metadata.labels.component.aggrega.ai/type` | The label requirement is **load-bearing for selector matching**: `usesSchema` `x-aggrega-selector:` annotations filter target Components by this label; absent, the selector cannot match anything and the build halts at edge-typing time |
-| Feature | `spec.schema` | No reserved-label requirement; Features identify by name + publisher |
+| Component | `metadata.labels.component.aggrega.ai/type` | The label requirement is **load-bearing for selector matching**: `usesSchema` `x-aggrega-selector:` annotations filter target Components by this label; absent, the Component is refused when it loads |
+| Feature | — | No reserved-label requirement; Features identify by name + publisher |
 | Recipe | `spec.capability`, `spec.implements` | Capability gates provider dispatch; implements gates Component-binding |
 | FeatureRecipe | `spec.capability`, `spec.implements` | Same as Recipe |
-| Plugin | `metadata.pluginType`, `spec.plugin`, `spec.abiVersion` | The socket type the plugin implements (part of the addressing block, supplying the `<pluginType>` segment of the derived `plugin/<pluginType>/<name>` coordinate), the content-addressed artifact reference, and the ABI version it targets; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
-| Aggregate | `spec.components` (or `spec.aggregates` for module-shape Aggregates) | An Aggregate without component-shape declarations is a no-op |
+| Plugin | `metadata.pluginType`, `spec.abiVersion` | The socket type the plugin implements (part of the addressing block, supplying the `<pluginType>` segment of the derived `plugin/<pluginType>/<name>` coordinate) and the ABI version it targets; the `.wasm` location is derived from that identity rather than authored; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
+| Aggregate | — | An Aggregate declaring none of `components`, `subsystems` or `aggregates` loads and builds, and renders nothing |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |
-| Release | `spec.aggregate`, `spec.manifest`; *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |
+| Release | `spec.aggregate`, `spec.manifest` (a Release declaring `extends` writes no `aggregate` and may omit `manifest`); *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |
 
 ### `Component` label requirement is load-bearing
 
-The `component.aggrega.ai/type` label is the only label Aggrega requires on any entity today. The requirement exists because the standard library's `usesSchema` mechanism filters target candidates via `x-aggrega-selector:` annotations carrying selector strings like `"component.aggrega.ai/type=database"` — the selector consults the target's labels to determine whether the type matches the socket's accepted types. A Component that omits the label cannot be selected by any socket whose schema declares this filter, which means the Component is unreachable as a `uses:` target.
+The `component.aggrega.ai/type` label is the only label Aggrega requires on any entity today. The requirement exists because the standard library's `usesSchema` mechanism filters target candidates via `x-aggrega-selector:` annotations carrying selector strings like `"component.aggrega.ai/type=database"` — the selector consults the target's labels to determine whether the type matches the socket's accepted types. The Component schema enforces it: a Component that omits the label is refused when it loads (`E0215`), naming the missing key.
 
-The requirement is therefore not a publishing-surface concern (the label is not for catalog discovery) but a runtime-correctness concern (without it, the Component fails as a topology participant). Authors should not omit the label even when authoring internal-use Components that do not target catalog distribution.
+The requirement is therefore not a publishing-surface concern (the label is not for catalog discovery) but a topology concern: every Component carries it, internal-use Components that do not target catalog distribution included.
 
 ### Release `metadata.environment` requirement is in transition
 
@@ -105,7 +105,7 @@ For the environment-field relaxation framing and use cases, see [`10-status.md`]
 
 ### Other asymmetries are not in transition
 
-The remaining asymmetries (Recipe vs Component required fields, Aggregate's `components`-or-`aggregates` requirement, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
+The remaining asymmetries (Recipe vs Component required fields, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
 
 ## Cross-references
 

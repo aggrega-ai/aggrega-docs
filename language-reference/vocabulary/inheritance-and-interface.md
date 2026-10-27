@@ -47,13 +47,13 @@ The compiler takes no position on the direction of that change. Composition is s
 
 Recipes and FeatureRecipes bind to a Component or Feature interface via the `implements:` keyword at the top of their `spec`. The binding declares which catalog interface this Recipe / FeatureRecipe is the concrete implementation of, and supports three forms of version matching:
 
-- **Exact** — `implements: core/api-server:1.0.0` — matches one specific version of the Component type. Highest resolution precedence.
+- **Exact** — `implements: core/api-server:1.0.0` — matches one specific version of the Component type.
 - **Major-compatible range** — `implements: core/api-server:^1.0.0` — matches any version satisfying `>=1.0.0, <2.0.0` (SemVer major-compatible). Used when a Recipe supports a compatible range rather than a single pinned version.
-- **Unversioned** — `implements: core/api-server` — matches any version of the Component type. Used as a fallback when no version-specific Recipe is registered.
+- **Unversioned** — `implements: core/api-server` — matches any version of the Component type. Used when a Recipe serves every version of the type.
 
-Resolution precedence is exact → major-compatible range → unversioned. The catalog walks the three forms in order: an exact-string match against the caller's URI wins first; failing that, the catalog iterates entries with a `:^<version>` caret form sharing the same base and returns the entry whose constraint the caller's version satisfies (when multiple caret entries match, the one with the highest baseline version wins as the more-specific match); failing that, the catalog tries the bare base URI for an unversioned fallback. If no match is found across the three forms, the compiler halts with an unmapped-Recipe error; if multiple non-caret Recipes tie at the same specificity, the compiler halts with an ambiguity error.
+`implements:` never selects a Recipe: the Manifest's mapping does. What the declaration drives is the consistency check on each mapping entry — the mapped type's version must satisfy the mapped Recipe's `implements:` in one of the three forms, or the Recipe must implement a base that type extends — and the candidate list the no-mapping diagnostic and editor completion offer. A mapping entry whose Recipe's `implements:` matches neither the mapped type nor any of its bases halts the build, naming the mapping, the Recipe and its `implements:` value.
 
-The `implements:` binding is the mechanism that makes "the same Component type, different Recipes for different providers" work: a `core/postgres` Component can have one Recipe implementing it for the `helm` provider and a different Recipe implementing it for the `compose` provider. Each Recipe declares the same `implements:` value; the Manifest's provider-axis grouping routes the request to the correct Recipe at build time.
+The `implements:` binding is the mechanism that makes "the same Component type, different Recipes for different providers" work: a `core/postgres` Component can have one Recipe implementing it for the `helm` provider and a different Recipe implementing it for the `compose` provider. Each Recipe declares the same `implements:` value, and the Manifest a Release builds with maps the type to the one it wants.
 
 ### A Recipe written against a base serves everything that extends it
 
@@ -80,30 +80,30 @@ When the mapped type's `extends` chain cannot be walked — it forms a loop, or 
 
 Recipe **suggestions** stay narrower than this matching rule. The candidate list a no-mapping diagnostic prints, and the ordering editor completion applies to a mapping value, name the recipes implementing the requested type itself; they do not widen to recipes implementing one of its bases.
 
-For a runnable end-to-end walkthrough — a published wrapper in the catalog, the one Manifest line that consumes it, the base's Recipe shaping its rendered output, and the halt a wrapper instance with no mapping of its own produces — see the worked example [`examples/extends-wrapper/`](../examples/extends-wrapper/).
+For a runnable end-to-end walkthrough — a published wrapper in the catalog, the one Manifest line that consumes it, the base's Recipe shaping its rendered output, and the halt a wrapper instance with no mapping of its own produces — see the worked example [`examples/extends-wrapper/`](../examples/extends-wrapper/README.md).
 
 ## Cross-entity version consumption
 
 The 'Resolution precedence' framing in the section above describes the design target; the table below describes what the resolver matches against today.
 
-Every Aggrega entity kind — Component, Feature, Aggregate, Recipe, FeatureRecipe, Manifest, Release, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary — carries a required `metadata.version` field validated against the same SemVer regex (`MAJOR.MINOR.PATCH` per [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §3). Versions are uniform in *shape*; the *consumption* of versions varies per entity kind. Some versions actively participate in resolution; others are descriptive provenance the compiler does not match against. The table below covers the non-library kinds, naming what the compiler does with each entity's version field today and using the four-label status taxonomy from [`10-status.md`](../10-status.md) to classify each consumption regime. The four library kinds are outside the table because their regime is uniform and different: a consumer references a library by bare name, may assert an optional `:<version>` minimum-version floor, and the per-Release lockfile owns the resolved version and its content digest.
+Every Aggrega entity kind — Component, Feature, Aggregate, Recipe, FeatureRecipe, Manifest, Release, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary — carries a required `metadata.version` field validated against the same SemVer regex (`MAJOR.MINOR.PATCH` per [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md)). Versions are uniform in *shape*; the *consumption* of versions varies per entity kind. Some versions actively participate in resolution; others are descriptive provenance the compiler does not match against. The table below covers the non-library kinds, naming what the compiler does with each entity's version field today and using the four-label status taxonomy from [`10-status.md`](../10-status.md) to classify each consumption regime. The four library kinds are outside the table because their regime is uniform and different: a consumer references a library by bare name, may assert an optional `:<version>` minimum-version floor, and the per-Release lockfile owns the resolved version and its content digest.
 
 | Entity | Consumption regime | Status today |
 | --- | --- | --- |
 | Component | Type-reference resolution; Recipe `implements:` matching | `available` — exact, caret-range (`^MAJOR.MINOR.PATCH`), and unversioned forms in both (see [Version resolution](../version-resolution.md) and [Status → Version matching](../10-status.md#version-matching)) |
 | Feature | Attachment-reference resolution; FeatureRecipe `implements:` matching | Same as Component |
-| Recipe | Manifest mapping tier resolution | `accepted but inert` |
+| Recipe | Manifest mapping tier resolution | `available` — exact, caret-range and unversioned forms in a mapping value, each selecting the highest satisfying version |
 | FeatureRecipe | Manifest mapping tier resolution | Same as Recipe |
 | Aggregate | Parent `aggregates[].type` reference resolution | `available` — exact, caret-range, and unversioned forms, each selecting the highest satisfying version (see [Version resolution](../version-resolution.md)) |
-| Plugin | Provider dispatch via `recipe.spec.capability` → `spec.provider.capabilities` | `available` for bare-name dispatch; the plugin's identity is the digest-free `oci://<repository>` reference plus `metadata.version`, and the content digest is recorded in the release lockfile the build verifies fetched bytes against |
-| Manifest | Provenance label emission | `available` (read only for provenance; no role in resolution dispatch) |
-| Release | Provenance label emission + template metadata (`release_version`) | Same as Manifest |
+| Plugin | Provider dispatch via `recipe.spec.capability` → `spec.provider.capabilities` | `available` — the bare capability selects the provider, and a pin on it (`helm:<version>`, `helm:^<version>`) selects which version of that plugin renders; the plugin's identity is the digest-free `oci://<repository>` reference plus `metadata.version`, and the content digest is recorded in the release lockfile the build verifies fetched bytes against |
+| Manifest | IR graph provenance (`manifest_version`) | `available` (read only for provenance; no role in resolution dispatch) |
+| Release | IR graph provenance (`release_version`) + template metadata (`.metadata.release_version`) | Same as Manifest |
 
-**Catalog-resolution regimes (Component, Feature, Aggregate, Plugin).** A reference to one of these kinds — a component's `type`, a feature attachment's `type`, a sub-aggregate import's `aggregates[].type`, a pipeline step's `plugin` — resolves by the rule [Version resolution](../version-resolution.md) teaches: an exact, caret-range or unversioned reference selects the highest satisfying version among those the catalog holds, and the pull, the build, a validate, the editor and the assistant-facing tools apply that one rule alike. For a Component or Feature, `implements:` matching reads the same three forms from the other direction — a concrete type version against the form a Recipe or FeatureRecipe declares — as the consistency check described below, not as a selection. Provider-rendering-plugin dispatch uses a simpler shape today: it looks up `recipe.spec.capability` against the provider-rendering plugin's `spec.provider.capabilities` by bare name.
+**Catalog-resolution regimes (Component, Feature, Aggregate, Plugin).** A reference to one of these kinds — a component's `type`, a feature attachment's `type`, a sub-aggregate import's `aggregates[].type`, a pipeline step's `plugin` — resolves by the rule [Version resolution](../version-resolution.md) teaches: an exact, caret-range or unversioned reference selects the highest satisfying version among those the catalog holds, and the pull, the build, a validate, the editor and the assistant-facing tools apply that one rule alike. For a Component or Feature, `implements:` matching reads the same three forms from the other direction — a concrete type version against the form a Recipe or FeatureRecipe declares — as the consistency check described below, not as a selection. Provider-rendering-plugin dispatch uses a simpler shape today: it looks up the bare `recipe.spec.capability` against the provider-rendering plugin's `spec.provider.capabilities` by name, and a version pin written on the capability selects which version of that plugin renders, halting when no version satisfies it.
 
 **Manifest mapping tier resolution.** The Manifest's flat `mappings.{components,features}` resolution mechanism (with `name` and `type` tiers, name-wins-over-type, and versioned-type wins over unversioned-type) is documented at [`entities/manifest.md`](../entities/manifest.md). The resolver consumes those mappings: Recipe and FeatureRecipe selection is a direct lookup of the mapping value against the lockfile and catalog, and a component or attachment whose type carries no mapping halts the build. `spec.implements` does not select a Recipe — it is the load-time consistency check on a mapping the author already wrote, and the source of the candidate list the no-mapping diagnostic and editor completion offer. Capability dispatch then flows from the resolved Recipe's `spec.capability` field, not from the Manifest's structural shape.
 
-**Descriptive-provenance regimes (Manifest, Release).** Manifest `metadata.version` and Release `metadata.version` are read when the compiler populates provenance, and flow into downstream label emission (e.g., `aggrega.ai/release-version` on rendered Kubernetes manifests). Templates also see Release version exposed as `.metadata.release_version`. Neither version is matched against any other entity's version for resolution dispatch; these are pure provenance.
+**Descriptive-provenance regimes (Manifest, Release).** Manifest `metadata.version` and Release `metadata.version` are read when the compiler populates provenance, and appear in the IR graph's provenance block as `manifest_version` and `release_version`; no label on rendered output carries either. Templates also see Release version exposed as `.metadata.release_version`. Neither version is matched against any other entity's version for resolution dispatch; these are pure provenance.
 
 **Reading the table.** The four-label classification distinguishes "the version field is accepted by the schema and exists on the entity" (always true — uniform SemVer regex) from "the compiler matches against this version during resolution" (varies per entity). When the precedence-iteration extension and Manifest mapping tier consumption ship in their respective future releases, this table's labels update to `available` accordingly; until then, the table reflects what the resolver does today rather than what the architectural design promises.
 
@@ -146,9 +146,10 @@ metadata:
 spec:
   implements: core/high-perf-postgres:^1.0.0
   capability: terraform
-  valuesMapping:
+  source: ./modules/rds
+  valuesMapping: |
     # The Recipe pipes the developer's values.required_iops into the provider's infra-side knob.
-    iops: "{{ .values.required_iops }}"
+    iops: {{ .values.required_iops }}
     allocated_storage: "{{ .infra.storage.size }}"
     instance_class: "{{ .infra.compute.instance_class }}"
 ```

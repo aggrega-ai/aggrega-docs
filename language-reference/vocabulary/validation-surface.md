@@ -10,19 +10,20 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 **Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) has its own JSON Schema, documented in the [schema reference](../schema/README.md). Workload has one there as well, and it is the one kind in that set an author writes inside another entity — a Recipe's or FeatureRecipe's `workload:` block, or a WorkloadLibrary entry — rather than as a catalog file of its own; the same envelope check governs it wherever it is written, and `aggrega validate` accepts a Workload file directly as a single-entity target.
 
-**Validation runs.** At resolution (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
+**Validation runs.** At resolution (resolver / load), per file. Each document is checked against its kind's JSON Schema when it loads; a key outside the fields the schema declares is refused there, before any further validation runs.
 
-**Error shape.** Schema-mismatch failures surface as YAML unmarshal errors carrying the offending field path and the constraint violated:
+**Error shape.** A schema mismatch is reported as a document envelope failure. Its head carries the category of the document at fault — `[CATALOG_ERROR E0215]` for a catalog entity, `[DEVELOPER_ERROR E0215]` for an Aggregate, `[OPS_ERROR E0215]` for a Release — and the message names the kind, the file, the line and column, the field path and the constraint violated:
 
 ```text
-unmarshal Recipe "<path>": json: unknown field "<field>"
+[CATALOG_ERROR E0215] <path>
+  document envelope validation failed (Recipe, at <path>); 11:3: spec.foo: unexpected property: "foo". correct the document to match its kind's schema
 ```
 
-Required-field omissions and type mismatches surface in the same shape; the specific text varies by underlying YAML library.
+Required-field omissions and type mismatches surface in the same shape — `spec.capability: missing required property: capability`, `metadata.version: type: 1 has type "integer", want "string"`.
 
 ### Layer 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`)
 
-**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `features:` attachment block whose slots `featuresSchema` declares and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
+**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `features:` attachment block whose slots `featuresSchema` declares and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or a `$ref:` to a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
 
 **Validation runs.** At resolution, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `features:` / `uses:` blocks on every component instance in the Aggregate.
 
@@ -54,7 +55,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 **Scope.** Annotation values authored on Release boundaries / boundary components or Aggregate subsystems / component instances, when a Manifest binding under `mappings.features.annotations.<key>` declares routing through `maps.infra` and/or `maps.values` dotted-path lists. Each declared path navigates the target Feature's `spec.schema.<pillar>` to a leaf property; the annotation value's contribution at that leaf is validated against the Feature schema's declared type. Validation flows through the Feature's own JSON Schema 2020-12 declaration — bindings declare routing only, not validation fragments.
 
-**Validation runs.** The annotation-expansion sub-phase of resolution, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
+**Validation runs.** The annotation-expansion sub-phase of resolution, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value as a scalar, a structured map, or an explicit `null`; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
 
 **Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures are attributed to the document the annotation value was authored in, so a fault carried by an Aggregate opens a `[DEVELOPER_ERROR]` head and one carried by a Release opens an `[OPS_ERROR]` head, and both name the annotation key, the routed pillar, the authoring side, and the source location.
 
@@ -62,7 +63,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 The four layers share one observable convention: **every Aggrega-attributable validation failure carries a path-plus-rationale shape** that names the offending field and the constraint that rejected it.
 
-- Layer 1 (envelope) and Layer 2 (pillar schemas) errors come through unprefixed at resolution — they fire before any Aggrega-prefixed sentinel discipline applies, so the YAML library's or schema validator's native error wraps with a positional prefix (`unmarshal <kind> "<path>": ...`, `<field-path>: <schema rule violated>`).
+- Layer 1 (envelope) and Layer 2 (pillar schemas) errors open with the same bracketed head — the category of the document at fault and the condition's short code, such as `[CATALOG_ERROR E0215]` for an envelope mismatch in a catalog entity and `[DEVELOPER_ERROR E0168]` for an Aggregate value a pillar schema refuses — followed by the field path and the schema rule violated.
 - Layer 3 (Provider source / Workload) errors are catalog-entity-attributable by definition — the Recipe + Provider pair authored the schema that rejected the developer's input. These are attributed to the catalog-authoring domain, and the attribution reaches you in the diagnostic's bracketed head rather than as a word typed into the message: a halting report opens `[CATALOG_ERROR E0nnn]`, where the category names the domain and the short code names the condition. Match on the short code, which is fixed once issued.
 - Layer 4 (annotation-binding value validation) errors follow the Layer 2 shape — the validating Feature schema lives in the referenced Feature's `spec.schema`, and runtime values flow through the Manifest binding's `maps` routing into that schema for per-leaf type checking.
 
@@ -78,14 +79,14 @@ The same authored field can be governed by more than one layer. The most common 
 
 When a developer authors `port: 80` and the provider-Plugin's `spec.provider.workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
 
-A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at base rendering; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
+A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at base rendering; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint duplication section).
 
 ## Pipeline placement summary
 
 | Layer | Scope | Runs at | Error prefix |
 | --- | --- | --- | --- |
-| 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
-| 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
+| 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | the document's category with `E0215` — `[CATALOG_ERROR E0215]` for a catalog entity |
+| 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | the authoring document's category with the condition's short code — `[DEVELOPER_ERROR E0168]` for an Aggregate value |
 | 3 — Provider-capability gate (per-provider `workloadSchema` content validation not yet shipped) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open the authoring document's own domain — `[DEVELOPER_ERROR]` from an Aggregate, `[OPS_ERROR]` from a Release |
 
@@ -93,7 +94,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 
 - [`errors/error-translation.md`](../errors/error-translation.md) — Aggrega-prefixed sentinel inventory and the surfaces that produce them.
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — per-error catalog of every fatal halt the compiler emits.
-- [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `features:` and `uses:` that Layer 2 validates.
+- [`vocabulary/data-pillars.md`](data-pillars.md) — the data pillars (`values`, `infra`, `parameters`, `locals`, `features:`, `uses:` and `provides`) Layer 2 validates.
 - [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `featuresSchema` / `usesSchema`.
 - [`entities/plugin.md`](../entities/plugin.md) — provider-rendering Plugin authoring surface for `spec.provider.workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).

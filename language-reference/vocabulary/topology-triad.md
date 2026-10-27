@@ -8,8 +8,8 @@ Instead, the platform relies on **True Control Inversion**. When a developer wri
 
 1. **The Intent (Domain 1):** The Developer declares an abstract interface: *"I require a secret. I don't know where it lives. Just inject it into my environment as `ORACLE_PASSWORD` mapping to the catalog's `password` key."*
 2. **The Compiler Transfer (at rendering):** The Go compiler takes the entry `{ in: ORACLE_PASSWORD, from: "password" }` and hands it to the Ops Recipe. No physical secret is fetched.
-**3. The Plugin Output (Domain 3):** The credential FeatureRecipe's Wasm pipeline generates the precise interlocking artifacts required by the target infrastructure. For example, in Kubernetes, it outputs the `ExternalSecret` CRD (instructing the cluster to fetch the vault data) **AND** executes a JSONPatch against the target Pod to map the resulting local K8s Secret specifically to the developer's requested `"ORACLE_PASSWORD"` environment variable.
-**4. The Runtime Reality:** At runtime, the an operator in cluster simply executes these generated artifacts—fetching the credential and physically mounting it into the container—completely decoupling the physical security mechanics from the AOT compiler.
+3. **The Plugin Output (Domain 3):** The credential FeatureRecipe's Wasm pipeline generates the precise interlocking artifacts required by the target infrastructure. For example, in Kubernetes, it outputs the `ExternalSecret` CRD (instructing the cluster to fetch the vault data) **AND** executes a JSONPatch against the target Pod to map the resulting local K8s Secret specifically to the developer's requested `"ORACLE_PASSWORD"` environment variable.
+4. **The Runtime Reality:** At runtime, an operator in the cluster simply executes these generated artifacts—fetching the credential and physically mounting it into the container—completely decoupling the physical security mechanics from the AOT compiler.
 
 To deliver this physical reality to the application without violating the Separation of Concerns, Aggrega utilizes the **Injection Contract**. However, this contract strictly differentiates between custom application code and Commercial Off-The-Shelf (COTS) infrastructure:
 
@@ -19,7 +19,7 @@ To deliver this physical reality to the application without violating the Separa
 **The Deterministic Addressing Rule (Internal Network Physics)**
 Aggrega's `.context.uses` pipe dynamically injects target strings into containers at compile time. Because the core Go compiler is entirely agnostic to physical networking, what counts as a valid address string relies entirely on a **Social Contract** upheld by Platform Ops, not a compiler function — the compiler pipes whatever deterministic pointer string the Ops Recipe produced into the downstream template context without interpretation.
 
-**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The provider does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via the `.locals` contract (e.g., exporting `.locals.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${module.db.endpoint}"` in Terraform, where the module declares a matching `output` for the value).
+**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The provider does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via its `provides:` contract (e.g., publishing `provides.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${module.db.endpoint}"` in Terraform, where the module declares a matching `output` for the value).
 
 Relying on the compiler to fetch post-provisioning dynamic IPs directly violates the AOT execution model. Because the compiler evaluates the topology *before* the cloud provisions any actual compute, it cannot physically fetch data that does not yet exist. If a service requires a random IP that is only generated after the compute boots, the compiler cannot physically fetch it. The compiler's only job is to pipe the deterministic pointer string provided by the Ops Recipe, verbatim, into the calling container's environment variables, leaving the final resolution to the cluster's DNS or the active IaC state manager.
 
@@ -31,8 +31,8 @@ Enforcing deterministic addressing natively solves **cyclic dependencies** (e.g.
 To implement this without tightly coupling Developers to Ops, Aggrega uses the Platform Catalog (Domain 2) as the strict API contract, utilizing three distinct layers of validation:
 
 1. **The Credential Feature Schema (labeled `feature.aggrega.ai/kind: secret`):** Validates **ONLY** the vault query (`path`, `key`). It is entirely agnostic to how the container consumes the data.
-2. **The `Component` Schema (`spec.inject` Allowlist):** Enforces the Black-Box/White-Box rule via the `spec.inject` field. If `spec.inject` is present (e.g., `inject: ["env", "file"]`), the developer may use component-level self-inject with those delivery mechanisms. If `spec.inject` is omitted, the compiler structurally forbids self-inject — Black-Box components rely entirely on the Recipe's `valuesMapping` for internal wiring. This is a structural envelope-shape enforcement at the schema layer, distinct from per-pillar content validation under `schema:`.
-3. **The `featuresSchema` Map:** Defined in the Component Catalog, this explicitly declares the credential slots the Developer must (or may) use. Each entry specifies `required` (default `false`), `inject` allowlist (`[]` = blackbox, `[env, file]` = transparent), and `description`. Because these keys are stable and contractually guaranteed, the Ops Engineer can directly rely on them to reliably dictate deterministic targets in their Go template (e.g., `existingSecret: "{{ .context.rendered_name }}-{{ .locals.secret_target_admin_password }}"` on the `helm` target), explicitly exporting the name's suffix via `.locals` — a local cannot read `.context.rendered_name` — so the downstream credential FeatureRecipe joins the same two parts and fulfills the requirement without violating AOT execution order. See §14 for the full `featuresSchema` design.
+2. **The `Component` Schema (`spec.inject` Allowlist):** Enforces the Black-Box/White-Box rule via the `spec.inject` field. If `spec.inject` is present (e.g., `inject: ["env", "file"]`), the developer may use component-level self-inject with those delivery mechanisms. If `spec.inject` is omitted, the compiler structurally forbids self-inject — Black-Box components rely entirely on the Recipe's `valuesMapping` for internal wiring. The build enforces it when it resolves the Aggregate, refusing the component's `inject:` block and naming the mechanism, distinct from per-pillar content validation under `schema:`.
+3. **The `featuresSchema` Map:** Defined in the Component Catalog, this explicitly declares the credential slots the Developer must (or may) use. Each entry specifies `required` (default `false`), `inject` allowlist (`[]` = blackbox, `[env, file]` = transparent), and `description`. Because these keys are stable and contractually guaranteed, the Ops Engineer can directly rely on them to reliably dictate deterministic targets in their Go template (e.g., `existingSecret: "{{ .context.rendered_name }}-{{ .locals.secret_target_admin_password }}"` on the `helm` target), explicitly exporting the name's suffix via `.locals` — a local cannot read `.context.rendered_name` — so the downstream credential FeatureRecipe joins the same two parts and fulfills the requirement without violating AOT execution order. See [`entities/component.md`](../entities/component.md#attachment-slots-featuresschema) for the full `featuresSchema` design.
 
 **The Strict Placement Rule:** The `inject:` mechanism is available in three locations in the Developer's `Aggregate`:
 
@@ -72,7 +72,7 @@ components:
         - in: CALLBACK_HOST
           from: "host"                     # From own provides (already evaluated)
         - in: APP_VERSION
-          value: "{{ .values.app_token }}" # Go template expanding own values
+          value: '{{"{{"}} .values.app_token }}' # Go template expanding own values
     uses:
       databases:
         my_db:
@@ -86,6 +86,8 @@ components:
               - in: DB_URL
                 from: "dsn"                # From target's provides
 ```
+
+The template in `APP_VERSION`'s `value:` opens with `{{"{{"}}` rather than `{{`: the Aggregate's whole text is read once as a template, for parameter interpolation, before self-inject resolution runs, and `.values` does not exist at that point, so the escape puts `{{` back for self-inject resolution to evaluate. See [Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces).
 
 **Provider-specific note (compose).** When `uses:` edges resolve between compose-targeted nodes, the compose provider derives `depends_on` entries from those edges. Those entries always use `service_started` semantics regardless of any target's `health:` block; gating them on the target's health is not implemented. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
@@ -116,12 +118,12 @@ To prevent Go template boilerplate in Recipes, the compiler provides **both**:
 * `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions and any boundary Feature's environment override.
 
 **The Dual-State Injection Context (Null-Safety vs. AST Purity)**
-When generating configurations for Modifiers (the FeatureRecipe bound to any attachment, credential or otherwise), the compiler must balance null-pointer safety for Go templates, dynamic network routing, and the preservation of a capability-agnostic AST graph. To achieve this, the compiler natively provides a dual-state context at the root level of the template execution:
+When generating configurations for Modifiers (the FeatureRecipe bound to any attachment, credential or otherwise), the compiler must balance null-pointer safety for Go templates, dynamic network routing, and the preservation of a capability-agnostic graph. To achieve this, the compiler provides a dual-state context to the template:
 
-* **`.inject_raw` (The Immutable Intent):** Represents the exact, unmutated YAML intent authored by the developer in Domain 1. It is immutable. If the developer omitted the block, this evaluates to `null`. Ops utilizes this specifically for logical checks (e.g., `{{ if not .inject_raw }}` to apply fallback behaviors). Because it is immutable, it protects Ops templates from false positives if routing features intercept and mutate the physical delivery pipe.
-* **`.inject` (The Pre-Hydrated & Intercepted Pipe):** A parallel, compiler-generated struct representing the physical delivery reality. It starts as a pre-hydrated map (e.g., mapping `API_HOST` to the target's base string `"backend-instance"`). Crucially, this pipe is designed to be **intercepted and deep-merged** by Features (e.g. network routing) utilizing the `injectMapping` block. By the time the Base Recipe renders, this pipe contains the fully formatted, physically correct strings (e.g. a correct complete network name like `"backend-instance.backend-zone.svc.cluster.local"`). Its contents are structured as `env`, `file`, `arg` (plus any custom delivery mechanisms allowed by the Component's inject allowlists), with a pre-merged `.all` dictionary combining all mechanisms for convenient whole-pipe serialization.
+* **`.inject_raw` (The Immutable Intent):** Represents the component's own `inject:` block exactly as the developer authored it in Domain 1. It is immutable. If the developer omitted the block, this evaluates to `null`. Ops utilizes this specifically for logical checks (e.g., `{{ if not .inject_raw }}` to apply fallback behaviors). Because it is immutable, it protects Ops templates from false positives if routing features intercept and mutate the physical delivery pipe.
+* **`.context.inject` (The Pre-Hydrated & Intercepted Pipe):** A parallel, compiler-generated struct representing the physical delivery reality. It starts as a pre-hydrated map (e.g., mapping `API_HOST` to the target's base string `"backend-instance"`). Crucially, this pipe is designed to be **intercepted and deep-merged** by Features (e.g. network routing) utilizing the `injectMapping` block. By the time the Base Recipe renders, this pipe contains the fully formatted, physically correct strings (e.g. a correct complete network name like `"backend-instance.backend-zone.svc.cluster.local"`). Its contents are structured as `env`, `file`, `arg` (plus any custom delivery mechanisms allowed by the Component's inject allowlists), with a pre-merged `.all` dictionary combining all mechanisms for convenient whole-pipe serialization.
 
-Ops utilizes the `.inject` struct exclusively for safe serialization (e.g., `{{ toJson .inject.all }}`) and routing generation, ensuring the physical infrastructure receives the fully resolved coordinates while the developer's original AST intent remains perfectly intact in `.inject_raw`.
+Ops utilizes the `.context.inject` struct exclusively for safe serialization (e.g., `{{ toJson .context.inject.all }}`) and routing generation, ensuring the physical infrastructure receives the fully resolved coordinates while the developer's original intent remains perfectly intact in `.inject_raw`.
 
 **Developer YAML Example (Granular Map):**
 
@@ -129,19 +131,20 @@ Ops utilizes the `.inject` struct exclusively for safe serialization (e.g., `{{ 
 uses:
   databases:
     my-postgres-cluster:
+      target: db-main
       inject:
         ssm_param: # Agnostic injection paradigm (AWS Systems Manager)
           - in: MY_DB_HOST   # Local identifier
             from: "host"     # Target provides key
 ```
 
-The compiler resolves this at compile-time (mapping to static AST strings or internal DNS names) and passes the two objects to the Recipe:
+The compiler resolves this at compile-time (mapping to static strings or internal DNS names) and passes the two objects to the Recipe:
 
 ```json
 "context": {
   "uses": { ... raw graph ... },
   "inject": {
-    "env": { "MY_DB_HOST": "db-main.internal" },
+    "all": { "MY_DB_HOST": "db-main.internal" },
     "ssm_param": { "MY_DB_HOST": "db-main.internal" }
   }
 }
@@ -181,7 +184,7 @@ Many enterprise AI frameworks expect a structured `config.json` or `.pem` certif
         inject:
           file:
             - in: "/etc/secrets/openai.json" # Local path
-              from: "api_token"              # Target provides key
+              from: "api_token"              # The attachment's provides key
     ```
 
 * **Ops Reality:** The Ops Recipe dynamically generates the Kubernetes `Volume`, `VolumeMount`, and `ExternalSecret` required to securely pull the vault data and mount it to `/etc/secrets/openai.json`.
@@ -199,7 +202,7 @@ Pre-compiled binaries (like Rust or Go worker nodes) often bypass environment va
         inject:
           arg:
             - in: "--callback-url="  # Local flag
-              from: "hostname"       # Target provides key
+              from: "hostname"       # The attachment's provides key
     ```
 
 * **Ops Reality:** The hostname is the environment's name for the component, so the operator writes it, `api.enterprise.com`, in this attachment's `infra` on the Release's entry for the component. The Feature's Wasm plugin receives the resolved public URL via the Injection Contract and emits a JSONPatch to dynamically append the Kubernetes `args` array: `["/app/binary", "--callback-url=https://api.enterprise.com"]`, completely bypassing the Component's Base Recipe.

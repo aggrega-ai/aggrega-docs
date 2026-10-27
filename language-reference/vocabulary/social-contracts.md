@@ -1,6 +1,6 @@
 # Social Contracts
 
-Aggrega is, by design, a mathematically unopinionated compiler. Per the founding invariants documented at [architecture/05-invariants.md](../../architecture/05-invariants.md), the compiler parses YAML, traverses graphs, evaluates label intersections, and pipes strings between components — but it does not police what developers put in `values`, `parameters`, `infra`, `provides`, or `locals`; it does not enforce naming conventions, port conventions, or the semantic labels an Architect invents; it does not guess component purpose from names. Many disciplines that sound like compiler rules are actually **Social Contracts**: best practices upheld by authoring convention rather than by schema or runtime enforcement.
+Aggrega is, by design, an unopinionated compiler. Per the founding invariants documented at [architecture/05-invariants.md](../../architecture/05-invariants.md), the compiler parses YAML, traverses graphs, evaluates label intersections, and pipes strings between components — but it does not police what developers put in `values`, `parameters`, `infra`, `provides`, or `locals`; it does not enforce naming conventions, port conventions, or the semantic labels an Architect invents; it does not guess component purpose from names. Many disciplines that sound like compiler rules are actually **Social Contracts**: best practices upheld by authoring convention rather than by schema or runtime enforcement.
 
 **Where that neutrality stops is worth saying plainly, because it is one line and it is easy to over-read.** A few keys are Aggrega's own — reserved, with the values it will take written into the published schema — and those the schema does check, the way it checks any other declared field. Declaring the value set of a key the platform itself defines is not the compiler reading meaning into what you wrote; it is the platform saying what its own key means. Everything you author under a key of your own stays exactly as unpoliced as this page describes.
 
@@ -40,13 +40,13 @@ The following Social Contracts are convention-enforced today. Each entry names t
 
 The reserved `component.aggrega.ai/type` label names what kind of thing a component is, drawn from a closed set of universal cloud primitives: `server`, `worker`, `task`, `function`, `stateful-server`, `resource`. **Membership of that set is Class A, not Class C.** Aggrega defines this key and the values it accepts, the Component schema enumerates them, and a document carrying anything else is refused when it loads — `E0215`, the `entity-envelope-invalid` condition, names the label and lists the values it will take. That refusal is what this entry does *not* cover.
 
-What stays convention is **which** of the values fits the component in front of you. Nothing checks that a relational database is labelled `stateful-server` rather than `server`, or that a queue consumer is `worker` rather than `task`; the selector evaluates whatever value it finds without reading meaning into it. The Architect authoring a Component picks the value that describes how infrastructure must treat it, and downstream policy plugins, Wasm rendering plugins, and Studio filtering all rely on that choice being honest.
+What stays convention is **which** of the values fits the component in front of you. Nothing checks that a relational database is labelled `stateful-server` rather than `server`, or that a queue consumer is `worker` rather than `task`; the selector evaluates whatever value it finds without reading meaning into it. The Architect authoring a Component picks the value that describes how infrastructure must treat it, and downstream selectors, policy plugins and Wasm rendering plugins all rely on that choice being honest.
 
 **Classifying on an axis of your own.** The closed set governs this one reserved key and nothing else. A catalog that needs a classification Aggrega does not define — a tier, a data zone, a service class, or a finer split of the operational primitives — adds **its own label key** beside the reserved one. The Component schema accepts any further label key with a string value, and the same selector machinery reads it, so `acme.aggrega.ai/storage-tier: oltp` sits alongside `component.aggrega.ai/type: stateful-server` and a Feature's `appliesTo` or a socket's `selector` can target either. Extension happens on a key of your own, never on a value inside Aggrega's.
 
 **Documented at:** [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) (the operational ontology) + [`labels-and-annotations.md`](labels-and-annotations.md) (prefix discipline) + [`errors/sentinels.md`](../errors/sentinels.md) (`E0215`).
 
-**Failure mode:** A value from the set that does not fit the component builds successfully and misroutes everything downstream. A datastore labelled `server` is skipped by a Feature selecting `stateful-server`, is routed by a Release boundary mapping as though it needed no permanent disk, and is rendered by whichever Recipe that mapping picked for the wrong shape. The build succeeds; the mistake surfaces only once the rendered artifacts reach the cluster.
+**Failure mode:** A value from the set that does not fit the component misleads everything that reads the label. A datastore labelled `server` is refused by a Feature or a socket selecting `stateful-server` — a halt naming the selector, not the mislabel — and a policy plugin or a rendering plugin reading the label treats it as stateless compute. Where only such readers see it, the build succeeds; the mistake surfaces only once the rendered artifacts reach the cluster.
 
 ### 2. Three-bucket `.context.annotations.*` separation
 
@@ -62,7 +62,7 @@ The compiler does not enforce the bucket boundaries. The three buckets share a f
 
 Annotation and label keys follow a `<namespace>/<name>` shape. Five reserved prefixes carry specific authoring rules: `aggrega.ai/` (platform-only), `feature.aggrega.ai/` (official Feature shortcuts), `component.aggrega.ai/` (Component-intrinsic traits), `aggregate.aggrega.ai/` (Aggregate module identity), and `<any-other-domain>/` (enterprise / community).
 
-The compiler does not reject custom prefixes that conflict with the reserved set. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the compiler accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
+The compiler does not reject an annotation authored under a reserved prefix on a catalog entity or a Release; only a Manifest annotation binding or a Recipe output label claiming a key under `aggrega.ai/` halts the build. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the compiler accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
 
 **Documented at:** [`labels-and-annotations.md`](labels-and-annotations.md) (Prefix discipline) + [`providers/well-known-annotations.md`](../providers/well-known-annotations.md).
 
@@ -98,7 +98,7 @@ Pillar boundaries are authoring discipline, not language enforcement. The templa
 
 - Read `.values` for cognitive payload (developer-authored intent).
 - Read `.infra` for physical sizing (Ops-authored sizing).
-- Read `.context.uses[].provides.<key>` for cross-component pointer strings.
+- Read `.context.uses.<alias>.provides.<key>` for cross-component pointer strings.
 - Read `.context.inject` for the post-hydration delivery pipe.
 
 The template engine does not gate the read. A Recipe template that reads `.infra.replicas` to drive a `values:` field works; nothing prevents the cross-pillar route. The discipline target is signposts — the boundaries describe authoring intent (who owns the data) rather than runtime restriction.
@@ -113,7 +113,7 @@ The `variables:` map blends two distinct data sources via Go template expression
 
 The compiler does not distinguish the two sources; both flow into the same Kubernetes `env:` list on the rendered Deployment. The dual-source semantic is at authoring time only — the discipline is naming intent (this entry is component-local; that entry is cross-component-derived) so that future maintainers can read which entries depend on which inject-hydration outputs.
 
-**Documented at:** [`entities/workload.md`](../entities/workload.md) `variables:` field-conventions.
+**Documented at:** [`entities/workload.md`](../entities/workload.md) "Field-semantics essentials" (`variables`).
 
 **Failure mode:** Authors who don't distinguish the two sources lose the "which entries are coupled to which target's `provides:`" trace. Refactoring a target's `provides:` keys silently breaks every caller `variables:` entry that read through the inject pipe.
 
