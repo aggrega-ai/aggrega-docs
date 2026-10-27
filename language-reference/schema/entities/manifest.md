@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/manifest-v1alpha1.schema.json`
 
-A single, global lockfile that maps abstract Developer Interfaces to concrete Ops Implementations via O(1) dictionary lookups based strictly on Instance Names.
+A single, global lockfile that maps abstract component and Feature types to concrete Recipe and FeatureRecipe implementations, by type, with a per-instance override by name.
 
 See the [Manifest authoring reference](../../entities/manifest.md) for prose guidance on authoring Manifest entities; this page documents the structural schema that reference describes.
 
@@ -28,7 +28,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | yes | At least 1 character long. |
 | `version` | string | yes | Strict Semantic Versioning of the manifest lockfile (e.g., 1.0.0). Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
-| `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from a deployment, and anything surprising about how it behaves. A short paragraph is the usual length. |
+| `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from the Release that uses it, and anything surprising about how it behaves. A short paragraph is the usual length. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |
 | `repository` | string | no | The URL to the Git repository where the source files live. |
@@ -53,7 +53,7 @@ The Manifest's mapping declarations plus optional base inheritance: mappings con
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `extends` | string | no | URI of a base Manifest to inherit mappings from. Child mappings safely overwrite the base to support frictionless local dev loops. |
+| `extends` | string | no | URI of a base Manifest to inherit mappings from. A child's mapping replaces the base's for the same key. |
 | `mappings` | object | yes | Maps abstract interfaces to concrete implementations. Declare mappings under the top-level keys 'components' and 'features', each mapping component-type / feature-type URIs directly to Recipe / FeatureRecipe URIs. These two keys are the whole surface; no other key is accepted here. The mapping is capability-agnostic at the Manifest layer — capability determination flows from each resolved Recipe's spec.capability when Aggrega builds the Release. Keys: One of `"components"`, `"features"`. |
 
 _Additional properties are not permitted._

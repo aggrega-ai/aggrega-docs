@@ -52,7 +52,7 @@ The socket type this plugin implements. It sits in the addressing block beside `
 
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
-- `pipeline-step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
+- `pipeline-step` — a step in a FeatureRecipe's or a Recipe's `pipeline:` that patches the rendered document set.
 - `governance` — serves the build-pipeline governance roles. At topology construction it auto-tags topology-graph node labels, returning JSON Patch documents the host applies to a labels-only projection of the graph. At static analysis or the render stage it evaluates the IR graph or the rendered artifacts and returns an accept/reject verdict; a failed rule halts the build. The role it is attached at, not its kind, fixes what it may emit.
 - `parser` — parses a foreign source format (HCL, TOML, YAML, JSON, …) into a structured JSON tree, so a consumer that needs to read a format the compiler does not parse natively works from a parsed tree rather than the raw text.
 - `importer` — turns a foreign infrastructure or agent-definition source into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities.
@@ -62,7 +62,7 @@ Required.
 
 ## `spec.abiVersion`
 
-The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted value; a future ABI revision adds an accepted value. Required.
+The host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a new ABI revision adds one. Required.
 
 ## Declaring capabilities: one block per socket type
 
@@ -94,7 +94,7 @@ A capability name here carries no colon. A Recipe's `spec.capability` is read as
 
 A JSON Schema 2020-12 declaration documenting how this provider translates the `aggrega.ai/v1alpha1` Workload kind into provider-native manifests. It is declared by convention on a provider that synthesizes: such a provider declares `workloadSchema` as the documented translation contract, describing what Workload fields the provider consumes, what closed sets each enum-shape field accepts, and what range constraints apply.
 
-The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structural guardrail that rejects a malformed schema at load rather than at render. Whether a `workload:` Recipe is supported is determined by the bound provider's synthesis capability, not by this field's presence: a synthesized-mode Recipe bound to a provider that cannot synthesize halts loudly at render time. The standard-library catalog keeps `workloadSchema` in sync with provider capability. Today the field acts as a documented contract; it becomes executable input to Wasm translators in a future iteration. Workload bodies themselves are validated against the platform-owned embedded Workload schema, not against this per-provider field.
+The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structural guardrail that rejects a malformed schema at load rather than at render. Whether a `workload:` Recipe is supported is determined by the bound provider's synthesis capability, not by this field's presence: a synthesized-mode Recipe bound to a provider that cannot synthesize halts loudly at render time. The standard-library catalog keeps `workloadSchema` in sync with provider capability. The field is the documented contract; nothing else reads it. Workload bodies themselves are validated against the platform-owned embedded Workload schema, not against this per-provider field.
 
 ### `spec.provider.wellKnownAnnotations`
 

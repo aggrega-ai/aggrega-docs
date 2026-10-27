@@ -226,7 +226,7 @@ FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit R
 
 ### Side effects — emitting resources (credential plugins in the plugin pipeline)
 
-Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects` — for example an `ExternalSecret` or `VaultSecret` CRD (`emit_crd`) that the cluster fetches at runtime, or a written file (`emit_file`). The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects`, each declaring one of the two kinds the contract defines: `emit_crd`, a custom-resource document such as an `ExternalSecret` or `VaultSecret` CRD that the cluster fetches at runtime, or `emit_file`, a written file. A step returning any other kind [halts the build](../errors/fatal-halts.md#a-pipeline-step-declares-an-emission-kind-the-contract-does-not-define), naming the node, the side effect's index and the kind it declared. The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
 **Status today:** **available**.
 

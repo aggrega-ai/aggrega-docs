@@ -1,10 +1,10 @@
-# Aggrega Internal Template Context schema
+# Aggrega Template Context schema
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
 Schema id: `https://aggrega.ai/schemas/template-context-v1alpha1.schema.json`
 
-The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during rendering. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context, .context.render_facts with what its host's provider reported about the host's render, and, on the templates that produce the attachment's own resources, .context.used_by with the components that use its host. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
+The view the compiler assembles and passes to Recipe and FeatureRecipe templates while it renders. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context, .context.render_facts with what its host's provider reported about the host's render, and, on the templates that produce the attachment's own resources, .context.used_by with the components that use its host. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
 
 Base-rendering stage availability, in the order the stages run:
 
@@ -33,7 +33,7 @@ Base-rendering stage availability, in the order the stages run:
 | `steps` | map of object | no | Pipeline inter-step communication. Only available inside Wasm pipeline 'with:' blocks. Each key is a pipeline step ID, containing the outputs exported by that step. |
 | `source` | string or object or null | no | Resolved source field content. Populated at source resolution from the Recipe's source: field after Go-template evaluation. Available from values mapping onward (valuesMapping, workload, artifacts). Evaluates to null when the Recipe has no source:. String form = URI path; object form = structured source (e.g., OCI descriptor with resolved version). |
 | `workload` | workload-v1alpha1.schema.json or null | no | Parsed Workload spec for this node. Populated at workload synthesis from the Recipe's workload: field after Go-template evaluation + Workload JSON-schema validation (against workload-v1alpha1.schema.json). Available from artifact evaluation onward (artifacts) so artifacts can reference workload fields without duplication (e.g., a ServiceMonitor reading .workload.services.metrics.ports.prom). Evaluates to null when the Recipe has no workload: block. Template attempts to dereference .workload.* on a null value fail with a clear error at template eval time. |
-| `boundary` | object | no | Boundary-scope context — populated only when evaluating a FeatureRecipe whose spec.executionScope is 'boundary'. Component-scope FRs do not receive this pillar; their context.instance_id, context.inject, context.uses, and the .workload pillar carry per-component data instead. Boundary-scope FRs receive .boundary.* in place of those per-component pillars. |
+| `boundary` | object | no | Boundary-scope context — populated only when evaluating a FeatureRecipe whose spec.executionScope is 'boundary'. Component-scope FeatureRecipes do not receive this pillar; their context.instance_id, context.inject, context.uses, and the .workload pillar carry per-component data instead. Boundary-scope FeatureRecipes receive .boundary.* in place of those per-component pillars. |
 
 _Additional properties are not permitted._
 
@@ -45,7 +45,7 @@ The compiler-assembled execution context providing identity, topology, and deliv
 | --- | --- | --- | --- |
 | `instance_id` | string | yes | The absolute flattened ID of the current node (e.g., 'backend' or 'data-layer.main-db'), written into the alphabet every authored component name satisfies. Deterministic and stable across compilations for the same Aggregate. It is the name of the resources built for this node that no provider derives a name for — an artifact set placed from the Recipe, and a workload synthesized by a provider that names it after the identity — so an address published for one of those is built from this value. |
 | `rendered_name` | string | no | The name the provider bound to this node gives the resources it renders for the node — for source the author supplied, the name the supplied templates themselves render against, such as the release name a chart reads; for a workload it synthesizes, the name it gives that workload's resources where it derives one rather than writing the node's identity, as the helm provider does with the same release name. Read it wherever this Recipe names a resource a supplied chart or module declared or such a provider synthesized, whether in a provides entry, a valuesMapping, a workload, an artifacts entry or a pipeline step's with or when, because the provider may spell that name in a poorer alphabet than an authored component name is written in and the two then differ. Empty when the bound provider derives no such name: the resources of a placed artifact set, and of a workload synthesized by a provider that names it after the identity, carry the node's identity, so read '{{ .context.instance_id }}' for those, and a Recipe that wrote its own resource names already knows them. Reading this key where the bound provider reports no name halts the build and says which to write instead. The refusal covers the templates a Recipe writes inline; a valuesMapping, a workload or an artifacts entry supplied through '$import' is resolved only when the render reaches it, so a reference inside one of those renders as an empty value rather than halting. On the templates of a FeatureRecipe bound to a component's attachment it is the HOST component's name as the host's own provider reports it — the value the host's own Recipe reads, just as instance_id there is the host's identity — so an attachment names a resource after its host from it and gets a name the host's platform accepts. Where the host's provider reports no name it is empty, and reading it from an inline template of the attachment other than its injectMapping halts the build; read '{{ .context.instance_id }}' there instead. |
-| `labels` | map of string | no | The duck-typing and ontology labels of the current node, including any mutations applied by mutator.wasm at topology construction. |
+| `labels` | map of string | no | The duck-typing and ontology labels of the current node, including any change a governance plugin attached in the label-transform role made at topology construction. |
 | `annotations` | object | no | The three cascading annotation buckets for the current node, segregated by origin. |
 | `inject` | object | yes | The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges. By the time the Base Recipe renders, this contains the fully resolved physical strings. |
 | `uses` | map of enriched_edge | yes | The enriched topological edge map. Keyed by the Developer's alias (e.g., 'my_db', 'my_api'). Each entry is a compiler-assembled view of the target node's identity, resolved provides, injection mapping, and cascaded annotations, and of the attachments written on that connection — and, for a FeatureRecipe that declares readsTargetRenderFacts, of what the target's renders reported. This is NOT the raw IR edge — it is an enriched projection built by the compiler specifically for template consumption. A template that ranges this map sees the connections in key order — sorted by alias — not in the order they were written. |
@@ -83,7 +83,7 @@ Release and compilation metadata providing global identity for deterministic nam
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `release_name` | string | no | The name of the Release driving this deployment (e.g., 'prod-billing'). Used by Ops to construct globally unique cloud resource names (S3 buckets, IAM roles). Combined with .context.instance_id to guarantee uniqueness across environments. |
+| `release_name` | string | no | The name of the Release being built (e.g., 'prod-billing'). Used by Ops to construct globally unique cloud resource names (S3 buckets, IAM roles). Combined with .context.instance_id to guarantee uniqueness across environments. |
 | `release_version` | string | no | The semantic version of the Release. |
 | `environment` | string | no | The environment string from the Release metadata (e.g., 'production', 'local'). |
 | `aggregate_name` | string | no | The name of the root Aggregate being compiled. |
@@ -103,13 +103,13 @@ Only populated when rendering an attachment FeatureRecipe that carries an author
 
 #### `template-context.boundary`
 
-Boundary-scope context — populated only when evaluating a FeatureRecipe whose spec.executionScope is 'boundary'. Component-scope FRs do not receive this pillar; their context.instance_id, context.inject, context.uses, and the .workload pillar carry per-component data instead. Boundary-scope FRs receive .boundary.* in place of those per-component pillars.
+Boundary-scope context — populated only when evaluating a FeatureRecipe whose spec.executionScope is 'boundary'. Component-scope FeatureRecipes do not receive this pillar; their context.instance_id, context.inject, context.uses, and the .workload pillar carry per-component data instead. Boundary-scope FeatureRecipes receive .boundary.* in place of those per-component pillars.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `path` | string | no | The boundary's evaluated directory path (post-template-evaluation). The same string groups the components that share an output directory and a provider when Aggrega builds the Release. |
 | `boundary_name` | string | no | The boundary's name (the map key in release.spec.boundaries). |
-| `components` | object | no | Map of instance_id to ComponentInfo for every component in the boundary's subtree (recursive, includes nested-boundary components). Each entry carries the component's resolved type URI, instance ID, and provided values from per-component provides evaluation. |
+| `components` | object | no | Map of instance_id to an entry for every component in the boundary's subtree (recursive, includes nested-boundary components). Each entry carries the component's resolved type URI, instance ID, and provided values from per-component provides evaluation. |
 | `internal_uses_edges` | object[] | no | Uses edges where source AND target are both in this boundary's subtree. |
 | `outgoing_cross_boundary_uses_edges` | object[] | no | Uses edges where source is in subtree, target is outside. Used by compose-bridge: which outbound connections need the bridge to proxy. |
 | `incoming_cross_boundary_uses_edges` | object[] | no | Uses edges where target is in subtree, source is outside. Used by ingress-style aggregators that need to know who's calling in. |
@@ -193,9 +193,9 @@ The Developer's original inject mapping for this edge (keys = local variable nam
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `env` | map of string | no |  |
-| `file` | map of string | no |  |
-| `arg` | map of string | no |  |
+| `env` | map of string | no | Environment variable delivery: keys are the consumer's local variable names, values are the target's provides keys. |
+| `file` | map of string | no | File mount delivery: keys are the consumer's local file paths, values are the target's provides keys. |
+| `arg` | map of string | no | Command-line argument delivery: keys are the consumer's flag prefixes, values are the target's provides keys. |
 
 #### `enriched_edge.annotations`
 

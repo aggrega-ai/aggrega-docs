@@ -26,7 +26,7 @@ _Additional properties are not permitted._
 | `name` | string | yes | At least 1 character long. |
 | `environment` | string | yes |  |
 | `version` | string | yes | Strict Semantic Versioning of the release (e.g., 1.0.0). Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
-| `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from a deployment, and anything surprising about how it behaves. A short paragraph is the usual length. |
+| `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from the platform it deploys to, and anything surprising about how it behaves. A short paragraph is the usual length. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |
 | `repository` | string | no | The URL to the Git repository where the source files live. |
@@ -79,7 +79,7 @@ _Additional properties are not permitted._
 
 ### `release_uses_block`
 
-Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component), infra (per-edge operator config, validated against the socket infraSchema by the conformance gate at resolution) and features (attachments filling the slots the socket declares), in any combination. values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
+Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component), infra (per-edge operator config, validated against the socket's infraSchema when the Release is resolved) and features (attachments filling the slots the socket declares), in any combination. values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
 
 **Keys:** one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`.
 

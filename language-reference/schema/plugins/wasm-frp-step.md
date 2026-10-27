@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-frp-step-v1alpha1.schema.json`
 
-The wire shapes a feature-recipe-pipeline step plugin socket consumes (FRPStepInput) and emits (FRPStepOutput). An FRP step runs per inline pipeline entry declared in a Recipe or FeatureRecipe: the host hands the step the keyed document set whole, the step selects the documents it targets by content, and it returns key-addressed RFC 6902 patches plus side effects and diagnostics. This is a distinct guest contract from the mutator socket, which runs once over the whole topology graph and returns opaque label patches. The two wire shapes are co-canonical with the host's Go types for this socket; a field-coverage parity test catches drift.
+The wire shapes a feature-recipe-pipeline step plugin socket consumes (FRPStepInput) and emits (FRPStepOutput). An FRP step runs per inline pipeline entry declared in a Recipe or FeatureRecipe: the host hands the step the keyed document set whole, the step selects the documents it targets by content, and it returns key-addressed RFC 6902 patches plus side effects and diagnostics. This is a distinct guest contract from the label-transform role, which runs once over the whole topology graph and returns opaque label patches. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
 
 ## One of the following shapes
 
@@ -21,7 +21,7 @@ The payload a feature-recipe-pipeline guest receives for one pipeline step: the 
 | --- | --- | --- | --- |
 | `documents` | DocumentSet | yes | The keyed, scope-rooted set of addressable units a pipeline guest receives as its input surface. The host hands the whole set and does not interpret its content; the guest selects the documents it targets by content and addresses its patches by key. |
 | `step_input` | object | no | The step's rendered `with` block, an author-ordered key set the guest reads as its step-local input. Preserves author order so the payload is byte-identical across runs of identical input. |
-| `context` | object | yes | The render-time context the host hands the step. The step carries it through; the schema does not interpret its internal shape (an opaque passthrough), so the FRP socket schema does not bind to the cross-boundary render-context shape. The render context's own contract is the render-context wire shape; a guest that reads it consults that contract. |
+| `context` | object | yes | The render-time context the host hands the step, carried as the bytes of its JSON document; this schema leaves the object undeclared, and the host reads nothing back from it. A step of a Recipe or of a component-scope FeatureRecipe receives parameters, the Release's parameter values sorted by name and absent when there are none; annotations, the node's annotations split by where each was written into aggregate, release and catalog, each absent when empty; and boundary, the boundary the node sits in: name, path (its segments), sync_wave (absent when 0), directory, sub_directory (absent when there is none) and annotations (the boundary's own, absent when empty). A step of a boundary-scope FeatureRecipe, which has no host component, receives parameters and a boundary carrying its name, path and annotations. The indentation width, yaml_indent, is not set for a step. |
 | `step_index` | integer | yes | This step's zero-based position in the pipeline. |
 | `preceding_steps` | PrecedingStep[] | no | The pipeline steps that ran before this step, so a guest can inspect what came before it. |
 
@@ -33,7 +33,7 @@ The payload a feature-recipe-pipeline guest returns for one pipeline step: the R
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `patches` | JSONPatchOp[] | no | Structured RFC 6902 operations the step emits against documents in the keyed set. Each names its target document by scope and key, then names the op, path, and value explicitly. Distinct from the mutator socket's opaque patch slice: an FRP step's patches are applied by the host and restored by snapshot on a failed step, so the operations are explicit here rather than opaque. |
+| `patches` | JSONPatchOp[] | no | Structured RFC 6902 operations the step emits against documents in the keyed set. Each names its target document by scope and key, then names the op, path, and value explicitly. Distinct from the label-transform role's opaque patch list: an FRP step's patches are applied by the host and restored by snapshot on a failed step, so the operations are explicit here rather than opaque. |
 | `side_effects` | SideEffect[] | no | The effects this step produced beyond patching an existing document (for example emitting a CRD or writing a file). |
 | `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised. Each element is the shared Wasm-plugin diagnostic shape. |
 | `outputs` | object | no | The addressable outputs the guest returns for this step, an author-ordered key set that populates the step's outputs for a later step or a template to read. Preserves author order so the payload is byte-identical across runs of identical input. Absent when the step returns no outputs. |
@@ -82,11 +82,11 @@ _Additional properties are not permitted._
 
 ### `SideEffect`
 
-One effect a feature-recipe-pipeline step produces beyond patching an existing document. Kind is an open string rather than a closed enum so a future effect kind extends the contract without an ABI break. When kind is emit_crd, crd carries the CRD document and file is omitted; when kind is emit_file, file carries the file to write and crd is omitted.
+One effect a feature-recipe-pipeline step produces beyond patching an existing document. Kind is emit_crd or emit_file; the schema leaves it an open string so a new kind can be added without an ABI break, and a build halts on any other kind. When kind is emit_crd, crd carries the CRD document and file is omitted; when kind is emit_file, file carries the file to write and crd is omitted.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `kind` | string | yes | The effect kind — for example emit_crd or emit_file. An open string so a future effect kind extends the contract without an ABI break. |
+| `kind` | string | yes | The effect kind: emit_crd or emit_file. The schema leaves the field an open string so a new kind can be added without an ABI break; a build halts on any other kind, naming the node, the side effect and the kind. |
 | `scope` | string (enum) | no | The document root the emit contributes to: own (the node's own set) or host (the attached host component's set). An absent scope means own at apply time. Allowed values: `"own"`, `"host"` |
 | `crd` | any | no | The CRD document the step emits when kind is emit_crd. Opaque to the host, which pipes it through without interpreting it; it carries any JSON value at this schema layer. |
 | `file` | SideEffectFile | no | The file an emit_file side effect writes: the target path and the file content. |
@@ -106,12 +106,12 @@ _Additional properties are not permitted._
 
 ### `PrecedingStep`
 
-One pipeline step that ran before the current step, so a guest can inspect what came before it: the step's pipeline index, the Wasm plugin URI that implemented it, and the side effects that step emitted.
+One pipeline step that ran before the current step, so a guest can inspect what came before it: the step's pipeline index, the plugin it named, and the side effects that step emitted.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `index` | integer | yes | The preceding step's zero-based position in the pipeline. |
-| `plugin_uri` | string | yes | The Universal URI of the Wasm plugin that implemented the preceding step. |
+| `plugin_uri` | string | yes | The plugin the preceding pipeline entry names in its plugin field, as written. |
 | `side_effects` | SideEffect[] | no | The side effects the preceding step emitted. |
 
 _Additional properties are not permitted._

@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-mutator-v1alpha1.schema.json`
 
-The wire shapes the mutator.wasm plugin socket consumes (MutatorInput) and emits (MutatorOutput). The mutator runs at topology construction and applies JSON Patch documents to the topology graph before the IR builder consumes it. The two wire shapes are co-canonical with the host's Go types and with each per-language PDK's mirror; per-language round-trip tests catch drift.
+The wire shapes a governance plugin attached at the label-transform role consumes (MutatorInput) and emits (MutatorOutput). The role runs at topology construction, after the graph is built and before it is judged: the plugin returns JSON Patch documents, and the host applies them to node labels and to nothing else, halting the build on a patch that reaches any other part of the graph. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
 
 ## One of the following shapes
 
@@ -33,7 +33,7 @@ The response shape the mutator plugin emits: a list of opaque JSON Patch documen
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `patches` | any[] | yes | Opaque JSON Patch documents to apply to the topology graph, in order. |
-| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 

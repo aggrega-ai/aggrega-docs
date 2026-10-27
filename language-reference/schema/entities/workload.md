@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/workload-v1alpha1.schema.json`
 
-Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). A Workload carries no metadata of its own — no name, no labels, no annotations. Identity and labelling come from the component instance that declares it: the target provider derives each rendered resource's name from that instance and stamps the resource with the aggrega.ai/* provenance keys for that node. The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, which the aggrega-cli binary consumes directly (rebound in its pkg/schemas/jsonschema package) for in-binary Workload validation; there is no separate embedded copy.
+Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). A Workload carries no metadata of its own — no name, no labels, no annotations. Identity and labelling come from the component instance that declares it: the target provider derives each rendered resource's name from that instance and stamps the resource with the aggrega.ai/* provenance keys for that node. The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, and the compiler validates a Workload against it.
 
 See the [Workload authoring reference](../../entities/workload.md) for prose guidance on authoring Workload entities; this page documents the structural schema that reference describes.
 
@@ -23,7 +23,7 @@ See the [Workload authoring reference](../../entities/workload.md) for prose gui
 | `suspend` | boolean | no | Holds the recurring schedule of a form: scheduled workload. When true, the scheduled resource is rendered with its schedule in place, but no run starts from that schedule until it is resumed; a run can still be created from the resource by hand — on Kubernetes, kubectl create job <name> --from=cronjob/<cronjob>. suspend: false renders exactly as an absent suspend does. Only meaningful with form: scheduled. helm emits it as the CronJob's spec.suspend. compose has no scheduled shape and halts on a form: scheduled workload whether or not it is suspended. Default: `false` |
 | `replicas` | integer | no | Number of replicas. Default 1. On a compose target the value reaches no part of the output, and a warning reports it whenever it is authored — including an explicit `1`. Minimum: `0`. Default: `1` |
 | `initContainers` | container[] | no | Ordered list of containers that run to completion before the main containers start. |
-| `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. At least 1 entry. |
+| `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. Author order is preserved. At least 1 entry. |
 | `volumes` | map of volume | no | Ordered map of volume name → volume spec. Each volume spec declares exactly one of: ephemeral, configmap, secret, persistent, persistentTemplate. |
 | `services` | map of service | no | Ordered map of service name → service spec. On helm each entry becomes a separate K8s Service, and an entry whose type is Loopback halts the build. On compose there is no separate service primitive, so entries do not map one to one: an entry whose type is NodePort or LoadBalancer publishes its ports on every host interface of the workload's own compose service, an entry whose type is Loopback publishes its ports there on the host's loopback address only, an entry whose type is ClusterIP or Headless publishes nothing, and every published port is collected into that one service's port list with the host port matching the container port. On helm each Service is named `<name>-<key>`: the name the workload's own Deployment (or other controller) carries, then a hyphen and the entry's key, so a Workload declaring `services.http` whose Deployment is named `api-server` renders a Service named `api-server-http`. On compose a key names nothing in the output. |
 | `scheduling` | object | no | K8s-native scheduling constraints. Translated directly for helm. On a compose target these constraints reach no part of the output, and a warning reports the block when it is authored. |
@@ -212,7 +212,7 @@ _Any other property is not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `http` | string | no | HTTP GET probe. Path is probed against the first container port (alphabetical by name) unless explicit port is supplied via namespaced form (deferred — single-string form is the current contract). |
+| `http` | string | no | HTTP GET probe: the path is probed against the container port whose name sorts first alphabetically. |
 | `tcp` | integer | no | TCP socket probe on the given container port number. Minimum: `1`. Maximum: `65535`. |
 | `exec` | string[] | no | Exec probe — the command to run inside the container. At least 1 entry. |
 | `timeoutSeconds` | integer | no | Minimum: `1`. |
@@ -256,7 +256,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `source` | string | yes | Name of the ConfigMap (must be emitted by this Recipe via artifacts:, or by an attached Feature — cross-Recipe refs are forbidden per self-containment §4.4). |
+| `source` | string | yes | Name of the ConfigMap, emitted by this Recipe via artifacts: or by an attached Feature; a ConfigMap another Recipe emits is not referenced here. |
 | `items` | object[] | no | Optional key-to-path selection. |
 
 _Additional properties are not permitted._

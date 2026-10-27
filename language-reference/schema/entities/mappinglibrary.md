@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/mappinglibrary-v1alpha1.schema.json`
 
-A reusable collection of Go template fragments that Recipes and FeatureRecipes consume at render time via `valuesMapping: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe mapping reuse. Single authoring mode: Go templates only; no parallel `mappingsJsonnet:` field.
+A reusable collection of Go template fragments that Recipes and FeatureRecipes consume at render time via `valuesMapping: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe mapping reuse. Single authoring mode: Go templates only.
 
 See the [MappingLibrary authoring reference](../../entities/mappinglibrary.md) for prose guidance on authoring MappingLibrary entities; this page documents the structural schema that reference describes.
 
@@ -17,7 +17,7 @@ See the [MappingLibrary authoring reference](../../entities/mappinglibrary.md) f
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "MappingLibrary" | yes | Constant: `"MappingLibrary"` |
 | `metadata` | object | yes |  |
-| `spec` | object | yes | The MappingLibrary's content. spec.mappings is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes (e.g., `mappingsJsonnet:`) are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments. |
+| `spec` | object | yes | The MappingLibrary's content. spec.mappings is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments. |
 
 _Additional properties are not permitted._
 
@@ -35,7 +35,7 @@ _Additional properties are not permitted._
 
 #### `mappinglibrary.spec`
 
-The MappingLibrary's content. spec.mappings is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes (e.g., `mappingsJsonnet:`) are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments.
+The MappingLibrary's content. spec.mappings is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

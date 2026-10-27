@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-annotation-transform-v1alpha1.schema.json`
 
-The wire shapes a governance plugin attached at the annotation-transform role consumes (AnnotationTransformInput) and emits (AnnotationTransformOutput). The role runs after resolve and before annotation expansion: the plugin reads the resolved injection targets and the Manifest's registered binding keys, and returns a list of annotation injections the host applies to those targets before expansion turns bound annotations into Feature attachments. The two wire shapes are co-canonical with the Go host types and with each per-language PDK's mirror; per-language round-trip tests catch drift.
+The wire shapes a governance plugin attached at the annotation-transform role consumes (AnnotationTransformInput) and emits (AnnotationTransformOutput). The role runs after resolve and before annotation expansion: the plugin reads the resolved injection targets and the Manifest's registered binding keys, and returns a list of annotation injections the host applies to those targets before expansion turns bound annotations into Feature attachments. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
 
 ## One of the following shapes
 
@@ -33,7 +33,7 @@ The response shape the annotation-transform plugin emits: a list of annotation i
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `injections` | AnnotationInjection[] | yes | Annotation injections to apply, in order. Each names an existing target coordinate and the annotation key and value to add there. |
-| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 

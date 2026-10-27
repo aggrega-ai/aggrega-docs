@@ -15,12 +15,13 @@ The wire shapes an importer plugin socket consumes (ImportInput) and emits (Impo
 
 ### `ImportInput`
 
-The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes, any named sources for a multi-file import, an optional opaque options document the consumer supplies for importer-specific behavior, and a view of the Components the workspace's catalog holds.
+The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes and the name of the file they were read from, any named sources for a multi-file import, an optional opaque options document the consumer supplies for importer-specific behavior, and a view of the Components the workspace's catalog holds.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `format` | string | yes | The name of the source format to import, matching one of the importer's advertised import:<format> capabilities. The importer reads the sources as this format. |
 | `bytes` | string | yes | The primary source bytes to import, which the importer reads as the named format: the whole file where the import's source is one file, and empty where it is a directory, whose files arrive as named sources instead. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the importer decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
+| `name` | string | no | The name of the file the primary bytes were read from: its base name, with no directory, so an importer can name the file in what it reports about it. The primary bytes arrive as no named source, so this is the one name they carry. Absent where the import's source is a directory, whose files arrive as named sources, each under its own name. |
 | `sources` | ImportSource[] | no | Named sources, each carrying its own bytes, in one list sorted by name. Where the import's source is a directory, there is one per file of it that the importer's declared file patterns select, named by its slash-separated path inside the directory. The files the attachment configuring the importer declares under with.sources are carried here too, each under its base name, and the host refuses an import in which a file read from the directory and one of these carry the same name. Absent where neither supplies any. |
 | `settings` | any | no | An opaque import-options document the consumer supplies for importer-specific behavior. The host pipes it through without interpreting it; the importer reads whatever shape it documents. Absent when the consumer supplies no options. |
 | `catalog` | CatalogProjection | no | A view of the Components the workspace's own catalog holds — the catalog the importer itself was selected from — so the importer can weigh them as candidates when it maps a source node to a catalog entity. The host builds it from that local catalog alone, and it carries names, versions, labels and declared structure only: never a value, a default or a secret. Its order is fixed, so one catalog yields one byte sequence. Absent when the catalog holds no Component. |
@@ -94,12 +95,12 @@ One entity the import produced: its kind, its name, and how it is emitted — a 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `kind` | string | yes | The kind of entity emitted. In v1 this is Component, Aggregate or Release; additional kinds may appear as the emission surface grows, so a reader tolerates an unrecognized kind. |
+| `kind` | string | yes | The kind of entity emitted. The core importers emit Component, Aggregate and Release; a reader tolerates any other kind. |
 | `name` | string | yes | The name of the emitted entity. |
 | `mode` | string (enum) | yes | How the entity is emitted: reference points at an existing catalog entity by name, and draft carries a newly drafted entity body. Allowed values: `"reference"`, `"draft"` |
 | `body` | string | no | The raw YAML body of a drafted entity. Empty for a pure reference, which names an existing entity rather than drafting one. |
-| `labels` | map of string | no | Labels to attach to the emitted entity, as a string-to-string map. Empty in v1; reserved for a future label-driven emission axis. |
-| `annotations` | map of string | no | Annotations to attach to the emitted entity, as a string-to-string map. Empty in v1; reserved for a future annotation-driven emission axis. |
+| `labels` | map of string | no | Labels to attach to the emitted entity, as a string-to-string map. The core importers leave it empty. |
+| `annotations` | map of string | no | Annotations to attach to the emitted entity, as a string-to-string map. The core importers leave it empty. |
 | `sourceRef` | string | no | A reference to the source node this entity was emitted from, so a reader can trace the entity back to its origin in the imported source. |
 | `decisionRef` | string | no | A reference to the mapping decision that produced this entity, linking it to the candidates weighed and the choice made. |
 
