@@ -1,12 +1,12 @@
 # Manifest
 
-The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile mapping abstract interfaces to concrete Recipes) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the flat-URI mapping shape, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
+The conceptual role of the Manifest entity (Domain 4 — the mapping table binding abstract interfaces to concrete Recipes) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the flat-URI mapping shape, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
 
 ## Manifest vs. Release: Concern Separation
 
 The Manifest and the Release carry non-overlapping responsibilities:
 
-* **The Manifest** dictates the *provider* (e.g., Helm, Helm-chart, Compose) per catalog type. It is the software lockfile — a per-project Git-committed record of which concrete Recipe implements each abstract interface.
+* **The Manifest** dictates which Recipe realizes each catalog type, and through that Recipe's `spec.capability` the *provider* (e.g., Helm, Helm-chart, Compose) that renders it. It is the mapping table — a per-project Git-committed record of which concrete Recipe implements each abstract interface; the versions and digests a build holds those Recipes to are pinned separately, in each Release's lockfile.
 * **The Release** dictates the *destination* (e.g., the physical output folder for GitOps artifact generation). It is the deployment router — a per-environment description of where the compiled artifacts land.
 
 The Release schema carries no `provider` field at any nesting level; provider dispatch belongs exclusively to the Manifest.
@@ -14,7 +14,7 @@ The Release schema carries no `provider` field at any nesting level; provider di
 **The compilation path.** When a user runs `aggrega build --release release.yaml`, the compiler resolves physical artifacts by joining both sources:
 
 1. **Read destination.** The compiler scans the Release's boundaries — for example, boundary `ovh-cluster-3` contains the component `user-db` (type: `core/postgres:1.0.0`).
-2. **Scan Manifest.** It opens the Manifest lockfile the Release points at via its `manifest:` field.
+2. **Scan Manifest.** It opens the Manifest the Release points at via its `manifest:` field.
 3. **Two-tier lookup.** It checks the `name` tier for `"user-db"` first. If not found, it checks the `type` tier for `"core/postgres:1.0.0"` (versioned), then `"core/postgres"` (unversioned).
 4. **Resolve the Recipe.** The matching entry's value is a Recipe URI; the Recipe it names declares in `spec.capability` which provider renders it.
 5. **Output generation.** The compiler now knows the target folder (`dist/boundaries/ovh-cluster-3/`), the provider (Helm rendering via Wasm), and the artifact (the Recipe's source code). Ahead-of-time GitOps boundaries are respected end-to-end.
@@ -26,7 +26,7 @@ The Manifest's `mappings:` block is a flat map from **component-type URI** to **
 * **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
 * **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
 
-Each block also accepts a **`name`** tier alongside `type`, mapping a specific **instance name** to a Recipe (or FeatureRecipe) URI. The name tier takes precedence over the type tier: an instance named in `components.name` resolves to that Recipe, while every other instance of the same type resolves through `components.type`. This expresses a per-instance override — two instances of one component type can deploy through two different Recipes (for example, most database instances use the bulk-mapped Recipe while one instance is pinned to a different physical implementation), without forking the component type or duplicating the Manifest. The override applies uniformly: the named instance both renders through and pins its source from the override Recipe. `features.name` is the symmetric tier for Feature attachments, keyed by the **attachment's own name** — the key it is written under in a component's `features:` — never by the name of the component it is attached to. The [per-instance recipe override example](../examples/per-instance-recipe-override/) walks a minimal two-instance case end to end.
+Each block also accepts a **`name`** tier alongside `type`, mapping a specific **instance name** to a Recipe (or FeatureRecipe) URI. The name tier takes precedence over the type tier: an instance named in `components.name` resolves to that Recipe, while every other instance of the same type resolves through `components.type`. This expresses a per-instance override — two instances of one component type can deploy through two different Recipes (for example, most database instances use the bulk-mapped Recipe while one instance is pinned to a different physical implementation), without forking the component type or duplicating the Manifest. The override applies uniformly: the named instance both renders through and pins its source from the override Recipe. `features.name` is the symmetric tier for Feature attachments, keyed by the **attachment's own name** — the key it is written under in a component's `features:` — never by the name of the component it is attached to. The [per-instance recipe override example](../examples/per-instance-recipe-override/README.md) walks a minimal two-instance case end to end.
 
 An attachment a connection carries is keyed by the name it takes on the consuming component: `<alias>.<slot>`, the alias the connection is written under, a dot, and the slot the attachment fills (see [the Aggregate's connection entry](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)). So one connection's credential can be realized differently from every other attachment of its type:
 
@@ -97,10 +97,10 @@ Subsequent builds use the lockfile-pinned version regardless of the user-typed f
 
 ### Capability-qualified references
 
-Recipe identity in the catalog is capability-scoped: two recipes may share a `metadata.name` and version while declaring different `spec.capability` values. The registry identity is `recipe/{capability}/{name}:{version}`, derived from the recipe's kind, its `spec.capability` and its name; the standard-library catalog tree mirrors that coordinate at `recipe/{capability}/{name}/` by convention. A Manifest mapping value names the recipe at either precision:
+Recipe identity in the catalog is capability-scoped: two recipes may share a `metadata.name` and version while declaring different `spec.capability` values. The registry identity is `recipe/{capability}/{name}:{version}`, derived from the recipe's kind, its `spec.capability` without any version pin it carries, and its name; the standard-library catalog tree mirrors that coordinate at `recipe/{capability}/{name}/` by convention. A Manifest mapping value names the recipe at either precision:
 
 * **Bare** — `mariadb:1.0.0`. Resolves when exactly one recipe in the catalog carries the name; the dominant form in practice.
-* **Capability-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the recipe's `spec.capability`. Required when more than one recipe ships the same name: a bare reference matching two recipes is ambiguous and halts loudly at resolution rather than silently picking one.
+* **Capability-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the recipe's `spec.capability`, without its version pin — a pin written into the reference is refused (`E0095`). Required when more than one recipe ships the same name: a bare reference matching two recipes is ambiguous and halts loudly at resolution rather than silently picking one.
 
 A Recipe URI has no further positions. The resolver splits on the first `/` only, so `compose/mariadb` names capability `compose` and recipe `mariadb`, and a three-segment reference matches no recipe at either precision.
 
@@ -114,10 +114,11 @@ carries no registry host and no entity-kind segment. The resolver
 supplies both — the host from the workspace's configured default
 registry, the kind segment from where the reference sits in the schema
 — per the [Context-Aware Shorthand URIs](#context-aware-shorthand-uris)
-rules below. At resolution time the three-tier cascade finds no local or
-cached copy, pulls the entity from the derived location, caches it, and
-pins the resolved version and content digest in the lockfile;
-subsequent builds consume the cache without network access.
+rules below. When neither a local catalog directory nor the cache holds
+a copy, `aggrega pull` — or a build run with `--auto-pull` — fetches the
+entity from the derived location, caches it, and pins the resolved
+version and content digest in the lockfile; subsequent builds consume
+the cache without network access.
 
 ```yaml
 # Aggregate fragment — a registry-published Component as the type:
@@ -188,10 +189,10 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 2. **Contextual Entity Expansion:** The compiler appends the correct entity path based on the strict schema dictionary:
     * Strings under `Aggregate.spec.components[].type` expand to `/component/`.
     * Strings under `Aggregate.spec.aggregates[].type` expand to `/aggregate/`.
-    * Strings under `Manifest.mappings.*.components.type` or `Manifest.mappings.*.components.name` expand to `/recipe/`.
-    * Strings under `Manifest.mappings.*.features.type` or `Manifest.mappings.*.features.name` expand to `/feature-recipe/`. This includes credential Features (labeled `feature.aggrega.ai/kind: secret`) — they use the same FeatureRecipe path.
+    * Strings under `Manifest.spec.mappings.components.type` or `Manifest.spec.mappings.components.name` expand to `/recipe/`.
+    * Strings under `Manifest.spec.mappings.features.type` or `Manifest.spec.mappings.features.name` expand to `/featurerecipe/`. This includes credential Features (labeled `feature.aggrega.ai/kind: secret`) — they use the same FeatureRecipe path.
     * Strings assigned to `pipeline[].plugin` expand to `/plugin/`.
-3. **Three-Tier Precedence:** Before applying the OCI inference, the compiler searches the workspace's catalog directories and the artifact cache (Tier 2) as defined in the [Three-Tier Entity Resolution Model](../../architecture/13-catalog-and-registry.md). OCI inference only applies when the entity reaches Tier 3 (remote registry). A mapping key or value is never read as a file path: a Recipe or FeatureRecipe authored locally sits in a catalog directory — `catalog/` at the workspace root, or one `workspace.catalog_dirs` lists — and is named by its reference.
+3. **Three-Tier Precedence:** Before applying the OCI inference, the compiler searches the workspace's catalog directories and the artifact cache (the workspace and cache tier) as defined in the [Three-Tier Entity Resolution Model](../../architecture/13-catalog-and-registry.md). OCI inference only applies when the entity reaches the registry tier. A mapping key or value is never read as a file path: a Recipe or FeatureRecipe authored locally sits in a catalog directory — `catalog/` at the workspace root, or one `workspace.catalog_dirs` lists — and is named by its reference.
 
 **The Shorthand in Action:**
 
@@ -201,8 +202,9 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 
 # Bare — resolves when one recipe carries the name:
 "core/postgres": "postgres:2.0"
-# The compiler resolves via Tier 2 (local catalog), or via Tier 3 by deriving the
-# registry location from the configured default registry and the Recipe kind.
+# Found in a local catalog directory or the cache; failing both, `aggrega pull`
+# (or a build run with --auto-pull) fetches it from the registry location derived
+# from the configured default registry and the Recipe kind.
 # A private registry is named in workspace configuration, not in the reference.
 ```
 

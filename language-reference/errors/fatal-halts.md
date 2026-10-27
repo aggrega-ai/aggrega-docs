@@ -1125,6 +1125,9 @@ Emitted message:
 
 The `features` section produces the same message against its own coordinate, and a feature recipe reference is named as such.
 
+A value whose capability segment carries a version pin — `compose:1.2.3/svc:1.0.0` — is refused the same way, before anything is looked up, so nothing is fetched from a registry. A pin belongs on the `capability` the Recipe declares, where it selects which version of the plugin serving that capability renders it; a reference names the Recipe by its bare capability (`compose/svc:1.0.0`).
+> malformed recipe reference in a Manifest mapping value: `spec.mappings.components.type.<key>` maps to `<value>`, which carries a version pin in its capability segment `<segment>`; a pin belongs on the `capability` the recipe declares, and a recipe reference names the recipe by its bare capability, as `"name"`, `"name:version"`, `"capability/name"` or `"capability/name:version"`; correct the mapping value in the Manifest
+
 **How to fix:** shorten the mapping value to a shape the grammar accepts. A recipe is identified by its own `metadata.name` — optionally prefixed with its `spec.capability` and suffixed with its version — never by the component-type path it implements. The mapping's *key* is the component type; the mapping's *value* is the recipe.
 
 **Not to be confused with** a well-shaped value naming a recipe the catalog does not hold: that is a genuinely absent entity and still reports as one, naming the URI and the mapping entry that referenced it.
@@ -2873,6 +2876,19 @@ Emitted message. The refusal comes first, then the target the toggle removed and
 The finding is positioned at the authored entry it is about, on the same paths the dangling-target halt above names, and every offending connection is reported rather than only the first.
 
 **How to fix:** decide which of the two belongs in this environment. Switch the target back on — where its toggle reads a parameter, that means supplying the parameter for this Release. Or gate the consumer behind the same toggle, so the two leave together and no edge is left pointing at nothing. Or, where the consumer genuinely no longer needs it, remove the edge from the consumer's `uses:` block.
+
+### A `uses` target names a module's component the module does not export
+
+<!-- covers: internal/compiler/topology.ErrUsesTargetNotExported -->
+
+A module publishes its interface under `exportedComponents:`, and a document importing the module reaches the module's components only through those names: the module's name, a dot, and one of its aliases. A `uses:` target that reaches a component inside a module any other way — by the component's name inside the module, or by a path through the module into a module nested inside it — halts the build, because the connection would bind to something the module's author did not publish and is free to rename or remove. A component's own `uses:` block, an attachment's, and a Release-wired connection are held to it alike. Which modules a connection passes into is read from where its consumer sits, so a connection between two components of one module — a Release wiring them to each other included — crosses no interface and is not refused. A target that answers to no component is reported by the dangling-target halt instead, so one mistyped name is reported once.
+
+Emitted message. The refusal comes first, then the target as written, the module it passes into and the aliases that module exports, and the socket — then what to do about it:
+> uses edge target names a component its module does not export (`"<target>"`, module `"<module>"`, which exports `"<aliases>"`, wired into socket `"<socket>"`). Name the component through one of the module's exported aliases, or list it under the module's `exportedComponents`.
+
+A module exporting nothing is named as exporting `"nothing"`. The finding is positioned at the authored entry in the document that drew the connection.
+
+**How to fix:** name the component through an alias the module exports — `finance-db-subsystem.primary_db` rather than `finance-db-subsystem.internal-pg-primary` — or, where you author the module and mean to publish the component, list it under the module's `exportedComponents`, under its own name if that is the name importers should use.
 
 ### An `active:` toggle does not resolve to true or false
 
@@ -6364,6 +6380,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0355` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` | An `inject:` delivery is not a list of entries |
 | `E0356` | `suspend requires form: scheduled` | A workload `suspend:` is set on a form other than `scheduled` |
 | `E0357` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` | A Manifest `name` mapping names nothing in the build |
+| `E0358` | `uses edge target names a component its module does not export` | A `uses` target names a module's component the module does not export |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

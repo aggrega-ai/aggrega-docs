@@ -18,7 +18,7 @@ The Release dictates the destination for compiled artifacts; provider dispatch b
 
 ## Environment Metadata
 
-Every Release metadata block accepts an `environment:` field — a free-form string identifying the deployment environment (typical values: `production`, `staging`, `dev`). The field is informational: it carries no enumeration, no schema-level pattern, and no cross-entity validation beyond `type: string`. The compiler emits its value as the `aggrega.ai/environment` label on every rendered Kubernetes manifest produced by the helm and helm-chart providers, alongside the rest of the Aggrega provenance label suite. The compose provider translates the same identifier into its native tagging mechanism as its renderer adds that capability.
+Every Release metadata block accepts an `environment:` field — a free-form string identifying the environment the Release deploys to (typical values: `production`, `staging`, `dev`). The field is informational: it carries no enumeration, no schema-level pattern, and no cross-entity validation beyond `type: string`. The compiler emits its value as the `aggrega.ai/environment` label on every rendered Kubernetes manifest produced by the helm and helm-chart providers, alongside the rest of the Aggrega provenance label suite. The compose provider carries the same value as the `aggrega.ai/environment` label on each service it emits.
 
 Five practical patterns drive `environment:` authoring:
 
@@ -39,7 +39,7 @@ Five practical patterns drive `environment:` authoring:
 Two structural guarantees protect the Aggregate as the Single Source of Truth:
 
 * **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component or Feature from a Release. The ban extends to `uses` edges: a Release per-edge `uses` entry carries `infra` and the attachments it writes on the connection, and those carry `infra` too — never `values` (developer-facing per-edge values, and the values of an attachment on a connection, stay in the Aggregate). Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. The Release's `uses` edge surface — what it may configure and wire — is documented in [Per-edge connection configuration](#per-edge-connection-configuration) below.
-* **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the dependency lockfile.
+* **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" Releases, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the Manifest.
 
 ## The `parameters:` block
 
@@ -51,6 +51,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
   name: my-app
+  version: 1.0.0
 spec:
   parameters:
     db_size: { type: string, required: true }
@@ -65,6 +66,7 @@ kind: Release
 metadata:
   name: prod-release
   version: 1.0.0
+  environment: production
 spec:
   aggregate: my-app
   manifest: prod-manifest
@@ -74,7 +76,7 @@ spec:
     region: "us-east-1"
 ```
 
-Each value passes the Aggregate-declared schema check at the parameter-contract layer, and the compiler emits clear `ErrParameterContractViolation` / `ErrParameterMissing` errors when a Release omits a required parameter or supplies a value of the wrong type. Parameters declared with a `default:` receive the default when the Release omits the slot; the typed contract is the only authoring vocabulary.
+Each value passes the Aggregate-declared schema check at the parameter-contract layer, and the build halts when a Release omits a required parameter (`E0165`, `parameter-missing`) or supplies a value its slot's contract refuses (`E0164`, `parameter-contract-violation`). Parameters declared with a `default:` receive the default when the Release omits the slot; the typed contract is the only authoring vocabulary.
 
 **Two authoring modes — content-shape dispatch.** `parameters:` accepts either an inline YAML map (Mode 1, shown above) or a single `$import:` key pointing at a local file (Mode 2):
 
@@ -109,7 +111,7 @@ spec:
         port: 8080
 ```
 
-**Multiple scopes (Level 2).** When a deployment spans more than one physical grouping — separate clusters, regions, or sync waves — declare named boundaries under `boundaries:`. Each boundary carries its own `directory:`, annotation cascade, and `syncWave:`, and components are addressed within their boundary.
+**Multiple scopes.** When a Release spans more than one physical grouping — separate clusters, regions, or sync waves — declare named boundaries under `boundaries:`. Each boundary carries its own `directory:`, annotation cascade, and `syncWave:`, and components are addressed within their boundary.
 
 **Mutual exclusivity.** `spec.components:` and `spec.boundaries:` are mutually exclusive at the Release root — a Release authors one or the other, never both. A document declaring both halts at load with an envelope error. The top-level `components` surface carries the same per-component operator shape a boundary's `components` carry (`infra:`, `annotations:`, `uses:`).
 
@@ -123,7 +125,7 @@ Each boundary declares a physical output `directory` for its compiled artifacts;
 
 * **One directory, one spelling.** The evaluated path is cleaned once, so `out/a`, `out//a`, `./out/a` and `out/a/` are one directory. Boundaries whose paths clean to the same directory and render through the same provider are assembled together, exactly as boundaries written with identical paths are.
 * **The path stays beneath the output root.** A path that climbs out of the output root (`..`, `../escape`, `a/../..`), an absolute one, or one naming no directory at all — empty, or cleaning to the output root itself — stops the build before anything is written. The message names the Release, the boundary, the field at fault (`directory:` or `subDirectory:`) and the value it evaluated to, since that value is often the result of a template.
-* **Safe default.** If `subDirectory` is omitted or empty, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools. A `subDirectory: ""` written out is read exactly as an omitted one, so it takes this default too.
+* **Safe default.** If `subDirectory` is omitted or empty, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose, Terraform, CloudFormation) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools. A `subDirectory: ""` written out is read exactly as an omitted one, so it takes this default too.
 * **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."`. A `subDirectory` template that evaluates to an empty string — `"{{ .parameters.sub }}"` with `sub` set to `""`, say — disables it as well.
 * **Template variables.** `directory` evaluates with `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}` for cascading data from an enclosing boundary. `subDirectory` evaluates with the same set plus `{{ .component_id }}` (per-component overrides only). The compiler evaluates path templates with `missingkey=error` — referencing an undeclared variable halts the build with a precise diagnostic. See [path-template variables](../path-template-variables.md) for the per-context matrix and parent-boundary cascade rules.
 
@@ -269,6 +271,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
   name: platform
+  version: 1.0.0
 spec:
   aggregates:
     finance:
@@ -284,6 +287,8 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
   name: prod-release
+  version: 1.0.0
+  environment: production
 spec:
   aggregate: platform
   manifest: prod-manifest
