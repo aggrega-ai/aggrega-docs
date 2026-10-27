@@ -1,14 +1,14 @@
 # Compact-form authoring
 
-The compact form is a YAML-shaped declarative shorthand for JSON Schema 2020-12. Authors write per-field constraints as inline-flow YAML maps (`port: { type: integer, min: 1, max: 65535, default: 8080 }`); intermediate object nodes are natural YAML nesting; references use JSON Schema's standard `$ref:`. The compiler transforms compact form to JSON Schema 2020-12 before any validation runs, so all downstream pipeline stages (validator, merger, error formatter, publishing-discipline classifier, hub UI) operate on the resolved JSON Schema regardless of the authoring path.
+The compact form is a YAML-shaped declarative shorthand for JSON Schema 2020-12. Authors write per-field constraints as inline-flow YAML maps (`port: { type: integer, min: 1, max: 65535, default: 8080 }`); intermediate object nodes are natural YAML nesting; references use JSON Schema's standard `$ref:`. The compiler transforms compact form to JSON Schema 2020-12 before any validation runs, so validation, error reporting and every tool that reads a schema work on the resolved JSON Schema, whichever form it was authored in.
 
-This page documents the compact-form vocabulary, the structural conventions, the inferred-vs-explicit object dispatch, the closure semantics, the `type:` heterogeneity that allows arrays of permitted types, the typeIdentity-keyword constraint at every inferred-form scope, and the `x-aggrega-*` extension namespace. For cross-document `$ref:` resolution semantics, see [cross-document-ref.md](cross-document-ref.md). For the assertions-block authoring grammar, see [templates/assertions-block.md](../templates/assertions-block.md). For the data-pillar set (`values:`, `infra:`, `provides:`, `uses:`, `features:`, `locals:`, `parameters:`), see [data-pillars.md](data-pillars.md).
+This page documents the compact-form vocabulary, the structural conventions, the inferred-vs-explicit object dispatch, the closure semantics, the `type:` heterogeneity that allows arrays of permitted types, the keywords reserved at every inferred-form scope, and the `x-aggrega-*` extension namespace. For cross-document `$ref:` resolution semantics, see [cross-document-ref.md](cross-document-ref.md). For the assertions-block authoring grammar, see [templates/assertions-block.md](../templates/assertions-block.md). For the data-pillar set (`values:`, `infra:`, `provides:`, `uses:`, `features:`, `locals:`, `parameters:`), see [data-pillars.md](data-pillars.md).
 
 The compact form is the default authoring surface for `schema:`, `parameters:`, and SchemaLibrary entries. JSON Schema YAML is a co-equal authoring option; both forms are first-class and may be mixed within a single schema. The two forms compile to the same resolved JSON Schema document; downstream tooling and validation are oblivious to the authoring path.
 
 ## Vocabulary
 
-The compact form has about 15 keywords. Authors learn them once and apply them across `schema:`, `parameters:`, and SchemaLibrary entries.
+The compact form's keywords are the ones in the tables below. Authors learn them once and apply them across `schema:`, `parameters:`, and SchemaLibrary entries.
 
 ### Type and identity keywords
 
@@ -70,7 +70,7 @@ One bound applies to shapes reached indirectly. Where a field's shape comes thro
 | --- | --- | --- |
 | `items` | Array element shape | `items:` (recursive compact form or JSON Schema) |
 | `properties` | Explicit children declaration (rarely needed; usually implicit via YAML structure) | `properties:` |
-| `additionalProperties` | Whether undeclared properties are allowed (default `false`; opt-in `true`) | `additionalProperties:` |
+| `additionalProperties` | Whether undeclared properties are allowed (`false` on an inferred-form object, where the compiler adds it; on an explicit `type: object` it is yours to write, and JSON Schema's own default, `true`, applies where you do not) | `additionalProperties:` |
 
 ### Aggrega-specific keywords
 
@@ -152,7 +152,8 @@ auth:
   type: object
   properties:
     username: { type: string, default: app_user }
-    password: { type: string, sensitive: true, required: true }
+    password: { type: string, sensitive: true }
+  required: [password]
   additionalProperties: true   # genuinely-open map authored on purpose
 ```
 
@@ -236,7 +237,7 @@ When `type:` carries an array, the value space is the union of the named types' 
 
 ## Reserved keywords at every inferred-form scope
 
-The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, the constraint keywords (`enum`, `min`, `max`, `pattern`, `format`, etc.), and the Aggrega-specific keywords (`validate`, `validateMessage`, `when`, `sensitive`). When any of these keywords appears as a field name at an inferred-form object scope, the compiler routes the enclosing scope through the constraint-emission path instead of the implicit-object path. The resulting schema would treat the keyword as a constraint declaration, not as a child property.
+The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, the constraint keywords (`enum`, `min`, `max`, `pattern`, `format`, etc.), and the Aggrega-specific keywords (`validate`, `validateMessage`, `when`, `sensitive`). When any of these keywords appears as a field name at an inferred-form object scope, the compiler reads the enclosing scope as a constraint leaf rather than as an object: the keyword is taken as a constraint, not as a child property, and every other key in that scope must then be a keyword too, so the first one that is not is refused as an unknown keyword.
 
 `sensitive` deserves specific mention here, because it is a far more plausible name for a real developer-authored field than the other Aggrega-specific keywords are. A schema that genuinely needs a property *named* `sensitive` — a component whose `values` expose a `sensitive` flag of their own, say — must declare the enclosing scope explicitly, exactly as it would for a property named `type` or `default`. Either the explicit form below or `$mode: jsonschema` on the enclosing scope achieves it: under `$mode: jsonschema` the whole node is read as authored JSON Schema, where `sensitive` is ordinary content rather than the compact-form keyword.
 
@@ -257,7 +258,7 @@ spec:
 
 The explicit form bypasses the dispatch — `properties:` enumerates the children explicitly, so the keyword collision doesn't arise.
 
-This constraint applies at every inferred-form scope, recursively. A nested inferred-form object that contains a property named after a reserved keyword routes through the constraint-emission path at that scope. The fix is the same: switch the offending scope to the explicit form.
+This constraint applies at every inferred-form scope, recursively. A nested inferred-form object that contains a property named after a reserved keyword is read as a constraint leaf at that scope. The fix is the same: switch the offending scope to the explicit form.
 
 ## References
 
@@ -271,7 +272,7 @@ auth: { $ref: "Datastores#/schemas/MariaDBAuth" }
 secondary:
   allOf:
     - { $ref: "#/$defs/NodePool" }
-    - replicaCount: { min: 2 }
+    - replicaCount: { type: integer, min: 2 }
 ```
 
 `$defs:` blocks within a compact-form schema declare reusable definitions. Each entry is itself a compact-form (or JSON Schema, or mixed) schema. Reference via `#/$defs/<Name>` JSON Pointer fragment:
@@ -366,7 +367,7 @@ Some constraints cannot be expressed with `min` / `max` / `pattern` / `enum`. Fo
 db_size:
   type: string
   pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$"
-  validate: '{{ regexFind "^[0-9]+" . | atoi | gt 100 }}'
+  validate: '{{ regexFind "^[0-9]+" . | atoi | lt 100 }}'
   validateMessage: "db_size must exceed 100 in its declared unit"
 ```
 
@@ -569,16 +570,15 @@ Composition keywords work as in JSON Schema:
 secondary:
   allOf:
     - { $ref: "#/$defs/NodePool" }
-    - replicaCount: { min: 2 }
+    - replicaCount: { type: integer, min: 2 }
 
 # Disjunction (one of several shapes)
 auth:
   oneOf:
     - existingSecret: { type: string, required: true }
-    - properties:
-        rootPassword: { type: string, required: true }
-        username: { type: string, default: app_user }
-        password: { type: string, required: true }
+    - rootPassword: { type: string, required: true }
+      username: { type: string, default: app_user }
+      password: { type: string, required: true }
 ```
 
 The compiler emits the same composition keywords in resolved JSON Schema. The composing entries can each be compact form, JSON Schema, or `$ref:` references. Mixing within a composition is supported.
@@ -677,7 +677,7 @@ Specific `x-aggrega-*` annotations are emitted by the compiler at well-known poi
 
 - `x-aggrega-source:` — populated by the cross-document `$ref:` expander to attribute each property to its origin SchemaLibrary entry. See [cross-document-ref.md](cross-document-ref.md) §"Library-to-library chain expansion".
 - `x-aggrega-selector:` — emitted by `usesSchema:` and `featuresSchema:` synthesis to carry the selector string that targets compatible provider Components.
-- `x-aggrega-sensitive:` — emitted by a leaf declaring `sensitive: true`. See "Declaring a leaf sensitive" below.
+- `x-aggrega-sensitive:` — emitted by a leaf declaring `sensitive: true`. See [Declaring a leaf sensitive](#declaring-a-leaf-sensitive--sensitive) above.
 
 Catalog authors writing their own extension keywords use the same namespace; downstream tooling that consumes the compiled JSON Schema reads `x-aggrega-*` keys without colliding with JSON Schema's own keyword space.
 
@@ -712,11 +712,10 @@ spec:
       auth:
         oneOf:
           - existingSecret: { type: string, required: true }
-          - properties:
-              rootPassword: { type: string, sensitive: true, required: true }
-              username: { type: string, default: app_user }
-              password: { type: string, sensitive: true, required: true }
-              database: { type: string, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$", required: true }
+          - rootPassword: { type: string, sensitive: true, required: true }
+            username: { type: string, default: app_user }
+            password: { type: string, sensitive: true, required: true }
+            database: { type: string, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$", required: true }
 
       metrics:
         enabled: { type: boolean, default: false }
@@ -740,7 +739,7 @@ spec:
           storageClass: { type: string }
 ```
 
-The example fits in ~40 LOC of compact form; the equivalent JSON Schema YAML expands to roughly 2.5x the line count. The compactness gain compounds across larger Component contracts and is meaningful enough to make the compact form the default authoring surface for `schema:`, `parameters:`, and SchemaLibrary entries.
+Written as JSON Schema YAML, the same contract spells out every object's `type: object`, `properties:` and `additionalProperties: false`, and lists each required field again in its parent's `required:`, so it runs considerably longer. The compactness gain compounds across larger Component contracts and is meaningful enough to make the compact form the default authoring surface for `schema:`, `parameters:`, and SchemaLibrary entries.
 
 ## Cross-pointers
 

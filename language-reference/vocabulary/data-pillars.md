@@ -9,7 +9,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 | Pillar | Lives on | Lifecycle | Role |
 | --- | --- | --- | --- |
 | `values` | Aggregate component / attachment instances | Live through rendering | Developer-authored cognitive payload |
-| `infra` | Release component / boundary / attachment instances | Live through rendering | Operator-authored physical sizing |
+| `infra` | Release component, attachment and connection entries | Live through rendering | Operator-authored physical sizing |
 | `provides` | Recipe `provides:` block | Live through rendering (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
 | `uses` | Aggregate component / feature instances | Live through rendering | Topological edges to other components / features |
 | `features` | Aggregate + Release component instances; slots declared in a catalog entity's `featuresSchema` — see "Features pillar" below | Live through rendering | Attachment pillar — one shape for every attachment family |
@@ -18,7 +18,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 
 `values` / `infra` / `provides` / `uses` / `features` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.features` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive resolution; `locals` because it is Recipe-private and never crosses entity boundaries.
 
-The pillar-walls-vs-signposts question resolves with **signposts**: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
+Pillars are **signposts**, not walls: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
 
 ## Pillar boundaries and authoring discipline
 
@@ -40,8 +40,8 @@ The `values:` pillar carries Developer-authored cognitive payload — the applic
 **Authored at:**
 
 - Aggregate `components.<id>.values:` — per-component-instance cognitive payload.
-- Aggregate `subsystems.<name>.<id>.values:` — same, inside subsystem-grouped components.
-- Aggregate `features.<id>.values:` — attachment values payload, whatever family the attached Feature belongs to (a credential attachment's vault-query parameters are authored here like any other).
+- Aggregate `subsystems.<name>.components.<id>.values:` — same, inside subsystem-grouped components.
+- Aggregate `components.<id>.features.<name>.values:` and a subsystem's `features.<name>.values:` — attachment values payload, whatever family the attached Feature belongs to (a credential attachment's vault-query parameters are authored here like any other).
 
 **Forbidden in:**
 
@@ -61,12 +61,12 @@ Authors encounter `infra:` at four distinct surfaces, each with different scope 
 
 | # | Surface | Scope | Merge precedence |
 | --- | --- | --- | --- |
-| 1 | Release boundary `infra:` | Per-boundary defaults | Lowest (overridden by surfaces 2-4) |
-| 2 | Release boundary `components.<id>.infra:` | Per-component-instance under that boundary | Overrides boundary defaults for the named component |
-| 3 | Release boundary `features.<id>.infra:` | Per-feature-attachment under that boundary | Same precedence as 2 — feature-attachment-scoped |
-| 4 | Release boundary `components.<id>.features.<id>.infra:` | Per-attachment-on-component | Highest specificity — overrides surfaces 1-3 for that exact attachment |
+| 1 | Release boundary `components.<id>.infra:` (`spec.components.<id>.infra:` in a Release with no boundaries) | One component instance | The component's own sizing; no other surface writes it |
+| 2 | Release boundary `features.<name>.infra:` | A boundary-wide attachment, on every component in the boundary | Lowest for that attachment — surface 3 overrides it field by field |
+| 3 | Release boundary `components.<id>.features.<name>.infra:` | One attachment on one component | Overrides surface 2 for that attachment, field by field |
+| 4 | Release `components.<id>.uses.<socket>.<alias>.infra:` | One connection | Validated against the socket's `infraSchema`; reaches only the consuming component's render |
 
-Surfaces 1 and 2 are the most-authored pair: an Operator declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesizing sidecars or per-Feature resources.
+Surface 1 is the most-authored: an Operator sizes each component the Release places. A boundary carries no `infra:` of its own — the Release schema refuses one — so sizing several components share is written on each, or inherited from a parent Release through `extends:` (below). Surfaces 2 and 3 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesizing sidecars or per-Feature resources: a boundary-wide attachment is sized once, and one component adjusts a single field of it.
 
 ### "Infra primarily localized" — the rule with exceptions
 
@@ -78,7 +78,7 @@ The architectural target for `infra:` is component-local: a component's sizing a
 - **Release inheritance via `extends:`.** A Release that `extends:` a parent Release inherits the parent's `infra` declarations at every surface that carries them, unless the child overrides per-key. The child's value wins key by key, down to the first indivisible value — a scalar, a list, a template — which replaces whole, and a key the child writes as `null` is removed rather than set to nothing. The inheritance crosses the per-Release boundary deliberately; for the whole fold rule and what else travels with it, see [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance).
 - **Schema-bridge cross-pillar piping.** A Component's `schema:` can expose a developer-facing `values:` dial that the Recipe's `valuesMapping:` template pipes into the provider's `infra:`-shaped output (see "Cross-pillar mechanics — Schema-bridge cross-pillar piping" below). Strictly speaking the value originates in `values:` and flows into the rendered output; the cascade is intra-instance but cross-pillar.
 
-The phrase "strictly localized" overstates the localization — it implies a wall the engine doesn't enforce. **"Primarily localized"** is the accurate framing: localization is the design intent; cascades exist as deliberate exceptions documented at the relevant surface.
+Localization is the design intent, not a wall the engine enforces: the cascades above are deliberate exceptions, each documented at the surface that carries it.
 
 **Side-vs-pillar partition for annotation-driven Feature expansion.** The Aggregate-as-Authoring-Surface invariant carries through to the annotation-driven Feature expansion path: Aggregate-side annotations (subsystem and component-instance scope) may only fire `maps.values` subkeys; Release-side annotations (boundary and component-instance scope) may only fire `maps.infra` subkeys. A Manifest binding can declare paths in both pillars; each side fires only its compatible subset, and cross-side composition merges the contributions per-field at IR build time. The partition preserves the values-developer / infra-operator authoring separation at the annotation surface — the same separation `values:` and `infra:` enforce on the explicit-attachment surfaces. See [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) §"Side-vs-pillar partition per subkey" for the per-subkey teaching and the cross-side composition pattern.
 
@@ -96,7 +96,7 @@ A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each templat
 
 The `uses:` pillar is the topological-edge declaration. A component instance's `uses:` block names the edges the component participates in — the sockets it consumes targets through. The full grammar is documented at [topology-triad.md](topology-triad.md); this section names `uses:` as a pillar for completeness.
 
-`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at base-rendering template evaluation, and the attachments written on that connection, at `.context.uses.<alias>.features.<slot>`.
+`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes one entry per outbound connection, keyed by its alias, as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at base-rendering template evaluation, and the attachments written on that connection, at `.context.uses.<alias>.features.<slot>`.
 
 ## Features pillar
 
@@ -186,7 +186,7 @@ spec:
 
 For CI/CD flows that keep the parameter values in a separate file (e.g., a per-environment `.yaml` checked in alongside the Release), the Release uses the `$import:` form: `parameters: { $import: ./prod-values.yaml }`. The file's content replaces the inline map at the Release surface. The path is resolved from the directory holding the Release, wherever a command is run from, and must lead to a file inside the workspace — or, for a Release named outside the workspace, inside the directory holding it. Multi-file layering (combining a base file with an environment-specific overlay) is expressed by Release `extends:` chains — the parent Release supplies base parameters; the child Release extends and overrides per-key.
 
-**Parameter lifecycle.** The compiler resolves parameters across three phases. (1) Parameter contract validation — the typed `parameters:` contract validates each Release-supplied value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints. (2) Default fill — slots with `default:` defined and no Release value receive their default. (3) Interpolation — the compiler evaluates the Aggregate's whole text as a template and replaces every `{{ .parameters.<slot> }}` reference with the resolved value. The merged map then stays readable through rendering — path-template eval, inject mapping, the base-rendering sub-stages, feature-rendering dispatch, per-(path, provider) assembly — so that path templates (Release boundary `directory:` / `subDirectory:`) can read `.parameters.<slot>` directly at orchestrator time against the closed allowlist documented at [`../path-template-variables.md`](../path-template-variables.md). Value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies) do NOT receive `.parameters` in their TemplateContext — they consume the resolved values written into the surrounding `values:` strings by phase 3 interpolation.
+**Parameter lifecycle.** The compiler resolves parameters across three phases. (1) Default fill — slots with `default:` defined and no Release value receive their default. (2) Parameter contract validation — the typed `parameters:` contract validates each value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints, a filled default included, so a default that breaks its own contract halts the build. (3) Interpolation — the compiler evaluates the Aggregate's whole text as a template and replaces every `{{ .parameters.<slot> }}` reference with the resolved value. The merged map then stays readable through rendering, so that path templates (Release boundary `directory:` / `subDirectory:`) can read `.parameters.<slot>` directly, against the closed allowlist documented at [`../path-template-variables.md`](../path-template-variables.md). Value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies) do NOT receive `.parameters` in their TemplateContext — they consume the resolved values written into the surrounding `values:` strings by phase 3 interpolation.
 
 ### The parameter-hoisting checklist
 
@@ -225,7 +225,7 @@ For the inheritance mechanism itself, see [inheritance-and-interface.md](inherit
 
 ## Cross-pillar mechanics
 
-The signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. Three patterns formalise common cross-pillar mechanics; one anti-pattern is documented honestly so authors recognise the trade-off.
+The signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. The patterns below formalise common cross-pillar mechanics; one anti-pattern is documented honestly so authors recognise the trade-off.
 
 ### Schema-bridge cross-pillar piping — signposted, not walled
 
@@ -299,7 +299,7 @@ Authors with intentional overlap have a real reason to keep both — e.g., a `mo
 
 A second intentional shape is one datum either author may supply. The standard library's credential Features that carry a caller's locator — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` and `core/secret-provided` — declare it in both pillars under one name and one shape, so the developer writes it in `values` or the operator in `infra`, and each Feature's own assertion refuses an attachment that writes it in both or in neither. The advisory below names those four on every load that reaches them; for them it reports the contract, not a slip.
 
-Catalog load emits a `LINT: <kind> <name> at <path> declares property <name> in both values: and infra: pillars (path: <dotted-path>)` advisory for every same-name property whose overlap resolves to a terminal leaf on at least one side. Same-name properties that exist as shared organizing namespaces (both pillars carry an object named `ingress` with disjoint sub-properties) do not warn; only the leaf overlap is reported. The warning is advisory — the build proceeds.
+Catalog load emits a `notice: LINT: <kind> "<name>" at <path> declares property "<property>" in both values: and infra: pillars (path: <dotted-path>)` advisory for every same-name property whose overlap resolves to a terminal leaf on at least one side. Same-name properties that exist as shared organizing namespaces (both pillars carry an object named `ingress` with disjoint sub-properties) do not warn; only the leaf overlap is reported. The warning is advisory — the build proceeds.
 
 ## Pillar validation tiers
 
@@ -331,9 +331,9 @@ Default values appear across the corpus through several distinct mechanisms. Aut
 
 - [`inheritance-and-interface.md`](inheritance-and-interface.md) — `extends:` mechanism, `implements:` Interface Binding, schema-bridge cross-pillar piping.
 - [`topology-triad.md`](topology-triad.md) — `provides`, `inject`, `uses` topological mechanics.
-- [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata vocabulary distinct from data pillars (the five-pillar canonical list above does not include labels / annotations / publishing fields — those are metadata vocabulary).
+- [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata vocabulary distinct from data pillars (the canonical pillar list above does not include labels / annotations / publishing fields — those are metadata vocabulary).
 - [`publishing-surface.md`](publishing-surface.md) — publishing-side metadata vocabulary distinct from data pillars.
 - [`validation-surface.md`](validation-surface.md) — four schema-validation layers including the three pillar-validation tiers above.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site availability for cross-pillar reads + self-containment rules at Recipe `provides:` and `source:`.
-- [`examples/04-secrets.md`](../examples/04-secrets.md) — credential pillar's six-touchpoint authoring checklist.
+- [`examples/04-secrets.md`](../examples/04-secrets.md) — the six-touch-point secret-delivery checklist.
 - [`architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) — canonical conceptual framing for the five DSL structural keywords.
