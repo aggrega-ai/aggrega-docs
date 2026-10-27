@@ -56,7 +56,7 @@ $ diff release-local.yaml release-store.yaml
 Both Releases declare the same `environment`. That is deliberate: the
 environment name is stamped onto every rendered document as a label, so holding
 it still leaves exactly one thing free to move — the FeatureRecipe the Manifest
-binds. A real pair of deployments would of course name their own environments,
+binds. A real pair of Releases would of course name their own environments,
 and the credential shapes would differ in exactly the same way.
 
 ## The developer's side, once

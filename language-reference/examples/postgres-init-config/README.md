@@ -11,11 +11,11 @@ example:
 database's first start: `init_scripts` (SQL or shell run once on initialization)
 and `custom_config` (a `postgresql.conf` fragment). On the synthesized helm
 target, the Recipe carries them into the container as mounted ConfigMaps. This
-example shows the feature is **additive**: a deployment that sets neither value
-renders exactly as a minimal database does, and a deployment that sets them gains
+example shows the feature is **additive**: an Aggregate that sets neither value
+renders exactly as a minimal database does, and an Aggregate that sets them gains
 the ConfigMaps, volumes, and mounts with nothing else disturbed.
 
-Two deployments of the same Component, same Manifest, differing only in the
+Two Releases of the same Component, same Manifest, differing only in the
 developer values:
 
 - **`release-bare.yaml`** (`aggregate-bare.yaml`) — `init_scripts` and
@@ -51,7 +51,7 @@ dist/helm/helm/db-headless-service.yaml
 
 Because both values are presence-guarded in the Recipe, an unset value emits
 nothing — the ConfigMap body renders empty and is skipped, and the volume, mount,
-and server-argument lines are guarded out. A deployment that never touches these
+and server-argument lines are guarded out. An Aggregate that never touches these
 values is unchanged by their existence.
 
 ## Configured — scripts and configuration mounted
@@ -132,7 +132,7 @@ entrypoint is the startup script that creates the database on an empty data
 directory, reads the `POSTGRES_*` environment, and runs the files under
 `/docker-entrypoint-initdb.d`. Replacing it would start the server against the
 mounted `postgresql.conf` and skip both the initialization and the bootstrap
-scripts — the values the deployment set would render into the manifest and never
+scripts — the values the Aggregate set would render into the manifest and never
 run.
 
 Setting only one of the two values is equally valid — the other's ConfigMap,
@@ -154,7 +154,7 @@ realizes both values through compose's own primitive: it renders top-level
   arguments pointing the server at it. Settings the fragment omits keep their
   built-in defaults.
 
-Each half is presence-guarded here too, so a deployment that leaves one value
+Each half is presence-guarded here too, so an Aggregate that leaves one value
 unset renders as though that key did not exist.
 
 One setting is worth naming when writing a `custom_config` block for a compose

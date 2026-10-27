@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Compile the deployment
+      - name: Compile the Release
         run: ./build-release.sh -- --auto-pull
         working-directory: ai-agent-and-model-router
       - name: Images are pinned
@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Compile the deployment
+      - name: Compile the Release
         run: aggrega build --release release.yaml --auto-pull
         working-directory: external-secrets-operator
       - name: No inline credential material
@@ -136,7 +136,7 @@ jobs:
         working-directory: policy-in-ci
 ```
 
-In your own repository there is one deployment rather than a tree of examples,
+In your own repository there is one workspace rather than a tree of examples,
 so the argument is wherever your build writes — `dist` beside the workspace, in
 the usual case — and the scripts sit wherever you keep pipeline tooling. Only
 those two paths change.
@@ -146,7 +146,7 @@ those two paths change.
 Run from this directory, over builds of three of the sibling examples. A refusal
 names every artifact it objects to, so the pipeline log is the finding list.
 
-**Images are pinned** — over a deployment whose Recipes pin every image:
+**Images are pinned** — over a Release whose Recipes pin every image:
 
 ```console
 $ ./require-pinned-image.sh ../ai-agent-and-model-router/dist
@@ -167,7 +167,7 @@ $ echo $?
 1
 ```
 
-**No inline credential material** — over a deployment whose one `Secret` is
+**No inline credential material** — over a Release whose one `Secret` is
 filled by its operator at runtime rather than rendered with a value in it:
 
 ```console
@@ -177,7 +177,7 @@ $ echo $?
 0
 ```
 
-Over a deployment that fills three credential slots by value:
+Over a Release that fills three credential slots by value:
 
 ```console
 $ ./deny-inline-credential-material.sh ../ai-agent-and-model-router/dist
@@ -189,7 +189,7 @@ $ echo $?
 1
 ```
 
-That last refusal is a rule an estate chooses, not a defect in the deployment.
+That last refusal is a rule an estate chooses, not a defect in the Release.
 Filling a credential slot by value is a supported shape: an author supplies
 the material and the target renders it where the workload can read it, and the
 compiler carries no opinion about that. Nearby, and separately, it does warn when

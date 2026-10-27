@@ -188,7 +188,7 @@ the difference is readable in the output. Set:
 
 Unset, the field is **absent** rather than empty — the alarm is emitted with no
 notification action at all, and `EvaluationPeriods` falls to the `2` the Recipe
-carries rather than to anything the Feature declared. A deployment that supplies
+carries rather than to anything the Feature declared. A Release that supplies
 neither still gets a working alarm, and supplying one adds exactly one field.
 
 ### An attachment's outputs are named by its host, not by itself

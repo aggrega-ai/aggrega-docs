@@ -10,7 +10,7 @@ example:
 This example teaches one house rule and the fact that makes it expressible:
 
 > A credential slot may be filled. It may not be filled by writing the material
-> into the deployment's own source.
+> into the workspace's own source.
 
 Two releases, one variable apart: the same managed database, the same required
 credential slot, filled by two different Features — one the developer attaches
@@ -160,7 +160,7 @@ plugins:
 
 A verdict role returns an accept-or-reject and nothing else. It can stop this
 build; it cannot rewrite the Aggregate into compliance, because the path that
-dispatches a verdict has no way to apply one as a change. A deployment that
+dispatches a verdict has no way to apply one as a change. A Release that
 wants the delegated form gets it by attaching the delegated Feature — never by a
 policy quietly substituting one.
 
@@ -263,7 +263,7 @@ output "address" {
 ```
 
 `manage_master_user_password = true` is the delegated form arriving in the
-output: the engine holds the credential, and the deployment names no material
+output: the engine holds the credential, and the Release names no material
 anywhere. The permitted release rendered a real artifact rather than passing by
 rendering nothing.
 
@@ -327,7 +327,7 @@ policy sits in the product,
 The managed-database Recipe sets the engine's own managed-password directive
 unconditionally and reads no injected credential, so on this target the material
 the authored Aggregate supplies has nowhere to land in the rendered artifact. The
-policy refuses it where it actually is: in a file the deployment keeps under
+policy refuses it where it actually is: in a file the workspace keeps under
 version control. That is the governance concern, and it is a separate matter
 from what any Recipe would have rendered.
 
