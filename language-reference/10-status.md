@@ -74,14 +74,13 @@ The Aggrega compilation pipeline is documented in [`../architecture/10-compilati
 
 ## Providers
 
-The Aggrega standard library ships five rendering providers — `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation`; the eval virtual-component provider is planned. Per-provider status:
+The Aggrega standard library ships five rendering providers — `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation`. Per-provider status:
 
 - **`helm` — available.** Sourced mode (Helm chart rendering via the Helm SDK) and synthesized mode (Workload → a controller object chosen by the Workload's `form` — Deployment, StatefulSet, DaemonSet, Job, or CronJob — plus Services and PVCs) both ship.
 - **`helm-chart` — available.** Sourced mode (umbrella-chart composition) ships. The synthesized input kind is not applicable to this provider; authors needing K8s manifest synthesis use the `helm` provider with `workload:`.
 - **`compose` — available.** Sourced mode (compose fragment overlay) and synthesized mode (Workload → compose service + volumes + networks) both ship. Per-boundary `docker-compose.yaml` output assembles via the Release-level composer.
 - **`terraform` — available.** Sourced mode and artifacts both ship; each boundary gets one root configuration, `aggrega.modules.tf`, declaring every component as a `module` block whose files sit in its own directory under `modules/`. The synthesized input kind is not applicable to this provider.
 - **`cloudformation` — available.** Sourced mode and artifacts (stack fragments) both ship; every component rendering to one output directory assembles into one stack template, emitted as pure JSON. The synthesized input kind is not applicable to this provider.
-- **`eval` — planned.** The eval virtual-component provider (Wasm-formatter + `.locals` export contract) is documented in [`../architecture/06-data-taxonomy-and-composition.md`](../architecture/06-data-taxonomy-and-composition.md) §10. No provider is registered with the production dispatch; a Recipe declaring `capability: eval` halts at render with an `unknown provider` error.
 
 Provider rendering is served by a Plugin with `pluginType: provider`; see [`entities/plugin.md`](entities/plugin.md) for the provider-rendering Plugin authoring surface and [`06-providers.md`](06-providers.md) for the per-provider reference pages.
 

@@ -237,21 +237,17 @@ Each external service is declared as a distinct component, not collapsed into a 
 
 It is critical to note that the semantic label (e.g., `untrusted-external`) dictates **network security policy**, not execution. It is independent of whether Aggrega renders artifacts that provision the resource.
 
-* **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Designed for the planned `eval` formatter (no compute provisioned; see §10).
-* **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Designed for the planned `eval` formatter (no compute provisioned; see §10).
+* **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Realized by a reference workload (no compute provisioned; see §10).
+* **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Realized by a reference workload (no compute provisioned; see §10).
 * **Scenario C (Self-Hosted Database):** Labeled `internal-trusted`. Executed via the Helm renderer plugin (physically provisioned as a Kubernetes StatefulSet).
 
-### 10. The `eval` Provider: Virtual Components via Wasm Formatters
-
-The `eval` provider is planned, and no provider serves it in this release: a Recipe declaring `capability: eval` halts at render with an `unknown provider` error (see [Status of the Language](../language-reference/10-status.md#providers)). This section describes its design.
+### 10. Services the Build Does Not Provision: Reference Workloads
 
 When an application interacts with a legacy on-premise database or a public SaaS API (like Stripe), the Universal Component Rule dictates that these external entities must be declared as distinct components in the `Aggregate`. However, Aggrega must not attempt to generate a physical Kubernetes Pod or AWS RDS instance artifact for them.
 
-To solve this without polluting the architecture with placeholder Helm charts, Aggrega introduces a first-class programmatic execution socket: the **`eval` plugin.**
+The Recipe realizing such a component declares a Workload of `form: reference`: an `endpoint` — a host or a URL — optionally a `port`, and no containers. The compiler pipes both through as deterministic pointer strings and never resolves them. What a provider renders for a reference Workload is the provider's own: `helm` emits an ExternalName Service carrying the endpoint's host, so workloads in the cluster can reach a service whose endpoint is a DNS name under a stable in-cluster name; `compose` renders nothing for it. Kubernetes treats an `externalName` as a DNS name, so an endpoint written as an IP address is reached at the address a consumer receives rather than through the Service.
 
-The `eval` plugin tells the Go compiler: *"Do not provision physical compute. Do not output physical IaC files. Simply execute this WebAssembly logic to construct complex URIs, parse cryptographic hashes, or build connection strings, save the resulting formatted string in memory, and pass it to the component's dependents."*
-
-This creates a broadly extensible, native mechanism for Platform Ops to format complex Database Source Names (DSNs), custom API URIs, or Kafka bootstrap strings without relying on the brittleness of standard Go text templates.
+On both providers, the Recipe's `provides:` reach every consumer through `.context.uses` and the `inject` contract exactly as a provisioned component's do. A consumer's wiring therefore does not change when its target moves from provisioned to referenced: only the Recipe the Manifest maps the target to changes.
 
 #### The Step-by-Step Execution Pipeline
 
@@ -280,7 +276,7 @@ components:
 ```
 
 **2. Domain 4 (The Manifest): The Routing**
-Ops maps the legacy database type to the Recipe that formats its connection string. The Manifest names a Recipe and nothing more; the Recipe it names declares `spec.capability: eval`, and that capability is what routes the node to in-memory evaluation rather than to a chart renderer. Routing stays perfectly flat and predictable because the map has exactly one shape whatever the target.
+Ops maps the legacy database type to the Recipe that formats its connection string. The Manifest names a Recipe and nothing more; the Recipe it names declares a Workload of `form: reference`, and that form is what keeps the node from provisioning compute. Routing stays perfectly flat and predictable because the map has exactly one shape whatever the target.
 
 ```yaml
 spec:
@@ -290,8 +286,8 @@ spec:
         "core/legacy-database": "oracle-dsn-formatter:1.0.0"
 ```
 
-**3. Domain 3 (The Wasm Formatter Recipe): Structuring the Handoff**
-The Ops engineer writes the stub recipe. It maps the Developer's `values` into a payload for the Wasm plugin to process and defines the expected `primary_endpoint` string in the `locals` block.
+**3. Domain 3 (The Reference Recipe): Structuring the Handoff**
+The Ops engineer writes the Recipe. It builds the `primary_endpoint` connection string from the Developer's `values` in its `locals` block, publishes it under `provides`, and declares a reference Workload pointing at the database's host.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -300,48 +296,44 @@ metadata:
   name: oracle-dsn-formatter
   version: 1.0.0
 spec:
-  capability: eval 
+  capability: helm
   implements: core/legacy-database:1.0.0
-  
-  # The programmatic logic executed in-memory by the Wasm sandbox
-  pipeline:
-    - id: "dsn_builder"
-      plugin: eval/oracle-dsn-builder:1.0.0
-      function: build_dsn
-      with: |
-        db_host: "{{ .values.host }}"
-        db_sid: "{{ .values.sid }}"
-  
-  # The resulting string is saved to the primary_endpoint key
-  locals: 
-    primary_endpoint: "" 
+
+  # The connection string, built from the Developer's values
+  locals:
+    primary_endpoint: "oracle://{{ .values.host }}:1521/{{ .values.sid }}"
+
+  # The public contract a consumer's inject reads
+  provides:
+    primary_endpoint: "{{ .locals.primary_endpoint }}"
+
+  # No compute: an endpoint the build does not provision
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: reference
+    endpoint: "{{ .values.host }}"
+    port: 1521
 ```
 
 **4. Compiler Execution at Rendering (The Handoff)**
 
-1. The Go compiler executes the `eval` pipeline for `legacy-oracle` first. It feeds the mapped `values` into the Wasm plugin.
-2. The Wasm plugin constructs the required strings and returns a flat JSON dictionary via `stdout` (e.g., `{"primary_endpoint": "oracle://..."}`).
-3. The Go compiler assigns this entire JSON dictionary verbatim to the Oracle node's exported `.locals` state in memory.
-4. The compiler then executes the recipe for `my-agent`. It builds the `.context.uses` pipe, seamlessly including the Oracle node's evaluated `.locals` dictionary.
+1. The compiler evaluates the Recipe for `legacy-oracle`. For a Release supplying `legacy_oracle_ip: "10.0.4.55"`, its `primary_endpoint` is `oracle://10.0.4.55:1521/PROD_DB`.
+2. On `helm`, the reference Workload renders one ExternalName Service, `legacy-oracle`, with `externalName: 10.0.4.55` and port `1521`; on `compose`, it renders nothing.
+3. The compiler then renders the Recipe for `my-agent`. Its `.context.uses` pipe carries the Oracle node's `provides`, and the inject contract has already resolved `ORACLE_DSN` against them.
 
 **5. Domain 3 (The Caller Recipe): Fulfilling the Contract**
-The standard Helm recipe for the Python worker loops over its connected components (uses:) and natively indexes the dictionary it received from the `eval` stub.
+The standard Helm recipe for the Python worker reads the inject map it received, exactly as it would for a database the build provisions.
 
 ```yaml
 # Inside python-worker-helm (The calling agent's recipe)
 env:
-  # The compiler pre-resolved the eval's output into the inject map
+  # The compiler pre-resolved the target's provides into the inject map
   {{- range $key, $value := .context.inject.env }}
   - name: {{ $key }}          # Renders: ORACLE_DSN
-    value: "{{ $value }}"     # Renders: oracle://...
+    value: "{{ $value }}"     # Renders: oracle://10.0.4.55:1521/PROD_DB
   {{- end }}
 ```
-
-#### Architectural Benefits
-
-* **Broadly Extensible:** Ops can format arbitrary connection strings, API paths, or complex URI structures using programmatic WebAssembly, rather than being constrained by string templating.
-* **Zero Magic:** The core compiler doesn't have to guess formatting or rely on hardcoded URL builders; it just evaluates the string from the Wasm plugin's `exports` and passes it to the Caller's `.context`.
-* **Unified Ecosystem:** In an Aggrega catalog, this Wasm "eval stub" is version-controlled, auditable, and shareable just like a physical Helm chart.
 
 ### 11. Schema-bridge cross-pillar piping: Bridging Intent to Infrastructure
 

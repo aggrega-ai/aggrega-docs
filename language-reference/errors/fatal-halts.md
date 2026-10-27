@@ -87,7 +87,7 @@ A `validate:` predicate reads the value under validation as `.value`, and that i
 
 ### Recipe shape rules
 
-A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by the composition rules below. They differ in when they are checked — when the Recipe is loaded, when a node renders, or when output is emitted — so read each entry for the point at which its own condition is checked. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below).
+A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by the composition rules below. They differ in when they are checked — when the Recipe is loaded, when a node renders, or when output is emitted — so read each entry for the point at which its own condition is checked.
 
 Each rule is named by what it constrains. There is no numbering, and none is reserved: a name says which part of the Recipe to open, and it keeps saying it however the list below grows or is reordered. Where you need to record a condition durably — in a CI gate, an issue, a runbook — use its **code**, the identifier [sentinels.md](./sentinels.md) lists for the condition and the one that stays fixed as the packages around it evolve.
 
@@ -178,13 +178,13 @@ The head carries this condition's short code, `E0351`.
 
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface. This rule is checked when the Recipe is loaded.
 
-A Recipe file of that shape meets the Recipe schema first: on any provider other than `eval` the schema requires one of `source`, `valuesMapping`, `workload` or `artifacts`, so the document envelope check refuses the file under `E0215` before this rule runs, with one branch for each key:
+A Recipe file of that shape meets the Recipe schema first: the schema requires, on every provider, one of `source`, `valuesMapping`, `workload` or `artifacts`, so the document envelope check refuses the file under `E0215` before this rule runs, with one branch for each key:
 > document envelope validation failed (Recipe, at `<path>`); `<line>`:`<column>`: spec: no anyOf branch matched: branch[0]: validation: required: missing properties: ["source"]; branch[1]: validation: required: missing properties: ["valuesMapping"]; branch[2]: validation: required: missing properties: ["workload"]; branch[3]: validation: required: missing properties: ["artifacts"]. correct the document to match its kind's schema
 
 Emitted message:
 > Recipe: at least one input kind required (Recipe `<name>:<version>`, rule input-kinds, at `<path>`). declare one of: source (with valuesMapping), workload, artifacts
 
-**How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below. That provider is planned: no provider serves it today, so a Recipe bound to it halts at render with an `unknown provider` error (`E0061`).
+**How to fix:** add the input kind that matches the Recipe's authoring intent. A Recipe for a service the build does not provision — a database or an API that already runs elsewhere — declares a `workload:` of `form: reference` with its `endpoint` (and optionally `port`), and publishes its connection values under `provides:` as any Recipe does: `helm` renders it as an ExternalName Service, `compose` renders nothing for it, and on both its consumers read the published values.
 
 #### `artifacts:` entry keys must be unique
 
@@ -213,20 +213,6 @@ A collision in a FeatureRecipe carries the attachment as well:
 > filename collision across input kinds: two input-kind blocks produced a file under one output name (output name `<filename>`, produced by `<origin1>, <origin2>`, attachment `<instance>`)
 
 **How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<release-name>-deployment.yaml` for helm, where the release name is `{{ .context.rendered_name }}`) — adjust the `artifacts:` filename to a name the provider does not synthesize.
-
-#### `eval`-provider constraint
-
-<!-- covers: pkg/validator.ErrRecipeEvalProviderConstraint -->
-
-A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
-
-The Recipe schema itself forbids those fields beside `capability: eval` — and `omits:` and `boundary:` with them — so a Recipe file declaring one meets the document envelope check first, under `E0215`, with one finding for each such field:
-> document envelope validation failed (Recipe, at `<path>`); `<line>`:`<column>`: spec.workload: value matches a shape that is not allowed here. correct the document to match its kind's schema
-
-Emitted message:
-> recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
-
-**How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts. The `eval` provider is planned: no provider serves it today, so an eval Recipe that passes this rule still halts at render with an `unknown provider` error (`E0061`).
 
 #### An output-label key uses a reserved namespace
 
@@ -259,7 +245,7 @@ Emitted message:
 
 ### FeatureRecipe shape rules
 
-A FeatureRecipe composes its output from the same input kinds a Recipe does, and two of the same composition rules constrain it. Both are checked when the FeatureRecipe is loaded, and both report in the shape a Recipe-shape halt takes — the rule's sentence, then the document at fault, the rule's name, and the advice for that occurrence — under a `CATALOG_ERROR` tag.
+A FeatureRecipe composes its output from the same input kinds a Recipe does, and the composition rule below constrains it as it constrains a Recipe. It is checked when the FeatureRecipe is loaded, and it reports in the shape a Recipe-shape halt takes — the rule's sentence, then the document at fault, the rule's name, and the advice for that occurrence — under a `CATALOG_ERROR` tag.
 
 There is deliberately **no** at-least-one-input-kind rule here, and that is the difference from a Recipe. A FeatureRecipe that declares only a provider and what it implements is a legitimate pure-wiring attachment: it renders nothing, and its effect is the connection the Feature it implements carries. One that only declares `injectMapping:` is legitimate the same way.
 
@@ -273,22 +259,6 @@ Emitted message:
 > FeatureRecipe: valuesMapping requires source (FeatureRecipe `<name>:<version>`, rule values-mapping, at `<path>`). declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
 
 **How to fix:** add the `source:` pointer the overlay was written for, or remove the `valuesMapping` and let the attachment do its work another way — `artifacts:` to emit files of its own, `injectMapping:` to reshape what it delivers, or neither, for a pure-wiring attachment.
-
-#### A FeatureRecipe on the `eval` provider declares a render input kind
-
-<!-- covers: pkg/validator.ErrFeatureRecipeEvalProviderConstraint -->
-
-A FeatureRecipe binds the `eval` provider and also declares one or more of `source`, `valuesMapping`, `workload`, or `artifacts`. The `eval` provider evaluates in memory and has no rendering surface, so a render input kind declared beside it names output that nothing will produce.
-
-`injectMapping:` is **not** one of the forbidden fields and stays available here. It transforms what an attachment delivers rather than rendering anything, which is exactly the work an eval FeatureRecipe exists to do.
-
-The FeatureRecipe schema itself forbids those fields beside `capability: eval` — and `omits:` with them — so a FeatureRecipe file declaring one meets the document envelope check first, under `E0215`, with one finding for each such field:
-> document envelope validation failed (FeatureRecipe, at `<path>`); `<line>`:`<column>`: spec.artifacts: value matches a shape that is not allowed here. correct the document to match its kind's schema
-
-Emitted message, listing every forbidden field the document declared rather than the first one found:
-> featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
-
-**How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits. The `eval` provider is planned, and no provider serves it today.
 
 ### A file cannot be read, or its bytes do not parse
 
@@ -6261,10 +6231,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0200` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` | An inline-or-import field is written in neither shape |
 | `E0201` | `assertion name declared twice across the extends chain` | An assertion name is declared twice along an `extends:` chain |
 | `E0202` | `cyclic extends chain` | Cyclic extends chain; Cyclic extends on Components or Features |
-| `E0203` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` | A FeatureRecipe on the `eval` provider declares a render input kind |
 | `E0204` | `FeatureRecipe: valuesMapping requires source` | A FeatureRecipe's `valuesMapping` requires `source` |
 | `E0205` | `inheritance merge failed` | An `extends:` chain cannot be assembled |
-| `E0206` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` | `eval`-provider constraint |
 | `E0207` | `recipe output-component-labels constraint: key is also declared in outputLabels` | A promoted component label is also declared literally |
 | `E0208` | `recipe output-labels constraint: key uses a reserved namespace` | An output-label key uses a reserved namespace |
 | `E0209` | `Recipe: valuesMapping requires source` | `valuesMapping` requires `source` |

@@ -280,7 +280,7 @@ The same bound holds for a FeatureRecipe, and for every schema a Component or a 
 
 ## The `workload:` field — synthesized input kind
 
-`Recipe.spec.workload:` declares the Workload body the compiler synthesizes into provider-native resources. It is one of the three input kinds a Recipe may declare alongside `source:` (sourced rendering) and `artifacts:` (auxiliary manifests). At least one of the three must be present for non-`eval` providers; the `eval` provider rejects all three by schema constraint.
+`Recipe.spec.workload:` declares the Workload body the compiler synthesizes into provider-native resources. It is one of the three input kinds a Recipe may declare alongside `source:` (sourced rendering) and `artifacts:` (auxiliary manifests). At least one of the three must be present on every provider; a service the build does not provision declares a `workload:` of `form: reference`.
 
 The field accepts three authoring modes — inline block scalar, file `$import:`, or library `$import:`. The compiler dispatches on the field's content shape; no `$mode:` annotation is needed.
 
@@ -382,7 +382,7 @@ spec:
         }
 ```
 
-**The block is `artifacts:` at a second scope.** `artifacts` is its one member, and it takes exactly the shape of the Recipe's own [`artifacts:`](#the-artifacts-field--auxiliary-manifests): the same three modes — inline content, a file `$import:`, a library `$import:` whose files nest under the entry's key as `<key>/<filename>` — the same key-to-filename rule and the same alphabet for a key, and the same template context, so an entry reads `.values`, `.infra`, `.locals` and the rest exactly as an `artifacts:` entry does. It needs at least one entry, any other member under `boundary:` is refused when the Recipe is read, and a Recipe on the `eval` provider cannot declare it. A FeatureRecipe has no such block.
+**The block is `artifacts:` at a second scope.** `artifacts` is its one member, and it takes exactly the shape of the Recipe's own [`artifacts:`](#the-artifacts-field--auxiliary-manifests): the same three modes — inline content, a file `$import:`, a library `$import:` whose files nest under the entry's key as `<key>/<filename>` — the same key-to-filename rule and the same alphabet for a key, and the same template context, so an entry reads `.values`, `.infra`, `.locals` and the rest exactly as an `artifacts:` entry does. It needs at least one entry, and any other member under `boundary:` is refused when the Recipe is read. A FeatureRecipe has no such block.
 
 **Where a file is written.** Once, in the directory holding the boundary's assembled output, beside the files the provider's own assembly writes there — for terraform, beside the `aggrega.modules.tf` root configuration rather than inside the component's module. The provider is handed none of these files: the compiler evaluates them and writes them itself, and stamps nothing into one to say which component it came from, because it belongs to every component that declared it. An entry whose template renders to nothing writes no file.
 
@@ -625,7 +625,7 @@ spec:
       namespace: monitoring
 ```
 
-**What it covers.** Only what `source:` renders. A `workload:` and the `artifacts:` entries are never filtered: you write those in the Recipe, so a document you do not want there is one you leave unwritten. The key requires `source:`, and a Recipe on the `eval` provider cannot declare it; a document breaking either rule is refused when it is read, naming the rule.
+**What it covers.** Only what `source:` renders. A `workload:` and the `artifacts:` entries are never filtered: you write those in the Recipe, so a document you do not want there is one you leave unwritten. The key requires `source:`; a document breaking that rule is refused when it is read, naming the rule.
 
 **An entry.** Each entry names what to leave out by three fields, and a fourth decides whether it applies. What the first three name is the provider's own vocabulary for what its source renders, set out per provider in the table below:
 

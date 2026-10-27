@@ -100,7 +100,7 @@ spec:
 External SaaS APIs and legacy databases are first-class graph nodes. They produce no compute artifacts but participate in topology, policy validation, and inject resolution.
 
 **1. Platform Catalog: The External Service Component**
-The `eval` provider executes formatting in-memory — no source chart, no valuesMapping. The Recipe simply exports provides strings.
+The Recipe declares a Workload of `form: reference` — an `endpoint` and no containers — so nothing is provisioned for the service, and it publishes the service's `hostname` as `primary_endpoint`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -123,12 +123,15 @@ metadata:
   name: external-formatter
   version: 1.0.0
 spec:
-  capability: eval
+  capability: helm
   implements: core/external-service:1.0.0
-  locals:
-    primary_compute: "virtual"
   provides:
     primary_endpoint: "{{ .values.hostname }}"
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: reference
+    endpoint: "{{ .values.hostname }}"
 ```
 
 **2. Dev Domain: The Aggregate**
@@ -179,7 +182,7 @@ spec:
 ```
 
 **3. Routing Domain: Manifest & Release**
-The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-formatter`, declares `spec.capability: eval`, so that node renders in memory and provisions no compute. The Release fulfills the parameter contract.
+The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-formatter`, binds the `helm` provider with a `form: reference` Workload, so neither external node provisions compute: the build writes one ExternalName Service for each, carrying its `hostname`, and `billing-agent` receives `STRIPE_URL: api.stripe.com` and `ORACLE_DSN: 10.0.4.55` through the inject contract. Kubernetes treats an `externalName` as a DNS name, so the legacy database's Service does not resolve to its IP address; `billing-agent` reaches the database at the address `ORACLE_DSN` carries. The Release fulfills the parameter contract.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

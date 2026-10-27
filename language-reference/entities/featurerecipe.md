@@ -9,7 +9,7 @@ FeatureRecipes are organized with the provider in the leading path segment (same
 ```text
 aggrega-catalog/
 └── feature-recipe/
-    └── {provider}/                          # e.g., `helm`, `compose`, `eval`
+    └── {provider}/                          # e.g., `helm`, `compose`
         └── {feature-recipe-name}/
             └── recipe.yaml
 ```
@@ -429,4 +429,4 @@ The key is authored identically on a Recipe, and [Recipe → The `omits:` field]
 
 A halt on an entry names the node, the provider, this FeatureRecipe and the entry's position in its `omits:` list; for a boundary-scope FeatureRecipe, the line above the message names the attachment and its boundary.
 
-For a worked example of the key, authored on a Recipe — a fetched chart's generated Secret left out, and the halts without the entry and on an entry that matches nothing — see [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/).
+For a worked example of the key, authored on a Recipe — a fetched chart's generated Secret left out, and the halts without the entry and on an entry that matches nothing — see [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/README.md).

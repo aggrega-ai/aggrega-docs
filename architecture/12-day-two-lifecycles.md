@@ -158,7 +158,7 @@ Because the IR Graph contains the complete topology and the `Release` contains t
 
 ### 6. The "Brownfield" Import Lifecycle
 
-**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega is designed to connect a build to unmanaged infrastructure through the planned `eval` formatter (pass-through networking; see [the `eval` provider](06-data-taxonomy-and-composition.md#10-the-eval-provider-virtual-components-via-wasm-formatters)), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
+**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega is designed to connect a build to unmanaged infrastructure through a reference workload (pass-through networking; see [reference workloads](06-data-taxonomy-and-composition.md#10-services-the-build-does-not-provision-reference-workloads)), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
 
 **The Solution (planned):**
 A `core/resource-adoption` Feature is planned to manage the import lifecycle.

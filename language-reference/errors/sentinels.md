@@ -387,10 +387,8 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrCyclicExtension()` | `cyclic-extension` | `cyclic extends chain` |
 | `ErrDuplicateContainerEnvironmentVariable()` | `duplicate-container-environment-variable` | `a container declares one environment variable twice` |
 | `ErrExtendsChainTooDeep()` | `extends-chain-too-deep` | `extends chain exceeds maximum depth` |
-| `ErrFeatureRecipeEvalProviderConstraint()` | `feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `extends-merge-failed` | `inheritance merge failed` |
-| `ErrRecipeEvalProviderConstraint()` | `recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `ErrRecipeFilenameCollisionAcrossInputKinds()` | `recipe-filename-collision-across-input-kinds` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` |
 | `ErrRecipeNoInputKind()` | `recipe-no-input-kind` | `Recipe: at least one input kind required` |
 | `ErrRecipeOutputComponentLabelCollision()` | `recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
@@ -693,10 +691,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0200` | `workload-template-shape` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` |
 | `E0201` | `assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `E0202` | `cyclic-extension` | `cyclic extends chain` |
-| `E0203` | `feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `E0204` | `feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `E0205` | `extends-merge-failed` | `inheritance merge failed` |
-| `E0206` | `recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `E0207` | `recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `E0208` | `recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
 | `E0209` | `recipe-values-mapping-requires-source` | `Recipe: valuesMapping requires source` |
@@ -836,6 +832,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0166` is retired: nothing reports it now, and the number is never handed to a different condition. It named the file a Release's `parameters: { $import: … }` points at when that file could not be read or its bytes did not parse; a file that yields no document is one condition wherever the path was written, and its code is `E0175`.
+- `E0203` is retired: nothing reports it now, and the number is never handed to a different condition. It named a FeatureRecipe on the `eval` capability that declared a source, a values overlay, a workload or artifacts; that capability was withdrawn, and nothing reports this state now.
+- `E0206` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe on the `eval` capability that declared a source, a workload, artifacts or a values overlay; that capability was withdrawn, and a Recipe declaring none of those is refused on every capability under `E0210`.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.
 - `E0219` is retired: nothing reports it now, and the number is never handed to a different condition. It named a cyclic `extends` chain, reported by a second chain walk the schema-merge library kept beside its combining step; one walk reports every cyclic chain now, and its code is `E0202`.
 - `E0230` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
