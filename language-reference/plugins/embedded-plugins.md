@@ -6,18 +6,18 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | 0.8.6 (commit 575162fe2) |
-| governance | `governance/label-injector` | — | 0.8.6 (commit 575162fe2) |
-| governance | `governance/rego` | — | 0.8.6 (commit 575162fe2) |
-| governance | `governance/selector-tagger` | — | 0.8.6 (commit 575162fe2) |
-| linter | `linter/publishing` | — | 0.8.6 (commit 575162fe2) |
-| parser | `parser/hcl` | parse:hcl | 0.8.6 (commit 575162fe2) |
-| parser | `parser/json` | parse:json | 0.8.6 (commit 575162fe2) |
-| parser | `parser/jsonc` | parse:jsonc | 0.8.6 (commit 575162fe2) |
-| parser | `parser/toml` | parse:toml | 0.8.6 (commit 575162fe2) |
-| parser | `parser/yaml` | parse:yaml | 0.8.6 (commit 575162fe2) |
-| provider | `provider/cloudformation` | cloudformation | 0.8.6 (commit 575162fe2) |
-| provider | `provider/compose` | compose | 0.8.6 (commit 575162fe2) |
-| provider | `provider/helm` | helm | 0.8.6 (commit 575162fe2) |
-| provider | `provider/helm-chart` | helm-chart | 0.8.6 (commit 575162fe2) |
-| provider | `provider/terraform` | terraform | 0.8.6 (commit 575162fe2) |
+| governance | `governance/cel` | — | 0.8.7 (commit a7222d32d) |
+| governance | `governance/label-injector` | — | 0.8.7 (commit a7222d32d) |
+| governance | `governance/rego` | — | 0.8.7 (commit a7222d32d) |
+| governance | `governance/selector-tagger` | — | 0.8.7 (commit a7222d32d) |
+| linter | `linter/publishing` | — | 0.8.7 (commit a7222d32d) |
+| parser | `parser/hcl` | parse:hcl | 0.8.7 (commit a7222d32d) |
+| parser | `parser/json` | parse:json | 0.8.7 (commit a7222d32d) |
+| parser | `parser/jsonc` | parse:jsonc | 0.8.7 (commit a7222d32d) |
+| parser | `parser/toml` | parse:toml | 0.8.7 (commit a7222d32d) |
+| parser | `parser/yaml` | parse:yaml | 0.8.7 (commit a7222d32d) |
+| provider | `provider/cloudformation` | cloudformation | 0.8.7 (commit a7222d32d) |
+| provider | `provider/compose` | compose | 0.8.7 (commit a7222d32d) |
+| provider | `provider/helm` | helm | 0.8.7 (commit a7222d32d) |
+| provider | `provider/helm-chart` | helm-chart | 0.8.7 (commit a7222d32d) |
+| provider | `provider/terraform` | terraform | 0.8.7 (commit a7222d32d) |
