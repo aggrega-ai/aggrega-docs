@@ -187,5 +187,7 @@ developer declares the variation point, the Release fulfils it.
 ## Build
 
 ```bash
-./build-release.sh
+./build-release.sh -- --auto-pull
 ```
+
+`--auto-pull` writes the lockfile a fresh clone lacks during the build.

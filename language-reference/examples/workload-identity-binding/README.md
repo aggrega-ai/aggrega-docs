@@ -20,14 +20,15 @@ producer already owns, so the two cannot drift apart.
 ## Building
 
 ```bash
-./build-release.sh
-# equivalent to: aggrega build --release release.yaml
+./build-release.sh -- --auto-pull
+# equivalent to: aggrega build --release release.yaml --auto-pull
 ```
 
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the
 example's own `./catalog` (the `local/compute/identity-app` Component and its
 `helm/identity-app` synth Recipe) and the sibling hub catalog (the
-`core/gcp-workload-identity` Feature and its FeatureRecipe).
+`core/gcp-workload-identity` Feature and its FeatureRecipe). `--auto-pull` writes
+the lockfile a fresh clone lacks during the build.
 Three manifests land under `dist/helm/helm/`.
 
 ## The Component declares the need; the Release fills it
@@ -107,9 +108,12 @@ metadata:
 
 ```yaml
 # app-deployment.yaml
+[… omitted: the Deployment's metadata, selector and pod template up to the containers]
       containers:
         - name: main
+          [… omitted: the image and the port]
           env:
+            [… omitted: the GREETING variable]
             - name: IDENTITY_SERVICE_ACCOUNT
               value: app-workload-identity
       serviceAccountName: app-workload-identity

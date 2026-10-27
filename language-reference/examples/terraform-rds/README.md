@@ -33,10 +33,10 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 ## Build
 
 ```bash
-./build-release.sh
+./build-release.sh -- --auto-pull
 ```
 
-The rendered `main.tf` lands under `dist/infra/terraform/modules/db/`, with the
+`--auto-pull` writes the lockfile a fresh clone lacks during the build. The rendered `main.tf` lands under `dist/infra/terraform/modules/db/`, with the
 boundary's root configuration, `aggrega.modules.tf`, at `dist/infra/terraform/`
 declaring `db` as a `module` block pointing at it. The body opens with a
 `#`-comment provenance block identifying the build, followed by a

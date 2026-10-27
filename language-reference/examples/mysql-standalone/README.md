@@ -76,18 +76,19 @@ minimal deployment still renders and runs.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 # Kubernetes — synthesized helm StatefulSet (base: root credential only)
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 
 # Kubernetes — synthesized helm StatefulSet (full: both credential slots)
-aggrega build --release release-helm-synth-auth.yaml
+aggrega build --release release-helm-synth-auth.yaml --auto-pull
 
 # Local development (Docker Compose)
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`.
@@ -124,6 +125,7 @@ The rendered service carries the override verbatim:
 services:
   db:
     image: registry.internal.example/library/mysql:8.4
+    [… omitted: the service's environment, labels, volume, network and health check]
 ```
 
 This is the path to a registry-mirrored or digest-pinned build of the same

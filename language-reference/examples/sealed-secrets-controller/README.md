@@ -49,12 +49,13 @@ key material is produced at render time.
   is byte-identical across runs of the same input.
 - **A reproducible image.** The Recipe pins the controller image to a resolvable
   release tag (`docker.io/bitnami/sealed-secrets-controller:0.38.4`), so the
-  rendered workload references an immutable version.
+  rendered workload references a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -75,5 +76,5 @@ The build emits the sealed-secrets controller as a set of Kubernetes objects:
 - one `ServiceAccount`,
 - two `Service`s — the controller service and its metrics service.
 
-The controller image is pinned to its release tag, so the workload references an
-immutable image.
+The controller image is pinned to its release tag, so the workload references a
+pinned image tag.

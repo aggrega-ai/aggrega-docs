@@ -47,15 +47,16 @@ Manifest changes per target.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 # Local development (Docker Compose)
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 
 # Kubernetes (synthesized manifests)
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`. The Kubernetes target renders plain
@@ -67,7 +68,7 @@ On Compose, the gateway service runs NGINX with a server block pointing at the
 backend's compose service name and port:
 
 ```conf
-server { listen 8080; location / { proxy_pass http://web:8080; } }
+server { listen 8000; location / { proxy_pass http://web:8080; } }
 ```
 
 On Kubernetes, the same routing arrives in the container command that writes
@@ -84,10 +85,10 @@ through the `upstream` use, and each target renders them in its own idiom.
 ## Run it (Compose)
 
 ```sh
-aggrega build --release release-compose.yaml
+aggrega build --release release-compose.yaml --auto-pull
 docker compose -f dist/app/compose/docker-compose.yaml up -d
 ```
 
-Open <http://localhost:8080> — NGINX forwards the request to the backend.
+Open <http://localhost:8000> — NGINX forwards the request to the backend.
 Tear down with
 `docker compose -f dist/app/compose/docker-compose.yaml down`.

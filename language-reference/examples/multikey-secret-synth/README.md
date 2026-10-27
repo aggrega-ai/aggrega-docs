@@ -15,14 +15,15 @@ multi-key referenceable credential.
 ## Building
 
 ```bash
-./build-release.sh
-# equivalent to: aggrega build --release release.yaml
+./build-release.sh -- --auto-pull
+# equivalent to: aggrega build --release release.yaml --auto-pull
 ```
 
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the
 example's own `./catalog` (the `local/compute/app` Component and its
 `helm/app` synth Recipe) and the sibling hub catalog (the multi-key credential
-Feature, its FeatureRecipe, and the helm Provider). Three manifests land under
+Feature, its FeatureRecipe, and the helm Provider). `--auto-pull` writes the
+lockfile a fresh clone lacks during the build. Three manifests land under
 `dist/helm/helm/`.
 
 ## One slot, two keys
@@ -94,6 +95,7 @@ same Secret (`provides.name`), each with its own data key:
     secretKeyRef:
       name: app-app-credentials   # same Secret
       key: db_password            # different data key
+[… omitted: the GREETING variable, set from the Aggregate's greeting value]
 ```
 
 The `key` field is what makes a multi-key secret consumable from a synthesized

@@ -45,34 +45,35 @@ would be a second thing to keep in step for no gain.
 
 ## Files
 
-- [`aggregate.yaml`](aggregate.yaml) — developer intent, and the **same document
+- `aggregate.yaml` — developer intent, and the **same document
   for both Releases**: a `mysql-operator` component for the control plane, a `db`
   component of type `core/datastore/mysql-innodb-cluster`, and the character set
   the developer wants the server to speak. Nothing here says how many servers
   there are.
-- [`manifest.yaml`](manifest.yaml) — the Ops mapping, shared by both Releases.
+- `manifest.yaml` — the Ops mapping, shared by both Releases.
   Two lines: which Recipe realizes the control plane, and which realizes the
   database.
-- [`release-single.yaml`](release-single.yaml),
-  [`release-replicated.yaml`](release-replicated.yaml) — the operator's sizing.
-  They are the same file but for `server_instances`, and every other field is
-  held equal on purpose so that one line is the whole difference.
-- [`.aggrega-config.yaml`](.aggrega-config.yaml) — points entity resolution at
+- `release-single.yaml`,
+  `release-replicated.yaml` — the operator's sizing.
+  They differ in their `metadata.name` and in `server_instances`, and every other
+  field is held equal on purpose so that one line is the whole difference.
+- `.aggrega-config.yaml` — points entity resolution at
   the standard-library catalog. This example authors no entities of its own.
 
 ## Build
 
 ```bash
-./build-release.sh single
-./build-release.sh replicated
+./build-release.sh single -- --auto-pull
+./build-release.sh replicated -- --auto-pull
 ```
 
-Each writes to `dist/`, and a build **adds** its files rather than clearing what
+`--auto-pull` writes the lockfile a fresh clone lacks during the build. Each
+build writes to `dist/`, and a build **adds** its files rather than clearing what
 an earlier one left. Remove `dist/` between runs to read one Release's output on
 its own:
 
 ```bash
-rm -rf dist && ./build-release.sh replicated
+rm -rf dist && ./build-release.sh replicated -- --auto-pull
 ```
 
 Each Release renders five files: the database's custom resource, and the four
@@ -93,6 +94,7 @@ dist/stack/helm/mysql-operator/serviceaccount.yaml
 apiVersion: mysql.oracle.com/v2
 kind: InnoDBCluster
 metadata:
+  [… omitted: the labels and annotations, described below]
   name: db
 spec:
   instances: 1
@@ -111,8 +113,8 @@ artifact it renders — which Aggregate it came from, which component, which
 Recipe, which boundary — elided here to keep the request itself in view.
 
 Four of those five `spec` entries trace straight back to something authored:
-`instances` to the Release's `server_instances`, `version` to its
-`engine_version`, `secretName` to its `credentials_secret`, and the `mycnf`
+`instances` to the Release's `server_instances`, `version` to the Component's
+`engine_version` default, `secretName` to the Release's `credentials_secret`, and the `mycnf`
 block to the developer's `charset` and `collation`. The fifth, `router.instances`,
 is discussed below.
 
@@ -145,9 +147,11 @@ example varies, which is why the line sits in the diff above without changing.
 
 ```yaml
 # dist/stack/helm/mysql-operator/deployment.yaml
+[… omitted: the Deployment's metadata, selector and pod template up to the containers]
       containers:
         - name: controller
           image: container-registry.oracle.com/mysql/community-operator:26.7.0-2.3.0
+          [… omitted: the controller's readiness probe]
 ```
 
 **Neither Release names an image.** The reference comes from the Component's own
@@ -168,14 +172,11 @@ whether the controller is installed. It asks instead. Leave
 `control_plane_present` unset and the build stops:
 
 ```text
+[… omitted: the helper's report, and the pull's lines, which carry the same halt]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
-  caused by: Recipe "mysql-innodb-cluster" instance "db" assertion
-  "mysql_operator_prerequisite": ... error calling fail: assertion failed: the
-  MySQL Operator control plane must be installed in the target cluster before
-  this realization emits its InnoDBCluster custom resource; once the control
-  plane is present, affirm the prerequisite by setting
-  infra.control_plane_present to true in the Release
+  caused by: Recipe "mysql-innodb-cluster" instance "db" assertion "mysql_operator_prerequisite": assertion "Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite": template: Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite:1:48: executing "Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite" at <fail "the MySQL Operator control plane must be installed in the target cluster before this realization emits its InnoDBCluster custom resource; once the control plane is present, affirm the prerequisite by setting infra.control_plane_present to true in the Release">: error calling fail: assertion failed: the MySQL Operator control plane must be installed in the target cluster before this realization emits its InnoDBCluster custom resource; once the control plane is present, affirm the prerequisite by setting infra.control_plane_present to true in the Release
+[… omitted: the helper's closing line, reporting aggrega's exit status, 1]
 ```
 
 Nothing is written. A custom resource nobody is reconciling is not a smaller

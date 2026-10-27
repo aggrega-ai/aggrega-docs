@@ -45,12 +45,13 @@ materialized at build time.
   output is byte-identical across runs of the same input.
 - **A reproducible image.** The Recipe pins the server image to a resolvable
   release tag (`quay.io/openbao/openbao:2.5.5`), so the rendered workload
-  references an immutable version.
+  references a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed:
 
 ```sh
 aggrega pull  --release release.yaml
@@ -77,4 +78,4 @@ objects:
 
 There are no `CustomResourceDefinition`s — OpenBao is a self-contained server,
 not a controller that extends the cluster API. The server image is pinned to its
-release tag, so the workload references an immutable image.
+release tag, so the workload references a pinned image tag.

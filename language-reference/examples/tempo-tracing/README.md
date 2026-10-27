@@ -41,15 +41,16 @@ dashboards server reads them back over the query API.
   receiver host and port through the `uses` topology, so a trace producer wires
   to it and pushes spans there.
 - **Reproducible images.** The Recipe pins the Tempo server image tag from
-  `infra.engine_version` so the rendered workload references an immutable version.
+  `infra.engine_version` so the rendered workload references a pinned version.
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`. The synthesized target needs no external
@@ -69,4 +70,4 @@ The build emits the Tempo server as four Kubernetes objects:
   same ports.
 
 The Tempo image tag is pinned from `infra.engine_version`, so the workload
-references an immutable image.
+references a pinned image tag.

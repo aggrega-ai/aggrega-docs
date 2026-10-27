@@ -73,15 +73,16 @@ credentials materialized as Kubernetes Secrets).
 
 ## Build
 
-The workspace catalog supplies the standard-library entities, so no explicit
-catalog flag is needed:
+This workspace carries no `.aggrega-config.yaml`, so the standard-library
+entities resolve from the hub registry, `hub.aggrega.ai`, and no catalog flag is
+needed; `--auto-pull` writes the lockfile a fresh clone lacks during the build:
 
 ```sh
 # Local development (Docker Compose)
-aggrega build --release release-compose-auth.yaml
+aggrega build --release release-compose-auth.yaml --auto-pull
 
 # Kubernetes (synthesized helm Recipe)
-aggrega build --release release-helm-synth-auth.yaml
+aggrega build --release release-helm-synth-auth.yaml --auto-pull
 ```
 
 Rendered artifacts land under `dist/`.
@@ -90,10 +91,11 @@ Building `aggregate.yaml`, which attaches no key, halts on either target before
 anything renders:
 
 ```sh
-aggrega build --release release-helm-synth.yaml
+aggrega build --release release-helm-synth.yaml --auto-pull
 ```
 
 ```text
+[… omitted: the pull's lines, which report the same halt, and a lint notice]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: Recipe "s3-object-store" instance "store" assertion "key_slots_filled": assertion "Recipe/s3-object-store/store/key_slots_filled": template: Recipe/s3-object-store/store/key_slots_filled:1:138: executing "Recipe/s3-object-store/store/key_slots_filled" at <fail (printf "the %s slot is empty, and SeaweedFS takes the access_key_id and secret_access_key pair as the account its S3 API authenticates every request by, so there is no default for either: attach a referenceable credential, such as core/referenced-secret, to %s" $slot $slot)>: error calling fail: assertion failed: the access_key_id slot is empty, and SeaweedFS takes the access_key_id and secret_access_key pair as the account its S3 API authenticates every request by, so there is no default for either: attach a referenceable credential, such as core/referenced-secret, to access_key_id
@@ -158,7 +160,7 @@ the key under the attachment's `key`.
 ## Run it (Compose)
 
 ```sh
-aggrega build --release release-compose-auth.yaml
+aggrega build --release release-compose-auth.yaml --auto-pull
 export S3_ACCESS_KEY_ID=<an access key identifier of your choosing>
 export S3_SECRET_ACCESS_KEY=<a secret key of your choosing>
 docker compose -f dist/app/compose/docker-compose.yaml up -d

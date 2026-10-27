@@ -25,12 +25,13 @@ developer values:
 ## Building
 
 ```bash
-./build-release.sh bare      # release-bare.yaml
-./build-release.sh config    # release-config.yaml
+./build-release.sh bare -- --auto-pull      # release-bare.yaml
+./build-release.sh config -- --auto-pull    # release-config.yaml
 ```
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
-so no `--catalog` flag is needed. The bare release writes three files under
+so no `--catalog` flag is needed, and `--auto-pull` writes the lockfile a fresh
+clone lacks during the build. The bare release writes three files under
 `dist/helm/helm/`; the configured release writes those three plus two more under
 `dist/helm/helm/db/`.
 
@@ -106,6 +107,7 @@ containers:
       - postgres
       - -c
       - config_file=/etc/postgresql/postgresql.conf
+    [… omitted: the container's port, environment and resources]
     volumeMounts:
       - name: data
         mountPath: /var/lib/postgresql/data
@@ -113,6 +115,7 @@ containers:
         mountPath: /docker-entrypoint-initdb.d
       - name: pgconf
         mountPath: /etc/postgresql
+    [… omitted: the liveness and readiness probes]
 volumes:
   - name: initdb
     configMap:
