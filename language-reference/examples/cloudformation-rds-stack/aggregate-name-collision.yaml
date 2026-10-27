@@ -10,9 +10,10 @@ metadata:
     The same database as the working example, with the alarm attached twice
     instead of once. This build is expected to fail: it is here to show what the
     provider does when two contributors reach one name in the assembled stack.
-    An attachment names its resources from its own FeatureRecipe, so two
-    attachments of one Feature reach one name — and renaming the component they
-    are attached to does not change either of them.
+    Each alarm's resource name carries its attachment name, so the two resources
+    stay apart; each alarm's output is named for the host component and the
+    entry it publishes, so both outputs reach one name — and renaming the
+    component changes that name for both alike, so they still collide.
 spec:
   components:
     payments-db:
@@ -23,9 +24,9 @@ spec:
         collation: utf8mb4_general_ci
       features:
         # Two attachments of one Feature, under two different attachment names.
-        # The attachment names differ, so the two are distinct attachments — but
-        # the resource each one emits is named by the FeatureRecipe from the host
-        # component, which is the same component for both.
+        # The attachment names differ, so the two are distinct attachments with
+        # distinct resources — but the output each one publishes is named for the
+        # host component and the entry, which are the same for both.
         storage-headroom:
           type: example/storage-alarm
           values:

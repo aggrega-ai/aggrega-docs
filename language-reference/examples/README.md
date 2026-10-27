@@ -253,8 +253,8 @@ cross-boundary networking across providers.
   platform. Boundary-scope FeatureRecipes (a shared-config ConfigMap rendered
   once per boundary), parameter hoisting (a typed value fulfilled per
   environment), the credential subsystem, and cross-boundary references resolving
-  through Service DNS. Consumes the standard catalog; keeps only `app/adminer` and
-  the `app/db-binding` wiring local.
+  through Service DNS. Consumes the standard catalog; keeps only its sourced
+  `mariadb-bitnami` Recipe local.
 - **[cloudformation-rds-stack](cloudformation-rds-stack/)** — a managed database
   and the application that reads it, assembled into AWS CloudFormation stack
   templates, with **two attachments that bring resources of their own**: a
@@ -274,13 +274,13 @@ cross-boundary networking across providers.
   Amazon ECS service on Fargate; one CloudFormation stack; and two. The server
   receives the database's address in each target's own form — a module output
   reference, an `Fn::GetAtt`, an `Fn::ImportValue` of an export — and the
-  Aggregate is the same file for all three. RDS keeps the master password in
+  Aggregate is the same file for all three. RDS keeps the administrator password in
   AWS Secrets Manager, so no build writes one. Needs the standard-library
   catalog checked out beside it.
 - **[cross-boundary-networking](cross-boundary-networking/)** — one developer
   intent (an Adminer UI reaching a database across a boundary seam) deployed
   **two ways**: the Docker Compose variant uses the standard-library
-  `core/compose-bridge` FeatureRecipe to generate a gateway across the network
+  `core/compose-bridge` Feature to generate a gateway across the network
   seam; the Kubernetes (Helm) variant places each boundary in its own namespace
   via the `aggrega.ai/namespace` annotation and crosses by native cross-namespace
   DNS — no bridge. Teaches that the compose-bridge is what Kubernetes namespaces +

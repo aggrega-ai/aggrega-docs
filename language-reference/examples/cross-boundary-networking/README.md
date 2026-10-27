@@ -14,8 +14,8 @@ contrast is the lesson**:
 
 - **Local (Docker Compose):** each boundary is its own compose network, and a
   service in one cannot reach a service in the other by name. The standard-library
-  **`core/compose-bridge`** FeatureRecipe generates an `aggrega-gw` gateway to
-  cross that seam.
+  **`core/compose-bridge`** Feature's compose FeatureRecipe generates an
+  `aggrega-gw` gateway to cross that seam.
 - **Kubernetes (Helm):** each boundary is its own **namespace**, and a pod in
   one reaches a Service in another by **native cross-namespace DNS**
   (`db-default.backend`) — **no bridge**. The database publishes a bare service
@@ -30,7 +30,7 @@ Kubernetes **namespace** placement in the other.
 
 ## The shared developer intent
 
-[`aggregate.yaml`](aggregate.yaml) is identical for both variants:
+`aggregate.yaml` is identical for both variants:
 
 ```yaml
 components:
@@ -56,6 +56,7 @@ under helm, with no change to developer intent.
 ## Variant A — local (Docker Compose): the bridge
 
 ```bash
+aggrega pull --release release-compose.yaml --catalog catalog-compose --catalog ../../../../aggrega-hub/aggrega-catalog
 aggrega build --release release-compose.yaml --catalog catalog-compose --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
@@ -103,6 +104,7 @@ out of the box); a real deployment uses the credential subsystem.
 ## Variant B — Kubernetes (Helm): namespaces + cross-namespace DNS
 
 ```bash
+aggrega pull --release release-helm.yaml --catalog catalog-helm --catalog ../../../../aggrega-hub/aggrega-catalog
 aggrega build --release release-helm.yaml --catalog catalog-helm --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
@@ -178,8 +180,10 @@ cross-reference is possible. A reference minted in one provider's vocabulary mea
 nothing to the other, and the compiler does not translate between them: it pipes
 strings, it does not infer meaning or rewrite one provider's reference into
 another's form. So the producer's deterministic pointer crosses the seam
-unchanged, the compiler emits a **warning** naming both endpoints, both provider
-names, and the socket, and the build completes on that pointer. The compiler
+unchanged; where either of the two providers wires native cross-references of
+its own, as CloudFormation does, the compiler emits a **warning** naming both
+endpoints, both provider names, and the socket; and the build completes on that
+pointer. The compiler
 trusts the author and does not halt: a deterministic pointer the author supplied
 may well be resolvable across the seam — a stable DNS name or an infrastructure
 interpolation string — and only the author knows the target topology.
@@ -200,18 +204,19 @@ cross-boundary-networking/
 ├── catalog-compose/          # local adminer compose recipe (the component + the rest from standard)
 ├── release-helm.yaml         # Variant B: two namespace boundaries, no bridge
 ├── manifest-helm.yaml
-└── catalog-helm/             # local adminer/db helm recipes (the components + the rest from standard)
+└── catalog-helm/             # local adminer helm recipe (the components + the rest from standard)
 ```
 
 This example **consumes the standard library**. Each variant builds with a
 repeatable `--catalog`: its own local directory first, then the standard catalog
 (`--catalog catalog-<variant> --catalog ../../../../aggrega-hub/aggrega-catalog`),
 so the first-win search stack resolves local entities before the shared ones.
-`core/datastore/postgres`, the shared `core/devtool/adminer` UI component, the compose
-`core/compose-bridge` and helm `core/k8s-dns-resolver` FeatureRecipes, and the
-`compose`/`helm` providers come from the standard catalog. What stays local is the
-example-specific teaching content: the per-target Adminer recipes and the helm `db` recipe —
-whose `provides.host` is now a **bare, self-contained** service name. The consumer
+`core/datastore/postgres`, the shared `core/devtool/adminer` UI component, the
+`core/compose-bridge` and `core/k8s-dns-resolver` Features with their compose and helm
+FeatureRecipes, and the `compose`/`helm` providers come from the standard catalog. What
+stays local is the example-specific teaching content: the per-target Adminer recipes. The
+helm `db` recipe is the standard library's `helm/postgres`, whose `provides.host` is now a
+**bare, self-contained** service name. The consumer
 qualifies it with the target namespace caller-side via the standard-library
 `core/k8s-dns-resolver` routing feature, so the recipe no longer hardcodes a boundary
 namespace.

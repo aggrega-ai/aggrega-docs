@@ -119,6 +119,7 @@ the Recipe's own pin records:
 It prints, with `<workspace>` standing for this example's folder:
 
 ```
+[… omitted: the helper's report of which aggrega binary it used]
 # example : aws-rds-and-ecs-service
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-terraform.yaml --auto-pull
@@ -135,6 +136,7 @@ Once the lockfile exists, the plain command builds against it:
 ```
 
 ```
+[… omitted: the helper's report of which aggrega binary it used]
 # example : aws-rds-and-ecs-service
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-terraform.yaml
@@ -243,6 +245,7 @@ Success! The configuration is valid.
 ```
 
 ```
+[… omitted: the helper's report of which aggrega binary it used]
 # example : aws-rds-and-ecs-service
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-one-stack.yaml
@@ -296,6 +299,7 @@ task definition reads an attribute of `Db`, it creates the instance first. See
 ```
 
 ```
+[… omitted: the helper's report of which aggrega binary it used]
 # example : aws-rds-and-ecs-service
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-two-stacks.yaml
@@ -412,7 +416,7 @@ each stack. The database's `Properties` in the one-stack template:
       },
 ```
 
-RDS generates the master password when it creates the instance and keeps it in
+RDS generates the administrator password when it creates the instance and keeps it in
 AWS Secrets Manager. No build input carries a password, so none of the three
 builds writes one into any file. The server receives the user's name and not
 its password; reading the password from Secrets Manager is left to the code

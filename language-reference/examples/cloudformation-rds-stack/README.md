@@ -8,10 +8,11 @@ example:
 # CloudFormation stack with attachments
 
 A managed database and the application that reads it, authored once as developer
-intent and assembled into AWS CloudFormation stack templates. **The database
-carries two attachments that bring resources of their own**, so this example
-shows where an attachment's resources land in the assembled stack and how they
-are named alongside the component's.
+intent and assembled into AWS CloudFormation stack templates. **Two attachments
+bring resources of their own** — an alarm on the database and a shared-settings
+parameter on the boundary — so this example shows where an attachment's
+resources land in the assembled stack and how they are named alongside the
+component's.
 
 The same developer intent is built three ways: as one stack, as two stacks with
 a reference crossing between them, and — deliberately — as a build that halts.
@@ -38,7 +39,7 @@ Output blocks on this page are copied from a real run, per
   standalone clone resolves from the hub registry instead.
 
 Every release binds the database's `root_password` slot on its entry for
-`payments-db`, with `core/generated-secret`. RDS owns the master password on
+`payments-db`, with `core/generated-secret`. RDS owns the administrator password on
 this target, and the database Recipe the Manifest picks carries the directive
 that says so; that makes the binding an operator decision, written in the
 Release, and the Aggregate says nothing about it.
@@ -50,15 +51,17 @@ as it stands rather than against a private snapshot of it.
 ## Build
 
 This example ships three releases, so name the one you want. One release builds
-per run.
+per run. Each release's first build needs its lockfile, which the pull writes:
 
 ```bash
+aggrega pull --release release-one-stack.yaml
 ./build-release.sh one-stack
 ```
 
-It prints, with `<workspace>` standing for this example's folder:
+The build prints, with `<workspace>` standing for this example's folder:
 
 ```
+[… omitted: the helper's report of which aggrega binary it used]
 # example : cloudformation-rds-stack
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-one-stack.yaml
@@ -268,6 +271,7 @@ are authored.
 ## Splitting the same intent across two stacks
 
 ```bash
+aggrega pull --release release-two-stacks.yaml
 ./build-release.sh two-stacks
 ```
 
@@ -335,6 +339,7 @@ For how the export name is built, and when the consumer reads through
 ## The build that halts
 
 ```bash
+aggrega pull --release release-negative-name-collision.yaml
 ./build-release.sh negative-name-collision
 ```
 
@@ -345,6 +350,7 @@ there. Their **outputs** do: each publishes `alarm-id`, an output is named for t
 host component and the entry, and the host is the same component for both.
 
 ```
+[… omitted: the pull's lines, which report the same collision while writing the lockfile, and the helper's report of which aggrega binary it used]
 # example : cloudformation-rds-stack
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-negative-name-collision.yaml

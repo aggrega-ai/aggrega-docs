@@ -48,8 +48,11 @@ It builds against the catalog directories listed under `catalog_dirs` in
 sibling hub checkout that supplies the Component, features, and remaining
 recipes. The same file declares `hub.aggrega.ai` as the default registry, so a
 standalone consumer without that checkout resolves the shared entities from the
-hub. Either way the build command needs no `--catalog` flag:
+hub. Either way neither command needs a `--catalog` flag. The pull fetches the
+Bitnami chart the sourced Recipe names and pins it, with every entity, in
+`release.lock`; the build reads that lockfile:
 
 ```bash
+aggrega pull --release release.yaml
 aggrega build --release release.yaml
 ```
