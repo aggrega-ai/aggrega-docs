@@ -142,7 +142,7 @@ A few common misconceptions worth heading off:
 
 - **Not a way to rename the files inside a bundle.** The filenames belong to the bundle. A consumer chooses the directory they land in — that is what the consumption key does — but not what any one of them is called: a consumer that needs a different filename either uses a bundle that declares it or authors the file inline.
 
-- **Not a place for workload, mapping, or schema content.** A Workload document belongs in a WorkloadLibrary, a template fragment meant to be spliced into a surrounding mapping belongs in a MappingLibrary, and schema definitions belong in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
+- **Not a place for workload, mapping, or schema content.** A Workload document belongs in a WorkloadLibrary, a Recipe's values document belongs in a MappingLibrary, and schema definitions belong in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
 
 - **Not the mechanism for cross-cutting resources.** Auxiliary resources that apply across many components regardless of which Recipe realizes them — a backup sidecar attached to every datastore — belong on FeatureRecipe resource generation, which attaches by Feature rather than by Recipe. See [entities/featurerecipe.md](featurerecipe.md). An ArtifactLibrary factors out files that several Recipes each emit on their own behalf.
 

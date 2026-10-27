@@ -6,7 +6,7 @@ A SchemaLibrary is a catalog entity that holds reusable JSON Schema 2020-12 defi
 
 Platform architects author SchemaLibraries to centralize schema shapes that recur across the catalog. A library is not a deployable building block; it is a definitions namespace. Component / Feature authors reference library entries by their canonical `$ref` URI, typed once and validated everywhere the reference resolves.
 
-The split between "library" and "consumer" is intentional. Components encode deployable shape (containers, services, probes, secrets). Features encode behavioral attachments. SchemaLibraries encode only schema content — the structural rules a value must satisfy. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared schema definitions never encounter the library entity.
+The split between "library" and "consumer" is intentional. Components declare the contract an instance fills (its values, infra and provides, its sockets, its credential slots). Features encode behavioral attachments. SchemaLibraries encode only schema content — the structural rules a value must satisfy. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared schema definitions never encounter the library entity.
 
 ## Entity Envelope
 
@@ -94,22 +94,23 @@ Component / Feature authors reference a library entry by its **identity** — th
 # Inside a Component schema:
 spec:
   schema:
-    healthCheck:
-      $ref: "WebPrimitives#/schemas/URL"
+    values:
+      healthCheck:
+        $ref: "WebPrimitives#/schemas/URL"
 ```
 
 The library name resolves against the resolved catalog; the `#/schemas/<name>` fragment selects the entry. A reference carries no registry host; an author may assert an optional minimum-version floor as `<Library>:<version>#/schemas/<name>` (the version separator is `:`, matching recipe/feature mappings and the lockfile pin), but the resolved version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. A reference that carries a registry host — an `oci://<host>/…` form — is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time; relocating a registry is a resolver-configuration change, not a source change.
 
 ## Forbidden JSON Schema Keywords
 
-The `$dynamicAnchor` and `$dynamicRef` JSON Schema 2020-12 keywords are forbidden by default in SchemaLibrary entries. The SchemaLibrary parser scans both schema entries and template bodies at workspace-load time; the publishing-linter applies a redundant guard at publish time; the instantiation engine re-scans the resolved body after parameter substitution, so a template that smuggles forbidden keywords via parameter values still fails. The three scans together close the static-introduction route (literal `$dynamicAnchor` in a schema entry or template body), the parametric-introduction route (a `$args:` value containing `$dynamicRef`), and the bypass-via-out-of-band-tooling route (publish-time guard catches anything that skipped the parser).
+The `$dynamicAnchor` and `$dynamicRef` JSON Schema 2020-12 keywords are forbidden in SchemaLibrary entries. The SchemaLibrary parser scans both schema entries and template bodies at workspace-load time; the publishing-linter applies a redundant guard at publish time; the instantiation engine re-scans the resolved body after parameter substitution, so a template that smuggles forbidden keywords via parameter values still fails. The three scans together close the static-introduction route (literal `$dynamicAnchor` in a schema entry or template body), the parametric-introduction route (a `$args:` value containing `$dynamicRef`), and the bypass-via-out-of-band-tooling route (publish-time guard catches anything that skipped the parser).
 
 When the rejection fires, the error cites the offending keyword and the file path. Authors see the error at-author-time rather than at first instantiation; template bodies are not exempted from the load-time scan.
 
-Dynamic-reference semantics couple to runtime evaluation in ways that break the compiler's compile-time determinism contract. Authors who genuinely need dynamic-reference behavior either restructure the schema to use static `$ref` resolution or seek architect review for an opt-out specific to their case.
+Dynamic-reference semantics couple to runtime evaluation in ways that break the compiler's compile-time determinism contract. Authors who need dynamic-reference behavior restructure the schema to use static `$ref` resolution; the check has no opt-out.
 
 ## Tier Placement
 
 SchemaLibrary is Tier 3 in the entity-tier documentation model — opt-in for catalogs that need cross-Component schema reuse. Catalogs without repeated schema content ship without any SchemaLibrary entity; the tier marking signals "advanced; skip if not needed" for documentation navigation, not capability. The compiler treats SchemaLibrary uniformly with the other catalog entity kinds: same envelope validation at workspace load, same JSON Schema 2020-12 pipeline for per-entry content, same OCI publishing pipeline at release time.
 
-Within Tier 3, the `$templates:` parametric-helpers mechanic is itself opt-in. Libraries with substantial repeated structure (a Probe template parameterized over port + path; a CORS template parameterized over allowed-origins; a TLS template parameterized over cert + key paths) benefit from `$templates:` reuse; libraries with diverse one-off entries skip the templates block entirely and author each entry inline under `spec.schemas`.
+Within Tier 3, the `spec.templates` parametric-helpers mechanic is itself opt-in. Libraries with substantial repeated structure (a Probe template parameterized over port + path; a CORS template parameterized over allowed-origins; a TLS template parameterized over cert + key paths) benefit from `templates` reuse; libraries with diverse one-off entries skip the templates block entirely and author each entry inline under `spec.schemas`.

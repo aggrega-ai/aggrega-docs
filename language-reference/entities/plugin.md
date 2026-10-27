@@ -1,6 +1,6 @@
 # Plugin
 
-A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; dependency resolution pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler does not interpret the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
+A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; dependency resolution pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler does not interpret the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
 
 This page covers the `Plugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../plugins/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../plugins/plugin-contract.md).
 
@@ -32,7 +32,7 @@ spec:
   runtime:
     maxMemoryPages: 256
     timeoutMs: 5000
-    # hostFunctions is stamped by publish from the .wasm — do not author it.
+    # hostFunctions is recorded by `aggrega plugin sync` from the .wasm — do not author it.
   exports:
     - name: fetch
       operates: emit
@@ -42,7 +42,7 @@ spec:
 
 ## `metadata`
 
-Standard catalog metadata. `name`, `version`, and `pluginType` are required; `version` is a strict Semantic Version (e.g. `1.2.0`). The optional fields — `description`, `maintainers`, `license`, `repository`, `home`, `keywords`, `deprecated` — follow the same shape every catalog entity carries. A published version is immutable: re-publishing an existing version is rejected at the publish gate.
+Standard catalog metadata. `name`, `version`, and `pluginType` are required; `version` is a strict Semantic Version (e.g. `1.2.0`). The optional fields — `description`, `maintainers`, `license`, `repository`, `home`, `keywords` — follow the same shape every catalog entity carries, and `metadata` accepts no other key. A published version is immutable: re-publishing an existing version is rejected at the publish gate.
 
 `metadata.name` is bare — it carries no socket prefix. The plugin's addressable coordinate `plugin/<pluginType>/<name>` is derived from `metadata.pluginType` and the bare `metadata.name`; it is not authored into the name.
 
@@ -98,9 +98,9 @@ The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structur
 
 ### `spec.provider.wellKnownAnnotations`
 
-An ordered array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that this provider reads, together with the behavior applied when each is absent. Each entry carries a `key` (the provider-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), and an optional `defaultBehavior` (what the provider does when the annotation is absent). `key` and `purpose` are required; entries preserve author order.
+An ordered array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that this provider reads, together with the behavior applied when each is absent. Each entry carries a `key` (the provider-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), an optional `defaultBehavior` (what the provider does when the annotation is absent), and an optional `scope` listing where the provider reads the key — `sourced`, `synthesized` or `artifactsStandalone`, the Recipe input kinds, or `boundary` for a key read once per boundary. `key` and `purpose` are required; entries preserve author order.
 
-The field is documentation-of-contract: it describes which platform directives the provider reads, for catalog readers and the `aggrega inspect` surface. The compiler does not consume it to gate, branch, or reject a build — it never cross-checks the annotations a build actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
+The field is documentation-of-contract: it describes which platform directives the provider reads, for catalog readers and the `aggrega inspect` surface. The compiler reads it in one way only: an entry whose `scope` names an input kind the block's own `contract.inputKinds` does not claim contradicts that claim, and the Plugin is refused, naming the key and the scope. It never cross-checks the annotations a build actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
 
 ```yaml
 metadata:
@@ -287,7 +287,7 @@ metadata:
   pluginType: cli
 spec:
   abiVersion: v1alpha1
-  # commands is recorded by publish from the plugin's describe() — do not author it.
+  # commands is recorded by `aggrega plugin sync` from the plugin's describe() — do not author it.
   commands:
     - name: greet
       description: Print a friendly greeting

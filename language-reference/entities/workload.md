@@ -4,7 +4,7 @@ The architectural role of the Workload kind — why it exists, how it composes w
 
 ## Authoring location
 
-Workload content is authored inline or from file, inside a Recipe or a FeatureRecipe (see [FeatureRecipe](featurerecipe.md)). A Recipe declares exactly one `workload:` per node; a FeatureRecipe likewise declares at most one of its own:
+Workload content is authored inline or from file, inside a Recipe or a FeatureRecipe (see [FeatureRecipe](featurerecipe.md)). A Recipe declares at most one `workload:`; a FeatureRecipe likewise declares at most one of its own:
 
 ```yaml
 # Inline (block scalar)
@@ -24,9 +24,9 @@ spec:
     $import: ./workload.yaml
 ```
 
-Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. Per the unified file-import vocabulary, `$import:` accepts a single source — see [../vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
+Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. A third form imports a Workload shared across Recipes from a [WorkloadLibrary](workloadlibrary.md) entry, by its bare-name identity: `$import: <Library>#/workloads/<entry>`. Per the unified file-import vocabulary, `$import:` accepts a single source — see [../vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
 
-Workload YAML is not authored as a standalone catalog entity. There is no `catalog/workload/` directory; the Workload grammar exists only as embedded content inside a Recipe. The apiVersion and kind declarations inside the YAML (`apiVersion: aggrega.ai/v1alpha1`, `kind: Workload`) identify the embedded content for schema validation; they do not make the Workload independently addressable.
+Workload YAML is not authored as a standalone catalog entity. There is no `catalog/workload/` directory; the Workload grammar exists only as content a Recipe or FeatureRecipe consumes — written inline, in a file beside it, or in a WorkloadLibrary entry. The apiVersion and kind declarations inside the YAML (`apiVersion: aggrega.ai/v1alpha1`, `kind: Workload`) identify the embedded content for schema validation; they do not make the Workload independently addressable.
 
 ## Template evaluation
 
@@ -36,7 +36,7 @@ Workload content is Go-templated against the full pillar context before parsing.
 replicas: {{ optional .infra `replicas` 1 }}
 ```
 
-...the compiler evaluates that template during the Workload sub-pass of rendering, resolves `.infra.replicas` against the node's `infra` payload, and parses the resulting YAML as a Workload document. Template evaluation happens after the base Recipe's `valuesMapping` has resolved, so Workload authors can reference previously-computed state via `.locals` the Recipe declared.
+...the compiler evaluates that template during the Workload sub-pass of rendering, resolves `.infra.replicas` against the node's `infra` payload, and parses the resulting YAML as a Workload document. The Recipe's `locals` resolve before the Workload is evaluated, so a Workload template reads them, already resolved, under `.locals`.
 
 Pillar access inside Workload templates:
 
@@ -58,23 +58,26 @@ The full Workload schema is in [../../architecture/16-recipe-input-composition.m
 
 ### `form`
 
-`form` declares the workload's abstract controller shape — the kind of runtime lifecycle it has, independent of any target platform. It is a single string, one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, and defaults to `stateless` when omitted:
+`form` declares the workload's abstract controller shape — the kind of runtime lifecycle it has, independent of any target platform. It is a single string, one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, `reference`, and defaults to `stateless` when omitted:
 
 - `stateless` — interchangeable, horizontally-scaled replicas with no per-replica identity (the common long-running service).
 - `stateful` — replicas with stable per-replica identity and per-replica storage. A `persistentTemplate` volume is a companion of this form.
 - `daemon` — one instance per eligible host.
 - `scheduled` — recurring, time-triggered runs.
 - `task` — a single run to completion.
+- `reference` — no containers of its own: the component stands for an external endpoint, given as `endpoint` (a host or URL, piped through as written) and an optional `port`. The helm provider emits it as a Service of type `ExternalName`; the compose provider emits nothing for it.
 
-The form carries no platform-native resource kinds itself. Each target provider maps the form to its own native shape:
+The form carries no platform-native resource kinds itself. Each target provider that synthesizes a Workload maps the form to its own native shape:
 
-| `form` | Kubernetes (helm) | Compose | CloudFormation | Terraform |
-| --- | --- | --- | --- | --- |
-| `stateless` | Deployment | service (no persistent volume) | ECS Service | `aws_ecs_service` |
-| `stateful` | StatefulSet | service + named volume | ECS Service + EBS/RDS | `aws_ecs_service` + volume |
-| `daemon` | DaemonSet | (n/a → loud unsupported) | ECS daemon scheduling | ECS daemon scheduling |
-| `scheduled` | CronJob | (n/a) | EventBridge Scheduler | `aws_cloudwatch_event_rule` |
-| `task` | Job | one-shot container | ECS RunTask / Lambda | ECS task / Lambda invoke |
+| `form` | Kubernetes (helm) | Compose |
+| --- | --- | --- |
+| `stateless` | Deployment | service (no persistent volume) |
+| `stateful` | StatefulSet | service + named volume |
+| `daemon` | DaemonSet | halts the build |
+| `scheduled` | CronJob | halts the build |
+| `task` | Job | halts the build |
+
+The terraform and cloudformation providers render sourced and artifacts-only Recipes and synthesize no Workload: a Recipe declaring `workload:` bound to either halts, naming the input kinds the provider supports.
 
 When a target provider has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose provider halts on `daemon`, `scheduled`, and `task`. The helm provider emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
 
@@ -83,7 +86,7 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Workload
 form: stateful
 containers:
-  db: { image: "postgres:16" }
+  db: { image: "postgres:16", ports: { db: 5432 } }
 volumes:
   data:
     persistentTemplate:
@@ -149,7 +152,7 @@ replicas: {{ optional .infra `replicas` 1 }}
 
 `name` is optional on an `initContainers` entry. An entry that omits it is named `init-<index>`, where the index is the entry's position in the list, counting from `0`. Because the name identifies the container in rendered output and in any diagnostic that names it, an entry worth referring to is worth naming explicitly.
 
-Author-order preservation is a load-bearing contract of the Workload model — the compiler emits `containers`, `volumes`, `services`, container `ports`, container `variables`, and container `attachments` each in the order the Recipe author declared them, regardless of whether two compilations of the same input produce different Go map iteration orderings under the hood. Recipe authors can rely on the ordered shape: when the deployment-time semantic depends on the order (sidecar startup, `$(VAR)` chaining in environment variables, `volumeMounts` referencing previously-declared volumes), authoring order IS the runtime order within each of those collections. A container's environment combines two of them, and across the two the synthesizing providers write the attachment-read entries (`attachments` delivered `as: env`) first and the plain `variables` after them, each kind in authored order — so on a Kubernetes target a variable may reference, as `$(NAME)`, any attachment-read variable of its container and any variable declared before it (see the [helm provider's environment order](../providers/helm.md#provider-specific-quirks)). A container that gives one name both as a `variables` entry and as an `attachments` entry delivered `as: env` halts the build, because that order alone would decide which of the two values the process sees (see [A container gives one environment variable two values](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values)).
+Author-order preservation is a load-bearing contract of the Workload model — the compiler emits `containers`, `volumes`, `services`, container `ports`, container `variables`, and container `attachments` each in the order the Recipe author declared them, on every build. Recipe authors can rely on the ordered shape: when what happens at run time depends on the order (sidecar startup, `$(VAR)` chaining in environment variables, `volumeMounts` referencing previously-declared volumes), authoring order IS the runtime order within each of those collections. A container's environment combines two of them, and across the two the synthesizing providers write the attachment-read entries (`attachments` delivered `as: env`) first and the plain `variables` after them, each kind in authored order — so on a Kubernetes target a variable may reference, as `$(NAME)`, any attachment-read variable of its container and any variable declared before it (see the [helm provider's environment order](../providers/helm.md#provider-specific-quirks)). A container that gives one name both as a `variables` entry and as an `attachments` entry delivered `as: env` halts the build, because that order alone would decide which of the two values the process sees (see [A container gives one environment variable two values](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values)).
 
 Container field authoring follows these conventions:
 
@@ -250,9 +253,9 @@ On helm a `Loopback` entry stops the build rather than rendering as something it
 
 **A Workload a Feature attachment's FeatureRecipe synthesizes** is named after the attachment's own composed identity instead of a release name: the value its resources carry in their `aggrega.ai/component-id` label, composed from the host component and the key written under `features:` behind the opening `cfr--`. A release name derived there would be the host's, and would name the attachment's resources after the host's own. So a FeatureRecipe whose Workload declares `services.scrape`, for an attachment `stats` on node `front-door`, produces a Deployment `cfr--front-door--stats` and a Service `cfr--front-door--stats-scrape`. That first segment never equals the `instance_id`, and no key in the FeatureRecipe's template context carries it: on an attachment's templates `{{ .context.rendered_name }}` and `{{ .context.instance_id }}` both name the host (`front-door`) and `{{ .attachment_name }}` is the key alone (`stats`), so `{{ .context.rendered_name }}-scrape` names the host's own `scrape` Service where the host declares one, and never the attachment's — see [`../templates/rendered-resource-names.md`](../templates/rendered-resource-names.md#on-a-feature-attachments-own-templates). The output file sits behind the prefix every file an attachment emits carries — the host's name and the attachment's, each followed by `--` — so that Service is written to `front-door--stats--cfr--front-door--stats-scrape-service.yaml`.
 
-The convention has two practical consequences. First, **cross-node collisions are impossible by construction** — the name prefix differentiates services across every node in the boundary, because two distinct identities always reach two distinct release names, an attachment's identity carries both its host and its key, and no component name may open with `cfr--` (the build halts on one that does — see [Component identity cannot be stamped on what it emits](../errors/fatal-halts.md#component-identity-cannot-be-stamped-on-what-it-emits)), so two Workloads each declaring `services.http` produce distinct K8s Service resources with non-overlapping names. The one residue is an attachment identity too long for the target: it is shortened around a digest of the whole, and two shortened identities can in principle meet — see [Provenance labels emitted on rendered output](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output). Second, **within-Workload duplicate keys are prevented by schema** — the `services:` map is an OrderedMap, so the YAML parser deduplicates duplicate keys at parse time (the second declaration silently overwrites the first); authors should not rely on declaration order to disambiguate same-named services on the same Workload.
+The convention has two practical consequences. First, **cross-node collisions are impossible by construction** — the name prefix differentiates services across every node in the boundary, because two distinct identities always reach two distinct release names, an attachment's identity carries both its host and its key, and no component name may open with `cfr--` (the build halts on one that does — see [Component identity cannot be stamped on what it emits](../errors/fatal-halts.md#component-identity-cannot-be-stamped-on-what-it-emits)), so two Workloads each declaring `services.http` produce distinct K8s Service resources with non-overlapping names. The one residue is an attachment identity too long for the target: it is shortened around a digest of the whole, and two shortened identities can in principle meet — see [Provenance labels emitted on rendered output](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output). Second, **a Workload cannot declare one service key twice** — a `services:` map naming a key twice is refused when the Workload's YAML is parsed, and the build halts naming the key and its line.
 
-The collision risk that does remain is at the **K8s name-length boundary**: Kubernetes Service names cap at 63 characters, and the synthesized `<release name>-<service-key>` form can exceed that limit when both segments are long. The Aggrega compiler does not enforce the limit; the Service applies cleanly at render time but Kubernetes rejects the apply. Authors with deeply nested instance IDs (e.g., `data-layer.regional.eu-west.primary`) plus long service keys should keep the combined length under 63 characters. The same holds for an attachment's Workload: a composed identity too long for the target is shortened, but the service key appended to it is not, so an attachment Service carrying a long key can still exceed 63 characters and build without a halt.
+The collision risk that does remain is at the **K8s name-length boundary**: Kubernetes Service names cap at 63 characters, and the synthesized `<release name>-<service-key>` form can exceed that limit when both segments are long. The Aggrega compiler does not enforce the limit; the build emits the Service, and Kubernetes rejects it when it is applied. Authors with deeply nested instance IDs (e.g., `data-layer.regional.eu-west.primary`) plus long service keys should keep the combined length under 63 characters. The same holds for an attachment's Workload: a composed identity too long for the target is shortened, but the service key appended to it is not, so an attachment Service carrying a long key can still exceed 63 characters and build without a halt.
 
 **Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges. Those entries are emitted ungated — they carry `service_started` semantics regardless of whether the target declares a healthcheck — so a service whose dependencies all come from `uses` edges emits the short-form list (`depends_on: [<target>]`). Gating an edge-derived entry on the target's health is not implemented. The long form is emitted where an entry does carry a condition, which is how a wait on an init container is expressed; see [providers/compose.md](../providers/compose.md#init-containers).
 
@@ -303,7 +306,7 @@ A container port that no service publishes reaches no part of a compose file at 
 
 ## Health probes — intent shape
 
-The Workload declares probes in an abstract intent shape. Each provider translates the intent into its native probe shape at synthesis time.
+Each container declares its probes under its own `health:` key (`containers.<name>.health`), in an abstract intent shape; the Workload has no top-level `health`. Each provider translates the intent into its native probe shape at synthesis time.
 
 ```yaml
 health:
@@ -337,7 +340,7 @@ A wrapped probe is translated **silently**: nothing in the emitted `docker-compo
 
 ## K8s-shape pass-through fields — `scheduling`, `serviceAccount`, `podSecurityContext`
 
-The Workload schema accepts three optional top-level fields that exist primarily to thread Kubernetes-native primitives through the helm provider while preserving Aggrega's structural shape. The compose provider translates the subset that has a Compose analogue and ignores the rest with an emitted warning. Aggrega validates the outer shape but does not police the inner content (per "Validation surface" above) — the K8s-native inner values pass through verbatim to the helm-rendered pod spec.
+The Workload schema accepts three optional top-level fields that exist primarily to thread Kubernetes-native primitives through the helm provider while preserving Aggrega's structural shape. The compose provider translates the subset that has a Compose analogue and ignores the rest with an emitted warning. Aggrega validates the outer shape but does not police the inner content (see [Validation surface](#validation-surface) below) — the K8s-native inner values pass through verbatim to the helm-rendered pod spec.
 
 ### `scheduling`
 
@@ -371,7 +374,7 @@ containers:
   app: { image: "..." }
 ```
 
-**Provider translation.** The helm provider passes each sub-field verbatim into the rendered pod spec. The compose provider has no equivalent for `affinity`, `tolerations`, or `topologySpreadConstraints`; it emits a warning naming the dropped field. `nodeSelector` translates to a Compose `deploy.placement.constraints` block when the target compose version supports it; older targets drop the field with a warning.
+**Provider translation.** The helm provider passes each sub-field verbatim into the rendered pod spec. The compose provider translates none of the four: it omits the whole `scheduling` block, and a warning names it.
 
 ### `serviceAccount`
 
@@ -412,7 +415,7 @@ containers:
 
 **Field semantics.** All four fields are integers (numeric UIDs/GIDs, not strings); `runAsUser` and `runAsGroup` set the container processes' effective UID/GID; `fsGroup` sets the group ownership for volumes mounted into the pod; `supplementalGroups` adds additional GIDs to each container's process group.
 
-**Provider translation.** The helm provider passes the block verbatim into the rendered pod spec. The compose provider has no equivalent for `fsGroup` or `supplementalGroups`; `runAsUser`/`runAsGroup` translate to the Compose `user: "1000:3000"` form. Per-container `securityContext:` (a separate K8s pod-spec field on individual containers) is not part of the Workload schema today; that lives on the helm provider's per-container overlay path and is an authoring concern at the chart level, not at the Workload-grammar level.
+**Provider translation.** The helm provider passes the block verbatim into the rendered pod spec. The compose provider has no equivalent for `fsGroup` or `supplementalGroups`; `runAsUser`/`runAsGroup` translate to the Compose `user: "1000:3000"` form. Each container and init container also carries a `securityContext` of its own — `runAsUser`, `runAsGroup`, `runAsNonRoot`, `readOnlyRootFilesystem`, `allowPrivilegeEscalation`, and `capabilities.add` / `capabilities.drop`. The helm provider emits it on the container; the compose provider emits `readOnlyRootFilesystem` as `read_only` and `capabilities.drop` as `cap_drop`, and omits `runAsNonRoot` with a warning.
 
 ## GPU and device workloads
 
@@ -614,7 +617,7 @@ On helm, `MODEL_KEY_GPT` renders as a `secretKeyRef` naming the Secret the `gpt`
 
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
-- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`), the closed-set service `type` (one of `ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
+- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: multiple oneOf branches matched (branches [0, 1] of 3): expected exactly one`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, `reference`), the closed-set service `type` (one of `ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
 - **Cross-reference validation.** Workload attachment references are checked against the Component's `featuresSchema` — and, for an entry naming a connection, against the slots that connection's socket declares — (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
@@ -656,6 +659,13 @@ containers:
       metrics: {{ optional .values `metrics_port` 9090 }}
     variables:
       LOG_LEVEL: "{{ optional .values `log_level` "info" }}"
+    health:
+      ready:
+        http: /healthz
+        timeoutSeconds: 5
+      live:
+        http: /healthz
+        timeoutSeconds: 5
 services:
   http:
     type: ClusterIP
@@ -665,20 +675,13 @@ services:
     type: ClusterIP
     ports:
       metrics: {{ optional .values `metrics_port` 9090 }}
-health:
-  ready:
-    http: /healthz
-    timeoutSeconds: 5
-  live:
-    http: /healthz
-    timeoutSeconds: 5
 ```
 
 The metrics service is typically annotated for Prometheus discovery via a Feature attachment at the Release surface (e.g., `feature.aggrega.ai/prometheus-scrape: "true"`); the Workload itself stays clean of provider-specific scrape annotations.
 
 ### Pattern 2 — Batch job
 
-A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target provider's task shape (a Kubernetes Job on the helm provider, a one-shot container on compose). The helm provider pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
+A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target provider's task shape (a Kubernetes Job on the helm provider; the compose provider has no task shape and halts on `form: task`). The helm provider pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -694,7 +697,7 @@ containers:
     variables:
       JOB_ID: "{{ .context.instance_id }}-{{ .metadata.release_name }}"
     volumeMounts:
-      config:
+      - name: config
         path: /etc/config
 volumes:
   config:

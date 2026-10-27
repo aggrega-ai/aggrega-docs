@@ -6,7 +6,7 @@ A WorkloadLibrary is a catalog entity that holds reusable Workload template frag
 
 Platform architects author WorkloadLibraries to centralise the Workload content that recurs across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference library entries by an `$import:` directive, written once and consumed wherever the import resolves.
 
-The split between "library" and "consumer" is intentional. Recipes encode build instructions (source, valuesMapping, infraMapping, artifacts). FeatureRecipes encode behavioural attachments. WorkloadLibraries encode only Workload content — the deployment shape the provider synthesizes into provider-native manifests. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared workload content never encounter the library entity.
+The split between "library" and "consumer" is intentional. Recipes encode build instructions (source, valuesMapping, artifacts). FeatureRecipes encode behavioural attachments. WorkloadLibraries encode only Workload content — the workload shape the provider synthesizes into provider-native manifests. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared workload content never encounter the library entity.
 
 ## Entity Envelope
 
@@ -40,7 +40,7 @@ spec:
 
 ## Authoring Workload Entries
 
-Each entry is a Go template fragment authored as a YAML string. The entry's rendered output is a **whole Workload document** — it carries its own `apiVersion: aggrega.ai/v1alpha1` and `kind: Workload` — because a Recipe's `workload:` field takes one complete Workload, not a fragment spliced into a surrounding one. This is the shape difference to keep in mind when moving between library kinds: a MappingLibrary entry contributes a piece of a larger mapping, while a WorkloadLibrary entry stands alone as the entire workload.
+Each entry is a Go template fragment authored as a YAML string. The entry's rendered output is a **whole Workload document** — it carries its own `apiVersion: aggrega.ai/v1alpha1` and `kind: Workload` — because a Recipe's `workload:` field takes one complete Workload, not a fragment spliced into a surrounding one, and the import replaces the whole field. A MappingLibrary entry is whole in the same way: importing one replaces the Recipe's entire `valuesMapping:`.
 
 The body is opaque to the entity envelope. The compiler stores the string verbatim at WorkloadLibrary load and does not parse the template there; the template parser runs at consumption time, when a Recipe or FeatureRecipe imports the entry. Storing the fragment verbatim preserves authoring fidelity for re-emission, and it means a template error surfaces where the entry is consumed and its pillar context is known, rather than at the library.
 
@@ -117,7 +117,7 @@ An unknown library name, and an entry name absent from a library that does resol
 
 WorkloadLibrary is Tier 3 in the entity-tier documentation model — opt-in for catalogs that need cross-Recipe workload reuse. Catalogs whose Recipes carry their own distinct workload content ship without any WorkloadLibrary entity; the tier marking signals "advanced; skip if not needed" for documentation navigation, not capability. The compiler treats WorkloadLibrary uniformly with the other catalog entity kinds: same envelope validation at workspace load, same OCI publishing pipeline at release time, same lockfile pinning by name, version, and content digest.
 
-The library kind completes a set at the catalog level — SchemaLibrary holds reusable schema definitions, MappingLibrary holds reusable mapping fragments, WorkloadLibrary holds reusable workload content. Each is independently opt-in; catalogs ship the ones they need and none of the others.
+The library kind is one of a set at the catalog level — SchemaLibrary holds reusable schema definitions, MappingLibrary holds reusable mapping fragments, ArtifactLibrary holds reusable artifact bundles, WorkloadLibrary holds reusable workload content. Each is independently opt-in; catalogs ship the ones they need and none of the others.
 
 ## What WorkloadLibrary Is Not
 
@@ -125,7 +125,7 @@ A few common misconceptions worth heading off:
 
 - **Not a substitute for inline `workload:`.** Most Recipes carry workload content specific enough to belong inline, where the author reads it alongside the rest of the Recipe. A WorkloadLibrary helps when the SAME workload shape appears across many Recipes; for one-off content, inline authoring is the right choice.
 
-- **Not a place for partial fragments.** An entry renders to a complete Workload document. Content meant to be spliced into a surrounding mapping belongs in a MappingLibrary; schema definitions belong in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
+- **Not a place for partial fragments.** An entry renders to a complete Workload document. A Recipe's values document belongs in a MappingLibrary, a set of auxiliary files in an ArtifactLibrary, and schema definitions in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
 
 - **Not an independently deployable entity.** A library entry is Workload content, and Workload content is never addressable on its own — it exists as the input a Recipe or FeatureRecipe consumes. Publishing a WorkloadLibrary makes its entries importable; it does not make them deployable.
 
