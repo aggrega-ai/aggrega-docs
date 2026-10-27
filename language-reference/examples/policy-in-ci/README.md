@@ -23,8 +23,8 @@ one instead, is described in
 
 | Script | Refuses |
 | --- | --- |
-| [`require-pinned-image.sh`](require-pinned-image.sh) | a container image with no tag, or the tag `latest` |
-| [`deny-inline-credential-material.sh`](deny-inline-credential-material.sh) | a rendered `Secret` carrying credential material as a literal |
+| `require-pinned-image.sh` | a container image with no tag, or the tag `latest` |
+| `deny-inline-credential-material.sh` | a rendered `Secret` carrying credential material as a literal |
 
 Each takes the output directory as its only argument and walks whatever is
 there. Neither knows anything about where the build ran, which target it was, or
@@ -114,7 +114,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Compile the deployment
-        run: ./build-release.sh
+        run: ./build-release.sh -- --auto-pull
         working-directory: ai-agent-and-model-router
       - name: Images are pinned
         run: ./require-pinned-image.sh ../ai-agent-and-model-router/dist
@@ -129,7 +129,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Compile the deployment
-        run: aggrega build --release release.yaml
+        run: aggrega build --release release.yaml --auto-pull
         working-directory: external-secrets-operator
       - name: No inline credential material
         run: ./deny-inline-credential-material.sh ../external-secrets-operator/dist
@@ -181,7 +181,7 @@ Over a deployment that fills three credential slots by value:
 
 ```console
 $ ./deny-inline-credential-material.sh ../ai-agent-and-model-router/dist
-REFUSED: helm/agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml (document 1): Secret/agent-model-api-key carries inline material under api-key
+REFUSED: helm/agent--router-zumodel-zdcredential--agent-secret-agent-router-model-credential.yaml (document 1): Secret/agent-router-model.credential carries inline material under api-key
 REFUSED: helm/router--api-zukey--router-secret-router-api-key.yaml (document 1): Secret/router-api-key carries inline material under master-key
 REFUSED: helm/router--provider-zukey--router-secret-router-provider-key.yaml (document 1): Secret/router-provider-key carries inline material under provider-key
 REFUSED: 3 finding(s) across 12 document(s), 3 of them credential-carrying

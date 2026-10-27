@@ -313,8 +313,7 @@ cross-boundary networking across providers.
   compiler reads no meaning into them. The rule is written once each for the
   Rego and CEL engines in the CLI and for OPA, a deliberate near-duplicate, and a
   script beside it builds all nine combinations and checks every outcome. Needs
-  the standard-library catalog checked out beside it and a hub registry
-  credential.
+  the standard-library catalog checked out beside it.
 - **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
   a Recipe's `omits:` field leaving out a document a fetched chart renders. The
   Envoy AI Gateway controller is built in both of its webhook-certificate modes

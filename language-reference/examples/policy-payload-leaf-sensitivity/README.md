@@ -54,7 +54,7 @@ the whole hinge of this example:
 
 ```yaml
 values:
-  origin: { type: string, required: true, sensitive: true }
+  origin: { type: string, sensitive: true }
   key:    { type: string, required: true, default: "value" }
 ```
 
@@ -151,7 +151,7 @@ the role that receives the build graph:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.8.5
+    - uri: governance/rego:0.8.6
       role: ir-verdict
       with:
         sources:
@@ -183,9 +183,11 @@ diagnostic a policy refusal carries — see
 [the diagnostic reference](../../errors/sentinels.md):
 
 ```text
+[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: db: the root_password credential carries declared-sensitive material in its payload at values.origin
   caused by: policy violation
+[… omitted: the helper's line reporting the exit status]
 ```
 
 Read the leaf path. The attachment's payload carries two values; the refusal
@@ -290,9 +292,11 @@ Rebuild both releases — and put `policy.rego` back afterwards, since the rest 
 this page assumes it. **Both are now refused**, with the same sentence:
 
 ```text
+[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: db: the root_password credential handles sensitive material
   caused by: policy violation
+[… omitted: the helper's line reporting the exit status]
 ```
 
 That is not the rule misfiring — it is the rule being asked a coarser question
@@ -340,28 +344,25 @@ catalog: the Component, the two Features, the Recipe, the two FeatureRecipes and
 the governance Plugin entity — read from the checkout listed under
 `catalog_dirs`, or from the hub registry for a standalone clone.
 
-`uri: governance/rego:0.8.5` names that Plugin entity. It is an identity: a
+`uri: governance/rego:0.8.6` names that Plugin entity. It is an identity: a
 `<pluginType>/<name>` coordinate plus a version, and both halves are part of the
 form. **The version is the one the plugin is published at** — the catalog
-carries the entity under `plugin/governance/rego/0.8.5/`, and the hub publishes
-it as `oci://hub.aggrega.ai/plugin/governance/rego:0.8.5`. The version takes part
+carries the entity under `plugin/governance/rego/0.8.6/`, and the hub publishes
+it as `oci://hub.aggrega.ai/plugin/governance/rego:0.8.6`. The version takes part
 in resolution: an attachment naming a version that no catalog directory and no
 registry carries stops the build.
 
 Built beside the catalog checkout, the example resolves every entity from that
-checkout and needs no credential. A standalone clone reads them all from
-`hub.aggrega.ai`, which refuses anonymous reads: store a credential once with
-`aggrega login hub.aggrega.ai`, or the build stops at the first entity it reads
-with `basic credential not found`.
+checkout. A standalone clone reads them all from `hub.aggrega.ai`.
 
 A standalone clone also needs a compiler of the release that published the
-plugin version the attachment names — for `governance/rego:0.8.5`, the `0.8.5`
+plugin version the attachment names — for `governance/rego:0.8.6`, the `0.8.6`
 release of `aggrega`. The Rego engine is compiled into the CLI binary, and its
 version is the compiler release that ships it. A compiler of any other release,
 or one built from source between releases, carries a different build of the
 engine: a standalone build with it halts with `E0135` (`oci: content digest
 mismatch`), because the module that compiler carries does not match the digest
-the hub publishes for `governance/rego:0.8.5`. That halt is the plugin's digest
+the hub publishes for `governance/rego:0.8.6`. That halt is the plugin's digest
 check working, not a fault in the example.
 
 ## Files

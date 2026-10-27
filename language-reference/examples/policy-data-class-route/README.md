@@ -91,27 +91,11 @@ than per Release.
   the claims assistant and the three engines' Plugin entities, and then
   `../../../../aggrega-hub/aggrega-catalog`, which supplies everything else. That
   path is relative to this directory.
-- **A credential for the hub registry.** The data-masking realization writes its
+- **The hub registry.** The data-masking realization writes its
   guardrails through one plugin that ships in neither the compiler nor the
   catalog, the gateway configuration step
   `pipeline-step/litellm-gateway-config`, and the build pulls it from the
-  registry `default_registry` names, `hub.aggrega.ai`. The registry refuses
-  anonymous reads. Log in once:
-
-  ```bash
-  aggrega login hub.aggrega.ai
-  ```
-
-  Without a stored credential, the build stops while it pulls:
-
-  ```text
-  [E0138]
-    auto-pull: resolving the plugins the Release depends on: resolve: resolve wasm plugin entity "pipeline-step/litellm-gateway-config:1.0.0": catalog: tier-3 pull pipeline-step/litellm-gateway-config:1.0.0: resolve "1.0.0": HEAD "https://hub.aggrega.ai/v2/plugin/pipeline-step/litellm-gateway-config/manifests/1.0.0": basic credential not found: oci: authentication required or failed
-    remediation: aggrega login hub.aggrega.ai (or docker login hub.aggrega.ai) before re-running aggrega pull --release <release>
-  ```
-
-  `aggrega login` and `docker login` store the credential in the same place, so
-  either answers it.
+  registry `default_registry` names, `hub.aggrega.ai`.
 
 `--auto-pull` fills each Release's lockfile during the build; lockfiles and the
 rendered output are generated, not shipped.
@@ -121,7 +105,7 @@ rendered output are generated, not shipped.
 `release-unmasked.yaml`, under each engine. The Rego engine:
 
 ```text
-[… omitted: the helper's header, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
@@ -131,7 +115,7 @@ rendered output are generated, not shipped.
 The CEL engine:
 
 ```text
-[… omitted: the helper's header, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "cel" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
@@ -141,7 +125,7 @@ The CEL engine:
 OPA:
 
 ```text
-[… omitted: the helper's header, a warning that the OPA guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: the helper's report of which aggrega binary it used, its header, a warning that the OPA guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "opa" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
@@ -170,7 +154,7 @@ sentence a second time. The lockfile is still written.
 every engine lets it build, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the helper's header, the pull's lines, a lint notice, under OPA a warning that its guest runs unverified, and the total build time]
+[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, a lint notice, under OPA a warning that its guest runs unverified, and the total build time]
 Build completed: 17 files written to <workspace>/dist
 ```
 
@@ -414,8 +398,8 @@ opa      release-masking-off-route.yaml   1     halt      OK: E0005, the expecte
 check: every build ended as expected.
 ```
 
-It needs what a single build needs: the sibling catalog and a registry
-credential. It uses the binary `./build-release.sh` resolves, so `AGGREGA_BIN`
+It needs what a single build needs: the sibling catalog and the hub
+registry. It uses the binary `./build-release.sh` resolves, so `AGGREGA_BIN`
 chooses it; arguments after `--` reach every build, so `./check.sh -- --offline`
 runs it without the network once everything it pulls is cached. It refuses to
 start while a `dist/` sits in this directory, because it compares the trees the
