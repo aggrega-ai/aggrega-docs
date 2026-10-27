@@ -734,6 +734,7 @@ Signs what is already published. A signature cannot be recalled from anyone who 
 | `rekorUrl` | string | no | The transparency log to record the signature in. |
 | `timestampUrl` | string | no | The timestamp authority to countersign with. |
 | `identityToken` | string | no | The identity token to sign with, supplied by the caller rather than obtained at a terminal. |
+| `jobs` | integer | no | How many references are signed at once. Absent signs one after another. Each reference is still signed exactly as it would be alone — when keyless, with its own certificate and its own transparency-log entry — and the answer keeps the order the references were given. Minimum: `1`. |
 
 _Additional properties are not permitted._
 

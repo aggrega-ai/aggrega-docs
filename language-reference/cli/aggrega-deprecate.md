@@ -43,9 +43,14 @@ a second apart, and each attempt is a new upload of the same bytes rather than a
 resend of the request that failed. The marker's timestamp is stamped once, before
 the first attempt, so a retried write leaves one marker and one signature, not two.
 
-Signing the marker, between the two writes, is not retried. A write still failing
-after its last attempt, or a signing that fails, stops the command and names the
-step; a marker already attached by then stays attached without its signature.
+Signing the marker, between the two writes, is not retried as a whole; inside a
+keyless signing, a request the certificate authority, the transparency log or the
+timestamp authority answers with `429 Too Many Requests` or a server error is sent
+to that service again, as
+[`aggrega sign`](aggrega-sign.md#when-a-step-fails-transiently) describes.
+A write still failing after its last attempt, or a signing that fails, stops the
+command and names the step; a marker already attached by then stays attached
+without its signature.
 With `--from`, the entries attached before the one that failed stay attached.
 
 ## A batch is signed with one credential
