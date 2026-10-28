@@ -25,7 +25,7 @@ An AI assistant that can run commands on your machine can install and set up Agg
 
 ## Language Reference
 
-[language-reference/](language-reference/README.md) — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.
+[language-reference/](language-reference/README.md) — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, plugins/, schema/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.
 
 ## About Aggrega
 
