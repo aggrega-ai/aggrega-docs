@@ -473,6 +473,26 @@ fires rather than an error, because a path that is not there is simply undefined
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version`, `labels`, and `values`: the values the node's instance declares in the Aggregate, with its templates evaluated against its parameters, absent when it declares none. A value the node's Component declares sensitive reads as `{"aggrega_withheld": "declared"}`, as it does at `ir-verdict`, and its undeclared siblings read as written. A rule reads `input.graph.nodes[id].values` to decide a label; it cannot change a value. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and the `annotations` the Release writes on the component itself, each value as written: a string, an object of subkeys, or `null` where the component opts out of an annotation it would inherit. Every key the component carries is present whatever its value, so a rule can leave alone a key someone already wrote. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
+**A Terraform resource reads at a different path in each of Terraform's two forms.**
+In the `documents` of a native `.tf` file a block nests under its type and then
+under each of its labels, and the last label holds a list of blocks, because blocks
+sharing a type and labels collect into one list in source order. A resource
+attribute therefore reads at
+`input.artifacts[_].documents[_].resource.<type>.<name>[_].<attr>` — for an RDS
+instance of any name,
+`input.artifacts[_].documents[_].resource.aws_db_instance[_][_].allocated_storage`.
+A `.tf.json` file is read as the Recipe wrote it, so its conventional object form,
+where the name holds the block itself, reads at `resource.<type>.<name>.<attr>`, and
+a policy meant for both forms reads both paths. That holds for both policy engines
+inside the compiler. A Rego rule written for the other form never fires, because the
+path it names is undefined; a CEL expression that indexes or selects into the other
+form stops the build with an evaluation fault naming its policy file. The reference
+Rego render adapter, described under
+[Render-stage policy adapters](#render-stage-policy-adapters) below, parses a native
+`.tf` file itself and reads a single block as an object, so a Terraform path is
+edited, not copied, when a policy moves between that adapter and an engine inside
+the compiler.
+
 Every role additionally carries `input.sources` — the attachment's own files, each
 with its base-name `path` and its `content`. A policy runs only as one of those files,
 so wherever a rule reads the list it holds at least that file.
