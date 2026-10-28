@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: policy-label-transform
+  version: "1.0.0"
+  description: >
+    A shop's database, its session cache and a database administration UI,
+    assembled from standard-library catalog entities. Nothing here mentions a
+    support tier, an owner or a backup schedule: the governance attachments in
+    .aggrega-config.yaml derive those labels during the build.
+spec:
+  components:
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+      features:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            origin: dev-root-pw-change-me
+    cache:
+      type: core/datastore/redis
+    web:
+      type: core/devtool/adminer
+      uses:
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host

@@ -610,6 +610,10 @@ decision naming a node the build does not have, or dropping a label the node doe
 carry, is refused by the build with a message naming the instruction — never silently
 ignored.
 
+[`../examples/policy-label-transform/`](../examples/policy-label-transform/README.md)
+attaches such a policy beside the two built-in tagging plugins, and a verdict over the
+graph that reads the labels they write.
+
 ### Injecting annotations
 
 At the annotation-injecting role a policy collects one decision per annotation under
@@ -1002,6 +1006,9 @@ naming the instruction — never silently ignored.
 values for the same label on the same node is under-specified: resolve the value inside
 the expression — with a conditional, or with a filter that admits one branch — rather
 than emitting both decisions.
+
+[`../examples/policy-label-transform/`](../examples/policy-label-transform/README.md)
+shows the label-shaping role end to end, with its policy written for the Rego engine.
 
 ### Injecting annotations under a registered key
 

@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The workspace key marks this directory as the workspace root, so a build run
+# here reads the catalog below and writes dist/ beside this file.
+workspace:
+  catalog_dirs:
+    - ../../../../aggrega-hub/aggrega-catalog
+# Online default: a standalone consumer without the sibling catalog above
+# resolves catalog entities from the hub registry.
+default_registry: hub.aggrega.ai
+
+# Four governance attachments. The three at label-transform run in the order
+# listed, each reading the labels the ones before it wrote; the one at
+# ir-verdict then judges the graph they leave. A relative path under
+# with.sources resolves against the directory of this file.
+plugins:
+  governance:
+    # A Rego policy deriving an environment label and a support tier from the
+    # Release's environment.
+    - uri: governance/rego:0.8.6
+      role: label-transform
+      with:
+        sources:
+          - policies/support-tier.rego
+        settings:
+          # The categories whose components get a support tier.
+          supported_categories: [datastore, devtool]
+          # The tier each environment gives them.
+          support_tiers:
+            production: on-call
+            staging: office-hours
+    # The built-in label injector: a node whose labels include every pair under
+    # match gets every pair under set. An empty match matches every node.
+    - uri: governance/label-injector:0.8.6
+      role: label-transform
+      with:
+        settings:
+          rules:
+            - match: {}
+              set:
+                ops.example.com/owner: shop-team
+            - match:
+                component.aggrega.ai/category: datastore
+              set:
+                backup.example.com/schedule: nightly
+    # The built-in selector tagger: writes the label tag from the
+    # component-to-tag map in policies/tags.yaml, and the default below on a
+    # node whose Component the map does not list.
+    - uri: governance/selector-tagger:0.8.6
+      role: label-transform
+      with:
+        sources:
+          - policies/tags.yaml
+        settings:
+          default: untagged
+    # A Rego policy over the build graph, reading the labels the transforms
+    # wrote. A verdict role accepts or refuses; it never changes the build.
+    - uri: governance/rego:0.8.6
+      role: ir-verdict
+      with:
+        sources:
+          - policies/production-support.rego

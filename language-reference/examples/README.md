@@ -314,6 +314,17 @@ cross-boundary networking across providers.
   Rego and CEL engines in the CLI and for OPA, a deliberate near-duplicate, and a
   script beside it builds all nine combinations and checks every outcome. Needs
   the standard-library catalog checked out beside it.
+- **[policy-label-transform](policy-label-transform/)** — governance plugins
+  that shape labels rather than judge them. A Rego policy writes a support tier
+  that depends on the Release's environment, the two tagging plugins compiled
+  into the CLI add an owner, a backup schedule and a tag, and a policy over the
+  build graph halts a production build that leaves a node without a support
+  tier. Two Releases differ in their environment, and their nodes end with
+  different labels; the rendered output is the same with and without the
+  attachments. Shows what a label-shaping policy reads, what each built-in
+  writes, and why the lockfile pins a transform and not a verdict. A script
+  beside it checks every outcome. Needs the standard-library catalog checked out
+  beside it.
 - **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
   a Recipe's `omits:` field leaving out a document a fetched chart renders. The
   Envoy AI Gateway controller is built in both of its webhook-certificate modes

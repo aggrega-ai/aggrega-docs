@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: shop-production
+  # With the name above, the only difference from release-staging.yaml. The
+  # label-transform policy reads it, and the verdict halts a production build
+  # that leaves a node without a support tier.
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-label-transform
+  manifest: policy-label-transform-manifest
+  # Every component the Aggregate declares appears here; each takes its schema
+  # defaults.
+  components:
+    db: {}
+    cache: {}
+    web: {}
