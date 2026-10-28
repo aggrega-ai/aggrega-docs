@@ -405,6 +405,7 @@ Features attached for something other than a credential, such as routing, monito
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
+- [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 
@@ -422,6 +423,7 @@ components or modules placed in boundaries, and what crosses between them.
 
 governance policy that accepts or refuses a build, during the build or over its output.
 
+- [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [policy-in-ci](policy-in-ci/README.md) (`advanced`) — Two ready-to-use rule scripts that read an Aggrega build's output directory and refuse it when it breaks a rule.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
@@ -440,6 +442,7 @@ a Release that is meant to halt, and the message it halts with.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
 - [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
 - [memcached-cache](memcached-cache/README.md) (`start`) — This lean example compiles a single **Memcached** in-memory cache from one Developer-authored `Aggregate` to two realizations.
+- [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
 - [policy-org-overlay](policy-org-overlay/README.md) (`advanced`) — A team's policy, its organization's and its pipeline's run together on one build, each attached in a configuration file of its own.

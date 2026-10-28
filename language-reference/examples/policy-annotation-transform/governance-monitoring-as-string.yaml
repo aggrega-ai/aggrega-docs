@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# A planted mistake, attached through the Rego engine: a policy injecting a
+# string under the monitoring key, whose binding routes three subkeys. The
+# build halts, naming the plugin that injected the value and its role.
+#
+#   aggrega build --release release.yaml --config governance-monitoring-as-string.yaml
+plugins:
+  governance:
+    - uri: governance/rego:0.8.6
+      role: annotation-transform
+      with:
+        sources:
+          - policies/monitoring-as-string.rego

@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The control: release.yaml with every annotation the policy injects written
+# here by hand. It is built with no governance attachment, and its output is
+# the same, byte for byte, as release.yaml's with the policy attached. It keeps
+# release.yaml's name and environment; the environment reaches every rendered
+# file as a label.
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: shop-production
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: shop
+  manifest: shop-manifest
+  boundaries:
+    shop:
+      directory: shop
+      annotations:
+        aggrega.ai/namespace: shop
+      components:
+        api:
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 30s
+              port: metrics
+              path: /metrics
+            aws-role: arn:aws:iam::123456789012:role/shop-api
+        worker:
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 30s
+              port: metrics
+              path: /metrics
+            aws-role: arn:aws:iam::123456789012:role/shop-worker
+        gateway:
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 10s
+              port: metrics
+              path: /metrics
+            aws-role: arn:aws:iam::123456789012:role/shop-gateway

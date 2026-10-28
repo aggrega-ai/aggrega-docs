@@ -349,6 +349,18 @@ cross-boundary networking across providers.
   every combination on both engines and checks each outcome, a pass byte for
   byte against the build with no policy. Needs the standard-library catalog
   checked out beside it.
+- **[policy-annotation-transform](policy-annotation-transform/)** — a policy
+  that attaches Features the developer did not write, by adding annotations. A
+  policy at `annotation-transform`, written for the Rego and the CEL engine,
+  injects two annotations the Manifest binds into each component that does not
+  already carry them: an object of three subkeys under a monitoring key, and a
+  string under a role key. Each expands into a Feature attachment, a
+  ServiceMonitor and an IAM-role ServiceAccount. A control Release writing the
+  same annotations by hand renders the same files byte for byte. Shows what the
+  role's payload carries, where an injection is recorded, why the lockfile pins
+  the attachment, and the refusal naming the plugin when a string is injected
+  where the binding routes three subkeys. A script beside it checks every
+  outcome. Needs the standard-library catalog checked out beside it.
 - **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
   a Recipe's `omits:` field leaving out a document a fetched chart renders. The
   Envoy AI Gateway controller is built in both of its webhook-certificate modes

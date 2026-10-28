@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The policy, attached through the Rego engine. A build names this file with
+# --config:
+#
+#   aggrega build --release release.yaml --config governance-rego.yaml
+#
+# --config names the global configuration file for that run, in place of the
+# one this machine would otherwise read, and the workspace's own
+# .aggrega-config.yaml still layers on top of it. A relative path under
+# with.sources resolves against the directory of this file.
+#
+# governance-cel.yaml attaches the same policy through the CEL engine.
+plugins:
+  governance:
+    - uri: governance/rego:0.8.6
+      # The role that adds annotations to components before annotation
+      # expansion, so an annotation it adds under a key the Manifest binds
+      # expands into a Feature attachment.
+      role: annotation-transform
+      with:
+        sources:
+          - policies/platform-defaults.rego

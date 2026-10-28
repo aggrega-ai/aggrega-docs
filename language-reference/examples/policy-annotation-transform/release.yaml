@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: shop-production
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: shop
+  manifest: shop-manifest
+  boundaries:
+    shop:
+      directory: shop
+      annotations:
+        aggrega.ai/namespace: shop
+      components:
+        # No annotation here: the policy injects both.
+        api: {}
+        worker: {}
+        # The operator writes gateway's monitoring by hand, with a shorter
+        # interval. The policy leaves a key the component already carries alone,
+        # so it injects only aws-role here.
+        gateway:
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 10s
+              port: metrics
+              path: /metrics

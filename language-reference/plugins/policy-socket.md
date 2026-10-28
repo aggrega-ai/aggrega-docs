@@ -699,6 +699,10 @@ which a Release-side annotation may not use — the refusal names the plugin tha
 injected it and the governance role it is attached at, so the value is traced to the
 policy that decided it rather than to a line of the Release nobody wrote.
 
+[`../examples/policy-annotation-transform/`](../examples/policy-annotation-transform/README.md)
+attaches such a policy, injecting a string under one binding and an object of subkeys
+under another, and builds the same files as a Release writing those annotations by hand.
+
 ### Attaching a whole policy set as one archive
 
 A policy set is attached file by file, or as a single archive carrying its policy
@@ -1080,6 +1084,9 @@ naming the coordinate and the annotation. Where the build refuses an injected
 annotation for its routing, its subkey values or its pillar, the refusal names the
 plugin that injected it and the role it is attached at. As with labels, **reach one decision per component and annotation key**, resolving
 the value inside the expression rather than emitting two decisions for one key.
+
+[`../examples/policy-annotation-transform/`](../examples/policy-annotation-transform/README.md)
+shows the annotation-injecting role end to end, with its policy written for both engines.
 
 ### When a policy or a decision cannot be read
 

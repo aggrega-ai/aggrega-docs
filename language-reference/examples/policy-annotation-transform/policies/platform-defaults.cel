@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Cognitio S.r.l.
+
+// Gives every component the platform's monitoring and an IAM role, by injecting
+// the two annotations the Manifest binds. A component that already carries one
+// of them keeps its own value. The same policy as platform-defaults.rego.
+{
+  "annotations":
+    // The monitoring binding routes three subkeys, so its value is a map
+    // naming each.
+    input.targets
+      .filter(t, "feature.aggrega.ai/monitoring" in input.binding_keys
+                 && !("feature.aggrega.ai/monitoring" in t.annotations))
+      .map(t, {
+        "boundary_path": t.boundary_path,
+        "component_name": t.component_name,
+        "annotation_key": "feature.aggrega.ai/monitoring",
+        "annotation_value": {"interval": "30s", "port": "metrics", "path": "/metrics"},
+      })
+    // The role binding routes one subkey, so its value is a string: a role per
+    // component, named after it.
+    + input.targets
+      .filter(t, "aws-role" in input.binding_keys
+                 && !("aws-role" in t.annotations))
+      .map(t, {
+        "boundary_path": t.boundary_path,
+        "component_name": t.component_name,
+        "annotation_key": "aws-role",
+        "annotation_value": "arn:aws:iam::123456789012:role/shop-" + t.component_name,
+      }),
+}

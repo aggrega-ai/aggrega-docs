@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: shop-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping. Two annotation bindings give two annotation keys a meaning:
+    feature.aggrega.ai/monitoring expands into a core/prometheus-exporter
+    attachment, routing three subkeys into its infra, and aws-role expands into
+    a core/aws-irsa attachment, routing its one value into infra.role_arn.
+spec:
+  mappings:
+    components:
+      type:
+        example/compute/service:1.0.0: helm/service:1.0.0
+    features:
+      type:
+        core/prometheus-exporter: helm/prometheus-exporter:1.0.0
+        core/aws-irsa: helm/aws-irsa:1.0.0
+      annotations:
+        # Several subkeys: the annotation's value is an object naming each.
+        feature.aggrega.ai/monitoring:
+          feature: core/prometheus-exporter
+          maps:
+            infra:
+              - interval
+              - port
+              - path
+        # One subkey: the annotation's value is a string. The key carries no dot
+        # or slash because the attachment takes the key as its name, and the
+        # ServiceAccount the FeatureRecipe emits is named after the attachment.
+        aws-role:
+          feature: core/aws-irsa
+          maps:
+            infra:
+              - role_arn
