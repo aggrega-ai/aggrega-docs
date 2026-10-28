@@ -195,6 +195,6 @@ For the broader format-string inventory (Go template syntax, Sprig functions, JS
 Comment characters depend on the surrounding language:
 
 * **YAML context** (the default authoring surface for every Aggrega entity): use `#`
-* **Go template context** (inside Recipe `valuesMapping:` block scalars, FeatureRecipe `injectMapping:` block scalars, SchemaLibrary `$templates:` bodies, MappingLibrary mapping entries, assertion-block `assertions:` bodies): use `{{/* ... */}}` for template comments that the template engine recognises and strips at render time, or `#` for YAML-level comments outside the template body.
+* **Go template context** (inside Recipe `valuesMapping:` block scalars, FeatureRecipe `injectMapping:` block scalars, MappingLibrary mapping entries, assertion-block `assertions:` bodies): use `{{/* ... */}}` for template comments that the template engine recognises and strips at render time, or `#` for YAML-level comments outside the template body.
 
 Compact-form schemas under `schema:`, `usesSchema:`, `featuresSchema:`, and `parameters:` are YAML throughout; the per-field `description:` annotation is the documented surface for inline field documentation (`port: { type: integer, description: "TCP listen port" }`).

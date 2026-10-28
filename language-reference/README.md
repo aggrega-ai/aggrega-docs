@@ -20,7 +20,7 @@ Each progression is opt-in. A solo founder is never forced to look at Tier 3; an
 
 The five-entity Tier 1 surface carries an entry cost — Aggregate + Component + Recipe + Manifest + Release is more ceremony than "drop a YAML file, get a deployment." The cost is the price of the four-domain authoring separation (Developer Intent / Platform Catalog / Platform Ops / Routing) that makes Aggrega different from raw Helm or raw Terraform. A future scaffolding tool (`aggrega quick`) will generate a one-file workspace bundling all five entities for tutorial and "trying-it-on-a-Saturday" use cases; the underlying language is unchanged. Until that tool ships, the Tier 1 tutorials walk through the five-entity setup explicitly.
 
-Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers in SchemaLibrary) is documented as an even-more-advanced sub-feature. Most Tier 3 adopters do not reach for `$templates:` initially; the threshold is "when your library has 6+ schemas sharing parameterised structure."
+Within Tier 3, the `spec.templates` / `$instantiate:` mechanic (parametric helpers in SchemaLibrary) is documented as an even-more-advanced sub-feature. Most Tier 3 adopters do not reach for `spec.templates` initially; the threshold is "when your library has 6+ schemas sharing parameterised structure."
 
 ## Reading order
 

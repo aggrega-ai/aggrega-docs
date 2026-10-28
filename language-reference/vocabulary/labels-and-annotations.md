@@ -114,7 +114,7 @@ One such key on a Component's `metadata.annotations` is read by the standard pub
 
 ## Provenance labels emitted on rendered output
 
-Beyond the inbound annotations the providers consume, Aggrega also **emits** provenance labels onto every Kubernetes manifest the helm provider renders and every emitted compose service. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them. A helm-chart sub-chart's own templates are copied as their author wrote them, so they carry whatever labels that author wrote.
+Beyond the inbound annotations the providers consume, Aggrega also **emits** provenance labels onto every Kubernetes manifest the helm provider renders and every emitted compose service, and the helm-chart provider writes the same set, as the helm provider writes it, on each artifact it loads with `$import:`. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them. A helm-chart sub-chart's own templates are copied as their author wrote them, so they carry whatever labels that author wrote.
 
 The set the helm and compose providers emit — on helm, three of the keys are written as annotations rather than labels, as the table says:
 
@@ -126,7 +126,7 @@ The set the helm and compose providers emit — on helm, three of the keys are w
 | `aggrega.ai/boundary-path` | Boundary path the component was routed into | When the boundary path is non-empty; an annotation on helm |
 | `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | When set |
 | `aggrega.ai/compiler-version` | Compiler version stamped at build time | When set |
-| `aggrega.ai/provider` | The provider that rendered the resource (`helm`, `compose`) | Yes |
+| `aggrega.ai/provider` | The provider that rendered the resource (`helm`, `helm-chart`, `compose`) | Yes |
 | `aggrega.ai/provider-version` | The version of that provider | Yes |
 | `aggrega.ai/environment` | Release `metadata.environment` | Yes — every Release declares it |
 | `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer, the order a GitOps tool applies resources in | When non-zero; an annotation on helm, beside `argocd.argoproj.io/sync-wave` |

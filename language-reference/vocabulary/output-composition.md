@@ -24,7 +24,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Authoring surface.** Recipe declares `workload:` carrying a Workload document. The field accepts inline content (block scalar) or `$import:` (file path).
 
-**Pipeline placement.** Base rendering, after the Recipe's valuesMapping resolves (the Workload body is itself a Go-templated string evaluated with full TemplateContext).
+**Pipeline placement.** Base rendering, after the Recipe's valuesMapping resolves (the Workload body is itself a Go-templated string evaluated with the full template context).
 
 **Output shape.** Provider-specific:
 
