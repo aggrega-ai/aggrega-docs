@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The house rule, attached through the CEL engine. A build names this file with
+# --config:
+#
+#   aggrega build --release release-helm.yaml --config governance-cel.yaml
+#
+# --config names the global configuration file for that run, in place of the
+# one this machine would otherwise read, and the workspace's own
+# .aggrega-config.yaml still layers on top of it. That file declares the catalog
+# directories and no governance attachment, so the attachment below is the one
+# that applies. A relative path under with.sources resolves against the
+# directory of this file.
+#
+# governance-rego.yaml attaches the same rule through the Rego engine.
+plugins:
+  governance:
+    - uri: governance/cel:0.8.6
+      # The verdict role that reads the files the build writes, after every
+      # target has rendered them. It returns an accept-or-reject and never a
+      # change, so the rule can stop a build and cannot rewrite its output.
+      role: render-verdict
+      with:
+        sources:
+          - policies/house-rule.cel

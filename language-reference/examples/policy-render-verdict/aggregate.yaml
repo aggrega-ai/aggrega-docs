@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: policy-render-verdict
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database and a report job that reads it, assembled from
+    standard-library catalog entities. It is the same document for every build
+    in this example: the Release and the Manifest it names decide whether the
+    two become Kubernetes objects, Docker Compose services, a Terraform root
+    configuration or a CloudFormation stack. Nothing here names a policy.
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+
+    # The job runs to completion and is started by hand: core/manual-trigger
+    # deploys it without starting it. A task with no schedule is held this way
+    # on every target here — Docker Compose has no scheduler, and Amazon ECS
+    # starts no unscheduled task of its own accord.
+    report:
+      type: core/compute/task
+      features:
+        on_demand:
+          type: core/manual-trigger
+      uses:
+        database:
+          db:
+            target: db
+            inject:
+              env:
+                - in: DB_HOST
+                  from: host
+                - in: DB_PORT
+                  from: port
+                - in: DB_NAME
+                  from: database

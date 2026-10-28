@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-cloudformation-unencrypted
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict
+  manifest: manifest-cloudformation
+  # The placeholders are the ones release-cloudformation.yaml explains.
+  components:
+    db:
+      infra:
+        # The planted violation: no StorageEncrypted, so the instance's storage
+        # is not encrypted. The house rule refuses it.
+        overrides:
+          DBSubnetGroupName: example-private-db-subnets
+          VPCSecurityGroups:
+            - sg-0123456789abcdef0
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          Cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          Subnets:
+            - subnet-0123456789abcdef0
+          SecurityGroups:
+            - sg-0fedcba9876543210
+          ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-terraform-unencrypted
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict
+  manifest: manifest-terraform
+  # The placeholders are the ones release-terraform.yaml explains.
+  components:
+    db:
+      infra:
+        # The planted violation: no kms_key_id, so the instance's storage is
+        # not encrypted. The house rule refuses it.
+        overrides:
+          subnet_group: example-private-db-subnets
+          vpc_security_groups:
+            - sg-0123456789abcdef0
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          subnet_ids:
+            - subnet-0123456789abcdef0
+          vpc_security_groups:
+            - sg-0fedcba9876543210
+          execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution

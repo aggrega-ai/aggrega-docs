@@ -112,6 +112,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
 - [keycloak-stack](keycloak-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed identity server** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [kong-stack](kong-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-init-config](postgres-init-config/README.md) (`start`) — `core/datastore/postgres` exposes two optional developer values that shape the database's first start: `init_scripts` (SQL or shell run once on initialization) and `custom_config` (a `postgresql.conf` fragment).
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 
@@ -296,6 +297,7 @@ one Aggregate built for two or more targets, or realized two or more ways.
 - [mysql-standalone](mysql-standalone/README.md) (`start`) — This lean example compiles a single **MySQL** database from Developer-authored `Aggregate`s to two targets.
 - [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
 - [nginx-gateway](nginx-gateway/README.md) (`start`) — This example compiles a small, real stack — an **NGINX** reverse-proxy gateway fronting a **web backend** — from one Developer-authored `Aggregate` to two targets.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [prometheus-scrape](prometheus-scrape/README.md) (`start`) — This example compiles a small, real stack — a **Prometheus** metrics server scraping **two Grafana dashboards servers** — from one Developer-authored `Aggregate` to two targets.
 - [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
@@ -418,6 +420,7 @@ governance policy that accepts or refuses a build, during the build or over its 
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
 - [policy-org-overlay](policy-org-overlay/README.md) (`advanced`) — A team's policy, its organization's and its pipeline's run together on one build, each attached in a configuration file of its own.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 
 ### `guardrails`
 
@@ -433,6 +436,7 @@ a Release that is meant to halt, and the message it halts with.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
 - [policy-org-overlay](policy-org-overlay/README.md) (`advanced`) — A team's policy, its organization's and its pipeline's run together on one build, each attached in a configuration file of its own.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
 
 ### `catalog-authoring`
@@ -456,6 +460,7 @@ Terraform or CloudFormation output for managed cloud services.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
 - [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.

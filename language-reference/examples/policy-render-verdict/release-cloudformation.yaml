@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-cloudformation
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict
+  manifest: manifest-cloudformation
+  # Every account-specific value below is a placeholder, as in
+  # release-terraform.yaml. The CloudFormation Recipes read their keys under
+  # the resource properties' own names.
+  components:
+    db:
+      infra:
+        overrides:
+          DBSubnetGroupName: example-private-db-subnets
+          VPCSecurityGroups:
+            - sg-0123456789abcdef0
+          # Storage encryption, which the house rule requires, and the key it
+          # uses; release-cloudformation-unencrypted.yaml leaves both out.
+          StorageEncrypted: true
+          KmsKeyId: arn:aws:kms:eu-west-1:123456789012:key/0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          Cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          Subnets:
+            - subnet-0123456789abcdef0
+          SecurityGroups:
+            - sg-0fedcba9876543210
+          ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-cloudformation
+  version: "1.0.0"
+  description: >
+    Ops mapping for AWS through CloudFormation. The database is an RDS instance
+    and the report job an Amazon ECS task definition on Fargate, both assembled
+    into one stack template.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: cloudformation/postgres-rds:1.0.0
+        core/compute/task:1.0.0: cloudformation/task-ecs:1.0.0
+    features:
+      type:
+        core/manual-trigger:1.0.0: cloudformation/manual-trigger:1.0.0

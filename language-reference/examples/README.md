@@ -336,6 +336,19 @@ cross-boundary networking across providers.
   `translation` block. A script beside it builds every combination of the three
   files and checks each outcome. Needs the standard-library catalog checked out
   beside it.
+- **[policy-render-verdict](policy-render-verdict/)** — a policy over the files a
+  build writes rather than its graph. One Aggregate, a PostgreSQL database and a
+  report job that reads it, is built for Kubernetes, Docker Compose, Terraform
+  and CloudFormation, and one house rule attached at `render-verdict` reads each
+  target's own output: a container image with no tag or the tag `latest` in the
+  Kubernetes objects and the Compose file, an unencrypted RDS instance in the
+  Terraform file and the CloudFormation template. Each target has a Release that
+  passes and one with a violation planted, which halts. Shows what the role's
+  payload carries, why a Terraform resource is read through a list, and why the
+  rule's Rego and CEL copies are written differently. A script beside it builds
+  every combination on both engines and checks each outcome, a pass byte for
+  byte against the build with no policy. Needs the standard-library catalog
+  checked out beside it.
 - **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
   a Recipe's `omits:` field leaving out a document a fetched chart renders. The
   Envoy AI Gateway controller is built in both of its webhook-certificate modes

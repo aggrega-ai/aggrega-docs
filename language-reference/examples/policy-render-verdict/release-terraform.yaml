@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-terraform
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict
+  manifest: manifest-terraform
+  # Every account-specific value below is a placeholder: 123456789012 is the
+  # account number AWS documentation uses in examples, and the subnet, security
+  # group, key, cluster and role names stand for resources the operator already
+  # runs. Replace them with your own before planning.
+  components:
+    db:
+      infra:
+        overrides:
+          subnet_group: example-private-db-subnets
+          vpc_security_groups:
+            - sg-0123456789abcdef0
+          # The key the instance's storage is encrypted with. Naming one also
+          # turns storage encryption on, which the house rule requires;
+          # release-terraform-unencrypted.yaml leaves it out.
+          kms_key_id: arn:aws:kms:eu-west-1:123456789012:key/0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          subnet_ids:
+            - subnet-0123456789abcdef0
+          vpc_security_groups:
+            - sg-0fedcba9876543210
+          execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution

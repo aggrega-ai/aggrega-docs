@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-terraform
+  version: "1.0.0"
+  description: >
+    Ops mapping for AWS through Terraform. The database is an RDS instance in a
+    body the Recipe authors itself, and the report job an Amazon ECS task
+    definition on Fargate from a module kept beside its Recipe, so nothing is
+    fetched.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: terraform/postgres-rds:1.0.0
+        core/compute/task:1.0.0: terraform/task-ecs:1.0.0
+    features:
+      type:
+        core/manual-trigger:1.0.0: terraform/manual-trigger:1.0.0

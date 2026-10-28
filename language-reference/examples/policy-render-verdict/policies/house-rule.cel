@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Cognitio S.r.l.
+//
+// A house rule over the files a build writes, in two clauses:
+//
+//   - every container image names a fixed version: a tag other than latest, or a
+//     digest. Read from each Docker Compose service, and from each container in a
+//     Kubernetes workload's pod template;
+//   - every RDS database instance stores its data encrypted. Read from each
+//     aws_db_instance block of a Terraform file in native HCL, and from each
+//     AWS::RDS::DBInstance resource of a CloudFormation template.
+//
+// Each clause reads the output shape of the targets that write it, and a file of
+// any other shape is passed over.
+//
+// This rule is written twice — this file for the CEL engine, house-rule.rego for
+// the Rego engine — and the two are a deliberate near-duplicate, each written on
+// its own from the rule above. A build on which the two engines disagree shows
+// the disagreement, so they are not to be generated one from the other.
+//
+// How this engine is made to say it:
+//
+//   - Reading a key a value does not carry is an evaluation fault here, not an
+//     empty result, so every key a file of another shape lacks is tested with
+//     has() before it is read: a Compose file has no kind, a Kubernetes object no
+//     services, and a file that could not be parsed no documents.
+//   - A decision key collects messages, not lists of them, and nothing here
+//     joins the lists one per file into one. So each clause reports one offender
+//     per file: the first container in its pod template, or, among services,
+//     instances and resources, which a file keys by name, the one whose name
+//     sorts first. A comprehension walks a map in no fixed order, so the name is
+//     what makes the choice the same on every build.
+//   - There is no way to name a sub-expression, so a test used twice is written
+//     twice, and [value].map(name, ...)[0] binds a name to a value once.
+//   - An image names no fixed version when it carries no digest and either ends
+//     in the tag latest or carries no tag at all: no ":" after its last "/".
+{
+  "deny":
+    // Docker Compose: a service whose image names no fixed version.
+    input.artifacts
+      .filter(a, has(a.documents) && a.documents.exists(d,
+        has(d.services) && d.services.exists(s,
+          has(d.services[s].image)
+          && !d.services[s].image.contains("@")
+          && (d.services[s].image.endsWith(":latest") || !d.services[s].image.matches(":[^/]+$")))))
+      .map(a, a.documents
+        .filter(d, has(d.services) && d.services.exists(s,
+          has(d.services[s].image)
+          && !d.services[s].image.contains("@")
+          && (d.services[s].image.endsWith(":latest") || !d.services[s].image.matches(":[^/]+$"))))
+        .map(d, d.services
+          .filter(s,
+            has(d.services[s].image)
+            && !d.services[s].image.contains("@")
+            && (d.services[s].image.endsWith(":latest") || !d.services[s].image.matches(":[^/]+$"))
+            && !d.services.exists(t, t < s
+              && has(d.services[t].image)
+              && !d.services[t].image.contains("@")
+              && (d.services[t].image.endsWith(":latest") || !d.services[t].image.matches(":[^/]+$"))))
+          .map(s, a.path + ": service " + s + " runs " + d.services[s].image
+                  + ", an image with no tag or the tag latest")[0])[0])
+
+    // Kubernetes: a container whose image names no fixed version, in the pod
+    // template of a workload — under spec.jobTemplate.spec for a CronJob, and
+    // under spec for the others.
+    + input.artifacts
+      .filter(a, has(a.documents) && a.documents.exists(d,
+        has(d.kind) && has(d.spec)
+        && (d.kind == "CronJob" ? has(d.spec.jobTemplate) : has(d.spec.template))
+        && [d.kind == "CronJob" ? d.spec.jobTemplate.spec.template : d.spec.template]
+          .map(t, t.spec.containers.exists(c,
+            !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$"))))[0]))
+      .map(a, a.documents
+        .filter(d, has(d.kind) && has(d.spec)
+          && (d.kind == "CronJob" ? has(d.spec.jobTemplate) : has(d.spec.template))
+          && [d.kind == "CronJob" ? d.spec.jobTemplate.spec.template : d.spec.template]
+            .map(t, t.spec.containers.exists(c,
+              !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$"))))[0])
+        .map(d, [d.kind == "CronJob" ? d.spec.jobTemplate.spec.template : d.spec.template]
+          .map(t, t.spec.containers
+            .filter(c, !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))
+            .map(c, a.path + ": container " + c.name + " runs " + c.image
+                    + ", an image with no tag or the tag latest")[0])[0])[0])
+
+    // Terraform, native HCL: an aws_db_instance block without storage_encrypted
+    // set to true. Each named block is a list of blocks. The format is hcl where
+    // the provider declared one; a file whose format is empty is told by its name.
+    + input.artifacts
+      .filter(a, (a.format == "hcl" || (a.format == "" && a.path.endsWith(".tf")))
+        && has(a.documents) && a.documents.exists(d,
+          has(d.resource) && has(d.resource.aws_db_instance)
+          && d.resource.aws_db_instance.exists(n, d.resource.aws_db_instance[n].exists(b,
+            !(has(b.storage_encrypted) && b.storage_encrypted == true)))))
+      .map(a, a.documents
+        .filter(d, has(d.resource) && has(d.resource.aws_db_instance)
+          && d.resource.aws_db_instance.exists(n, d.resource.aws_db_instance[n].exists(b,
+            !(has(b.storage_encrypted) && b.storage_encrypted == true))))
+        .map(d, d.resource.aws_db_instance
+          .filter(n,
+            d.resource.aws_db_instance[n].exists(b, !(has(b.storage_encrypted) && b.storage_encrypted == true))
+            && !d.resource.aws_db_instance.exists(m, m < n
+              && d.resource.aws_db_instance[m].exists(b, !(has(b.storage_encrypted) && b.storage_encrypted == true))))
+          .map(n, a.path + ": the RDS instance " + n + " stores its data unencrypted")[0])[0])
+
+    // CloudFormation: an AWS::RDS::DBInstance resource without StorageEncrypted
+    // set to true.
+    + input.artifacts
+      .filter(a, has(a.documents) && a.documents.exists(d,
+        has(d.Resources) && d.Resources.exists(r,
+          has(d.Resources[r].Type) && d.Resources[r].Type == "AWS::RDS::DBInstance"
+          && !(has(d.Resources[r].Properties) && has(d.Resources[r].Properties.StorageEncrypted)
+               && d.Resources[r].Properties.StorageEncrypted == true))))
+      .map(a, a.documents
+        .filter(d, has(d.Resources) && d.Resources.exists(r,
+          has(d.Resources[r].Type) && d.Resources[r].Type == "AWS::RDS::DBInstance"
+          && !(has(d.Resources[r].Properties) && has(d.Resources[r].Properties.StorageEncrypted)
+               && d.Resources[r].Properties.StorageEncrypted == true)))
+        .map(d, d.Resources
+          .filter(r,
+            has(d.Resources[r].Type) && d.Resources[r].Type == "AWS::RDS::DBInstance"
+            && !(has(d.Resources[r].Properties) && has(d.Resources[r].Properties.StorageEncrypted)
+                 && d.Resources[r].Properties.StorageEncrypted == true)
+            && !d.Resources.exists(q, q < r
+              && has(d.Resources[q].Type) && d.Resources[q].Type == "AWS::RDS::DBInstance"
+              && !(has(d.Resources[q].Properties) && has(d.Resources[q].Properties.StorageEncrypted)
+                   && d.Resources[q].Properties.StorageEncrypted == true)))
+          .map(r, a.path + ": the RDS instance " + r + " stores its data unencrypted")[0])[0]),
+}

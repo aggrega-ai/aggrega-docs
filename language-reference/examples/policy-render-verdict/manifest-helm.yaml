@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm
+  version: "1.0.0"
+  description: >
+    Ops mapping for Kubernetes through Helm. The database is the synthesized
+    PostgreSQL StatefulSet, which needs no chart repository, and the report job
+    a CronJob held suspended until someone starts a run.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: helm/postgres:1.0.0
+        core/compute/task:1.0.0: helm/task:1.0.0
+    features:
+      type:
+        core/manual-trigger:1.0.0: helm/manual-trigger:1.0.0

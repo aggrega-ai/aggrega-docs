@@ -484,8 +484,9 @@ instance of any name,
 A `.tf.json` file is read as the Recipe wrote it, so its conventional object form,
 where the name holds the block itself, reads at `resource.<type>.<name>.<attr>`, and
 a policy meant for both forms reads both paths. That holds for both policy engines
-inside the compiler. A Rego rule written for the other form never fires, because the
-path it names is undefined; a CEL expression that indexes or selects into the other
+inside the compiler. A Rego rule written for the other form finds the path it names
+undefined: a rule testing for a value there never fires, and one refusing on an absent
+value, with `not`, fires on every resource; a CEL expression that indexes or selects into the other
 form stops the build with an evaluation fault naming its policy file. The reference
 Rego render adapter, described under
 [Render-stage policy adapters](#render-stage-policy-adapters) below, parses a native
@@ -1122,9 +1123,15 @@ adapter, not a host change.
 Each render-stage adapter is an adapter in the sense above: it speaks the Aggrega
 ABI outward and absorbs a target-specific format or a foreign policy engine's
 contract inward, so the compiler stays free of any output-format or policy logic.
-The Rego engine in the compiler serves the `render-verdict` role directly; beyond
-it, two reference render-stage adapters ship as worked examples among the plugin
+The Rego and CEL engines in the compiler serve the `render-verdict` role directly; beyond
+them, two reference render-stage adapters ship as worked examples among the plugin
 development kit's Rust examples, one per common output shape.
+
+[`../examples/policy-render-verdict/`](../examples/policy-render-verdict/README.md)
+attaches one rule at `render-verdict` over the output of four targets — Kubernetes
+objects, a Docker Compose file, a Terraform root configuration and a
+CloudFormation template — written once for each engine in the compiler, and
+checks that each target's planted violation halts and its control passes.
 
 To write an adapter of your own, at this role or any other, start from the
 governance adapter skeleton each plugin development kit ships:

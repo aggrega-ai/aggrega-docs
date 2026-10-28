@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: orders-helm-unpinned
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict
+  manifest: manifest-helm
+  components:
+    db: {}
+    report:
+      infra:
+        # The planted violation: the tag latest names whichever image was
+        # pushed last, so the same build, applied twice, can run different
+        # code. The house rule refuses it.
+        image: registry.example.com/orders-report:latest
