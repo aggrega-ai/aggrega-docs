@@ -108,10 +108,9 @@ A policy at `render-verdict` reads the files the build writes at
 - `path` — the file's path under `dist/`, such as `terraform/modules/db/main.tf`;
 - `content` — the file's text, as written;
 - `format` — the format the target's provider declared for the file: `yaml` for
-  the Compose file, `json` for the CloudFormation template, `hcl` for the
-  Terraform root configuration and the report job's module files. Where nothing
-  declared one, it is the empty string, as it is for the Kubernetes files here and
-  for `terraform/modules/db/main.tf`, the database's Terraform body;
+  the Compose file, `json` for the CloudFormation template, `hcl` for every
+  Terraform file, the database's body its Recipe writes included. Where nothing
+  declared one, it is the empty string, as it is for the Kubernetes files here;
 - `documents` — the file's content parsed into structure, as a list of
   documents: one for each file here;
 - `parse_error` — present only on a file that could not be parsed, in place of
@@ -200,8 +199,9 @@ itself, so a rule written for one form does not read the other. That is why the
 clause reads `format` first: `native_hcl` takes a file whose format is `hcl`, or
 whose format is empty and whose name ends in `.tf` — a file no provider declared
 a format for is parsed by its name, so the rule tells it by its name too, rather
-than passing over it. These Recipes write no `.tf.json` file, so the rule reads
-no other form. [What each role's payload exposes](../../plugins/policy-socket.md#what-each-roles-payload-exposes)
+than passing over it. Every Terraform file built here is declared `hcl`, so no
+file here is told by its name. These Recipes write no `.tf.json` file, so the
+rule reads no other form. [What each role's payload exposes](../../plugins/policy-socket.md#what-each-roles-payload-exposes)
 sets out both forms.
 
 **CloudFormation** writes one template whose resources are keyed by logical ID
