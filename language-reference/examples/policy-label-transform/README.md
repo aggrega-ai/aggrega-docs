@@ -246,6 +246,13 @@ labels the attachments wrote, release-production.yaml:
 
 Only the Rego policy's two labels change between the Releases.
 
+Once a build has filled the lockfile, `aggrega inspect release-production.yaml
+--ir-graph` prints the same graph without building, ahead of its readable view
+of the Release, because the transforms read their files from the lockfile.
+Without the lockfile, the graph it prints carries none of the labels those files
+decide: no `ops.example.com/environment` or `ops.example.com/support-tier`, and
+`tag: untagged` on every node.
+
 ## A transform changes labels and nothing else
 
 A decision at `label-transform` names one node, one label key and its value, or
