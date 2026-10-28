@@ -13,6 +13,8 @@ metadata:
     volumeClaimTemplate for the data directory, a ClusterIP Service for
     consumers to dial, and the Headless Service that governs it. Credentials
     arrive on .context.inject.env from the attached core/secret-value Secrets.
+    It runs one server, so infra.ha.enabled and a non-zero
+    infra.ha.read_replicas halt the build naming the key.
   maintainers:
     - name: "Massimiliano Ferrero"
       email: "m.ferrero@cognitio.it"
@@ -29,6 +31,20 @@ spec:
     host: "{{ .context.rendered_name }}-default"
     port: "3306"
     protocol: "mariadb"
+
+  # This Recipe runs one MariaDB server — the Workload below is one pod of the
+  # official image with no replication configured — so a highly available
+  # primary and read replicas are refused by name rather than dropped. The
+  # managed-chart Recipe, helm/mariadb-bitnami, runs read replicas.
+  assertions:
+    no_high_availability: >-
+      {{- if .infra.ha.enabled -}}
+      {{- fail "infra.ha.enabled is true, and this Recipe runs one MariaDB server with no replica to fail over to: set infra.ha.enabled to false" -}}
+      {{- end -}}
+    no_read_replicas: >-
+      {{- if gt (int .infra.ha.read_replicas) 0 -}}
+      {{- fail (printf "infra.ha.read_replicas is %v, and this Recipe runs one MariaDB server: set infra.ha.read_replicas to 0, or map this component to helm/mariadb-bitnami, which runs read replicas beside the primary" .infra.ha.read_replicas) -}}
+      {{- end -}}
 
   workload: |
     apiVersion: aggrega.ai/v1alpha1

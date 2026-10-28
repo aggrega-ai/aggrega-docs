@@ -172,7 +172,7 @@ The MariaDB image needs a root password to start, and the application user needs
 its own. Both are attached in the database component's `features:` pillar — kept
 apart from application `values` — as Features labeled
 `feature.aggrega.ai/kind: secret`. The `core/datastore/mariadb` Component's
-`featuresSchema` declares the two slots, and the example exercises both delivery
+`featuresSchema` declares a slot for each, and the example exercises both delivery
 models:
 
 - `root_password` is a **black-box** slot (`inject: []`): the FeatureRecipe
@@ -297,7 +297,7 @@ spec:
     primary:
       persistence:
         size: "{{ .infra.storage.size }}"
-    # … resources, HA, metrics mapped from infra …
+    # … resources, read replicas, metrics mapped from infra …
 ```
 
 The Recipe's `source.version` prefers the operator's `infra.source_version` and

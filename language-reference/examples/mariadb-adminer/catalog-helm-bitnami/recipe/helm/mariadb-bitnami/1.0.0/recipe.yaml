@@ -10,7 +10,11 @@ metadata:
     MariaDB via Bitnami Helm chart (bitnami/mariadb). The chart version comes
     from the operator's infra.source_version where the Release pins one, and
     otherwise from .values.chart_version — a developer-authored value flowing
-    from the Aggregate into source resolution.
+    from the Aggregate into source resolution. A non-zero
+    infra.ha.read_replicas runs that many read replicas through the chart's
+    replication architecture, with the password attached on the
+    replication_password slot; infra.ha.enabled halts the build naming the
+    key, because the chart promotes no read replica when its primary fails.
   maintainers:
     - name: "Massimiliano Ferrero"
       email: "m.ferrero@cognitio.it"
@@ -37,19 +41,39 @@ spec:
     # Component's name in the alphabet a Kubernetes name allows — followed by the
     # chart's own "-mariadb" suffix, so the primary Service is
     # "<rendered_name>-mariadb" (e.g. "db-mariadb") and a consumer dials that,
-    # NOT the bare name. The compose and self-contained Kubernetes targets name
-    # their services differently; each target's provides.host reflects its own
-    # service naming, and the same Aggregate edge routes whichever string this
-    # Recipe emits.
-    host: "{{ .context.rendered_name }}-mariadb"
+    # NOT the bare name. With read replicas the chart's replication architecture
+    # names the primary Service "<rendered_name>-mariadb-primary" instead, and
+    # renders no "<rendered_name>-mariadb" Service, so the host follows it. The
+    # compose and self-contained Kubernetes targets name their services
+    # differently; each target's provides.host reflects its own service naming,
+    # and the same Aggregate edge routes whichever string this Recipe emits.
+    host: "{{ .context.rendered_name }}-mariadb{{ if gt (int .infra.ha.read_replicas) 0 }}-primary{{ end }}"
     port: "3306"
     protocol: "mariadb"
 
+  # The chart's replication architecture runs one primary and read replicas
+  # that replicate from it; nothing in the chart promotes a read replica when
+  # the primary fails. So infra.ha.read_replicas is honoured and
+  # infra.ha.enabled is refused by name rather than dropped. Read replicas sign
+  # in to the primary with a replication password: without one delivered on
+  # the replication_password slot the chart would generate a different one on
+  # every render, so a non-zero read_replicas without it is refused too.
+  assertions:
+    no_high_availability: >-
+      {{- if .infra.ha.enabled -}}
+      {{- fail "infra.ha.enabled is true, and the Bitnami MariaDB chart has no automatic failover: its read replicas replicate from one primary, and none is promoted when the primary fails. Set infra.ha.enabled to false; infra.ha.read_replicas still runs read replicas" -}}
+      {{- end -}}
+    read_replicas_need_replication_password: >-
+      {{- if and (gt (int .infra.ha.read_replicas) 0) (not (hasKey .features "replication_password")) -}}
+      {{- fail (printf "infra.ha.read_replicas is %v, and the chart's read replicas sign in to the primary with a replication password: attach a core/secret-value Feature to the replication_password slot with key MARIADB_REPLICATION_PASSWORD, or set infra.ha.read_replicas to 0" .infra.ha.read_replicas) -}}
+      {{- end -}}
+
   valuesMapping: |
     ## ── Pin the chart's resource names to the rendered name ────
-    ## Names the primary Service "<rendered_name>-mariadb", matching
-    ## provides.host. Every object the chart emits derives its name from this
-    ## key, read from a render rather than assumed.
+    ## Names the primary Service "<rendered_name>-mariadb" ("-mariadb-primary"
+    ## with read replicas), matching provides.host. Every object the chart
+    ## emits derives its name from this key, read from a render rather than
+    ## assumed.
     fullnameOverride: "{{ .context.rendered_name }}-mariadb"
 
     ## ── Image overrides ────────────────────────────────────────
@@ -83,6 +107,9 @@ spec:
       {{- if .values.user }}
       username: "{{ .values.user }}"
       password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
+      {{- end }}
+      {{- if gt (int .infra.ha.read_replicas) 0 }}
+      replicationPassword: "{{ .context.inject.env.MARIADB_REPLICATION_PASSWORD }}"
       {{- end }}
 
     ## ── Primary ────────────────────────────────────────────────
@@ -136,9 +163,13 @@ spec:
       {{- end }}
     {{- end }}
 
-    ## ── Secondary (HA) ─────────────────────────────────────────
+    ## ── Read replicas ──────────────────────────────────────────
+    ## The chart renders its secondaries only under architecture: replication,
+    ## so a non-zero infra.ha.read_replicas selects it and sizes the secondary
+    ## StatefulSet; otherwise the chart runs its single primary.
+    {{- if gt (int .infra.ha.read_replicas) 0 }}
+    architecture: replication
     secondary:
-      {{- if and .infra.ha.enabled (gt (int .infra.ha.read_replicas) 0) }}
       replicaCount: {{ .infra.ha.read_replicas }}
       resources:
         limits:
@@ -148,9 +179,9 @@ spec:
         enabled: true
         size: "{{ .infra.storage.size }}"
         storageClass: "{{ .infra.storage.type }}"
-      {{- else }}
-      replicaCount: 0
-      {{- end }}
+    {{- else }}
+    architecture: standalone
+    {{- end }}
 
     ## ── Metrics ────────────────────────────────────────────────
     {{- if .infra.overrides }}
