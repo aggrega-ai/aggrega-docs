@@ -724,7 +724,7 @@ Emitted message:
 Every authored mapping is read into a structure that preserves the order its keys were written in, because that order reaches the rendered output and is part of what makes a build byte-identical across runs. That reader descends a bounded number of levels — a hundred — and refuses to go deeper, so input that would otherwise exhaust the reader's own stack is reported as the refusal it is.
 
 Emitted message:
-> OrderedMap: decode depth exceeded (depth=`<depth>`)
+> a document nests too many levels deep: it is read at most 100 levels deep
 
 **How to fix:** real authored documents nest a handful of levels, so a document reaching a hundred is generated, machine-translated, or accidentally self-referential. Look for a value that expanded into itself — a YAML anchor referencing content it sits inside is refused by its own halt above, but a generator emitting the same shape repeatedly is not. Where the depth is genuine, lift the deep branch into an entity of its own and reference it by name.
 
@@ -6270,7 +6270,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0189` | `artifactlibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |
 | `E0190` | `schemalibrary: forbidden JSON Schema keyword` | A schema uses a JSON Schema keyword the library does not admit |
 | `E0191` | `mappinglibrary: entry body must be a string scalar` | A library entry's body is not the shape that library holds |
-| `E0192` | `OrderedMap: decode depth exceeded` | A document nests deeper than the reader will descend |
+| `E0192` | `a document nests too many levels deep` | A document nests deeper than the reader will descend |
 | `E0193` | `parameters: shape must be an inline object or {$import: <local-path>}` | A Release's `parameters:` block is written in neither of its two shapes |
 | `E0194` | `schemalibrary: template not found` | A `$instantiate:` reference cannot be resolved |
 | `E0195` | `schemalibrary: template parameter missing` | A `$instantiate:` reference cannot be resolved |

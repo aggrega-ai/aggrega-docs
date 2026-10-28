@@ -370,7 +370,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrLibraryReferenceWhitespace()` | `library-reference-whitespace` | `library reference: a reference to a library entry carries no whitespace or line break` |
 | `ErrMalformedVersionPin()` | `malformed-version-pin` | `reference carries a malformed version pin` |
 | `ErrMappingEntryNotScalar()` | `mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
-| `ErrOrderedMapDecodeDepthExceeded()` | `document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
+| `ErrOrderedMapDecodeDepthExceeded()` | `document-nesting-depth-exceeded` | `a document nests too many levels deep` |
 | `ErrParametersShape()` | `parameters-shape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
 | `ErrTemplateNotFound()` | `template-not-found` | `schemalibrary: template not found` |
 | `ErrTemplateParamMissing()` | `template-param-missing` | `schemalibrary: template parameter missing` |
@@ -688,7 +688,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0189` | `artifact-library-entry-shape` | `artifactlibrary: entry must be a mapping of filename to a string body` |
 | `E0190` | `forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `E0191` | `mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
-| `E0192` | `document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
+| `E0192` | `document-nesting-depth-exceeded` | `a document nests too many levels deep` |
 | `E0193` | `parameters-shape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
 | `E0194` | `template-not-found` | `schemalibrary: template not found` |
 | `E0195` | `template-param-missing` | `schemalibrary: template parameter missing` |
