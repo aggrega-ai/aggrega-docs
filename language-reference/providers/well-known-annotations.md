@@ -158,7 +158,7 @@ Four of the shipped keys are not node-scoped, so they sit outside the grid above
 <!-- BEGIN GENERATED: well-known-annotation-boundary-scope -->
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/chart-name` | `helm-chart` | Name of the assembled umbrella Helm chart. | The leaf boundary name is used. |
+| `aggrega.ai/chart-name` | `helm-chart` | Name of the assembled umbrella Helm chart. | The Aggregate name and the umbrella's assembly path — its output directory under dist/, such as boundaries/data/helm-chart — are used, each encoded and joined. |
 | `aggrega.ai/aws-account` | `cloudformation` | The AWS account the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same account. | The peer is treated as same-account, and a cross-stack reference resolves through a same-account stack-export import rather than a cross-account stack-output read. |
 | `aggrega.ai/aws-region` | `cloudformation` | The AWS region the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same region. | The peer is treated as same-region, and a cross-stack reference resolves through a same-region stack-export import. |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` | The IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values. | No role is supplied, and a cross-account reference carries no assume-role. |
