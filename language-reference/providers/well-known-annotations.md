@@ -8,7 +8,7 @@ The **reserved vocabulary** is the wider set, and it lives in two places instead
 
 ## The Invariants
 
-1. The compiler never reads or validates provider well-known annotations.
+1. The compiler never interprets or validates the value of a provider well-known annotation: it carries the key and its value through the cascade, and warns where a target does not act on the key.
 2. Each provider documents which annotations it reads and what defaults it applies.
 3. Annotations apply uniformly within a boundary. If a value varies per component, it belongs in component-level annotations (overriding boundary annotations) or in component `infra`.
 4. Provider well-known annotations never duplicate component labels. Component labels describe *what a component is*. Boundary annotations describe *where a component deploys*.
@@ -74,7 +74,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/chart-name` | `helm-chart` — per assembly | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
+| `aggrega.ai/chart-name` | `helm-chart` — per assembly | Umbrella chart name | Aggregate name and the umbrella's assembly path joined — see [Chart-name resolution](helm-chart.md#chart-name-resolution) |
 | `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
 | `aggrega.ai/stack-name` | not yet consumed | Reserved for an explicitly named deployment stack | — |
 | `aggrega.ai/tf-backend` | not yet consumed | Reserved for a Terraform state backend identifier | — |
@@ -244,23 +244,25 @@ The mandate is satisfied by an attachment at any scope — a component-level or 
 
 The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
 
-The shipping emit set, attached to every rendered Kubernetes manifest by helm and helm-chart, and to every emitted service by compose:
+The set the providers emit, attached to every Kubernetes manifest the helm provider renders, to every `$import:`-loaded artifact the helm-chart provider adds to a sub-chart, and to every emitted service by compose — a helm-chart sub-chart's own templates are copied as their author wrote them, so they carry whatever that author wrote:
 
 | Label | Source | Emission |
 | --- | --- | --- |
 | `app.kubernetes.io/name` | Node ID (or, for a resource a FeatureRecipe emits, the identifier derived for that attachment — see below) | helm and helm-chart only — Kubernetes-standard label, not emitted on compose services |
 | `aggrega.ai/component-id` | Node ID (or, for a resource a FeatureRecipe emits, the identifier derived for that attachment — see below) | All three providers |
-| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | All three providers, when the producing entity has both name and version set |
-| `aggrega.ai/boundary-path` | Boundary path the component was routed into | All three providers, when the boundary path is non-empty |
+| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | All three providers, when the producing entity has both name and version set; an annotation on helm and helm-chart |
+| `aggrega.ai/boundary-path` | Boundary path the component was routed into | All three providers, when the boundary path is non-empty; an annotation on helm and helm-chart |
 | `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | All three providers, when set |
 | `aggrega.ai/compiler-version` | Compiler version stamped at build time | All three providers, when set |
-| `aggrega.ai/environment` | Release `metadata.environment` | All three providers, when the Release sets it |
-| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer | All three providers, when non-zero |
+| `aggrega.ai/provider` | The provider that rendered the resource | All three providers |
+| `aggrega.ai/provider-version` | The version of that provider | All three providers |
+| `aggrega.ai/environment` | Release `metadata.environment` | All three providers — every Release declares it |
+| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer | All three providers, when non-zero; an annotation on helm and helm-chart |
 
 ### Per-provider emission notes
 
-- **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesized-mode (workload synthesis) paths produce the same set.
-- **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.
+- **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.), and the three keys a label value cannot carry — `aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path` and `aggrega.ai/sync-wave` — in `metadata.annotations`. The sourced-mode (Helm SDK render with post-render label injection), synthesized-mode (workload synthesis) and `artifacts:` paths produce the same set.
+- **`helm-chart`** — the same labels and annotations land on each `$import:`-loaded artifact the provider adds to a sub-chart's `templates/`. The source chart's own templates, and an inline-content artifact placed at the sub-chart root, carry none of them — see [helm-chart.md](helm-chart.md).
 - **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesized-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
 
 For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name — for every way a FeatureRecipe can deliver those resources, so an attachment's resources are never indistinguishable by label from the host component's own. Whether that identity is also what those resources are **named** after depends on the delivery: a workload Aggrega synthesizes is named after the identity, while a chart or fragment the attachment's author supplied keeps the host component's Helm release name and output-file prefix, because the author's own templates render against that name. How the value is composed — the two openings, the parts and their `--` join, how a character a label cannot carry is written out, how a value too long for its target is shortened, and which names it is and is not the basis for — is provider-independent, so it is stated once at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Provenance labels emitted on rendered output" rather than repeated here. This page owns the other half: where on each provider's rendered output the labels land.
@@ -269,20 +271,20 @@ The `aggrega.ai/recipe-uri` resolves to the FeatureRecipe's own `name:version`, 
 
 ## Sync-wave annotations
 
-The `aggrega.ai/sync-wave` label above is paired with a sync-wave annotation that downstream tooling consumes for deployment ordering. The label exposes the wave value for selector queries; the annotation surfaces the value where each tool conventionally reads it.
+The `aggrega.ai/sync-wave` key above is paired with a sync-wave annotation that downstream tooling reads to order what it applies. On compose the key is a label, which exposes the wave value for selector queries; on helm and helm-chart it is an annotation, and the paired annotation surfaces the value where each tool conventionally reads it.
 
 | Annotation | Emission | Consumed by |
 | --- | --- | --- |
-| `argocd.argoproj.io/sync-wave` | helm and helm-chart, on every Kubernetes resource where `syncWave` is non-zero on the contributing boundary | ArgoCD's sync-wave ordering |
+| `argocd.argoproj.io/sync-wave` | helm, on every Kubernetes resource it renders, and helm-chart, on each `$import:`-loaded artifact — where `syncWave` is non-zero on the contributing boundary | ArgoCD's sync-wave ordering |
 | `helm.sh/hook-weight` | helm only, on chart-templated manifests that already carry a `helm.sh/hook` annotation when `syncWave` is non-zero | Helm's hook-weight ordering within a hook phase |
 
 ### `helm.sh/hook-weight` emission is path-dependent
 
-A subtlety worth flagging for chart authors: `helm.sh/hook-weight` is emitted only on manifests rendered through the chart-templating path — the chart's `templates/` directory rendered via the Helm SDK. Manifests produced through the artifacts path (the Recipe's `artifacts:` block, whether each entry is inline content or `$import:`-loaded) carry the `argocd.argoproj.io/sync-wave` annotation and the full provenance label set, but they do **not** receive `helm.sh/hook-weight` — even when the artifact carries a `helm.sh/hook` annotation.
+A subtlety worth flagging for chart authors: `helm.sh/hook-weight` is emitted only on manifests rendered through the chart-templating path — the chart's `templates/` directory rendered via the Helm SDK. Manifests produced through the artifacts path — on the helm provider every entry of the Recipe's `artifacts:` block, inline content or `$import:`-loaded, and on helm-chart an `$import:`-loaded entry — carry the `argocd.argoproj.io/sync-wave` annotation and the full provenance label set, but they do **not** receive `helm.sh/hook-weight` — even when the artifact carries a `helm.sh/hook` annotation.
 
 The distinction is structural: `helm.sh/hook` and `helm.sh/hook-weight` are Helm-runtime ordering primitives that apply to chart-templated hook resources. Recipe-author artifacts are extra resources declared at the Recipe layer; they do not participate in Helm's hook lifecycle by default.
 
-If you need Helm hook-weight ordering on a hook resource, author the resource as a chart template under the Recipe's `source:` directory rather than as an `artifacts:` entry. The chart template will receive both `argocd.argoproj.io/sync-wave` and `helm.sh/hook-weight` matching the contributing boundary's `syncWave` value.
+If you need Helm hook-weight ordering on a hook resource, author the resource as a chart template under the `source:` directory of a Recipe the helm provider renders, rather than as an `artifacts:` entry; a helm-chart sub-chart's templates are copied as written and receive neither annotation. The chart template will receive both `argocd.argoproj.io/sync-wave` and `helm.sh/hook-weight` matching the contributing boundary's `syncWave` value.
 
 ## Authoring examples
 
@@ -326,11 +328,11 @@ Annotations also live on the Aggregate authoring surface — at the subsystem sc
 
 A subsystem-level annotation propagates to every nested subsystem and every contained component in the subsystem's subtree. Closer-level annotations override outer-level annotations at per-key granularity: a component-level annotation overrides any inherited subsystem-level annotation for the same key without affecting sibling keys or sibling components.
 
-Annotation values carry pointer-tristate semantics:
+An annotation key at a scope is in one of three states:
 
 - **Absent key** — the scope declares no value for this annotation. Nested subsystems and contained components inherit any binding from an ancestor scope.
-- **Non-nil pointer (a string value)** — the scope declares a value. Nested subsystems and contained components inherit this value unless they declare their own value or opt out.
-- **Nil pointer (explicit YAML `null`)** — the scope removes any inherited binding for this key from its subtree. Sibling components and siblings subsystems retain their independent inheritance; only the opting-out scope's subtree loses the binding.
+- **A string value** — the scope declares a value. Nested subsystems and contained components inherit this value unless they declare their own value or opt out.
+- **Explicit YAML `null`** — the scope removes any inherited binding for this key from its subtree. Sibling components and siblings subsystems retain their independent inheritance; only the opting-out scope's subtree loses the binding.
 
 ```yaml
 spec:
@@ -386,7 +388,7 @@ spec:
           type: core/server:1.0.0
 ```
 
-After annotation expansion, both `api` and `worker` carry a synthetic `feature.myco/db-pool` Feature attachment whose `values.pool` field reads `"shared-pool"`. The provenance side-table records each leaf as `Origin: annotation`, `Side: aggregate`, `AnnotationSource: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`.
+After annotation expansion, both `api` and `worker` carry a synthetic `feature.myco/db-pool` Feature attachment whose `values.pool` field reads `"shared-pool"`. The build graph (`aggrega validate --release <release> --ir-graph`) records each leaf with `origin: annotation`, `side: aggregate` and `annotation_source: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`.
 
 ## Structured annotation values
 
@@ -509,15 +511,15 @@ A subkey routing to an incompatible pillar halts the build with a clear error ci
 
 ### Per-subkey type validation
 
-Each subkey's runtime value is validated against the target Feature's `spec.schema` declared type at the routed pillar. The supported declared types are `string`, `integer`, `number`, `boolean`, `object`, `array`, `null`. A subvalue whose Go type does not match the schema's declared type halts the build with a clear error naming the subkey, the actual type, and the declared type.
+Each subkey's runtime value is validated against the target Feature's `spec.schema` declared type at the routed pillar. The supported declared types are `string`, `integer`, `number`, `boolean`, `object`, `array`, `null`. A subvalue whose YAML type does not match the schema's declared type halts the build with a clear error naming the subkey, the actual type, and the declared type.
 
 Type matching is strict — no coercion. A string `"20"` against an integer-typed schema field halts; authors declare types correctly on the Feature schema or use scalar annotations that pass through as strings.
 
-**Authoring lever for strict validation.** Properties without a declared `type` in the Feature's `spec.schema` accept any runtime value shape including nested maps. The validator's default-to-skip discipline trades strictness for progress — when the schema does not declare a constraint, the validator does not invent one. Authors who want strict per-subkey type validation declare `type` on every property in `spec.schema`. The FeatureRecipe rendering layer downstream handles whatever shape the annotation contribution carries.
+**Authoring lever for strict validation.** Properties without a declared `type` in the Feature's `spec.schema` accept any runtime value shape including nested maps. When the schema does not declare a constraint, the build does not invent one. Authors who want strict per-subkey type validation declare `type` on every property in `spec.schema`. The FeatureRecipe rendering layer downstream handles whatever shape the annotation contribution carries.
 
 ### Cross-side composition
 
-When both an Aggregate-side annotation (values subkeys) and a Release-side annotation (infra subkeys) target the same Feature attachment on the same Component, the IR builder merges the contributions into a single Feature attachment with both pillars populated. Per-leaf provenance records each subkey's source — the synthesized attachment carries `values.db_name` attributed to the Aggregate authoring site and `infra.pool_size` attributed to the Release authoring site.
+When both an Aggregate-side annotation (values subkeys) and a Release-side annotation (infra subkeys) target the same Feature attachment on the same Component, the build merges the contributions into a single Feature attachment with both pillars populated. Per-leaf provenance records each subkey's source — the synthesized attachment carries `values.db_name` attributed to the Aggregate authoring site and `infra.pool_size` attributed to the Release authoring site.
 
 The cross-side composition pattern is the canonical authoring shape for Features with mixed Developer-intent and Operator-sizing fields: the Aggregate declares the cognitive choices (which database, how many replicas at the application level); the Release declares the physical sizing (how big the pool, how many connections at the infrastructure level). One Manifest binding ties them together with a single set of `maps` declarations.
 

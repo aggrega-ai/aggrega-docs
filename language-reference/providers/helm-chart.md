@@ -2,7 +2,7 @@
 
 The helm-chart provider produces a packaged Helm umbrella chart per assembly path. Where the [helm provider](helm.md) emits flat Kubernetes YAML for direct GitOps consumption, helm-chart emits a chart scaffold — an umbrella `Chart.yaml` + `values.yaml` plus one sub-chart per contributing node — that downstream tooling can install via `helm install` or vendor for further per-environment customisation. The provider assembles per-`(path, provider)`: every node bound to a helm-chart Recipe contributes to the umbrella at the boundary's evaluated `directory:` joined with the per-component `subDirectory:`. Two boundaries that evaluate to the same path collapse into one merged umbrella chart that lists every contributor as a sub-chart dependency.
 
-A sub-chart's templates copied from the source chart carry what their author wrote: the boundary's `syncWave: <integer>` value, the `helm.sh/hook-weight` on a hook and the Aggrega provenance labels reach them only where the chart writes them. The [helm provider](helm.md) is the one that stamps `argocd.argoproj.io/sync-wave: "<N>"`, `helm.sh/hook-weight: "<N>"` and the provenance labels onto every resource it renders. An `$import:`-loaded artifact this provider adds to a sub-chart carries the provenance labels and the `argocd.argoproj.io/sync-wave` annotation, and no `helm.sh/hook-weight` (see "`artifacts:` injection rule" below). ArgoCD, Flux, and Helm read these annotations natively.
+A sub-chart's templates copied from the source chart carry what their author wrote: the boundary's `syncWave: <integer>` value, the `helm.sh/hook-weight` on a hook and the Aggrega provenance labels reach them only where the chart writes them. The [helm provider](helm.md) is the one that stamps `argocd.argoproj.io/sync-wave: "<N>"`, `helm.sh/hook-weight: "<N>"` and the provenance labels onto every resource it renders. An `$import:`-loaded artifact this provider adds to a sub-chart carries the provenance labels and the `argocd.argoproj.io/sync-wave` annotation, and no `helm.sh/hook-weight` (see "`artifacts:` injection rule" below). ArgoCD reads the sync-wave annotation, and Helm reads a hook's weight.
 
 This page is the helm-chart provider's authoring reference. For the helm vs helm-chart split, see the [Providers](../10-status.md#providers) section of the Status page; for the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
@@ -11,11 +11,11 @@ This page is the helm-chart provider's authoring reference. For the helm vs helm
 The helm-chart provider accepts two input kinds:
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The chart is copied into the umbrella structure as a sub-chart, verbatim except for the chart's own `name` — see ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns); no rendering or templating is performed at the per-node level. Aggrega's role is composition (umbrella assembly across the boundary's nodes), not template evaluation.
-- **`$import:`-loaded `artifacts:` mode.** A Recipe with `artifacts:` entries authored as `$import:` per-entry declares additional template files that the helm-chart provider injects into the sub-chart's `templates/` directory after the source-chart copy. Each file is pre-templated against Aggrega's TemplateContext using `[[ ]]` delimiters (see "`artifacts:` injection rule" below) so any `{{ }}` Helm templating in the same file survives into the downstream `helm install` render.
+- **`$import:`-loaded `artifacts:` mode.** A Recipe with `artifacts:` entries authored as `$import:` per-entry declares additional template files that the helm-chart provider injects into the sub-chart's `templates/` directory after the source-chart copy. Each file is pre-templated against Aggrega's template context using `[[ ]]` delimiters (see "`artifacts:` injection rule" below) so any `{{ }}` Helm templating in the same file survives into the downstream `helm install` render.
 
-A Recipe targeting helm-chart that declares `workload:` is rejected at render time with a diagnostic pointing the author at the helm provider:
+A Recipe targeting helm-chart that declares `workload:` is rejected before it renders, with the refusal any provider gives for an input kind it does not declare — it names the kind this provider supports and points the author at a provider that synthesizes:
 
-> source is required (helm-chart provider supports sourced mode only; for synthesized K8s manifests use the helm provider with workload:)
+> provider does not support the node's input kind (node "api"). provider "helm-chart" does not support synthesized recipes (this provider supports: sourced); declare one of the supported input kinds, or target a provider that supports synthesized
 
 The split is deliberate: workload synthesis (translating an abstract Workload into Kubernetes resources) is the helm provider's exclusive concern. helm-chart's role is umbrella + sub-chart composition for charts the author has already produced.
 
@@ -31,12 +31,12 @@ A Recipe targeting helm-chart may also declare **inline-content `artifacts:` ent
 When a helm-chart Recipe declares `artifacts:` entries via per-entry `$import:`, each `$import:` value is a path to a template file resolved **relative to the Recipe's own directory** (the directory containing the Recipe YAML on disk). The provider:
 
 1. Reads each file's content.
-2. Pre-templates the content with Aggrega delimiters `[[ ]]` against the Recipe's TemplateContext (the same context the Recipe's `valuesMapping:` evaluates against). `{{ }}` inside the file content is left untouched — those become Helm template directives at `helm install` time.
-3. Writes each file to `boundaries/<boundary-path>/charts/<instance-id>/templates/<authored-key>` of the umbrella output, a bundle's files nested beneath that key. The key the entry is authored under names the file; the `$import:` path selects its content and contributes nothing to the name, so the directory structure within that path never reaches the output.
+2. Pre-templates the content with Aggrega delimiters `[[ ]]` against the Recipe's template context (the same context the Recipe's `valuesMapping:` evaluates against). `{{ }}` inside the file content is left untouched — those become Helm template directives at `helm install` time.
+3. Writes each file to `charts/<instance-id>/templates/<authored-key>` under the umbrella's assembly path, a bundle's files nested beneath that key. The key the entry is authored under names the file; the `$import:` path selects its content and contributes nothing to the name, so the directory structure within that path never reaches the output.
 
 The `[[ ]]` / `{{ }}` dual-delimiter discipline is the load-bearing detail. A typical `$import:`-loaded artifact file might mix Aggrega-time interpolation (e.g., `[[ .values.image ]]`) with Helm-time interpolation (e.g., `{{ .Release.Namespace }}`). Each delimiter pair fires at its own phase: Aggrega resolves `[[ ]]` at compile time before the file lands; Helm resolves `{{ }}` at install time after the umbrella ships.
 
-Filename collisions across the source-chart's templates and the `$import:`-loaded artifact injections raise `CATALOG_ERROR` — the diagnostic names both the chart-supplied template and the conflicting `$import:` source. Authors resolve the collision by renaming the artifact's key or the chart's own template.
+Filename collisions across the source-chart's templates and the `$import:`-loaded artifact injections raise `CATALOG_ERROR` — the diagnostic names the colliding output path, such as `templates/cm.yaml`, and the two input kinds that produced it. Authors resolve the collision by renaming the artifact's key or the chart's own template.
 
 ## `source:` keyset
 
@@ -91,7 +91,7 @@ The umbrella `Chart.yaml` has the shape:
 apiVersion: v2
 name: <effective-chart-name>                # see "Chart-name resolution" below
 version: 0.1.0
-description: Aggrega umbrella chart at <assembly-path>
+description: Aggrega umbrella chart for boundary "<assembly-path>"
 dependencies:
   - name: <encoded-instance-id>               # the name the placed sub-chart carries
     version: <user-chart-version>           # from the source chart's Chart.yaml
@@ -103,7 +103,7 @@ dependencies:
 
 The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name; the resolved value is encoded for the chart-name position exactly as any other identity is, so a value carrying only letters, digits, underscores and hyphens the rule below keeps reaches the chart verbatim. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
 
-The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to the aggregate name and the contributing boundary name, each encoded and joined as described below.
+The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to the aggregate name and the assembly path — the umbrella's output directory under `dist/`, such as `boundaries/data/helm-chart` — each encoded and joined as described below.
 
 Each dependency entry's `name` is the name the placed sub-chart carries — the component instance's own encoded identity, the same value as the `alias` — for the reasons in ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns). Its `version` is still the version from the source chart's own `Chart.yaml`. The alias scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
 
@@ -186,9 +186,9 @@ A Helm chart name and a Helm dependency alias each accept a narrower set of char
 - A hyphen is kept as authored wherever the character after it is carried through directly and is not a lowercase `z`. A hyphen followed by a lowercase `z` opens an escape, so an authored one in that position is itself written out — `api-zone` becomes `api-zhzone`, which is what lets any name be read back without guessing.
 - Every other character is written as `-z` followed by a letter naming it: `d` for a dot, `s` for a path separator, `h` for a hyphen the rule above does not keep. Anything else is written as `x` and the character's six-digit hexadecimal code point, and a byte that begins no character at all as `b` and its own two-digit value — so a name that is not valid text is still written out distinctly rather than collapsed.
 - An empty value is written `-ze`, which no non-empty value can produce.
-- Where two identities compose one chart name — an aggregate name qualifying a boundary path — they are joined by `--`. A single encoded identity never contains that pair, so the joined name says unambiguously which identity is which.
+- Where two identities compose one chart name — an aggregate name qualifying an assembly path — they are joined by `--`. A single encoded identity never contains that pair, so the joined name says unambiguously which identity is which.
 
-So an instance_id of `data.main-db` gives the alias `data-zdmain-db`, and the aggregate `fullstack-app` with the boundary path `dist/data/helm-chart` gives the chart name `fullstack-app--dist-zsdata-zshelm-chart`. Identical input always produces the identical name.
+So an instance_id of `data.main-db` gives the alias `data-zdmain-db`, and the aggregate `fullstack-app` with the assembly path `boundaries/data/helm-chart` gives the chart name `fullstack-app--boundaries-zsdata-zshelm-chart`. Identical input always produces the identical name.
 
 The umbrella `values.yaml` is keyed by alias:
 
@@ -201,7 +201,7 @@ billing-svc:
   replicaCount: 2
 ```
 
-When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the resulting values map populates this alias-keyed sub-block automatically. That holds for every contributor to the umbrella, not for components alone: a Feature attachment that vendors a chart is a contributor in its own right, so its FeatureRecipe's `valuesMapping:` populates a block of its own, keyed by the name its placed chart declares. See ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
+When a sub-chart's `valuesMapping:` evaluates against its template context, the resulting values map populates this alias-keyed sub-block automatically. That holds for every contributor to the umbrella, not for components alone: a Feature attachment that vendors a chart is a contributor in its own right, so its FeatureRecipe's `valuesMapping:` populates a block of its own, keyed by the name its placed chart declares. See ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
 
 A key the `valuesMapping:` sets to `null` is written into its block as `null`. Installed with Helm 4, a `null` in the umbrella's own `values.yaml` removes the sub-chart's default for that key only when the install also supplies values for that sub-chart; an install supplying none for it drops the `null`, and the sub-chart's default stands. A `null` in the values given to `helm install` removes the default either way.
 

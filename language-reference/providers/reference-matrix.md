@@ -14,11 +14,11 @@ This page is a signpost. It states what each standard-library provider produces 
 
 ## What a boundary's `syncWave` does on each provider
 
-A Release boundary's `syncWave:` value orders deployment on every standard-library provider, and what it orders — and in what terms — differs by provider:
+A Release boundary's `syncWave:` value is read by every standard-library provider, and what it orders — and in what terms — differs by provider; on `helm-chart` it orders only the resources that carry its annotation:
 
 | Provider | What the wave does |
 | --- | --- |
-| `helm` | Orders the resources a GitOps controller or Helm applies. Every rendered resource carries `argocd.argoproj.io/sync-wave`, and a chart-templated hook resource additionally carries `helm.sh/hook-weight`. |
+| `helm` | Orders the resources a GitOps controller or Helm applies. Where the wave is not `0`, every rendered resource carries `argocd.argoproj.io/sync-wave`, and a chart-templated hook resource additionally carries `helm.sh/hook-weight`. |
 | `helm-chart` | Orders the resources that carry the annotation. A source chart's templates are copied as their author wrote them, so they carry `argocd.argoproj.io/sync-wave` only where the chart writes it; an `$import:`-loaded artifact the provider adds carries it, and no `helm.sh/hook-weight` — see [helm-chart.md](helm-chart.md). |
 | `compose` | Orders the services **within** the compose file the boundary renders into, through `depends_on` between them, and additionally records the value on each emitted service as the `aggrega.ai/sync-wave` label. Ordering across two compose files is not expressible — see [compose.md](compose.md#deployment-wave-ordering). |
 | `terraform` | Orders the `module` blocks of the root configuration the boundary assembles into, through `depends_on` between them. It is the order Terraform performs its actions in rather than readiness — a configuration has no notion of a resource being serviceable — and no teardown order is promised. Ordering across two root configurations is not expressible, and the value is also recorded with the node's build provenance — see [terraform.md](terraform.md#deployment-ordering). |

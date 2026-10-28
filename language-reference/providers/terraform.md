@@ -136,7 +136,7 @@ module "store" {
 
 Terraform resolves `module.store.endpoint` because the same configuration declares `module "store"`, and the value reaches the consumer's module as an ordinary input.
 
-The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example builds this pair from standard-library Recipes: a PostgreSQL database provisioned by the published RDS module and a server run on Amazon ECS, whose `environment` argument carries `${module.db.db_instance_address}` in the root configuration that declares `module "db"`.
+The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) example builds this pair from standard-library Recipes: a PostgreSQL database provisioned by the published RDS module and a server run on Amazon ECS, whose `environment` argument carries `${module.db.db_instance_address}` in the root configuration that declares `module "db"`.
 
 #### Three ways this goes wrong, and what each looks like
 
@@ -215,7 +215,7 @@ Note what this target does **not** require, because a chart target's constraint 
 
 The terraform provider accepts two of the three Recipe input kinds:
 
-- **Artifacts mode.** A Recipe authors Terraform configuration as a templated body; the provider evaluates the Aggrega template and emits the result verbatim, byte-for-byte. HCL (`main.tf`) is the ergonomic default, and Terraform JSON (`.tf.json`) is accepted equivalently. Build provenance is stamped as a Terraform comment; for a JSON body — which has no comment syntax — provenance is written as a companion file rather than inline.
+- **Artifacts mode.** A Recipe authors Terraform configuration as a templated body; the provider evaluates the Aggrega template and emits the result without rewriting it. HCL (`main.tf`) is the ergonomic default, and Terraform JSON (`.tf.json`) is accepted equivalently. Build provenance is stamped as a block of Terraform comments at the top of an HCL body; for a JSON body — which has no comment syntax — provenance is written as a companion file, `aggrega.provenance.tf`, rather than inline.
 - **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into that component's directory, and the Recipe's `valuesMapping:` becomes the arguments of that component's `module` block in the boundary's root configuration. The module body is preserved exactly as authored and nothing is written into it; the values are stated once, in the root, where Terraform evaluates them. Where the node's declared `values` leaves become the module's inputs directly — a `source:` Recipe with no `valuesMapping:` — an input carrying material an author declared sensitive also gets a generated override file carrying Terraform's own sensitivity attribute; a `valuesMapping:` template invents its output names, so that case carries no marking and the build reports it with an advisory. Both are described under [Declared-sensitive module inputs](#declared-sensitive-module-inputs).
 
 **A `null` in a `valuesMapping:` is a `null` argument.** A key the mapping sets to `null` is written as `<name> = null` in the module block, and the engine gives the module's variable the value `null`, overriding its `default`, unless the variable declares `nullable = false`, in which case its `default` applies; to give an input the module's default, leave the key out of the mapping.
@@ -264,7 +264,7 @@ The build reads none of the module's `variable` or `output` blocks, writes nothi
 
 ## Verbatim emission and vendoring
 
-The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as written, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.
+The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as its template evaluates, an HCL body opening with the provenance comments, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.
 
 ## Declared-sensitive module inputs
 
@@ -290,7 +290,7 @@ Terraform merges a configuration file whose name is the bare `override` or ends 
 
 **The marking travels only where the input's identity is recoverable from the declaration.** A Recipe that vendors a module with `source:` and lets the node's declared `values` leaves become the module's inputs directly gives each input the same name the author declared, so the link is exact — and so does the FeatureRecipe of a Feature attached to a component that vendors a module the same way, over the leaves its Feature declares. A Recipe or such a FeatureRecipe that reshapes those values through a `valuesMapping:` template invents its output names, and no declaration names them — so the marking is absent rather than approximated, and the build says so with one advisory per declared leaf, naming the leaf and the entity whose mapping it is (a Feature attached to a boundary renders against no `values` at all, so it has nothing to mark and draws none); see [A declared-sensitive value reaches the target through a values mapping](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping). Absence is deliberate: guessing which reshaped input carried the declared datum would mark a public input as secret, and Terraform would then suppress a value from plan output that was never sensitive.
 
-The worked example [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/) builds this end to end and is small enough to read in full: one component declaring three `values` leaves, of which two carry public identifiers and one carries the credential. Its rendered output shows the `module` block's arguments carrying all three module inputs and the override naming only the declared one, so both halves of the rule are visible in the same build — including that a credential *identifier* sitting beside the secret is left unmarked. Removing the one declaration and rebuilding emits no override file at all.
+The worked example [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/README.md) builds this end to end and is small enough to read in full: one component declaring three `values` leaves, of which two carry public identifiers and one carries the credential. Its rendered output shows the `module` block's arguments carrying all three module inputs and the override naming only the declared one, so both halves of the rule are visible in the same build — including that a credential *identifier* sitting beside the secret is left unmarked. Removing the one declaration and rebuilding emits no override file at all.
 
 ### What Terraform's `sensitive` does and does not guarantee
 
@@ -300,7 +300,7 @@ Aggrega promises exactly what Terraform's own attribute delivers, and no more.
 
 **It does not change storage, and it is not encryption.** Terraform records a sensitive value in state in the clear. Reading `sensitive = true` as a promise that state is safe to commit or share is the one misreading to avoid: protecting state remains a matter of how the state backend is configured, exactly as it is for a module carrying no marking at all. The attribute also does not restrict who may read the value, does not affect what a provider transmits, and does not change the rendered configuration in any other way.
 
-So the marking makes a declared-sensitive input harder to disclose by accident when someone reads a plan. It does not make the deployable safe to publish. See [Declaring a leaf sensitive](../vocabulary/compact-form-authoring.md) for the keyword and for what a declaration achieves across every target.
+So the marking makes a declared-sensitive input harder to disclose by accident when someone reads a plan. It does not make the deployable safe to publish. See [Declaring a leaf sensitive](../vocabulary/compact-form-authoring.md#declaring-a-leaf-sensitive--sensitive) for the keyword and for what a declaration achieves across every target.
 
 ## Structural input validation
 
@@ -346,7 +346,7 @@ A Release boundary's `syncWave:` value orders the `module` blocks of the root co
 
 **Ordering across two root configurations is not expressible, and it is not approximated.** A Terraform dependency graph is per-configuration and `depends_on` names a module inside the configuration that declares it, so a wave orders every component composed into that root and nothing beyond it. Sequencing two configurations is the operator's concern, the same way a remote-state reference is a deploy-time resolution rather than a build-time one.
 
-The wave is recorded as well as acted on: it travels with the rest of the node's build provenance, as `aggrega.ai/sync-wave` in the stamped comment block, or in the companion provenance file where the body is JSON. So a rendered configuration records which wave its boundary declared as well as being ordered by it.
+The wave is recorded as well as acted on: it travels with the rest of the node's build provenance, as `aggrega.ai/sync-wave` in the stamped comment block, or in the companion provenance file where the body is JSON or a vendored module. So a rendered configuration records which wave its boundary declared as well as being ordered by it.
 
 Ordering the waves do not express stays Terraform's own concern, and the references between resources already carry much of it: a reference to another resource's attribute tells Terraform to act on that resource first. A module needing a constraint neither the references nor the waves imply writes its own `depends_on` inside the module, which the provider emits verbatim like every other part of the body.
 
