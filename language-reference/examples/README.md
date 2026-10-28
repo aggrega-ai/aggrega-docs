@@ -325,6 +325,17 @@ cross-boundary networking across providers.
   writes, and why the lockfile pins a transform and not a verdict. A script
   beside it checks every outcome. Needs the standard-library catalog checked out
   beside it.
+- **[policy-org-overlay](policy-org-overlay/)** — policy from three owners added
+  up on one build: a team's attachment in the workspace's own file, an
+  organization's added from a global configuration file through
+  `plugins.governance_append`, and a pipeline's added through
+  `.aggrega-config-append-ci.yaml`, an overlay that only adds and names in a
+  warning the single-value key it ignores. The rules report at `info` and `warn`, which
+  let the build complete, and at `halt`, which stops it, and one rule attached
+  twice is a warning in one attachment and a halt in the other, through a
+  `translation` block. A script beside it builds every combination of the three
+  files and checks each outcome. Needs the standard-library catalog checked out
+  beside it.
 - **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
   a Recipe's `omits:` field leaving out a document a fetched chart renders. The
   Envoy AI Gateway controller is built in both of its webhook-certificate modes

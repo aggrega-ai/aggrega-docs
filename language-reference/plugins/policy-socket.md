@@ -1294,6 +1294,11 @@ plugins:
           required_label: app.kubernetes.io/name
 ```
 
+[`examples/policy-org-overlay/`](../examples/policy-org-overlay/README.md) builds
+one workspace with a team's attachment, an organization's added through a global
+configuration file's `governance_append`, and a pipeline's added through this
+overlay, and checks what each combination prints and whether it completes.
+
 ## Running policy in CI, over the build output
 
 Everything above attaches a policy **inside** a build. There is a second route,

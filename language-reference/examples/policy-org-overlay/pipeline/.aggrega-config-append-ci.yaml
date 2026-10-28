@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The pipeline's overlay. The pipeline copies this file into the workspace
+# directory before it builds; it is read only from there. A relative path under
+# with.sources resolves against the directory the file is read from.
+plugins:
+  governance_append:
+    - uri: governance/rego:0.8.6
+      role: ir-verdict
+      with:
+        sources:
+          - org/policies/estate.rego
+        settings:
+          refused_categories: [devtool]
+          # In the pipeline the organization's rule halts. Only deny is read,
+          # so the audit records are not reported a second time.
+          translation:
+            - key: deny
+              severity: halt
+# A key holding a single value: the overlay does not override it, so a build
+# ignores it and names it in a warning.
+auto_pull: true

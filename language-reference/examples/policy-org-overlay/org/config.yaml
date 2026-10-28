@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The organization's global configuration file. On a developer's machine it
+# sits at the global file's default location; here it is named per build with
+# --config org/config.yaml. A relative path under with.sources resolves against
+# the directory of this file.
+plugins:
+  governance_append:
+    - uri: governance/rego:0.8.6
+      role: ir-verdict
+      with:
+        sources:
+          - policies/estate.rego
+        settings:
+          refused_categories: [devtool]
+          # The organization rolls its rule out as advice: deny is reported at
+          # warn, audit at info. A declared translation replaces the default
+          # mapping, so these two keys are the only ones read.
+          translation:
+            - key: deny
+              severity: warn
+            - key: audit
+              severity: info

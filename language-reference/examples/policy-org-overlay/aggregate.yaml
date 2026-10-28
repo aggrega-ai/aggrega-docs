@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: policy-org-overlay
+  version: "1.0.0"
+  description: >
+    A database and a database administration UI wired to it, assembled from
+    standard-library catalog entities. Nothing here names a policy: the team,
+    the organization and the pipeline each attach theirs in a configuration
+    file of their own.
+spec:
+  components:
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+      features:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            origin: dev-root-pw-change-me
+    web:
+      type: core/devtool/adminer
+      uses:
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host
