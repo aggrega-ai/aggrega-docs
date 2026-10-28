@@ -44,7 +44,7 @@ The `inject:` block has one syntax at every placement — a component's own `inj
 
 - **A list of entries per mechanism (`[{in: ..., from: ...}]`, `[{in: ..., value: ...}]`) — available.** Each delivery mechanism is a list; each entry names its local identifier (env var name, file path, arg flag) with `in:` and carries exactly one of `from:` (provides-key reference) or `value:` (literal string). A mechanism written as a map rather than a list, or an entry carrying both keywords, halts the build at the Aggregate's document envelope, naming the path.
 
-- **`value:` in `uses[].inject` or in an attachment's own `inject` — accepted but inert.** `value:` is not valid in `uses[].inject`; a literal belongs in the component's own `inject`. The build accepts such an entry and resolves nothing from it into the component's `.context.inject` pipe, without a warning.
+- **`value:` in an attachment's own `inject` — accepted but inert.** A literal belongs in the component's own `inject`; on a `uses` connection a `value:` halts the build, as [An `inject:` entry on a connection carries a literal](errors/fatal-halts.md#an-inject-entry-on-a-connection-carries-a-literal) describes. The build accepts such an entry in an attachment's own `inject` and resolves nothing from it into the component's `.context.inject` pipe, without a warning.
 
 See [`vocabulary/topology-triad.md`](vocabulary/topology-triad.md) for the full Injection Contract specification, including the dual-state context semantics, key-collision rules, and worked examples.
 

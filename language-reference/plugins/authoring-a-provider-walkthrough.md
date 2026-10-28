@@ -366,7 +366,7 @@ generated dev-catalog/plugin/provider/dotenv/0.1.0/plugin.yaml
 The generated entity:
 
 ```yaml
-# generated; DO NOT EDIT
+# Generated from the plugin by `aggrega plugin gen-catalog`. You may narrow its capability lists; edit nothing else here.
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Cognitio S.r.l.
 apiVersion: aggrega.ai/v1alpha1

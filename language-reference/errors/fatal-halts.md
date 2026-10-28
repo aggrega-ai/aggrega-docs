@@ -306,7 +306,7 @@ The same three keys on a FeatureRecipe report the same condition and read the sa
 > `<n>` documents under the catalog directories declare an Aggrega apiVersion and could not be loaded, so nothing was checked: `<path>`, `<path>`
 > file load failed: the file could not be read, or its bytes did not parse (catalog document, failed to unmarshal YAML: `<the parser's reason>`)
 
-with `failed to decode the envelope:` and the line and what the decoder found there — `line 4: cannot unmarshal !!seq` for a `metadata` written as a list — for a document that parses and does not decode, and `failed to read file:` and the operating system's reason for a file that could not be read.
+with `failed to decode the envelope:` and the line and what the decoder found there — `line 4 (metadata): a list is written where a map is expected` for a `metadata` written as a list — for a document that parses and does not decode, and `failed to read file:` and the operating system's reason for a file that could not be read.
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
 
@@ -349,7 +349,10 @@ Emitted messages, for a template that does not parse, for the same fault in a mo
 > invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template parse error: `<underlying reason>`)
 > invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template execution error: `<underlying reason>`)
 
-**How to fix:** open the Aggregate and read the underlying reason, which names the position in the text and the construct that failed. Confirm every `{{` has its `}}`, that a function you called is one the surface offers — parameter interpolation offers Sprig's functions and nothing else, so the `optional` helper is **not** available here — and that a pipeline's stages accept what the stage before them produces. Where the reason names a key `index` did not find, read a parameter that may be unset with a dot (`{{ .parameters.db_size }}`) or through Sprig's `get` or `hasKey`. Where it names something you never meant as a template — `undefined variable "$json"` from an n8n expression, or a function named after a Flowise node — the text carries double braces of its own, a comment's included: write each `{{` in it as `{{"{{"}}`, as [Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces) describes.
+An Aggregate's text has one root, `.parameters`, so a reference through any other — `{{ .values.app_token }}`, or `{{ $.values.app_token }}` — reads nothing and fails while running. The reason then opens by naming the reference it read:
+> invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, the template reads `<reference>`, and an Aggregate's text defines no root but .parameters; template execution error: `<underlying reason>`)
+
+**How to fix:** open the Aggregate and read the underlying reason, which names the position in the text and the construct that failed. Confirm every `{{` has its `}}`, that a function you called is one the surface offers — parameter interpolation offers Sprig's functions and nothing else, so the `optional` helper is **not** available here — and that a pipeline's stages accept what the stage before them produces. Where the reason names a key `index` did not find, read a parameter that may be unset with a dot (`{{ .parameters.db_size }}`) or through Sprig's `get` or `hasKey`. Where it names a reference through another root, declare the value as a parameter of the Aggregate and read it as `{{ .parameters.<key> }}`. Where it names something you never meant as a template — `undefined variable "$json"` from an n8n expression, or a function named after a Flowise node — the text carries double braces of its own, a comment's included: write each `{{` in it as `{{"{{"}}`, as [Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces) describes.
 
 ### The Release directory declares one Aggregate or Manifest twice
 
@@ -619,8 +622,8 @@ The Release schema declares the same two shapes, so a Release file carrying any 
 
 For `$import:` beside another key the second branch ends `additionalProperties: unexpected property: "<key>"`, and for an `$import:` written as a list rather than a string it ends `validation: type: array has type "array", want "string"`.
 
-Emitted message, where the value is not a mapping. The number after `kind` is the document shape the reader found where a mapping was required:
-> parameters: shape must be an inline object or {$import: <local-path>}: got kind `<shape>` at line `<line>`
+Emitted message, where the value is not a mapping, naming what was written there — `a list`, for example:
+> parameters: shape must be an inline object or {$import: <local-path>}: line `<line>`: `<shape>` is written where a map is expected
 
 and where `$import:` shares the mapping with something else, or names something that is not a path:
 > parameters: shape must be an inline object or {$import: <local-path>}: $import: must be the only key (got `<n>` keys) at line `<line>`
@@ -646,7 +649,7 @@ Emitted messages. Each opens with the sentence for the field at fault, then says
 > valuesmapping: shape must be a string scalar or {$import: <path-or-library-identity>}: got key `"<key>"` at line `<line>`
 > workload: shape must be a string scalar or {$import: <path-or-library-identity>}: $import value must be a string scalar at line `<line>`
 
-Any of the three fields can report any of those endings; a value that is neither shape ends with `got kind <shape> at line <line>`, where the number is the document shape the reader found.
+Any of the three fields can report any of those endings; a value that is neither shape ends with `line <line>: <shape> is written where text or a map is expected`, naming what was written — `a list`, most often.
 
 **How to fix:** open the entity at the line the message names. Write the body in place as a block scalar, or replace the whole value with a single `$import:` entry. A mapping carrying `$import:` and anything else is not one of the two shapes — move the extra keys inside the imported file, or write the body in place. A misspelled `$import` — a missing `$`, most often — reads as an ordinary key and is reported as the single key that is not `$import`.
 
@@ -676,13 +679,13 @@ A library publishes named bodies for other entities to import, and each library 
 
 Bodies are captured exactly as written and are not parsed when the library loads. The template inside one is parsed where it is imported, which is why what is checked here is only the shape — a body that is not a template at all loads without complaint and fails at the point something renders it.
 
-Emitted messages, where the number after `kind` is the document shape the reader found:
-> mappinglibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
-> workloadlibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
-> artifactlibrary: entry must be a mapping of filename to a string body: got kind `<shape>` at line `<line>`
+Emitted messages, each naming the line and what was written there — `a list`, for example:
+> mappinglibrary: entry body must be a string scalar: line `<line>`: `<shape>` is written where text is expected
+> workloadlibrary: entry body must be a string scalar: line `<line>`: `<shape>` is written where text is expected
+> artifactlibrary: entry must be a mapping of filename to a string body: line `<line>`: `<shape>` is written where a map is expected
 
 and, for a bundle whose entry is a mapping but one of whose files is not a scalar, naming the file:
-> artifactlibrary: entry must be a mapping of filename to a string body: file `"<filename>"` body must be a string scalar (got kind `<shape>` at line `<line>`)
+> artifactlibrary: entry must be a mapping of filename to a string body: file `"<filename>"`: line `<line>`: `<shape>` is written where text is expected
 
 The build reports these under a `CATALOG_ERROR` tag naming the file it was reading, with the sentence above beneath it.
 
@@ -2533,11 +2536,11 @@ Signing and verifying against a held key use one key profile, and a key of any o
 
 **The two moments it reports at are different jobs.** One is loading a key to sign with, which happens where an artifact is published; the other is checking a signature against a key pinned for a registry, which happens where an artifact is verified. The refusal is the same in both.
 
-**Emitted messages**, each naming the type of key that was actually supplied. A pinned verification key:
-> signing: unsupported held-key type: pinned key is `<the type supplied>`, want ECDSA P-256
+**Emitted messages**, each naming the algorithm of the key that was actually supplied — `an RSA key` or `an Ed25519 key`. A pinned verification key:
+> signing: unsupported held-key type: pinned key is `<the key's algorithm>`, want ECDSA P-256
 
 and a key loaded to sign with:
-> signing: unsupported held-key type: held key is `<the type supplied>`, want ECDSA P-256
+> signing: unsupported held-key type: held key is `<the key's algorithm>`, want ECDSA P-256
 
 **How to fix:** supply a key of the profile the message names. Where you are verifying, the key is the one pinned for the registry in `.aggrega-config.yaml` and it has to be the public half of the key the publisher signs with — a mismatch here usually means the wrong file was pinned, since a key that is the right type but the wrong key reports as a signature that does not verify instead. Where you are signing, generate a key of the named profile, or use the keyless path, which needs no held key at all.
 
@@ -3041,7 +3044,7 @@ An `inject:` entry references a `from:` key that the target Component's `provide
 
 Where the reference resolves depends on where it lives. A Component-level self-inject `from:` resolves against that same Component's own `provides:`. A `from:` on a `uses:` connection resolves against the `provides:` of the component that connection points at — and where two surfaces write one socket and one alias, each connection resolves against the target it itself names, in the same build that refuses the pair for sharing an alias. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
 
-A `value:` entry carries a literal and is resolved against nothing, so a literal that happens to read like a provides key is not refused. Only `from:` names a key.
+On a component's own `inject:` block a `value:` entry carries a literal and is resolved against nothing, so a literal that happens to read like a provides key is not refused there; on a connection a `value:` entry is refused, as "An `inject:` entry on a connection carries a literal" below describes. Only `from:` names a key.
 
 The Release's own per-edge `uses:` surface carries `target` and `infra` and no `inject:`, so a connection wired there dictates no delivery and has no `from:` key to check.
 
@@ -3240,7 +3243,7 @@ The finding is positioned at the authored entry it is about, on the same paths t
 
 <!-- covers: pkg/resolver.ErrInjectEntryAmbiguous -->
 
-An `inject:` entry delivers one of two things: a literal, written under `value:`, or a key read from the component the connection points at, written under `from:`. An entry carrying both says two things at once and offers no rule for choosing between them, so it is refused rather than having one of the two quietly win.
+An `inject:` entry delivers one of two things: a literal, written under `value:` — on a component's own block, the one place a literal is delivered — or a key read from the component the connection points at, written under `from:`. An entry carrying both says two things at once and offers no rule for choosing between them, so it is refused rather than having one of the two quietly win.
 
 The authoring schemas admit exactly one of the pair, so a document read from a file is refused when it loads. This is the check standing behind that one: it reads every `inject:` block the Aggregate and the Release carry while the two documents are resolved, so a document built by some other route than a file is still refused before anything is built from it, rather than silently having one field picked. It covers the same blocks as the shape check below.
 
@@ -3249,7 +3252,22 @@ Each delivery mechanism holding an offending entry is reported as its own findin
 Emitted message:
 > inject entry carries both `value:` and `from:`; schema requires exactly one (`"<mechanism>"`, `"<in-1>"`, `"<in-2>"`)
 
-**How to fix:** open each entry the message names and delete whichever of the two it does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies.
+**How to fix:** open each entry the message names and delete whichever of the two it does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies, on a component's own block; on a connection a literal is refused, so keep `from:` there.
+
+### An `inject:` entry on a connection carries a literal
+
+<!-- covers: pkg/resolver.ErrUsesInjectValue -->
+
+A connection delivers into the consuming component what the component it points at publishes: each entry in the connection's `inject:` block names one of that component's `provides:` keys under `from:`. A literal written under `value:` names nothing the target publishes, so it has no place on a connection, and the entry is refused rather than dropped. A literal a component delivers to itself belongs in the component's own `inject:` block, where `value:` is admitted.
+
+Every connection is checked, whichever document drew it: one on a component's own `uses:` block, one an attached Feature draws in the Aggregate, and one an attachment written in the Release draws. It is refused before anything renders, so `aggrega validate --release` reports it as well as `aggrega build`.
+
+Each offending entry is reported as its own finding, positioned at the connection's entry in the document that drew it — `.spec.components.<component>.uses.<socket>.<alias>` for a component's own connection, `.spec.components.<component>.features.<attachment>.uses.<socket>.<alias>` for one an attachment draws, and, in the Release, the same path beneath the attachment's entry, such as `.spec.boundaries.<boundary>.components.<component>.features.<attachment>.uses.<socket>.<alias>` — and every one in the build is reported at once. A finding in the Aggregate is filed under `DEVELOPER_ERROR`, one in the Release under `OPS_ERROR`. The finding names the mechanism and the entry's `in:`.
+
+Emitted message:
+> inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` (`"<mechanism>"`, `"<in>"`)
+
+**How to fix:** where the value is one the target publishes, replace `value:` with `from:` naming that `provides:` key. Where it is a literal the consuming component needs, move the entry to that component's own `inject:` block, whose mechanisms its Component type's `spec.inject` allowlist governs.
 
 ### An `inject:` delivery is not a list of entries
 
@@ -3266,7 +3284,7 @@ Emitted message:
 
 The position is the key path the author wrote. In the Aggregate, `.spec.components.<component>.inject.<mechanism>` for a component's own block, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` for a block on one of its connections, and `.spec.components.<component>.features.<attachment>…` for an attachment's, with `.subsystems.<name>` for each subsystem a component or an attachment is declared in. In the Release, the block on a connection an attachment draws, through that attachment — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` for one attached boundary-wide, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` for one on a component, with `.boundaries.<name>` for each nested boundary and `.aggregates.<module>` for each routing entry a component is named through.
 
-**How to fix:** write each mechanism the message names as a list. An entry `DB_URL: host` under `env:` becomes `- in: DB_URL` with `from: host` when `host` names a `provides:` key — the connected component's on a connection, the component's own on its own block — or with `value: host` when it is a literal this side supplies.
+**How to fix:** write each mechanism the message names as a list. An entry `DB_URL: host` under `env:` becomes `- in: DB_URL` with `from: host` when `host` names a `provides:` key — the connected component's on a connection, the component's own on its own block — or, on the component's own block, with `value: host` when it is a literal this side supplies.
 
 ### The Feature filling an attachment slot does not satisfy the slot's selector
 
@@ -5264,6 +5282,17 @@ Emitted message, naming the document, the kind as written and the kinds that are
 
 **How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
 
+### No source adapter is registered in this program for a source kind
+
+<!-- covers: pkg/sourceresolver.ErrNoAdapterRegistered -->
+
+A source is fetched by the adapter registered for its kind. This condition reports a fetch dispatched on a kind no adapter is registered for. An authored kind no adapter serves is refused as its Recipe is read (under "A Recipe's `source:` names a kind nothing knows how to acquire" above), so nothing an author writes reaches this: it reports a program assembled without the adapter for a kind it serves, or a program built on Aggrega's Go packages dispatching a kind it assembled itself.
+
+Emitted message, naming the kind:
+> kind `"<kind>"`: no source adapter is registered in this program for the source kind
+
+**How to fix:** nothing in your entity files causes this. Report it to whoever built the binary you are running.
+
 ### A source URL carries a credential
 
 <!-- covers: pkg/sourceresolver/netrc.ErrSourceURLCarriesCredential -->
@@ -6415,8 +6444,10 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0356` | `suspend requires form: scheduled` | A workload `suspend:` is set on a form other than `scheduled` |
 | `E0357` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` | A Manifest `name` mapping names nothing in the build |
 | `E0358` | `uses edge target names a component its module does not export` | A `uses` target names a module's component the module does not export |
+| `E0359` | `no source adapter is registered in this program for the source kind` | No source adapter is registered in this program for a source kind |
 | `E0360` | `the netrc file could not be read` | The netrc file cannot be read |
 | `E0361` | `the source URL carries a credential` | A source URL carries a credential |
+| `E0362` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` | An `inject:` entry on a connection carries a literal |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
