@@ -77,7 +77,14 @@ A *capability* is what a consumer asks a plugin for — a render capability a Re
 | `importer` | [`spec.importer.capabilities`](#specimporter) | A foreign source format this plugin drafts entities from, written `import:<format>`. |
 | `linter`, `governance`, `cli` | — | Nothing. These sockets serve no capability, so they carry none of the four blocks. |
 
-A plugin implements exactly one socket type, so its entity carries one block. The list is the plugin's own report: `aggrega plugin gen-catalog` reads the plugin's `describe()` and writes each capability it reports into the block. An author may narrow the list before publishing, leaving out a capability the plugin reports that the published entity should not offer; `aggrega validate <entity> --plugin <file.wasm>` and `aggrega push` accept a narrowed list and print a notice naming each capability the plugin reports that the list leaves out. A consumer resolves against exactly what is listed.
+A plugin implements exactly one socket type, so its entity carries one block. The list is the plugin's own report: `aggrega plugin gen-catalog` reads the plugin's `describe()` and writes each capability it reports into the block. An author may narrow the list before publishing, leaving out a capability the plugin reports that the published entity should not offer; `aggrega validate <entity> --plugin <file.wasm>` and `aggrega push` accept a narrowed list and print a notice naming each capability the plugin reports that the list leaves out. Neither accepts a list that names a capability the plugin does not report: both refuse it, naming each such capability and the capabilities the plugin does report, so a published list never offers more than the plugin provides. A pipeline-step entity whose plugin reports `helm` and `helm-chart`, listing `compose` as well, is refused like this:
+
+```text
+[E0080]
+  entity "probe-step:1.0.0-rc.1" lists capabilities ["compose"], which the plugin's describe() does not report (it reports ["helm" "helm-chart"]); remove them from the list, which may name only capabilities the plugin reports: wasm: entity contract claim does not match plugin describe()
+```
+
+A consumer resolves against exactly what is listed.
 
 ## `spec.provider`
 

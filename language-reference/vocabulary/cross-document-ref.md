@@ -32,7 +32,7 @@ The `allOf` composes the referenced `NodePool` shape with the additional constra
 
 ## `required:` syntax under cross-document `$ref:`
 
-Catalog authors choose between two authoring shapes when declaring required properties on a Component or Feature: leaf-level markers (`required: true` on each property) or the parent-level array (`required: [name1, name2, ...]` at the object scope). Both shapes are valid in JSON Schema 2020-12. Under cross-document `$ref:` expansion, only one of them threads through cleanly.
+Catalog authors choose between two authoring shapes when declaring required properties on a Component or Feature: leaf-level markers (`required: true` on each property) or the parent-level array (`required: [name1, name2, ...]` at the object scope). Both shapes are valid in JSON Schema 2020-12, and both count under cross-document `$ref:` expansion, written where this section shows.
 
 **Inferred-form authoring without `$ref:`** — leaf-level markers accumulate at compile time. The compactform compiler walks each property and, where a leaf carries `required: true`, contributes the property name to the synthesized parent's `required:` array.
 
@@ -47,7 +47,7 @@ spec:
 
 The compiler emits `required: [database, display_name]` at the parent scope.
 
-**`$ref:`-bearing consumers** — beside a cross-document `$ref:` only `properties`, `required` and `description` may be written, and the requirements the consumer adds are the ones in a parent-level `required:` array there. The referenced entry's own requirements — leaf-level markers in its inferred form, or a `required:` array of its own — apply through the reference unchanged. Authors of `$ref:`-bearing consumers should declare the requirement set explicitly at the parent level:
+**`$ref:`-bearing consumers** — beside a cross-document `$ref:` only `properties`, `required` and `description` may be written, and the requirements the consumer adds are the ones it writes there: a parent-level `required:` array, or a leaf-level `required: true` marker on a property it declares under `properties:`. The referenced entry's own requirements — leaf-level markers in its inferred form, or a `required:` array of its own — apply through the reference unchanged. A parent-level array names requirements without redeclaring the properties the entry already declares:
 
 ```yaml
 spec:
@@ -57,7 +57,7 @@ spec:
       required: [database, display_name]
 ```
 
-The authoring criterion is simple: any consumer that uses `$ref:` to pull a library entry into its schema must declare its `required:` set as a parent-level array. Mixing parent-level `required:` with `$ref:` is the canonical authoring shape; leaf-level `required: true` markers in this case do nothing.
+A leaf-level marker counts as well, on a property the consumer declares beside the reference — so `properties: { database: { type: string, required: true } }` written there makes `database` required exactly as `required: [database]` does. The consumer's property replaces the entry's property of the same name (see [Consumer narrows library entry](#consumer-narrows-library-entry)), so redeclare it with the shape you mean.
 
 ## Library-to-library chain expansion
 

@@ -85,6 +85,8 @@ One bound applies to shapes reached indirectly. Where a field's shape comes thro
 
 The borrowed JSON Schema keywords (`$ref`, `allOf`, `format`, etc.) reuse identical syntax to JSON Schema, so authors who already know JSON Schema recognize them immediately.
 
+**A keyword whose value is data carries that value as written.** A mapping or a list given to `default` or `enum`, or to JSON Schema's `const` in a leaf, is the value itself, never a nested schema: `endpoint: { type: object, default: { host: db, port: 5432 } }` defaults `endpoint` to that object, and `mode: { type: object, const: { kind: fast } }` admits exactly that object. The same holds inside a [`$jsonschema:` escape](#the-escape-hatch--jsonschema).
+
 ## How a compact-form leaf is structured
 
 The unit of authoring is a leaf node — a field with a constraint dict:
@@ -196,9 +198,9 @@ auth:
   database: { type: string, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$", required: true }
 ```
 
-The compiler collects all `required: true` markers within an inferred-form object scope and emits them as JSON Schema's `required: [field1, field2]` array.
+The compiler collects all `required: true` markers within an object scope and emits them as JSON Schema's `required: [field1, field2]` array. The marker counts wherever the property is declared: in an inferred-form scope, and on a property inside an explicit `properties:` block.
 
-The per-leaf marker form works cleanly for inferred-form objects without `$ref:`. For consumers that pull a SchemaLibrary entry into their schema via `$ref:`, the parent-level `required: [name1, name2]` array is the canonical authoring shape; leaf-level markers inside a `$ref:`-bearing consumer's content do not contribute to the parent's required set. See [cross-document-ref.md](cross-document-ref.md) §"`required:` syntax under cross-document `$ref:`" for the full rule.
+A consumer that pulls a SchemaLibrary entry into its schema via `$ref:` may name its requirements either way — a parent-level `required: [name1, name2]` array beside the reference, or a `required: true` marker on a property it declares under `properties:` there. See [cross-document-ref.md](cross-document-ref.md) §"`required:` syntax under cross-document `$ref:`" for the full rule.
 
 ## Arrays
 
@@ -352,7 +354,7 @@ secondary:
   when: '{{ eq $.architecture "replication" }}'
   required: true
   properties:
-    replicaCount: { min: 2 }
+    replicaCount: { type: integer, min: 2 }
 ```
 
 The predicate evaluates against the parent's instance values. `$` refers to the surrounding object scope. When `architecture` is `replication`, the constraints (`required: true`, the additional `replicaCount: min: 2`) apply on top of the referenced `NodePool`. When `architecture` is `standalone`, those constraints are inactive.
@@ -585,7 +587,7 @@ The compiler emits the same composition keywords in resolved JSON Schema. The co
 
 ## The escape hatch — `$jsonschema:`
 
-For cases beyond the compact form's vocabulary (`$dynamicRef`, complex `unevaluatedProperties` interactions, deep `not:` composition, recursive types), any node can drop to full JSON Schema:
+For cases beyond the compact form's vocabulary (`$dynamicRef`, `unevaluatedProperties`, deep `not:` composition, recursive types), any node can drop to full JSON Schema:
 
 ```yaml
 values:
@@ -600,9 +602,18 @@ values:
             required: [conflicting_field]
       patternProperties:
         "^x-": { type: string }
+  $defs:
+    Foo:
+      type: object
+      properties:
+        name: { type: string }
 ```
 
 The `$jsonschema:` block contains JSON Schema YAML; the compiler treats it as a transparent passthrough — the content goes directly into the resolved JSON Schema document at that node's position. Validation, error reporting, and tooling all work on the resolved document; the escape is purely an authoring convenience.
+
+Every node inside the block is read as JSON Schema, and a compact-form keyword written there keeps its compact meaning (`min: 3` on a string is still a minimum length). A `$ref` in the block resolves as one outside it does: `#/$defs/Foo` names an entry of the pillar's `$defs:`, so the example declares `Foo` there, and a reference naming an entry nobody declared is refused when the entity loads. `$dynamicRef` resolves against a `$dynamicAnchor`, so a recursive shape can be written; a value failing deep inside the recursion is reported at the field that holds it — `tree.children`, for a bad `name` two levels down a tree whose `children` items are `{ $dynamicRef: "#node" }`.
+
+**One bound applies to `unevaluatedProperties` and `unevaluatedItems`.** Written at a node that also carries a reference, a composition keyword (`allOf`, `anyOf`, `oneOf`), a conditional or a dependent schema, either loads but is not enforced — and `unevaluatedItems` is not enforced beside `contains` either. In the example above, `unevaluatedProperties: false` sits beside `allOf`, so `{ name: n, extra: 1 }` is accepted although neither `Foo` nor `patternProperties` declares `extra`.
 
 The `$jsonschema:` escape is per-node, not per-document. A schema can use compact form for the simple parts, JSON Schema escape for the one complex field, and `$ref:` for shared shapes — all in one document.
 
@@ -743,7 +754,7 @@ Written as JSON Schema YAML, the same contract spells out every object's `type: 
 
 ## Cross-pointers
 
-- For cross-document `$ref:` resolution semantics (Pattern A vs B `required:` syntax; library-to-library chain expansion; consumer narrows library): [cross-document-ref.md](cross-document-ref.md).
+- For cross-document `$ref:` resolution semantics (the `required:` syntax beside a cross-document reference; library-to-library chain expansion; consumer narrows library): [cross-document-ref.md](cross-document-ref.md).
 - For the `assertions:` block authoring grammar (cross-field rules that compact-form `validate:` cannot express): [templates/assertions-block.md](../templates/assertions-block.md).
 - For the data-pillar set that hosts the compact-form schemas (`values:`, `infra:`, `provides:`, `uses:`, `features:`, `locals:`, `parameters:`): [data-pillars.md](data-pillars.md).
 - For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, publisher expansion): [uri-grammar.md](uri-grammar.md).

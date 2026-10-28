@@ -224,7 +224,7 @@ The discipline applies wherever a single global namespace constrains the name. A
 
 **What the compiler does and does not check.** The compiler does not inspect `valuesMapping:` outputs for cloud-resource-name fields without these interpolations. The discipline is upheld by Recipe authors (who know which fields name globally-unique resources for the target provider) and reviewers (who catch unnamed-resource patterns at PR review). A linter plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation; the linter socket ships and runs through [`aggrega lint`](../cli/aggrega-lint.md) (see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) "Placement criterion: the linter socket vs the governance verdict roles"), and none of the publishing linter's rules checks this.
 
-This discipline is one of several Class C contracts (convention-enforced authoring discipline) that authors learn from documentation rather than from compiler enforcement. See [`vocabulary/social-contracts.md`](../vocabulary/social-contracts.md) for the broader Class C inventory and the architectural rationale for each contract's classification.
+This discipline is one of several Social Contracts upheld by convention — authoring discipline that authors learn from documentation rather than from compiler enforcement. See [`vocabulary/social-contracts.md`](../vocabulary/social-contracts.md) for the full list of conventions and the architectural rationale for each contract's classification.
 
 **Source field templating.**
 A Recipe's `source` field is itself a templating surface. Both shapes of `source` accept Go templates: the universal-string form

@@ -10,35 +10,35 @@ This page is the canonical inventory of the language's Social Contracts. Authors
 
 Aggrega's disciplines split into three classes by *how the discipline is enforced*. The classification matters because each class has a different failure mode when the discipline is violated.
 
-### Class A — schema-enforced
+### Enforced by the schema
 
-The discipline is enforced by JSON Schema 2020-12 validation at load time (the entity envelope's JSON Schema, plus the pillar-level `schema:` declarations on Component and Feature entities). A violation produces a fatal halt before the build progresses; the compiler refuses to proceed. Authors who try to violate a Class A discipline see an explicit validation error pointing at the field and the constraint.
+The discipline is enforced by JSON Schema 2020-12 validation at load time (the entity envelope's JSON Schema, plus the pillar-level `schema:` declarations on Component and Feature entities). A violation produces a fatal halt before the build progresses; the compiler refuses to proceed. Authors who try to violate a schema-enforced discipline see an explicit validation error pointing at the field and the constraint.
 
 Examples: entity envelope required fields (`apiVersion` / `kind` / `metadata.name` / `metadata.version`); SemVer regex on `metadata.version`; the closed value set on the reserved `component.aggrega.ai/type` label; Release schema's mechanical ban on `values:` blocks (per Invariant 5); `extends`-plus-`aggregate` rejection on Release (the Single Source of Truth invariant); the Recipe shape rules enforcing the input-kind composition contract.
 
-Class A disciplines are the strongest guarantees the language carries. The compiler refuses to render anything that violates them.
+Schema-enforced disciplines are the strongest guarantees the language carries. The compiler refuses to render anything that violates them.
 
-### Class B — Wasm-enforced
+### Enforced by a policy plugin
 
 The discipline is enforced by a Wasm plugin running at one of the documented socket points (the governance `label-transform` role at topology construction; the governance `ir-verdict` role at static analysis; the out-of-band linter socket). A violation produces either a build-halting policy failure (in-band sockets) or an advisory warning (out-of-band sockets), depending on the socket's gating semantics.
 
-Class B disciplines today are mostly **future-shipping** — the Wasm runtime ships and invokes plugins at the documented socket points (see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)), but a discipline reaches Class B only once the specific plugin that enforces it exists, and most of those plugins are not yet authored. When such a plugin ships, the discipline it enforces transitions from Class C (convention-enforced) to Class B (Wasm-enforced). Examples currently chartered for future Class B status: hermeticity enforcement (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and a future linter plugin could flag their use); cloud-resource naming pattern matching (a future linter plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline").
+A discipline is enforced this way only where a plugin that checks it runs: the Wasm runtime invokes plugins at the documented socket points, and a discipline no plugin checks stays a convention. The publishing linter, which [`aggrega lint`](../cli/aggrega-lint.md) runs, checks part of one convention on this page — see [Conventions a linter rule checks](#conventions-a-linter-rule-checks). No rule of the publishing linter checks hermeticity (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md)) or cloud-resource naming (Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation, per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline"); a linter plugin of your own can check either.
 
 For the Wasm plugin contract surface and the placement criterion (the linter socket vs the governance verdict roles), see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md).
 
-### Class C — convention-enforced
+### Upheld by convention
 
 The discipline is upheld by authoring discipline plus reviewer attention only. The compiler does not enforce; no schema rejects the violation; no Wasm plugin flags it. Authors learn the discipline from documentation, follow it because the architectural shape depends on it, and rely on PR review to catch lapses. A violation produces no compile-time signal — the build succeeds, the rendered output works as far as the compiler knows, and the discipline-violation surfaces only when downstream tooling or runtime behaviour depends on the convention.
 
-Class C disciplines are the load-bearing list authors must learn from documentation. The compiler does not interpret them; getting them wrong does not break the build, but it breaks the architectural shape Aggrega depends on. The bulk of this page documents the Class C inventory.
+Disciplines upheld by convention are the load-bearing list authors must learn from documentation. The compiler does not interpret them; getting them wrong does not break the build, but it breaks the architectural shape Aggrega depends on. The bulk of this page documents them.
 
-## The Class C inventory
+## The conventions
 
-The following Social Contracts are convention-enforced today. Each entry names the discipline, the surface where the convention is documented, and the failure mode if violated.
+The following Social Contracts are upheld by convention. Each entry names the discipline, the surface where the convention is documented, and the failure mode if violated. Each keeps its number wherever it sits: contract 3, reserved-prefix discipline, is checked by a linter rule for annotation keys and is described under [Conventions a linter rule checks](#conventions-a-linter-rule-checks).
 
 ### 1. Choosing the operational type that fits the component
 
-The reserved `component.aggrega.ai/type` label names what kind of thing a component is, drawn from a closed set of universal cloud primitives: `server`, `worker`, `task`, `function`, `stateful-server`, `resource`. **Membership of that set is Class A, not Class C.** Aggrega defines this key and the values it accepts, the Component schema enumerates them, and a document carrying anything else is refused when it loads — `E0215`, the `entity-envelope-invalid` condition, names the label and lists the values it will take. That refusal is what this entry does *not* cover.
+The reserved `component.aggrega.ai/type` label names what kind of thing a component is, drawn from a closed set of universal cloud primitives: `server`, `worker`, `task`, `function`, `stateful-server`, `resource`. **Membership of that set is enforced by the schema, not upheld by convention.** Aggrega defines this key and the values it accepts, the Component schema enumerates them, and a document carrying anything else is refused when it loads — `E0215`, the `entity-envelope-invalid` condition, names the label and lists the values it will take. That refusal is what this entry does *not* cover.
 
 What stays convention is **which** of the values fits the component in front of you. Nothing checks that a relational database is labelled `stateful-server` rather than `server`, or that a queue consumer is `worker` rather than `task`; the selector evaluates whatever value it finds without reading meaning into it. The Architect authoring a Component picks the value that describes how infrastructure must treat it, and downstream selectors, policy plugins and Wasm rendering plugins all rely on that choice being honest.
 
@@ -58,23 +58,11 @@ The compiler does not enforce the bucket boundaries. The three buckets share a f
 
 **Failure mode:** Routing logic that depends on the bucket-intent distinction (e.g., a Recipe routing `.context.annotations.release.aggrega.ai/region` into a Terraform `region` field) silently consumes whatever annotation appears in the bucket regardless of authoring intent. The build succeeds; the rendered output may carry semantically-wrong values.
 
-### 3. Reserved-prefix discipline
-
-Annotation and label keys follow a `<namespace>/<name>` shape. Five reserved prefixes carry specific authoring rules: `aggrega.ai/` (platform-only), `feature.aggrega.ai/` (official Feature shortcuts), `component.aggrega.ai/` (Component-intrinsic traits), `aggregate.aggrega.ai/` (Aggregate module identity), and `<any-other-domain>/` (enterprise / community).
-
-The compiler does not reject an annotation authored under a reserved prefix on a catalog entity or a Release; only a Manifest annotation binding or a Recipe output label claiming a key under `aggrega.ai/` halts the build. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the compiler accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
-
-**Documented at:** [`labels-and-annotations.md`](labels-and-annotations.md) (Prefix discipline) + [`providers/well-known-annotations.md`](../providers/well-known-annotations.md).
-
-**Failure mode:** Custom annotations under reserved prefixes collide with future platform annotations under the same name; the platform's expected behaviour silently overwrites or coexists with the enterprise's authored value depending on order.
-
-The publishing linter, run by [`aggrega lint`](../cli/aggrega-lint.md), flags a catalog entity's annotation key under `aggrega.ai/` that is not one of the platform's well-known annotations, and one under `feature.aggrega.ai/` on an entity other than a Feature, as an advisory finding. Label keys, the other reserved prefixes, and annotations outside an entity's `metadata.annotations` — those a Release writes, for instance — are not checked, so for them the discipline stays convention-enforced.
-
 ### 4. Recipe `provides:` self-containment
 
 Recipe `provides:` templates close over the node's own data only — `.values`, `.infra`, `.context.instance_id`, `.context.rendered_name` where the node's provider reports one, the node's resolved `.locals`, plus static strings. References to `.context.inject` and `.context.uses` are forbidden because provides evaluation runs those templates in any order; reading cross-node data would couple it to topological iteration order, which the design deliberately avoids. `.locals` is on the surface rather than off it: the node's locals resolve in the preamble of the same stage, ahead of its provides, and they are node-local, so reading them costs nothing in ordering. Naming a key the locals block does not declare halts.
 
-This is a hybrid — provides evaluation checks each template against a positive allowlist of the roots its context defines before the template executes, so a `.context.inject` / `.context.uses` read halts with an explicit error rather than rendering empty; the convention is also documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6. The discipline is enforced where the compiler can detect the violation; the broader pattern (provides-is-public; locals-is-private) is convention-anchored.
+This is a rule with two halves, each naming where it is checked. The compiler checks the first: provides evaluation checks each template against a positive allowlist of the roots its context defines before the template executes, so a `.context.inject` / `.context.uses` read halts with an explicit error rather than rendering empty; the rule is also documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6. Convention upholds the second: the broader pattern (provides-is-public; locals-is-private) is convention-anchored.
 
 **Documented at:** [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 + [`vocabulary/data-pillars.md`](data-pillars.md) "`provides:` and `locals:` — public face vs private face".
 
@@ -90,7 +78,7 @@ The compiler does not detect or block use of non-hermetic helpers. The Sprig Fun
 
 **Failure mode:** Build output differs across runs of the same input. The mismatch surfaces at GitOps diff time, when downstream tooling (ArgoCD, Flux) sees an unexpected drift between the committed manifest and the cluster state, or at audit time when two compilations of the same input produce different artifacts.
 
-A future Wasm-linter rule could statically analyse template surfaces for non-hermetic helper invocations and reject the build with a Loud Guardrail; the discipline transitions from Class C to Class B when the rule ships.
+No rule of the publishing linter checks templates for non-hermetic helper invocations. The helper's name is written in the template, so a linter plugin of your own can find it (see [Conventions a linter rule checks](#conventions-a-linter-rule-checks)).
 
 ### 6. Pillar boundaries (signposts not walls)
 
@@ -127,7 +115,7 @@ The compiler does not inspect `valuesMapping:` outputs for cloud-resource-name f
 
 **Failure mode:** Two Releases of the same Aggregate (`prod-billing` and `staging-billing`) both attempt to deploy a resource with the same global name; the second deployment fails at runtime with a cloud-side rejection. The Aggrega build succeeds; the deployment failure surfaces only when the second Release is applied.
 
-A future Wasm-linter rule could flag cloud-resource-name fields without the required interpolations; the discipline transitions from Class C to Class B when the rule ships.
+No rule of the publishing linter checks cloud-resource-name fields for the required interpolations; a linter plugin of your own can (see [Conventions a linter rule checks](#conventions-a-linter-rule-checks)).
 
 ### 9. Component granularity — one coherent service per Component
 
@@ -139,35 +127,43 @@ The compiler is agnostic to this granularity. It renders whatever passes schema 
 
 **Failure mode:** A monolithic multi-service wrap builds successfully, but the bundled services are invisible to the topology, the selector, and policy — they cannot be scaled, replaced, or depended-upon independently. Refactoring the monolith into per-service Components later is a breaking change to every consumer that referenced the single wrapped node.
 
-## Why Class C exists
+## Why conventions exist
 
-Each Class C contract's classification is a deliberate choice. The architecture could have schema-enforced or Wasm-enforced any of them; instead the choice was made to leave them as authoring discipline. The reasoning per contract type:
+Each convention's classification is a deliberate choice. The architecture could have schema-enforced or Wasm-enforced any of them; instead the choice was made to leave them as authoring discipline. The reasoning per contract type:
 
 **Extensibility.** The reserved-prefix discipline (contract 3) describes the standard library's vocabulary, not the universe of valid vocabulary. Enterprise catalogs author their own prefixes and label keys to extend the standard library; schema-enforcing the prefix convention would convert "the standard library's discipline" into "the language's only allowed shape" — that's the wall the architecture deliberately avoids. The operational type axis (contract 1) keeps the same extensibility on a different surface: the reserved key Aggrega defines carries a closed, schema-enforced set, and a catalog extends by adding a label key of its own beside it rather than a value inside Aggrega's. What the schema checks is the value set of one key it owns; what stays open is every other key, which is where a catalog's own vocabulary lives.
 
-**AOT purity.** The cloud-resource naming discipline (contract 8) and the determinism discipline (contract 5) require introspecting template content to determine whether a field is a cloud-resource name or a non-hermetic helper invocation. AOT purity (Invariant 2) keeps the compiler from depending on runtime state; static template introspection is feasible (the Wasm-linter plan demonstrates this) but doing it inside the core compiler couples compiler-internal logic to per-domain authoring concerns. The architecture moves these checks out of the compiler and into Wasm plugins per Invariant 6 (the Wasm ABI Boundary).
+**AOT purity.** The cloud-resource naming discipline (contract 8) and the determinism discipline (contract 5) require introspecting template content to determine whether a field is a cloud-resource name or a non-hermetic helper invocation. AOT purity (Invariant 2) keeps the compiler from depending on runtime state; static template introspection is feasible (a linter plugin reads the entity's templates as written) but doing it inside the core compiler couples compiler-internal logic to per-domain authoring concerns. The architecture moves these checks out of the compiler and into Wasm plugins per Invariant 6 (the Wasm ABI Boundary).
 
 **Authoring-flexibility.** The pillar-boundaries discipline (contract 6) and the dual-source `variables` semantic (contract 7) describe authoring patterns rather than runtime constraints. The same template syntax can express a discipline-honouring pattern or a discipline-violating one; making the discipline a runtime check would require the compiler to interpret authoring intent it can't access. The architecture treats the convention as documentation that authors learn from rather than as a runtime invariant. Component granularity (contract 9) sits here too: enterprises may wrap a product at whatever granularity their catalog favours, and the compiler — content-neutral and unopinionated per Invariant 1 — has no way to know whether a bundled workload is independently usable, so the one-coherent-service boundary stays authoring discipline rather than a schema wall. The operational type *choice* (contract 1) is the same shape: the schema settles which values exist, but which one describes a given component is a modelling judgment about how infrastructure must treat it, and nothing in a Recipe or a `values` block tells the compiler whether the judgment was right.
 
-**Hybrid enforcement.** The Recipe `provides:` self-containment (contract 4) is partly compiler-enforced — the render path detects `.context.inject` / `.context.uses` reads in `provides:` templates and halts. The broader public-vs-private discipline (don't expose internal state) is convention-anchored because the compiler can't determine which strings should remain Recipe-internal without authoring intent.
+**Enforcement in two halves.** The Recipe `provides:` self-containment (contract 4) is partly compiler-enforced — the render path detects `.context.inject` / `.context.uses` reads in `provides:` templates and halts. The broader public-vs-private discipline (don't expose internal state) is convention-anchored because the compiler can't determine which strings should remain Recipe-internal without authoring intent.
 
-The classification distinction matters because each class signals where the responsibility for catching violations lives. Class A: the compiler. Class B: a Wasm plugin (when shipped). Class C: authors and reviewers. Authors who internalise the classes understand which mistakes the compiler will catch and which will silently pass through to downstream tooling or runtime.
+The three routes matter because each signals where the responsibility for catching violations lives. Enforced by the schema: the compiler. Enforced by a policy plugin: the plugin that checks it, where one runs. Upheld by convention: authors and reviewers. Authors who internalise the routes understand which mistakes the compiler will catch and which will silently pass through to downstream tooling or runtime.
 
-## Future Class B promotions
+## Conventions a linter rule checks
 
-Three Class C contracts have chartered Wasm-linter rules planned today:
+The publishing linter, run by [`aggrega lint`](../cli/aggrega-lint.md), checks one convention on this page in part: the annotation keys of contract 3, below. Its finding is advisory, and the part of the convention it does not reach is upheld by convention, as the entries above are.
 
-- **Determinism enforcement** (contract 5) — a future linter rule statically analyses template surfaces for non-hermetic helper invocations.
-- **Cloud-resource naming** (contract 8) — a future linter rule flags `valuesMapping:` outputs referencing cloud-resource-name fields without `release_name` / `instance_id` interpolation.
-- **Reserved-prefix discipline** (contract 3) — the publishing linter already flags a catalog entity's annotation keys under `aggrega.ai/` and `feature.aggrega.ai/` (see contract 3 above); a future linter rule (or publishing-discipline plugin) flags label keys under reserved prefixes that collide with the standard library's vocabulary.
+No rule of the publishing linter checks any other convention on this page. Two of them can be checked by a linter rule, because the violation is written in the entity: determinism (contract 5) — a template calling a non-hermetic helper — and cloud-resource naming (contract 8) — a `valuesMapping:` output naming a cloud resource without `release_name` / `instance_id` interpolation. So can label keys under the reserved prefixes (contract 3). A workspace may attach linter plugins of its own under `plugins.linter`, beside the publishing linter, to check any of them; [The discipline rules](../cli/aggrega-lint.md#the-discipline-rules) lists the rules the publishing linter carries.
 
-Each is `planned` per the four-label taxonomy at [`10-status.md`](../10-status.md). When each ships, the entry above's classification updates from Class C to Class B; the documentation alignment lands in lockstep with the plugin shipping.
+The other conventions (1, 2, 4, 6, 7, 9) turn on what the author meant, which no rule reads from what was written. The bucket separation is extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. What is left of the operational type axis after the schema settles the value set — picking the primitive that fits the component — is authoring-intent driven: the compiler cannot tell a well-chosen operational type from a badly-chosen one, because both are values it accepts. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the compiler cannot determine intent from template syntax alone. Recipe `provides:` self-containment is partially enforced; the broader public-vs-private discipline turns on which keys the author meant to keep internal, which nothing in the Recipe states. Component granularity is authoring-intent driven as well — whether a bundled workload is independently usable is a modelling judgment the compiler cannot read from Recipe content.
 
-The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C. The bucket separation is extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. What is left of the operational type axis after the schema settles the value set — picking the primitive that fits the component — is authoring-intent driven: the compiler cannot tell a well-chosen operational type from a badly-chosen one, because both are values it accepts. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the compiler cannot determine intent from template syntax alone. Recipe `provides:` self-containment is already partially enforced; the broader public-vs-private discipline is unlikely to gain runtime enforcement. Component granularity is authoring-intent driven as well — whether a bundled workload is independently usable is a modelling judgment the compiler cannot read from Recipe content.
+### 3. Reserved-prefix discipline
+
+Annotation and label keys follow a `<namespace>/<name>` shape. Five reserved prefixes carry specific authoring rules: `aggrega.ai/` (platform-only), `feature.aggrega.ai/` (official Feature shortcuts), `component.aggrega.ai/` (Component-intrinsic traits), `aggregate.aggrega.ai/` (Aggregate module identity), and `<any-other-domain>/` (enterprise / community).
+
+The compiler does not reject an annotation authored under a reserved prefix on a catalog entity or a Release; only a Manifest annotation binding or a Recipe output label claiming a key under `aggrega.ai/` halts the build. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the compiler accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
+
+**Documented at:** [`labels-and-annotations.md`](labels-and-annotations.md) (Prefix discipline) + [`providers/well-known-annotations.md`](../providers/well-known-annotations.md).
+
+**Failure mode:** Custom annotations under reserved prefixes collide with future platform annotations under the same name; the platform's expected behaviour silently overwrites or coexists with the enterprise's authored value depending on order.
+
+The publishing linter, run by [`aggrega lint`](../cli/aggrega-lint.md), flags a catalog entity's annotation key under `aggrega.ai/` that is not one of the platform's well-known annotations, and one under `feature.aggrega.ai/` on an entity other than a Feature, as an advisory finding (`E0277`). Label keys, the other reserved prefixes, and annotations outside an entity's `metadata.annotations` — those a Release writes, for instance — are not checked, so for them the discipline stays a convention.
 
 ## Cross-references
 
-- [`architecture/05-invariants.md`](../../architecture/05-invariants.md) — the eight founding invariants that ground Aggrega's "the compiler is content-neutral" framing; each Class C contract sits in tension with one or more of these.
+- [`architecture/05-invariants.md`](../../architecture/05-invariants.md) — the eight founding invariants that ground Aggrega's "the compiler is content-neutral" framing; each convention sits in tension with one or more of these.
 - [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — the operational ontology's full design rationale.
 - [`vocabulary/labels-and-annotations.md`](labels-and-annotations.md) — three-bucket separation as Social Contract; reserved-prefix discipline.
 - [`vocabulary/data-pillars.md`](data-pillars.md) — pillar boundaries as signposts; `provides:` and `locals:` public-vs-private framing.
@@ -176,4 +172,4 @@ The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C.
 - [`entities/workload.md`](../entities/workload.md) — Workload `variables:` dual-source semantic.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Recipe `provides:` self-containment as compiler-enforced rule.
 - [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the linter socket's placement criterion.
-- [`10-status.md`](../10-status.md) — readiness state for chartered Wasm-linter rules.
+- [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing linter's rules, and attaching linters of your own.
