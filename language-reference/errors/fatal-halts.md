@@ -4062,7 +4062,7 @@ Emitted message:
 
 The bracketed part is present only where the verdict carried detail, and each part inside it only where the plugin set it.
 
-**How to fix:** read the plugin's message and the suggestion where it supplied one. Where the finding is correct, change what it objects to. Where the policy should not apply to this deployment, that is a question about the attachment: governance attachments are configured under `plugins.governance` in the workspace configuration, and which plugin runs in which role is an operator's decision rather than something a document can override.
+**How to fix:** read the plugin's message and the suggestion where it supplied one. Where the finding is correct, change what it objects to. Where the policy should not apply to this Release, that is a question about the attachment: governance attachments are configured under `plugins.governance` in the workspace configuration, and which plugin runs in which role is an operator's decision rather than something a document can override.
 
 ### A governance attachment's settings do not match the plugin's declared schema
 
@@ -4460,7 +4460,7 @@ and where the evaluation failed rather than the predicate:
 
 **Checked on its own, an entity reports a failed assertion as a warning.** `aggrega validate` given a Recipe's file, the editor's check of that file through `aggrega serve`, and the `validate` tool of `aggrega mcp` given an `entity` build the Recipe around placeholders and schema defaults rather than the values a Release sets, so they cannot tell an assertion waiting on a Release from one that is broken. There, an assertion that calls `fail` — the Recipe's own, or one the Component it implements declares — is reported as a warning carrying the message above, closed by the sentence `A Release must satisfy this assertion before a build of it can pass.`, and the check passes. A reference to a key nothing supplies and an assertion that does not parse are not failed assertions: each is a fault in the assertion's own text, and that check judges it as it judges any other fault. A build always has a Release, and halts on the assertion as described here; see [a failed assertion is a warning](../cli/aggrega-validate.md#a-failed-assertion-is-a-warning).
 
-**How to fix:** the message after the last colon is the assertion author's, and it is the one that says what to change — an assertion is written so that meeting it tells you the answer. Where the report is a missing key rather than the author's sentence, the assertion itself is at fault: correct the reference, or guard it as described above. Where the rule should not apply to this deployment, that is a question about the entity carrying the assertion rather than about your own file.
+**How to fix:** the message after the last colon is the assertion author's, and it is the one that says what to change — an assertion is written so that meeting it tells you the answer. Where the report is a missing key rather than the author's sentence, the assertion itself is at fault: correct the reference, or guard it as described above. Where the rule should not apply to this Release, that is a question about the entity carrying the assertion rather than about your own file.
 
 ### A pipeline step addresses documents the node does not have
 
