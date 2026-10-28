@@ -4,13 +4,17 @@
 #
 # Builds release.yaml with each combination of the three configuration layers
 # the README describes, and checks each outcome against the one it describes.
-# Four builds, each in its own copy of this workspace:
+# Five builds, each in its own copy of this workspace:
 #
 #   - the team's .aggrega-config.yaml alone;
 #   - with the organization's file, org/config.yaml, named by --config;
 #   - with the pipeline's file, pipeline/.aggrega-config-append-ci.yaml, copied
 #     into the workspace directory, as a pipeline would drop it there;
-#   - with both.
+#   - with both;
+#   - with a copy of the organization's file that writes its attachment under
+#     plugins.governance instead of plugins.governance_append, named by
+#     --config. The team's plugins.governance replaces that list, so the
+#     organization's rule does not run and only the team's verdict is printed.
 #
 # For each build it checks the exit status, whether dist/ was written, and the
 # verdicts the build printed: each one's severity and message, written below
@@ -49,10 +53,11 @@ while [ "$#" -gt 0 ]; do
       printf 'Usage: ./check.sh [-- EXTRA aggrega build args]\n'
       printf '  Builds release.yaml with the team'"'"'s configuration alone, with the\n'
       printf '  organization'"'"'s file named by --config, with the pipeline'"'"'s overlay in the\n'
-      printf '  workspace, and with both; checks each exit status, whether dist/ was written,\n'
-      printf '  and the severity and message of every verdict printed. Exits 1 on any\n'
-      printf '  mismatch. The binary is the one build-release.sh resolves (AGGREGA_BIN when\n'
-      printf '  set).\n'
+      printf '  workspace, with both, and with the organization'"'"'s attachment written under\n'
+      printf '  plugins.governance instead of plugins.governance_append; checks each exit\n'
+      printf '  status, whether dist/ was written, and the severity and message of every\n'
+      printf '  verdict printed. Exits 1 on any mismatch. The binary is the one\n'
+      printf '  build-release.sh resolves (AGGREGA_BIN when set).\n'
       exit 0 ;;
     *) die "unknown argument: $1 (pass aggrega build arguments after --)" ;;
   esac
@@ -76,6 +81,8 @@ expected() {
       printf '%s\n' "warn $HA" "halt $SHIP" "ignored auto_pull" ;;
     both)
       printf '%s\n' "warn $HA" "warn $SHIP" "info $LIC_DB" "info $LIC_WEB" "halt $SHIP" "ignored auto_pull" ;;
+    replaced)
+      printf '%s\n' "warn $HA" ;;
   esac
 }
 
@@ -99,6 +106,18 @@ copy() {
   if [ "$2" = with-pipeline ]; then
     cp "$HERE/pipeline/.aggrega-config-append-ci.yaml" "$dir/"
   fi
+}
+
+# org_as_base <dir>: beside the copy's org/config.yaml, org/config-base.yaml —
+# the same file with its attachment under plugins.governance rather than
+# plugins.governance_append. Exits 2 if the file does not read as expected,
+# rather than building a copy that does not differ the way it should.
+org_as_base() {
+  local cfg next
+  cfg="$(cat "$1/org/config.yaml")"
+  next="${cfg//"  governance_append:"/"  governance:"}"
+  [ "$next" != "$cfg" ] || die "no plugins.governance_append in org/config.yaml to write as plugins.governance"
+  printf '%s\n' "$next" > "$1/org/config-base.yaml"
 }
 
 # build <label> <dir> [args...]: one build in <dir>, its output to
@@ -144,10 +163,11 @@ layers() {
     organization) printf 'team + organization' ;;
     pipeline) printf 'team + pipeline' ;;
     both) printf 'all three' ;;
+    replaced) printf 'team + organization, plugins.governance' ;;
   esac
 }
 
-row() { printf '%-24s %-5s %-6s %s\n' "$@"; }
+row() { printf '%-40s %-5s %-6s %s\n' "$@"; }
 
 rc=0
 FAILED=""
@@ -156,15 +176,19 @@ fail() { rc=1; FAILED="$FAILED $1"; }
 row LAYERS EXIT DIST VERDICT
 printf '%.0s-' {1..100}; printf '\n'
 
-for combo in team organization pipeline both; do
+COMBOS="team organization pipeline both replaced"
+
+for combo in $COMBOS; do
   dir="$WORK/$combo"
   case "$combo" in
     team)         copy "$dir" without-pipeline; ec="$(build "$combo" "$dir")" ;;
     organization) copy "$dir" without-pipeline; ec="$(build "$combo" "$dir" --config "$dir/org/config.yaml")" ;;
     pipeline)     copy "$dir" with-pipeline;    ec="$(build "$combo" "$dir")" ;;
     both)         copy "$dir" with-pipeline;    ec="$(build "$combo" "$dir" --config "$dir/org/config.yaml")" ;;
+    replaced)     copy "$dir" without-pipeline; org_as_base "$dir"
+                  ec="$(build "$combo" "$dir" --config "$dir/org/config-base.yaml")" ;;
   esac
-  case "$combo" in team|organization) want_ec=0; want_dist=yes ;; *) want_ec=1; want_dist=no ;; esac
+  case "$combo" in team|organization|replaced) want_ec=0; want_dist=yes ;; *) want_ec=1; want_dist=no ;; esac
   if [ -d "$dir/dist" ]; then dist=yes; else dist=no; fi
   got="$(verdicts "$WORK/$combo.log" | sort)"
   want="$(expected "$combo" | sort)"
@@ -183,7 +207,7 @@ for combo in team organization pipeline both; do
 done
 
 # The verdicts each build printed, in the order it first printed them.
-for combo in team organization pipeline both; do
+for combo in $COMBOS; do
   printf '\n%s:\n' "$(layers "$combo")"
   while read -r severity message; do
     printf '  %-8s %s\n' "$severity" "$message"

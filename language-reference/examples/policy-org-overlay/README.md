@@ -66,7 +66,11 @@ The organization and the pipeline both write their attachment under
 `plugins.governance_append`, the append companion of the `plugins.governance`
 list. Entries under a companion are concatenated onto the resolved list after
 each file's own lists are read, so the team's `plugins.governance` and the
-organization's entry both run, and neither file names the other.
+organization's entry both run, and neither file names the other. The
+organization writes the companion, and not `plugins.governance` itself, because
+a `plugins.governance` list in the workspace's file replaces the one in the
+global file: an organization's rule written there is dropped by the team's list,
+and the build prints nothing about it.
 [Extending a list instead of replacing it](../../cli/configuration.md#extending-a-list-instead-of-replacing-it)
 lists the companion for each list setting.
 
@@ -233,22 +237,25 @@ build without it again.
 ./check.sh
 ```
 
-`check.sh` builds `release.yaml` four times, through the build-release helper,
+`check.sh` builds `release.yaml` five times, through the build-release helper,
 each in a copy of this workspace: with the team's file alone, with the
 organization's file named by `--config`, with the pipeline's overlay copied in,
-and with both. For each it checks the exit status, whether `dist/` was written,
-and every verdict the build printed — its severity and its message, with nothing
-missing and nothing else — and, where the overlay is read, the warning naming
-`auto_pull`. It prints one line per build, then the verdicts each printed, and
+with both, and with a copy of the organization's file that writes its
+attachment under `plugins.governance` instead of the companion — where the
+team's list replaces it, and only the team's verdict is printed. For each it
+checks the exit status, whether `dist/` was written, and every verdict the build
+printed — its severity and its message, with nothing missing and nothing else —
+and, where the overlay is read, the warning naming `auto_pull`. It prints one line per build, then the verdicts each printed, and
 exits 1 if any outcome differs, printing that build's output:
 
 ```text
-LAYERS                   EXIT  DIST   VERDICT
+LAYERS                                   EXIT  DIST   VERDICT
 ----------------------------------------------------------------------------------------------------
-team                     0     yes    OK
-team + organization      0     yes    OK
-team + pipeline          1     no     OK
-all three                1     no     OK
+team                                     0     yes    OK
+team + organization                      0     yes    OK
+team + pipeline                          1     no     OK
+all three                                1     no     OK
+team + organization, plugins.governance  0     yes    OK
 
 team:
   warn     db runs with high availability off
@@ -271,6 +278,9 @@ all three:
   warn     db runs with high availability off
   warn     web runs core/devtool/adminer, in the devtool category, which the organization does not ship
   halt     web runs core/devtool/adminer, in the devtool category, which the organization does not ship
+
+team + organization, plugins.governance:
+  warn     db runs with high availability off
 
 check: every build ended as expected.
 ```
@@ -306,4 +316,4 @@ decision keys, see [the governance socket](../../plugins/policy-socket.md).
   copied into this directory.
 - `build-release.sh` — builds the Release, echoing the equivalent `aggrega build`
   command.
-- `check.sh` — makes the four builds and checks each outcome.
+- `check.sh` — makes the five builds and checks each outcome.
