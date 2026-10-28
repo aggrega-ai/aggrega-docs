@@ -1285,9 +1285,9 @@ reference.
 So an attachment names a version the catalog the workspace reads carries. That
 version resolves from the catalog under a release of `aggrega` other than its own
 as well, while a version only the binary carries — its own release's — resolves
-with that release alone, and only at a verdict role: an attachment at a transform
-role is pinned in the lockfile, and the pull that pins it refuses, with `E0103`, a
-version no catalog the workspace reads carries. The version selects the Plugin entity, which records the
+with that release alone, at a verdict role and at a transform role alike. At a
+transform role the pull pins the version it resolved in the lockfile, and refuses
+with `E0103` a version that neither a catalog the workspace reads nor the binary carries. The version selects the Plugin entity, which records the
 plugin's exports and runtime limits, and not the engine: once the reference
 resolves, the engine that runs is the one compiled into the binary running the
 build, because the plugins built into the binary are the first place a plugin's

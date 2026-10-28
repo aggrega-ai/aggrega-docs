@@ -84,11 +84,11 @@ plugins:
 one the machine would otherwise read, and this workspace's
 `.aggrega-config.yaml` still layers on top of it.
 
-`0.8.6` is the version of each engine's Plugin entity in the standard-library
-catalog. The engine that runs is the one compiled into the `aggrega` binary
-running the build. The object the monitoring annotation takes needs an aggrega
-0.8.7 or later binary, because the engines of earlier releases do not inject an
-object of subkeys.
+`0.8.6` is a version at which the standard-library catalog carries each engine's
+Plugin entity, so the attachment resolves from the catalog the workspace reads.
+The engine that runs is the one compiled into the `aggrega` binary running the
+build, whatever version the attachment names. The object the monitoring
+annotation takes needs an engine that injects an object of subkeys, and the engines of releases before 0.8.7 do not.
 
 ## What an annotation-transform policy reads
 
@@ -345,8 +345,8 @@ plugins:
         - governance/rego:0.8.6
 ```
 
-Because the pin resolves through the catalog the workspace reads, the
-attachment names a version that catalog carries.
+The attachment names a version that catalog carries, so the pin resolves
+through the catalog the workspace reads.
 
 ## Building
 
