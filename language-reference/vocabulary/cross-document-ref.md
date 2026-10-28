@@ -34,7 +34,7 @@ The `allOf` composes the referenced `NodePool` shape with the additional constra
 
 Catalog authors choose between two authoring shapes when declaring required properties on a Component or Feature: leaf-level markers (`required: true` on each property) or the parent-level array (`required: [name1, name2, ...]` at the object scope). Both shapes are valid in JSON Schema 2020-12, and both count under cross-document `$ref:` expansion, written where this section shows.
 
-**Inferred-form authoring without `$ref:`** — leaf-level markers accumulate at compile time. The compactform compiler walks each property and, where a leaf carries `required: true`, contributes the property name to the synthesized parent's `required:` array.
+**Inferred-form authoring without `$ref:`** — leaf-level markers accumulate at compile time. The compiler walks each property and, where a leaf carries `required: true`, contributes the property name to the synthesized parent's `required:` array.
 
 ```yaml
 spec:
@@ -61,7 +61,7 @@ A leaf-level marker counts as well, on a property the consumer declares beside t
 
 ## Library-to-library chain expansion
 
-A SchemaLibrary entry may itself contain a `$ref:` pointing into another SchemaLibrary entry, producing a chain. The compactform compiler walks the chain at compile time: each `$ref:` met while an entry is expanded is itself expanded, in the terms of the library that holds it.
+A SchemaLibrary entry may itself contain a `$ref:` pointing into another SchemaLibrary entry, producing a chain. The compiler walks the chain at compile time: each `$ref:` met while an entry is expanded is itself expanded, in the terms of the library that holds it.
 
 ```yaml
 # Library A

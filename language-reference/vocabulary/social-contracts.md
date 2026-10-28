@@ -129,7 +129,7 @@ The compiler is agnostic to this granularity. It renders whatever passes schema 
 
 ## Why conventions exist
 
-Each convention's classification is a deliberate choice. The architecture could have schema-enforced or Wasm-enforced any of them; instead the choice was made to leave them as authoring discipline. The reasoning per contract type:
+Each of these conventions is authoring discipline by design, though a schema or a Wasm policy could enforce any of them. The reasoning per contract type:
 
 **Extensibility.** The reserved-prefix discipline (contract 3) describes the standard library's vocabulary, not the universe of valid vocabulary. Enterprise catalogs author their own prefixes and label keys to extend the standard library; schema-enforcing the prefix convention would convert "the standard library's discipline" into "the language's only allowed shape" — that's the wall the architecture deliberately avoids. The operational type axis (contract 1) keeps the same extensibility on a different surface: the reserved key Aggrega defines carries a closed, schema-enforced set, and a catalog extends by adding a label key of its own beside it rather than a value inside Aggrega's. What the schema checks is the value set of one key it owns; what stays open is every other key, which is where a catalog's own vocabulary lives.
 
