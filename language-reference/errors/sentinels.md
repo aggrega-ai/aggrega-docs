@@ -295,6 +295,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrUnknownUsesSocket()` | `unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
 | `ErrUnnormalizedRelease()` | `release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `ErrUnreadParameter()` | `unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
+| `ErrUsesInjectValue()` | `uses-inject-value` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` |
 | `ErrUsesSocketNearMiss()` | `uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
 | `ErrVerdictPluginTrustMismatch()` | `verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
 | `ErrYAMLLoad()` | `document-not-loadable` | `file load failed: the file could not be read, or its bytes did not parse` |
@@ -835,6 +836,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0359` | `source-adapter-not-registered` | `no source adapter is registered in this program for the source kind` |
 | `E0360` | `netrc-file-unreadable` | `the netrc file could not be read` |
 | `E0361` | `source-url-carries-credential` | `the source URL carries a credential` |
+| `E0362` | `uses-inject-value` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
