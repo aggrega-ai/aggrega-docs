@@ -74,7 +74,7 @@ Docker Compose hands the reserved GPUs to the container when the Docker host has
 
 ### Probes
 
-A Workload's three probe slots (`live`, `ready`, `startup`) collapse to compose's single `healthcheck` per service, with priority `live > ready > startup` (the most-canonical-liveness signal wins). Where that collapse discards a slot the author declared, the build raises an `unsupported-field` warning naming the slot that was translated and the slots that were dropped, so intent reaching no part of the output is reported rather than lost. A `health` block declaring one slot translates without loss and raises nothing.
+A Workload's three probe slots (`live`, `ready`, `startup`) collapse to compose's single `healthcheck` per service, with priority `live > ready > startup` (the most-canonical-liveness signal wins). Where that collapse discards a slot the author declared, the build raises an `unsupported-field` warning naming the slot that was translated and the slots that were dropped, so intent reaching no part of the output is reported rather than lost. A `health` block declaring one slot translates without loss and raises nothing, unless the slot sets `successThreshold`: a compose healthcheck has no field for it, so an authored value — `1` included — is omitted with an `unsupported-field` warning naming it (`containers.<name>.health.<slot>.successThreshold`), and the rest of the slot translates as the table below shows.
 
 | Workload probe shape | Compose `healthcheck.test` |
 | --- | --- |

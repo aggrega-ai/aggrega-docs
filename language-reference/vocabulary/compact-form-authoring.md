@@ -24,6 +24,7 @@ The compact form's keywords are the ones in the tables below. Authors learn them
 | Keyword | Meaning | Compiles to JSON Schema |
 | --- | --- | --- |
 | `enum` | Permitted values (list) | `enum:` |
+| `const` | The one permitted value — a scalar, a mapping or a list | `const:` |
 | `min` | Minimum value (numeric) or minimum length (string/array) | `minimum:` (numeric); `minLength:` (string); `minItems:` (array) — chosen by `type:` |
 | `max` | Maximum value or length, parallel to `min` | `maximum:` / `maxLength:` / `maxItems:` |
 | `minLength` / `maxLength` | Explicit string-length constraints | Direct map to `minLength:` / `maxLength:` (use when `min`/`max` would be ambiguous) |
@@ -85,7 +86,7 @@ One bound applies to shapes reached indirectly. Where a field's shape comes thro
 
 The borrowed JSON Schema keywords (`$ref`, `allOf`, `format`, etc.) reuse identical syntax to JSON Schema, so authors who already know JSON Schema recognize them immediately.
 
-**A keyword whose value is data carries that value as written.** A mapping or a list given to `default` or `enum`, or to JSON Schema's `const` in a leaf, is the value itself, never a nested schema: `endpoint: { type: object, default: { host: db, port: 5432 } }` defaults `endpoint` to that object, and `mode: { type: object, const: { kind: fast } }` admits exactly that object. The same holds inside a [`$jsonschema:` escape](#the-escape-hatch--jsonschema).
+**A keyword whose value is data carries that value as written.** A mapping or a list given to `default`, `enum` or `const` is the value itself, never a nested schema: `endpoint: { type: object, default: { host: db, port: 5432 } }` defaults `endpoint` to that object, and `mode: { type: object, const: { kind: fast } }` admits exactly that object — as does `mode: { const: { kind: fast } }`, since `const`, like `enum`, makes the node a leaf on its own. The same holds inside a [`$jsonschema:` escape](#the-escape-hatch--jsonschema).
 
 ## How a compact-form leaf is structured
 
@@ -239,7 +240,7 @@ When `type:` carries an array, the value space is the union of the named types' 
 
 ## Reserved keywords at every inferred-form scope
 
-The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, the constraint keywords (`enum`, `min`, `max`, `pattern`, `format`, etc.), and the Aggrega-specific keywords (`validate`, `validateMessage`, `when`, `sensitive`). When any of these keywords appears as a field name at an inferred-form object scope, the compiler reads the enclosing scope as a constraint leaf rather than as an object: the keyword is taken as a constraint, not as a child property, and every other key in that scope must then be a keyword too, so the first one that is not is refused as an unknown keyword.
+The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, the constraint keywords (`enum`, `const`, `min`, `max`, `pattern`, `format`, etc.), and the Aggrega-specific keywords (`validate`, `validateMessage`, `when`, `sensitive`). When any of these keywords appears as a field name at an inferred-form object scope, the compiler reads the enclosing scope as a constraint leaf rather than as an object: the keyword is taken as a constraint, not as a child property, and every other key in that scope must then be a keyword too, so the first one that is not is refused as an unknown keyword.
 
 `sensitive` deserves specific mention here, because it is a far more plausible name for a real developer-authored field than the other Aggrega-specific keywords are. A schema that genuinely needs a property *named* `sensitive` — a component whose `values` expose a `sensitive` flag of their own, say — must declare the enclosing scope explicitly, exactly as it would for a property named `type` or `default`. Either the explicit form below or `$mode: jsonschema` on the enclosing scope achieves it: under `$mode: jsonschema` the whole node is read as authored JSON Schema, where `sensitive` is ordinary content rather than the compact-form keyword.
 

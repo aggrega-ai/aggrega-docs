@@ -1262,6 +1262,22 @@ The halt is raised over the annotation as written, before it is expanded into a 
 
 **How to fix:** correct the bound value to satisfy the declared sub-schema, or widen that property's schema if the value is legitimate. The undeclared-subkey variant is usually pre-empted by the binding-target halt above; reaching it means the binding declares the path and the Feature's schema does not carry it, so correct whichever of the two is wrong. When an intermediate composition operator makes a path unresolvable and the runtime later rejects it, narrow the schema to surface the property at the binding's path directly.
 
+### An annotation subkey is not routed by its binding
+
+<!-- covers: pkg/resolver.ErrAnnotationSubkeyNotBound -->
+
+An annotation you authored carries subkeys under a key a Manifest annotation binding claims, and one of those subkeys is a name the binding does not route: it is listed under neither `maps.infra` nor `maps.values`. Each subkey is routed on its own, to the Feature path the binding declares for it, so a subkey the binding does not name has nowhere to go. Expanding the annotation without it would leave a value you wrote out of the build with nothing said, and a misspelt subkey is the usual cause — so the build halts instead, naming the subkey, the annotation key it was written under, and every subkey the binding does route.
+
+The halt is raised over the annotation as written, before it is expanded into a Feature attachment, as the two conditions beside it are: "A bound annotation value does not conform to the target Feature's schema" above refuses a subkey the binding routes when the Feature refuses its value, and "An annotation routes through a pillar its authoring side may not use" below refuses one routed through the wrong pillar. A key no binding claims is not this condition: nothing routes it, and the build passes it over.
+
+Emitted message, naming the document and the place the annotation was written, the subkey, the annotation key, and the subkeys the binding routes:
+
+> annotation subkey is not routed by the annotation's binding (Release `<release-name>`, at `.spec.boundaries.<boundary>.annotations`, `"<subkey>"`, written under annotation `"<key>"`, whose binding routes only `"<subkey>, <subkey>"`)
+
+An annotation written in an Aggregate is named the same way, at the place it was written there — `(Aggregate <name>, at .spec.subsystems.<subsystem>.annotations, …)` for one written on a subsystem. The build reports a Release-side annotation under an `OPS_ERROR` tag and an Aggregate-side one under a `DEVELOPER_ERROR` tag, after the document that wrote it.
+
+**How to fix:** compare the subkey with the ones the message lists. Where it is a misspelling, correct it to the subkey the binding routes. Where the value is meant to reach the Feature, the binding has to route it: add the path to the binding's `maps.infra` or `maps.values` in the Manifest — a path the Feature's schema declares — or remove the subkey from the annotation.
+
 ### An annotation routes through a pillar its authoring side may not use
 
 <!-- covers: pkg/resolver.ErrAnnotationSidePillarMismatch -->
@@ -1340,7 +1356,7 @@ The refusal names the entity that **declared** the contract rather than the docu
 
 A SchemaLibrary entry naming a format outside the supported set reaches this halt as its library is read, and the refusal names the library and the entry and points at the entry in the library file. `aggrega validate` over the whole catalog reads every library, so it reports the entry whether or not any schema references it, while a Release whose dependency resolution never reaches the library does not read it. A Release whose schemas do reach the entry through a `$ref:` is refused as well, but the refusal does not name the format: `aggrega pull` reports the library as not found in the catalog (`E0114`), and `aggrega validate --release` reports the reference's target as not found (`E0121`). Run `aggrega validate` over the catalog to see the entry and the name at fault.
 
-The message carries the failure as the tool that met it reported it: for a compile failure, the key inside the contract, the source line and the offending keyword; for a body that builds no validator, the position the validator rejected; for a format name outside the supported set, the field, the keyword `format`, the name as written and every supported name. A cross-document `$ref:` in a socket contract whose SchemaLibrary entry is not in the loaded closure reaches the same halt; in an entity's own `spec.schema` it is reported as "A `$ref:` is not written in a form the compiler can resolve" above describes.
+The message carries the failure as the tool that met it reported it: for a compile failure, the key inside the contract, the source line and the offending keyword; for a body that builds no validator, the position the validator rejected; for a format name outside the supported set, the field, the keyword `format`, the name as written and every supported name. A cross-document `$ref:` in a socket contract whose SchemaLibrary entry is not in the loaded closure reaches the same halt when `aggrega validate` checks the entity or the Release; in an entity's own `spec.schema` it is reported as "A `$ref:` is not written in a form the compiler can resolve" above describes. `aggrega pull` reads both places for the libraries a Release needs, so a library absent from the catalog stops the pull earlier, as "A reference names no entity the catalog holds" (`E0114`) describes, whichever of the two references it — and a library the catalog holds is pinned in the lockfile for either.
 
 **A well-formed constraint beside an unreadable one is not enforced.** A contract is read as one document, so a single unreadable fragment disables every constraint declared alongside it. That is why the halt is worth more than the constraints it costs: the alternative is a contract that looks enforced, reads as enforced, and enforces nothing.
 
@@ -4028,7 +4044,7 @@ Missing-key handling depends on the template surface. Where an empty rendering l
 - **A `source:` coordinate** — the templated fields of a structured `source:` block on a Recipe or FeatureRecipe (`version`, `ref`, `chart`, `module_subdir`) — evaluates with `missingkey=error`. A reference to a key nothing supplies halts naming the source field, rather than resolving to nothing: an empty version or ref would pin a different artifact from the one the author named, and the pin is what every later build reproduces. This surface is also where the available function set differs, and where a `locals:` reference the block's own author order refuses halts before anything is evaluated — see below.
 - **Typed parameter contracts** catch missing-required-parameter and contract-violation cases at the parameter-contract layer, before interpolation runs — see "Parameter type mismatch / contract violation" above.
 
-The **helper set is the same across value templates, path templates and assertions**: Sprig's functions plus Aggrega's own (`optional` and `capitalizedWords`), with `fail` added on the assertion surface because an assertion is the only surface whose purpose is to halt the build rather than produce text. Between those three what differs is the missing-key policy — `optional` is available in a path template too, where it reads a key out of `.parameters` without the strict policy firing first. Resolving a `source:` coordinate differs in the function set itself, and has its own subsection below. Parameter interpolation in an Aggregate offers Sprig's functions alone, so neither Aggrega helper is available there. One function reads the same way on every one of these surfaces, the coordinate and the interpolation included: `index`, which halts naming the key when the map it reads does not hold it.
+The **helper set is the same across value templates, path templates and assertions**: Sprig's functions plus Aggrega's own (`optional` and `capitalizedWords`). Sprig's `fail` is among them, so a value template can stop the build with a message of its own, as "A value template failed while it ran" below describes; an assertion is the surface written for that, since halting the build is its whole purpose. Between those three what differs is the missing-key policy — `optional` is available in a path template too, where it reads a key out of `.parameters` without the strict policy firing first. Resolving a `source:` coordinate differs in the function set itself, and has its own subsection below. Parameter interpolation in an Aggregate offers Sprig's functions alone, so neither Aggrega helper is available there. One function reads the same way on every one of these surfaces, the coordinate and the interpolation included: `index`, which halts naming the key when the map it reads does not hold it.
 
 The message a path-template miss prints is quoted under the entry that documents that condition, "Path-template references a variable outside the allowlist" above, so it is written once rather than restated here.
 
@@ -4084,6 +4100,22 @@ On a surface that reports a template failure under a condition of its own — a 
 
 - **It may.** Read it through a function that tests for it first: `{{ optional .values "replicas" 1 }}` returns the fallback when the key is absent and the value, whatever it is, when it is present; Sprig's `get` returns an empty string for an absent key; `hasKey` tests without reading. `optional` is registered on every surface except parameter interpolation and the predicates of a parameter or a schema, which offer Sprig's `get` and `hasKey`; a `source:` coordinate registers `optional` and not Sprig.
 - **It must not.** Supply it. The key the message names is the one the template asked for, so the usual causes are a key published under another name — a credential whose `key` is not the variable name the Recipe reads — a misspelled key in the template or in the authored values, and a connection that would deliver the key and is not wired.
+
+### A value template failed while it ran
+
+<!-- covers: internal/compiler/renderer.ErrValueTemplateExecutionFailed -->
+
+A Recipe's or FeatureRecipe's value template — one of the templates "Missing template key — asymmetric policy" above lists, a Workload body, an `artifacts:` body or a `locals:` entry among them — parsed, started to run, and stopped before it produced its text. What stopped it is the template engine's own reason, which the halt carries beneath it: a reference descending through a container nothing supplied, such as `{{ .values.tls.ca }}` where no `tls` was authored; a comparison between values of two types, such as `{{ if eq .context.instance_id 1 }}`, which compares a string with a number; or a call to Sprig's `fail`, which a value template may make to refuse an input with a message of its own.
+
+Three failures on these templates report under conditions of their own instead. A `provides:` entry reports under "A `provides:` template could not be evaluated" below, with this sentence and the engine's reason inside its message. An `index` read of a key the map does not hold reports under "A template indexes a map with a key the map does not hold" above. And a template that does not parse stops before it runs, so it is not this condition.
+
+Emitted message — the frames above it name the component instance and the template, such as `recipe "<recipe>" workload template` or `Recipe "<recipe>" locals["<key>"]`, and the template engine's own line follows beneath it:
+
+> a value template failed while it ran
+
+The engine's line reads `template: <template>:<line>:<column>: executing "<template>" at <<expression>>: <reason>` — for a call to `fail`, `error calling fail: <the message the template wrote>`. The build reports the halt under a `CATALOG_ERROR` tag, because the template is written by the author of the Recipe or FeatureRecipe. `aggrega pull` meets the same failure when it renders the Release to discover the external inputs it reads: it reports the failure, still writes the lockfile's dependency pins, and says the external-input pins may be incomplete; the build halts on it.
+
+**How to fix:** read the engine's reason at the end of the report — it names the template, the line and column, and the expression it stopped at. For a container nothing supplied, supply it, or guard the read so it never descends into something absent: `{{ with .values.tls }}{{ .ca }}{{ end }}`, or the `optional` helper. For two types compared, compare like with like — quote the literal, or convert one side. For a call to `fail`, the message is the template author's, and it says what the Recipe needs: give it that, or map the component to a Recipe that accepts what you wrote.
 
 ### A governance plugin rejected the build
 
@@ -4481,7 +4513,7 @@ There it reports the first missing key in sorted order and stops, so that pairin
 
 <!-- covers: internal/compiler/renderer.ErrAssertionFailed -->
 
-A Component, Feature, Recipe or FeatureRecipe may carry `assertions:` — named templates whose purpose is to refuse an input rather than to produce text. An assertion is the one template surface that registers `fail`, and calling it is what stops the build; the argument is the message its author wrote for whoever meets it.
+A Component, Feature, Recipe or FeatureRecipe may carry `assertions:` — named templates whose purpose is to refuse an input rather than to produce text. An assertion calls `fail`, and calling it is what stops the build; the argument is the message its author wrote for whoever meets it.
 
 Assertions are evaluated at two points, so a rule reads the state it is about: those on a Component or Feature run once the catalog has resolved and before anything renders, and those on a Recipe or FeatureRecipe run once the binding is settled and before that binding renders.
 
@@ -6452,6 +6484,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0360` | `the netrc file could not be read` | The netrc file cannot be read |
 | `E0361` | `the source URL carries a credential` | A source URL carries a credential |
 | `E0362` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` | An `inject:` entry on a connection carries a literal |
+| `E0363` | `annotation subkey is not routed by the annotation's binding` | An annotation subkey is not routed by its binding |
+| `E0364` | `a value template failed while it ran` | A value template failed while it ran |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

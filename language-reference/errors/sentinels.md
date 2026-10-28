@@ -263,6 +263,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAnnotationBindingPillarOverlap()` | `annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
 | `ErrAnnotationBindingTargetUnresolved()` | `annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
 | `ErrAnnotationSidePillarMismatch()` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
+| `ErrAnnotationSubkeyNotBound()` | `annotation-subkey-not-bound` | `annotation subkey is not routed by the annotation's binding` |
 | `ErrAnnotationSubkeyNotConforming()` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `ErrAttachmentSlotNearMiss()` | `attachment-slot-near-miss` | `attachment name is a near miss for a declared slot` |
 | `ErrAttachmentSlotShape()` | `attachment-slot-shape` | `attachment does not conform to its declared slot shape` |
@@ -837,6 +838,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0360` | `netrc-file-unreadable` | `the netrc file could not be read` |
 | `E0361` | `source-url-carries-credential` | `the source URL carries a credential` |
 | `E0362` | `uses-inject-value` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` |
+| `E0363` | `annotation-subkey-not-bound` | `annotation subkey is not routed by the annotation's binding` |
+| `E0364` | `value-template-execution-failed` | `a value template failed while it ran` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
