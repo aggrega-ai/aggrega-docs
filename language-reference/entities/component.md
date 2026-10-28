@@ -138,7 +138,7 @@ components:
 
 The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both during base rendering, mapping the abstract pillars into the concrete shape their target provider expects.
 
-Three `infra` conventions matter across every capability-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is `core/datastore/mariadb` in the standard-library catalog — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates the first and the third.
+Three `infra` conventions matter across every capability-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is `core/datastore/mariadb` in the standard-library catalog — implementable by Helm Recipes that run the official `mariadb` image or hand a MariaDB custom resource to the mariadb-operator controller, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates the first and the third.
 
 ### `infra.overrides`
 
@@ -215,18 +215,20 @@ infra:
     read_replicas: { type: integer, min: 0, default: 0 }
 ```
 
-`infra.ha.enabled` says "make this Component highly available," and `infra.ha.read_replicas` says "I want N read-only copies." Each Recipe maps the intent into its provider's mechanism:
+`infra.ha.enabled` says "make this Component highly available," and `infra.ha.read_replicas` says "I want N read-only copies." Each Recipe decides what the intent becomes on its provider. The standard-library Recipes for `core/datastore/mariadb`, named as a Manifest maps them:
 
-| Recipe's provider | `ha.enabled: true` maps to | `ha.read_replicas: N` maps to |
+| Recipe | `ha.enabled: true` maps to | `ha.read_replicas: N` maps to |
 | :--- | :--- | :--- |
-| Helm (Bitnami MariaDB chart) | activates the `secondary` StatefulSet block | sets `secondary.replicaCount` |
-| Terraform (AWS RDS) | sets `multi_az = true` on the primary `aws_db_instance` | creates N separate `aws_db_instance` read-replica resources |
-| CloudFormation (AWS RDS) | sets `MultiAZ: true` on the `AWS::RDS::DBInstance` | provisions one instance, so N above 0 halts the build |
-| Compose (local dev container) | ignored — no HA mechanism at this layer | ignored — no replica mechanism at this layer |
+| `helm/mariadb` (a StatefulSet on the official `mariadb` image) | runs one server, so the build halts naming the key | runs one server, so N above 0 halts the build |
+| `helm/mariadb-cluster` (a MariaDB custom resource the mariadb-operator controller reconciles) | turns on automatic failover (`replication.primary.autoFailover: true`); it fails over to a read replica, so N of 0 halts the build | sets `spec.replicas` to N + 1 and turns on replication; `provides.host` becomes the `<name>-primary` Service |
+| `terraform/mariadb-rds` (AWS RDS) | sets `multi_az = true` on the primary `aws_db_instance` | creates N separate `aws_db_instance` read-replica resources |
+| `terraform/mariadb-rds-module`, `terraform/mariadb-rds-terraform-aws-modules` (AWS RDS through a module) | passes `multi_az = true` to the module | provisions one instance, so N above 0 halts the build |
+| `cloudformation/mariadb-rds` (AWS RDS) | sets `MultiAZ: true` on the `AWS::RDS::DBInstance` | provisions one instance, so N above 0 halts the build |
+| `compose/mariadb` (local dev container) | ignored — no HA mechanism at this layer | ignored — no replica mechanism at this layer |
 
-Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider (Kubernetes pods are replicas of a StatefulSet) and as a category error elsewhere — RDS has no "replicas" concept on the primary, CloudFormation mirrors RDS, Compose has no horizontal-replica abstraction at all. Intent vocabulary translates: every provider has some concept of "make this database highly available" and some concept of "I want N read-only copies," and the Recipe carries the per-provider translation. A provider whose target lacks an HA equivalent (Compose) treats `ha.*` as advisory.
+Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider (Kubernetes pods are replicas of a StatefulSet) and as a category error elsewhere — RDS has no "replicas" concept on the primary, CloudFormation mirrors RDS, Compose has no horizontal-replica abstraction at all. Intent vocabulary translates: every provider has some concept of "make this database highly available" and some concept of "I want N read-only copies," and the Recipe carries the per-provider translation. Where a realization has no such mechanism, its Recipe can halt the build naming the key, as `helm/mariadb` does for both keys and the single-instance RDS Recipes do for read replicas.
 
-`infra.ha.read_replicas: 0` is the default; the K8s Recipe handles it explicitly with a `replicaCount: 0` branch on the secondary StatefulSet block rather than generating zero-pod resources. Operators choosing a provider whose target lacks HA accept that `ha.*` settings on the Release have no effect for that boundary.
+`infra.ha.read_replicas: 0` is the default; with both keys at their defaults `helm/mariadb-cluster` renders a single-instance MariaDB with no `replication` block rather than replication over one instance. The Compose Recipe reads neither key: the `ha.*` settings on the Release have no effect on it, and the build does not report them.
 
 ## The `provides` Pillar
 
