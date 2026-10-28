@@ -1126,6 +1126,11 @@ The Rego engine in the compiler serves the `render-verdict` role directly; beyon
 it, two reference render-stage adapters ship as worked examples among the plugin
 development kit's Rust examples, one per common output shape.
 
+To write an adapter of your own, at this role or any other, start from the
+governance adapter skeleton each plugin development kit ships:
+[Writing a governance plugin of your own](writing-a-governance-plugin.md) walks it
+from the skeleton to a build it refuses.
+
 ### YAML, JSON, and Terraform HCL output — the reference Rego render adapter
 
 The reference Rego render adapter runs operator-supplied Rego over any YAML or

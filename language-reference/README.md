@@ -57,3 +57,4 @@ The Wasm plugin surface sits alongside the chapter sequence rather than inside i
 - [tagging-plugins](plugins/tagging-plugins.md) — the two built-in governance plugins that write labels without a policy, `governance/label-injector` and `governance/selector-tagger`: their settings and what each writes.
 - [core-importers](plugins/core-importers.md) — the compiler's Langflow, Flowise and n8n importers: what each reads, their settings, and their publication with each compiler release.
 - [authoring-a-provider-walkthrough](plugins/authoring-a-provider-walkthrough.md) — a worked walkthrough of authoring a provider guest, from an empty directory to a build that writes the files the provider rendered.
+- [writing-a-governance-plugin](plugins/writing-a-governance-plugin.md) — writing a governance plugin of your own from the plugin kit's adapter skeleton: one rule, each role's export run by hand, a `Plugin` entity in the workspace's catalog, and a build it refuses.
