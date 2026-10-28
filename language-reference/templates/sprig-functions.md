@@ -35,6 +35,42 @@ Aggrega guarantees byte-identical output for byte-identical input. A subset of S
 
 These helpers are not blocked by the engine; they are part of the Sprig v3 set. The discipline of avoiding them in render-path templates is upheld by reviewers and by the deterministic-output guarantee that authors and the standard-library catalog rely on.
 
+## Numbers in a value template
+
+A number an author writes reaches a value template as a number. A whole number is an integer and prints whole: `1000000` prints `1000000`. Any other number prints in its shortest exact decimal form, never in exponent form: an authored `0.0000001` prints `0.0000001` and an authored `1e21` prints `1000000000000000000000`, whether the template writes the value directly or turns it into text with `toString`, `quote`, `printf "%v"` or `toJson`. A number a math function returns — `mulf`, `float64`, `round` and their kin — is that function's own value and prints in that function's own form, which is exponent form for a very small or a very large value: `{{ mulf .values.ratio 1 }}` prints `1e-07` for an authored `0.0000001`.
+
+The comparisons — `eq`, `ne`, `lt`, `le`, `gt` and `ge` — read two numbers by value, whatever kind carries each, so an authored integer compares with a decimal written in the template, and `3` equals `3.0`:
+
+```yaml
+{{ lt .values.replicas 1.5 }}               # .values.replicas = 1 → true
+{{ eq .values.replicas 3.0 }}               # .values.replicas = 3 → true
+```
+
+A number is never compared with a piece of text: any of the six given a number and quoted text halts the build, naming both kinds. Compare the number with a number written without quotes, or turn it into text first:
+
+```yaml
+{{ eq .values.port "8080" }}                # halts: cannot compare a number with text
+{{ eq .values.port 8080 }}                  # .values.port = 8080 → true
+{{ eq (toString .values.port) "8080" }}     # .values.port = 8080 → true
+```
+
+The halt is [A value template failed while it ran](../errors/fatal-halts.md#a-value-template-failed-while-it-ran). An assertion reads an authored number differently; see [Numbers on this surface](assertions-block.md#numbers-on-this-surface).
+
+## Presence and emptiness — two different questions
+
+A template asks one of two questions about a value, and each question has its own helpers.
+
+- **Did the author write it?** `hasKey` and `optional` answer by presence. A key the author wrote is present whatever it holds — `0`, `""` and `false` included — and only a key the author left out is absent.
+- **Is it empty?** `default`, `with`, `if` and `empty` answer by emptiness. `0`, `""`, `false`, an empty list, an empty map and an absent value all count as empty there, as they do in Helm.
+
+| `.values.replicas` | `hasKey .values "replicas"` | `optional .values "replicas" 1` | `.values.replicas \| default 1` | `if .values.replicas` |
+| :--- | :--- | :--- | :--- | :--- |
+| absent | `false` | `1` | `1` | false |
+| `0` | `true` | `0` | `1` | false |
+| `3` | `true` | `3` | `3` | true |
+
+A value that may legitimately be `0`, `""` or `false` — a replica count of zero, a timeout of zero, a flag turned off — is tested with `hasKey` or `optional`, so the author's `0` reaches the output as `0`. `default`, `with` and `if` fit a value whose empty form carries no meaning of its own, where "empty" and "not written" may be treated alike. Read a given key one way per template: a key the template also reads as a dotted path counts as present, as [the bound on `optional`](#optional--presence-aware-fallback) describes.
+
 ## Aggrega-specific helpers
 
 ### `optional` — presence-aware fallback

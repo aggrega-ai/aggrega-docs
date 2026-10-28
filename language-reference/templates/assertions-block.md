@@ -113,6 +113,13 @@ The label is read off `labels`, which is the target's — the model's — and ne
 
 For the broader template context shape and per-field availability semantics, see [template-context-contract.md](template-context-contract.md).
 
+### Numbers on this surface
+
+An assertion's comparisons are the six a value template uses, and they read two numbers by value whatever kind carries each: `lt .values.replicas 1.5` and `eq .values.replicas 3.0` answer here as they do on a value template, and comparing a number with quoted text halts in the same words (see [Numbers in a value template](sprig-functions.md#numbers-in-a-value-template)). Two readings differ from a value template's:
+
+- **Emptiness.** An assertion reads an authored number as its text for every purpose but a comparison, and that text is never empty: an authored `0` is true to `if` and `with`, is not `empty`, and is kept by `default`. The presence helpers answer as they do on a value template — for an authored `0`, `hasKey .values "replicas"` is true and `optional .values "replicas" 1` returns `0` — so an assertion asking whether a number was written uses them, and one asking whether it is zero compares: `eq .values.replicas 0`.
+- **Decimals.** An authored decimal is compared by its exact decimal value, and a decimal written in the assertion by its binary floating-point value. The two agree for a decimal with an exact binary form, such as `0.5`, and differ for one without: an authored `0.1` is not `eq` to `0.1` written in the assertion. A comparison with a whole number, or with a decimal that has an exact binary form, is unaffected.
+
 ## Component / Feature assertions — architectural invariants
 
 These express rules that hold regardless of which Recipe binds the Component. The rule is a property of the *contract*, not the implementation.
