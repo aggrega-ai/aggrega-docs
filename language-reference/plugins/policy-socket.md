@@ -127,9 +127,12 @@ attachments receive different payloads, and combined with `--dry-run` it writes 
 files and nothing else. At `annotation-transform`, `label-transform` and `ir-verdict`
 the file is the `input` document a policy reads. At `render-verdict` the policy engine
 reshapes the payload before a policy reads it — each artifact's `documents` are parsed
-from it — so a `render-verdict` policy is tested by running the engine itself,
-`aggrega plugin run-local --plugin <engine.wasm> --export verdict_render --with @<dir>/render-verdict.json`,
-which gives the build's decision.
+from it — so a `render-verdict` policy on an engine inside the compiler is tested in a
+build, attached at `warn` or `info`, as
+[Testing a policy before it gates a build](#testing-a-policy-before-it-gates-a-build)
+shows. For a plugin whose `.wasm` you built yourself,
+`aggrega plugin run-local --plugin <plugin.wasm> --export verdict_render --with @<dir>/render-verdict.json`
+runs it on that file.
 
 ## Verdicts and severities
 
