@@ -8,7 +8,7 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 
 | # | Surface | Scope | Cascade rule | Primary consumer |
 | --- | --- | --- | --- | --- |
-| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | `aggrega search -l` for Components and Features; an Aggregate's labels are carried on its document and no command reads them yet |
+| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | `aggrega search -l` for Components and Features; an Aggregate's labels are carried on its document and no command reads them |
 | 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `label-transform` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
 | 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | governance verdict roles (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |

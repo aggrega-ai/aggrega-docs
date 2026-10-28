@@ -72,7 +72,7 @@ The compiler does not enforce or validate maintainer content beyond JSON Schema'
 
 Aggrega's entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role.
 
-The current required-fields state per entity (excluding `apiVersion` / `kind` / `metadata.name` / `metadata.version`, which every entity requires uniformly):
+The required fields per entity (excluding `apiVersion` / `kind` / `metadata.name` / `metadata.version`, which every entity requires uniformly):
 
 | Entity | Additional required fields | Rationale |
 | --- | --- | --- |
@@ -87,23 +87,23 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 
 ### `Component` label requirement is load-bearing
 
-The `component.aggrega.ai/type` label is the only label Aggrega requires on any entity today. The requirement exists because the standard library's `usesSchema` mechanism filters target candidates via `x-aggrega-selector:` annotations carrying selector strings like `"component.aggrega.ai/type=database"` — the selector consults the target's labels to determine whether the type matches the socket's accepted types. The Component schema enforces it: a Component that omits the label is refused when it loads (`E0215`), naming the missing key.
+The `component.aggrega.ai/type` label is the only label Aggrega requires on any entity. The requirement exists because the standard library's `usesSchema` mechanism filters target candidates via `x-aggrega-selector:` annotations carrying selector strings like `"component.aggrega.ai/type=database"` — the selector consults the target's labels to determine whether the type matches the socket's accepted types. The Component schema enforces it: a Component that omits the label is refused when it loads (`E0215`), naming the missing key.
 
 The requirement is therefore not a publishing-surface concern (the label is not for catalog discovery) but a topology concern: every Component carries it, internal-use Components that do not target catalog distribution included.
 
 ### Release `metadata.environment` is required
 
-The Release schema requires `metadata.environment`, a string the build stamps on every rendered resource as the `aggrega.ai/environment` label.
+The Release schema requires `metadata.environment`, a string the build stamps on rendered output as the `aggrega.ai/environment` label.
 
 ### Other asymmetries
 
-The remaining asymmetries (Recipe vs Component required fields, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
+The remaining asymmetries (Recipe vs Component required fields, Manifest's `mappings` requirement) reflect each entity's role. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
 
 ## Cross-references
 
 - [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata mechanism complementing the publishing surface.
 - [`entities/component.md`](../entities/component.md) — Component's `metadata.labels.component.aggrega.ai/type` requirement and `schema` / `usesSchema` / `featuresSchema` declarations.
-- [`entities/release.md`](../entities/release.md) — Release's `metadata.environment` field and its current required state.
+- [`entities/release.md`](../entities/release.md) — Release's `metadata.environment` field and its requirement.
 - [`10-status.md`](../10-status.md) — the status of the metadata envelope.
 - [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — Strict API Partitioning and the Enterprise Metadata Suite design framing.
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §"Lockfile pinning and artifact immutability" + §"Catalog entity name-shape enforcement" — what the immutability rule refuses at publish time, and where per-entity-kind name shapes are checked: the publishing-discipline plugin reports them advisorily when an author runs `aggrega lint`, and neither building nor publishing checks them.
