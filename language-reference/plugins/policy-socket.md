@@ -1305,6 +1305,193 @@ one workspace with a team's attachment, an organization's added through a global
 configuration file's `governance_append`, and a pipeline's added through this
 overlay, and checks what each combination prints and whether it completes.
 
+## Testing a policy before it gates a build
+
+A Rego rule that names a path its role's payload does not carry is not an error:
+the path is undefined, the rule never holds, and the build completes as though
+the policy allowed it. So a new policy earns `halt` in three moves: attach it at a
+severity that reports without stopping, check every path it names against the
+payload its role receives, and read what it reports on the builds it will judge.
+
+The commands below run in a copy of
+[`examples/policy-org-overlay/`](../examples/policy-org-overlay/README.md) whose
+`.aggrega-config.yaml` attaches one new policy in place of the team's. It is meant
+to refuse a datastore that runs with high availability off, and its rule was
+copied from a label-shaping policy:
+
+```rego
+package datastores
+
+import rego.v1
+
+deny contains msg if {
+    some id, node in input.graph.nodes
+    node.labels["component.aggrega.ai/category"] == "datastore"
+    input.graph.spec.infra_mapping[id].ha.enabled == false
+    msg := sprintf("%v is a datastore running with high availability off", [id])
+}
+```
+
+**Attach it so that it reports.** The policy collects under `deny`, which halts by
+default. A `translation` naming `deny` alone, at `warn`, reports each of its
+decisions as a warning and lets the build complete; `info` records them instead.
+The policy itself stays as it will be enforced:
+
+```yaml
+plugins:
+  governance:
+    - uri: governance/rego:0.8.6
+      role: ir-verdict
+      with:
+        sources:
+          - policies/datastore-ha.rego
+        settings:
+          translation:
+            - key: deny
+              severity: warn
+```
+
+**Write the payload, and look the paths up in it.** Once a build has filled the
+Release's lockfile,
+
+```bash
+aggrega build --release release.yaml --dry-run --policy-input payloads
+```
+
+writes the payload each role hands its attachments into `payloads/` and nothing
+else, reporting, with `<workspace>` standing for the directory the build ran in:
+
+```text
+  policy input: 4 file(s) written to <workspace>/payloads
+[… omitted: a lint notice about core/secret-value, the rendered files the run prints in place of writing them, the build's time, and the line saying only the policy inputs were written]
+```
+
+The four are `annotation-transform.json`, `ir-verdict.json`,
+`label-transform.json` and `render-verdict.json`; a role with nothing attached is
+written too, so a policy can be checked against its role before it is attached
+anywhere. At `ir-verdict`, `label-transform` and `annotation-transform` the file
+is the `input` document a policy reads, so each path a rule names can be read out
+of it with any JSON tool before the rule is trusted:
+
+```bash
+jq '.graph.nodes' payloads/ir-verdict.json
+# null
+jq -c '.graph.spec.nodes | keys' payloads/ir-verdict.json
+# ["db","web"]
+jq -c '.graph.spec.infra_mapping.db.ha' payloads/ir-verdict.json
+# {"enabled":false,"read_replicas":0}
+```
+
+The rule's nodes are not there: `input.graph.nodes` is where the label-shaping
+role carries them, and at `ir-verdict` they sit at `input.graph.spec.nodes` (see
+[What each role's payload exposes](#what-each-roles-payload-exposes)). The file
+also says what the corrected rule must decide: `db` is a datastore, its high
+availability is off, and it is to be reported.
+
+Where OPA is installed, a Rego policy evaluates against the same file directly,
+`opa eval -i payloads/ir-verdict.json -d policies/datastore-ha.rego 'data.datastores.deny'`.
+The Rego engine in the compiler is an independent implementation, so the build is
+still the evaluation that decides: a builtin it does not implement
+[stops the build](#rego-policies-two-roads) rather than evaluating.
+
+At `render-verdict` the file is not the policy's `input`. Each artifact in it
+carries its `path`, `content` and `format`; the `documents` a rule reads are
+parsed from the content by the policy engine once it receives the payload, so a
+rule over `documents` finds nothing in the file. A policy at that role is tested
+where the engine parses them: in a build, as the next step shows.
+
+**Build, and compare what it reports with what the payload says.** With the
+copied path,
+
+```bash
+aggrega build --release release.yaml --auto-pull
+```
+
+completes and reports nothing:
+
+```text
+Pull complete: release.lock (entities=11, source_artifacts=0, external_inputs=0)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+[… omitted: the build's time and the line naming the dist/ directory it wrote]
+```
+
+The payload has a datastore with high availability off, and the policy said
+nothing about it: that silence is the mistake, and nothing else in the build
+points to it. With the rule reading `input.graph.spec.nodes`, the same command
+reports `db` and completes:
+
+```text
+  policy plugin "rego" warning: db is a datastore running with high availability off
+Pull complete: release.lock (entities=11, source_artifacts=0, external_inputs=0)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+[… omitted: the build's time and the line naming the dist/ directory it wrote]
+```
+
+Adding `--dry-run` reports the same verdicts and writes no `dist/`, so the loop
+runs against a workspace without disturbing its output.
+
+The same rule written for the CEL engine does not fail silently. Reading a key the
+payload does not carry is an evaluation fault there, so the copied path, in
+`policies/datastore-ha.cel` attached with the same `translation`,
+
+```cel
+{
+  "deny": input.graph.nodes
+            .filter(n, input.graph.nodes[n].labels["component.aggrega.ai/category"] == "datastore"
+                       && input.graph.spec.infra_mapping[n].ha.enabled == false)
+            .map(n, n + " is a datastore running with high availability off"),
+}
+```
+
+stops the build even at `warn`. It exits `1`, and its last line names the policy
+file and the key:
+
+```text
+ir-verdict: plugin "governance/cel:0.8.6": call "verdict_ir": wasm: plugin "cel" call to verdict_ir: policy source "datastore-ha.cel" could not be evaluated: No such key: nodes
+```
+
+A `render-verdict` policy is tested the same way. Attached at `render-verdict` in
+the same workspace, with the same `translation`, a rule that refuses a Compose
+service publishing a port on the host,
+
+```rego
+package published
+
+import rego.v1
+
+deny contains msg if {
+    some artifact in input.artifacts
+    some doc in artifact.documents
+    some name, service in doc.services
+    count(service.ports) > 0
+    msg := sprintf("%v publishes a port on the host", [name])
+}
+```
+
+reports the one service that does:
+
+```text
+  policy plugin "rego" warning: web publishes a port on the host
+[… omitted: the pull's line, a lint notice about core/secret-value, the build's time and the line naming the dist/ directory it wrote]
+```
+
+**Then enforce it.** Removing the `translation` returns `deny` to `halt`, and the
+build that reported `db` now stops on it, exits `1` and writes no `dist/`:
+
+```text
+[… omitted: the lines printed while the lockfile is resolved, which carry the refusal below once more, and a lint notice about core/secret-value]
+[POLICY_ERROR E0005]
+  policy plugin "rego" rejected the build: db is a datastore running with high availability off
+  caused by: policy violation
+```
+
+The reporting attachment need not be removed everywhere at once. One configuration
+file can keep its attachment's `translation` at `warn` while a pipeline's overlay
+attaches the same policy with `deny` at `halt`, which is how
+[`examples/policy-org-overlay/`](../examples/policy-org-overlay/README.md) rolls an
+organization's rule out: a warning on a developer's build, and the reason a
+pipeline's build stops.
+
 ## Running policy in CI, over the build output
 
 Everything above attaches a policy **inside** a build. There is a second route,
