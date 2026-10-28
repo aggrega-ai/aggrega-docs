@@ -39,6 +39,13 @@ Both need [`yq`](https://github.com/mikefarah/yq) on `PATH` and nothing else.
 `yq` reads a JSON document with the same expression it reads a YAML one, because
 JSON is a subset of YAML, so one script covers both shapes of output.
 
+Beyond `yq`, this directory needs nothing: no catalog checkout, no `aggrega`
+binary and no network. `./check.sh` runs both rules over small output
+directories it writes itself, in the shapes a build emits, and compares each exit
+code and report with the one expected for that directory; it exits 1 on any
+mismatch. Producing a real build to run the rules against needs what the example
+you build needs.
+
 ## Three exit codes, not two
 
 ```

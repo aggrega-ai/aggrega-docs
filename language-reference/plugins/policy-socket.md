@@ -1263,6 +1263,29 @@ plugins:
               severity: halt
 ```
 
+**Which version an attachment names.** A `uri` names a Plugin entity — the
+`<pluginType>/<name>` coordinate and, after the colon, a version — and the version
+takes part in resolution. For the two engines compiled into the CLI, the entity
+comes from one of two places. Each compiler release publishes the Plugin entities
+of `governance/rego` and `governance/cel` at its own version, and the
+standard-library catalog carries them, each at the version of the release that
+published it; a workspace reads them from the catalog directories it lists. The
+`aggrega` binary carries one entity of each, at its own release's version and no
+other. An attachment naming a version that neither carries, and that no pull has
+fetched into the content cache, stops the build with `E0137`, naming the
+reference.
+
+So an attachment names a version the catalog the workspace reads carries. That
+version resolves from the catalog under a release of `aggrega` other than its own
+as well, while a version only the binary carries — its own release's — resolves
+with that release alone. The version selects the Plugin entity, which records the
+plugin's exports and runtime limits, and not the engine: once the reference
+resolves, the engine that runs is the one compiled into the binary running the
+build, because the plugins built into the binary are the first place a plugin's
+module is read from. A governance plugin the workspace declares itself — a Plugin
+entity in its own catalog directory, its `.wasm` beside it — is named at the
+version that entity records.
+
 Each role selects a default entry function — `verdict_ir` for the role that judges
 the graph, `verdict_render` for the role that judges the rendered artifacts,
 `mutate` for the label-shaping role, `transform_annotations` for the

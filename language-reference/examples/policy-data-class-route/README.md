@@ -88,9 +88,10 @@ than per Release.
 
 - **The standard-library catalog, checked out beside this repository.**
   `.aggrega-config.yaml` lists this workspace's own `catalog/` first, which holds
-  the claims assistant and the three engines' Plugin entities, and then
-  `../../../../aggrega-hub/aggrega-catalog`, which supplies everything else. That
-  path is relative to this directory.
+  the claims assistant and the OPA engine's Plugin entity, and then
+  `../../../../aggrega-hub/aggrega-catalog`, which supplies everything else,
+  the Rego and CEL engines' Plugin entities included. That path is relative to
+  this directory.
 - **The hub registry.** The data-masking realization writes its
   guardrails through one plugin that ships in neither the compiler nor the
   catalog, the gateway configuration step
@@ -358,13 +359,16 @@ They differ where the engines do:
   `concat` where the Rego engine's copy formats them with `sprintf`. Editing it
   changes no build until the guest is rebuilt, below.
 
-The three Plugin entities in `catalog/plugin/governance/` are this workspace's
-own declarations, each at version `1.0.0`. A refusal is headed with the last
-segment of the attachment's reference, its version left off — `policy plugin
-"rego"`, `"cel"` or `"opa"` — and each build attaches one engine, so the refusal
-it prints names that engine. The OPA guest is read from beside its entity on
-every build, and since nothing records its digest, every build with it warns
-that it runs unverified.
+The Rego and CEL attachments name the Plugin entities the standard-library
+catalog carries for the two engines compiled into the CLI, `governance/rego:0.8.6`
+and `governance/cel:0.8.6`, and the engine that runs is the one compiled into the
+binary running the build. OPA's Plugin entity, in `catalog/plugin/governance/`, is
+this workspace's own declaration at version `1.0.0`, so its attachment names
+`governance/opa:1.0.0`. A refusal is headed with the last segment of the
+attachment's reference, its version left off — `policy plugin "rego"`, `"cel"` or
+`"opa"` — and each build attaches one engine, so the refusal it prints names that
+engine. The OPA guest is read from beside its entity on every build, and since
+nothing records its digest, every build with it warns that it runs unverified.
 
 ## Checking every build
 
@@ -494,8 +498,8 @@ the product, [Governance and Compliance](../../../architecture/11-governance-and
   gateway's key is read from.
 - `catalog/component/local/ai-agent/claims-assistant/1.0.0/component.yaml` — the
   claims assistant, `core/ai-agent/langgraph` with the class label added.
-- `catalog/plugin/governance/{rego,cel,opa}/1.0.0/plugin.yaml` — the three
-  engines' Plugin entities; `opa/1.0.0/governance--opa.wasm` beside the last.
+- `catalog/plugin/governance/opa/1.0.0/plugin.yaml` — the OPA engine's Plugin
+  entity, with its guest, `governance--opa.wasm`, beside it.
 - `policies/data-class-paths.rego`, `policies/data-class-paths.cel`,
   `policies/data-class-paths-opa.rego` — the rule, once per engine.
 - `governance-rego.yaml`, `governance-cel.yaml`, `governance-opa.yaml` — one

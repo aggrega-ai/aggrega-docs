@@ -310,6 +310,7 @@ one Aggregate built for two or more targets, or realized two or more ways.
 the Manifest choosing which Recipe realizes a component, or which FeatureRecipe realizes an attachment: per type, per instance or per target.
 
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
+- [per-instance-recipe-override](per-instance-recipe-override/README.md) (`authoring`) — This example teaches one Manifest feature: the **`name` mapping tier**, which overrides the Recipe for a single component *instance* while every other instance of the same type keeps the bulk `type`-tier Recipe.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 
 ### `modules`
@@ -368,6 +369,7 @@ credential attachments and how each target delivers them.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 - [memcached-cache](memcached-cache/README.md) (`start`) — This lean example compiles a single **Memcached** in-memory cache from one Developer-authored `Aggregate` to two realizations.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
+- [multikey-secret-synth](multikey-secret-synth/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 - [mysql-standalone](mysql-standalone/README.md) (`start`) — This lean example compiles a single **MySQL** database from Developer-authored `Aggregate`s to two targets.
 - [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
@@ -388,6 +390,7 @@ values hoisted to parameters that a Release fulfils.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
+- [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 
 ### `features`
 
@@ -397,17 +400,20 @@ Features attached for something other than a credential, such as routing, monito
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
+- [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
 - [apisix-token-budget](apisix-token-budget/README.md) (`start`) — A team puts two OpenAI models behind one gateway and wants a ceiling on what the gateway spends on them each day, counted in tokens.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 
 ### `boundaries`
 
 components or modules placed in boundaries, and what crosses between them.
 
 - [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
 - [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
@@ -417,6 +423,7 @@ components or modules placed in boundaries, and what crosses between them.
 governance policy that accepts or refuses a build, during the build or over its output.
 
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [policy-in-ci](policy-in-ci/README.md) (`advanced`) — Two ready-to-use rule scripts that read an Aggrega build's output directory and refuse it when it breaks a rule.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
 - [policy-org-overlay](policy-org-overlay/README.md) (`advanced`) — A team's policy, its organization's and its pipeline's run together on one build, each attached in a configuration file of its own.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
@@ -428,6 +435,7 @@ a Release that is meant to halt, and the message it halts with.
 
 - [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
+- [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
 - [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
@@ -445,13 +453,17 @@ a Component, Feature or Recipe written for the example, kept beside it or publis
 
 - [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
+- [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
 - [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
 - [mariadb-bitnami-credential-set](mariadb-bitnami-credential-set/README.md) (`authoring`) — A single MariaDB database realized by the **Bitnami Helm chart**, whose passwords are supplied by **one multi-key referenceable secret** (`core/referenced-secret-set`).
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
+- [multikey-secret-synth](multikey-secret-synth/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
+- [workload-library-import](workload-library-import/README.md) (`authoring`) — A single stateless web service whose Recipe synthesizes its Kubernetes Workload from a **shared library entry** instead of an inline body.
 
 ### `cloud-infrastructure`
 
@@ -462,6 +474,7 @@ Terraform or CloudFormation output for managed cloud services.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 - [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
 - [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.
 
@@ -473,6 +486,7 @@ a Recipe that fetches what it renders: an upstream chart, a git repository or a 
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [cert-manager-tls](cert-manager-tls/README.md) (`start`) — This example compiles a small, real stack — a **cert-manager** certificate controller — from one Developer-authored `Aggregate` to Kubernetes.
+- [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [contour-gateway](contour-gateway/README.md) (`start`) — This example compiles a small, real stack — a **Contour** ingress gateway — from one Developer-authored `Aggregate` to Kubernetes.
 - [external-secrets-operator](external-secrets-operator/README.md) (`start`) — This example compiles a small, real stack — the **external-secrets** operator — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official external-secrets Helm chart**.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.

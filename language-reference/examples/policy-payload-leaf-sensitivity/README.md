@@ -349,11 +349,14 @@ the governance Plugin entity — read from the checkout listed under
 form. **The version is the one the plugin is published at** — the catalog
 carries the entity under `plugin/governance/rego/0.8.6/`, and the hub publishes
 it as `oci://hub.aggrega.ai/plugin/governance/rego:0.8.6`. The version takes part
-in resolution: an attachment naming a version that no catalog directory and no
-registry carries stops the build.
+in resolution: an attachment naming a version that no catalog directory, no
+registry and not the `aggrega` binary itself carries stops the build. The binary
+carries the engine's entity at its own release's version only.
 
-Built beside the catalog checkout, the example resolves every entity from that
-checkout. A standalone clone reads them all from `hub.aggrega.ai`.
+Built beside the catalog checkout, the example needs nothing else: every entity
+resolves from that checkout with no network, and the engine that runs is the one
+compiled into the `aggrega` binary. A standalone clone reads the entities from
+`hub.aggrega.ai`.
 
 A standalone clone also needs a compiler of the release that published the
 plugin version the attachment names — for `governance/rego:0.8.6`, the `0.8.6`

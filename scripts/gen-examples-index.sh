@@ -232,7 +232,9 @@ for d in "$EX"/*/; do
     printf 'examples: %s: %s\n' "$name" "${joined%; }"
     continue
   fi
-  printf '%s\t%s\t%s\t%s\n' "$name" "$level" "$products" "$shows" >> "$WORK/examples.tsv"
+  # Fields are separated by \x1f, not a tab: a tab is whitespace to `read`, which
+  # would merge an empty products field into the next one and lose the example.
+  printf '%s\x1f%s\x1f%s\x1f%s\n' "$name" "$level" "$products" "$shows" >> "$WORK/examples.tsv"
 done
 
 if [ "$failures" -gt 0 ]; then
@@ -278,7 +280,7 @@ first_sentence() {
 }
 
 declare -A SENTENCE=()
-while IFS=$'\t' read -r name level products shows; do
+while IFS=$'\x1f' read -r name level products shows; do
   SENTENCE[$name]=$(first_sentence "$EX/$name/README.md")
 done < "$WORK/examples.tsv"
 
@@ -316,9 +318,9 @@ render() {
   printf 'described in [The header on each example](README.md#the-header-on-each-example).\n'
 
   printf '\n## By product\n'
-  for product in $(cut -f3 "$WORK/examples.tsv" | tr ' ' '\n' | sed '/^$/d' | sort -u); do
+  for product in $(cut -d $'\x1f' -f3 "$WORK/examples.tsv" | tr ' ' '\n' | sed '/^$/d' | sort -u); do
     printf '\n### `%s`\n\n' "$product"
-    while IFS=$'\t' read -r name level products shows; do
+    while IFS=$'\x1f' read -r name level products shows; do
       case " $products " in *" $product "*) entry "$name" "$level" ;; esac
     done < "$WORK/examples.tsv"
   done
@@ -327,7 +329,7 @@ render() {
   while IFS=$'\t' read -r capability description; do
     printf '\n### `%s`\n\n%s\n\n' "$capability" "$description"
     listed=0
-    while IFS=$'\t' read -r name level products shows; do
+    while IFS=$'\x1f' read -r name level products shows; do
       case " $shows " in *" $capability "*) entry "$name" "$level"; listed=1 ;; esac
     done < "$WORK/examples.tsv"
     [ "$listed" -eq 1 ] || printf 'No example shows this yet.\n'
