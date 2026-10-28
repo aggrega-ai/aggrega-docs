@@ -267,10 +267,10 @@ spec:
                          $total .values.primary.replicaCount .values.secondary.replicaCount) -}}
       {{- end -}}
 
-    # Backup requires a schedule when enabled.
-    backup-needs-schedule: |
-      {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
-        {{- fail "backup.schedule must be specified when backup.enabled=true" -}}
+    # A ServiceMonitor scrapes the metrics exporter, so it needs one.
+    service-monitor-needs-metrics: |
+      {{- if and .values.metrics.serviceMonitor.enabled (not .values.metrics.enabled) -}}
+        {{- fail "metrics.serviceMonitor.enabled=true requires metrics.enabled=true" -}}
       {{- end -}}
 ```
 

@@ -2,7 +2,7 @@
 
 This page walks through a full production-grade MariaDB Component end-to-end: the SchemaLibrary entry that holds the bulk of the schema, the Component definition that consumes it, the MappingLibrary entry that holds the bulk of the Recipe mapping, the Recipe definition that consumes it, the Aggregate composing MariaDB with an API server, the Manifest binding component and Feature types to Recipes, and the Release supplying production parameter values.
 
-The example is realistic. It covers standalone and replication architectures, primary and secondary node pools with full resource specifications, metrics configuration with a Prometheus ServiceMonitor, a backup contract with an S3 destination, credentials for the root account, the application user and replication, and the Bitnami chart 25.x-specific implementation invariants the Recipe enforces. Every authoring surface uses the compact form for schema content, cross-document `$ref:` for library composition, and Go templates with `$import:` for mapping library reuse.
+The example is realistic. It covers standalone and replication architectures, primary and secondary node pools with full resource specifications, metrics configuration with a Prometheus ServiceMonitor, credentials for the root account, the application user and replication, and the Bitnami chart 25.x-specific implementation invariants the Recipe enforces. A datastore's backup is not part of its contract: it is the `core/backup` attachment the operator writes in the Release. Every authoring surface uses the compact form for schema content, cross-document `$ref:` for library composition, and Go templates with `$import:` for mapping library reuse.
 
 The files below are a workspace you can build. Write each one at the path its first line names and run the two commands under [End-to-end build](#end-to-end-build); the output blocks on this page are copied from a build of these files, as [Reading the output on these pages](reading-the-output.md) describes.
 
@@ -95,7 +95,7 @@ spec:
     MariaDBPayload:
       architecture: { type: string, enum: [standalone, replication], default: standalone }
       image:
-        tag: { type: string }
+        tag: { type: string, validate: '{{ ne . "latest" }}', validateMessage: "image.tag must name a version: latest moves with every chart release" }
         pullPolicy: { type: string, enum: [Always, IfNotPresent, Never], default: IfNotPresent }
       auth: { $ref: "Datastores#/schemas/MariaDBAuth", required: true }
       primary: { $ref: "Datastores#/schemas/NodePool", required: true }
@@ -114,11 +114,6 @@ spec:
           enabled: { type: boolean, default: false }
           namespace: { type: string }
           interval: { type: string, pattern: "^[0-9]+(s|m|h)$", default: "30s" }
-      backup:
-        enabled: { type: boolean, default: false }
-        schedule: { type: string, pattern: "^[0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+ [0-9*/,-]+$" }
-        retention_days: { type: integer, min: 1, max: 365, default: 30 }
-        s3_bucket: { type: string, format: uri, validate: '{{ hasPrefix "s3://" . }}', validateMessage: "s3_bucket must use s3:// URI scheme" }
 ```
 
 The library carries five named schemas (`PodResources`, `PersistenceSpec`, `NodePool`, `MariaDBAuth`, `MariaDBPayload`) with full field constraints, defaults, pattern validation, conditional shape via `when:`, per-field custom validation via `validate:` / `validateMessage:`, and cross-references via `$ref:`. A reference names the library by its `metadata.name` — `Datastores#/schemas/<entry>` — and never by where the library is stored. That holds inside the library as well, which is why `NodePool` reaches `PodResources` as `Datastores#/schemas/PodResources`. The same reference resolves whether the library sits in the workspace's catalog, as here, or is published to a registry.
@@ -188,12 +183,6 @@ spec:
         {{- end -}}
       {{- end -}}
 
-    # Architectural rule: backup requires a schedule when enabled.
-    backup-needs-schedule: |
-      {{- if and .values.backup.enabled (not (optional .values.backup "schedule" "")) -}}
-        {{- fail "backup.schedule is required when backup.enabled=true" -}}
-      {{- end -}}
-
     # Architectural rule: total node count cap.
     total-node-count-within-cap: |
       {{- $secondary := 0 -}}
@@ -207,7 +196,7 @@ spec:
       {{- end -}}
 ```
 
-The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares three slots: required root and application-user credentials, and an optional replication credential. Each slot's `inject: []` leaves delivery to the Recipe: the developer attaches a credential and the Recipe decides where its value goes. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
+The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares three slots: required root and application-user credentials, and an optional replication credential. Each slot's `inject: []` leaves delivery to the Recipe: the developer attaches a credential and the Recipe decides where its value goes. The `assertions:` block carries three rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
 
 ## The MappingLibrary entry
 
@@ -331,12 +320,6 @@ spec:
         {{- fail (printf "the Bitnami MariaDB chart runs one primary server, and primary.replicaCount is %v: set it to 1 and size reads with secondary.replicaCount" .values.primary.replicaCount) -}}
       {{- end -}}
 
-    # Bitnami chart 25.x: no backup job.
-    no-backup: |
-      {{- if .values.backup.enabled -}}
-        {{- fail "the Bitnami MariaDB chart renders no backup job, and backup.enabled is true: set it to false, or map this Component to a Recipe that runs backups" -}}
-      {{- end -}}
-
     # Bitnami chart 25.x: the ServiceMonitor renders only beside the metrics exporter.
     service-monitor-needs-metrics: |
       {{- if and .values.metrics.serviceMonitor.enabled (not .values.metrics.enabled) -}}
@@ -344,7 +327,7 @@ spec:
       {{- end -}}
 ```
 
-The Recipe is small. The mapping body lives in the MappingLibrary; the Recipe imports it via library-form `$import:`. The `source:` names the chart in its OCI registry at version 25.0.8. The mapping pins the chart's `fullnameOverride` to the name the build gives the component, `.context.rendered_name`, so the `provides:` block computes the primary's Service name instead of assuming it: the chart names the primary `<name>-primary` under replication and `<name>` alone in standalone mode. The `assertions:` block carries three rules tied to Bitnami chart 25.x — implementation invariants distinct from the Component-level contract invariants. The chart runs one primary server, renders no backup job, and renders its ServiceMonitor only beside the metrics exporter, so the Recipe refuses each of those values rather than letting it reach a chart that would drop it.
+The Recipe is small. The mapping body lives in the MappingLibrary; the Recipe imports it via library-form `$import:`. The `source:` names the chart in its OCI registry at version 25.0.8. The mapping pins the chart's `fullnameOverride` to the name the build gives the component, `.context.rendered_name`, so the `provides:` block computes the primary's Service name instead of assuming it: the chart names the primary `<name>-primary` under replication and `<name>` alone in standalone mode. The `assertions:` block carries two rules tied to Bitnami chart 25.x — implementation invariants distinct from the Component-level contract invariants. The chart runs one primary server and renders its ServiceMonitor only beside the metrics exporter, so the Recipe refuses each of those values rather than letting it reach a chart that would drop it.
 
 ## The Aggregate
 
@@ -444,20 +427,6 @@ spec:
           type: string
           pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$"
           default: "20Gi"
-        backup:
-          type: object
-          properties:
-            enabled:
-              type: boolean
-              default: false
-            schedule:
-              type: string
-              default: "0 3 * * *"
-            retention_days:
-              type: integer
-              min: 1
-              max: 365
-              default: 30
 
     api:
       type: object
@@ -487,10 +456,6 @@ spec:
             size: '{{ .parameters.database.size }}'
         auth:
           database: checkout
-        backup:
-          enabled: {{ .parameters.database.backup.enabled }}
-          schedule: '{{ .parameters.database.backup.schedule }}'
-          retention_days: {{ .parameters.database.backup.retention_days }}
       features:
         root_credentials:
           type: core/secret-value:1.0.0
@@ -585,10 +550,10 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 
 ## End-to-end build
 
-From the workspace root, pull the Release's dependencies once — the standard-library Feature and FeatureRecipe from the hub, the chart from its OCI registry — and build:
+From the workspace root, pull the Release's dependencies once — the standard-library Feature and FeatureRecipe from the hub, the chart from its OCI registry — and build. `--pin-sources` has the pull record the chart's pin in the `entity.lock` beside the Recipe, which a Recipe in your own catalog carries for each input it reads:
 
 ```bash
-aggrega pull --release catalog/releases/prod-release.yaml
+aggrega pull --pin-sources --release catalog/releases/prod-release.yaml
 aggrega build --release catalog/releases/prod-release.yaml
 ```
 
@@ -597,16 +562,16 @@ The build runs the compilation pipeline:
 1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates. Each component's `values` and `infra` are validated against its schema here: the compact form is compiled to JSON Schema 2020-12, the SchemaLibrary's `MariaDBPayload` is expanded through cross-document `$ref:`, and its `when:` gate is applied.
 2. **Topology construction.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
 3. **Graph finalization.** Each credential attachment is validated against the Feature's schema; `api`'s `primary_db` socket selector is checked against `db`'s labels.
-4. **Assertion evaluation.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block, and the `core/secret-value` rule that each attachment carries its `origin` in exactly one pillar); pass.
+4. **Assertion evaluation.** Component assertions evaluated (the three rules from the MariaDB Component's `assertions:` block, and the `core/secret-value` rule that each attachment carries its `origin` in exactly one pillar); pass.
 5. **Recipe binding.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); the three credential attachments bound to `helm/env-secret` per the Manifest's `features.type` mapping.
-6. **Recipe assertion evaluation.** Recipe assertions evaluated (the three Bitnami-specific rules from the Recipe's `assertions:` block); pass.
+6. **Recipe assertion evaluation.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
 7. **Rendering.** `helm/env-secret` delivers each credential into the inject pipe; the MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders the chart's values, and the helm provider renders the chart with them; the API Recipe's Workload is synthesized into a Deployment.
 
 The build prints:
 
 ```text
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
-Total build time:               4.0s
+Total build time:               6.8s
 Build completed: 13 files written to <workspace>/dist
 ```
 
@@ -710,8 +675,8 @@ The compact form's compactness, counted as non-blank lines of the files on this 
 
 | Form | Lines | Notes |
 | --- | --- | --- |
-| **Compact form** | **60** | The Component's `schema:` block (10 lines) with the library's five entries (51 lines) in place of its one `$ref:` line |
-| Compact form + library extraction | **10** (Component `schema:`) + **60** (library file) | The pattern when the library is shared across multiple Components: the library is written once, and each Component's `values` pillar is a single `$ref:` line |
+| **Compact form** | **55** | The Component's `schema:` block (10 lines) with the library's five entries (46 lines) in place of its one `$ref:` line |
+| Compact form + library extraction | **10** (Component `schema:`) + **55** (library file) | The pattern when the library is shared across multiple Components: the library is written once, and each Component's `values` pillar is a single `$ref:` line |
 
 Written as JSON Schema YAML, the same content runs longer: each field's one-line map becomes a nested block, and every object adds `type: object`, `properties:` and a `required:` list. `when:` and `validate:` are compact-form keywords with no JSON Schema keyword of their own.
 
