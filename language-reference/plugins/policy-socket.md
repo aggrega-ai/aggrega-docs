@@ -209,7 +209,7 @@ refuses an attachment that supplies none, and the build halts. The consequence
 runs the other way too, and it is the one to author for deliberately: **a guest
 whose settings are genuinely optional must declare a schema that admits `null`
 as well as an object**, or it cannot be attached without settings at all. The
-governance guests that ship with the compiler declare `"type": ["object",
+two policy engines that ship inside the compiler declare `"type": ["object",
 "null"]` for exactly this reason — attach one with no `with:` block and it runs
 on its defaults. A guest that declares `"type": "object"` alone has made its
 settings required, whether or not that was the intent.
@@ -632,7 +632,8 @@ ignored.
 
 [`../examples/policy-label-transform/`](../examples/policy-label-transform/README.md)
 attaches such a policy beside the two built-in tagging plugins, and a verdict over the
-graph that reads the labels they write.
+graph that reads the labels they write. What each of those plugins reads and writes is on
+[The built-in tagging plugins](tagging-plugins.md).
 
 ### Injecting annotations
 

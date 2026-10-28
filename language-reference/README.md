@@ -54,5 +54,6 @@ The Wasm plugin surface sits alongside the chapter sequence rather than inside i
 - [governance-attachment-facts](plugins/governance-attachment-facts.md) — the per-attachment facts a governance policy reads off the build graph, including the three units of the sensitivity marking and why an absent marking is not permission.
 - [when-to-use-a-pipeline-step](plugins/when-to-use-a-pipeline-step.md) — choosing between a pipeline step and a templated FeatureRecipe.
 - [embedded-plugins](plugins/embedded-plugins.md) — the plugins that ship inside the compiler binary.
+- [tagging-plugins](plugins/tagging-plugins.md) — the two built-in governance plugins that write labels without a policy, `governance/label-injector` and `governance/selector-tagger`: their settings and what each writes.
 - [core-importers](plugins/core-importers.md) — the compiler's Langflow, Flowise and n8n importers: what each reads, their settings, and their publication with each compiler release.
 - [authoring-a-provider-walkthrough](plugins/authoring-a-provider-walkthrough.md) — a worked walkthrough of authoring a provider guest, from an empty directory to a build that writes the files the provider rendered.
