@@ -445,27 +445,30 @@ spec:
 
 ---
 
-## Example 10: Programmable Policies — Wasm Mutators & OPA Validators
+## Example 10: Programmable Policies — Label Transforms & Graph Verdicts
 
-The compiler pipeline executes two Wasm gates. The `label-transform` role auto-tags the graph. A governance verdict role evaluates security boundaries. Both run in governance plugins the operator attaches under `plugins.governance` in the workspace configuration.
+This example runs two Rego policies, both evaluated by the Rego engine compiled into the CLI. One, attached at the `label-transform` role, tags the graph; the other, attached at the `ir-verdict` role, judges it. Both run in governance plugins the operator attaches under `plugins.governance` in the workspace configuration.
 
-**1. The Wasm Mutator (topology construction — graph enrichment)**
-Auto-tags every AI gateway — a router that parses the model payload it forwards to an upstream provider — as a point where prompts leave for a model provider.
+**1. The Label Transform (topology construction — graph enrichment)**
+Auto-tags every AI gateway — a router that parses the model payload it forwards to an upstream provider — as a point where prompts leave for a model provider. The policy collects one decision per label under `labels`, naming the node, the label key and the value; the engine turns each into the change the build applies. At this role the nodes are at `input.graph.nodes`, one level shallower than the verdict below reads them.
 
-```javascript
-// governance label-transform guest (compiled from JS/Go/Rust into WebAssembly)
-// Input: each node from the flat IR graph
-// Output: JSON Patch operations on the nodes' labels
-if (node.labels["gateway.aggrega.ai/intelligence"] === "semantic") {
-    node.labels["compliance.aggrega.ai/egress"] = "model-provider";
+```rego
+# policies/egress-tagging.rego: attached at the label-transform role
+package aggrega.tagging
+
+import rego.v1
+
+labels contains {"node": id, "key": "compliance.aggrega.ai/egress", "value": "model-provider"} if {
+    some id, node in input.graph.nodes
+    node.labels["gateway.aggrega.ai/intelligence"] == "semantic"
 }
 ```
 
-**2. The OPA Policy Validator (static analysis — security boundaries)**
+**2. The Graph Verdict (static analysis — security boundaries)**
 Traces precalculated topological paths and blocks any path through a model-provider egress that carries no masking Feature.
 
 ```rego
-# governance verdict guest: operator-authored Rego, attached at the ir-verdict role
+# policies/model-egress.rego: attached at the ir-verdict role
 package aggrega.security
 
 import rego.v1
@@ -493,5 +496,26 @@ stops the build. The [governance socket page](../plugins/policy-socket.md) is th
 full authoring surface — the payload each role exposes, the decision keys, and how
 to name your own.
 
-**3. Practical Trigger**
-Using the `masked-router` Aggregate from Example 7: the mutator tags the gateway `router` as a model-provider egress, and the gateway's edges to the model, the analyzer and the anonymizer are paths through it. If the developer removes the `pii-filter` Feature from `router`, the policy halts compilation with the message the rule composed. With the masking Feature attached, the same policy reaches no decision and the build proceeds. A rule over paths sees a node only where an edge reaches or leaves it — a path has at least two nodes — so a gateway wired to nothing appears on no path; a policy that must cover that case also reads the nodes themselves at `input.graph.spec.nodes`.
+**3. Attaching Both (the operator's workspace configuration)**
+The operator attaches the Rego engine twice, once per role, each attachment with its own policy file. A relative path under `sources` resolves against the directory of the configuration file. The transform runs before the verdict, so the verdict reads the label the first policy wrote.
+
+```yaml
+# .aggrega-config.yaml
+plugins:
+  governance:
+    - uri: governance/rego:0.8.6
+      role: label-transform
+      with:
+        sources:
+          - policies/egress-tagging.rego
+    - uri: governance/rego:0.8.6
+      role: ir-verdict
+      with:
+        sources:
+          - policies/model-egress.rego
+```
+
+`0.8.6` is the version of the `governance/rego` Plugin entity in the standard-library catalog; the engine itself is compiled into the CLI, and a build serves it from there. [`policy-label-transform/`](policy-label-transform/README.md) attaches a label-shaping policy beside the two built-in tagging plugins, with a verdict that reads the labels they write, and builds it.
+
+**4. Practical Trigger**
+Using the `masked-router` Aggregate from Example 7: the label-transform policy tags the gateway `router` as a model-provider egress, and the gateway's edges to the model, the analyzer and the anonymizer are paths through it. If the developer removes the `pii-filter` Feature from `router`, the verdict halts compilation with the message the rule composed. With the masking Feature attached, the same verdict reaches no decision and the build proceeds. A rule over paths sees a node only where an edge reaches or leaves it — a path has at least two nodes — so a gateway wired to nothing appears on no path; a policy that must cover that case also reads the nodes themselves at `input.graph.spec.nodes`.
