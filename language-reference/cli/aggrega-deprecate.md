@@ -178,7 +178,7 @@ is the record the version exclusion reads.
 | `aggrega pull` | Names each version it skipped, the reason recorded against it, and the version it took instead. A version you named explicitly still resolves, and the withdrawal is announced rather than acted on. |
 | `aggrega plugin add` | The same, on either route it resolves an unpinned plugin reference by. Where the markers could not be read, it says so and states that the published versions were not screened. |
 | `aggrega build` | Nothing from this record. It reads your lockfile alone and never the index, so what it reports is the marker recorded against the version you pinned. |
-| `aggrega serve` | Nothing from this record. Its own resolution does not consult the withdrawal records, so a retracted version can still be selected there; it publishes the lockfile's marker to your editor as before. |
+| `aggrega serve` | Nothing from this record. Its own resolution does not consult the withdrawal records, so a retracted version can still be selected there; it publishes the lockfile's marker to your editor. |
 
 Read the last two rows together with the rest: a command tells you about a withdrawal
 only where it is doing something the withdrawal bears on — choosing a version, or

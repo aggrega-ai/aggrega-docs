@@ -507,7 +507,7 @@ keys under it mean what they mean on the `workspace:` block, scoped to that one 
 - `catalog_dirs_append` is read after the Release's list. An entry that writes only
   `catalog_dirs_append` keeps the workspace's list and adds to it.
 
-A Release the map does not name reads `workspace.catalog_dirs` exactly as before. A Release the map
+A Release the map does not name reads the workspace's own `workspace.catalog_dirs`. A Release the map
 does name reads its own directories however it is built — `aggrega build` or `aggrega pull` at a
 terminal, the editor through `aggrega serve`, an assistant through `aggrega mcp` — so none of them
 needs a flag to find its catalog. A `--catalog <dir>` on the command line is still searched ahead of

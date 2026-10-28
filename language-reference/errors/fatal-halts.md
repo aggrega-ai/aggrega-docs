@@ -332,6 +332,46 @@ The field it was read from is named on the line above the message: `resolve Reci
 
 **How to fix:** move the file into the entity's directory, or a directory beneath it, and write its path relative to that directory. Where a link carries the path out, replace the link with a copy of what it leads to inside the entity's directory. A chart several Recipes share is copied into each Recipe's directory, since each is published on its own; a schema several Components share belongs in a SchemaLibrary, which each Component then references by identity, and a mapping, workload or artifact body several Recipes share belongs in the matching library kind.
 
+### A Recipe's `source:` names a kind nothing knows how to acquire
+
+<!-- covers: pkg/sourcekind.ErrUnknownKind -->
+
+A Recipe's `source:` says what kind of thing it points at — a chart, a module, a compose project — and each kind is acquired by the source adapter that serves that kind. This condition reports a kind no source adapter serves, so nothing this program carries can fetch the source. A FeatureRecipe's `source:` is held to the same rule.
+
+It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it. Nothing was attempted, because nothing could attempt it — which is what separates it from an acquisition that ran and failed.
+
+Emitted message, naming the document, the kind as written and the kinds that are served:
+> no source adapter serves the source kind (Recipe `<name>:<version>`, rule source-kind, at `<file>`). the source names kind `"<kind>"`; name a kind a source adapter serves (`<the served kinds>`), or write the source as a single URI whose shape names its kind
+
+**How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
+
+### No source adapter is registered in this program for a source kind
+
+<!-- covers: pkg/sourceresolver.ErrNoAdapterRegistered -->
+
+A source is fetched by the adapter registered for its kind. This condition reports a fetch dispatched on a kind no adapter is registered for. An authored kind no adapter serves is refused as its Recipe is read (under "A Recipe's `source:` names a kind nothing knows how to acquire" above), so nothing an author writes reaches this: it reports a program assembled without the adapter for a kind it serves, or a program built on Aggrega's Go packages dispatching a kind it assembled itself.
+
+Emitted message, naming the kind:
+> kind `"<kind>"`: no source adapter is registered in this program for the source kind
+
+**How to fix:** nothing in your entity files causes this. Report it to whoever built the binary you are running.
+
+### A source URL carries a credential
+
+<!-- covers: pkg/sourceresolver/netrc.ErrSourceURLCarriesCredential -->
+
+A source `url` is recorded as you wrote it — in the Release's lockfile, in the `entity.lock` beside the Recipe and in the source cache — and the Recipe itself is a file you commit and may publish. So a credential written into the URL would travel everywhere the URL does. This condition reports a Recipe's `source:` whose `url` writes a user before its host: `https://user:token@host/…`, or a token written alone as `https://token@host/…`, since a service reached over HTTP commonly takes a token in the user's place. Over http and https any user written there counts; over another scheme only a password does, because a user written alone there names an account — `ssh://git@github.com/…` is accepted, and the SSH agent supplies its key. A FeatureRecipe's `source:` is held to the same rule.
+
+It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it, in a validation, a pull, a pin or a build. The message names the host and never the credential. The check reads the part of the URL written before the host and nothing else, so a token carried in a query string or a path is not detected — and is recorded as written, like the rest of the URL.
+
+Emitted message over http or https, naming the document, the key and the host, then where the credential belongs:
+> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a user or password for host `<host>`; remove it from the URL and write the credential in the netrc file instead, as an entry "machine `<host>` login `<user>` password `<secret>`" (the file NETRC names, else .netrc in your home directory, or _netrc in %USERPROFILE% on Windows)
+
+and over another scheme, where the remedy is removing the password:
+> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a password for host `<host>`; remove it from the URL, which is written into the lockfile and the cache as authored
+
+**How to fix:** remove the user and password from the `url`, leaving the URL that names the host. For a source fetched over http or https, put the credential in a `machine` entry for that host in your netrc file, which every fetch of a classic Helm chart repository, a compose fragment or a Git repository over HTTP or HTTPS reads — [Authentication](../cli/aggrega-pull.md#authentication) describes which file and which entry. For a Git repository over SSH, the SSH agent supplies the key, and the user may stay. Where the Recipe was already committed or published with the credential in it, the credential is in that history: change it at the server as well.
+
 ### A `{{ .parameters.* }}` reference cannot be interpolated
 
 <!-- covers: pkg/resolver.ErrInvalidParameterRef -->
@@ -5272,46 +5312,6 @@ Emitted message:
 > wasm: guest plugin named a condition the socket does not declare: the guest named `"<offered>"`, and `<why it resolves to no condition>`; a plugin names a condition this compiler declares, and reaches for one of `<the generic conditions and their codes>` when it has none better: `<the plugin's own sentence>`
 
 **How to fix:** nothing in your entity files causes this — it is the plugin's report that is wrong, and the failure it was reporting is real. Act on the plugin's own sentence, which is the last part of the message. Where the plugin is yours, report a condition this compiler declares — one of the generic kinds the message lists, where the failure fits none of the more specific conditions; where the plugin is not yours, quote the offending number to whoever publishes it.
-
-### A Recipe's `source:` names a kind nothing knows how to acquire
-
-<!-- covers: pkg/sourcekind.ErrUnknownKind -->
-
-A Recipe's `source:` says what kind of thing it points at — a chart, a module, a compose project — and each kind is acquired by the source adapter that serves that kind. This condition reports a kind no source adapter serves, so nothing this program carries can fetch the source. A FeatureRecipe's `source:` is held to the same rule.
-
-It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it. Nothing was attempted, because nothing could attempt it — which is what separates it from an acquisition that ran and failed.
-
-Emitted message, naming the document, the kind as written and the kinds that are served:
-> no source adapter serves the source kind (Recipe `<name>:<version>`, rule source-kind, at `<file>`). the source names kind `"<kind>"`; name a kind a source adapter serves (`<the served kinds>`), or write the source as a single URI whose shape names its kind
-
-**How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
-
-### No source adapter is registered in this program for a source kind
-
-<!-- covers: pkg/sourceresolver.ErrNoAdapterRegistered -->
-
-A source is fetched by the adapter registered for its kind. This condition reports a fetch dispatched on a kind no adapter is registered for. An authored kind no adapter serves is refused as its Recipe is read (under "A Recipe's `source:` names a kind nothing knows how to acquire" above), so nothing an author writes reaches this: it reports a program assembled without the adapter for a kind it serves, or a program built on Aggrega's Go packages dispatching a kind it assembled itself.
-
-Emitted message, naming the kind:
-> kind `"<kind>"`: no source adapter is registered in this program for the source kind
-
-**How to fix:** nothing in your entity files causes this. Report it to whoever built the binary you are running.
-
-### A source URL carries a credential
-
-<!-- covers: pkg/sourceresolver/netrc.ErrSourceURLCarriesCredential -->
-
-A source `url` is recorded as you wrote it — in the Release's lockfile, in the `entity.lock` beside the Recipe and in the source cache — and the Recipe itself is a file you commit and may publish. So a credential written into the URL would travel everywhere the URL does. This condition reports a Recipe's `source:` whose `url` writes a user before its host: `https://user:token@host/…`, or a token written alone as `https://token@host/…`, since a service reached over HTTP commonly takes a token in the user's place. Over http and https any user written there counts; over another scheme only a password does, because a user written alone there names an account — `ssh://git@github.com/…` is accepted, and the SSH agent supplies its key. A FeatureRecipe's `source:` is held to the same rule.
-
-It is refused as the document is read, before anything is fetched: checking the Recipe on its own refuses it, and so does every Release that reaches it, in a validation, a pull, a pin or a build. The message names the host and never the credential. The check reads the part of the URL written before the host and nothing else, so a token carried in a query string or a path is not detected — and is recorded as written, like the rest of the URL.
-
-Emitted message over http or https, naming the document, the key and the host, then where the credential belongs:
-> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a user or password for host `<host>`; remove it from the URL and write the credential in the netrc file instead, as an entry "machine `<host>` login `<user>` password `<secret>`" (the file NETRC names, else .netrc in your home directory, or _netrc in %USERPROFILE% on Windows)
-
-and over another scheme, where the remedy is removing the password:
-> the source URL carries a credential (Recipe `<name>:<version>`, rule source-url, at `<file>`). spec.source.url names a password for host `<host>`; remove it from the URL, which is written into the lockfile and the cache as authored
-
-**How to fix:** remove the user and password from the `url`, leaving the URL that names the host. For a source fetched over http or https, put the credential in a `machine` entry for that host in your netrc file, which every fetch of a classic Helm chart repository, a compose fragment or a Git repository over HTTP or HTTPS reads — [Authentication](../cli/aggrega-pull.md#authentication) describes which file and which entry. For a Git repository over SSH, the SSH agent supplies the key, and the user may stay. Where the Recipe was already committed or published with the credential in it, the credential is in that history: change it at the server as well.
 
 ### A source artifact is cached without a workspace root to anchor it
 
