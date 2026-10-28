@@ -44,6 +44,14 @@ this target, and the database Recipe the Manifest picks carries the directive
 that says so; that makes the binding an operator decision, written in the
 Release, and the Aggregate says nothing about it.
 
+Every release also attaches `core/backup` to `payments-db`, with
+`infra.retention_days: 14`, and the Manifest binds it to
+`cloudformation/backup-native`. RDS keeps the instance's automated backups
+for 7 days when nothing says otherwise; this attachment keeps each for 14. The
+FeatureRecipe renders nothing: the backup is a setting of the instance, so the
+database Recipe reads the attachment and writes `"BackupRetentionPeriod": 14`
+into the instance's own `Properties`.
+
 The entities this example uses all live in the published catalog. Nothing is
 copied in beside the release files, so the example resolves against the catalog
 as it stands rather than against a private snapshot of it.
@@ -66,7 +74,7 @@ The build prints, with `<workspace>` standing for this example's folder:
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-one-stack.yaml
 
-Total build time:               2.4s
+Total build time:               4.3s
 Build completed: 1 files written to <workspace>/dist
 ```
 
@@ -86,6 +94,9 @@ contributors:
 | `PaymentsDbStorageHeadroom` | the `storage-headroom` attachment on that component |
 | `AppSharedConfig` | the `shared-settings` attachment on the boundary |
 | `ReportingApp` | the application component's own Recipe |
+
+The `backup` attachment on `payments-db` is not in the table because it
+contributes no resource of its own: what it sets lands inside `PaymentsDb`.
 
 Each resource carries a provenance block naming the contributor it came from, so
 the two halves stay distinguishable inside a stack both contributed to:

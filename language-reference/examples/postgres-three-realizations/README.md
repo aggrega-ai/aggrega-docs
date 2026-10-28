@@ -40,14 +40,16 @@ single line in the Manifest.
   application asks for. Nothing here names a target, a cloud, or a Recipe.
 - `manifest-selfhosted.yaml`,
   `manifest-managed.yaml`,
-  `manifest-external.yaml` — the Ops mappings. They
-  differ in **one line**: which Recipe the PostgreSQL component type binds.
+  `manifest-external.yaml` — the Ops mappings. Each
+  chooses its realization in **one line**: which Recipe the PostgreSQL
+  component type binds. The managed one also binds the backup Feature its
+  Releases attach.
 - `release-selfhosted.yaml`,
   `release-managed.yaml`,
-  `release-external.yaml` — the operator's sizing per
-  deployment: storage and engine version for the in-cluster one, storage plus
-  HA and backup for the managed one, and the address of the existing server for
-  the referenced one.
+  `release-external.yaml` — the operator's sizing in
+  each Release: storage and engine version for the in-cluster one, storage, HA
+  and a `core/backup` attachment for the managed one, and the address of the
+  existing server for the referenced one.
 - `release-managed-dns.yaml` — the managed
   Release once more, with the DNS name the operator gives the instance, so
   the application is handed a name it can resolve.
@@ -90,7 +92,9 @@ that Service, so the application reaches it by in-cluster DNS.
 ### Managed — a cloud provider runs the server
 
 `terraform/postgres-rds` emits an `aws_db_instance` as Terraform HCL, and the
-operator's `ha` and `backup` sizing maps onto the instance's native settings.
+operator's `ha` sizing and `core/backup` attachment map onto the instance's
+native settings: the attachment's `retention_days: 14` becomes the instance's
+`backup_retention_period = 14`.
 The application still renders to Kubernetes: the two sides of this deployment
 meet at the database's published contract, not at a shared target.
 

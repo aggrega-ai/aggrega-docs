@@ -74,10 +74,15 @@ for what the engine does if you try.
   `core/datastore/mariadb`.
 - `release.yaml` — operator sizing for the `infra` boundary. Its entry for `db`
   binds the Component's required `root_password` slot with
-  `core/generated-secret` (see below).
+  `core/generated-secret` (see below), and attaches `core/backup` to keep each
+  of the instance's automated backups for 14 days — the
+  `backup_retention_period` above; with no attachment the instance keeps them
+  for 7.
 - `manifest.yaml` — binds the MariaDB component type to the Terraform Recipe
-  `terraform/mariadb-rds-module`, which sources its module locally, and the
-  credential Feature type to `terraform/generated-secret`.
+  `terraform/mariadb-rds-module`, which sources its module locally, the
+  credential Feature type to `terraform/generated-secret`, and the backup
+  Feature type to `terraform/backup-native`, which renders nothing: the Recipe
+  reads the attachment and supplies the module's backup inputs itself.
 - `.aggrega-config.yaml` — points resolution at the sibling catalog; a
   standalone clone resolves from the hub registry instead.
 

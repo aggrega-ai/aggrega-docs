@@ -17,10 +17,15 @@ spec:
         payments-db:
           # The engine owns the root password on this target, so the operator
           # binds the Component's root_password slot with the credential Feature
-          # that delegates it to the engine, as the working releases do.
+          # that delegates it to the engine, as the working releases do, and
+          # attaches the same backup they do.
           features:
             root_password:
               type: core/generated-secret
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
           infra:
             engine_version: "11.4"
             storage:
@@ -29,6 +34,3 @@ spec:
             ha:
               enabled: false
               read_replicas: 0
-            backup:
-              enabled: true
-              retention_days: 14

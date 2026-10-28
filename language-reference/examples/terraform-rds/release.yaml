@@ -23,9 +23,18 @@ spec:
           # The directive that turns engine management on lives in the Terraform
           # Recipe the Manifest picks, which is also why this attachment
           # configures nothing.
+          #
+          # Backup is an attachment too. With none, RDS keeps the instance's
+          # automated backups for 7 days; this one keeps each for 14. The
+          # Recipe writes the retention into the instance itself, so the
+          # FeatureRecipe the Manifest binds for it renders nothing either.
           features:
             root_password:
               type: core/generated-secret
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
           infra:
             engine_version: "11.4"
             storage:
@@ -34,6 +43,3 @@ spec:
             ha:
               enabled: true
               read_replicas: 0
-            backup:
-              enabled: true
-              retention_days: 14

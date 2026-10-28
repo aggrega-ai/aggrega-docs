@@ -43,6 +43,12 @@ spec:
               infra:
                 evaluation_periods: 3
                 notify_target: "arn:aws:sns:eu-west-1:123456789012:payments-oncall"
+            # RDS keeps the instance's automated backups for 7 days unless a
+            # core/backup attachment says otherwise; this one keeps each for 14.
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
           infra:
             engine_version: "11.4"
             storage:
@@ -51,9 +57,6 @@ spec:
             ha:
               enabled: true
               read_replicas: 0
-            backup:
-              enabled: true
-              retention_days: 14
     app:
       directory: two-stacks-app
       # The boundary-wide attachment is declared on both boundaries, and renders

@@ -31,10 +31,12 @@ Output blocks on this page are copied from a real run, per
   `orders_admin`, and an `api` component of type `core/compute/server` that
   uses it. No key or value in it is about AWS.
 - `manifest-terraform.yaml` — binds the database to the Recipe
-  `terraform/postgres-rds-terraform-aws-modules` and the server to
-  `terraform/server-ecs`.
+  `terraform/postgres-rds-terraform-aws-modules`, the server to
+  `terraform/server-ecs`, and the `core/backup` Feature to
+  `terraform/backup-native`.
 - `manifest-cloudformation.yaml` — binds the database to
-  `cloudformation/postgres-rds` and the server to `cloudformation/server-ecs`.
+  `cloudformation/postgres-rds`, the server to `cloudformation/server-ecs`, and
+  the `core/backup` Feature to `cloudformation/backup-native`.
 - `release-terraform.yaml` — both components in one boundary, built through the
   Terraform Manifest.
 - `release-one-stack.yaml` — both components in one boundary, built through the
@@ -124,8 +126,8 @@ It prints, with `<workspace>` standing for this example's folder:
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-terraform.yaml --auto-pull
 
-Pull complete: release-terraform.lock (entities=8, source_artifacts=1, external_inputs=0)
-Total build time:              11.6s
+Pull complete: release-terraform.lock (entities=11, source_artifacts=1, external_inputs=0)
+Total build time:              15.7s
 Build completed: 151 files written to <workspace>/dist
 ```
 
@@ -141,7 +143,7 @@ Once the lockfile exists, the plain command builds against it:
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-terraform.yaml
 
-Total build time:               5.4s
+Total build time:               9.0s
 Build completed: 151 files written to <workspace>/dist
 ```
 
@@ -250,7 +252,7 @@ Success! The configuration is valid.
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-one-stack.yaml
 
-Total build time:               3.7s
+Total build time:               5.0s
 Build completed: 1 files written to <workspace>/dist
 ```
 
@@ -304,7 +306,7 @@ task definition reads an attribute of `Db`, it creates the instance first. See
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-two-stacks.yaml
 
-Total build time:               3.7s
+Total build time:               4.3s
 Build completed: 2 files written to <workspace>/dist
 ```
 
@@ -421,6 +423,29 @@ AWS Secrets Manager. No build input carries a password, so none of the three
 builds writes one into any file. The server receives the user's name and not
 its password; reading the password from Secrets Manager is left to the code
 the server's image runs.
+
+## The backup is an attachment
+
+RDS backs the instance up itself and keeps each automated backup for 7 days
+when nothing says otherwise. Each Release keeps them for 14 by attaching
+`core/backup` to the database, on its entry for `db`:
+
+```yaml
+        db:
+          features:
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
+```
+
+Each Manifest binds the Feature to the FeatureRecipe for its target,
+`terraform/backup-native` or `cloudformation/backup-native`, and neither
+renders anything: the backup is a setting of the instance, so the database
+Recipe reads the attachment and writes the retention where the instance is
+written — `backup_retention_period = 14` on the module block, and
+`"BackupRetentionPeriod": 14` in the instance's `Properties` above. That is
+why the one-stack template holds exactly three resources.
 
 ## Building is not deploying
 

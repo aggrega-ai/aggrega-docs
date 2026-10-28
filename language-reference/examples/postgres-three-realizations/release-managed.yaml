@@ -20,6 +20,13 @@ spec:
         # three deployments, so nothing about the application varies.
         app: {}
         db:
+          # RDS keeps the instance's automated backups for 7 days unless a
+          # core/backup attachment says otherwise; this one keeps each for 14.
+          features:
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
           infra:
             engine_version: "16"
             storage:
@@ -28,6 +35,3 @@ spec:
             ha:
               enabled: true
               read_replicas: 0
-            backup:
-              enabled: true
-              retention_days: 14

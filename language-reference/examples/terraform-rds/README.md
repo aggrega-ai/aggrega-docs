@@ -20,13 +20,15 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 - `aggregate.yaml` — developer intent: one `db` component of type
   `core/datastore/mariadb`, with a logical database name. Nothing about the
   cloud target lives here.
-- `release.yaml` — operator sizing: engine version, storage, HA, and backup for
-  the `infra` boundary. Its entry for `db` binds the Component's required
+- `release.yaml` — operator sizing: engine version, storage and HA for the
+  `infra` boundary. Its entry for `db` binds the Component's required
   `root_password` slot with `core/generated-secret` — the credential Feature
-  that says the engine owns the credential (see below).
+  that says the engine owns the credential (see below) — and attaches
+  `core/backup`, which sets how long the instance keeps its backups.
 - `manifest.yaml` — binds the MariaDB component type to the Terraform Recipe
-  `terraform/mariadb-rds`, and the credential Feature type to
-  `terraform/generated-secret`.
+  `terraform/mariadb-rds`, the credential Feature type to
+  `terraform/generated-secret`, and the backup Feature type to
+  `terraform/backup-native`.
 - `.aggrega-config.yaml` — points resolution at the sibling catalog; a
   standalone clone resolves from the hub registry instead.
 
@@ -41,8 +43,9 @@ boundary's root configuration, `aggrega.modules.tf`, at `dist/infra/terraform/`
 declaring `db` as a `module` block pointing at it. The body opens with a
 `#`-comment provenance block identifying the build, followed by a
 `required_providers` block constraining the AWS provider version, the resolved
-`aws_db_instance` resource — storage, HA, and backup values substituted from
-the Release, and RDS-managed credentials via `manage_master_user_password` — and
+`aws_db_instance` resource — storage and HA values substituted from the
+Release, the backup retention the `core/backup` attachment sets, and
+RDS-managed credentials via `manage_master_user_password` — and
 an `address` output carrying the instance's hostname, which the Recipe publishes
 as `host` in the form `${module.db.address}`.
 
@@ -95,3 +98,31 @@ exactly one provider carries it, and the standard library ships a
 `generated-secret` FeatureRecipe under more than one — so a bare
 `generated-secret:1.0.0` does not resolve at all, and the build halts loudly
 rather than silently picking a provider for you.
+
+## Backup on a managed target
+
+RDS backs the instance up itself, keeping each automated backup for 7 days
+when nothing says otherwise. The operator changes that by attaching
+`core/backup` in the Release, beside the credential:
+
+```yaml
+            backup:
+              type: core/backup
+              infra:
+                retention_days: 14
+```
+
+The Manifest binds the Feature to `terraform/backup-native`, which renders
+nothing of its own: the backup is a setting of the instance, so the Recipe
+reads the attachment and writes it into the resource it already renders. The
+backup section of `aws_db_instance` in `main.tf`:
+
+```hcl
+  ## ── Backup ───────────────────────────────────────────────
+  backup_retention_period = 14
+```
+
+An `infra.schedule` such as `30 2 * * *` would also set the instance's
+`backup_window` to `02:30-03:00`, read in UTC; left out, as here, RDS chooses
+the window. A value RDS cannot keep — a retention above 35 days, a schedule
+other than one time of every day — halts the build naming the attachment.
