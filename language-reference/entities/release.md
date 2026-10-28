@@ -32,7 +32,7 @@ Five practical patterns drive `environment:` authoring:
 
 5. **Compliance scoping.** SOC 2, PCI, and HIPAA evidence collection scopes by environment (production-only audit, etc.). The `aggrega.ai/environment` label is consumed by compliance-evidence-gathering tooling (Vanta, Drata) to filter resources by audit scope.
 
-*The field is informational and optional in intent; the current schema declares it required, and the requirement will be relaxed in a future iteration. The renderer already handles empty values — a Release that omits `environment:` (when the schema relaxes) produces no `aggrega.ai/environment` label, while all other provenance labels emit normally.*
+*The schema requires `environment:` on every Release; the value is informational, and the compiler reads it only to write the `aggrega.ai/environment` label.*
 
 ## Schema-Level Constraints
 

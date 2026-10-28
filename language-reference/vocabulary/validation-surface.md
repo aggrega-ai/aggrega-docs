@@ -49,7 +49,7 @@ The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the devel
 
 A related guardrail protects provider dispatch itself: when more than one provider-rendering Plugin serves the same target, the workspace resolves the ambiguity via a provider binding in `.aggrega-config.yaml`, chosen at `aggrega pull` and recorded in the lockfile. With no binding and exactly one candidate Plugin, that candidate is used; with no binding and more than one candidate, the build halts loudly, naming the candidate plugins. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
-> **Per-provider Workload-content validation.** The provider-Plugin's `spec.provider.workloadSchema` does not validate Workload bodies today; it is a documented contract and a synthesis-support marker, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
+> **Per-provider Workload-content validation.** A provider-rendering Plugin's `spec.provider.workloadSchema` documents how the provider translates a Workload and marks the provider as able to synthesize one; it validates nothing. Every Workload body is validated against the platform's Workload schema, whatever the provider.
 
 ### Layer 4 — Annotation-binding value validation
 
@@ -71,15 +71,7 @@ For the full inventory of Aggrega-prefixed sentinels and the surfaces that produ
 
 ## Layer interaction when fields overlap
 
-The same authored field can be governed by more than one layer. The most common overlap is a Workload's `containers.<name>.ports.<port>: <number>` field. **This walkthrough describes the end-state of per-provider `workloadSchema` content validation, which has not shipped** (see the Layer 3 note above): today the Workload body is validated against the platform-owned embedded Workload schema, not the per-provider `workloadSchema`.
-
-- Layer 1 (envelope) accepts it as part of the Workload schema's structural shape.
-- Layer 2 (pillar schemas) does not constrain it directly — Workload content is a Recipe-internal structure, not a Component pillar.
-- Layer 3 (`workloadSchema`) will validate the integer range (e.g., `>=1, <=65535`) and any provider-specific constraints declared on the bound provider-Plugin's `spec.provider.workloadSchema`, once per-provider `workloadSchema` validation ships.
-
-When a developer authors `port: 80` and the provider-Plugin's `spec.provider.workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
-
-A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at base rendering; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint duplication section).
+The same authored field can be governed by more than one layer. A Workload's `containers.<name>.ports.<port>` is checked by Layer 1 as part of the Workload schema's structural shape; Layer 2 does not reach it, Workload content being a Recipe-internal structure rather than a Component pillar; and a provider's `workloadSchema` checks nothing — so a constraint such as refusing a port below 1024 belongs in the Component's schema or in an assertion, where the layer that fires names it.
 
 ## Pipeline placement summary
 
@@ -87,7 +79,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | the document's category with `E0215` — `[CATALOG_ERROR E0215]` for a catalog entity |
 | 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | the authoring document's category with the condition's short code — `[DEVELOPER_ERROR E0168]` for an Aggregate value |
-| 3 — Provider-capability gate (per-provider `workloadSchema` content validation not yet shipped) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
+| 3 — Provider-capability gate | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open the authoring document's own domain — `[DEVELOPER_ERROR]` from an Aggregate, `[OPS_ERROR]` from a Release |
 
 ## Cross-references

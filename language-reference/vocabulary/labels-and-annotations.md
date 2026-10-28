@@ -8,7 +8,7 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 
 | # | Surface | Scope | Cascade rule | Primary consumer |
 | --- | --- | --- | --- | --- |
-| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | Catalog discovery, Studio filtering, governance verdict roles (when shipped) |
+| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | `aggrega search -l` for Components and Features; an Aggregate's labels are carried on its document and no command reads them yet |
 | 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `label-transform` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
 | 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | governance verdict roles (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |
@@ -37,7 +37,7 @@ The discipline target — what the buckets are *intended* to express:
 
 When authors honour the separation, downstream tooling can read the right bucket for the right concern. When authors violate it (e.g., putting cognitive metadata in `release` annotations because the Release file is convenient), the runtime still works but the bucket's intent is muddled.
 
-### Linter socket opportunity — cross-bucket reads
+### Linter socket — flagging cross-bucket reads
 
 A linter plugin (out-of-band advisory; see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the placement criterion) can flag cross-bucket reads where a Recipe's template pulls from a bucket whose intent doesn't match the field being routed. The criterion:
 
@@ -45,7 +45,7 @@ A linter plugin (out-of-band advisory; see [`plugins/plugin-contract.md`](../plu
 - Reading `.context.annotations.aggregate` to populate an `infra:` field — flag (physical metadata should come from the `release` bucket).
 - Reading `.context.annotations.catalog` to populate either `values:` or `infra:` — typically advisory only (catalog annotations are intrinsic traits; routing them into pillars is unusual but not always wrong).
 
-The criterion is forward-looking — the linter socket ships (the Wasm plugin contract page lists it **available**, run by [`aggrega lint`](../cli/aggrega-lint.md)), and none of the publishing linter's rules applies this criterion; no in-compiler enforcement today. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
+The publishing linter carries no rule for this criterion, and the build does not check it; a linter plugin of your own can, through the linter socket that [`aggrega lint`](../cli/aggrega-lint.md) runs. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
 
 ## Prefix discipline
 
@@ -201,19 +201,9 @@ When two contributions supply the same field of the same attachment, four rules 
 
 Precedence governs field values. It does not reorder **evaluation**: the sequence in which the compiler folds the surfaces, and in which it executes each attachment's pre-render `injectMapping`, is the fixed five-tier sequence documented in [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md). An attachment's authored `inject` block follows that evaluation sequence rather than the scope ranking above, so one attachment never carries two competing orderings.
 
-## Per-entity expansion of `metadata.labels` and `metadata.annotations`
+## Which kinds carry `metadata.labels` and `metadata.annotations`
 
-The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate and on all four library kinds (SchemaLibrary / MappingLibrary / WorkloadLibrary / ArtifactLibrary); `metadata.annotations` on the same set except Aggregate, which is labels-only. Manifest, Release, Recipe, FeatureRecipe, Plugin currently lack both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.
-
-The expansion is gradual — schema additions are additive and per-entity, so authors can ignore the additions until a use case applies. Each entity's intended use cases for the new fields:
-
-- **Recipe / FeatureRecipe `metadata.labels`** — implementation-side classification (which Wasm runtime stack a Recipe targets, which experimental flag gates the Recipe's behaviour).
-- **Recipe / FeatureRecipe `metadata.annotations`** — implementation-side authoring intent (declared deprecation timeline, expected migration target Recipe).
-- **Manifest `metadata.labels` / `annotations`** — workspace identity (which Git branch / environment / per-team workspace the Manifest belongs to).
-- **Release `metadata.labels`** — environment-attribution complementing `metadata.environment` (per the roadmap (see Status of the Language), environment is moving to optional; labels can carry the same intent without the schema-level requirement).
-- **Release `metadata.annotations`** — Release-shape provenance (issue tracker references, release-decision authoring trail).
-
-Labels and annotations are not yet uniform across catalog kinds — `metadata.annotations` sits on a subset of the kinds carrying `metadata.labels`, and some kinds carry neither. The expansion target makes the labels/annotations vocabulary uniform across every catalog kind. Each schema addition is additive, so the expansion retrofits nothing: a document that omits the new field stays valid and renders exactly as it did. Where a kind's new metadata is readable from is stated for that kind when the field lands on it — the surfaces that carry the fields today, and what each one reaches, are the cascade summary below.
+`metadata.labels` sits on Component, Feature, Aggregate and the four library kinds; `metadata.annotations` on the same kinds except Aggregate. Manifest, Release, Recipe, FeatureRecipe and Plugin carry neither.
 
 ## Cascade summary
 

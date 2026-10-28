@@ -343,7 +343,7 @@ It is refused as the document is read, before anything is fetched: checking the 
 Emitted message, naming the document, the kind as written and the kinds that are served:
 > no source adapter serves the source kind (Recipe `<name>:<version>`, rule source-kind, at `<file>`). the source names kind `"<kind>"`; name a kind a source adapter serves (`<the served kinds>`), or write the source as a single URI whose shape names its kind
 
-**How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas-the-ultimate-agnosticism) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
+**How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
 
 ### No source adapter is registered in this program for a source kind
 
@@ -1155,7 +1155,7 @@ FeatureRecipe entries follow the same shape; the `features.type` mapping check e
 
 **How to fix:** either correct the Recipe's `spec.implements:` declaration so it matches the Manifest's component-type key, or change the Manifest entry to point at a Recipe whose `spec.implements:` does match the component-type key.
 
-### Manifest mapping value carries more segments than a recipe reference accepts
+### Manifest mapping value is not a shape a recipe reference accepts
 
 <!-- covers: pkg/resolver.ErrMalformedRecipeReference -->
 
@@ -1376,7 +1376,7 @@ Emitted message, positioned at the Recipe the empty `source:` was written in and
 
 An instance's type has no Manifest mapping that resolves to a Recipe the catalog holds. Recipe selection is **mapping-only**: the compiler never picks a Recipe by reading `spec.implements:` and choosing among the candidates, so an unmapped type halts however many Recipes implement it. `implements` informs the choice; the author makes it; the Manifest records it.
 
-The same condition covers a mapping that exists but leads nowhere — a value at an accepted reference shape naming a Recipe the catalog does not hold, including one present under a different version than the value pins, and one whose bare name two capabilities both offer. Neither resolves to a Recipe the author can be said to have chosen. A mapping value whose *shape* no reference can express is reported separately, under "Manifest mapping value carries more segments than a recipe reference accepts" above, so the claim that an entity is absent is only ever made about a reference that could have resolved.
+The same condition covers a mapping that exists but leads nowhere — a value at an accepted reference shape naming a Recipe the catalog does not hold, including one present under a different version than the value pins, and one whose bare name two capabilities both offer. Neither resolves to a Recipe the author can be said to have chosen. A mapping value whose *shape* no reference can express is reported separately, under "Manifest mapping value is not a shape a recipe reference accepts" above, so the claim that an entity is absent is only ever made about a reference that could have resolved.
 
 Emitted messages, for a component instance. Where a mapping exists and names something absent:
 > no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<type>"`, mapped to recipe `"<uri>"`). correct the mapping value in the Manifest, or publish the recipe it names
@@ -6210,7 +6210,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0092` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` | A capability is served by more than one provider plugin |
 | `E0093` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` | A Manifest maps two version-distinct keys onto one type |
 | `E0094` | `duplicate entity identity within a single catalog directory` | Two catalog entities in one directory share an identity |
-| `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value carries more segments than a recipe reference accepts |
+| `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value is not a shape a recipe reference accepts |
 | `E0096` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
 | `E0097` | `no importer plugin advertises the requested format` | No plugin advertises a requested parse or import format |
 | `E0098` | `no parser plugin advertises the requested format` | No plugin advertises a requested parse or import format |

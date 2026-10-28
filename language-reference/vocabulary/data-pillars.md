@@ -72,7 +72,7 @@ Surface 1 is the most-authored: an Operator sizes each component the Release pla
 
 The architectural target for `infra:` is component-local: a component's sizing applies to that component instance and does not bleed across components. This is the mechanism that lets Ops increase database IOPS without affecting the API server's CPU request.
 
-**The rule (current state):** `infra:` is **primarily localized** to the surface that authored it. Cascade exceptions exist by design:
+**The rule:** `infra:` is **primarily localized** to the surface that authored it. Cascade exceptions exist by design:
 
 - **Boundary annotation cascade.** Boundary `annotations:` cascade through nested boundaries to inner components (Surface 5 of the annotation matrix in [labels-and-annotations.md](labels-and-annotations.md)). Annotations consumed by Recipes as routing input become indirect `infra` reach — the boundary-level annotation flows through `.context.annotations.release` into the per-node Recipe's rendered output.
 - **Release inheritance via `extends:`.** A Release that `extends:` a parent Release inherits the parent's `infra` declarations at every surface that carries them, unless the child overrides per-key. The child's value wins key by key, down to the first indivisible value — a scalar, a list, a template — which replaces whole, and a key the child writes as `null` is removed rather than set to nothing. The inheritance crosses the per-Release boundary deliberately; for the whole fold rule and what else travels with it, see [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance).
@@ -142,7 +142,7 @@ The two are also ordered: `locals:` resolves first, so `provides:` may read `.lo
 
 The split is deliberate per the architectural separation of Recipe internals (private) from Recipe interface (public). Authors treating `provides:` and `locals:` as one namespace lose the visibility distinction and risk exposing internal state through the topology pipe — every key declared in `provides:` becomes part of the Recipe's contract surface, whether or not the author intended it. The discipline target: declare a key in `locals:` first; promote to `provides:` only when a downstream caller actually needs it.
 
-A future per-key visibility annotation (`@visible: public/private` or similar) could let one declaration carry both kinds of state with explicit per-key marking. The current separation by pillar is the simpler shape and the one that ships today; per-key annotations remain an authoring discussion rather than planned shipping work.
+Visibility is set by the pillar a key is declared in: there is no per-key visibility marker, so a value both private and published is a `locals:` entry and a `provides:` entry that reads it.
 
 ## Parameters
 
@@ -215,7 +215,7 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 | `uses` (`usesSchema`) | Per-socket whole-entry overlay by socket name. A child adds sockets its base does not declare, and a socket it redeclares under an existing name replaces that entry outright — its value and infra schemas and its `selector` together. Socket entries are not composed, and nothing compares a redeclared `selector` against the base's. |
 | `features` (`featuresSchema` per-slot schema) | Per-slot whole-entry overlay by slot name, on the same terms as `usesSchema`. A child adds slots freely; a slot it redeclares replaces the base's entry outright rather than composing with it. |
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
-| `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. On a Release `extends:` chain a map-valued parameter deep-merges with child-key wins, a scalar-valued one is child-replaced, and a key the child writes as `null` is removed. |
+| `parameters` (Aggregate root map) | An Aggregate has no `extends:` field, so no Aggregate chain merges parameters. On a Release `extends:` chain a map-valued parameter deep-merges with child-key wins, a scalar-valued one is child-replaced, and a key the child writes as `null` is removed. |
 
 The general pattern turns on the kind and on the surface. **A Feature's schema-validated pillars compose** under JSON Schema 2020-12. **An extending Component's pillars are inherited whole** — it authors none, so its contract is its base's exactly, and a base's constraint therefore cannot be relaxed, by construction. **The fixed-shape surfaces — `usesSchema` and `featuresSchema` — overlay by name** on both kinds: a child adds entries, and an entry it redeclares replaces the base's outright. **Template-authored pillars use shallow per-key replacement**, giving the child full ownership of any template slot it declares.
 
@@ -225,7 +225,7 @@ For the inheritance mechanism itself, see [inheritance-and-interface.md](inherit
 
 ## Cross-pillar mechanics
 
-The signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. The patterns below formalise common cross-pillar mechanics; one anti-pattern is documented honestly so authors recognise the trade-off.
+The signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. The patterns below formalise common cross-pillar mechanics; one authoring smell is documented so authors recognise the trade-off.
 
 ### Schema-bridge cross-pillar piping — signposted, not walled
 
@@ -263,11 +263,7 @@ For the inject grammar and collision rules, see [topology-triad.md](topology-tri
 
 ### Cross-pillar constraint duplication
 
-A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, for which the provider-rendering plugin's `spec.provider.workloadSchema` may add a `min: 1024` rule for non-privileged ports. **This per-provider `workloadSchema` content validation has not shipped** (see [validation-surface.md](validation-surface.md) Layer 3): today `workloadSchema` is documentation-only and Workload bodies are validated against the platform-owned embedded Workload schema, so the second-layer rejection described here is the designed end-state, not current behavior.
-
-When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection during base rendering — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
-
-The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the provider accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a halt whose bracketed head carries the `CATALOG_ERROR` category, attributed to the Recipe and the provider that rendered it.
+A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, for which the provider-rendering plugin's `spec.provider.workloadSchema` may add a `min: 1024` rule for non-privileged ports. A provider-rendering Plugin's `spec.provider.workloadSchema` documents how the provider translates a Workload and marks the provider as able to synthesize one; it validates nothing. Every Workload body is validated against the platform's Workload schema, whatever the provider, so a constraint written only in a `workloadSchema` — a `min: 1024` port rule, say — is not enforced; to refuse such a value, put the constraint in the Component's schema or in an assertion.
 
 ### Feature attachment / Component pillar isolation
 
@@ -280,7 +276,7 @@ Two consequences for authors:
 
 The isolation is explicit per the architecture's separation of concerns: Features are independent contributors layered onto Components via the 5-Tier Onion Model. For the attachment surfaces and ordering, see [labels-and-annotations.md](labels-and-annotations.md) "Feature attachment — five surfaces".
 
-### Anti-pattern: same property name in both pillars
+### The same property name in both pillars
 
 A Component or Feature whose `spec.schema.values:` and `spec.schema.infra:` declare the same property name — at the root, at any nesting depth, or both — is a frequent authoring smell. The two pillars are separate namespaces by design (the compiler accepts the overlap), so the schema validates and the rendered output is well-formed. The smell is cognitive: readers and template authors hit "which pillar holds the `foo` I'm reading?" friction every time they scan the schema or write a template against it.
 

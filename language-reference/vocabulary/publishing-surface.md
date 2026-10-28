@@ -70,7 +70,7 @@ The compiler does not enforce or validate maintainer content beyond JSON Schema'
 
 ## Required-fields asymmetries
 
-Aggrega's entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role; one asymmetry (Release `metadata.environment`) is in transition and will be relaxed in a future release.
+Aggrega's entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role.
 
 The current required-fields state per entity (excluding `apiVersion` / `kind` / `metadata.name` / `metadata.version`, which every entity requires uniformly):
 
@@ -83,7 +83,7 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 | Plugin | `metadata.pluginType`, `spec.abiVersion` | The socket type the plugin implements (part of the addressing block, supplying the `<pluginType>` segment of the derived `plugin/<pluginType>/<name>` coordinate) and the ABI version it targets; the `.wasm` location is derived from that identity rather than authored; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
 | Aggregate | — | An Aggregate declaring none of `components`, `subsystems` or `aggregates` loads and builds, and renders nothing |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |
-| Release | `spec.aggregate`, `spec.manifest` (a Release declaring `extends` writes no `aggregate` and may omit `manifest`); *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |
+| Release | `spec.aggregate`, `spec.manifest` (a Release declaring `extends` writes no `aggregate` and may omit `manifest`); `metadata.environment` | The first two anchor the build to a specific Aggregate + Manifest; the environment is stamped on rendered output as the `aggrega.ai/environment` label |
 
 ### `Component` label requirement is load-bearing
 
@@ -91,19 +91,11 @@ The `component.aggrega.ai/type` label is the only label Aggrega requires on any 
 
 The requirement is therefore not a publishing-surface concern (the label is not for catalog discovery) but a topology concern: every Component carries it, internal-use Components that do not target catalog distribution included.
 
-### Release `metadata.environment` requirement is in transition
+### Release `metadata.environment` is required
 
-The Release schema currently requires `metadata.environment` as a string. This requirement is expected to become optional and free-form in a future release, documented as informational label-source metadata; today the field is still schema-required.
+The Release schema requires `metadata.environment`, a string the build stamps on every rendered resource as the `aggrega.ai/environment` label.
 
-When the relaxation ships:
-
-- The schema drops the `required` constraint on `metadata.environment`.
-- The renderer already handles empty values; a Release that omits the field produces no `aggrega.ai/environment` label on rendered K8s manifests, while every other provenance label emits normally.
-- Authors who want explicit environment attribution still set the field; authors who don't need it omit it.
-
-For the environment-field relaxation framing and use cases, see [`10-status.md`](../10-status.md) Roadmap notes section.
-
-### Other asymmetries are not in transition
+### Other asymmetries
 
 The remaining asymmetries (Recipe vs Component required fields, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
 
@@ -112,7 +104,7 @@ The remaining asymmetries (Recipe vs Component required fields, Manifest's `mapp
 - [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata mechanism complementing the publishing surface.
 - [`entities/component.md`](../entities/component.md) — Component's `metadata.labels.component.aggrega.ai/type` requirement and `schema` / `usesSchema` / `featuresSchema` declarations.
 - [`entities/release.md`](../entities/release.md) — Release's `metadata.environment` field and its current required state.
-- [`10-status.md`](../10-status.md) — the environment-field relaxation roadmap.
+- [`10-status.md`](../10-status.md) — the status of the metadata envelope.
 - [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — Strict API Partitioning and the Enterprise Metadata Suite design framing.
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §"Lockfile pinning and artifact immutability" + §"Catalog entity name-shape enforcement" — what the immutability rule refuses at publish time, and where per-entity-kind name shapes are checked: the publishing-discipline plugin reports them advisorily when an author runs `aggrega lint`, and neither building nor publishing checks them.
 - [`architecture/11-governance-and-compliance.md`](../../architecture/11-governance-and-compliance.md) §"Inheritance and publishing discipline" — which governance rules belong to the publishing-discipline plugin, and which an extending Component's inheritance settles by construction instead.

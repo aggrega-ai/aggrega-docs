@@ -141,7 +141,7 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 
 Each format has its own grammar, its own validator, and its own error-reporting shape. Authors who hit a format-string parse error read the per-format reference for the syntax rules.
 
-A future LSP / scaffolders integration could validate every format at authoring time rather than at compile time — surfacing format errors in the IDE before the author runs `aggrega build`. Today's authoring surface relies on the compiler's per-format validation; the LSP integration is `planned` per the architectural roadmap and not yet wired.
+The editor reports these errors while you author: `aggrega serve` validates each document it is sent against its kind's schema and returns the same verdict a build would give (see `cli/aggrega-serve.md` "Live validation"), and `aggrega scaffold` drafts a starter document of any kind.
 
 ## Cross-references
 

@@ -88,7 +88,7 @@ Library names and bundle names follow PascalCase. The entity envelope's JSON Sch
 - `metadata.name` matches `^[A-Z][A-Za-z0-9]*$`.
 - `spec.artifacts` map keys match the same pattern via `propertyNames`.
 
-An ArtifactLibrary with a non-PascalCase bundle name fails envelope validation at workspace load. The enforcement is load-bearing: bundle names appear in the `#/artifacts/<name>` reference fragment, so a non-PascalCase name would propagate through every consumer that imports the bundle, including the eventual hub UI surfacing.
+An ArtifactLibrary with a non-PascalCase bundle name fails envelope validation at workspace load. The enforcement is load-bearing: bundle names appear in the `#/artifacts/<name>` reference fragment, so a non-PascalCase name would propagate through every consumer that imports the bundle.
 
 The naming uniformity keeps the `#/artifacts/<name>` fragment legible: `#/artifacts/OperatorSupport` reads at a glance.
 

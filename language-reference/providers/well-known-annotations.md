@@ -4,7 +4,7 @@ Providers read specific boundary annotations from the Release to configure platf
 
 The support matrix in this chapter is **generated from those declarations**, at the grain the declaration carries — per provider **per input kind**, because a provider can read a key when it synthesizes a deployment unit and have no way to read it when it renders a vendored artifact. Author against the matrix here: a cell says what that provider reads on that path, because a cell cannot say anything the provider did not declare. A declaration that names an input kind the provider's own render-behavior contract does not render is refused when the Plugin entity is read, so the two claims cannot disagree.
 
-The **reserved vocabulary** is the wider set, and it lives in two places instead — this chapter, which names every reserved key including the ones no provider reads yet, and the reserved-prefix set the publishing lint checks.
+The **reserved vocabulary** is the wider set, and it lives in two places instead — this chapter, which names every reserved key including the ones no provider reads, and the reserved-prefix set the publishing lint checks.
 
 ## The Invariants
 
@@ -25,7 +25,7 @@ The six category tables below name every annotation in the reserved `aggrega.ai/
 Every cell in that grid carries one of three tiers:
 
 - **Applied** — the provider applies the key on this input kind, and the rendered output changes deterministically as a result.
-- **Applied conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell today**, and the declaration surface carries no way to express one, so the generated grid below emits only the other two tiers. The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
+- **Applied conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell**, and the declaration surface carries no way to express one, so the generated grid below emits only the other two tiers. The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
 - **Not applied** — no provider applies the key on this path: the target has no render slot for it there, so the placement mechanism contributes nothing to what is rendered, and the category table's **Default** column says what you get instead. The value still passes through the build as an opaque string, untouched. The tier is named for the mechanism rather than for the fate of the value, because those are different questions and only the first is one a cell can answer: what a provider applies is a property of that target's render slots, which is exactly what the declaration behind each cell states.
 
 Two scopes, and only one of them makes input kind a meaningful axis:
@@ -37,13 +37,13 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/namespace` | `helm` (sourced, synthesized); `compose` (sourced, synthesized) | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
-| `aggrega.ai/project-name` | not yet consumed | Reserved for a Docker Compose project name | — |
-| `aggrega.ai/region` | not yet consumed | Reserved for a cloud region at placement scope | — |
-| `aggrega.ai/account-id` | not yet consumed | Reserved for a cloud account identifier at placement scope | — |
+| `aggrega.ai/namespace` | `helm` (sourced, synthesized); `compose` (sourced, synthesized) | Kubernetes namespace (helm); Docker network name (compose) | Not injected if absent (helm); a network named for the path of the compose file, shared by every node in that file without the annotation (compose) |
+| `aggrega.ai/project-name` | reserved; no provider reads it | Reserved for a Docker Compose project name | — |
+| `aggrega.ai/region` | reserved; no provider reads it | Reserved for a cloud region at placement scope | — |
+| `aggrega.ai/account-id` | reserved; no provider reads it | Reserved for a cloud account identifier at placement scope | — |
 | `aggrega.ai/kubernetes-version` | `helm` (sourced) | Kubernetes version of the cluster the component deploys to, which a chart rendered from source reads as `.Capabilities.KubeVersion` | The version the stock `helm template` of the same helm release renders for: that of the Kubernetes client library the provider is built with |
 
-`aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the network name is resolved per node from the annotation on that node, falling back to the boundary path where the node carries no annotation. Whichever of the two supplies the identity, it is then written into the characters a compose network name accepts — every other character is written out as an escape rather than substituted for, so two identities that differ at all stay on two networks, and the identity's case is kept as authored. [The compose provider reference](compose.md) documents the derivation in full, including how to read an encoded name and what a rename costs.
+`aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the network name is resolved per node from the annotation on that node, falling back to the path of the compose file where the node carries no annotation — so unannotated boundaries that share one compose file share one network, and `aggrega.ai/namespace` is what separates them. Whichever of the two supplies the identity, it is then written into the characters a compose network name accepts — every other character is written out as an escape rather than substituted for, so two identities that differ at all stay on two networks, and the identity's case is kept as authored. [The compose provider reference](compose.md) documents the derivation in full, including how to read an encoded name and what a rename costs.
 
 `aggrega.ai/kubernetes-version` states a property of the cluster a component deploys to rather than where in it the component lands: chart templates choose an API version, a field or a whole mechanism by the version they are rendered for, and the build has no cluster to ask. The helm provider reads the value the way `helm template --kube-version` reads its flag and halts the build on a value that is not a version; where none is named, a chart renders for the version `helm template` of the same helm release renders for. [The helm provider reference](helm.md#the-kubernetes-version-a-chart-is-rendered-for) documents the accepted forms and the default.
 
@@ -58,26 +58,26 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/cluster-domain` | not yet consumed | Reserved for a DNS suffix for cross-namespace service discovery | — |
-| `aggrega.ai/ingress-class` | not yet consumed | Reserved for a Kubernetes IngressClass on Ingress resources | — |
-| `aggrega.ai/service-mesh` | not yet consumed | Reserved for mesh sidecar injection annotations | — |
+| `aggrega.ai/cluster-domain` | reserved; no provider reads it | Reserved for a DNS suffix for cross-namespace service discovery | — |
+| `aggrega.ai/ingress-class` | reserved; no provider reads it | Reserved for a Kubernetes IngressClass on Ingress resources | — |
+| `aggrega.ai/service-mesh` | reserved; no provider reads it | Reserved for mesh sidecar injection annotations | — |
 
 ### Category 4 — Security
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/service-account` | `helm` — synthesized only | Kubernetes `ServiceAccount` for synthesized Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
-| `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
-| `aggrega.ai/iam-role` | not yet consumed | Reserved for a cloud identity role bound to a workload | — |
+| `aggrega.ai/pod-security-standard` | reserved; no provider reads it | Reserved for a Pod Security Standards level | — |
+| `aggrega.ai/iam-role` | reserved; no provider reads it | Reserved for a cloud identity role bound to a workload | — |
 
 ### Category 5 — Packaging
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/chart-name` | `helm-chart` — per assembly | Umbrella chart name | Aggregate name and the umbrella's assembly path joined — see [Chart-name resolution](helm-chart.md#chart-name-resolution) |
-| `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
-| `aggrega.ai/stack-name` | not yet consumed | Reserved for an explicitly named deployment stack | — |
-| `aggrega.ai/tf-backend` | not yet consumed | Reserved for a Terraform state backend identifier | — |
+| `aggrega.ai/chart-version` | reserved; no provider reads it | Reserved for a Helm chart version | — |
+| `aggrega.ai/stack-name` | reserved; no provider reads it | Reserved for an explicitly named stack | — |
+| `aggrega.ai/tf-backend` | reserved; no provider reads it | Reserved for a Terraform state backend identifier | — |
 
 ### Category 6 — Cloud target
 
@@ -166,20 +166,20 @@ Four of the shipped keys are not node-scoped, so they sit outside the grid above
 
 **When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The three `aggrega.ai/aws-*` keys are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
 
-### Reserved names no provider reads yet
+### Reserved names no provider reads
 
-Eleven keys in the matrix above are marked *not yet consumed*:
+Eleven keys in the matrix above are marked *reserved; no provider reads it*:
 `aggrega.ai/project-name`, `aggrega.ai/region`, `aggrega.ai/account-id`,
 `aggrega.ai/cluster-domain`, `aggrega.ai/ingress-class`,
 `aggrega.ai/service-mesh`, `aggrega.ai/pod-security-standard`,
 `aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
 and `aggrega.ai/tf-backend`.
 
-Setting one of these on a Release today has **no effect on rendered output**. No
+Setting one of these on a Release has **no effect on rendered output**. No
 provider reads them, and no default is applied on their behalf — in
 particular, no DNS suffix is applied for `aggrega.ai/cluster-domain`, so a Recipe
 that needs a cluster domain must supply it as an ordinary value rather than rely
-on this annotation. A Recipe author who needs one of these behaviours today
+on this annotation. A Recipe author who needs one of these behaviours
 expresses it as a Recipe value or a component `infra` field.
 
 **No provider declares these eleven.** A provider's `wellKnownAnnotations` lists
@@ -195,7 +195,7 @@ region and an account at placement scope and reach no provider; the keys the
 and `aggrega.ai/aws-account` in Category 6. When you mean the CloudFormation
 cross-stack placement context, author the `aws-` form — the unprefixed pair is
 held against collision, not wired to anything. Two further reserved names are
-covered today by other surfaces rather than by an annotation:
+covered by other surfaces rather than by an annotation:
 `aggrega.ai/stack-name` is reserved, while the stack name a `cloudformation`
 boundary renders into is derived deterministically from the release and
 boundary identity; and a workload's cloud identity role is supplied as an
@@ -204,15 +204,14 @@ ordinary operator-set field on the Feature that emits the binding, not through
 
 The names remain reserved, and remain listed *here*, because the `aggrega.ai/`
 prefix is reserved: an enterprise catalog must not reuse one of these keys for its
-own meaning, because doing so would collide when the annotation becomes live. This
+own meaning, because the platform holds the key for a meaning of its own. This
 matrix and the reserved-prefix set the publishing lint checks are together the
 reservation register, and the two are held to the same set of names by a check
 that reads both and fails when they diverge. Authoring one of the eleven
 therefore neither fails validation nor trips the "do not use the bare
-`aggrega.ai/` prefix" rule — it simply has no effect. If one of them gains a
-provider that reads it, that provider's declaration gains the key at the same time.
+`aggrega.ai/` prefix" rule — it simply has no effect.
 
-The umbrella chart version a `helm-chart` boundary emits is currently always
+The umbrella chart version a `helm-chart` boundary emits is always
 `0.1.0`; it is a fixed value rather than an `aggrega.ai/chart-version` default.
 
 > Note: Manifest `features.annotations` bindings using the `aggrega.ai/`

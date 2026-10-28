@@ -4,7 +4,7 @@ The helm provider produces flat rendered Kubernetes YAML for GitOps consumers (A
 
 Where the boundary's `syncWave: <integer>` is not `0`, each emitted Kubernetes resource carries it as the `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry `helm.sh/hook-weight: "<N>"`. ArgoCD reads the sync-wave annotation, and Helm reads a hook's weight, each ordering resources by it; a boundary at the default wave `0` carries neither, which both tools read as wave `0`.
 
-This page is the helm provider's authoring reference. For the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). For current shipping-state classifications, see [Status of the Language → Providers](../10-status.md#providers).
+This page is the helm provider's authoring reference. For the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). For each provider's readiness, see [Status of the Language → Providers](../10-status.md#providers).
 
 ## Supported input kinds
 
@@ -42,7 +42,7 @@ spec:
 
 Only `url:` decides where a chart is read from. The other fields select what would be fetched, so for a path they select nothing — they still reach the Recipe's own templates as `.source.*`.
 
-Vendoring a chart locally is supported as an alternative to fetching, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys (e.g. a `registry` + `chart` pair) — `planned`.
+Vendoring a chart locally is supported as an alternative to fetching, and is not required. The schema accepts an open structured object.
 
 The chart at the source path must contain a valid `Chart.yaml`. Sourced renders that fail to load the chart surface the underlying Helm SDK error verbatim. An empty `source: ""` is not a helm matter: it names neither sourceless nor sourced mode, so the refusal it earns is the same whichever provider the Recipe targets, and it comes before any chart is loaded and before this provider is dispatched. Which command reports that refusal — and which reports something else first — is set out in [`entities/recipe.md`](../entities/recipe.md) "Source field scheme inventory" and [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Recipe `source:` is an empty string".
 

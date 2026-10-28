@@ -1,6 +1,6 @@
 # provides, inject, uses
 
-## 4. The Injection Contract & Pre-Resolved Map
+## The Injection Contract & Pre-Resolved Map
 
 Because Aggrega is an Ahead-of-Time (AOT) static compiler, no data flows backward from the live infrastructure during compilation. It is mechanically impossible for the compiler to actively fetch a physical credential (like an AWS secret) and pass it "back" to the Developer's container environment.
 
@@ -117,7 +117,7 @@ To prevent Go template boilerplate in Recipes, the compiler provides **both**:
 * `.context.uses`: The enriched topological edge map (for complex logic, secret references, and origin tracking).
 * `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions and any boundary Feature's environment override.
 
-**The Dual-State Injection Context (Null-Safety vs. AST Purity)**
+**The Dual-State Injection Context (Null-Safety vs. Intent Purity)**
 When generating configurations for Modifiers (the FeatureRecipe bound to any attachment, credential or otherwise), the compiler must balance null-pointer safety for Go templates, dynamic network routing, and the preservation of a capability-agnostic graph. To achieve this, the compiler provides a dual-state context to the template:
 
 * **`.inject_raw` (The Immutable Intent):** Represents the component's own `inject:` block exactly as the developer authored it in Domain 1. It is immutable. If the developer omitted the block, this evaluates to `null`. Ops utilizes this specifically for logical checks (e.g., `{{ if not .inject_raw }}` to apply fallback behaviors). Because it is immutable, it protects Ops templates from false positives if routing features intercept and mutate the physical delivery pipe.

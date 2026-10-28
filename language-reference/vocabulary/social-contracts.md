@@ -4,7 +4,7 @@ Aggrega is, by design, an unopinionated compiler. Per the founding invariants do
 
 **Where that neutrality stops is worth saying plainly, because it is one line and it is easy to over-read.** A few keys are Aggrega's own — reserved, with the values it will take written into the published schema — and those the schema does check, the way it checks any other declared field. Declaring the value set of a key the platform itself defines is not the compiler reading meaning into what you wrote; it is the platform saying what its own key means. Everything you author under a key of your own stays exactly as unpoliced as this page describes.
 
-This page is the canonical inventory of the language's Social Contracts. Authors who learn the contracts from this page can reason about why the compiler accepts a malformed-by-convention build (it does — the compiler does not interpret the convention) and where the responsibility lies for catching the violation (authoring discipline, reviewer attention, or a future Wasm-linter rule).
+This page is the canonical inventory of the language's Social Contracts. Authors who learn the contracts from this page can reason about why the compiler accepts a malformed-by-convention build (it does — the compiler does not interpret the convention) and where the responsibility lies for catching the violation (authoring discipline, reviewer attention, or a linter plugin run by `aggrega lint`).
 
 ## Three classes of discipline
 

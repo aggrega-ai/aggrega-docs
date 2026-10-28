@@ -92,7 +92,7 @@ The expander annotates each property in the rendered shape with `x-aggrega-sourc
 - `host` in the expanded `DatabasePayload` carries `x-aggrega-source: <library-A>/DatabasePayload`.
 - `username` in the expanded `credentials` carries `x-aggrega-source: <library-A>/DatabasePayload` (the immediate parent in the chain), not `<library-B>/BasicAuth`.
 
-The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — the chain can be reconstructed by recursive library lookup if needed. A future authoring polish may surface chain depth via an `x-aggrega-source-chain:` extension; until then, the immediate-parent attribution is the contract.
+The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — the chain can be reconstructed by recursive library lookup if needed. The immediate-parent attribution is the contract.
 
 ## Consumer narrows library entry
 
@@ -123,7 +123,7 @@ spec:
 
 In the merged shape, `side_effects` reflects the consumer's narrower contract (`enum: [read]`, with a `default`); the library entry's broader `enum: [read, write, delete]` is gone. The `x-aggrega-source` annotation on the consumer's `side_effects` property is dropped — the property is consumer-authored.
 
-This is the expected behaviour: consumers refining a library entry's property is the canonical narrowing pattern. A future polish surface may add `x-aggrega-narrowed-from:` to record that a consumer property derives from a library entry it narrows; until then, narrowing is silent and the consumer's property stands on its own provenance.
+This is the expected behaviour: consumers refining a library entry's property is the canonical narrowing pattern. Narrowing is silent: the consumer's property stands on its own provenance.
 
 ## Cross-pointers
 

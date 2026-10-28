@@ -80,7 +80,7 @@ Library names and workload entry keys follow PascalCase. The entity envelope's J
 - `metadata.name` matches `^[A-Z][A-Za-z0-9]*$`.
 - `spec.workloads` map keys match the same pattern via `propertyNames`.
 
-A WorkloadLibrary with a non-PascalCase key in `spec.workloads` fails envelope validation at workspace load. The enforcement is load-bearing: workload entry keys appear in the `#/workloads/<name>` reference fragment, so a non-PascalCase key would propagate through every consumer that imports the entry, including the eventual hub UI surfacing.
+A WorkloadLibrary with a non-PascalCase key in `spec.workloads` fails envelope validation at workspace load. The enforcement is load-bearing: workload entry keys appear in the `#/workloads/<name>` reference fragment, so a non-PascalCase key would propagate through every consumer that imports the entry.
 
 The naming uniformity keeps the `#/workloads/<name>` fragment legible: `#/workloads/BatchJob` reads at a glance.
 

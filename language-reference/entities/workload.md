@@ -522,8 +522,8 @@ its own service on the node's network while its init services stay on the bounda
 narrower arrangement than the single shared namespace the pod shape gives, and one the compose
 provider names in an `unsupported-field` warning rather than leaving to be discovered at run time.
 
-A workload that does not declare `hostNetwork` renders identically on every target to one authored
-before the field existed: the key is absent from the output entirely rather than emitted as `false`.
+A workload that does not declare `hostNetwork` carries no such key in its output: the key is
+absent rather than emitted as `false`.
 
 ## Attachment integration with the Component's `featuresSchema`
 
@@ -641,7 +641,7 @@ The Workload stays focused on the workload shape; cross-cutting and Recipe-intri
 
 The Workload schema is broad — it covers single-container HTTP servers, multi-container sidecar patterns, init-container chains, batch jobs, and stateful services with persistent volumes. Three patterns recur frequently enough that authoring boilerplate from scratch per Recipe is wasteful. The blocks below are copy-paste templates Recipe authors can adapt to specific components.
 
-A future iteration is expected to ship these patterns as catalog-shipped Workload-fragments authors `implements:` from rather than copy-paste. Until those fragments ship, the templates here are the canonical starting points.
+A pattern several Recipes share can be published once as a WorkloadLibrary entry and imported with `$import: <Library>#/workloads/<entry>`; the templates here are starting points to adapt, or to publish that way.
 
 ### Pattern 1 — Server with metrics exposure
 

@@ -268,7 +268,7 @@ The producer stack always publishes the `Export`, even when a particular consume
 
 The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) example builds the same-account case: an RDS instance's stack exports each entry a server's edge consumes, and the server's stack reads each back with `Fn::ImportValue`.
 
-> **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
+> **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic. The same-account path uses `Fn::ImportValue`, which is universally available.
 
 ### A value read off the connection rather than injected
 

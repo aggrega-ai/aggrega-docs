@@ -149,11 +149,11 @@ This is the dominant pattern for credential injection on synthesized workloads. 
 
 A single Aggregate can have one component bound to a sourced helm Recipe (mechanism 1) on boundary A and a sibling component bound to a Workload-synthesizing helm Recipe (mechanism 2) on boundary B. Each boundary's directory carries the appropriate output shape; cross-boundary file naming does not collide because per-boundary `dist/` directories are sibling-isolated.
 
-### Compose Release-level merge across boundaries
+### Compose Release-level merge per output directory
 
-The compose capability's boundary assembly gathers the per-node fragments of one boundary into that boundary's own `docker-compose.yaml`; two compose-targeted boundaries in one Release write two files, each in its own output directory.
+The compose capability's assembly gathers the per-node fragments of every boundary whose directory evaluates to one path into one `docker-compose.yaml` at that path; two compose-targeted boundaries in one Release write two files when their directories differ, and one merged file when they share a directory.
 
-Service-name collisions are therefore detected within a boundary, at its Release-level merge, per the rule above. Two compose-targeted boundaries that each declare a service named `api` do not collide: each boundary's file carries its own.
+Service-name collisions are therefore detected per file, at its Release-level merge, per the rule above. Two compose-targeted boundaries in different directories that each declare a service named `api` do not collide: each boundary's file carries its own. Two that share a directory write one file, and the build halts naming both contributors.
 
 ## Cross-references
 

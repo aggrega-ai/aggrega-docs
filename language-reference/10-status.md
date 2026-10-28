@@ -98,7 +98,7 @@ Recipes and FeatureRecipes declare the Component or Feature interface they imple
 - **Major-compatible range (`core/api-server:^1.0.0`) — available.** The caret form is a SemVer constraint (`>=1.0.0, <2.0.0` for the example); the mapped type's version must satisfy it.
 - **Unversioned (`core/api-server`) — available.** Any version of the type satisfies it.
 
-A mapping entry whose Recipe's `implements:` matches neither the mapped type nor any of its bases halts the build with an `OPS_ERROR` naming the entry, the Recipe, and its `implements:` value. Future iteration may add comparison range forms (`>=1.0.0`, `<2.0.0`) for finer-grained version constraints; the caret form is the canonical authoring surface today for major-compatible matching.
+A mapping entry whose Recipe's `implements:` matches neither the mapped type nor any of its bases halts the build with an `OPS_ERROR` naming the entry, the Recipe, and its `implements:` value. The caret form is the canonical authoring surface for major-compatible matching.
 
 See [`vocabulary/inheritance-and-interface.md`](vocabulary/inheritance-and-interface.md) for the `implements:` design surface and [`entities/manifest.md`](entities/manifest.md) for the per-Manifest mapping tier shape.
 
@@ -106,9 +106,9 @@ See [`vocabulary/inheritance-and-interface.md`](vocabulary/inheritance-and-inter
 
 The catalog entity envelopes carry `metadata.labels`, `metadata.annotations`, and (on Release) `metadata.environment`. Per-surface status:
 
-**`metadata.labels` and `metadata.annotations` availability — partial coverage today; uniform availability planned.** The entity envelopes carrying these fields today are Component (labels required, with the required `component.aggrega.ai/type` key, annotations optional), Feature (both optional), the four library kinds SchemaLibrary, MappingLibrary, WorkloadLibrary and ArtifactLibrary (both optional), and Aggregate (labels only, optional). The remaining entities — Recipe, FeatureRecipe, Manifest, Release, Plugin — do not accept `metadata.labels` or `metadata.annotations` at the envelope level today. A future iteration expands optional `metadata.labels` and `metadata.annotations` uniformly across all entities, preserving Component's required-label-key constraint as a per-entity exception.
+**`metadata.labels` and `metadata.annotations` availability — on seven kinds.** The entity envelopes carrying these fields today are Component (labels required, with the required `component.aggrega.ai/type` key, annotations optional), Feature (both optional), the four library kinds SchemaLibrary, MappingLibrary, WorkloadLibrary and ArtifactLibrary (both optional), and Aggregate (labels only, optional). The remaining entities — Recipe, FeatureRecipe, Manifest, Release, Plugin — do not accept `metadata.labels` or `metadata.annotations` at the envelope level.
 
-**`metadata.environment` on Release — required today; informational and optional in a future iteration.** The Release schema currently lists `environment` as a required `metadata` field. A future iteration relaxes the requirement; the field becomes informational and optional, with `aggrega.ai/environment` provenance label emission preserved when the field is supplied. See [`entities/release.md`](entities/release.md) for the Environment Metadata section's five practical use cases (OTel/FinOps cost attribution, OTel trace/log filtering, Kubernetes operator targeting, multi-region production differentiation, compliance scoping).
+**`metadata.environment` on Release — required.** The Release schema lists `environment` as a required `metadata` field; the build stamps its value on rendered output as the `aggrega.ai/environment` label. See [`entities/release.md`](entities/release.md) for the Environment Metadata section's five practical use cases (OTel/FinOps cost attribution, OTel trace/log filtering, Kubernetes operator targeting, multi-region production differentiation, compliance scoping).
 
 See [`02-naming-conventions.md`](02-naming-conventions.md) for the field-casing discipline that applies to `metadata` keys, and per-entity reference pages for the envelope shapes each entity accepts today.
 
@@ -158,7 +158,7 @@ Aggrega Studio is the design-time surface for visualizing and authoring Aggregat
 
 See [`../architecture/15-aggrega-studio.md`](../architecture/15-aggrega-studio.md) for the Studio's design surface and roadmap.
 
-## Roadmap notes
+## Design directions
 
 The status taxonomy above classifies per-surface state across the language; this section records the status of broader design directions documented in the architecture chapters.
 

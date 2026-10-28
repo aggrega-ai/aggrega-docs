@@ -151,7 +151,7 @@ A subset of fields across the language carry document-path values — strings th
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 
-* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. No entity schema declares such a field today; the document paths an author writes are the `.locals` export keys below.
+* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. No entity schema declares such a field; the document paths an author writes are the `.locals` export keys below.
 * **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface — read by the Recipe's own subsequent templates, and by a Wasm plugin pipeline through the `pipeline[].with` payload that references `.locals` — so they follow the snake_case convention. Examples:
   * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesized Workload's volumes-array position.
   * `containers_path` — `.locals.containers_path: "/spec/template/spec/containers"` exposing the containers-array position.

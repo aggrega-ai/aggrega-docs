@@ -71,7 +71,7 @@ Library names and mapping entry keys follow PascalCase. The entity envelope's JS
 - `metadata.name` matches `^[A-Z][A-Za-z0-9]*$`.
 - `spec.mappings` map keys match the same pattern via `propertyNames`.
 
-A MappingLibrary with a non-PascalCase key in `spec.mappings` fails envelope validation at workspace load. The enforcement is load-bearing: mapping entry keys appear in the `#/mappings/<name>` reference fragment; non-PascalCase keys would propagate through every consumer that imports the entry, including the eventual hub UI surfacing.
+A MappingLibrary with a non-PascalCase key in `spec.mappings` fails envelope validation at workspace load. The enforcement is load-bearing: mapping entry keys appear in the `#/mappings/<name>` reference fragment; non-PascalCase keys would propagate through every consumer that imports the entry.
 
 The naming uniformity keeps the `#/mappings/<name>` fragment legible: `#/mappings/ProbeBlock` reads at a glance.
 
