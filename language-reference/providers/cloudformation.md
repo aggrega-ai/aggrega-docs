@@ -59,7 +59,7 @@ A CloudFormation logical ID is unique within one template and admits only letter
 
 **Resource logical IDs come from the Recipe.** The provider emits them exactly as authored and rewrites none of them, so the name you read in the assembled template is the name the Recipe wrote. The standard-library CloudFormation Recipes derive it from the component instance's own name, reading that name's separators as word boundaries: instance `payments-db` names its resource `PaymentsDb`. Two instances of the same type therefore describe two resources rather than competing for one.
 
-**Output names are scoped by the component that published them.** Each `provides` entry surfaces as an output named for the publishing component and the entry together — component `payments-db` publishing `host` surfaces as `paymentsXzhdbXXhost` — so two components publishing the same entry reach two separate outputs, and an output's meaning does not change when another component joins the stack. A cross-stack consumer imports by the export name rather than by this one, so the export name is unaffected.
+**Output names are scoped by the component that published them.** Each `provides` entry surfaces as an output named for the publishing component and the entry together — component `payments-db` publishing `host` surfaces as `paymentsXzhdbXXhost` — so two components publishing the same entry reach two separate outputs, and an output's meaning does not change when another component joins the stack. A cross-stack consumer in the same account and Region imports by the export name rather than by this one, so the export name is unaffected; a cross-account or cross-Region read names this output, as the provider writes it for you (see [Cross-stack wiring](#cross-stack-wiring)).
 
 #### How an output name is built
 
@@ -251,7 +251,7 @@ These annotations are opaque to the compiler — it pipes their values through t
 
 ## Intra-stack references
 
-When a `uses` edge connects two components that land in the **same** boundary — the same stack — the consumed value is wired as an `Fn::GetAtt` against the producer resource's logical ID within the one template. The producer's `provides` value flows into the consumer's rendered input as a native intra-stack reference; no export or import is needed. The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example shows it in an Amazon ECS task definition reading an RDS instance's address in one stack.
+When a `uses` edge connects two components that land in the **same** boundary — the same stack — the consumed value is wired as an `Fn::GetAtt` against the producer resource's logical ID within the one template. The producer's `provides` value flows into the consumer's rendered input as a native intra-stack reference; no export or import is needed. The consumer's fragment writes such a value bare — `Value: {{ .context.inject.env.DB_HOST }}` — so the template reads `!GetAtt Db.Endpoint.Address` as the intrinsic; written inside quotes it stays the text `"!GetAtt Db.Endpoint.Address"`. The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) example shows it in an Amazon ECS task definition reading an RDS instance's address in one stack.
 
 ## Cross-stack wiring
 
@@ -266,7 +266,7 @@ The producer stack always publishes the `Export`, even when a particular consume
 
 **Several consumers of one value read one export.** When more than one component reads the same provided value across a boundary — two consumers in one stack, or consumers in several stacks — the producer stack publishes that value's `Export` once, and every consumer reads the one name: each `Fn::ImportValue` imports the same export, and a consumer placed in another account or region reads the same output through `Fn::GetStackOutput`. A consumer that also reads a value no other consumer reads adds that value's export alone.
 
-The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/) example builds the same-account case: an RDS instance's stack exports each entry a server's edge consumes, and the server's stack reads each back with `Fn::ImportValue`.
+The [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) example builds the same-account case: an RDS instance's stack exports each entry a server's edge consumes, and the server's stack reads each back with `Fn::ImportValue`.
 
 > **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
 

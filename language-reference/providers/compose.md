@@ -21,6 +21,7 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | Workload field | Compose field |
 | --- | --- |
 | `image` | `image` |
+| `imagePullPolicy: Always` / `IfNotPresent` / `Never` | `pull_policy: always` / `if_not_present` / `never` |
 | `command` | `entrypoint` (list form) — it overrides the image's entry point, which is the compose key that does that |
 | `args` | `command` (list form) — it supplies the arguments the entry point receives, which is what compose's `command` overrides |
 | `variables` | `environment` (map form) |
@@ -30,7 +31,7 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `ports` | implicit (compose containers expose ports the image listens on) |
 | `restartPolicy: Always` | `restart: unless-stopped` |
 | `restartPolicy: OnFailure` | `restart: on-failure` |
-| `restartPolicy: Never` | `restart: no` |
+| `restartPolicy: Never` | `restart: "no"` |
 
 `variables` and `attachments[as: env]` land in the one `environment` map, the attachment entries first and the `variables` after them, each in the order it is authored — the order the [helm provider](helm.md#provider-specific-quirks) writes, so one Workload renders one environment sequence on every target. Compose expands no `$(NAME)` reference between a service's environment entries, so on compose that order carries no runtime meaning. Because the map holds each name once, a container that gives one name both as a `variables` entry and as an `attachments` entry delivered `as: env` halts the build rather than keeping one of the two values (see [A container gives one environment variable two values](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values)).
 
@@ -102,7 +103,7 @@ Compose has a config primitive of its own, which is what a `configmap` volume tr
 | `configmap` | service-level `configs:` reference naming the configmap, mounted at the volume mount's path | 🔴 **The mount path is the path of a single file, not of a directory.** Compose writes the config's content to exactly the target path, where a Kubernetes target mounting a ConfigMap at a path produces a *directory* holding one file per key. So the same authored `path:` denotes a file here and a directory there: point a `configmap` volume's mount at the filename the container should read (`/seed/config.json`), not at the directory that would contain it, and a Recipe authored for both targets carries a different path per target. Nothing in the build can catch a path written for the other target's shape — the path is an opaque string the compiler pipes through, and the emitted output is valid either way. The reference is by **name**, exactly as a Kubernetes target references a ConfigMap resource — nothing reads the config's content. The matching top-level `configs:` entry comes from the Recipe's `artifacts:` input, whose compose fragment declares it with inline `content:`; a reference with no such entry halts the build (see [Artifacts-emitted compose fragments](#artifacts-emitted-compose-fragments)). A `configs:` reference carries the config name and the mount path and nothing else, so the mount's `readOnly` has no separate expression |
 | `secret` | `volumes` long-form bind-mount, read-only | A secret volume deliberately does **not** follow the `configmap` translation: an inline `configs:` entry would write the secret's value into the emitted compose file in plaintext, and the compiler never resolves a secret into plaintext — a secret stays a pointer through every stage of the build. The bind source is the secret's `source` name, resolved as a path the operator makes reachable on the compose host independently of the build |
 | `persistent` | named volume + top-level `volumes: { <volume-name>: {} }` declaration, named per [How a volume name is derived](#how-a-volume-name-is-derived) | Storage class and size are not preserved (compose has no equivalent shape) |
-| `persistentTemplate` | named volume + top-level declaration, named the same way (same as `persistent`) | Companion of `form: stateful`; compose has no per-replica volume templating primitive, so the per-replica behaviour is lost |
+| `persistentTemplate` | named volume + top-level declaration, named the same way (same as `persistent`) | Companion of `form: stateful`; compose has no per-replica volume templating primitive, so the per-replica behaviour is lost, and an `unsupported-field` warning says the volume became one volume every replica shares |
 
 **A volume says which variant it is and nothing more.** A `secret` volume has exactly one translation — the read-only bind mount above — and a volume carries no `as:` field to select another. Delivering what a slot published as an environment variable is a container `attachments` entry (`as: env`) rather than a volume; what compose does with one is under [What the compose provider does not deliver](#what-the-compose-provider-does-not-deliver).
 
@@ -130,7 +131,7 @@ So the component `store` with a volume the Workload calls `data` gives the volum
 
 ### Controller form
 
-The Workload's `form` selects an abstract controller shape (see [entities/workload.md](../entities/workload.md)). Compose renders `stateless` and `stateful` (and the empty default, treated as `stateless`) as long-running services; the `stateful` form adds the named volume for a `persistentTemplate` companion. The `daemon`, `scheduled`, and `task` forms have no clean single-host compose mapping, so a Workload declaring one of them targeting a compose boundary halts with a `TRANSLATION_ERROR` naming the form and the supported set — compose does not degrade an unsupported form into a plain service that misrepresents the intent.
+The Workload's `form` selects an abstract controller shape (see [entities/workload.md](../entities/workload.md)). Compose renders `stateless` and `stateful` (and the empty default, treated as `stateless`) as long-running services; the `stateful` form adds the named volume for a `persistentTemplate` companion. The `daemon`, `scheduled`, and `task` forms have no clean single-host compose mapping, so a Workload declaring one of them targeting a compose boundary halts with a `TRANSLATION_ERROR` naming the form and the supported set — compose does not degrade an unsupported form into a plain service that misrepresents the intent. A `reference` Workload declares an external endpoint and no containers, so compose emits no service for it.
 
 ### Service exposure
 
@@ -156,13 +157,13 @@ A Workload with multiple containers becomes one main service plus one sidecar se
 
 ### Pod-level fields
 
-Pod-level Workload fields apply to the main service only — sidecars share the main service's network namespace and pod-level identity, and an [init service](#init-containers) follows the same rule.
+Pod-level Workload fields apply to the main service only — sidecars share the main service's network namespace — and an [init service](#init-containers) follows the same rule. The one exception is the pod's user: a pod runs every one of its containers as `podSecurityContext.runAsUser` and `runAsGroup`, so they reach every service the Workload produces, sidecar and init services included.
 
 Several map onto a compose service field:
 
 | Workload field | Compose field |
 | --- | --- |
-| `podSecurityContext.runAsUser` / `runAsGroup` | `user` — a container-level `securityContext.runAsUser` wins over it |
+| `podSecurityContext.runAsUser` / `runAsGroup` | `user` (`"1000"`, or `1000:3000` with a group) on every service of the Workload. A container that sets its own `securityContext.runAsUser` runs as that user on its own service instead, with its own `runAsGroup` where it sets one |
 | `terminationGracePeriodSeconds` | `stop_grace_period: <n>s` |
 | `dnsConfig.nameservers` / `dnsConfig.searches` | `dns` / `dns_search` |
 | `hostAliases` | one `extra_hosts` entry per hostname, in author order |
@@ -183,8 +184,10 @@ The rest have no single-host equivalent. **None is dropped in silence:** each au
 | `serviceAccount` | Workload identity is a cluster concept |
 | `imagePullSecrets` | Registry credentials on a compose host are the host's own login state, not a field of the file |
 | `dnsPolicy`, `dnsConfig.options` | Compose exposes `dns` and `dns_search` and nothing finer |
+| `podSecurityContext.fsGroup`, `podSecurityContext.supplementalGroups` | `user` carries one user and one group; the group a pod's volumes are owned by, and further groups for its processes, are not translated |
+| `podSecurityContext.runAsGroup`, where the pod sets no `runAsUser`, or where a container — main, sidecar or init — sets its own `runAsUser` and no `runAsGroup` | `user` names a group only beside a user, and a container's own user takes the place of the pod's, so the pod's group reaches no service written that way |
 
-Container-level `securityContext` translates partially: `readOnlyRootFilesystem` → `read_only`, `capabilities.add` / `drop` → `cap_add` / `cap_drop`, `runAsUser` / `runAsGroup` → `user`. `runAsNonRoot` has no compose expression and raises the same `unsupported-field` warning.
+Container-level `securityContext` translates partially: `readOnlyRootFilesystem` → `read_only`, `capabilities.add` / `drop` → `cap_add` / `cap_drop`, `runAsUser` / `runAsGroup` → `user`. `runAsNonRoot` and `allowPrivilegeEscalation` have no compose expression and raise the same `unsupported-field` warning, and so does a container `runAsGroup` written without a `runAsUser` beside it: the service then runs as the pod's user where the pod sets one, without that group.
 
 Every warning in this section is advisory and out-of-band: the build succeeds, and the emitted file is byte-for-byte what it would be without it. `--no-unsupported-field-warnings` silences the class.
 
@@ -220,7 +223,7 @@ An init container is translated exactly as any other container: its `image` (inc
 
 Two differences from the main service follow from an init service being a non-main service:
 
-- **Pod-level Workload fields are not applied**, the same rule sidecars follow.
+- **Pod-level Workload fields are not applied**, the same rule sidecars follow — the pod's user excepted, which reaches every service as [Pod-level fields](#pod-level-fields) describes.
 - **An init service joins its boundary's network directly** rather than sharing the main service's network namespace the way a sidecar does. It has to: the main service waits on the init service, and sharing a namespace is itself a dependency on the main service, which would close the wait into a cycle compose refuses to start. An init container therefore reaches other services on the boundary network by service name, but it does not share the main service's `localhost`.
 
 Init services and sidecar services share one name namespace, so an `initContainers` entry and a `containers` entry may not carry the same name. When they do, the compiler halts with a `TRANSLATION_ERROR` naming the node, the container name, and the service name both wanted, rather than letting one service quietly replace the other.
@@ -351,7 +354,7 @@ In the structured shape, what `url:` carries decides whether anything is fetched
 A Recipe with `source: <path-to-compose-file>` and `valuesMapping:` runs the following pipeline:
 
 1. The base compose file at `<path>` is read and parsed as YAML.
-2. The `valuesMapping` template evaluates against the Recipe's TemplateContext. Its output is treated as a compose overlay document — a partial compose file that augments or overrides fields in the base.
+2. The `valuesMapping` template evaluates against the Recipe's template context. Its output is treated as a compose overlay document — a partial compose file that augments or overrides fields in the base.
 3. Base and overlay are deep-merged using docker-compose's native overlay semantics.
 
 The deep-merge rules:
@@ -491,38 +494,42 @@ metadata:
   version: 1.0.0
 spec:
   capability: compose
+  implements: example/compute/api:1.0.0
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    spec:
-      containers:
-        main:
-          image: api:1.0
-          ports:
-            http: 8080
-          health:
-            live:
-              http: /healthz
-      services:
-        public:
-          type: NodePort
-          ports:
-            http: 8080
+    containers:
+      main:
+        image: api:1.0
+        ports:
+          http: 8080
+        health:
+          live:
+            http: /healthz
+    services:
+      public:
+        type: NodePort
+        ports:
+          http: 8080
 ```
 
 ```yaml
-# Aggregate fragment — api uses db
+# Aggregate fragment — api uses db, on a socket api's Component declares
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 spec:
   components:
     api:
+      type: example/compute/api:1.0.0
       uses:
-        - target: db
-    db: {}
+        backend:
+          db:
+            target: db
+    db:
+      type: example/datastore/db:1.0.0
 ```
 
-The compose provider produces one `docker-compose.yaml` at the boundary's evaluated path (default `dist/production/compose/docker-compose.yaml` because `subDirectory:` defaults to `{{ .capability }}`) containing:
+The compose provider produces one `docker-compose.yaml` at the boundary's evaluated path (default `dist/boundaries/production/compose/docker-compose.yaml`, because a boundary's `directory:` defaults to `dist/boundaries/<name>` and `subDirectory:` to `{{ .capability }}`) containing:
 
 - `services.api` (the main api service, network `prod`, ports `8080:8080`, healthcheck via `curl`, `depends_on: [db]`)
 - `services.db` (the main db service, network `prod`)
