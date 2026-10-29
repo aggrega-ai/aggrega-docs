@@ -54,7 +54,7 @@ A number is never compared with a piece of text: any of the six given a number a
 {{ eq (toString .values.port) "8080" }}     # .values.port = 8080 → true
 ```
 
-The halt is [A value template failed while it ran](../errors/fatal-halts.md#a-value-template-failed-while-it-ran). An assertion reads an authored number differently; see [Numbers on this surface](assertions-block.md#numbers-on-this-surface).
+The halt is [A value template failed while it ran](../errors/fatal-halts.md#a-value-template-failed-while-it-ran). An assertion reads an authored number the same way; see [Numbers on this surface](assertions-block.md#numbers-on-this-surface).
 
 ## Presence and emptiness — two different questions
 
