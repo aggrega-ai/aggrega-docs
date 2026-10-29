@@ -10,7 +10,7 @@ What distinguishes this library kind from the other three is the **grain of an e
 
 ## Entity Envelope
 
-An ArtifactLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: ArtifactLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata for discovery and hub surfacing, and the compiler does not interpret their values. The library's content sits under `spec.artifacts`, a required map that must declare at least one bundle.
+An ArtifactLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: ArtifactLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata, carried for whatever reads the library to match on, and the compiler does not interpret their values. The library's content sits under `spec.artifacts`, a required map that must declare at least one bundle.
 
 The envelope is closed at all three levels — the document root, `metadata`, and `spec` each reject keys the schema does not declare.
 

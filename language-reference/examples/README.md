@@ -80,7 +80,7 @@ rule, with the pipeline step for each. They run over the outputs of the
 workspaces below, and over yours.
 
 What follows is a **curated list of examples in increasing complexity** —
-from the smallest authoring surface to the advanced compiler frontier — and
+from the smallest authoring surface to builds combining several mechanisms — and
 not a complete list of what is here: the `examples/` directory holding this
 page carries more workspaces than the list names. An example joins the list
 only when it teaches something the ones already on it do not, so this stays a
@@ -264,7 +264,7 @@ Features, Recipes, Manifests, and the provider matrix.
 
 ## Advanced
 
-The compiler frontier: boundary-scope FeatureRecipes, parameter hoisting,
+Several mechanisms combined in one build: boundary-scope FeatureRecipes, parameter hoisting,
 annotation-driven Feature expansion, governance policy over the build graph, and
 cross-boundary networking across providers.
 

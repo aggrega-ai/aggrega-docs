@@ -76,7 +76,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/datastore/mariadb`
 
 - [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
@@ -133,7 +133,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/devtool/adminer`
 
 - [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
 - [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
@@ -368,7 +368,7 @@ components wired through `uses` sockets, with values piped across each edge.
 
 credential attachments and how each target delivers them.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
@@ -398,7 +398,7 @@ credential attachments and how each target delivers them.
 
 values hoisted to parameters that a Release fulfils.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
@@ -412,7 +412,7 @@ values hoisted to parameters that a Release fulfils.
 
 Features attached for something other than a credential, such as routing, monitoring, a budget, a cache or masking.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
@@ -431,7 +431,7 @@ Features attached for something other than a credential, such as routing, monito
 
 components or modules placed in boundaries, and what crosses between them.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
@@ -474,7 +474,7 @@ a Release that is meant to halt, and the message it halts with.
 
 a Component, Feature or Recipe written for the example, kept beside it or published to the catalog.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
 - [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
@@ -507,7 +507,7 @@ Terraform or CloudFormation output for managed cloud services.
 
 a Recipe that fetches what it renders: an upstream chart, a git repository or a module.
 
-- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that exercises the compiler frontier from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [cert-manager-tls](cert-manager-tls/README.md) (`start`) — This example compiles a small, real stack — a **cert-manager** certificate controller — from one Developer-authored `Aggregate` to Kubernetes.

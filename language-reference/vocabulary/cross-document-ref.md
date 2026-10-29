@@ -16,7 +16,7 @@ For catalog-entity inheritance (Component-extends-Component), see [inheritance-a
 - **SchemaLibrary entry references** by identity: `{ $ref: "WebPrimitives#/schemas/URL" }` — the bare-name `<Library>#/schemas/<Entry>` form. The library name resolves against the resolved catalog and the `#/schemas/<Entry>` JSON Pointer fragment selects the entry; the version is supplied by the lockfile, not the reference. A reference carries no registry host — a host-bearing `oci://<host>/…` form is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time, never part of the reference.
 - **A file path is not a reference target**: `{ $ref: "./schemas/foo.yaml#/definitions/Foo" }` is refused when the schema compiles, with a diagnostic naming the `<Library>#/schemas/<Entry>` form. Schema content kept in a file beside the entity is brought in with `$import:` instead, which is bounded by the entity's own directory like every file an entity reads.
 
-The reference resolves at compile time. The expander inlines the referenced content into the consumer's schema; the rendered IR carries the inlined content, not the indirection. Per-property attribution is preserved via the `x-aggrega-source` annotation (see [Library-to-library chain expansion](#library-to-library-chain-expansion) below).
+The reference resolves at compile time. The expander inlines the referenced content into the consumer's schema; the rendered IR carries the inlined content, not the indirection.
 
 `$ref:` composes naturally with JSON Schema's composition keywords:
 
@@ -83,20 +83,11 @@ spec:
         password: { type: string }
 ```
 
-A consumer Component that references `DatabasePayload` receives the fully-expanded shape with `credentials` populated from library B's `BasicAuth`.
-
-### `x-aggrega-source` attribution
-
-The expander annotates each property in the rendered shape with `x-aggrega-source`, pointing at the immediate parent library entry that contributed the property. Under chain expansion, the annotation attributes to the **immediate parent only**:
-
-- `host` in the expanded `DatabasePayload` carries `x-aggrega-source: <library-A>/DatabasePayload`.
-- `username` in the expanded `credentials` carries `x-aggrega-source: <library-A>/DatabasePayload` (the immediate parent in the chain), not `<library-B>/BasicAuth`.
-
-The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — the chain can be reconstructed by recursive library lookup if needed. The immediate-parent attribution is the contract.
+A consumer Component that references `DatabasePayload` receives the fully-expanded shape with `credentials` populated from library B's `BasicAuth`. A value that breaks a constraint the chain contributed is refused at its own path in the document being checked, and the refusal does not name the library entry the constraint came from; follow the `$ref:` chain from the consumer to find it.
 
 ## Consumer narrows library entry
 
-A consumer Component may declare a property whose name matches a property pulled in from a library entry. When this happens, the consumer's compiled property entirely replaces the library entry's in the merged shape; the library's `x-aggrega-source` annotation drops with the replaced property.
+A consumer Component may declare a property whose name matches a property pulled in from a library entry. When this happens, the consumer's compiled property entirely replaces the library entry's in the merged shape.
 
 ```yaml
 # Library entry
@@ -121,7 +112,7 @@ spec:
           default: [read]
 ```
 
-In the merged shape, `side_effects` reflects the consumer's narrower contract (`enum: [read]`, with a `default`); the library entry's broader `enum: [read, write, delete]` is gone. The `x-aggrega-source` annotation on the consumer's `side_effects` property is dropped — the property is consumer-authored.
+In the merged shape, `side_effects` reflects the consumer's narrower contract (`enum: [read]`, with a `default`); the library entry's broader `enum: [read, write, delete]` is gone. The property is consumer-authored.
 
 This is the expected behaviour: consumers refining a library entry's property is the canonical narrowing pattern. Narrowing is silent: the consumer's property stands on its own provenance.
 

@@ -28,7 +28,7 @@ _Additional properties are not permitted._
 | `name` | string | yes | PascalCase identifier for the library. It is the <Library> name in the bare-name identity reference <Library>#/schemas/<name>; the version is supplied by the per-Release lockfile and no registry host enters the reference or any derived identifier. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
 | `version` | string | yes | Strict Semantic Versioning of the library (e.g., 1.0.0). The per-Release lockfile pins one version per library. Pattern: `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-((?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0\|[1-9]\d*\|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$`. |
 | `description` | string | no | A concise summary of what the library covers. |
-| `labels` | map of string | no | Author-declared labels. The compiler does not interpret label values (per the content-neutral compiler invariant); labels are metadata for discovery + hub UI surfacing. |
+| `labels` | map of string | no | Author-declared labels. The compiler is content-neutral and does not interpret label values: they are opaque metadata, carried for whatever reads the library to match on. |
 | `annotations` | map of string | no | Author-declared annotations. Same opaque-metadata posture as labels. |
 
 _Additional properties are not permitted._

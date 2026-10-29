@@ -681,13 +681,12 @@ The import is read when the entity is loaded, so every surface that reads that e
 
 ## Aggrega extension namespace — `x-aggrega-*`
 
-The compact form recognises any keyword prefixed with `x-aggrega-` as an Aggrega-specific extension. The namespace is open: new annotations enter the catalog without per-keyword vocabulary edits. Authors writing `x-aggrega-source`, `x-aggrega-selector`, `x-aggrega-narrowed-from`, or future annotations land their content at the right scope in the resolved JSON Schema without compile-time rejection.
+The compact form recognises any keyword prefixed with `x-aggrega-` as an Aggrega-specific extension. The namespace is open: new annotations enter the catalog without per-keyword vocabulary edits. Authors writing `x-aggrega-selector`, `x-aggrega-narrowed-from`, or future annotations land their content at the right scope in the resolved JSON Schema without compile-time rejection.
 
 The namespace prefix matters: a typo like `x-agrega-source` (missing one `g`) is NOT recognised as an extension keyword and would be rejected by the closed-object semantics on inferred-form scopes. The prefix scope acts as a typo-detection net for the catalog's annotation surface.
 
 Specific `x-aggrega-*` annotations are emitted by the compiler at well-known points in the pipeline:
 
-- `x-aggrega-source:` — populated by the cross-document `$ref:` expander to attribute each property to its origin SchemaLibrary entry. See [cross-document-ref.md](cross-document-ref.md) §"Library-to-library chain expansion".
 - `x-aggrega-selector:` — emitted by `usesSchema:` and `featuresSchema:` synthesis to carry the selector string that targets compatible provider Components.
 - `x-aggrega-sensitive:` — emitted by a leaf declaring `sensitive: true`. See [Declaring a leaf sensitive](#declaring-a-leaf-sensitive--sensitive) above.
 

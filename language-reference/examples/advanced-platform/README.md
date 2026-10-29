@@ -7,8 +7,8 @@ example:
 
 # Advanced platform — a multi-boundary Kubernetes platform
 
-A multi-boundary Kubernetes platform that exercises the compiler frontier from a
-single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter
+A multi-boundary Kubernetes platform that combines several mechanisms in one build
+from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter
 hoisting, the credential subsystem, and cross-boundary references resolving
 through Service DNS.
 

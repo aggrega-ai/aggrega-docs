@@ -24,8 +24,9 @@ shows the same cache with an optional password credential attached for the
 Compose path; `aggregate-helm-synth-auth.yaml` attaches a
 referenceable credential for the synthesized helm path.
 
-The packaged Redis server is **AGPL-3.0**; the `valkey-cache` example wraps
-Valkey, which speaks the same wire protocol.
+The catalog's Redis Recipes this example maps, `compose/redis` and `helm/redis`,
+declare the AGPL-3.0 licence. The `valkey-cache` example deploys Valkey, which
+speaks the same wire protocol; its `helm/valkey` Recipe declares BSD-3-Clause.
 
 ## Files
 

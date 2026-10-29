@@ -28,8 +28,8 @@ source:
 
 Three coordinates, and each answers a different question:
 
-- **`url`** — the repository to clone. `https://`, `ssh://`, `git+ssh://` and
-  `git://` are all accepted. A private repository is reached over SSH through
+- **`url`** — the repository to clone. `https://`, `ssh://` and `git://` are
+  all accepted. A private repository is reached over SSH through
   the SSH agent, or over HTTPS with an entry for its host in your netrc file —
   `machine github.com login <user> password <token>`. A credential written into
   the URL itself is refused, as
