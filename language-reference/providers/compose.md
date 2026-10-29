@@ -401,7 +401,7 @@ The provider reads no key's meaning: a key is carried because it is in the set a
 
 #### Extension members are carried as written
 
-The Compose Specification reserves keys beginning `x-` for extensions: data a tool reading the file may use and Compose itself ignores. A fragment's extension members at the top level and on a service reach the assembled file as written, after every key the provider models at that level, in the order the fragment holds them; the provider reads nothing inside them. An `artifacts:` body holds them in the order it writes them. A sourced compose file's keys reach its fragment in name order once its overlay is merged in, so its extension members are written in name order.
+The Compose Specification reserves keys beginning `x-` for extensions: data a tool reading the file may use and Compose itself ignores. A fragment's extension members at the top level and on a service reach the assembled file as written, after every key the provider models at that level, in the order the fragment holds them; the provider reads nothing inside them, except a service's `x-aggrega-networks-of`, which it resolves into networks the service joins and leaves out of the assembled file. An `artifacts:` body holds them in the order it writes them. A sourced compose file's keys reach its fragment in name order once its overlay is merged in, so its extension members are written in name order.
 
 ```yaml
 # an artifacts: body
