@@ -58,19 +58,18 @@ The rules that decide which files under this entity's local source directory bel
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `plugin` | object | no | The plugin that served the entity's capability in the author's workspace when the entity was pinned — the workspace's provider binding for that capability, or else the plugin built into the aggrega binary — and the ignore rules it declared. A pull whose own plugin for the capability declares different rules says so in an advisory, naming both plugins and the difference, and never halts on it. Absent where no plugin served the capability. |
+| `plugin` | object | no | The plugin that served the entity's capability in the author's workspace when the entity was pinned — the workspace's provider binding for that capability, or else the plugin built into the aggrega binary — named without a version, and the ignore rules it declared. No version and no digest of the plugin is recorded: the rules are what every reading applies, so pinning again under another release of the same plugin leaves the lock unchanged unless the rules changed. A pull whose own plugin for the capability declares different rules says so in an advisory, naming both plugins and the difference, and never halts on it. Absent where no plugin served the capability. |
 | `rules` | object[] | no | The exact composed rules, in the order they apply: the plugin's patterns, then the lines of every ignore file the plugin names that the walk found, a directory's own file before those beneath it, then the lines of the author's .aggregaignore beside the entity. A later match overrides an earlier one, so the author's file has the last word on any path it names, and a line opening with ! brings back what an earlier rule excluded. A directory a rule excludes is not entered, so a file under it comes back only once the directory does. |
 
 _Additional properties are not permitted._
 
 ##### `entity-lock.ignore.plugin`
 
-The plugin that served the entity's capability in the author's workspace when the entity was pinned — the workspace's provider binding for that capability, or else the plugin built into the aggrega binary — and the ignore rules it declared. A pull whose own plugin for the capability declares different rules says so in an advisory, naming both plugins and the difference, and never halts on it. Absent where no plugin served the capability.
+The plugin that served the entity's capability in the author's workspace when the entity was pinned — the workspace's provider binding for that capability, or else the plugin built into the aggrega binary — named without a version, and the ignore rules it declared. No version and no digest of the plugin is recorded: the rules are what every reading applies, so pinning again under another release of the same plugin leaves the lock unchanged unless the rules changed. A pull whose own plugin for the capability declares different rules says so in an advisory, naming both plugins and the difference, and never halts on it. Absent where no plugin served the capability.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `ref` | string | yes | The plugin's entity reference, `<pluginType>/<name>:<version>`. |
-| `digest` | string | yes | The digest of the plugin's entity document, in `sha256:` followed by 64 lowercase hex characters. Pattern: `^sha256:[a-f0-9]{64}$`. |
+| `name` | string | yes | The plugin that served the entity's capability when it was pinned, as `<pluginType>/<name>`, with no version: the rules below are what a reading applies, and the name says whose they were. At least 1 character long. |
 | `patterns` | string[] | no | The ignore patterns the plugin declared, as it declared them. |
 | `files` | string[] | no | The names of the ignore files the plugin declared its ecosystem honours inside a source. |
 
