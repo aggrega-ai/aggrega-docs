@@ -797,7 +797,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0319` | `duplicate-connection-alias` | `connection alias is already used by another connection of the same component` |
 | `E0320` | `write-leads-out-of-workspace` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` |
 | `E0321` | `read-leads-out-of-workspace` | `a file this operation reads leads through a link out of the directory it must stay inside` |
-| `E0322` | `boundary-env-override-key-collision` | `duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered` |
 | `E0323` | `caller-render-facts-not-declared` | `template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts` |
 | `E0324` | `reference-leads-out-of-workspace` | `a reference a document makes to another file leads out of the directory it must stay inside` |
 | `E0325` | `provider-render-fact-not-list` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` |
@@ -869,6 +868,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 - `E0245` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
 - `E0249` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
 - `E0258` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0322` is retired: nothing reports it now, and the number is never handed to a different condition. It named a value a Feature attached to a boundary computed for a component's environment under a key another attachment had already delivered. A Feature attached to a boundary delivers into a component only through its FeatureRecipe's injectMapping, and a mapping writing a key another attachment delivered is reported under `E0318`.
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance

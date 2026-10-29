@@ -3242,7 +3242,7 @@ Neither connection is the offender and both are yours to change: rename one of t
 
 **How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` rewriting a key the component's own `inject:` block or one of its connections' `inject:` blocks delivered is intentional interception and is not flagged here or anywhere else.
 
-A key claimed by a Feature attached to the component meets the same shared space from the third of its three authoring surfaces, and reports under "An attachment delivers a key another inject source already claimed" below; a key two attached Features deliver, where the later of the two delivers it through its FeatureRecipe's `injectMapping`, reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping"; and a key a boundary Feature's environment override writes over another Feature's delivery reports under "A Feature attached to a boundary overrides a key another attached Feature delivered".
+A key claimed by a Feature attached to the component meets the same shared space from the third of its three authoring surfaces, and reports under "An attachment delivers a key another inject source already claimed" below; a key two attached Features deliver, where the later of the two delivers it through its FeatureRecipe's `injectMapping`, reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping".
 
 ### Self-inject on a component without an allowlist
 
@@ -3419,7 +3419,7 @@ The empty slot itself is a separate finding where it is required, reported at th
 
 <!-- covers: internal/compiler/renderer.ErrAttachmentInjectKeyCollision -->
 
-Three authoring surfaces deliver into one component's injection pipe through an `inject:` block: the component's own `inject:` block, the `inject:` blocks on the entries of its dependency block, and the block on each Feature attached to it. They share one keyed space per delivery mechanism, so a key two of them claim is ambiguous about which value arrives, and the build stops rather than let one surface silently displace another. An attached Feature can also deliver a second way, through its FeatureRecipe's `injectMapping`; that route meets the same space after every block has delivered, and it reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping" below. A Feature attached to a Release boundary can deliver a third way, through an environment override its FeatureRecipe's rendering plugin computes, which meets the space last and reports under "A Feature attached to a boundary overrides a key another attached Feature delivered".
+Three authoring surfaces deliver into one component's injection pipe through an `inject:` block: the component's own `inject:` block, the `inject:` blocks on the entries of its dependency block, and the block on each Feature attached to it. They share one keyed space per delivery mechanism, so a key two of them claim is ambiguous about which value arrives, and the build stops rather than let one surface silently displace another. An attached Feature can also deliver a second way, through its FeatureRecipe's `injectMapping`; that route meets the same space after every block has delivered, and it reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping" below.
 
 This condition is the attachment block's side of that space. It is reported when an attachment's own `inject:` block claims a key some earlier delivery already holds — the entry above under "Duplicate delivery key across inject sources" is the same rule read from the developer-authored side, and between them every block's claim is covered.
 
@@ -3436,7 +3436,7 @@ Emitted message:
 
 <!-- covers: internal/compiler/renderer.ErrAttachmentInjectMappingKeyCollision -->
 
-An attached Feature delivers into its component's injection pipe by two routes — a Feature attached to a Release boundary has a third, described in the entry after this one: the `inject:` block written on the attachment, and its FeatureRecipe's `injectMapping`, whose output names the delivery key — often from a value the attachment carries, such as a credential's chosen environment variable. When two attached Features arrive at one key under one delivery mechanism, and the later of the two arrives there through its mapping, the build stops. Left to run, the component would read whichever value happened to be written last, so one credential could be presented in place of another with nothing in the output saying so.
+An attached Feature delivers into its component's injection pipe by two routes: the `inject:` block written on the attachment, and its FeatureRecipe's `injectMapping`, whose output names the delivery key — often from a value the attachment carries, such as a credential's chosen environment variable. When two attached Features arrive at one key under one delivery mechanism, and the later of the two arrives there through its mapping, the build stops. Left to run, the component would read whichever value happened to be written last, so one credential could be presented in place of another with nothing in the output saying so.
 
 It covers every attached Feature, wherever it was attached: the component's own `features:` block, a subsystem, a Release boundary or component entry, an annotation's expansion, and a connection's `features:` entry. The earlier of the two deliveries may be the other Feature's mapping or its own `inject:` block — the build reports both pairings under this one condition.
 
@@ -3450,23 +3450,6 @@ Emitted message:
 > duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered (`"<key>"`, mechanism `"<mechanism>"`, attachment `"<attachment>"`, delivered first by attachment `"<other-attachment>"`)
 
 **How to fix:** give one of the two Features a key of its own — for a credential Feature, that is usually the key its values name — or remove one of the two attachments. Where both are meant to supply one variable, decide which one the component should read and attach only that one.
-
-### A Feature attached to a boundary overrides a key another attached Feature delivered
-
-<!-- covers: internal/compiler/renderer.ErrBoundaryEnvOverrideKeyCollision -->
-
-A Feature attached to a Release boundary, whose FeatureRecipe declares `executionScope: boundary`, renders once for the boundary — and its rendering plugin may also compute an environment override for components the boundary holds. The compose bridge, `core/compose-bridge`, is the one that ships: for each connection crossing a network seam inside the boundary, it rewrites the host variable the consumer's connection delivers so the consumer reaches its target through the gateway the bridge renders. The override is applied to the component's environment after every attached Feature's `injectMapping` has rendered. When it names a key a different attached Feature already delivered — through that Feature's `inject:` block, its FeatureRecipe's `injectMapping`, or another boundary Feature's override — the build stops, because applying it would silently replace that Feature's delivery.
-
-**What is not reported.** An override of a key the component's own `inject:` block or one of its connections' `inject:` blocks delivered is interception, and the override's value replaces that one entry; that is exactly what the compose bridge does to the consumers it bridges. An override of a key the same Feature delivered through its own `injectMapping` is that Feature transforming its own delivery, and is not reported either.
-
-**Order is what decides who collided.** Every `inject:` block delivers first, then every `injectMapping`, and the overrides last, in the order the Release declares its boundaries and the Features on each — so the first delivery under a key is the one that holds it, and the later Feature is the one reported. Presence alone decides: values are not compared. An override names environment variables only, so a key another Feature delivered under a different mechanism is a different key.
-
-The finding is positioned at the boundary Feature's own entry in the Release, `.spec.boundaries.<boundary>.features.<attachment>` (with `.boundaries.<name>` repeated for each nested boundary), which is the one place it is written. The message names the key, the delivery mechanism, the boundary Feature, the component the override was computed for, and the Feature that delivered first by the name it carries on that component — a Feature a connection carries is named by the connection's alias and the slot it fills, joined by a dot. Each colliding key is reported on its own.
-
-Emitted message:
-> duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered (`"<key>"`, mechanism `"env"`, attachment `"<boundary-attachment>"`, on component `"<component>"`, delivered first by attachment `"<other-attachment>"`)
-
-**How to fix:** give the other Feature a key of its own — for a credential Feature, that is usually the key its values name — or remove one of the two attachments. For the compose bridge, the keys it rewrites are the variables a consumer's connection fills from the target's host field, so a credential delivered under one of those names is the collision: deliver it under a different name.
 
 ### A component declares an inject mechanism the attached Feature maps nothing to
 
@@ -4709,7 +4692,7 @@ Emitted message:
 
 A template can read a producer's values directly off a connection, at `.context.uses.<alias>.provides` — or, in a boundary-scope FeatureRecipe, off the boundary's connections under `.boundary`. Where the connection joins two components that render into different outputs and the provider wires it with a reference of its own, each of those values reaches the template as a placeholder the provider replaces once both outputs are assembled: with a cross-stack reference, or with the value itself. So a template may only **copy** such a value — write it whole, inside a larger string, or through a function that leaves it as it is, such as `quote`.
 
-A comparison, a branch, a length, or a function that changes the value — `eq`, `if`, `len`, `upper`, `trimPrefix` — would be decided against the placeholder rather than the value, silently. The build checks for that by evaluating the template twice, once over the placeholders and once over the real values, and halts where the two disagree once each placeholder is written back. It applies to every template that reads such a connection: a Recipe's own templates, an attached FeatureRecipe's `injectMapping:`, and a boundary-scope FeatureRecipe's templates. The plugin computing a boundary's consumer environment overrides from those connections is held to the same check.
+A comparison, a branch, a length, or a function that changes the value — `eq`, `if`, `len`, `upper`, `trimPrefix` — would be decided against the placeholder rather than the value, silently. The build checks for that by evaluating the template twice, once over the placeholders and once over the real values, and halts where the two disagree once each placeholder is written back. It applies to every template that reads such a connection: a Recipe's own templates, an attached FeatureRecipe's `injectMapping:`, and a boundary-scope FeatureRecipe's templates.
 
 The message names the template — the field and the Recipe it belongs to — and, for each provides value the difference turns on, the consuming component, the connection's alias and socket, and the producing component. A value the template only copied is not named.
 
@@ -6473,7 +6456,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0319` | `connection alias is already used by another connection of the same component` | Two connections of one component under one alias |
 | `E0320` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` | A path the operation writes leads through a link out of the directory it must stay inside |
 | `E0321` | `a file this operation reads leads through a link out of the directory it must stay inside` | A file the operation reads leads through a link out of the directory it must stay inside |
-| `E0322` | `duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered` | A Feature attached to a boundary overrides a key another attached Feature delivered |
 | `E0323` | `template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts` | A template reads its callers' render facts without declaring it |
 | `E0324` | `a reference a document makes to another file leads out of the directory it must stay inside` | A reference to another file leads out of the directory it must stay inside |
 | `E0325` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` | A provider reported a render fact whose value is not a list |
