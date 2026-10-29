@@ -74,10 +74,13 @@ aggrega-catalog/
 │   │   │   └── ...           # cert-manager, external-secrets, keycloak, …
 │   │   ├── devtool/          # developer-facing tooling
 │   │   │   └── ...           # adminer, promptlayer, …
-│   │   └── storage/          # object/file storage
-│   │       └── s3-object-store/
-│   │           └── 1.0.0/
-│   │               └── component.yaml
+│   │   └── storage/          # object/file storage, and the backup controllers
+│   │       │                 # that copy a cluster's resources, or its
+│   │       │                 # volumes' files, into a bucket
+│   │       ├── s3-object-store/
+│   │       │   └── 1.0.0/
+│   │       │       └── component.yaml
+│   │       └── ...           # barman-cloud-plugin, gcs, k8up, velero, …
 │   └── example/              # a second publisher, same three-segment shape
 │       └── compute/
 │           └── greeter/

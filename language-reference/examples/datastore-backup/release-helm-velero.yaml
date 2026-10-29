@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: datastore-backup-helm-velero
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: datastore-backup
+  manifest: manifest-helm-velero
+  # Switches on the bucket and Velero.
+  parameters:
+    backup_controller: velero
+  components:
+    db:
+      annotations:
+        aggrega.ai/namespace: orders
+      # The backup, attached by the operator. Its store connection names the
+      # bucket the backups go to.
+      features:
+        backup:
+          type: core/backup
+          infra:
+            schedule: "30 2 * * *"
+            retention_days: 14
+          uses:
+            store:
+              bucket:
+                target: backups
+    # The bucket's own key pair, held in two Secrets the namespace already has,
+    # each under the data key value.
+    backups:
+      annotations:
+        aggrega.ai/namespace: orders
+      features:
+        access_key_id:
+          type: core/referenced-secret
+          infra:
+            origin: backup-store-access-key-id
+        secret_access_key:
+          type: core/referenced-secret
+          infra:
+            origin: backup-store-secret-access-key
+    # Velero runs in its own namespace, where it reads its schedules. The
+    # credentials file it signs its requests to the bucket with is held in a
+    # Secret there, under the data key value.
+    velero:
+      annotations:
+        aggrega.ai/namespace: velero
+      features:
+        cloud_credentials:
+          type: core/referenced-secret
+          infra:
+            origin: velero-cloud-credentials

@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: datastore-backup-terraform-aws-backup
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: datastore-backup
+  manifest: manifest-terraform-aws-backup
+  # backup_controller is left at none: no bucket and no controller.
+  components:
+    db:
+      # The same attachment, with the IAM role AWS Backup runs each backup
+      # under: a role the operator already has, its ARN a placeholder.
+      features:
+        backup:
+          type: core/backup
+          infra:
+            schedule: "30 2 * * *"
+            retention_days: 14
+            role_arn: arn:aws:iam::123456789012:role/example-backup
+      # Placeholders for resources the operator already runs.
+      infra:
+        overrides:
+          subnet_group: example-private-db-subnets
+          vpc_security_groups:
+            - sg-0123456789abcdef0

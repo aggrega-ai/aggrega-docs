@@ -193,6 +193,15 @@ authoring.
   run. The second task's schedule is a parameter, because the targets disagree
   about a task with neither: two Releases halt where a target cannot realize
   what they ask.
+- **[datastore-backup](datastore-backup/)** — a PostgreSQL database backed up
+  on every target from one `core/backup` attachment the operator writes in the
+  Release, with nothing written for it in the Aggregate. Each Manifest binds the
+  product that realizes it: Velero and CloudNativePG's Barman Cloud plugin on
+  Kubernetes, writing to a bucket the attachment connects to; Amazon RDS's own
+  automated backups on Terraform and CloudFormation; and AWS Backup, chosen on
+  the same target by one Manifest line. The README shows each target's backup
+  as rendered, the backup controllers switched on per Release by a parameter,
+  and the halt on Docker Compose, which has no backup product.
 
 ## Authoring
 

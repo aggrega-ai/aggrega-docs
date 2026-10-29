@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: datastore-backup
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database, and what a backup of it needs on Kubernetes: a bucket
+    for the backups and the backup controller that writes them. The backup
+    itself is not written here: the operator attaches core/backup to the
+    database in each Release, and each target realizes it in its own way.
+spec:
+  parameters:
+    # Which backup controller the Kubernetes Release runs, if any. The bucket
+    # and the two controllers exist only where a Kubernetes backup product
+    # writes to them; on AWS the backups stay in the service's own storage, so
+    # all three are switched off there.
+    backup_controller:
+      type: string
+      default: none
+      description: >
+        The backup controller a Release runs beside the database: velero,
+        cloudnative-pg, or none, which runs neither and no bucket.
+  components:
+    # The database. Nothing about its backup is written here.
+    db:
+      type: core/datastore/postgres
+
+    # The bucket the Kubernetes backup products write to.
+    backups:
+      type: core/storage/s3-object-store
+      active: '{{ ne .parameters.backup_controller "none" }}'
+      values:
+        bucket: db-backups
+
+    # Velero, the cluster backup controller.
+    velero:
+      type: core/storage/velero
+      active: '{{ eq .parameters.backup_controller "velero" }}'
+
+    # The Barman Cloud plugin, through which CloudNativePG backs a Cluster up.
+    barman-cloud:
+      type: core/storage/barman-cloud-plugin
+      active: '{{ eq .parameters.backup_controller "cloudnative-pg" }}'

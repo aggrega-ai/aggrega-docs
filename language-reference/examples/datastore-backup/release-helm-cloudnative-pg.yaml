@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: datastore-backup-helm-cloudnative-pg
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: datastore-backup
+  manifest: manifest-helm-cloudnative-pg
+  # Switches on the bucket and the Barman Cloud plugin.
+  parameters:
+    backup_controller: cloudnative-pg
+  components:
+    db:
+      annotations:
+        aggrega.ai/namespace: orders
+      infra:
+        # The CloudNativePG operator already runs in the cluster.
+        control_plane_present: true
+      # The backup, attached by the operator. Its store connection names the
+      # bucket the backups go to.
+      features:
+        backup:
+          type: core/backup
+          infra:
+            schedule: "30 2 * * *"
+            retention_days: 14
+          uses:
+            store:
+              bucket:
+                target: backups
+    # The bucket's own key pair, held in two Secrets the namespace already has,
+    # each under the data key value.
+    backups:
+      annotations:
+        aggrega.ai/namespace: orders
+      features:
+        access_key_id:
+          type: core/referenced-secret
+          infra:
+            origin: backup-store-access-key-id
+        secret_access_key:
+          type: core/referenced-secret
+          infra:
+            origin: backup-store-secret-access-key
+    # The plugin runs in the namespace the CloudNativePG operator runs in.
+    barman-cloud:
+      annotations:
+        aggrega.ai/namespace: cnpg-system

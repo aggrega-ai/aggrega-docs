@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: datastore-backup-compose
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: datastore-backup
+  manifest: manifest-compose
+  # backup_controller is left at none: no bucket and no controller.
+  components:
+    db:
+      # The same attachment, on a target with no backup product: the build
+      # halts, naming it.
+      features:
+        backup:
+          type: core/backup
+          infra:
+            schedule: "30 2 * * *"
+            retention_days: 14

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-terraform
+  version: "1.0.0"
+  description: >
+    AWS through Terraform, with the database an Amazon RDS instance backed up
+    by RDS's own automated backups.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: terraform/postgres-rds:1.0.0
+    features:
+      type:
+        # Renders nothing: the database's Recipe reads the attachment and
+        # writes the instance's backup arguments itself.
+        core/backup:1.0.0: terraform/backup-native:1.0.0

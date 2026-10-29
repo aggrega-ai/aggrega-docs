@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-cloudnative-pg
+  version: "1.0.0"
+  description: >
+    Kubernetes, with the database run by CloudNativePG and backed up through
+    its Barman Cloud plugin.
+spec:
+  mappings:
+    components:
+      type:
+        # The controller-driven Recipe: a CloudNativePG Cluster, whose own
+        # backup the plugin takes.
+        core/datastore/postgres:1.0.0: helm/postgres-cloudnative-pg:1.0.0
+        core/storage/s3-object-store:1.0.0: helm/s3-object-store:1.0.0
+        core/storage/barman-cloud-plugin:1.0.0: helm/barman-cloud-plugin-chart:1.0.0
+    features:
+      type:
+        core/backup:1.0.0: helm/backup-cloudnative-pg:1.0.0
+        # Every key here is held in a Secret the cluster already has.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

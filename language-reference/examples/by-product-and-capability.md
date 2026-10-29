@@ -110,6 +110,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [keycloak-stack](keycloak-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed identity server** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [kong-stack](kong-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
@@ -272,11 +273,20 @@ described in [The header on each example](README.md#the-header-on-each-example).
 
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 
+### `core/storage/barman-cloud-plugin`
+
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
+
 ### `core/storage/s3-object-store`
 
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
 - [thanos-stack](thanos-stack/README.md) (`start`) — This example compiles a small, real stack — the **read/query tier of a Thanos metrics system** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+
+### `core/storage/velero`
+
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 
 ## By capability
 
@@ -288,6 +298,7 @@ one Aggregate built for two or more targets, or realized two or more ways.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [fluent-bit-to-fluentd](fluent-bit-to-fluentd/README.md) (`start`) — This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping records to a **Fluentd** aggregator over the forward protocol — from one Developer-authored `Aggregate` to two realizations.
 - [fluentd-aggregator](fluentd-aggregator/README.md) (`start`) — This example compiles a **Fluentd** log aggregator — the receiving end of a log pipeline — from one Developer-authored `Aggregate` to two realizations.
 - [grafana-dashboards](grafana-dashboards/README.md) (`start`) — This example compiles a single **Grafana** dashboards and visualization server from one Developer-authored `Aggregate` to two realizations.
@@ -311,6 +322,7 @@ one Aggregate built for two or more targets, or realized two or more ways.
 the Manifest choosing which Recipe realizes a component, or which FeatureRecipe realizes an attachment: per type, per instance or per target.
 
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [per-instance-recipe-override](per-instance-recipe-override/README.md) (`authoring`) — This example teaches one Manifest feature: the **`name` mapping tier**, which overrides the Recipe for a single component *instance* while every other instance of the same type keeps the bulk `type`-tier Recipe.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 
@@ -340,6 +352,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [fluent-bit-to-fluentd](fluent-bit-to-fluentd/README.md) (`start`) — This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping records to a **Fluentd** aggregator over the forward protocol — from one Developer-authored `Aggregate` to two realizations.
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
@@ -389,6 +402,7 @@ values hoisted to parameters that a Release fulfils.
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
@@ -405,6 +419,7 @@ Features attached for something other than a credential, such as routing, monito
 - [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
 - [apisix-token-budget](apisix-token-budget/README.md) (`start`) — A team puts two OpenAI models behind one gateway and wants a ceiling on what the gateway spends on them each day, counted in tokens.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
@@ -443,6 +458,7 @@ a Release that is meant to halt, and the message it halts with.
 - [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
 - [memcached-cache](memcached-cache/README.md) (`start`) — This lean example compiles a single **Memcached** in-memory cache from one Developer-authored `Aggregate` to two realizations.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
@@ -478,6 +494,7 @@ Terraform or CloudFormation output for managed cloud services.
 
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.

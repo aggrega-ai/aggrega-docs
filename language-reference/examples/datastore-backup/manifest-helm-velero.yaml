@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-velero
+  version: "1.0.0"
+  description: >
+    Kubernetes, with the database run as a StatefulSet and backed up by Velero.
+spec:
+  mappings:
+    components:
+      type:
+        # The synthesized Recipe: the database's own render emits the
+        # StatefulSet whose pods a Velero schedule selects.
+        core/datastore/postgres:1.0.0: helm/postgres:1.0.0
+        core/storage/s3-object-store:1.0.0: helm/s3-object-store:1.0.0
+        core/storage/velero:1.0.0: helm/velero-chart:1.0.0
+    features:
+      type:
+        core/backup:1.0.0: helm/backup-velero:1.0.0
+        # Every key here is held in a Secret the cluster already has.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0
