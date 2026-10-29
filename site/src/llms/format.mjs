@@ -8,7 +8,8 @@
 // the product's name, a blockquote summary, a short paragraph, then one
 // level-two section per sidebar group, each a list of `[title](url): description`
 // entries. llms-full.txt carries the same pages' Markdown text concatenated in
-// the same order, each preceded by the address it is published at.
+// the same order, each preceded by the address it is published at, with the
+// HTML comments a rendered page does not show removed from outside code blocks.
 
 // The longest description written after a link, in characters. A longer first
 // paragraph is cut at the last word boundary before the limit.
@@ -146,13 +147,75 @@ export function renderIndex({ name, summary, fullUrl, sections }) {
   return `${out.join("\n").trimEnd()}\n`;
 }
 
+// Removes HTML comments from Markdown, leaving fenced code untouched: a comment
+// written inside a code block is part of the code a reader sees. A line that
+// held nothing but a comment is dropped, and so is a blank line that would then
+// stand directly after another, so the text around a removed comment keeps the
+// spacing it had.
+export function stripHtmlComments(markdown) {
+  const out = [];
+  let fence = null;
+  let inComment = false;
+  let removedLine = false;
+  for (const line of markdown.split("\n")) {
+    if (!inComment) {
+      const trimmed = line.trim();
+      if (fence !== null) {
+        if (trimmed.startsWith(fence)) fence = null;
+        out.push(line);
+        removedLine = false;
+        continue;
+      }
+      const opener = trimmed.match(FENCE_OPEN);
+      if (opener) {
+        fence = opener[1];
+        out.push(line);
+        removedLine = false;
+        continue;
+      }
+    }
+    let kept = "";
+    let rest = line;
+    while (rest.length > 0) {
+      if (inComment) {
+        const end = rest.indexOf("-->");
+        if (end < 0) break;
+        rest = rest.slice(end + 3);
+        inComment = false;
+      } else {
+        const start = rest.indexOf("<!--");
+        if (start < 0) {
+          kept += rest;
+          break;
+        }
+        kept += rest.slice(0, start);
+        rest = rest.slice(start + 4);
+        inComment = true;
+      }
+    }
+    const touched = kept !== line;
+    if (touched && kept.trim() === "") {
+      removedLine = true;
+      continue;
+    }
+    if (removedLine && kept.trim() === "" && out.length > 0 && out[out.length - 1].trim() === "") {
+      removedLine = false;
+      continue;
+    }
+    removedLine = false;
+    out.push(touched ? kept.trimEnd() : line);
+  }
+  return out.join("\n");
+}
+
 // Renders llms-full.txt.
 //   name, summary  as for renderIndex
 //   pages          [{ url, body }], in order; body is the page's Markdown
 export function renderFull({ name, summary, pages }) {
   const out = header(name, summary);
   for (const page of pages) {
-    out.push("---", "", `Source: ${page.url}`, "", page.body.replace(/\r\n?/g, "\n").trim(), "");
+    const body = stripHtmlComments(page.body.replace(/\r\n?/g, "\n")).trim();
+    out.push("---", "", `Source: ${page.url}`, "", body, "");
   }
   return `${out.join("\n").trimEnd()}\n`;
 }

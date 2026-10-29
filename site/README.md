@@ -35,7 +35,9 @@ served at `aggrega.ai/docs`.
   shape: the product's name, the opening paragraph of the root page as its
   summary, then one section per sidebar group listing each page by title, with
   the page's first paragraph cut to one line as its description. `llms-full.txt`
-  carries the same pages' Markdown in the same order, each under its address.
+  carries the same pages' Markdown in the same order, each under its address,
+  without the HTML comments a rendered page does not show; a comment inside a
+  code block is kept.
   Both are built from the same content collection and sidebar as the pages, in
   sidebar order; a published page the sidebar does not link follows under
   "Other pages". The same input always produces the same bytes.
