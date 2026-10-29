@@ -54,7 +54,7 @@ The check runs wherever a value is validated against its schema: an Aggregate's 
 
 **A name outside the table is refused when the schema loads**, whether or not any value reaches it, and the refusal lists the supported names — so a misspelling such as `emial` is a diagnostic rather than a constraint that checks nothing. For a SchemaLibrary entry, run `aggrega validate` over the whole catalog to see the name at fault: a Release whose schemas reach the entry is refused too, but reports the library as not found. `password` is not a format: a field carrying secret material declares [`sensitive: true`](#declaring-a-leaf-sensitive--sensitive) instead.
 
-One bound applies to shapes reached indirectly. Where a field's shape comes through a `$ref:` that carries other keywords beside it (a `when:`, say), through the `then:` or `else:` of a `when:`, or through a pointer into a declared property, its `format` is checked on the fields the shape declares directly and through `allOf` — but not inside an `anyOf`, `oneOf`, `not` or conditional branch within that shape.
+One bound applies to shapes reached indirectly. Where a field's shape comes through a `$ref:` that carries other keywords beside it (a `properties:` map, say), through the `then:` or `else:` of a `when:`, or through a pointer into a declared property, its `format` is checked on the fields the shape declares directly and through `allOf` — but not inside an `anyOf`, `oneOf`, `not` or conditional branch within that shape.
 
 ### Composition and reference keywords
 

@@ -21,7 +21,7 @@ or
 # File-loaded via $import: (path relative to the Recipe directory)
 spec:
   workload:
-    $import: ./workload.yaml
+    $import: ./workload/workload.yaml
 ```
 
 Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. A third form imports a Workload shared across Recipes from a [WorkloadLibrary](workloadlibrary.md) entry, by its bare-name identity: `$import: <Library>#/workloads/<entry>`. Per the unified file-import vocabulary, `$import:` accepts a single source — see [../vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.

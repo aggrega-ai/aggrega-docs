@@ -131,7 +131,7 @@ The per-provider annotation sets and `workloadSchema` content the standard-libra
 
 ### `spec.provider.contract`
 
-A provider-rendering plugin's self-declared compile-time render-behavior contract: the input kinds it renders, how it assembles a dispatch group's per-node output, the template-delimiter pair it applies to imported artifact files, whether one loaded instance may serve every crossing, whether it honours omit entries, and whether it accepts the files a Recipe contributes to its boundary's shared output. It sits beside `capabilities` in the same block but answers a different question: the capability list says *which* capabilities this plugin serves, while the contract says *how* it renders them. It is authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load; a disagreement halts. Absent declares no render-behavior contract, and the cross-check compares only the per-export claims. All fields are optional.
+A provider-rendering plugin's self-declared compile-time render-behavior contract: the input kinds it renders, how it assembles a dispatch group's per-node output, the template-delimiter pair it applies to imported artifact files, whether one loaded instance may serve every crossing, whether it honours omit entries, and whether it accepts the files a Recipe contributes to its boundary's shared output. It sits beside `capabilities` in the same block but answers a different question: the capability list says *which* capabilities this plugin serves, while the contract says *how* it renders them. `aggrega plugin gen-catalog` records it from the plugin's own `describe()` self-report, and the host cross-checks it against that self-report at publish and at load; a disagreement halts. Absent declares no render-behavior contract, and the cross-check compares only the per-export claims. All fields are optional.
 
 | Field | Effect |
 | --- | --- |
@@ -247,7 +247,7 @@ Optional execution constraints the host applies when loading and running the plu
 
 ## `spec.exports`
 
-The exports the plugin offers, each with its declared capability, as an ordered list that preserves author order. An export is one named entry point the host dispatches to (for example `render_node`, `lint_naming`, `step`); the per-export capability block is the authored claim of what that export does, which the host cross-checks against the plugin's `describe()` self-report at publish and at load. Absent declares no authored export surface.
+The exports the plugin offers, each with its declared capability, as an ordered list that preserves author order. An export is one named entry point the host dispatches to (for example `render_node`, `lint_naming`, `step`); the per-export capability block states what that export does, as `aggrega plugin gen-catalog` records it from the plugin's `describe()` self-report, and the host cross-checks it against that self-report at publish and at load. Absent declares no authored export surface.
 
 | Field | Effect |
 | --- | --- |

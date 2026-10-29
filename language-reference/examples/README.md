@@ -32,9 +32,9 @@ The examples come in two modes — the two ends of one curriculum:
   workspace, so a copy taken somewhere else needs them adjusted before they
   resolve again.
 
-  A multi-target workspace that keeps a separate catalog per target passes the
-  directories as a repeatable `--catalog` instead
-  (`--catalog ./catalog-<target> --catalog <standard-catalog>`).
+  A multi-target workspace that keeps a separate catalog per target names each
+  target's directories under `workspace.releases`, keyed by its Release file, so
+  every Release builds against its own catalog.
 - **Authoring** — the workspace *builds* the catalog entities (Components,
   Features, Recipes) from scratch in local `catalog-*/` directories.
   `mariadb-adminer` is the worked authoring example; the entities it builds are
