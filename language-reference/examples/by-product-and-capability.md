@@ -303,6 +303,7 @@ one Aggregate built for two or more targets, or realized two or more ways.
 - [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [valkey-cache](valkey-cache/README.md) (`start`) — This lean example compiles a single **Valkey** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 
 ### `recipe-selection`
@@ -390,6 +391,7 @@ values hoisted to parameters that a Release fulfils.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 
 ### `features`
@@ -407,6 +409,7 @@ Features attached for something other than a credential, such as routing, monito
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 
 ### `boundaries`
@@ -449,6 +452,7 @@ a Release that is meant to halt, and the message it halts with.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 
 ### `catalog-authoring`
 
@@ -477,6 +481,7 @@ Terraform or CloudFormation output for managed cloud services.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 - [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
 - [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.

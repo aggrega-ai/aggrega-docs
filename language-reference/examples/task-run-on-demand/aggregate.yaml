@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: task-run-on-demand
+  version: "1.0.0"
+  description: >
+    Two tasks that run to completion, assembled from the standard-library
+    catalog. data-fix carries core/manual-trigger, so it is deployed without
+    starting and each run is one someone starts by hand. report carries no
+    attachment and runs on the schedule the Release fulfils, or, where the
+    target has no scheduler, once each time the stack starts. The same document
+    is built for Kubernetes, Docker Compose, Terraform and CloudFormation.
+spec:
+  parameters:
+    report_schedule:
+      type: string
+      default: ""
+      description: >
+        The cron expression report runs on. Left empty, report has no
+        schedule.
+
+  components:
+    # Run on demand: the attachment is part of what this task is, so it is
+    # written here, beside the task, and the Release writes nothing for it.
+    data-fix:
+      type: core/compute/task
+      features:
+        on_demand:
+          type: core/manual-trigger
+
+    # No attachment: what starts a run is the schedule, or the deploy itself
+    # where there is none.
+    report:
+      type: core/compute/task
+      values:
+        schedule: "{{ .parameters.report_schedule }}"

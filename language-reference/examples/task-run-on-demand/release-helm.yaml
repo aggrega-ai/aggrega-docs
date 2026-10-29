@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: tasks-helm
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: task-run-on-demand
+  manifest: manifest-helm
+  parameters:
+    # Weekdays at 02:30, in the time zone of the cluster's controller manager.
+    report_schedule: "30 2 * * 1-5"
+  components:
+    data-fix:
+      infra:
+        image: registry.example.com/orders-data-fix:2.0.1
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2

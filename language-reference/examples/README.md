@@ -183,6 +183,16 @@ authoring.
   what can and cannot reach the model server, why the policy keeps matching
   pods across an upgrade, and the halts that stop a policy which could not
   admit exactly what was declared.
+- **[task-run-on-demand](task-run-on-demand/)** — two tasks that run to
+  completion, built for Kubernetes, Docker Compose, Terraform and
+  CloudFormation: one carrying `core/manual-trigger`, deployed without starting
+  on every target, and one carrying nothing, started by its schedule or by the
+  stack starting. The README shows what the attachment changes in each target's
+  output — a suspended CronJob, a service behind a Compose profile, an Amazon ECS
+  task definition with no schedule — and the target's own command that starts a
+  run. The second task's schedule is a parameter, because the targets disagree
+  about a task with neither: two Releases halt where a target cannot realize
+  what they ask.
 
 ## Authoring
 

@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: tasks-terraform
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: task-run-on-demand
+  manifest: manifest-terraform
+  parameters:
+    # Weekdays at 02:30 UTC.
+    report_schedule: "30 2 * * 1-5"
+  # Every account-specific value below is a placeholder: 123456789012 is the
+  # account number AWS documentation uses in examples, and the cluster, subnet,
+  # security group and role names stand for resources the operator already
+  # runs. Replace them with your own before planning.
+  components:
+    data-fix:
+      infra:
+        image: registry.example.com/orders-data-fix:2.0.1
+        overrides:
+          cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          subnet_ids:
+            - subnet-0123456789abcdef0
+          vpc_security_groups:
+            - sg-0fedcba9876543210
+          execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          subnet_ids:
+            - subnet-0123456789abcdef0
+          vpc_security_groups:
+            - sg-0fedcba9876543210
+          execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution
+          # The role the schedule starts each run under. data-fix has no
+          # schedule, so it names none.
+          scheduler_role_arn: arn:aws:iam::123456789012:role/example-scheduler

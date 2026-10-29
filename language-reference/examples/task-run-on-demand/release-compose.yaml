@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: tasks-compose
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: task-run-on-demand
+  manifest: manifest-compose
+  # No report_schedule: Docker Compose has no scheduler, so report keeps the
+  # parameter's empty default and runs once each time the stack starts.
+  components:
+    data-fix:
+      infra:
+        image: registry.example.com/orders-data-fix:2.0.1
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2

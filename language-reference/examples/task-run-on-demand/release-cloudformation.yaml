@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: tasks-cloudformation
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: task-run-on-demand
+  manifest: manifest-cloudformation
+  parameters:
+    # Weekdays at 02:30 UTC.
+    report_schedule: "30 2 * * 1-5"
+  # Every account-specific value below is a placeholder, as in
+  # release-terraform.yaml. The CloudFormation Recipes read their keys under
+  # the resource properties' own names.
+  components:
+    data-fix:
+      infra:
+        image: registry.example.com/orders-data-fix:2.0.1
+        overrides:
+          Cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          Subnets:
+            - subnet-0123456789abcdef0
+          SecurityGroups:
+            - sg-0fedcba9876543210
+          ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution
+    report:
+      infra:
+        image: registry.example.com/orders-report:1.4.2
+        overrides:
+          Cluster: arn:aws:ecs:eu-west-1:123456789012:cluster/example-cluster
+          Subnets:
+            - subnet-0123456789abcdef0
+          SecurityGroups:
+            - sg-0fedcba9876543210
+          ExecutionRoleArn: arn:aws:iam::123456789012:role/example-ecs-task-execution
+          # The role the schedule starts each run under. data-fix has no
+          # schedule, so it names none.
+          RoleArn: arn:aws:iam::123456789012:role/example-scheduler
