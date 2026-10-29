@@ -65,18 +65,24 @@ A parent `bridge` boundary holds two children, `frontend` (adminer) and
 `dist/bridge/compose/docker-compose.yaml`. Each child's `aggrega.ai/namespace`
 annotation becomes a compose **network**. `core/compose-bridge`, attached at the
 parent (boundary-scope), derives an `aggrega-gw` gateway from the cross-network
-`uses` edge:
+`uses` edge. Its standard-library FeatureRecipe computes, once for the boundary,
+a table of the edges to bridge — both ends in this one compose file, on
+different networks — and everything below is read from that table by its own
+templates:
 
-- the gateway's nginx `stream` config is **compiler-generated** and delivered as
+- its `valuesMapping` writes the gateway's nginx `stream` config, delivered as
   a mounted compose **config** (top-level `configs:`, mounted at
   `/etc/nginx/nginx.conf`); it carries a `resolver` and a per-edge variable
   `proxy_pass` so the upstream resolves at connection time (the `$` is escaped to
   `$$` so Compose's interpolation leaves it intact for nginx);
-- the gateway joins both bridged networks;
-- the consumer's `ADMINER_DEFAULT_SERVER` is rewritten to `aggrega-gw:5432`.
-  The rewrite replaces what adminer's own `databases` connection delivered; had
-  another Feature attached to adminer delivered that variable, the build would
-  halt naming both rather than replace it.
+- the same `valuesMapping` names both ends under the gateway's
+  `x-aggrega-networks-of`, which the compose provider resolves, so the gateway
+  joins both bridged networks;
+- its `injectMapping`, run for adminer, rewrites the consumer's
+  `ADMINER_DEFAULT_SERVER` to `aggrega-gw:5432`. The rewrite replaces what
+  adminer's own `databases` connection delivered; had another Feature attached
+  to adminer delivered that variable, the build would halt naming both rather
+  than replace it.
 
 So traffic flows `adminer → aggrega-gw:5432 → proxy_pass db:5432`, crossing the
 network seam through the gateway.

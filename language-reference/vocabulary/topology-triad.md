@@ -105,17 +105,15 @@ A developer requesting the same delivery key (e.g., the same env var name) from 
 | `features[A]`'s FeatureRecipe `injectMapping` | `features[B]`'s FeatureRecipe `injectMapping` | ❌ fatal halt — duplicate delivery key across two attachments |
 | `features[A].inject` | `features[B]`'s FeatureRecipe `injectMapping` | ❌ fatal halt — duplicate delivery key across two attachments |
 | `component.inject` or `uses[].inject` | FeatureRecipe `injectMapping` | ✅ Legal — interception by design: the mapping's value replaces that entry |
-| `features[A].inject`, `features[A]`'s FeatureRecipe `injectMapping`, or boundary Feature `A`'s environment override | boundary Feature `B`'s environment override | ❌ fatal halt — duplicate delivery key across two attachments |
-| `component.inject` or `uses[].inject` | a boundary Feature's environment override | ✅ Legal — interception by design: the override's value replaces that entry |
 
 The table reads every attached Feature the same way, wherever it was attached — on the component, at a subsystem or a Release boundary, by an annotation's expansion, or on a connection. A FeatureRecipe's `injectMapping` renders after every `inject:` block has delivered, so it is always the later of two claims: it may rewrite what the component or one of its connections delivered, and it may rewrite what its own attachment's `inject:` block delivered, but a key another attached Feature already delivered halts the build, naming both.
 
-A Feature attached to a Release boundary whose FeatureRecipe renders once for the boundary (`executionScope: boundary`) has one more route: its rendering plugin may compute an environment override for the components the boundary holds, applied after every `injectMapping` — the compose bridge rewriting a consumer's host variable to reach its target through the gateway is the shipped case. The override is held to the same rule as a mapping: it may rewrite what the component or one of its connections delivered, and what its own Feature delivered, but a key another attached Feature delivered — or another boundary Feature's override — halts the build, naming both.
+A Feature attached to a Release boundary whose FeatureRecipe renders once for the boundary (`executionScope: boundary`) reaches the components the boundary holds through the same route: its `injectMapping` runs once for each of them, in that component's context, and is held by the rows above like any other mapping. The compose bridge rewriting a consumer's host variable to reach its target through its gateway is one such mapping, so another attached Feature that delivered the same variable halts the build, naming both.
 
 To prevent Go template boilerplate in Recipes, the compiler provides **both**:
 
 * `.context.uses`: The enriched topological edge map (for complex logic, secret references, and origin tracking).
-* `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions and any boundary Feature's environment override.
+* `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions.
 
 **The Dual-State Injection Context (Null-Safety vs. Intent Purity)**
 When generating configurations for Modifiers (the FeatureRecipe bound to any attachment, credential or otherwise), the compiler must balance null-pointer safety for Go templates, dynamic network routing, and the preservation of a capability-agnostic graph. To achieve this, the compiler provides a dual-state context to the template:

@@ -3628,7 +3628,7 @@ The reference is quoted relative to the connection it was read off — `.render_
 
 **How to fix:** set `readsCallerRenderFacts: true` in the FeatureRecipe's `spec`. That renders its attachments after every component has rendered and changes nothing else about what they render — see [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts). The key is the contract, and this halt only helps you find a template that visibly needs it: the check reads the template as written, so a reference built while the template runs, or one written in content imported from a file or a library, does not halt — set the key on such a FeatureRecipe all the same. A template reading a field named `render_facts` off some other list next to `.context.used_by` halts as well, and so does one reading its host's own facts as `.render_facts` inside `{{ with .context }}` next to it — write the host's own as `.context.render_facts` in full, which is never taken for the callers'; setting the key clears either at no cost but the later render.
 
-A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here: its templates have no `.context` to read, and a reference to one is refused as a field outside its scope's allowlist instead.
+A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here: the templates that produce its resources have no `.context` to read, and a reference to one is refused as a field outside its scope's allowlist instead.
 
 ### A pipeline step reads its callers' render facts
 
@@ -4024,10 +4024,17 @@ Each finding names the value that boundary resolved to, the annotation it was re
 
 <!-- covers: internal/compiler/renderer.ErrFRTemplateInvalidField -->
 
-A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins.
+A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope — in a template that runs once for the boundary: its `locals:`, `provides:`, `valuesMapping:`, `artifacts:` or a pipeline step's `with:` or `when:`. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins. A boundary-scope FeatureRecipe's `injectMapping` is not checked here: it runs once for each component the attachment reaches, in that component's context, so it reads `.context.*`, and a reference to `.boundary` in it is reported by "Template references a root the render context does not define" above.
 
 Emitted message:
-> FeatureRecipe template references a per-component-only field with executionScope: boundary: FeatureRecipe `<name>` with `executionScope: boundary` references per-component-only field `<dotted-path>` in `<label>`; boundary-scope FRs use `.boundary.*` pillars in place of `.context.*` / `.workload` / `.attachment_name` / `.inject` — see the FeatureRecipe entity reference
+> FeatureRecipe template references a per-component-only field with executionScope: boundary (`"<dotted-path>"`, written in `"<field>"`, the render context defines `"<the roots the boundary-scope context defines>"`)
+
+A boundary-scope FeatureRecipe whose `valuesMapping` reads `.context.instance_id` prints:
+
+```text
+[CATALOG_ERROR E0039] scope-probe-fr at .spec.valuesMapping
+  FeatureRecipe template references a per-component-only field with executionScope: boundary (".context.instance_id", written in "valuesMapping", the render context defines ".values, .infra, .locals, .provides, .features, .metadata, .steps, .source, .boundary")
+```
 
 **How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FeatureRecipes reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FeatureRecipes reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
 
