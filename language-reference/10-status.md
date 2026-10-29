@@ -92,13 +92,13 @@ Manifests carry a `features.annotations:` binding section that maps annotation k
 
 ## Version matching
 
-Recipes and FeatureRecipes declare the Component or Feature interface they implement via the `implements:` keyword. `implements:` never selects a Recipe: the Manifest's mapping does, and an instance whose type no mapping covers halts with an error that lists the Recipes whose `implements:` can implement that type as candidates. What `implements:` drives is the check that each Manifest mapping entry's Recipe implements the mapped type, or a base that type `extends`. Per-form status:
+Recipes and FeatureRecipes declare the Component or Feature interface they implement via the `implements:` keyword. `implements:` never selects a Recipe: the Manifest's mapping does, and an instance whose type no mapping covers halts with an error that lists the Recipes whose `implements:` can implement that type as candidates. What `implements:` drives is the check that each Manifest mapping entry's Recipe implements the mapped type, or a base that type `extends`. The mapped type is the entry's key and, for a `components.type` key, also the type of each component instance the key reaches at a version the key does not name — every instance it reaches, for a key written without a version — at the version the build compiles that instance as: the version the instance names, or, for an instance naming none, the highest version of that Component the catalog holds. Per-form status:
 
 - **Exact (`core/api-server:1.0.0`) — available.** The mapped type must be that version.
 - **Major-compatible range (`core/api-server:^1.0.0`) — available.** The caret form is a SemVer constraint (`>=1.0.0, <2.0.0` for the example); the mapped type's version must satisfy it.
 - **Unversioned (`core/api-server`) — available.** Any version of the type satisfies it.
 
-A mapping entry whose Recipe's `implements:` matches neither the mapped type nor any of its bases halts the build with an `OPS_ERROR` naming the entry, the Recipe, and its `implements:` value. The caret form is the canonical authoring surface for major-compatible matching.
+A mapping entry whose Recipe's `implements:` matches neither the mapped type nor any of its bases halts the build with an `OPS_ERROR` naming the entry, the Recipe, and its `implements:` value. A component instance a key reaches at another version, whose version the Recipe's `implements:` does not satisfy, halts the build with the same `OPS_ERROR`, naming the instance, its type — and, for an instance naming no version, the version it was compiled as — the key, the Recipe, and its `implements:` value. The caret form is the canonical authoring surface for major-compatible matching.
 
 See [`vocabulary/inheritance-and-interface.md`](vocabulary/inheritance-and-interface.md) for the `implements:` design surface and [`entities/manifest.md`](entities/manifest.md) for the per-Manifest mapping tier shape.
 
