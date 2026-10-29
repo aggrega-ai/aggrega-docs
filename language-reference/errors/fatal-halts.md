@@ -3778,6 +3778,30 @@ Where more than one dispatch group is offending, the findings arrive together un
 
 **How to fix:** serve the capability with a plugin that advertises both `render_node` and `assemble_boundary` — see [../entities/plugin.md](../entities/plugin.md) for the `spec.exports` authoring surface, and [../schema/plugins/wasm-provider.md](../schema/plugins/wasm-provider.md) for what the assembly export receives. Where you author the plugin, the two sides are yours to line up: add the assembly export, or report no assembly claim and let each node's output land at the dispatch path unmerged. Where you consume a published plugin, select a version that offers both exports, or select a plugin whose provider claims no assembly for that capability.
 
+### A boundary-level Feature's output reaches no assembled file
+
+<!-- covers: internal/compiler/renderer.ErrBoundaryContributionNotAssembled -->
+
+A Feature attached under a boundary's `features:` whose FeatureRecipe declares `executionScope: boundary` renders once for the whole boundary, and its output goes to the directory the boundary's own `directory:` and `subDirectory:` evaluate to for it. A provider that folds its output into one document — compose, into one `docker-compose.yaml`; cloudformation, into one stack — writes such a Feature's contribution only as part of the file it assembles there from the boundary's components. That file exists only where at least one component's output lands in the same directory under the same provider.
+
+It does not where the boundary's components land somewhere else: when they sit in nested boundaries whose `subDirectory:` sends them elsewhere — `"{{ .component_id }}"`, say, so each component gets a file of its own — or under a directory the Feature's output does not share. Nothing is assembled at the Feature's directory, so its output would be written nowhere — for the compose bridge, a gateway service no file carries — and the build would report success. The build halts instead.
+
+A Feature whose provider writes each contribution as files of its own — helm, helm-chart and terraform — is not affected: those files are written whether or not anything is assembled beside them.
+
+Emitted message — one finding per offending Feature, positioned at its entry under the boundary's `features:`, naming the boundary, the Feature, the dispatch path its output was routed to and the provider:
+> boundary-level Feature's output is routed to a dispatch path nothing assembles (boundary `"<boundary>"`, feature `"<instance>"`, dispatch path `"<path>"`, provider `"<provider>"`). attach the Feature at a boundary whose output path also receives its components, or give the boundary's components the directory the Feature's output is routed to
+
+A compose bridge attached at a parent boundary `bridge`, whose one child boundary places each component under `subDirectory: "{{ .component_id }}"`, prints:
+
+```text
+[OPS_ERROR E0365] release-compose.yaml at .spec.boundaries.bridge.features.gateway
+  boundary-level Feature's output is routed to a dispatch path nothing assembles (boundary "bridge", feature "gateway", dispatch path "bridge/compose", provider "compose"). attach the Feature at a boundary whose output path also receives its components, or give the boundary's components the directory the Feature's output is routed to
+```
+
+Where more than one Feature is offending, the findings arrive together under the report `boundary-level Features whose output is routed to a dispatch path nothing assembles`.
+
+**How to fix:** make the Feature's directory one its boundary's components also land in. Either attach the Feature at a boundary whose own output path receives those components, or give the components the directory the Feature's output is routed to — for child boundaries, `directory: "{{ .parent_boundary.directory }}"` with no `subDirectory:` of their own, so they share the parent's file. The message names the directory the Feature's output was routed to, which is the one to share.
+
 ### Path-template references a variable outside the allowlist
 
 <!-- covers: internal/compiler/renderer.ErrPathTemplateInvalidField -->
@@ -6492,6 +6516,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0362` | `` inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` `` | An `inject:` entry on a connection carries a literal |
 | `E0363` | `annotation subkey is not routed by the annotation's binding` | An annotation subkey is not routed by its binding |
 | `E0364` | `a value template failed while it ran` | A value template failed while it ran |
+| `E0365` | `boundary-level Feature's output is routed to a dispatch path nothing assembles` | A boundary-level Feature's output reaches no assembled file |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
