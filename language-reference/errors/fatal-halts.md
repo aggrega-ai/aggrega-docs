@@ -3963,7 +3963,7 @@ The second coordinate follows the contributor here on the same terms as above, s
 
 ### An authored export name is one the build derives for a cross-stack reference
 
-<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+<!-- covers: internal/plugincondition.ErrPluginOutputNameCollision -->
 
 A cloudformation Recipe's `Outputs:` block is authored CloudFormation, and an entry in it may carry its own `Export:` with a `Name:`; that name reaches the assembled stack exactly as written. Separately, when a `uses` edge crosses from one boundary to another, the provider publishes the consumed value as a stack `Output` with an `Export` under a name it derives from the release, boundary, component, and provided key. This halt fires where the two meet: the name you wrote is the name the derivation produced for the same build, so the stack would declare one export name twice from two places, and an export name has to be unique.
 
@@ -3981,7 +3981,7 @@ Emitted message. The condition names the kind of failure and the provider's own 
 
 ### The output a cross-stack reference publishes on already carries an Export
 
-<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+<!-- covers: internal/plugincondition.ErrPluginOutputNameCollision -->
 
 When a `uses` edge crosses from one boundary to another, the provider publishes the consumed value's `Export` on the stack output it assembles for the producing component and the provided key — the same output a cloudformation Recipe reaches when its `Outputs:` block writes an entry under that key. An `Export:` already at that output is kept only when its `Name:` is exactly the name the provider derives: that is the export an earlier cross-stack reference onto the same value already published, so every consumer imports the one name. Any other `Export:` there halts, because writing the provider's export would overwrite what you wrote, and keeping yours would leave every consumer importing a name the reference never published.
 
@@ -4932,7 +4932,7 @@ Emitted message, naming the token that resolved to nothing and the file it was n
 
 ### A workload declares a form compose cannot express
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 The compose provider renders long-running services. A workload declaring that it runs one copy per machine, that it runs on a schedule, or that it runs once and finishes has no clean single-machine equivalent, so the render stops rather than emit a plain service — which would start it, keep it running, and misrepresent what was asked for.
 
@@ -4944,7 +4944,7 @@ Emitted message. The condition names the kind of failure — a provider with no 
 
 ### A container declares a field compose has no primitive for
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 Two container fields have no compose equivalent, and both stop the render rather than be dropped.
 
@@ -4965,7 +4965,7 @@ Both are checked for ordinary containers and for containers that run before the 
 
 ### An omits entry names a kind or a namespace a compose file does not have
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 An `omits:` entry on a Recipe or a FeatureRecipe that sources a compose file leaves out one top-level unit of that file, and a compose file has exactly three kinds an entry can name — a `service`, a `volume` and a `config`, each keyed under `services:`, `volumes:` or `configs:` — and no namespaces. An entry naming any other kind, a chart document's `Secret` or a compose `network` among them, or carrying a `namespace`, names nothing the file could leave out, so the render stops rather than treat the entry as one that matched nothing. Kinds are compared exactly, so `Service` is refused where `service` is meant. Every entry is checked before anything is left out, and the first one at fault, in the order the entries were written, is the one named.
 
@@ -4980,7 +4980,7 @@ An `omits:` entry on a Recipe or a FeatureRecipe that sources a compose file lea
 
 ### An omits entry names a namespace a CloudFormation template does not have
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 An `omits:` entry on a Recipe or a FeatureRecipe that sources a CloudFormation template leaves out one resource, named by its `Type` as the entry's `kind` and its logical ID as the entry's `name`. A template has no namespaces, so an entry carrying a `namespace` names nothing a template could leave out, and the render stops rather than treat the entry as one that matched nothing. Every entry is checked before anything is left out, and the first one carrying a namespace, in the order the entries were written, is the one named.
 
@@ -4992,7 +4992,7 @@ An `omits:` entry on a Recipe or a FeatureRecipe that sources a CloudFormation t
 
 ### A published port declares a transport compose cannot spell
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A published compose port carries its transport as a suffix on the entry, and that suffix has two spellings. A port declaring any other transport has no compose spelling at all.
 
@@ -5008,7 +5008,7 @@ Emitted message. The condition names the kind of failure — a value with no rep
 
 ### A resources quantity cannot be converted to a compose value
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A container's processor and memory quantities, and its `nvidia.com/gpu` count, are written in the notation Kubernetes uses for resources, and compose carries them in units of its own — a GPU count becomes the count of an NVIDIA device reservation — so each is read as a quantity and converted from its value. Two things stop that, and the message says which it met: a value that is not a quantity at all, and a quantity compose has no exact form for — a negative amount, a memory amount that is not a whole number of bytes, a processor amount finer than nine decimal places of a core, a GPU count that is not a whole number of devices, or an amount past the largest compose can hold. A container whose `nvidia.com/gpu` request and limit ask for different counts stops too, because compose reserves one count for a service. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
 
@@ -5036,7 +5036,7 @@ Where the Workload's template reads a value an author declared sensitive, no mes
 
 ### A resource quantity the helm provider emits is not a quantity
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 The helm provider copies every resource quantity into the manifests it emits verbatim — each container's and init container's `resources.requests` and `resources.limits` values, extended resources included, and each volume's `ephemeral.sizeLimit`, `persistent.size` and `persistentTemplate.size` — and checks each one against the quantity form first, on the Workload as the Recipe's templates evaluated it. A value outside the form halts the build here, where it would otherwise build cleanly and be refused by the cluster when the chart is installed.
 
@@ -5048,7 +5048,7 @@ The helm provider copies every resource quantity into the manifests it emits ver
 
 ### A service type the helm provider cannot render
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 The helm provider renders each Workload `services` entry as a Kubernetes Service whose type is the entry's `type`. A `Loopback` entry asks for its ports to be reachable from the host's own loopback address and from nowhere else, and a Kubernetes Service has no type that does that: which node addresses a `NodePort` Service listens on is a setting of the whole cluster, not of one Service. So the build stops on the first `Loopback` entry, in the order the services are declared, before any resource is written.
 
@@ -5062,7 +5062,7 @@ The helm provider renders each Workload `services` entry as a Kubernetes Service
 
 ### A Kubernetes version the helm provider cannot render a chart for
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 The helm provider renders a chart from source for the Kubernetes version the `aggrega.ai/kubernetes-version` annotation names on a component or on its boundary, and reads the value the way `helm template --kube-version` reads its flag. A value that flag would refuse — `"one.two"`, `"latest"`, a single number such as `"1"`, a number written with a leading zero such as `"01.20"` — has no version for the chart to read as `.Capabilities.KubeVersion`, so the build stops before the chart is rendered.
 
@@ -5080,7 +5080,7 @@ The message names both the node and its boundary because the provider reads a co
 
 ### A health probe cannot be turned into a compose healthcheck
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 A declared health probe becomes a compose healthcheck, and two things can stop that.
 
@@ -5099,7 +5099,7 @@ A declared health probe becomes a compose healthcheck, and two things can stop t
 
 ### A configmap volume has no file behind it
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 A volume that mounts configuration is delivered through compose's own mechanism for it, referenced by name, and the entry holding the content comes from a file the Recipe emits. This condition is what a reference with no matching entry reports: the file is not there, so the mount would exist with nothing behind it and the container would come up reading an empty path.
 
@@ -5115,7 +5115,7 @@ Emitted message. The condition leads, then each service, the reference it made, 
 
 ### What an omits entry left out is still named by the compose file
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 An `omits:` entry leaves a service, a volume or a config out of a sourced compose file, and compose refuses a file that names one it does not declare. So once the entries' units are removed, every reference the rest of the file still makes to one of them stops the render: a service named by `depends_on`, `links`, `volumes_from`, `extends`, a `build.additional_contexts` value or a `service:` network, IPC, PID or UTS mode; a volume named as the source of a `volumes:` entry; a config named by a `configs:` entry — read in each service, each service's `pre_start` hooks and each job. The full list, and the values that only look like references, are in [compose → Sourced mode](../providers/compose.md#sourced-mode).
 
@@ -5131,7 +5131,7 @@ A unit whose entry's name was built from a value declared sensitive is shown as 
 
 ### What an omits entry left out is still named by a CloudFormation template
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 An `omits:` entry leaves a resource out of a sourced CloudFormation template, and CloudFormation refuses a template that names a resource it does not declare. So once the entries' resources are removed, every reference the remaining templates still make to one of them stops the render: a `Ref`, an `Fn::GetAtt` in its list form or its dotted-string form, a resource's `DependsOn`, or a variable of an `Fn::Sub` — read anywhere in each resource's body and each output. The full list, and the values that only look like references, are in [cloudformation → Leaving resources out of a sourced template](../providers/cloudformation.md#leaving-resources-out-of-a-sourced-template).
 
@@ -5147,7 +5147,7 @@ Where an entry's fields were built from a value declared sensitive, its resource
 
 ### A valuesMapping key names no parameter of a sourced CloudFormation template
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 A sourced CloudFormation template takes values through the `Parameters` it declares, and the `valuesMapping` of the Recipe or FeatureRecipe sourcing it writes one key per parameter it fills. A key that names no parameter any template of the source declares has nowhere to go, so the render stops rather than drop it — the failure CloudFormation itself would report for an unknown parameter, reported while it is still yours to fix. Only a `valuesMapping` fills parameters: values nothing mapped are never read this way, so a component's or an attachment's own values written for its other inputs never meet this.
 
@@ -5159,7 +5159,7 @@ Emitted message. The condition leads, then every key that named nothing and what
 
 ### Another component references a CloudFormation parameter a sourced template's binding filled
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 Filling a sourced template's parameter through the `valuesMapping` of the Recipe or the attached Feature's FeatureRecipe sourcing it replaces every reference to it in every template of that source and removes its declaration. Content from elsewhere in the same assembled stack — another component's fragment or sourced template, or the fragment of the component a Feature is attached to — that still names the parameter through `Ref`, an `Fn::Sub` variable or a rule's `Fn::ValueOf` then names something the stack no longer declares, which CloudFormation refuses when the stack deploys, so the assembly stops. A name some component of the stack still declares, as a parameter of its own or as a resource's logical ID, is a reference the stack resolves and is not stopped.
 
@@ -5171,7 +5171,7 @@ Emitted message. The condition leads, then every reference: the component and te
 
 ### A value bound to a CloudFormation parameter cannot take the parameter's type
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A literal bound to a parameter is converted the way CloudFormation converts the same value passed for that parameter's `Type` when the stack deploys. Where no such conversion exists the render stops: a value that is not a number bound to a `Number` or a `List<Number>`, a list or a mapping bound to a parameter that takes one value, and any literal bound to an `AWS::SSM::Parameter::Value<…>` parameter, whose value CloudFormation reads from Parameter Store rather than from the template. A list bound to a parameter the template names as an `Fn::Sub` variable stops the render too, because a variable substitutes one string.
 
@@ -5183,7 +5183,7 @@ Emitted message. The condition leads, then the parameter, its template and its t
 
 ### A value bound to a CloudFormation parameter is one its constraints refuse
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A literal bound to a parameter is checked against the constraints the template declares for it — `AllowedValues`, `AllowedPattern`, `MinLength`, `MaxLength`, `MinValue` and `MaxValue` — the check CloudFormation makes on a value passed when the stack deploys, moved to build time so that filling a parameter removes no check the template declared. An intrinsic function and a dynamic reference are left for CloudFormation to check, since their value does not exist until the stack deploys.
 
@@ -5195,7 +5195,7 @@ Emitted message. The condition leads, then the parameter, its template and the c
 
 ### A secret bound to a CloudFormation parameter would be written into the template
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A value bound to a parameter is written into the template, where anyone who can read the stack's template can read it. The render stops on a literal bound to a parameter the template declares `NoEcho`, and, where the Recipe's or FeatureRecipe's `valuesMapping` reads a value an author declared sensitive, on every literal that mapping binds, since none of its output can be traced back to the value it came from. A dynamic reference and an intrinsic function are written as given — the text inside an intrinsic included — so a sensitive value the mapping splices into an `Fn::Sub` string reaches the template as that text, and only a dynamic reference keeps the secret itself out of it.
 
@@ -5209,7 +5209,7 @@ Emitted message. The condition leads, then the parameters and what to bind inste
 
 ### A dynamic reference is bound where CloudFormation does not resolve it
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 CloudFormation resolves a dynamic reference in a resource's properties, but not in EC2 user data and not in `AWS::CloudFormation::Init` metadata, and it shows a template's `Outputs` to whoever reads the stack. So a dynamic reference bound to a parameter that any template of the source references in a `UserData` property, in that metadata or in its `Outputs` stops the render rather than reach a place where it either cannot deploy or is exposed.
 
@@ -5221,7 +5221,7 @@ Emitted message. The condition leads, then the parameter, the template and where
 
 ### A rule reads a bound CloudFormation parameter by name
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 `Fn::ValueOf` in a template's `Rules` names a parameter by its logical ID rather than through `Ref`, and reads the value passed for it when the stack deploys. Binding the parameter removes its declaration from every template of the source, which would leave the rule — in any of those templates — naming nothing, so the render stops.
 
@@ -5233,7 +5233,7 @@ Emitted message. The condition leads, then the rule, its template and the parame
 
 ### The assembled CloudFormation stack cannot carry a transform
 
-<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+<!-- covers: internal/plugincondition.ErrPluginCannotExpressInput -->
 
 The assembled stack's `Transform` is built from every component's, and a transform processes the whole template, so a transform whose effect is not confined to content written for it is refused rather than allowed to change how another component's content deploys: `AWS::CodeDeployBlueGreen` and `AWS::Include` always, a macro your account defines and `AWS::ServiceCatalog` beside any other component, `AWS::LanguageExtensions` beside another component's serverless content, and `AWS::Serverless-2016-10-31` where its `Globals` would reach another component's serverless resources or one of its event sources names a resource another component declares. The full table is in [cloudformation → Top-level sections in the assembled stack](../providers/cloudformation.md#top-level-sections-in-the-assembled-stack).
 
@@ -5245,7 +5245,7 @@ Emitted message. The condition leads, then every component in the stack, the tra
 
 ### Two components order one pair of transforms oppositely
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 The assembled stack runs its transforms in one order, built from each component's own order and from CloudFormation's documented one. Where two orders cannot both hold — two components listing one pair of transforms the opposite way round, or a component listing `AWS::Serverless-2016-10-31` before `AWS::LanguageExtensions`, which CloudFormation documents the other way — there is no one order to write, so the render stops.
 
@@ -5257,7 +5257,7 @@ Emitted message. The condition leads, then the pair and who ordered it each way:
 
 ### Two entries reach one stack output name
 
-<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+<!-- covers: internal/plugincondition.ErrPluginOutputNameCollision -->
 
 A stack output name admits only letters and digits, so one is built from what you wrote by encoding the characters that alphabet does not admit rather than by dropping them. Two entries you wrote apart therefore stay apart, and this halt is what reports the case where two of them nonetheless reach one name. The render stops rather than emit one output where two entries were written, which would silently drop one of them.
 
@@ -5271,7 +5271,7 @@ Emitted message, opening with the condition and continuing with the provider's o
 
 ### A CloudFormation fragment writes one key twice
 
-<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+<!-- covers: internal/plugincondition.ErrPluginOutputNameCollision -->
 
 A mapping holds one value per key, so a fragment that writes the same key twice would keep whichever body came last and discard the other. Where the mapping is the block holding resources or outputs, the discarded body is a resource or an output that was written down and would not be in the result. The render stops instead.
 
@@ -5285,7 +5285,7 @@ Emitted message, opening with the condition and continuing with the provider's o
 
 ### A cross-boundary reference has no consuming stack to be written into
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 Where a dependency connection crosses between two separately assembled outputs, the consuming side is rendered with a placeholder and the reference is written in once both sides exist. This condition is what happens when the consuming side's assembled output holds no stack template at all: there is no document to write the reference into, so the placeholder cannot be replaced.
 
@@ -5297,7 +5297,7 @@ Emitted message. The condition names the kind of failure, and the provider's own
 
 ### A cross-boundary reference was spliced into a longer string
 
-<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
 
 A CloudFormation cross-reference is an object rather than text, so it can only replace a value whole. This condition is what a placeholder found inside a larger string reports — a value composed around it, rather than delivered as the whole of what was injected. There is nothing to swap the object for, so the render stops rather than emit a reference in a shape the target cannot read.
 
@@ -5309,7 +5309,7 @@ Emitted message. The condition leads, then the value and the connection it arriv
 
 ### Two rendered resources land at one output file
 
-<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
+<!-- covers: internal/plugincondition.ErrPluginOutputNameCollision -->
 
 Each rendered resource is written to a file whose name comes from what the resource is and what it is called. Two resources that share those carry the same file name, so one would occupy the other's slot and the render stops rather than emit one file where two resources were rendered.
 
@@ -5323,7 +5323,7 @@ Emitted message. The condition leads, then both templates that produced them and
 
 ### A synthesized StatefulSet has no single service to govern it
 
-<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
 A workload that declares per-instance storage is rendered as a StatefulSet, and a StatefulSet names one service that governs it — the one giving each instance its stable address. That service is the one declared without a cluster address of its own. Two shapes stop the render: none declared, so there is nothing to name; and more than one, so which of them governs has no answer. Either would produce a StatefulSet the target rejects, so the render stops instead of emitting one.
 
@@ -5338,7 +5338,7 @@ A workload that declares per-instance storage is rendered as a StatefulSet, and 
 
 ### A plugin reported a failure it did not classify
 
-<!-- covers: internal/wasm.ErrPluginFailureUnclassified -->
+<!-- covers: internal/plugincondition.ErrPluginFailureUnclassified -->
 
 A plugin that stops a build reports two things: a sentence of its own saying what happened, and which kind of failure that sentence names. The kinds are a small set the compiler declares — a construct with no expression, an input that could not be resolved to one value, two produced things wanting one name, a value with no representation — and this condition is the one a plugin chooses when its failure fits none of them.
 
