@@ -318,6 +318,8 @@ The lockfile pins content fetched from registries and remote sources, and record
 
 Registry credentials are read from the Docker credential configuration alone: `config.json` in the directory `DOCKER_CONFIG` names, or `~/.docker/config.json` when that variable is unset, together with any credential helper or OS keychain the file delegates to through `credsStore` or `credHelpers`. [`aggrega login <registry>`](aggrega-login.md) writes a credential there, and so does `docker login <registry>`; run either before `aggrega pull` for a private OCI catalog or chart registry. The files `podman login` and `helm registry login` write are not read.
 
+**A credential configuration that cannot be read is reported without what it holds.** Where `config.json` is not valid JSON, an entry's `auth` value is not a base64-encoded user and password joined by a colon, or a credential helper the file names cannot answer, reaching the registry fails with a message naming the registry and the credential file, never what the file or the entry holds. Correct the file; an entry that cannot be read can also be replaced with `aggrega login <registry>`.
+
 A classic Helm chart repository or chart archive (`helm-https-chart`), a compose fragment (`compose-https-fragment`) and a Git repository reached over HTTP or HTTPS (`git-repository`) authenticate with the **netrc file**, the per-user credential file curl and Git also read. It is the only credential store these three kinds read: `~/.config/helm/repositories.yaml` and Git credential helpers are not read. A Git repository reached over SSH authenticates through the SSH agent and reads no netrc file.
 
 ```text
