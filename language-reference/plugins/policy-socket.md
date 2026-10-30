@@ -109,17 +109,18 @@ that should serve two roles is attached twice — once per role.
   this role adds to a build a capability the developer did not type.
 
   The components it may annotate are every component a boundary names under
-  `components:`, and every component a boundary's `aggregates:` routing entry names
-  under its own `components:` inside the module it routes in. A routed component is
-  addressed by the id it carries in the build graph — the module's name, a dot,
-  and the name the routing entry writes, as in `metrics.query`, with one more
-  module name and dot for each nested module — which is how the build graph and
-  its diagnostics spell it, so a decision names it that way too. A component a
-  routing entry places without naming it, as `documents: {}` places every
-  component of its module, is not on the payload: its name is not known until the
-  module is composed, after this role has run. Naming it in the routing entry,
-  with an empty body where nothing else is to be said (`documents: {components:
-  {backend: {}}}`), puts it in reach.
+  `components:`, and every component a boundary's `aggregates:` routing entry
+  routes in. A routing entry places every component of its module, the
+  components of the modules nested inside it included, whether its own
+  `components:` names all of them, some, or none, as `documents: {}` names none;
+  the payload carries each. A routed component is addressed by the id it carries
+  in the build graph — the module's name, a dot, and the component's name inside
+  the module, as in `documents.backend`, with one more module name and dot for
+  each nested module — which is how the build graph and its diagnostics spell it,
+  so a decision names it that way too. A component
+  the routing entry places without naming it carries no annotations of its own on
+  the payload, and an annotation injected onto it is applied as one written on it
+  under the routing entry.
 - **`label-transform`** — the guest reports label changes to apply, during topology
   construction: after the graph is built, and before the graph is judged. The
   payload carries a projection of the build's nodes — each with the Component it
@@ -487,7 +488,7 @@ fires rather than an error, because a path that is not there is simply undefined
 | `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). The list is always present: a build with no route between components carries an empty list. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. `format` is the format the provider that rendered the file declared for it — the Terraform provider declares `hcl` for every `.tf` file it emits and `json` for every `.tf.json` file, a vendored module's files included — and the empty string where no provider declared one, as for a file a Recipe contributes to a boundary's shared output. Such a file is still parsed by its extension, so its `documents` are there either way. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version`, `labels`, and `values`: the values the node's instance declares in the Aggregate, with its templates evaluated against its parameters, absent when it declares none. A value the node's Component declares sensitive reads as `{"aggrega_withheld": "declared"}`, as it does at `ir-verdict`, and its undeclared siblings read as written. A rule reads `input.graph.nodes[id].values` to decide a label; it cannot change a value. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
-| `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` — for a component a routing entry names, its id in the build graph, such as `metrics.query` — and the `annotations` the Release writes on the component itself, each value as written: a string, an object of subkeys, or `null` where the component opts out of an annotation it would inherit. Every key the component carries is present whatever its value, so a rule can leave alone a key someone already wrote. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
+| `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` — for a component a routing entry places, its id in the build graph, such as `metrics.query` — and the `annotations` the Release writes on the component itself, each value as written: a string, an object of subkeys, or `null` where the component opts out of an annotation it would inherit. Every key the component carries is present whatever its value, so a rule can leave alone a key someone already wrote. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
 **A Terraform resource reads at a different path in each of Terraform's two forms.**
 In the `documents` of a native `.tf` file a block nests under its type and then
