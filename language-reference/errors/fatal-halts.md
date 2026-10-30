@@ -2671,6 +2671,8 @@ Some shapes are named less exactly. An attachment name declared at more than one
 
 A `uses:` block names a socket that the entity owning the surface does not declare in its `usesSchema`, on one of the two surfaces where only a declared socket may be named: a **Feature attachment's** `uses:`, where the socket must be declared on the attached Feature, and a **Release's** per-edge `uses:`, where it must be declared on the consuming Component. A Release may wire or configure edges only within sockets the Component's `usesSchema` already declares.
 
+The attachment surface is checked at every scope an attachment is written at: on a component, on a subsystem — of the Aggregate or of a module it imports — on a Release boundary, and on a Release component entry, including the entry for a component a module contributes. A module's own declarations are checked once the composition that imports it is built, and the finding names the module's Aggregate and the key inside its document.
+
 A **component's own** `uses:` block is deliberately not one of those surfaces, so this halt does not fire for it. A developer owns the topology the Aggregate declares and may name a socket the catalog did not declare; catalog silence about a socket means the connection was not anticipated, not that it is forbidden. Such a socket is legal and its edge is built — what it gives up is the selector and the per-edge contract a declared socket carries. A misspelled socket name there is therefore not a halt but an ad-hoc connection of its own, and is reported as a warning naming both spellings — see [warnings.md](warnings.md) "Uses-socket near-miss lint".
 
 Emitted message:
@@ -3095,7 +3097,7 @@ Aggrega allows cycles in the topology: it does not require the dependency graph 
 
 ## When checking inject contracts
 
-The compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys. A `from:` key on a block the Aggregate's own component wrote is checked as soon as the catalog resolves, so it fails against the line you wrote; a `from:` key on a connection an attached Feature contributes is checked once every surface that can draw a connection has contributed, which is the earliest point at which such a connection exists to check.
+The compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys. A `from:` key on a block the Aggregate's own component wrote is checked as soon as the catalog resolves, so it fails against the line you wrote; one on the block of a component a module contributes is checked once the composition that imports the module is built, and fails against the line in the module's own document; a `from:` key on a connection an attached Feature contributes is checked once every surface that can draw a connection has contributed, which is the earliest point at which such a connection exists to check.
 
 ### Inject `from` key is not in the target's `provides`
 
@@ -3224,6 +3226,8 @@ The second reads that same authored block and asks a different question of it: w
 
 Neither mechanism is the offender and both reports are yours to change: rename the key under one of them, or drop one of the two deliveries. Which mechanisms a component may use at all is a separate question, answered by its `spec.inject` allowlist — see "Self-inject mechanism not in the component's allowlist" below.
 
+A component a module contributes meets these first two forms too, read from the module's own document once the composition that imports it is built; they then name the module's Aggregate and the key inside its document.
+
 The third reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote alongside the dependency socket that also delivers it:
 
 > duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
@@ -3267,6 +3271,8 @@ Emitted message:
 > self-inject on component without spec.inject allowlist (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>`, `"<component-type>"`, `"<mechanism>"`, `"<allowlisted-mechanism-1>"`, `"<allowlisted-mechanism-2>"`, ...)
 
 The mechanisms the type does allow follow the one that was dictated, so the message carries both what was written and what the type permits. A type declaring no allowlist at all reports the dictated mechanism with nothing after it.
+
+Both this rule and the one above hold for a component a module contributes, once the composition that imports the module is built; the report then names the module's Aggregate and the key inside its document.
 
 **How to fix:** switch to an allowlisted mechanism, or, if the Component should support the mechanism you need, extend its catalog `spec.inject` allowlist.
 
