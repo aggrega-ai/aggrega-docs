@@ -959,6 +959,17 @@
     "status": "machine",
     "text": "Assim, o comando faz duas coisas numa única passagem: resolve e fixa o fecho que os documentos nomeiam e depois renderiza esse fecho para ver que documentos remotos os providers pedem. Os artefactos renderizados são descartados e as fixações mantidas. Ambas as coisas são internas ao único comando, e nenhuma é um segundo momento em que algo possa ser fixado — há uma única escrita do lockfile, e ela contém todas as fixações."
   },
+  "04ad216c93536d58": {
+    "at": "2026-10-30T19:34:19.728Z",
+    "job": "session-0011-20261030193419",
+    "revision": {
+      "from": "f3bdb57dbbbdef22",
+      "reviewed": false
+    },
+    "srcHash": "04ad216c93536d58",
+    "status": "machine",
+    "text": "Uma entidade ArtifactLibrary transporta o envelope padrão do catálogo. `apiVersion: aggrega.ai/v1alpha1` e `kind: ArtifactLibrary` marcam o tipo de entidade; `metadata.name` é um identificador em PascalCase; `metadata.version` segue um versionamento semântico estrito. Ambos são obrigatórios. `metadata.description`, `metadata.labels` e `metadata.annotations` são opcionais — as etiquetas e as anotações são metadados opacos declarados pelo autor, transportados para que aquilo que lê a biblioteca os possa usar na correspondência, e o compilador não interpreta os seus valores. O conteúdo da biblioteca fica em `spec.artifacts`, um mapa obrigatório que tem de declarar pelo menos um pacote."
+  },
   "04af3180757e9f40": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -2678,6 +2689,17 @@
     "srcHash": "0dac54d5ba9eec68",
     "status": "machine",
     "text": "**Existe apenas na invocação.** Não há nenhuma definição de configuração para ela, pelo que não pode ser ativada uma vez e deixada ativa para todos os que compilem o espaço de trabalho depois. Pedi-la sem `--trace` faz parar a compilação com uma mensagem que nomeia ambas as flags, em vez de aceitar um pedido que não consegue respeitar."
+  },
+  "0db0fdfd94dbdd28": {
+    "at": "2026-10-30T19:34:19.728Z",
+    "job": "session-0011-20261030193419",
+    "revision": {
+      "from": "5d07fc5f28b32a17",
+      "reviewed": false
+    },
+    "srcHash": "0db0fdfd94dbdd28",
+    "status": "machine",
+    "text": "Cada chave de anotação toma uma de quatro formas, distinguindo «fico em silêncio» de «declaro um valor» — um escalar ou um objeto estruturado — e de «excluo-me»:"
   },
   "0db7523d4f62ac52": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -5182,6 +5204,13 @@
     "srcHash": "1a1394cc5daa2bef",
     "status": "machine",
     "text": "Numa entrada `aggrega-lint` — uma constatação sobre convenções de publicação — o código é a identidade da constatação: a identidade da regra que a produziu ou, para uma constatação que não indica nenhuma regra — que um linter seu pode reportar sob um código próprio — esse código. É o identificador que `aggrega lint` imprime na linha da constatação, depois do código curto quando existe, e o valor que `aggrega lint --output json` contém para essa mesma constatação, como `ruleId`, ou como `code` para uma constatação que não indica nenhuma regra. Uma constatação mantém uma única identidade entre as superfícies, pelo que um cliente que agrupa ou suprime uma regra no editor agrupa e suprime a mesma regra no terminal. Cada regra do conjunto de regras do linter de publicação que Aggrega declara está registada como condição sob essa identidade, pelo que está listada na [tabela de todas as condições](../errors/sentinels.md#every-condition-by-short-code) sob o código curto que `aggrega lint` imprime no início da linha da mesma constatação e que `aggrega lint --output json` contém nela como `shortCode`. Uma regra de um linter seu que Aggrega não declara não indica nenhuma condição registada, e o mesmo acontece com uma constatação que não indica nenhuma regra, mesmo quando o seu próprio código soletra a identidade de uma regra que Aggrega declara — pelo que nenhuma das duas está aí listada. As regras são descritas na [referência de `aggrega lint`](./aggrega-lint.md)."
+  },
+  "1a25cc012c3bb03d": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "1a25cc012c3bb03d",
+    "status": "machine",
+    "text": "Os URL do Fulcio e do Rekor da assinatura sem chave e o caminho da chave da assinatura com chave também podem vir do bloco `signing:` do `.aggrega-config.yaml` (global e por registo, em que um valor definido para o registo do artefacto tem precedência sobre o global, campo a campo); uma flag substitui a configuração, e a configuração substitui a predefinição public-good. Assim, as instâncias public-good indicadas na tabela de flags só são usadas quando nem uma flag nem a configuração do seu espaço de trabalho indica um endpoint. O marcador é assinado exatamente como [`aggrega sign`](aggrega-sign.md#signing-modes) assina um artefacto."
   },
   "1a28c18d3b3ebc31": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -9721,12 +9750,26 @@
     "status": "machine",
     "text": "`aggrega cache evict` reduz o armazenamento de módulos compilados, e `aggrega cache clear` apaga-o. Esse armazenamento é partilhado por **todos** os projetos Aggrega da máquina. Os módulos removidos são recompilados a pedido, pelo que nada se perde definitivamente — mas a build seguinte de qualquer projeto paga esse custo. `aggrega cache clear` remove também o pacote de documentação que todos os projetos da máquina leem, que é obtido de novo da próxima vez que um deles o adquirir."
   },
+  "318ecb06291a6658": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "318ecb06291a6658",
+    "status": "machine",
+    "text": "**Um código que este binário não declara é procurado na referência publicada.** Um plugin reporta uma interrupção escolhendo uma condição que o compilador declara, pelo que nenhuma condição é declarada em mais lado nenhum. A referência publicada, [sentinels.md](../errors/sentinels.md), lista todas as condições que o produto declara, e pode ter sido publicada para uma versão diferente da do binário que está a executar — pelo que um código citado de um relatório feito com uma versão mais recente ou mais antiga pode ainda ser resolvido aí."
+  },
   "319e093e9fbc7560": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
     "srcHash": "319e093e9fbc7560",
     "status": "machine",
     "text": "Quando o Aggregate declara submódulos aninhados através de `spec.aggregates:`, a Release decide em que fronteira ficam os componentes de cada submódulo declarando `aggregates:` a par de `components:` dentro da fronteira de destino:"
+  },
+  "31a3321d76aa6b44": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "srcHash": "31a3321d76aa6b44",
+    "status": "machine",
+    "text": "**As declarações de um módulo são verificadas como as do Aggregate.** O documento de um módulo só é lido quando é compilada a composição que o importa, e as suas declarações são verificadas a partir desse momento, a qualquer profundidade de aninhamento. O bloco `inject:` próprio de um componente do módulo está sujeito à lista de permissões `spec.inject` do seu tipo, e às regras que proíbem reivindicar duas vezes a mesma chave de entrega e ler uma chave que o tipo não publica. Uma associação escrita num dos subsistemas próprios do módulo só pode nomear um socket que a sua Feature declare, e o mesmo se aplica a uma associação que a Release escreve sobre um componente fornecido por um módulo."
   },
   "31ac16e6f0c4f09d": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -9801,6 +9844,17 @@
     "srcHash": "32196f83e0058128",
     "status": "machine",
     "text": "Duas flags produzem saída legível por máquina, e respondem a perguntas diferentes. `--output` escolhe um **formato** para o documento que este comando já apresenta; `--ir-graph` pede um **documento diferente** — o grafo compilado em que uma Release se resolve — além dele. São independentes: passar ambas dá o grafo e o YAML tal como escrito, cada um uma vez."
+  },
+  "3230378d916ce60f": {
+    "at": "2026-10-30T19:26:00.927Z",
+    "job": "session-0010-20261030192600",
+    "revision": {
+      "from": "7ac5afc9de85a09a",
+      "reviewed": false
+    },
+    "srcHash": "3230378d916ce60f",
+    "status": "machine",
+    "text": "O mapa de parâmetros fundido mantém-se vivo durante a renderização para suportar a avaliação de **templates de caminhos**. Os templates `directory:` e `subDirectory:` escritos pelo operador nas fronteiras da Release leem `.parameters.<slot>` diretamente no momento da renderização, em relação a uma lista de permissões fechada; a emissão de caminhos precisa de vocabulário de região / ambiente para a disposição dos artefactos por ambiente, e a concessão assimétrica mantém essa preocupação do operador dentro da superfície do operador sem passar pelos `values` do Aggregate. O mapa continua legível até todas as fases de renderização terem terminado e só é acessível a partir da compilação para a qual foi resolvido; as receitas que consomem `values:` escritos pelo programador veem as cadeias pós-interpolação, enquanto os templates de caminhos veem dados `.parameters` vivos durante a renderização. Consulte [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) linha 3 para a matriz de disponibilidade dos templates de caminhos e [`path-template-variables.md`](../path-template-variables.md) para a lista de permissões de variáveis dos templates de caminhos."
   },
   "32304293c16d0003": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -10059,6 +10113,17 @@
     "srcHash": "335c4f25ff460345",
     "status": "machine",
     "text": "Operador de plataforma"
+  },
+  "33687e54e1b35e81": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "revision": {
+      "from": "b3e32a761a434b93",
+      "reviewed": false
+    },
+    "srcHash": "33687e54e1b35e81",
+    "status": "machine",
+    "text": "**Aggregate pai:**"
   },
   "336a8252737dc107": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -11330,6 +11395,13 @@
     "srcHash": "3a85a5fe846a347c",
     "status": "machine",
     "text": "**`--verify` sob a postura offline abrange menos, e reporta que o faz.** Perguntar para onde aponta hoje um ref de origem registado significa alcançar o seu remoto, o que a postura offline recusa. Assim, um `--verify` offline verifica as dependências fixadas e salta esse eixo, imprimindo uma linha que o indica em vez de reportar uma correspondência que nunca estabeleceu. Uma assinatura registada que só o seu registo pode confirmar — numa entrada do lockfile cujo pacote de assinatura em cache foi removido ou alterado — é saltada da mesma forma, numa linha que nomeia cada uma dessas entradas:"
+  },
+  "3a8befe00dcf9100": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "3a8befe00dcf9100",
+    "status": "machine",
+    "text": "De onde vêm os endpoints de assinatura"
   },
   "3a9072704f2cdc68": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -13038,6 +13110,17 @@
     "status": "machine",
     "text": "Slots e anexações livres"
   },
+  "43ee7affe68615bc": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "637e1948178cdcc1",
+      "reviewed": false
+    },
+    "srcHash": "43ee7affe68615bc",
+    "status": "machine",
+    "text": "**Nenhuma documentação disponível.** Para uma condição que o compilador declara, os códigos e a frase continuam a ser reportados e uma nota nomeia o pacote e a versão que não puderam ser lidos. Para um código que este binário não declara não resta nada com que responder, pelo que o código é recusado — e a recusa indica que a referência não pôde ser lida, porque sem ela um código de outra versão não pode ser distinguido de um erro de escrita, e deixa abertas ambas as correções: corrigir o código ou obter a documentação. Um espaço de trabalho fixado como offline, ou um que nunca chegou ao seu registo, é a causa habitual. Quando a máquina contém uma cópia que a verificação de assinaturas do espaço de trabalho não admite — uma que outro projeto obteve com uma definição mais permissiva, ou uma que um espaço de trabalho offline não consegue verificar porque esta máquina nunca obteve a raiz de confiança pública contra a qual a sua verificação valida — a nota indica que a cópia foi recusada e não que está em falta, e porquê."
+  },
   "43f2033c245edd7f": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -14645,6 +14728,13 @@
     "srcHash": "4be7193bda86b994",
     "status": "machine",
     "text": "A linha só aparece quando o Component declara pelo menos um socket obrigatório, e nomeia apenas os obrigatórios — um socket opcional nunca é enumerado, porque deixá-lo por ligar não é uma constatação em nenhum âmbito. Uma Recipe cujo Component não declara nenhum socket obrigatório não produz essa linha, e o seu relatório mantém-se inalterado."
+  },
+  "4bf12e3a13824585": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "srcHash": "4bf12e3a13824585",
+    "status": "machine",
+    "text": "**Porquê uma lista `exportedComponents:` explícita.** Os autores de um módulo decidem quais dos seus componentes formam a interface pública e quais continuam a ser detalhe de implementação. Como um pai só pode nomear o que a lista publica, o interior do módulo pode ser refatorizado — um componente renomeado, um componente dividido em dois, um worker substituído por um serviço gerido — sem quebrar nenhum pai, desde que cada nome publicado continue a apontar para um componente. A lista custa uma entrada por componente publicado, e um componente pode ser publicado com o seu próprio nome (`store: store`) quando esse é o nome que os importadores devem usar. A mesma regra aplica-se dentro de uma composição: um módulo alcança um módulo que importa através dos aliases exportados desse módulo. Uma Release pode ligar entre si dois componentes de um mesmo módulo, já que essa ligação não atravessa a interface de nenhum módulo."
   },
   "4c0b222afc154b8b": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -22538,6 +22628,13 @@
     "status": "machine",
     "text": "Um componente cujo socket `models` declara uma posição `credential` marcada com `sensitive: true`, e que estabelece uma ligação sob o alias `gpt` que a preenche, lista essa anexação sob a ligação — ao lado de uma credencial própria, que permanece em `Features:`:"
   },
+  "74bb2e09c02972cb": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "74bb2e09c02972cb",
+    "status": "machine",
+    "text": "**A forma dormente:** a Recipe própria da tarefa em cada destino lê o anexo e renderiza a tarefa numa forma que é implementada sem iniciar uma execução. No Kubernetes, a tarefa é um `CronJob` retido com [`suspend: true`](../language-reference/entities/workload.md#suspend), num agendamento que indica uma data que nunca chega, em vez do `Job` que seria executado assim que fosse implementado. No Docker Compose, o serviço da tarefa, que o Compose não reinicia depois de terminar, transporta o perfil `manual`, pelo que `docker compose up` o deixa parado. No Amazon ECS, através de Terraform ou CloudFormation, a definição de tarefa é implementada sozinha, sem agendamento que a inicie. A FeatureRecipe que o Manifest associa para o anexo não acrescenta nenhum ficheiro próprio em nenhum destino: a alteração está na saída própria da tarefa."
+  },
   "74c257a9de547ab8": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -22898,6 +22995,17 @@
     "srcHash": "76667292ae33cfc7",
     "status": "machine",
     "text": "Um URL `source:` remoto numa Recipe (uma referência de chart OCI, um URL de chart ou fragmento HTTPS, um módulo Git) é **preservado literalmente** no YAML publicado; não é obtido nem incorporado no artefacto. Os consumidores resolvem e fixam as origens remotas de forma independente, na altura do seu próprio pull. Isto mantém a distribuição de entidades do catálogo e a resolução de artefactos de origem como questões separadas."
+  },
+  "7684010fdf74abe5": {
+    "at": "2026-10-30T19:34:19.728Z",
+    "job": "session-0011-20261030193419",
+    "revision": {
+      "from": "c811fe05a15224c0",
+      "reviewed": false
+    },
+    "srcHash": "7684010fdf74abe5",
+    "status": "machine",
+    "text": "**Não é um lugar para conteúdo de carga de trabalho, de mapeamento ou de esquema.** Um documento Workload pertence a uma WorkloadLibrary, o documento de valores de uma Recipe pertence a uma MappingLibrary, e as definições de esquema pertencem a uma SchemaLibrary. Os tipos de biblioteca dividem-se por tipo de conteúdo, não por padrão de reutilização."
   },
   "768c8523b246b349": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -23573,6 +23681,13 @@
     "srcHash": "7a228cdbc83df607",
     "status": "machine",
     "text": "**A ausência da metade de posição** significa que o conjunto de posições declaradas do Component anfitrião não pôde ser resolvido — por exemplo, o seu tipo não corresponde a nenhuma entidade de catálogo. Isto é deliberadamente distinto de `[free]`: `[free]` responde «não está declarada nenhuma posição com esse nome», enquanto uma metade ausente significa que a pergunta não pôde de todo ser respondida."
+  },
+  "7a2b559a84c0a067": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "7a2b559a84c0a067",
+    "status": "machine",
+    "text": "*(Nota: no Kubernetes e no Amazon ECS, uma tarefa que tenha um agendamento é executada segundo ele, quer o anexo esteja presente quer não, e o mesmo comando inicia uma execução adicional entre as agendadas; no Docker Compose, que não tem agendador, a Recipe da tarefa recusa um agendamento. O exemplo completo [task-run-on-demand](../language-reference/examples/task-run-on-demand/README.md) compila um Aggregate para Kubernetes, Docker Compose, Terraform e CloudFormation e mostra em cada um a saída renderizada e o comando que inicia uma execução.)*"
   },
   "7a2bf3396aa39ec8": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -26091,6 +26206,17 @@
     "status": "machine",
     "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** e **Google Cloud Deployment Manager** são os formatos nativos de aprovisionamento declarativo das respetivas clouds. O Aggrega inclui um [renderizador de CloudFormation](../language-reference/providers/cloudformation.md) que emite templates de stack; ARM / Bicep e Deployment Manager são alvos de artefactos estáticos para os quais um autor pode renderizar através do socket aberto."
   },
+  "883258535c01c62f": {
+    "at": "2026-10-30T19:26:00.927Z",
+    "job": "session-0010-20261030192600",
+    "revision": {
+      "from": "a4852a1908221647",
+      "reviewed": false
+    },
+    "srcHash": "883258535c01c62f",
+    "status": "machine",
+    "text": "**Interpolação** — o compilador avalia todo o texto do Aggregate como um template, antes de o ler como YAML, e substitui cada referência `{{ .parameters.<slot> }}` — normalmente dentro de cadeias `values:` de componentes / funcionalidades / subagregados — pelo valor resolvido; qualquer outro `{{` no texto também é lido como sintaxe de template, pelo que um valor que transporte chavetas duplas próprias — a definição exportada de uma plataforma de fluxos, por exemplo — escreve cada `{{` como `{{\"{{\"}}`, como descreve [Texto que transporta as suas próprias chavetas duplas](../templates/parameters-context.md#text-that-carries-its-own-double-braces). Após esta passagem, as superfícies de templates de valores consomem literais já interpolados e não recebem `.parameters` no seu contexto de template."
+  },
   "883c1ed1762f6c09": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -28057,6 +28183,13 @@
     "status": "machine",
     "text": "As entradas são resolvidas pela ordem em que estão escritas, e **uma entrada pode ler uma irmã definida acima dela**, recebendo o valor resolvido dessa irmã:"
   },
+  "92f882c808c70386": {
+    "at": "2026-10-30T19:26:00.927Z",
+    "job": "session-0010-20261030192600",
+    "srcHash": "92f882c808c70386",
+    "status": "machine",
+    "text": "**`min` e `max` têm de limitar alguma coisa.** Num slot booleano ou de objeto, o par não limita nada, pelo que um `min` ou `max` aí escrito é recusado quando o Aggregate é carregado, indicando o parâmetro e a chave."
+  },
   "92fd69facdc695fd": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -28688,6 +28821,13 @@
     "srcHash": "969befdf56b55c6f",
     "status": "machine",
     "text": "**O `Unblock-File` responde antecipadamente a esse aviso.** Um ficheiro descarregado é marcado como vindo da internet, e é a essa marca que a verificação *Windows protected your PC* responde. O `Unblock-File` no PowerShell, como no exemplo acima, remove a marca; o mesmo faz a caixa de verificação **Unblock** no separador **General** das **Properties** do ficheiro no Explorador de Ficheiros."
+  },
+  "96a1699939b6657c": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "96a1699939b6657c",
+    "status": "machine",
+    "text": "**A solução: tarefas dormentes e o comando próprio do destino** O Aggrega resolve isto preservando a pureza AOT estrita. Gera a configuração de uma tarefa que é implementada sem arrancar, e cada execução é iniciada no destino com o comando próprio do destino."
   },
   "96aaaff45c27db28": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -30178,6 +30318,17 @@
     "status": "machine",
     "text": "A publicação escreve no registo por passos — o ficheiro, o manifesto que o nomeia, a tag e depois a data de publicação ao seu lado — e cada uma dessas escritas é repetida quando o registo ou a rede a fazem falhar de uma forma em que uma tentativa posterior pode ter êxito, como um erro de servidor, um tempo limite ou uma ligação reposta; [`aggrega push`](aggrega-push.md#when-the-registry-fails-a-write) lista essas falhas. Uma escrita é tentada no máximo três vezes, com meio segundo e depois um segundo de intervalo, e cada tentativa é um novo envio dos mesmos bytes e não um reenvio do pedido que falhou, pelo que uma escrita repetida deposita o que uma tentativa teria depositado."
   },
+  "9d87b8cbf5064809": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "15c16fe0e34569ba",
+      "reviewed": false
+    },
+    "srcHash": "9d87b8cbf5064809",
+    "status": "machine",
+    "text": "As cinco fases correm antes de o motor de validação ver o esquema. O motor recebe um único documento JSON Schema 2020-12 resolvido mais o conteúdo de instância do programador; produz um relatório de validação. O formatador de erros consulta as etiquetas de proveniência para emitir diagnósticos voltados para o utilizador que nomeiam claramente as posições de origem — incluindo o ficheiro de origem de uma restrição que uma Feature herdou da sua base em vez de a escrever ela própria."
+  },
   "9dbe1a97a6b445ea": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -30863,6 +31014,17 @@
     "srcHash": "a148cf5e9254be14",
     "status": "machine",
     "text": "Lista de permissões dos mecanismos de entrega de inject permitidos (paralela a `featuresSchema[].inject`). Ausente, ou `[]` (vazia), significa caixa negra — não é permitido nenhum bloco `inject:` na entrada `uses:` do programador; a Recipe controla a entrega. `[env, file, arg]` (não vazia) significa transparente — o programador pode ditar que mecanismo entrega os valores `provides` da dependência. Imposto: consulte «Onde é imposta a lista de permissões `inject` de um socket» abaixo."
+  },
+  "a14ba8954befec0a": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "c0fe27c232203a6c",
+      "reviewed": false
+    },
+    "srcHash": "a14ba8954befec0a",
+    "status": "machine",
+    "text": "**Fase 3 — Expansão de `$ref:` entre documentos.** Para as referências a SchemaLibrary através de `$ref:` (a forma de identidade `<Library>#/schemas/<entry>`), o compilador percorre a cadeia de referências em tempo de compilação através do encadeamento de uma pilha de resolução; o conteúdo referenciado é incorporado no esquema do consumidor. A expansão preserva a deteção de ciclos (os ciclos interrompem a compilação com um erro que nomeia a cadeia), a salvaguarda identidade-e-não-localização (uma referência que transporte um host de registo interrompe a compilação com uma indicação para a forma de identidade — as referências endereçam bibliotecas pela identidade, não pela localização física) e a composição de fonte única (os blocos `$ref:` aceitam apenas a referência simples; as substituições do lado do consumidor compõem-se através do `allOf:` do JSON Schema). Ver [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md) para a semântica da resolução."
   },
   "a14eb2a73cc549f8": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -32262,6 +32424,17 @@
     "status": "machine",
     "text": "Explicar a condição de interrupção que um código nomeia"
   },
+  "a8b7ef3e862f60d2": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "9ed3bd41e157225a",
+      "reviewed": false
+    },
+    "srcHash": "a8b7ef3e862f60d2",
+    "status": "machine",
+    "text": "**Mapeamento de injeção (interceção pré-renderização):** o compilador Go resolve o contrato abstrato `.context.inject` do programador. Em seguida, executa os templates Go `injectMapping` de todas as `FeatureRecipes` anexadas, seguindo a ordem de execução estrita do modelo em cebola de 5 níveis (Sub-Aggregate — os anexos próprios de um componente de módulo, depois os que os subsistemas do seu módulo declaram, de fora para dentro → componente do Aggregate raiz → subsistema do Aggregate raiz → fronteira da Release de fora para dentro → específico do componente na Release). O compilador funde nativamente em profundidade os dicionários resultantes sobre o canal de memória `.context.inject` do chamador. Isto reescreve em segurança variáveis de ambiente e cadeias de ligação para o chamador antes de a Recipe base alguma vez as ver. Um mapeamento pode reescrever o que o próprio bloco `inject:` do chamador ou uma das suas ligações entregou; uma chave que uma Feature anexada diferente já tenha entregado — através do seu próprio mapeamento ou do seu próprio bloco `inject:` — interrompe a compilação nomeando ambos os anexos, pelo que a ordem de execução nunca decide entre os valores de dois anexos."
+  },
   "a8c2f9377b42b69c": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -33061,6 +33234,17 @@
     "status": "machine",
     "text": "O campo é documentação de contrato: descreve que diretivas da plataforma o fornecedor lê, para os leitores do catálogo e para a superfície `aggrega inspect`. O compilador não o consome para condicionar, ramificar ou rejeitar um build — nunca verifica as anotações que uma implementação efetivamente transporta face a esta lista. A validação do esquema verifica apenas a forma de cada entrada (a chave está sob o espaço de nomes `aggrega.ai/`, `purpose` está presente); é distinta da verificação em runtime que rege a associação de um valor ao espaço de nomes reservado."
   },
+  "aca85bf69c4bb6bb": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "revision": {
+      "from": "8622e63340d3e7aa",
+      "reviewed": false
+    },
+    "srcHash": "aca85bf69c4bb6bb",
+    "status": "machine",
+    "text": "Os Aggregates servem tanto como o Aggregate raiz que uma Release compila como módulos reutilizáveis. Um Aggregate pai pode declarar um Aggregate filho exatamente como um componente, passando-lhe `parameters`. Para evitar um acoplamento forte, os Aggregates filhos expõem um contrato **`exportedComponents:`**, que estabelece um nome de interface pública estável. O pai só alcança os componentes do módulo através desta interface: um destino `uses:` é o nome do módulo, um ponto e um dos seus aliases exportados, e o compilador liga a aresta ao componente interno que o alias nomeia. Um destino que entra num módulo por qualquer outro nome — o nome do componente dentro do módulo, ou um caminho para um módulo aninhado dentro dele — interrompe a build, indicando o módulo e os aliases que exporta; consulte [A `uses` target names a module's component the module does not export (Um destino nomeia um componente de um módulo que o módulo não exporta)](../errors/fatal-halts.md#a-uses-target-names-a-modules-component-the-module-does-not-export)."
+  },
   "acad573403ca5b80": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -33214,6 +33398,13 @@
     "srcHash": "ad4d8ede97f784eb",
     "status": "machine",
     "text": "**`.context.instance_id`** é o **componente anfitrião** para o qual a anexação está a ser resolvida. Significa o componente anfitrião em todas as superfícies de template que o compilador avalia, pelo que a mesma referência se lê da mesma forma, qualquer que seja o bloco de entidade que se esteja a escrever."
+  },
+  "ad54af147a576c62": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "ad54af147a576c62",
+    "status": "machine",
+    "text": "**Uma configuração de credenciais que não pode ser lida é reportada sem o que contém.** Quando `config.json` não é JSON válido, o valor `auth` de uma entrada não é um utilizador e uma palavra-passe unidos por dois pontos e codificados em base64, ou um credential helper que o ficheiro nomeia não consegue responder, o acesso ao registo falha com uma mensagem que nomeia o registo e o ficheiro de credenciais, nunca o que o ficheiro ou a entrada contém. [`aggrega login`](aggrega-login.md) e `aggrega logout` reportam da mesma forma um `config.json` que não é JSON válido, e não alteram nada nele. Corrija o ficheiro; uma entrada que não pode ser lida também pode ser substituída com `aggrega login <registry>`."
   },
   "ad5a2d61863d528d": {
     "at": "2026-10-23T00:02:45.677Z",
@@ -34068,6 +34259,17 @@
     "status": "machine",
     "text": "A versão que uma pesquisa reporta"
   },
+  "b1762eec4c0474e2": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "8824cfb0d0d9c825",
+      "reviewed": false
+    },
+    "srcHash": "b1762eec4c0474e2",
+    "status": "machine",
+    "text": "**Entradas de SchemaLibrary partilhadas (`$ref:` entre documentos):** as definições JSON Schema reutilizáveis são guardadas em entidades de catálogo SchemaLibrary (nível 3). São referenciadas pela identidade através de `$ref:` entre documentos (`<library>#/schemas/<entry>`, sem host — a versão vem do lockfile) a partir de qualquer esquema consumidor de Component ou de Feature. A cadeia é percorrida em tempo de compilação. Ver [entities/schemalibrary](../language-reference/entities/schemalibrary.md) para a forma de autoria da entidade de biblioteca e [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) para a semântica da resolução."
+  },
   "b1784a4d49280605": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -34218,6 +34420,17 @@
     "srcHash": "b253676ec5b82a76",
     "status": "machine",
     "text": "**`parameters` (o contrato global de ambiente)**"
+  },
+  "b25ab7a4737ecdc2": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "revision": {
+      "from": "99009394362f8107",
+      "reviewed": false
+    },
+    "srcHash": "b25ab7a4737ecdc2",
+    "status": "machine",
+    "text": "**Vários âmbitos.** Quando os componentes se dividem em grupos transversais distintos, declare subsistemas com nome em `subsystems:`. Cada subsistema transporta os seus próprios componentes e a sua cascata de anotações, e pode aninhar mais subsistemas."
   },
   "b25fd15808b582ab": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -37456,6 +37669,17 @@
     "srcHash": "c27b2dedd442e484",
     "status": "machine",
     "text": "Mais de um ficheiro de configuração dentro de um projeto"
+  },
+  "c2890be912f4087c": {
+    "at": "2026-10-30T19:26:00.927Z",
+    "job": "session-0010-20261030192600",
+    "revision": {
+      "from": "7e8bc52960d8f67f",
+      "reviewed": false
+    },
+    "srcHash": "c2890be912f4087c",
+    "status": "machine",
+    "text": "O bloco tipado `parameters:` aceita o vocabulário da forma compacta: `type`, `description`, `default`, `enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`, `format`, `validate` e `validateMessage` (uma verificação personalizada e a mensagem que reporta), `items` (para arrays), `properties` (para objetos), `valuesType` (para mapas de valores tipados) e `required: true` (marcador por slot). Três dessas palavras-chave recebem um contrato como valor em vez de uma definição simples — `items`, `valuesType` e cada entrada em `properties` — e, num slot de parâmetro, esse contrato aninhado é escrito na mesma forma tipada que o slot à sua volta: `valuesType: { type: boolean }`, e não `valuesType: boolean`. Antes da interpolação, o compilador verifica o mapa de parâmetros fundido diretamente em relação a estas declarações: um parâmetro que nenhum slot declara é rejeitado, um slot marcado com `required: true` que nem a Release preenche nem um `default` fornece para a compilação, e cada valor fornecido é verificado em relação ao `type` declarado do seu slot, à pertença ao seu `enum`, aos limites `minLength` e `maxLength`, à expressão regular `pattern` e ao `format` num slot de cadeia, e aos limites `min` e `max` — o valor de um slot numérico, o comprimento de um slot de cadeia e o número de elementos de um slot de array. Os slots de objeto e de array são recursivos: cada entrada em `properties` e cada elemento em relação a `items` é verificado da mesma forma, um contrato `valuesType` rege as chaves que `properties` não nomeia, e uma chave aninhada que nenhuma declaração nomeia é rejeitada. Consulte [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) para o vocabulário completo de palavras-chave, incluindo onde um pilar `schema:` escreve estas palavras-chave de forma diferente."
   },
   "c28c2e37c3b81796": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -40878,6 +41102,17 @@
     "status": "machine",
     "text": "Ligação do servidor"
   },
+  "d423eea891cf0d24": {
+    "at": "2026-10-30T19:26:00.927Z",
+    "job": "session-0010-20261030192600",
+    "revision": {
+      "from": "e41fb9b0703a9f6c",
+      "reviewed": false
+    },
+    "srcHash": "d423eea891cf0d24",
+    "status": "machine",
+    "text": "Restringir quem pode chamar um componente, e o que este pode chamar, é decisão do operador, tomada por ambiente na Release. Quando uma Release anexa a Feature `core/caller-allowlist` do catálogo da biblioteca padrão a um componente, a compilação escreve uma política de rede que admite exatamente os componentes cujas arestas `uses` apontam para ele, os próprios pods desse componente e as origens que o anexo nomeia. A sua contraparte de saída, `core/egress-allowlist`, permite que o componente a que está anexada alcance apenas os componentes para os quais as suas próprias arestas `uses` apontam, os seus próprios pods, o DNS do cluster e os intervalos de endereços que a Release enumera. Uma chamada que o Aggregate não declara como aresta pode então ser recusada pelo cluster em qualquer das extremidades, onde quer que o seu plugin de rede imponha políticas de rede. Por isso, escreva uma aresta para cada chamada que os seus componentes fazem, incluindo uma que não injete nenhum valor: uma aresta em falta é uma chamada que um componente vedado pode recusar. [model-server-caller-allowlist](../examples/model-server-caller-allowlist/README.md) mostra um servidor de modelos acessível apenas através do gateway à sua frente."
+  },
   "d43ee825536c192f": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -41674,6 +41909,17 @@
     "srcHash": "d93442c35acd71a6",
     "status": "machine",
     "text": "Contrato de tradução do lado do Provider: `workloadSchema`"
+  },
+  "d9348ae8181ebf7a": {
+    "at": "2026-10-30T19:34:19.728Z",
+    "job": "session-0011-20261030193419",
+    "revision": {
+      "from": "928e58b74eeb2e8f",
+      "reviewed": false
+    },
+    "srcHash": "d9348ae8181ebf7a",
+    "status": "machine",
+    "text": "Uma ArtifactLibrary com um nome de pacote que não está em PascalCase falha a validação do envelope no carregamento do espaço de trabalho. A imposição é estrutural: os nomes de pacotes aparecem no fragmento de referência `#/artifacts/<name>`, pelo que um nome que não estivesse em PascalCase propagar-se-ia por todos os consumidores que importam o pacote."
   },
   "d939b61d1be5d799": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -43657,6 +43903,17 @@
     "status": "machine",
     "text": "O esquema publicado do Component determina qual dos três resultados possíveis é legal e rejeita os outros dois quando o documento é carregado — com um diagnóstico diferente para cada um, porque são erros diferentes:"
   },
+  "e352ca5c4c732e9a": {
+    "at": "2026-10-30T19:08:02.729Z",
+    "job": "session-0008-20261030190802",
+    "revision": {
+      "from": "9091e807c6c9023e",
+      "reviewed": false
+    },
+    "srcHash": "e352ca5c4c732e9a",
+    "status": "machine",
+    "text": "**A própria configuração do espaço de trabalho** — todos os `.aggrega-config.yaml` desde a raiz até ao diretório em que um comando corre, e o `.aggrega-config-append-ci.yaml` de um pipeline ao lado de qualquer um deles. Todos os comandos que leem a configuração, o servidor de linguagem e as ferramentas de um assistente leem-na antes de tudo o resto, pelo que um destes ficheiros que seja uma ligação que conduz para fora para cada um deles aí, em vez de os deixar correr com uma configuração feita a partir do que restou: [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside). Os comandos `aggrega` que nunca a leem — `version`, `help`, `completion`, `explain`, `get-schema`, `scaffold`, `skills list`, `plugin run-local`, `plugin sync`, `auth token` e `logout` — correm como habitualmente, com um aviso que nomeia a ligação. O servidor de linguagem, e o servidor de um assistente que fala através dos seus próprios fluxos, arrancam mesmo assim sobre um espaço de trabalho destes, para que o que ele contém possa ser listado: as listagens de Releases e de entidades respondem, lidas sem nenhum diretório de catálogo e nada mais configurado, e nomeiam o ficheiro entre as ligações não lidas. Todos os outros pedidos que a configuração decide — uma compilação, uma pré-visualização, um grafo, uma validação, um lint, uma descrição, a configuração efetiva, a Release predefinida — param com `E0321` nomeando a ligação, tal como o servidor de um assistente a quem se pede que escute por HTTP, cujo endereço e autorização a configuração teria definido."
+  },
   "e35307354563f0ba": {
     "at": "2026-10-22T23:08:42.660Z",
     "job": "session-0053-20261022230842",
@@ -43824,6 +44081,13 @@
     "srcHash": "e4440cd9e421508f",
     "status": "machine",
     "text": "Uma declaração de flag passa quando:"
+  },
+  "e46359639a81785d": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "srcHash": "e46359639a81785d",
+    "status": "machine",
+    "text": "**As associações aos subsistemas de um módulo chegam aos seus componentes.** Uma Feature que um módulo associa a um dos seus próprios subsistemas propaga-se em cascata a cada componente que o módulo declara sob esse subsistema, incluindo subsistemas aninhados, exatamente como faz uma associação a um subsistema no Aggregate — e apenas a esses componentes, nunca ao componente de um Aggregate importador sob um subsistema com o mesmo nome. É avaliada logo após as associações próprias do componente, os subsistemas exteriores antes dos interiores. Num campo que ambas escrevem, prevalece a associação própria do componente com o mesmo nome, e os campos que esta omite mantêm os valores do subsistema. Cada componente que alcança sujeita-a ao `appliesTo` da Feature. Uma constatação sobre as declarações próprias de um módulo indica o módulo e a chave dentro do seu documento — `.spec.subsystems.<subsystem>.features.<attachment>`, por exemplo — para que a edição seja feita no módulo, onde a declaração se encontra, e não no Aggregate que o importa."
   },
   "e464c393a381f439": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -44263,6 +44527,13 @@
     "srcHash": "e6e9070cbbf98a5f",
     "status": "machine",
     "text": "**`aggrega scaffold` — available.** Redige um documento inicial para qualquer tipo de entidade a partir do esquema desse tipo — todos os campos que exige, com um marcador de posição onde é necessário um valor — e escreve-o na saída padrão."
+  },
+  "e703bc2b08168d0e": {
+    "at": "2026-10-30T19:18:26.912Z",
+    "job": "session-0009-20261030191826",
+    "srcHash": "e703bc2b08168d0e",
+    "status": "machine",
+    "text": "Quando um Aggregate é publicado no catálogo como módulo reutilizável, pode ter `metadata.labels` no seu envelope YAML — por exemplo `aggregate.aggrega.ai/tier: infrastructure` ou `aggregate.aggrega.ai/compliance: pci-dss`. Estas etiquetas descrevem a **identidade do módulo** e são mantidas no documento do módulo tal como publicado; nenhum comando as lê ainda. A pesquisa no catálogo não indexa Aggregates, e o grafo de build não transporta nem as etiquetas de um módulo nem o seu nome de catálogo, pelo que uma política de governação não pode selecionar os componentes de um módulo pelo módulo de onde provêm."
   },
   "e708151ca74aca92": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -45661,6 +45932,13 @@
     "srcHash": "ee0a1aa7f6a3fe30",
     "status": "machine",
     "text": "Ler o chamador a partir de um proxy à frente"
+  },
+  "ee0d3dbd6d121466": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "srcHash": "ee0d3dbd6d121466",
+    "status": "machine",
+    "text": "**A passagem de testemunho:** o compilador não chega a nenhum cluster nem chama nenhuma API de cloud, e a compilação não inicia nenhuma execução nem escreve nenhum script. Cada execução é iniciada pelo operador, com o comando próprio do destino: `kubectl create job <run-name> --from=cronjob/<cronjob>` no Kubernetes, `docker compose run --rm <service>` no Docker Compose e `aws ecs run-task` no Amazon ECS, ao qual se indicam o cluster, a definição de tarefa e a configuração de rede que a Release define em `infra.overrides` da tarefa. A geração da configuração e a execução em tempo de execução permanecem separadas."
   },
   "ee1e935465aa27bc": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -48210,6 +48488,17 @@
     "srcHash": "fb7e39c7ae6797d6",
     "status": "machine",
     "text": "**Uma raiz de lançamento que não seja uma pasta existente é servida como recusa na entrada e saída padrão.** Quando `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT` nomeia uma pasta que não existe, ou nomeia um ficheiro, o servidor escreve a recusa no seu fluxo de erros e arranca mesmo assim, para que um cliente que não mostra ao utilizador nada desse fluxo mostre ainda assim o porquê. Responde a `initialize` e às suas listas de ferramentas, recursos e prompts, e todas as chamadas que atuariam nesse espaço de trabalho são respondidas com a recusa: uma chamada de ferramenta como resultado falhado, uma leitura de uma entidade `catalog://` ou de uma página de documentação como erro. A recusa nomeia a flag, ou a variável juntamente com a definição **Workspace folder** da aplicação de ambiente de trabalho que a define — a definição que [Claude Desktop](../../authoring/setup.md#claude-desktop) descreve — e cita o valor exatamente como foi dado; um valor que o cliente enviou sem o preencher é citado tal como chegou, e nada nele é reconhecido. Uma ferramenta que executa um comando não inicia nenhum para uma chamada que não nomeia nenhum espaço de trabalho próprio, já que a pasta em que esse comando seria iniciado não existe, e responde com a mesma recusa. Uma chamada que nomeia um espaço de trabalho próprio é aí respondida, e o que não atua em nenhum espaço de trabalho — um esquema, um prompt, a ajuda de um comando — é respondido como em qualquer servidor. Um listener é, em vez disso, recusado no arranque, antes de qualquer associação, com a mesma recusa, para que quem o supervisiona leia a falha onde a procura."
+  },
+  "fb8258ec5d6d3a23": {
+    "at": "2026-10-30T18:57:33.045Z",
+    "job": "session-0007-20261030185733",
+    "revision": {
+      "from": "fe4eca9b48b0cb5a",
+      "reviewed": false
+    },
+    "srcHash": "fb8258ec5d6d3a23",
+    "status": "machine",
+    "text": "**Cada condição que este binário declara é respondida a partir do binário.** Os seus dois códigos e a frase com que os seus diagnósticos começam estão declarados dentro do compilador, pelo que isso não precisa de rede, de cache nem de configuração."
   },
   "fb8826663674ca4a": {
     "at": "2026-10-23T01:53:07.004Z",
