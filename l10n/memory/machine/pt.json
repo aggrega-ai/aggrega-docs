@@ -446,6 +446,13 @@
     "status": "machine",
     "text": "**Gancho de disponibilidade SOC2.** Indica à `FeatureRecipe` de Ops se deve gerar fisicamente configurações automatizadas de Snapshot/Volume Backup para o recurso."
   },
+  "02211b271ec45833": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "srcHash": "02211b271ec45833",
+    "status": "machine",
+    "text": "As bibliotecas podem referenciar-se umas às outras livremente. Uma cadeia que volta sobre si mesma é interrompida quando a Recipe que a consome é renderizada, com um diagnóstico que indica cada passo do ciclo."
+  },
   "0221afb1afaa11c6": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -1423,6 +1430,17 @@
     "status": "machine",
     "text": "**As definições de lista e de mapa são atribuídas como um todo**, à camada de maior precedência que as define; não é reportado que camada contribuiu com que entrada de uma lista."
   },
+  "067b9878586ce88b": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "61ad33d82633a39c",
+      "reviewed": false
+    },
+    "srcHash": "067b9878586ce88b",
+    "status": "machine",
+    "text": "Cada bloco aceita também um nível **`name`** a par de `type`, que mapeia um **nome de instância** específico para um URI de Recipe (ou de FeatureRecipe). O nível de nome tem precedência sobre o nível de tipo: uma instância indicada em `components.name` resolve-se para essa Recipe, enquanto todas as outras instâncias do mesmo tipo se resolvem através de `components.type`. Isto exprime uma substituição por instância — duas instâncias de um mesmo tipo de componente podem ser implementadas através de duas Recipes diferentes (por exemplo, a maioria das instâncias de base de dados usa a Recipe mapeada em massa, enquanto uma instância é fixada numa implementação física diferente), sem fazer fork do tipo de componente nem duplicar o Manifest. A substituição aplica-se uniformemente: a instância indicada tanto renderiza através da Recipe de substituição como fixa a sua origem a partir dela. `features.name` é o nível simétrico para as anexações de Feature, indexado pelo **nome próprio da anexação** — a chave sob a qual está escrita no `features:` de um componente —, nunca pelo nome do componente ao qual está anexada. O [exemplo de substituição de receita por instância](../examples/per-instance-recipe-override/README.md) percorre de ponta a ponta um caso mínimo com duas instâncias."
+  },
   "06898a45edf1d27c": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -1819,6 +1837,13 @@
     "srcHash": "0851764685ce8571",
     "status": "machine",
     "text": "**provider helm:** os artefactos são documentos YAML do Kubernetes escritos sob um diretório com o nome do componente que os declarou, dentro do diretório de saída que contém os manifestos renderizados a partir do chart e sintetizados a partir do Workload. A razão é a nomeação: um manifesto renderizado ou sintetizado é nomeado pelo provider a partir do componente a que pertence, enquanto um artefacto é nomeado pela chave que o seu autor escreveu, a qual nada diz sobre de que componente se trata — pelo que dois componentes associados a uma mesma Recipe escreveriam um mesmo caminho sem que nenhum dos autores os pudesse separar. O diretório é o próprio nome do componente, pelo que o ficheiro que o autor volta a ler na saída tem o nome que escreveu, um nível abaixo."
+  },
+  "0854ac0d32866a12": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "srcHash": "0854ac0d32866a12",
+    "status": "machine",
+    "text": "*Uma entrada é avaliada pelo próprio motor de templates da Recipe que a consome, no contexto de renderização da Recipe, pelo que lê os pilares em minúsculas que o próprio `valuesMapping:` de uma Recipe lê — `.values`, `.infra`, `.context` e os restantes — e usa as mesmas funções, como o helper `optional`, sensível à presença, para uma chave ausente. `.Values`, a grafia do Helm para os valores do chart, não é uma raiz que esse contexto defina: uma entrada que o lê interrompe o build, indicando a referência.*"
   },
   "085ee1cb623bb672": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -7342,6 +7367,17 @@
     "status": "machine",
     "text": "As Features declaram:"
   },
+  "23dc598c54f93b8e": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "be9be1b97bb8e4b8",
+      "reviewed": false
+    },
+    "srcHash": "23dc598c54f93b8e",
+    "status": "machine",
+    "text": "As strings sob `Manifest.spec.mappings.features.type` ou `Manifest.spec.mappings.features.name` expandem-se para `/featurerecipe/`. Isto inclui as Features de credenciais (etiquetadas com `feature.aggrega.ai/kind: secret`) — usam o mesmo caminho de FeatureRecipe."
+  },
   "23e6b3deac4b32fc": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -7954,6 +7990,17 @@
     "srcHash": "26f9a890c10763ce",
     "status": "machine",
     "text": "O par de delimitadores de template Go que o plugin aplica aos ficheiros de artefactos importados, como `left` e `right`. A ausência significa o par predefinido `{{`/`}}`; um plugin cuja sintaxe de destino colida com esse par declara um par alternativo (por exemplo, `[[`/`]]`)."
+  },
+  "270509c74334b3df": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "10120eab2e4af98c",
+      "reviewed": false
+    },
+    "srcHash": "270509c74334b3df",
+    "status": "machine",
+    "text": "**Precedência de três níveis:** antes de aplicar a inferência OCI, o compilador pesquisa os diretórios de catálogo do espaço de trabalho e a cache de artefactos (o nível de espaço de trabalho e cache), conforme definido no [modelo de resolução de entidades em três níveis](../../architecture/13-catalog-and-registry.md). A inferência OCI só se aplica quando a entidade chega ao nível do registo. Uma chave ou um valor de mapeamento nunca é lido como caminho de ficheiro: uma Recipe ou FeatureRecipe criada localmente encontra-se num diretório de catálogo — `catalog/` na raiz do espaço de trabalho, ou um dos que `workspace.catalog_dirs` enumera — e é designada pela sua referência."
   },
   "27092ed6b49a7e53": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -8989,6 +9036,17 @@
     "srcHash": "2c61657ff8829ad2",
     "status": "machine",
     "text": "Para saber a que contentor pertence uma entrada antes de nomear um, e para ler uma posição sem aplicar nada, consulte [`aggrega serve`](aggrega-serve.md)."
+  },
+  "2c7496dcbee6bdac": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "dc3585e97d1b82a7",
+      "reviewed": false
+    },
+    "srcHash": "2c7496dcbee6bdac",
+    "status": "machine",
+    "text": "As strings sob `Manifest.spec.mappings.components.type` ou `Manifest.spec.mappings.components.name` expandem-se para `/recipe/`."
   },
   "2c77660f2c79c765": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -13480,6 +13538,17 @@
     "status": "machine",
     "text": "Uma chave que ambas as extremidades de uma ligação detêm"
   },
+  "44d2d1c60897d390": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "cab4d178adf56ac3",
+      "reviewed": false
+    },
+    "srcHash": "44d2d1c60897d390",
+    "status": "machine",
+    "text": "Uma MappingLibrary com uma chave que não está em PascalCase em `spec.mappings` falha a validação do envelope no carregamento do espaço de trabalho. A imposição é estrutural: as chaves das entradas de mapeamento aparecem no fragmento de referência `#/mappings/<name>`; chaves que não estivessem em PascalCase propagar-se-iam por todos os consumidores que importam a entrada."
+  },
   "44d79695279d1a4d": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -15979,6 +16048,17 @@
     "status": "machine",
     "text": "Restringe o preenchimento"
   },
+  "51e2fefe924395f1": {
+    "at": "2026-10-30T21:21:10.109Z",
+    "job": "session-0022-20261030212110",
+    "revision": {
+      "from": "fad25f939dd183f1",
+      "reviewed": false
+    },
+    "srcHash": "51e2fefe924395f1",
+    "status": "machine",
+    "text": "**Comportamento de âmbito.** Para `executionScope: component` (predefinição), `locals:` é avaliado por instância de componente anexada contra o contexto autónomo acima. Para `executionScope: boundary`, `locals:` é avaliado por anexação de fronteira contra a vista com âmbito de fronteira com raiz em `.boundary.*`; os campos por componente (`.context.instance_id`, `.context.inject`, `.context.uses`) e `.attachment_name` não estão disponíveis, porque a FeatureRecipe é executada uma vez para a fronteira e não uma vez por componente. A lista de permissões de campos de template com âmbito de fronteira aplica-se a `locals:` da mesma forma que se aplica aos outros templates da superfície de criação da FR. O `injectMapping`, que é executado para cada componente que a anexação alcança, lê essa única avaliação de fronteira como o seu `.locals`. O contrato de avaliação — ordem de criação, leituras de irmãs apenas para baixo, as duas interrupções — é idêntico em ambos os âmbitos; só a forma do contexto envolvente difere."
+  },
   "51fd3f89ad91ba22": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -18315,6 +18395,17 @@
     "status": "machine",
     "text": "aggrega auth"
   },
+  "5cf106ca34d70fa5": {
+    "at": "2026-10-30T21:21:10.109Z",
+    "job": "session-0022-20261030212110",
+    "revision": {
+      "from": "1d937fbcf461a40e",
+      "reviewed": false
+    },
+    "srcHash": "5cf106ca34d70fa5",
+    "status": "machine",
+    "text": "Para um exemplo prático da chave, criada numa Recipe — o Secret gerado de um chart obtido deixado de fora, e as interrupções sem a entrada e com uma entrada que não corresponde a nada — consulte [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/README.md)."
+  },
   "5cfc63bd65ab1a5a": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -19934,6 +20025,17 @@
     "srcHash": "650bf0ebae6e2072",
     "status": "machine",
     "text": "Nenhum é recuperável a partir do outro. Uma entidade pode ser alcançada sem nunca aparecer como nó — a Recipe para a qual um Manifest mapeia um tipo de componente é alcançada por todas as compilações e não é nó em nenhuma delas — e um nó não contém a versão para a qual o seu tipo resolveu. Assim, um leitor que pergunte «porque mudou esta versão?», «o que afetaria alterar este documento partilhado?» ou «de que depende realmente esta Release?» está a pedir o fecho, e um leitor que pergunte «o que implanta esta Release?» está a pedir o grafo."
+  },
+  "653982f54187822c": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "914da631baa7093a",
+      "reviewed": false
+    },
+    "srcHash": "653982f54187822c",
+    "status": "machine",
+    "text": "Cada entrada de mapeamento é um fragmento de template Go criado como uma string YAML. O fragmento é opaco para o envelope da entidade — o compilador guarda a string literalmente no carregamento da MappingLibrary e analisa-a no momento do consumo, quando uma Recipe ou FeatureRecipe importa a entrada através de `valuesMapping: { $import: ... }`. A importação substitui todo o `valuesMapping:` da Recipe — o mapa `$import:` não contém nenhuma outra chave —, pelo que uma entrada é um documento de valores completo e não um excerto inserido num documento."
   },
   "653da1b914b0c37c": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -22352,6 +22454,13 @@
     "srcHash": "72296e9af123d355",
     "status": "machine",
     "text": "Reportam-no juntamente com a sua própria saída."
+  },
+  "722e8cac65086bcb": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "srcHash": "722e8cac65086bcb",
+    "status": "machine",
+    "text": "**Uma chave `name` tem de indicar algo que o build contém.** O nível é comparado pelo nome exato, pelo que uma chave `components.name` que não seja uma instância de componente no build, ou uma chave `features.name` que não seja nele uma anexação — na maioria das vezes o nome do componente em que uma anexação se encontra, escrito onde deveria estar o nome próprio da anexação —, não seria consultada por nada, e as instâncias a que se destinava seriam resolvidas silenciosamente através do nível `type`. Em vez disso, o build é interrompido nessa chave, antes de qualquer renderização, indicando o Manifest, a chave, os nomes desse tipo que o build contém e o nome que provavelmente se pretendia — consulte [A Manifest `name` mapping names nothing in the build (Um mapeamento por nome do Manifest não indica nada no build)](../errors/fatal-halts.md#a-manifest-name-mapping-names-nothing-in-the-build)."
   },
   "7233a8d35dd39dfd": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -26586,6 +26695,17 @@
     "status": "machine",
     "text": "[MappingLibrary](entities/mappinglibrary.md) — fragmentos de template Go reutilizáveis, importados para o `valuesMapping:` de uma Recipe ou FeatureRecipe por `$import: <Library>#/mappings/<name>`."
   },
+  "88e2505597b5527e": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "1f40fd4bd6f11b61",
+      "reviewed": false
+    },
+    "srcHash": "88e2505597b5527e",
+    "status": "machine",
+    "text": "A identidade de uma Recipe no catálogo tem âmbito de capacidade: duas receitas podem partilhar um `metadata.name` e uma versão e declarar valores `spec.capability` diferentes. A identidade de registo é `recipe/{capability}/{name}:{version}`, derivada do tipo da receita, do seu `spec.capability` sem qualquer fixação de versão que este contenha, e do seu nome; a árvore do catálogo da biblioteca padrão espelha essa coordenada em `recipe/{capability}/{name}/` por convenção. Um valor de mapeamento do Manifest indica a receita com qualquer uma das precisões:"
+  },
   "88ea2953b25e0a9b": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -28234,6 +28354,17 @@
     "status": "machine",
     "text": "**Não é aceite com `--verify`,** que já não escreve nenhum desses ficheiros. O par deixaria a opção sem fazer nada, embora parecesse ter feito algo, pelo que é recusado em vez de ignorado."
   },
+  "91c6eca3b3f0d0c8": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "14c1f3b1fa372e97",
+      "reviewed": false
+    },
+    "srcHash": "91c6eca3b3f0d0c8",
+    "status": "machine",
+    "text": "**Uma realização associada por nome é fixada e verificada como uma associada por tipo.** O `aggrega pull` obtém cada Recipe e FeatureRecipe que qualquer um dos níveis associa — a partir de um diretório de catálogo, da cache ou de um registo — e regista cada uma no lockfile da Release com a sua versão resolvida e o seu digest de conteúdo, sob a entrada de mapeamento que a associa: `manifest.spec.mappings.components.name.<instance>` para uma entrada do nível de nome, ao lado de `manifest.spec.mappings.components.type.<type>` para uma do nível de tipo. O `aggrega build` vincula cada uma delas à sua fixação. Um lockfile que não regista nenhuma linha para uma realização que o Manifest associa interrompe o build por estar desatualizado, indicando a realização e a entrada que a associa; uma realização cujo conteúdo mudou desde o pull interrompe-o da mesma forma, indicando ambos os digests. Em ambos os casos, `aggrega pull --release <release>` regista a realização tal como está agora. Tal como uma entrada `type`, uma entrada `name` é fixada quer a Release declare ou não uma instância com esse nome, pelo que uma entrada `name` que indique uma Recipe que nenhum catálogo ou registo contém interrompe o pull; uma entrada `name` que não indique nenhuma instância contida no build também é fixada e interrompe o build, como descreve o parágrafo anterior."
+  },
   "91cf9ff0f5e03972": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -28591,6 +28722,17 @@
     "srcHash": "936698aa19410efc",
     "status": "machine",
     "text": "Exemplos práticos"
+  },
+  "9373745880ea27e9": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "c7c8dfdf07a2dcc1",
+      "reviewed": false
+    },
+    "srcHash": "9373745880ea27e9",
+    "status": "machine",
+    "text": "Todos os comandos que leem as dependências de uma Release executam-na, e cada um decide por si o que significa uma constatação: `aggrega build` e `aggrega pull` interrompem-se, uma vez que ambos produzem algo que se vai usar a seguir, enquanto `aggrega validate` e `aggrega lint` a comunicam com as restantes constatações e terminam com código diferente de zero, e o editor publica-a como um diagnóstico entre os outros. `aggrega lint` é a exceção na avaliação de uma instância: avalia as entradas de mapeamento e não as instâncias que estas alcançam, pelo que não a comunica, enquanto `aggrega build`, `aggrega pull` e `aggrega validate --release` a comunicam. Consulte [`../errors/fatal-halts.md`](../errors/fatal-halts.md) para o diagnóstico e a forma de o corrigir."
   },
   "9374747ad492a686": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -29108,6 +29250,17 @@
     "srcHash": "964002761de8326a",
     "status": "machine",
     "text": "**O compilador AOT e a passagem da execução:** um pipeline de compilação estrito traduz a DSL num grafo de representação intermédia (IR) agnóstico em relação às capacidades. A IR capta a topologia dos componentes e as arestas `uses` entre eles (quem usa quem); o compilador passa este grafo ao socket de governação WebAssembly (Wasm) para detetar vulnerabilidades de confiança transitiva e, em seguida, executa plugins de renderização Wasm para gerar as configurações exatas de proxies e de guardrails. O Aggrega escreve estes artefactos em disco e entrega-os a outras ferramentas, como pipelines de CI/CD ou orquestradores de runtime, que os implantam."
+  },
+  "9644fe534000c54b": {
+    "at": "2026-10-30T21:21:10.109Z",
+    "job": "session-0022-20261030212110",
+    "revision": {
+      "from": "30a66a1af3e29cea",
+      "reviewed": false
+    },
+    "srcHash": "9644fe534000c54b",
+    "status": "machine",
+    "text": "**O Manifest** dita que Recipe realiza cada tipo de catálogo e, através do `spec.capability` dessa Recipe, o *fornecedor* (p. ex., Helm, Helm-chart, Compose) que o renderiza. É a tabela de mapeamento — um registo por projeto, com commit no Git, de que Recipe concreta implementa cada interface abstrata; as versões e os digests a que uma compilação vincula essas Recipes são fixados separadamente, no lockfile de cada Release."
   },
   "9666116910e802bf": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -31848,6 +32001,17 @@
     "status": "machine",
     "text": "**Preenchimento de predefinições** — os slots com `default:` definido e sem valor fornecido pela Release recebem a sua predefinição. Os parâmetros de objetos aninhados têm uma semântica de autoria com três casos para slots pai omitidos, explicitamente vazios e parcialmente escritos: omitir o pai preenche as predefinições dos filhos, escrever o pai como `{}` preserva o vazio explícito (suprime as predefinições dos filhos), e escrever o pai como um mapa não vazio preenche apenas os filhos que a Release não forneceu. Consulte [`templates/parameters-context.md`](../templates/parameters-context.md#nested-object-parameters) para os exemplos YAML e o guia de decisão «quando usar cada forma»."
   },
+  "a3adcab20a521644": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "1c5bcb0e73479cbe",
+      "reviewed": false
+    },
+    "srcHash": "a3adcab20a521644",
+    "status": "machine",
+    "text": "Uma entidade consumida a partir de um registo e não de um catálogo local é referenciada exatamente pela mesma identidade que uma local usa: a referência não contém nenhum host de registo nem nenhum segmento de tipo de entidade. O resolvedor fornece ambos — o host a partir do registo predefinido configurado no espaço de trabalho, o segmento de tipo a partir do local onde a referência se encontra no esquema — segundo as regras de [URIs abreviados sensíveis ao contexto](#context-aware-shorthand-uris) abaixo. Quando nem um diretório de catálogo local nem a cache contêm uma cópia, o `aggrega pull` — ou um build executado com `--auto-pull` — obtém a entidade a partir da localização derivada, coloca-a em cache e fixa a versão resolvida e o digest de conteúdo no lockfile; os builds seguintes consomem a cache sem acesso à rede."
+  },
   "a3b5560bf0dcd70a": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -32762,6 +32926,17 @@
     "status": "machine",
     "text": "**7. Manifest:** O lockfile de dependências. Usa um mapeamento plano de URI: um dicionário `components.type` mapeia os tipos de componentes do catálogo para URI de Recipes, e um dicionário `features.type` mapeia os tipos de Feature para URI de FeatureRecipes. A resolução é uma pesquisa direta de URI no lockfile + catálogo; a determinação da capacidade decorre do campo `spec.capability` de cada Recipe resolvida, no momento da compilação. Após a resolução, cada entidade tem de ter um mapeamento, ou o compilador interrompe-se. Para manter um ecossistema DRY, os Manifests suportam um padrão de composição ao estilo Kustomize através de uma palavra-chave `extends`, permitindo que manifestos específicos de um ambiente (como local ou staging) herdem de forma limpa de um manifesto base global e declarem apenas as suas substituições específicas."
   },
+  "a865d73b4a10b157": {
+    "at": "2026-10-30T21:21:10.109Z",
+    "job": "session-0022-20261030212110",
+    "revision": {
+      "from": "204286c7ef1ad1bb",
+      "reviewed": false
+    },
+    "srcHash": "a865d73b4a10b157",
+    "status": "machine",
+    "text": "**Percorrer o Manifest.** Abre o Manifest para o qual a Release aponta através do seu campo `manifest:`."
+  },
   "a86960c2acd825db": {
     "at": "2026-10-22T23:08:42.660Z",
     "job": "session-0053-20261022230842",
@@ -33177,6 +33352,17 @@
     "srcHash": "aa6f64cba271fe0a",
     "status": "machine",
     "text": "**[`aggrega build`](./aggrega-build.md)** — *compilar uma implantação completa.* A compilação precisa de um fecho completo Aggregate + Manifest + Release e emite artefactos nativos do fornecedor. Valida o seu próprio fecho de dependências como parte da compilação e depois renderiza. `aggrega validate --release` é essa validação de dependências por si só, sem a renderização; o validate de entidade única isola a renderização de uma única Recipe sem um Aggregate completo."
+  },
+  "aa703af28f4ed96f": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "a04dc6d8ecaeb1ac",
+      "reviewed": false
+    },
+    "srcHash": "aa703af28f4ed96f",
+    "status": "machine",
+    "text": "**`spec.implements` é uma verificação de consistência sobre a tabela de mapeamentos.** O valor `spec.implements` da Recipe resolvida TEM de corresponder à chave de tipo de componente do Manifest para essa entrada de mapeamento — ou a uma base que essa chave `extends`, a qualquer profundidade da cadeia, uma vez que uma Recipe escrita para uma base implementa tudo o que a estende. Um valor que não corresponda a nenhuma produz um `OPS_ERROR` com um diagnóstico claro que indica a entrada do Manifest, a Recipe resolvida e o valor `spec.implements` em conflito. A verificação dispara uma vez por entrada de mapeamento do Manifest, sobre o Manifest composto e antes de qualquer Recipe ser resolvida — estática, determinística e sem percorrer nada além da própria cadeia `extends` do tipo mapeado. Uma chave `components.type` que alcance uma instância de componente numa versão que não indica é avaliada mais uma vez para essa instância, da mesma forma, com o tipo próprio da instância, na versão com que o build a compila, no lugar da chave, como descreve [Mapeamento plano de URI](#flat-uri-mapping). Consulte [`../vocabulary/inheritance-and-interface.md`](../vocabulary/inheritance-and-interface.md) para saber o que a Recipe de uma base poupa e não poupa a uma especialização."
   },
   "aa80027d4c4e5cc4": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -35328,6 +35514,17 @@
     "status": "machine",
     "text": "**Uma entidade de catálogo indicada com uma Release é verificada como entidade única, nos termos dessa Release.** Um `file` que contenha um Component, uma Feature, uma Recipe, uma FeatureRecipe ou um Plugin, enviado com uma `release`, recebe a verificação que [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) executa, sobre o buffer não guardado do editor: as suas referências — o Component que uma Recipe implementa, uma biblioteca a que um pilar se refere — resolvem através dos diretórios de catálogo que a configuração do espaço de trabalho dá a essa Release, pelo que um ficheiro pode estar limpo nos termos da Release que compila com ele e falhar nos termos de uma Release cujos diretórios não contêm aquilo a que se refere. Esse é o veredicto que a linha de comandos e a ferramenta `validate` de [`aggrega mcp`](aggrega-mcp.md) dão para a mesma entidade ao lado da mesma Release e, tal como o delas, não percorre nenhum fecho nem lê nenhum lockfile. Uma constatação bloqueante é uma entrada de erro nas palavras da própria verificação e com os seus códigos, desenhada na chave que indica na entidade e, quando não indica nenhuma, na chave `kind:` da entidade, como descreve [O que contém uma entrada de diagnóstico](#what-a-diagnostic-entry-carries) — a menos que uma compilação já reporte essa falha no ficheiro, caso em que a entrada da compilação é o único relatório; um aviso consultivo que a verificação levanta ao ler o catálogo é uma entrada de aviso antes dela; uma verificação limpa sobre diretórios que existem todos não dá nenhuma entrada. Uma asserção falhada — uma que chama `fail`, na Recipe ou no Component que implementa — não é aqui uma constatação bloqueante, mas uma entrada de aviso, nas palavras da verificação e com os seus códigos, terminada pela frase `A Release must satisfy this assertion before a build of it can pass.`, e desenhada onde estaria a constatação bloqueante: a asserção de uma Recipe na própria chave dessa asserção em `assertions`, a de um Component na chave `kind:` da Recipe. Tal como uma constatação bloqueante, cede o lugar à entrada de uma compilação que reporte a mesma falha no ficheiro. A verificação constrói a entidade em torno de marcadores de posição e predefinições do esquema e não dos valores que uma Release define, pelo que não consegue distinguir uma asserção que espera por uma Release de uma que está avariada, e deixa o veredicto a uma compilação, que reporta a mesma asserção como erro ([uma asserção falhada é um aviso](aggrega-validate.md#a-failed-assertion-is-a-warning)). Um diretório que a configuração do espaço de trabalho lista para a Release onde nada existe é lido como não contendo nada, tal como todos os comandos o leem, pelo que o veredicto da verificação é o que dá com esse diretório não listado — e uma entrada de aviso, antes de todas as outras, indica o diretório, na linha que `aggrega pull` e `aggrega build` imprimem para ele ([De onde são lidas as entidades locais](configuration.md#where-local-entities-are-read-from)). Uma `release` que não indique nenhum ficheiro, ou que indique um diretório, é respondida no ficheiro com a frase com que a linha de comandos a recusa, em vez de ser verificada nos termos do espaço de trabalho. O que uma compilação de uma entidade não pode substituir é avaliado como a linha de comandos o avalia, e o que a linha de comandos põe de parte ou não verifica não dá aqui nenhuma entrada — consulte [o que a correção de entidade única não verifica](aggrega-validate.md#what-single-entity-correctness-does-not-check) e, para uma Recipe cujo modelo lê um valor que só uma aresta da topologia ou uma credencial anexada fornece, [correção de entidade única](aggrega-validate.md#single-entity-correctness-an-entity-path). O próprio Aggregate da Release, um Manifest, uma Release e uma biblioteca não são verificados um de cada vez, porque a verificação de entidade única não aceita esses tipos; mantêm as verificações do fecho acima. Um buffer que contenha conteúdo de Workload é lido como YAML que não é um documento Aggrega, porque esse conteúdo é escrito dentro do campo `workload:` de uma Recipe ou de uma FeatureRecipe e é verificado aí, onde está; a linha de comandos e a ferramenta `validate`, quando recebem um ficheiro de Workload por caminho, verificam a sua forma por si só."
   },
+  "b484e475de4a8b41": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "de1e2d6b41a9a329",
+      "reviewed": false
+    },
+    "srcHash": "b484e475de4a8b41",
+    "status": "machine",
+    "text": "Pesquisa direta por URI"
+  },
   "b485a2ff39ac01b5": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -36062,6 +36259,17 @@
     "srcHash": "b8bdd478f7e13cac",
     "status": "machine",
     "text": "[Funções e helpers Sprig](templates/sprig-functions.md) — os helpers Sprig disponíveis dentro dos templates Go, mais extensões e helpers de segurança específicos do Aggrega, como um número escrito pelo autor é lido, impresso e comparado num template de valor, e que helpers perguntam se um valor foi escrito e quais perguntam se está vazio."
+  },
+  "b8be77ddbac7835e": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "42409ab97f4e0899",
+      "reviewed": false
+    },
+    "srcHash": "b8be77ddbac7835e",
+    "status": "machine",
+    "text": "A MappingLibrary é disponibilizada com um único modo de criação: templates Go. `spec` não aceita nenhuma superfície de criação paralela nem nenhuma via de escape de expressividade ao nível da biblioteca."
   },
   "b8c029d89d5ad2d0": {
     "at": "2026-10-22T23:08:42.660Z",
@@ -39349,6 +39557,17 @@
     "status": "machine",
     "text": "**Exemplo trabalhado: um Wasm Injector que consome as exportações `*_path` de uma Recipe.**"
   },
+  "c8bb756cdc6e3258": {
+    "at": "2026-10-30T21:21:10.109Z",
+    "job": "session-0022-20261030212110",
+    "revision": {
+      "from": "82bea651799ae8af",
+      "reviewed": false
+    },
+    "srcHash": "c8bb756cdc6e3258",
+    "status": "machine",
+    "text": "O papel conceptual da entidade Manifest (Domínio 4 — a tabela de mapeamento que associa interfaces abstratas a Recipes concretas) está descrito em [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). Esta página abrange a superfície de criação do Manifest: como se posiciona ao lado da Release, a forma de mapeamento de URIs planos, a composição através de `extends`, as regras de abreviatura de URIs, as associações de Features orientadas por anotações e o prefixo `aggrega.ai/` reservado pela plataforma."
+  },
   "c8c8ec278299e2c1": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -42282,6 +42501,13 @@
     "status": "machine",
     "text": "Segredos"
   },
+  "d89e38b4abcd5cdd": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "srcHash": "d89e38b4abcd5cdd",
+    "status": "machine",
+    "text": "A razão é a uniformidade da superfície de consumo. As Recipes e FeatureRecipes são inteiramente em template Go, e o seu próprio conteúdo é avaliado pelo mesmo motor de templates Go que resolve uma entrada importada, pelo que uma entrada se lê exatamente como o próprio texto da Recipe e os autores aprendem um único modelo de avaliação. O vocabulário de composição dos templates Go — `{{ define }}` e `{{ template }}` dentro de uma biblioteca, e a diretiva `$import:` no momento do consumo — fornece os blocos reutilizáveis e a invocação parametrizada de que uma biblioteca precisa."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -42647,6 +42873,28 @@
     "srcHash": "da795e31e12e0f0d",
     "status": "machine",
     "text": "O prefixo simples `aggrega.ai/` tem a disciplina mais forte: está reservado apenas a anotações emitidas pela plataforma. O compilador emite `aggrega.ai/compiler-version`, `aggrega.ai/component-id`, `aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path` e chaves de proveniência relacionadas na saída renderizada; o conteúdo do utilizador que declare diretamente uma anotação `aggrega.ai/<key>` é rejeitado no momento da publicação. A disciplina impede que anotações escritas pelo utilizador colidam com a proveniência emitida pela plataforma."
+  },
+  "da8801544cf435e8": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "094b3c2f5f6d63d8",
+      "reviewed": false
+    },
+    "srcHash": "da8801544cf435e8",
+    "status": "machine",
+    "text": "A divisão entre «biblioteca» e «consumidor» é intencional. As Recipes codificam instruções de build (source, valuesMapping, artifacts). As FeatureRecipes codificam anexações comportamentais. As MappingLibraries codificam apenas fragmentos de template — o conteúdo de template Go que outras entidades consomem no momento da renderização. Manter os três papéis distintos permite que cada tipo de entidade evolua ao seu próprio ritmo; os autores que não precisam de conteúdo de template partilhado nunca encontram a entidade de biblioteca."
+  },
+  "da9a1f71a8e32aad": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "29d928e6aeebfd2a",
+      "reviewed": false
+    },
+    "srcHash": "da9a1f71a8e32aad",
+    "status": "machine",
+    "text": "O bloco `mappings:` do Manifest é um mapa plano de **URI de tipo de componente** para **URI de Recipe** (e de **URI de tipo de funcionalidade** para **URI de FeatureRecipe**). O mapeamento é agnóstico em relação à capacidade ao nível do Manifest; a determinação da capacidade decorre do campo `spec.capability` de cada Recipe resolvida no momento da renderização, não da forma estrutural do Manifest. O bloco organiza os mapeamentos sob duas chaves de nível superior:"
   },
   "da9eceaccad5aa4e": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -45661,6 +45909,17 @@
     "status": "machine",
     "text": "Definir `serviceAccount:` sem garantir que a ServiceAccount indicada existe resulta num erro K8s em runtime no momento do apply, e não num erro em tempo de compilação — a validação do esquema do workload não verifica a existência da ServiceAccount (não há acesso ao estado do cluster em tempo de compilação, de acordo com o invariante de pureza AOT)."
   },
+  "ea04186b544d274e": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "13541d925176e15d",
+      "reviewed": false
+    },
+    "srcHash": "ea04186b544d274e",
+    "status": "machine",
+    "text": "O valor de mapeamento do Manifest é um URI de Recipe. O compilador resolve o URI diretamente contra o lockfile e o catálogo, devolvendo a Recipe correspondente. Não itera sobre as declarações `spec.implements` para encontrar uma Recipe que «implemente» um tipo de componente. Cada entrada do Manifest associa o tipo de componente criado pelo programador a um URI de Recipe específico; a escolha é explícita e inequívoca no conteúdo do Manifest."
+  },
   "ea17ddb295988bd7": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -46137,6 +46396,17 @@
     "srcHash": "ec431f2f5614b460",
     "status": "machine",
     "text": "**Um Component que estende não pode remodelar o conjunto de chaves.** Não declara chaves de pilares, pelo que não pode ocultar, eliminar nem alterar o tipo de uma chave que a sua base declara, e não acrescenta nenhuma própria. Uma nova chave de pilar pertence ao Component cujo contrato é dono dela. O que quer que a base exponha, tudo o que a estende expõe de forma idêntica."
+  },
+  "ec545f836bbdd373": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "4d21cd14c13c75aa",
+      "reviewed": false
+    },
+    "srcHash": "ec545f836bbdd373",
+    "status": "machine",
+    "text": "**Qualificada pela capacidade** — `compose/mariadb:1.0.0`. O segmento antes da primeira `/` indica o `spec.capability` da receita, sem a sua fixação de versão — uma fixação escrita na referência é recusada (`E0095`). Obrigatória quando mais do que uma receita disponibiliza o mesmo nome: uma referência simples que corresponda a duas receitas é ambígua e interrompe ruidosamente a resolução, em vez de escolher uma silenciosamente."
   },
   "ec5d27df742f2839": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -46846,6 +47116,13 @@
     "status": "machine",
     "text": "Volume com nome"
   },
+  "f008ae8c399b7a47": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "srcHash": "f008ae8c399b7a47",
+    "status": "machine",
+    "text": "**`components.type`** mapeia um URI de tipo de componente para um URI de Recipe. Cada instância de componente do tipo declarado resolve-se para a Recipe especificada. O mapeamento é de um para um por tipo de componente. Uma chave que não indique o tipo exato de uma instância alcança-a ainda assim pela base do tipo, quando nenhuma chave indica esse tipo exato e nenhuma outra chave está escrita para a mesma base — assim, uma chave escrita sem versão (`core/postgres`), ou uma que indique outra versão (`core/postgres:1.0.0`), pode alcançar uma instância de `core/postgres:2.0.0` —, mas a Recipe que indica tem de implementar a versão própria de cada uma dessas instâncias: uma instância de `core/postgres:2.0.0` alcançada dessa forma e mapeada para uma Recipe que declara `implements: core/postgres:1.0.0` interrompe o build. Uma instância dessas mapeia-se, com uma chave que indique a sua versão (`core/postgres:2.0.0`), para uma Recipe que a implemente."
+  },
   "f0114aa947c27ee8": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -47490,6 +47767,17 @@
     "srcHash": "f3bdb57dbbbdef22",
     "status": "machine",
     "text": "Uma entidade ArtifactLibrary transporta o envelope padrão do catálogo. `apiVersion: aggrega.ai/v1alpha1` e `kind: ArtifactLibrary` marcam o tipo de entidade; `metadata.name` é um identificador em PascalCase; `metadata.version` segue um versionamento semântico estrito. Ambos são obrigatórios. `metadata.description`, `metadata.labels` e `metadata.annotations` são opcionais — as etiquetas e as anotações são metadados opacos declarados pelo autor para descoberta e apresentação no hub, e o compilador não interpreta os seus valores. O conteúdo da biblioteca fica em `spec.artifacts`, um mapa obrigatório que tem de declarar pelo menos um pacote."
+  },
+  "f3c564fed238833c": {
+    "at": "2026-10-30T21:44:40.955Z",
+    "job": "session-0024-20261030214440",
+    "revision": {
+      "from": "28bed684afd6f3d7",
+      "reviewed": false
+    },
+    "srcHash": "f3c564fed238833c",
+    "status": "machine",
+    "text": "Uma MappingLibrary é uma entidade de catálogo que contém fragmentos de template Go reutilizáveis. As Recipes e FeatureRecipes que partilham um documento `valuesMapping:` inteiro — os valores que várias Recipes que obtêm o mesmo chart lhe passam, cada uma — declaram-no uma vez numa biblioteca e referenciam-no no momento do consumo através de uma diretiva `valuesMapping: { $import: ... }`. A entidade de biblioteca é de nível 3: opcional, para catálogos que precisam de reutilizar mapeamentos entre Recipes. Os catálogos sem conteúdo de template repetido são disponibilizados sem nenhuma MappingLibrary."
   },
   "f3c6041bd7055462": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -49370,6 +49658,17 @@
     "srcHash": "fcbf4ec450dc094b",
     "status": "machine",
     "text": "**Um valor está em falta mesmo onde o esquema o aceitaria vazio.** Uma Recipe ou FeatureRecipe gerada tem `capability` e `implements` vazios. O seu esquema admite uma cadeia vazia, mas uma vazia não nomeia nenhum provider nem nenhum tipo, pelo que `aggrega validate` nomeia ambos como ainda em falta até serem preenchidos. Essa leitura é própria da validação de um único ficheiro de entidade: uma execução sobre todo o catálogo, `aggrega validate --release` e [`aggrega build`](aggrega-build.md) não a aplicam. Consulte [marcadores de posição ainda em falta](aggrega-validate.md#placeholders-still-owed) para o que abrange."
+  },
+  "fccdfdd865480cc1": {
+    "at": "2026-10-30T21:31:35.304Z",
+    "job": "session-0023-20261030213135",
+    "revision": {
+      "from": "7cd508f56b4e25bb",
+      "reviewed": false
+    },
+    "srcHash": "fccdfdd865480cc1",
+    "status": "machine",
+    "text": "**Determinação da capacidade no momento da renderização.** A entrada do Manifest associa um tipo de componente a um URI de Recipe. Um URI de Recipe tem no máximo dois segmentos — uma capacidade inicial opcional e depois o nome da receita — mais um `:version` opcional; o resolvedor divide apenas na primeira `/`, pelo que uma referência com um terceiro segmento não indica nenhuma receita e interrompe a resolução. No momento da renderização, o resolvedor carrega a Recipe através de uma pesquisa direta por URI no lockfile e no catálogo, e o campo `spec.capability` de cada Recipe determina o agrupamento de despacho por (caminho, capacidade). A forma estrutural do Manifest mantém-se plana, independentemente de quantos fornecedores o catálogo mais amplo suporte."
   },
   "fccf4def6fd117a3": {
     "at": "2026-10-30T06:11:53.265Z",
