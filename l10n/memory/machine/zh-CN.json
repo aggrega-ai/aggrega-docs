@@ -1032,6 +1032,13 @@
     "status": "machine",
     "text": "允许列表在两个不同的步骤约束槽位的两侧。"
   },
+  "018db9274ec446da": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "018db9274ec446da",
+    "status": "machine",
+    "text": "每个 Release 在 `infra.image` 下指定每个任务运行的镜像，因为 `core/compute/task` 不打包任何软件。AWS 的 Releases 还在 `infra.overrides` 下指定每个任务运行所用的集群、子网、安全组和执行角色，并且在 `report` 有调度的情况下，指定调度启动每次运行时所用的角色。其中每个特定于账户的值都是占位符。"
+  },
   "018e6ec3e008057b": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -3000,6 +3007,17 @@
     "status": "machine",
     "text": "合成实现的单服务器形态在\n[`../mysql-standalone/`](../mysql-standalone/) 中有完整演示，此处不再重复。"
   },
+  "04ad216c93536d58": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "f3bdb57dbbbdef22",
+      "reviewed": false
+    },
+    "srcHash": "04ad216c93536d58",
+    "status": "machine",
+    "text": "ArtifactLibrary 实体带有标准的目录信封。`apiVersion: aggrega.ai/v1alpha1` 和 `kind: ArtifactLibrary` 标明实体种类；`metadata.name` 是 PascalCase 标识符；`metadata.version` 遵循严格的语义化版本。两者均为必填。`metadata.description`、`metadata.labels` 和 `metadata.annotations` 为可选——labels 和 annotations 是作者声明的不透明元数据，供读取该库的任何程序据以匹配，编译器不解释它们的值。库的内容位于 `spec.artifacts` 之下，这是一个必填的映射，必须至少声明一个 bundle。"
+  },
   "04af3180757e9f40": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -3220,6 +3238,13 @@
     "srcHash": "04fdba98dcb0ae90",
     "status": "machine",
     "text": "一个节点上的每个挂载都位于同一个桶中，无论其 Feature\n产出什么——运维类 Feature、凭据类 Feature 还是身份类 Feature。\n没有哪个类别会得到比其他类别更窄的投影，因此遍历该桶的策略能看到所有挂载，\n且在读取某项事实之前，无需先知道自己面对的是哪个类别。"
+  },
+  "04fee587e6e9d93d": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "04fee587e6e9d93d",
+    "status": "machine",
+    "text": "由于不会为 `reference` Workload 生成任何服务，因此没有任何东西读取它所实现的组件的交付管道：附加到该组件的凭据——由 `dotenv-secret` 或附件自身的 `inject:` 块在其管道上交付——不会到达任何生成的文件。因此，每个以这种方式实现外部服务、且其 Component 声明了凭据槽的标准库 Compose Recipe，都会拒绝填充该槽的凭据：构建会停止并指出该槽和该组件，而不是在缺少凭据的情况下成功。在 compose 上，外部服务的凭据应附加到调用它的组件上，并使用该组件读取的环境变量。该拒绝是每个 Recipe 自身的断言，在本 provider 渲染任何内容之前运行。本 provider 也会在节点本身处拒绝，无论 Recipe 来自哪个目录：`reference` 节点上材料被声明为敏感的附件——其 Feature 将某个字段声明为 `sensitive: true`，或其填充的槽如此声明——会以 `TRANSLATION_ERROR`（`E0288`）停止构建，并指出该节点和每个此类附件，无论是否有任何槽声明了它附加时所用的名称。不携带任何声明为敏感内容的附件不会在此处被拒绝。这些 Components 将其凭据槽声明为可选，因此在 compose 上，留空的槽不会导致任何停止。在 Kubernetes 实现需要凭据的情况下——`twilio`、`vonage`、`telnyx`、`bland`、`letta`、`retell` 和 `vapi` 的 `helm` Recipes——该 Recipe 则要求填写该槽，并在其为空时停止构建并指出该槽。"
   },
   "0505795503da0e0a": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -4341,6 +4366,13 @@
     "srcHash": "06da3d22e53acc49",
     "status": "machine",
     "text": "provider 是否接受这些文件，是从 provider 自身关于其支持能力的声明中读取的，而不是从编译器维护的 provider 列表中读取。任何条目都会计入，无论它会渲染为何。`terraform` provider 接受这些文件，并将每个文件写在 boundary 的根配置旁；`helm`、`compose`、`helm-chart` 和 `cloudformation` 不接受，会被拒绝。"
+  },
+  "06df2f460db902da": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "06df2f460db902da",
+    "status": "machine",
+    "text": "因此，日志会在每日基础备份之间持续归档到存储桶中，恢复可以到达这 14 天内的任意时刻：这就是 CloudNativePG 的时间点恢复，此实现保持其开启。"
   },
   "06e14b73cffe442d": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -5603,6 +5635,13 @@
     "status": "machine",
     "text": "volume 映射"
   },
+  "08e8bce707ea248b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "08e8bce707ea248b",
+    "status": "machine",
+    "text": "Manifest 决定由哪个产品备份数据库。两个 Kubernetes Manifests 以两种方式运行数据库——为 Velero 使用 `helm/postgres`（一个 StatefulSet），为插件使用 `helm/postgres-cloudnative-pg`（一个 CloudNativePG Cluster）——并分别绑定备份的实现。`manifest-terraform.yaml` 和 `manifest-terraform-aws-backup.yaml` 将数据库映射到同一个 Recipe，区别在于它们绑定到 `core/backup` 的 FeatureRecipe；由它们构建的 Releases 除了各自指定的 Manifest 之外，仅在角色上有所不同。"
+  },
   "08e9920b841f3f3b": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -5975,6 +6014,13 @@
     "srcHash": "098e3c5a69e0714c",
     "status": "machine",
     "text": "Workload 身份是集群概念"
+  },
+  "09906f0b3c70f9f6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "09906f0b3c70f9f6",
+    "status": "machine",
+    "text": "六个 Releases"
   },
   "09978f42087c95b4": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -8580,6 +8626,13 @@
     "status": "machine",
     "text": "[Wasm 插件开发者指南](plugin-developer-guide.md)——`Plugin` 实体、能力面以及发布生命周期。"
   },
+  "0dda2405e5344b46": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "0dda2405e5344b46",
+    "status": "machine",
+    "text": "`core/backup` 的实现方"
+  },
   "0ddaed0715b3e362": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -9395,6 +9448,17 @@
     "status": "machine",
     "text": "`no-slot-declared`——Component 声明了该 socket，但其上没有插槽。"
   },
+  "0f23c2f6c8925288": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "72941d240a932f42",
+      "reviewed": false
+    },
+    "srcHash": "0f23c2f6c8925288",
+    "status": "machine",
+    "text": "作者声明的标签。编译器对内容保持中立，不解释标签值：它们是不透明的元数据，供读取该库的任何程序用来匹配。"
+  },
   "0f30d1a1b5f28f91": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -10039,6 +10103,13 @@
     "status": "machine",
     "text": "接受或拒绝一次构建的治理策略，在构建期间或针对其输出执行。"
   },
+  "10087f5fca0700c6": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "10087f5fca0700c6",
+    "status": "machine",
+    "text": "`release-terraform.yaml` 写入一个根配置，每个任务一个 module 块，并在其旁边写入每个任务的模块。两个块的区别在于调度："
+  },
   "100bf91d25a74abc": {
     "at": "2026-10-30T02:01:48.260Z",
     "job": "session-0049-20261030020148",
@@ -10084,6 +10155,13 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**三层优先级：**在应用 OCI 推断之前，编译器会按照[三层实体解析模型](../../architecture/13-catalog-and-registry.md)的定义，先检查本地路径（第 1 层）和工作区目录（第 2 层）。只有当实体到达第 3 层（远程注册表）时，才会应用 OCI 推断。"
+  },
+  "101693dcc7edced9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "101693dcc7edced9",
+    "status": "machine",
+    "text": "Kubernetes Releases 指定的 Secrets 由集群持有，位于各自被读取的命名空间中：`backup-store-access-key-id` 和 `backup-store-secret-access-key` 位于存储桶旁，`velero-cloud-credentials` 位于 `velero` 中，持有一个 AWS 共享凭据文件，`db-backup` 位于数据库旁，在 `ACCESS_KEY_ID` 和 `ACCESS_SECRET_KEY` 下持有密钥对。构建不渲染其中任何一个。"
   },
   "10187f986b5e452c": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -16036,6 +16114,13 @@
     "status": "machine",
     "text": "verify: `\"<reference>\"` records a signature a build does not accept, and no registry is configured to ask about it again: signing: the recorded signature was made for a different artifact (cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`)（验证：所示引用记录了构建不接受的签名，且未配置可再次查询的注册表：签名：记录的签名是为另一个工件生成的（所示缓存签名 bundle，所读工件具有所示 manifest））"
   },
+  "1a25cc012c3bb03d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "1a25cc012c3bb03d",
+    "status": "machine",
+    "text": "无密钥签名所用的 Fulcio 和 Rekor URL 以及密钥签名所用的密钥路径，也可以来自 `.aggrega-config.yaml` 的 `signing:` 块（全局和按注册表设置，其中为制品所在注册表设置的值逐字段优先于全局值）；标志会覆盖配置，配置会覆盖公共默认值。因此，标志表中提到的公共实例仅在标志和你的工作区配置都未指定端点时才会使用。该标记的签名方式与 [`aggrega sign`](aggrega-sign.md#signing-modes) 为制品签名的方式完全相同。"
+  },
   "1a28c18d3b3ebc31": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -17641,6 +17726,13 @@
     "status": "machine",
     "text": "只要宿主的 provider 报告名称，该键就存在——在 `helm` 下，即其 Recipe 提供 chart 或声明 `workload:` 的宿主——而在其未报告名称时则不存在：仅放置一个 artifact 集的宿主，以及使用其他任何 provider 的宿主。在此类宿主的附件上读取它**会使构建中止**，并给出针对渲染上下文未定义的引用的诊断（`E0060`），该诊断会列出\n`.context` 在那里定义的键。`{{ .context.instance_id }}` 就在其中，而在此类宿主上宿主自身的资源正是以它命名的，因此为可能不报告名称的宿主编写的 FeatureRecipe 应改为读取标识。"
   },
+  "1c982545d83f6387": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "1c982545d83f6387",
+    "status": "machine",
+    "text": "服务加入哪个网络"
+  },
   "1c9861008fc86222": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -19057,6 +19149,13 @@
     "srcHash": "1ebff8844557d60d",
     "status": "machine",
     "text": "**模型的类别来自其托管标签。** `gpt` 不带类别标签。\n它的 Component `core/ai-model/openai` 带有 `component.aggrega.ai/hosting:\nmanaged`，这是目录对该服务由其提供方在集群之外运行的声明，而设置将其映射为一个类别："
+  },
+  "1ec1f5b35b383ac2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "1ec1f5b35b383ac2",
+    "status": "machine",
+    "text": "此规则和上一条规则都适用于模块所贡献的组件，在导入该模块的组合构建完成后生效；此时报告会指明该模块的 Aggregate 及其文档中的键。"
   },
   "1ec59082834f30fe": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -22336,6 +22435,17 @@
     "status": "machine",
     "text": "顶层字段位于模板上下文的根部，在模板内以 `.field` 的形式访问。"
   },
+  "240fcce3ac367adc": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "c37b5799feebe2c5",
+      "reviewed": false
+    },
+    "srcHash": "240fcce3ac367adc",
+    "status": "machine",
+    "text": "Velero Release"
+  },
   "24110e251d206c9a": {
     "at": "2026-10-29T22:31:34.157Z",
     "job": "session-0030-20261029223134",
@@ -22939,6 +23049,17 @@
     "srcHash": "24ecb68831aa1b8f",
     "status": "machine",
     "text": "**它在每个文件中只报告一个违规者。** 决定键收集消息，而 CEL 表达式无法把它按文件构建的各个列表合并成一个列表。因此每个 CEL 子句在每个文件中报告一个违规者：pod 模板的第一个容器，或者在文件按名称设键的服务、实例和资源中，名称排序最靠前的那个。推导式遍历映射时没有固定顺序，因此按名称选择才能让消息在各次构建之间保持不变。Rego 规则报告每个违规者。当一个 Compose 文件中有两个未固定版本的服务时，Rego 引擎会带着两条消息中止，CEL 引擎则带着一条消息中止，针对名称排序最靠前的服务；只有一个时，就像这里的每个 Release 那样，两者以相同的消息中止。"
+  },
+  "24f2b3a15c5ba31e": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "5fb7bcacdcfab1ff",
+      "reviewed": false
+    },
+    "srcHash": "24f2b3a15c5ba31e",
+    "status": "machine",
+    "text": "`targets`——注入目标：guest 可以添加注解的已解析组件——即边界直接指定的组件，以及边界的 `aggregates:` 下的路由条目路由进来的每个组件，无论该条目是否指定了它——每个都带有其 `boundary_path`、`component_name`（对于路由进来的组件，是它在构建图中的点分 id，例如 `metrics.query`）以及 Release 在其上编写的 `annotations`，这样 guest 可以在不覆盖作者所写值的前提下决定要添加什么。每个注解值都按原样到达——字符串、子键对象，或者在组件选择退出它本会继承的某个注解时为 `null`——且组件携带的每个键无论其值如何都会出现。由 host 确定性地排序。"
   },
   "24f31566a442a624": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -24116,6 +24237,13 @@
     "srcHash": "270fb21a4a35fe24",
     "status": "machine",
     "text": "绝对路径，例如 `/opt/charts/app`，它指向编写它的那台机器上的某个位置。"
+  },
+  "270fc23d33c4e3f8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "270fc23d33c4e3f8",
+    "status": "machine",
+    "text": "附加"
   },
   "2710f807f5aa0b62": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -25972,6 +26100,13 @@
     "srcHash": "2a2fc4bf10ea2124",
     "status": "machine",
     "text": "**证书 API 安装。** 开发者的 `install_crds` 值传入 chart，chart 据此安装 cert-manager 的 `CustomResourceDefinition`（`Certificate`、`Issuer`、`ClusterIssuer` 以及 ACME `Order`/`Challenge` 资源）。当 CRD 由带外方式管理时，将其设为 false。"
+  },
+  "2a3133d11b8c9677": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2a3133d11b8c9677",
+    "status": "machine",
+    "text": "栈中没有任何内容引用 `DataFixTaskDefinition`，因此没有任何东西会启动它。"
   },
   "2a33fb2fb7ef0034": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -27857,6 +27992,13 @@
     "status": "machine",
     "text": "当前节点的鸭子类型和本体标签，包括在拓扑构建时以 label-transform 角色附加的治理插件所做的任何更改。"
   },
+  "2d9c672f353a191c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "2d9c672f353a191c",
+    "status": "machine",
+    "text": "`release-terraform-aws-backup.yaml` 则由一个绑定 `terraform/backup-aws-backup` 的 Manifest 构建。此实现在数据库的模块旁写出附加自己的模块，其中包含一个备份保管库、一个计划和一个指定该实例的选择："
+  },
   "2da0b6273d0dd9d8": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -28139,6 +28281,13 @@
     "srcHash": "2e08fb9ddf765faf",
     "status": "machine",
     "text": "**安装、运行和发现。** [`aggrega plugin add cli <query>`](../language-reference/cli/aggrega-plugin.md) 在已配置的注册表中搜索匹配的 `cli` 插件，根据注册表的信任策略对其进行验证，并将其安装为顶级命令——会先打印插件声明的能力，让操作员在命令落地前确认它被允许做什么。安装后，`aggrega <command>` 会像任何内置命令一样运行它。CLI 插件在其 `describe()` 自我报告中声明自己的命令及其标志，宿主在 `aggrega help <command>` 中渲染每个命令的标志，方式与内置命令完全相同，因此操作员以同样的方式发现已安装命令的 `--flags`。要查找可安装的命令和目录内容，[`aggrega search`](../language-reference/cli/aggrega-search.md) 会查询已配置注册表的本地索引——`--kind plugin --plugin-type cli` 将结果缩小到可安装的 CLI 插件，未过滤的搜索则涵盖目录实体；[`aggrega plugin list`](../language-reference/cli/aggrega-plugin.md) 显示已安装的内容。各命令的标志和输出形式见这些参考页面。"
+  },
+  "2e094b5c48bd7cab": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2e094b5c48bd7cab",
+    "status": "machine",
+    "text": "一个携带 `core/manual-trigger` 的任务在 Kubernetes、Docker Compose、Terraform 和 CloudFormation 上部署而不启动，旁边是一个不携带任何内容的任务，并附有在每个目标上启动一次运行的命令。"
   },
   "2e09563ca7fecc15": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -29561,6 +29710,13 @@
     "status": "machine",
     "text": "Authored values or infra do not conform to the declared schema（编写的 values 或 infra 不符合声明的 schema）"
   },
+  "303fc9b6db140df9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "303fc9b6db140df9",
+    "status": "machine",
+    "text": "RDS 接受一个每日开始时间而不是 cron 表达式，因此 `30 2 * * *` 变为一个在 UTC 02:30 开启、持续 30 分钟的备份窗口，这是 RDS 接受的最短时长。"
+  },
   "3041b737cf1313fd": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -30408,6 +30564,13 @@
     "status": "machine",
     "text": "**何时优先使用 `optional` 而非 `default`。** 当字段可以合理地为零、空或 false，且目录作者需要区分“作者未设置此项”与“作者将其设为假值”时，使用 `optional`。当这种混同可以接受时（例如空值无效的字符串字段、零值无效的数值字段），使用 `default`。"
   },
+  "318ecb06291a6658": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "318ecb06291a6658",
+    "status": "machine",
+    "text": "**此二进制文件未声明的代码会在已发布的参考文档中查找。** 插件通过选择编译器声明的条件来报告中止，因此不会在其他任何地方声明条件。已发布的参考文档 [sentinels.md](../errors/sentinels.md) 列出了产品声明的每个条件，而它的发布版本可能与你正在运行的二进制文件不同——因此，从较新或较旧版本生成的报告中引用的代码仍可能在那里得到解析。"
+  },
   "318f71f4b535f09b": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -30450,6 +30613,13 @@
     "srcHash": "319fbf166d7e626d",
     "status": "machine",
     "text": "构建时写入 guest 的构建来源版本。未写入构建来源信息的构建会省略它。"
+  },
+  "31a3321d76aa6b44": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "31a3321d76aa6b44",
+    "status": "machine",
+    "text": "**模块的声明会像 Aggregate 的声明一样受到检查。** 只有在构建导入某个模块的组合时，才会读取该模块的文档，并从那时起检查其声明，无论嵌套多深。模块组件自身的 `inject:` 块受其类型的 `spec.inject` 允许列表约束，也受禁止两次声明同一投递键、禁止读取类型未发布的键的规则约束。在模块自身某个子系统上编写的附加只能指定其 Feature 声明的套接字，Release 针对模块所贡献组件编写的附加也是如此。"
   },
   "31a6ba99794699dd": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -30852,6 +31022,13 @@
     "srcHash": "325e29c1bea445b3",
     "status": "machine",
     "text": "从 Claude Desktop 的扩展设置中安装 `aggrega-<version>.mcpb`。"
+  },
+  "325fc4631bdb10f1": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "325fc4631bdb10f1",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` 写入一个栈模板。它为每个任务包含一个任务定义，并仅为 `report` 包含一个调度："
   },
   "32644ada49779ae5": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -33544,6 +33721,13 @@
     "status": "machine",
     "text": "**出站流量不受影响。** 模型服务器仍能访问\n  它拉取权重的镜像仓库，并像以前一样解析名称。"
   },
+  "36e54b2c010ebbc6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "36e54b2c010ebbc6",
+    "status": "machine",
+    "text": "两个 Kubernetes Releases：备份写入的存储桶"
+  },
   "36e79e67ee8a4394": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -33884,6 +34068,13 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "相关参考"
+  },
+  "376a13ff3d131acb": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "376a13ff3d131acb",
+    "status": "machine",
+    "text": "`release-terraform.yaml` 只写出数据库的模块。该附加的实现 `terraform/backup-native` 不渲染任何文件：备份是 RDS 实例的一项设置，因此数据库的 Recipe 读取该附加，并在写出实例的位置写出它："
   },
   "376b63fbc49fe7bc": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -34644,6 +34835,13 @@
     "srcHash": "3918f8a89b42ba9a",
     "status": "machine",
     "text": "上一版本实体经解析后的结构，供执行成对比较的规则（schema 演进）使用，其参数值的移除方式与 proposed 完全相同。当规则不需要上一版本引用时省略（例如首次发布、仅结构性规则）。"
+  },
+  "391d5fbc2208cfb7": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "391d5fbc2208cfb7",
+    "status": "machine",
+    "text": "`data-fix` 的一次运行是从其 CronJob 创建的 Job，名称由你选择："
   },
   "391e405152779acc": {
     "at": "2026-10-29T19:15:25.530Z",
@@ -35616,6 +35814,13 @@
     "srcHash": "3a85a5fe846a347c",
     "status": "machine",
     "text": "**在离线模式下，`--verify` 覆盖的范围更小，并会报告这一点。** 查询已记录的来源 ref 当前指向何处需要访问其远程，而离线模式会拒绝这样做。因此离线的 `--verify` 会检查已固定的依赖并跳过这一项，同时打印一行说明，而不是报告它从未确认过的匹配。只有其注册表才能确认的已记录签名——位于缓存签名包已被删除或修改的 lockfile 条目上——也会以同样方式跳过，并逐行指出每个此类条目："
+  },
+  "3a8befe00dcf9100": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "3a8befe00dcf9100",
+    "status": "machine",
+    "text": "签名端点的来源"
   },
   "3a9072704f2cdc68": {
     "at": "2026-10-22T02:18:58.122887+00:00",
@@ -36597,6 +36802,13 @@
     "srcHash": "3c2a399ef6c3948a",
     "status": "machine",
     "text": "即使单独存在也中止：它在栈部署时插入从 S3 获取的内容，而构建无法读取这些内容。"
+  },
+  "3c2b2586db860718": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "3c2b2586db860718",
+    "status": "machine",
+    "text": "该模块只有在被给定表达式时才声明 EventBridge Scheduler 调度，因此 `data-fix` 的任务定义是独立存在的："
   },
   "3c2b4919dbcca502": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -38592,6 +38804,17 @@
     "srcHash": "3f6501df82142116",
     "status": "machine",
     "text": "**它影响从标识派生出的名称和标签**——Aggrega 合成的资源上的 `metadata.name`、`aggrega.ai/component-id` 和 `app.kubernetes.io/name` 标签、匹配这些标签的选择器、输出的文件名、`{{ .context.instance_id }}`，以及 provider 为自身派生的名称，例如 helm release 名称。它们会一同变化，因此 Recipe 根据命名资源的键组合出的地址——目标以标识命名资源时为 `.context.instance_id`，目标报告自有名称时为 `.context.rendered_name`——仍然指向构建输出的资源。"
+  },
+  "3f656ce8e6a47e82": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "9b3809bf1e42e3db",
+      "reviewed": false
+    },
+    "srcHash": "3f656ce8e6a47e82",
+    "status": "machine",
+    "text": "WorkloadLibrary 实体带有标准的目录信封。`apiVersion: aggrega.ai/v1alpha1` 和 `kind: WorkloadLibrary` 标记实体类型；`metadata.name` 是 PascalCase 标识符；`metadata.version` 遵循严格的语义化版本。两者都是必需的。`metadata.description`、`metadata.labels` 和 `metadata.annotations` 是可选的——labels 和 annotations 是作者声明的不透明元数据，携带它们是为了让读取该库的任何内容据以匹配，编译器不解释它们的值。库的内容位于 `spec.workloads` 之下，这是一个必需的映射，必须至少声明一个条目。"
   },
   "3f6661a4274ffdd5": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -41270,6 +41493,17 @@
     "status": "machine",
     "text": "**修复方法：**阅读插件自身的语句，与你的构建相关的所有具体信息都在其中。条件本身只告诉你插件没有适合它的类型。若插件是你的，请选择该失败实际所属的类型；若不是，请将该语句提供给插件的发布者。"
   },
+  "43ee7affe68615bc": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "637e1948178cdcc1",
+      "reviewed": false
+    },
+    "srcHash": "43ee7affe68615bc",
+    "status": "machine",
+    "text": "**没有可用的文档。**对于编译器声明的条件，仍会报告代码和语句，并附注指明无法读取的文档包及其版本。对于此二进制文件未声明的代码，则没有任何内容可供回答，因此该代码会被拒绝——拒绝信息会说明无法读取参考文档，因为没有它，就无法区分来自其他版本的代码与拼写错误，并保留两种修复方式：更正代码，或获取文档。常见原因是工作区被固定为离线，或从未连接过其注册表。如果机器上的副本未能通过你的工作区的签名检查——例如另一个项目在更宽松的设置下获取的副本，或者离线工作区因本机从未获取过其检查所依据的公共信任根而无法检查的副本——附注会说明该副本是被拒绝而非缺失，并说明原因。"
+  },
   "43f04a916d326c68": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -41707,6 +41941,13 @@
     "srcHash": "449a819ec5b7f1d5",
     "status": "machine",
     "text": "**本地路径——用于 Release 及其 Manifest 所指定的文档。** Release 的 `aggregate`、`manifest` 或 `extends`，或 Manifest 的 `extends`，若以 `./` 或 `../` 前缀书写，则会作为相对于该 Release 自身目录的文件读取；不运行 OCI 推断。其他位置都不接受路径：写成 `./…` 的 `type`、Manifest 映射键或值、`implements` 或流水线 `plugin` 不指向任何实体，并会中止构建。本地编写的实体放在工作区根目录的 `catalog/` 下或 `workspace.catalog_dirs` 列出的目录中，并通过工作区与缓存层按名称解析。"
+  },
+  "449d7071852d1660": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "449d7071852d1660",
+    "status": "machine",
+    "text": "这里调度通过 Release 填写的参数到达任务，因此给该组件一个调度就意味着填写 `report_schedule`，正如 `release-terraform.yaml` 所做的那样。"
   },
   "449ef1c477904505": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -42207,6 +42448,17 @@
     "srcHash": "453e79101cb4b070",
     "status": "machine",
     "text": "**修复方法：**问题出在插件，而不在你的文档。修正插件，使其返回的每个操作都指向某个节点 `labels` 下的条目，并且只设置字符串值——常见的情况是数字或布尔类型的标签值，因为该作用面只接受字符串。在修正插件期间，从 `plugins.governance` 中移除该挂接是让构建立即恢复的办法。"
+  },
+  "453ffd4bfefe197e": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "954d9f3876831298",
+      "reviewed": false
+    },
+    "srcHash": "453ffd4bfefe197e",
+    "status": "machine",
+    "text": "构建不做的事"
   },
   "45430d8c62a99335": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -45617,6 +45869,17 @@
     "status": "machine",
     "text": "插件渲染三种 Recipe 输入类型中的哪些：有源文件集、合成的 workload，以及独立的仅含产物的节点。"
   },
+  "4aa9215d3cfbac4f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "16ec975e305ead69",
+      "reviewed": false
+    },
+    "srcHash": "4aa9215d3cfbac4f",
+    "status": "machine",
+    "text": "0.8.8 (commit e9804536f)"
+  },
   "4aaaab02f591318a": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -45687,6 +45950,13 @@
     "srcHash": "4acb9d287d0bf590",
     "status": "machine",
     "text": "verdict 角色只负责接受或拒绝，不做其他任何事：宿主只把它的输出当作一个决定来读取，从不将其作为更改来应用，因此策略无法悄悄地把一个不合规的构建变为合规。transform 角色是有意设计的例外，使其成为例外的原因在于它是由操作者挂载的——挂载一个用于调整 labels 的插件，本身就声明了 labels 需要被调整。这样的挂载能更改的内容被限定在其自身角色的范围内，一旦超出该范围，构建就会显式地中止。"
+  },
+  "4acf709c133f0148": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "4acf709c133f0148",
+    "status": "machine",
+    "text": "在两个 AWS 目标上，`data-fix` 的一次运行都通过 Amazon ECS RunTask 操作启动，传入渲染出的任务定义族，以及 Release 在 `infra.overrides` 下指定的集群和网络配置："
   },
   "4ad09c8b0bd452f7": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -47310,6 +47580,17 @@
     "status": "machine",
     "text": "跨账户 stack 读取为访问对端 stack 的导出值而承担的 IAM 角色 ARN。"
   },
+  "4db5107181288bf9": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "7cd729394ad1587a",
+      "reviewed": false
+    },
+    "srcHash": "4db5107181288bf9",
+    "status": "machine",
+    "text": "以下是一份**按复杂度递增排列的精选示例列表**——从最小的编写面到组合多种机制的构建——而不是此处全部内容的完整列表：存放本页的 `examples/` 目录中的工作区比列表所列的更多。只有当某个示例能讲解列表中已有示例所未涵盖的内容时才会加入列表，因此它始终是一条需要逐步学习的路径，而非一份供浏览的清单。可以从上到下阅读，也可以直接跳到与你当前工作相符的层级。"
+  },
   "4db6af8d3e9f781b": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -47530,6 +47811,13 @@
     "srcHash": "4e0d1e855de4cfbc",
     "status": "machine",
     "text": "服务器的访问方式：stdio 通过标准输入输出使用该协议，将此命令作为子进程启动的客户端即以这种方式访问它；http 在 --listen 或 mcp.listen 指定的地址上通过 HTTP 提供服务，若 mcp.tls 指定了证书和密钥，则通过 HTTPS 提供服务。设置后会覆盖 mcp.transport 配置键，该键的默认值为 stdio。"
+  },
+  "4e0d534413b77c19": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "4e0d534413b77c19",
+    "status": "machine",
+    "text": "在附加上设置 `infra.keep_automated_backups: false` 会关闭这些备份，使 AWS Backup 的备份成为实例唯一的备份。"
   },
   "4e0d96acdf2df769": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -50284,6 +50572,13 @@
     "srcHash": "527561205ff90fd5",
     "status": "machine",
     "text": "Release 和 Manifest 可以通过路径指向另一个文件：Release 中写作 `./…` 或 `../…` 的 `aggregate:` 和 `manifest:`、它的 `extends:`、Manifest 中写作路径的 `extends:`，以及 Release 的 `parameters: { $import: … }`。**工作区中的文档以这种方式只能访问工作区内的文件**——按字面写法就跳出工作区的路径会被拒绝；按字面写法留在工作区内、但途中遇到指向外部的链接的路径同样会被拒绝。对于这两种路径，都不会从其指向的文件中读取任何内容。"
+  },
+  "5275f50cb3d2fc47": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5275f50cb3d2fc47",
+    "status": "machine",
+    "text": "构建写入文件后即停止。它不会在任何目标上启动任何运行：它不连接任何集群，不启动任何 Compose 栈，也不调用任何 AWS API，挂接只改变文件的内容。它也不写入任何脚本：本页上的每条命令都是目标自己的命令，由运维该目标的人运行，且没有一条位于 `dist/` 中。挂接的各个实现在任何目标上都不会添加自己的文件；每个实现所做的改变都在任务自身的输出中，如上所示。"
   },
   "527a74bda5397d06": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -53641,6 +53936,13 @@
     "status": "machine",
     "text": "**模块内部的边。** Store Gateway 声明对\n  对象存储的使用，Query 声明对 Store Gateway 的使用；对象存储\n  发布的 `endpoint` 以及 Store Gateway 发布的主机和端口\n  通过每条边传入消费方，每个消费方的 Recipe 据此构建其\n  地址。编译器只路由这些字符串，不解释它们。"
   },
+  "57d383cb4ed08233": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "57d383cb4ed08233",
+    "status": "machine",
+    "text": "实例在 AWS Backup 的备份之外保留其自身的自动备份，与没有附加时一样：保留 7 天，在 RDS 选择的窗口中进行，因为附加的 schedule 属于 AWS Backup 而不是实例："
+  },
   "57d495e83cfd647a": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -55223,6 +55525,13 @@
     "srcHash": "5a269de5a98dd0ae",
     "status": "machine",
     "text": "**`metadata.labels` 和 `metadata.annotations` 的可用性——目前部分覆盖；计划统一提供。** 目前携带这些字段的实体信封有：Component（labels 必需，且须包含必需的 `component.aggrega.ai/type` 键，annotations 可选）、Feature（两者均可选）、四种库类型 SchemaLibrary、MappingLibrary、WorkloadLibrary 和 ArtifactLibrary（两者均可选），以及 Aggregate（仅 labels，可选）。其余实体——Recipe、FeatureRecipe、Manifest、Release、Plugin——目前在信封层级不接受 `metadata.labels` 或 `metadata.annotations`。未来的迭代会在所有实体上统一提供可选的 `metadata.labels` 和 `metadata.annotations`，并保留 Component 的必需标签键约束，作为针对单个实体的例外。"
+  },
+  "5a29bc53a12c4e20": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5a29bc53a12c4e20",
+    "status": "machine",
+    "text": "`release-helm.yaml` 写入两个文件，每个任务一个 CronJob，此外不写任何内容。`data-fix` 是一个保持挂起的 CronJob，其调度是开发者从未编写过的："
   },
   "5a2f1db5040f1da3": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -58271,6 +58580,13 @@
     "status": "machine",
     "text": "`DocumentSet`"
   },
+  "5f5d21bf23dca47c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "5f5d21bf23dca47c",
+    "status": "machine",
+    "text": "`release-helm-velero.yaml` 写出数据库的 StatefulSet 和 Services、存储桶的对应资源、Velero 自身 chart 渲染的对象，以及一个用于该附加的文件，其中包含一个 Velero 存储位置和一个 schedule："
+  },
   "5f5e372b153a1f51": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -58781,6 +59097,13 @@
     "status": "machine",
     "text": "针对组件实例发出的消息。当映射存在但指向不存在的内容时："
   },
+  "602a5e69c3021bdb": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "602a5e69c3021bdb",
+    "status": "machine",
+    "text": "挂接"
+  },
   "602c5f9875ad3a5b": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -58794,6 +59117,13 @@
     "srcHash": "6033c91d2cb663ff",
     "status": "machine",
     "text": "该字段是可选的，你用它可能表达的三种含义可以相互区分："
+  },
+  "6036ca2730c852d1": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6036ca2730c852d1",
+    "status": "machine",
+    "text": "未带 `subPath` 编写的挂载不携带 `volume:` 块。在 `ephemeral`、`configmap` 或 `secret` 卷的挂载上使用 `subPath` 会以 `TRANSLATION_ERROR` 停止构建，并指出组件、容器、该挂载的编写路径（`containers.<name>.volumeMounts[<i>]`）、卷以及 `subPath`：这些变体在 compose 中分别成为 `tmpfs` 条目、`configs:` 引用和绑定挂载，它们都不会只挂载所交付内容的一部分，否则该挂载会看到整个卷。请从此类挂载中移除 `subPath`，或改为挂载 `persistent` 卷。Docker Compose 从 2.26.0 版本起读取 `volume.subpath`，要求 Docker Engine 26.0 或更高版本；构建无法看到将运行该文件的主机，因此携带它的文件无论在哪里运行，组装方式都相同。"
   },
   "6037ca10a1542bb3": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -58878,6 +59208,17 @@
     "srcHash": "605130ea8ab42ba4",
     "status": "machine",
     "text": "parser 将以编译器不原生读取的格式编写的源转换为规范的结构化树，使使用方读取该树，而无需自带解析器。host 解析以 `parse:<format>` 声明所请求格式的 parser，并在两处调用其 `parse` 导出：当渲染裁决策略收到一个其不原生读取格式的已渲染制品时，以及当 importer 通过 `aggrega_parse_source` 向 host 请求树时。guest 从不自行调用 parser。"
+  },
+  "6055917c16fbd3c5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "62ebb69c98895d33",
+      "reviewed": false
+    },
+    "srcHash": "6055917c16fbd3c5",
+    "status": "machine",
+    "text": "一个多边界 Kubernetes 平台，从单个由开发者编写的 `Aggregate` 出发，在一次构建中组合多种机制：边界作用域的 FeatureRecipes、参数提升、凭据子系统，以及通过 Service DNS 解析的跨边界引用。"
   },
   "60564565887f4b70": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -60642,6 +60983,17 @@
     "srcHash": "6314e98384b94279",
     "status": "machine",
     "text": "各类型的解析深度"
+  },
+  "631b6ebf5b22ece6": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "366563ac5f2c71ce",
+      "reviewed": false
+    },
+    "srcHash": "631b6ebf5b22ece6",
+    "status": "machine",
+    "text": "渲染 provider 的插件自行声明的编译期渲染行为契约：它渲染的输入种类、它如何组装一个分发组的逐节点输出、它应用于导入的制品文件的模板分隔符对、一个已加载的实例是否可以服务每一次跨越、它是否遵循 omit 条目，以及它是否接受 Recipe 向其边界共享输出贡献的文件。它与 `capabilities` 位于同一块中，但回答的是不同的问题：能力列表说明该插件服务*哪些*能力，而契约说明它*如何*渲染这些能力。`aggrega plugin gen-catalog` 根据插件自身的 `describe()` 自我报告记录它，宿主在发布时和加载时将其与该自我报告进行交叉核对；不一致时停止。缺省时不声明任何渲染行为契约，交叉核对只比较逐导出的声明。所有字段均为可选。"
   },
   "631e73a20b5b121c": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -62518,6 +62870,13 @@
     "status": "machine",
     "text": "输出的消息，指明文档和编写注解的位置、子键、注解键以及绑定所路由的子键："
   },
+  "66339d4702ef70d0": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "66339d4702ef70d0",
+    "status": "machine",
+    "text": "某人，手动，在每个目标上"
+  },
   "6635aa99c78d9af0": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -63620,6 +63979,13 @@
     "status": "machine",
     "text": "槽位上的 `sensitive: true` 表达的是消费方自身的要求：*绑定此点的任何内容都处理机密材料。*"
   },
+  "6843f9d71d18a661": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6843f9d71d18a661",
+    "status": "machine",
+    "text": "连接上的不可知注入路由。将本地变量映射到目标的 provides 键。每种交付机制（env、file、arg 或 custom）都编写为 {in, from} 条目的数组——provides 引用使用显式的 'from'。"
+  },
   "684bc3383f81f8a0": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -64495,6 +64861,13 @@
     "status": "machine",
     "text": "**在 `workspace.releases` 下列出了 Releases 的工作区**可以并排保存一个目录的多个变体，每个变体由各自的 Release 读取；一次性加载所有变体会把每个变体放进同一个目录，导致一个变体的实体遮蔽另一个变体的实体。因此，会对工作区中的每个 Release 分别验证一次，范围是该 Release 读取的目录，每一轮都先读取 `--catalog` 目录；配置中未列出的 Release 读取工作区的列表。每一轮都在一行下报告，该行列出其 Release 和所读取的目录，随后是该轮的结果："
   },
+  "69b51ffe16be3748": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "69b51ffe16be3748",
+    "status": "machine",
+    "text": "它可以注解的组件是边界在 `components:` 下指定的每个组件，以及边界的 `aggregates:` 路由条目路由进来的每个组件。路由条目会放置其模块的每个组件，包括嵌套在其中的模块的组件，无论它自己的 `components:` 指定了全部、部分还是一个也没有（如 `documents: {}` 一个也没有指定）；载荷会携带其中每一个。路由进来的组件通过它在构建图中所带的 id 来寻址——模块名、一个点，以及组件在模块内的名称，如 `documents.backend`，每多一层嵌套模块就多一个模块名和点——这正是构建图及其诊断信息的写法，因此决策也以这种方式指定它。路由条目放置但未指定的组件在载荷上不带有自己的注解，注入到它上面的注解会被当作在路由条目下写在它上面的注解来应用。"
+  },
   "69b6717e265e36dc": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -64645,6 +65018,13 @@
     "srcHash": "69ee83d6d1053757",
     "status": "machine",
     "text": "A provider binding names a capability containing a colon（provider 绑定指定的能力包含冒号）"
+  },
+  "69f51a2182f612f0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "69f51a2182f612f0",
+    "status": "machine",
+    "text": "注入的值只会到达它所附加的组件，并且只有在该组件的 Recipe 定义了承载它的服务时才会到达。以引用方式实现外部服务的 Compose Recipe 不定义任何服务，因此标准库中的此类 Recipe 会拒绝填充其 Component 某个槽位的凭据，构建会停止并指明该槽位和组件，而不是在缺少凭据的情况下成功。Compose provider 本身会拒绝在它以引用方式实现的节点上任何声明为敏感的附件，无论该 Recipe 来自哪个目录，也无论是否有槽位声明了该附件所用的名称，并停止构建，指明该节点和附件。在 Compose 上，外部服务的凭据附加到调用它的组件上，位于该组件读取的变量之下；参见 [Compose provider 页面](../providers/compose.md#controller-form)。这些 Components 将其凭据槽位声明为可选，因此在 Compose 上将它们留空不会导致任何停止，而 `twilio`、`vonage`、`telnyx`、`bland`、`letta`、`retell` 和 `vapi` 的 `helm` Recipes 要求每个槽位，并在遇到空槽位时停止并指明它。"
   },
   "69f7337c861d7dd7": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -66207,6 +66587,17 @@
     "status": "machine",
     "text": "检查结果，按产生的顺序排列。"
   },
+  "6cb43d1fb7f98dcd": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "c3e4a014dd778e47",
+      "reviewed": false
+    },
+    "srcHash": "6cb43d1fb7f98dcd",
+    "status": "machine",
+    "text": "`input.targets`——该挂接可以注解的每个组件，各含 `boundary_path`、`component_name`——对于路由条目放置的组件，是它在构建图中的 id，例如 `metrics.query`——以及 Release 写在该组件自身上的 `annotations`，每个值都按原样给出：字符串、子键对象，或者在组件选择退出本会继承的某个注解时为 `null`。组件携带的每个键无论其值为何都会出现，因此规则可以不去改动别人已经写下的键。`input.binding_keys`——Manifest 为其注册了绑定的注解键。"
+  },
   "6cb8102aaea2d0ae": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -67506,6 +67897,13 @@
     "status": "machine",
     "text": "文档中写下的引用"
   },
+  "6eadf1f1356d355c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "6eadf1f1356d355c",
+    "status": "machine",
+    "text": "数据库自身的 Recipe 也读取该附加，并将插件指定为 Cluster 的预写日志归档器："
+  },
   "6eba3a30ce0fc64f": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -68402,6 +68800,13 @@
     "status": "machine",
     "text": "FeatureRecipe `pipeline:`（Two-Part Plugin Principle，两段式 Plugin 原则）"
   },
+  "6ffeed19828025d5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "6ffeed19828025d5",
+    "status": "machine",
+    "text": "模块所贡献的组件同样会遇到前两种形式，在导入该模块的组合构建完成后从模块自身的文档中读取；此时它们会指明该模块的 Aggregate 及其文档中的键。"
+  },
   "7000483027a021f9": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -68636,6 +69041,13 @@
     "srcHash": "7088714fc94d505e",
     "status": "machine",
     "text": "Recipe 由三种输入类型组合出其输出——sourced、synthesized 和 artifacts——详见 [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md)。有效 Recipe 的形状受下列组合规则约束。这些规则的检查时机各不相同——在加载 Recipe 时、在节点渲染时，或在发出输出时——因此请阅读每一条目，了解其条件在何时检查。这些规则适用于以非 `eval` provider 为目标的 Recipes；`eval` provider 有其自身的约束（见下文）。"
+  },
+  "7088ac09dce6df8b": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "7088ac09dce6df8b",
+    "status": "machine",
+    "text": "**挂载的 `subPath` 会在 compose 有对应形式时挂载卷的一部分。** 一个指向 `persistent` 或 `persistentTemplate` 卷并带有 `subPath` 的 `volumeMounts` 条目，会变成携带 `volume.subpath` 的长格式 `volumes` 条目，因此该挂载看到的是卷内指定的目录或文件，而不是卷的根目录；对同一个卷的两次挂载若使用两个不同的 `subPath` 值，则会看到卷的两个不同部分："
   },
   "7088b933ac99c968": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -70024,6 +70436,13 @@
     "status": "machine",
     "text": "**2. 开发域：根 Aggregate**\n根 Aggregate 导入数据库模块，并使用点分路径语法 `data-layer.public_db` 连接到其导出的组件。"
   },
+  "7301469507e276c0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7301469507e276c0",
+    "status": "machine",
+    "text": "附件表面会在编写附件的每个作用域上检查：在组件上，在子系统上——无论属于该 Aggregate 还是它导入的模块——在 Release 边界上，以及在 Release 组件条目上，包括模块所贡献组件的条目。模块自身的声明在导入它的组合构建完成后检查，发现会指明该模块的 Aggregate 及其文档中的键。"
+  },
   "73018d1e9d5e3fbf": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -71044,6 +71463,13 @@
     "status": "machine",
     "text": "某个组件的 `models` socket 声明了标记为 `sensitive: true` 的 `credential` 槽位，该组件以别名 `gpt` 连接了一个填充该槽位的连接，于是该附加项列在该连接下方；组件自身的凭据则仍列在 `Features:` 下："
   },
+  "74bb2e09c02972cb": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "74bb2e09c02972cb",
+    "status": "machine",
+    "text": "**休眠形态：** 任务在每个目标平台上的自身 Recipe 读取该附加，并以部署后不会启动运行的形态渲染该任务。在 Kubernetes 上，任务是一个以 [`suspend: true`](../language-reference/entities/workload.md#suspend) 挂起的 `CronJob`，其调度指定一个永远不会到来的日期，以取代一经部署就会运行的 `Job`。在 Docker Compose 上，任务的服务（Compose 在其退出后不会重启它）带有 profile `manual`，因此 `docker compose up` 会让它保持停止状态。在 Amazon ECS 上，无论通过 Terraform 还是 CloudFormation，任务定义都单独部署，没有任何启动它的调度。Manifest 为该附加绑定的 FeatureRecipe 在任何目标平台上都不会添加自己的文件：变化体现在任务自身的输出中。"
+  },
   "74bdca51db659a8b": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -71420,6 +71846,13 @@
     "status": "machine",
     "text": "**值跟随声明的名称，而非目录。** 子 chart 的值限定在该 chart 所声明的名称之下，因此上述 chart 的值按 `api--guardrail` 的*声明*名称——`cfr-zh-api-zh-guardrail`——寻址，而不是按其目录寻址。"
   },
+  "7538e18dac097df1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7538e18dac097df1",
+    "status": "machine",
+    "text": "**[task-run-on-demand](task-run-on-demand/)** — 两个运行至完成的任务，针对 Kubernetes、Docker Compose、Terraform 和 CloudFormation 构建：一个带有 `core/manual-trigger`，在每个目标上部署后都不会启动；另一个不带任何附件，由其调度或由栈的启动而启动。README 展示了该附件在每个目标的输出中改变了什么——一个挂起的 CronJob、一个位于 Compose profile 之后的服务、一个没有调度的 Amazon ECS 任务定义——以及目标自身用于启动一次运行的命令。第二个任务的调度是一个参数，因为各目标对两者都没有的任务处理不一：有两个 Releases 会在目标无法实现其要求之处停止。"
+  },
   "7539d39c5aa135f6": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -71664,6 +72097,13 @@
     "srcHash": "7596d6b5d2b1a937",
     "status": "machine",
     "text": "如果没有存储凭据，构建会在拉取时停止："
+  },
+  "759a4ade2d607fed": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "759a4ade2d607fed",
+    "status": "machine",
+    "text": "有些工作只有在有人要求时才会运行至完成：一次性的数据修复、按需的备份。`core/manual-trigger` 就是用于此的 Feature。挂接到一个没有调度的 `core/compute/task` 上时，它会部署该任务而不启动它，每次运行都由某人使用目标自己的命令手动启动。"
   },
   "759b96de88af355b": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -72094,6 +72534,13 @@
     "srcHash": "762fca3fdf17a910",
     "status": "machine",
     "text": "声明它的文档，以相对于工作区根目录的路径表示。"
+  },
+  "76335c3f77effc45": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "76335c3f77effc45",
+    "status": "machine",
+    "text": "Compose 只有在某个 profile 被启用或该服务在命令行中被指定时，才会启动携带该 profile 的服务，因此 `docker compose up` 会运行 `report` 一次，并让 `data-fix` 保持停止。`data-fix` 的一次运行通过指定其服务来启动，`--rm` 会在运行结束后删除其容器："
   },
   "76368db6f629fa5c": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -74564,6 +75011,13 @@
     "status": "machine",
     "text": "component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `\"<module>\"`, routed as a sub-module into boundary `\"<boundary-b>\"`, while it is already placed by a sub-module routed into boundary `\"<boundary-a>\"`, that earlier entry naming `\"<module>\"`, both declared in `\"<path>\"`)（组件在多个边界中声明：每个组件只能在一个边界中声明）"
   },
+  "7a2b559a84c0a067": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "7a2b559a84c0a067",
+    "status": "machine",
+    "text": "*（注：在 Kubernetes 和 Amazon ECS 上，带有调度的任务无论是否存在该附加都会按调度运行，同一命令会在两次调度运行之间额外启动一次运行；在没有调度器的 Docker Compose 上，任务的 Recipe 会拒绝调度。完整示例 [task-run-on-demand](../language-reference/examples/task-run-on-demand/README.md) 为 Kubernetes、Docker Compose、Terraform 和 CloudFormation 构建同一个 Aggregate，并在每个平台上展示渲染输出和启动一次运行的命令。）*"
+  },
   "7a2bf3396aa39ec8": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -74753,6 +75207,13 @@
     "srcHash": "7a9aabf056009012",
     "status": "machine",
     "text": "6. 工件打包与 OCI 分类法（以能力作为首段）"
+  },
+  "7a9ca6380fece864": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "7a9ca6380fece864",
+    "status": "machine",
+    "text": "挂接位于 Aggregate 中，紧挨着它所改变的任务：按需运行是 `data-fix` 本身的一部分，因此由开发者编写，并且该 Feature 不接受任何值，也不接受 `infra`。Release 不为它编写任何内容。"
   },
   "7a9cbe35facb61c1": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -75094,6 +75555,13 @@
     "srcHash": "7b255d7d9caf2b74",
     "status": "machine",
     "text": "该 Component 声明了一个存在性强制要求——即 `features.aggrega.ai/requiredType.<label>` 注解——所指定的 Feature 类型不在此组件实例最终拥有的附加项中，统计范围涵盖所有作用域：Aggregate 的组件级和子系统级块、Release 的边界级和组件级块，以及注解驱动的展开。"
+  },
+  "7b267765f9bda5c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7b267765f9bda5c2",
+    "status": "machine",
+    "text": "会停止的 Release"
   },
   "7b28242fc2786cec": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -75553,6 +76021,17 @@
     "status": "machine",
     "text": "`scheduling`"
   },
+  "7bf6402393d38f29": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cfa58b24c57cfae3",
+      "reviewed": false
+    },
+    "srcHash": "7bf6402393d38f29",
+    "status": "machine",
+    "text": "**`$import:` 仅限单一来源。** `$import:` 只接受单一来源。`valuesMapping:` 不支持多来源合并。需要组合多个映射片段的 Recipe 可以使用内部采用 Go template `define` / `template` 组合的 MappingLibrary 条目、使用 Go template `template` 指令调用同级文件的本地文件，或对简短内容使用内联组合。库实体见 [entities/mappinglibrary](mappinglibrary.md)，更广泛的 `$ref:` / `$import:` 区别见 [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md)。"
+  },
   "7bfd33055117bf33": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -75675,6 +76154,13 @@
     "srcHash": "7c25e296a550205a",
     "status": "machine",
     "text": "const \"add-component\" 或 const \"attach-feature\" 或 const \"wire-edge\" 或 const \"set-value\""
+  },
+  "7c2a2ed35b8623c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7c2a2ed35b8623c2",
+    "status": "machine",
+    "text": "`check.sh` 为每个 Release 打印一行，并且仅当每个都按本页所述结束时才以 0 退出："
   },
   "7c2f50ad1c8a0879": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -77333,6 +77819,13 @@
     "status": "machine",
     "text": "`workload:` 块中某个容器的 `attachments:` 条目引用了一个附件插槽，而该引用与 Component 或 Feature 在其 `featuresSchema` 中声明的插槽不一致；或者，对于用 `connection:` 指定连接的条目，与该连接的套接字所声明的插槽不一致。指定连接的 `envFrom` 条目同样遵循这些连接规则。诊断结果会说明你遇到的是哪种情况。"
   },
+  "7f02e58ba2c5731c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7f02e58ba2c5731c",
+    "status": "machine",
+    "text": "`core/storage/velero`"
+  },
   "7f02fafbb418f5eb": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -78431,6 +78924,17 @@
     "status": "machine",
     "text": "**不是安全边界。** 本章中的任何内容都不是保密机制。凭据模型是一个*连线*模型：它决定指针或值从何而来、谁可以约束它，以及它如何到达容器。保护敏感材料是密钥存储、集群以及处理渲染树的流水线的职责。"
   },
+  "80d3f78aaf9f6a1c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "81443cf3cf8e1447",
+      "reviewed": false
+    },
+    "srcHash": "80d3f78aaf9f6a1c",
+    "status": "machine",
+    "text": "运维工程师编写映射内容，在 Wasm 渲染插件执行之前转换抽象上下文。映射语言是 Go template（text/template + Sprig）；Sprig 库已预先注册；支持标准的 `define` 和 `template` 动作，`include` 未注册。"
+  },
   "80d708c769a34460": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -78589,6 +79093,13 @@
     "status": "machine",
     "text": "填充了该槽位的两个 Aggregates 的运维记录。"
   },
+  "81084b4ee3b8af39": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "81084b4ee3b8af39",
+    "status": "machine",
+    "text": "Kubernetes，使用 Velero"
+  },
   "810a87d5ddac67af": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -78616,6 +79127,13 @@
     "srcHash": "8115826e57dcef9b",
     "status": "machine",
     "text": "**修复方法：**你的文件中没有任何内容会导致这两种情况，也没有任何编写上的修改能消除它们——问题在于构建的接线方式，而不在于要求它构建的内容。请报告此问题，并附上你运行的命令及其所依据的工作区配置。"
+  },
+  "8117684f72f26633": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "8117684f72f26633",
+    "status": "machine",
+    "text": "每个 Manifest 将 `core/compute/task` 映射到其目标的 Recipe，并将 `core/manual-trigger` 绑定到其目标的 FeatureRecipe：`helm/task` 和 `helm/manual-trigger`、`compose/task` 和 `compose/manual-trigger`、`terraform/task-ecs` 和 `terraform/manual-trigger`，以及 `cloudformation/task-ecs` 和 `cloudformation/manual-trigger`。未为该挂接绑定 FeatureRecipe 的 Manifest 会中止构建，并指出该挂接。"
   },
   "811ace97bcf2c6d6": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -79149,6 +79667,13 @@
     "srcHash": "821d240649ed0518",
     "status": "machine",
     "text": "[Provider 架构](../providers/architecture.md)——provider 如何融入\n  编译流水线。"
+  },
+  "821d4ea9de1196f8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "821d4ea9de1196f8",
+    "status": "machine",
+    "text": "会中止的两个 Releases"
   },
   "822062ace2e8ae11": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -80112,6 +80637,17 @@
     "status": "machine",
     "text": "Release 以两种方式之一满足 Aggregate 声明的参数，该块按其形式读取。它要么是一个将参数名映射到就地写出的值的映射，要么是只有一个键 `$import:` 的映射，其值为存放这些值的 YAML 文件路径。两者都不是的块会在读取时被拒绝，早于任何依据 Aggregate 声明检查值的步骤。"
   },
+  "83c9c9e37c4632c6": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "e101cd8b3ed6240a",
+      "reviewed": false
+    },
+    "srcHash": "83c9c9e37c4632c6",
+    "status": "machine",
+    "text": "生成完成条件不会提高最低 Compose 版本要求。`condition` 及其取值属于基础 Compose Specification——不同于同一长格式块中与之并列的 `restart` 和 `required` 字段，规范将后两者与特定的 Compose 版本绑定。compose provider 的输出所要求的每个最低版本都与需要它的构造一同出现：内联 `configs.content` 需要 **≥ 2.23.1**，挂载的 `subPath` 需要 **≥ 2.26.0**（参见[卷](#volumes)），[模型](#models)需要 2.38。其中第一个适用于任何携带内联 `content:` 配置的 compose 输出，`configmap` 卷背后的文件和桥接跨网络边背后的配置都是以这种方式到达的——而不只是某一条编写路径。"
+  },
   "83cc3b2ff524bce6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -80773,6 +81309,13 @@
     "srcHash": "8505e7fb06f99aa0",
     "status": "machine",
     "text": "每个条目都是以 YAML 字符串编写的 Go 模板片段。条目的渲染输出是一个**完整的 Workload 文档**——它自带 `apiVersion: aggrega.ai/v1alpha1` 和 `kind: Workload`——因为 Recipe 的 `workload:` 字段接受一个完整的 Workload，而不是拼接进外围文档的片段，并且导入会替换整个字段。MappingLibrary 条目同样是完整的：导入一个条目会替换 Recipe 的整个 `valuesMapping:`。"
+  },
+  "85099370c842904b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "85099370c842904b",
+    "status": "machine",
+    "text": "schedule 以 AWS 自己的 cron 形式写出，按 UTC 读取，在其时间后一小时内尚未开始的备份将不会启动。实例的 ARN 是一个 Terraform 表达式，由 AWS provider 在规划时所配置的内容和实例的名称组成；角色是 Release 指定的角色，按原样传递。"
   },
   "850b450da56f18d3": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -81844,6 +82387,13 @@
     "status": "machine",
     "text": "**多模态管道：** Component 的 `schema:` 可以将 `document_chunking`、`embedding_generation` 和 `storage_routing` 等显式执行阶段声明为带类型的 `values`，使声明式数据流在任何内容渲染之前得到验证。标准库没有声明这样的阶段。"
   },
+  "86ef3b7456ff21ff": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "86ef3b7456ff21ff",
+    "status": "machine",
+    "text": "由什么启动运行"
+  },
   "86f51b17077aee2d": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -82873,6 +83423,13 @@
     "srcHash": "88af7a7054366360",
     "status": "machine",
     "text": "**缓存角色的数据存储。** 这里 Redis 用作内存缓存，\n  不持久化存储任何内容，因此组件类型为普通的 `server`，而不是\n  `stateful-server`。在 Kubernetes 上，合成的 Recipe 渲染出一个\n  **Deployment** 而非 StatefulSet，且不请求持久卷；在\n  Compose 上，该服务不声明数据卷。"
+  },
+  "88b1beb1e5f4b050": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "88b1beb1e5f4b050",
+    "status": "machine",
+    "text": "AWS Releases 编写相同的附加，但不带 `store` 连接，因为 RDS 和 AWS Backup 将备份保存在它们自己的存储中，而那里的实现会拒绝连接到一个不会被写入的存储桶。AWS Backup Release 添加了 `infra.role_arn`，即 AWS Backup 运行每次备份时所使用的 IAM 角色。"
   },
   "88b89e4b53ad57c7": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -89217,6 +89774,17 @@
     "status": "machine",
     "text": "按 provider 和输入类型的支持情况"
   },
+  "931f2a7ccc85223c": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "f6d6f9c3536ef20b",
+      "reviewed": false
+    },
+    "srcHash": "931f2a7ccc85223c",
+    "status": "machine",
+    "text": "**保留。** 顶层：`services`、`volumes`、`configs` 和 `models`。服务上：`image`、`pull_policy`、`command`、`entrypoint`、`environment`、`env_file`、`ports`、`labels`、`volumes`、`tmpfs`、`networks`、`network_mode`、`depends_on`、`healthcheck`、`restart`、`user`、`working_dir`、`privileged`、`read_only`、`cap_add`、`cap_drop`、`configs`、`models`、`deploy`、`stop_grace_period`、`dns`、`dns_search`、`extra_hosts` 和 `profiles`。在 provider 描述的块内：`deploy.resources` 及其 `limits`（`cpus`、`memory`）和 `reservations`（`cpus`、`memory`、`devices`，以及每个设备条目的 `driver`、`count`、`device_ids`、`capabilities` 和 `options`）；`healthcheck` 的 `test`、`interval`、`timeout`、`retries` 和 `start_period`；长格式 `volumes:` 条目的 `type`、`source`、`target`、`read_only` 和 `volume.subpath`；长格式 `configs:` 条目的 `source` 和 `target`；长格式 `depends_on:` 条目的 `condition`；顶层卷的 `driver`、`driver_opts` 和 `labels`；顶层 config 的 `content`。模型的主体以及服务的长格式 `models:` 条目会保留每个成员，如[模型](#models)所述。扩展成员——以 `x-` 开头的键——在顶层和服务上都会保留，如[扩展成员](#extension-members-are-carried-as-written)所述。"
+  },
   "932283493763280a": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -89477,6 +90045,13 @@
     "srcHash": "938f900ac61289c4",
     "status": "machine",
     "text": "**Aggrega: Cache…** — 选择一个缓存操作，然后通过语言服务器运行它。在 Commands 面板上按下时，这四个操作会作为按钮旁边的菜单提供；从此处运行时，它们会作为供你选择的列表提供。不会派生任何进程，每个回答都会作为结构化结果返回，由面板报告：**status** 列出每个缓存、其内容以及各自的共享范围，且不删除任何内容；**prune** 删除没有任何锁文件引用的条目，并指明它保留了什么，以及任何它没有依据回收的内容和能够回收它的操作；**evict** 首先询问大小上限 — 一个字节量，例如 `5GiB` 或 `512MiB`，或一个字节数，由命令行使用的同一解析器读取 — 并将共享的已编译模块缓存削减到该上限；**clear** 清空所有缓存。删除内容的三个操作会先请你确认，每个确认都会指明该操作实际涉及的缓存：清空和修剪涉及本工作区自己的实体、源工件、外部输入和文档包缓存，*以及*本机所有项目共享的已编译模块和插件描述缓存，而削减只涉及共享的已编译模块缓存。这些操作报告的每个大小都使用与读取上限相同的写法，因此你从缓存报告中读到的数字可以直接输入到上限提示中。编译器无法读取的上限会返回编译器自己的消息，说明大小上限的格式。被清空和削减的缓存会在下一次需要它们的构建中重新填充。Windows 拒绝删除被另一个进程打开的文件，此时修剪、削减或清空会将其保留在原位并继续处理其余内容，而不是失败：Aggrega 输出通道会指明修剪或削减保留下来的每个条目，包括其类别、共享范围和大小，并在清空所涉及的每个缓存下给出它在那里保留的文件数量及其大小；操作结束时的消息会说明有多少个被保留在原位，请你在该进程结束后再次运行该操作，并指引你到通道中查看是哪些。若没有任何内容被保留在原位 — 在会删除已打开文件的平台上每次运行都是如此 — 则两者都不会提及此事。"
+  },
+  "938fbf9c05722935": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "938fbf9c05722935",
+    "status": "machine",
+    "text": "单个交付机制，编写为条目数组。每个条目携带一个 'in'（本地标识符——环境变量名、文件路径、参数标志或自定义机制专用的键），外加 'from'（要解析的 provides 键）与 'value' 中的恰好一个。在 Release 上，每个条目都位于某个连接上，因此 'from' 针对目标的 provides 进行解析，携带 'value' 的条目会被拒绝。"
   },
   "9390298f3fb0c5b1": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -90560,6 +91135,13 @@
     "status": "machine",
     "text": "以短格式引用模型，或未带任何变量的服务，会连接到该模型，不附注释。"
   },
+  "9563a2e85a3053b6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9563a2e85a3053b6",
+    "status": "machine",
+    "text": "两者都位于命名空间 `velero` 中，这是 Velero 读取 schedule 的唯一命名空间，并以数据库的命名空间、其名称以及附加的名称命名，因为集群上的每个 Release 都写入这同一个命名空间。schedule 按数据库渲染的 StatefulSet 的标签，在数据库所在的命名空间中选择数据库的 pod，Velero 的节点代理将其卷中的文件复制到存储桶中。存储桶的地址是 `backups` 组件发布的地址，其 Service 名称以其运行所在的命名空间限定，因为 Velero 运行在另一个命名空间中；区域也是存储桶的：在此运行存储桶的 SeaweedFS 不读取区域，并发布 `us-east-1`。14 天是 Velero 的存活时间，以小时计。"
+  },
   "95671e33714a72c7": {
     "at": "2026-10-30T00:43:49.791Z",
     "job": "session-0040-20261030004349",
@@ -91402,6 +91984,13 @@
     "status": "machine",
     "text": "插件实体，manifest 在不同位置对其作出承诺："
   },
+  "96a1699939b6657c": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "96a1699939b6657c",
+    "status": "machine",
+    "text": "**解决方案：休眠任务与目标平台自身的命令** Aggrega 在保持严格 AOT 纯粹性的同时解决了这一问题。它为一个部署后不会启动的任务生成配置，每次运行都在目标平台上用目标平台自身的命令启动。"
+  },
   "96a4049a083d309c": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -91685,6 +92274,17 @@
     "srcHash": "9729354b2f0a1b8f",
     "status": "machine",
     "text": "注解展开后，`api` 和 `worker` 都带有一个合成的 `feature.myco/db-pool` Feature 附件，其 `values.pool` 字段的值为 `\"shared-pool\"`。来源旁表将每个叶子记录为 `Origin: annotation`、`Side: aggregate`、`AnnotationSource: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`。"
+  },
+  "972df538c66e8003": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "4d53e53b8c04d705",
+      "reviewed": false
+    },
+    "srcHash": "972df538c66e8003",
+    "status": "machine",
+    "text": "有些形式的指明不那么精确。在多个作用域声明的附件名称——例如同时在组件和包含它的子系统上声明——会从每个声明块各绘制一个连接，而构建仅以附件名称记录这两者。此时两个连接都会指明在其中一个声明块上——即组件自身的附件块（只要该名称在那里声明），且都不带列表位置。在导入的 Aggregate 内部也是如此，其声明块——组件的声明块和该模块自身某个子系统的声明块——在模块自身的文档中指明。在所有这些形式中，这对连接仍然会被拒绝。"
   },
   "97324aaad7bf47a5": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -93424,6 +94024,13 @@
     "status": "machine",
     "text": "`gemini mcp add`，或对所有项目使用 `~/.gemini/settings.json`，对单个项目使用 `.gemini/settings.json`"
   },
+  "9a03061eceddf512": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "9a03061eceddf512",
+    "status": "machine",
+    "text": "为每个目标分别保留一个目录的多目标工作区，会在 `workspace.releases` 下列出每个目标的各个目录，以其 Release 文件为键，使每个 Release 都基于自己的目录构建。"
+  },
   "9a0355e77d9029e2": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -93555,6 +94162,13 @@
     "srcHash": "9a4360b8113118cd",
     "status": "machine",
     "text": "凭据传递说明"
+  },
+  "9a4a24c5ebc8a397": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9a4a24c5ebc8a397",
+    "status": "machine",
+    "text": "CloudNativePG 的 schedule 有六个字段，第一个表示秒，因此附加的 `30 2 * * *` 在前面加上 `0` 写出。插件使用对象存储所指定的 Secret 中的密钥对签名请求，这里为 `db-backup`，以对象存储本身命名，因为该附加没有设置 `infra.credentials_secret`。"
   },
   "9a4d16900a343ed3": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -94351,6 +94965,13 @@
     "status": "machine",
     "text": "当 `aggrega.exe` 正在运行时（由编辑器或 AI 客户端启动），安装程序无法替换它，会停止并给出相应的消息；请关闭启动它的程序，然后再次运行安装程序。卸载程序也会以同样的方式停止，此时它尚未移除任何内容。"
   },
+  "9bc1e85dbe70408a": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9bc1e85dbe70408a",
+    "status": "machine",
+    "text": "标准库目录中没有针对此目标的 `core/backup` FeatureRecipe，因此没有可绑定的。可行的做法是从 Release 中移除该附加，在那里部署不带备份的数据库；或者像其他五个 Releases 那样，通过面向拥有备份产品的目标的 Manifest 部署它。"
+  },
   "9bc289a82410731a": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -94715,6 +95336,13 @@
     "srcHash": "9c3d6ba69ded8855",
     "status": "machine",
     "text": "模板上下文包含三个形似 inject 的字段，各自语义不同。Recipe 和 FeatureRecipe 的作者应当清楚该读取哪个界面。"
+  },
+  "9c451305e046053a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "9c451305e046053a",
+    "status": "machine",
+    "text": "此工作区为四个目标构建一个 Aggregate——通过 Helm 的 Kubernetes、Docker Compose、Terraform 和 CloudFormation——并在每个目标上展示该挂接在渲染输出中改变了什么，以及启动一次运行的命令。第二个任务不携带挂接，因此差异在同一次构建中即可看到。另外两个 Releases 预期会中止，本页引用了它们各自打印的内容。"
   },
   "9c458f6721230a86": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -95547,6 +96175,17 @@
     "srcHash": "9d86b622940720e7",
     "status": "machine",
     "text": "`aggregate.yaml` 在两种变体中完全相同："
+  },
+  "9d87b8cbf5064809": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "15c16fe0e34569ba",
+      "reviewed": false
+    },
+    "srcHash": "9d87b8cbf5064809",
+    "status": "machine",
+    "text": "这五个阶段在验证器引擎看到 schema 之前运行。引擎接收单个解析后的 JSON Schema 2020-12 文档以及开发者的实例内容，生成验证报告。错误格式化器参考来源标记，输出清晰指明源位置的面向用户的诊断信息——包括某个 Feature 从其基础继承而非自行编写的约束所在的原始文件。"
   },
   "9d8920a018435b73": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -97432,6 +98071,13 @@
     "status": "machine",
     "text": "**扁平 Release（顶层组件）：**在 `spec.components` 下编写组件，不使用 `boundaries`。编译器将它们折叠到合成的 `default` 边界中，其输出是**扁平**的——产物直接落在 `dist/` 下（按 provider 划分：`dist/compose/`、`dist/helm/`、……），没有边界名称这一路径段。这是最简单的部署方式：对扁平的 Compose 或单集群目标执行 `aggrega build`，无需命名边界。（开发者*声明*并命名为 `default` 的边界是普通的命名边界，与其他边界一样输出到 `dist/default/`。）"
   },
+  "a0ebf139147d830b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a0ebf139147d830b",
+    "status": "machine",
+    "text": "此工作区通过六个 Releases 构建一个 Aggregate，每个都附加相同的备份：每天 02:30 运行，每个备份保留 14 天。本页展示在完成构建的五个中每个目标为其渲染的内容，并引用预期会停止的第六个所打印的内容。"
+  },
   "a0ecd652fd1d655a": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -97716,6 +98362,17 @@
     "srcHash": "a14aa643a566d912",
     "status": "machine",
     "text": "**键：** `\"components\"`、`\"features\"` 之一。"
+  },
+  "a14ba8954befec0a": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "c0fe27c232203a6c",
+      "reviewed": false
+    },
+    "srcHash": "a14ba8954befec0a",
+    "status": "machine",
+    "text": "**阶段 3 — 跨文档 `$ref:` 展开。** 对于通过 `$ref:`（标识形式 `<Library>#/schemas/<entry>`）进行的 SchemaLibrary 引用，编译器在编译期借助解析栈传递遍历引用链；被引用的内容内联到使用方的 schema 中。展开过程保留循环检测（循环会以指明引用链的错误中止构建）、“按标识而非位置”护栏（携带注册表主机的引用会中止构建，并提示改用标识形式——引用按标识而非物理位置定位库），以及单源组合（`$ref:` 块只接受裸引用；使用方的覆盖通过 JSON Schema 的 `allOf:` 组合）。解析语义参见 [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md)。"
   },
   "a14eb2a73cc549f8": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -98725,6 +99382,13 @@
     "status": "machine",
     "text": "**该规则只单向生效，且只针对 `true`。**没有 `suspend:` 的 `form: scheduled` workload 是普通情况，会按其调度运行；而 `suspend: false`（默认值）在任何形式上都不会引发任何报告。"
   },
+  "a2de03a2b5bdfcd8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a2de03a2b5bdfcd8",
+    "status": "machine",
+    "text": "构建"
+  },
   "a2e2f7aee1f9bf9d": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -99696,6 +100360,13 @@
     "srcHash": "a477a5c8e80623e7",
     "status": "machine",
     "text": "条目的作用取决于它所指明的导入器是否声明支持某次导入所请求的格式："
+  },
+  "a4791ff0fa0305ed": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a4791ff0fa0305ed",
+    "status": "machine",
+    "text": "Velero 的 schedule 只在部署了 Velero 的地方运行，插件的备份只在运行插件、CloudNativePG operator（1.26 或更高版本）和 cert-manager 的地方运行。此工作区部署 Velero 和插件；operator 和 cert-manager 被假定已经存在。"
   },
   "a4792702e2946716": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -101121,6 +101792,13 @@
     "status": "machine",
     "text": "逐个运行请求的守护进程按到达顺序作答，因此不会有重叠，也从不发生等待。并发运行请求的守护进程以同样的方式回答同样的问题，而正是等待保证了这一点：你得到的答案就是串行顺序会给出的答案。"
   },
+  "a6a5527f299faa3f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "a6a5527f299faa3f",
+    "status": "machine",
+    "text": "`release-compose.yaml` 写入一个 Compose 文件。每个任务都是一个服务，退出后 Compose 不会再次启动它；`data-fix` 还携带 profile `manual`，而 `report` 不携带任何 profile："
+  },
   "a6ad064a43c7960e": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -101935,6 +102613,17 @@
     "status": "machine",
     "text": "语义标签分类法（标准库约定）"
   },
+  "a8282f6c417c3f27": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "512460eff687c42b",
+      "reviewed": false
+    },
+    "srcHash": "a8282f6c417c3f27",
+    "status": "machine",
+    "text": "插件提供的导出，每个导出都带有其声明的能力，以保留作者顺序的有序列表形式给出。导出是宿主分派到的一个具名入口点（例如 `render_node`、`lint_naming`、`step`）；每个导出的能力块说明该导出所做之事，由 `aggrega plugin gen-catalog` 根据插件的 `describe()` 自我报告记录，宿主在发布时和加载时会将其与该自我报告进行交叉核对。缺省时不声明任何编写的导出面。"
+  },
   "a82936083f65433f": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -102268,6 +102957,17 @@
     "srcHash": "a8b1e80b49ec819e",
     "status": "machine",
     "text": "解释某代码所指的中止条件"
+  },
+  "a8b7ef3e862f60d2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "9ed3bd41e157225a",
+      "reviewed": false
+    },
+    "srcHash": "a8b7ef3e862f60d2",
+    "status": "machine",
+    "text": "**注入映射（渲染前拦截）：** Go 编译器解析开发者抽象的 `.context.inject` 契约。随后，它按照严格的 5 层洋葱模型执行顺序（子 Aggregate——先是模块组件自身的附加，再是其模块的子系统所声明的附加，由外向内 → 根 Aggregate 组件 → 根 Aggregate 子系统 → Release 边界由外向内 → Release 特定组件），执行所有附加的 `FeatureRecipes` 中的 `injectMapping` Go 模板。编译器原生地将生成的字典深度合并到调用方的 `.context.inject` 内存管道之上。这会在 Base Recipe 看到环境变量和连接字符串之前，为调用方安全地重写它们。映射可以重写调用方自身的 `inject:` 块或其某个连接所提供的内容；而对于另一个已附加的 Feature 已经提供的键——无论是通过其自身的映射还是自身的 `inject:` 块——构建会中止并指明两个附加，因此执行顺序绝不会在两个附加的值之间做出取舍。"
   },
   "a8bc294c74c1c7df": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -103540,6 +104240,13 @@
     "status": "machine",
     "text": "完整的、与能力无关的 IR 图，唯一来源为 ir-v1alpha1.schema.json。策略插件基于完整的节点/边/挂载细节进行推理，而不是基于一个狭窄的投影。"
   },
+  "aad9e3daa9b7e8a1": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aad9e3daa9b7e8a1",
+    "status": "machine",
+    "text": "一个 PostgreSQL 数据库：在 Kubernetes 上通过 Velero 和 CloudNativePG 备份，在 AWS 上通过 Amazon RDS 自身的自动备份（在 Terraform 和 CloudFormation 上）以及通过 AWS Backup 备份，全部来自运维人员在每个 Release 中编写的同一个 `core/backup` 附加；在没有备份产品的目标上则会被拒绝。"
+  },
   "aadd81f6e0c30d9a": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -104008,6 +104715,13 @@
     "status": "machine",
     "text": "MariaDB 镜像需要一个 root 密码才能启动，应用用户也需要自己的密码。两者都附加在数据库 component 的 `features:` 支柱中（与应用的 `values` 分开），作为标记为 `feature.aggrega.ai/kind: secret` 的 Features。`core/datastore/mariadb` Component 的 `featuresSchema` 为每个密码声明一个槽位，本示例演练了两种交付模型："
   },
+  "ab9dc5e07dfe23a2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ab9dc5e07dfe23a2",
+    "status": "machine",
+    "text": "开关为 `false` 的组件会在构建任何内容之前被移除，因此将该参数保留为 `none` 的 AWS 和 Docker Compose Releases 只构建数据库。"
+  },
   "ab9e7cf994900f1c": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -104109,6 +104823,13 @@
     "srcHash": "abbd8a87d833b028",
     "status": "machine",
     "text": "这一点之所以重要，是因为工具界面就是命令行。你能输入的任何内容，助手都能调用——包括会更改你机器的操作。"
+  },
+  "abbf35b45a40e749": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "abbf35b45a40e749",
+    "status": "machine",
+    "text": "`release-terraform-unscheduled.yaml` 在 Terraform 上将 `report_schedule` 留空，因此 `report` 既没有调度也没有该挂接，AWS 上没有任何东西会启动它。这正是 `core/manual-trigger` 存在的用途，`./build-release.sh terraform-unscheduled -- --auto-pull` 会中止并指出它："
   },
   "abc0a079ee2e586d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -104606,6 +105327,13 @@
     "status": "machine",
     "text": "层"
   },
+  "aca31219e00f6020": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aca31219e00f6020",
+    "status": "machine",
+    "text": "`core/backup` 表示一个数据存储按计划备份，且每个备份保留若干天。它不说明如何实现：每个目标的 Manifest 绑定在该目标上实现它的 FeatureRecipe，而每个 FeatureRecipe 都以其自身产品的术语写出备份——一个 Velero schedule、一个 CloudNativePG 计划备份、一个 RDS 实例的设置、一个 AWS Backup 计划。没有产品可实现它的目标会按名称拒绝该附加，因此构建会停止，而不是部署一个没有为其写出备份的数据存储。"
+  },
   "aca85bf69c4bb6bb": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -105082,6 +105810,13 @@
     "srcHash": "ad4dbb120d8c630f",
     "status": "machine",
     "text": "指定了目标的导入会在导入器的诊断之后报告起草 Manifest 时的发现：一条 `warn`，指明 Manifest 未映射的每种组件类型及原因；以及一条 `info`，在起草的 Release 已指定某个 Manifest，或没有任何起草的 Release 引用它时报告。这些属于导入本身而非导入器，不带代码；[目标带来的内容](#what-a-target-adds)对其进行了说明。"
+  },
+  "ad54af147a576c62": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ad54af147a576c62",
+    "status": "machine",
+    "text": "**无法读取的凭据配置在报告时不会透露其内容。** 如果 `config.json` 不是有效的 JSON、某个条目的 `auth` 值不是以冒号连接的 base64 编码用户名和密码，或者文件指定的凭据助手无法应答，则连接注册表会失败，消息会指明注册表和凭据文件，但绝不会给出文件或条目的内容。[`aggrega login`](aggrega-login.md) 和 `aggrega logout` 以同样方式报告不是有效 JSON 的 `config.json`，且不会更改其中任何内容。请更正该文件；无法读取的条目也可以用 `aggrega login <registry>` 替换。"
   },
   "ad5a2d61863d528d": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -107877,6 +108612,17 @@
     "status": "machine",
     "text": "搜索报告的版本"
   },
+  "b1762eec4c0474e2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "8824cfb0d0d9c825",
+      "reviewed": false
+    },
+    "srcHash": "b1762eec4c0474e2",
+    "status": "machine",
+    "text": "**共享的 SchemaLibrary 条目（跨文档 `$ref:`）：** 可复用的 JSON Schema 定义存储在 SchemaLibrary 目录实体中（Tier 3）。任何使用方 Component 或 Feature 的 schema 都通过跨文档 `$ref:`（`<library>#/schemas/<entry>`，不含主机——版本来自 lockfile）按标识引用它们。该引用链在编译时被遍历。库实体的编写形状参见 [entities/schemalibrary](../language-reference/entities/schemalibrary.md)，解析语义参见 [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md)。"
+  },
   "b1767d0676720a23": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -110627,6 +111373,17 @@
     "status": "machine",
     "text": "对于由开发者提供的静态数据（例如团队归属或数据分级），企业绝不应直接依赖原始的开源目录。相反，平台架构师编写一个企业基线——每个内部组件都必须携带的字段，在一个 SchemaLibrary 条目中一次性声明——并使用一个治理裁决角色来强制使用该基线。"
   },
+  "b5a58f0cb28a58df": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cbb8b7697b28d0a7",
+      "reviewed": false
+    },
+    "srcHash": "b5a58f0cb28a58df",
+    "status": "machine",
+    "text": "编译器遍历每个 `inject:` 块——包括 self-inject（Component 注入自身）和 uses-inject（跨 Component 连接）——并根据目标 Component 的 `provides:` schema、Feature 的标签分区以及已声明的投递键集合来校验投递契约。Aggregate 自身组件所写块上的 `from:` 键在目录解析完成后立即检查，因此会针对你所写的那一行报错；模块所贡献组件的块上的此类键在导入该模块的组合构建完成后检查，并针对模块自身文档中的那一行报错；由已附加 Feature 贡献的连接上的 `from:` 键，则在每个能够绘制连接的表面都完成贡献后才检查，这是此类连接可供检查的最早时间点。"
+  },
   "b5a5fbd4719d8a71": {
     "at": "2026-10-29T21:59:45.311Z",
     "job": "session-0027-20261029215945",
@@ -111788,6 +112545,17 @@
     "status": "machine",
     "text": "这项检查是构建时摘要重新校验无法替你完成的唯一一件事。采纳了已移动 ref 的拉取会在同一操作中重写获取的字节和记录的摘要，于是构建所比较的两个值会一起改变并保持一致——你构建的源内容将不同于审查 lockfile 时所针对的内容，而且不会有任何报告。"
   },
+  "b78dec0751e1dc3e": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "8fdde30272e0183e",
+      "reviewed": false
+    },
+    "srcHash": "b78dec0751e1dc3e",
+    "status": "machine",
+    "text": "当前节点的绝对扁平化 ID（例如 'backend'，或对于模块实例 data-layer 的组件 main-db 为 'data-layer-zdmain-db'），以每个编写的组件名称都满足的字母表写成。对于同一个 Aggregate，它在多次编译之间是确定且稳定的。它是为该节点构建的、没有任何 provider 为其派生名称的资源的名称——从 Recipe 放置的制品集，以及由以标识命名工作负载的 provider 合成的工作负载——因此为这些资源之一发布的地址就是基于此值构建的。"
+  },
   "b797456e3e45a7e4": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -112187,6 +112955,13 @@
     "srcHash": "b83dbb2ec6482bab",
     "status": "machine",
     "text": "输出的消息。同一条件涵盖两个块，因此其语句无法说明编写的是哪一个；其后的建议通过引用你输入的键以及你输入它的块来指出该块："
+  },
+  "b840cf709b85d2b2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "b840cf709b85d2b2",
+    "status": "machine",
+    "text": "**[datastore-backup](datastore-backup/)** — 一个 PostgreSQL 数据库，在每个目标上都通过运维人员在 Release 中编写的一个 `core/backup` 附件进行备份，而 Aggregate 中无需为此编写任何内容。每个 Manifest 绑定实现它的产品：在 Kubernetes 上是 Velero 和 CloudNativePG 的 Barman Cloud 插件，写入该附件所连接的存储桶；在 Terraform 和 CloudFormation 上是 Amazon RDS 自身的自动备份；以及 AWS Backup，在同一目标上通过一行 Manifest 选择。README 展示了每个目标渲染后的备份、通过参数按 Release 开启的备份控制器，以及在没有备份产品的 Docker Compose 上的停止。"
   },
   "b84746d472514164": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -113255,6 +114030,13 @@
     "status": "machine",
     "text": "同一个 Aggregate，部署到 Kubernetes。两个**同级**边界，各自带有不同的 `aggrega.ai/namespace` 注解，该注解以\n`metadata.namespace` 的形式级联到每个资源："
   },
+  "ba07d761f6fcb067": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "ba07d761f6fcb067",
+    "status": "machine",
+    "text": "它之所以是参数，是因为四个目标对没有挂接的任务处理方式不一致。Kubernetes 在有调度时将其作为 CronJob 按调度运行，没有调度时则在部署时运行一次。Docker Compose 没有调度器，因此每次栈启动时运行该任务一次，并拒绝调度。在 AWS 上，Terraform 或 CloudFormation 应用时没有任何东西会运行 Amazon ECS 任务，因此那里的任务需要调度或该挂接，两者都没有时会被拒绝。所以 Kubernetes、Terraform 和 CloudFormation 的 Releases 填写 `report_schedule`，而 Docker Compose 的 Release 将其留空。"
+  },
   "ba08022c500945f0": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -114063,6 +114845,13 @@
     "status": "machine",
     "text": "构建以 `1` 退出，且不写入 `dist/`：策略在渲染任何内容之前就已针对构建图求值。`E0005` 是策略拒绝所携带的诊断——参见[诊断参考](../../errors/sentinels.md)。\n`release-masking-off-route.yaml` 在每个引擎下都会输出相同的拒绝信息。"
   },
+  "bb3d4af988a61676": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb3d4af988a61676",
+    "status": "machine",
+    "text": "CloudNativePG Release"
+  },
   "bb3e236c6cea2680": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -114153,6 +114942,13 @@
     "srcHash": "bb5ba1528b624ca7",
     "status": "machine",
     "text": "**不完整的结果是有意为之，而非残骸。**它指出的是结果而非原因——无法转换的内容会在其旁边的诊断中报告，导入器无法转换的每个构造各对应一条，使用导入器自己的措辞。此条件使调用方能够区分“导入已停止并产出了部分结果”与“导入彻底失败”，这是两种不同的情况，后续步骤也不同。"
+  },
+  "bb5c68040d7cc1e6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb5c68040d7cc1e6",
+    "status": "machine",
+    "text": "构建写出文件后即停止。它不运行任何备份，也不访问任何集群、存储桶或 AWS API。它不解析任何 ARN、账户或区域：在 AWS 上，每一项都是一个表达式或 Release 写入的值，由 Terraform、CloudFormation 或 AWS 在应用文件时读取。它也不检查集群中的任何内容："
   },
   "bb5dbe4b07104b15": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -116698,6 +117494,13 @@
     "status": "machine",
     "text": "节点未携带的标签按空字符串比较，因此 `match` 中值为 `\"\"` 的键值对也会匹配未携带该键的节点。"
   },
+  "bfb72841d83eff28": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "bfb72841d83eff28",
+    "status": "machine",
+    "text": "`report` 是一个按 Release 所填写的调度运行的 CronJob，且未被挂起："
+  },
   "bfb91695afb3838b": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -116880,6 +117683,13 @@
     "srcHash": "bfec178f670ac185",
     "status": "machine",
     "text": "键：一个或多个字母、数字、下划线或连字符。不允许使用点号。模式：`^[a-zA-Z0-9_-]+$`。"
+  },
+  "bfecad8c1bced695": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bfecad8c1bced695",
+    "status": "machine",
+    "text": "AWS Backup"
   },
   "bff31fa0a763ca50": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -118489,6 +119299,13 @@
     "status": "machine",
     "text": "每个适用的条目都必须排除某些内容，构建会在不满足这一点的条目上停止，因为一个不匹配任何内容的条目是对源的一个不再成立的陈述。常见原因是源升级后重命名了该文档。此时被重命名的文档会以新名称出现在输出中——正是该条目原本要排除的那个文档——而此次中止正是为了防止它在无人察觉的情况下被发布。在本次构建中，chart 生成的 Secret 就是这样的文档：条目原本是为排除它而写的，却命名了别的东西。要更正条目，请将其与源当前渲染的内容进行比较：移除该条目后进行构建（就像 `release-negative-without-omits.yaml` 在不做检查时那样），然后从 chart 写出的文件中读取名称。"
   },
+  "c2880afcda649187": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c2880afcda649187",
+    "status": "machine",
+    "text": "工作区从本仓库旁边的一个检出中读取标准库目录（由 `.aggrega-config.yaml` 指定）。Velero 和 Barman Cloud 插件通过各自项目的 chart 安装，因此两个 Kubernetes Releases 需要构建能够访问这些项目的 chart 仓库；其他每个 Release 仅从目录渲染。"
+  },
   "c2890be912f4087c": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -119312,6 +120129,13 @@
     "srcHash": "c3cb27347662be6d",
     "status": "machine",
     "text": "连接上的附件会成为代理自身的附件之一，以连接和槽位命名\n——此处为 `gateway.credential`——因此会生成两个 Secret，\n每个代理一个，各自携带该代理自己的密钥材料："
+  },
+  "c3cddf82c7f7cbec": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c3cddf82c7f7cbec",
+    "status": "machine",
+    "text": "同一命令在给定 `--from=cronjob/report` 时，会在 `report` 的计划运行之间启动一次额外运行。"
   },
   "c3d0477cd5f71263": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -120637,6 +121461,17 @@
     "status": "machine",
     "text": "**有密钥**（`--key`）——离线保存的 ECDSA P-256 密钥（兼容 cosign 的 PEM），是为没有 OIDC 身份提供方的环境准备的逃生舱口。不会连接任何身份提供方、证书颁发机构或透明日志。"
   },
+  "c614430aa5d58fd7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "b304c9c6cbe467ef",
+      "reviewed": false
+    },
+    "srcHash": "c614430aa5d58fd7",
+    "status": "machine",
+    "text": "在一次构建中组合多种机制：边界作用域的 FeatureRecipes、参数提升、注解驱动的 Feature 展开、基于构建图的治理策略，以及跨 provider 的跨边界网络。"
+  },
   "c61488a9342c899b": {
     "at": "2026-10-29T17:38:23.610Z",
     "job": "session-0002-20261029173823",
@@ -121342,6 +122177,13 @@
     "srcHash": "c7401f343f7523d8",
     "status": "machine",
     "text": "recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`（Recipe 的 eval 提供方约束：提供方为 eval 时禁止使用输入类型字段；并给出 Recipe、规则、位置及已声明的禁用字段）"
+  },
+  "c743f0f817434b74": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c743f0f817434b74",
+    "status": "machine",
+    "text": "Recipe 以 EventBridge Scheduler 自己的形式写入 `report` 的调度：`30 2 * * 1-5` 变为 `cron(30 2 ? * 2,3,4,5,6 *)`，星期几从星期日为 1 开始编号，并使用 UTC，因为 Release 未指定时区。"
   },
   "c7463ad944819835": {
     "at": "2026-10-22T02:02:14.297198+00:00",
@@ -123176,6 +124018,13 @@
     "status": "machine",
     "text": "`--dry-run` 执行普通命令所做的一切，唯独不写入：编辑后的文档作为内容输出到标准输出，并注明它对应的文件，不会创建任何东西："
   },
+  "c9e2dec71ae02139": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c9e2dec71ae02139",
+    "status": "machine",
+    "text": "在每个目标上都备份的数据存储：一个 core/backup 附加"
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -123189,6 +124038,13 @@
     "srcHash": "c9e70e553f583077",
     "status": "machine",
     "text": "**如何修复：** 先检查引用和版本——已不存在的版本与拼写错误的名称会产生相同的结果，消息会同时引用两者，以便与目录对照。如果引用正确，说明该制品尚未被获取：为该 release 运行 pull，它会获取该 release 所涉及的内容并填充缓存。如果工作区处于离线状态，该 pull 必须在能访问网络的地方运行；离线构建只读取已缓存的内容，当缓存中没有所需内容时，就会报告此条件。"
+  },
+  "c9e73b7f44048c92": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c9e73b7f44048c92",
+    "status": "machine",
+    "text": "`release-compose-scheduled.yaml` 在 Docker Compose 上填写 `report_schedule`，并且同时将 `core/manual-trigger` 挂接到 `report`。在 Kubernetes 和 AWS 上，有调度的任务无论是否有该挂接都会按调度运行；在没有调度器的 Docker Compose 上，有调度的任务无论是否挂接都没有实现。`./build-release.sh compose-scheduled -- --auto-pull` 会中止："
   },
   "c9e990c257af8cd1": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -123405,6 +124261,13 @@
     "srcHash": "ca2cc454288aea48",
     "status": "machine",
     "text": "在 helm 上，`MODEL_KEY_GPT` 渲染为一个 `secretKeyRef`，指向 `gpt` 连接的凭据所发布的 Secret，`MODEL_KEY_NIM` 则指向 `nim` 连接的凭据所发布的 Secret。在 compose 上，指名连接的 `as: env` 条目输出时值为空，并附带与指名 Component 自身槽位的条目相同的部分支持提示。"
+  },
+  "ca2cf72f6758045b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ca2cf72f6758045b",
+    "status": "machine",
+    "text": "Kubernetes，使用 CloudNativePG"
   },
   "ca2e06193731aff9": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -125419,6 +126282,13 @@
     "status": "machine",
     "text": "字面块的键按排序顺序检查，提升块的键按你编写的顺序检查，因此在多处违反规则的 Recipe 总是先报告同一项。"
   },
+  "cda5cdc386815ab5": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "cda5cdc386815ab5",
+    "status": "machine",
+    "text": "`data-fix` 在全部四个目标上以相同方式构建，没有调度，也没有参数。"
+  },
   "cda6489183f91aaf": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -126763,6 +127633,17 @@
     "status": "machine",
     "text": "**`.origin_feature`（string）** — 当该边由 Feature 附件合成时设置（例如，一个 sidecar Feature 向某个凭据 Feature 贡献一条 `uses` 边）。"
   },
+  "cfa3973efcb3d1df": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "7d7f6eb47446f812",
+      "reviewed": false
+    },
+    "srcHash": "cfa3973efcb3d1df",
+    "status": "machine",
+    "text": "**整体拒绝：片段自己的网络。** 片段顶层 `networks:` 下的条目无论其主体内容如何——空条目、`driver` 或其他任何内容——都会以 `TRANSLATION_ERROR` 停止构建，并指出该条目（`networks.back`）、该片段和该组件，因为组装后的文件只包含 provider 派生的网络（参见[服务加入哪个网络](#which-network-a-service-joins)）。请移除该条目：服务无需任何声明即可加入其所属组件的网络，`aggrega.ai/namespace` 注解决定组件加入哪个网络，服务在 [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of) 下列出它还要加入其网络的组件，而 `compose-bridge` Feature 负责在不同网络上的服务之间路由。空的 `networks: {}` 什么也不声明，不会被拒绝，而服务自身的 `networks:` 列表按上文所述保留。"
+  },
   "cfa3af242f14adbc": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -127011,6 +127892,13 @@
     "status": "machine",
     "text": "**编译器的效果：** 编译器将每个边界的 wave 值传播到该边界中渲染出的 manifest。Providers 输出原生的排序原语："
   },
+  "cfe94b9cdcec4a14": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "cfe94b9cdcec4a14",
+    "status": "machine",
+    "text": "运行位置"
+  },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -127239,6 +128127,17 @@
     "srcHash": "d041ff748d017a4c",
     "status": "machine",
     "text": "三个位于 `label-transform` 角色，负责塑造构建节点上的标签：一个读取 Release 环境的 Rego 策略，以及编译进 CLI 的两个标记插件 `label-injector` 和 `selector-tagger`；"
+  },
+  "d04219e3aa231482": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "b05dd5f19ba9f261",
+      "reviewed": false
+    },
+    "srcHash": "d04219e3aa231482",
+    "status": "machine",
+    "text": "对间接获得的形式有一个限制。若字段的形式来自旁边带有其他关键字（例如 `properties:` 映射）的 `$ref:`，来自 `when:` 的 `then:` 或 `else:`，或来自指向已声明属性的指针，则其 `format` 会在该形式直接声明的字段上以及通过 `allOf` 进行检查——但不会在该形式内的 `anyOf`、`oneOf`、`not` 或条件分支中检查。"
   },
   "d04600a78865fd7c": {
     "at": "2026-10-29T21:31:42.799Z",
@@ -129477,6 +130376,13 @@
     "status": "machine",
     "text": "Policies"
   },
+  "d3aea1d07a2b9d29": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "d3aea1d07a2b9d29",
+    "status": "machine",
+    "text": "Kubernetes Releases 还以 `core/referenced-secret` 附加的形式附加存储桶自身的密钥对，以及 Velero 用于签名请求的凭据文件，这些附加指向集群中已有的 Secrets，因此不会有任何密钥写入任何渲染的文件。AWS Releases 中每个特定于账户的值都是占位符。"
+  },
   "d3b266bb5e1e750a": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -131063,6 +131969,17 @@
     "srcHash": "d6b42a2f67697cfb",
     "status": "machine",
     "text": "该形式在组合 Manifest 时、在任何查找之前判定——结论来自统计字符串中的分隔符，因此完全不需要目录。在此处判定正是让诊断准确的原因：该值*本意*指向的 recipe 往往存在且命名正确，若被告知它缺失，会让你去找错误的东西。每个解析 Release 依赖项的命令都以相同方式报告它，因此不取决于你碰巧运行哪个命令。"
+  },
+  "d6b589a42aae2327": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "80b294785a58ef95",
+      "reviewed": false
+    },
+    "srcHash": "d6b589a42aae2327",
+    "status": "machine",
+    "text": "全局的、显式告警的签名验证退出开关。为 true 时，所有注册表的签名验证都会被禁用，包括强制性的 hub 基线。用于紧急破例和开发场景；它从不静默——凡是拉取本应检查签名之处，都会发出警告，说明验证已被全局禁用。默认为 false。默认值：`false`"
   },
   "d6b72fdbf2d81a34": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -133100,6 +134017,13 @@
     "status": "machine",
     "text": "**可复现的镜像。** 该 Recipe 将 Loki 服务器镜像和配置重载 sidecar 镜像固定到可解析的标签，使渲染出的工作负载引用固定的版本。"
   },
+  "da16c04b91fc6ddc": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "da16c04b91fc6ddc",
+    "status": "machine",
+    "text": "`report` 的调度是一个参数 `report_schedule`，Aggregate 以空默认值声明它，并将其读入任务的 `schedule` 值："
+  },
   "da18adbf579666aa": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -133484,6 +134408,13 @@
     "srcHash": "daab98824f2eb3bb",
     "status": "machine",
     "text": "无论根目录通过哪种方式给出，它都是根目录，服务器也不例外：发给 [`aggrega mcp`](aggrega-mcp.md) 的请求如果没有指定自己的工作区，就在该根目录中处理，不会搜索其上层目录。如果根目录不是一个已存在的文件夹（路径不指向任何内容，或指向一个文件），每个读取其工作区的命令都会在执行任何其他操作之前拒绝它；`aggrega serve` 和 `aggrega mcp` 监听器会拒绝在这样的根目录上启动，而通过标准输入和输出运行的 `aggrega mcp` 仍会照常启动，但对每个在该工作区中执行操作的调用都以该拒绝作答。拒绝信息会指明根目录由两者中的哪一个提供，即 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT`，并原样给出其值。不读取工作区的命令（例如 `aggrega version`）也不会读取根目录，因此不会因此被拒绝。"
+  },
+  "daaba2f33800b7f5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "daaba2f33800b7f5",
+    "status": "machine",
+    "text": "[task-run-on-demand](task-run-on-demand/README.md)（`start`）— 一个带有 `core/manual-trigger` 的任务，在 Kubernetes、Docker Compose、Terraform 和 CloudFormation 上部署后不会启动，旁边是一个不带任何附件的任务，并给出在每个目标上启动一次运行的命令。"
   },
   "dab05ccf91dec707": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -134418,6 +135349,13 @@
     "status": "machine",
     "text": "pipeline steps reading the render facts of the components their host is wired to（读取其宿主所连接组件渲染事实的流水线步骤）"
   },
+  "dc043b1ed96ae823": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dc043b1ed96ae823",
+    "status": "machine",
+    "text": "`release-compose.yaml` 在 Docker Compose 上将相同的备份附加到数据库。那里没有 FeatureRecipe 实现 `core/backup`，因此 `manifest-compose.yaml` 不绑定任何 FeatureRecipe，`./build-release.sh compose -- --auto-pull` 会停止并指出该附加，而不是部署一个没有备份的数据库："
+  },
   "dc04ee4bc2dc6256": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -134466,6 +135404,13 @@
     "srcHash": "dc189fe4230219fe",
     "status": "machine",
     "text": "一对完整示例"
+  },
+  "dc1a85b737867d5a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dc1a85b737867d5a",
+    "status": "machine",
+    "text": "按需运行的任务：一个 Aggregate，四个目标"
   },
   "dc1f0fa2825493da": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -134927,6 +135872,13 @@
     "status": "machine",
     "text": "dispatch path produced multiple provider outputs (`\"<path>\"`, boundary `\"<boundary>\"`, provider `\"<provider>\"`)（分派路径产生了多个 provider 的输出）"
   },
+  "dcb84621fcc81992": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dcb84621fcc81992",
+    "status": "machine",
+    "text": "它的调度，或者在 Docker Compose 上为栈的启动"
+  },
   "dcbb5844e1d3e7e6": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -135363,6 +136315,13 @@
     "status": "machine",
     "text": "**其他所有请求都接受令牌，但不发送任何内容。** 发送令牌无害，不会报错：它会被接受，不会有通知到达，答复与不带令牌时完全相同。因此客户端可以随意附加令牌，没有收到内容时什么都不绘制即可。"
   },
+  "dd7ade7509518678": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dd7ade7509518678",
+    "status": "machine",
+    "text": "开发者无需为备份编写任何内容：`db` 在 Aggregate 中不携带任何附加。运维人员在每个 Release 中，在该组件的 `features` 下将 `core/backup` 附加到它，并在那里说明备份何时运行以及每个备份保留多长时间。在 Kubernetes 上，该附加还通过其指向存储桶的 `store` 连接说明备份写入何处："
+  },
   "dd7d21897117489e": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -135464,6 +136423,17 @@
     "srcHash": "dd9425879cd372ac",
     "status": "machine",
     "text": "Go 和 Rust 的容器提供映射的各项操作：查找键、设置键、删除键、读取键、按顺序遍历条目、计数。设置容器中已有的键会替换其值并保留其位置；新键排在所有现有键之后。"
+  },
+  "dd9f669018574919": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "62ec39f9da8d50f0",
+      "reviewed": false
+    },
+    "srcHash": "dd9f669018574919",
+    "status": "machine",
+    "text": "本示例所映射的目录中的 Redis Recipes，即 `compose/redis` 和 `helm/redis`，声明了 AGPL-3.0 许可证。`valkey-cache` 示例部署 Valkey，它使用相同的线路协议；其 `helm/valkey` Recipe 声明了 BSD-3-Clause。"
   },
   "dd9ff0f5a9354e78": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -136393,6 +137363,13 @@
     "srcHash": "df0eec10d5683e0b",
     "status": "machine",
     "text": "机制词汇（`infra.primary.replicas`）对某一个 provider 而言很自然（Kubernetes pod 是 StatefulSet 的副本），在其他地方却是范畴错误——RDS 在主实例上没有“副本”概念，CloudFormation 与 RDS 一致，Compose 则完全没有水平副本抽象。意图词汇则可以转换：每个 provider 都有某种“让此数据库高可用”的概念和某种“我需要 N 个只读副本”的概念，而由 Recipe 承担针对各 provider 的转换。若某种实现没有这样的机制，其 Recipe 可以中止构建并指出该键，就像 `helm/mariadb` 和 `compose/mariadb` 对两个键所做的那样，以及单实例 RDS Recipes 对只读副本所做的那样。"
+  },
+  "df0f49cc8dc94b89": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "df0f49cc8dc94b89",
+    "status": "machine",
+    "text": "`release-helm-cloudnative-pg.yaml` 将数据库写为一个 CloudNativePG Cluster，并写出存储桶、插件 chart 渲染的对象，以及附加的文件，其中包含插件的对象存储和一个计划备份，与 Cluster 一起位于其自身的命名空间中："
   },
   "df17e727af018e13": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -139728,6 +140705,13 @@
     "status": "machine",
     "text": "chart 引用的内容"
   },
+  "e46359639a81785d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "e46359639a81785d",
+    "status": "machine",
+    "text": "**模块的子系统附加会作用于其组件。** 模块在其自身某个子系统上附加的 Feature 会级联到模块在该子系统下声明的每个组件（包括嵌套子系统中的组件），与 Aggregate 中的子系统附加完全相同——并且只作用于这些组件，绝不会作用于导入方 Aggregate 中同名子系统下的组件。它在组件自身的附加之后立即求值，外层子系统先于内层。对于两者都写入的字段，组件自身的同名附加优先，而它未写入的字段保留子系统的值。它所到达的每个组件都会按该 Feature 的 `appliesTo` 对其进行检查。关于模块自身声明的发现会指明模块及其文档中的键——例如 `.spec.subsystems.<subsystem>.features.<attachment>`——因此应在声明所在的模块中进行修改，而不是在导入它的 Aggregate 中。"
+  },
   "e463734e284f2fa5": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -142001,6 +142985,13 @@
     "status": "machine",
     "text": "其 Manifest 绑定的内容"
   },
+  "e881fbb4a6ce62b2": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "e881fbb4a6ce62b2",
+    "status": "machine",
+    "text": "**服务作者编写的每个标签都会保留。** 基础文件或覆盖层中服务的 `labels:` 可以写成映射，也可以写成 Compose 的 `key=value` 条目列表，每个标签都会与 provider 标记的[来源标签](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output)一起进入 compose 文件。列表条目按 Compose 的方式读取：第一个 `=` 之前的文本是标签名，之后的文本是值，不含 `=` 的条目是值为空的标签。数字或 true/false 值按其文本写入，因此 `replicas-hint: 2` 在文件中写为 `replicas-hint: \"2\"`，而写为 `null` 的标签保持为 `null`。若编写的标签与来源标签使用同一个键，文件中采用来源标签的值。既不是映射也不是列表的 `labels:` 值，以及不是文本的列表条目，都会停止构建，并指出源文件和服务。`artifacts:` 主体中的服务标签采用映射形式：在那里使用列表会停止构建，并指出该制品和服务。"
+  },
   "e88524d9a7019284": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -142064,6 +143055,13 @@
     "srcHash": "e8a9c7445dd69ebd",
     "status": "machine",
     "text": "指明 guest 从此节点输出中排除的已渲染单元的条目，按作者声明的顺序排列。每个条目到达时已解析，其字段为纯字符串，不适用于本次构建的条目不会被携带。条目的 kind、name、namespace 和 subchart 选择什么，是该 provider 自己文档化的契约，而非此 socket 的契约：guest 以自身格式的术语将每个条目与其渲染内容匹配，将条目匹配到的每个单元从其返回的所有内容中排除——包括其文件、在 derived_keys 中声明的名称以及在 render_facts 中报告的事实——并在输出的 omitted 中报告每个条目匹配了多少单元。这些条目仅伴随源清单出现，不伴随其他输入：合成 workload 或 artifact 集合的渲染从不携带它们。没有条目时不存在；未收到任何条目的 guest 的渲染结果与该字段不存在时完全相同。"
+  },
+  "e8aeb969ecceb76a": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "e8aeb969ecceb76a",
+    "status": "machine",
+    "text": "[datastore-backup](datastore-backup/README.md)（`start`）— 一个 PostgreSQL 数据库，在 Kubernetes 上通过 Velero 和 CloudNativePG 备份，在 AWS 上通过 Amazon RDS 自身的自动备份（在 Terraform 和 CloudFormation 上）以及 AWS Backup 备份，均来自运维人员在每个 Release 中编写的一个 `core/backup` 附件，并展示了在没有备份产品的目标上的拒绝。"
   },
   "e8b26543ac505cb6": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -145460,6 +146458,13 @@
     "status": "machine",
     "text": "**有条件应用**——编译器在目标制品旁边生成一个*附加的*覆盖，而不是编辑该制品，因此该值是否生效取决于该制品自身是否暴露了匹配的键。实践中有效，但从不是保证。**目前没有任何 provider 实现有条件的单元格**，声明接口也无法表达这种情况，因此下面生成的表格只包含另外两个层级。之所以命名这一层级，是因为对于供应商提供的制品，这条途径确实存在；若只用两个层级的词汇，矩阵要么声称一个它无法做出的保证，要么否认这条途径的存在。"
   },
+  "ee0d3dbd6d121466": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ee0d3dbd6d121466",
+    "status": "machine",
+    "text": "**交接：** 编译器不连接任何集群，也不调用任何云 API；构建既不启动运行，也不编写脚本。每次运行都由运维人员用目标平台自身的命令启动：在 Kubernetes 上是 `kubectl create job <run-name> --from=cronjob/<cronjob>`，在 Docker Compose 上是 `docker compose run --rm <service>`，在 Amazon ECS 上是 `aws ecs run-task`，并给出 Release 在任务的 `infra.overrides` 下设置的集群、任务定义和网络配置。配置生成与运行时执行保持分离。"
+  },
   "ee12d568908e6a6b": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -146971,6 +147976,13 @@
     "status": "machine",
     "text": "实例使用 Release 指明的密钥加密"
   },
+  "f072183c45fe124a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f072183c45fe124a",
+    "status": "machine",
+    "text": "工作区从此仓库旁边的检出中读取标准库目录（由 `.aggrega-config.yaml` 指定）。这里的每个 Recipe 都仅从目录渲染，因此一旦锁文件解析完毕，每次构建都可离线运行。"
+  },
   "f078a310659a0700": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -148005,6 +149017,13 @@
     "srcHash": "f23515b88ae445d5",
     "status": "machine",
     "text": "该位置所在的文档：Release，或该 Release 的图记录为组件编写来源的文档——其 Aggregate，或该 Aggregate 导入的模块的文档。优先读取会话为其保存的内容，否则从磁盘读取。"
+  },
+  "f246ef4c78aa5df9": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f246ef4c78aa5df9",
+    "status": "machine",
+    "text": "仅按族指定时，任务定义解析为其最新的活动修订版。"
   },
   "f2519461cf737ce5": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -149661,6 +150680,13 @@
     "srcHash": "f4c98383c5f016bb",
     "status": "machine",
     "text": "**1. 平台目录：Feature 声明自己的槽位**"
+  },
+  "f4d0e766c19e4ce5": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f4d0e766c19e4ce5",
+    "status": "machine",
+    "text": "Aggregate 声明了数据库，以及在 Kubernetes 上备份它所需的内容：一个存储桶和两个备份控制器。备份控制器按集群安装一次，而不是随数据库安装，因此它是一个独立的组件；在 AWS 上，备份保留在托管服务自身的存储中，这三者都不需要。一个参数 `backup_controller` 通过每个组件的 `active:` 开关来切换它们："
   },
   "f4d2eebab8bd92c5": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -152313,6 +153339,17 @@
     "status": "machine",
     "text": "**作用范围：** 在 `Release` 内某个边界的 `components` 及其 `features` 附件中统一使用。"
   },
+  "f8ff8fa0a43d7df7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "37cbc2496358aeb6",
+      "reviewed": false
+    },
+    "srcHash": "f8ff8fa0a43d7df7",
+    "status": "machine",
+    "text": "[advanced-platform](advanced-platform/README.md)（`advanced`）— 一个多边界的 Kubernetes 平台，从单个由开发者编写的 `Aggregate` 出发，在一次构建中组合多种机制：边界作用域的 FeatureRecipes、参数提升、凭据子系统，以及通过 Service DNS 解析的跨边界引用。"
+  },
   "f9053a8df6943198": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -152593,6 +153630,13 @@
     "srcHash": "f98533962f9b87c4",
     "status": "machine",
     "text": "可选块，用于标准 YAML 锚点（& 和 *），使 Aggregate 保持 DRY，同时为编译器维持扁平的 O(1) 字典。与 Manifest 上的对应块一致。"
+  },
+  "f98544860286dc34": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f98544860286dc34",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` 写出一个包含该实例的堆栈模板，其中两项相同的设置使用其 CloudFormation 属性名："
   },
   "f986e96d13f6c835": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -153201,6 +154245,17 @@
     "srcHash": "fa7fe67124e94375",
     "status": "machine",
     "text": "数据库"
+  },
+  "fa818f4b9fe9d059": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "ce33d9bd3d81fd9f",
+      "reviewed": false
+    },
+    "srcHash": "fa818f4b9fe9d059",
+    "status": "machine",
+    "text": "紧凑形式将任何以 `x-aggrega-` 为前缀的关键字识别为 Aggrega 专用扩展。该命名空间是开放的：新的注解无需逐个关键字修改词汇表即可进入目录。编写 `x-aggrega-selector`、`x-aggrega-narrowed-from` 或未来注解的作者，其内容会落在解析后 JSON Schema 中的正确作用域，不会在编译时被拒绝。"
   },
   "fa81b2d23e010c4f": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -153826,6 +154881,17 @@
     "status": "machine",
     "text": "运行时，未以 `Authorization: Bearer\n<key>` 形式出示已声明密钥的请求会被拒绝，返回 HTTP 401，并且网关转发的请求中\n会移除该密钥。回复按路由和调用方存储，因此某个\n调用方换了措辞的提示词会得到为该调用方存储的回复，绝不会得到\n为其他调用方存储的回复。从缓存返回的回复不计入\n预算，超出限额后仍会返回。`embedder` 连接拥有\n自己的路由，`models` 插槽上的每个连接都是如此。"
   },
+  "fb8258ec5d6d3a23": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "fe4eca9b48b0cb5a",
+      "reviewed": false
+    },
+    "srcHash": "fb8258ec5d6d3a23",
+    "status": "machine",
+    "text": "**此二进制文件声明的每个条件都由二进制文件直接回答。**它的两个代码及其诊断信息开头的语句都在编译器内部声明，因此这部分内容无需网络、缓存或配置。"
+  },
   "fb87355103f45764": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -154304,6 +155370,13 @@
     "status": "machine",
     "text": "`ad-hoc-socket`——该 socket 并非 Component 所声明的。作者为其命名是合法的，而未声明的 socket 不声明任何插槽。"
   },
+  "fc565b8f73bd10b1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "fc565b8f73bd10b1",
+    "status": "machine",
+    "text": "`core/storage/barman-cloud-plugin`"
+  },
   "fc59031809017e08": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -154507,6 +155580,13 @@
     "srcHash": "fc9fcb632f4a19a4",
     "status": "machine",
     "text": "裁决挂载所编写的插件 URI，与 `.aggrega-config.yaml` 的 `plugins.governance` 中所写一致（例如 `governance/aggrega-security-baseline:1.0.0`）。用于标识所记录的规则输入属于哪个挂载；裁决插件只缓存而不固定，因此在 `plugins` / `entities` 部分中没有可供关联的条目。"
+  },
+  "fca064effe18a363": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fca064effe18a363",
+    "status": "machine",
+    "text": "在 Amazon ECS 上启动运行"
   },
   "fca1c5d9ab85c211": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -155091,6 +156171,13 @@
     "status": "machine",
     "text": "release 的严格语义化版本（例如 1.0.0）。模式：`^(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)(?:-((?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$`。"
   },
+  "fdc060a3a1ce9fc8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fdc060a3a1ce9fc8",
+    "status": "machine",
+    "text": "CronJob 需要调度，而 `0 0 30 2 *` 指的是 2 月 30 日，任何年份都没有这个日期：挂起时，该 CronJob 不启动任何运行；恢复后，它仍然没有可以启动运行的时间。如果没有该挂接，没有调度的任务会是一个 Job，它在部署后立即运行。"
+  },
   "fdc432b04c2ddaa8": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -155259,6 +156346,17 @@
     "srcHash": "fdfbeb28eb4e17f6",
     "status": "machine",
     "text": "此后打开的终端可以找到 `aggrega`；已打开的终端仍保留其启动时的 `PATH`。"
+  },
+  "fe048817ed823f33": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "be288c4a54eb3b51",
+      "reviewed": false
+    },
+    "srcHash": "fe048817ed823f33",
+    "status": "machine",
+    "text": "**`url`**——要克隆的仓库。`https://`、`ssh://` 和 `git://` 均可接受。私有仓库可以通过 SSH agent 经 SSH 访问，也可以经 HTTPS 访问，此时需在你的 netrc 文件中为其主机添加一条条目——`machine github.com login <user> password <token>`。写入 URL 本身的凭据会被拒绝，如 [身份验证](../../cli/aggrega-pull.md#authentication) 所述。"
   },
   "fe063b54d01d4b2c": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -156153,6 +157251,17 @@
     "status": "machine",
     "text": "**无随机源，无外部状态。** 转换是基于其声明输入（实体内容、父链、lockfile）的纯函数。仅在解析期间（OCI 制品获取）才会查询外部状态，且解析后的内容按摘要进行内容寻址。"
   },
+  "ffaef73dc294b298": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "d115f2dc7ae2f060",
+      "reviewed": false
+    },
+    "srcHash": "ffaef73dc294b298",
+    "status": "machine",
+    "text": "**通用字符串（快速、简洁）：** 最适合本地路径、OCI 制品和 Git 仓库。编译器根据字符串的前缀和后缀（`./src`、`https://github.com/example/module.git`、`oci://...`）推断获取方式：以 `.git` 结尾、或以 `git://` 或 `ssh://` 书写的 URL 是一个 Git 仓库，在其默认分支上获取；既不指向仓库、也不指向 `.tgz` chart 或 `.yaml` 片段的 `https://` URL 会因含义不明确而被拒绝。"
+  },
   "ffb203092f736d69": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -156194,6 +157303,13 @@
     "srcHash": "ffc896927aca256f",
     "status": "machine",
     "text": "空字符串"
+  },
+  "ffc97d13365d60bd": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ffc97d13365d60bd",
+    "status": "machine",
+    "text": "每个 Release"
   },
   "ffca8ded59782c99": {
     "at": "2026-10-22T02:42:41.008096+00:00",

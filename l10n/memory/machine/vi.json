@@ -1032,6 +1032,13 @@
     "status": "machine",
     "text": "Danh sách cho phép ràng buộc cả hai phía của slot, ở hai bước khác nhau."
   },
+  "018db9274ec446da": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "018db9274ec446da",
+    "status": "machine",
+    "text": "Mỗi Release nêu image mà mỗi tác vụ chạy dưới `infra.image`, vì `core/compute/task` không đóng gói phần mềm nào. Các Releases cho AWS cũng nêu, dưới `infra.overrides`, cluster, subnet, security group và execution role mà mỗi tác vụ chạy cùng, và, nơi `report` có lịch, role mà lịch dùng để khởi động mỗi lần chạy. Mọi giá trị riêng cho tài khoản ở đó đều là placeholder."
+  },
   "018e6ec3e008057b": {
     "at": "2026-10-22T23:05:21.167953+00:00",
     "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
@@ -3000,6 +3007,17 @@
     "status": "machine",
     "text": "Dạng một máy chủ của cách hiện thực hóa được tổng hợp được trình bày chi tiết trong\n[`../mysql-standalone/`](../mysql-standalone/), và không được lặp lại ở đây."
   },
+  "04ad216c93536d58": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "f3bdb57dbbbdef22",
+      "reviewed": false
+    },
+    "srcHash": "04ad216c93536d58",
+    "status": "machine",
+    "text": "Một thực thể ArtifactLibrary mang lớp vỏ catalog tiêu chuẩn. `apiVersion: aggrega.ai/v1alpha1` và `kind: ArtifactLibrary` đánh dấu loại thực thể; `metadata.name` là một định danh PascalCase; `metadata.version` tuân theo quy chuẩn semantic versioning nghiêm ngặt. Cả hai đều bắt buộc. `metadata.description`, `metadata.labels` và `metadata.annotations` là tùy chọn — labels và annotations là siêu dữ liệu mờ do tác giả khai báo, được mang theo để bất cứ thứ gì đọc thư viện có thể dùng để so khớp, và trình biên dịch không diễn giải giá trị của chúng. Nội dung của thư viện nằm dưới `spec.artifacts`, một map bắt buộc phải khai báo ít nhất một bundle."
+  },
   "04af3180757e9f40": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -3220,6 +3238,13 @@
     "srcHash": "04fdba98dcb0ae90",
     "status": "machine",
     "text": "Mọi attachment trên một node đều nằm trong cùng một bucket, bất kể Feature của nó tạo ra gì — một Feature vận hành, một Feature thông tin xác thực, một Feature danh tính.\nKhông họ nào nhận một phép chiếu hẹp hơn họ khác, nên một policy duyệt qua\nbucket sẽ thấy tất cả chúng và không bao giờ phải biết mình đang xem họ nào\ntrước khi có thể đọc một dữ kiện."
+  },
+  "04fee587e6e9d93d": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "04fee587e6e9d93d",
+    "status": "machine",
+    "text": "Vì không có service nào được phát ra cho một Workload `reference`, không gì đọc đường ống phân phối của component mà nó hiện thực hóa: một thông tin xác thực được gắn vào component đó — được phân phối trên đường ống của nó bởi `dotenv-secret`, hoặc bởi khối `inject:` riêng của một attachment — sẽ không đến được tệp đầu ra nào. Vì vậy, mọi Compose Recipe của thư viện chuẩn hiện thực hóa một dịch vụ bên ngoài theo cách này, và có Component khai báo một khe thông tin xác thực, đều từ chối thông tin xác thực điền vào khe đó: bản build dừng lại và nêu tên khe và component, thay vì thành công khi thiếu thông tin xác thực. Trên compose, thông tin xác thực cho một dịch vụ bên ngoài được gắn vào component gọi dịch vụ đó, dưới biến môi trường mà component đó đọc. Sự từ chối đó là khẳng định riêng của từng Recipe, và nó chạy trước khi provider này kết xuất bất cứ thứ gì. Provider này cũng từ chối ngay tại node, bất kể Recipe đến từ danh mục nào: một attachment trên node `reference` có nội dung được khai báo là nhạy cảm — Feature của nó khai báo một trường `sensitive: true`, hoặc khe mà nó điền vào khai báo như vậy — sẽ dừng bản build với `TRANSLATION_ERROR` (`E0288`), nêu tên node và mọi attachment như vậy, bất kể có khe nào khai báo tên mà nó được gắn dưới đó hay không. Một attachment không mang gì được khai báo là nhạy cảm sẽ không bị từ chối ở đây. Các Components đó khai báo các khe thông tin xác thực của chúng là tùy chọn, nên trên compose một khe để trống không làm dừng gì cả. Ở nơi việc hiện thực hóa trên Kubernetes cần thông tin xác thực — các Recipes `helm` của `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell` và `vapi` — Recipe đó thay vào đó yêu cầu khe, và dừng bản build nêu tên khe khi nó trống."
   },
   "0505795503da0e0a": {
     "at": "2026-10-22T12:16:26.328227+00:00",
@@ -4341,6 +4366,13 @@
     "srcHash": "06da3d22e53acc49",
     "status": "machine",
     "text": "Việc một provider có chấp nhận các tệp hay không được đọc từ chính khai báo của provider về những gì nó hỗ trợ, chứ không từ một danh sách provider mà trình biên dịch lưu giữ. Mọi mục đều được tính, bất kể nó sẽ render ra gì. Provider `terraform` chấp nhận chúng, ghi mỗi tệp bên cạnh cấu hình gốc của boundary; `helm`, `compose`, `helm-chart` và `cloudformation` thì không, và bị từ chối."
+  },
+  "06df2f460db902da": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "06df2f460db902da",
+    "status": "machine",
+    "text": "Vì vậy, log được lưu trữ vào bucket liên tục, giữa các bản sao lưu cơ sở hằng ngày, và một lần khôi phục có thể đạt tới bất kỳ thời điểm nào trong 14 ngày: đó là khả năng khôi phục tại thời điểm (point-in-time recovery) của CloudNativePG, mà hiện thực hóa này giữ ở trạng thái bật."
   },
   "06e14b73cffe442d": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -5603,6 +5635,13 @@
     "status": "machine",
     "text": "map của volume"
   },
+  "08e8bce707ea248b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "08e8bce707ea248b",
+    "status": "machine",
+    "text": "Manifest quyết định sản phẩm nào sao lưu cơ sở dữ liệu. Hai Manifests Kubernetes chạy cơ sở dữ liệu theo hai cách — `helm/postgres`, một StatefulSet, cho Velero, và `helm/postgres-cloudnative-pg`, một Cluster CloudNativePG, cho plugin — và liên kết hiện thực hóa sao lưu tương ứng cho mỗi cách. `manifest-terraform.yaml` và `manifest-terraform-aws-backup.yaml` ánh xạ cơ sở dữ liệu tới cùng một Recipe và khác nhau ở FeatureRecipe mà chúng liên kết với `core/backup`, còn các Releases được build từ chúng, ngoài Manifest mà mỗi Release chỉ định, chỉ khác nhau ở vai trò."
+  },
   "08e9920b841f3f3b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -5975,6 +6014,13 @@
     "srcHash": "098e3c5a69e0714c",
     "status": "machine",
     "text": "Danh tính Workload là một khái niệm của cluster"
+  },
+  "09906f0b3c70f9f6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "09906f0b3c70f9f6",
+    "status": "machine",
+    "text": "Sáu Releases"
   },
   "09978f42087c95b4": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -8580,6 +8626,13 @@
     "status": "machine",
     "text": "[Hướng dẫn dành cho nhà phát triển plugin Wasm](plugin-developer-guide.md) — thực thể `Plugin`, phạm vi năng lực và vòng đời xuất bản."
   },
+  "0dda2405e5344b46": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "0dda2405e5344b46",
+    "status": "machine",
+    "text": "`core/backup` được hiện thực hóa bởi"
+  },
   "0ddaed0715b3e362": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -9395,6 +9448,17 @@
     "status": "machine",
     "text": "`no-slot-declared` — Component khai báo socket mà không có slot nào trên đó."
   },
+  "0f23c2f6c8925288": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "72941d240a932f42",
+      "reviewed": false
+    },
+    "srcHash": "0f23c2f6c8925288",
+    "status": "machine",
+    "text": "Các nhãn do tác giả khai báo. Trình biên dịch trung lập về nội dung và không diễn giải giá trị nhãn: chúng là metadata không trong suốt, được mang theo để bất cứ thứ gì đọc thư viện dùng làm căn cứ so khớp."
+  },
   "0f30d1a1b5f28f91": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -10039,6 +10103,13 @@
     "status": "machine",
     "text": "chính sách quản trị chấp nhận hoặc từ chối một bản build, trong khi build hoặc dựa trên đầu ra của nó."
   },
+  "10087f5fca0700c6": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "10087f5fca0700c6",
+    "status": "machine",
+    "text": "`release-terraform.yaml` ghi một cấu hình gốc với một khối module cho mỗi tác vụ, và module của mỗi tác vụ bên cạnh. Hai khối khác nhau ở lịch:"
+  },
   "100bf91d25a74abc": {
     "at": "2026-10-30T02:01:48.260Z",
     "job": "session-0049-20261030020148",
@@ -10084,6 +10155,13 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**Thứ tự ưu tiên ba tầng:** Trước khi áp dụng suy luận OCI, trình biên dịch kiểm tra các đường dẫn cục bộ (Tầng 1) và các thư mục workspace (Tầng 2) như được định nghĩa trong [Mô hình phân giải thực thể ba tầng](../../architecture/13-catalog-and-registry.md). Suy luận OCI chỉ được áp dụng khi thực thể đến Tầng 3 (registry từ xa)."
+  },
+  "101693dcc7edced9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "101693dcc7edced9",
+    "status": "machine",
+    "text": "Các Secret mà các Releases Kubernetes chỉ định do cluster nắm giữ, trong namespace mà mỗi Secret được đọc: `backup-store-access-key-id` và `backup-store-secret-access-key` bên cạnh bucket, `velero-cloud-credentials` trong `velero`, chứa một tệp thông tin xác thực dùng chung của AWS, và `db-backup` bên cạnh cơ sở dữ liệu, chứa cặp khóa dưới `ACCESS_KEY_ID` và `ACCESS_SECRET_KEY`. Bản build không render cái nào trong số đó."
   },
   "10187f986b5e452c": {
     "at": "2026-10-22T13:26:34.362950+00:00",
@@ -16036,6 +16114,13 @@
     "status": "machine",
     "text": "verify: `\"<reference>\"` records a signature a build does not accept, and no registry is configured to ask about it again: signing: the recorded signature was made for a different artifact (cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`)"
   },
+  "1a25cc012c3bb03d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "1a25cc012c3bb03d",
+    "status": "machine",
+    "text": "URL Fulcio và Rekor cho việc ký không khóa và đường dẫn khóa cho việc ký bằng khóa cũng có thể đến từ khối `signing:` trong `.aggrega-config.yaml` (toàn cục và theo từng registry, trong đó giá trị đặt cho registry của artifact được ưu tiên hơn giá trị toàn cục, theo từng trường); cờ ghi đè cấu hình, và cấu hình ghi đè giá trị mặc định công cộng. Vì vậy, các instance công cộng được nêu trong bảng cờ chỉ được dùng khi cả cờ lẫn cấu hình workspace của bạn đều không chỉ định endpoint. Dấu đánh dấu được ký đúng như cách [`aggrega sign`](aggrega-sign.md#signing-modes) ký một artifact."
+  },
   "1a28c18d3b3ebc31": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -17641,6 +17726,13 @@
     "status": "machine",
     "text": "Khóa này có mặt ở bất cứ đâu provider của host báo cáo một tên — dưới `helm`, một host có Recipe cung cấp\nmột chart hoặc khai báo một `workload:` — và vắng mặt ở nơi nó không báo cáo tên nào: một host chỉ đặt một tập artifact,\nvà một host trên bất kỳ provider nào khác. Đọc nó trên một attachment của host như vậy sẽ **dừng bản build**\nvới chẩn đoán dành cho một tham chiếu mà ngữ cảnh render không định nghĩa (`E0060`), liệt kê các khóa\nmà `.context` định nghĩa ở đó. `{{ .context.instance_id }}` nằm trong số đó, và đó là thứ mà các tài nguyên riêng\ncủa host được đặt tên theo trên host như vậy, nên một FeatureRecipe viết cho các host có thể không báo cáo tên\nsẽ đọc danh tính thay thế."
   },
+  "1c982545d83f6387": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "1c982545d83f6387",
+    "status": "machine",
+    "text": "Service tham gia mạng nào"
+  },
   "1c9861008fc86222": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -19057,6 +19149,13 @@
     "srcHash": "1ebff8844557d60d",
     "status": "machine",
     "text": "**Lớp của mô hình đến từ nhãn hosting của nó.** `gpt` không mang nhãn lớp nào.\nComponent của nó, `core/ai-model/openai`, mang `component.aggrega.ai/hosting:\nmanaged`, tức là tuyên bố của catalog rằng dịch vụ được nhà cung cấp vận hành,\nbên ngoài cluster, và các thiết lập ánh xạ điều đó thành một lớp:"
+  },
+  "1ec1f5b35b383ac2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "1ec1f5b35b383ac2",
+    "status": "machine",
+    "text": "Cả quy tắc này và quy tắc ở trên đều áp dụng cho một component do module đóng góp, khi composition import module đó được build; khi đó báo cáo nêu Aggregate của module và khóa bên trong tài liệu của nó."
   },
   "1ec59082834f30fe": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -22336,6 +22435,17 @@
     "status": "machine",
     "text": "Các trường cấp cao nhất nằm ở gốc của template context — được truy cập dưới dạng `.field` từ bên trong một template."
   },
+  "240fcce3ac367adc": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "c37b5799feebe2c5",
+      "reviewed": false
+    },
+    "srcHash": "240fcce3ac367adc",
+    "status": "machine",
+    "text": "Release Velero"
+  },
   "24110e251d206c9a": {
     "at": "2026-10-29T22:31:34.157Z",
     "job": "session-0030-20261029223134",
@@ -22939,6 +23049,17 @@
     "srcHash": "24ecb68831aa1b8f",
     "status": "machine",
     "text": "**Nó báo cáo một đối tượng vi phạm cho mỗi tệp.** Một khóa quyết định thu thập các thông báo, và một biểu thức CEL không có cách nào gộp các danh sách nó dựng cho từng tệp thành một danh sách. Vì vậy mỗi mệnh đề CEL báo cáo một đối tượng vi phạm trong mỗi tệp: container đầu tiên của một pod template, hoặc, trong số các service, instance và tài nguyên mà một tệp đặt khóa theo tên, cái có tên đứng đầu khi sắp xếp. Một comprehension duyệt một map không theo thứ tự cố định, nên việc chọn theo tên là điều giữ cho thông báo giống nhau từ bản build này sang bản build kế tiếp. Quy tắc Rego báo cáo mọi đối tượng vi phạm. Với hai service không cố định phiên bản trong một tệp Compose, engine Rego dừng với hai thông báo còn engine CEL với một, cho service có tên đứng đầu khi sắp xếp; với một service, như trong mọi Release ở đây, cả hai dừng với cùng một thông báo."
+  },
+  "24f2b3a15c5ba31e": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "5fb7bcacdcfab1ff",
+      "reviewed": false
+    },
+    "srcHash": "24f2b3a15c5ba31e",
+    "status": "machine",
+    "text": "`targets` — các đích chèn: các component đã phân giải mà guest có thể gắn annotation — những component mà một boundary nêu trực tiếp, và mọi component mà một mục định tuyến dưới `aggregates:` của boundary định tuyến vào, dù mục đó có nêu tên nó hay không — mỗi đích mang `boundary_path`, `component_name` của nó (với một component được định tuyến, đó là id có dấu chấm của nó trong đồ thị build, chẳng hạn `metrics.query`) và các `annotations` mà Release viết trên nó, để guest có thể quyết định thêm gì mà không thay thế một giá trị do tác giả viết. Mỗi giá trị annotation đến đúng như được viết — một chuỗi, một đối tượng gồm các khóa con, hoặc `null` khi component từ chối một annotation mà nó lẽ ra sẽ kế thừa — và mọi khóa mà component mang đều có mặt bất kể giá trị của nó. Được host sắp xếp một cách tất định."
   },
   "24f31566a442a624": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -24116,6 +24237,13 @@
     "srcHash": "270fb21a4a35fe24",
     "status": "machine",
     "text": "một đường dẫn tuyệt đối, chẳng hạn `/opt/charts/app`, chỉ tới một vị trí trên máy mà nó được viết ra."
+  },
+  "270fc23d33c4e3f8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "270fc23d33c4e3f8",
+    "status": "machine",
+    "text": "Phần đính kèm"
   },
   "2710f807f5aa0b62": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -25972,6 +26100,13 @@
     "srcHash": "2a2fc4bf10ea2124",
     "status": "machine",
     "text": "**Cài đặt API chứng chỉ.** Giá trị `install_crds` của developer được truyền\n  vào chart, chart này cài đặt các `CustomResourceDefinition` của cert-manager (các resource\n  `Certificate`, `Issuer`, `ClusterIssuer` và `Order`/`Challenge`\n  của ACME). Đặt nó thành false khi các CRD được quản lý bên ngoài."
+  },
+  "2a3133d11b8c9677": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2a3133d11b8c9677",
+    "status": "machine",
+    "text": "Không có gì trong stack tham chiếu tới `DataFixTaskDefinition`, nên không có gì khởi động nó."
   },
   "2a33fb2fb7ef0034": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -27850,6 +27985,13 @@
     "status": "machine",
     "text": "Các nhãn duck-typing và ontology của node hiện tại, bao gồm mọi thay đổi mà một plugin quản trị được gắn ở vai trò label-transform đã thực hiện khi xây dựng topology."
   },
+  "2d9c672f353a191c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "2d9c672f353a191c",
+    "status": "machine",
+    "text": "`release-terraform-aws-backup.yaml` thay vào đó được build từ một Manifest liên kết `terraform/backup-aws-backup`. Hiện thực hóa này ghi một module riêng của phần đính kèm bên cạnh module của cơ sở dữ liệu, chứa một backup vault, một kế hoạch và một lựa chọn chỉ định phiên bản:"
+  },
   "2da0b6273d0dd9d8": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -28132,6 +28274,13 @@
     "srcHash": "2e08fb9ddf765faf",
     "status": "machine",
     "text": "**Cài đặt, chạy và khám phá.** [`aggrega plugin add cli <query>`](../language-reference/cli/aggrega-plugin.md) tìm trong registry đã cấu hình một plugin `cli` phù hợp, xác minh nó theo chính sách tin cậy của registry, và cài đặt nó thành một lệnh cấp cao nhất — trước tiên in ra các khả năng mà plugin khai báo, để người vận hành xác nhận chính xác lệnh được phép làm gì trước khi nó được cài đặt. Sau khi cài đặt, `aggrega <command>` chạy nó như mọi lệnh tích hợp sẵn. Một plugin CLI khai báo các lệnh và cờ của chúng trong phần tự mô tả `describe()`, và host hiển thị cờ của từng lệnh trong `aggrega help <command>` giống hệt như với lệnh tích hợp sẵn, nhờ đó người vận hành khám phá các `--flags` của một lệnh đã cài đặt theo cùng một cách. Để tìm các lệnh có thể cài đặt và nội dung catalog, [`aggrega search`](../language-reference/cli/aggrega-search.md) truy vấn chỉ mục cục bộ của các registry đã cấu hình — `--kind plugin --plugin-type cli` thu hẹp kết quả về các plugin CLI có thể cài đặt, và một lần tìm kiếm không lọc sẽ bao gồm các thực thể catalog; [`aggrega plugin list`](../language-reference/cli/aggrega-plugin.md) hiển thị những gì đã được cài đặt. Các cờ và dạng đầu ra của từng lệnh được trình bày trên các trang tham chiếu đó."
+  },
+  "2e094b5c48bd7cab": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2e094b5c48bd7cab",
+    "status": "machine",
+    "text": "Một tác vụ mang `core/manual-trigger`, được triển khai mà không khởi động trên Kubernetes, Docker Compose, Terraform và CloudFormation, bên cạnh một tác vụ không mang gì, cùng với lệnh khởi động một lần chạy trên mỗi đích."
   },
   "2e09563ca7fecc15": {
     "at": "2026-10-22T21:42:39.864359+00:00",
@@ -29554,6 +29703,13 @@
     "status": "machine",
     "text": "Authored values or infra do not conform to the declared schema (Values hoặc infra được viết không tuân theo schema đã khai báo)"
   },
+  "303fc9b6db140df9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "303fc9b6db140df9",
+    "status": "machine",
+    "text": "RDS nhận một thời điểm bắt đầu hằng ngày thay vì một biểu thức cron, nên `30 2 * * *` trở thành một cửa sổ sao lưu mở lúc 02:30 UTC và kéo dài 30 phút, thời lượng ngắn nhất mà RDS chấp nhận."
+  },
   "3041b737cf1313fd": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -30401,6 +30557,13 @@
     "status": "machine",
     "text": "**Khi nào nên ưu tiên `optional` thay vì `default`.** Dùng `optional` khi trường có thể hợp lệ mang giá trị không, rỗng hoặc false và tác giả catalog cần phân biệt “tác giả không đặt giá trị này” với “tác giả đặt giá trị này thành một giá trị falsy.” Dùng `default` khi sự gộp lẫn là chấp nhận được (ví dụ: trường chuỗi mà giá trị rỗng là không hợp lệ; trường số mà giá trị không là không hợp lệ)."
   },
+  "318ecb06291a6658": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "318ecb06291a6658",
+    "status": "machine",
+    "text": "**Một mã mà tệp nhị phân này không khai báo sẽ được tra cứu trong tài liệu tham khảo đã xuất bản.** Một plugin báo cáo việc dừng bằng cách chọn một điều kiện mà trình biên dịch khai báo, nên không có điều kiện nào được khai báo ở nơi khác. Tài liệu tham khảo đã xuất bản, [sentinels.md](../errors/sentinels.md), liệt kê mọi điều kiện mà sản phẩm khai báo, và nó có thể đã được xuất bản cho một phiên bản khác với tệp nhị phân bạn đang chạy — nên một mã được trích từ báo cáo tạo bằng một bản phát hành mới hơn hoặc cũ hơn vẫn có thể được phân giải ở đó."
+  },
   "318f71f4b535f09b": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -30443,6 +30606,13 @@
     "srcHash": "319fbf166d7e626d",
     "status": "machine",
     "text": "Phiên bản nguồn gốc bản dựng được đóng dấu vào guest lúc dựng. Bị bỏ qua bởi một bản dựng không được đóng dấu."
+  },
+  "31a3321d76aa6b44": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "31a3321d76aa6b44",
+    "status": "machine",
+    "text": "**Các khai báo của một module được kiểm tra như khai báo của Aggregate.** Tài liệu của một module chỉ được đọc khi bản kết hợp nhập nó được build, và các khai báo của nó được kiểm tra từ thời điểm đó, ở mọi độ sâu lồng nhau. Khối `inject:` của chính một thành phần trong module phải tuân theo danh sách cho phép `spec.inject` của kiểu của nó, cũng như các quy tắc cấm nhận một khóa phân phối hai lần và cấm đọc một khóa mà kiểu không công bố. Một phần gắn kèm được viết tại một trong các hệ thống con của chính module chỉ có thể nêu tên một socket mà Feature của nó khai báo, và một phần gắn kèm mà Release viết cho một thành phần do module đóng góp cũng vậy."
   },
   "31a6ba99794699dd": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -30845,6 +31015,13 @@
     "srcHash": "325e29c1bea445b3",
     "status": "machine",
     "text": "Cài đặt `aggrega-<version>.mcpb` từ phần cài đặt tiện ích mở rộng của Claude Desktop."
+  },
+  "325fc4631bdb10f1": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "325fc4631bdb10f1",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` ghi một template stack. Template chứa một định nghĩa tác vụ cho mỗi tác vụ và một lịch chỉ cho `report`:"
   },
   "32644ada49779ae5": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -33537,6 +33714,13 @@
     "status": "machine",
     "text": "**Lưu lượng đi ra không bị ảnh hưởng.** Model server vẫn tới được registry mà nó kéo trọng số về, và phân giải tên như trước."
   },
+  "36e54b2c010ebbc6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "36e54b2c010ebbc6",
+    "status": "machine",
+    "text": "hai Releases Kubernetes: bucket mà các bản sao lưu được ghi vào"
+  },
   "36e79e67ee8a4394": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -33877,6 +34061,13 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "Tài liệu tham khảo liên quan"
+  },
+  "376a13ff3d131acb": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "376a13ff3d131acb",
+    "status": "machine",
+    "text": "`release-terraform.yaml` chỉ ghi module của cơ sở dữ liệu và không gì khác. Hiện thực hóa của phần đính kèm, `terraform/backup-native`, không render tệp nào: bản sao lưu là một thiết lập của phiên bản RDS, nên Recipe của cơ sở dữ liệu đọc phần đính kèm và ghi nó ở nơi phiên bản được ghi:"
   },
   "376b63fbc49fe7bc": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -34637,6 +34828,13 @@
     "srcHash": "3918f8a89b42ba9a",
     "status": "machine",
     "text": "Cấu trúc đã phân tích cú pháp của thực thể phiên bản trước, dành cho các quy tắc thực hiện so sánh theo cặp (schema-evolution), với các giá trị tham số bị loại bỏ đúng như cách chúng bị loại bỏ khỏi proposed. Bị bỏ qua khi quy tắc không cần tham chiếu phiên bản trước (ví dụ: lần xuất bản đầu tiên, các quy tắc chỉ về cấu trúc)."
+  },
+  "391d5fbc2208cfb7": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "391d5fbc2208cfb7",
+    "status": "machine",
+    "text": "Một lần chạy của `data-fix` là một Job được tạo từ CronJob của nó, với tên do bạn chọn:"
   },
   "391e405152779acc": {
     "at": "2026-10-29T19:15:25.530Z",
@@ -35609,6 +35807,13 @@
     "srcHash": "3a85a5fe846a347c",
     "status": "machine",
     "text": "**`--verify` dưới chế độ ngoại tuyến kiểm tra ít hơn, và báo cáo rằng nó như vậy.** Hỏi xem một source ref đã ghi hiện trỏ tới đâu nghĩa là phải với tới remote của nó, điều mà chế độ ngoại tuyến từ chối. Vì vậy, `--verify` ngoại tuyến kiểm tra các phụ thuộc đã pin và bỏ qua khía cạnh đó, và in ra một dòng nói như vậy thay vì báo cáo một sự khớp mà nó chưa từng xác lập. Một chữ ký đã ghi mà chỉ registry của nó mới xác nhận được — trên một mục lockfile có gói chữ ký trong bộ nhớ đệm đã bị xóa hoặc bị sửa — cũng bị bỏ qua theo cách đó, trên một dòng nêu tên từng mục như vậy:"
+  },
+  "3a8befe00dcf9100": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "3a8befe00dcf9100",
+    "status": "machine",
+    "text": "Nguồn gốc của các endpoint ký"
   },
   "3a9072704f2cdc68": {
     "at": "2026-10-22T10:44:41.513626+00:00",
@@ -36590,6 +36795,13 @@
     "srcHash": "3c2a399ef6c3948a",
     "status": "machine",
     "text": "dừng bản build, kể cả khi đứng một mình: nó chèn nội dung lấy từ S3 khi stack được triển khai, thứ mà bản build không thể đọc."
+  },
+  "3c2b2586db860718": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "3c2b2586db860718",
+    "status": "machine",
+    "text": "Module chỉ khai báo lịch EventBridge Scheduler khi được cung cấp một biểu thức, nên định nghĩa tác vụ của `data-fix` đứng riêng:"
   },
   "3c2b4919dbcca502": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -38578,6 +38790,17 @@
     "srcHash": "3f6501df82142116",
     "status": "machine",
     "text": "**Nó ảnh hưởng tới các tên và nhãn suy ra từ danh tính** — `metadata.name` trên tài nguyên do Aggrega tổng hợp, các nhãn `aggrega.ai/component-id` và `app.kubernetes.io/name`, các selector khớp với chúng, các tên tệp được xuất ra, `{{ .context.instance_id }}`, và tên mà một provider tự suy ra cho mình, chẳng hạn tên release của helm. Chúng thay đổi cùng nhau, nên một địa chỉ mà một Recipe tạo từ khóa đặt tên cho tài nguyên — `.context.instance_id` khi đích đặt tên theo danh tính, `.context.rendered_name` khi đích báo cáo một tên riêng — vẫn gọi đúng tài nguyên mà bản build xuất ra."
+  },
+  "3f656ce8e6a47e82": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "9b3809bf1e42e3db",
+      "reviewed": false
+    },
+    "srcHash": "3f656ce8e6a47e82",
+    "status": "machine",
+    "text": "Một thực thể WorkloadLibrary mang lớp vỏ catalog tiêu chuẩn. `apiVersion: aggrega.ai/v1alpha1` và `kind: WorkloadLibrary` đánh dấu loại thực thể; `metadata.name` là một định danh PascalCase; `metadata.version` tuân theo phiên bản ngữ nghĩa nghiêm ngặt. Cả hai đều bắt buộc. `metadata.description`, `metadata.labels` và `metadata.annotations` là tùy chọn — labels và annotations là siêu dữ liệu không trong suốt do tác giả khai báo, được mang theo để bất cứ thứ gì đọc thư viện có thể dùng để so khớp, và trình biên dịch không diễn giải giá trị của chúng. Nội dung của thư viện nằm dưới `spec.workloads`, một map bắt buộc phải khai báo ít nhất một mục."
   },
   "3f6661a4274ffdd5": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -41256,6 +41479,17 @@
     "status": "machine",
     "text": "**Cách khắc phục:** đọc câu riêng của plugin, đó là nơi chứa mọi thứ cụ thể cho bản build của bạn. Bản thân điều kiện chỉ cho bạn biết rằng plugin không có loại nào cho lỗi đó. Khi plugin là của bạn, hãy chọn loại đúng với lỗi thực sự; khi không phải, câu đó là thứ cần trích dẫn cho người phát hành plugin."
   },
+  "43ee7affe68615bc": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "637e1948178cdcc1",
+      "reviewed": false
+    },
+    "srcHash": "43ee7affe68615bc",
+    "status": "machine",
+    "text": "**Không có tài liệu.** Với một điều kiện mà trình biên dịch khai báo, các mã và câu vẫn được báo cáo, kèm một ghi chú nêu tên gói và phiên bản không đọc được. Với một mã mà tệp nhị phân này không khai báo thì không còn gì để trả lời, nên mã bị từ chối — và lời từ chối cho biết không đọc được tài liệu tham khảo, vì thiếu nó thì một mã từ phiên bản khác không thể phân biệt được với lỗi gõ, và để ngỏ cả hai cách khắc phục: sửa mã, hoặc lấy tài liệu. Nguyên nhân thường gặp là một workspace được ghim ở chế độ ngoại tuyến, hoặc một workspace chưa từng kết nối tới registry của nó. Khi máy có một bản sao mà cơ chế kiểm tra chữ ký của workspace không chấp nhận — một bản mà dự án khác đã tải theo thiết lập lỏng hơn, hoặc một bản mà workspace ngoại tuyến không thể kiểm tra vì máy này chưa từng tải gốc tin cậy công khai mà cơ chế kiểm tra của nó dựa vào — ghi chú sẽ cho biết bản sao đã bị từ chối chứ không phải bị thiếu, và lý do."
+  },
   "43f04a916d326c68": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -41693,6 +41927,13 @@
     "srcHash": "449a819ec5b7f1d5",
     "status": "machine",
     "text": "**Đường dẫn cục bộ — cho các tài liệu mà một Release và Manifest của nó chỉ định.** `aggregate`, `manifest` hoặc `extends` của một Release, hoặc `extends` của một Manifest, khi được viết với tiền tố `./` hoặc `../` sẽ được đọc như một tệp tương đối so với thư mục riêng của Release; suy luận OCI không chạy. Không vị trí nào khác nhận đường dẫn: một `type`, một khóa hoặc giá trị ánh xạ của Manifest, một `implements` hoặc một `plugin` của pipeline được viết dưới dạng `./…` không chỉ định thực thể nào và sẽ dừng bản build. Một thực thể được viết cục bộ được đặt dưới `catalog/` ở gốc workspace hoặc trong một thư mục mà `workspace.catalog_dirs` liệt kê, và được phân giải theo tên của nó qua tầng workspace và bộ nhớ đệm."
+  },
+  "449d7071852d1660": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "449d7071852d1660",
+    "status": "machine",
+    "text": "Ở đây lịch đến với tác vụ thông qua một tham số mà Release đáp ứng, nên việc cung cấp lịch cho component có nghĩa là đáp ứng `report_schedule`, như `release-terraform.yaml` làm."
   },
   "449ef1c477904505": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -42193,6 +42434,17 @@
     "srcHash": "453e79101cb4b070",
     "status": "machine",
     "text": "**Cách khắc phục:** lỗi nằm ở plugin chứ không phải ở tài liệu của bạn. Hãy sửa plugin để mọi thao tác nó trả về đều nhắm tới một mục dưới `labels` của một node nào đó, và chỉ đặt giá trị chuỗi — giá trị nhãn kiểu số hoặc boolean là trường hợp thường gặp, vì bề mặt này chỉ chấp nhận chuỗi. Gỡ phần gắn khỏi `plugins.governance` là cách tức thời để bỏ chặn bản build trong khi plugin đang được sửa."
+  },
+  "453ffd4bfefe197e": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "954d9f3876831298",
+      "reviewed": false
+    },
+    "srcHash": "453ffd4bfefe197e",
+    "status": "machine",
+    "text": "Những gì bản build không làm"
   },
   "45430d8c62a99335": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -45603,6 +45855,17 @@
     "status": "machine",
     "text": "Plugin kết xuất những loại nào trong ba loại đầu vào của Recipe: một tập tệp có nguồn, một workload được tổng hợp, và một nút độc lập chỉ chứa artifact."
   },
+  "4aa9215d3cfbac4f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "16ec975e305ead69",
+      "reviewed": false
+    },
+    "srcHash": "4aa9215d3cfbac4f",
+    "status": "machine",
+    "text": "0.8.8 (commit e9804536f)"
+  },
   "4aaaab02f591318a": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -45673,6 +45936,13 @@
     "srcHash": "4acb9d287d0bf590",
     "status": "machine",
     "text": "Một vai trò verdict chấp nhận hoặc từ chối và không làm gì khác: host chỉ đọc đầu ra của nó\nnhư một quyết định và không bao giờ áp dụng nó như một thay đổi, nên một policy không thể âm thầm\nđưa một build không tuân thủ trở thành tuân thủ. Một vai trò transform là ngoại lệ\ncó chủ đích, và điều khiến nó là ngoại lệ là việc operator đã gắn nó — gắn một\nplugin để định hình label là một tuyên bố rằng label cần được định hình. Những gì một\nattachment như vậy có thể thay đổi bị giới hạn trong bề mặt của chính vai trò của nó, và build dừng lại\nmột cách rõ ràng khi gặp bất cứ thứ gì nằm ngoài bề mặt đó."
+  },
+  "4acf709c133f0148": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "4acf709c133f0148",
+    "status": "machine",
+    "text": "Trên cả hai đích AWS, một lần chạy của `data-fix` được khởi động bằng thao tác Amazon ECS RunTask, với family của định nghĩa tác vụ như đã render cùng cấu hình cluster và mạng mà Release nêu dưới `infra.overrides`:"
   },
   "4ad09c8b0bd452f7": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -47296,6 +47566,17 @@
     "status": "machine",
     "text": "ARN của IAM role mà một lần đọc stack xuyên tài khoản đảm nhận để truy cập các giá trị được export của một stack ngang hàng."
   },
+  "4db5107181288bf9": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "7cd729394ad1587a",
+      "reviewed": false
+    },
+    "srcHash": "4db5107181288bf9",
+    "status": "machine",
+    "text": "Phần tiếp theo là **danh sách ví dụ được tuyển chọn theo độ phức tạp tăng dần** — từ bề mặt viết nhỏ nhất đến các bản build kết hợp nhiều cơ chế — và không phải danh sách đầy đủ những gì có ở đây: thư mục `examples/` chứa trang này có nhiều workspace hơn danh sách nêu. Một ví dụ chỉ được đưa vào danh sách khi nó dạy điều mà các ví dụ đã có trong đó không dạy, để danh sách này vẫn là một lộ trình để học theo chứ không phải một bản kiểm kê để lướt qua. Hãy đọc từ trên xuống dưới, hoặc chuyển đến cấp độ phù hợp với việc bạn đang làm."
+  },
   "4db6af8d3e9f781b": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -47516,6 +47797,13 @@
     "srcHash": "4e0d1e855de4cfbc",
     "status": "machine",
     "text": "Cách tiếp cận máy chủ: stdio nói giao thức qua đầu vào và đầu ra chuẩn, đó là cách một client khởi chạy lệnh này như một tiến trình con tiếp cận nó; http phục vụ giao thức qua HTTP trên địa chỉ mà --listen hoặc mcp.listen chỉ định, và qua HTTPS khi mcp.tls chỉ định một chứng chỉ và khóa. Khi được đặt, ghi đè khóa cấu hình mcp.transport, có giá trị mặc định là stdio."
+  },
+  "4e0d534413b77c19": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "4e0d534413b77c19",
+    "status": "machine",
+    "text": "`infra.keep_automated_backups: false` trên phần đính kèm tắt các bản đó và để các bản của AWS Backup làm bản sao lưu duy nhất của phiên bản."
   },
   "4e0d96acdf2df769": {
     "at": "2026-10-22T23:16:12.871393+00:00",
@@ -50270,6 +50558,13 @@
     "srcHash": "527561205ff90fd5",
     "status": "machine",
     "text": "Một Release và một Manifest có thể chỉ định một tệp khác bằng đường dẫn: `aggregate:` và `manifest:` của một Release được viết dưới dạng `./…` hoặc `../…`, `extends:` của nó, `extends:` của một Manifest được viết dưới dạng đường dẫn, và `parameters: { $import: … }` của một Release. **Một tài liệu trong workspace chỉ có thể truy cập theo cách đó các tệp nằm trong workspace** — một đường dẫn leo ra ngoài theo cách được viết sẽ bị từ chối, và một đường dẫn nằm bên trong theo cách được viết nhưng gặp một liên kết dẫn ra ngoài trên đường đi cũng vậy. Không có gì được đọc từ tệp mà một trong hai đường dẫn đó chỉ định."
+  },
+  "5275f50cb3d2fc47": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5275f50cb3d2fc47",
+    "status": "machine",
+    "text": "Bản build ghi tệp rồi dừng. Nó không khởi động lần chạy nào, trên bất kỳ đích nào: nó không kết nối tới cluster nào, không khởi động stack Compose nào và không gọi API AWS nào, và attachment chỉ thay đổi nội dung của các tệp. Nó cũng không ghi script nào: mọi lệnh trên trang này là lệnh riêng của đích, do người vận hành đích chạy, và không lệnh nào nằm trong `dist/`. Các hiện thực của attachment không thêm tệp riêng nào trên bất kỳ đích nào; thay đổi mà mỗi hiện thực tạo ra nằm trong chính đầu ra của tác vụ, như đã trình bày ở trên."
   },
   "527a74bda5397d06": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -53627,6 +53922,13 @@
     "status": "machine",
     "text": "**Các cạnh nội bộ bên trong module.** Store Gateway khai báo việc sử dụng\n  kho đối tượng và Query khai báo việc sử dụng Store Gateway; `endpoint` được công bố\n  của kho đối tượng cùng host và cổng được công bố của Store Gateway được\n  truyền vào bên tiêu thụ trên mỗi cạnh, và Recipe của mỗi bên tiêu thụ dựng\n  địa chỉ từ chúng. Trình biên dịch định tuyến các chuỗi mà không diễn giải chúng."
   },
+  "57d383cb4ed08233": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "57d383cb4ed08233",
+    "status": "machine",
+    "text": "Phiên bản vẫn giữ các bản sao lưu tự động của riêng nó bên cạnh các bản của AWS Backup, như khi không có phần đính kèm: trong 7 ngày, trong một cửa sổ do RDS chọn, vì lịch của phần đính kèm là của AWS Backup chứ không phải của phiên bản:"
+  },
   "57d495e83cfd647a": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -55205,6 +55507,13 @@
     "srcHash": "5a269de5a98dd0ae",
     "status": "machine",
     "text": "**Khả dụng của `metadata.labels` và `metadata.annotations` — hiện chỉ hỗ trợ một phần; dự kiến khả dụng đồng nhất.** Các phong bì thực thể hiện mang các trường này là Component (labels bắt buộc, với khóa bắt buộc `component.aggrega.ai/type`, annotations tùy chọn), Feature (cả hai tùy chọn), bốn loại thư viện SchemaLibrary, MappingLibrary, WorkloadLibrary và ArtifactLibrary (cả hai tùy chọn), và Aggregate (chỉ labels, tùy chọn). Các thực thể còn lại — Recipe, FeatureRecipe, Manifest, Release, Plugin — hiện không chấp nhận `metadata.labels` hay `metadata.annotations` ở cấp phong bì. Một lần lặp trong tương lai sẽ mở rộng `metadata.labels` và `metadata.annotations` tùy chọn một cách đồng nhất cho mọi thực thể, đồng thời giữ ràng buộc khóa label bắt buộc của Component như một ngoại lệ riêng cho thực thể đó."
+  },
+  "5a29bc53a12c4e20": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5a29bc53a12c4e20",
+    "status": "machine",
+    "text": "`release-helm.yaml` ghi hai tệp, một CronJob cho mỗi tác vụ, và không gì khác. `data-fix` là một CronJob được giữ ở trạng thái tạm ngưng, với một lịch mà developer chưa từng viết:"
   },
   "5a2f1db5040f1da3": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -58246,6 +58555,13 @@
     "status": "machine",
     "text": "`DocumentSet`"
   },
+  "5f5d21bf23dca47c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "5f5d21bf23dca47c",
+    "status": "machine",
+    "text": "`release-helm-velero.yaml` ghi StatefulSet và các Service của cơ sở dữ liệu, các tài nguyên của bucket, các đối tượng mà chart riêng của Velero render, và một tệp cho phần đính kèm, chứa một vị trí lưu trữ Velero và một lịch:"
+  },
   "5f5e372b153a1f51": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -58756,6 +59072,13 @@
     "status": "machine",
     "text": "Các thông báo được phát ra, cho một instance component. Khi một ánh xạ tồn tại và chỉ định một thứ vắng mặt:"
   },
+  "602a5e69c3021bdb": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "602a5e69c3021bdb",
+    "status": "machine",
+    "text": "attachment"
+  },
   "602c5f9875ad3a5b": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -58769,6 +59092,13 @@
     "srcHash": "6033c91d2cb663ff",
     "status": "machine",
     "text": "Trường này là tùy chọn, và ba điều bạn có thể muốn nói qua nó là phân biệt được:"
+  },
+  "6036ca2730c852d1": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6036ca2730c852d1",
+    "status": "machine",
+    "text": "Một mount được viết mà không có `subPath` không mang khối `volume:`. Một `subPath` trên mount của volume `ephemeral`, `configmap` hoặc `secret` sẽ dừng bản build với `TRANSLATION_ERROR`, nêu tên component, container, đường dẫn đã viết của mount (`containers.<name>.volumeMounts[<i>]`), volume và `subPath`: các biến thể đó đến compose lần lượt dưới dạng một mục `tmpfs`, một tham chiếu `configs:` và một bind mount, không cái nào trong số đó gắn một phần của những gì nó cung cấp, nên nếu không dừng lại thì mount sẽ nhìn thấy toàn bộ volume. Hãy xóa `subPath` khỏi mount như vậy, hoặc gắn một volume `persistent`. Docker Compose đọc `volume.subpath` từ bản phát hành 2.26.0, trên Docker Engine 26.0 trở lên; bản build không thể nhìn thấy máy chủ sẽ chạy tệp, nên một tệp mang nó được lắp ráp theo cùng một cách bất kể nó sẽ chạy ở đâu."
   },
   "6037ca10a1542bb3": {
     "at": "2026-10-22T12:16:26.328227+00:00",
@@ -58853,6 +59183,17 @@
     "srcHash": "605130ea8ab42ba4",
     "status": "machine",
     "text": "Một parser chuyển một nguồn được viết bằng một định dạng mà trình biên dịch không đọc được một cách tự nhiên thành một cây có cấu trúc chuẩn tắc, để bên tiêu thụ đọc cây đó thay vì phải mang theo một parser của riêng mình. Host phân giải parser quảng bá định dạng được yêu cầu dưới dạng `parse:<format>` và gọi export `parse` của nó ở hai nơi: khi một policy render-verdict được trao một artifact đã render ở định dạng mà nó không đọc được một cách tự nhiên, và khi một importer yêu cầu host cung cấp một cây thông qua `aggrega_parse_source`. Một guest không bao giờ tự gọi một parser."
+  },
+  "6055917c16fbd3c5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "62ebb69c98895d33",
+      "reviewed": false
+    },
+    "srcHash": "6055917c16fbd3c5",
+    "status": "machine",
+    "text": "Một nền tảng Kubernetes nhiều ranh giới, kết hợp nhiều cơ chế trong một bản build từ một `Aggregate` duy nhất do Developer soạn: các FeatureRecipes phạm vi ranh giới, việc nâng tham số, hệ thống con thông tin xác thực, và các tham chiếu xuyên ranh giới được phân giải qua Service DNS."
   },
   "60564565887f4b70": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -60617,6 +60958,17 @@
     "srcHash": "6314e98384b94279",
     "status": "machine",
     "text": "Độ sâu phân giải theo từng loại"
+  },
+  "631b6ebf5b22ece6": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "366563ac5f2c71ce",
+      "reviewed": false
+    },
+    "srcHash": "631b6ebf5b22ece6",
+    "status": "machine",
+    "text": "Hợp đồng hành vi render tại thời điểm biên dịch mà một plugin render provider tự khai báo: các loại đầu vào mà nó render, cách nó ghép đầu ra theo từng node của một nhóm dispatch, cặp dấu phân cách template mà nó áp dụng cho các tệp artifact được nhập, liệu một instance đã nạp có thể phục vụ mọi lần chuyển giao hay không, liệu nó có tuân theo các mục omit hay không, và liệu nó có chấp nhận các tệp mà một Recipe đóng góp vào đầu ra dùng chung của boundary hay không. Khối này nằm cạnh `capabilities` trong cùng một block nhưng trả lời một câu hỏi khác: danh sách capability cho biết plugin này phục vụ *những* capability nào, còn hợp đồng cho biết nó render chúng *như thế nào*. `aggrega plugin gen-catalog` ghi lại nó từ bản tự báo cáo `describe()` của chính plugin, và host đối chiếu nó với bản tự báo cáo đó khi publish và khi nạp; nếu không khớp thì quá trình dừng lại. Khi vắng mặt, không có hợp đồng hành vi render nào được khai báo, và việc đối chiếu chỉ so sánh các tuyên bố theo từng export. Mọi trường đều là tùy chọn."
   },
   "631e73a20b5b121c": {
     "at": "2026-10-22T22:51:17.853388+00:00",
@@ -62493,6 +62845,13 @@
     "status": "machine",
     "text": "Thông báo được phát ra, nêu tài liệu và nơi annotation được viết, khóa con, khóa annotation, và các khóa con mà binding định tuyến:"
   },
+  "66339d4702ef70d0": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "66339d4702ef70d0",
+    "status": "machine",
+    "text": "một người, thủ công, trên mọi đích"
+  },
   "6635aa99c78d9af0": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -63595,6 +63954,13 @@
     "status": "machine",
     "text": "`sensitive: true` trên một slot nêu yêu cầu riêng của bên tiêu thụ: *bất cứ thứ gì gắn vào điểm này đều xử lý dữ liệu bí mật.*"
   },
+  "6843f9d71d18a661": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6843f9d71d18a661",
+    "status": "machine",
+    "text": "Định tuyến injection không phụ thuộc cơ chế trên một kết nối. Ánh xạ các biến cục bộ sang các khóa provides của đích. Mỗi cơ chế phân phối (env, file, arg hoặc custom) được viết dưới dạng một mảng các mục {in, from} — với 'from' tường minh cho các tham chiếu provides."
+  },
   "684bc3383f81f8a0": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -64470,6 +64836,13 @@
     "status": "machine",
     "text": "**Một workspace đặt tên các Releases trong `workspace.releases`** có thể giữ một catalog ở nhiều biến thể song song, mỗi biến thể được Release riêng của nó đọc, và việc tải tất cả cùng lúc sẽ đặt mọi biến thể vào một catalog, khiến entity của biến thể này che khuất entity của biến thể khác. Vì vậy nó được xác thực một lần cho mỗi Release mà workspace chứa, trên các thư mục mà Release đó đọc, với các thư mục `--catalog` đứng đầu trong mọi lượt; một Release mà cấu hình không đặt tên sẽ đọc danh sách của workspace. Mỗi lượt được báo cáo dưới một dòng nêu tên Release của nó và các thư mục nó đã đọc, tiếp theo là kết quả của lượt đó:"
   },
+  "69b51ffe16be3748": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "69b51ffe16be3748",
+    "status": "machine",
+    "text": "Các component mà nó có thể gắn annotation là mọi component mà một boundary nêu dưới `components:`, và mọi component mà mục định tuyến `aggregates:` của một boundary định tuyến vào. Một mục định tuyến đặt mọi component của module của nó, bao gồm cả các component của những module lồng bên trong, bất kể `components:` của chính nó nêu tất cả, một số hay không nêu component nào, như `documents: {}` không nêu component nào; payload mang từng component. Một component được định tuyến được định địa chỉ bằng id mà nó mang trong đồ thị build — tên module, một dấu chấm, và tên của component bên trong module, như trong `documents.backend`, thêm một tên module và dấu chấm cho mỗi module lồng nhau — đó là cách đồ thị build và các chẩn đoán của nó viết id này, nên một quyết định cũng nêu tên nó theo cách đó. Một component mà mục định tuyến đặt vào mà không nêu tên không mang annotation riêng nào trên payload, và một annotation được chèn vào nó được áp dụng như một annotation được viết trên nó dưới mục định tuyến."
+  },
   "69b6717e265e36dc": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -64620,6 +64993,13 @@
     "srcHash": "69ee83d6d1053757",
     "status": "machine",
     "text": "A provider binding names a capability containing a colon (Một liên kết provider chỉ định một capability chứa dấu hai chấm)"
+  },
+  "69f51a2182f612f0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "69f51a2182f612f0",
+    "status": "machine",
+    "text": "Một giá trị được inject chỉ đến được component mà nó được gắn vào, và chỉ khi Recipe của component đó định nghĩa một service để mang nó. Một Recipe Compose hiện thực một service bên ngoài bằng tham chiếu không định nghĩa service nào, nên một Recipe như vậy từ thư viện chuẩn sẽ từ chối thông tin xác thực điền vào một trong các slot của Component của nó, và build dừng lại, nêu slot và component, thay vì thành công khi thiếu thông tin xác thực. Bản thân provider Compose từ chối mọi attachment được khai báo là nhạy cảm trên một node mà nó hiện thực bằng tham chiếu, bất kể Recipe đến từ catalog nào và bất kể có slot nào khai báo tên mà nó được gắn dưới đó hay không, và dừng build, nêu node và attachment. Trên Compose, thông tin xác thực cho một service bên ngoài được gắn vào component gọi service đó, dưới biến mà component đó đọc; xem [trang provider Compose](../providers/compose.md#controller-form). Các Components đó khai báo slot thông tin xác thực là tùy chọn, nên để trống chúng trên Compose không làm dừng gì cả, trong khi các Recipes `helm` của `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell` và `vapi` yêu cầu từng slot và dừng lại, nêu slot trống."
   },
   "69f7337c861d7dd7": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -66182,6 +66562,17 @@
     "status": "machine",
     "text": "Các phát hiện, theo thứ tự chúng được tạo ra."
   },
+  "6cb43d1fb7f98dcd": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "c3e4a014dd778e47",
+      "reviewed": false
+    },
+    "srcHash": "6cb43d1fb7f98dcd",
+    "status": "machine",
+    "text": "`input.targets` — mọi component mà attachment có thể chú thích, mỗi component có `boundary_path`, `component_name` — với một component do mục định tuyến đặt vào, đó là id của nó trong đồ thị build, chẳng hạn `metrics.query` — và các `annotations` mà Release viết trên chính component đó, mỗi giá trị như đã viết: một chuỗi, một đối tượng gồm các khóa con, hoặc `null` khi component từ chối một annotation mà lẽ ra nó sẽ kế thừa. Mọi khóa mà component mang đều có mặt bất kể giá trị của nó, nên một rule có thể để nguyên một khóa mà ai đó đã viết. `input.binding_keys` — các khóa annotation mà Manifest đăng ký một binding cho chúng."
+  },
   "6cb8102aaea2d0ae": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -67477,6 +67868,13 @@
     "status": "machine",
     "text": "Một tham chiếu do tài liệu viết"
   },
+  "6eadf1f1356d355c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "6eadf1f1356d355c",
+    "status": "machine",
+    "text": "Recipe riêng của cơ sở dữ liệu cũng đọc phần đính kèm, và chỉ định plugin làm trình lưu trữ write-ahead log của Cluster:"
+  },
   "6eba3a30ce0fc64f": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -68373,6 +68771,13 @@
     "status": "machine",
     "text": "FeatureRecipe `pipeline:` (Nguyên tắc Plugin hai phần)"
   },
+  "6ffeed19828025d5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "6ffeed19828025d5",
+    "status": "machine",
+    "text": "Một component do module đóng góp cũng gặp hai dạng đầu tiên này, được đọc từ tài liệu của chính module khi composition import nó được build; khi đó chúng nêu Aggregate của module và khóa bên trong tài liệu của nó."
+  },
   "7000483027a021f9": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -68607,6 +69012,13 @@
     "srcHash": "7088714fc94d505e",
     "status": "machine",
     "text": "Một Recipe tạo đầu ra từ ba loại đầu vào — sourced, synthesized và artifacts — được mô tả trong [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). Hình dạng của một Recipe hợp lệ bị ràng buộc bởi các quy tắc kết hợp dưới đây. Chúng khác nhau ở thời điểm được kiểm tra — khi Recipe được tải, khi một node render, hoặc khi đầu ra được phát ra — vì vậy hãy đọc từng mục để biết thời điểm điều kiện của chính nó được kiểm tra. Các quy tắc áp dụng cho các Recipes nhắm tới provider không phải `eval`; provider `eval` có ràng buộc riêng (bên dưới)."
+  },
+  "7088ac09dce6df8b": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "7088ac09dce6df8b",
+    "status": "machine",
+    "text": "**`subPath` của một mount gắn một phần của volume ở nơi compose có dạng cho việc đó.** Một mục `volumeMounts` chỉ đến một volume `persistent` hoặc `persistentTemplate` với `subPath` sẽ trở thành một mục `volumes` dạng đầy đủ mang `volume.subpath`, vì vậy mount nhìn thấy thư mục hoặc tệp được nêu tên bên trong volume thay vì thư mục gốc của nó, và hai mount của cùng một volume với hai giá trị `subPath` khác nhau nhìn thấy hai phần khác nhau của volume đó:"
   },
   "7088b933ac99c968": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -69995,6 +70407,13 @@
     "status": "machine",
     "text": "**2. Miền phát triển: Aggregate gốc**\nAggregate gốc nhập mô-đun cơ sở dữ liệu và kết nối tới component được xuất của nó bằng cú pháp đường dẫn có dấu chấm `data-layer.public_db`."
   },
+  "7301469507e276c0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7301469507e276c0",
+    "status": "machine",
+    "text": "Bề mặt attachment được kiểm tra ở mọi phạm vi mà một attachment được viết: trên một component, trên một subsystem — của Aggregate hoặc của một module mà nó import — trên một boundary của Release, và trên một mục component của Release, bao gồm cả mục cho một component do module đóng góp. Các khai báo của chính module được kiểm tra khi composition import nó được build, và phát hiện nêu Aggregate của module và khóa bên trong tài liệu của nó."
+  },
   "73018d1e9d5e3fbf": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -71015,6 +71434,13 @@
     "status": "machine",
     "text": "Một component có socket `models` khai báo một slot `credential` được đánh dấu `sensitive: true`, nối một kết nối dưới alias `gpt` lấp slot đó, sẽ liệt kê attachment đó bên dưới kết nối — bên cạnh một credential của chính nó, vẫn nằm dưới `Features:`:"
   },
+  "74bb2e09c02972cb": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "74bb2e09c02972cb",
+    "status": "machine",
+    "text": "**Hình dạng ngủ:** Recipe riêng của task trên mỗi nền tảng đích đọc phần gắn kèm và kết xuất task ở dạng được triển khai mà không khởi động lần chạy nào. Trên Kubernetes, task là một `CronJob` bị giữ bằng [`suspend: true`](../language-reference/entities/workload.md#suspend), với lịch chỉ định một ngày không bao giờ đến, thay cho `Job` vốn sẽ chạy ngay khi được triển khai. Trên Docker Compose, service của task, thứ mà Compose không khởi động lại sau khi nó thoát, mang profile `manual`, nên `docker compose up` để nó ở trạng thái dừng. Trên Amazon ECS, qua Terraform hoặc CloudFormation, định nghĩa task được triển khai riêng, không có lịch nào để khởi động nó. FeatureRecipe mà Manifest liên kết cho phần gắn kèm không thêm tệp riêng nào trên bất kỳ nền tảng đích nào: thay đổi nằm trong đầu ra của chính task."
+  },
   "74bdca51db659a8b": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -71391,6 +71817,13 @@
     "status": "machine",
     "text": "**Giá trị đi theo tên khai báo, không theo thư mục.** Các giá trị của một chart con được đặt phạm vi dưới tên mà chart đó khai báo, nên các giá trị cho chart ở trên được định địa chỉ theo tên *khai báo* của `api--guardrail` — `cfr-zh-api-zh-guardrail` — thay vì theo thư mục của nó."
   },
+  "7538e18dac097df1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7538e18dac097df1",
+    "status": "machine",
+    "text": "**[task-run-on-demand](task-run-on-demand/)** — hai tác vụ chạy đến khi hoàn tất, được build cho Kubernetes, Docker Compose, Terraform và CloudFormation: một tác vụ mang `core/manual-trigger`, được triển khai mà không khởi chạy trên mọi đích, và một tác vụ không mang gì, được khởi chạy theo lịch của nó hoặc khi stack khởi động. README cho thấy attachment thay đổi những gì trong đầu ra của từng đích — một CronJob bị tạm dừng, một service đứng sau một profile Compose, một định nghĩa tác vụ Amazon ECS không có lịch — và lệnh riêng của đích để bắt đầu một lần chạy. Lịch của tác vụ thứ hai là một tham số, vì các đích xử lý khác nhau đối với tác vụ không có cả hai: hai Releases dừng lại ở nơi một đích không thể hiện thực điều chúng yêu cầu."
+  },
   "7539d39c5aa135f6": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -71635,6 +72068,13 @@
     "srcHash": "7596d6b5d2b1a937",
     "status": "machine",
     "text": "Nếu không có thông tin xác thực đã lưu, bản build dừng lại khi đang kéo:"
+  },
+  "759a4ade2d607fed": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "759a4ade2d607fed",
+    "status": "machine",
+    "text": "Một số công việc chỉ chạy đến khi hoàn tất khi có người yêu cầu: một lần sửa dữ liệu đơn lẻ, một bản sao lưu theo yêu cầu. `core/manual-trigger` là Feature dành cho việc đó. Khi được gắn vào một `core/compute/task` không có lịch, nó triển khai tác vụ mà không khởi động tác vụ, và mỗi lần chạy là một lần có người khởi động thủ công, bằng lệnh riêng của đích."
   },
   "759b96de88af355b": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -72065,6 +72505,13 @@
     "srcHash": "762fca3fdf17a910",
     "status": "machine",
     "text": "Tài liệu khai báo nó, dưới dạng đường dẫn tương đối so với thư mục gốc của workspace."
+  },
+  "76335c3f77effc45": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "76335c3f77effc45",
+    "status": "machine",
+    "text": "Compose chỉ khởi động một service mang profile khi profile đó được bật hoặc service được nêu tên trên dòng lệnh, nên `docker compose up` chạy `report` một lần và để `data-fix` ở trạng thái dừng. Một lần chạy của `data-fix` được khởi động bằng cách nêu tên service của nó, và `--rm` xóa container của nó khi lần chạy kết thúc:"
   },
   "76368db6f629fa5c": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -74535,6 +74982,13 @@
     "status": "machine",
     "text": "component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `\"<module>\"`, routed as a sub-module into boundary `\"<boundary-b>\"`, while it is already placed by a sub-module routed into boundary `\"<boundary-a>\"`, that earlier entry naming `\"<module>\"`, both declared in `\"<path>\"`) (thành phần được khai báo trong nhiều hơn một ranh giới: hãy khai báo mỗi thành phần trong đúng một ranh giới; mô-đun con được định tuyến vào một ranh giới trong khi nó đã được đặt bởi một mô-đun con được định tuyến vào một ranh giới khác, cả hai được khai báo trong cùng một tệp)"
   },
+  "7a2b559a84c0a067": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "7a2b559a84c0a067",
+    "status": "machine",
+    "text": "*(Lưu ý: Trên Kubernetes và Amazon ECS, một task mang lịch sẽ chạy theo lịch đó dù có phần gắn kèm hay không, và cùng lệnh đó khởi động thêm một lần chạy giữa các lần đã lên lịch; trên Docker Compose, vốn không có bộ lập lịch, Recipe của task từ chối lịch. Ví dụ hoàn chỉnh [task-run-on-demand](../language-reference/examples/task-run-on-demand/README.md) build một Aggregate cho Kubernetes, Docker Compose, Terraform và CloudFormation, và cho thấy trên mỗi nền tảng đầu ra được kết xuất cùng lệnh khởi động một lần chạy.)*"
+  },
   "7a2bf3396aa39ec8": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -74724,6 +75178,13 @@
     "srcHash": "7a9aabf056009012",
     "status": "machine",
     "text": "6. Đóng gói artifact & phân loại OCI (năng lực là phân đoạn dẫn đầu)"
+  },
+  "7a9ca6380fece864": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "7a9ca6380fece864",
+    "status": "machine",
+    "text": "Attachment nằm trong Aggregate, bên cạnh tác vụ mà nó thay đổi: việc chạy theo yêu cầu là một phần bản chất của `data-fix`, nên developer viết nó, và Feature không nhận giá trị nào cũng như không nhận `infra`. Release không viết gì cho nó."
   },
   "7a9cbe35facb61c1": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -75065,6 +75526,13 @@
     "srcHash": "7b255d7d9caf2b74",
     "status": "machine",
     "text": "Component khai báo một yêu cầu hiện diện — một annotation `features.aggrega.ai/requiredType.<label>` — nêu tên một kiểu Feature không có mặt trong số các attachment mà instance component này cuối cùng có được, tính trên mọi phạm vi: các khối cấp component và cấp subsystem của Aggregate, các khối cấp boundary và cấp component của Release, và phần mở rộng do annotation điều khiển."
+  },
+  "7b267765f9bda5c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7b267765f9bda5c2",
+    "status": "machine",
+    "text": "Release bị dừng"
   },
   "7b28242fc2786cec": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -75524,6 +75992,17 @@
     "status": "machine",
     "text": "`scheduling`"
   },
+  "7bf6402393d38f29": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cfa58b24c57cfae3",
+      "reviewed": false
+    },
+    "srcHash": "7bf6402393d38f29",
+    "status": "machine",
+    "text": "**Chỉ `$import:` một nguồn.** `$import:` chấp nhận một nguồn duy nhất. Hợp nhất nhiều nguồn không được hỗ trợ tại `valuesMapping:`. Một Recipe cần ghép nhiều mảnh ánh xạ sẽ dùng một mục MappingLibrary với cách ghép nội bộ bằng Go template `define` / `template`, một tệp cục bộ với các chỉ thị Go template `template` gọi các tệp cùng cấp, hoặc ghép inline cho nội dung ngắn. Xem [entities/mappinglibrary](mappinglibrary.md) về thực thể thư viện, [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) về sự phân biệt rộng hơn giữa `$ref:` / `$import:`."
+  },
   "7bfd33055117bf33": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -75646,6 +76125,13 @@
     "srcHash": "7c25e296a550205a",
     "status": "machine",
     "text": "const \"add-component\" hoặc const \"attach-feature\" hoặc const \"wire-edge\" hoặc const \"set-value\""
+  },
+  "7c2a2ed35b8623c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7c2a2ed35b8623c2",
+    "status": "machine",
+    "text": "`check.sh` in một dòng cho mỗi Release và chỉ thoát với mã 0 khi mỗi Release kết thúc như trang này mô tả:"
   },
   "7c2f50ad1c8a0879": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -77304,6 +77790,13 @@
     "status": "machine",
     "text": "Một mục `attachments:` của container bên trong khối `workload:` tham chiếu đến một slot đính kèm, và tham chiếu đó không khớp với các slot mà Component hoặc Feature khai báo trong `featuresSchema` của nó — hoặc, đối với một mục nêu tên một kết nối bằng `connection:`, không khớp với các slot mà socket của kết nối đó khai báo. Một mục `envFrom` nêu tên một kết nối cũng phải tuân theo cùng các quy tắc về kết nối. Phát hiện cho biết bạn đang gặp trường hợp nào trong số này."
   },
+  "7f02e58ba2c5731c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7f02e58ba2c5731c",
+    "status": "machine",
+    "text": "`core/storage/velero`"
+  },
   "7f02fafbb418f5eb": {
     "at": "2026-10-22T06:00:14.240Z",
     "job": "session-0018-20261022060014",
@@ -78402,6 +78895,17 @@
     "status": "machine",
     "text": "**Không phải là ranh giới bảo mật.** Không có gì trong chương này là cơ chế bảo mật thông tin. Mô hình thông tin xác thực là một mô hình *đi dây*: nó quyết định một con trỏ hoặc một giá trị đến từ đâu, ai có thể ràng buộc nó, và nó đến được container bằng cách nào. Bảo vệ dữ liệu bí mật là việc của kho secret, cluster và pipeline xử lý cây đã kết xuất."
   },
+  "80d3f78aaf9f6a1c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "81443cf3cf8e1447",
+      "reviewed": false
+    },
+    "srcHash": "80d3f78aaf9f6a1c",
+    "status": "machine",
+    "text": "Kỹ sư vận hành viết nội dung ánh xạ để chuyển đổi ngữ cảnh trừu tượng trước khi plugin kết xuất Wasm thực thi. Ngôn ngữ ánh xạ là Go template (text/template + Sprig); thư viện Sprig được đăng ký sẵn; các action chuẩn `define` và `template` được hỗ trợ, còn `include` không được đăng ký."
+  },
   "80d708c769a34460": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -78560,6 +79064,13 @@
     "status": "machine",
     "text": "Các bản ghi của operator cho hai Aggregates điền vào slot."
   },
+  "81084b4ee3b8af39": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "81084b4ee3b8af39",
+    "status": "machine",
+    "text": "Kubernetes, với Velero"
+  },
   "810a87d5ddac67af": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -78587,6 +79098,13 @@
     "srcHash": "8115826e57dcef9b",
     "status": "machine",
     "text": "**Cách khắc phục:** không có gì trong các tệp của bạn gây ra lỗi nào trong hai lỗi này, và không có thay đổi nào khi viết tài liệu giúp xóa được chúng — lỗi nằm ở cách bản build được nối dây chứ không phải ở thứ nó được yêu cầu build. Hãy báo cáo lỗi kèm lệnh bạn đã chạy và cấu hình workspace mà lệnh đó chạy trên."
+  },
+  "8117684f72f26633": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "8117684f72f26633",
+    "status": "machine",
+    "text": "Mỗi Manifest ánh xạ `core/compute/task` tới Recipe của đích tương ứng và liên kết `core/manual-trigger` với FeatureRecipe của đích đó: `helm/task` và `helm/manual-trigger`, `compose/task` và `compose/manual-trigger`, `terraform/task-ecs` và `terraform/manual-trigger`, cùng `cloudformation/task-ecs` và `cloudformation/manual-trigger`. Một Manifest không liên kết FeatureRecipe nào cho attachment sẽ dừng bản build và nêu tên nó."
   },
   "811ace97bcf2c6d6": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -79120,6 +79638,13 @@
     "srcHash": "821d240649ed0518",
     "status": "machine",
     "text": "[Kiến trúc Provider](../providers/architecture.md) — cách các provider khớp\n  vào pipeline biên dịch."
+  },
+  "821d4ea9de1196f8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "821d4ea9de1196f8",
+    "status": "machine",
+    "text": "Hai Releases bị dừng"
   },
   "822062ace2e8ae11": {
     "at": "2026-10-22T11:48:02.910092+00:00",
@@ -80083,6 +80608,17 @@
     "status": "machine",
     "text": "Một Release đáp ứng các tham số mà một Aggregate khai báo theo một trong hai cách, và khối được đọc theo dạng của nó. Hoặc đó là một mapping từ tên tham số đến giá trị được viết tại chỗ, hoặc đó là một mapping có đúng một khóa, `$import:`, với giá trị là đường dẫn của một tệp YAML chứa các giá trị đó. Một khối không thuộc dạng nào sẽ bị từ chối ngay khi được đọc, trước khi bất cứ thứ gì kiểm tra các giá trị theo khai báo của Aggregate."
   },
+  "83c9c9e37c4632c6": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "e101cd8b3ed6240a",
+      "reviewed": false
+    },
+    "srcHash": "83c9c9e37c4632c6",
+    "status": "machine",
+    "text": "Việc phát ra điều kiện hoàn tất không nâng phiên bản Compose tối thiểu. `condition` và các giá trị của nó thuộc về Compose Specification cơ bản — khác với các trường `restart` và `required` nằm cạnh chúng trong cùng khối dạng đầy đủ, vốn được đặc tả gắn với các bản phát hành Compose cụ thể. Mỗi phiên bản tối thiểu mà đầu ra của compose provider yêu cầu đi kèm với cấu trúc cần đến nó: **≥ 2.23.1** cho `configs.content` nội tuyến, **≥ 2.26.0** cho `subPath` của một mount (xem [Volume](#volumes)), và 2.38 cho [các model](#models). Phiên bản đầu tiên áp dụng cho mọi đầu ra compose mang một config với `content:` nội tuyến, vốn là cách mà cả tệp phía sau một volume `configmap` lẫn config phía sau một cạnh liên mạng được bắc cầu được đưa vào — không chỉ một đường soạn thảo."
+  },
   "83cc3b2ff524bce6": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -80744,6 +81280,13 @@
     "srcHash": "8505e7fb06f99aa0",
     "status": "machine",
     "text": "Mỗi mục là một đoạn Go template được soạn thảo dưới dạng chuỗi YAML. Đầu ra được kết xuất của mục là một **tài liệu Workload hoàn chỉnh** — nó mang `apiVersion: aggrega.ai/v1alpha1` và `kind: Workload` của riêng nó — vì trường `workload:` của một Recipe nhận một Workload hoàn chỉnh, không phải một đoạn được ghép vào một tài liệu bao quanh, và việc nhập sẽ thay thế toàn bộ trường. Một mục MappingLibrary cũng hoàn chỉnh theo cùng cách: nhập một mục như vậy sẽ thay thế toàn bộ `valuesMapping:` của Recipe."
+  },
+  "85099370c842904b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "85099370c842904b",
+    "status": "machine",
+    "text": "Lịch được viết theo dạng cron riêng của AWS, được đọc theo UTC, và một bản sao lưu chưa bắt đầu trong vòng một giờ kể từ thời điểm của nó sẽ không được bắt đầu. ARN của phiên bản là một biểu thức Terraform được ghép từ những gì nhà cung cấp AWS được cấu hình khi lập kế hoạch, và tên của phiên bản; vai trò là vai trò mà Release chỉ định, được truyền qua đúng như đã viết."
   },
   "850b450da56f18d3": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -81815,6 +82358,13 @@
     "status": "machine",
     "text": "**Pipeline đa phương thức:** `schema:` của một Component có thể khai báo các giai đoạn thực thi tường minh như `document_chunking`, `embedding_generation` và `storage_routing` dưới dạng các `values` có kiểu, để một luồng dữ liệu khai báo được xác thực trước khi bất cứ thứ gì được render. Thư viện chuẩn không khai báo giai đoạn nào như vậy."
   },
+  "86ef3b7456ff21ff": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "86ef3b7456ff21ff",
+    "status": "machine",
+    "text": "thứ khởi động một lần chạy"
+  },
   "86f51b17077aee2d": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -82840,6 +83390,13 @@
     "srcHash": "88af7a7054366360",
     "status": "machine",
     "text": "**Một datastore đóng vai trò bộ nhớ đệm.** Ở đây Redis được dùng làm bộ nhớ đệm trong bộ nhớ và\n  không lưu trữ bền vững gì cả, nên component được định kiểu là một `server` thông thường thay vì\n  một `stateful-server`. Trên Kubernetes, Recipe được tổng hợp render một\n  **Deployment**, không phải StatefulSet, và không yêu cầu volume bền vững nào; trên\n  Compose, service không khai báo volume dữ liệu nào."
+  },
+  "88b1beb1e5f4b050": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "88b1beb1e5f4b050",
+    "status": "machine",
+    "text": "Các Releases AWS viết cùng phần đính kèm đó mà không có kết nối `store`, vì RDS và AWS Backup giữ các bản sao lưu trong bộ lưu trữ riêng của chúng, và các hiện thực hóa ở đó từ chối kết nối tới một bucket mà không gì ghi vào. Release AWS Backup thêm `infra.role_arn`, vai trò IAM mà AWS Backup dùng để chạy mỗi bản sao lưu."
   },
   "88b89e4b53ad57c7": {
     "at": "2026-10-22T23:26:42.562574+00:00",
@@ -89184,6 +89741,17 @@
     "status": "machine",
     "text": "Mức hỗ trợ theo provider và loại đầu vào"
   },
+  "931f2a7ccc85223c": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "f6d6f9c3536ef20b",
+      "reviewed": false
+    },
+    "srcHash": "931f2a7ccc85223c",
+    "status": "machine",
+    "text": "**Được mang theo.** Ở cấp cao nhất: `services`, `volumes`, `configs` và `models`. Trên một service: `image`, `pull_policy`, `command`, `entrypoint`, `environment`, `env_file`, `ports`, `labels`, `volumes`, `tmpfs`, `networks`, `network_mode`, `depends_on`, `healthcheck`, `restart`, `user`, `working_dir`, `privileged`, `read_only`, `cap_add`, `cap_drop`, `configs`, `models`, `deploy`, `stop_grace_period`, `dns`, `dns_search`, `extra_hosts` và `profiles`. Bên trong các khối mà provider mô tả: `deploy.resources` cùng `limits` (`cpus`, `memory`) và `reservations` (`cpus`, `memory`, `devices`, và `driver`, `count`, `device_ids`, `capabilities` và `options` của mỗi mục thiết bị) của nó; `test`, `interval`, `timeout`, `retries` và `start_period` của một `healthcheck`; `type`, `source`, `target`, `read_only` và `volume.subpath` của một mục `volumes:` dạng đầy đủ; `source` và `target` của một mục `configs:` dạng đầy đủ; `condition` của một mục `depends_on:` dạng đầy đủ; `driver`, `driver_opts` và `labels` của một volume cấp cao nhất; `content` của một config cấp cao nhất. Phần thân của một model và mục `models:` dạng đầy đủ của một service mang theo mọi thành viên, như [Models](#models) mô tả. Một thành viên mở rộng — một khóa bắt đầu bằng `x-` — được mang theo ở cấp cao nhất và trên một service, như [Các thành viên mở rộng](#extension-members-are-carried-as-written) mô tả."
+  },
   "932283493763280a": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -89440,6 +90008,13 @@
     "srcHash": "938f900ac61289c4",
     "status": "machine",
     "text": "**Aggrega: Cache…** — chọn một thao tác bộ nhớ đệm, rồi chạy nó qua máy chủ ngôn ngữ. Khi nhấn trên bảng Commands, bốn thao tác được đề xuất dưới dạng menu bên cạnh nút; khi chạy từ đây, chúng được đề xuất dưới dạng danh sách để bạn chọn. Không có tiến trình nào được khởi chạy, và mỗi câu trả lời quay về dưới dạng một kết quả có cấu trúc mà bảng báo cáo: **status** liệt kê mọi bộ nhớ đệm, nội dung của nó và mức độ chia sẻ của từng bộ nhớ đệm, và không xóa gì; **prune** xóa các mục không được tệp khóa nào tham chiếu và nêu tên những gì nó đã giữ lại, cùng với bất cứ thứ gì nó không có cơ sở để thu hồi và thao tác có thể thu hồi chúng; **evict** trước tiên hỏi một giới hạn kích thước — một lượng byte như `5GiB` hoặc `512MiB`, hoặc một số byte, được đọc bởi cùng bộ phân tích mà dòng lệnh sử dụng — và cắt giảm bộ nhớ đệm mô-đun đã biên dịch dùng chung xuống mức đó; **clear** làm trống mọi bộ nhớ đệm. Ba thao tác có xóa thứ gì đó sẽ yêu cầu bạn xác nhận trước, và mỗi xác nhận nêu tên các bộ nhớ đệm mà thao tác đó thực sự chạm đến: làm trống và dọn dẹp chạm đến các bộ nhớ đệm thực thể, artifact nguồn, đầu vào bên ngoài và gói tài liệu riêng của không gian làm việc này *và* các bộ nhớ đệm mô-đun đã biên dịch và mô tả plugin mà mọi dự án trên máy này dùng chung, trong khi cắt giảm chỉ chạm đến bộ nhớ đệm mô-đun đã biên dịch dùng chung. Mọi kích thước mà các thao tác này báo cáo đều được viết theo cùng cách viết mà giới hạn được đọc, nên một con số bạn đọc từ báo cáo bộ nhớ đệm có thể được gõ thẳng vào lời nhắc giới hạn. Một giới hạn mà trình biên dịch không đọc được sẽ nhận lại thông điệp của chính trình biên dịch nêu cách viết một giới hạn kích thước. Các bộ nhớ đệm đã được làm trống và cắt giảm sẽ được điền lại ở bản dựng tiếp theo cần đến chúng. Windows từ chối xóa một tệp mà tiến trình khác đang mở, và khi đó một lần dọn dẹp, cắt giảm hoặc làm trống sẽ để nguyên tệp đó và tiếp tục với phần còn lại thay vì thất bại: kênh đầu ra Aggrega nêu tên từng mục mà lần dọn dẹp hoặc cắt giảm để lại, với lớp, mức độ chia sẻ và kích thước của nó, và dưới mỗi bộ nhớ đệm mà lần làm trống chạm đến, cho biết số tệp nó để lại ở đó và kích thước của chúng; thông điệp mà thao tác kết thúc cho biết có bao nhiêu tệp được để nguyên, yêu cầu bạn chạy lại thao tác khi tiến trình đó đã kết thúc, và chỉ bạn đến kênh để biết những tệp nào. Khi không có gì bị để lại — điều xảy ra với mọi lần chạy trên nền tảng cho phép xóa tệp đang mở — không nơi nào nói gì về điều đó."
+  },
+  "938fbf9c05722935": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "938fbf9c05722935",
+    "status": "machine",
+    "text": "Một cơ chế phân phối duy nhất, được viết dưới dạng một mảng các mục. Mỗi mục mang một 'in' (định danh cục bộ — tên biến môi trường, đường dẫn tệp, cờ đối số, hoặc khóa riêng của cơ chế tùy chỉnh) cùng đúng một trong hai: 'from' (một khóa provides cần phân giải) hoặc 'value'. Trên một Release, mọi mục đều nằm trên một kết nối, nên 'from' được phân giải theo provides của đích và một mục mang 'value' sẽ bị từ chối."
   },
   "9390298f3fb0c5b1": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -90523,6 +91098,13 @@
     "status": "machine",
     "text": "Một dịch vụ nêu tên model ở dạng ngắn, hoặc không có biến nào trong hai biến, được kết nối với nó mà không có chú thích."
   },
+  "9563a2e85a3053b6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9563a2e85a3053b6",
+    "status": "machine",
+    "text": "Cả hai nằm trong namespace `velero`, namespace duy nhất mà Velero đọc lịch, và được đặt tên theo namespace của cơ sở dữ liệu, tên của nó và tên của phần đính kèm, vì mọi Release trên cluster đều ghi vào cùng một namespace đó. Lịch chọn các pod của cơ sở dữ liệu theo nhãn của StatefulSet mà cơ sở dữ liệu render, trong namespace mà nó được đặt, và node agent của Velero sao chép các tệp trong volume của chúng vào bucket. Địa chỉ của bucket là địa chỉ mà thành phần `backups` công bố, với tên Service được định danh đầy đủ bằng namespace nơi nó chạy, vì Velero chạy trong một namespace khác, và region cũng là của bucket: SeaweedFS, thứ chạy bucket ở đây, không đọc region nào và công bố `us-east-1`. 14 ngày là thời gian tồn tại (time to live) của Velero, tính bằng giờ."
+  },
   "95671e33714a72c7": {
     "at": "2026-10-30T00:43:49.791Z",
     "job": "session-0040-20261030004349",
@@ -91365,6 +91947,13 @@
     "status": "machine",
     "text": "một plugin entity, mà manifest cam kết ở một vị trí khác:"
   },
+  "96a1699939b6657c": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "96a1699939b6657c",
+    "status": "machine",
+    "text": "**Giải pháp: Task ngủ và lệnh riêng của nền tảng đích** Aggrega giải quyết vấn đề này trong khi vẫn giữ sự thuần khiết AOT nghiêm ngặt. Nó sinh cấu hình cho một task được triển khai mà không khởi động, và mỗi lần chạy được khởi động trên nền tảng đích bằng chính lệnh của nền tảng đó."
+  },
   "96a4049a083d309c": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -91648,6 +92237,17 @@
     "srcHash": "9729354b2f0a1b8f",
     "status": "machine",
     "text": "Sau khi mở rộng annotation, cả `api` và `worker` đều mang một Feature attachment tổng hợp `feature.myco/db-pool` có trường `values.pool` đọc là `\"shared-pool\"`. Bảng phụ provenance ghi lại mỗi lá là `Origin: annotation`, `Side: aggregate`, `AnnotationSource: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`."
+  },
+  "972df538c66e8003": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "4d53e53b8c04d705",
+      "reviewed": false
+    },
+    "srcHash": "972df538c66e8003",
+    "status": "machine",
+    "text": "Một số dạng được nêu kém chính xác hơn. Một tên attachment được khai báo ở nhiều hơn một phạm vi — chẳng hạn trên một component và trên subsystem chứa nó — vẽ một kết nối từ mỗi khối khai báo, và build ghi nhận cả hai chỉ dưới tên của attachment. Khi đó cả hai kết nối được nêu tại một trong các khối khai báo — chính khối attachment của component, ở bất cứ đâu tên được khai báo tại đó — và không kết nối nào mang vị trí danh sách. Điều tương tự cũng đúng bên trong một Aggregate được import, nơi các khối khai báo — khối của một component và khối của một trong các subsystem của chính module — được nêu trong tài liệu của chính module. Trong mọi dạng này, cặp vẫn bị từ chối."
   },
   "97324aaad7bf47a5": {
     "at": "2026-10-22T10:44:41.513626+00:00",
@@ -93387,6 +93987,13 @@
     "status": "machine",
     "text": "`gemini mcp add`, hoặc `~/.gemini/settings.json` cho mọi dự án và `.gemini/settings.json` cho một dự án"
   },
+  "9a03061eceddf512": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "9a03061eceddf512",
+    "status": "machine",
+    "text": "Một workspace nhiều đích giữ một catalog riêng cho mỗi đích sẽ nêu các thư mục của từng đích dưới `workspace.releases`, với khóa là tệp Release của nó, để mọi Release đều được build dựa trên catalog riêng của mình."
+  },
   "9a0355e77d9029e2": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -93518,6 +94125,13 @@
     "srcHash": "9a4360b8113118cd",
     "status": "machine",
     "text": "Ghi chú về việc cung cấp thông tin xác thực"
+  },
+  "9a4a24c5ebc8a397": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9a4a24c5ebc8a397",
+    "status": "machine",
+    "text": "Lịch CloudNativePG có sáu trường, trường đầu tiên dành cho giây, nên `30 2 * * *` của phần đính kèm được viết với `0` đứng trước. Plugin ký các yêu cầu của nó bằng cặp khóa trong Secret mà object store chỉ định, ở đây là `db-backup`, theo tên của chính object store, vì phần đính kèm không đặt `infra.credentials_secret`."
   },
   "9a4d16900a343ed3": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -94314,6 +94928,13 @@
     "status": "machine",
     "text": "Khi `aggrega.exe` đang chạy — được khởi động bởi một trình soạn thảo hoặc một client AI — trình cài đặt không thể thay thế nó và dừng lại với một thông báo cho biết điều đó; hãy đóng thứ đã khởi động nó rồi chạy lại trình cài đặt. Trình gỡ cài đặt cũng dừng theo cùng cách, trước khi nó xóa bất cứ thứ gì."
   },
+  "9bc1e85dbe70408a": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9bc1e85dbe70408a",
+    "status": "machine",
+    "text": "Catalog thư viện chuẩn không có FeatureRecipe nào cho `core/backup` trên đích này, nên không có gì để liên kết. Các hướng đi tiếp theo là gỡ phần đính kèm khỏi Release, triển khai cơ sở dữ liệu ở đó mà không có bản sao lưu, hoặc triển khai nó qua một Manifest cho một đích có sản phẩm sao lưu, như năm Releases còn lại."
+  },
   "9bc289a82410731a": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -94678,6 +95299,13 @@
     "srcHash": "9c3d6ba69ded8855",
     "status": "machine",
     "text": "Ngữ cảnh template có ba trường dạng inject với ngữ nghĩa khác nhau. Tác giả Recipe và FeatureRecipe nên biết cần đọc bề mặt nào."
+  },
+  "9c451305e046053a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "9c451305e046053a",
+    "status": "machine",
+    "text": "Workspace này build một Aggregate cho bốn đích — Kubernetes thông qua Helm, Docker Compose, Terraform và CloudFormation — và cho thấy, trên mỗi đích, attachment thay đổi gì trong đầu ra được render và lệnh khởi động một lần chạy. Tác vụ thứ hai không mang attachment, nên sự khác biệt hiện rõ trong cùng một bản build. Hai Releases nữa được dự kiến sẽ dừng, và trang này trích dẫn những gì mỗi cái in ra."
   },
   "9c458f6721230a86": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -95510,6 +96138,17 @@
     "srcHash": "9d86b622940720e7",
     "status": "machine",
     "text": "`aggregate.yaml` giống hệt nhau cho cả hai biến thể:"
+  },
+  "9d87b8cbf5064809": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "15c16fe0e34569ba",
+      "reviewed": false
+    },
+    "srcHash": "9d87b8cbf5064809",
+    "status": "machine",
+    "text": "Năm bước chạy trước khi công cụ kiểm tra nhìn thấy lược đồ. Công cụ nhận một tài liệu JSON Schema 2020-12 duy nhất đã phân giải cùng nội dung thể hiện của nhà phát triển; nó tạo ra một báo cáo kiểm tra. Bộ định dạng lỗi tham khảo các thẻ nguồn gốc để xuất các chẩn đoán cho người dùng nêu rõ vị trí trong mã nguồn — bao gồm cả tệp gốc của một ràng buộc mà một Feature kế thừa từ lớp cơ sở thay vì tự viết."
   },
   "9d8920a018435b73": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -97395,6 +98034,13 @@
     "status": "machine",
     "text": "**Release phẳng (các thành phần cấp cao nhất):** Các thành phần được viết dưới `spec.components` mà không có `boundaries`. Trình biên dịch gộp chúng vào một ranh giới `default` được tổng hợp có đầu ra **phẳng** — các artifact nằm trực tiếp dưới `dist/` (theo từng nhà cung cấp: `dist/compose/`, `dist/helm/`, …), không có đoạn tên ranh giới. Đây là cách triển khai đơn giản nhất: `aggrega build` trên một đích Compose phẳng hoặc một cụm duy nhất mà không cần đặt tên ranh giới. (Một ranh giới mà nhà phát triển *khai báo* và đặt tên `default` là một ranh giới có tên thông thường và xuất ra `dist/default/` như mọi ranh giới khác.)"
   },
+  "a0ebf139147d830b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a0ebf139147d830b",
+    "status": "machine",
+    "text": "Không gian làm việc này build một Aggregate qua sáu Releases, mỗi Release đính kèm cùng một bản sao lưu: mỗi ngày lúc 02:30, mỗi bản sao lưu được giữ 14 ngày. Trang này cho thấy mỗi đích render gì cho nó trong năm Release hoàn tất, và trích dẫn những gì Release thứ sáu, vốn được dự kiến sẽ dừng, in ra."
+  },
   "a0ecd652fd1d655a": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -97679,6 +98325,17 @@
     "srcHash": "a14aa643a566d912",
     "status": "machine",
     "text": "**Khóa:** Một trong `\"components\"`, `\"features\"`."
+  },
+  "a14ba8954befec0a": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "c0fe27c232203a6c",
+      "reviewed": false
+    },
+    "srcHash": "a14ba8954befec0a",
+    "status": "machine",
+    "text": "**Bước 3 — Mở rộng `$ref:` liên tài liệu.** Với các tham chiếu SchemaLibrary qua `$ref:` (dạng danh tính `<Library>#/schemas/<entry>`), trình biên dịch duyệt chuỗi tham chiếu tại thời điểm biên dịch bằng cách truyền theo ngăn xếp phân giải; nội dung được tham chiếu được nhúng vào lược đồ của bên sử dụng. Phép mở rộng giữ nguyên cơ chế phát hiện chu trình (chu trình dừng bản dựng với một lỗi nêu tên chuỗi), rào chắn danh tính-không-phải-vị-trí (một tham chiếu mang host registry sẽ dừng bản dựng kèm hướng dẫn dùng dạng danh tính — tham chiếu xác định thư viện theo danh tính, không theo vị trí vật lý) và phép kết hợp một nguồn duy nhất (khối `$ref:` chỉ chấp nhận tham chiếu trần; các ghi đè phía bên sử dụng được kết hợp qua `allOf:` của JSON Schema). Xem [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md) để biết ngữ nghĩa phân giải."
   },
   "a14eb2a73cc549f8": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -98688,6 +99345,13 @@
     "status": "machine",
     "text": "**Quy tắc chỉ áp dụng một chiều, và chỉ với `true`.** Một workload `form: scheduled` không có `suspend:` là bình thường và chạy theo lịch của nó, còn `suspend: false`, giá trị mặc định, không gây ra gì trên bất kỳ form nào."
   },
+  "a2de03a2b5bdfcd8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a2de03a2b5bdfcd8",
+    "status": "machine",
+    "text": "Build"
+  },
   "a2e2f7aee1f9bf9d": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -99652,6 +100316,13 @@
     "srcHash": "a477a5c8e80623e7",
     "status": "machine",
     "text": "Một mục làm gì tùy thuộc vào việc importer mà nó nêu tên có công bố định dạng mà một lần import yêu cầu hay không:"
+  },
+  "a4791ff0fa0305ed": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a4791ff0fa0305ed",
+    "status": "machine",
+    "text": "Lịch của Velero chỉ chạy ở nơi Velero được triển khai, và các bản sao lưu của plugin chỉ chạy ở nơi plugin, operator CloudNativePG (1.26 trở lên) và cert-manager đang chạy. Không gian làm việc này triển khai Velero và plugin; operator và cert-manager được giả định là đã có sẵn."
   },
   "a4792702e2946716": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -101077,6 +101748,13 @@
     "status": "machine",
     "text": "Một daemon chạy từng yêu cầu một sẽ trả lời chúng theo thứ tự đến, nên không có gì chồng lấn và không bao giờ phải chờ. Một daemon chạy chúng đồng thời sẽ trả lời cùng các câu hỏi theo cùng một cách, và việc chờ chính là điều làm cho điều đó đúng: câu trả lời bạn nhận được là câu trả lời mà một thứ tự tuần tự lẽ ra đã cho bạn."
   },
+  "a6a5527f299faa3f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "a6a5527f299faa3f",
+    "status": "machine",
+    "text": "`release-compose.yaml` ghi một tệp Compose. Mỗi tác vụ là một service mà Compose không khởi động lại khi nó thoát; `data-fix` còn mang profile `manual`, còn `report` không mang profile nào:"
+  },
   "a6ad064a43c7960e": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -101891,6 +102569,17 @@
     "status": "machine",
     "text": "Phân loại nhãn ngữ nghĩa (Quy ước của thư viện chuẩn)"
   },
+  "a8282f6c417c3f27": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "512460eff687c42b",
+      "reviewed": false
+    },
+    "srcHash": "a8282f6c417c3f27",
+    "status": "machine",
+    "text": "Các export mà plugin cung cấp, mỗi export kèm năng lực đã khai báo của nó, dưới dạng một danh sách có thứ tự giữ nguyên thứ tự của tác giả. Một export là một điểm vào có tên mà host điều phối tới (ví dụ `render_node`, `lint_naming`, `step`); khối năng lực của từng export nêu việc export đó làm, theo cách `aggrega plugin gen-catalog` ghi lại từ bản tự khai báo `describe()` của plugin, và host đối chiếu nó với bản tự khai báo đó khi publish và khi tải. Nếu vắng mặt thì không khai báo bề mặt export nào do tác giả viết."
+  },
   "a82936083f65433f": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -102224,6 +102913,17 @@
     "srcHash": "a8b1e80b49ec819e",
     "status": "machine",
     "text": "Giải thích điều kiện dừng mà một mã chỉ định"
+  },
+  "a8b7ef3e862f60d2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "9ed3bd41e157225a",
+      "reviewed": false
+    },
+    "srcHash": "a8b7ef3e862f60d2",
+    "status": "machine",
+    "text": "**Inject mapping (chặn trước kết xuất):** Trình biên dịch Go phân giải hợp đồng `.context.inject` trừu tượng của Developer. Sau đó nó thực thi các template Go `injectMapping` từ tất cả `FeatureRecipes` được gắn theo thứ tự thực thi nghiêm ngặt của Mô hình củ hành 5 tầng (Sub-Aggregate — các phần gắn kèm của chính thành phần trong module, rồi đến các phần gắn kèm mà các hệ thống con của module đó khai báo, từ ngoài vào trong → thành phần Aggregate gốc → hệ thống con Aggregate gốc → ranh giới Release từ ngoài vào trong → riêng cho thành phần trong Release). Trình biên dịch hợp nhất sâu nguyên bản các từ điển kết quả lên đường ống bộ nhớ `.context.inject` của Caller. Điều này ghi lại một cách an toàn các biến môi trường và chuỗi kết nối cho Caller trước khi Recipe cơ sở nhìn thấy chúng. Một mapping có thể ghi lại những gì khối `inject:` của chính Caller hoặc một trong các kết nối của nó đã cung cấp; một khóa mà một Feature được gắn khác đã cung cấp — thông qua mapping của chính nó hoặc khối `inject:` của chính nó — sẽ dừng bản build và nêu tên cả hai phần gắn kèm, để thứ tự thực thi không bao giờ phải quyết định giữa giá trị của hai phần gắn kèm."
   },
   "a8bc294c74c1c7df": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -103489,6 +104189,13 @@
     "status": "machine",
     "text": "Toàn bộ đồ thị IR không phụ thuộc vào capability, có một nguồn duy nhất từ ir-v1alpha1.schema.json. Plugin policy suy luận trên đầy đủ chi tiết nút/cạnh/phần gắn thay vì một phép chiếu hẹp."
   },
+  "aad9e3daa9b7e8a1": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aad9e3daa9b7e8a1",
+    "status": "machine",
+    "text": "Một cơ sở dữ liệu PostgreSQL được sao lưu trên Kubernetes qua Velero và qua CloudNativePG, trên AWS qua các bản sao lưu tự động của chính Amazon RDS, trên Terraform và trên CloudFormation, và qua AWS Backup, từ một phần đính kèm `core/backup` mà người vận hành viết trong mỗi Release, cùng với việc từ chối trên một đích không có sản phẩm sao lưu."
+  },
   "aadd81f6e0c30d9a": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -103957,6 +104664,13 @@
     "status": "machine",
     "text": "Image MariaDB cần mật khẩu root để khởi động, và người dùng ứng dụng cần mật khẩu riêng. Cả hai được gắn vào trụ `features:` của component cơ sở dữ liệu — tách riêng khỏi `values` của ứng dụng — dưới dạng các Features được gắn nhãn `feature.aggrega.ai/kind: secret`. `featuresSchema` của Component `core/datastore/mariadb` khai báo một vị trí cho mỗi mật khẩu, và ví dụ sử dụng cả hai mô hình cung cấp:"
   },
+  "ab9dc5e07dfe23a2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ab9dc5e07dfe23a2",
+    "status": "machine",
+    "text": "Một thành phần có công tắc mang giá trị `false` sẽ bị loại bỏ trước khi bất cứ thứ gì được build, nên các Releases AWS và Docker Compose, vốn để tham số ở `none`, chỉ build cơ sở dữ liệu."
+  },
   "ab9e7cf994900f1c": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -104058,6 +104772,13 @@
     "srcHash": "abbd8a87d833b028",
     "status": "machine",
     "text": "Điều này quan trọng vì bề mặt công cụ chính là dòng lệnh. Bất cứ thứ gì bạn có thể gõ, trợ lý đều có thể gọi — kể cả các thao tác làm thay đổi máy của bạn."
+  },
+  "abbf35b45a40e749": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "abbf35b45a40e749",
+    "status": "machine",
+    "text": "`release-terraform-unscheduled.yaml` để trống `report_schedule` trên Terraform, nên `report` không có lịch cũng không có attachment, và không có gì trên AWS sẽ khởi động nó. Đây chính là trường hợp mà `core/manual-trigger` tồn tại để xử lý, và `./build-release.sh terraform-unscheduled -- --auto-pull` dừng lại và nêu tên nó:"
   },
   "abc0a079ee2e586d": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -104555,6 +105276,13 @@
     "status": "machine",
     "text": "Lớp"
   },
+  "aca31219e00f6020": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aca31219e00f6020",
+    "status": "machine",
+    "text": "`core/backup` cho biết một kho dữ liệu được sao lưu theo lịch và mỗi bản sao lưu được giữ trong một số ngày. Nó không nói gì về cách thực hiện: Manifest của mỗi đích liên kết FeatureRecipe hiện thực hóa nó ở đó, và mỗi FeatureRecipe viết bản sao lưu theo thuật ngữ của sản phẩm riêng — một lịch Velero, một bản sao lưu theo lịch của CloudNativePG, các thiết lập của một phiên bản RDS, một kế hoạch AWS Backup. Một đích không có sản phẩm nào để hiện thực hóa nó sẽ từ chối phần đính kèm và nêu tên nó, nên bản build dừng lại thay vì triển khai kho dữ liệu mà không có bản sao lưu được viết cho nó."
+  },
   "aca85bf69c4bb6bb": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -105031,6 +105759,13 @@
     "srcHash": "ad4dbb120d8c630f",
     "status": "machine",
     "text": "Một lần nhập được cung cấp target sẽ báo cáo, sau các chẩn đoán của importer, những gì việc soạn thảo Manifest phát hiện:\nmột `warn` nêu tên mỗi loại component mà Manifest để lại chưa ánh xạ và lý do, và một `info` khi\nRelease được soạn thảo đã nêu tên một Manifest hoặc không có Release được soạn thảo nào tham chiếu nó. Đó là chẩn đoán của chính lần nhập\nchứ không phải của một importer, và không mang mã nào; [Những gì một target bổ sung](#what-a-target-adds) mô tả\nchúng."
+  },
+  "ad54af147a576c62": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ad54af147a576c62",
+    "status": "machine",
+    "text": "**Một cấu hình thông tin xác thực không đọc được sẽ được báo cáo mà không tiết lộ nội dung của nó.** Khi `config.json` không phải JSON hợp lệ, giá trị `auth` của một mục không phải là người dùng và mật khẩu nối bằng dấu hai chấm được mã hóa base64, hoặc một credential helper mà tệp nêu tên không thể trả lời, việc truy cập registry sẽ thất bại với thông báo nêu tên registry và tệp thông tin xác thực, nhưng không bao giờ nêu nội dung của tệp hay của mục. [`aggrega login`](aggrega-login.md) và `aggrega logout` báo cáo một `config.json` không phải JSON hợp lệ theo cùng cách, và không thay đổi gì trong đó. Hãy sửa tệp; một mục không đọc được cũng có thể được thay thế bằng `aggrega login <registry>`."
   },
   "ad5a2d61863d528d": {
     "at": "2026-10-22T10:44:41.513626+00:00",
@@ -107826,6 +108561,17 @@
     "status": "machine",
     "text": "Phiên bản mà một lần tìm kiếm báo cáo"
   },
+  "b1762eec4c0474e2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "8824cfb0d0d9c825",
+      "reviewed": false
+    },
+    "srcHash": "b1762eec4c0474e2",
+    "status": "machine",
+    "text": "**Các mục SchemaLibrary dùng chung (`$ref:` liên tài liệu):** Các định nghĩa JSON Schema có thể tái sử dụng được lưu trong các thực thể catalog SchemaLibrary (Tier 3). Chúng được tham chiếu theo danh tính qua `$ref:` liên tài liệu (`<library>#/schemas/<entry>`, không có host — phiên bản đến từ lockfile) từ bất kỳ lược đồ Component hoặc Feature tiêu thụ nào. Chuỗi được duyệt tại thời điểm biên dịch. Xem [entities/schemalibrary](../language-reference/entities/schemalibrary.md) để biết hình dạng soạn thảo của thực thể thư viện và [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) để biết ngữ nghĩa phân giải."
+  },
   "b1767d0676720a23": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -110576,6 +111322,17 @@
     "status": "machine",
     "text": "Đối với dữ liệu tĩnh do nhà phát triển cung cấp (như nhóm sở hữu hoặc phân loại dữ liệu), doanh nghiệp không bao giờ nên dựa trực tiếp vào danh mục mã nguồn mở thô. Thay vào đó, Kiến trúc sư Nền tảng viết một đường cơ sở doanh nghiệp — các trường mà mọi thành phần nội bộ phải mang, được khai báo một lần trong một mục SchemaLibrary — và dùng một vai trò phán quyết quản trị để buộc sử dụng nó."
   },
+  "b5a58f0cb28a58df": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cbb8b7697b28d0a7",
+      "reviewed": false
+    },
+    "srcHash": "b5a58f0cb28a58df",
+    "status": "machine",
+    "text": "Trình biên dịch duyệt qua mọi khối `inject:` — cả self-inject (một Component inject vào chính nó) lẫn uses-inject (kết nối giữa các Component) — và xác thực hợp đồng phân phối dựa trên schema `provides:` của Component đích, phân vùng nhãn của Feature và tập các khóa phân phối đã khai báo. Một khóa `from:` trên một khối do chính component của Aggregate viết được kiểm tra ngay khi catalog được phân giải, nên nó thất bại tại đúng dòng bạn đã viết; một khóa như vậy trên khối của một component do module đóng góp được kiểm tra khi composition import module đó được build, và thất bại tại dòng trong tài liệu của chính module; một khóa `from:` trên một kết nối do một Feature được gắn đóng góp được kiểm tra khi mọi bề mặt có thể tạo kết nối đều đã đóng góp, đó là thời điểm sớm nhất mà một kết nối như vậy tồn tại để kiểm tra."
+  },
   "b5a5fbd4719d8a71": {
     "at": "2026-10-29T21:59:45.311Z",
     "job": "session-0027-20261029215945",
@@ -111737,6 +112494,17 @@
     "status": "machine",
     "text": "Việc kiểm tra đó là điều duy nhất mà bước xác minh lại digest lúc build không thể làm thay bạn. Một lệnh pull chấp nhận một ref đã di chuyển sẽ ghi lại các byte đã tải và digest đã ghi trong cùng một thao tác, nên hai giá trị mà bản build so sánh sẽ cùng thay đổi và khớp nhau — và bạn sẽ build trên nội dung source khác với nội dung mà lockfile đã được xem xét, mà không có gì báo cáo điều đó."
   },
+  "b78dec0751e1dc3e": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "8fdde30272e0183e",
+      "reviewed": false
+    },
+    "srcHash": "b78dec0751e1dc3e",
+    "status": "machine",
+    "text": "ID phẳng tuyệt đối của node hiện tại (ví dụ: 'backend', hoặc 'data-layer-zdmain-db' cho component main-db của instance module data-layer), được viết bằng bảng chữ cái mà mọi tên component do tác giả viết đều thỏa mãn. Có tính xác định và ổn định qua các lần biên dịch cho cùng một Aggregate. Đây là tên của các tài nguyên được xây dựng cho node này mà không provider nào suy ra tên — một tập artifact được đặt từ Recipe, và một workload được tổng hợp bởi một provider đặt tên nó theo định danh — vì vậy một địa chỉ được công bố cho một trong số đó được xây dựng từ giá trị này."
+  },
   "b797456e3e45a7e4": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -112136,6 +112904,13 @@
     "srcHash": "b83dbb2ec6482bab",
     "status": "machine",
     "text": "Thông báo được phát ra. Một điều kiện bao trùm cả hai khối, nên câu của nó không thể nói khối nào đã được viết; lời khuyên sau đó nêu khối bằng cách trích dẫn khóa bạn đã gõ và khối bạn đã gõ nó vào:"
+  },
+  "b840cf709b85d2b2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "b840cf709b85d2b2",
+    "status": "machine",
+    "text": "**[datastore-backup](datastore-backup/)** — một cơ sở dữ liệu PostgreSQL được sao lưu trên mọi đích từ một attachment `core/backup` mà operator viết trong Release, không có gì được viết cho nó trong Aggregate. Mỗi Manifest bind sản phẩm hiện thực nó: Velero và plugin Barman Cloud của CloudNativePG trên Kubernetes, ghi vào một bucket mà attachment kết nối tới; các bản sao lưu tự động của chính Amazon RDS trên Terraform và CloudFormation; và AWS Backup, được chọn trên cùng đích bằng một dòng Manifest. README cho thấy bản sao lưu của từng đích như được render, các controller sao lưu được bật theo từng Release bằng một tham số, và việc dừng trên Docker Compose, vốn không có sản phẩm sao lưu."
   },
   "b84746d472514164": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -113204,6 +113979,13 @@
     "status": "machine",
     "text": "Cùng một Aggregate, được triển khai lên Kubernetes. Hai ranh giới **ngang hàng**, mỗi ranh giới có một annotation `aggrega.ai/namespace` riêng, được lan truyền xuống mọi tài nguyên dưới dạng\n`metadata.namespace`:"
   },
+  "ba07d761f6fcb067": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "ba07d761f6fcb067",
+    "status": "machine",
+    "text": "Nó là một tham số vì bốn đích xử lý khác nhau đối với một tác vụ không có attachment. Kubernetes chạy nó theo lịch dưới dạng CronJob, hoặc chạy một lần khi triển khai nếu không có lịch. Docker Compose không có bộ lập lịch, nên chạy tác vụ một lần mỗi khi stack khởi động và từ chối lịch. Trên AWS, không có gì chạy một tác vụ Amazon ECS khi Terraform hoặc CloudFormation áp dụng, nên một tác vụ ở đó cần một lịch hoặc attachment, và bị từ chối nếu không có cả hai. Vì vậy các Releases cho Kubernetes, Terraform và CloudFormation đáp ứng `report_schedule`, còn Release cho Docker Compose để trống nó."
+  },
   "ba08022c500945f0": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -114012,6 +114794,13 @@
     "status": "machine",
     "text": "Bản build thoát với mã `1` và không ghi `dist/`: policy được đánh giá trên\nđồ thị build trước khi bất cứ thứ gì được render. `E0005` là chẩn đoán mà một lần policy\ntừ chối mang theo — xem [tài liệu tham khảo chẩn đoán](../../errors/sentinels.md).\n`release-masking-off-route.yaml` in ra cùng lời từ chối đó, dưới mỗi engine."
   },
+  "bb3d4af988a61676": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb3d4af988a61676",
+    "status": "machine",
+    "text": "Release CloudNativePG"
+  },
   "bb3e236c6cea2680": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -114102,6 +114891,13 @@
     "srcHash": "bb5ba1528b624ca7",
     "status": "machine",
     "text": "**Kết quả từng phần là có chủ ý chứ không phải đổ vỡ.** Nó nêu kết quả chứ không nêu nguyên nhân — những gì không thể chuyển đổi được báo cáo trong các thông báo chẩn đoán bên cạnh nó, mỗi thông báo cho một cấu trúc mà importer không thể chuyển qua, bằng chính lời của importer. Điều kiện này là thứ giúp bên gọi phân biệt “lần import đã dừng và tạo ra một phần câu trả lời” với “lần import thất bại hoàn toàn”, là hai tình huống khác nhau với các bước tiếp theo khác nhau."
+  },
+  "bb5c68040d7cc1e6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb5c68040d7cc1e6",
+    "status": "machine",
+    "text": "Bản build ghi các tệp rồi dừng. Nó không chạy bản sao lưu nào và không truy cập cluster, bucket hay API AWS nào. Nó không phân giải ARN, tài khoản hay Region nào: trên AWS, mỗi thứ là một biểu thức hoặc một giá trị mà Release đã viết, được Terraform, CloudFormation hoặc AWS đọc khi các tệp được áp dụng. Nó cũng không kiểm tra gì trong cluster:"
   },
   "bb5dbe4b07104b15": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -116647,6 +117443,13 @@
     "status": "machine",
     "text": "Một nhãn mà nút không mang được so sánh như chuỗi rỗng, nên một cặp `match` có giá trị `\"\"` cũng khớp với một nút không mang khóa đó."
   },
+  "bfb72841d83eff28": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "bfb72841d83eff28",
+    "status": "machine",
+    "text": "`report` là một CronJob theo lịch mà Release đã đáp ứng, và không bị tạm ngưng:"
+  },
   "bfb91695afb3838b": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -116829,6 +117632,13 @@
     "srcHash": "bfec178f670ac185",
     "status": "machine",
     "text": "Khóa: một hoặc nhiều chữ cái, chữ số, dấu gạch dưới hoặc dấu gạch ngang. Không cho phép dấu chấm. Mẫu: `^[a-zA-Z0-9_-]+$`."
+  },
+  "bfecad8c1bced695": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bfecad8c1bced695",
+    "status": "machine",
+    "text": "AWS Backup"
   },
   "bff31fa0a763ca50": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -118438,6 +119248,13 @@
     "status": "machine",
     "text": "Mọi mục được áp dụng đều phải loại bỏ một thứ gì đó, và bản build dừng lại ở mục\nkhông làm được điều đó, vì một mục không khớp với gì cả là một khẳng định về nguồn\nkhông còn đúng nữa. Nguyên nhân thường gặp là một lần nâng cấp nguồn đã đổi tên\ntài liệu. Khi đó tài liệu bị đổi tên nằm trong đầu ra dưới tên mới — chính là tài liệu\nmà mục được viết ra để loại bỏ — và việc dừng là điều ngăn nó được phát hành mà\nkhông ai hay biết. Trong bản build này, Secret mà chart sinh ra chính là một tài liệu\nnhư vậy: mục được viết ra để loại bỏ nó, nhưng lại nêu tên một thứ khác. Để\nsửa một mục, hãy so sánh nó với những gì nguồn kết xuất hiện nay: build\nvới mục đã bị gỡ bỏ, như `release-negative-without-omits.yaml` làm khi không có\nbước kiểm tra, và đọc tên từ tệp mà chart đã ghi."
   },
+  "c2880afcda649187": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c2880afcda649187",
+    "status": "machine",
+    "text": "Không gian làm việc đọc catalog thư viện chuẩn từ một bản checkout bên cạnh kho này (`.aggrega-config.yaml` chỉ định nó). Velero và plugin Barman Cloud được cài đặt qua các chart riêng của dự án tương ứng, nên hai Releases Kubernetes cần các kho chart của những dự án đó có thể truy cập được từ bản build; mọi Release khác chỉ render từ catalog."
+  },
   "c2890be912f4087c": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -119261,6 +120078,13 @@
     "srcHash": "c3cb27347662be6d",
     "status": "machine",
     "text": "Một attachment trên một kết nối trở thành một attachment riêng của agent, được đặt tên\ntheo kết nối và slot — ở đây là `gateway.credential` — nên hai Secret được\ntạo ra, mỗi agent một cái, mỗi cái mang dữ liệu riêng của agent đó:"
+  },
+  "c3cddf82c7f7cbec": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c3cddf82c7f7cbec",
+    "status": "machine",
+    "text": "Cùng lệnh đó, khi được truyền `--from=cronjob/report`, sẽ khởi động một lần chạy bổ sung của `report` giữa các lần chạy theo lịch."
   },
   "c3d0477cd5f71263": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -120586,6 +121410,17 @@
     "status": "machine",
     "text": "**Keyed** (`--key`) — một khóa ECDSA P-256 được giữ ngoại tuyến (PEM tương thích cosign), lối thoát cho các môi trường không có nhà cung cấp danh tính OIDC. Không kết nối tới nhà cung cấp danh tính, cơ quan cấp chứng chỉ hay nhật ký minh bạch nào."
   },
+  "c614430aa5d58fd7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "b304c9c6cbe467ef",
+      "reviewed": false
+    },
+    "srcHash": "c614430aa5d58fd7",
+    "status": "machine",
+    "text": "Nhiều cơ chế được kết hợp trong một bản build: FeatureRecipes phạm vi boundary, nâng tham số (parameter hoisting), mở rộng Feature dựa trên annotation, chính sách quản trị trên đồ thị build, và kết nối mạng xuyên boundary giữa các provider."
+  },
   "c61488a9342c899b": {
     "at": "2026-10-29T17:38:23.610Z",
     "job": "session-0002-20261029173823",
@@ -121291,6 +122126,13 @@
     "srcHash": "c7401f343f7523d8",
     "status": "machine",
     "text": "recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...` (ràng buộc eval-provider của recipe: các trường loại đầu vào bị cấm khi provider là eval; các trường bị cấm đã được khai báo)"
+  },
+  "c743f0f817434b74": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c743f0f817434b74",
+    "status": "machine",
+    "text": "Recipe viết lịch của `report` theo dạng riêng của EventBridge Scheduler: `30 2 * * 1-5` trở thành `cron(30 2 ? * 2,3,4,5,6 *)`, các ngày trong tuần được đánh số từ Chủ nhật là 1, theo UTC vì Release không nêu múi giờ nào."
   },
   "c7463ad944819835": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -123125,6 +123967,13 @@
     "status": "machine",
     "text": "`--dry-run` làm mọi việc mà lệnh thông thường làm, trừ việc ghi: tài liệu đã chỉnh sửa được đưa ra đầu ra chuẩn dưới dạng nội dung, kèm tên tệp mà nó dành cho, và không có gì được tạo ra:"
   },
+  "c9e2dec71ae02139": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c9e2dec71ae02139",
+    "status": "machine",
+    "text": "Một kho dữ liệu được sao lưu trên mọi đích: một phần đính kèm core/backup"
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -123138,6 +123987,13 @@
     "srcHash": "c9e70e553f583077",
     "status": "machine",
     "text": "**Cách khắc phục:** trước tiên hãy kiểm tra tham chiếu và phiên bản — một phiên bản không còn tồn tại và một tên bị gõ sai cho ra cùng một câu trả lời, và thông báo trích cả hai để bạn so sánh với catalog. Nếu tham chiếu đúng, artifact chưa được thu nhận: hãy chạy lệnh pull cho release, lệnh này tải những gì release cần và điền vào bộ đệm. Nếu workspace ngoại tuyến, lệnh pull đó phải chạy từ nơi có truy cập mạng; một bản build ngoại tuyến chỉ đọc những gì đã có trong bộ đệm, và đây là điều nó báo khi bộ đệm không chứa artifact."
+  },
+  "c9e73b7f44048c92": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c9e73b7f44048c92",
+    "status": "machine",
+    "text": "`release-compose-scheduled.yaml` đáp ứng `report_schedule` trên Docker Compose, và đồng thời gắn `core/manual-trigger` vào `report`. Trên Kubernetes và AWS, một tác vụ có lịch chạy theo lịch đó dù có attachment hay không; trên Docker Compose, vốn không có bộ lập lịch, một tác vụ có lịch không có hiện thực nào, dù được gắn hay không. `./build-release.sh compose-scheduled -- --auto-pull` dừng lại:"
   },
   "c9e990c257af8cd1": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -123354,6 +124210,13 @@
     "srcHash": "ca2cc454288aea48",
     "status": "machine",
     "text": "Trên helm, `MODEL_KEY_GPT` được kết xuất thành một `secretKeyRef` nêu tên Secret mà thông tin xác thực của kết nối `gpt` đã công bố, và `MODEL_KEY_NIM` là Secret mà thông tin xác thực của kết nối `nim` đã công bố. Trên compose, một mục `as: env` nêu tên một kết nối được phát ra với giá trị rỗng và cùng thông báo hỗ trợ một phần như một mục nêu tên một slot của chính Component."
+  },
+  "ca2cf72f6758045b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ca2cf72f6758045b",
+    "status": "machine",
+    "text": "Kubernetes, với CloudNativePG"
   },
   "ca2e06193731aff9": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -125368,6 +126231,13 @@
     "status": "machine",
     "text": "Các khóa của khối literal được kiểm tra theo thứ tự đã sắp xếp và các khóa của khối được đưa lên theo thứ tự bạn đã viết, nên một Recipe vi phạm quy tắc ở nhiều chỗ luôn báo cáo cùng một chỗ trước."
   },
+  "cda5cdc386815ab5": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "cda5cdc386815ab5",
+    "status": "machine",
+    "text": "`data-fix` được build theo cùng một cách trên cả bốn đích, không có lịch và không có tham số."
+  },
   "cda6489183f91aaf": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -126712,6 +127582,17 @@
     "status": "machine",
     "text": "**`.origin_feature` (string)** — được đặt khi cạnh được tổng hợp bởi một phần gắn Feature (ví dụ: một Feature sidecar đóng góp một cạnh `uses` tới một Feature thông tin xác thực)."
   },
+  "cfa3973efcb3d1df": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "7d7f6eb47446f812",
+      "reviewed": false
+    },
+    "srcHash": "cfa3973efcb3d1df",
+    "status": "machine",
+    "text": "**Bị từ chối toàn bộ: một mạng riêng của fragment.** Một mục dưới `networks:` cấp cao nhất của fragment sẽ dừng bản build với `TRANSLATION_ERROR` bất kể phần thân của nó chứa gì — một mục rỗng, một `driver`, hay bất cứ thứ gì khác — nêu tên mục đó (`networks.back`), fragment và component, vì tệp đã lắp ráp chỉ chứa các mạng mà provider suy ra (xem [Service tham gia mạng nào](#which-network-a-service-joins)). Hãy xóa mục đó: một service tham gia mạng của component của chính nó mà không cần khai báo gì, annotation `aggrega.ai/namespace` chọn mạng mà một component tham gia, một service nêu tên các component có mạng mà nó cũng tham gia dưới [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of), và Feature `compose-bridge` định tuyến giữa các service trên các mạng khác nhau. Một `networks: {}` rỗng không khai báo gì và không bị từ chối, còn danh sách `networks:` riêng của một service được mang theo như trên."
+  },
   "cfa3af242f14adbc": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -126960,6 +127841,13 @@
     "status": "machine",
     "text": "**Tác động của trình biên dịch:** Trình biên dịch lan truyền giá trị wave của mỗi boundary tới các manifest đã render trong boundary đó. Các Providers phát ra các nguyên hàm sắp thứ tự gốc:"
   },
+  "cfe94b9cdcec4a14": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "cfe94b9cdcec4a14",
+    "status": "machine",
+    "text": "nơi nó chạy"
+  },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -127188,6 +128076,17 @@
     "srcHash": "d041ff748d017a4c",
     "status": "machine",
     "text": "ba phần ở vai trò `label-transform`, định hình nhãn trên các node của bản build: một chính sách Rego đọc môi trường của Release, và hai plugin gắn thẻ được biên dịch vào CLI, `label-injector` và `selector-tagger`;"
+  },
+  "d04219e3aa231482": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "b05dd5f19ba9f261",
+      "reviewed": false
+    },
+    "srcHash": "d04219e3aa231482",
+    "status": "machine",
+    "text": "Có một giới hạn áp dụng cho các dạng được tham chiếu gián tiếp. Khi dạng của một trường đến qua một `$ref:` mang kèm các từ khóa khác (chẳng hạn một map `properties:`), qua `then:` hoặc `else:` của một `when:`, hoặc qua một con trỏ vào một thuộc tính đã khai báo, thì `format` của nó được kiểm tra trên các trường mà dạng đó khai báo trực tiếp và qua `allOf` — nhưng không kiểm tra bên trong một nhánh `anyOf`, `oneOf`, `not` hoặc nhánh điều kiện nằm trong dạng đó."
   },
   "d04600a78865fd7c": {
     "at": "2026-10-29T21:31:42.799Z",
@@ -129426,6 +130325,13 @@
     "status": "machine",
     "text": "Policies"
   },
+  "d3aea1d07a2b9d29": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "d3aea1d07a2b9d29",
+    "status": "machine",
+    "text": "Các Releases Kubernetes cũng đính kèm cặp khóa riêng của bucket, và tệp thông tin xác thực mà Velero dùng để ký các yêu cầu của nó, dưới dạng các phần đính kèm `core/referenced-secret` chỉ định các Secret mà cluster đã có sẵn, nên không khóa nào được ghi vào bất kỳ tệp được render nào. Mọi giá trị riêng theo tài khoản trong các Releases AWS đều là giá trị giữ chỗ."
+  },
   "d3b266bb5e1e750a": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -131012,6 +131918,17 @@
     "srcHash": "d6b42a2f67697cfb",
     "status": "machine",
     "text": "Dạng này được đánh giá khi Manifest được hợp thành, trước khi bất cứ thứ gì được tra cứu — kết luận đến từ việc đếm các dấu phân cách trong một chuỗi, nên hoàn toàn không cần catalog. Đánh giá ở đó là điều làm cho chẩn đoán trung thực: recipe mà giá trị *muốn* chỉ tới thường có mặt và được đặt tên đúng, và việc được báo rằng nó bị thiếu sẽ khiến bạn đi tìm sai thứ. Mọi lệnh phân giải các phụ thuộc của một Release đều báo cáo nó theo cùng một cách, nên điều đó không phụ thuộc vào việc bạn tình cờ chạy lệnh nào."
+  },
+  "d6b589a42aae2327": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "80b294785a58ef95",
+      "reviewed": false
+    },
+    "srcHash": "d6b589a42aae2327",
+    "status": "machine",
+    "text": "Tùy chọn tắt xác minh chữ ký trên toàn cục, một cách công khai. Khi là true, việc xác minh chữ ký bị tắt trên mọi registry, kể cả mức cơ sở bắt buộc của hub. Dành cho các tình huống khẩn cấp và phát triển; nó không bao giờ diễn ra âm thầm — ở bất cứ đâu một lần pull lẽ ra đã kiểm tra chữ ký, nó đều cảnh báo rằng việc xác minh đã bị tắt trên toàn cục. Mặc định là false. Mặc định: `false`"
   },
   "d6b72fdbf2d81a34": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -133049,6 +133966,13 @@
     "status": "machine",
     "text": "**Image có thể tái lập.** Recipe ghim image máy chủ Loki và image sidecar tải lại cấu hình vào các tag có thể phân giải, để workload được kết xuất tham chiếu các phiên bản đã ghim."
   },
+  "da16c04b91fc6ddc": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "da16c04b91fc6ddc",
+    "status": "machine",
+    "text": "Lịch của `report` là một tham số, `report_schedule`, được Aggregate khai báo với giá trị mặc định rỗng và đọc vào giá trị `schedule` của tác vụ:"
+  },
   "da18adbf579666aa": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -133433,6 +134357,13 @@
     "srcHash": "daab98824f2eb3bb",
     "status": "machine",
     "text": "Thư mục gốc là thư mục gốc ở bất cứ đâu nó được cung cấp, kể cả các máy chủ: một yêu cầu gửi tới [`aggrega mcp`](aggrega-mcp.md) không chỉ định workspace riêng sẽ được trả lời trong thư mục đó, không tìm kiếm gì ở phía trên. Một thư mục gốc không phải là thư mục đang tồn tại — một đường dẫn không trỏ tới gì, hoặc trỏ tới một tệp — sẽ bị từ chối bởi mọi lệnh đọc workspace của nó, trước khi lệnh làm bất cứ việc gì khác; `aggrega serve` và một listener `aggrega mcp` từ chối khởi động với thư mục gốc đó, còn `aggrega mcp` qua đầu vào và đầu ra chuẩn vẫn khởi động bình thường và trả lời mọi lời gọi hoạt động trong workspace đó bằng lời từ chối. Lời từ chối nêu tên nguồn đã cung cấp giá trị, `--workspace-root` hoặc `AGGREGA_WORKSPACE_ROOT`, cùng giá trị đúng như đã được cung cấp. Một lệnh không đọc workspace nào, chẳng hạn `aggrega version`, cũng không đọc thư mục gốc và không bị từ chối vì nó."
+  },
+  "daaba2f33800b7f5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "daaba2f33800b7f5",
+    "status": "machine",
+    "text": "[task-run-on-demand](task-run-on-demand/README.md) (`start`) — Một tác vụ mang `core/manual-trigger`, được triển khai mà không khởi chạy trên Kubernetes, Docker Compose, Terraform và CloudFormation, bên cạnh một tác vụ không mang gì, cùng với lệnh bắt đầu một lần chạy trên từng đích."
   },
   "dab05ccf91dec707": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -134367,6 +135298,13 @@
     "status": "machine",
     "text": "pipeline steps reading the render facts of the components their host is wired to (các bước pipeline đọc render facts của các component mà host của chúng được nối tới)"
   },
+  "dc043b1ed96ae823": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dc043b1ed96ae823",
+    "status": "machine",
+    "text": "`release-compose.yaml` đính kèm cùng bản sao lưu đó vào cơ sở dữ liệu trên Docker Compose. Không có FeatureRecipe nào hiện thực hóa `core/backup` ở đó, nên `manifest-compose.yaml` không liên kết cái nào, và `./build-release.sh compose -- --auto-pull` dừng lại và nêu tên phần đính kèm thay vì triển khai một cơ sở dữ liệu không có bản sao lưu:"
+  },
   "dc04ee4bc2dc6256": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -134415,6 +135353,13 @@
     "srcHash": "dc189fe4230219fe",
     "status": "machine",
     "text": "Một cặp ví dụ hoàn chỉnh"
+  },
+  "dc1a85b737867d5a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dc1a85b737867d5a",
+    "status": "machine",
+    "text": "Một tác vụ chạy theo yêu cầu: một Aggregate, bốn đích"
   },
   "dc1f0fa2825493da": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -134876,6 +135821,13 @@
     "status": "machine",
     "text": "dispatch path produced multiple provider outputs (`\"<path>\"`, boundary `\"<boundary>\"`, provider `\"<provider>\"`) (đường dẫn điều phối tạo ra nhiều đầu ra provider)"
   },
+  "dcb84621fcc81992": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dcb84621fcc81992",
+    "status": "machine",
+    "text": "lịch của nó, hoặc, trên Docker Compose, việc stack khởi động"
+  },
   "dcbb5844e1d3e7e6": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -135312,6 +136264,13 @@
     "status": "machine",
     "text": "**Mọi yêu cầu khác chấp nhận token và không gửi gì.** Gửi một token là vô hại chứ không phải lỗi: nó được chấp nhận, không có thông báo nào đến, và câu trả lời giống hệt câu trả lời bạn sẽ nhận được nếu không có nó. Vì vậy một client có thể gắn token vào bất cứ yêu cầu nào nó muốn và đơn giản là không vẽ gì khi không có gì đến."
   },
+  "dd7ade7509518678": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dd7ade7509518678",
+    "status": "machine",
+    "text": "Nhà phát triển không viết gì cho bản sao lưu: `db` không mang phần đính kèm nào trong Aggregate. Người vận hành đính kèm `core/backup` vào nó trong mỗi Release, dưới `features` của thành phần, và cho biết tại đó khi nào bản sao lưu chạy và mỗi bản được giữ bao lâu. Trên Kubernetes, phần đính kèm còn chỉ định nơi các bản sao lưu được ghi vào, thông qua kết nối `store` của nó tới bucket:"
+  },
   "dd7d21897117489e": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -135413,6 +136372,17 @@
     "srcHash": "dd9425879cd372ac",
     "status": "machine",
     "text": "Các container của Go và Rust có các thao tác của một map — tra cứu một khóa, đặt khóa, xóa khóa, đọc các khóa, duyệt các mục theo thứ tự, đếm chúng. Đặt một khóa mà container đã có sẽ thay thế giá trị của nó và giữ nguyên vị trí; một khóa mới được đặt sau mọi khóa hiện có."
+  },
+  "dd9f669018574919": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "62ec39f9da8d50f0",
+      "reviewed": false
+    },
+    "srcHash": "dd9f669018574919",
+    "status": "machine",
+    "text": "Các Recipes Redis của catalog mà ví dụ này ánh xạ, `compose/redis` và `helm/redis`, khai báo giấy phép AGPL-3.0. Ví dụ `valkey-cache` triển khai Valkey, vốn dùng cùng giao thức truyền; Recipe `helm/valkey` của nó khai báo BSD-3-Clause."
   },
   "dd9ff0f5a9354e78": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -136342,6 +137312,13 @@
     "srcHash": "df0eec10d5683e0b",
     "status": "machine",
     "text": "Từ vựng cơ chế (`infra.primary.replicas`) đọc tự nhiên với một provider (các pod Kubernetes là bản sao của một StatefulSet) nhưng lại là một lỗi phạm trù ở nơi khác — RDS không có khái niệm “replicas” trên instance chính, CloudFormation phản chiếu RDS, Compose hoàn toàn không có trừu tượng bản sao theo chiều ngang. Từ vựng ý định thì chuyển dịch được: mọi provider đều có khái niệm nào đó về “làm cho cơ sở dữ liệu này có tính sẵn sàng cao” và về “tôi muốn N bản sao chỉ đọc”, và Recipe đảm nhận việc chuyển dịch theo từng provider. Khi một hiện thực không có cơ chế như vậy, Recipe của nó có thể dừng bản build và nêu tên khóa, như `helm/mariadb` và `compose/mariadb` làm với cả hai khóa và các RDS Recipes một instance làm với bản sao đọc."
+  },
+  "df0f49cc8dc94b89": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "df0f49cc8dc94b89",
+    "status": "machine",
+    "text": "`release-helm-cloudnative-pg.yaml` ghi cơ sở dữ liệu dưới dạng một Cluster CloudNativePG, cùng bucket, các đối tượng mà chart của plugin render, và tệp của phần đính kèm, chứa object store của plugin và một bản sao lưu theo lịch, bên cạnh Cluster trong namespace riêng của nó:"
   },
   "df17e727af018e13": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -139677,6 +140654,13 @@
     "status": "machine",
     "text": "Chart tham chiếu những gì"
   },
+  "e46359639a81785d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "e46359639a81785d",
+    "status": "machine",
+    "text": "**Các phần gắn kèm hệ thống con của module áp dụng đến các thành phần của nó.** Một Feature mà module gắn tại một trong các hệ thống con của chính nó sẽ lan xuống mọi thành phần mà module khai báo bên dưới hệ thống con đó, kể cả các hệ thống con lồng nhau, đúng như một phần gắn kèm hệ thống con trong Aggregate — và chỉ lên các thành phần đó, không bao giờ lên một thành phần của Aggregate nhập module nằm dưới một hệ thống con cùng tên. Nó được đánh giá ngay sau các phần gắn kèm của chính thành phần, hệ thống con ngoài trước hệ thống con trong. Với một trường mà cả hai cùng ghi, phần gắn kèm cùng tên của chính thành phần được ưu tiên, và các trường mà nó bỏ qua giữ giá trị của hệ thống con. Mỗi thành phần mà nó đến được đều kiểm tra nó theo `appliesTo` của Feature. Một phát hiện về các khai báo của chính module sẽ nêu tên module và khóa bên trong tài liệu của nó — chẳng hạn `.spec.subsystems.<subsystem>.features.<attachment>` — để việc chỉnh sửa được thực hiện trong module, nơi có khai báo, thay vì trong Aggregate nhập nó."
+  },
   "e463734e284f2fa5": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -141950,6 +142934,13 @@
     "status": "machine",
     "text": "Manifest của nó gắn với"
   },
+  "e881fbb4a6ce62b2": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "e881fbb4a6ce62b2",
+    "status": "machine",
+    "text": "**Mọi nhãn mà tác giả của một service đã viết đều được giữ lại.** `labels:` của một service trong tệp cơ sở hoặc overlay có thể được viết dưới dạng map hoặc dưới dạng danh sách các mục `key=value` của Compose, và mỗi nhãn đến tệp compose bên cạnh các [nhãn nguồn gốc](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output) mà provider đóng dấu. Một mục danh sách được đọc như cách Compose đọc nó: phần văn bản trước dấu `=` đầu tiên là tên nhãn và phần văn bản sau đó là giá trị, còn một mục không có `=` là một nhãn có giá trị rỗng. Một số hoặc một giá trị true/false được viết dưới dạng văn bản của nó, nên `replicas-hint: 2` đến tệp dưới dạng `replicas-hint: \"2\"`, và một nhãn được viết là `null` vẫn giữ `null`. Khi một nhãn do tác giả viết và một nhãn nguồn gốc dùng chung một khóa, tệp mang giá trị nguồn gốc. Một giá trị `labels:` không phải map cũng không phải danh sách, và một mục danh sách không phải văn bản, sẽ dừng bản build, nêu tên tệp nguồn và service. Nhãn service trong phần thân `artifacts:` dùng dạng map: một danh sách ở đó sẽ dừng bản build, nêu tên artifact và service."
+  },
   "e88524d9a7019284": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -142013,6 +143004,13 @@
     "srcHash": "e8a9c7445dd69ebd",
     "status": "machine",
     "text": "Các mục chỉ định những đơn vị được render mà guest bỏ ra khỏi đầu ra của node này, theo thứ tự tác giả đã khai báo. Mỗi mục đến ở dạng đã phân giải, các trường của nó là chuỗi thuần, và một mục không áp dụng cho bản build này thì không được mang theo. Những gì kind, name, namespace và subchart của một mục chọn là hợp đồng được tài liệu hóa riêng của provider này, không phải của socket này: guest so khớp mọi mục với những gì nó đã render theo thuật ngữ của định dạng riêng của nó, bỏ mỗi đơn vị mà một mục khớp ra khỏi mọi thứ nó trả về — các tệp của nó, các tên nó khai báo trong derived_keys và các fact nó báo cáo trong render_facts — và báo cáo trong omitted của đầu ra số đơn vị mà mỗi mục đã khớp. Các mục đi kèm một danh sách nguồn và không đi kèm đầu vào nào khác: một lần render của workload được tổng hợp hoặc của một tập artifact không bao giờ mang chúng. Vắng mặt khi không có mục nào, và một guest không được trao mục nào sẽ render đúng như khi trường này không tồn tại."
+  },
+  "e8aeb969ecceb76a": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "e8aeb969ecceb76a",
+    "status": "machine",
+    "text": "[datastore-backup](datastore-backup/README.md) (`start`) — Một cơ sở dữ liệu PostgreSQL được sao lưu trên Kubernetes qua Velero và qua CloudNativePG, và trên AWS qua các bản sao lưu tự động của chính Amazon RDS, trên Terraform và trên CloudFormation, cũng như qua AWS Backup, từ một attachment `core/backup` mà operator viết trong mỗi Release, kèm theo việc từ chối trên một đích không có sản phẩm sao lưu."
   },
   "e8b26543ac505cb6": {
     "at": "2026-10-22T11:13:32.031992+00:00",
@@ -145409,6 +146407,13 @@
     "status": "machine",
     "text": "**Được áp dụng có điều kiện** — trình biên dịch phát ra một ghi đè *bổ sung* bên cạnh artifact đích thay vì chỉnh sửa artifact, nên việc giá trị có hiệu lực hay không phụ thuộc vào việc artifact đó có để lộ một khóa tương ứng của riêng nó. Có hiệu quả trong thực tế, nhưng không bao giờ là một bảo đảm. **Hiện chưa provider nào triển khai một ô có điều kiện**, và bề mặt khai báo không có cách nào để biểu đạt nó, nên lưới được tạo bên dưới chỉ phát ra hai cấp còn lại. Cấp này được đặt tên vì đường đi đó thực sự tồn tại đối với một artifact được vendor, và một bộ từ vựng hai cấp sẽ buộc ma trận hoặc phải tuyên bố một bảo đảm mà nó không thể đưa ra, hoặc phải phủ nhận rằng đường đi đó tồn tại."
   },
+  "ee0d3dbd6d121466": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ee0d3dbd6d121466",
+    "status": "machine",
+    "text": "**Bàn giao:** Trình biên dịch không truy cập cụm nào và không gọi API đám mây nào, và bản build không khởi động lần chạy nào cũng không ghi script nào. Mỗi lần chạy được người vận hành khởi động bằng lệnh riêng của nền tảng đích: `kubectl create job <run-name> --from=cronjob/<cronjob>` trên Kubernetes, `docker compose run --rm <service>` trên Docker Compose, và `aws ecs run-task` trên Amazon ECS, kèm cụm, định nghĩa task và cấu hình mạng mà Release đặt dưới `infra.overrides` của task. Việc sinh cấu hình và việc thực thi lúc chạy được giữ tách biệt."
+  },
   "ee12d568908e6a6b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -146920,6 +147925,13 @@
     "status": "machine",
     "text": "instance được mã hóa bằng khóa mà Release gọi tên"
   },
+  "f072183c45fe124a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f072183c45fe124a",
+    "status": "machine",
+    "text": "Workspace đọc catalog thư viện chuẩn từ một bản checkout nằm cạnh repository này (`.aggrega-config.yaml` nêu tên nó). Mọi Recipe ở đây chỉ render từ catalog, nên mọi bản build đều chạy offline sau khi lockfile được phân giải."
+  },
   "f078a310659a0700": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -147954,6 +148966,13 @@
     "srcHash": "f23515b88ae445d5",
     "status": "machine",
     "text": "Tài liệu chứa vị trí: Release, hoặc một tài liệu mà đồ thị của Release ghi nhận các component được viết trong đó — Aggregate của nó, hoặc tài liệu của một module mà Aggregate đó import. Nó được đọc trước tiên từ những gì phiên đang giữ cho nó, nếu không thì từ đĩa."
+  },
+  "f246ef4c78aa5df9": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f246ef4c78aa5df9",
+    "status": "machine",
+    "text": "Khi chỉ được nêu bằng family, định nghĩa tác vụ được phân giải thành revision đang hoạt động mới nhất của nó."
   },
   "f2519461cf737ce5": {
     "at": "2026-10-22T11:13:32.031992+00:00",
@@ -149610,6 +150629,13 @@
     "srcHash": "f4c98383c5f016bb",
     "status": "machine",
     "text": "**1. Platform Catalog: Feature khai báo slot của riêng nó**"
+  },
+  "f4d0e766c19e4ce5": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f4d0e766c19e4ce5",
+    "status": "machine",
+    "text": "Aggregate khai báo cơ sở dữ liệu và những gì một bản sao lưu của nó cần trên Kubernetes: một bucket và hai bộ điều khiển sao lưu. Một bộ điều khiển sao lưu được cài đặt một lần cho mỗi cluster thay vì cùng với cơ sở dữ liệu, nên nó là một thành phần riêng; trên AWS, các bản sao lưu nằm trong bộ lưu trữ riêng của dịch vụ được quản lý, và không cần đến thành phần nào trong ba thành phần đó. Một tham số, `backup_controller`, bật tắt chúng thông qua công tắc `active:` của mỗi thành phần:"
   },
   "f4d2eebab8bd92c5": {
     "at": "2026-10-22T23:53:36.766860+00:00",
@@ -152258,6 +153284,17 @@
     "status": "machine",
     "text": "**Phạm vi:** Được dùng thống nhất bên trong `components` của một ranh giới và các phần đính kèm `features` của chúng trong `Release`."
   },
+  "f8ff8fa0a43d7df7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "37cbc2496358aeb6",
+      "reviewed": false
+    },
+    "srcHash": "f8ff8fa0a43d7df7",
+    "status": "machine",
+    "text": "[advanced-platform](advanced-platform/README.md) (`advanced`) — Một nền tảng Kubernetes nhiều boundary, kết hợp nhiều cơ chế trong một bản build từ một `Aggregate` duy nhất do Developer viết: FeatureRecipes phạm vi boundary, nâng tham số, hệ thống con thông tin xác thực, và các tham chiếu xuyên boundary được phân giải qua Service DNS."
+  },
   "f9053a8df6943198": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -152538,6 +153575,13 @@
     "srcHash": "f98533962f9b87c4",
     "status": "machine",
     "text": "Khối tùy chọn dành cho các YAML anchor tiêu chuẩn (& và *) để giữ Aggregate theo nguyên tắc DRY, đồng thời duy trì một từ điển phẳng O(1) cho trình biên dịch. Tương ứng với khối tương đương trên Manifest."
+  },
+  "f98544860286dc34": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f98544860286dc34",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` ghi một mẫu stack chứa phiên bản, với cùng hai thiết lập dưới tên thuộc tính CloudFormation của chúng:"
   },
   "f986e96d13f6c835": {
     "at": "2026-10-22T22:51:15.481474+00:00",
@@ -153146,6 +154190,17 @@
     "srcHash": "fa7fe67124e94375",
     "status": "machine",
     "text": "Cơ sở dữ liệu"
+  },
+  "fa818f4b9fe9d059": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "ce33d9bd3d81fd9f",
+      "reviewed": false
+    },
+    "srcHash": "fa818f4b9fe9d059",
+    "status": "machine",
+    "text": "Dạng rút gọn nhận diện mọi từ khóa có tiền tố `x-aggrega-` là một phần mở rộng riêng của Aggrega. Không gian tên này là mở: các chú thích mới được đưa vào danh mục mà không cần sửa từ vựng cho từng từ khóa. Tác giả viết `x-aggrega-selector`, `x-aggrega-narrowed-from` hoặc các chú thích trong tương lai sẽ có nội dung được đặt đúng phạm vi trong JSON Schema đã phân giải mà không bị từ chối lúc biên dịch."
   },
   "fa81b2d23e010c4f": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -153771,6 +154826,17 @@
     "status": "machine",
     "text": "Khi chạy, một yêu cầu không xuất trình khóa nào đã khai báo, dưới dạng `Authorization: Bearer\n<key>`, sẽ bị từ chối với HTTP 401, và khóa được gỡ khỏi yêu cầu mà\ngateway chuyển tiếp. Một phản hồi được lưu theo route và bên gọi, nên prompt được diễn đạt lại\ncủa một bên gọi sẽ nhận phản hồi đã lưu cho chính bên gọi đó và không bao giờ nhận\nphản hồi đã lưu cho bên khác. Phản hồi lấy từ bộ nhớ đệm không tính vào\nngân sách, và vẫn được phục vụ khi đã vượt giới hạn. Kết nối `embedder` có các route\nriêng, như mọi kết nối trên socket `models`."
   },
+  "fb8258ec5d6d3a23": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "fe4eca9b48b0cb5a",
+      "reviewed": false
+    },
+    "srcHash": "fb8258ec5d6d3a23",
+    "status": "machine",
+    "text": "**Mọi điều kiện mà tệp nhị phân này khai báo đều được trả lời từ tệp nhị phân.** Hai mã của nó và câu mà các chẩn đoán của nó mở đầu được khai báo bên trong trình biên dịch, nên phần đó không cần mạng, không cần bộ nhớ đệm và không cần cấu hình."
+  },
   "fb87355103f45764": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -154249,6 +155315,13 @@
     "status": "machine",
     "text": "`ad-hoc-socket` — socket là một socket mà Component không khai báo. Tác giả đã đặt tên cho nó, điều này hợp lệ, và một socket không được khai báo thì không khai báo slot nào."
   },
+  "fc565b8f73bd10b1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "fc565b8f73bd10b1",
+    "status": "machine",
+    "text": "`core/storage/barman-cloud-plugin`"
+  },
   "fc59031809017e08": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -154452,6 +155525,13 @@
     "srcHash": "fc9fcb632f4a19a4",
     "status": "machine",
     "text": "URI plugin được soạn của attachment verdict, như được viết trong `.aggrega-config.yaml` `plugins.governance` (ví dụ `governance/aggrega-security-baseline:1.0.0`). Xác định attachment mà các đầu vào quy tắc đã ghi thuộc về; một plugin verdict được cache thay vì được ghim, nên không có mục nào trong các phần `plugins` / `entities` để liên kết tới."
+  },
+  "fca064effe18a363": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fca064effe18a363",
+    "status": "machine",
+    "text": "Khởi động một lần chạy trên Amazon ECS"
   },
   "fca1c5d9ab85c211": {
     "at": "2026-10-22T03:40:32.071Z",
@@ -155036,6 +156116,13 @@
     "status": "machine",
     "text": "Phiên bản theo Semantic Versioning nghiêm ngặt của bản phát hành (ví dụ: 1.0.0). Mẫu: `^(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)(?:-((?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$`."
   },
+  "fdc060a3a1ce9fc8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fdc060a3a1ce9fc8",
+    "status": "machine",
+    "text": "Một CronJob cần một lịch, và `0 0 30 2 *` chỉ ngày 30 tháng 2, một ngày không năm nào có: khi tạm ngưng, CronJob không khởi động lần chạy nào, và khi tiếp tục, nó vẫn không có thời điểm nào để khởi động một lần chạy. Nếu không có attachment, một tác vụ không có lịch sẽ là một Job, chạy ngay khi được triển khai."
+  },
   "fdc432b04c2ddaa8": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -155204,6 +156291,17 @@
     "srcHash": "fdfbeb28eb4e17f6",
     "status": "machine",
     "text": "Một terminal được mở sau đó sẽ tìm thấy `aggrega`; terminal đã mở sẵn vẫn giữ `PATH` mà nó có khi khởi động."
+  },
+  "fe048817ed823f33": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "be288c4a54eb3b51",
+      "reviewed": false
+    },
+    "srcHash": "fe048817ed823f33",
+    "status": "machine",
+    "text": "**`url`** — kho cần clone. `https://`, `ssh://` và `git://` đều được chấp nhận. Một kho riêng tư được truy cập qua SSH thông qua SSH agent, hoặc qua HTTPS với một mục cho host của nó trong tệp netrc của bạn — `machine github.com login <user> password <token>`. Thông tin xác thực được viết ngay trong URL sẽ bị từ chối, như mô tả trong [Xác thực](../../cli/aggrega-pull.md#authentication)."
   },
   "fe063b54d01d4b2c": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -156098,6 +157196,17 @@
     "status": "machine",
     "text": "**Không có nguồn ngẫu nhiên, không có trạng thái bên ngoài.** Các phép biến đổi là hàm thuần trên các đầu vào đã khai báo (nội dung thực thể, chuỗi cha, lockfile). Trạng thái bên ngoài chỉ được tham khảo trong quá trình phân giải (tải artifact OCI), và nội dung đã phân giải được định địa chỉ theo nội dung qua digest."
   },
+  "ffaef73dc294b298": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "d115f2dc7ae2f060",
+      "reviewed": false
+    },
+    "srcHash": "ffaef73dc294b298",
+    "status": "machine",
+    "text": "**Chuỗi phổ quát (nhanh và gọn):** Phù hợp nhất cho đường dẫn cục bộ, artifact OCI và kho Git. Trình biên dịch suy ra phương thức tải từ tiền tố và hậu tố của chuỗi (`./src`, `https://github.com/example/module.git`, `oci://...`): một URL kết thúc bằng `.git`, hoặc được viết với `git://` hay `ssh://`, là một kho Git được tải tại nhánh mặc định của nó, và một URL `https://` không chỉ tới kho nào, cũng không chỉ tới chart `.tgz` hay phân đoạn `.yaml` nào, sẽ bị từ chối vì không rõ ràng."
+  },
   "ffb203092f736d69": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -156139,6 +157248,13 @@
     "srcHash": "ffc896927aca256f",
     "status": "machine",
     "text": "chuỗi rỗng"
+  },
+  "ffc97d13365d60bd": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ffc97d13365d60bd",
+    "status": "machine",
+    "text": "mọi Release"
   },
   "ffca8ded59782c99": {
     "at": "2026-10-22T12:16:26.328227+00:00",

@@ -1032,6 +1032,13 @@
     "status": "machine",
     "text": "Lista dozwolonych wiąże obie strony slotu, na dwóch różnych etapach."
   },
+  "018db9274ec446da": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "018db9274ec446da",
+    "status": "machine",
+    "text": "Każda encja Release podaje w `infra.image` obraz, który uruchamia każde zadanie, ponieważ `core/compute/task` nie pakuje żadnego oprogramowania. Encje Releases dla AWS podają też w `infra.overrides` klaster, podsieci, grupy zabezpieczeń i rolę wykonawczą, z którymi działa każde zadanie, a tam, gdzie `report` ma harmonogram, rolę, z którą harmonogram uruchamia każdy przebieg. Każda wartość specyficzna dla konta jest tam symbolem zastępczym."
+  },
   "018e6ec3e008057b": {
     "at": "2026-10-22T23:05:21.167953+00:00",
     "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
@@ -3000,6 +3007,17 @@
     "status": "machine",
     "text": "Jednoserwerowy kształt syntetyzowanej realizacji omówiono w\n[`../mysql-standalone/`](../mysql-standalone/) i nie jest on tu powtarzany."
   },
+  "04ad216c93536d58": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "f3bdb57dbbbdef22",
+      "reviewed": false
+    },
+    "srcHash": "04ad216c93536d58",
+    "status": "machine",
+    "text": "Encja ArtifactLibrary ma standardową kopertę katalogu. `apiVersion: aggrega.ai/v1alpha1` i `kind: ArtifactLibrary` oznaczają rodzaj encji; `metadata.name` jest identyfikatorem w notacji PascalCase; `metadata.version` stosuje ścisłe wersjonowanie semantyczne. Oba pola są wymagane. `metadata.description`, `metadata.labels` i `metadata.annotations` są opcjonalne — etykiety i adnotacje to nieprzezroczyste metadane deklarowane przez autora, przenoszone po to, by mogło je dopasowywać to, co odczytuje bibliotekę, a kompilator nie interpretuje ich wartości. Zawartość biblioteki znajduje się w `spec.artifacts`, wymaganej mapie, która musi deklarować co najmniej jeden pakiet."
+  },
   "04af3180757e9f40": {
     "at": "2026-10-22T09:04:02.847762+00:00",
     "job": "msgbatch_01YUZ3hS3kRQBffCNLpUqt2U",
@@ -3220,6 +3238,13 @@
     "srcHash": "04fdba98dcb0ae90",
     "status": "machine",
     "text": "Każde dołączenie w węźle trafia do tego samego kubełka, niezależnie od tego, co wytwarza jego encja Feature — operacyjna encja Feature, encja Feature poświadczeń, encja Feature tożsamości.\nŻadna rodzina nie otrzymuje węższej projekcji niż inna, więc polityka, która przechodzi przez\nkubełek, widzi je wszystkie i nigdy nie musi wiedzieć, z jaką rodziną ma do czynienia,\nzanim odczyta fakt."
+  },
+  "04fee587e6e9d93d": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "04fee587e6e9d93d",
+    "status": "machine",
+    "text": "Ponieważ dla encji Workload typu `reference` nie jest emitowana żadna usługa, nic nie odczytuje potoku dostarczania komponentu, który ona realizuje: poświadczenie dołączone do tego komponentu — dostarczane w jego potoku przez `dotenv-secret` lub przez własny blok `inject:` dołączenia — nie trafiłoby do żadnego emitowanego pliku. Dlatego każda encja Recipe biblioteki standardowej dla Compose, która realizuje w ten sposób usługę zewnętrzną i której encja Component deklaruje slot poświadczeń, odrzuca poświadczenie wypełniające ten slot: kompilacja zatrzymuje się, podając slot i komponent, zamiast zakończyć się sukcesem bez poświadczenia. W compose poświadczenie dla usługi zewnętrznej dołącza się do komponentu, który ją wywołuje, pod zmienną środowiskową odczytywaną przez ten komponent. To odrzucenie jest własną asercją każdej encji Recipe i jest wykonywane, zanim ten dostawca cokolwiek wyrenderuje. Ten dostawca odrzuca także na poziomie samego węzła, bez względu na to, z którego katalogu pochodzi encja Recipe: dołączenie na węźle `reference`, którego materiał jest zadeklarowany jako wrażliwy — jego encja Feature deklaruje pole jako `sensitive: true` lub tak deklaruje wypełniany przez nie slot — zatrzymuje kompilację z `TRANSLATION_ERROR` (`E0288`), podając węzeł i każde takie dołączenie, niezależnie od tego, czy jakikolwiek slot deklaruje nazwę, pod którą jest ono dołączone. Dołączenie, które nie zawiera niczego zadeklarowanego jako wrażliwe, nie jest tu odrzucane. Te encje Components deklarują swoje sloty poświadczeń jako opcjonalne, więc w compose pozostawiony pusty slot niczego nie zatrzymuje. Tam, gdzie realizacja w Kubernetes potrzebuje poświadczenia — w encjach Recipes `helm` dla `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell` i `vapi` — ta encja Recipe zamiast tego wymaga slotu i zatrzymuje kompilację, podając go, gdy jest pusty."
   },
   "0505795503da0e0a": {
     "at": "2026-10-22T12:16:26.328227+00:00",
@@ -4341,6 +4366,13 @@
     "srcHash": "06da3d22e53acc49",
     "status": "machine",
     "text": "To, czy provider przyjmuje te pliki, jest odczytywane z własnej deklaracji providera o tym, co obsługuje, a nie z listy providerów prowadzonej przez kompilator. Liczy się każdy wpis, niezależnie od tego, do czego byłby renderowany. Provider `terraform` je przyjmuje, zapisując każdy obok głównej konfiguracji granicy; `helm`, `compose`, `helm-chart` i `cloudformation` ich nie przyjmują i są odrzucane."
+  },
+  "06df2f460db902da": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "06df2f460db902da",
+    "status": "machine",
+    "text": "Dziennik jest więc archiwizowany do zasobnika w sposób ciągły, między codziennymi bazowymi kopiami zapasowymi, a przywracanie może sięgnąć dowolnego momentu z tych 14 dni: jest to odzyskiwanie do punktu w czasie CloudNativePG, które ta realizacja pozostawia włączone."
   },
   "06e14b73cffe442d": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -5603,6 +5635,13 @@
     "status": "machine",
     "text": "mapa volume"
   },
+  "08e8bce707ea248b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "08e8bce707ea248b",
+    "status": "machine",
+    "text": "To encja Manifest decyduje, który produkt tworzy kopię zapasową bazy danych. Dwie encje Manifests dla Kubernetes uruchamiają bazę danych na dwa sposoby — `helm/postgres`, StatefulSet, dla Velero, oraz `helm/postgres-cloudnative-pg`, Cluster CloudNativePG, dla wtyczki — i wiążą realizację kopii zapasowej odpowiednią dla każdego z nich. `manifest-terraform.yaml` i `manifest-terraform-aws-backup.yaml` mapują bazę danych na tę samą encję Recipe i różnią się encją FeatureRecipe, którą wiążą z `core/backup`, a encje Releases kompilowane na ich podstawie różnią się, poza wskazaną przez każdą encją Manifest, wyłącznie rolą."
+  },
   "08e9920b841f3f3b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -5975,6 +6014,13 @@
     "srcHash": "098e3c5a69e0714c",
     "status": "machine",
     "text": "Tożsamość Workload jest pojęciem klastra"
+  },
+  "09906f0b3c70f9f6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "09906f0b3c70f9f6",
+    "status": "machine",
+    "text": "Sześć encji Releases"
   },
   "09978f42087c95b4": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -8580,6 +8626,13 @@
     "status": "machine",
     "text": "[Przewodnik dla twórców pluginów Wasm](plugin-developer-guide.md) — encja `Plugin`, zakres możliwości i cykl życia publikacji."
   },
+  "0dda2405e5344b46": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "0dda2405e5344b46",
+    "status": "machine",
+    "text": "`core/backup` realizowane przez"
+  },
   "0ddaed0715b3e362": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -9395,6 +9448,17 @@
     "status": "machine",
     "text": "`no-slot-declared` — encja Component deklaruje gniazdo bez żadnego slotu."
   },
+  "0f23c2f6c8925288": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "72941d240a932f42",
+      "reviewed": false
+    },
+    "srcHash": "0f23c2f6c8925288",
+    "status": "machine",
+    "text": "Etykiety deklarowane przez autora. Kompilator jest neutralny wobec treści i nie interpretuje wartości etykiet: są to nieprzezroczyste metadane, przenoszone po to, by cokolwiek odczytuje bibliotekę, mogło według nich dopasowywać."
+  },
   "0f30d1a1b5f28f91": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -10039,6 +10103,13 @@
     "status": "machine",
     "text": "polityka zarządcza, która akceptuje lub odrzuca kompilację, w jej trakcie lub na podstawie jej wyniku."
   },
+  "10087f5fca0700c6": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "10087f5fca0700c6",
+    "status": "machine",
+    "text": "`release-terraform.yaml` zapisuje konfigurację główną z jednym blokiem module na zadanie, a obok niej moduł każdego zadania. Oba bloki różnią się harmonogramem:"
+  },
   "100bf91d25a74abc": {
     "at": "2026-10-30T02:01:48.260Z",
     "job": "session-0049-20261030020148",
@@ -10084,6 +10155,13 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**Pierwszeństwo trzech poziomów:** przed zastosowaniem wnioskowania OCI kompilator sprawdza ścieżki lokalne (poziom 1) i katalogi obszaru roboczego (poziom 2), zgodnie z definicją w [trzypoziomowym modelu rozwiązywania encji](../../architecture/13-catalog-and-registry.md). Wnioskowanie OCI ma zastosowanie tylko wtedy, gdy encja dociera do poziomu 3 (rejestr zdalny)."
+  },
+  "101693dcc7edced9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "101693dcc7edced9",
+    "status": "machine",
+    "text": "Obiekty Secret wskazywane przez encje Releases dla Kubernetes ma przechowywać klaster, w przestrzeni nazw, z której każdy jest odczytywany: `backup-store-access-key-id` i `backup-store-secret-access-key` obok zasobnika, `velero-cloud-credentials` w `velero`, zawierający współdzielony plik poświadczeń AWS, oraz `db-backup` obok bazy danych, zawierający parę kluczy pod `ACCESS_KEY_ID` i `ACCESS_SECRET_KEY`. Kompilacja nie renderuje żadnego z nich."
   },
   "10187f986b5e452c": {
     "at": "2026-10-22T13:26:34.362950+00:00",
@@ -16036,6 +16114,13 @@
     "status": "machine",
     "text": "verify: `\"<reference>\"` records a signature a build does not accept, and no registry is configured to ask about it again: signing: the recorded signature was made for a different artifact (cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`) (weryfikacja: wskazana referencja zapisuje podpis, którego build nie akceptuje, i nie skonfigurowano rejestru, o który można ponownie zapytać: podpisywanie: zapisany podpis został złożony dla innego artefaktu (zbuforowany pakiet podpisu pod wskazaną ścieżką, odczytany artefakt ma wskazany digest manifestu))"
   },
+  "1a25cc012c3bb03d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "1a25cc012c3bb03d",
+    "status": "machine",
+    "text": "Adresy URL Fulcio i Rekor dla podpisywania bezkluczowego oraz ścieżka klucza dla podpisywania kluczem mogą również pochodzić z bloku `signing:` w `.aggrega-config.yaml` (globalnego i dla poszczególnych rejestrów, przy czym wartość ustawiona dla rejestru artefaktu ma pierwszeństwo przed globalną, pole po polu); flaga nadpisuje konfigurację, a konfiguracja nadpisuje publiczną wartość domyślną. Instancje publiczne wymienione w tabeli flag są więc używane tylko wtedy, gdy ani flaga, ani konfiguracja obszaru roboczego nie wskazuje punktu końcowego. Znacznik jest podpisywany dokładnie tak, jak [`aggrega sign`](aggrega-sign.md#signing-modes) podpisuje artefakt."
+  },
   "1a28c18d3b3ebc31": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -17641,6 +17726,13 @@
     "status": "machine",
     "text": "Klucz jest obecny wszędzie tam, gdzie dostawca hosta zgłasza nazwę — w `helm` dla hosta, którego Recipe dostarcza\nchart lub deklaruje `workload:` — i nieobecny tam, gdzie żadnej nie zgłasza: dla hosta umieszczającego wyłącznie\nzestaw artefaktów oraz dla hosta u każdego innego dostawcy. Odczytanie go w dołączeniu takiego hosta **zatrzymuje\nbudowanie** z diagnostyką dla odwołania, którego kontekst renderowania nie definiuje (`E0060`), wymieniającą klucze,\nktóre `.context` tam definiuje. `{{ .context.instance_id }}` jest wśród nich i to od niego nazywane są własne\nzasoby takiego hosta, dlatego FeatureRecipe pisana dla hostów, które mogą nie zgłaszać nazwy, odczytuje zamiast\ntego tożsamość."
   },
+  "1c982545d83f6387": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "1c982545d83f6387",
+    "status": "machine",
+    "text": "Do której sieci dołącza usługa"
+  },
   "1c9861008fc86222": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -19057,6 +19149,13 @@
     "srcHash": "1ebff8844557d60d",
     "status": "machine",
     "text": "**Klasa modelu wynika z jego etykiety hostingu.** `gpt` nie ma etykiety klasy.\nJego encja Component, `core/ai-model/openai`, ma `component.aggrega.ai/hosting:\nmanaged`, czyli deklarację katalogu, że usługę prowadzi jej dostawca,\npoza klastrem, a ustawienia przypisują temu klasę:"
+  },
+  "1ec1f5b35b383ac2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "1ec1f5b35b383ac2",
+    "status": "machine",
+    "text": "Zarówno ta reguła, jak i powyższa obowiązują dla komponentu wnoszonego przez moduł, po zbudowaniu kompozycji, która importuje moduł; raport wskazuje wtedy encję Aggregate modułu i klucz w jej dokumencie."
   },
   "1ec59082834f30fe": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -22336,6 +22435,17 @@
     "status": "machine",
     "text": "Pola najwyższego poziomu znajdują się w korzeniu kontekstu szablonu — wewnątrz szablonu odwołuje się do nich jako `.field`."
   },
+  "240fcce3ac367adc": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "c37b5799feebe2c5",
+      "reviewed": false
+    },
+    "srcHash": "240fcce3ac367adc",
+    "status": "machine",
+    "text": "encja Release dla Velero"
+  },
   "24110e251d206c9a": {
     "at": "2026-10-29T22:31:34.157Z",
     "job": "session-0030-20261029223134",
@@ -22939,6 +23049,17 @@
     "srcHash": "24ecb68831aa1b8f",
     "status": "machine",
     "text": "**Zgłasza jednego naruszającego na plik.** Klucz decyzji zbiera komunikaty, a wyrażenie CEL nie ma sposobu na połączenie list budowanych dla każdego pliku w jedną listę. Dlatego każda klauzula CEL zgłasza jednego naruszającego w każdym pliku: pierwszy kontener szablonu poda albo, spośród usług, instancji i zasobów kluczowanych przez plik według nazwy, ten, którego nazwa jest pierwsza w kolejności sortowania. Wyrażenie składane przechodzi przez mapę w nieustalonej kolejności, więc to wybór według nazwy sprawia, że komunikat jest taki sam w kolejnych kompilacjach. Reguła Rego zgłasza każdego naruszającego. Przy dwóch nieprzypiętych usługach w jednym pliku Compose silnik Rego zatrzymuje się z dwoma komunikatami, a silnik CEL z jednym, dla usługi, której nazwa jest pierwsza w kolejności sortowania; przy jednej, jak w każdej encji Release tutaj, oba zatrzymują się z tym samym komunikatem."
+  },
+  "24f2b3a15c5ba31e": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "5fb7bcacdcfab1ff",
+      "reviewed": false
+    },
+    "srcHash": "24f2b3a15c5ba31e",
+    "status": "machine",
+    "text": "`targets` — cele wstrzykiwania: rozwiązane komponenty, które gość może opatrzyć adnotacjami — te, które granica wskazuje bezpośrednio, oraz każdy komponent, który wprowadza wpis routingu w `aggregates:` granicy, niezależnie od tego, czy wpis go wskazuje — każdy z własnymi `boundary_path`, `component_name` (dla komponentu wprowadzonego przez routing jest to jego identyfikator z kropkami w grafie buildu, np. `metrics.query`) i `annotations`, które zapisuje na nim encja Release, dzięki czemu gość może zdecydować, co dodać, nie wypierając wartości nadanej przez autora. Każda wartość adnotacji dociera w postaci, w jakiej ją zapisano — jako tekst, obiekt podkluczy lub `null`, gdy komponent rezygnuje z adnotacji, którą by odziedziczył — a każdy klucz, który ma komponent, jest obecny niezależnie od wartości. Uporządkowane deterministycznie przez hosta."
   },
   "24f31566a442a624": {
     "at": "2026-10-22T10:02:42.507672+00:00",
@@ -24116,6 +24237,13 @@
     "srcHash": "270fb21a4a35fe24",
     "status": "machine",
     "text": "ścieżka bezwzględna, np. `/opt/charts/app`, która wskazuje miejsce na maszynie, na której ją zapisano."
+  },
+  "270fc23d33c4e3f8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "270fc23d33c4e3f8",
+    "status": "machine",
+    "text": "Dołączenie"
   },
   "2710f807f5aa0b62": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -25972,6 +26100,13 @@
     "srcHash": "2a2fc4bf10ea2124",
     "status": "machine",
     "text": "**Instalacja API certyfikatów.** Wartość `install_crds` podana przez programistę trafia\n  do chartu, który instaluje definicje `CustomResourceDefinition` cert-managera (zasoby\n  `Certificate`, `Issuer`, `ClusterIssuer` oraz ACME `Order`/`Challenge`).\n  Należy ustawić ją na false, gdy CRD są zarządzane poza tym procesem."
+  },
+  "2a3133d11b8c9677": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2a3133d11b8c9677",
+    "status": "machine",
+    "text": "Nic w stosie nie odwołuje się do `DataFixTaskDefinition`, więc nic go nie uruchamia."
   },
   "2a33fb2fb7ef0034": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -27850,6 +27985,13 @@
     "status": "machine",
     "text": "Etykiety duck typingu i ontologii bieżącego węzła, łącznie z wszelkimi zmianami wprowadzonymi podczas budowania topologii przez wtyczkę zarządzania dołączoną w roli label-transform."
   },
+  "2d9c672f353a191c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "2d9c672f353a191c",
+    "status": "machine",
+    "text": "`release-terraform-aws-backup.yaml` jest natomiast kompilowany z encji Manifest wiążącej `terraform/backup-aws-backup`. Ta realizacja zapisuje własny moduł dołączenia obok modułu bazy danych, zawierający magazyn kopii zapasowych (vault), plan i wybór wskazujący instancję:"
+  },
   "2da0b6273d0dd9d8": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -28132,6 +28274,13 @@
     "srcHash": "2e08fb9ddf765faf",
     "status": "machine",
     "text": "**Instalacja, uruchamianie i wykrywanie.** [`aggrega plugin add cli <query>`](../language-reference/cli/aggrega-plugin.md) przeszukuje skonfigurowany rejestr w poszukiwaniu pasującej wtyczki `cli`, weryfikuje ją względem polityki zaufania rejestru i instaluje jako polecenie najwyższego poziomu — najpierw wypisując zadeklarowane uprawnienia wtyczki, aby operator potwierdził, co dokładnie polecenie może robić, zanim zostanie zainstalowane. Po instalacji `aggrega <command>` uruchamia je jak każde polecenie wbudowane. Wtyczka CLI deklaruje swoje polecenia i ich flagi w samoopisie `describe()`, a host wyświetla flagi każdego polecenia w `aggrega help <command>` dokładnie tak jak dla polecenia wbudowanego, więc operator poznaje `--flags` zainstalowanego polecenia w ten sam sposób. Aby znaleźć polecenia do zainstalowania i zawartość katalogu, [`aggrega search`](../language-reference/cli/aggrega-search.md) odpytuje lokalny indeks skonfigurowanych rejestrów — `--kind plugin --plugin-type cli` zawęża wyniki do wtyczek CLI do zainstalowania, a wyszukiwanie bez filtra obejmuje encje katalogu; [`aggrega plugin list`](../language-reference/cli/aggrega-plugin.md) pokazuje, co jest już zainstalowane. Flagi poszczególnych poleceń i kształty wyników opisano na tych stronach referencyjnych."
+  },
+  "2e094b5c48bd7cab": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "2e094b5c48bd7cab",
+    "status": "machine",
+    "text": "Zadanie z `core/manual-trigger`, wdrażane bez uruchamiania na Kubernetes, Docker Compose, Terraform i CloudFormation, obok zadania bez żadnego dołączenia, wraz z poleceniem, które uruchamia przebieg na każdym celu."
   },
   "2e09563ca7fecc15": {
     "at": "2026-10-22T21:42:39.864359+00:00",
@@ -29554,6 +29703,13 @@
     "status": "machine",
     "text": "Authored values or infra do not conform to the declared schema (Utworzone values lub infra nie są zgodne z zadeklarowanym schematem)"
   },
+  "303fc9b6db140df9": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "303fc9b6db140df9",
+    "status": "machine",
+    "text": "RDS przyjmuje jedną dzienną godzinę rozpoczęcia zamiast wyrażenia cron, więc `30 2 * * *` staje się oknem kopii zapasowej otwieranym o 02:30 UTC i trwającym 30 minut, najkrócej, ile przyjmuje RDS."
+  },
   "3041b737cf1313fd": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -30401,6 +30557,13 @@
     "status": "machine",
     "text": "**Kiedy wybrać `optional` zamiast `default`.** Należy używać `optional`, gdy pole może być w uprawniony sposób zerowe, puste lub fałszywe, a autor katalogu musi odróżnić „autor tego nie ustawił” od „autor ustawił wartość fałszywą”. Funkcji `default` należy używać, gdy utożsamienie jest akceptowalne (np. pola tekstowe, w których pusta wartość jest nieprawidłowa; pola liczbowe, w których zero jest nieprawidłowe)."
   },
+  "318ecb06291a6658": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "318ecb06291a6658",
+    "status": "machine",
+    "text": "**Kod, którego ten plik binarny nie deklaruje, jest wyszukiwany w opublikowanej dokumentacji referencyjnej.** Wtyczka zgłasza zatrzymanie, wybierając warunek deklarowany przez kompilator, więc żaden warunek nie jest deklarowany nigdzie indziej. Opublikowana dokumentacja referencyjna, [sentinels.md](../errors/sentinels.md), wymienia każdy warunek deklarowany przez produkt i mogła zostać opublikowana dla innej wersji niż uruchomiony plik binarny — dlatego kod zacytowany z raportu sporządzonego nowszym lub starszym wydaniem nadal może tam zostać rozwiązany."
+  },
   "318f71f4b535f09b": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -30443,6 +30606,13 @@
     "srcHash": "319fbf166d7e626d",
     "status": "machine",
     "text": "Wersja pochodzenia kompilacji wpisana do gościa w czasie kompilacji. Pomijana przez kompilację bez tych danych."
+  },
+  "31a3321d76aa6b44": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "31a3321d76aa6b44",
+    "status": "machine",
+    "text": "**Deklaracje modułu są sprawdzane tak samo jak deklaracje encji Aggregate.** Dokument modułu jest odczytywany dopiero wtedy, gdy budowana jest kompozycja, która go importuje, a jego deklaracje są od tego momentu sprawdzane na dowolnej głębokości zagnieżdżenia. Własny blok `inject:` komponentu modułu podlega liście dozwolonych `spec.inject` jego typu oraz regułom zakazującym dwukrotnego zajęcia jednego klucza dostarczania i odczytywania klucza, którego typ nie publikuje. Dołączenie zapisane w jednym z własnych podsystemów modułu może wskazywać tylko gniazdo deklarowane przez jego encję Feature; to samo dotyczy dołączenia, które encja Release zapisuje względem komponentu wniesionego przez moduł."
   },
   "31a6ba99794699dd": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -30845,6 +31015,13 @@
     "srcHash": "325e29c1bea445b3",
     "status": "machine",
     "text": "Należy zainstalować `aggrega-<version>.mcpb` z ustawień rozszerzeń Claude Desktop."
+  },
+  "325fc4631bdb10f1": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "325fc4631bdb10f1",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` zapisuje jeden szablon stosu. Zawiera on definicję zadania dla każdego zadania i harmonogram tylko dla `report`:"
   },
   "32644ada49779ae5": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -33537,6 +33714,13 @@
     "status": "machine",
     "text": "**Ruch wychodzący pozostaje nienaruszony.** Serwer modelu nadal łączy się z\n  rejestrem, z którego pobiera wagi, i rozwiązuje nazwy tak jak wcześniej."
   },
+  "36e54b2c010ebbc6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "36e54b2c010ebbc6",
+    "status": "machine",
+    "text": "dwie encje Releases dla Kubernetes: zasobnik, do którego trafiają kopie zapasowe"
+  },
   "36e79e67ee8a4394": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -33877,6 +34061,13 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "Powiązane materiały"
+  },
+  "376a13ff3d131acb": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "376a13ff3d131acb",
+    "status": "machine",
+    "text": "`release-terraform.yaml` zapisuje moduł bazy danych i nic więcej. Realizacja dołączenia, `terraform/backup-native`, nie renderuje żadnego pliku: kopia zapasowa jest ustawieniem instancji RDS, więc encja Recipe bazy danych wczytuje dołączenie i zapisuje je tam, gdzie zapisywana jest instancja:"
   },
   "376b63fbc49fe7bc": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -34637,6 +34828,13 @@
     "srcHash": "3918f8a89b42ba9a",
     "status": "machine",
     "text": "Sparsowana struktura encji w poprzedniej wersji, dla reguł wykonujących porównanie parami (schema-evolution), z wartościami parametrów usuniętymi dokładnie tak, jak z proposed. Pomijane, gdy reguła nie potrzebuje odniesienia do poprzedniej wersji (np. przy pierwszej publikacji lub w regułach wyłącznie strukturalnych)."
+  },
+  "391d5fbc2208cfb7": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "391d5fbc2208cfb7",
+    "status": "machine",
+    "text": "Przebieg `data-fix` to Job utworzony z jego CronJob, pod dowolnie wybraną nazwą:"
   },
   "391e405152779acc": {
     "at": "2026-10-29T19:15:25.530Z",
@@ -35609,6 +35807,13 @@
     "srcHash": "3a85a5fe846a347c",
     "status": "machine",
     "text": "**`--verify` w trybie offline obejmuje mniej i to zgłasza.** Sprawdzenie, na co dziś wskazuje zapisana referencja źródła, wymaga połączenia z jej zdalnym repozytorium, czego tryb offline odmawia. Dlatego `--verify` w trybie offline sprawdza przypięte zależności i pomija ten aspekt, wypisując wiersz, który to stwierdza, zamiast zgłaszać zgodność, której nigdy nie ustalił. Zapisany podpis, który może potwierdzić tylko jego rejestr — we wpisie pliku blokady, którego zapisany w pamięci podręcznej pakiet podpisu został usunięty lub zmieniony — jest pomijany w ten sam sposób, z wierszem wskazującym każdy taki wpis:"
+  },
+  "3a8befe00dcf9100": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "3a8befe00dcf9100",
+    "status": "machine",
+    "text": "Skąd pochodzą punkty końcowe podpisywania"
   },
   "3a9072704f2cdc68": {
     "at": "2026-10-22T09:44:21.400057+00:00",
@@ -36590,6 +36795,13 @@
     "srcHash": "3c2a399ef6c3948a",
     "status": "machine",
     "text": "zatrzymuje kompilację, nawet samodzielnie: wstawia treść pobieraną z S3 podczas wdrażania stosu, której kompilacja nie może odczytać."
+  },
+  "3c2b2586db860718": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "3c2b2586db860718",
+    "status": "machine",
+    "text": "Moduł deklaruje harmonogram EventBridge Scheduler tylko wtedy, gdy otrzyma wyrażenie, więc definicja zadania `data-fix` istnieje samodzielnie:"
   },
   "3c2b4919dbcca502": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -38578,6 +38790,17 @@
     "srcHash": "3f6501df82142116",
     "status": "machine",
     "text": "**Dotyczy nazw i etykiet wyprowadzanych z tożsamości** — `metadata.name` w zasobie syntetyzowanym przez Aggrega, etykiet `aggrega.ai/component-id` i `app.kubernetes.io/name`, selektorów, które do nich pasują, emitowanych nazw plików, `{{ .context.instance_id }}` oraz nazwy, którą provider wyprowadza dla siebie, na przykład nazwy release w helm. Zmieniają się razem, więc adres, który encja Recipe składa z klucza nazywającego zasób — `.context.instance_id`, gdy cel nazywa zasób według tożsamości, `.context.rendered_name`, gdy cel zgłasza własną nazwę — nadal wskazuje zasób emitowany przez kompilację."
+  },
+  "3f656ce8e6a47e82": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "9b3809bf1e42e3db",
+      "reviewed": false
+    },
+    "srcHash": "3f656ce8e6a47e82",
+    "status": "machine",
+    "text": "Encja WorkloadLibrary ma standardową kopertę katalogu. `apiVersion: aggrega.ai/v1alpha1` i `kind: WorkloadLibrary` oznaczają rodzaj encji; `metadata.name` jest identyfikatorem w notacji PascalCase; `metadata.version` stosuje ścisłe wersjonowanie semantyczne. Oba pola są wymagane. `metadata.description`, `metadata.labels` i `metadata.annotations` są opcjonalne — etykiety i adnotacje to nieprzezroczyste metadane deklarowane przez autora, przenoszone po to, by mogło je dopasowywać to, co odczytuje bibliotekę, a kompilator nie interpretuje ich wartości. Zawartość biblioteki znajduje się pod `spec.workloads` — wymaganą mapą, która musi deklarować co najmniej jeden wpis."
   },
   "3f6661a4274ffdd5": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -41256,6 +41479,17 @@
     "status": "machine",
     "text": "**Jak naprawić:** należy przeczytać własne zdanie pluginu, w którym znajduje się wszystko, co dotyczy konkretnej kompilacji. Sam warunek mówi tylko, że plugin nie miał dla błędu rodzaju. Jeśli plugin jest własny, należy wybrać rodzaj, którym błąd faktycznie jest; jeśli nie, to zdanie należy przekazać temu, kto plugin publikuje."
   },
+  "43ee7affe68615bc": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "637e1948178cdcc1",
+      "reviewed": false
+    },
+    "srcHash": "43ee7affe68615bc",
+    "status": "machine",
+    "text": "**Dokumentacja niedostępna.** W przypadku warunku deklarowanego przez kompilator kody i zdanie są nadal zgłaszane, a uwaga podaje pakiet i wersję, których nie udało się odczytać. W przypadku kodu, którego ten plik binarny nie deklaruje, nie ma już nic, czym można by odpowiedzieć, więc kod zostaje odrzucony — a odrzucenie informuje, że nie udało się odczytać dokumentacji referencyjnej, ponieważ bez niej kodu z innej wersji nie da się odróżnić od literówki, i pozostawia otwarte obie naprawy: poprawienie kodu lub pobranie dokumentacji. Zwykle przyczyną jest obszar roboczy przypięty do trybu offline lub taki, który nigdy nie połączył się ze swoim rejestrem. Jeśli na maszynie jest kopia, której sprawdzanie podpisów obszaru roboczego nie dopuszcza — pobrana przez inny projekt przy luźniejszym ustawieniu lub taka, której obszar roboczy offline nie może sprawdzić, bo ta maszyna nigdy nie pobrała publicznego korzenia zaufania, względem którego weryfikuje jego sprawdzanie — uwaga informuje, że kopię odrzucono, a nie że jej brakuje, oraz dlaczego."
+  },
   "43f04a916d326c68": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -41693,6 +41927,13 @@
     "srcHash": "449a819ec5b7f1d5",
     "status": "machine",
     "text": "**Ścieżka lokalna — dla dokumentów wskazywanych przez Release i jej Manifest.** Pola `aggregate`, `manifest` lub `extends` encji Release albo pole `extends` encji Manifest zapisane z prefiksem `./` lub `../` są odczytywane jako plik względem własnego katalogu encji Release; wnioskowanie OCI nie jest uruchamiane. Żadna inna pozycja nie przyjmuje ścieżki: `type`, klucz lub wartość mapowania Manifest, `implements` albo `plugin` potoku zapisane jako `./…` nie wskazują żadnej encji i zatrzymują kompilację. Encja utworzona lokalnie jest umieszczana w `catalog/` w katalogu głównym przestrzeni roboczej lub w katalogu wymienionym w `workspace.catalog_dirs` i jest rozwiązywana po nazwie przez poziom przestrzeni roboczej i pamięci podręcznej."
+  },
+  "449d7071852d1660": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "449d7071852d1660",
+    "status": "machine",
+    "text": "Tutaj harmonogram dociera do zadania przez parametr wypełniany przez encję Release, więc nadanie komponentowi harmonogramu oznacza wypełnienie `report_schedule`, tak jak robi to `release-terraform.yaml`."
   },
   "449ef1c477904505": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -42193,6 +42434,17 @@
     "srcHash": "453e79101cb4b070",
     "status": "machine",
     "text": "**Jak naprawić:** błąd leży po stronie pluginu, a nie dokumentów. Należy go poprawić tak, aby każda zwracana operacja dotyczyła wpisu pod `labels` któregoś węzła i ustawiała wyłącznie wartości tekstowe — najczęstszym przypadkiem jest liczbowa lub logiczna wartość etykiety, ponieważ powierzchnia przyjmuje tylko ciągi znaków. Usunięcie dołączenia z `plugins.governance` to natychmiastowy sposób na odblokowanie kompilacji na czas poprawiania pluginu."
+  },
+  "453ffd4bfefe197e": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "954d9f3876831298",
+      "reviewed": false
+    },
+    "srcHash": "453ffd4bfefe197e",
+    "status": "machine",
+    "text": "Czego kompilacja nie robi"
   },
   "45430d8c62a99335": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -45603,6 +45855,17 @@
     "status": "machine",
     "text": "Które z trzech rodzajów wejścia encji Recipe plugin renderuje: zestaw plików ze źródła, syntetyzowane obciążenie oraz samodzielny węzeł zawierający wyłącznie artefakty."
   },
+  "4aa9215d3cfbac4f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "16ec975e305ead69",
+      "reviewed": false
+    },
+    "srcHash": "4aa9215d3cfbac4f",
+    "status": "machine",
+    "text": "0.8.8 (commit e9804536f)"
+  },
   "4aaaab02f591318a": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -45673,6 +45936,13 @@
     "srcHash": "4acb9d287d0bf590",
     "status": "machine",
     "text": "Rola werdyktu akceptuje lub odrzuca i nie robi nic więcej: host odczytuje jej wynik\nwyłącznie jako decyzję i nigdy nie stosuje go jako zmiany, więc polityka nie może po cichu\ndoprowadzić niezgodnej kompilacji do zgodności. Rola transformacji jest celowym\nwyjątkiem, a wyjątkiem czyni ją to, że podłączył ją operator — podłączenie\npluginu kształtującego etykiety jest deklaracją, że etykiety mają być kształtowane. To, co takie\npodłączenie może zmienić, jest ograniczone do powierzchni jego własnej roli, a kompilacja zatrzymuje się\nz wyraźnym błędem na wszystkim, co wykracza poza nią."
+  },
+  "4acf709c133f0148": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "4acf709c133f0148",
+    "status": "machine",
+    "text": "Na obu celach AWS przebieg `data-fix` uruchamia się operacją Amazon ECS RunTask, podając rodzinę definicji zadania w wyrenderowanej postaci oraz konfigurację klastra i sieci, którą encja Release podaje w `infra.overrides`:"
   },
   "4ad09c8b0bd452f7": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -47296,6 +47566,17 @@
     "status": "machine",
     "text": "ARN roli IAM, którą przyjmuje odczyt stosu z innego konta, aby uzyskać dostęp do wartości wyeksportowanych przez stos równorzędny."
   },
+  "4db5107181288bf9": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "7cd729394ad1587a",
+      "reviewed": false
+    },
+    "srcHash": "4db5107181288bf9",
+    "status": "machine",
+    "text": "Dalej znajduje się **wyselekcjonowana lista przykładów o rosnącej złożoności** — od najmniejszej powierzchni tworzenia po kompilacje łączące kilka mechanizmów — a nie pełna lista tego, co tu jest: katalog `examples/` zawierający tę stronę ma więcej przestrzeni roboczych, niż wymienia lista. Przykład trafia na listę tylko wtedy, gdy uczy czegoś, czego nie uczą te, które już na niej są, więc pozostaje ona ścieżką do przejścia, a nie spisem do przejrzenia. Można ją czytać od góry do dołu lub przejść od razu do poziomu odpowiadającego bieżącemu zadaniu."
+  },
   "4db6af8d3e9f781b": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -47516,6 +47797,13 @@
     "srcHash": "4e0d1e855de4cfbc",
     "status": "machine",
     "text": "Sposób dostępu do serwera: stdio obsługuje protokół przez standardowe wejście i wyjście, w ten sposób dociera do niego klient uruchamiający to polecenie jako podproces; http udostępnia go przez HTTP pod adresem wskazanym przez --listen lub mcp.listen, a przez HTTPS, gdy mcp.tls wskazuje certyfikat i klucz. Po ustawieniu nadpisuje klucz konfiguracji mcp.transport, którego wartością domyślną jest stdio."
+  },
+  "4e0d534413b77c19": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "4e0d534413b77c19",
+    "status": "machine",
+    "text": "`infra.keep_automated_backups: false` w dołączeniu wyłącza je i pozostawia kopie AWS Backup jako jedyne kopie zapasowe instancji."
   },
   "4e0d96acdf2df769": {
     "at": "2026-10-22T23:16:12.871393+00:00",
@@ -50270,6 +50558,13 @@
     "srcHash": "527561205ff90fd5",
     "status": "machine",
     "text": "Encje Release i Manifest mogą wskazywać inny plik ścieżką: `aggregate:` i `manifest:` encji Release zapisane jako `./…` lub `../…`, jej `extends:`, `extends:` encji Manifest zapisane jako ścieżka oraz `parameters: { $import: … }` encji Release. **Dokument w przestrzeni roboczej sięga w ten sposób wyłącznie do plików wewnątrz przestrzeni roboczej** — ścieżka, która w zapisanej postaci wychodzi poza nią, jest odrzucana, podobnie jak ścieżka, która w zapisanej postaci pozostaje wewnątrz, ale po drodze napotyka dowiązanie prowadzące na zewnątrz. W żadnym z tych przypadków nic nie jest odczytywane ze wskazanego pliku."
+  },
+  "5275f50cb3d2fc47": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5275f50cb3d2fc47",
+    "status": "machine",
+    "text": "Build zapisuje pliki i się zatrzymuje. Nie uruchamia żadnego przebiegu na żadnym celu: nie łączy się z żadnym klastrem, nie uruchamia stosu Compose i nie wywołuje żadnego API AWS, a dołączenie zmienia tylko treść plików. Nie zapisuje też żadnego skryptu: każde polecenie na tej stronie należy do samego celu, uruchamia je ten, kto go obsługuje, i żadne nie znajduje się w `dist/`. Realizacje dołączenia nie dodają na żadnym celu własnego pliku; zmiana, którą wprowadza każda z nich, znajduje się we własnym wyniku zadania, pokazanym powyżej."
   },
   "527a74bda5397d06": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -53627,6 +53922,13 @@
     "status": "machine",
     "text": "**Wewnętrzne krawędzie w module.** Store Gateway deklaruje użycie\n  magazynu obiektów, a Query deklaruje użycie Store Gateway; publikowany przez magazyn obiektów\n  `endpoint` oraz publikowane przez Store Gateway host i port są\n  przekazywane do konsumenta na każdej krawędzi, a encja Recipe każdego konsumenta buduje z nich\n  swój adres. Kompilator przekazuje te ciągi znaków, nie interpretując ich."
   },
+  "57d383cb4ed08233": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "57d383cb4ed08233",
+    "status": "machine",
+    "text": "Instancja zachowuje własne automatyczne kopie zapasowe obok kopii AWS Backup, tak jak bez dołączenia: przez 7 dni, w oknie wybieranym przez RDS, ponieważ harmonogram dołączenia należy do AWS Backup, a nie do instancji:"
+  },
   "57d495e83cfd647a": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -55205,6 +55507,13 @@
     "srcHash": "5a269de5a98dd0ae",
     "status": "machine",
     "text": "**Dostępność `metadata.labels` i `metadata.annotations` — obecnie częściowe pokrycie; planowana jednolita dostępność.** Koperty encji, które obecnie zawierają te pola, to Component (etykiety wymagane, z wymaganym kluczem `component.aggrega.ai/type`, adnotacje opcjonalne), Feature (oba opcjonalne), cztery rodzaje bibliotek SchemaLibrary, MappingLibrary, WorkloadLibrary i ArtifactLibrary (oba opcjonalne) oraz Aggregate (tylko etykiety, opcjonalne). Pozostałe encje — Recipe, FeatureRecipe, Manifest, Release, Plugin — obecnie nie akceptują `metadata.labels` ani `metadata.annotations` na poziomie koperty. Przyszła iteracja rozszerzy opcjonalne `metadata.labels` i `metadata.annotations` jednolicie na wszystkie encje, zachowując ograniczenie wymaganego klucza etykiety encji Component jako wyjątek dla tej encji."
+  },
+  "5a29bc53a12c4e20": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "5a29bc53a12c4e20",
+    "status": "machine",
+    "text": "`release-helm.yaml` zapisuje dwa pliki, po jednym CronJob na zadanie, i nic więcej. `data-fix` to CronJob utrzymywany w stanie wstrzymania, z harmonogramem, którego deweloper nigdy nie napisał:"
   },
   "5a2f1db5040f1da3": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -58246,6 +58555,13 @@
     "status": "machine",
     "text": "`DocumentSet`"
   },
+  "5f5d21bf23dca47c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "5f5d21bf23dca47c",
+    "status": "machine",
+    "text": "`release-helm-velero.yaml` zapisuje StatefulSet i obiekty Service bazy danych, odpowiednie obiekty zasobnika, obiekty renderowane przez własny chart Velero oraz jeden plik dla dołączenia, zawierający lokalizację magazynu Velero i harmonogram:"
+  },
   "5f5e372b153a1f51": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -58756,6 +59072,13 @@
     "status": "machine",
     "text": "Emitowane komunikaty dla instancji komponentu. Gdy mapowanie istnieje i wskazuje coś nieobecnego:"
   },
+  "602a5e69c3021bdb": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "602a5e69c3021bdb",
+    "status": "machine",
+    "text": "dołączenie"
+  },
   "602c5f9875ad3a5b": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -58769,6 +59092,13 @@
     "srcHash": "6033c91d2cb663ff",
     "status": "machine",
     "text": "Pole jest opcjonalne, a trzy możliwe znaczenia jego użycia są rozróżnialne:"
+  },
+  "6036ca2730c852d1": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6036ca2730c852d1",
+    "status": "machine",
+    "text": "Montowanie zapisane bez `subPath` nie zawiera bloku `volume:`. `subPath` na montowaniu wolumenu `ephemeral`, `configmap` lub `secret` zatrzymuje kompilację z `TRANSLATION_ERROR`, podając komponent, kontener, ścieżkę montowania zapisaną przez autora (`containers.<name>.volumeMounts[<i>]`), wolumen i `subPath`: te warianty trafiają do compose odpowiednio jako wpis `tmpfs`, odwołanie `configs:` i montowanie typu bind, z których żadne nie montuje części tego, co dostarcza, więc w przeciwnym razie montowanie widziałoby cały wolumen. Należy usunąć `subPath` z takiego montowania albo zamontować wolumen `persistent`. Docker Compose odczytuje `volume.subpath` od wydania 2.26.0, w Docker Engine 26.0 lub nowszym; kompilacja nie widzi hosta, który uruchomi plik, więc plik zawierający to pole jest składany tak samo bez względu na to, gdzie zostanie uruchomiony."
   },
   "6037ca10a1542bb3": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -58853,6 +59183,17 @@
     "srcHash": "605130ea8ab42ba4",
     "status": "machine",
     "text": "Parser przekształca źródło zapisane w formacie, którego kompilator nie odczytuje natywnie, w kanoniczne drzewo strukturalne, dzięki czemu konsument odczytuje drzewo zamiast utrzymywać własny parser. Host wyszukuje parser, który ogłasza żądany format jako `parse:<format>`, i wywołuje jego eksport `parse` w dwóch miejscach: gdy polityka werdyktu renderowania otrzymuje wyrenderowany artefakt w formacie, którego nie odczytuje natywnie, oraz gdy importer prosi hosta o drzewo przez `aggrega_parse_source`. Gość nigdy sam nie wywołuje parsera."
+  },
+  "6055917c16fbd3c5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "62ebb69c98895d33",
+      "reviewed": false
+    },
+    "srcHash": "6055917c16fbd3c5",
+    "status": "machine",
+    "text": "Wielogranicowa platforma Kubernetes, która łączy kilka mechanizmów w jednej kompilacji na podstawie pojedynczej encji `Aggregate` napisanej przez dewelopera: FeatureRecipes o zasięgu granicy, wynoszenie parametrów, podsystem poświadczeń oraz odwołania między granicami rozwiązywane przez Service DNS."
   },
   "60564565887f4b70": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -60617,6 +60958,17 @@
     "srcHash": "6314e98384b94279",
     "status": "machine",
     "text": "Głębokość rozwiązywania dla poszczególnych rodzajów"
+  },
+  "631b6ebf5b22ece6": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "366563ac5f2c71ce",
+      "reviewed": false
+    },
+    "srcHash": "631b6ebf5b22ece6",
+    "status": "machine",
+    "text": "Samodzielnie zadeklarowany przez plugin renderujący dostawcy kontrakt zachowania renderowania w czasie kompilacji: rodzaje wejścia, które renderuje, sposób składania wyniku poszczególnych węzłów grupy dyspozycji, para ograniczników szablonu stosowana do importowanych plików artefaktów, informacja, czy jedna załadowana instancja może obsłużyć każde przejście, czy respektuje wpisy pominięć oraz czy przyjmuje pliki, które encja Recipe wnosi do współdzielonego wyniku swojej granicy. Znajduje się obok `capabilities` w tym samym bloku, ale odpowiada na inne pytanie: lista możliwości mówi, *które* możliwości ten plugin obsługuje, a kontrakt mówi, *jak* je renderuje. `aggrega plugin gen-catalog` zapisuje go na podstawie własnego raportu pluginu z `describe()`, a host porównuje go z tym raportem przy publikacji i przy ładowaniu; niezgodność zatrzymuje proces. Brak bloku oznacza brak kontraktu zachowania renderowania, a porównanie obejmuje wtedy tylko deklaracje poszczególnych eksportów. Wszystkie pola są opcjonalne."
   },
   "631e73a20b5b121c": {
     "at": "2026-10-22T22:51:17.853388+00:00",
@@ -62493,6 +62845,13 @@
     "status": "machine",
     "text": "Emitowany komunikat, wskazujący dokument i miejsce zapisania adnotacji, podklucz, klucz adnotacji oraz podklucze kierowane przez powiązanie:"
   },
+  "66339d4702ef70d0": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "66339d4702ef70d0",
+    "status": "machine",
+    "text": "ktoś, ręcznie, na każdym celu"
+  },
   "6635aa99c78d9af0": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -63595,6 +63954,13 @@
     "status": "machine",
     "text": "`sensitive: true` na slocie wyraża własne żądanie konsumenta: *cokolwiek wiąże ten punkt, obsługuje materiał tajny.*"
   },
+  "6843f9d71d18a661": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "6843f9d71d18a661",
+    "status": "machine",
+    "text": "Agnostyczne trasowanie wstrzykiwania na połączeniu. Mapuje zmienne lokalne na klucze provides celu. Każdy mechanizm dostarczania (env, file, arg lub custom) jest zapisywany jako tablica wpisów {in, from} — z jawnym 'from' dla odwołań do provides."
+  },
   "684bc3383f81f8a0": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -64470,6 +64836,13 @@
     "status": "machine",
     "text": "**Obszar roboczy, który wymienia encje Releases w `workspace.releases`**, może przechowywać katalog w kilku wariantach obok siebie, z których każdy jest odczytywany przez własną encję Release, a wczytanie ich wszystkich naraz umieściłoby każdy wariant w jednym katalogu, przy czym encja jednego wariantu przesłaniałaby encję innego. Dlatego jest on walidowany raz dla każdej encji Release w obszarze roboczym, na podstawie katalogów, które ta encja Release odczytuje, przy czym katalogi `--catalog` są pierwsze w każdym przebiegu; encja Release, której konfiguracja nie wymienia, odczytuje listę obszaru roboczego. Każdy przebieg jest raportowany pod wierszem podającym jego encję Release i odczytane katalogi, po którym następuje wynik tego przebiegu:"
   },
+  "69b51ffe16be3748": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "69b51ffe16be3748",
+    "status": "machine",
+    "text": "Komponenty, które może opatrzyć adnotacjami, to każdy komponent wskazany przez granicę w `components:` oraz każdy komponent, który wprowadza wpis routingu `aggregates:` granicy. Wpis routingu umieszcza każdy komponent swojego modułu, łącznie z komponentami modułów w nim zagnieżdżonych, niezależnie od tego, czy jego własne `components:` wskazuje je wszystkie, niektóre, czy żadnego, tak jak `documents: {}` nie wskazuje żadnego; ładunek zawiera każdy z nich. Do komponentu wprowadzonego przez routing odwołuje się przez identyfikator, który ma on w grafie buildu — nazwę modułu, kropkę i nazwę komponentu w module, jak w `documents.backend`, z kolejną nazwą modułu i kropką dla każdego zagnieżdżonego modułu — bo tak zapisują go graf buildu i jego diagnostyka, więc decyzja również nazywa go w ten sposób. Komponent, który wpis routingu umieszcza bez wskazywania go, nie ma w ładunku własnych adnotacji, a adnotacja wstrzyknięta do niego jest stosowana tak, jakby zapisano ją na nim pod wpisem routingu."
+  },
   "69b6717e265e36dc": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -64620,6 +64993,13 @@
     "srcHash": "69ee83d6d1053757",
     "status": "machine",
     "text": "A provider binding names a capability containing a colon (Powiązanie providera wskazuje capability zawierającą dwukropek)"
+  },
+  "69f51a2182f612f0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "69f51a2182f612f0",
+    "status": "machine",
+    "text": "Wstrzyknięta wartość dociera tylko do komponentu, do którego jest dołączona, i tylko wtedy, gdy encja Recipe tego komponentu definiuje usługę, która ją przeniesie. Encja Recipe dla Compose, która realizuje usługę zewnętrzną przez odwołanie, nie definiuje żadnej usługi, więc taka encja z biblioteki standardowej odrzuca poświadczenie wypełniające jedno z gniazd jej encji Component, a kompilacja zatrzymuje się, wskazując gniazdo i komponent, zamiast zakończyć się powodzeniem bez poświadczenia. Sam dostawca Compose odrzuca każde dołączenie zadeklarowane jako wrażliwe na węźle, który realizuje przez odwołanie, niezależnie od tego, z jakiego katalogu pochodzi encja Recipe i czy jakieś gniazdo deklaruje nazwę, pod którą je dołączono, i zatrzymuje kompilację, wskazując węzeł i dołączenie. W Compose poświadczenie dla usługi zewnętrznej dołącza się do komponentu, który ją wywołuje, pod zmienną, którą ten komponent odczytuje; zob. [stronę dostawcy Compose](../providers/compose.md#controller-form). Te encje Components deklarują swoje gniazda poświadczeń jako opcjonalne, więc pozostawienie ich pustych w Compose niczego nie zatrzymuje, natomiast encje Recipes `helm` dla `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell` i `vapi` wymagają każdego gniazda i zatrzymują kompilację, wskazując puste."
   },
   "69f7337c861d7dd7": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -66182,6 +66562,17 @@
     "status": "machine",
     "text": "Ustalenia, w kolejności, w jakiej zostały wygenerowane."
   },
+  "6cb43d1fb7f98dcd": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "revision": {
+      "from": "c3e4a014dd778e47",
+      "reviewed": false
+    },
+    "srcHash": "6cb43d1fb7f98dcd",
+    "status": "machine",
+    "text": "`input.targets` — każdy komponent, który dołączenie może opatrzyć adnotacjami, każdy z polami `boundary_path`, `component_name` — dla komponentu umieszczanego przez wpis routingu jest to jego identyfikator w grafie buildu, np. `metrics.query` — i `annotations`, które encja Release zapisuje na samym komponencie, przy czym każda wartość jest taka, jak została zapisana: ciąg znaków, obiekt podkluczy lub `null`, gdy komponent rezygnuje z adnotacji, którą by odziedziczył. Każdy klucz, który niesie komponent, jest obecny niezależnie od wartości, więc reguła może pozostawić bez zmian klucz, który ktoś już zapisał. `input.binding_keys` — klucze adnotacji, dla których encja Manifest rejestruje powiązanie."
+  },
   "6cb8102aaea2d0ae": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -67477,6 +67868,13 @@
     "status": "machine",
     "text": "Odwołanie zapisane w dokumencie"
   },
+  "6eadf1f1356d355c": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "6eadf1f1356d355c",
+    "status": "machine",
+    "text": "Własna encja Recipe bazy danych również wczytuje dołączenie i wskazuje wtyczkę jako archiwizator dziennika zapisu z wyprzedzeniem (WAL) obiektu Cluster:"
+  },
   "6eba3a30ce0fc64f": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -68373,6 +68771,13 @@
     "status": "machine",
     "text": "FeatureRecipe `pipeline:` (zasada dwuczęściowego Plugin)"
   },
+  "6ffeed19828025d5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "6ffeed19828025d5",
+    "status": "machine",
+    "text": "Komponent wnoszony przez moduł również podlega tym dwóm pierwszym formom, odczytywanym z własnego dokumentu modułu po zbudowaniu kompozycji, która go importuje; wskazują one wtedy encję Aggregate modułu i klucz w jej dokumencie."
+  },
   "7000483027a021f9": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -68607,6 +69012,13 @@
     "srcHash": "7088714fc94d505e",
     "status": "machine",
     "text": "Recipe składa swoje wyjście z trzech rodzajów wejścia — źródłowego, syntetyzowanego i artefaktów — opisanych w [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). Kształt poprawnej encji Recipe ograniczają poniższe reguły kompozycji. Różnią się momentem sprawdzania — podczas ładowania encji Recipe, podczas renderowania węzła lub podczas emisji wyjścia — dlatego przy każdym wpisie należy sprawdzić, w którym momencie jest weryfikowany jego warunek. Reguły dotyczą encji Recipes kierowanych do providera innego niż `eval`; provider `eval` ma własne ograniczenie (poniżej)."
+  },
+  "7088ac09dce6df8b": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "7088ac09dce6df8b",
+    "status": "machine",
+    "text": "**Ustawienie `subPath` montowania montuje część wolumenu tam, gdzie compose ma na to formę.** Wpis `volumeMounts` wskazujący wolumen `persistent` lub `persistentTemplate` z `subPath` staje się wpisem `volumes` w formie pełnej zawierającym `volume.subpath`, dzięki czemu montowanie widzi wskazany katalog lub plik wewnątrz wolumenu zamiast jego katalogu głównego, a dwa montowania jednego wolumenu z dwiema różnymi wartościami `subPath` widzą dwie różne jego części:"
   },
   "7088b933ac99c968": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -69995,6 +70407,13 @@
     "status": "machine",
     "text": "**2. Domena deweloperska: główna encja Aggregate**\nGłówna encja Aggregate importuje moduł bazy danych i łączy się z jego eksportowanym komponentem za pomocą składni ścieżki z kropkami `data-layer.public_db`."
   },
+  "7301469507e276c0": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7301469507e276c0",
+    "status": "machine",
+    "text": "Powierzchnia dołączeń jest sprawdzana w każdym zakresie, w którym zapisano dołączenie: na komponencie, na podsystemie — encji Aggregate lub importowanego przez nią modułu — na granicy encji Release oraz we wpisie komponentu w encji Release, w tym we wpisie komponentu wnoszonego przez moduł. Własne deklaracje modułu są sprawdzane po zbudowaniu kompozycji, która go importuje, a wynik wskazuje encję Aggregate modułu i klucz w jej dokumencie."
+  },
   "73018d1e9d5e3fbf": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -71015,6 +71434,13 @@
     "status": "machine",
     "text": "Komponent, którego gniazdo `models` deklaruje slot `credential` oznaczony `sensitive: true` i który podłącza wypełniające go połączenie pod aliasem `gpt`, wymienia ten załącznik pod połączeniem — obok własnego poświadczenia, które pozostaje pod `Features:`:"
   },
+  "74bb2e09c02972cb": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "74bb2e09c02972cb",
+    "status": "machine",
+    "text": "**Uśpiony kształt:** Własna encja Recipe zadania na każdej platformie docelowej odczytuje dołączenie i renderuje zadanie w kształcie, który wdraża się bez uruchamiania wykonania. W Kubernetes zadanie jest obiektem `CronJob` wstrzymanym przez [`suspend: true`](../language-reference/entities/workload.md#suspend), z harmonogramem wskazującym datę, która nigdy nie nadejdzie, zamiast obiektu `Job`, który uruchomiłby się zaraz po wdrożeniu. W Docker Compose usługa zadania, której Compose nie uruchamia ponownie po jej zakończeniu, ma profil `manual`, więc `docker compose up` pozostawia ją zatrzymaną. W Amazon ECS, przez Terraform lub CloudFormation, definicja zadania jest wdrażana sama, bez harmonogramu, który by ją uruchamiał. Encja FeatureRecipe, którą Manifest wiąże dla tego dołączenia, nie dodaje własnego pliku na żadnej platformie docelowej: zmiana dotyczy własnego wyniku zadania."
+  },
   "74bdca51db659a8b": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -71391,6 +71817,13 @@
     "status": "machine",
     "text": "**Wartości podążają za zadeklarowaną nazwą, a nie za katalogiem.** Wartości wykresu podrzędnego są objęte zakresem nazwy deklarowanej przez ten wykres, więc wartości dla powyższego wykresu adresuje się *zadeklarowaną* nazwą `api--guardrail` — `cfr-zh-api-zh-guardrail` — a nie jego katalogiem."
   },
+  "7538e18dac097df1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7538e18dac097df1",
+    "status": "machine",
+    "text": "**[task-run-on-demand](task-run-on-demand/)** — dwa zadania wykonywane do końca, zbudowane dla Kubernetes, Docker Compose, Terraform i CloudFormation: jedno z `core/manual-trigger`, wdrażane bez uruchamiania na każdym celu, i drugie bez niczego, uruchamiane przez harmonogram lub przez start stosu. README pokazuje, co dołączenie zmienia w wyniku każdego celu — zawieszony CronJob, usługę za profilem Compose, definicję zadania Amazon ECS bez harmonogramu — oraz własne polecenie celu, które uruchamia przebieg. Harmonogram drugiego zadania jest parametrem, ponieważ cele różnie traktują zadanie bez jednego i drugiego: dwie encje Releases zatrzymują się tam, gdzie cel nie może zrealizować tego, o co proszą."
+  },
   "7539d39c5aa135f6": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -71635,6 +72068,13 @@
     "srcHash": "7596d6b5d2b1a937",
     "status": "machine",
     "text": "Bez zapisanego poświadczenia budowanie zatrzymuje się podczas pobierania:"
+  },
+  "759a4ade2d607fed": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "759a4ade2d607fed",
+    "status": "machine",
+    "text": "Niektóre prace są wykonywane do końca tylko wtedy, gdy ktoś o to poprosi: jednorazowa poprawka danych, kopia zapasowa na żądanie. `core/manual-trigger` to Feature służący właśnie do tego. Dołączony do `core/compute/task` bez harmonogramu wdraża zadanie bez jego uruchamiania, a każdy przebieg ktoś uruchamia ręcznie, poleceniem właściwym dla danego celu."
   },
   "759b96de88af355b": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -72065,6 +72505,13 @@
     "srcHash": "762fca3fdf17a910",
     "status": "machine",
     "text": "Dokument, który ją deklaruje, jako ścieżka względem katalogu głównego obszaru roboczego."
+  },
+  "76335c3f77effc45": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "76335c3f77effc45",
+    "status": "machine",
+    "text": "Compose uruchamia usługę z profilem tylko wtedy, gdy ten profil jest włączony lub usługa zostanie wskazana w wierszu poleceń, więc `docker compose up` uruchamia `report` raz i pozostawia `data-fix` zatrzymane. Przebieg `data-fix` uruchamia się, podając nazwę jego usługi, a `--rm` usuwa jego kontener po zakończeniu przebiegu:"
   },
   "76368db6f629fa5c": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -74535,6 +74982,13 @@
     "status": "machine",
     "text": "component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `\"<module>\"`, routed as a sub-module into boundary `\"<boundary-b>\"`, while it is already placed by a sub-module routed into boundary `\"<boundary-a>\"`, that earlier entry naming `\"<module>\"`, both declared in `\"<path>\"`) (komponent zadeklarowany w więcej niż jednej granicy: każdy komponent należy zadeklarować w dokładnie jednej granicy)"
   },
+  "7a2b559a84c0a067": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "7a2b559a84c0a067",
+    "status": "machine",
+    "text": "*(Uwaga: W Kubernetes i Amazon ECS zadanie, które ma harmonogram, wykonuje się według niego niezależnie od tego, czy dołączenie istnieje, a to samo polecenie uruchamia dodatkowe wykonanie między zaplanowanymi; w Docker Compose, który nie ma harmonogramu, encja Recipe zadania odrzuca harmonogram. Przykład [task-run-on-demand](../language-reference/examples/task-run-on-demand/README.md) buduje jedną encję Aggregate dla Kubernetes, Docker Compose, Terraform i CloudFormation i dla każdej z tych platform pokazuje wyrenderowany wynik oraz polecenie uruchamiające wykonanie.)*"
+  },
   "7a2bf3396aa39ec8": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -74724,6 +75178,13 @@
     "srcHash": "7a9aabf056009012",
     "status": "machine",
     "text": "6. Pakowanie artefaktów & taksonomia OCI (capability jako wiodący segment)"
+  },
+  "7a9ca6380fece864": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "7a9ca6380fece864",
+    "status": "machine",
+    "text": "Dołączenie znajduje się w encji Aggregate, obok zadania, które zmienia: uruchamianie na żądanie jest częścią tego, czym jest `data-fix`, więc zapisuje je deweloper, a Feature nie przyjmuje żadnych wartości ani `infra`. Encja Release niczego dla niego nie zapisuje."
   },
   "7a9cbe35facb61c1": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -75065,6 +75526,13 @@
     "srcHash": "7b255d7d9caf2b74",
     "status": "machine",
     "text": "Component deklaruje wymóg obecności — adnotację `features.aggrega.ai/requiredType.<label>` — wskazujący typ encji Feature, którego nie ma wśród dołączeń, z jakimi ostatecznie zostaje ta instancja komponentu, licząc wszystkie zakresy: bloki encji Aggregate na poziomie komponentu i podsystemu, bloki encji Release na poziomie granicy i komponentu oraz rozwinięcie sterowane adnotacjami."
+  },
+  "7b267765f9bda5c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7b267765f9bda5c2",
+    "status": "machine",
+    "text": "Encja Release, która się zatrzymuje"
   },
   "7b28242fc2786cec": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -75524,6 +75992,17 @@
     "status": "machine",
     "text": "`scheduling`"
   },
+  "7bf6402393d38f29": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cfa58b24c57cfae3",
+      "reviewed": false
+    },
+    "srcHash": "7bf6402393d38f29",
+    "status": "machine",
+    "text": "**Tylko jednoźródłowy `$import:`.** `$import:` przyjmuje jedno źródło. Scalanie wielu źródeł nie jest obsługiwane w `valuesMapping:`. Recipe, która musi złożyć wiele fragmentów mapowania, używa wpisu encji MappingLibrary z wewnętrzną kompozycją szablonu Go `define` / `template`, pliku lokalnego z dyrektywami szablonu Go `template` wywołującymi pliki sąsiednie lub kompozycji inline dla krótkiej treści. Encję biblioteki opisuje [entities/mappinglibrary](mappinglibrary.md), szersze rozróżnienie `$ref:` / `$import:` opisuje [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md)."
+  },
   "7bfd33055117bf33": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -75646,6 +76125,13 @@
     "srcHash": "7c25e296a550205a",
     "status": "machine",
     "text": "const \"add-component\" lub const \"attach-feature\" lub const \"wire-edge\" lub const \"set-value\""
+  },
+  "7c2a2ed35b8623c2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "7c2a2ed35b8623c2",
+    "status": "machine",
+    "text": "`check.sh` wypisuje jeden wiersz na encję Release i kończy działanie z kodem 0 tylko wtedy, gdy każda zakończyła się tak, jak opisuje ta strona:"
   },
   "7c2f50ad1c8a0879": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -77304,6 +77790,13 @@
     "status": "machine",
     "text": "Wpis `attachments:` kontenera w bloku `workload:` odwołuje się do slotu załącznika, a odwołanie nie zgadza się ze slotami, które encja Component lub Feature deklaruje w swoim `featuresSchema` — albo, w przypadku wpisu wskazującego połączenie przez `connection:`, ze slotami deklarowanymi przez gniazdo tego połączenia. Wpis `envFrom` wskazujący połączenie podlega tym samym regułom dotyczącym połączeń. Komunikat wskazuje, z którym z tych przypadków mamy do czynienia."
   },
+  "7f02e58ba2c5731c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "7f02e58ba2c5731c",
+    "status": "machine",
+    "text": "`core/storage/velero`"
+  },
   "7f02fafbb418f5eb": {
     "at": "2026-10-22T06:00:14.240Z",
     "job": "session-0018-20261022060014",
@@ -78402,6 +78895,17 @@
     "status": "machine",
     "text": "**To nie jest granica bezpieczeństwa.** Nic w tym rozdziale nie jest mechanizmem poufności. Model poświadczeń jest modelem *okablowania*: decyduje, skąd pochodzi wskaźnik lub wartość, kto może go ograniczać i jak dociera do kontenera. Ochrona materiału to zadanie magazynu sekretów, klastra i potoku, który przetwarza wyrenderowane drzewo."
   },
+  "80d3f78aaf9f6a1c": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "81443cf3cf8e1447",
+      "reviewed": false
+    },
+    "srcHash": "80d3f78aaf9f6a1c",
+    "status": "machine",
+    "text": "Inżynierowie Ops tworzą treść mapowania, która tłumaczy abstrakcyjny kontekst, zanim zostanie uruchomiony plugin renderujący Wasm. Językiem mapowania jest szablon Go (text/template + Sprig); biblioteka Sprig jest wstępnie zarejestrowana; standardowe akcje `define` i `template` są obsługiwane, a `include` nie jest zarejestrowane."
+  },
   "80d708c769a34460": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -78560,6 +79064,13 @@
     "status": "machine",
     "text": "Rekordy operatora dla dwóch encji Aggregates, które wypełniają slot."
   },
+  "81084b4ee3b8af39": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "81084b4ee3b8af39",
+    "status": "machine",
+    "text": "Kubernetes z Velero"
+  },
   "810a87d5ddac67af": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -78587,6 +79098,13 @@
     "srcHash": "8115826e57dcef9b",
     "status": "machine",
     "text": "**Jak naprawić:** żaden z tych komunikatów nie wynika z plików użytkownika i nie ma zmiany w dokumentach, która by go usunęła — błąd leży w sposobie połączenia kompilacji, a nie w tym, co miała zbudować. Należy go zgłosić, podając uruchomione polecenie i konfigurację przestrzeni roboczej, z którą zostało uruchomione."
+  },
+  "8117684f72f26633": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "8117684f72f26633",
+    "status": "machine",
+    "text": "Każda encja Manifest mapuje `core/compute/task` na encję Recipe swojego celu i wiąże `core/manual-trigger` z encją FeatureRecipe swojego celu: `helm/task` i `helm/manual-trigger`, `compose/task` i `compose/manual-trigger`, `terraform/task-ecs` i `terraform/manual-trigger` oraz `cloudformation/task-ecs` i `cloudformation/manual-trigger`. Encja Manifest, która nie wiąże żadnej encji FeatureRecipe dla dołączenia, przerywa build, wskazując je."
   },
   "811ace97bcf2c6d6": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -79120,6 +79638,13 @@
     "srcHash": "821d240649ed0518",
     "status": "machine",
     "text": "[Architektura Provider](../providers/architecture.md) — jak dostawcy wpisują się w potok kompilacji."
+  },
+  "821d4ea9de1196f8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "821d4ea9de1196f8",
+    "status": "machine",
+    "text": "Dwie encje Releases, które przerywają build"
   },
   "822062ace2e8ae11": {
     "at": "2026-10-22T11:48:02.910092+00:00",
@@ -80083,6 +80608,17 @@
     "status": "machine",
     "text": "Encja Release wypełnia parametry zadeklarowane przez encję Aggregate na jeden z dwóch sposobów, a blok jest odczytywany według kształtu. Albo jest to mapowanie nazw parametrów na wartości zapisane w miejscu, albo mapowanie z dokładnie jednym kluczem, `$import:`, którego wartością jest ścieżka pliku YAML zawierającego te wartości. Blok, który nie jest żadnym z nich, jest odrzucany już przy odczycie, zanim cokolwiek sprawdzi wartości względem deklaracji encji Aggregate."
   },
+  "83c9c9e37c4632c6": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "e101cd8b3ed6240a",
+      "reviewed": false
+    },
+    "srcHash": "83c9c9e37c4632c6",
+    "status": "machine",
+    "text": "Emitowanie warunku zakończenia nie podnosi minimalnej wersji Compose. `condition` i jego wartości należą do podstawowej specyfikacji Compose — w przeciwieństwie do pól `restart` i `required` występujących obok w tym samym bloku w długiej formie, które specyfikacja wiąże z konkretnymi wydaniami Compose. Każda minimalna wersja, której wymaga wyjście providera compose, pojawia się wraz z konstrukcją, która jej potrzebuje: **≥ 2.23.1** dla wbudowanego `configs.content`, **≥ 2.26.0** dla `subPath` montowania (zob. [Wolumeny](#volumes)) i 2.38 dla [modeli](#models). Pierwsza z nich dotyczy każdego wyjścia compose zawierającego konfigurację z wbudowanym `content:`, w ten sposób bowiem trafiają tam zarówno plik stojący za wolumenem `configmap`, jak i konfiguracja stojąca za mostkowaną krawędzią międzysieciową — nie tylko jedna ścieżka tworzenia."
+  },
   "83cc3b2ff524bce6": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -80744,6 +81280,13 @@
     "srcHash": "8505e7fb06f99aa0",
     "status": "machine",
     "text": "Każdy wpis to fragment szablonu Go zapisany jako łańcuch YAML. Wyrenderowanym wynikiem wpisu jest **cały dokument Workload** — zawiera własne `apiVersion: aggrega.ai/v1alpha1` i `kind: Workload` — ponieważ pole `workload:` encji Recipe przyjmuje jeden kompletny dokument Workload, a nie fragment wklejany do otaczającego dokumentu, a import zastępuje całe pole. Wpis MappingLibrary jest całością w ten sam sposób: jego zaimportowanie zastępuje całe `valuesMapping:` encji Recipe."
+  },
+  "85099370c842904b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "85099370c842904b",
+    "status": "machine",
+    "text": "Harmonogram jest zapisywany we własnej formie cron AWS, interpretowanej w UTC, a kopia zapasowa, która nie rozpoczęła się w ciągu godziny od swojej pory, nie jest uruchamiana. ARN instancji to wyrażenie Terraform złożone z tego, na co skonfigurowany jest dostawca AWS w chwili planowania, oraz z nazwy instancji; rola jest tą, którą wskazuje encja Release, przekazywaną w niezmienionej postaci."
   },
   "850b450da56f18d3": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -81815,6 +82358,13 @@
     "status": "machine",
     "text": "**Potoki multimodalne:** `schema:` encji Component może deklarować jawne etapy wykonania, takie jak `document_chunking`, `embedding_generation` i `storage_routing`, jako typowane `values`, dzięki czemu deklaratywny przepływ danych jest walidowany, zanim cokolwiek zostanie wyrenderowane. Biblioteka standardowa nie deklaruje takich etapów."
   },
+  "86ef3b7456ff21ff": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "86ef3b7456ff21ff",
+    "status": "machine",
+    "text": "co uruchamia przebieg"
+  },
   "86f51b17077aee2d": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -82840,6 +83390,13 @@
     "srcHash": "88af7a7054366360",
     "status": "machine",
     "text": "**Magazyn danych w roli pamięci podręcznej.** Redis służy tu jako pamięć podręczna in-memory i\n  niczego nie przechowuje trwale, dlatego komponent ma typ zwykłego `server`, a nie\n  `stateful-server`. W Kubernetes syntetyzowana encja Recipe renderuje\n  **Deployment**, a nie StatefulSet, i nie żąda trwałego wolumenu; w\n  Compose usługa nie deklaruje wolumenu danych."
+  },
+  "88b1beb1e5f4b050": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "88b1beb1e5f4b050",
+    "status": "machine",
+    "text": "Encje Releases dla AWS zapisują to samo dołączenie bez połączenia `store`, ponieważ RDS i AWS Backup przechowują kopie zapasowe we własnym magazynie, a tamtejsze realizacje odrzucają połączenie z zasobnikiem, do którego nic by nie zapisywało. Encja Release dla AWS Backup dodaje `infra.role_arn`, rolę IAM, w ramach której AWS Backup wykonuje każdą kopię zapasową."
   },
   "88b89e4b53ad57c7": {
     "at": "2026-10-22T23:26:42.562574+00:00",
@@ -89184,6 +89741,17 @@
     "status": "machine",
     "text": "Obsługa według providera i rodzaju wejścia"
   },
+  "931f2a7ccc85223c": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "f6d6f9c3536ef20b",
+      "reviewed": false
+    },
+    "srcHash": "931f2a7ccc85223c",
+    "status": "machine",
+    "text": "**Przenoszone.** Na najwyższym poziomie: `services`, `volumes`, `configs` i `models`. Na usłudze: `image`, `pull_policy`, `command`, `entrypoint`, `environment`, `env_file`, `ports`, `labels`, `volumes`, `tmpfs`, `networks`, `network_mode`, `depends_on`, `healthcheck`, `restart`, `user`, `working_dir`, `privileged`, `read_only`, `cap_add`, `cap_drop`, `configs`, `models`, `deploy`, `stop_grace_period`, `dns`, `dns_search`, `extra_hosts` i `profiles`. Wewnątrz bloków opisywanych przez dostawcę: `deploy.resources` z jego `limits` (`cpus`, `memory`) i `reservations` (`cpus`, `memory`, `devices`, a w każdym wpisie urządzenia `driver`, `count`, `device_ids`, `capabilities` i `options`); w `healthcheck` — `test`, `interval`, `timeout`, `retries` i `start_period`; we wpisie `volumes:` w formie pełnej — `type`, `source`, `target`, `read_only` i `volume.subpath`; we wpisie `configs:` w formie pełnej — `source` i `target`; we wpisie `depends_on:` w formie pełnej — `condition`; w wolumenie najwyższego poziomu — `driver`, `driver_opts` i `labels`; w konfiguracji najwyższego poziomu — `content`. Treść modelu i wpis `models:` usługi w formie pełnej przenoszą każdy element, jak opisano w sekcji [Modele](#models). Element rozszerzenia — klucz zaczynający się od `x-` — jest przenoszony na najwyższym poziomie i na usłudze, jak opisano w sekcji [Elementy rozszerzeń](#extension-members-are-carried-as-written)."
+  },
   "932283493763280a": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -89440,6 +90008,13 @@
     "srcHash": "938f900ac61289c4",
     "status": "machine",
     "text": "**Aggrega: Cache…** — wybiera operację na pamięci podręcznej, a następnie uruchamia ją za pośrednictwem serwera językowego. Po naciśnięciu w panelu Commands cztery operacje są oferowane jako menu obok przycisku; po uruchomieniu stąd — jako lista do wyboru. Nie jest uruchamiany żaden proces, a każda odpowiedź wraca jako ustrukturyzowany wynik, który przedstawia panel: **status** wymienia każdą pamięć podręczną, jej zawartość i zakres jej współdzielenia, niczego nie usuwając; **prune** usuwa wpisy, do których nie odwołuje się żaden plik blokady, i podaje, co zachował, wraz ze wszystkim, czego nie miał podstaw odzyskać, oraz operacją, która by to zrobiła; **evict** najpierw pyta o limit rozmiaru — wielkość w bajtach, taką jak `5GiB` lub `512MiB`, albo liczbę bajtów, odczytywaną przez ten sam parser, którego używa wiersz poleceń — i przycina do niego współdzieloną pamięć podręczną skompilowanych modułów; **clear** opróżnia wszystkie pamięci podręczne. Trzy operacje, które coś usuwają, najpierw proszą o potwierdzenie, a każde potwierdzenie wymienia pamięci podręczne, których operacja faktycznie dotyczy: opróżnianie i prune dotyczą własnych pamięci podręcznych encji, artefaktów źródłowych, zewnętrznych danych wejściowych i pakietów dokumentacji tego obszaru roboczego *oraz* pamięci podręcznych skompilowanych modułów i opisów wtyczek współdzielonych przez wszystkie projekty na tej maszynie, natomiast przycinanie dotyczy tylko współdzielonej pamięci podręcznej skompilowanych modułów. Każdy rozmiar zgłaszany przez te operacje jest wyrażany w tym samym zapisie, w którym odczytywany jest limit, więc liczbę odczytaną z raportu pamięci podręcznej można wpisać bezpośrednio w monit o limit. Limit, którego kompilator nie potrafi odczytać, wraca z własnym komunikatem kompilatora opisującym, jak wygląda limit rozmiaru. Opróżnione i przycięte pamięci podręczne są ponownie zapełniane przy następnym budowaniu, które ich potrzebuje. Windows odmawia usunięcia pliku otwartego przez inny proces, a wtedy prune, przycinanie lub opróżnianie pozostawia go na miejscu i kontynuuje z resztą, zamiast zakończyć się niepowodzeniem: kanał wyjściowy Aggrega wymienia każdy wpis pozostawiony przez prune lub przycinanie, z jego klasą, zakresem współdzielenia i rozmiarem, a pod każdą pamięcią podręczną, której dotyczyło opróżnianie, podaje, ile plików tam pozostawiono i jaki mają rozmiar; komunikat kończący operację mówi, ile pozostawiono na miejscu, prosi o ponowne uruchomienie operacji po zakończeniu tamtego procesu i wskazuje kanał, aby sprawdzić, które to pliki. Gdy nic nie pozostało na miejscu, co ma miejsce przy każdym uruchomieniu na platformie usuwającej otwarte pliki, żaden z nich o tym nie wspomina."
+  },
+  "938fbf9c05722935": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "938fbf9c05722935",
+    "status": "machine",
+    "text": "Pojedynczy mechanizm dostarczania, zapisywany jako tablica wpisów. Każdy wpis zawiera 'in' (identyfikator lokalny — nazwę zmiennej środowiskowej, ścieżkę pliku, flagę argumentu lub klucz specyficzny dla niestandardowego mechanizmu) oraz dokładnie jedno z: 'from' (klucz provides do rozwiązania) lub 'value'. W encji Release każdy wpis znajduje się na połączeniu, więc 'from' jest rozwiązywane względem provides celu, a wpis zawierający 'value' jest odrzucany."
   },
   "9390298f3fb0c5b1": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -90523,6 +91098,13 @@
     "status": "machine",
     "text": "Usługa wskazująca model w formie krótkiej lub bez żadnej z tych zmiennych jest z nim połączona bez\nkomentarza."
   },
+  "9563a2e85a3053b6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9563a2e85a3053b6",
+    "status": "machine",
+    "text": "Oba znajdują się w przestrzeni nazw `velero`, jedynej, z której Velero wczytuje swoje harmonogramy, i są nazwane według przestrzeni nazw bazy danych, jej nazwy oraz nazwy dołączenia, ponieważ każda encja Release w klastrze zapisuje do tej jednej przestrzeni nazw. Harmonogram wybiera pody bazy danych według etykiet StatefulSet renderowanego przez bazę danych, w przestrzeni nazw, w której jest umieszczona, a agent węzła Velero kopiuje pliki ich woluminów do zasobnika. Adres zasobnika to adres publikowany przez komponent `backups`, z nazwą obiektu Service kwalifikowaną przestrzenią nazw, w której działa, ponieważ Velero działa w innej; region również pochodzi od zasobnika: SeaweedFS, który go tu obsługuje, nie wczytuje żadnego i publikuje `us-east-1`. 14 dni to czas życia (TTL) w Velero, wyrażony w godzinach."
+  },
   "95671e33714a72c7": {
     "at": "2026-10-30T00:43:49.791Z",
     "job": "session-0040-20261030004349",
@@ -91365,6 +91947,13 @@
     "status": "machine",
     "text": "encja wtyczki, którą manifest zatwierdza w innym miejscu:"
   },
+  "96a1699939b6657c": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "96a1699939b6657c",
+    "status": "machine",
+    "text": "**Rozwiązanie: uśpione zadania i własne polecenie platformy docelowej** Aggrega rozwiązuje ten problem, zachowując ścisłą czystość AOT. Generuje konfigurację zadania, które jest wdrażane bez uruchamiania, a każde wykonanie jest uruchamiane na platformie docelowej jej własnym poleceniem."
+  },
   "96a4049a083d309c": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -91648,6 +92237,17 @@
     "srcHash": "9729354b2f0a1b8f",
     "status": "machine",
     "text": "Po rozwinięciu adnotacji zarówno `api`, jak i `worker` mają syntetyczne dołączenie encji Feature `feature.myco/db-pool`, którego pole `values.pool` ma wartość `\"shared-pool\"`. Tabela pomocnicza pochodzenia rejestruje każdy liść jako `Origin: annotation`, `Side: aggregate`, `AnnotationSource: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`."
+  },
+  "972df538c66e8003": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "4d53e53b8c04d705",
+      "reviewed": false
+    },
+    "srcHash": "972df538c66e8003",
+    "status": "machine",
+    "text": "Niektóre kształty są wskazywane mniej dokładnie. Nazwa dołączenia zadeklarowana w więcej niż jednym zakresie — na przykład na komponencie i na zawierającym go podsystemie — tworzy połączenie z każdego deklarującego bloku, a kompilacja zapisuje oba wyłącznie pod nazwą dołączenia. Oba połączenia są wtedy wskazywane w jednym z deklarujących bloków — we własnym bloku dołączeń komponentu, jeśli nazwa jest tam zadeklarowana — i żadne nie ma pozycji na liście. Tak samo jest wewnątrz importowanego Aggregate, gdzie deklarujące bloki — blok komponentu i blok jednego z własnych podsystemów modułu — są wskazywane we własnym dokumencie modułu. W każdym z tych kształtów para nadal jest odrzucana."
   },
   "97324aaad7bf47a5": {
     "at": "2026-10-22T09:37:52.967973+00:00",
@@ -93387,6 +93987,13 @@
     "status": "machine",
     "text": "`gemini mcp add` lub `~/.gemini/settings.json` dla wszystkich projektów i `.gemini/settings.json` dla jednego"
   },
+  "9a03061eceddf512": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "9a03061eceddf512",
+    "status": "machine",
+    "text": "Przestrzeń robocza z wieloma celami, która przechowuje osobny katalog encji dla każdego celu, wymienia katalogi każdego celu pod `workspace.releases`, z kluczem w postaci pliku encji Release, dzięki czemu każda encja Release jest budowana względem własnego katalogu encji."
+  },
   "9a0355e77d9029e2": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -93518,6 +94125,13 @@
     "srcHash": "9a4360b8113118cd",
     "status": "machine",
     "text": "Uwaga o dostarczaniu poświadczeń"
+  },
+  "9a4a24c5ebc8a397": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9a4a24c5ebc8a397",
+    "status": "machine",
+    "text": "Harmonogram CloudNativePG ma sześć pól, z których pierwsze oznacza sekundy, więc `30 2 * * *` z dołączenia jest zapisywane z `0` na początku. Wtyczka podpisuje swoje żądania parą kluczy z obiektu Secret wskazanego przez magazyn obiektów, tu `db-backup`, nazwanego od samego magazynu obiektów, ponieważ dołączenie nie ustawia `infra.credentials_secret`."
   },
   "9a4d16900a343ed3": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -94314,6 +94928,13 @@
     "status": "machine",
     "text": "Gdy `aggrega.exe` jest uruchomiony — przez edytor lub klienta AI — instalator nie może go zastąpić i kończy działanie z odpowiednim komunikatem; należy zamknąć to, co go uruchomiło, i ponownie uruchomić instalator. Deinstalator kończy działanie w ten sam sposób, zanim cokolwiek usunie."
   },
+  "9bc1e85dbe70408a": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "9bc1e85dbe70408a",
+    "status": "machine",
+    "text": "Katalog biblioteki standardowej nie zawiera encji FeatureRecipe dla `core/backup` na tym celu, więc nie ma czego powiązać. Dalsze możliwości to usunięcie dołączenia z encji Release i wdrożenie tam bazy danych bez kopii zapasowej albo wdrożenie jej przez encję Manifest dla celu, który ma produkt do kopii zapasowych, tak jak robi to pozostałych pięć encji Releases."
+  },
   "9bc289a82410731a": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -94678,6 +95299,13 @@
     "srcHash": "9c3d6ba69ded8855",
     "status": "machine",
     "text": "Kontekst szablonu zawiera trzy pola o kształcie inject, z odrębną semantyką. Autorzy encji Recipe i FeatureRecipe powinni wiedzieć, które miejsce odczytywać."
+  },
+  "9c451305e046053a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "9c451305e046053a",
+    "status": "machine",
+    "text": "Ten obszar roboczy buduje jedną encję Aggregate dla czterech celów — Kubernetes przez Helm, Docker Compose, Terraform i CloudFormation — i pokazuje dla każdego, co dołączenie zmienia w wyrenderowanym wyniku, oraz polecenie, które uruchamia przebieg. Drugie zadanie nie ma dołączenia, więc różnica jest widoczna w tym samym buildzie. Dwie kolejne encje Releases mają w założeniu przerwać build, a strona cytuje, co wypisuje każda z nich."
   },
   "9c458f6721230a86": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -95510,6 +96138,17 @@
     "srcHash": "9d86b622940720e7",
     "status": "machine",
     "text": "`aggregate.yaml` jest identyczny dla obu wariantów:"
+  },
+  "9d87b8cbf5064809": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "15c16fe0e34569ba",
+      "reviewed": false
+    },
+    "srcHash": "9d87b8cbf5064809",
+    "status": "machine",
+    "text": "Pięć etapów wykonuje się, zanim silnik walidatora zobaczy schemat. Silnik otrzymuje jeden rozwiązany dokument JSON Schema 2020-12 oraz treść instancji programisty; tworzy raport walidacji. Formater błędów korzysta ze znaczników pochodzenia, aby emitować diagnostykę dla użytkownika, która jasno wskazuje pozycje w źródle — w tym plik źródłowy ograniczenia, które encja Feature odziedziczyła po swojej bazie, zamiast napisać je sama."
   },
   "9d8920a018435b73": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -97395,6 +98034,13 @@
     "status": "machine",
     "text": "**Płaska encja Release (komponenty najwyższego poziomu):** komponenty zapisuje się pod `spec.components`, bez `boundaries`. Kompilator włącza je do zsyntetyzowanej granicy `default`, której wynik jest **płaski** — artefakty trafiają bezpośrednio do `dist/` (dla każdego dostawcy: `dist/compose/`, `dist/helm/`, …), bez segmentu z nazwą granicy. To najprostsze wdrożenie: `aggrega build` dla płaskiego celu Compose lub jednoklastrowego, bez nazywania granic. (Granica, którą programista *deklaruje* i nazywa `default`, jest zwykłą nazwaną granicą i emituje do `dist/default/` jak każda inna)."
   },
+  "a0ebf139147d830b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a0ebf139147d830b",
+    "status": "machine",
+    "text": "Ten obszar roboczy kompiluje jedną encję Aggregate przez sześć encji Releases, z których każda dołącza tę samą kopię zapasową: codziennie o 02:30, każda kopia przechowywana przez 14 dni. Strona pokazuje, co każdy cel renderuje na jej potrzeby w pięciu, które kończą się powodzeniem, i cytuje to, co wypisuje szósta, która zgodnie z oczekiwaniami zostaje zatrzymana."
+  },
   "a0ecd652fd1d655a": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -97679,6 +98325,17 @@
     "srcHash": "a14aa643a566d912",
     "status": "machine",
     "text": "**Klucze:** jeden z `\"components\"`, `\"features\"`."
+  },
+  "a14ba8954befec0a": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "c0fe27c232203a6c",
+      "reviewed": false
+    },
+    "srcHash": "a14ba8954befec0a",
+    "status": "machine",
+    "text": "**Etap 3 — Rozwijanie `$ref:` między dokumentami.** Dla odwołań do SchemaLibrary przez `$ref:` (forma tożsamościowa `<Library>#/schemas/<entry>`) kompilator przechodzi łańcuch odwołań w czasie kompilacji, przekazując stos rozwiązywania; treść, do której prowadzi odwołanie, zostaje wstawiona do schematu konsumenta. Rozwijanie zachowuje wykrywanie cykli (cykle zatrzymują build błędem wskazującym łańcuch), zabezpieczenie „tożsamość, nie lokalizacja” (odwołanie zawierające host rejestru zatrzymuje build ze wskazówką, by użyć formy tożsamościowej — odwołania adresują biblioteki przez tożsamość, nie przez fizyczną lokalizację) oraz kompozycję z jednego źródła (bloki `$ref:` przyjmują wyłącznie samo odwołanie; nadpisania po stronie konsumenta składa się przez `allOf:` z JSON Schema). Semantykę rozwiązywania opisuje [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md)."
   },
   "a14eb2a73cc549f8": {
     "at": "2026-10-17T19:24:15.582Z",
@@ -98688,6 +99345,13 @@
     "status": "machine",
     "text": "**Reguła działa tylko w jedną stronę i tylko dla `true`.** Workload o `form: scheduled` bez `suspend:` jest zwykły i działa według swojego harmonogramu, a `suspend: false`, wartość domyślna, w żadnej formie niczego nie wywołuje."
   },
+  "a2de03a2b5bdfcd8": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a2de03a2b5bdfcd8",
+    "status": "machine",
+    "text": "Kompilacja"
+  },
   "a2e2f7aee1f9bf9d": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -99652,6 +100316,13 @@
     "srcHash": "a477a5c8e80623e7",
     "status": "machine",
     "text": "Działanie wpisu zależy od tego, czy wskazany w nim importer deklaruje format, o który prosi import:"
+  },
+  "a4791ff0fa0305ed": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "a4791ff0fa0305ed",
+    "status": "machine",
+    "text": "Harmonogram Velero działa tylko tam, gdzie wdrożono Velero, a kopie zapasowe wtyczki tylko tam, gdzie działają wtyczka, operator CloudNativePG (1.26 lub nowszy) i cert-manager. Ten obszar roboczy wdraża Velero i wtyczkę; zakłada się, że operator i cert-manager już tam są."
   },
   "a4792702e2946716": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -101077,6 +101748,13 @@
     "status": "machine",
     "text": "Daemon wykonujący żądania pojedynczo odpowiada na nie w kolejności nadejścia, więc nic się nie nakłada i nigdy nie dochodzi do oczekiwania. Daemon wykonujący je współbieżnie odpowiada na te same pytania w ten sam sposób, a to właśnie oczekiwanie to zapewnia: otrzymana odpowiedź jest tą, jaką dałaby kolejność szeregowa."
   },
+  "a6a5527f299faa3f": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "a6a5527f299faa3f",
+    "status": "machine",
+    "text": "`release-compose.yaml` zapisuje jeden plik Compose. Każde zadanie jest usługą, której Compose nie uruchamia ponownie po jej zakończeniu; `data-fix` ma ponadto profil `manual`, a `report` nie ma żadnego:"
+  },
   "a6ad064a43c7960e": {
     "at": "2026-10-22T09:44:21.400057+00:00",
     "job": "msgbatch_013NCKZBrFnV8MLX7L95wcHH",
@@ -101891,6 +102569,17 @@
     "status": "machine",
     "text": "Taksonomia etykiet semantycznych (konwencja biblioteki standardowej)"
   },
+  "a8282f6c417c3f27": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "512460eff687c42b",
+      "reviewed": false
+    },
+    "srcHash": "a8282f6c417c3f27",
+    "status": "machine",
+    "text": "Eksporty oferowane przez plugin, każdy z zadeklarowaną zdolnością, w postaci uporządkowanej listy zachowującej kolejność nadaną przez autora. Eksport to jeden nazwany punkt wejścia, do którego host kieruje wywołania (na przykład `render_node`, `lint_naming`, `step`); blok zdolności danego eksportu określa, co ten eksport robi, tak jak `aggrega plugin gen-catalog` zapisuje to na podstawie samoopisu pluginu `describe()`, a host porównuje go z tym samoopisem przy publikacji i przy ładowaniu. Brak pola oznacza brak zadeklarowanej powierzchni eksportów."
+  },
   "a82936083f65433f": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -102224,6 +102913,17 @@
     "srcHash": "a8b1e80b49ec819e",
     "status": "machine",
     "text": "Wyjaśnia warunek zatrzymania wskazany przez kod"
+  },
+  "a8b7ef3e862f60d2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "9ed3bd41e157225a",
+      "reviewed": false
+    },
+    "srcHash": "a8b7ef3e862f60d2",
+    "status": "machine",
+    "text": "**Mapowanie wstrzyknięć (przechwytywanie przed renderowaniem):** Kompilator Go rozwiązuje abstrakcyjny kontrakt `.context.inject` programisty. Następnie wykonuje szablony Go `injectMapping` ze wszystkich dołączonych `FeatureRecipes` zgodnie ze ścisłą kolejnością wykonania 5-poziomowego modelu cebuli (Sub-Aggregate — najpierw własne dołączenia komponentu modułu, potem te deklarowane przez podsystemy jego modułu, od zewnętrznych do wewnętrznych → komponent głównej encji Aggregate → podsystem głównej encji Aggregate → granica encji Release od zewnętrznej do wewnętrznej → część encji Release właściwa dla komponentu). Kompilator natywnie głęboko scala powstałe słowniki na potoku pamięci `.context.inject` wywołującego. Pozwala to bezpiecznie przepisać zmienne środowiskowe i ciągi połączeń dla wywołującego, zanim bazowa encja Recipe w ogóle je zobaczy. Mapowanie może przepisać to, co dostarczył własny blok `inject:` wywołującego lub jedno z jego połączeń; klucz, który dostarczyła już inna dołączona encja Feature — poprzez własne mapowanie lub własny blok `inject:` — zatrzymuje kompilację ze wskazaniem obu dołączeń, więc kolejność wykonania nigdy nie rozstrzyga między wartościami dwóch dołączeń."
   },
   "a8bc294c74c1c7df": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -103489,6 +104189,13 @@
     "status": "machine",
     "text": "Pełny graf IR agnostyczny wobec możliwości, pochodzący z jednego źródła: ir-v1alpha1.schema.json. Plugin polityki analizuje pełne szczegóły węzłów, krawędzi i dołączeń zamiast wąskiej projekcji."
   },
+  "aad9e3daa9b7e8a1": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aad9e3daa9b7e8a1",
+    "status": "machine",
+    "text": "Baza danych PostgreSQL z kopią zapasową tworzoną na Kubernetes przez Velero i przez CloudNativePG, na AWS przez własne automatyczne kopie zapasowe Amazon RDS, w Terraform i w CloudFormation, oraz przez AWS Backup — wszystko z jednego dołączenia `core/backup`, które operator zapisuje w każdej encji Release, wraz z odmową na celu, który nie ma produktu do kopii zapasowych."
+  },
   "aadd81f6e0c30d9a": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -103957,6 +104664,13 @@
     "status": "machine",
     "text": "Obraz MariaDB do uruchomienia potrzebuje hasła roota, a użytkownik aplikacji potrzebuje własnego. Oba są dołączane w filarze `features:` komponentu bazy danych — oddzielnie od `values` aplikacji — jako encje Features oznaczone etykietą `feature.aggrega.ai/kind: secret`. `featuresSchema` encji Component `core/datastore/mariadb` deklaruje slot dla każdego z nich, a przykład wykorzystuje oba modele dostarczania:"
   },
+  "ab9dc5e07dfe23a2": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ab9dc5e07dfe23a2",
+    "status": "machine",
+    "text": "Komponent, którego przełącznik ma wartość `false`, jest usuwany przed skompilowaniem czegokolwiek, więc encje Releases dla AWS i Docker Compose, które pozostawiają parametr z wartością `none`, kompilują samą bazę danych."
+  },
   "ab9e7cf994900f1c": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -104058,6 +104772,13 @@
     "srcHash": "abbd8a87d833b028",
     "status": "machine",
     "text": "Ma to znaczenie, ponieważ powierzchnią narzędzi jest wiersz poleceń. Wszystko, co można wpisać, asystent może wywołać — łącznie z operacjami, które zmieniają maszynę."
+  },
+  "abbf35b45a40e749": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "abbf35b45a40e749",
+    "status": "machine",
+    "text": "`release-terraform-unscheduled.yaml` pozostawia `report_schedule` puste w Terraform, więc `report` nie ma ani harmonogramu, ani dołączenia i nic w AWS nigdy by go nie uruchomiło. To przypadek, dla którego istnieje `core/manual-trigger`, a `./build-release.sh terraform-unscheduled -- --auto-pull` przerywa build, wskazując go:"
   },
   "abc0a079ee2e586d": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -104555,6 +105276,13 @@
     "status": "machine",
     "text": "Warstwa"
   },
+  "aca31219e00f6020": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "aca31219e00f6020",
+    "status": "machine",
+    "text": "`core/backup` określa, że magazyn danych jest archiwizowany według harmonogramu i że każda kopia zapasowa jest przechowywana przez określoną liczbę dni. Nie mówi nic o tym, jak: encja Manifest każdego celu wiąże encję FeatureRecipe, która to tam realizuje, a każda z nich zapisuje kopię zapasową w kategoriach własnego produktu — harmonogram Velero, zaplanowana kopia zapasowa CloudNativePG, ustawienia instancji RDS, plan AWS Backup. Cel bez produktu, który mógłby to zrealizować, odrzuca dołączenie, wskazując je z nazwy, więc kompilacja zostaje zatrzymana, zamiast wdrażać magazyn danych bez zapisanej dla niego kopii zapasowej."
+  },
   "aca85bf69c4bb6bb": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -105031,6 +105759,13 @@
     "srcHash": "ad4dbb120d8c630f",
     "status": "machine",
     "text": "Import, któremu podano cel, zgłasza po diagnostykach importera to, co wykazało tworzenie encji Manifest:\n`warn` wskazujące każdy typ komponentu, którego Manifest nie mapuje, wraz z powodem, oraz `info`, gdy\nutworzona encja Release już wskazuje Manifest lub żadna utworzona encja Release go nie przywołuje. Są to diagnostyki samego importu, a nie importera, i nie mają kodu; opisuje je [Co dodaje cel](#what-a-target-adds)."
+  },
+  "ad54af147a576c62": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ad54af147a576c62",
+    "status": "machine",
+    "text": "**Konfiguracja poświadczeń, której nie można odczytać, jest zgłaszana bez ujawniania jej zawartości.** Jeśli `config.json` nie jest prawidłowym JSON-em, wartość `auth` wpisu nie jest zakodowanym w base64 użytkownikiem i hasłem połączonymi dwukropkiem albo pomocnik poświadczeń wskazany w pliku nie może odpowiedzieć, połączenie z rejestrem kończy się niepowodzeniem z komunikatem wskazującym rejestr i plik poświadczeń, ale nigdy zawartość pliku ani wpisu. [`aggrega login`](aggrega-login.md) i `aggrega logout` zgłaszają w ten sam sposób plik `config.json`, który nie jest prawidłowym JSON-em, i niczego w nim nie zmieniają. Należy poprawić plik; wpis, którego nie można odczytać, można też zastąpić za pomocą `aggrega login <registry>`."
   },
   "ad5a2d61863d528d": {
     "at": "2026-10-22T09:26:23.460774+00:00",
@@ -107826,6 +108561,17 @@
     "status": "machine",
     "text": "Wersja zgłaszana przez wyszukiwanie"
   },
+  "b1762eec4c0474e2": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "8824cfb0d0d9c825",
+      "reviewed": false
+    },
+    "srcHash": "b1762eec4c0474e2",
+    "status": "machine",
+    "text": "**Współdzielone wpisy SchemaLibrary (międzydokumentowe `$ref:`):** Wielokrotnego użytku definicje JSON Schema są przechowywane w encjach katalogu SchemaLibrary (Tier 3). Odwołuje się do nich przez tożsamość za pomocą międzydokumentowego `$ref:` (`<library>#/schemas/<entry>`, bez hosta — wersja pochodzi z pliku blokady) z dowolnego konsumującego schematu encji Component lub Feature. Łańcuch jest przechodzony w czasie kompilacji. Kształt tworzenia encji biblioteki opisuje [entities/schemalibrary](../language-reference/entities/schemalibrary.md), a semantykę rozwiązywania — [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md)."
+  },
   "b1767d0676720a23": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -110576,6 +111322,17 @@
     "status": "machine",
     "text": "W przypadku statycznych danych dostarczanych przez programistę (takich jak zespół właścicielski czy klasyfikacja danych) przedsiębiorstwa nigdy nie powinny polegać bezpośrednio na surowym katalogu open source. Zamiast tego architekt platformy pisze korporacyjną linię bazową — pola, które musi mieć każdy komponent wewnętrzny, zadeklarowane raz we wpisie SchemaLibrary — i używa roli werdyktu governance, aby wymusić jej użycie."
   },
+  "b5a58f0cb28a58df": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "cbb8b7697b28d0a7",
+      "reviewed": false
+    },
+    "srcHash": "b5a58f0cb28a58df",
+    "status": "machine",
+    "text": "Kompilator przechodzi przez każdy blok `inject:` — zarówno self-inject (Component wstrzykujący do samego siebie), jak i uses-inject (połączenia między encjami Component) — i weryfikuje kontrakt dostarczania względem schematu `provides:` docelowej encji Component, podziału etykiet encji Feature oraz zbioru zadeklarowanych kluczy dostarczania. Klucz `from:` w bloku napisanym przez własny komponent encji Aggregate jest sprawdzany zaraz po rozwiązaniu katalogu, więc błąd wskazuje napisany wiersz; taki klucz w bloku komponentu wnoszonego przez moduł jest sprawdzany po zbudowaniu kompozycji importującej ten moduł, a błąd wskazuje wiersz we własnym dokumencie modułu; klucz `from:` w połączeniu wnoszonym przez dołączoną encję Feature jest sprawdzany dopiero wtedy, gdy wkład wniosły już wszystkie powierzchnie mogące tworzyć połączenia, czyli w najwcześniejszym momencie, w którym takie połączenie istnieje i można je sprawdzić."
+  },
   "b5a5fbd4719d8a71": {
     "at": "2026-10-29T21:59:45.311Z",
     "job": "session-0027-20261029215945",
@@ -111737,6 +112494,17 @@
     "status": "machine",
     "text": "To sprawdzenie jest jedyną rzeczą, której nie może zapewnić ponowna weryfikacja skrótu podczas kompilacji. Pobieranie, które przyjęłoby przesuniętą referencję, przepisałoby pobrane bajty i zapisany skrót w jednym kroku, więc dwie wartości porównywane przez kompilację zmieniłyby się razem i byłyby zgodne — a kompilowana byłaby inna zawartość źródłowa niż ta, względem której przejrzano plik blokady, i nic by tego nie zgłosiło."
   },
+  "b78dec0751e1dc3e": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "8fdde30272e0183e",
+      "reviewed": false
+    },
+    "srcHash": "b78dec0751e1dc3e",
+    "status": "machine",
+    "text": "Bezwzględny, spłaszczony identyfikator bieżącego węzła (np. 'backend' lub 'data-layer-zdmain-db' dla komponentu main-db instancji modułu data-layer), zapisany w alfabecie, który spełnia każda nazwa komponentu nadana przez autora. Deterministyczny i stabilny między kompilacjami dla tego samego Aggregate. Jest to nazwa zasobów budowanych dla tego węzła, dla których żaden dostawca nie wyprowadza nazwy — zestawu artefaktów umieszczonego z Recipe oraz workloadu syntetyzowanego przez dostawcę, który nazywa go według tożsamości — dlatego adres publikowany dla jednego z nich jest budowany z tej wartości."
+  },
   "b797456e3e45a7e4": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -112136,6 +112904,13 @@
     "srcHash": "b83dbb2ec6482bab",
     "status": "machine",
     "text": "Emitowany komunikat. Jeden warunek obejmuje oba bloki, więc jego zdanie nie może powiedzieć, który z nich został napisany; wskazówka po nim wskazuje blok, przytaczając wpisany klucz i blok, w którym go wpisano:"
+  },
+  "b840cf709b85d2b2": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "b840cf709b85d2b2",
+    "status": "machine",
+    "text": "**[datastore-backup](datastore-backup/)** — baza danych PostgreSQL objęta kopią zapasową na każdym celu na podstawie jednego dołączenia `core/backup`, które operator zapisuje w encji Release, bez niczego zapisanego w tym celu w encji Aggregate. Każda encja Manifest wiąże produkt, który je realizuje: Velero i plugin Barman Cloud z CloudNativePG na Kubernetes, zapisujące do zasobnika, z którym łączy się dołączenie; własne automatyczne kopie zapasowe Amazon RDS na Terraform i CloudFormation; oraz AWS Backup, wybierany na tym samym celu jednym wierszem encji Manifest. README pokazuje wyrenderowaną kopię zapasową każdego celu, kontrolery kopii zapasowych włączane parametrem dla każdej encji Release oraz zatrzymanie na Docker Compose, który nie ma produktu do kopii zapasowych."
   },
   "b84746d472514164": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -113204,6 +113979,13 @@
     "status": "machine",
     "text": "Ta sama encja Aggregate, wdrożona w Kubernetes. Dwie granice **równorzędne**, każda z odrębną adnotacją `aggrega.ai/namespace`, która kaskadowo trafia do każdego zasobu jako\n`metadata.namespace`:"
   },
+  "ba07d761f6fcb067": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "ba07d761f6fcb067",
+    "status": "machine",
+    "text": "Jest to parametr, ponieważ cztery cele różnie traktują zadanie bez dołączenia. Kubernetes uruchamia je według harmonogramu jako CronJob albo, bez harmonogramu, raz przy wdrożeniu. Docker Compose nie ma mechanizmu planowania, więc uruchamia zadanie raz przy każdym starcie stosu i odrzuca harmonogram. W AWS nic nie uruchamia zadania Amazon ECS, gdy Terraform lub CloudFormation stosuje zmiany, więc zadanie wymaga tam harmonogramu albo dołączenia, a bez żadnego z nich jest odrzucane. Dlatego encje Releases dla Kubernetes, Terraform i CloudFormation wypełniają `report_schedule`, a encja Release dla Docker Compose pozostawia go pustym."
+  },
   "ba08022c500945f0": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -114012,6 +114794,13 @@
     "status": "machine",
     "text": "Budowanie kończy się kodem `1` i nie zapisuje katalogu `dist/`: polityka jest ewaluowana na grafie budowania, zanim cokolwiek zostanie wyrenderowane. `E0005` to diagnostyka, którą niesie odmowa polityki — zob. [dokumentację diagnostyk](../../errors/sentinels.md).\n`release-masking-off-route.yaml` wypisuje tę samą odmowę w każdym z silników."
   },
+  "bb3d4af988a61676": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb3d4af988a61676",
+    "status": "machine",
+    "text": "encja Release dla CloudNativePG"
+  },
   "bb3e236c6cea2680": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -114102,6 +114891,13 @@
     "srcHash": "bb5ba1528b624ca7",
     "status": "machine",
     "text": "**Częściowy wynik jest zamierzony, a nie jest pozostałością awarii.** Warunek nazywa skutek, a nie przyczynę — to, czego nie udało się przetłumaczyć, jest zgłaszane w diagnostykach obok niego, po jednej na każdą konstrukcję, której importer nie mógł przenieść, słowami samego importera. Ten warunek pozwala wywołującemu odróżnić sytuację „import się zatrzymał i dał część odpowiedzi” od „import całkowicie się nie powiódł”, które są różnymi sytuacjami z różnymi dalszymi krokami."
+  },
+  "bb5c68040d7cc1e6": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bb5c68040d7cc1e6",
+    "status": "machine",
+    "text": "Kompilacja zapisuje pliki i się zatrzymuje. Nie wykonuje żadnej kopii zapasowej i nie łączy się z żadnym klastrem, zasobnikiem ani API AWS. Nie rozwiązuje żadnego ARN, konta ani regionu: na AWS każde z nich jest wyrażeniem lub wartością zapisaną przez encję Release, którą Terraform, CloudFormation lub AWS odczytuje przy stosowaniu plików. Nie sprawdza też niczego w klastrze:"
   },
   "bb5dbe4b07104b15": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -116647,6 +117443,13 @@
     "status": "machine",
     "text": "Etykieta, której węzeł nie ma, jest porównywana jako pusty ciąg, więc para w `match` o wartości `\"\"` pasuje także do węzła, który nie ma tego klucza."
   },
+  "bfb72841d83eff28": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "bfb72841d83eff28",
+    "status": "machine",
+    "text": "`report` to CronJob działający według harmonogramu wypełnionego przez encję Release i nie jest wstrzymany:"
+  },
   "bfb91695afb3838b": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -116829,6 +117632,13 @@
     "srcHash": "bfec178f670ac185",
     "status": "machine",
     "text": "Klucze: co najmniej jedna litera, cyfra, podkreślnik lub łącznik. Kropka jest niedozwolona. Wzorzec: `^[a-zA-Z0-9_-]+$`."
+  },
+  "bfecad8c1bced695": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "bfecad8c1bced695",
+    "status": "machine",
+    "text": "AWS Backup"
   },
   "bff31fa0a763ca50": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -118438,6 +119248,13 @@
     "status": "machine",
     "text": "Każdy wpis, który ma zastosowanie, musi coś pominąć, a budowanie zatrzymuje się na wpisie,\nktóry tego nie robi, ponieważ wpis niczego niedopasowujący jest stwierdzeniem o źródle,\nktóre przestało być prawdziwe. Typową przyczyną jest aktualizacja źródła, która zmieniła nazwę\ndokumentu. Dokument o zmienionej nazwie trafia wtedy do wyniku pod nową nazwą — dokładnie\nten dokument, który wpis miał wykluczyć — a zatrzymanie sprawia, że nie zostanie on\nniezauważenie dostarczony. W tym budowaniu takim dokumentem jest Secret wygenerowany przez\nchart: wpis miał go wykluczyć, a nazywa coś innego. Aby poprawić wpis, należy porównać go\nz tym, co źródło renderuje obecnie: zbudować bez wpisu, tak jak robi to\n`release-negative-without-omits.yaml` bez sprawdzania, i odczytać nazwę z pliku zapisanego przez chart."
   },
+  "c2880afcda649187": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c2880afcda649187",
+    "status": "machine",
+    "text": "Obszar roboczy wczytuje katalog biblioteki standardowej z kopii roboczej obok tego repozytorium (wskazuje ją `.aggrega-config.yaml`). Velero i wtyczka Barman Cloud są instalowane za pomocą własnych chartów tych projektów, więc dwie encje Releases dla Kubernetes wymagają, aby repozytoria chartów tych projektów były osiągalne z kompilacji; każda inna encja Release renderuje się wyłącznie z katalogu."
+  },
   "c2890be912f4087c": {
     "at": "2026-10-29T22:01:23.699Z",
     "job": "session-0025-20261029220123",
@@ -119261,6 +120078,13 @@
     "srcHash": "c3cb27347662be6d",
     "status": "machine",
     "text": "Dołączenie na połączeniu staje się jednym z własnych dołączeń agenta, nazwanym\nod połączenia i slotu — tutaj `gateway.credential` — więc emitowane są dwa obiekty Secret,\npo jednym na agenta, każdy z materiałem własnym tego agenta:"
+  },
+  "c3cddf82c7f7cbec": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c3cddf82c7f7cbec",
+    "status": "machine",
+    "text": "To samo polecenie z `--from=cronjob/report` uruchamia dodatkowy przebieg `report` między zaplanowanymi."
   },
   "c3d0477cd5f71263": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -120586,6 +121410,17 @@
     "status": "machine",
     "text": "**Kluczowy** (`--key`) — klucz ECDSA P-256 przechowywany offline (PEM zgodny z cosign), furtka dla środowisk bez dostawcy tożsamości OIDC. Nie jest nawiązywane połączenie z żadnym dostawcą tożsamości, urzędem certyfikacji ani dziennikiem przejrzystości."
   },
+  "c614430aa5d58fd7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "b304c9c6cbe467ef",
+      "reviewed": false
+    },
+    "srcHash": "c614430aa5d58fd7",
+    "status": "machine",
+    "text": "Kilka mechanizmów połączonych w jednej kompilacji: FeatureRecipes o zasięgu granicy, wynoszenie parametrów, rozwijanie Feature sterowane adnotacjami, polityki nadzoru nad grafem budowania oraz sieć między granicami u różnych dostawców."
+  },
   "c61488a9342c899b": {
     "at": "2026-10-29T17:38:23.610Z",
     "job": "session-0002-20261029173823",
@@ -121291,6 +122126,13 @@
     "srcHash": "c7401f343f7523d8",
     "status": "machine",
     "text": "recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...` (ograniczenie dostawcy eval w recepturze: pola rodzajów wejścia są zabronione, gdy dostawcą jest eval (Recipe `<name>`:`<version>`, reguła eval, w `<path>`). zadeklarowane zabronione pola: `<field1>`, `<field2>`, ...)"
+  },
+  "c743f0f817434b74": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c743f0f817434b74",
+    "status": "machine",
+    "text": "Encja Recipe zapisuje harmonogram `report` we własnej formie EventBridge Scheduler: `30 2 * * 1-5` staje się `cron(30 2 ? * 2,3,4,5,6 *)`, z dniami tygodnia numerowanymi od niedzieli jako 1, w UTC, ponieważ encja Release nie podaje strefy czasowej."
   },
   "c7463ad944819835": {
     "at": "2026-10-22T09:15:22.065068+00:00",
@@ -123125,6 +123967,13 @@
     "status": "machine",
     "text": "`--dry-run` wykonuje wszystko to, co polecenie bez tej flagi, z wyjątkiem zapisu: edytowany dokument trafia na standardowe wyjście jako treść, ze wskazaniem pliku, którego dotyczy, i nic nie zostaje utworzone:"
   },
+  "c9e2dec71ae02139": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "c9e2dec71ae02139",
+    "status": "machine",
+    "text": "Magazyn danych z kopią zapasową na każdym celu: jedno dołączenie core/backup"
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -123138,6 +123987,13 @@
     "srcHash": "c9e70e553f583077",
     "status": "machine",
     "text": "**Jak naprawić:** najpierw należy sprawdzić odwołanie i wersję — wersja, która już nie istnieje, i nazwa z literówką dają tę samą odpowiedź, a komunikat cytuje obie, aby można je było porównać z katalogiem. Jeśli odwołanie jest poprawne, artefakt nie został pozyskany: należy uruchomić pull dla wydania, który pobiera to, do czego wydanie sięga, i wypełnia pamięć podręczną. Jeśli obszar roboczy jest offline, ten pull musi zostać uruchomiony z miejsca z dostępem do sieci; kompilacja offline czyta tylko to, co już jest w pamięci podręcznej, a ten komunikat oznacza, że pamięć podręczna tego nie zawiera."
+  },
+  "c9e73b7f44048c92": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "c9e73b7f44048c92",
+    "status": "machine",
+    "text": "`release-compose-scheduled.yaml` wypełnia `report_schedule` w Docker Compose i dodatkowo dołącza `core/manual-trigger` do `report`. W Kubernetes i AWS zadanie z harmonogramem działa według niego niezależnie od tego, czy dołączenie jest obecne; w Docker Compose, bez mechanizmu planowania, zadanie z harmonogramem nie ma realizacji, z dołączeniem czy bez. `./build-release.sh compose-scheduled -- --auto-pull` przerywa build:"
   },
   "c9e990c257af8cd1": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -123354,6 +124210,13 @@
     "srcHash": "ca2cc454288aea48",
     "status": "machine",
     "text": "W helm `MODEL_KEY_GPT` renderuje się jako `secretKeyRef` wskazujące Secret opublikowany przez poświadczenie połączenia `gpt`, a `MODEL_KEY_NIM` — ten opublikowany przez poświadczenie połączenia `nim`. W compose wpis `as: env` wskazujący połączenie jest emitowany z pustą wartością i tym samym komunikatem o częściowej obsłudze, co wpis wskazujący jeden z własnych slotów encji Component."
+  },
+  "ca2cf72f6758045b": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ca2cf72f6758045b",
+    "status": "machine",
+    "text": "Kubernetes z CloudNativePG"
   },
   "ca2e06193731aff9": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -125368,6 +126231,13 @@
     "status": "machine",
     "text": "Klucze bloku dosłownego są sprawdzane w kolejności posortowanej, a klucze bloku przenoszonego w kolejności zapisu, więc Recipe łamiąca regułę w kilku miejscach zawsze zgłasza najpierw to samo."
   },
+  "cda5cdc386815ab5": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "cda5cdc386815ab5",
+    "status": "machine",
+    "text": "`data-fix` buduje się tak samo na wszystkich czterech celach, bez harmonogramu i bez parametru."
+  },
   "cda6489183f91aaf": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -126712,6 +127582,17 @@
     "status": "machine",
     "text": "**`.origin_feature` (string)** — ustawiane, gdy krawędź została zsyntetyzowana przez dołączenie Feature (np. Feature typu sidecar dodający krawędź `uses` do Feature z poświadczeniami)."
   },
+  "cfa3973efcb3d1df": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "7d7f6eb47446f812",
+      "reviewed": false
+    },
+    "srcHash": "cfa3973efcb3d1df",
+    "status": "machine",
+    "text": "**Odrzucane w całości: własna sieć fragmentu.** Wpis pod `networks:` najwyższego poziomu fragmentu zatrzymuje kompilację z `TRANSLATION_ERROR` bez względu na treść — pusty wpis, `driver` czy cokolwiek innego — podając wpis (`networks.back`), fragment i komponent, ponieważ złożony plik zawiera tylko sieci wyprowadzane przez dostawcę (zob. [Do której sieci dołącza usługa](#which-network-a-service-joins)). Należy usunąć wpis: usługa dołącza do sieci własnego komponentu bez żadnej deklaracji, adnotacja `aggrega.ai/namespace` wybiera, do której sieci dołącza komponent, usługa wymienia komponenty, do których sieci dodatkowo dołącza, pod [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of), a encja Feature `compose-bridge` trasuje ruch między usługami w różnych sieciach. Puste `networks: {}` niczego nie deklaruje i nie jest odrzucane, a własna lista `networks:` usługi jest przenoszona jak wyżej."
+  },
   "cfa3af242f14adbc": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -126960,6 +127841,13 @@
     "status": "machine",
     "text": "**Efekt kompilatora:** Kompilator propaguje wartość wave każdego boundary do wyrenderowanych manifestów w tym boundary. Providers emitują natywne prymitywy sekwencjonowania:"
   },
+  "cfe94b9cdcec4a14": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "cfe94b9cdcec4a14",
+    "status": "machine",
+    "text": "gdzie działa"
+  },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T09:26:23.460774+00:00",
     "job": "msgbatch_01EgxZHKDCKP7uwHS7Qgugr2",
@@ -127188,6 +128076,17 @@
     "srcHash": "d041ff748d017a4c",
     "status": "machine",
     "text": "trzy w roli `label-transform`, które kształtują etykiety na węzłach kompilacji: polityka Rego odczytująca środowisko encji Release oraz dwie wtyczki tagujące wkompilowane w CLI, `label-injector` i `selector-tagger`;"
+  },
+  "d04219e3aa231482": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "b05dd5f19ba9f261",
+      "reviewed": false
+    },
+    "srcHash": "d04219e3aa231482",
+    "status": "machine",
+    "text": "Jedno ograniczenie dotyczy kształtów osiąganych pośrednio. Gdy kształt pola pochodzi z `$ref:`, obok którego stoją inne słowa kluczowe (np. mapa `properties:`), z `then:` lub `else:` w `when:` albo ze wskaźnika do zadeklarowanej właściwości, jego `format` jest sprawdzany w polach deklarowanych przez ten kształt bezpośrednio i przez `allOf` — ale nie wewnątrz `anyOf`, `oneOf`, `not` ani gałęzi warunkowej w obrębie tego kształtu."
   },
   "d04600a78865fd7c": {
     "at": "2026-10-29T21:31:42.799Z",
@@ -129426,6 +130325,13 @@
     "status": "machine",
     "text": "Policies"
   },
+  "d3aea1d07a2b9d29": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "d3aea1d07a2b9d29",
+    "status": "machine",
+    "text": "Encje Releases dla Kubernetes dołączają także własną parę kluczy zasobnika oraz plik poświadczeń, którym Velero podpisuje swoje żądania, jako dołączenia `core/referenced-secret` wskazujące obiekty Secret, które klaster już przechowuje, więc żaden klucz nie jest zapisywany w żadnym renderowanym pliku. Każda wartość specyficzna dla konta w encjach Releases dla AWS jest symbolem zastępczym."
+  },
   "d3b266bb5e1e750a": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -131012,6 +131918,17 @@
     "srcHash": "d6b42a2f67697cfb",
     "status": "machine",
     "text": "Kształt jest oceniany podczas składania encji Manifest, zanim cokolwiek zostanie wyszukane — werdykt wynika z policzenia separatorów w ciągu znaków, więc nie wymaga żadnego katalogu. Ocena w tym miejscu sprawia, że diagnostyka jest rzetelna: receptura, o którą wartości *chodziło*, często istnieje i ma poprawną nazwę, a informacja, że jej brakuje, kieruje poszukiwania w złą stronę. Każde polecenie rozwiązujące zależności encji Release zgłasza to tak samo, więc nie zależy to od tego, które polecenie akurat zostanie uruchomione."
+  },
+  "d6b589a42aae2327": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "80b294785a58ef95",
+      "reviewed": false
+    },
+    "srcHash": "d6b589a42aae2327",
+    "status": "machine",
+    "text": "Globalne, jawne wyłączenie weryfikacji podpisów. Gdy ma wartość true, weryfikacja podpisów jest wyłączona dla wszystkich rejestrów, łącznie z obowiązkowym poziomem bazowym huba. Przeznaczone do sytuacji awaryjnych i programistycznych; nigdy nie działa po cichu — wszędzie tam, gdzie pobranie sprawdziłoby podpis, ostrzega, że weryfikacja została globalnie wyłączona. Domyślnie false. Wartość domyślna: `false`"
   },
   "d6b72fdbf2d81a34": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -133049,6 +133966,13 @@
     "status": "machine",
     "text": "**Powtarzalne obrazy.** Encja Recipe przypina obraz serwera Loki i obraz sidecara przeładowania konfiguracji do rozwiązywalnych tagów, dzięki czemu wyrenderowane obciążenie odwołuje się do przypiętych wersji."
   },
+  "da16c04b91fc6ddc": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "da16c04b91fc6ddc",
+    "status": "machine",
+    "text": "Harmonogram `report` to parametr `report_schedule`, który encja Aggregate deklaruje z pustą wartością domyślną i wczytuje do wartości `schedule` zadania:"
+  },
   "da18adbf579666aa": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -133433,6 +134357,13 @@
     "srcHash": "daab98824f2eb3bb",
     "status": "machine",
     "text": "Katalog główny jest katalogiem głównym niezależnie od miejsca, w którym go podano, także w przypadku serwerów: żądanie do [`aggrega mcp`](aggrega-mcp.md), które nie wskazuje własnego obszaru roboczego, jest obsługiwane w nim, bez przeszukiwania niczego powyżej. Katalog główny, który nie jest istniejącym folderem — ścieżka niewskazująca niczego albo wskazująca plik — jest odrzucany przez każde polecenie odczytujące swój obszar roboczy, zanim polecenie zrobi cokolwiek innego; `aggrega serve` i nasłuchujący `aggrega mcp` odmawiają uruchomienia z takim katalogiem, a `aggrega mcp` działający przez standardowe wejście i wyjście mimo to się uruchamia i na każde wywołanie działające w tym obszarze roboczym odpowiada odmową. Odmowa wskazuje to z dwóch źródeł, które dostarczyło wartość, `--workspace-root` lub `AGGREGA_WORKSPACE_ROOT`, wraz z wartością dokładnie w podanej postaci. Polecenie, które nie odczytuje obszaru roboczego, takie jak `aggrega version`, nie odczytuje też katalogu głównego i nie jest z jego powodu odrzucane."
+  },
+  "daaba2f33800b7f5": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "daaba2f33800b7f5",
+    "status": "machine",
+    "text": "[task-run-on-demand](task-run-on-demand/README.md) (`start`) — Zadanie z `core/manual-trigger`, wdrażane bez uruchamiania na Kubernetes, Docker Compose, Terraform i CloudFormation, obok zadania bez niczego, wraz z poleceniem, które uruchamia przebieg na każdym celu."
   },
   "dab05ccf91dec707": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -134367,6 +135298,13 @@
     "status": "machine",
     "text": "pipeline steps reading the render facts of the components their host is wired to (kroki potoku odczytujące fakty renderowania komponentów, z którymi połączony jest ich host)"
   },
+  "dc043b1ed96ae823": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dc043b1ed96ae823",
+    "status": "machine",
+    "text": "`release-compose.yaml` dołącza tę samą kopię zapasową do bazy danych na Docker Compose. Żadna encja FeatureRecipe nie realizuje tam `core/backup`, więc `manifest-compose.yaml` nie wiąże żadnej, a `./build-release.sh compose -- --auto-pull` zatrzymuje się, wskazując dołączenie, zamiast wdrażać bazę danych bez kopii zapasowej:"
+  },
   "dc04ee4bc2dc6256": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -134415,6 +135353,13 @@
     "srcHash": "dc189fe4230219fe",
     "status": "machine",
     "text": "Przykładowa para"
+  },
+  "dc1a85b737867d5a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dc1a85b737867d5a",
+    "status": "machine",
+    "text": "Zadanie uruchamiane na żądanie: jedna encja Aggregate, cztery cele"
   },
   "dc1f0fa2825493da": {
     "at": "2026-10-22T09:15:22.065068+00:00",
@@ -134876,6 +135821,13 @@
     "status": "machine",
     "text": "dispatch path produced multiple provider outputs (`\"<path>\"`, boundary `\"<boundary>\"`, provider `\"<provider>\"`) (ścieżka dyspozycji wytworzyła wyniki wielu dostawców (`<path>`, granica `<boundary>`, dostawca `<provider>`))"
   },
+  "dcb84621fcc81992": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "dcb84621fcc81992",
+    "status": "machine",
+    "text": "jego harmonogram lub, w Docker Compose, uruchomienie stosu"
+  },
   "dcbb5844e1d3e7e6": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -135312,6 +136264,13 @@
     "status": "machine",
     "text": "**Każde inne żądanie przyjmuje token i nic nie wysyła.** Wysłanie tokenu jest nieszkodliwe, a nie jest błędem: zostaje przyjęty, żadne powiadomienie nie przychodzi, a odpowiedź jest dokładnie taka sama jak bez niego. Klient może więc dołączyć token do czegokolwiek i po prostu nic nie wyświetlać, gdy nic nie przychodzi."
   },
+  "dd7ade7509518678": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "dd7ade7509518678",
+    "status": "machine",
+    "text": "Programista nie pisze niczego na potrzeby kopii zapasowej: `db` nie ma w encji Aggregate żadnego dołączenia. Operator dołącza do niego `core/backup` w każdej encji Release, w sekcji `features` komponentu, i określa tam, kiedy kopia zapasowa jest wykonywana i jak długo przechowywana jest każda z nich. Na Kubernetes dołączenie wskazuje też, dokąd trafiają kopie zapasowe, za pomocą swojego połączenia `store` z zasobnikiem:"
+  },
   "dd7d21897117489e": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -135413,6 +136372,17 @@
     "srcHash": "dd9425879cd372ac",
     "status": "machine",
     "text": "Kontenery Go i Rust udostępniają operacje mapy — wyszukanie klucza, ustawienie go, usunięcie, odczyt kluczy, przejście po wpisach w kolejności, ich zliczenie. Ustawienie klucza, który kontener już zawiera, zastępuje jego wartość i zachowuje jego miejsce; nowy klucz trafia za wszystkie istniejące."
+  },
+  "dd9f669018574919": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "62ec39f9da8d50f0",
+      "reviewed": false
+    },
+    "srcHash": "dd9f669018574919",
+    "status": "machine",
+    "text": "Encje Recipes Redis z katalogu, które mapuje ten przykład, `compose/redis` i `helm/redis`, deklarują licencję AGPL-3.0. Przykład `valkey-cache` wdraża Valkey, który posługuje się tym samym protokołem; jego encja Recipe `helm/valkey` deklaruje BSD-3-Clause."
   },
   "dd9ff0f5a9354e78": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -136342,6 +137312,13 @@
     "srcHash": "df0eec10d5683e0b",
     "status": "machine",
     "text": "Słownictwo mechanizmu (`infra.primary.replicas`) brzmi naturalnie dla jednego providera (pody Kubernetes są replikami StatefulSet), a gdzie indziej jest błędem kategorii — RDS nie ma pojęcia „replik” na instancji głównej, CloudFormation odzwierciedla RDS, a Compose w ogóle nie ma abstrakcji replik poziomych. Słownictwo intencji daje się przełożyć: każdy provider ma jakieś pojęcie „zapewnij wysoką dostępność tej bazy danych” i jakieś pojęcie „chcę N kopii tylko do odczytu”, a encja Recipe zawiera przełożenie specyficzne dla providera. Gdy realizacja nie ma takiego mechanizmu, jej encja Recipe może zatrzymać kompilację ze wskazaniem klucza, jak robią to `helm/mariadb` i `compose/mariadb` dla obu kluczy oraz jednoinstancyjne encje Recipes RDS dla replik do odczytu."
+  },
+  "df0f49cc8dc94b89": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "df0f49cc8dc94b89",
+    "status": "machine",
+    "text": "`release-helm-cloudnative-pg.yaml` zapisuje bazę danych jako Cluster CloudNativePG, zasobnik, obiekty renderowane przez chart wtyczki oraz plik dołączenia, zawierający magazyn obiektów wtyczki i zaplanowaną kopię zapasową, obok obiektu Cluster w jego własnej przestrzeni nazw:"
   },
   "df17e727af018e13": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -139677,6 +140654,13 @@
     "status": "machine",
     "text": "Do czego odwołuje się chart"
   },
+  "e46359639a81785d": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "e46359639a81785d",
+    "status": "machine",
+    "text": "**Dołączenia podsystemów modułu docierają do jego komponentów.** Encja Feature, którą moduł dołącza w jednym z własnych podsystemów, kaskadowo obejmuje każdy komponent deklarowany przez moduł pod tym podsystemem, łącznie z zagnieżdżonymi podsystemami, dokładnie tak jak dołączenie podsystemu w encji Aggregate — i tylko te komponenty, nigdy komponent importującej encji Aggregate znajdujący się pod podsystemem o tej samej nazwie. Jest ono wartościowane bezpośrednio po własnych dołączeniach komponentu, podsystemy zewnętrzne przed wewnętrznymi. W polu zapisanym przez oba wygrywa własne dołączenie komponentu o tej samej nazwie, a pola, które ono pomija, zachowują wartości podsystemu. Każdy komponent, do którego dociera, sprawdza je względem `appliesTo` encji Feature. Ustalenie dotyczące własnych deklaracji modułu wskazuje moduł i klucz w jego dokumencie — na przykład `.spec.subsystems.<subsystem>.features.<attachment>` — więc poprawkę wprowadza się w module, w którym znajduje się deklaracja, a nie w importującej go encji Aggregate."
+  },
   "e463734e284f2fa5": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -141950,6 +142934,13 @@
     "status": "machine",
     "text": "co wiąże jej Manifest"
   },
+  "e881fbb4a6ce62b2": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "srcHash": "e881fbb4a6ce62b2",
+    "status": "machine",
+    "text": "**Każda etykieta zapisana przez autora usługi zostaje zachowana.** `labels:` usługi w pliku bazowym lub w nakładce można zapisać jako mapę albo jako listę wpisów `key=value` w stylu Compose, a każda etykieta trafia do pliku compose obok [etykiet pochodzenia](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output), które nadaje dostawca. Wpis listy jest odczytywany tak, jak odczytuje go Compose: tekst przed pierwszym `=` to nazwa etykiety, a tekst po nim to wartość, a wpis bez `=` jest etykietą z pustą wartością. Liczba lub wartość true/false jest zapisywana jako jej tekst, więc `replicas-hint: 2` trafia do pliku jako `replicas-hint: \"2\"`, a etykieta zapisana jako `null` pozostaje `null`. Gdy etykieta autora i etykieta pochodzenia mają ten sam klucz, plik zawiera wartość pochodzenia. Wartość `labels:`, która nie jest ani mapą, ani listą, oraz wpis listy, który nie jest tekstem, zatrzymują kompilację, podając plik źródłowy i usługę. Etykiety usługi w treści `artifacts:` przyjmują formę mapy: lista w tym miejscu zatrzymuje kompilację, podając artefakt i usługę."
+  },
   "e88524d9a7019284": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -142013,6 +143004,13 @@
     "srcHash": "e8a9c7445dd69ebd",
     "status": "machine",
     "text": "Wpisy wskazujące renderowane jednostki, które gość pomija w wyjściu tego węzła, w kolejności zadeklarowanej przez autora. Każdy wpis przychodzi rozwiązany, z polami w postaci zwykłych ciągów znaków, a wpis, który nie dotyczy tej kompilacji, nie jest przenoszony. To, co wybierają rodzaj, nazwa, przestrzeń nazw i subchart wpisu, jest udokumentowanym kontraktem samego dostawcy, a nie tego gniazda: gość dopasowuje każdy wpis do tego, co wyrenderował, w kategoriach własnego formatu, pomija każdą dopasowaną jednostkę we wszystkim, co zwraca — w swoich plikach, w nazwach deklarowanych w derived_keys i w faktach zgłaszanych w render_facts — i zgłasza w polu omitted wyjścia, ile jednostek dopasował każdy wpis. Wpisy towarzyszą listingowi źródła i żadnemu innemu wejściu: renderowanie zsyntetyzowanego workloadu lub zestawu artefaktów nigdy ich nie przenosi. Nieobecne, gdy nie ma wpisów, a gość, który nie otrzymał żadnych, renderuje dokładnie tak, jakby to pole nie istniało."
+  },
+  "e8aeb969ecceb76a": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "e8aeb969ecceb76a",
+    "status": "machine",
+    "text": "[datastore-backup](datastore-backup/README.md) (`start`) — Baza danych PostgreSQL objęta kopią zapasową na Kubernetes przez Velero i przez CloudNativePG, a na AWS przez własne automatyczne kopie zapasowe Amazon RDS, na Terraform i na CloudFormation, oraz przez AWS Backup, na podstawie jednego dołączenia `core/backup`, które operator zapisuje w każdej encji Release, wraz z odmową na celu, który nie ma produktu do kopii zapasowych."
   },
   "e8b26543ac505cb6": {
     "at": "2026-10-22T11:13:32.031992+00:00",
@@ -145409,6 +146407,13 @@
     "status": "machine",
     "text": "**Stosowany warunkowo** — kompilator emituje *addytywne* nadpisanie obok docelowego artefaktu zamiast edytować artefakt, więc to, czy wartość zadziała, zależy od tego, czy artefakt udostępnia własny pasujący klucz. W praktyce skuteczne, nigdy gwarantowane. **Żaden provider nie implementuje dziś komórki warunkowej**, a powierzchnia deklaracji nie ma sposobu, by ją wyrazić, więc generowana poniżej siatka emituje tylko dwa pozostałe poziomy. Poziom ten jest nazwany, ponieważ taka ścieżka rzeczywiście istnieje dla dostarczonego artefaktu, a słownik dwupoziomowy zmusiłby macierz albo do deklarowania gwarancji, której nie może dać, albo do zaprzeczenia, że ścieżka w ogóle istnieje."
   },
+  "ee0d3dbd6d121466": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "srcHash": "ee0d3dbd6d121466",
+    "status": "machine",
+    "text": "**Przekazanie:** Kompilator nie łączy się z żadnym klastrem i nie wywołuje żadnego API chmury, a build nie uruchamia żadnego wykonania i nie zapisuje żadnego skryptu. Każde wykonanie uruchamia operator własnym poleceniem platformy docelowej: `kubectl create job <run-name> --from=cronjob/<cronjob>` w Kubernetes, `docker compose run --rm <service>` w Docker Compose i `aws ecs run-task` w Amazon ECS, podając klaster, definicję zadania i konfigurację sieci, które encja Release ustawia w `infra.overrides` zadania. Generowanie konfiguracji i wykonanie w czasie działania pozostają rozdzielone."
+  },
   "ee12d568908e6a6b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -146920,6 +147925,13 @@
     "status": "machine",
     "text": "instancja jest szyfrowana kluczem wskazanym przez encję Release"
   },
+  "f072183c45fe124a": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f072183c45fe124a",
+    "status": "machine",
+    "text": "Obszar roboczy wczytuje katalog biblioteki standardowej z kopii roboczej obok tego repozytorium (wskazuje ją `.aggrega-config.yaml`). Każda encja Recipe renderuje się tu wyłącznie z katalogu, więc każdy build działa offline, gdy tylko plik blokady zostanie rozwiązany."
+  },
   "f078a310659a0700": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -147954,6 +148966,13 @@
     "srcHash": "f23515b88ae445d5",
     "status": "machine",
     "text": "Dokument, w którym znajduje się pozycja: encja Release albo dokument, w którym według grafu tej encji Release utworzono komponenty — jej encja Aggregate lub dokument modułu importowanego przez tę encję Aggregate. Jest odczytywany najpierw z tego, co sesja dla niego przechowuje, a w przeciwnym razie z dysku."
+  },
+  "f246ef4c78aa5df9": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "f246ef4c78aa5df9",
+    "status": "machine",
+    "text": "Wskazana samą rodziną definicja zadania jest rozwiązywana do swojej najnowszej aktywnej rewizji."
   },
   "f2519461cf737ce5": {
     "at": "2026-10-22T11:13:32.031992+00:00",
@@ -149610,6 +150629,13 @@
     "srcHash": "f4c98383c5f016bb",
     "status": "machine",
     "text": "**1. Katalog platformy: Feature deklaruje własny slot**"
+  },
+  "f4d0e766c19e4ce5": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f4d0e766c19e4ce5",
+    "status": "machine",
+    "text": "Encja Aggregate deklaruje bazę danych oraz to, czego wymaga jej kopia zapasowa na Kubernetes: zasobnik i dwa kontrolery kopii zapasowych. Kontroler kopii zapasowych instaluje się raz na klaster, a nie razem z bazą danych, więc jest osobnym komponentem; na AWS kopie zapasowe pozostają we własnym magazynie usługi zarządzanej i żaden z tych trzech nie jest tam potrzebny. Jeden parametr, `backup_controller`, przełącza je za pomocą przełącznika `active:` każdego komponentu:"
   },
   "f4d2eebab8bd92c5": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -152258,6 +153284,17 @@
     "status": "machine",
     "text": "**Zakres:** używane jednolicie w `components` granicy i ich dołączeniach `features` w encji `Release`."
   },
+  "f8ff8fa0a43d7df7": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "37cbc2496358aeb6",
+      "reviewed": false
+    },
+    "srcHash": "f8ff8fa0a43d7df7",
+    "status": "machine",
+    "text": "[advanced-platform](advanced-platform/README.md) (`advanced`) — Platforma Kubernetes z wieloma granicami, która łączy kilka mechanizmów w jednej kompilacji na podstawie jednej encji `Aggregate` napisanej przez dewelopera: FeatureRecipes o zasięgu granicy, wynoszenie parametrów, podsystem poświadczeń oraz odwołania między granicami rozwiązywane przez DNS usług."
+  },
   "f9053a8df6943198": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -152538,6 +153575,13 @@
     "srcHash": "f98533962f9b87c4",
     "status": "machine",
     "text": "Opcjonalny blok na standardowe kotwice YAML (& i *), pozwalający zachować zasadę DRY w encji Aggregate przy jednoczesnym utrzymaniu płaskiego słownika O(1) dla kompilatora. Odpowiada analogicznemu blokowi w encji Manifest."
+  },
+  "f98544860286dc34": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "f98544860286dc34",
+    "status": "machine",
+    "text": "`release-cloudformation.yaml` zapisuje jeden szablon stosu zawierający instancję, z tymi samymi dwoma ustawieniami pod ich nazwami właściwości CloudFormation:"
   },
   "f986e96d13f6c835": {
     "at": "2026-10-22T22:51:15.481474+00:00",
@@ -153146,6 +154190,17 @@
     "srcHash": "fa7fe67124e94375",
     "status": "machine",
     "text": "Baza danych"
+  },
+  "fa818f4b9fe9d059": {
+    "at": "2026-10-30T18:45:28.767Z",
+    "job": "session-0005-20261030184528",
+    "revision": {
+      "from": "ce33d9bd3d81fd9f",
+      "reviewed": false
+    },
+    "srcHash": "fa818f4b9fe9d059",
+    "status": "machine",
+    "text": "Forma zwarta rozpoznaje każde słowo kluczowe z prefiksem `x-aggrega-` jako rozszerzenie specyficzne dla Aggrega. Przestrzeń nazw jest otwarta: nowe adnotacje trafiają do katalogu bez zmian w słowniku dla poszczególnych słów kluczowych. Autorzy piszący `x-aggrega-selector`, `x-aggrega-narrowed-from` lub przyszłe adnotacje umieszczają ich treść we właściwym zakresie w rozwiązanym JSON Schema bez odrzucenia w czasie kompilacji."
   },
   "fa81b2d23e010c4f": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -153771,6 +154826,17 @@
     "status": "machine",
     "text": "W czasie działania żądanie, które nie przedstawia zadeklarowanego klucza w postaci `Authorization: Bearer\n<key>`, jest odrzucane z kodem HTTP 401, a klucz jest usuwany z żądania, które\nbrama przekazuje dalej. Odpowiedź jest przechowywana według trasy i wywołującego, więc przeformułowany prompt jednego\nwywołującego otrzymuje odpowiedź zapisaną dla tego wywołującego, a nigdy\nzapisaną dla innego. Odpowiedź podana z pamięci podręcznej nie jest wliczana do\nbudżetu i jest podawana także po przekroczeniu limitu. Połączenie `embedder` otrzymuje własne\ntrasy, jak każde połączenie na gnieździe `models`."
   },
+  "fb8258ec5d6d3a23": {
+    "at": "2026-10-30T18:02:15.037Z",
+    "job": "session-0001-20261030180215",
+    "revision": {
+      "from": "fe4eca9b48b0cb5a",
+      "reviewed": false
+    },
+    "srcHash": "fb8258ec5d6d3a23",
+    "status": "machine",
+    "text": "**Każdy warunek deklarowany przez ten plik binarny jest objaśniany na podstawie pliku binarnego.** Jego dwa kody i zdanie, od którego zaczynają się jego diagnostyki, są zadeklarowane w kompilatorze, więc ta część nie wymaga sieci, pamięci podręcznej ani konfiguracji."
+  },
   "fb87355103f45764": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -154249,6 +155315,13 @@
     "status": "machine",
     "text": "`ad-hoc-socket` — gniazdo nie jest deklarowane przez encję Component. Autor je nazwał, co jest dozwolone, a niezadeklarowane gniazdo nie deklaruje żadnego slotu."
   },
+  "fc565b8f73bd10b1": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "srcHash": "fc565b8f73bd10b1",
+    "status": "machine",
+    "text": "`core/storage/barman-cloud-plugin`"
+  },
   "fc59031809017e08": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -154452,6 +155525,13 @@
     "srcHash": "fc9fcb632f4a19a4",
     "status": "machine",
     "text": "Napisany przez autora URI pluginu dołączenia werdyktu, tak jak zapisano go w `.aggrega-config.yaml` `plugins.governance` (np. `governance/aggrega-security-baseline:1.0.0`). Wskazuje, do którego dołączenia należą zapisane dane wejściowe reguł; plugin werdyktu jest buforowany, a nie przypinany, więc nie ma wpisu w sekcjach `plugins` / `entities`, z którym można by go połączyć."
+  },
+  "fca064effe18a363": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fca064effe18a363",
+    "status": "machine",
+    "text": "Uruchamianie przebiegu w Amazon ECS"
   },
   "fca1c5d9ab85c211": {
     "at": "2026-10-22T03:40:32.071Z",
@@ -155036,6 +156116,13 @@
     "status": "machine",
     "text": "Wersja wydania w ścisłym formacie Semantic Versioning (np. 1.0.0). Wzorzec: `^(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)(?:-((?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$`."
   },
+  "fdc060a3a1ce9fc8": {
+    "at": "2026-10-30T18:36:11.533Z",
+    "job": "session-0004-20261030183611",
+    "srcHash": "fdc060a3a1ce9fc8",
+    "status": "machine",
+    "text": "CronJob wymaga harmonogramu, a `0 0 30 2 *` wskazuje 30 lutego, datę, której nie ma żaden rok: wstrzymany CronJob nie uruchamia przebiegu, a wznowiony nadal nie ma chwili, w której mógłby go uruchomić. Bez dołączenia zadanie bez harmonogramu byłoby obiektem Job, który działa natychmiast po wdrożeniu."
+  },
   "fdc432b04c2ddaa8": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -155204,6 +156291,17 @@
     "srcHash": "fdfbeb28eb4e17f6",
     "status": "machine",
     "text": "Terminal otwarty później znajduje `aggrega`; terminal już otwarty zachowuje `PATH`, z którym został uruchomiony."
+  },
+  "fe048817ed823f33": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "revision": {
+      "from": "be288c4a54eb3b51",
+      "reviewed": false
+    },
+    "srcHash": "fe048817ed823f33",
+    "status": "machine",
+    "text": "**`url`** — repozytorium do sklonowania. Akceptowane są `https://`, `ssh://` i `git://`. Do repozytorium prywatnego dociera się przez SSH za pośrednictwem agenta SSH lub przez HTTPS z wpisem dla jego hosta w pliku netrc — `machine github.com login <user> password <token>`. Poświadczenie zapisane w samym adresie URL jest odrzucane, jak opisano w sekcji [Uwierzytelnianie](../../cli/aggrega-pull.md#authentication)."
   },
   "fe063b54d01d4b2c": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -156098,6 +157196,17 @@
     "status": "machine",
     "text": "**Brak losowych źródeł i stanu zewnętrznego.** Przekształcenia są czystymi funkcjami swoich zadeklarowanych wejść (treść encji, łańcuch rodziców, lockfile). Stan zewnętrzny jest sprawdzany tylko podczas rozwiązywania (pobieranie artefaktów OCI), a rozwiązana treść jest adresowana treścią przez skrót."
   },
+  "ffaef73dc294b298": {
+    "at": "2026-10-30T18:13:14.564Z",
+    "job": "session-0002-20261030181314",
+    "revision": {
+      "from": "d115f2dc7ae2f060",
+      "reviewed": false
+    },
+    "srcHash": "ffaef73dc294b298",
+    "status": "machine",
+    "text": "**Uniwersalny ciąg znaków (szybko i czysto):** najlepszy dla ścieżek lokalnych, artefaktów OCI i repozytoriów Git. Kompilator wywnioskowuje metodę pobierania z prefiksu i sufiksu ciągu (`./src`, `https://github.com/example/module.git`, `oci://...`): URL kończący się na `.git` albo zapisany z `git://` lub `ssh://` to repozytorium Git pobierane z domyślnej gałęzi, a URL `https://`, który nie wskazuje ani repozytorium, ani chartu `.tgz`, ani fragmentu `.yaml`, jest odrzucany jako niejednoznaczny."
+  },
   "ffb203092f736d69": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -156139,6 +157248,13 @@
     "srcHash": "ffc896927aca256f",
     "status": "machine",
     "text": "pusty ciąg"
+  },
+  "ffc97d13365d60bd": {
+    "at": "2026-10-30T18:25:06.762Z",
+    "job": "session-0003-20261030182506",
+    "srcHash": "ffc97d13365d60bd",
+    "status": "machine",
+    "text": "każda encja Release"
   },
   "ffca8ded59782c99": {
     "at": "2026-10-22T11:59:38.351715+00:00",
