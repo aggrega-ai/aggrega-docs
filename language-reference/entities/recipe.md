@@ -289,7 +289,7 @@ spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    replicas: {{ .infra.replicas | default 1 }}
+    replicas: {{ optional .infra "replicas" 1 }}
     containers:
       app:
         image: "{{ .values.image }}"
