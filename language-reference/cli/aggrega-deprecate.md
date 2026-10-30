@@ -31,6 +31,10 @@ Deprecate amends an already-published artifact by attaching a deprecation marker
 | `--timestamp-url` | — | Optional RFC3161 timestamp-authority URL for keyless signing. |
 <!-- END GENERATED: cli-deprecate -->
 
+## Where the signing endpoints come from
+
+The keyless Fulcio and Rekor URLs and the keyed key path can also come from the `.aggrega-config.yaml` `signing:` block (global and per-registry, where a value set for the artifact's registry takes precedence over the global one, field by field); a flag overrides the config, and the config overrides the public-good default. So the public-good instances named in the flag table are used only where neither a flag nor your workspace configuration names an endpoint. The marker is signed exactly as [`aggrega sign`](aggrega-sign.md#signing-modes) signs an artifact.
+
 ## When the registry fails a write
 
 Deprecating an artifact writes to the registry twice: the marker, attached as a
