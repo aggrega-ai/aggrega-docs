@@ -72,7 +72,7 @@ It applies to this scope alone — the whole-catalog and single-entity scopes dr
 
 Note the flag next to it. `--response-format` sets how much of **this command's own report** is written (`detailed` or `concise`); `--ir-graph` asks for a **second document** beside that report. One is volume, the other is subject, and neither moves the verdict.
 
-Values an author declared sensitive are withheld from the graph, in the structured form described at [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). `--unredacted` beside `--ir-graph` prints them instead, on the terms `aggrega inspect --unredacted` states: it reaches the graph and nothing else this command writes, and whatever the output reaches then carries those values in the clear. Passed without `--ir-graph` it is refused, because there would be nothing for it to reveal.
+Values an author declared sensitive are withheld from the graph — a connection's `values` and `infra` included, where the consuming component's socket declares a leaf sensitive — in the structured form described at [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). `--unredacted` beside `--ir-graph` prints them instead, on the terms `aggrega inspect --unredacted` states: it reaches the graph and nothing else this command writes, and whatever the output reaches then carries those values in the clear. Passed without `--ir-graph` it is refused, because there would be nothing for it to reveal.
 
 ## Single-entity correctness (an entity path)
 

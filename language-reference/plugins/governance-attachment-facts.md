@@ -300,7 +300,10 @@ leaves they name, wherever they sit:
 - **a boundary-level attachment's `infra`**, under `boundary_features`, by its
   own marking;
 - **a node's own `values` and `infra`**, under `values_mapping` and
-  `infra_mapping`, by the node's own `sensitive_payload_leaves`.
+  `infra_mapping`, by the node's own `sensitive_payload_leaves`;
+- **a connection's own `values` and `infra`**, on the edge and in the consuming
+  node's `uses` entry, by the edge's `sensitive_payload_leaves`, which names the
+  leaves the consuming component's socket declares sensitive.
 
 What a policy reasons on is intact. The type, the resolved version, the
 labels, the catalog annotations, `binding`, `connection`, `realization`,

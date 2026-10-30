@@ -77,7 +77,8 @@ that should serve two roles is attached twice — once per role.
   edges, which the payload carries in full, rather than from the path list alone.
   One thing in the graph is not as written: every value an author declared
   sensitive — in an attachment's `values` or `infra`, in a boundary
-  attachment's `infra`, or in a node's own `values` or `infra` — arrives as the
+  attachment's `infra`, in a node's own `values` or `infra`, or in a
+  connection's own `values` or `infra` — arrives as the
   withheld marker `{"aggrega_withheld": "declared"}`, while its key, its
   sensitivity marking and every undeclared value beside it arrive as written. A
   policy judges where declared-sensitive material travels and never receives the
