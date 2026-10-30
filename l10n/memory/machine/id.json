@@ -36160,6 +36160,17 @@
     "status": "machine",
     "text": "**Pull.** `aggrega pull` me-resolve semua dependensi sebuah Release dan menulis lockfile per Release yang mengunci setiap entitas katalog dan artefak jarak jauh ke sebuah versi dan digest konten. `Plugin` yang telah diterbitkan di-resolve melalui resolusi dependensi ini; `.wasm`-nya diambil bersama manifest yang membawanya dan byte-nya diverifikasi terhadap digest konten yang dicatat lockfile. Pull juga menurunkan ulang fungsi host dari `.wasm` yang telah diverifikasi dan memeriksanya terhadap catatan `hostFunctions` yang telah dibubuhkan, lalu berhenti jika keduanya tidak sesuai — pemeriksaan pertahanan berlapis di atas penguncian digest yang menangkap biner yang cap-nya tidak dihasilkan dari impornya sendiri. Jika kebijakan kepercayaan registry mewajibkan tanda tangan, tanda tangan entitas diambil dan diverifikasi pada tahap ini dan dicatat sebagai fakta terverifikasi di lockfile (Bagian 8). Verifikasi terjadi saat pull, tidak pernah saat build — build tetap murni ahead-of-time."
   },
+  "3b1eb4220453d0d7": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "dbacefd68e896bfa",
+      "reviewed": false
+    },
+    "srcHash": "3b1eb4220453d0d7",
+    "status": "machine",
+    "text": "Sebuah Component konsumen dapat mendeklarasikan properti yang namanya cocok dengan properti yang ditarik dari entri pustaka. Jika hal ini terjadi, properti hasil kompilasi milik konsumen sepenuhnya menggantikan properti entri pustaka dalam bentuk gabungan."
+  },
   "3b1fc42835fb2547": {
     "at": "2026-10-23T08:19:00.586906+00:00",
     "job": "msgbatch_01FSCygBneA7ASnptBnc4B4p",
@@ -78810,6 +78821,17 @@
     "srcHash": "80aefb273d01b0d7",
     "status": "machine",
     "text": "Memublikasikan artefak data mandiri (seperti bundel dokumentasi) ke registry OCI"
+  },
+  "80b11f40cc3be90b": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "e868209da1bae198",
+      "reviewed": false
+    },
+    "srcHash": "80b11f40cc3be90b",
+    "status": "machine",
+    "text": "Dalam bentuk gabungan, `side_effects` mencerminkan kontrak konsumen yang lebih sempit (`enum: [read]`, dengan sebuah `default`); `enum: [read, write, delete]` yang lebih luas milik entri pustaka tidak ada lagi. Properti tersebut ditulis oleh konsumen."
   },
   "80b294785a58ef95": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -122359,6 +122381,13 @@
     "status": "machine",
     "text": "Entri `containers.<name>.attachments` dirender menjadi referensi ke resource Secret — `secretKeyRef` Kubernetes (untuk `as: env`) atau volume berbasis secret (untuk `as: file`) — yang keduanya menunjuk ke Secret **berdasarkan nama**. Synthesizer menentukan nama dan kunci data tersebut dari provides yang diekspos slot: `secretKeyRef.name` yang dirender untuk entri adalah `.features.<slot>.provides.name` milik slot, dan kunci datanya adalah `.features.<slot>.provides.key`. Penulis Recipe hanya menulis `from: <slot>` dan `as: env`; synthesizer membaca provides yang telah ditentukan — synthesizer tidak menurunkan ulang nama tersebut. Ini adalah pembacaan `.features.<slot>.provides.<key>` yang sama dengan yang digunakan Recipe sumber untuk `existingSecret`: satu slot kredensial memasok konsumen Recipe sumber dan konsumen Workload hasil sintesis secara identik (simetri sumber/workload)."
   },
+  "c77ccfcf1e294476": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "srcHash": "c77ccfcf1e294476",
+    "status": "machine",
+    "text": "Sebuah Component konsumen yang mereferensikan `DatabasePayload` menerima bentuk yang sepenuhnya diekspansi, dengan `credentials` diisi dari `BasicAuth` milik pustaka B. Nilai yang melanggar batasan yang disumbangkan oleh rantai tersebut ditolak pada path-nya sendiri di dokumen yang sedang diperiksa, dan penolakan itu tidak menyebutkan entri pustaka asal batasan tersebut; telusuri rantai `$ref:` dari konsumen untuk menemukannya."
+  },
   "c77ec0f8cbe25eab": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -131370,6 +131399,17 @@
     "srcHash": "d5ac0998a0d93942",
     "status": "machine",
     "text": "**Pengiriman menempuh jalur yang sama, dan artefak yang dirender tidak mencatat perbedaan.** Blok `inject` pada edge ad-hoc diselesaikan dan dikirimkan persis seperti pada soket yang dideklarasikan: setiap kunci `from:` dibaca dari `provides` target yang telah dievaluasi dan masuk ke konteks injeksi node konsumen di bawah kunci pengiriman yang dipilih penulis, lalu mencapai artefak yang dirender dari sana. Hanya ada satu jalur pengiriman dan tidak ada bagian darinya yang bercabang berdasarkan apakah soket dideklarasikan. Yang dapat ditambahkan soket yang dideklarasikan adalah *konten* — default per edge yang diisi oleh `valueSchema` atau `infraSchema` miliknya — sehingga apabila soket yang dideklarasikan tidak membawa kontrak semacam itu, edge yang sama dirender identik pada kedua jenis soket. Deklarasi merupakan fakta tentang koneksi, bukan masukan bagi apa yang dirender."
+  },
+  "d5ac86b1427d96c9": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "83e2041325760845",
+      "reviewed": false
+    },
+    "srcHash": "d5ac86b1427d96c9",
+    "status": "machine",
+    "text": "Referensi di-resolve pada waktu kompilasi. Expander menyisipkan konten yang direferensikan ke dalam skema konsumen; IR yang dirender membawa konten yang disisipkan, bukan indireksinya."
   },
   "d5b007966f4eb7a5": {
     "at": "2026-10-23T06:14:11.003127+00:00",

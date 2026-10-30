@@ -36160,6 +36160,17 @@
     "status": "machine",
     "text": "**Pull.** `aggrega pull` phân giải toàn bộ các phụ thuộc của một Release và ghi một lockfile riêng cho từng Release, ghim mọi thực thể catalog và artifact từ xa vào một phiên bản và digest nội dung. Một `Plugin` đã publish được phân giải thông qua quá trình phân giải phụ thuộc này; `.wasm` của nó được tải về cùng với manifest chứa nó và các byte được xác minh với digest nội dung mà lockfile ghi lại. Pull cũng suy ra lại các hàm host từ `.wasm` đã xác minh và đối chiếu chúng với bản ghi `hostFunctions` đã đóng dấu, dừng lại nếu hai bên không khớp — một bước kiểm tra phòng thủ nhiều lớp bên trên việc ghim digest, giúp phát hiện một tệp nhị phân có dấu không được tạo ra từ chính các import của nó. Nếu chính sách tin cậy của registry yêu cầu chữ ký, chữ ký của thực thể sẽ được tải về và xác minh ở giai đoạn này, rồi được ghi lại như một dữ kiện đã xác minh trong lockfile (Mục 8). Việc xác minh diễn ra khi pull, không bao giờ khi build — build vẫn thuần túy ahead-of-time."
   },
+  "3b1eb4220453d0d7": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "dbacefd68e896bfa",
+      "reviewed": false
+    },
+    "srcHash": "3b1eb4220453d0d7",
+    "status": "machine",
+    "text": "Một Component tiêu thụ có thể khai báo một thuộc tính có tên trùng với một thuộc tính được kéo vào từ một mục thư viện. Khi điều này xảy ra, thuộc tính đã biên dịch của bên tiêu thụ thay thế hoàn toàn thuộc tính của mục thư viện trong hình dạng đã hợp nhất."
+  },
   "3b1fc42835fb2547": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -78810,6 +78821,17 @@
     "srcHash": "80aefb273d01b0d7",
     "status": "machine",
     "text": "Xuất bản một artifact dữ liệu độc lập (chẳng hạn một gói tài liệu) lên một OCI registry"
+  },
+  "80b11f40cc3be90b": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "e868209da1bae198",
+      "reviewed": false
+    },
+    "srcHash": "80b11f40cc3be90b",
+    "status": "machine",
+    "text": "Trong hình dạng đã hợp nhất, `side_effects` phản ánh hợp đồng hẹp hơn của bên tiêu thụ (`enum: [read]`, kèm một `default`); `enum: [read, write, delete]` rộng hơn của mục thư viện không còn nữa. Thuộc tính này do bên tiêu thụ tạo ra."
   },
   "80b294785a58ef95": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -122359,6 +122381,13 @@
     "status": "machine",
     "text": "Một mục `containers.<name>.attachments` được kết xuất thành một tham chiếu đến tài nguyên Secret — một `secretKeyRef` của Kubernetes (với `as: env`) hoặc một volume dựa trên secret (với `as: file`) — cả hai đều trỏ đến Secret **theo tên**. Bộ tổng hợp phân giải tên đó và khóa dữ liệu từ các provides mà slot phơi bày: `secretKeyRef.name` được kết xuất của mục là `.features.<slot>.provides.name` của slot và khóa dữ liệu là `.features.<slot>.provides.key`. Tác giả Recipe chỉ viết `from: <slot>` và `as: env`; bộ tổng hợp đọc các provides đã được phân giải — nó không suy ra lại tên. Đây cũng chính là phép đọc `.features.<slot>.provides.<key>` mà một Recipe nguồn dùng cho một `existingSecret`: một slot thông tin xác thực duy nhất cung cấp cho cả bên tiêu thụ là Recipe nguồn lẫn bên tiêu thụ là Workload được tổng hợp theo cùng một cách (tính đối xứng nguồn/workload)."
   },
+  "c77ccfcf1e294476": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "srcHash": "c77ccfcf1e294476",
+    "status": "machine",
+    "text": "Một Component tiêu thụ tham chiếu đến `DatabasePayload` nhận được hình dạng đã mở rộng hoàn toàn, với `credentials` được điền từ `BasicAuth` của thư viện B. Một giá trị vi phạm ràng buộc mà chuỗi đóng góp sẽ bị từ chối tại chính đường dẫn của nó trong tài liệu đang được kiểm tra, và lời từ chối không nêu tên mục thư viện mà ràng buộc đó đến từ; hãy lần theo chuỗi `$ref:` từ bên tiêu thụ để tìm ra nó."
+  },
   "c77ec0f8cbe25eab": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -131370,6 +131399,17 @@
     "srcHash": "d5ac0998a0d93942",
     "status": "machine",
     "text": "**Việc phân phối đi cùng một đường, và artifact được render không ghi nhận khác biệt nào.** Khối `inject` của một cạnh ad-hoc được phân giải và phân phối đúng như của một socket được khai báo: mỗi khóa `from:` được đọc từ `provides` đã đánh giá của đích và đặt vào ngữ cảnh injection của node tiêu thụ dưới khóa phân phối mà tác giả chọn, từ đó tới artifact được render. Chỉ có một đường phân phối và không gì trên đó rẽ nhánh theo việc socket có được khai báo hay không. Điều một socket được khai báo có thể thêm vào là *nội dung* — các giá trị mặc định theo cạnh mà `valueSchema` hoặc `infraSchema` của nó điền vào — nên khi một socket được khai báo không mang hợp đồng như vậy, cùng một cạnh sẽ render giống hệt nhau dưới cả hai loại socket. Khai báo là một sự thật về kết nối, không phải một đầu vào cho những gì được render."
+  },
+  "d5ac86b1427d96c9": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "83e2041325760845",
+      "reviewed": false
+    },
+    "srcHash": "d5ac86b1427d96c9",
+    "status": "machine",
+    "text": "Tham chiếu được phân giải vào lúc biên dịch. Bộ mở rộng chèn trực tiếp nội dung được tham chiếu vào schema của bên sử dụng; IR được kết xuất mang nội dung đã chèn, không phải sự gián tiếp."
   },
   "d5b007966f4eb7a5": {
     "at": "2026-10-22T22:51:15.481474+00:00",

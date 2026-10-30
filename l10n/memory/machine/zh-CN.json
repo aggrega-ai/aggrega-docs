@@ -36167,6 +36167,17 @@
     "status": "machine",
     "text": "**拉取。** `aggrega pull` 解析一个 Release 的所有依赖，并写入一个按 Release 划分的锁文件，将每个目录实体和远程制品固定到某个版本和内容摘要。已发布的 `Plugin` 通过这一依赖解析进行解析；其 `.wasm` 随承载它的 manifest 一起获取，并根据锁文件记录的内容摘要验证字节。拉取还会从经过验证的 `.wasm` 重新推导宿主函数，并与已标记的 `hostFunctions` 记录核对，两者不一致时中止——这是在摘要固定之上的纵深防御检查，可以发现标记并非由其自身导入生成的二进制文件。如果注册表的信任策略要求签名，则在此阶段获取并验证实体的签名，并将其作为已验证的事实记录在锁文件中（第 8 节）。验证发生在拉取阶段，绝不在构建阶段——构建保持预先编译的纯粹性。"
   },
+  "3b1eb4220453d0d7": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "dbacefd68e896bfa",
+      "reviewed": false
+    },
+    "srcHash": "3b1eb4220453d0d7",
+    "status": "machine",
+    "text": "使用方 Component 可以声明一个属性，其名称与从库条目引入的某个属性相同。此时，在合并后的结构中，使用方编译后的属性会完全替换库条目的属性。"
+  },
   "3b1fc42835fb2547": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -78839,6 +78850,17 @@
     "srcHash": "80aefb273d01b0d7",
     "status": "machine",
     "text": "将独立的数据产物（如文档包）发布到 OCI 注册表"
+  },
+  "80b11f40cc3be90b": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "e868209da1bae198",
+      "reviewed": false
+    },
+    "srcHash": "80b11f40cc3be90b",
+    "status": "machine",
+    "text": "在合并后的结构中，`side_effects` 反映使用方更窄的契约（`enum: [read]`，并带有 `default`）；库条目中更宽的 `enum: [read, write, delete]` 不再存在。该属性由使用方编写。"
   },
   "80b294785a58ef95": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -122410,6 +122432,13 @@
     "status": "machine",
     "text": "`containers.<name>.attachments` 条目会渲染为对 Secret 资源的引用：Kubernetes `secretKeyRef`（用于 `as: env`）或基于 secret 的卷（用于 `as: file`），两者都**按名称**指向该 Secret。合成器根据槽位公开的 provides 解析该名称和数据键：条目渲染出的 `secretKeyRef.name` 是槽位的 `.features.<slot>.provides.name`，数据键是 `.features.<slot>.provides.key`。Recipe 作者只需编写 `from: <slot>` 和 `as: env`；合成器读取已解析的 provides，而不会重新推导名称。这与源 Recipe 为 `existingSecret` 读取的 `.features.<slot>.provides.<key>` 相同：同一个凭据槽位以完全相同的方式同时供给源 Recipe 使用方和合成 Workload 使用方（源/workload 对称）。"
   },
+  "c77ccfcf1e294476": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "srcHash": "c77ccfcf1e294476",
+    "status": "machine",
+    "text": "引用 `DatabasePayload` 的使用方 Component 会得到完全展开的结构，其中 `credentials` 由库 B 的 `BasicAuth` 填充。违反该链所贡献约束的值，会在被检查文档中该值自身的路径处被拒绝，且拒绝信息不会指明该约束来自哪个库条目；请从使用方沿 `$ref:` 链查找它。"
+  },
   "c77ec0f8cbe25eab": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -131421,6 +131450,17 @@
     "srcHash": "d5ac0998a0d93942",
     "status": "machine",
     "text": "**投递走的是同一路径，渲染产物不记录任何差异。** 临时边的 `inject` 块与已声明套接字的完全一样被解析和投递：每个 `from:` 键从目标求值后的 `provides` 中读取，并以作者选定的投递键落入消费方节点的注入上下文，再由此到达渲染产物。投递路径只有一条，其上没有任何分支取决于套接字是否已声明。已声明套接字能增加的是*内容*——其 `valueSchema` 或 `infraSchema` 填入的每边默认值——因此在已声明套接字不携带此类契约时，同一条边在两种套接字下的渲染结果完全相同。声明是关于连接的事实，而不是渲染内容的输入。"
+  },
+  "d5ac86b1427d96c9": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "83e2041325760845",
+      "reviewed": false
+    },
+    "srcHash": "d5ac86b1427d96c9",
+    "status": "machine",
+    "text": "引用在编译时解析。展开器将被引用的内容内联到使用方的 schema 中；渲染出的 IR 携带的是内联后的内容，而不是间接引用。"
   },
   "d5b007966f4eb7a5": {
     "at": "2026-10-22T03:18:41.939034+00:00",

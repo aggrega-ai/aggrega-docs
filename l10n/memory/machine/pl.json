@@ -36160,6 +36160,17 @@
     "status": "machine",
     "text": "**Pobranie.** `aggrega pull` rozwiązuje wszystkie zależności encji Release i zapisuje plik blokady dla każdej encji Release, przypinający każdą encję katalogu i każdy zdalny artefakt do wersji i skrótu treści. Opublikowana encja `Plugin` jest rozwiązywana w ramach tego rozwiązywania zależności; jej `.wasm` jest pobierany wraz z manifestem, który go zawiera, a bajty są weryfikowane względem skrótu treści zapisanego w pliku blokady. Pobranie ponownie wyprowadza też funkcje hosta ze zweryfikowanego `.wasm` i sprawdza je względem ostemplowanego zapisu `hostFunctions`, przerywając działanie, jeśli są niezgodne — to dodatkowa warstwa ochrony ponad przypięciem skrótu, wychwytująca plik binarny, którego stempel nie powstał z jego własnych importów. Jeśli polityka zaufania rejestru wymaga podpisów, podpis encji jest na tym etapie pobierany, weryfikowany i zapisywany w pliku blokady jako zweryfikowany fakt (sekcja 8). Weryfikacja odbywa się przy pobraniu, nigdy przy buildzie — build pozostaje czysto ahead-of-time."
   },
+  "3b1eb4220453d0d7": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "dbacefd68e896bfa",
+      "reviewed": false
+    },
+    "srcHash": "3b1eb4220453d0d7",
+    "status": "machine",
+    "text": "Konsumencka encja Component może zadeklarować właściwość, której nazwa pokrywa się z nazwą właściwości pobranej z wpisu biblioteki. W takim przypadku skompilowana właściwość konsumenta całkowicie zastępuje właściwość wpisu biblioteki w scalonym kształcie."
+  },
   "3b1fc42835fb2547": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -78810,6 +78821,17 @@
     "srcHash": "80aefb273d01b0d7",
     "status": "machine",
     "text": "Publikuje samodzielny artefakt danych (np. pakiet dokumentacji) w rejestrze OCI"
+  },
+  "80b11f40cc3be90b": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "e868209da1bae198",
+      "reviewed": false
+    },
+    "srcHash": "80b11f40cc3be90b",
+    "status": "machine",
+    "text": "W scalonym kształcie `side_effects` odzwierciedla węższy kontrakt konsumenta (`enum: [read]`, z wartością `default`); szersze `enum: [read, write, delete]` wpisu biblioteki znika. Właściwość jest autorstwa konsumenta."
   },
   "80b294785a58ef95": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -122359,6 +122381,13 @@
     "status": "machine",
     "text": "Wpis `containers.<name>.attachments` renderuje się jako odwołanie do zasobu Secret — `secretKeyRef` Kubernetes (dla `as: env`) lub wolumin oparty na sekrecie (dla `as: file`) — przy czym oba wskazują Secret **po nazwie**. Syntezator rozwiązuje tę nazwę i klucz danych z udostępnionych provides slotu: renderowane `secretKeyRef.name` wpisu to `.features.<slot>.provides.name` slotu, a klucz danych to `.features.<slot>.provides.key`. Autor encji Recipe pisze tylko `from: <slot>` i `as: env`; syntezator odczytuje rozwiązane provides — nie wyprowadza nazwy ponownie. To ten sam odczyt `.features.<slot>.provides.<key>`, którego źródłowa encja Recipe używa dla `existingSecret`: jeden slot poświadczeń zasila identycznie zarówno konsumenta w źródłowej encji Recipe, jak i konsumenta w syntetyzowanej encji Workload (symetria source/workload)."
   },
+  "c77ccfcf1e294476": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "srcHash": "c77ccfcf1e294476",
+    "status": "machine",
+    "text": "Konsumencka encja Component, która odwołuje się do `DatabasePayload`, otrzymuje w pełni rozwinięty kształt, w którym `credentials` jest wypełnione na podstawie wpisu `BasicAuth` z biblioteki B. Wartość naruszająca ograniczenie wniesione przez łańcuch jest odrzucana na jej własnej ścieżce w sprawdzanym dokumencie, a odrzucenie nie wskazuje wpisu biblioteki, z którego pochodzi ograniczenie; aby go znaleźć, należy prześledzić łańcuch `$ref:` od konsumenta."
+  },
   "c77ec0f8cbe25eab": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -131370,6 +131399,17 @@
     "srcHash": "d5ac0998a0d93942",
     "status": "machine",
     "text": "**Dostarczanie przebiega tą samą ścieżką, a wyrenderowany artefakt nie zapisuje żadnej różnicy.** Blok `inject` krawędzi ad hoc jest rozwiązywany i dostarczany dokładnie tak jak w zadeklarowanym gnieździe: każdy klucz `from:` jest odczytywany z ewaluowanego `provides` celu i trafia do kontekstu wstrzykiwania konsumującego węzła pod kluczem dostarczania wybranym przez autora, a stamtąd do wyrenderowanego artefaktu. Istnieje jedna ścieżka dostarczania i nic na niej nie rozgałęzia się zależnie od tego, czy gniazdo zadeklarowano. Zadeklarowane gniazdo może dodać *treść* — wartości domyślne krawędzi uzupełniane przez jego `valueSchema` lub `infraSchema` — więc tam, gdzie zadeklarowane gniazdo nie ma takiego kontraktu, ta sama krawędź renderuje się identycznie przy obu rodzajach gniazda. Deklaracja jest faktem dotyczącym połączenia, a nie danymi wejściowymi dla tego, co jest renderowane."
+  },
+  "d5ac86b1427d96c9": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "83e2041325760845",
+      "reviewed": false
+    },
+    "srcHash": "d5ac86b1427d96c9",
+    "status": "machine",
+    "text": "Referencja jest rozwiązywana w czasie kompilacji. Ekspander wstawia przywoływaną treść bezpośrednio do schematu konsumenta; wyrenderowane IR zawiera wstawioną treść, a nie pośrednie odwołanie."
   },
   "d5b007966f4eb7a5": {
     "at": "2026-10-22T22:51:15.481474+00:00",

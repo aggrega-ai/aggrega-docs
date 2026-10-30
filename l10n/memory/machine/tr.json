@@ -36160,6 +36160,17 @@
     "status": "machine",
     "text": "**Çekme.** `aggrega pull`, bir Release'in tüm bağımlılıklarını çözümler ve her katalog entity'sini ve uzak yapıtı bir sürüme ve içerik özetine sabitleyen, Release başına bir kilit dosyası yazar. Yayımlanmış bir `Plugin` bu bağımlılık çözümlemesi aracılığıyla çözümlenir; `.wasm` dosyası onu taşıyan manifest ile birlikte getirilir ve baytlar kilit dosyasının kaydettiği içerik özetine göre doğrulanır. Çekme ayrıca host fonksiyonlarını doğrulanmış `.wasm` dosyasından yeniden türetir ve bunları damgalanmış `hostFunctions` kaydıyla karşılaştırır; ikisi uyuşmazsa durur — bu, özet sabitlemesinin üzerinde, damgası kendi içe aktarımlarından üretilmemiş bir ikili dosyayı yakalayan derinlemesine savunma denetimidir. Kayıt defterinin güven ilkesi imza gerektiriyorsa, entity'nin imzası bu aşamada getirilir, doğrulanır ve kilit dosyasına doğrulanmış bir olgu olarak kaydedilir (Bölüm 8). Doğrulama derlemede değil, her zaman çekmede gerçekleşir — derleme önceden derleme (ahead-of-time) açısından saf kalır."
   },
+  "3b1eb4220453d0d7": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "dbacefd68e896bfa",
+      "reviewed": false
+    },
+    "srcHash": "3b1eb4220453d0d7",
+    "status": "machine",
+    "text": "Tüketici bir Component, adı bir kütüphane girdisinden alınan bir özelliğin adıyla eşleşen bir özellik bildirebilir. Bu durumda, birleştirilmiş şekilde tüketicinin derlenmiş özelliği kütüphane girdisininkinin tamamen yerini alır."
+  },
   "3b1fc42835fb2547": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -78810,6 +78821,17 @@
     "srcHash": "80aefb273d01b0d7",
     "status": "machine",
     "text": "Bağımsız bir veri yapıtını (örneğin bir belge paketini) bir OCI kayıt defterine yayımlar"
+  },
+  "80b11f40cc3be90b": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "e868209da1bae198",
+      "reviewed": false
+    },
+    "srcHash": "80b11f40cc3be90b",
+    "status": "machine",
+    "text": "Birleştirilmiş şekilde `side_effects`, tüketicinin daha dar sözleşmesini (`enum: [read]`, bir `default` ile birlikte) yansıtır; kütüphane girdisinin daha geniş `enum: [read, write, delete]` tanımı ortadan kalkar. Özellik tüketici tarafından yazılmıştır."
   },
   "80b294785a58ef95": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -122359,6 +122381,13 @@
     "status": "machine",
     "text": "Bir `containers.<name>.attachments` girişi, bir Secret kaynağına yapılan bir başvuruya işlenir: bir Kubernetes `secretKeyRef` (`as: env` için) ya da secret destekli bir birim (`as: file` için); her ikisi de Secret'a **adıyla** işaret eder. Sentezleyici bu adı ve veri anahtarını yuvanın sunduğu provides değerlerinden çözümler: girişin işlenen `secretKeyRef.name` değeri yuvanın `.features.<slot>.provides.name` değeridir ve veri anahtarı `.features.<slot>.provides.key` değeridir. Recipe yazarı yalnızca `from: <slot>` ve `as: env` yazar; sentezleyici çözümlenmiş provides değerlerini okur, adı yeniden türetmez. Bu, bir kaynak Recipe'in bir `existingSecret` için kullandığı aynı `.features.<slot>.provides.<key>` okumasıdır: tek bir kimlik bilgisi yuvası hem bir kaynak Recipe tüketicisini hem de sentezlenmiş bir Workload tüketicisini aynı biçimde besler (kaynak/workload simetrisi)."
   },
+  "c77ccfcf1e294476": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "srcHash": "c77ccfcf1e294476",
+    "status": "machine",
+    "text": "`DatabasePayload`'a başvuran tüketici bir Component, `credentials` alanı B kütüphanesinin `BasicAuth` girdisinden doldurulmuş, tamamen genişletilmiş şekli alır. Zincirin katkıda bulunduğu bir kısıtlamayı ihlal eden bir değer, denetlenen belgede kendi yolunda reddedilir ve ret, kısıtlamanın geldiği kütüphane girdisini adlandırmaz; onu bulmak için tüketiciden başlayarak `$ref:` zincirini izleyin."
+  },
   "c77ec0f8cbe25eab": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -131370,6 +131399,17 @@
     "srcHash": "d5ac0998a0d93942",
     "status": "machine",
     "text": "**İletim aynı yoldan yapılır ve işlenen yapıt hiçbir fark kaydetmez.** Ad-hoc bir kenarın `inject` bloğu, bildirilmiş bir soketinki gibi çözümlenir ve iletilir: her `from:` anahtarı hedefin değerlendirilmiş `provides` alanından okunur ve tüketen düğümün enjeksiyon bağlamına yazarın seçtiği iletim anahtarı altında yerleşir, oradan da işlenen yapıta ulaşır. Tek bir iletim yolu vardır ve bu yol üzerindeki hiçbir şey soketin bildirilip bildirilmediğine göre dallanmaz. Bildirilmiş bir soketin ekleyebileceği şey *içeriktir*, yani `valueSchema` ya da `infraSchema` alanının doldurduğu kenar başına varsayılanlar; bu nedenle bildirilmiş bir soketin böyle bir sözleşme taşımadığı durumda aynı kenar her iki tür sokette de aynı şekilde işlenir. Bildirim, bağlantı hakkında bir olgudur; işlenen şeye bir girdi değildir."
+  },
+  "d5ac86b1427d96c9": {
+    "at": "2026-10-30T18:46:59.998Z",
+    "job": "session-0006-20261030184659",
+    "revision": {
+      "from": "83e2041325760845",
+      "reviewed": false
+    },
+    "srcHash": "d5ac86b1427d96c9",
+    "status": "machine",
+    "text": "Başvuru derleme zamanında çözümlenir. Genişletici, başvurulan içeriği tüketicinin şemasına satır içi yerleştirir; işlenen IR dolaylamayı değil, satır içi yerleştirilmiş içeriği taşır."
   },
   "d5b007966f4eb7a5": {
     "at": "2026-10-22T22:51:15.481474+00:00",
