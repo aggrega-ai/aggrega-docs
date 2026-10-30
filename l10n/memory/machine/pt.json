@@ -5115,6 +5115,17 @@
     "status": "machine",
     "text": "`lint` indica o `location.file` de cada constatação de forma relativa à raiz, ou retém-no quando a entidade fica fora do espaço de trabalho. A `message` e a `suggest` de uma constatação seguem a regra do texto."
   },
+  "194f136b2845d58b": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "41903f64f71adecf",
+      "reviewed": false
+    },
+    "srcHash": "194f136b2845d58b",
+    "status": "machine",
+    "text": "A saída intermédia flui para o montador por (caminho, fornecedor) da fronteira, no caminho avaliado da FR, sob a própria `spec.capability` da FR — é este o mecanismo que a Feature `core/compose-bridge` usa para fundir um serviço de ponte a par dos contribuidores compose por componente no mesmo caminho de montagem. Essa saída só é escrita como parte do ficheiro aí montado a partir dos componentes da fronteira, pelo que, quando nenhum deles chega a esse caminho — por exemplo, por cada componente ser enviado para outro lado pelo seu `subDirectory:` —, a compilação é interrompida indicando a fronteira, a Feature, o caminho para onde a sua saída foi encaminhada e o fornecedor, em vez de escrever a saída em lado nenhum (consulte «A boundary-level Feature's output reaches no assembled file (A saída de uma Feature ao nível da fronteira não chega a nenhum ficheiro montado)» em [fatal-halts.md](../errors/fatal-halts.md))."
+  },
   "19511961e0f297dd": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -7180,6 +7191,17 @@
     "status": "machine",
     "text": "Combinada com"
   },
+  "23301f87a80bb649": {
+    "at": "2026-10-30T20:43:14.394Z",
+    "job": "session-0018-20261030204314",
+    "revision": {
+      "from": "29b42aca3546b929",
+      "reviewed": false
+    },
+    "srcHash": "23301f87a80bb649",
+    "status": "machine",
+    "text": "**`pipeline`:** um array sequencial de passos de plugins WebAssembly (Wasm) para a mutação de Workload pós-renderização (por exemplo, injetar um sidecar Envoy através de JSONPatch ou montar um volume secreto). O campo `plugin` de cada passo indica uma entidade `Plugin` pelo seu URI, sempre com o âmbito do tipo de socket do próprio plugin (`<pluginType>/<name>`, opcionalmente com versão, como em `parser/yaml` ou `parser/yaml:1.0.0`); o build resolve a entidade no seu artefacto `.wasm` endereçado por conteúdo, localizado a partir da identidade do plugin e do registo configurado, e um `.wasm` simples ou uma referência de artefacto não são aceites aqui. Consulte o [guia do programador de plugins Wasm](../plugins/plugin-developer-guide.md) para criar e referenciar um plugin, e [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md) §«Domínio 3: base de infraestrutura» para o princípio do Plugin em duas partes (Fetcher / Injector). O compilador executa cada passo pela ordem declarada: despacha a exportação guest do plugin indicado contra a saída renderizada e aplica os JSON Patches devolvidos e os efeitos secundários emitidos; consulte [Estado da linguagem](../10-status.md#compilation-pipeline-phases) para o estado de execução de cada superfície do pipeline. Um `pipeline:` é autónomo: uma FeatureRecipe pode declarar um e nenhum tipo de entrada, caso em que não emite recursos próprios e todo o seu efeito é aquilo que os seus passos aplicam como patch aos documentos que o build já renderizou, ou emitem ao lado deles."
+  },
   "233966747e94e46e": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -7557,6 +7579,17 @@
     "srcHash": "24f386c361f1e3d8",
     "status": "machine",
     "text": "Gerar uma Recipe diretamente para um ficheiro:"
+  },
+  "2517cf800cae240e": {
+    "at": "2026-10-30T20:55:02.570Z",
+    "job": "session-0019-20261030205502",
+    "revision": {
+      "from": "039d29ba8876c666",
+      "reviewed": false
+    },
+    "srcHash": "2517cf800cae240e",
+    "status": "machine",
+    "text": "O campo `injectMapping` é **exclusivo das FeatureRecipes** — está intencionalmente ausente do esquema base de `Recipe`. Esta exclusividade isola a interceção de variáveis de `valuesMapping`: o `valuesMapping` da Recipe base consome, sem o saber, as strings `.context.inject` reescritas geradas pelos blocos `injectMapping` da FeatureRecipe, pelo que os dois permanecem desacoplados. Consulte a secção sobre a interceção de inject-mapping abaixo para saber como o mecanismo funciona, e [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md) sobre o inject mapping para a semântica completa da interceção pré-renderização."
   },
   "251b9810dfef3a6d": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -8999,6 +9032,17 @@
     "status": "machine",
     "text": "**Um valor predefinido nunca substitui um valor que algum âmbito forneceu.** Quando uma Feature é anexada em mais do que um âmbito — uma fronteira da Release e um dos seus componentes, por exemplo — o valor do âmbito mais estreito mantém-se e o valor predefinido preenche apenas o que nenhum âmbito escreveu."
   },
+  "2cb69e5be79eb202": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "revision": {
+      "from": "34e66257af263969",
+      "reviewed": false
+    },
+    "srcHash": "2cb69e5be79eb202",
+    "status": "machine",
+    "text": "**Âmbito.** A chave aplica-se a uma FeatureRecipe que renderiza uma vez por componente — `executionScope: component`, a predefinição. Uma FeatureRecipe que declara `executionScope: boundary` renderiza onde sempre renderiza, defina ou não a chave, e os templates que produzem os seus recursos leem `.boundary` em vez de `.context`."
+  },
   "2cc8638fa3d78a0f": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -9068,6 +9112,13 @@
     "srcHash": "2d7e1106659e9610",
     "status": "machine",
     "text": "Para instalar primeiro o binário `aggrega`, siga [Instalar o binário](../authoring/setup.md#install-the-binary); para que um assistente de IA o instale e configure, cole o prompt de [Usar o Aggrega a partir do assistente de IA](../authoring/ai-assistant.md)."
+  },
+  "2d7e1ba72430aae4": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "srcHash": "2d7e1ba72430aae4",
+    "status": "machine",
+    "text": "**O seu `provides:` calcula a tabela do bridge, uma única vez.** De `.boundary.internal_uses_edges` mantém as arestas cujos dois extremos são montados no seu próprio ficheiro compose — `source_assembly_path` e `target_assembly_path` ambos iguais a `.boundary.assembly_path` — e estão em redes diferentes desse ficheiro, sendo a rede de um extremo o seu `aggrega.ai/namespace`, ou, na falta deste, o seu caminho de montagem. Uma aresta entre dois ficheiros compose não é ligada por bridge, e o seu consumidor mantém o nome próprio do destino. Cada aresta ligada por bridge recebe uma porta de escuta — a porta própria do destino ou, onde uma aresta anterior já escuta nela, a primeira porta livre igual ou superior ao `portBase` do anexo (predefinição `10000`) — e um upstream, o host publicado do destino (o campo `provides` que o `providesField` do anexo nomeia, predefinição `host`) e a sua `port`; o upstream é derivado da aresta, nunca escrito à mão. A partir da mesma tabela, calcula a reescrita de cada consumidor: uma variável que a aresta entrega a partir do campo host passa a ser `aggrega-gw:<listen port>`, ou `aggrega-gw` onde a mesma aresta também entrega uma variável a partir de `port`, que passa então a ser a porta de escuta."
   },
   "2d861ee7e533a9d9": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -10182,6 +10233,13 @@
     "status": "machine",
     "text": "Operador de plataforma"
   },
+  "336618485d07de5c": {
+    "at": "2026-10-30T20:43:14.394Z",
+    "job": "session-0018-20261030204314",
+    "srcHash": "336618485d07de5c",
+    "status": "machine",
+    "text": "**`injectMapping` (interceção pré-renderização):** um bloco de template Go nativo executado *antes* de a Recipe base ser renderizada. Produz um dicionário JSON ou YAML que o compilador funde nativamente em profundidade sobre o pipe de memória `.context.inject` do chamador, permitindo a mutação do lado do chamador, sem Wasm, de variáveis de ambiente e cadeias de ligação."
+  },
   "33687e54e1b35e81": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -10965,6 +11023,17 @@
     "srcHash": "378cdb2f07b5915c",
     "status": "machine",
     "text": "`retracted` é o nível de retirada, e também atua mais cedo. Uma versão registada como retirada é **excluída da consideração** quando `aggrega pull` escolhe uma versão para uma referência que não nomeou nenhuma. Se outra versão publicada satisfizer a referência, essa versão é usada e o pull indica-o, nomeando a versão que ignorou, o motivo registado contra ela e a versão que usou em seu lugar. Se não restar nenhuma versão publicada que satisfaça a referência, o pull para e indica que todos os candidatos foram retirados — não reporta a entidade como em falta e nunca recorre a uma alternativa em silêncio."
+  },
+  "37b730cf6706599b": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "d3b42dfce10970e0",
+      "reviewed": false
+    },
+    "srcHash": "37b730cf6706599b",
+    "status": "machine",
+    "text": "**`component` (predefinição).** A geração de recursos da FeatureRecipe é executada uma vez por instância de componente anexada. Cada invocação recebe um contexto de template por componente com raiz em `.context.*`: `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.annotations`, etc. Os seus `valuesMapping:`, `workload:` e `artifacts:` também leem [`.context.used_by`](../templates/template-context-contract.md#the-components-that-use-this-one--contextused_by), os componentes cujas entradas `uses` apontam para o anfitrião — cada um com a sua identidade, o seu socket, o que publica e o namespace e a fronteira em que está colocado — que nenhum template que o próprio anfitrião renderiza consegue ver."
   },
   "37bcb9ca73e28c29": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -21714,6 +21783,17 @@
     "status": "machine",
     "text": "Entregar uma credencial que uma ligação contém"
   },
+  "6f6b6609e1012e84": {
+    "at": "2026-10-30T20:55:02.570Z",
+    "job": "session-0019-20261030205502",
+    "revision": {
+      "from": "0e0f924c96b9c31d",
+      "reviewed": false
+    },
+    "srcHash": "6f6b6609e1012e84",
+    "status": "machine",
+    "text": "O campo `injectMapping` é um `text/template` Go que o renderizador avalia no inject mapping, antes da execução da renderização da Recipe base. O template produz um dicionário JSON ou YAML com chaves de mecanismo opcionais (`env`, `file`, `arg`) — ou um mapa plano que assume `env` por predefinição — e o renderizador funde em profundidade esta sobreposição sobre o canal `.context.inject` do nó chamador. O encaminhamento do lado do chamador através de `injectMapping` é executado no inject mapping sem invocar uma sandbox Wasm para manipulações simples de strings; os plugins Wasm ficam reservados para alterações estruturais da AST através do array `pipeline`."
+  },
   "6f6b9f8cb7a2c149": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -22523,6 +22603,13 @@
     "status": "machine",
     "text": "**A metade dos alvos é completa.** O conjunto é decidido avaliando a restrição declarada do socket em relação às etiquetas declaradas de um candidato, a mesma avaliação que uma compilação efetua, pelo que o que oferece é o que a mesma restrição admite durante uma compilação. Um socket que não declara nenhuma restrição deixa os seus alvos sem restrição e reporta cada Component — é esse o significado da linguagem de restrições para um seletor vazio, não um erro."
   },
+  "73562fb106e915d4": {
+    "at": "2026-10-30T20:32:14.370Z",
+    "job": "session-0017-20261030203214",
+    "srcHash": "73562fb106e915d4",
+    "status": "machine",
+    "text": "**Modos de erro.** Uma cadeia `extends:` cíclica, e um pai que nenhuma entidade do catálogo fornece, interrompem a compilação, indicando a Feature a partir da qual a resolução começou, a Feature cuja linha `extends:` deve ser aberta e a referência que esta declara. As mensagens encontram-se em [Cyclic extends on Components or Features (extends cíclico em Components ou Features)](../errors/fatal-halts.md#cyclic-extends-on-components-or-features) e [An `extends:` chain cannot be assembled (Não é possível montar uma cadeia)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
+  },
   "73622fb14fc08d4c": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -22968,6 +23055,17 @@
     "status": "machine",
     "text": "A maioria dos clientes compatíveis com MCP lança o servidor da mesma forma — executam o comando `aggrega` com um único argumento `mcp` e falam o protocolo através da entrada e da saída padrão do processo. O que difere entre eles é *onde* cada um guarda a sua lista de servidores e como chama às entradas dessa lista. A forma comum:"
   },
+  "75a99e661ab9fd5b": {
+    "at": "2026-10-30T20:55:02.570Z",
+    "job": "session-0019-20261030205502",
+    "revision": {
+      "from": "13b35306666d3042",
+      "reviewed": false
+    },
+    "srcHash": "75a99e661ab9fd5b",
+    "status": "machine",
+    "text": "`spec.capability` é obrigatório e indica o fornecedor cujo plugin de renderização Wasm renderiza a saída da FeatureRecipe (`helm`, `helm-chart`, `compose`, etc.), nos mesmos termos do `spec.capability` de uma Recipe (consulte [`entities/recipe.md`](recipe.md)): uma fixação de versão seleciona que versão desse plugin a renderiza, e não faz parte do nome da FeatureRecipe — um Manifest mapeia uma FeatureRecipe que declara `capability: \"compose:1.2.3\"` como `compose/<name>:<version>`, e um valor de mapeamento que escreva a fixação no nome é recusado como referência de receita malformada (`E0095`) antes de qualquer pesquisa. O campo `implements` associa a FeatureRecipe à sua interface de Feature e suporta correspondência exata, por intervalo compatível com a versão major ou sem versão — consulte [vocabulary/inheritance-and-interface](../vocabulary/inheritance-and-interface.md) para a semântica de correspondência de versões de `implements`."
+  },
   "75b47a9c19b03571": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -23150,6 +23248,17 @@
     "srcHash": "7696d8b6ef8a7b2d",
     "status": "machine",
     "text": "`02-provides-evaluation.yaml` — as saídas `provides:` resolvidas depois da avaliação de provides."
+  },
+  "76a016e579497700": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "34e8f45acf6e923e",
+      "reviewed": false
+    },
+    "srcHash": "76a016e579497700",
+    "status": "machine",
+    "text": "O pilar `.infra` numa FR com âmbito de fronteira resolve-se para o bloco `infra:` da **funcionalidade anexada à fronteira** (o dimensionamento físico criado do lado da Release para essa anexação de fronteira). `.values` está **sempre vazio** nas FRs com âmbito de fronteira: a regra de separação de pilares do esquema da Release proíbe `values:` nas anexações de Feature ao nível da Release, pelo que uma funcionalidade anexada a uma fronteira não transporta valores para projetar. As FRs com âmbito de fronteira que precisem de dados com forma de parâmetros devem consumi-los através de `.infra` (a superfície de criação do operador para a configuração de funcionalidades de fronteira) ou através de `.boundary.annotations` (valores string resolúveis por cascata, criados na fronteira ou em qualquer antecessor); `.parameters` não faz parte da vista, e um template que o leia é interrompido indicando as raízes que a vista define. `.locals` continua a ser o próprio bloco locals da FR. `.steps` e `.metadata` mantêm-se inalterados."
   },
   "76ae2a589fcfd82b": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -23533,6 +23642,13 @@
     "srcHash": "7897406b5e5a2297",
     "status": "machine",
     "text": "5. Relação com ferramentas adjacentes"
+  },
+  "78c0a0b2c454bfbd": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "srcHash": "78c0a0b2c454bfbd",
+    "status": "machine",
+    "text": "`.boundary.path` — o caminho da fronteira da Release a que a funcionalidade está anexada: os nomes das fronteiras da mais exterior para o interior, unidos com `/` (`bridge`, `bridge/frontend`). Indica a fronteira, não o diretório em que a sua saída é escrita, que é definido por `directory:` (substitui `.context.instance_id`)."
   },
   "78c3a611948c5bdb": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -24790,6 +24906,13 @@
     "srcHash": "8025be0277fdad42",
     "status": "machine",
     "text": "Um pedido é respondido com um objeto JSON e um código de estado — ou, quando a chamada reportou progresso a caminho desse objeto, com um fluxo de eventos que termina nele, como estabelece [Ser informado do andamento de uma chamada longa](#being-told-how-a-long-call-is-going). Uma notificação — uma mensagem sem id — é respondida com `202` e um corpo vazio. Uma mensagem que não seja nenhuma das duas, incluindo uma resposta JSON-RPC, é respondida com `400`, porque um cliente envia a este servidor pedidos e notificações e nada mais."
+  },
+  "80448b33438930d2": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "srcHash": "80448b33438930d2",
+    "status": "machine",
+    "text": "**Um efeito por consumidor é uma tabela em `provides:` lida pelo `injectMapping`.** Uma FeatureRecipe com âmbito de fronteira que tenha de alterar algo para cada consumidor calcula uma única vez, no seu `provides:`, uma tabela indexada por consumidor a partir das ligações da fronteira, e o seu `injectMapping` lê as linhas do componente atual — `(index .features .attachment_name).provides`, indexadas por `.context.instance_id` — e entrega-as através do próprio canal do consumidor, segundo a regra que todos os mappings seguem (consulte [O que um mapping pode reescrever](#inject-mapping-interception-how-injectmapping-works)). O compilador encaminha a tabela que a FeatureRecipe escreveu e não lê nada nela."
   },
   "804563b53d818dde": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -27317,6 +27440,17 @@
     "status": "machine",
     "text": "**`resources`** declara os `requests` e `limits` do contentor — as quantidades de `cpu` e `memory` e, opcionalmente, chaves de recursos estendidos para GPUs e outros dispositivos (consulte [Cargas de trabalho de GPU e de dispositivos](#gpu-and-device-workloads) abaixo)."
   },
+  "8d97c2f343ce6c8c": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "398133821df1c0a4",
+      "reviewed": false
+    },
+    "srcHash": "8d97c2f343ce6c8c",
+    "status": "machine",
+    "text": "As FRs com âmbito de fronteira só podem referenciar campos disponíveis na vista com âmbito de fronteira, em todos os templates exceto o `injectMapping`. Criar um template desse tipo que referencie um campo exclusivo do âmbito de componente (p. ex., `.context.instance_id`, `.context.inject`, `.context.uses`) quando `executionScope: boundary` faz com que a FeatureRecipe falhe a validação no momento da análise sintática, com um erro que indica a FR, o campo infrator e os campos que a vista com âmbito de fronteira define. A regra espelho aplica-se no sentido inverso: uma FR com âmbito de componente que referencie campos `.boundary.*` falha no mesmo validador. O `injectMapping` é verificado contra o contexto do componente em que é executado, em qualquer dos âmbitos, pelo que pode ler `.context.*`, e uma referência a `.boundary` nele é interrompida indicando a referência e as raízes que esse contexto define."
+  },
   "8da2f1f2381a93f0": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -27411,6 +27545,13 @@
     "srcHash": "8e2178a0aa4997a2",
     "status": "machine",
     "text": "2. Pipelines de Plugin de FeatureRecipe"
+  },
+  "8e260fa1eb44c82c": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "srcHash": "8e260fa1eb44c82c",
+    "status": "machine",
+    "text": "`.boundary.assembly_path` — o diretório, relativo ao diretório de saída da compilação, em que a saída própria da anexação é montada: os `directory:` e `subDirectory:` avaliados da fronteira, ou seja, o diretório para onde a compilação encaminha essa saída (`bridge/compose`). É igual ao `source_assembly_path` ou ao `target_assembly_path` de uma extremidade de ligação exatamente quando essa extremidade é renderizada no mesmo ficheiro montado, pelo que uma FeatureRecipe os compara para distinguir uma ligação dentro do seu próprio ficheiro de uma ligação noutro ficheiro."
   },
   "8e2d3a4ffba1aeed": {
     "at": "2026-10-22T23:08:42.660Z",
@@ -27842,6 +27983,17 @@
     "srcHash": "9058b48b9385dff8",
     "status": "machine",
     "text": "**Fluxo 5: Anotações em cascata (metadados contextuais):** Os dados contextuais amplos (como domínios operacionais, namespaces ou códigos de faturação) são tratados através de anotações em cascata, evitando a poluição pela difusão de `infra`. Estas são segregadas em buckets com base na sua origem, e o uso previsto de cada bucket abaixo é um **contrato social**: um template de Recipe pode ler os três, e o compilador não impõe a separação (ver [labels-and-annotations](../language-reference/vocabulary/labels-and-annotations.md)):"
+  },
+  "906fbf404e526b73": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "320c940e81103bc4",
+      "reviewed": false
+    },
+    "srcHash": "906fbf404e526b73",
+    "status": "machine",
+    "text": "Contexto de template com âmbito de fronteira"
   },
   "907ddb6077bcfaf1": {
     "at": "2026-10-23T00:02:45.677Z",
@@ -28767,6 +28919,17 @@
     "status": "machine",
     "text": "O executável para Windows é `aggrega-<version>-windows-amd64.exe` (as variantes debug e light que o acompanham na versão instalam-se da mesma forma). Mude-lhe o nome para `aggrega.exe`, mova-o para `%LOCALAPPDATA%\\Programs\\aggrega`, a pasta que o comando de instalação utiliza, e acrescente essa pasta ao `PATH` do utilizador: o Windows executa um ficheiro terminado em `.exe` sem ser preciso marcá-lo como executável, e encontra-o como o comando `aggrega` com esse nome. No PowerShell, por exemplo, com `<version>` substituído pela versão descarregada:"
   },
+  "9571222b92263627": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "revision": {
+      "from": "c22a031f137dc6d2",
+      "reviewed": false
+    },
+    "srcHash": "9571222b92263627",
+    "status": "machine",
+    "text": "O padrão compose-bridge"
+  },
   "957515f5f67d6207": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -28920,6 +29083,13 @@
     "srcHash": "960c38acf21a0834",
     "status": "machine",
     "text": "As FeatureRecipes associam-se a uma interface de Feature através de `implements` e declaram um fornecedor concreto. A sua superfície de criação é o conjunto completo de tipos de entrada da Recipe base, mais dois blocos específicos da FeatureRecipe:"
+  },
+  "9613f4f417d34292": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "srcHash": "9613f4f417d34292",
+    "status": "machine",
+    "text": "A FeatureRecipe compose-bridge é o padrão canónico de FR com âmbito boundary, e é conteúdo de catálogo escrito com os mecanismos acima: nem o compilador nem o provider compose contêm qualquer lógica do bridge, pelo que um catálogo pode concretizar a Feature `core/compose-bridge` de outra forma. Uma feature `core/compose-bridge` é anexada a um boundary pai que contém dois sub-boundaries (por exemplo, `services-net` e `data-net`) com `directory:` partilhado, cada um com a sua própria anotação `aggrega.ai/namespace` (`aggrega.ai/namespace: services-net`, `aggrega.ai/namespace: data-net`) para que cada um fique numa rede própria; sem as anotações, ambos partilham a única rede nomeada a partir do caminho do seu ficheiro compose e alcançam-se mutuamente sem bridge. O seu `executionScope: boundary` executa a FR uma vez por anexo ao boundary pai."
   },
   "9631d4c229592323": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -30136,6 +30306,17 @@
     "status": "machine",
     "text": "Diretório da cache de conteúdo em disco, escrito em relação à raiz do espaço de trabalho para que nomeie o mesmo diretório seja de onde for que o comando corre. Um valor absoluto é recusado, tal como um que nomeie a própria raiz do espaço de trabalho — dê à cache o seu próprio subdiretório."
   },
+  "9bcd31a1b15d6c1d": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "3762ff4de24c4beb",
+      "reviewed": false
+    },
+    "srcHash": "9bcd31a1b15d6c1d",
+    "status": "machine",
+    "text": "`.boundary.internal_uses_edges` — arestas `uses:` em que ambas as extremidades estão dentro da subárvore desta fronteira (o padrão compose-bridge enumera-as, mantendo as arestas cujas duas extremidades são montadas no seu próprio ficheiro compose e colocadas em redes diferentes desse ficheiro, para derivar a sua configuração de proxy por aresta). Cada aresta transporta os provides resolvidos das suas extremidades, as variáveis de ambiente injetadas e a colocação de cada extremidade: `source_namespace` e `target_namespace`, a anotação `aggrega.ai/namespace` que se aplica a essa extremidade — a definição da sua própria entrada da Release, quando a tem, ou caso contrário a da sua fronteira; `source_boundary_path` e `target_boundary_path`, o caminho da fronteira da Release que a contém; e `source_assembly_path` e `target_assembly_path`, o diretório sob o diretório de saída da compilação em que o seu fornecedor a monta, composto a partir dos `directory:` e `subDirectory:` avaliados da sua fronteira (`bridge/compose`). Duas extremidades com o mesmo caminho de montagem são renderizadas num único ficheiro montado, e o fornecedor compose lê o caminho de montagem como a rede da extremidade quando não se aplica nenhum namespace."
+  },
   "9bd4a9ec1e7e5519": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -30163,6 +30344,13 @@
     "srcHash": "9c0279ec65f3c8a1",
     "status": "machine",
     "text": "Depois de todos os mapeamentos serem resolvidos, o compilador verifica que todas as instâncias de componente e de anexação (uma Feature de credencial é uma anexação como qualquer outra) no Aggregate do programador têm uma Recipe ou FeatureRecipe resolvida. As entidades não mapeadas provocam uma interrupção fatal com um diagnóstico explícito que lista todas as entidades em falta e sugere que chave `components.type` ou `features.type` acrescentar para colmatar a lacuna."
+  },
+  "9c03d155dd8da938": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "srcHash": "9c03d155dd8da938",
+    "status": "machine",
+    "text": "**O seu `injectMapping` entrega as linhas de cada consumidor.** Executado no contexto de cada consumidor, lê as linhas desse consumidor na tabela em `.features.<attachment>.provides` e entrega-as por cima dos valores que a própria ligação do consumidor entregou (por exemplo, `DB_HOST`), o que constitui uma interceção; um consumidor sem linha não recebe nada. Onde outra Feature anexada ao consumidor entregou essa chave — através do seu bloco `inject:` ou do seu `injectMapping` — o build é interrompido nomeando ambas as Features em vez de substituir essa entrega (ver «Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping (Duas Features anexadas entregam a mesma chave, a posterior através do injectMapping da sua FeatureRecipe)» em [fatal-halts.md](../errors/fatal-halts.md)). O `listen` do gateway e a reescrita do consumidor são lidos de **uma única** tabela, pelo que coincidem por aresta por construção, incluindo as colisões reatribuídas através de `portBase`."
   },
   "9c071efce68d0ac8": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -31149,6 +31337,17 @@
     "srcHash": "a13843314495ab6a",
     "status": "machine",
     "text": "O mapa num relance"
+  },
+  "a138743fc095202c": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "24750314a63f256c",
+      "reviewed": false
+    },
+    "srcHash": "a138743fc095202c",
+    "status": "machine",
+    "text": "As FRs com âmbito de fronteira produzem um conjunto de `provides:` por tuplo `(boundary_path, FR-instance)`, avaliado uma única vez. O template `provides:` da FR é avaliado com o contexto de template com âmbito de fronteira (pelo que pode referenciar `.boundary.components`, `.boundary.path`, `.infra`, mas não campos por consumidor nem `.values`). Os valores de provides são **constantes em relação aos consumidores** — todos os consumidores na subárvore da fronteira veem os mesmos valores fornecidos."
   },
   "a13989cba7b20e24": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -38276,6 +38475,17 @@
     "status": "machine",
     "text": "**Os campos de esquema** que transportam JSON Pointers RFC 6901 usam o sufixo **camelCase `*Path`**. Os campos fazem parte do esquema YAML voltado para o programador, pelo que seguem a convenção camelCase. Nenhum esquema de entidade declara um campo deste tipo; os caminhos de documentos que um autor escreve são as chaves de exportação `.locals` abaixo."
   },
+  "c44d8d57e0a3ee66": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "88a678ae02776055",
+      "reviewed": false
+    },
+    "srcHash": "c44d8d57e0a3ee66",
+    "status": "machine",
+    "text": "**`boundary`.** A geração de recursos é executada **uma vez por fronteira anexada**, independentemente de quantos componentes dentro da subárvore da fronteira consumam a funcionalidade. Cada invocação recebe um contexto de template com âmbito de fronteira com raiz em `.boundary.*` em vez de `.context.*`."
+  },
   "c456170c35594e70": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -38536,6 +38746,13 @@
     "status": "machine",
     "text": "Dentro do Nível 3, o mecanismo de helpers paramétricos `$templates:` é ele próprio opcional. As bibliotecas com estrutura repetida substancial (um template Probe parametrizado por porta + caminho; um template CORS parametrizado pelas origens permitidas; um template TLS parametrizado pelos caminhos do certificado + chave) beneficiam da reutilização de `$templates:`; as bibliotecas com entradas diversas e pontuais ignoram completamente o bloco de templates e escrevem cada entrada inline em `spec.schemas`."
   },
+  "c5f701a98db03452": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "srcHash": "c5f701a98db03452",
+    "status": "machine",
+    "text": "**O seu `valuesMapping` escreve o gateway.** O fragmento compose próprio da FeatureRecipe declara o serviço `aggrega-gw`. Onde algo é ligado por bridge, o seu `valuesMapping` acrescenta um bloco nginx `stream` `server` por aresta ligada por bridge (`listen <port>; set $uN <target-host>:<target-port>; proxy_pass $uN;`, sob uma diretiva `resolver` para que cada upstream seja resolvido no momento da ligação em vez de uma única vez no arranque; o `$` nessas variáveis escreve-se `$$` para que a interpolação `$` do Docker Compose deixe um `$` literal para o nginx), entregue como uma configuração compose montada — uma entrada `configs:` de nível superior com `content:` inline, referenciada a partir de `aggrega-gw` e montada em `/etc/nginx/nginx.conf` (para que o nginx a carregue sem um `command:` escrito pelo autor). `configs.content` inline requer Docker Compose ≥ 2.23.1. Nomeia também cada extremo ligado por bridge sob o [`x-aggrega-networks-of`](../providers/compose.md#joining-the-networks-of-other-components--x-aggrega-networks-of) do gateway, que o provider compose resolve nas redes em que esses extremos estão colocados, de modo que o gateway se junta a **todas as redes que as suas arestas ligadas por bridge abrangem** (a rede do consumidor e a do destino) — em tempo de execução, o consumidor pode alcançar `aggrega-gw:<port>` e o gateway pode fazer `proxy_pass` para o destino. Onde nada é ligado por bridge, o gateway que o fragmento declara continua a ser renderizado, inativo: nenhuma configuração, nenhuma rede adicional e nenhuma reescrita."
+  },
   "c610abf94b470a90": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -38772,6 +38989,13 @@
     "srcHash": "c71de7172d3b699e",
     "status": "machine",
     "text": "**Cada caminho de rascunho é verificado contra o diretório de saída antes de se escrever o que quer que seja.** Um caminho que sai dele é recusado indicando tanto o caminho como o diretório, e **nada é escrito** — nem sequer os ficheiros do mesmo conjunto cujos caminhos estavam corretos, porque uma importação recusada que deixasse parte de si para trás seria um resultado que ninguém pediu. Um caminho de rascunho vem do plugin importador e não do utilizador, e é por isso que é verificado pela mesma razão que um caminho enviado."
+  },
+  "c73938296e774fe6": {
+    "at": "2026-10-30T21:12:20.081Z",
+    "job": "session-0021-20261030211220",
+    "srcHash": "c73938296e774fe6",
+    "status": "machine",
+    "text": "O montador compose por (caminho, provider) junta o gateway aos contribuidores por componente no mesmo caminho avaliado: um único `docker-compose.yaml` que contém todos os componentes mais o gateway do bridge. Onde nenhum dos componentes do boundary é montado no ficheiro do gateway, o build é interrompido em vez de escrever o gateway em lado nenhum. O upstream é um ponteiro determinístico, fixado em tempo de compilação, para um serviço compose; o DNS de tempo de execução do compose resolve-o (nenhuma resolução de tempo de execução em tempo de compilação)."
   },
   "c7463ad944819835": {
     "at": "2026-10-22T23:08:42.660Z",
@@ -39721,6 +39945,17 @@
     "srcHash": "cbfb4119b01dd975",
     "status": "machine",
     "text": "**O que significa um espaço de trabalho vazio, e o que o modelo pode fazer a esse respeito** — o parágrafo que difere consoante o transporte, abaixo."
+  },
+  "cbfb4610429e2d46": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "1f5446900fd15b4e",
+      "reviewed": false
+    },
+    "srcHash": "cbfb4610429e2d46",
+    "status": "machine",
+    "text": "Quando `executionScope: boundary`, os templates da FeatureRecipe, à exceção do seu `injectMapping`, são avaliados contra uma vista `.boundary.*` da fronteira a que a funcionalidade está anexada. A vista expõe:"
   },
   "cc0771f6c358f597": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -44094,6 +44329,17 @@
     "status": "machine",
     "text": "Uma única família de anexações"
   },
+  "e3052b575b3fffe1": {
+    "at": "2026-10-30T20:32:14.370Z",
+    "job": "session-0017-20261030203214",
+    "revision": {
+      "from": "5caad6de86bf6bc4",
+      "reviewed": false
+    },
+    "srcHash": "e3052b575b3fffe1",
+    "status": "machine",
+    "text": "As empresas que criam catálogos internos podem criar um plugin de linter personalizado que inspeciona as definições de Feature em CI/CD e emite um aviso quando as etiquetas `appliesTo` de uma única Feature abrangem domínios de capacidade não relacionados."
+  },
   "e306fcf5df8ce04b": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -44454,6 +44700,17 @@
     "srcHash": "e4f0d63795ae6262",
     "status": "machine",
     "text": "**Uma única superfície de definições, acessível a partir de uma roda dentada** — o painel Commands tem uma roda dentada no canto superior direito, que abre as definições do próprio editor filtradas para esta extensão. Não existe uma segunda página de definições própria da extensão, pelo que uma preferência tem um único sítio onde reside e um único sítio onde é escrita. Cada preferência pertence ao utilizador e não ao projeto; consulte [Definições](#settings)."
+  },
+  "e4f9f49be02efffb": {
+    "at": "2026-10-30T20:55:02.570Z",
+    "job": "session-0019-20261030205502",
+    "revision": {
+      "from": "8a27e249a1194699",
+      "reviewed": false
+    },
+    "srcHash": "e4f9f49be02efffb",
+    "status": "machine",
+    "text": "**Uma FeatureRecipe com âmbito de fronteira lê, em vez disso, a fronteira.** Uma Feature cuja FeatureRecipe declara `executionScope: boundary` renderiza uma vez para a fronteira e não uma vez por componente, pelo que o seu template de origem não tem nenhum componente anfitrião para ler. Lê `.boundary.*` — os mesmos pilares que os seus `locals:` e `provides:` leem — e os pilares por componente (`.context`, `.workload`, `.attachment_name`, `.inject`) não estão disponíveis para ele."
   },
   "e4fe692a310e2ba2": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -45019,6 +45276,17 @@
     "srcHash": "e8439b54ee1a97e7",
     "status": "machine",
     "text": "O bloco `uses` declara dependências entre componentes como topologia pura: o Component A depende do contrato público `provides` do Component B, não do endereço físico nem dos detalhes de ligação do Component B. A topologia vive em `uses`; a configuração vive em `values`. A separação permite ao compilador ver explicitamente todas as arestas entre componentes, sem as inferir do conteúdo de `values`."
+  },
+  "e84ee946a215e4e4": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "revision": {
+      "from": "d06aefcd2d478ad6",
+      "reviewed": false
+    },
+    "srcHash": "e84ee946a215e4e4",
+    "status": "machine",
+    "text": "**A resolução, do lado do consumidor, dos provides de uma FR com âmbito de fronteira** lê essa única avaliação em todo o lado. Cada componente que a anexação alcança lê-a em `.features.<instance-name>.provides.<key>` — nos templates da sua própria Recipe e no próprio `injectMapping` da FeatureRecipe, que é executado no contexto desse componente. Um Component consumidor que leia através de uma aresta `uses` transportada pela anexação, em `.context.uses.<feature-alias>.provides.<provided-name>`, obtém os mesmos valores: o compilador resolve-o para o `provides:` da FeatureRecipe com âmbito de fronteira para a fronteira em que o consumidor se encontra, percorrendo desde a aresta `uses` do consumidor — que transporta a identidade da instância de funcionalidade por anexação — até ao `provides:` da FR com âmbito de fronteira. Uma pré-passagem avalia esses provides antes da montagem do consumidor, pelo que os valores estão presentes quando o canal do consumidor é construído."
   },
   "e850e66bb3d34085": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -46443,6 +46711,13 @@
     "srcHash": "ef5fddff5a37b96f",
     "status": "machine",
     "text": "**`mcp.announce_tools` restringe o que o servidor anuncia, e é um limite diferente da chave acima.** Nomeie as ferramentas que este servidor anuncia, escritas como a lista de ferramentas as reporta, e são anunciadas exatamente essas: uma deixada de fora está ausente da lista de ferramentas de todos os chamadores e é recusada se for chamada pelo nome mesmo assim, nomeando esta definição. Omita a chave — a predefinição — e todas as ferramentas que o servidor transporta são anunciadas; escreva uma lista vazia e nenhuma o é, pelo que essas duas grafias são afirmações diferentes e nenhuma predefinição é preenchida por si. O que a distingue de `deny_reach` é o que cada uma retira. `deny_reach` retira uma capacidade: as operações de um tipo retirado não são de todo transportadas aqui e nenhuma credencial as traz de volta. `announce_tools` retira apenas um anúncio — as ferramentas que deixa de fora são capacidades que o servidor continua a ter — e aquilo a que responde é um cliente que limita quantas ferramentas regista, por vezes em todos os servidores a que está ligado ao mesmo tempo. Quando ambas estão definidas, a retirada prevalece, pelo que uma ferramenta de um tipo retirado continua ausente por muito que esta chave a nomeie. Um nome ao qual nenhuma ferramenta responde para o servidor antes de este servir o que quer que seja, enumerando as ferramentas que tem, em vez de o deixar com uma superfície mais restrita do que a que pediu. Ao contrário das outras chaves aqui, que configuram o listener que o transporte `http` inicia, é lida seja qual for o transporte que o servidor fala, porque o cliente para o qual existe uma restrição é normalmente aquele que lançou o processo através da sua própria entrada e saída padrão; [aggrega-mcp.md](aggrega-mcp.md#narrowing-what-the-server-announces) expõe o resto."
+  },
+  "ef64ec5d10133bb4": {
+    "at": "2026-10-30T21:02:37.548Z",
+    "job": "session-0020-20261030210237",
+    "srcHash": "ef64ec5d10133bb4",
+    "status": "machine",
+    "text": "**Os templates de uma FeatureRecipe com âmbito de fronteira são, por isso, executados em dois âmbitos.** O seu `injectMapping` é executado uma vez para cada componente que a anexação alcança, contra o contexto desse componente — o mesmo que o `injectMapping` de uma FeatureRecipe com âmbito de componente lê: `.context.*`, `.attachment_name`, `.features` e os `.values`, `.infra` e `.locals` próprios da anexação. O seu `.infra` é o bloco `infra:` da anexação à fronteira, e o seu `.locals` é o bloco avaliado uma única vez para a fronteira. Qualquer outro template que escreva — entre eles os seus `locals:`, `provides:`, `source:`, `valuesMapping:` e `artifacts:` e os `with:` e `when:` dos passos do seu pipeline — é executado uma vez para a fronteira, contra o contexto com âmbito de fronteira descrito abaixo. Cada template é verificado contra o âmbito em que é executado: um `valuesMapping:` que leia `.context.instance_id` interrompe a compilação, e um `injectMapping` que o leia renderiza a identidade desse componente. `.boundary` não está definido no contexto de nenhum componente, pelo que um `injectMapping` que o leia interrompe a compilação indicando a referência, qualquer que seja o `executionScope` da FeatureRecipe."
   },
   "ef6838cfeb75ad77": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -47908,6 +48183,17 @@
     "srcHash": "f71c8f1f4d82c83a",
     "status": "machine",
     "text": "Antes de assinar, lê as assinaturas que a referência já tem e avalia-as em relação à política de confiança que este espaço de trabalho mantém para o registo da referência — a política em relação à qual `aggrega pull` verifica. Quando uma delas é verificada, seja quem for que a assinou, a referência já está assinada: o comando imprime `Already signed:` com a referência, o seu digest, a identidade de assinatura e, quando o registo de transparência registou a assinatura, a data — a da mais antiga dessas assinaturas, quando há várias —, não anexa nada e conta a referência como assinada. Um leitor que verifica assinaturas sem chave data uma versão pela mais antiga delas que é verificada e nomeia o signatário dessa assinatura, como descreve [`aggrega registry update`](aggrega-registry.md#the-publication-date-each-version-records), pelo que outra assinatura acrescentaria um referrer e uma entrada no registo de transparência e não mudaria nada do que esse leitor retira da versão."
+  },
+  "f730b8c42e86458e": {
+    "at": "2026-10-30T20:43:14.394Z",
+    "job": "session-0018-20261030204314",
+    "revision": {
+      "from": "64f648b70cdc5640",
+      "reviewed": false
+    },
+    "srcHash": "f730b8c42e86458e",
+    "status": "machine",
+    "text": "O contexto de template do compilador expõe o estado da instância da Feature à FeatureRecipe associada através do campo `.features.<alias>` (que contém `.type`, `.resolved_version`, `.labels`, `.values`, `.infra` e `.provides` por anexação). Os templates dentro da FeatureRecipe leem os próprios `values:` da Feature através de `.values.<field>` no âmbito de template da própria FeatureRecipe; os `values:` do Component anfitrião não são diretamente visíveis para os templates da FeatureRecipe, a menos que a Feature declare explicitamente um socket `uses:` para o Component anfitrião."
   },
   "f73bdec9d4f610ca": {
     "at": "2026-10-23T06:35:49.623Z",
