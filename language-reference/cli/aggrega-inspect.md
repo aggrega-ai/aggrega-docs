@@ -62,7 +62,7 @@ Most kinds have no pipeline — `inspect` reads the file and renders it. Three i
 
 - **Manifest** applies its `extends:` chain — file-import following — and renders the merged component and feature mappings. `--raw` shows the file as authored.
 - **Aggregate** builds its topology: the uses-graph is constructed and the dependency ordering is computed. The default view shows components with their values and edges, followed by the dependency graph. `--raw` shows the authored subsystem tree.
-- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. The governance attachments that shape the graph run in that pipeline rather than being skipped for a view, so what you read reflects what they decided: a `label-transform` attachment's labels are in place before anything is matched against them, and an `annotation-transform` attachment's injected annotations expand into Feature attachments exactly as an annotation you authored does. An attachment whose plugin this command cannot resolve stops it, rather than leaving you a graph drawn without that plugin's decisions. `--raw` emits the Release file verbatim with no pipeline. `--closure` asks a different question about the same Release and runs no pipeline at all; see [The dependency closure: `--closure`](#the-dependency-closure---closure).
+- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. The governance attachments that shape the graph run in that pipeline rather than being skipped for a view, so what you read reflects what they decided: a `label-transform` attachment's labels are in place before anything is matched against them, and an `annotation-transform` attachment's injected annotations expand into Feature attachments exactly as an annotation you authored does. An attachment whose plugin this command cannot resolve stops it, rather than leaving you a graph drawn without that plugin's decisions. A Release that extends another is drawn, in this view and in `--ir-graph`, as the Release its `extends:` chain composes to — the one a build of it reads — so a Release naming only its parent shows that parent's Aggregate, Manifest and boundaries under its own name. `--raw` emits the Release file verbatim with no pipeline. `--closure` asks a different question about the same Release and runs no pipeline at all; see [The dependency closure: `--closure`](#the-dependency-closure---closure).
 
 There is no separate depth flag; the `--raw` / `--resolved` toggle is the only resolution control, layered on each kind's natural default.
 
@@ -316,16 +316,19 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
     name: core/server
-    version: "1.0.0"
+    version: 1.0.0
     labels:
         component.aggrega.ai/type: server
 spec:
-    schema: |
-        values: { port?: int | *8080 }
     usesSchema:
         db:
-            selector: 'component.aggrega.ai/type=stateful-server'
+            selector: component.aggrega.ai/type=stateful-server
+    schema:
+        values:
+            port: {type: integer, default: 8080}
 ```
+
+A Component named from the catalog is printed as the entity the catalog resolved, so after an `extends:` merge you see the merged entity rather than the authored file; a Component file is printed as authored.
 
 ## Machine-readable output
 
