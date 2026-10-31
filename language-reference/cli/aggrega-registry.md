@@ -189,7 +189,10 @@ non-zero.
 A registry that is not indexed keeps the index it had before the run, unchanged:
 nothing is written for a registry whose walk failed, whose listing repeated
 itself, or that was being walked when the command was interrupted. Registries
-indexed earlier in the same run keep what this run wrote for them.
+indexed earlier in the same run keep what this run wrote for them. A registry's
+new index is written aside and put in place whole, so a command stopped while
+writing one leaves that registry with a complete index — the one it had before
+the run, or the new one — or with none, never with a partial one.
 
 Every strict-SemVer version a recorded repository publishes is listed too, each
 with the manifest digest its tag resolves to — the address of the exact bytes
