@@ -75,7 +75,7 @@ spec:
 
     # 5. Emit the override dictionary
     env:
-      "{{ .infra.target_var }}": "{{ $resolved_host }}"
+      {{ .infra.target_var | toJson }}: {{ $resolved_host | toJson }}
 ```
 
 **3. Routing Domain: The Release (Ops Attaches the Feature)**

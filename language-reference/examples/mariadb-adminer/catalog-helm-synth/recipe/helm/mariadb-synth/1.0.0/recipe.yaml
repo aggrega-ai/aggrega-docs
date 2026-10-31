@@ -69,7 +69,7 @@ spec:
           MARIADB_USER: "{{ .values.user }}"
           {{- end }}
           {{- range $k, $v := .context.inject.env }}
-          {{ $k }}: "{{ $v }}"
+          {{ $k }}: "{{ $v | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
           {{- end }}
         ports:
           mysql: 3306

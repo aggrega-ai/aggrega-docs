@@ -229,7 +229,7 @@ Both excerpts omit one thing the shipped recipe carries: it also passes the scop
 
 The first two derive the Secret's name the same way, so the consuming Recipe reads the same locator from either and its rendered reference is unchanged — which is what makes those two substitutable. [`credential-shape-per-target/`](credential-shape-per-target/README.md) builds one Aggregate against both bindings and compares the output. `k8s-existing-secret` publishes the existing Secret's own name instead, so binding it changes the consumer's reference on purpose: the reference then points at the Secret already in place.
 
-**`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It delivers `origin` on the inject pipe exactly as authored, and the compose Recipe writes it into the service's environment in the emitted file — an injected value, no standalone resource and no `provides`. A literal origin therefore lands in the file as the credential itself; an origin written as a Compose variable reference, such as `${DB_PASSWORD}`, lands as that reference, which Docker Compose substitutes from the shell environment or a `.env` file when the stack starts. The compiler writes no `.env` file:
+**`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It delivers `origin` on the inject pipe exactly as authored, and the compose Recipe writes it into the service's environment in the emitted file — an injected value, no standalone resource and no `provides`. A literal origin therefore lands in the file as the credential itself; an origin written as a Compose variable reference, such as `${DB_PASSWORD}`, lands as that reference, which Docker Compose substitutes from the shell environment or a `.env` file when the stack starts. The compiler writes no `.env` file. The value is written through `toJson`, as a JSON string the mapping's YAML reads back exactly, so a quote or a backslash in it reaches the inject pipe as authored:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -242,7 +242,7 @@ spec:
   implements: core/secret-value:1.0.0
   injectMapping: |
     env:
-      {{ .values.key }}: "{{ optional .values "origin" (optional .infra "origin" "") }}"
+      {{ .values.key }}: {{ optional .values "origin" (optional .infra "origin" "") | toJson }}
 ```
 
 `env-secret` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.

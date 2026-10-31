@@ -291,9 +291,9 @@ spec:
   valuesMapping: |
     auth:
       database: "{{ .values.database }}"
-      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       username: "{{ .values.user }}"
-      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
+      password: "{{ .context.inject.env.MARIADB_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
     primary:
       persistence:
         size: "{{ .infra.storage.size }}"
@@ -341,7 +341,7 @@ spec:
   source: ./charts/mariadb          # copied as the sub-chart, bar its own name
   valuesMapping: |
     { "database": "{{ .values.database }}",
-      "rootPassword": "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}",
+      "rootPassword": "{{ .context.inject.env.MARIADB_ROOT_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}",
       "serviceName": "{{ .context.instance_id }}-mariadb" }
 ```
 

@@ -103,13 +103,13 @@ spec:
     ## Secret is generated here — that is the production resource-generation path.
     auth:
       database: "{{ .values.database }}"
-      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- if .values.user }}
       username: "{{ .values.user }}"
-      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
+      password: "{{ .context.inject.env.MARIADB_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- end }}
       {{- if gt (int .infra.ha.read_replicas) 0 }}
-      replicationPassword: "{{ .context.inject.env.MARIADB_REPLICATION_PASSWORD }}"
+      replicationPassword: "{{ .context.inject.env.MARIADB_REPLICATION_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- end }}
 
     ## ── Primary ────────────────────────────────────────────────

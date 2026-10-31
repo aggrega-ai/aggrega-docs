@@ -30,6 +30,20 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 **Provider-rendering [Plugin](../language-reference/entities/plugin.md)** — a *provider* is the Wasm guest that turns a Recipe's input into provider-native manifests. It is delivered as a Plugin with `pluginType: provider` that declares the provider name(s) it renders and its provider-socket contract. Operations (or a plugin author) supply providers so Recipes have a provider to render against. See the [Providers Overview](../language-reference/06-providers.md) for the shipped providers and their contracts.
 
+### Reading a credential safely in a Recipe
+
+A credential reaches a Recipe on the inject pipe, `.context.inject.env`, as whatever text its author chose, so it may hold characters a template cannot write into YAML as they stand. Inside a double-quoted scalar a double quote ends the value early and a backslash starts an escape: the build halts, or the backslash is silently lost. Escape both where the value is written:
+
+```yaml
+variables:
+  {{- $env := optional (default dict .context.inject) "env" dict }}
+  DB_PASSWORD: "{{ optional $env "DB_PASSWORD" "" | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
+```
+
+`optional` reads the key from the pipe's map with an empty fallback, so a password nothing delivered renders as empty text. The two `replace` calls escape the backslash first and then the quote, in that order so the quote's own escape is not escaped again, and leave every other character as it was. A value read through `index`, which halts when the key is absent, takes the same two `replace` calls as it stands.
+
+One character this form does not carry is a line break. YAML folds a line break inside a double-quoted scalar into a space, so a credential holding one is delivered with a space where the break was. A FeatureRecipe writing a credential into its `injectMapping` writes it through `toJson` instead, which carries a quote, a backslash and a line break alike, as the [FeatureRecipe reference](../language-reference/entities/featurerecipe.md) shows.
+
 ## Platform operator
 
 **[Manifest](../language-reference/entities/manifest.md)** — the routing layer. It instructs the compiler which Recipe realizes each Component for a given target, so the same Aggregate can be pointed at different implementations across environments — a cloud Recipe for production, a Compose Recipe for local testing — with no change to the developer's file.

@@ -51,13 +51,13 @@ spec:
     {{- $features := default dict $edge.features }}
           MCP_HOST_{{ $name }}: "{{ $edge.provides.host }}"
     {{- if hasKey $features "endpoint" }}
-          MCP_URL_{{ $name }}: "{{ index $.context.inject.env $features.endpoint.values.key }}"
+          MCP_URL_{{ $name }}: "{{ index $.context.inject.env $features.endpoint.values.key | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
     {{- else }}
           MCP_URL_{{ $name }}: "{{ $edge.provides.endpoint }}"
     {{- end }}
     {{- if hasKey $features "credential" }}
           MCP_CREDENTIAL_HEADER_{{ $name }}: "{{ $edge.provides.credential_header }}"
-          MCP_CREDENTIAL_{{ $name }}: "{{ index $.context.inject.env $features.credential.values.key }}"
+          MCP_CREDENTIAL_{{ $name }}: "{{ index $.context.inject.env $features.credential.values.key | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
     {{- end }}
     {{- end }}
     {{- end }}

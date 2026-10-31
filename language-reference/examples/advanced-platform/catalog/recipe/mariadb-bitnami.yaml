@@ -92,13 +92,13 @@ spec:
       {{- if hasKey (default dict (default dict (default dict .features).root_password).provides) "name" }}
       existingSecret: "{{ .features.root_password.provides.name }}"
       {{- else if .context.inject.env.MARIADB_ROOT_PASSWORD }}
-      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- end }}
       {{- if .values.user }}
       username: "{{ .values.user }}"
       usePasswordFiles: true
       {{- if .context.inject.env.MARIADB_PASSWORD }}
-      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
+      password: "{{ .context.inject.env.MARIADB_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- end }}
       {{- end }}
 
