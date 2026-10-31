@@ -21,8 +21,9 @@
 #     plugin.
 #   - release.yaml with the planted mistake attached
 #     (governance-monitoring-as-string.yaml): a string injected under a key whose
-#     binding routes three subkeys. It must halt with the refusal written below,
-#     which names the plugin and its role, and write no dist/.
+#     binding routes three subkeys, on api and on worker. It must halt with the
+#     refusal written below for each of the two, which names the plugin and its
+#     role, and write no dist/.
 #
 # Each build runs in its own copy of this workspace, made in a temporary
 # directory, with the catalog path in its .aggrega-config.yaml made absolute so
@@ -75,9 +76,15 @@ shop/helm/worker--aws-role--worker-serviceaccount-shop-worker-aws-role.yaml
 shop/helm/worker--feature-zdaggrega-zdai-zsmonitoring--worker-servicemonitor-shop-worker-scrape.yaml"
 # The components the build with no policy must name as missing their monitoring.
 MISSING="api worker"
-# The refusal of the planted string: the line after [OPS_ERROR], and the reason.
-REFUSAL='annotation expansion failed at boundary "shop" component "api" key "feature.aggrega.ai/monitoring", whose value plugin "governance/rego" injected at governance role "annotation-transform"'
-REASON='annotation parse failed at key "feature.aggrega.ai/monitoring": binding for feature "core/prometheus-exporter" maps multiple subkey paths ([interval port path]); scalar annotation value "30s" cannot route to multiple subkeys unambiguously. Provide separate annotation keys for each path'
+# The refusal of the planted string, per component it was injected on: the head
+# naming where the value sits, and the line after it.
+# refusal_head <component> / refusal_reason <component>
+refusal_head() { printf '[OPS_ERROR E0367] .spec.boundaries.shop.components.%s.annotations' "$1"; }
+refusal_reason() {
+  printf 'a scalar annotation value does not route to exactly one path of its binding (Release shop-production, at .spec.boundaries.shop.components.%s.annotations, "feature.aggrega.ai/monitoring", carrying the bare value "30s", whose binding routes "interval, port, path", whose value plugin "governance/rego" injected at governance role "annotation-transform")' "$1"
+}
+# The components the policy injects the planted string on.
+REFUSED="api worker"
 
 CATALOG_REL="../../../../aggrega-hub/aggrega-catalog"
 [ -d "$HERE/$CATALOG_REL" ] || die "the standard-library catalog is not checked out at $HERE/$CATALOG_REL, where .aggrega-config.yaml expects it"
@@ -189,19 +196,19 @@ done
 
 # The planted mistake: a string where the binding routes three subkeys.
 ec="$(build string release.yaml governance-monitoring-as-string.yaml)"
-after=""
-take=0
-while IFS= read -r line; do
-  if [ "$take" -eq 1 ]; then after="$line"; break; fi
-  [ "$line" = "[OPS_ERROR]" ] && take=1
-done < <(trimmed "$WORK/string.log")
-reason=0
-while IFS= read -r line; do
-  [ "$line" = "$REASON" ] && reason=1
-done < <(trimmed "$WORK/string.log")
+unrefused=""
+for component in $REFUSED; do
+  want_head="$(refusal_head "$component")"
+  after=""
+  take=0
+  while IFS= read -r line; do
+    if [ "$take" -eq 1 ]; then after="$line"; break; fi
+    [ "$line" = "$want_head" ] && take=1
+  done < <(trimmed "$WORK/string.log")
+  [ "$after" = "$(refusal_reason "$component")" ] || unrefused="$unrefused $component"
+done
 if [ "$ec" -eq 0 ]; then verdict="MISMATCH: completed"
-elif [ "$after" != "$REFUSAL" ]; then verdict="MISMATCH: the line after [OPS_ERROR] is \"$after\""
-elif [ "$reason" -ne 1 ]; then verdict="MISMATCH: the refusal does not give the expected reason"
+elif [ -n "$unrefused" ]; then verdict="MISMATCH: no refusal with the expected head and reason for$unrefused"
 elif [ -d "$WORK/string/dist" ]; then verdict="MISMATCH: halted, but wrote dist/"
 else verdict="OK: refused, naming the plugin and its role"
 fi

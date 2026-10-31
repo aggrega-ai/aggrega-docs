@@ -278,16 +278,18 @@ them, so
 ./build-release.sh release.yaml -- --config governance-monitoring-as-string.yaml --auto-pull
 ```
 
-halts, exits `1` and writes no `dist/`. The refusal names the plugin that
+halts, exits `1` and writes no `dist/`. The policy injected the string on `api`
+and on `worker`, and each is refused. Each refusal names the plugin that
 injected the value and the role it is attached at, so the value is traced to
 the policy that decided it, rather than to a line of the Release nobody wrote:
 
 ```text
 [… omitted: the helper's report of which aggrega binary it used, its header, and a warning that the attachment is in the global configuration named with --config]
-[OPS_ERROR]
-  annotation expansion failed at boundary "shop" component "api" key "feature.aggrega.ai/monitoring", whose value plugin "governance/rego" injected at governance role "annotation-transform"
-  caused by (1):
-    annotation parse failed at key "feature.aggrega.ai/monitoring": binding for feature "core/prometheus-exporter" maps multiple subkey paths ([interval port path]); scalar annotation value "30s" cannot route to multiple subkeys unambiguously. Provide separate annotation keys for each path
+[OPS_ERROR E0367] .spec.boundaries.shop.components.api.annotations
+  a scalar annotation value does not route to exactly one path of its binding (Release shop-production, at .spec.boundaries.shop.components.api.annotations, "feature.aggrega.ai/monitoring", carrying the bare value "30s", whose binding routes "interval, port, path", whose value plugin "governance/rego" injected at governance role "annotation-transform")
+---
+[OPS_ERROR E0367] .spec.boundaries.shop.components.worker.annotations
+  a scalar annotation value does not route to exactly one path of its binding (Release shop-production, at .spec.boundaries.shop.components.worker.annotations, "feature.aggrega.ai/monitoring", carrying the bare value "30s", whose binding routes "interval, port, path", whose value plugin "governance/rego" injected at governance role "annotation-transform")
 [… omitted: the helper's line reporting the exit status]
 ```
 

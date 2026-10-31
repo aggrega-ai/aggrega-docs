@@ -1299,15 +1299,15 @@ An annotation written in an Aggregate is named the same way, at the place it was
 
 An annotation you wrote as a bare value — `feature.aggrega.ai/monitoring: "30s"` rather than a map of subkeys — names no subkey, so nothing in it says which Feature path it fills. It is placed at the one path the binding declares, counting `maps.infra` and `maps.values` together. A binding that declares more than one path leaves the value several places to go and nothing to choose between them, so the build halts rather than pick one. The count is across both lists, so a binding routing one path through `infra` and another through `values` refuses a bare value whichever document it is written in.
 
-The halt is raised as the annotation is expanded into a Feature attachment. A Release-side annotation is reported under an `OPS_ERROR` tag naming the boundary and the component, and an Aggregate-side one under a `DEVELOPER_ERROR` tag naming the component path. The condition is `a scalar annotation value does not route to exactly one path of its binding`, which is what [`aggrega explain`](../cli/aggrega-explain.md) prints for its code.
+The halt is raised over the annotation as written, before it is expanded into a Feature attachment, as the conditions beside it are, so the diagnostic names the document and the place the value was written at. It is asked once per annotation you wrote: a value written on a boundary or a subsystem is refused there, once, whether or not a component inside takes it up. Every such value in the build is reported, not only the first. The build reports a Release-side annotation under an `OPS_ERROR` tag and an Aggregate-side one under a `DEVELOPER_ERROR` tag, after the document that wrote it. The condition is `a scalar annotation value does not route to exactly one path of its binding`, which is what [`aggrega explain`](../cli/aggrega-explain.md) prints for its code.
 
-Emitted message, beneath the head, for a Release-side annotation whose binding routes three paths:
+Emitted message, naming the document and the place the annotation was written, the annotation key, the value, and the paths the binding routes:
 
-> annotation expansion failed at boundary `"<boundary>"` component `"<component>"` key `"<key>"`
-> caused by (1):
-> annotation parse failed at key `"<key>"`: binding for feature `"<feature>"` maps multiple subkey paths (`[<path> <path> <path>]`); scalar annotation value `"<value>"` cannot route to multiple subkeys unambiguously. Provide separate annotation keys for each path
+> a scalar annotation value does not route to exactly one path of its binding (Release `<release-name>`, at `.spec.boundaries.<boundary>.annotations`, `"<key>"`, carrying the bare value `"<value>"`, whose binding routes `"<path>, <path>, <path>"`)
 
-A binding declaring no path at all is refused when the Manifest is loaded, because the Manifest schema requires one, so a build does not reach this condition that way.
+An empty value writes nothing, so it is placed wherever one of the two lists holds a single path, and refused only where neither does. A binding declaring no path at all is refused when the Manifest is loaded, because the Manifest schema requires one, so a build does not reach this condition that way.
+
+**An annotation a governance plugin injected is judged the same way**, and its diagnostic adds which plugin injected the value and the governance role it is attached at, as the conditions beside it do.
 
 **How to fix:** write the annotation as a map naming the subkey each value is for — `feature.aggrega.ai/monitoring: {interval: 30s}` — so each value routes by its own name; or give the single value a binding of its own, under another annotation key, that declares only the path it fills.
 
