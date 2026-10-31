@@ -12,22 +12,22 @@ aggrega deprecate <reference> [flags]
 **Description**
 
 ```
-Deprecate amends an already-published artifact by attaching a deprecation marker to it as an OCI referrer, then signing that marker. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifact is immutable; the marker is a sibling manifest pointing back at it, so a marker can be attached retroactively. The marker records a severity (warning, error, or retracted), a reason, an optional replacement reference, and the timestamp it was issued. Run it three ways: pass the content as flags; omit the content flags at an interactive terminal to be prompted for severity, reason, and replacement; or pass --from <file> to attach one marker per entry from a batch file. The marker itself is signed the same way artifacts are: its manifest digest is signed and the signature is attached as a referrer of the marker, so the marker is verifiable the same way artifact signatures are. With --key the signature is produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Every marker of one --from batch is signed with one credential: where the configuration names a held key (signing.key_path) for one entry's registry and none for another's, or two different keys, no marker is attached and the command says to run one batch per credential.
+Deprecate amends an already-published artifact by attaching a deprecation marker to it as an OCI referrer, then signing that marker. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifact is immutable; the marker is a sibling manifest pointing back at it, so a marker can be attached retroactively. The marker records a severity (warning, error, or retracted), a reason, an optional replacement reference, and the timestamp it was issued. Run it three ways: pass the content as flags; omit the content flags at an interactive terminal to be prompted for severity, reason, and replacement; or pass --from <file> to attach one marker per entry from a batch file, whose entries carry their own content, so a content flag passed beside --from is refused rather than ignored. The marker itself is signed the same way artifacts are: its manifest digest is signed and the signature is attached as a referrer of the marker, so the marker is verifiable the same way artifact signatures are. With --key the signature is produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Every marker of one --from batch is signed with one credential: where the configuration names a held key (signing.key_path) for one entry's registry and none for another's, or two different keys, no marker is attached and the command says to run one batch per credential.
 ```
 
 **Flags**
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--from` | — | Batch file (YAML, or JSON as a subset) whose top-level list attaches one marker per entry. Each entry carries reference and severity and reason, plus optional replacement and message. Mutually exclusive with a positional reference. |
+| `--from` | — | Batch file (YAML, or JSON as a subset) whose top-level list attaches one marker per entry. Each entry carries reference and severity and reason, plus optional replacement and message. Mutually exclusive with a positional reference and with --severity, --reason, --replacement and --message. |
 | `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. When omitted, the public-good Fulcio instance is used. |
 | `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
 | `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
-| `--message` | — | Optional message retained for audit and for the recorded build-time diagnostic; defaults to --reason when unset. |
-| `--reason` | — | Human-readable reason for the deprecation — why it is deprecated and what to do instead. Required unless --from or an interactive prompt supplies it. |
+| `--message` | — | Optional message retained for audit and for the recorded build-time diagnostic; defaults to --reason when unset. Refused beside --from, whose entries carry their own. |
+| `--reason` | — | Human-readable reason for the deprecation — why it is deprecated and what to do instead. Required with a positional reference unless an interactive prompt supplies it; refused beside --from, whose entries carry their own. |
 | `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |
-| `--replacement` | — | Optional artifact reference that replaces the deprecated one. |
-| `--severity` | — | Deprecation severity: one of warning, error, retracted. Required unless --from or an interactive prompt supplies it. |
+| `--replacement` | — | Optional artifact reference that replaces the deprecated one. Refused beside --from, whose entries carry their own. |
+| `--severity` | — | Deprecation severity: one of warning, error, retracted. Required with a positional reference unless an interactive prompt supplies it; refused beside --from, whose entries carry their own. |
 | `--timestamp-url` | — | Optional RFC3161 timestamp-authority URL for keyless signing. |
 <!-- END GENERATED: cli-deprecate -->
 
@@ -56,6 +56,15 @@ A write still failing after its last attempt, or a signing that fails, stops the
 command and names the step; a marker already attached by then stays attached
 without its signature.
 With `--from`, the entries attached before the one that failed stay attached.
+
+## A batch file carries each marker's content
+
+With `--from`, every marker's severity, reason, replacement and message come from
+its own entry in the batch file. A `--severity`, `--reason`, `--replacement` or
+`--message` passed beside `--from` is therefore refused rather than ignored: the
+command names each one passed and stops before the batch file is read, so no
+marker is attached. Put the content in the file's entries, or deprecate one
+reference with its content flags.
 
 ## A batch is signed with one credential
 
