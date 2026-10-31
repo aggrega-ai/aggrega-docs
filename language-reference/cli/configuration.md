@@ -120,7 +120,10 @@ It says nothing of the kind where you wrote the empty list — reading no local 
 declared there, and a suggestion to change it would be arguing with you. Nor does it say it where
 the document declaring that name was read and refused: that document already sits where the
 catalog reads, so the report names what the document violates instead, the line and the
-constraint, and moving it would fix nothing. A failure that found the entity and could not accept
+constraint, and moving it would fix nothing. A document too malformed for the name it declares to
+be read at all cannot be matched to the name you used, so the account is still given — and where
+that document declares an Aggrega apiVersion, a build, a pull or a validation of a Release names it
+beside the account, with the parser's own reason, since it may be the file to open. A failure that found the entity and could not accept
 it — a registry now serving other bytes under a version your lockfile pins, a file the entity
 carries that cannot be read — is not a missing entity either, and it reports its own remedy alone.
 

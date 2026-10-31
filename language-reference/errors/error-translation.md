@@ -156,7 +156,7 @@ One separator grammar applies throughout: `---` between sibling failures, `cause
 
 ## A refused catalog file and the failure it explains
 
-Loading a catalog to resolve what a Release depends on is tolerant on purpose: a file that cannot be read, parsed or indexed is refused and recorded rather than aborting the whole load. That is what keeps a broken entity your Release never touches from failing an unrelated build.
+Loading a catalog to resolve what a Release depends on is tolerant on purpose: a file that cannot be read, or an Aggrega document that cannot be parsed or indexed, is refused and recorded rather than aborting the whole load. That is what keeps a broken entity your Release never touches from failing an unrelated build.
 
 The consequence is that a refused file goes missing from the catalog silently — and if your Release *does* reach it, what fails is the attempt to resolve a reference to what that file declared. That failure is a *consequence* of the refusal rather than the refusal itself, so the report puts the two in causal order wherever it can name the refusal exactly:
 
@@ -190,7 +190,7 @@ A few things about that second shape are worth knowing, because each answers a q
 
 **Each entry carries its own bracketed head — its own category and its own short code.** This is the one place a short code appears below the head of the diagnostic, and it is not an exception to the continuation rule above but a consequence of it: an entry under `note:` is not the same failure seen from further in, it is a *different* condition raised by a *different* document. Naming its condition is what lets you look the refusal up and fix the file, which is the action the block exists to enable.
 
-**A refused file whose header was too malformed to recover the identity it declares is listed by path alone.** That is the honest reading of a document nothing could peek at, and the path is still enough to open the file.
+**A refused file whose header was too malformed to recover the identity it declares is listed by path alone.** That is the honest reading of a document nothing could peek at, and the path is still enough to open the file. A file too malformed for even its kind to be read — one that does not parse as YAML, say — is listed this way when it declares an Aggrega apiVersion, by a line starting, unindented, with `apiVersion:` and a value beginning `aggrega.ai/`, with the parser's own reason: the line, and what the parser expected there. A YAML file declaring another apiVersion, or none, is not an Aggrega document — a chart's template, say, or a configuration file kept beside the entities — so it is never listed, however malformed.
 
 **Whichever shape you get, the failure keeps its own identity.** The note is added to the failure rather than rendered over it, and leading with a refusal changes only what you read first — so the condition the failure raised stays intact either way: its short code still resolves, and a tool matching on the condition still matches.
 
