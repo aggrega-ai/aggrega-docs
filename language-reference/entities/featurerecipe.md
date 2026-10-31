@@ -62,6 +62,16 @@ When a caller needs the connection string to its target shaped differently than 
 
 The `injectMapping` field is a Go `text/template` that the renderer evaluates at inject mapping, before the base Recipe's rendering runs. The template outputs a JSON or YAML dictionary with optional mechanism keys (`env`, `file`, `arg`) — or a flat map which defaults to `env` — and the renderer deep-merges this overlay over the caller node's `.context.inject` pipe. Caller-side routing via `injectMapping` runs at inject mapping without invoking a Wasm sandbox for simple string manipulation; Wasm plugins remain reserved for structural AST changes via the `pipeline` array.
 
+**Write each value through `toJson`.** The renderer reads the template's output as YAML, so a value interpolated between quotes as it stands either breaks that output or is read back changed as soon as it holds a double quote or a backslash — a password is the usual case. `toJson` writes the value as a JSON string, which YAML reads back exactly, so the value is delivered with every character it holds:
+
+```gotemplate
+injectMapping: |
+  env:
+    {{ .values.key }}: {{ .values.origin | toJson }}
+```
+
+A value assembled from several pieces is assembled first and written through `toJson` once, as the examples below do.
+
 **Mutation is strictly caller-local.** The FeatureRecipe modifies only the inject pipe of the node it is attached to, never the target's `.provides` output. A target's `.provides.host` is consumed by potentially many callers across the cluster; caller-side `injectMapping` merges only into the specific caller's pipe, so routing mutations stay scoped to the edge that requested them.
 
 **What a mapping may rewrite.** Every `inject:` block has delivered by the time the mappings render, so a mapping's output is always merged over keys something else already wrote — and who wrote a key decides what happens. A key the caller's own `inject:` block or one of its connections' `inject:` blocks delivered is the mapping's to rewrite: that is interception, and the mapping's value replaces that one entry. A key the mapping's own attachment delivered through its `inject:` block is likewise its own to rewrite. A key a *different* attached Feature already delivered — through its own `inject:` block or its own FeatureRecipe's `injectMapping` — is not: the build halts naming both attachments, rather than letting whichever mapping ran last decide which value the caller reads. So two routing Features can each qualify a key of their own, but two Features cannot both deliver one key — two routing Features rewriting the same connection's key included, since the first is interception and the second meets the first's delivery; see [fatal-halts.md](../errors/fatal-halts.md) "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping".
@@ -124,7 +134,7 @@ injectMapping: |
 
   # 5. Emit the precise override dictionary for the compiler to deep-merge
   env:
-    "{{ .infra.target_var }}": "{{ $resolved_host }}"
+    {{ .infra.target_var | toJson }}: {{ $resolved_host | toJson }}
   {{ end }}
 ```
 
@@ -139,7 +149,7 @@ injectMapping: |
 injectMapping: |
   {{ $base_url := index .context.inject.env .infra.target_var }}
   env:
-    "{{ .infra.target_var }}": "{{ $base_url }}?sslmode=verify-full"
+    {{ .infra.target_var | toJson }}: {{ printf "%s?sslmode=verify-full" $base_url | toJson }}
 ```
 
 **Multi-region gateway prefixing.** If a generic API component is deployed globally, a regional routing Feature can autonomously look up its own environment boundary annotations to prefix the injected connection strings for its callers.
@@ -150,7 +160,7 @@ injectMapping: |
   {{ $base_host := index .context.inject.env .infra.target_var }}
   {{ $region_code := index .context.annotations.release "cloud.aggrega.ai/region" }}
   env:
-    "{{ .infra.target_var }}": "{{ $region_code }}.{{ $base_host }}"
+    {{ .infra.target_var | toJson }}: {{ printf "%s.%s" $region_code $base_host | toJson }}
 ```
 
 **The boundary of `injectMapping`.** The mechanism is limited to mutating the `.context.inject` memory pipe (the Delivery Contract). It cannot append new containers, mount volumes, or alter the base Recipe's `valuesMapping` output. Any mutation that requires structural changes to the rendered AST (like JSON or YAML arrays) belongs in the FeatureRecipe's `pipeline` array, executed via WebAssembly plugins.
