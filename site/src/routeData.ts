@@ -9,6 +9,7 @@ import { getLocaleRoutes } from "../node_modules/@astrojs/starlight/utils/routin
 import { slugToPathname } from "../node_modules/@astrojs/starlight/utils/slugs.ts";
 import { formatPath } from "../node_modules/@astrojs/starlight/utils/format-path.ts";
 import untranslatedPages from "virtual:aggrega-docs/untranslated-pages";
+import { sourceRouteOf } from "./translations.mjs";
 
 // The route data of a page in a published language.
 //
@@ -38,13 +39,6 @@ function hrefOf(id: string): string {
   return formatPath(slugToPathname(id));
 }
 
-// The English page a route of a published language shows: its own English
-// page for a translated route, and the English entry it falls back to otherwise.
-function englishId(id: string, locale: string): string {
-  if (id === locale) return "";
-  return id.startsWith(`${locale}/`) ? id.slice(locale.length + 1) : id;
-}
-
 // For one language: each English page's address, to that page's address and
 // title in the language.
 function localizedPages(locale: string): Map<string, Localized> {
@@ -52,7 +46,7 @@ function localizedPages(locale: string): Map<string, Localized> {
   if (!pages) {
     pages = new Map(
       getLocaleRoutes(locale).map((route) => [
-        hrefOf(englishId(route.id, locale)),
+        hrefOf(sourceRouteOf(route.id, locale)),
         { href: hrefOf(route.id), title: String(route.entry.data.title) },
       ]),
     );
@@ -78,7 +72,7 @@ export const onRequest = defineRouteMiddleware((context) => {
   const { locale } = route;
   if (!locale) return;
   if (untranslated.has(route.id)) route.isFallback = true;
-  const english = getSidebar(hrefOf(englishId(route.id, locale)), undefined);
+  const english = getSidebar(hrefOf(sourceRouteOf(route.id, locale)), undefined);
   route.sidebar = localize(english, localizedPages(locale));
   route.pagination = getPrevNextLinks(route.sidebar, config.pagination, route.entry.data);
 });

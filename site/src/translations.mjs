@@ -31,6 +31,14 @@ import list from "./languages.json" with { type: "json" };
 // never inside the built pages. A built page receives what it needs from the
 // configuration, as the module untranslatedPagesModule() provides.
 
+// The notice at the top of every translated page, saying it was
+// machine-translated and linking to the same page in English, is written once,
+// in English, in the file MACHINE_TRANSLATION_NOTICE. The translation
+// configuration translates that file with the pages, so the version build
+// generates its translation into each language's tree beside them; the site
+// shows each language's translation on that language's pages, and the English
+// text where the memory has none (machineTranslationNoticeModule()).
+
 /** The language every page is written in, served at the unprefixed root. */
 export const sourceLanguage = { lang: list.source.lang, label: list.source.label };
 
@@ -49,6 +57,15 @@ export const TRANSLATION_CONFIG = "l10n/l10n.config.json";
 
 /** The list of pages left partly in English, written beside the translated trees. */
 const UNTRANSLATED_FILE = "untranslated-pages.json";
+
+/**
+ * The machine-translation notice's source, relative to the corpus root. It is
+ * translated with the pages and is not a page: the site never publishes it.
+ */
+export const MACHINE_TRANSLATION_NOTICE = "site/src/strings/machine-translation-notice.md";
+
+/** The link destination the notice's source writes, which the site replaces with the English page's address. */
+const NOTICE_LINK_DESTINATION = "english-original";
 
 /** Starlight's `locales` setting: English as the root locale, then every published language. */
 export function starlightLocales() {
@@ -146,6 +163,16 @@ export function languageOfRoute(route) {
 }
 
 /**
+ * The route of the English page a route of a published language shows, given
+ * that language's path segment: the route without the segment. A route that
+ * does not start with the segment is returned as it is.
+ */
+export function sourceRouteOf(route, locale) {
+  if (route === locale) return "";
+  return route.startsWith(`${locale}/`) ? route.slice(locale.length + 1) : route;
+}
+
+/**
  * The routes of the translated pages that still hold English text, as the
  * version build recorded them. Empty when no translated tree is present; an
  * error when the trees are present without the record, since every such page
@@ -180,6 +207,92 @@ export function untranslatedPagesModule(root = corpusRoot) {
       id === resolved
         ? `export default ${JSON.stringify([...untranslatedRoutes(root)].sort())};`
         : undefined,
+  };
+}
+
+/** The site project's own directory, which the content collection's file paths are relative to. */
+const siteProjectRoot = fileURLToPath(new URL("..", import.meta.url));
+
+const NOTICE_LINK = new RegExp(String.raw`\[((?:\\.|[^\]\\])*)\]\(` + NOTICE_LINK_DESTINATION + String.raw`\)`, "g");
+
+const unescapeMarkdown = (text) => text.replace(/\\([!-/:-@[-`{-~])/g, "$1");
+
+// The notice's text, from its Markdown: one paragraph, outside any HTML comment,
+// holding one link to NOTICE_LINK_DESTINATION; the text before the link, the
+// link's text and the text after it, as plain text.
+function noticeParts(markdown, file) {
+  const paragraph = markdown.replace(/<!--[\s\S]*?-->/g, "").trim();
+  if (/\n[ \t]*\r?\n/.test(paragraph)) {
+    throw new Error(`${file} must hold one paragraph, the machine-translation notice; it holds more.`);
+  }
+  const text = paragraph.split(/\r?\n/).map((line) => line.trim()).join(" ");
+  const links = [...text.matchAll(NOTICE_LINK)];
+  if (links.length !== 1) {
+    throw new Error(
+      `${file} must hold exactly one link to ${NOTICE_LINK_DESTINATION}, the English page's address; ` +
+        `it holds ${links.length}.`,
+    );
+  }
+  const [link] = links;
+  return {
+    before: unescapeMarkdown(text.slice(0, link.index)),
+    link: unescapeMarkdown(link[1]),
+    after: unescapeMarkdown(text.slice(link.index + link[0].length)),
+  };
+}
+
+/**
+ * The machine-translation notice of each published language, by the language's
+ * path segment: the language the text is in, the text before the link to the
+ * English page, the link's text and the text after it, and the directory of the
+ * language's translated pages relative to the site project, which a page's
+ * content file sits under exactly when its text is the translation tool's.
+ *
+ * The text is the language's translation of MACHINE_TRANSLATION_NOTICE, which
+ * the version build generates into the language's tree; a translation the
+ * memory does not hold is generated as the English text, and is marked as
+ * English. Without a translated tree the text is the English source. A
+ * translated tree present without the notice stops with an error, since its
+ * pages would show the notice in English with no sign of why.
+ */
+export function machineTranslationNotices(root = corpusRoot) {
+  const sourceFile = path.join(root, MACHINE_TRANSLATION_NOTICE);
+  const source = noticeParts(readFileSync(sourceFile, "utf-8"), sourceFile);
+  const { treesDir } = translationLayout(root);
+  return Object.fromEntries(
+    publishedLanguages.map(({ lang, locale }) => {
+      const tree = path.join(treesDir, lang);
+      const entry = { tree: `${toPosix(path.relative(siteProjectRoot, tree))}/`, lang: sourceLanguage.lang, ...source };
+      if (!existsSync(tree)) return [locale, entry];
+      const file = path.join(root, translatedPath(MACHINE_TRANSLATION_NOTICE, lang, root));
+      if (!existsSync(file)) {
+        throw new Error(
+          `The translated pages of ${lang} are present without ${file}, the machine-translation notice in ` +
+            `that language: the translation configuration translates ${MACHINE_TRANSLATION_NOTICE} with the pages.`,
+        );
+      }
+      const parts = noticeParts(readFileSync(file, "utf-8"), file);
+      const translated = parts.before !== source.before || parts.link !== source.link || parts.after !== source.after;
+      return [locale, { ...entry, lang: translated ? lang : sourceLanguage.lang, ...parts }];
+    }),
+  );
+}
+
+const NOTICE_MODULE = "virtual:aggrega-docs/machine-translation-notice";
+
+/**
+ * A Vite plugin providing the module
+ * `virtual:aggrega-docs/machine-translation-notice`: the notices
+ * machineTranslationNotices() reads, as its default export, read once while the
+ * site is configured.
+ */
+export function machineTranslationNoticeModule(root = corpusRoot) {
+  const resolved = `\0${NOTICE_MODULE}`;
+  return {
+    name: "aggrega-docs-machine-translation-notice",
+    resolveId: (id) => (id === NOTICE_MODULE ? resolved : undefined),
+    load: (id) =>
+      id === resolved ? `export default ${JSON.stringify(machineTranslationNotices(root))};` : undefined,
   };
 }
 

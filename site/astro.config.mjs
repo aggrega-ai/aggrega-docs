@@ -6,6 +6,7 @@ import { resolveVersioning } from "./src/versioning.mjs";
 import {
   corpusRoot,
   hasTranslatedTrees,
+  machineTranslationNoticeModule,
   starlightLocales,
   translationPackage,
   untranslatedPagesModule,
@@ -58,8 +59,9 @@ export default defineConfig({
     ],
   },
   // The routes of the translated pages that still hold English text, for the
-  // route data (src/routeData.ts).
-  vite: { plugins: [untranslatedPagesModule()] },
+  // route data (src/routeData.ts), and each language's machine-translation
+  // notice, for the banner (src/components/Banner.astro).
+  vite: { plugins: [untranslatedPagesModule(), machineTranslationNoticeModule()] },
   integrations: [
     starlight({
       title: "Aggrega",
@@ -68,8 +70,11 @@ export default defineConfig({
       // The not-found page is the site's own, one per language (see
       // src/pages/[...locale]/404.astro), so Starlight's is turned off. The
       // route data marks a translated page that still holds English text as
-      // not fully translated (src/routeData.ts).
+      // not fully translated (src/routeData.ts). The banner adds, on every
+      // translated page, the notice that it was machine-translated, linking to
+      // the page in English.
       components: {
+        Banner: "./src/components/Banner.astro",
         Head: "./src/components/Head.astro",
         Sidebar: "./src/components/Sidebar.astro",
       },

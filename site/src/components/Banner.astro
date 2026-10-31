@@ -1,0 +1,49 @@
+---
+import Default from "@astrojs/starlight/components/Banner.astro";
+import notices from "virtual:aggrega-docs/machine-translation-notice";
+import { sourceRouteOf } from "../translations.mjs";
+// Starlight exports neither helper from its package entry points, so they are
+// imported by path, as src/routeData.ts does.
+import { slugToPathname } from "../../node_modules/@astrojs/starlight/utils/slugs.ts";
+import { formatPath } from "../../node_modules/@astrojs/starlight/utils/format-path.ts";
+
+// The banner at the top of a page: Starlight's own banner, which a page's front
+// matter sets, then, on a page whose text is the translation tool's, a one-line
+// notice in the page's language saying it was machine-translated, linking to the
+// same page in English in the same version. The notice's text is the language's
+// translation of src/strings/machine-translation-notice.md (see
+// machineTranslationNotices in src/translations.mjs), or the English text where
+// the translation memory has none. An English page shows no notice, and neither
+// does a page of a published language that shows its English page because no
+// translation of it is present.
+const { locale, id, entry } = Astro.locals.starlightRoute;
+const notice = locale ? notices[locale] : undefined;
+const translated =
+  notice !== undefined && typeof entry.filePath === "string" && entry.filePath.startsWith(notice.tree);
+const englishHref = translated && locale ? formatPath(slugToPathname(sourceRouteOf(id, locale))) : undefined;
+---
+
+<Default />
+{
+  translated && notice && (
+    <div class="machine-translation-notice" data-pagefind-ignore lang={notice.lang}>
+      {notice.before}<a href={englishHref} hreflang="en">{notice.link}</a>{notice.after}
+    </div>
+  )
+}
+
+<style>
+  .machine-translation-notice {
+    padding: 0.5rem var(--sl-nav-pad-x);
+    background-color: var(--sl-color-gray-6);
+    color: var(--sl-color-gray-2);
+    border-bottom: 1px solid var(--sl-color-hairline-light);
+    font-size: var(--sl-text-sm);
+    line-height: var(--sl-line-height-headings);
+    text-align: center;
+    text-wrap: balance;
+  }
+  .machine-translation-notice a {
+    color: var(--sl-color-text-accent);
+  }
+</style>

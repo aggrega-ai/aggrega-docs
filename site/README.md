@@ -80,6 +80,13 @@ one tree per language with the English pages' paths. For each language the
 build prints the share of the version's text the memory translates. Text the
 memory does not translate stays in English, and a page holding any carries
 Starlight's notice, in the page's language, that it is not fully translated.
+Every translated page opens with a one-line notice, in its language, that it was
+machine-translated, linking to the same page in English
+(`src/components/Banner.astro`); an English page carries none. The notice is
+written once, in English, in `src/strings/machine-translation-notice.md`, which
+the translation configuration translates with the pages but the site never
+publishes as a page; a language whose memory has no translation of it shows it
+in English.
 A translated heading keeps its English heading's anchor, so a link to a section
 resolves in every language. A build with no translated pages present, such as a
 local one, serves every page of a published language in English with that notice.
@@ -126,7 +133,6 @@ npm run dev       # local preview
   "CLI" renders as "Cli" until a proper-noun map is added.
 - The sidebar's group labels and the version selector's accessible label are
   written in English in the site configuration and show in English on every
-  language's pages; a translated page carries no notice that it was
-  machine-translated.
+  language's pages.
 - Callout panels use the shared dark surface with the default per-type border; a
   per-type accent colour from the brand's semantic palette is a later refinement.
