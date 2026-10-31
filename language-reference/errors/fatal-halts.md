@@ -126,9 +126,11 @@ Emitted message at render time. The category the failure is attributed to reache
 
 The head carries the category and this condition's short code, `E0265`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it, and the opening sentence above is what to match on when you are working from text rather than from an identifier.
 
-`aggrega validate` reports the same clause under the Recipe that carries the block, prefixed with the surface that read it:
+`aggrega validate` reports the same clause under the Recipe that carries the block, prefixed with the surface that read it and headed with this condition's short code, because the early report is the same condition:
 
-> input-kind: Recipe `"<name>:<version>"`: provider `"<provider-name>"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized
+> input-kind: [E0265] Recipe `"<name>:<version>"`: provider `"<provider-name>"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized
+
+Over the whole catalog that is one line; with `--release` the head sits on its own line above the clause. The editor's diagnostic for the same finding carries `E0265` as its code.
 
 **How to fix:** either bind the Recipe to a provider that synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
@@ -1290,6 +1292,24 @@ Emitted message, naming the document and the place the annotation was written, t
 An annotation written in an Aggregate is named the same way, at the place it was written there — `(Aggregate <name>, at .spec.subsystems.<subsystem>.annotations, …)` for one written on a subsystem. The build reports a Release-side annotation under an `OPS_ERROR` tag and an Aggregate-side one under a `DEVELOPER_ERROR` tag, after the document that wrote it.
 
 **How to fix:** compare the subkey with the ones the message lists. Where it is a misspelling, correct it to the subkey the binding routes. Where the value is meant to reach the Feature, the binding has to route it: add the path to the binding's `maps.infra` or `maps.values` in the Manifest — a path the Feature's schema declares — or remove the subkey from the annotation.
+
+### A bare annotation value does not route to exactly one path of its binding
+
+<!-- covers: pkg/resolver.ErrAnnotationScalarNotRoutable -->
+
+An annotation you wrote as a bare value — `feature.aggrega.ai/monitoring: "30s"` rather than a map of subkeys — names no subkey, so nothing in it says which Feature path it fills. It is placed at the one path the binding declares, counting `maps.infra` and `maps.values` together. A binding that declares more than one path leaves the value several places to go and nothing to choose between them, so the build halts rather than pick one. The count is across both lists, so a binding routing one path through `infra` and another through `values` refuses a bare value whichever document it is written in.
+
+The halt is raised as the annotation is expanded into a Feature attachment. A Release-side annotation is reported under an `OPS_ERROR` tag naming the boundary and the component, and an Aggregate-side one under a `DEVELOPER_ERROR` tag naming the component path. The condition is `a scalar annotation value does not route to exactly one path of its binding`, which is what [`aggrega explain`](../cli/aggrega-explain.md) prints for its code.
+
+Emitted message, beneath the head, for a Release-side annotation whose binding routes three paths:
+
+> annotation expansion failed at boundary `"<boundary>"` component `"<component>"` key `"<key>"`
+> caused by (1):
+> annotation parse failed at key `"<key>"`: binding for feature `"<feature>"` maps multiple subkey paths (`[<path> <path> <path>]`); scalar annotation value `"<value>"` cannot route to multiple subkeys unambiguously. Provide separate annotation keys for each path
+
+A binding declaring no path at all is refused when the Manifest is loaded, because the Manifest schema requires one, so a build does not reach this condition that way.
+
+**How to fix:** write the annotation as a map naming the subkey each value is for — `feature.aggrega.ai/monitoring: {interval: 30s}` — so each value routes by its own name; or give the single value a binding of its own, under another annotation key, that declares only the path it fills.
 
 ### An annotation routes through a pillar its authoring side may not use
 
@@ -6543,6 +6563,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0364` | `a value template failed while it ran` | A value template failed while it ran |
 | `E0365` | `boundary-level Feature's output is routed to a dispatch path nothing assembles` | A boundary-level Feature's output reaches no assembled file |
 | `E0366` | `FeatureRecipe injectMapping output could not be read as a dictionary of deliveries` | An attached Feature's injectMapping output cannot be read |
+| `E0367` | `a scalar annotation value does not route to exactly one path of its binding` | A bare annotation value does not route to exactly one path of its binding |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

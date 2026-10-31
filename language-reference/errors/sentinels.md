@@ -262,6 +262,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrAnnotationBindingPillarOverlap()` | `annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
 | `ErrAnnotationBindingTargetUnresolved()` | `annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
+| `ErrAnnotationScalarNotRoutable()` | `annotation-scalar-not-routable` | `a scalar annotation value does not route to exactly one path of its binding` |
 | `ErrAnnotationSidePillarMismatch()` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
 | `ErrAnnotationSubkeyNotBound()` | `annotation-subkey-not-bound` | `annotation subkey is not routed by the annotation's binding` |
 | `ErrAnnotationSubkeyNotConforming()` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
@@ -841,6 +842,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0364` | `value-template-execution-failed` | `a value template failed while it ran` |
 | `E0365` | `boundary-contribution-not-assembled` | `boundary-level Feature's output is routed to a dispatch path nothing assembles` |
 | `E0366` | `inject-mapping-output-not-parsable` | `FeatureRecipe injectMapping output could not be read as a dictionary of deliveries` |
+| `E0367` | `annotation-scalar-not-routable` | `a scalar annotation value does not route to exactly one path of its binding` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
