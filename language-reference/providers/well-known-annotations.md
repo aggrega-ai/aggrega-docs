@@ -358,6 +358,8 @@ The keys in the matrix above cascade through the Aggregate too, and a provider a
 
 The Release sits above the Aggregate on every key. Where the Release sets a key for a component — on its boundary or on the component's own entry — the Release's value is applied; where it sets none, the Aggregate's is. The two sides layer key by key, so a Release that sets only `aggrega.ai/namespace` leaves an `aggrega.ai/image-registry` the Aggregate declared in force.
 
+An explicit `null` in the Release withdraws only the Release's own value. A component entry writing `aggrega.ai/namespace: null` removes the namespace its Release boundary would have handed it, and the component then takes the value its Aggregate declares — or none, where the Aggregate declares none too. A Release cannot remove a value the Aggregate declares; it can only set one of its own over it.
+
 ```yaml
 # Aggregate
 spec:
