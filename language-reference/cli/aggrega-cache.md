@@ -119,6 +119,14 @@ The artifact cache under `artifact_cache_dir` (`.aggrega/cache` by default) hold
 
 **The consequence you are most likely to meet.** If the cache holds an entity that no lockfile pins, that entity is invisible to a build, and a build that needs it halts saying it was not found. The halt names the entity, so the missing pin is identifiable from the message.
 
+Where the entity is a SchemaLibrary a `$ref:` reaches, every command that reports the reference as unresolved follows the report with a `remediation:` line naming each library the cache holds that no lockfile entry pins and no catalog directory supplies, and the action that works for that command:
+
+- `aggrega build` and `aggrega validate --release <release>` read the Release's lockfile, so the line names `aggrega pull --release <release>` to resolve the library and record its entry.
+- `aggrega validate` with no argument, and `aggrega validate <entity-path>` with or without `--release`, read libraries from catalog directories only and read no lockfile, so no recorded entry changes their verdict. The line says so, and names `aggrega pull --release <release>` followed by `aggrega validate --release <release>`, which checks the Release against what its lockfile pins.
+- `aggrega pull`, and `aggrega build --auto-pull`, under the offline posture can neither fetch the library nor record an entry for it, so the line says to run `aggrega pull --release <release>` where it can reach a registry. Connected, a pull that finds the library in no catalog directory and no registry it reads has no entry to record.
+
+Every one of those lines also offers the other way out: author the library under a catalog directory.
+
 **What to run.** `aggrega pull --release <release>` resolves the entity and records its digest, after which the same build finds it. Where the entity is yours rather than a dependency, author it under a directory listed in `workspace.catalog_dirs` instead — a scan reads that. `aggrega cache prune` clears out the entries no lockfile references, which is the tidying half of the same rule.
 
 For the cache layout, the `artifact_cache_dir` contract, and why a resolution artifact is deliberately not readable as authored content, see [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md).

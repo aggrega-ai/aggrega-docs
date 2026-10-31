@@ -884,6 +884,13 @@ Keeping the two apart is what makes the report actionable: the first is a value 
 
 **How to fix:** for an unreadable reference, rewrite the value — `<Library>#/schemas/<Entry>` for a cross-document reference, `#/$defs/<name>` for one inside the same document — and use `:` before a version floor rather than `@`. For an absent target, confirm the entry's name against the library that publishes it, and confirm the library is reachable from the Release's dependency closure: a library nothing declares a dependency on is not loaded, so a correct reference into it still resolves to nothing.
 
+**Where the library sits only in the artifact cache.** The cache holds what a fetch put there, and a cached library counts as catalog content only where an entry in the Release's lockfile vouches for its digest. When the cache holds a SchemaLibrary that no lockfile entry pins and no catalog directory supplies, the report is followed by a `remediation:` line naming each such library and the action that works for the command that reported it:
+
+- `aggrega build` and `aggrega validate --release` read the Release's lockfile, so their line names `aggrega pull --release <release>`, which resolves the library and records its entry, or authoring the library under a catalog directory.
+- `aggrega validate` with no argument, and `aggrega validate` with an entity path whether or not `--release` is given, read libraries from catalog directories only and read no lockfile, so a recorded entry would not change their verdict. Their line says so, and points to authoring the library under a catalog directory, or to `aggrega pull --release <release>` followed by `aggrega validate --release <release>`, which checks the Release against the libraries its lockfile pins.
+
+A pull that finds no such library reports it under [A reference names no entity the catalog holds](#a-reference-names-no-entity-the-catalog-holds), with a line of its own.
+
 ### A `$ref:` addresses a library by registry location
 
 <!-- covers: pkg/compactform.ErrHostInLibraryRef -->
@@ -1896,6 +1903,8 @@ and for a plugin bound to a provider socket, which is named by the workspace con
 > resolve: no entity in the catalog matches this URI: entity `"<reference>"` (referenced from .aggrega-config.yaml.plugins.providers)
 
 **How to fix:** read the reference exactly as the message quotes it. A name that does not exist, a version that was never published, and a bare name whose registry the workspace is not pointed at all arrive here identically, so check the three in that order: correct the spelling; confirm the version exists; confirm the registry holding it is configured and reachable. Where the entity is one you author locally, confirm the file is inside the catalog the build walks.
+
+Where `aggrega pull`, or `aggrega build --auto-pull`, stops on a library reference while the artifact cache holds a SchemaLibrary that no lockfile entry pins and no catalog directory supplies, a `remediation:` line follows the message, naming each such library. A cached library counts as catalog content only where a lockfile entry vouches for its digest, and the pull records that entry from the registry serving the library. Under the offline posture the pull can neither fetch the library nor record an entry for it, so the line says to run `aggrega pull --release <release>` where it can reach a registry, or to author the library under a catalog directory. Connected, no catalog directory or registry the pull reads serves the library, so there is no entry to record, and the line points to authoring the library under a catalog directory.
 
 ### A library reference is not written in the identity form
 

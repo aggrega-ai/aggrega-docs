@@ -41,6 +41,15 @@ A run with nothing to read in any pass is refused rather than reported as a clea
 
 The `validate` tool of [`aggrega mcp`](./aggrega-mcp.md), asked for the whole catalog, validates the same passes; in a workspace that names Releases its answer carries each one under `passes` — the Releases, the directories read and that pass's own verdict — beside the verdict over all of them.
 
+### A library only the artifact cache holds
+
+The artifact cache holds what a fetch put there, and a cached SchemaLibrary counts as catalog content only where an entry in a Release's lockfile vouches for its digest — see [What the cache is, and what it is not](./aggrega-cache.md#what-the-cache-is-and-what-it-is-not). When a `$ref:` resolves to nothing while the cache holds a library that no lockfile entry pins and no catalog directory the check reads supplies, the report is followed by a `remediation:` line naming each such library and the action that works for the scope that failed:
+
+- **With no argument, and with an entity path whether or not `--release` is given**, validate reads libraries from catalog directories only and reads no lockfile, so a recorded entry would not change its verdict. The line says so, and points to authoring the library under a catalog directory, or to `aggrega pull --release <release>` followed by `aggrega validate --release <release>`, which checks the Release against the libraries its lockfile pins.
+- **With `--release` alone**, validate reads the Release's lockfile, so the line names `aggrega pull --release <release>`, which resolves the library and records its entry, or authoring the library under a catalog directory.
+
+The line changes neither the verdict nor the exit code.
+
 ## Release-scoped correctness (`--release`)
 
 `aggrega validate --release <release-path>` validates exactly the entities a single Release's resolved dependencies reach, rather than the whole catalog or one entity. It computes the closure through the **same machinery a build uses**, so the entities it checks are exactly the entities a build of that Release would resolve, and over that closure:
