@@ -22,6 +22,8 @@ The top-level fields live at the root of the template context — accessed as `.
 - **`.workload`.** The parsed Workload object, populated once the rendered `workload:` document has been decoded and has passed the validation that gates it: the Workload schema, the Component's `featuresSchema` for every attachment its containers declare, and the resolvability of what each attachment references. `nil` for non-synthesized Recipes; `nil` before workload synthesis runs.
 - **`.steps` (map of step outputs).** Populated by `pipeline:` execution as Wasm plugins run, exposing a completed step's returned outputs to subsequent steps via `.steps.<id>.outputs`. A step reads a preceding step's outputs from its own `with` template; a step's `outputs` become visible only to steps declared after it. Empty when the node declares no pipeline, and before the node's first step completes.
 
+A top-level field that holds nothing for this node — `.workload` on a Recipe that synthesizes none, `.source` on a sourceless Recipe, `.features` on a Component with no attachments — reads as empty in a value template, exactly as an unset key under `.values` does: `{{ .workload }}` renders nothing, a `default` over it supplies its fallback, and an `if` or `with` over it takes its false branch. A `range` over it iterates nothing. A read beneath it — `{{ .workload.containers }}` — still halts, because there is nothing to descend into.
+
 ## The attachment shape
 
 `.features.<name>` and `.features.<slot>` are the same shape — one attachment, read one way:
