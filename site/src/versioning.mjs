@@ -1,9 +1,9 @@
-// Documentation versions are published side by side. The latest version is
-// served at the unversioned /docs path; every other version is served under a
-// version-prefixed path such as /docs/v0.1. This module derives, for a single
-// build, the version label, the "is this the latest version" flag and the base
-// path from the environment, so the same source tree can be built once per
-// version.
+// Documentation versions are published side by side, one per minor version.
+// The latest version is served at the unversioned /docs path; every version is
+// served under a version-prefixed path such as /docs/v0.8. This module
+// derives, for a single build, the version label, the "is this the latest
+// version" flag and the base path from the environment, so the same source tree
+// can be built once per version.
 //
 // Environment inputs:
 //   DOCS_VERSION    The version label, such as "v0.1". Unset or "latest" means a

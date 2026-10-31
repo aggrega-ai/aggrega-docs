@@ -44,14 +44,15 @@ served at `aggrega.ai/docs`.
 
 ## Versions
 
-Documentation versions are Git tags of this repository. Each version is built from
-its own tag — the tag's pages, rendered by this site project — with its own base
-path; the newest tag is the latest version, served at `/docs`, every other
-version under a version-prefixed path such as `/docs/v0.1`. Only the latest is
-indexed — older versions emit `noindex,follow` and a canonical link to the latest
-equivalent page in the same language. The per-version builds and their cache are
-driven from outside this repository; the version label, base path and latest flag
-for a single build come from the environment (see `src/versioning.mjs`).
+Documentation versions are minor versions, labelled like `v0.8`. Each is built
+from the newest Git tag of this repository in that minor version — the tag's
+pages, rendered by this site project — and served under a version-prefixed path
+such as `/docs/v0.8`; the newest minor version is the latest, served at `/docs`
+as well. Only the latest is indexed — older versions emit `noindex,follow` and a
+canonical link to the latest equivalent page in the same language. The
+per-version builds and their cache are driven from outside this repository; the
+version label, base path and latest flag for a single build come from the
+environment (see `src/versioning.mjs`).
 
 A drop-down above the sidebar, in the shape of the language picker, selects the
 version. Each page renders its own version as the selected option, so it reads
