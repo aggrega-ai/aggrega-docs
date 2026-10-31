@@ -3194,11 +3194,17 @@ The first value is the Feature whose list names the other — the one the senten
 
 An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
 
-Emitted message, where the attachment dictates a delivery its slot does not accept — the slot, then the mechanism:
-> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<slot>"`, `"<mechanism>"`)
+Emitted message, where the attachment dictates a delivery its slot does not accept — the slot, then the mechanism, then each mechanism the slot's `inject` allowlist accepts, in the order the slot declares them (none follow for an empty allowlist):
+> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<slot>"`, `"<mechanism>"`, `"<permitted-mechanism>"`)
 
-and where it carries a key the slot does not declare:
-> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.<key>`, attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema)
+A component an imported module contributes is checked once the composition that imports it is built, and reports in a second form. It names the module's Aggregate and the key inside the module's document that the slot does not declare — a mechanism under the attachment's `inject:` block, or the `inject:` block itself on a slot whose allowlist is empty:
+> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.<key>`, attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — `<remedy>`)
+
+where `<remedy>` depends on the key:
+
+- `remove it`, for the `inject:` block on a slot whose allowlist is empty;
+- `remove it, or add it to the slot's inject allowlist in the entity's featuresSchema`, for a mechanism a slot's allowlist can name — `env`, `file` or `arg`;
+- `remove it: a slot's inject allowlist in the entity's featuresSchema accepts only env, file and arg`, for any other mechanism, which no slot can declare.
 
 An attachment declared at a broader scope — subsystem-wide, cascading onto every component beneath it — is held to the same shape, and it is checked against the slot on each component it reaches. The same attachment can therefore be in shape for one component and out of shape for another, so this form names the component and the slot it failed against, and locates the attachment at the scope where it was declared rather than at a key inside its delivery block:
 
@@ -3206,7 +3212,7 @@ An attachment declared at a broader scope — subsystem-wide, cascading onto eve
 
 An attachment a connection carries never reaches this halt. Its shape is closed where it is written: on the Aggregate's connection entry it takes `type`, `description` and `values`, and on the Release's `type`, `description` and `infra`, so it can dictate no delivery at all — an `inject:` written there is refused when the document loads, naming the key — and the Workload entry that delivers it is held to the socket slot's `inject` allowlist instead. No scope reaches a socket's slot either, so the scope-wide form above has no counterpart on a connection.
 
-**How to fix:** the two forms call for different edits, and the field path tells you which one you have. Where it names a key inside an attachment on a component, that key is the fault: remove it, or declare it on the slot in the entity's `featuresSchema` — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. Where it names an attachment at a scope, the attachment is well formed and its placement is the fault: move it down onto the components whose slot accepts the delivery, leaving outside its reach the components that reserve delivery to their Recipe.
+**How to fix:** the forms call for two different edits, and the field path tells you which one you have. Where it names an attachment on a component, or a key inside one, the delivery is the fault: remove it, or move its entries under a mechanism the slot's `inject` allowlist names. Where the material is genuinely meant to reach the workload through a mechanism the slot does not list, the allowlist in the catalog entity's `featuresSchema` can be widened — but only with `env`, `file` or `arg`, the mechanisms a slot can declare; a Component naming any other mechanism there fails validation when it loads, so for any other mechanism removing it is the only fix. Where it names an attachment at a scope, the attachment is well formed and its placement is the fault: move it down onto the components whose slot accepts the delivery, leaving outside its reach the components that reserve delivery to their Recipe.
 
 ### Duplicate delivery key across inject sources
 
