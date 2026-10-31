@@ -1,6 +1,6 @@
 # Well-Known Annotations
 
-Providers read specific boundary annotations from the Release to configure platform-specific context. The compiler itself is agnostic to the *values* of these annotations — it passes them through as opaque strings. Each provider declares which annotations it reads, at which scope, and what default applies when the annotation is absent. That declaration lives on a provider-rendering Plugin's `spec.provider.wellKnownAnnotations`, and it is deliberately narrow: a provider lists a key only where it reads it.
+Providers read specific annotations to configure platform-specific context — set on a Release boundary or a Release component entry, or declared in the Aggregate on a subsystem or a component instance. The compiler itself is agnostic to the *values* of these annotations — it passes them through as opaque strings. Each provider declares which annotations it reads, at which scope, and what default applies when the annotation is absent. That declaration lives on a provider-rendering Plugin's `spec.provider.wellKnownAnnotations`, and it is deliberately narrow: a provider lists a key only where it reads it.
 
 The support matrix in this chapter is **generated from those declarations**, at the grain the declaration carries — per provider **per input kind**, because a provider can read a key when it synthesizes a deployment unit and have no way to read it when it renders a vendored artifact. Author against the matrix here: a cell says what that provider reads on that path, because a cell cannot say anything the provider did not declare. A declaration that names an input kind the provider's own render-behavior contract does not render is refused when the Plugin entity is read, so the two claims cannot disagree.
 
@@ -15,6 +15,7 @@ The **reserved vocabulary** is the wider set, and it lives in two places instead
 5. Recipes do not handle provider well-known annotations. The provider applies placement context (namespace, registry prefix, service account) automatically after the Recipe produces its content.
 6. The `aggrega.ai/` prefix is reserved for the standard library. Custom enterprise annotations use their own prefix.
 7. Component-level annotations in the Release override boundary-level annotations (deep-merge, component wins). Where a provider assembles the output of several boundaries into one artifact, it may require an annotation to resolve uniformly across them — the `helm-chart` provider takes the umbrella chart's name from `aggrega.ai/chart-name`, and when more than one boundary contributes to the same chart and they resolve that annotation to different values, the build halts naming the disagreeing boundaries, because one chart cannot carry two names.
+8. Annotations the Aggregate declares reach the same keys beneath the Release's. A key declared on a subsystem or on a component instance — in the Aggregate itself, or in a module it imports, where it reaches the module's own components — applies to the component wherever the Release sets no value for that key; where the Release sets one, on the boundary or on the component's entry, the Release's value is the one applied. A catalog entity's own annotations never set one. `aggrega.ai/chart-name` is the exception to the Aggregate's reach: it names an assembly rather than a component, and is read from the Release boundaries that contribute to it.
 
 ## The Complete Annotation Matrix
 
@@ -95,11 +96,12 @@ region needs a cross-account stack-output read, optionally under an assumed role
 These annotations carry that placement context. Each is read at the moment the
 provider shapes such a reference, and resolved through the ordinary annotation
 cascade at that moment — a value set on the component wins over a value set on
-the boundary. A boundary-level value is therefore the common way to express
+the boundary, and a value the Release sets wins over one the Aggregate declares.
+A boundary-level value is therefore the common way to express
 them, not the only one. They are opaque scalar pointer
 strings — the provider pipes them into the reference it builds and never resolves
 them against live AWS state; the account, region, and role are supplied by the
-Release, and the runtime environment resolves the final physical read. When every
+Release or declared in the Aggregate, and the runtime environment resolves the final physical read. When every
 annotation is absent, the provider treats the peer as same-account and same-region
 and supplies no role.
 
@@ -175,7 +177,7 @@ Eleven keys in the matrix above are marked *reserved; no provider reads it*:
 `aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
 and `aggrega.ai/tf-backend`.
 
-Setting one of these on a Release has **no effect on rendered output**. No
+Setting one of these on a Release or in an Aggregate has **no effect on rendered output**. No
 provider reads them, and no default is applied on their behalf — in
 particular, no DNS suffix is applied for `aggrega.ai/cluster-domain`, so a Recipe
 that needs a cluster domain must supply it as an ordinary value rather than rely
@@ -229,7 +231,7 @@ The umbrella chart version a `helm-chart` boundary emits is always
 
 ## Catalog-authored annotations the compiler reads
 
-Everything above is a *provider* annotation: authored on the Release, passed through by the compiler as an opaque string, read by a provider. A second, much smaller vocabulary runs the other way — authored by the Architect on a **catalog entity's own** `metadata.annotations`, read by the **compiler**, and never seen by a provider. Invariant 1 above is about the provider vocabulary and does not extend to these; the compiler reads exactly the keys listed here and no others.
+Everything above is a *provider* annotation: authored on the Release or declared in the Aggregate, passed through by the compiler as an opaque string, read by a provider. A second, much smaller vocabulary runs the other way — authored by the Architect on a **catalog entity's own** `metadata.annotations`, read by the **compiler**, and never seen by a provider. Invariant 1 above is about the provider vocabulary and does not extend to these; the compiler reads exactly the keys listed here and no others.
 
 These keys sit under a `<scope>.aggrega.ai/` sub-prefix, not the bare `aggrega.ai/` prefix, so they are outside the reservation register the matrix above carries and outside the reserved-prefix rule the publishing lint applies to bare-prefix keys.
 
@@ -241,7 +243,7 @@ The mandate is satisfied by an attachment at any scope — a component-level or 
 
 ## Provenance labels emitted by providers
 
-The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
+The annotations above flow *into* the build — the Release or the Aggregate authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
 
 The set the providers emit, attached to every Kubernetes manifest the helm provider renders, to every `$import:`-loaded artifact the helm-chart provider adds to a sub-chart, and to every emitted service by compose — a helm-chart sub-chart's own templates are copied as their author wrote them, so they carry whatever that author wrote:
 
@@ -349,6 +351,44 @@ spec:
           annotations:
             feature.myco/db-pool: "vip-pool"   # closer-level override
 ```
+
+### Provider annotations declared in the Aggregate
+
+The keys in the matrix above cascade through the Aggregate too, and a provider applies what the cascade leaves on each component. A subsystem's `aggrega.ai/namespace` places every component beneath it; a component instance's own value places that component instead. A module the Aggregate imports carries its own cascade: its subsystems and component instances reach the module's own components, and nothing the importing Aggregate declares reaches into a module.
+
+The Release sits above the Aggregate on every key. Where the Release sets a key for a component — on its boundary or on the component's own entry — the Release's value is applied; where it sets none, the Aggregate's is. The two sides layer key by key, so a Release that sets only `aggrega.ai/namespace` leaves an `aggrega.ai/image-registry` the Aggregate declared in force.
+
+```yaml
+# Aggregate
+spec:
+  subsystems:
+    billing:
+      annotations:
+        aggrega.ai/namespace: billing                # api and worker render into billing
+      components:
+        api:
+          type: core/server:1.0.0
+        worker:
+          type: core/server:1.0.0
+          annotations:
+            aggrega.ai/namespace: billing-batch     # worker renders into billing-batch
+```
+
+```yaml
+# Release
+spec:
+  boundaries:
+    production:
+      components:
+        api:
+          annotations:
+            aggrega.ai/namespace: prod-billing      # the Release's value wins: api renders into prod-billing
+        worker: {}
+```
+
+`aggrega.ai/chart-name` is the one key outside this reach: it names an umbrella chart assembled from several components, so it is read from the Release boundaries contributing to that chart, never from a component's annotations.
+
+A Recipe or FeatureRecipe template reads the annotation buckets by name — `.context.annotations.aggregate`, `.context.annotations.release` and `.context.annotations.catalog` each hold what that side wrote — so a template that reads a placement key from one bucket sees that side's value only.
 
 ### The side-vs-pillar partition
 

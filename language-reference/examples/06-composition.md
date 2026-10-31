@@ -20,6 +20,8 @@ spec:
   components:
     main-db:
       type: core/postgres:2.0.0             # Uses Component from Example 4
+      annotations:
+        aggrega.ai/namespace: data           # The module places its own database
       values:
         db_name: "{{ .parameters.env_db_name }}"
   exportedComponents:
@@ -92,6 +94,8 @@ spec:
                 cpu_limit: "4"
                 storage_size: "200Gi"
 ```
+
+**Annotations inside a module.** A module's own annotations reach the module's own components exactly as an Aggregate's reach its own, whether declared on one of its subsystems or on a component instance, so `main-db` renders into the `data` namespace the module declares. The importing Aggregate declares nothing that reaches into the module; the Release does, and its value wins on the same key — writing `annotations: { aggrega.ai/namespace: prod-data }` on the `main-db` entry above, or on the `prod-cluster` boundary, places `main-db` there instead.
 
 ---
 
@@ -237,6 +241,7 @@ spec:
       annotations:
         team.aggrega.ai/owner: "billing-squad"
         cost.aggrega.ai/center: "CC-3421"
+        aggrega.ai/namespace: "billing"        # where the billing components render
       features:
         # Cross-cutting: all components in this subsystem get audit logging
         audit-logger:
@@ -289,6 +294,8 @@ spec:
 ```
 
 **Compilation:** The compiler flattens the subsystem tree. `invoice-api` and `payment-worker` both receive the `audit-logger` Feature, each carrying the `values` the subsystem wrote and the `infra` the Release wrote on that component's entry, and the cascading annotation `team.aggrega.ai/owner: "billing-squad"` in their `.context.annotations.aggregate` bucket. The Recipe template can access these via `{{ index .context.annotations.aggregate "cost.aggrega.ai/center" }}`.
+
+The subsystem's `aggrega.ai/namespace` is a provider annotation, so it does more than reach the template: the provider places `invoice-api` and `payment-worker` in the `billing` namespace, and `metrics-collector`, whose subsystem declares none, keeps the placement it would have had. A Release that sets `aggrega.ai/namespace` — on `prod-cluster` or on one component's entry — overrides the subsystem's value for the components it covers; the subsystem's applies wherever the Release sets none.
 
 ---
 
