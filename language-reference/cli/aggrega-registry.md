@@ -222,21 +222,35 @@ The per-repository records are byte-identical across two runs against the same
 registry state; the freshness timestamp is written to a sibling file so it never
 disturbs the records.
 
-A refresh revalidates each repository conditionally: it re-resolves the selected
-version's manifest digest and reuses the cached record untouched when the tag set
-and digest are unchanged, so an unchanged registry costs a round of cheap digest
-resolves rather than a full re-read of every repository's manifest and referrers.
-Use --upgrade to ignore the cached validators and re-read every repository — this
-picks up a change a conditional refresh skips, such as a deprecation marker, a
-signature or a publication date added to an existing version whose digest did not
-change, or an older version published again under its existing tag while the
-selected one stayed the same. A record written by an index build that read no
-publication dates keeps none until such a re-read.
+A refresh reads again only what changed, and finds every change a full re-read
+would. For each repository it revalidates the tag listing with a conditional
+request, resolves every version's tag to its manifest digest, and revalidates every
+version's attachments — its signatures, publication-date statements and deprecation
+markers — with one conditional request, plus one for the signatures of a
+deprecation marker it judged before. A version whose digest or attachments changed
+is read again in full, and its signatures and markers are verified again exactly as
+a full re-read verifies them; everything else is kept as recorded. A change to this
+registry's trust policy reads every version again under the policy now in force, and
+so does a repository whose entry in the index records none of these checks. An
+unchanged registry therefore costs one conditional request per repository and two
+small requests per version (three where a deprecation marker was judged), with
+nothing downloaded. A version whose reads did not all complete, or that carries a
+deprecation marker that was not honored, is read again on the next refresh, and so
+is every version of a registry that offers no way to revalidate attachments.
+
+Several repositories are read at a time. Everything the command records and prints
+comes out in repository order, so the index and the output are the same as reading
+one repository at a time would produce.
+
+Use --upgrade to read every repository in full, comparing nothing with the index
+already written — to rebuild an index from the registry alone. It finds no change a
+refresh without it would miss.
 
 Each published version's deprecation markers are read as the walk goes, and the ones
-whose own signature verifies are recorded into the index. Every marker met is
-reported, whether or not it was recorded, and each registry reports how many markers
-its index now records — including when that number is zero. Where signature
+whose own signature verifies are recorded into the index. Every marker read is
+reported, whether or not it was recorded — a version kept as recorded is not read, so
+its marker is not reported again — and each registry reports how many markers its
+index now records, including when that number is zero. Where signature
 verification is disabled for a registry, the walk reports that its markers were not
 examined rather than a count, so a registry that published nothing is never confused
 with one this run had no basis to judge.
@@ -246,7 +260,7 @@ with one this run had no basis to judge.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--upgrade` | `false` | Re-read every repository from the registry, ignoring what is already cached (picks up changes a conditional refresh would skip) |
+| `--upgrade` | `false` | Read every repository in full, comparing nothing with the index already written (a refresh without it already re-reads whatever changed) |
 <!-- END GENERATED: cli-registry -->
 
 ## What `registry update` reports about deprecation markers
@@ -256,9 +270,11 @@ deprecation markers and records the ones it can authenticate into the local inde
 It reports the outcome of that scan on every path, so a registry that published no
 marker is distinguishable from a run that did not look for one.
 
-Each marker the walk meets produces one line naming the repository, the version, and
+Each marker the walk reads produces one line naming the repository, the version, and
 the severity the publisher recorded — `warning`, `error` or `retracted` — together
-with whether the marker was recorded. A marker is recorded only when its own
+with whether the marker was recorded. A version whose attachments are unchanged since
+the last refresh is kept as recorded rather than read, so its marker is not reported
+again; the count below still includes it. A marker is recorded only when its own
 signature verifies against the signers the registry's trust policy honors. One that
 is present but unreadable, or present but not honored, is reported as such and left
 out of the index rather than recorded on evidence that could not be authenticated.
@@ -299,28 +315,41 @@ signature is not a keyless one this policy verifies — for example a keyless pu
 under a policy that trusts no keyless identity, since a keyless publication states no date of
 its own. `aggrega search -o json` reports the date under each version in `published`.
 
-## What a routine refresh does not pick up
+## What a refresh reads again
 
-A refresh revalidates each repository before deciding to re-read it: where the tag
-listing and the selected version's manifest digest are both unchanged, the cached
-record is reused as it stands, and that repository's published versions are not
-re-examined for markers.
+A refresh compares what the registry serves now with what the index recorded, and reads
+again everything that changed — the same answer a full re-read gives. For each repository
+it:
 
-A deprecation marker moves neither of those. It is attached to the published artifact
-as a separate signed object pointing back at it — which is exactly what lets a
-publisher deprecate a version without re-publishing it — so attaching one adds no tag
-and leaves the artifact's own manifest untouched. **A marker attached to a version
-whose repository is otherwise unchanged is therefore not picked up by a routine
-refresh**, and the count that run reports is the count the reused records already
-carried rather than a fresh one.
+- revalidates the tag listing, so a version published or deleted since is picked up;
+- resolves every version's tag to the manifest it names, so an older version published
+  again under its existing tag is read again;
+- revalidates every version's attachments — its signatures, its publication-date statements
+  and its deprecation markers — so a signature, a date or a marker attached to a version
+  since is read and verified, and does the same for the signatures of a deprecation marker
+  it judged before;
+- compares the registry's trust policy with the one the index was built under, so a change
+  to the policy reads every version again under the new one.
 
-Pass `--upgrade` to re-read every repository and pick it up. This matters beyond the
-report: the version exclusion and `aggrega inspect` both read this index, so a version
-retracted since your last full re-read is neither excluded from selection nor shown.
+A deprecation marker, a signature and a publication date are each attached to a published
+version as a separate object pointing back at it — which is what lets a publisher deprecate
+or sign a version without publishing it again — so none of them adds a tag or changes the
+version's own manifest. They change the version's attachments, and that is what the third
+check revalidates. The version exclusion and `aggrega inspect` both read this index, so a
+version retracted since the last refresh is excluded from selection, and shown, once the
+next refresh has run.
 
-The same holds for a signature attached to a version afterwards, and so for the
-publication date it carries, and for a record written by an index build that read no
-publication dates: each is picked up by the next full re-read.
+Each check is a small request — a manifest digest resolve, or a conditional request the
+registry answers as unchanged without sending anything — so a refresh of an unchanged
+registry downloads nothing. A version whose
+reads did not all complete, or that carries a deprecation marker that was not honored, is
+read again on the next refresh. A registry that cannot say whether a version's attachments
+changed has every version read again on every refresh: the answer is the same, and so is the
+cost of a full re-read.
+
+`--upgrade` reads every repository in full, comparing nothing with the index already
+written. Use it to rebuild an index from the registry alone; it picks up nothing a refresh
+misses.
 
 ## The public key a keyed policy pins
 
