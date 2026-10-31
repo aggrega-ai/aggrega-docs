@@ -3487,6 +3487,21 @@ Emitted message:
 
 **How to fix:** the message names both halves. Add the mechanism's key to the FeatureRecipe's `injectMapping` so the Feature produces a value for it, or drop the mechanism from the Component's `spec.inject` allowlist where nothing is expected to deliver under it. Where the FeatureRecipe belongs to someone else's catalog, attaching a Feature whose mapping covers the mechanism is the third answer.
 
+### An attached Feature's injectMapping output cannot be read
+
+<!-- covers: internal/compiler/renderer.ErrInjectMappingOutputNotParsable -->
+
+A FeatureRecipe's `injectMapping` is a template, and what it produces is read as YAML: a dictionary keyed by delivery mechanism — `env`, `file`, `arg` or a mechanism of the component's own — or a flat dictionary of environment deliveries. When the output reads as neither, none of its keys can be delivered, so the build stops rather than render the component as though the attached Feature had delivered nothing. A credential is the case that matters most: a component expecting a password it never received could otherwise run without one, and nothing in the output would say so.
+
+The usual cause is a value the template wrote between quotes as it stands. A double quote inside it ends the quoted scalar early, and a backslash starts an escape YAML may not know, so a mapping that renders correctly for most values breaks for the one that holds such a character — often a password. An output that is empty, or that parses as a dictionary delivering nothing, is not this condition: it delivers nothing, and that is what it says.
+
+The frame above the message names the component being rendered, then the attachment by the name it carries on the component and the FeatureRecipe the mapping is written in, as `feature "<attachment>" (recipe "<featurerecipe>") injectMapping output`. Beneath the message is the reason the output could not be read — the line and what YAML found there, such as `yaml: line 2: found unknown escape character`. Where the template reads a value an author declared sensitive and the reason depends on what that value holds, the reason is withheld and a sentence saying so stands in its place, so the halt never quotes the value that broke the output. The build reports the halt under a `CATALOG_ERROR` tag, because the mapping is written by the author of the FeatureRecipe.
+
+Emitted message:
+> FeatureRecipe injectMapping output could not be read as a dictionary of deliveries
+
+**How to fix:** in the FeatureRecipe's `injectMapping`, write each value through `toJson` — `{{ .values.key }}: {{ .values.origin | toJson }}` — which writes it as a JSON string that YAML reads back exactly, whatever characters it holds. Where the FeatureRecipe belongs to someone else's catalog, the value can also be changed so it carries no double quote or backslash until the mapping is fixed.
+
 ## When rendering output
 
 After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe and FeatureRecipe sources, then hands the result to the renderer.
@@ -6527,6 +6542,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0363` | `annotation subkey is not routed by the annotation's binding` | An annotation subkey is not routed by its binding |
 | `E0364` | `a value template failed while it ran` | A value template failed while it ran |
 | `E0365` | `boundary-level Feature's output is routed to a dispatch path nothing assembles` | A boundary-level Feature's output reaches no assembled file |
+| `E0366` | `FeatureRecipe injectMapping output could not be read as a dictionary of deliveries` | An attached Feature's injectMapping output cannot be read |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
