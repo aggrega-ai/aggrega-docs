@@ -29,7 +29,7 @@ Where both documents write one attachment — the Aggregate naming its Feature, 
 
 **A required slot left empty is the one case no document wrote.** There is no attachment to point at, so the finding stays at the component in the Aggregate and is filed as `[DEVELOPER_ERROR]`, and its remedy names both documents, because either one may fill the slot: "Attach a Feature at that name, in the Aggregate or in the Release, on the component or at a scope above it."
 
-The editor reads the same placement: a finding positioned in the Release is shown on the Release's document, on the key that wrote it, and on the Aggregate's not at all.
+The editor reads the same placement: a finding positioned in the Release is shown on the Release's document, on the key that wrote it, and on the Aggregate's not at all; one positioned in the document of a module the Aggregate imports is shown on that module's document in the same way.
 
 ## Output shape
 
