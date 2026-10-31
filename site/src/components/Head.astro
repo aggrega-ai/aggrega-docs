@@ -63,19 +63,23 @@ const canonicalHref = head.find(
     typeof entry.attrs.href === "string",
 )?.attrs?.href as string | undefined;
 
-const { entry } = Astro.locals.starlightRoute;
-const id = entry.id;
+const { entry, locale, lang } = Astro.locals.starlightRoute;
+// A page of a published language is served under its language's path segment;
+// its English page's id names the page without it.
+const routeId = Astro.locals.starlightRoute.id;
+const id = !locale ? routeId : routeId === locale ? "" : routeId.slice(locale.length + 1);
 const pageTitle = entry.data.title ?? "Aggrega";
 const description =
   typeof entry.data.description === "string" && entry.data.description
     ? entry.data.description
     : "Aggrega documentation";
 
-// The per-page sharing image is generated at /og/<page-id>.png (see
-// src/pages/og). Older versions share the latest version's card, matching the
-// canonical rewrite above.
+// The per-page sharing image is generated at /og/<page-id>.png from the English
+// page (see src/pages/og); a page in another language shares its English page's
+// card. Older versions share the latest version's card, matching the canonical
+// rewrite above.
 const imageBase = isLatest ? base : latestBase;
-const ogImage = `${site}${imageBase}/og/${id}.png`;
+const ogImage = `${site}${imageBase}/og/${id || "index"}.png`;
 
 head.push({
   tag: "meta",
@@ -129,8 +133,9 @@ const isApiReference =
   id.startsWith("language-reference/schema/");
 
 const pageBase = isLatest ? base : latestBase;
-const segments = id === "index" ? [] : id.split("/");
-const crumbs = [{ name: "Documentation", url: `${site}${pageBase}/` }];
+const languageBase = locale ? `${pageBase}/${locale}` : pageBase;
+const segments = id === "" ? [] : id.split("/");
+const crumbs = [{ name: "Documentation", url: `${site}${languageBase}/` }];
 let accumulated = "";
 segments.forEach((segment, index) => {
   accumulated += (accumulated ? "/" : "") + segment;
@@ -140,7 +145,7 @@ segments.forEach((segment, index) => {
     url:
       isLast && canonicalHref
         ? canonicalHref
-        : `${site}${pageBase}/${accumulated}/`,
+        : `${site}${languageBase}/${accumulated}/`,
   });
 });
 
@@ -160,7 +165,7 @@ const structuredData = {
       name: pageTitle,
       description,
       url: canonicalHref,
-      inLanguage: "en",
+      inLanguage: lang,
       isPartOf: { "@id": websiteId },
     },
     {

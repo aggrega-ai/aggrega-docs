@@ -49,19 +49,42 @@ its own tag — the tag's pages, rendered by this site project — with its own 
 path; the newest tag is the latest version, served at `/docs`, every other
 version under a version-prefixed path such as `/docs/v0.1`. Only the latest is
 indexed — older versions emit `noindex,follow` and a canonical link to the latest
-equivalent page — and a version switcher lists the available versions. The
-per-version builds and their cache are driven from outside this repository; the
-base path and latest flag for a single build come from the environment (see
-`src/versioning.mjs`).
+equivalent page in the same language. The per-version builds and their cache are
+driven from outside this repository; the version label, base path and latest flag
+for a single build come from the environment (see `src/versioning.mjs`).
+
+A drop-down above the sidebar, in the shape of the language picker, selects the
+version. Each page renders its own version as the selected option, so it reads
+correctly without script; in the browser the other versions are filled in from
+one list, `/docs/versions.json`, served with the latest version, which marks the
+latest. No version's pages carry the list, so an older version is never rebuilt
+because a version was added or withdrawn. Choosing a version opens the same page
+in the same language in that version. A page that version lacks is answered with
+its not-found page, one per language, which links to that version's home page in
+the same language (`src/pages/[...locale]/404.astro`).
 
 ## Languages
 
-English is the only active language. The full localisation structure — locale
-routing, `hreflang` alternates, per-locale sitemaps, and a differential
-translation-memory pipeline that only re-translates changed segments and
-preserves a glossary of product names — is built and exercised behind an
-environment flag (`DOCS_I18N_PROOF=1`, which adds a stub locale for testing), but
-no translated content is shipped. Only the latest version is ever translated.
+The site is published in English, served unprefixed at `/docs`, and in each
+language on the published list, `src/languages.json`, served under its language
+code in lower case (`/docs/ja/`, `/docs/zh-cn/`). The list names the languages
+whose translation is complete; adding one is one line in that file. Every part of
+the site reads the list through `src/translations.mjs`, and a language on it that
+the translation configuration does not translate stops the build, naming it.
+
+The translated pages are not part of the repository. Each version's are
+generated when that version is built, from the tag's own pages and the
+translation memory, with the translation tool and configuration of the checkout,
+one tree per language with the English pages' paths. For each language the
+build prints the share of the version's text the memory translates. Text the
+memory does not translate stays in English, and a page holding any carries
+Starlight's notice, in the page's language, that it is not fully translated.
+A translated heading keeps its English heading's anchor, so a link to a section
+resolves in every language. A build with no translated pages present, such as a
+local one, serves every page of a published language in English with that notice.
+The sidebar is the English sidebar, each page link pointing at the page in the
+reader's language under its translated title; `llms.txt` and `llms-full.txt`
+stay English.
 
 The translation configuration sits in `l10n/` at the repository root: the
 target languages, a glossary of the product names kept in English, and one
@@ -100,10 +123,9 @@ npm run dev       # local preview
   approach) would improve them.
 - Breadcrumb segments are humanised from route names, so an initialism such as
   "CLI" renders as "Cli" until a proper-noun map is added.
-- Switching the translated languages on: declare the target languages in
-  `astro.config.mjs`, add the translated trees under `l10n/<locale>/` to the
-  content collection, register the package's heading-identifier plugin, show
-  the machine-translation notice on every translated page, and read the newest
-  translations from `l10n-memory` in the publishing build.
+- The sidebar's group labels and the version selector's accessible label are
+  written in English in the site configuration and show in English on every
+  language's pages; a translated page carries no notice that it was
+  machine-translated.
 - Callout panels use the shared dark surface with the default per-type border; a
   per-type accent colour from the brand's semantic palette is a later refinement.

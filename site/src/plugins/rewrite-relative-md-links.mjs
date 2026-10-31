@@ -1,4 +1,5 @@
 import path from "node:path";
+import { routeOf } from "../translations.mjs";
 
 // Rewrites relative Markdown-file cross-links in body prose to their built
 // route form.
@@ -9,10 +10,13 @@ import path from "node:path";
 // directory, the built-in relative-link resolution does not apply, so such
 // links would otherwise ship unchanged into the HTML as `href="....md"` and
 // fail to resolve. This plugin resolves each link against the current file,
-// maps it to the page route using the same id rules as the content loader
-// (root `README.md` is the site root; a section `README.md` is that section's
-// route; every other `<path>.md` is `<path>`), and emits a route-relative
-// href.
+// maps it to the page route with the function the content loader names its
+// entries with (root `README.md` is the site root; a section `README.md` is
+// that section's route; every other `<path>.md` is `<path>`; a page of a
+// translated tree is under its language's path segment), and emits a
+// route-relative href. A translated page holds the same relative links as its
+// English page, inside a tree with the same paths, so its links reach the
+// pages of its own language.
 //
 // The emitted href is route-relative — computed from the current page's route
 // rather than pinned to a fixed prefix — so it resolves under any base path:
@@ -29,21 +33,10 @@ import path from "node:path";
 
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
-// Maps a content-root-relative Markdown path to its route path, mirroring the
-// content loader's id rules. Returns "" for the site root.
-function toRoutePath(rel) {
-  const withoutExtension = rel.replace(/\.md$/i, "");
-  if (withoutExtension === "README") return "";
-  if (withoutExtension.endsWith("/README")) {
-    return withoutExtension.slice(0, -"/README".length);
-  }
-  return withoutExtension;
-}
-
 // Returns the rewritten href, or null when the link must be left untouched
 // (absolute URLs, root-absolute paths, pure anchors, non-Markdown targets, or
 // targets that resolve outside the corpus).
-function rewriteUrl(url, currentRoutePath, currentFileDir) {
+function rewriteUrl(url, currentRoutePath, currentFileDir, contentRoot) {
   if (!url) return null;
   if (url.startsWith("#")) return null; // pure anchor
   if (url.startsWith("//")) return null; // protocol-relative
@@ -60,7 +53,7 @@ function rewriteUrl(url, currentRoutePath, currentFileDir) {
   );
   if (targetRel === ".." || targetRel.startsWith("../")) return null; // escapes the corpus
 
-  const targetRoute = toRoutePath(targetRel);
+  const targetRoute = routeOf(targetRel, contentRoot);
   const depth =
     currentRoutePath === "" ? 0 : currentRoutePath.split("/").length;
   const ups = "../".repeat(depth);
@@ -75,7 +68,7 @@ function walk(node, ctx) {
     (node.type === "link" || node.type === "definition") &&
     typeof node.url === "string"
   ) {
-    const next = rewriteUrl(node.url, ctx.routePath, ctx.fileDir);
+    const next = rewriteUrl(node.url, ctx.routePath, ctx.fileDir, ctx.contentRoot);
     if (next !== null) node.url = next;
   }
   if (Array.isArray(node.children)) {
@@ -93,8 +86,8 @@ export default function rewriteRelativeMdLinks(options = {}) {
     if (!abs || !contentRoot) return;
     const rel = path.relative(contentRoot, abs).split(path.sep).join("/");
     if (!rel.toLowerCase().endsWith(".md")) return;
-    const routePath = toRoutePath(rel);
+    const routePath = routeOf(rel, contentRoot);
     const dir = path.posix.dirname(rel);
-    walk(tree, { routePath, fileDir: dir === "." ? "" : dir });
+    walk(tree, { routePath, fileDir: dir === "." ? "" : dir, contentRoot });
   };
 }

@@ -6,6 +6,7 @@ import { OGImageRoute } from "astro-og-canvas";
 import { convert } from "fontverter";
 import { getCollection } from "astro:content";
 import { colors } from "@aggrega-ai/brand";
+import { languageOfRoute } from "../../translations.mjs";
 
 // Per-page Open Graph image, one PNG per documentation page, served at
 // /og/<page-id>.png under the site base. The visual is the brand card: the
@@ -43,7 +44,9 @@ const bodyInk = rgb(colors.neutral["300"]);
 
 const TAGLINE = "Aggrega documentation";
 
-const entries = await getCollection("docs");
+// One card per English page: a page in another language shares its English
+// page's card, since the card's typeface carries the Latin alphabet only.
+const entries = await getCollection("docs", (entry) => !languageOfRoute(entry.id));
 const pages = Object.fromEntries(entries.map((entry) => [entry.id, entry]));
 
 export const { getStaticPaths, GET } = await OGImageRoute({

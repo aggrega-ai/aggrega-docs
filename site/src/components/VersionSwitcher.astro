@@ -1,68 +1,73 @@
 ---
-import versionData from "../versions.json";
-import { resolveVersioning } from "../versioning.mjs";
+import Select from "@astrojs/starlight/components/Select.astro";
+import { resolveVersioning, VERSIONS_PATH } from "../versioning.mjs";
 
-// The version list is read from a generated data file so it can be regenerated
-// per deploy from the set of published versions. Each entry links to the base
-// path of that version; the latest version links to the unversioned /docs path.
-const { version } = resolveVersioning();
-const versions = Array.isArray(versionData.versions) ? versionData.versions : [];
-
-function isCurrent(entry) {
-  if (entry.latest) return version === "latest" || version === entry.label;
-  return version === entry.label;
-}
+// The version selector: a drop-down in the shape of the language picker. The
+// page renders its own version as the selected option, so it shows the right
+// version without script. In the browser the script fills in the other
+// published versions from the one list served at /docs/versions.json, on the
+// same origin, so no version's pages carry the list. Choosing a version opens
+// the same page, in the same language, in that version; a page that version
+// lacks lands on its not-found page.
+const { version, base } = resolveVersioning();
 ---
 
-{
-  versions.length > 0 && (
-    <nav class="version-switcher" aria-label="Documentation version">
-      <span class="version-switcher__label">Version</span>
-      <ul class="version-switcher__list">
-        {versions.map((entry) => (
-          <li>
-            <a
-              href={`${entry.base}/`}
-              aria-current={isCurrent(entry) ? "true" : undefined}
-            >
-              {entry.label}
-              {entry.latest ? " (latest)" : ""}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
+<docs-version-select data-version={version} data-base={base} data-list={VERSIONS_PATH}>
+  <Select
+    icon="code-branch"
+    label="Documentation version"
+    options={[{ label: version, value: base, selected: true }]}
+    width="7em"
+  />
+</docs-version-select>
 
 <style>
-  .version-switcher {
-    padding: 0.5rem 0 0.75rem;
+  docs-version-select {
+    display: block;
+    padding: 0.25rem 0 0.5rem;
     border-bottom: 1px solid var(--sl-color-hairline-light);
     margin-bottom: 0.5rem;
   }
-  .version-switcher__label {
-    display: block;
-    font-size: var(--sl-text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--sl-color-gray-3);
-    margin-bottom: 0.25rem;
-  }
-  .version-switcher__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 0.75rem;
-  }
-  .version-switcher__list a {
-    text-decoration: none;
-    font-size: var(--sl-text-sm);
-  }
-  .version-switcher__list a[aria-current="true"] {
-    font-weight: 600;
-    color: var(--sl-color-white);
-  }
 </style>
+
+<script>
+  // The list's shape: { "versions": [{ "label": "v0.8", "base": "/docs/v0.8" },
+  // { "label": "v0.9", "base": "/docs", "latest": true }, …] }, the newest first.
+  type Version = { label: string; base: string; latest?: boolean };
+
+  class DocsVersionSelect extends HTMLElement {
+    connectedCallback() {
+      const select = this.querySelector("select");
+      if (!select) return;
+      const { version, base, list } = this.dataset;
+      if (!version || base === undefined || !list) return;
+
+      select.addEventListener("change", () => {
+        const here = window.location.pathname;
+        const page = here.startsWith(base) ? here.slice(base.length) : "/";
+        window.location.assign(select.value + (page || "/") + window.location.hash);
+      });
+      window.addEventListener("pageshow", (event) => {
+        if (!event.persisted) return;
+        const markup = select.querySelector<HTMLOptionElement>("option[selected]")?.index ?? 0;
+        if (select.selectedIndex !== markup) select.selectedIndex = markup;
+      });
+
+      fetch(list, { credentials: "same-origin" })
+        .then((response) => (response.ok ? response.json() : undefined))
+        .then((data) => {
+          const versions: Version[] = Array.isArray(data?.versions) ? data.versions : [];
+          if (!versions.some((entry) => entry.label === version)) return;
+          select.replaceChildren(
+            ...versions.map((entry) => {
+              const current = entry.label === version;
+              const option = new Option(entry.label, current ? base : entry.base, current, current);
+              return option;
+            }),
+          );
+        })
+        .catch(() => {});
+    }
+  }
+  customElements.define("docs-version-select", DocsVersionSelect);
+</script>

@@ -1,8 +1,17 @@
+import path from "node:path";
 import { readFile } from "node:fs/promises";
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import type { Loader, LoaderContext } from "astro/loaders";
 import { docsSchema } from "@astrojs/starlight/schema";
+import {
+  corpusRoot,
+  languageOf,
+  publishedLanguages,
+  routeOf,
+  translatedPath,
+  translationPackage,
+} from "./translations.mjs";
 
 // The documentation corpus is authored as plain Markdown, and no page sets its
 // title in front matter, so each page's title is its first level-one heading.
@@ -15,6 +24,11 @@ import { docsSchema } from "@astrojs/starlight/schema";
 // header saying what the example is. The docs schema declares none of its keys,
 // so it drops them, and the heading scan skips the block, so a line inside it is
 // never read as the title.
+//
+// The translated pages of each published language are read the same way, from
+// the tree the documentation build generates for it (see src/translations.mjs),
+// which holds the English pages' paths. A translated heading ends with the
+// source heading's identifier, so the title is read without it.
 
 function firstHeading(markdown: string): string | undefined {
   let inFence = false;
@@ -35,15 +49,17 @@ function firstHeading(markdown: string): string | undefined {
   return undefined;
 }
 
-// A top-level README anchors the site root; a README inside a section anchors
-// that section's route. Every other page keeps its path-derived id.
+// A page's id is its route (see routeOf): the root README is the site root,
+// which the collection names "index", and a README inside a section anchors
+// that section's route.
 function generateId({ entry }: { entry: string }): string {
-  const withoutExtension = entry.replace(/\.md$/, "");
-  if (withoutExtension === "README") return "index";
-  if (withoutExtension.endsWith("/README")) {
-    return withoutExtension.slice(0, -"/README".length);
-  }
-  return withoutExtension;
+  return routeOf(entry) || "index";
+}
+
+// Whether a file is a page of a translated tree.
+function isTranslated(filePath: string): boolean {
+  const rel = path.relative(corpusRoot, path.resolve(filePath)).split(path.sep).join("/");
+  return languageOf(rel) !== undefined;
 }
 
 // Wraps the glob loader so an absent title is filled from the first heading.
@@ -61,7 +77,11 @@ function corpusLoader(patterns: string[]): Loader {
           let resolved = data as Record<string, unknown>;
           if (filePath && !resolved.title) {
             const raw = await readFile(filePath, "utf-8");
-            const title = firstHeading(raw);
+            let title = firstHeading(raw);
+            if (title && isTranslated(filePath)) {
+              const { parseHeadingId } = await translationPackage();
+              title = parseHeadingId(title).text;
+            }
             if (title) resolved = { ...resolved, title };
           }
           return context.parseData({ id, data: resolved, filePath });
@@ -70,16 +90,22 @@ function corpusLoader(patterns: string[]): Loader {
   };
 }
 
+// The pages of the corpus, and the same pages in each published language's
+// translated tree.
+const pages = [
+  "README.md",
+  "architecture/**/*.md",
+  "authoring/**/*.md",
+  "language-reference/**/*.md",
+];
+const excluded = ["!**/.aggrega/**", "!**/examples/**/charts/**", "!**/examples/**/dist/**"];
+
 export const collections = {
   docs: defineCollection({
     loader: corpusLoader([
-      "README.md",
-      "architecture/**/*.md",
-      "authoring/**/*.md",
-      "language-reference/**/*.md",
-      "!**/.aggrega/**",
-      "!**/examples/**/charts/**",
-      "!**/examples/**/dist/**",
+      ...pages,
+      ...publishedLanguages.flatMap(({ lang }) => pages.map((page) => translatedPath(page, lang))),
+      ...excluded,
     ]),
     schema: docsSchema(),
   }),
