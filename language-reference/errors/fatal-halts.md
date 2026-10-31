@@ -3522,6 +3522,21 @@ Emitted message:
 
 **How to fix:** in the FeatureRecipe's `injectMapping`, write each value through `toJson` — `{{ .values.key }}: {{ .values.origin | toJson }}` — which writes it as a JSON string that YAML reads back exactly, whatever characters it holds. Where the FeatureRecipe belongs to someone else's catalog, the value can also be changed so it carries no double quote or backslash until the mapping is fixed.
 
+### An attached Feature's injectMapping output writes deliveries under a key nothing delivers
+
+<!-- covers: internal/compiler/renderer.ErrInjectMappingOutputKeyNotDelivered -->
+
+A FeatureRecipe's `injectMapping` output is merged into the component's injection pipe by its top-level keys. `env`, `file` and `arg` are delivered as those mechanisms, and any other key is delivered as a mechanism of its own under that name, which the component's Recipe reads at `.context.inject.<name>`. The `all` view is different: it is built from the mechanisms after the merge, never merged from an output, so values a mapping writes under `all:` reach nothing. The output still reads cleanly, so without this halt a build reading those values optionally succeeds with them missing — a credential written there never reaches the component, and nothing in the build names the mapping that lost it.
+
+It applies wherever `all:` carries at least one entry, alone or beside other mechanisms; the other mechanisms in the same output are not the problem, and an `all:` written empty loses nothing and is not reported. A flat dictionary that happens to carry a key named `all` with a single value is an environment delivery named `all`, not this condition.
+
+The finding is positioned at the attachment's entry in your own file, and names the key and the FeatureRecipe the mapping is written in — because that is the document to change, and it is somewhere else entirely — together with the keys an output may carry. Each such key is its own finding. The build reports it under a `CATALOG_ERROR` tag.
+
+Emitted message:
+> FeatureRecipe injectMapping output writes a key no delivery mechanism of the host reads (`"all"`, recipe `"<featurerecipe>"`, an output may carry `"env, file, arg, or a custom mechanism the host's Recipe reads under its own name"`)
+
+**How to fix:** in the FeatureRecipe's `injectMapping`, move the entries from under `all:` to the mechanism the component reads them from — usually `env:`, or the name of the mechanism the component's Recipe reads. Where the FeatureRecipe belongs to someone else's catalog, attach a Feature whose mapping delivers the value instead.
+
 ## When rendering output
 
 After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe and FeatureRecipe sources, then hands the result to the renderer.
@@ -6564,6 +6579,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0365` | `boundary-level Feature's output is routed to a dispatch path nothing assembles` | A boundary-level Feature's output reaches no assembled file |
 | `E0366` | `FeatureRecipe injectMapping output could not be read as a dictionary of deliveries` | An attached Feature's injectMapping output cannot be read |
 | `E0367` | `a scalar annotation value does not route to exactly one path of its binding` | A bare annotation value does not route to exactly one path of its binding |
+| `E0368` | `FeatureRecipe injectMapping output writes a key no delivery mechanism of the host reads` | An attached Feature's injectMapping output writes deliveries under a key nothing delivers |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

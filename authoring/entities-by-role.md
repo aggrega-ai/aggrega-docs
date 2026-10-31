@@ -44,6 +44,8 @@ variables:
 
 One character this form does not carry is a line break. YAML folds a line break inside a double-quoted scalar into a space, so a credential holding one is delivered with a space where the break was. A FeatureRecipe writing a credential into its `injectMapping` writes it through `toJson` instead, which carries a quote, a backslash and a line break alike, as the [FeatureRecipe reference](../language-reference/entities/featurerecipe.md) shows.
 
+That FeatureRecipe writes the credential under the mechanism the Recipe reads it from — `env:` for `.context.inject.env`, `file:`, `arg:`, or a mechanism of the component's own under its own name. `.context.inject.all` is built from those mechanisms and never from a mapping's output, so a mapping writing under `all:` would deliver nothing; the build halts on it instead, naming the attachment, the key and the FeatureRecipe.
+
 ## Platform operator
 
 **[Manifest](../language-reference/entities/manifest.md)** — the routing layer. It instructs the compiler which Recipe realizes each Component for a given target, so the same Aggregate can be pointed at different implementations across environments — a cloud Recipe for production, a Compose Recipe for local testing — with no change to the developer's file.
