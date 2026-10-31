@@ -740,18 +740,18 @@ _Additional properties are not permitted._
 
 ### `DeprecateArtifactParams`
 
-Marks a published version as deprecated, so resolution can report or decline it. The marker is itself published and signed.
+Marks a published version as deprecated, so resolution can report or decline it. The marker is itself published and signed. A request sends either one reference with its content, or a batch file whose entries carry their own — never both, and never content beside the batch file.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `workspaceRoot` | WorkspaceRootSubject | yes | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
-| `reference` | string | no | The published reference to mark. |
-| `severity` | const "warning" or const "error" or const "retracted" | no | How strongly the marker speaks — whether resolution reports the version or declines it. Allowed values: `"warning"` — Deprecated, at the milder of the two advisory tiers: still selected when a version is chosen. `"error"` — Deprecated, at the stronger of the two advisory tiers: still selected when a version is chosen. `"retracted"` — Withdrawn: excluded when a version is chosen. |
-| `reason` | string | no | Why the version is deprecated. |
-| `replacement` | string | no | The reference to use instead. |
-| `message` | string | no | What a consumer meeting the marker is told. |
-| `from` | string | no | The earliest version the marker covers, for marking a span rather than one version. |
+| `reference` | string | no | The published reference to mark. An alternative to `from`: a request carrying both is refused. |
+| `severity` | const "warning" or const "error" or const "retracted" | no | How strongly the marker speaks — whether resolution reports the version or declines it. Required with `reference`; refused beside `from`, whose batch file carries each marker's own. Allowed values: `"warning"` — Deprecated, at the milder of the two advisory tiers: still selected when a version is chosen. `"error"` — Deprecated, at the stronger of the two advisory tiers: still selected when a version is chosen. `"retracted"` — Withdrawn: excluded when a version is chosen. |
+| `reason` | string | no | Why the version is deprecated. Required with `reference`; refused beside `from`, whose batch file carries each marker's own. |
+| `replacement` | string | no | The reference to use instead. Refused beside `from`, whose batch file carries each marker's own. |
+| `message` | string | no | What a consumer meeting the marker is told. Refused beside `from`, whose batch file carries each marker's own. |
+| `from` | string | no | A batch file of withdrawal entries, as a path relative to the workspace root, attaching one marker per entry. Each entry carries its own reference, severity and reason, and optionally a replacement and a message. An alternative to `reference`: a request carrying both, or carrying a severity, reason, replacement or message beside it, is refused. |
 | `fulcioUrl` | string | no | The certificate authority to obtain a signing certificate from. |
 | `rekorUrl` | string | no | The transparency log to record the signature in. |
 | `timestampUrl` | string | no | The timestamp authority to countersign with. |
