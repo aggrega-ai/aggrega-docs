@@ -45,25 +45,7 @@ A version string means the binary is found and runnable. That is everything the 
 
 ## Connect an MCP client
 
-Your assistant's client starts Aggrega's MCP server by running `aggrega mcp`. In Claude Code:
-
-```bash
-claude mcp add --transport stdio aggrega -- aggrega mcp
-```
-
-In Codex:
-
-```bash
-codex mcp add aggrega -- aggrega mcp
-```
-
-In Gemini CLI:
-
-```bash
-gemini mcp add aggrega aggrega mcp
-```
-
-Every other client takes an entry in its server list: [Connect the MCP server](mcp-server.md) gives it client by client, with a server someone else runs for you over HTTPS and how to check the connection. An assistant that can run commands can also connect itself, from the prompt in [Set up Aggrega with your AI assistant](ai-assistant.md).
+Your AI assistant's client starts Aggrega's MCP server by running `aggrega mcp`, and [Connect the MCP server](mcp-server.md) gives the command or the entry that adds it, client by client.
 
 ## Each way to install, in detail
 

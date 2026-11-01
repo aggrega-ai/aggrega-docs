@@ -21,18 +21,10 @@ The installer downloads the latest release, checks it against the release's publ
 
 ## What changes from one assistant to another
 
-Two parts of the prompt depend on the assistant: the identifier it passes to `--agent` when it installs the skill, and the way it adds the server. The assistant works both out from the prompt, but where you know them you can write them into it. For the assistants that add a server with a command of their own:
-
-| Assistant | Installing the skill | Connecting the server |
-|---|---|---|
-| Claude Code | `aggrega skills install --agent claude-code` | `claude mcp add --transport stdio aggrega -- aggrega mcp` |
-| Codex | `aggrega skills install --agent codex` | `codex mcp add aggrega -- aggrega mcp` |
-| Gemini CLI | `aggrega skills install --agent gemini-cli` | `gemini mcp add aggrega aggrega mcp` |
-
-Every other assistant adds the server through its own settings or a server-list file, at the place [the client table](mcp-server.md#where-each-client-keeps-its-server-list) gives for it. Cursor, for example, installs the skill with `aggrega skills install --agent cursor` and takes the server's entry in `.cursor/mcp.json`. The identifiers `--agent` accepts, and the folder each one writes, are listed in [`aggrega skills`](../language-reference/cli/aggrega-skills.md) and printed by `aggrega skills install --help`.
+Two parts of the prompt depend on the assistant: the identifier it passes to `--agent` when it installs the skill, and the way it adds the server. The assistant works both out from the prompt, but where you know them you can write them into it. The identifier is the assistant's own, such as `claude-code`, `codex`, `gemini-cli` or `cursor` in `aggrega skills install --agent cursor`; the identifiers `--agent` accepts, and the folder each one writes, are listed in [`aggrega skills`](../language-reference/cli/aggrega-skills.md) and printed by `aggrega skills install --help`. The way each assistant adds the server — a command of its own, or an entry in its settings or a server-list file — is on [Connect the MCP server](mcp-server.md), client by client.
 
 ## When part of the prompt does not apply
 
 - **An assistant that is not in the `--agent` list** skips installing the skill. It still reaches Aggrega's tools through the MCP server once it is connected, and the server hands it guidance of its own when it connects.
-- **An assistant that cannot run commands** — a chat application with no access to your terminal — cannot follow the prompt. Install the binary and connect the application yourself, as [Setup](setup.md) and [Connect the MCP server](mcp-server.md) describe; Claude Desktop, for example, adds Aggrega from an extension package each release carries.
+- **An assistant that cannot run commands** — a chat application with no access to your terminal — cannot follow the prompt. Install the binary as [Setup](setup.md) describes, and connect the application yourself as [Connect the MCP server](mcp-server.md) describes; Claude Desktop, for example, adds Aggrega from an extension package each release carries.
 - **A server someone else runs for you**, reached over HTTPS, needs neither the binary nor the skill. Give the assistant's client the address instead, as [A server reached over HTTPS](mcp-server.md#a-server-reached-over-https) describes.

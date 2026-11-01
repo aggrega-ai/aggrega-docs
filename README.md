@@ -33,7 +33,7 @@ On Windows, in PowerShell:
 irm https://aggrega.ai/install.ps1 | iex
 ```
 
-Either command installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, Homebrew, Scoop, winget and the manual download, and connecting an AI assistant. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
+Either command installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, Homebrew, Scoop, winget and the manual download; [Connect the MCP server](authoring/mcp-server.md) connects an AI assistant. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
 
 ## The documentation
 

@@ -21,7 +21,9 @@ served at `aggrega.ai/docs`.
   the rest of `authoring/`. Every version is built with this one site project
   from its own tag's pages, and an entry naming a page the tag lacks would stop
   the build, so each entry that a published tag may lack goes through
-  `present()`, which keeps it only where the corpus holds the page. A renamed
+  `present()`, which keeps it only where the corpus holds the page. A group
+  nested in another group is labelled at the size of the links beside it, in
+  bold (`src/styles/sidebar.css`), whichever group it sits in. A renamed
   page is listed under both its names, so the tags holding the old file and
   the tree holding the new one each keep the entry they hold.
 - **The home.** The root `README.md` is plain Markdown. A remark plugin

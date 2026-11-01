@@ -9,7 +9,7 @@ The guide is written for two audiences at once: a person authoring by hand in an
 1. [Authoring Aggrega files](getting-started.md) — the end-to-end authoring loop: pick your role, learn the shape, scaffold, fill, validate, build. Start here.
 2. [Personas](personas.md) — the four collaborating authoring roles (developer, architect, operations, operator) and the guidance-not-enforcement framing behind them.
 3. [Entities by Role](entities-by-role.md) — every entity kind mapped to the role that typically owns it, so you know which file each concern belongs in.
-4. [Setup](setup.md) — install the `aggrega` binary, with the commands first, and connect your AI assistant's client to the MCP server.
+4. [Setup](setup.md) — install the `aggrega` binary, with the commands first; its connect section points to [Connect the MCP server](mcp-server.md).
 5. [Use Aggrega in Visual Studio Code](editor.md) — the Aggrega extension for Visual Studio Code: what it needs, the welcome page, its panels and the topology graph, and every setting and command.
 
 [Learn Aggrega](learn-aggrega.md) places this guide in a path through the whole documentation.

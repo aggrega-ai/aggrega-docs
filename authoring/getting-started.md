@@ -62,6 +62,6 @@ Everything the assistant reads is served from your machine: the schemas are buil
 
 - [Personas](personas.md) — understand the four roles before you pick an entity.
 - [Entities by Role](entities-by-role.md) — the full kind-to-role map.
-- [Setup](setup.md) — install the binary and connect your assistant.
+- [Setup](setup.md) — install the binary; [Connect the MCP server](mcp-server.md) connects your assistant.
 - [Set up Aggrega with your AI assistant](ai-assistant.md) — one prompt that has your assistant install and connect Aggrega itself.
 - [CLI Overview](../language-reference/07-cli.md) — every `aggrega` subcommand.

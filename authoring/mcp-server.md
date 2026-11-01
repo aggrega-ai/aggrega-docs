@@ -2,6 +2,28 @@
 
 Aggrega's MCP server is the `aggrega mcp` command, and the `aggrega` binary is its only prerequisite: [Install the binary](setup.md#install-the-binary) installs it with one command. The server runs as a subprocess of your client over stdio, reads its schemas from the binary and its documentation pages from a copy it fetches once into your machine's cache, and needs no separate service, port, or account. Where someone else already runs a server for you, you need neither the binary nor any of this: see [A server reached over HTTPS](#a-server-reached-over-https).
 
+## Clients that add it with one command
+
+In Claude Code:
+
+```bash
+claude mcp add --transport stdio aggrega -- aggrega mcp
+```
+
+In Codex:
+
+```bash
+codex mcp add aggrega -- aggrega mcp
+```
+
+In Gemini CLI:
+
+```bash
+gemini mcp add aggrega aggrega mcp
+```
+
+## Every other client
+
 Most MCP-capable clients launch the server the same way — they run the `aggrega` command with a single `mcp` argument and speak the protocol over the process's standard input and output. What differs between them is *where* each keeps its server list and what it calls the entries in it. The common shape:
 
 ```json
@@ -69,7 +91,7 @@ command = "aggrega"
 args = ["mcp"]
 ```
 
-`codex mcp add aggrega -- aggrega mcp` writes the same table for you. The Codex IDE extension and the ChatGPT desktop app read the same file, so the one entry serves all three.
+`codex mcp add aggrega -- aggrega mcp`, the command [above](#clients-that-add-it-with-one-command), writes the same table for you. The Codex IDE extension and the ChatGPT desktop app read the same file, so the one entry serves all three.
 
 ## Zed
 

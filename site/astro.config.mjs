@@ -164,7 +164,8 @@ export default defineConfig({
       },
       // The brand's tokens, fonts and type classes and the theme bound to them
       // (src/styles/brand.css); the home's look (src/styles/home.css) and the
-      // copyable blocks' (src/styles/copyable.css); the accessibility panel's
+      // copyable blocks' (src/styles/copyable.css); one style for every nested
+      // sidebar group label (src/styles/sidebar.css); the accessibility panel's
       // stylesheet, the two reading fonts it offers (downloaded only for a
       // reader who picks one), and the site's rules for the panel
       // (src/styles/a11y.css).
@@ -175,6 +176,7 @@ export default defineConfig({
         "./src/styles/brand.css",
         "./src/styles/home.css",
         "./src/styles/copyable.css",
+        "./src/styles/sidebar.css",
         "@cognitio/a11y/toolbar.css",
         "@fontsource/atkinson-hyperlegible/400.css",
         "@fontsource/atkinson-hyperlegible/700.css",
