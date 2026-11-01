@@ -1553,6 +1553,7 @@ What an index refresh did for one registry.
 | `deprecationsRecorded` | integer | yes | How many markers were honoured. |
 | `skipped` | SkippedRepo[] or null | yes | The repositories the walk passed over. |
 | `deprecations` | DeprecationNote[] or null | yes | The markers the walk met. |
+| `readsRetried` | integer | yes | How many of the walk's reads the registry refused or dropped in passing and were asked again, each read counted once however many attempts it took and whether or not it then succeeded; zero where none was. A walk whose reads all succeeded in the end lists no repository under `skipped`, so this count is what says how close it came to leaving one out. Minimum: `0`. |
 | `error` | string | no | What failed for this host, so a walk over several reports which of them failed without the caller correlating anything. |
 | `unreachable` | boolean | no | Whether this registry could not be reached: its name did not resolve, a connection to it was refused or could not be opened, or a secure connection to it could not be established. It is read from the failure itself rather than from error, it is set only beside error, and only where the failure shows the registry was never reached; a registry that answered, whatever it answered, leaves it absent. |
 

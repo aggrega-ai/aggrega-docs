@@ -409,7 +409,8 @@ followed by the failure itself, which says which read it was. A failure of none 
 kinds, such as a trust root that could not be obtained to verify a signature against, is
 given as the failure alone. The `aggrega/registryUpdate` method of
 [`aggrega serve`](aggrega-serve.md) answers with the same repositories under each host's
-`skipped`, each with the same `reason`. The same holds for a refresh and for `--upgrade`, and the next walk
+`skipped`, each with the same `reason`, and with the count of reads asked again as
+`readsRetried`. The same holds for a refresh and for `--upgrade`, and the next walk
 starts from whatever the index then holds, as it does for any repository.
 
 ## The public key a keyed policy pins
