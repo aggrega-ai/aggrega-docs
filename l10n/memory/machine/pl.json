@@ -1865,6 +1865,13 @@
     "status": "machine",
     "text": "[Błędy krytyczne](errors/fatal-halts.md) — katalog błędów zatrzymujących kompilację, uporządkowany według kroku potoku, w którym uruchamia się sprawdzenie. Każdy wpis podaje przyczynę błędu, sposób naprawy oraz miejsce w tworzonym kodzie, które go powoduje."
   },
+  "02ce55920afaac26": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "02ce55920afaac26",
+    "status": "machine",
+    "text": "Szablon wypisuje ścieżkę w jej obecnej postaci, a jednocześnie iteruje po tej samej ścieżce — na przykład `\"user\": \"{{ .values.user }}\"` i `\"users\": \"{{ range .values.user }}…{{ end }}\"` w jednym `valuesMapping` — a dane nic tam nie zawierają: klucz nie jest ustawiony, zawiera null albo jest polem najwyższego poziomu, które kontekst definiuje, ale dla którego nic nie zawiera, jak `.workload` w encji Recipe, która nie syntetyzuje żadnego obciążenia. Kompilacja zatrzymuje się przed uruchomieniem szablonu i wskazuje ścieżkę — na każdej powierzchni, która renderuje nieustawioną wartość jako nic: w szablonach wartości wymienionych powyżej w „Missing template key — asymmetric policy (Brakujący klucz szablonu — polityka asymetryczna)” oraz w interpolacji parametrów w encji Aggregate."
+  },
   "02ce9da8ae96def3": {
     "at": "2026-10-22T09:04:02.847762+00:00",
     "job": "msgbatch_01YUZ3hS3kRQBffCNLpUqt2U",
@@ -3691,6 +3698,13 @@
     "srcHash": "05ba857bc125d55a",
     "status": "machine",
     "text": "`ops.example.com/owner` na każdym węźle; `backup.example.com/schedule` na każdym węźle w kategorii `datastore`"
+  },
+  "05baf5a5c660afb5": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "05baf5a5c660afb5",
+    "status": "machine",
+    "text": "`aggrega.ai/namespace` podsystemu jest adnotacją dostawcy, więc robi więcej, niż tylko dociera do szablonu: dostawca umieszcza `invoice-api` i `payment-worker` w przestrzeni nazw `billing`, a `metrics-collector`, którego podsystem żadnej takiej adnotacji nie deklaruje, zachowuje rozmieszczenie, jakie miałby i bez niej. Encja Release, która ustawia `aggrega.ai/namespace` — na `prod-cluster` lub we wpisie jednego komponentu — nadpisuje wartość podsystemu dla obejmowanych komponentów; wartość podsystemu obowiązuje wszędzie tam, gdzie encja Release żadnej nie ustawia."
   },
   "05bb080eb0712b63": {
     "at": "2026-10-22T09:44:21.400057+00:00",
@@ -7377,6 +7391,17 @@
     "status": "machine",
     "text": "Po `get-schema` należy sięgnąć, gdy podczas tworzenia potrzebny jest dokładny kształt rodzaju — które pola są wymagane, jaka może być wartość, jak zagnieżdża się blok. Jest to punkt odniesienia do sprawdzania ręcznie napisanego pliku i punkt wyjścia przy poznawaniu nieznanego rodzaju. Ponieważ polecenie wypisuje JSON Schema w formie czytelnej maszynowo, można go też przekazać do edytora obsługującego schematy lub narzędzia walidującego."
   },
+  "0ba3180e5e8cd1b3": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "5e9d061800a14d0b",
+      "reviewed": false
+    },
+    "srcHash": "0ba3180e5e8cd1b3",
+    "status": "machine",
+    "text": "**Trzy warianty mają rozmiar pamięci, a tylko jeden ostrzega, że rozmiar został pominięty.** Różnica polega na tym, czy istniał wybór. `sizeLimit` wolumenu `ephemeral` jest opcjonalny, więc jego zapisanie było decyzją, a ostrzeżenie informuje, że wartość niczego nie kształtuje na tym celu i można ją usunąć — jest doradcze i poza pasmem, wygenerowany plik jest bajt w bajt taki sam jak bez niego, a `--no-unsupported-field-warnings` wycisza je wraz z resztą klasy. `size` wolumenu `persistent` lub `persistentTemplate` jest wymagany, więc żadna wersja dokumentu go nie pomija: ostrzeżenie przy każdej kompilacji pojawiałoby się dla każdego stanowego obciążenia, nie wskazując niczego, co można zmienić, dlatego różnica jest wyjaśniona tutaj, a nie zgłaszana przy każdej kompilacji. Przy celu compose `size`, `class` i `accessModes` trwałego wolumenu niczego nie kształtują w wygenerowanym pliku — powstaje zwykły nazwany wolumen o rozmiarze i zapleczu domyślnych dla sterownika wolumenów hosta compose. `class` i `accessModes` są opcjonalne, więc każde z nich, które zostanie zapisane, jest zgłaszane tak jak `sizeLimit` wolumenu `ephemeral`: jedno ostrzeżenie `unsupported-field` na pole, doradcze i poza pasmem, wyciszane tą samą flagą. Pamięć bazową należy zwymiarować na hoście lub na celu Kubernetes, gdzie te pola trafiają do wyniku."
+  },
   "0ba584a8cc1a3fdc": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -8097,6 +8122,13 @@
     "srcHash": "0cdc12418b7c3618",
     "status": "machine",
     "text": "**Trzy filary bazy, dosłownie** — `values.upstream_path`,\n  `infra.port` / `engine_version` / `compute` / `overrides` oraz\n  `provides.host` / `port` / `protocol`, każdy z własnymi opisami bazy."
+  },
+  "0ce28cea827f349a": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "0ce28cea827f349a",
+    "status": "machine",
+    "text": "Klucze z powyższej macierzy przechodzą kaskadowo także przez encję Aggregate, a dostawca stosuje to, co kaskada pozostawia na każdym komponencie. `aggrega.ai/namespace` podsystemu umieszcza każdy komponent znajdujący się pod nim; własna wartość instancji komponentu umieszcza zamiast tego ten komponent. Moduł importowany przez encję Aggregate ma własną kaskadę: jego podsystemy i instancje komponentów sięgają do własnych komponentów modułu, a nic, co deklaruje importująca encja Aggregate, nie sięga do wnętrza modułu."
   },
   "0ce457030b016792": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -12215,6 +12247,13 @@
     "status": "machine",
     "text": "Wyłącznie `.parameters`. Pozostałe dane nie są jeszcze rozwiązane."
   },
+  "136858e156d9b324": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "136858e156d9b324",
+    "status": "machine",
+    "text": "To, co liczy się jako wypisanie ścieżki, jest określone wąsko, a granica przebiega tam, gdzie szablon na pewno ją wypisuje:"
+  },
   "136a21dce30f89bb": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -14000,6 +14039,13 @@
     "srcHash": "16618c8543269faa",
     "status": "machine",
     "text": "**`list-entities` z `release`** wyświetla encje widoczne dla tej encji Release. Wymienione Features to te, które deklarują jej katalogi katalogowe, a dokument przestrzeni roboczej znajdujący się w katalogu katalogowym czytanym wyłącznie przez inne Releases jest pomijany, więc każdy wariant jest wymieniany dla encji Release, która buduje z jego użyciem, i dla żadnej innej. Dokument spoza wszystkich katalogów katalogowych — encja Release, jej Aggregate i jej Manifest zapisane obok katalogów — jest wymieniany dla każdej encji Release."
+  },
+  "1666be54c8080edd": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "1666be54c8080edd",
+    "status": "machine",
+    "text": "`--upgrade` odczytuje każde repozytorium w całości, nie porównując niczego z już zapisanym indeksem. Można go użyć, aby odbudować indeks wyłącznie na podstawie rejestru; nie wychwytuje niczego, co pominęłoby odświeżenie."
   },
   "1668325abbac2d4c": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -16228,6 +16274,13 @@
     "status": "machine",
     "text": "Determinizm i integralność"
   },
+  "1a2e30c0d834dab1": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "1a2e30c0d834dab1",
+    "status": "machine",
+    "text": "Klasa pamięci, tryby dostępu i rozmiar nie są zachowywane (compose nie ma równoważnej struktury). Zapisane `class` lub `accessModes` wywołuje ostrzeżenie `unsupported-field`, które wskazuje je pod zapisaną współrzędną (`volumes.<name>.persistent.class`, `volumes.<name>.persistent.accessModes`); pominięcie któregokolwiek z nich niczego nie wywołuje. Wymagany `size` nie wywołuje ostrzeżenia — patrz niżej"
+  },
   "1a305f57d165b3cd": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -17931,6 +17984,13 @@
     "srcHash": "1cc29dd17ffd70e2",
     "status": "machine",
     "text": "**Odpowiada również w pustej przestrzeni roboczej.** Słownik jest wkompilowany w plik binarny, więc nie potrzeba dokumentu, pliku blokady ani katalogu — a właśnie w takiej przestrzeni roboczej znajduje się autor rozpoczynający swój pierwszy dokument."
+  },
+  "1cc6d5af1e2b4fdb": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "1cc6d5af1e2b4fdb",
+    "status": "machine",
+    "text": "rozwiązuje tag każdej wersji do manifestu, który on wskazuje, dzięki czemu starsza wersja opublikowana ponownie pod istniejącym tagiem jest odczytywana ponownie;"
   },
   "1ccb7e0d6ac6a0bb": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -22162,6 +22222,17 @@
     "status": "machine",
     "text": "**Ostrzeżenie doradcze.** Kompilacja zgłasza je i działa dalej, a wygenerowany wynik jest taki sam niezależnie od tego, czy się na nie zareaguje. Każde jest w pełni omówione na stronie [warnings.md](./warnings.md) — co je wywołuje, w którym miejscu kompilacji jest odczytywane, co wypisuje i co z nim zrobić — a poniższe wpisy wskazują odpowiednią sekcję zamiast to powtarzać."
   },
+  "2375add2622a90f2": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "revision": {
+      "from": "5f34f5b8292b1950",
+      "reviewed": false
+    },
+    "srcHash": "2375add2622a90f2",
+    "status": "machine",
+    "text": "Ta dyscyplina ma znaczenie, ponieważ adnotacje działają kaskadowo — adnotacje zapisane w podsystemie encji Aggregate propagują się do każdego komponentu podsystemu, własne adnotacje instancji komponentu nadpisują adnotacje jej podsystemu, a adnotacje modułu docierają do własnych komponentów modułu; adnotacje na granicy encji Release propagują się do każdego komponentu w granicy. Adnotacja dostawcy dociera do wyrenderowanego wyniku z każdej ze stron, a gdy obie strony zapisują ten sam klucz, stosowana jest wartość z encji Release. Bez dyscypliny prefiksów adnotacja po stronie encji Aggregate mogłaby po cichu nadpisać klucz pochodzenia emitowany przez platformę, a adnotacja firmowa mogłaby kolidować z kluczem konwencji katalogu. Tabela prefiksów czyni odbiorców jawnymi, a regułę zapobiegania kolizjom — egzekwowalną w momencie publikacji."
+  },
   "2375bf081ea1aeb9": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -24993,6 +25064,17 @@
     "status": "machine",
     "text": "Opublikowany artefakt jest niezmienny, ale wycofanie nie: wersja może zostać\nodwołana po ostatnim sprawdzeniu. Wykluczenie odczytuje to, co obszar roboczy zapisał\nprzy ostatnim budowaniu lokalnego indeksu rejestru, więc chroni przed wyborem\nwersji, o której *wiadomo*, że została wycofana. Nie może stwierdzić, że wersja nie jest\nwycofana w tej chwili."
   },
+  "280d2c8066f45770": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "d30ae1d125ff09f8",
+      "reviewed": false
+    },
+    "srcHash": "280d2c8066f45770",
+    "status": "machine",
+    "text": "Ustawienie jednego z nich w encji Release lub w encji Aggregate nie ma **żadnego wpływu na renderowane wyjście**. Żaden provider ich nie odczytuje i nie jest w ich imieniu stosowana żadna wartość domyślna – w szczególności dla `aggrega.ai/cluster-domain` nie jest stosowany żaden sufiks DNS, więc encja Recipe, która potrzebuje domeny klastra, musi podać ją jako zwykłą wartość, zamiast polegać na tej adnotacji. Autor encji Recipe, który potrzebuje jednego z tych zachowań, wyraża je jako wartość encji Recipe lub pole `infra` komponentu."
+  },
   "280f374f11d1967e": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -27552,6 +27634,13 @@
     "status": "machine",
     "text": "Mapuje typ MinIO na Recipe Compose (`compose/minio`), a poświadczenie na `dotenv-secret`."
   },
+  "2c64c5da1c3dae18": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "2c64c5da1c3dae18",
+    "status": "machine",
+    "text": "Adnotacje deklarowane przez encję Aggregate trafiają do tych samych kluczy, z niższym priorytetem niż adnotacje encji Release. Klucz zadeklarowany na podsystemie lub na instancji komponentu — w samej encji Aggregate albo w module, który ona importuje, gdzie dociera do własnych komponentów modułu — obowiązuje dla komponentu wszędzie tam, gdzie encja Release nie ustawia wartości dla tego klucza; gdy encja Release ją ustawia, na granicy lub we wpisie komponentu, stosowana jest wartość encji Release. Własne adnotacje encji katalogu nigdy jej nie ustawiają. `aggrega.ai/chart-name` jest wyjątkiem od zasięgu encji Aggregate: nazywa złożenie, a nie komponent, i jest odczytywany z granic encji Release, które wnoszą do niego wkład."
+  },
   "2c651908c5854b00": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -28031,6 +28120,13 @@
     "status": "machine",
     "text": "**Jednostka określa, co jest liczone.** `total_tokens` to tokeny, które według odpowiedzi\nkażdego modelu zostały łącznie odczytane i zapisane; `prompt_tokens` i\n`completion_tokens` liczą jedną stronę. Brama liczy to, co zgłasza odpowiedź,\ni niczego nie wycenia, więc nie prowadzi budżetu w dolarach amerykańskich."
   },
+  "2d5d3c38c9dd95c0": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "2d5d3c38c9dd95c0",
+    "status": "machine",
+    "text": "`aggrega.ai/chart-name` to jedyny klucz poza tym zasięgiem: nazywa on chart typu umbrella złożony z kilku komponentów, więc jest odczytywany z granic encji Release, które współtworzą ten chart, nigdy z adnotacji komponentu."
+  },
   "2d6348db0140cbe0": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -28306,6 +28402,13 @@
     "srcHash": "2dc1e90ab7a7f703",
     "status": "machine",
     "text": "Ta sama encja Aggregate steruje oboma. Zmieniają się tylko encja Release, jej Manifest oraz *warstwa Recipe* ładowana w czasie budowania. Każdy plik tutaj kompiluje się za pomocą dostarczanego CLI `aggrega`, a wygenerowany wynik działa: wystarczy uruchomić stos, otworzyć Adminer w przeglądarce i zalogować się do działającej bazy danych."
+  },
+  "2dc7c3fc282d2b58": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "2dc7c3fc282d2b58",
+    "status": "machine",
+    "text": "**Ścieżka nie jest wypisywana**, gdy odczyt znajduje się w ciele `if`, `with` lub `range` albo w gałęzi `else`, ponieważ to, czy ten odczyt zostanie wykonany, zależy od warunku, a warunek może być właśnie tym testem, który chroni go przed natrafieniem na nic — dlatego `{{ if .values.user }}{{ .values.user }}{{ end }}` obok `range .values.user` renderuje się tak jak zawsze. Nie jest też wypisywana, gdy odczyt jest własnym testem strażnika, przypisaniem zmiennej lub argumentem funkcji — `{{ .values.user | quote }}`, `{{ toYaml .values.user }}` — której wynikiem jest odpowiedź funkcji, a nie tekst zastępczy."
   },
   "2dc9967cb2d88190": {
     "at": "2026-10-22T22:51:17.853388+00:00",
@@ -32145,6 +32248,13 @@
     "status": "machine",
     "text": "Rodzaje encji"
   },
+  "33f0d4a36aba487a": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "33f0d4a36aba487a",
+    "status": "machine",
+    "text": "**Krawędź `uses` wskazująca na późniejszą falę jest emitowana tak, jak ją zapisano, i zgłaszana.** Emitowane `depends_on` odzwierciedla to, co zadeklarowano — zarówno krawędzie `uses`, jak i fale. Krawędź, której konsument znajduje się we *wcześniejszej* fali niż cel, którego używa, wyraża coś przeciwnego niż fale: krawędź każe konsumentowi czekać na cel, podczas gdy fale każą celowi czekać — przez każdą falę między nimi — na konsumenta. Scalony plik wyraża jedno i drugie, co tworzy zbiór zależności cyklicznych, którego Docker Compose odmawia uruchomienia. Kompilacja wskazuje każdą taką krawędź w ostrzeżeniu podającym obie usługi i obie fale, dzięki czemu cykl wychodzi na jaw podczas kompilacji, a nie przy `docker compose up`. Ostrzeżenie jest doradcze — kompilacja kończy się sukcesem, a wyrenderowane bajty są dokładnie takie, jakie byłyby bez niego — i `--no-unsupported-field-warnings` go nie wycisza, ponieważ nic nie zostało pominięte: obie deklaracje są wyrażone, a razem nie mogą się uruchomić. Obejmuje ono tylko bezpośrednią parę: wskazuje dwie usługi, które łączy jedna krawędź, zamiast śledzić cały cykl. Każdy cykl zbudowany z krawędzi `uses` i fal razem przechodzi przez co najmniej jedną taką krawędź, więc zawsze jest zgłaszany; cykl utworzony wyłącznie przez krawędzie `uses`, bez udziału fal, oraz cykl zamknięty przez wpis `depends_on` zapisany w pliku compose dostarczonym przez encję Recipe są emitowane tak, jak je zapisano, i nie są zgłaszane. Należy zachować spójność kierunku krawędzi i kolejności fal: umieścić konsumenta w fali celu lub późniejszej albo cel w fali konsumenta lub wcześniejszej."
+  },
   "33f135032fa531b5": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -34446,6 +34556,17 @@
     "status": "machine",
     "text": "bash"
   },
+  "37d652ae2eedb2ad": {
+    "at": "2026-11-01T00:06:18.869Z",
+    "job": "session-0003-20261101000618",
+    "revision": {
+      "from": "e88977b6f544b52b",
+      "reviewed": false
+    },
+    "srcHash": "37d652ae2eedb2ad",
+    "status": "machine",
+    "text": "Wartość logiczna. Zabrania całego ruchu wychodzącego do sieci: każde polecenie, które pobierałoby, ściągało, pozyskiwało, wypychało, podpisywało lub kontaktowało się z rejestrem, zamiast nawiązywać połączenie, jawnie odmawia działania, a kompilacja korzysta wyłącznie z tego, co maszyna już posiada — z pliku blokady, pamięci podręcznej i lokalnych katalogów, z których `--auto-pull` uzupełnia encje katalogowe pliku blokady bez łączenia się z rejestrem (encja Recipe, której chart jest pobierany ze zdalnego źródła, nadal zatrzymuje się w trybie offline). Wykrywanie odczytuje wtedy lokalny indeks — informacja o wycofaniu jest serwowana ze zbudowanego indeksu zamiast sprawdzania na żywo, a poziom rozwiązywania katalogu ze zdalnego rejestru jest pomijany; podpowiedź dotycząca wtyczki, którą wyświetla nierozpoznane polecenie, odczytuje wyłącznie lokalny indeks, niezależnie od wartości tego ustawienia. Weryfikacja materiałów już zapisanych w pamięci podręcznej lub przypiętych nadal się odbywa — tryb offline zabrania pobierania, a nie lokalnego sprawdzenia. [`--offline`](global-flags.md#--offline) to flaga nadrzędna wobec niej, w obu kierunkach: ustawia ten tryb dla jednego uruchomienia, a `--offline=false` zezwala na dostęp do sieci dla jednego uruchomienia tam, gdzie tę zmienną lub plik konfiguracyjny ustawiono."
+  },
   "37d673bac07737f0": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -36738,6 +36859,17 @@
     "status": "machine",
     "text": "Wynik jest umiejscowiony przy własnym wpisie późniejszej encji Feature — w bloku `features:` komponentu albo, dla encji Feature niesionej przez połączenie, przy jej wpisie pod tym połączeniem w dokumencie, który go zapisał, np. `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>` w encji Aggregate. Komunikat podaje klucz, mechanizm dostarczania oraz obie encje Features pod nazwami, jakie noszą w komponencie; encja Feature niesiona przez połączenie jest nazywana aliasem połączenia i wypełnianym slotem, połączonymi kropką. Każdy kolidujący klucz jest zgłaszany osobno."
   },
+  "3bbcb8fc2a30dc14": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "revision": {
+      "from": "eb555c1bfdc06fcd",
+      "reviewed": false
+    },
+    "srcHash": "3bbcb8fc2a30dc14",
+    "status": "machine",
+    "text": "Kontekst czasu renderowania, który host przekazuje gościowi, przenoszony jako bajty jego dokumentu JSON; ten schemat nie deklaruje tego obiektu. Jest to kontekst, który otrzymuje krok potoku tego samego węzła, plus szerokość wcięcia: parameters — wartości parametrów encji Release posortowane według nazwy, nieobecne, gdy ich nie ma; annotations — adnotacje węzła podzielone według miejsca zapisu na aggregate, release i catalog, każda nieobecna, gdy jest pusta; boundary — granica, w której znajduje się węzeł: name, path (jej segmenty), sync_wave (nieobecne przy 0), directory, sub_directory (nieobecne, gdy go nie ma) i annotations (zbiór, który granice encji Release kaskadowo przekazują do węzła, z adnotacjami własnego wpisu Release nałożonymi na końcu; nieobecny, gdy jest pusty); oraz yaml_indent — szerokość wcięcia dla całego renderowania, z jaką gość serializuje swoje wyjście. Renderowanie encji FeatureRecipe o zakresie granicy, która nie ma komponentu hosta, otrzymuje kontekst, który otrzymuje jej krok potoku, plus yaml_indent: parameters; annotations zawierające wyłącznie kubeł release, czyli własny zbiór adnotacji granicy; oraz boundary zawierającą jej name, path i ten sam zbiór jako annotations. Dobrze znane adnotacje aggrega.ai/* są odczytywane z kubła aggregate, na który nałożono kubeł release, więc klucz obecny w obu przyjmuje wartość z encji Release; dostawca z biblioteki standardowej odczytuje je z tego nałożonego zbioru i nigdy z kubła catalog, więc wartość z katalogu nigdy o żadnej z nich nie decyduje, a encja FeatureRecipe o zakresie granicy, której kontekst nie zawiera kubła aggregate, renderuje się według wartości swojej granicy, a nie któregokolwiek komponentu."
+  },
   "3bbf9237b253b95e": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -38029,6 +38161,13 @@
     "srcHash": "3dd7cdd955d95e1b",
     "status": "machine",
     "text": "`--verify-determinism` renderuje każdy komponent dwukrotnie z tych samych danych wejściowych i\nprzerywa działanie, jeśli oba renderowania się różnią. Tutaj sprawdzenie przechodzi, a drzewo, które zapisuje, jest bajt\nw bajt drzewem zapisanym przez pierwszą kompilację. Oba warunki są spełnione, ponieważ jedyny dokument, który\nchart generuje od nowa, nigdy nie trafia do wyniku."
+  },
+  "3ddbc62aef00f636": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "3ddbc62aef00f636",
+    "status": "machine",
+    "text": "Każdy odczyt z osobna ma odpowiedź. Nieustawiona wartość, która jest wypisywana, renderuje się jako nic, a taka, po której się iteruje, nie daje żadnej iteracji. Ścieżka odczytywana na oba sposoby nie może mieć żadnej z tych odpowiedzi: wyrenderowanie jej jako nic sprawiłoby, że `range` zawiódłby na tekście, a pozostawienie jej nieustawionej wypisałoby do artefaktu tekst zastępczy silnika szablonów `<no value>`, mimo że kompilacja zakończyłaby się sukcesem. Dlatego nie jest udzielana żadna z tych odpowiedzi, a zamiast tego kompilacja się zatrzymuje."
   },
   "3dddac2d3b224870": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -46941,6 +47080,13 @@
     "status": "machine",
     "text": "Wewnętrzne krawędzie uses granicy — skierowane krawędzie, których oba końce znajdują się w poddrzewie granicy, każda wzbogacona o provides producenta i mapowanie inject konsumenta. Gość odczytuje je, aby zdecydować, którzy konsumenci potrzebują nadpisania env i jaką wartość zapisać. Nieprzezroczyste na tym poziomie schematu; gość odczytuje kształt wzbogaconej krawędzi poprzez kontrakt protokołu kontekstu szablonu."
   },
+  "4c0413e9e41c40f8": {
+    "at": "2026-11-01T00:54:34.111Z",
+    "job": "session-0007-20261101005434",
+    "srcHash": "4c0413e9e41c40f8",
+    "status": "machine",
+    "text": "Ta strona została przetłumaczona maszynowo. [Przeczytaj oryginał w języku angielskim](english-original)."
+  },
   "4c08059a8ae1174e": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -48133,6 +48279,17 @@
     "srcHash": "4e2577d9b29cf4a2",
     "status": "machine",
     "text": "Warunek, który pochłania powierzchnia zasobów dokumentacji. Pakiet dokumentacji został zapisany w pamięci podręcznej, a jego zawartość zweryfikowana, lecz żądanej strony w nim nie ma. Różni się to od całkowitego braku pakietu: pakiet jest obecny i poprawny, brakuje w nim jedynie wpisu."
+  },
+  "4e2581047da0db86": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "revision": {
+      "from": "27117377b64565d6",
+      "reviewed": false
+    },
+    "srcHash": "4e2581047da0db86",
+    "status": "machine",
+    "text": "Znacznik wycofania, podpis i data publikacji są dołączane do opublikowanej wersji, każde jako osobny obiekt wskazujący na nią — co właśnie pozwala publikującemu wycofać lub podpisać wersję bez jej ponownej publikacji — więc żadne z nich nie dodaje tagu ani nie zmienia własnego manifestu wersji. Zmieniają one załączniki wersji, i to właśnie ponownie weryfikuje trzecie sprawdzenie. Wykluczanie wersji i `aggrega inspect` czytają ten indeks, więc wersja wycofana od ostatniego odświeżenia zostaje wykluczona z wyboru i pokazana, gdy tylko zostanie wykonane kolejne odświeżenie."
   },
   "4e259e97cb5cba07": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -50857,6 +51014,17 @@
     "status": "machine",
     "text": "Kompilacja encji Release względem lokalnego katalogu:"
   },
+  "52896d83cdaadad0": {
+    "at": "2026-11-01T00:18:45.802Z",
+    "job": "session-0004-20261101001845",
+    "revision": {
+      "from": "60dc7f22b69d4f71",
+      "reviewed": false
+    },
+    "srcHash": "52896d83cdaadad0",
+    "status": "machine",
+    "text": "**Interpolacja parametrów w encji Aggregate** — odwołania `{{ .parameters.<key> }}` zawarte we własnym tekście encji Aggregate — jest najwcześniejszą z tych powierzchni: działa na surowym dokumencie, zanim katalog zostanie rozwiązany, więc jej polityka dotyczy tekstu, którego żadna inna powierzchnia jeszcze nie widziała. Odwołanie do parametru, którego encja Release nigdy nie wypełniła, **renderuje się jako nic**, a potok `default` lub warunek `if` nad takim odczytem zachowuje się dokładnie tak samo jak nad niewypełnionym parametrem. Odwołanie, po którym szablon **iteruje**, nadal iteruje jako nic, czego oczekuje się przy iteracji po opcjonalnej liście — chyba że tekst również je wypisuje, co zatrzymuje kompilację, jak opisano poniżej w „A template reads and iterates a path that holds nothing (Szablon odczytuje i iteruje ścieżkę, która nic nie zawiera)”. Odwołanie, którego **rodzic** nie istnieje — `.parameters.db.host`, gdy nie wypełniono parametru `db` — nadal zatrzymuje kompilację, ponieważ nie ma w co zejść, a dostarczenie rodzica zamieniłoby zatrzymanie na po cichu błędny artefakt. **Jedno ograniczenie warto podać jako ograniczenie, a nie jako politykę:** odwołanie zakotwiczone w **korzeniu**, którego powierzchnia nie definiuje, zostaje pozostawione bez zmian, zamiast wyrenderować się jako nic, więc przetrwa w interpolowanym dokumencie jako własny tekst zastępczy silnika szablonów, `<no value>`. Nic na tej powierzchni nie zatrzymuje się z tego powodu, dlatego należy zakotwiczać każde odwołanie do parametru w `.parameters`, a zabłąkany `<no value>` traktować jako błędnie zapisany korzeń."
+  },
   "528a18f9214894d7": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -52829,6 +52997,17 @@
     "status": "machine",
     "text": "Reguła nigdy nie czyta `programs`. Reguła tego pluginu jest wkompilowana w moduł gościa, więc podłączenie dostarcza ustawienia i żadnego pliku polityki — ten sam kształt co moduł gościa zbudowany wokół prekompilowanego silnika i odwrotny do takiego, który wczytuje reguły z `sources`."
   },
+  "5568b51f1e28b64e": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "36428c7abdb4b961",
+      "reviewed": false
+    },
+    "srcHash": "5568b51f1e28b64e",
+    "status": "machine",
+    "text": "Encje Providers odczytują określone adnotacje, aby skonfigurować kontekst specyficzny dla platformy — ustawione na granicy encji Release lub we wpisie komponentu encji Release albo zadeklarowane w encji Aggregate na podsystemie lub instancji komponentu. Sam kompilator jest agnostyczny wobec *wartości* tych adnotacji — przekazuje je dalej jako nieprzezroczyste ciągi znaków. Każdy provider deklaruje, które adnotacje odczytuje, w jakim zakresie i jaka wartość domyślna obowiązuje, gdy adnotacji brak. Ta deklaracja znajduje się w polu `spec.provider.wellKnownAnnotations` encji Plugin renderującej przez providera i jest celowo wąska: provider wymienia klucz tylko tam, gdzie go odczytuje."
+  },
   "5569a9784433a476": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -54470,6 +54649,17 @@
     "srcHash": "5841b8cf57098571",
     "status": "machine",
     "text": "**8. Release:** router wdrożeń. Wiąże `aggregate` z `manifest` i mapuje komponenty na fizyczne granice wdrożenia (np. `aws-eks-production`). Aby utrzymać przepływ pracy DRY, encje Releases obsługują dziedziczenie za pomocą słowa kluczowego `extends`, co pozwala wydaniom specyficznym dla środowiska czysto dziedziczyć z globalnego wydania bazowego. Spełnia abstrakcyjny kontrakt aggregate, wstrzykując realia fizyczne ściśle do bloku `parameters`, a fizyczne wymiarowanie (np. CPU lub porty) wstrzykuje przez równoległą przestrzeń nazw `infra`. Aby chronić encję Aggregate jako jedyne źródło prawdy, schemat encji Release mechanicznie zabrania bloku `values:` — Ops nie może z poziomu encji Release deklarować `values` dla żadnej encji Component ani Feature. Zmienność wartości przeznaczonych dla programisty w zależności od środowiska przechodzi przez **Parameter Hoisting**: programista udostępnia typowane pole `parameters.*` w encji Aggregate, szablon `values` encji Component się do niego odwołuje, a encja Release wypełnia parametr dla swojego środowiska. Wyrenderowane wartości różnią się między środowiskami, podczas gdy encja Aggregate — powierzchnia autorska określająca, *jakie* wartości istnieją i *jak* przepływają — pozostaje jedynym źródłem prawdy. Jawnie sformułowany zakaz na poziomie schematu opisuje [§8 Ograniczenie 4 (stan zmieniony po cichu)](06-data-taxonomy-and-composition.md). Co kluczowe, aby zapobiec niemożliwym do prześledzenia wdrożeniom „zmieniającym aggregate”, gdy encja Release używa `extends`, deklaracja `aggregate` jest odrzucana przez schemat encji Release (ograniczenie schematu nie pozwala deklarować `aggregate`, gdy używane jest `extends`). Wydanie potomne musi odpowiadać dokładnie tej samej intencji programisty co jego rodzic. Natomiast `manifest` staje się opcjonalny, co odblokowuje „późne wiązanie” — Ops może odziedziczyć całą fizyczną topologię, ale chirurgicznie podmienić plik blokady zależności."
+  },
+  "58430e655fe536b3": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "revision": {
+      "from": "66889866bfd69f5f",
+      "reviewed": false
+    },
+    "srcHash": "58430e655fe536b3",
+    "status": "machine",
+    "text": "Pole najwyższego poziomu, które dla tego węzła nie zawiera niczego — `.workload` w encji Recipe, która żadnego nie syntetyzuje, `.source` w encji Recipe bez źródła, `.features` w encji Component bez załączników — w szablonie wartości odczytuje się jako puste, dokładnie tak jak nieustawiony klucz pod `.values`: `{{ .workload }}` nie renderuje niczego, `default` nałożone na nie dostarcza swoją wartość zastępczą, a `if` lub `with` nałożone na nie wybiera gałąź fałszu. `range` po nim nie iteruje po niczym. Odczyt poniżej niego — `{{ .workload.containers }}` — nadal zatrzymuje kompilację, ponieważ nie ma do czego zejść. A szablon, który zarówno wypisuje takie pole tam, gdzie zawsze się wykonuje — poza każdym `if`, `with` i `range` — jak i iteruje po nim, zatrzymuje kompilację, wskazując to pole, tak jak dla każdej ścieżki niezawierającej niczego, która jest odczytywana na oba sposoby, ponieważ żadna wartość nie jest jednocześnie wypisywana jako nic i iterowana jako nic: zob. [A template reads and iterates a path that holds nothing (Szablon odczytuje i iteruje ścieżkę, która nie zawiera niczego)](../errors/fatal-halts.md#a-template-reads-and-iterates-a-path-that-holds-nothing)."
   },
   "5846049fb26d2b4f": {
     "at": "2026-10-22T09:56:04.106489+00:00",
@@ -57075,6 +57265,13 @@
     "status": "machine",
     "text": "`aggrega registry list` i `aggrega registry update` reagują na tę samą sytuację inaczej, i\nto celowo. Wylistowanie rejestrów, gdy nie ma żadnego, jest pełnym wylistowaniem zbioru pustego,\na budowa indeksu, gdy nie ma czego przeglądać, nie ma już nic do zrobienia: obie operacje są zakończone, więc\nobie zgłaszają wynik na standardowym wyjściu i kończą się kodem zero. Tylko wyszukiwanie zgłasza, że nie mogło wykonać\ntego, o co zostało poproszone."
   },
+  "5c6e39998690494a": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "5c6e39998690494a",
+    "status": "machine",
+    "text": "Co odświeżenie odczytuje ponownie"
+  },
   "5c6eb15c354f3137": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -57116,6 +57313,13 @@
     "srcHash": "5c7cffffc37e79fb",
     "status": "machine",
     "text": "Własne renderowanie komponentu — nazwa wyprowadzona przez jego dostawcę dla samego komponentu, a nie dla któregoś z jego dołączeń — nie niesie drugiej współrzędnej, więc ustalenie kończy się na nazwie komponentu."
+  },
+  "5c7da0e1f89d90f1": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "5c7da0e1f89d90f1",
+    "status": "machine",
+    "text": "**Adnotacje wewnątrz modułu.** Własne adnotacje modułu docierają do własnych komponentów modułu dokładnie tak, jak adnotacje encji Aggregate docierają do jej własnych, niezależnie od tego, czy zadeklarowano je w jednym z jego podsystemów, czy na instancji komponentu, więc `main-db` renderuje się do przestrzeni nazw `data`, którą deklaruje moduł. Importująca encja Aggregate nie deklaruje niczego, co sięga do wnętrza modułu; robi to encja Release, a jej wartość wygrywa dla tego samego klucza — zapisanie `annotations: { aggrega.ai/namespace: prod-data }` we wpisie `main-db` powyżej lub na granicy `prod-cluster` umieszcza zamiast tego `main-db` właśnie tam."
   },
   "5c7f0bc6e061dec7": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -58322,6 +58526,17 @@
     "srcHash": "5e6b78f84536d866",
     "status": "machine",
     "text": "Przypięcie SHA-256 zapisane małymi literami szesnastkowymi. Dla wejścia https jest to skrót bajtów danych; dla wejścia oci — skrót manifestu, na który rozwiązała się referencja. Wskazuje obiekt blob magazynu pod `sha256/<digest>`."
+  },
+  "5e6dd0da11ffbf7b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "51ec9ce295d93819",
+      "reviewed": false
+    },
+    "srcHash": "5e6dd0da11ffbf7b",
+    "status": "machine",
+    "text": "Cztery rodzaje błędów w tych szablonach są zamiast tego zgłaszane w ramach własnych warunków. Wpis `provides:` jest zgłaszany poniżej w „A `provides:` template could not be evaluated (Nie można było ewaluować szablonu)”, z tym zdaniem i powodem silnika w swoim komunikacie. Odczyt przez `index` klucza, którego mapa nie zawiera, jest zgłaszany powyżej w „A template indexes a map with a key the map does not hold (Szablon indeksuje mapę kluczem, którego mapa nie zawiera)”. Szablon, który wypisuje jedną ścieżkę niczego niezawierającą i iteruje po niej, jest odrzucany przed uruchomieniem w ramach „A template reads and iterates a path that holds nothing (Szablon odczytuje i iteruje ścieżkę, która nic nie zawiera)” powyżej. A szablon, którego nie da się sparsować, zatrzymuje się przed uruchomieniem, więc nie jest to ten warunek."
   },
   "5e70a54540c12763": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -62909,6 +63124,17 @@
     "srcHash": "65c2493ab2b7e8d7",
     "status": "machine",
     "text": "JSONPatchOp[]"
+  },
+  "65c2af911a598288": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "revision": {
+      "from": "573da18752721f8f",
+      "reviewed": false
+    },
+    "srcHash": "65c2af911a598288",
+    "status": "machine",
+    "text": "Każdy znacznik odczytany podczas przechodzenia daje jeden wiersz z nazwą repozytorium, wersją oraz wagą zapisaną przez wydawcę — `warning`, `error` lub `retracted` — wraz z informacją, czy znacznik został zapisany. Wersja, której załączniki nie zmieniły się od ostatniego odświeżenia, zostaje zachowana w zapisanej postaci zamiast ponownego odczytu, więc jej znacznik nie jest ponownie raportowany; liczba podana niżej nadal ją obejmuje. Znacznik jest zapisywany tylko wtedy, gdy jego własny podpis weryfikuje się względem podpisujących, których honoruje polityka zaufania rejestru. Znacznik, który jest obecny, ale nieczytelny, albo obecny, ale nie honorowany, jest raportowany jako taki i pomijany w indeksie, zamiast zostać zapisany na podstawie dowodu, którego nie udało się uwierzytelnić."
   },
   "65c65b47370a92fc": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -69163,6 +69389,17 @@
     "status": "machine",
     "text": "Komponent wnoszony przez moduł również podlega tym dwóm pierwszym formom, odczytywanym z własnego dokumentu modułu po zbudowaniu kompozycji, która go importuje; wskazują one wtedy encję Aggregate modułu i klucz w jej dokumencie."
   },
+  "6fff5391365d2baf": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "revision": {
+      "from": "c1f04abfc67b4c2b",
+      "reviewed": false
+    },
+    "srcHash": "6fff5391365d2baf",
+    "status": "machine",
+    "text": "Każde polecenie odrzuca argument pozycyjny, którego nie wykorzystuje, i sygnalizuje to odrzucenie niezerowym kodem wyjścia, zamiast kończyć działanie tak, jakby wywołanie było poprawne. Zasada obejmuje polecenia, które istnieją wyłącznie po to, by grupować podpolecenia — w nich błędnie wpisana nazwa podpolecenia trafia jako nierozpoznany argument pozycyjny: wypisywana jest pomoc polecenia, a kod wyjścia jest niezerowy, dzięki czemu literówka w skrypcie kończy się wyraźnym błędem, a nie wygląda na udane uruchomienie. `aggrega` wywołane z nierozpoznanym poleceniem zachowuje się tak samo i dodatkowo podaje najbliższe pasujące polecenie, o ile któreś jest wystarczająco bliskie."
+  },
   "7000483027a021f9": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -71774,6 +72011,13 @@
     "status": "machine",
     "text": "Ostrzeżenie zgłaszane, gdy encja Release jest sprawdzana pod kątem konwencji publikacji; nigdy niczego nie zatrzymuje, a kompilacja go nie zgłasza. Serwer sprawdzający klucz przechowuje weryfikowany klucz we własnym slocie, a wywołujący przedstawia klucz w połączeniu, przez które dociera do tego serwera. Żadna ze stron nie widzi klucza drugiej, więc oba są jednym kluczem tylko dlatego, że ich autorzy zapisują ten sam lokalizator po obu stronach. Ten warunek zgłasza połączenie, którego cel deklaruje slot na klucz wymagany od wywołujących, a oba nie są jednym kluczem: połączenie niesie poświadczenie, a slot klucza celu jest pusty, slot klucza celu jest wypełniony, a połączenie nie niesie poświadczenia, albo oba są wypełnione, a ich lokalizatory są zapisane inaczej."
   },
+  "7485eaf7f454e3a7": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "7485eaf7f454e3a7",
+    "status": "machine",
+    "text": "Emitowany komunikat, jako ostatni wiersz raportu — ramki nad nim wskazują węzeł i szablon, a nagłówek zawiera kod tego warunku:"
+  },
   "748c39faacc0d97e": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -72328,6 +72572,13 @@
     "srcHash": "7548a55f129f85e2",
     "status": "machine",
     "text": "**`.context.render_facts` (mapa list, zob. niżej).** To, co provider komponentu zgłosił o wyrenderowanym wyniku, kluczowane nazwą faktu. Odczytywana przez encję FeatureRecipe dołączoną do komponentu, w każdym jej szablonie uruchamianym po wyrenderowaniu komponentu; wszędzie indziej nieobecna."
+  },
+  "7549c8510d8e2df0": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "7549c8510d8e2df0",
+    "status": "machine",
+    "text": "Szablon encji Recipe lub FeatureRecipe odczytuje kubły adnotacji po nazwie — `.context.annotations.aggregate`, `.context.annotations.release` i `.context.annotations.catalog` przechowują każdy to, co zapisała dana strona — więc szablon, który odczytuje klucz umiejscowienia z jednego kubła, widzi wyłącznie wartość tej strony."
   },
   "754e052170e763fe": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -79441,6 +79692,13 @@
     "status": "machine",
     "text": "Renderowanie po celach — `spec.readsTargetRenderFacts`"
   },
+  "80db2eb1978a13f0": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "80db2eb1978a13f0",
+    "status": "machine",
+    "text": "A template reads and iterates a path that holds nothing (Szablon odczytuje i iteruje ścieżkę, która nic nie zawiera)"
+  },
   "80de3df94cea1513": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -85241,6 +85499,13 @@
     "status": "machine",
     "text": "ClosureEntity[] lub null"
   },
+  "8ab8d95f0485bf35": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "8ab8d95f0485bf35",
+    "status": "machine",
+    "text": "Encja Release stoi wyżej niż encja Aggregate w przypadku każdego klucza. Tam, gdzie encja Release ustawia klucz dla komponentu — na jego granicy lub we własnym wpisie komponentu — stosowana jest wartość z encji Release; tam, gdzie nie ustawia żadnej, stosowana jest wartość z encji Aggregate. Obie strony nakładają się klucz po kluczu, więc encja Release, która ustawia tylko `aggrega.ai/namespace`, pozostawia w mocy `aggrega.ai/image-registry` zadeklarowane przez encję Aggregate."
+  },
   "8aba1ff41e80411e": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -87908,6 +88173,13 @@
     "srcHash": "8eea64137c2933de",
     "status": "machine",
     "text": "W **obecnej składni** ciało reguły jest poprzedzone słowem `if`, reguła zbierająca wartości do zbioru wyraża to przez `contains`, a moduł określa, w jakiej składni jest napisany, deklarując `import rego.v1` w osobnym wierszu pod deklaracją pakietu:"
+  },
+  "8ef1763c59956347": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "8ef1763c59956347",
+    "status": "machine",
+    "text": "**Wystarczy jeden odczyt.** Należy odczytywać ścieżkę w jeden sposób — przez `range`, który zapisuje również to, czego potrzebuje, albo przez wypisanie za pomocą funkcji takiej jak `toYaml` czy `join`, która sama udziela odpowiedzi dla nieustawionej wartości."
   },
   "8ef241c5676e5b91": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -92849,6 +93121,13 @@
     "status": "machine",
     "text": "Odmowa przy przekształcaniu obcego opisu źródła w robocze pliki autorskie, a nie przy kompilacji. Wskazane źródło jest katalogiem, a katalog jest przekazywany importerowi jako dokładnie te pliki, które wybierają zadeklarowane przez importer wzorce plików — to, które pliki katalogu czyta importer, jest więc jego własną deklaracją. Importer obsługujący format źródła nie deklaruje wzorców plików: czyta jeden plik i nie mówi nic o tym, które pliki katalogu do niego należą."
   },
+  "973af8888b04c016": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "973af8888b04c016",
+    "status": "machine",
+    "text": "Interpolacja parametrów w encji Aggregate również zgłasza ten sam wiersz pod kodem tego warunku. Wpis `provides:` zgłasza błąd szablonu w ramach „A `provides:` template could not be evaluated (Nie można było ewaluować szablonu)”, więc tam nagłówek zawiera kod tamtego warunku, a powyższy wiersz jest podawaną przez niego przyczyną, łącznie ze ścieżką."
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -95634,6 +95913,17 @@
     "status": "machine",
     "text": "**Jak naprawić:** oba przypadki musi usunąć publikujący, a nie użytkownik, a poprawka dotyczy katalogu wersji, z którego opublikowano encję. Należy dać każdej encji osobny katalog wersji, tak aby zawierał jedną encję i należące do niej pliki — to układ, którego przestrzega już każda opublikowana encja: katalog nosi nazwę od `metadata.version` encji i leży pod jej własną nazwą. Następnie należy opublikować ponownie w nowej wersji: opublikowane bajty są zamrożone, więc ponowna publikacja na istniejącą wersję jest odrzucana, a nie poprawiana. Przy korzystaniu z artefaktu zamiast jego publikowania należy przekazać komunikat temu, kto go publikuje; nazwy plików w komunikacie wskazują katalog do rozdzielenia."
   },
+  "9be0da29a429f7cd": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "3e25fcdcc50c05d8",
+      "reviewed": false
+    },
+    "srcHash": "9be0da29a429f7cd",
+    "status": "machine",
+    "text": "Każda granica CloudFormation jest renderowana do jednego stosu. Gdy krawędź `uses` przechodzi z jednej granicy do innej, provider `cloudformation` musi wiedzieć, gdzie znajduje się stos równorzędny, aby ukształtować odwołanie: dwa stosy w tym samym koncie i regionie wymieniają wartości przez eksport i import stosu; stos równorzędny w innym koncie lub regionie wymaga odczytu wyjść stosu między kontami, opcjonalnie z przyjęciem roli. Te adnotacje niosą ten kontekst rozmieszczenia. Każda z nich jest odczytywana w chwili, gdy provider kształtuje takie odwołanie, i rozwiązywana w tej chwili przez zwykłą kaskadę adnotacji — wartość ustawiona na komponencie ma pierwszeństwo przed wartością ustawioną na granicy, a wartość ustawiona przez encję Release ma pierwszeństwo przed wartością zadeklarowaną przez encję Aggregate. Wartość na poziomie granicy jest więc typowym sposobem ich wyrażenia, ale nie jedynym. Są to nieprzezroczyste skalarne ciągi wskaźnikowe — provider przekazuje je do budowanego odwołania i nigdy nie rozwiązuje ich względem bieżącego stanu AWS; konto, region i rolę dostarcza encja Release lub deklaruje encja Aggregate, a ostateczny fizyczny odczyt rozwiązuje środowisko uruchomieniowe. Gdy brak wszystkich adnotacji, provider traktuje stos równorzędny jako znajdujący się w tym samym koncie i regionie i nie dostarcza żadnej roli."
+  },
   "9be0eb56c6c758a6": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -96506,6 +96796,13 @@
     "srcHash": "9d15b515c2878073",
     "status": "machine",
     "text": "Wartość składaną z kilku części należy najpierw złożyć, a następnie zapisać przez `toJson` jeden raz, tak jak w poniższych przykładach."
+  },
+  "9d1821afc3756297": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "9d1821afc3756297",
+    "status": "machine",
+    "text": "Wypisanie ścieżki niczego niezawierającej wewnątrz ciała, które faktycznie jest wykonywane, nadal zapisuje `<no value>`, czego ta kontrola nie obejmuje. Jeden zapis ścieżki oznacza tę samą ścieżkę co każdy inny, więc wypisanie w jednym zapisie i `range` w innym są oceniane razem, a komunikat cytuje zapis, którego szablon użył jako pierwszego. Ścieżka zawierająca wartość jest wypisywana i iterowana tak jak zawsze, a ścieżka, której rodzic nic nie zawiera, pozostaje do obsłużenia przez zatrzymanie, które już wywołuje schodzenie przez nic."
   },
   "9d1d97e432885ee6": {
     "at": "2026-10-22T23:44:14.843805+00:00",
@@ -98519,6 +98816,17 @@
     "status": "machine",
     "text": "`persistentTemplate` — szablony woluminów dla poszczególnych replik są niedostępne, więc wolumin sprowadza się do jednego współdzielonego woluminu trwałego, zamiast znikać."
   },
+  "a0a85d5aebae453e": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "58c7ddb75f9680f8",
+      "reviewed": false
+    },
+    "srcHash": "a0a85d5aebae453e",
+    "status": "machine",
+    "text": "Towarzyszy `form: stateful`; compose nie ma prymitywu szablonów wolumenów per replika, więc zachowanie per replika zostaje utracone, a ostrzeżenie `unsupported-field` informuje, że wolumen stał się jednym wolumenem współdzielonym przez wszystkie repliki. Klasa pamięci, tryby dostępu i rozmiar nie są zachowywane, dokładnie tak jak dla `persistent`: zapisane `class` lub `accessModes` wywołuje ostrzeżenie `unsupported-field` pod `volumes.<name>.persistentTemplate.class` lub `volumes.<name>.persistentTemplate.accessModes`, a wymagany `size` nie wywołuje żadnego"
+  },
   "a0a93d560bc59e87": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -99222,6 +99530,17 @@
     "srcHash": "a1984496a8ce1049",
     "status": "machine",
     "text": "Instancja komponentu i moduł podagregatu przyjmują przełącznik `active:`, który decyduje, czy dana encja w ogóle należy do skompilowanej topologii. Jeśli go pominąć, encja jest obecna; jest to wartość domyślna i zwykły przypadek."
+  },
+  "a19950882199ba3b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "11e587160c58abb5",
+      "reviewed": false
+    },
+    "srcHash": "a19950882199ba3b",
+    "status": "machine",
+    "text": "Powyższe adnotacje trafiają *do* kompilacji — definiuje je encja Release lub encja Aggregate, a konsumują dostawcy. Providers emitują również równoległy zestaw etykiet wychodzących *z* kompilacji, dołączając je do renderowanego wyniku, aby narzędzia w dalszej części łańcucha mogły przypisać zasoby środowiska uruchomieniowego do treści katalogu, która je wytworzyła. Te etykiety pochodzenia nie są definiowane w encji Release; są wyprowadzane z własnego stanu kompilacji (tożsamość encji Recipe, ścieżka granicy, nazwa agregatu, środowisko, fala synchronizacji, wersja kompilatora) i emitowane przez dostawcę w czasie renderowania."
   },
   "a19a4da694069749": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -100009,6 +100328,13 @@
     "status": "machine",
     "text": "Nazwa jest odrzucana za to, że rozwiązuje się do niczego, a nigdy za swoją postać: nazwa z kropkami jest czymś zwykłym, ponieważ komponent o jeden moduł głębiej nosi prefiks tego modułu. Komponent, którego przełącznik `active:` rozwiązuje się do `false`, nadal może być nazywany — wyłączenie komponentu nie wymaga edycji encji Release, która go konfiguruje."
   },
+  "a2f48690d7fa364d": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "a2f48690d7fa364d",
+    "status": "machine",
+    "text": "ponownie weryfikuje załączniki każdej wersji — jej podpisy, deklaracje daty publikacji i znaczniki wycofania — dzięki czemu podpis, data lub znacznik dołączony do wersji w międzyczasie zostaje odczytany i zweryfikowany, a to samo robi z podpisami znacznika wycofania, który ocenił wcześniej;"
+  },
   "a2f7c9ba2ab2530c": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -100726,6 +101052,13 @@
     "srcHash": "a4167aeb608d50a1",
     "status": "machine",
     "text": "Każda encja Release deklaruje pole `manifest:` wskazujące jej encję Manifest (chyba że encja Release używa `extends:`, które dziedziczy wskaźnik na manifest z encji nadrzędnej). CLI `aggrega build` odczytuje to pole bezpośrednio; flaga CLI `--manifest` nie istnieje, więc specyfikacja zależności pozostaje zatwierdzona w Git razem z samą encją Release, dzięki czemu historię wdrożeń można audytować przez własną historię Git encji Release."
+  },
+  "a416a66a00eaac48": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "a416a66a00eaac48",
+    "status": "machine",
+    "text": "porównuje politykę zaufania rejestru z tą, w ramach której zbudowano indeks, dzięki czemu zmiana polityki powoduje ponowny odczyt każdej wersji w ramach nowej."
   },
   "a416daa4df97b4de": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -107461,6 +107794,13 @@
     "status": "machine",
     "text": "Plugin przechodzi od pliku `.wasm` na dysku do zweryfikowanego artefaktu gotowego do użycia w buildzie przez trzy etapy."
   },
+  "aede51d754ff4669": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "aede51d754ff4669",
+    "status": "machine",
+    "text": "Jawne `null` w encji Release wycofuje tylko własną wartość encji Release. Wpis komponentu zapisujący `aggrega.ai/namespace: null` usuwa przestrzeń nazw, którą przekazałaby mu granica w jego encji Release, a komponent przyjmuje wtedy wartość deklarowaną przez jego encję Aggregate — albo nie przyjmuje żadnej, jeśli encja Aggregate również żadnej nie deklaruje. Encja Release nie może usunąć wartości deklarowanej przez encję Aggregate; może jedynie ustawić nad nią własną."
+  },
   "aedeac9d55bcad24": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -110450,6 +110790,13 @@
     "srcHash": "b33e14f2799de4d0",
     "status": "machine",
     "text": "Czy gniazdo musi być podłączone, aby kompilacja mogła być kontynuowana."
+  },
+  "b343438768c9d898": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "b343438768c9d898",
+    "status": "machine",
+    "text": "**Ścieżka musi istnieć.** Należy ją podać — w `values:` encji Aggregate, w `infra:` encji Release lub w parametrze, który wypełnia encja Release — albo zadeklarować ją jako wymaganą w schemacie, który nią rządzi, aby jej brak był zgłaszany tam, gdzie jest tworzona."
   },
   "b344e04753a754eb": {
     "at": "2026-10-22T08:52:36.046409+00:00",
@@ -123666,6 +124013,13 @@
     "status": "machine",
     "text": "`valuesMapping` encji Recipe (wbudowane, plikowe `$import:` lub biblioteczne `$import:`)"
   },
+  "c84d527a427e5991": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "c84d527a427e5991",
+    "status": "machine",
+    "text": "ponownie weryfikuje listę tagów, dzięki czemu wychwytywana jest wersja opublikowana lub usunięta w międzyczasie;"
+  },
   "c84d60a5bf4fecec": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -128827,6 +129181,13 @@
     "srcHash": "d028780d8bb55501",
     "status": "machine",
     "text": "Nazwa encji Provider (zwykły ciąg)"
+  },
+  "d028791cc179e958": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "d028791cc179e958",
+    "status": "machine",
+    "text": "Każde sprawdzenie to niewielkie żądanie — rozwiązanie skrótu manifestu albo żądanie warunkowe, na które rejestr odpowiada, że nic się nie zmieniło, nie wysyłając niczego — więc odświeżenie niezmienionego rejestru niczego nie pobiera. Wersja, której nie wszystkie odczyty się zakończyły, lub która ma znacznik wycofania, który nie został uhonorowany, jest odczytywana ponownie przy następnym odświeżeniu. W przypadku rejestru, który nie potrafi określić, czy załączniki wersji się zmieniły, każda wersja jest odczytywana ponownie przy każdym odświeżeniu: wynik jest ten sam, a koszt taki jak przy pełnym ponownym odczycie."
   },
   "d029f87e3d80f8fd": {
     "at": "2026-10-22T11:48:02.910092+00:00",
@@ -135730,6 +136091,17 @@
     "status": "machine",
     "text": "Kompilacja zostaje zatrzymana, zamiast złożyć taką ścieżkę. Komunikat wskazuje dostawcę, który zadeklarował wartość, oraz samą wartość, dzięki czemu wiadomo, którego dostawcę należy zmienić i co zadeklarował."
   },
+  "db7374b6ac7ae0be": {
+    "at": "2026-11-01T00:18:45.802Z",
+    "job": "session-0004-20261101001845",
+    "revision": {
+      "from": "5a8b1376763a36d5",
+      "reviewed": false
+    },
+    "srcHash": "db7374b6ac7ae0be",
+    "status": "machine",
+    "text": "**Szablony wartości** (wpisy `valuesMapping`, `locals:` i `provides:` encji Recipe, treści `artifacts:`, treści encji Workload, `injectMapping` i `pipeline.with` encji FeatureRecipe oraz szablony `value:` samowstrzykiwania na poziomie komponentu) są ewaluowane z `missingkey=zero`, więc odwołanie do niezdefiniowanego klucza nie zatrzymuje kompilacji — odczyt renderuje się jako nic i to nic trafia do artefaktu. To, co *nadal* zatrzymuje kompilację na tej powierzchni, to odwołanie schodzące **przez** kontener, którego autor nigdy nie dostarczył — `.values.tls.ca`, gdy nie zapisano `tls` — ponieważ nie ma w co zejść. Jako nic renderuje się tylko ostatni klucz odwołania, którego wszystkie kontenery istnieją. Pole najwyższego poziomu, które kontekst definiuje, ale w którym nic nie ma — `.workload` w encji Recipe, która niczego nie syntetyzuje, `.features` w komponencie bez dołączeń — renderuje się jako nic w ten sam sposób, gdy jest odczytywane w całości. Jedno odwołanie jest jednym odwołaniem niezależnie od zapisu: `.values.list`, `$.values.list` i `(.values).list` wskazują ten sam klucz, więc iterowanie po nim w jednym zapisie jest iterowaniem po nim we wszystkich, a klucz odczytany z filaru w nawiasach renderuje się lub zatrzymuje kompilację dokładnie tak jak zapis bezpośredni. Klucz, po którym szablon iteruje, nadal iteruje jako nic, gdy nie jest ustawiony, a klucz, który szablon zarówno wypisuje, jak i iteruje, zatrzymuje kompilację, gdy nie jest ustawiony — zob. „A template reads and iterates a path that holds nothing (Szablon odczytuje i iteruje ścieżkę, która nic nie zawiera)” poniżej. Zabezpieczenia działają zgodnie z oczekiwaniami: `{{ .values.optional_field | default \"fallback\" }}` zapewnia wartość zastępczą, ponieważ nieustawiona wartość liczy się jako pusta dla `default` i fałszywa dla `if`. Autorzy, którzy potrzebują rozróżnienia braku od zera — odróżnienia „klucz nieobecny” od „klucz obecny i pusty” — używają funkcji pomocniczej `optional` opisanej w [`templates/sprig-functions.md`](../templates/sprig-functions.md) i odczytują dany klucz w jeden sposób na szablon: klucz, który ten sam szablon odczytuje także jako `.values.<key>`, liczy się jako obecny, więc `optional` zwraca jego pustą wartość zamiast wartości zastępczej. Tej polityki nie obejmuje odczyt przez `index`: indeksowanie mapy kluczem, którego ona nie zawiera, zatrzymuje kompilację ze wskazaniem klucza tu tak samo jak na każdej powierzchni — zob. „A template indexes a map with a key the map does not hold (Szablon indeksuje mapę kluczem, którego mapa nie zawiera)” poniżej."
+  },
   "db76e8d3372a8cc6": {
     "at": "2026-10-30T00:43:49.791Z",
     "job": "session-0040-20261030004349",
@@ -136545,6 +136917,13 @@
     "srcHash": "dc8c892b2aa7c90d",
     "status": "machine",
     "text": "Lista kontrolna przenoszenia parametrów"
+  },
+  "dc8e4acdb92e7b50": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "dc8e4acdb92e7b50",
+    "status": "machine",
+    "text": "Adnotacje encji Provider zadeklarowane w encji Aggregate"
   },
   "dc8f6fc98ebbcb6c": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -139045,6 +139424,13 @@
     "srcHash": "e0416104e1fc2b32",
     "status": "machine",
     "text": "Wskazywane jest *każde* błędne odwołanie w szablonie, więc treść sięgająca po dwa nieobecne filary informuje o obu, a nie tylko o tym, które pojawiło się pierwsze. Każde odwołanie jest zgłaszane w dokumencie deklarującym wpis, cytowane tak, jak zostało napisane, i opatrzone podpisem wskazującym wyjście, do którego należy:"
+  },
+  "e0419cd9219ddb6d": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "srcHash": "e0419cd9219ddb6d",
+    "status": "machine",
+    "text": "**Nierozpoznane polecenie podaje też, jak znaleźć wtyczkę CLI o tej nazwie.** Odpowiedź pochodzi z lokalnego indeksu domyślnego rejestru, który buduje [`aggrega registry update`](cli/aggrega-registry.md) i odczytuje [`aggrega search`](cli/aggrega-search.md), dlatego jest zwracana natychmiast, a błędnie wpisane słowo nigdy nie jest wysyłane do rejestru, ani w trybie online, ani offline. Jeśli indeks zawiera wtyczkę CLI o tej nazwie, komunikat podaje polecenie `aggrega plugin add cli <name>`, które ją instaluje. W przeciwnym razie podaje wyszukiwanie, które jej szuka, `aggrega search <name> --kind plugin --plugin-type cli`, z nazwą ujętą w cudzysłów dla powłoki tam, gdzie to konieczne; jeśli indeks nie został jeszcze zbudowany, najpierw podaje `aggrega registry update`, ponieważ wyszukiwanie odczytuje wyłącznie indeks."
   },
   "e0419d8c2226e1ce": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -146671,6 +147057,13 @@
     "status": "machine",
     "text": "Kolumna o jeden za końcem tokenu, którego dotyczy ustalenie."
   },
+  "ecf93604df7806b8": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ecf93604df7806b8",
+    "status": "machine",
+    "text": "**Ścieżka może być nieobecna.** Należy zabezpieczyć wypisywany odczyt: `{{ with .values.user }}{{ . }}{{ end }}` lub `{{ if .values.user }}{{ .values.user }}{{ end }}` nie wypisuje niczego, gdy ścieżka nie jest ustawiona, a `range` obok nadal iteruje jak po niczym."
+  },
   "ecfb36dc93702284": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -147297,6 +147690,13 @@
     "status": "machine",
     "text": "Rozstrzyganie odwołania `aggregates[].type` w encji nadrzędnej"
   },
+  "ede1df7e78e2dabd": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ede1df7e78e2dabd",
+    "status": "machine",
+    "text": "template reads a path as a value and iterates it, and the data holds nothing at that path (path `<path>`). supply a value at the path, guard the printed read with an if or with over the path, or read it one way only (Szablon odczytuje ścieżkę jako wartość i iteruje po niej, a dane pod tą ścieżką nic nie zawierają. Należy podać wartość pod tą ścieżką, zabezpieczyć wypisywany odczyt za pomocą if lub with na tej ścieżce albo odczytywać ją tylko w jeden sposób)"
+  },
   "ede2e4d5275182dd": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -147566,6 +147966,13 @@
     "srcHash": "ee78abc330e5577c",
     "status": "machine",
     "text": "**Za determinizm odpowiada gość.** W zwykłej kompilacji nic go nie sprawdza.\nTutaj wynika on z sortowania kluczy pochodzenia przed ich emisją\noraz z przechodzenia wpisów artefaktów w kolejności, w jakiej niosą je dane,\na kontrole pod koniec tej strony mierzą wynik."
+  },
+  "ee78bd79ba73555b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ee78bd79ba73555b",
+    "status": "machine",
+    "text": "**Ścieżka jest wypisywana**, gdy akcja składa się ze ścieżki i niczego więcej — `{{ .values.user }}`, `{{ $.values.user }}`, `{{ (.values).user }}` albo zmienna powiązana ze ścieżką, `{{ $u }}` po `{{ $u := .values.user }}` — w miejscu, do którego szablon dociera przy każdym uruchomieniu."
   },
   "ee79739d342d3342": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -149687,6 +150094,13 @@
     "srcHash": "f1c48acec4205b8e",
     "status": "machine",
     "text": "Nazwa bazowej encji Component."
+  },
+  "f1c98ff946e8fcdd": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "f1c98ff946e8fcdd",
+    "status": "machine",
+    "text": "Odświeżenie porównuje to, co rejestr udostępnia teraz, z tym, co zapisał indeks, i ponownie odczytuje wszystko, co się zmieniło — z tym samym wynikiem, jaki daje pełny ponowny odczyt. Dla każdego repozytorium:"
   },
   "f1cb05a190ee7228": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -152325,6 +152739,13 @@
     "srcHash": "f5d33a0c73364e28",
     "status": "machine",
     "text": "Uwagi wymaga wpis `volumes:` napisany przez autora, ponieważ może mieć własną treść — `driver`, `driver_opts` lub `labels`. Gdy dwóch współtwórców deklaruje jedną nazwę z **różnymi** treściami, budowanie zatrzymuje się z `TRANSLATION_ERROR`, wymieniając wolumen i wszystkie współtworzące krotki `(boundary, node)`. Gdy dwóch autorów nie zgadza się co do jednego wolumenu, asembler nie ma odpowiedzi, którą mógłby wybrać: zachowanie którejkolwiek treści odrzuca to, co napisał drugi autor, w budowaniu, które poza tym by się powiodło. Należy to rozwiązać, ujednolicając obie deklaracje, jeśli obaj autorzy mieli na myśli ten sam wolumen, albo zmieniając nazwę jednej z nich, jeśli mieli na myśli dwa. Sieci najwyższego poziomu są tworzone po jednej na każdą współtworzącą granicę i nazywane zgodnie z [Jak wyprowadzana jest nazwa sieci](#how-a-network-name-is-derived); dwie współtworzące granice z tą samą adnotacją `aggrega.ai/namespace` scalają się w jedną sieć wspólną dla obu."
+  },
+  "f5d7c78d61f186f8": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "f5d7c78d61f186f8",
+    "status": "machine",
+    "text": "**Jak naprawić:** należy zdecydować, który z dwóch odczytów ma na myśli szablon."
   },
   "f5da3c2187bb80d1": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -154970,6 +155391,17 @@
     "status": "machine",
     "text": "Testowanie polityki, zanim zacznie blokować kompilację"
   },
+  "fa1718661f404f49": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "d306d355d85905e5",
+      "reviewed": false
+    },
+    "srcHash": "fa1718661f404f49",
+    "status": "machine",
+    "text": "Wszystko powyżej to adnotacje *dostawcy*: tworzone w encji Release lub deklarowane w encji Aggregate, przekazywane przez kompilator jako nieprzezroczysty ciąg znaków i odczytywane przez dostawcę. Drugi, znacznie mniejszy słownik działa w przeciwnym kierunku — tworzy go architekt we **własnych** `metadata.annotations` **encji katalogu**, odczytuje go **kompilator**, a dostawca nigdy go nie widzi. Niezmiennik 1 powyżej dotyczy słownika dostawców i nie obejmuje tych kluczy; kompilator odczytuje dokładnie klucze wymienione tutaj i żadne inne."
+  },
   "fa20eb85d69369e6": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -157186,6 +157618,13 @@
     "srcHash": "fdb443dddeddf5cc",
     "status": "machine",
     "text": "`hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, wydawca `core` (płasko, bez kategorii)"
+  },
+  "fdb5b44e15548cec": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "fdb5b44e15548cec",
+    "status": "machine",
+    "text": "Odczytuje każde repozytorium w całości, nie porównując niczego z już zapisanym indeksem (odświeżenie bez tej flagi i tak ponownie odczytuje wszystko, co się zmieniło)"
   },
   "fdb6e444648b1e8f": {
     "at": "2026-10-29T21:31:42.799Z",

@@ -1865,6 +1865,13 @@
     "status": "machine",
     "text": "[Lỗi dừng nghiêm trọng](errors/fatal-halts.md) — danh mục các lỗi làm dừng biên dịch, được tổ chức theo bước pipeline nơi việc kiểm tra được kích hoạt. Mỗi mục nêu nguyên nhân gây lỗi, cách khắc phục và phần soạn thảo gây lỗi."
   },
+  "02ce55920afaac26": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "02ce55920afaac26",
+    "status": "machine",
+    "text": "Một template in ra một đường dẫn đúng như hiện trạng và đồng thời lặp qua chính đường dẫn đó — chẳng hạn `\"user\": \"{{ .values.user }}\"` và `\"users\": \"{{ range .values.user }}…{{ end }}\"` trong cùng một `valuesMapping` — trong khi dữ liệu không chứa gì ở đó: khóa chưa được đặt, chứa null, hoặc là một trường cấp cao nhất mà ngữ cảnh định nghĩa nhưng không chứa gì, chẳng hạn `.workload` trên một Recipe không tổng hợp workload nào. Bản build dừng trước khi template chạy và nêu tên đường dẫn, trên mọi bề mặt render một giá trị chưa đặt thành rỗng: các template giá trị mà “Missing template key — asymmetric policy (Thiếu khóa template — chính sách bất đối xứng)” ở trên liệt kê, và phép nội suy tham số trong một Aggregate."
+  },
   "02ce9da8ae96def3": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -3691,6 +3698,13 @@
     "srcHash": "05ba857bc125d55a",
     "status": "machine",
     "text": "`ops.example.com/owner` trên mọi node; `backup.example.com/schedule` trên mọi node thuộc hạng mục `datastore`"
+  },
+  "05baf5a5c660afb5": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "05baf5a5c660afb5",
+    "status": "machine",
+    "text": "`aggrega.ai/namespace` của hệ thống con là một annotation của provider, nên nó làm nhiều hơn là đi tới template: provider đặt `invoice-api` và `payment-worker` vào namespace `billing`, còn `metrics-collector`, có hệ thống con không khai báo annotation này, giữ vị trí mà nó vốn sẽ có. Một Release đặt `aggrega.ai/namespace` — trên `prod-cluster` hoặc trên mục của một thành phần — sẽ ghi đè giá trị của hệ thống con cho các thành phần mà nó bao phủ; giá trị của hệ thống con áp dụng ở bất cứ đâu Release không đặt giá trị nào."
   },
   "05bb080eb0712b63": {
     "at": "2026-10-22T10:44:41.513626+00:00",
@@ -7377,6 +7391,17 @@
     "status": "machine",
     "text": "Hãy dùng `get-schema` khi bạn cần hình dạng chính xác của một loại trong lúc soạn thảo — trường nào bắt buộc, một giá trị có thể là gì, một khối lồng nhau ra sao. Đây là chuẩn tham chiếu để kiểm tra một tệp viết tay, và là điểm khởi đầu khi tìm hiểu một loại chưa quen. Vì lệnh in ra JSON Schema mà máy đọc được, bạn cũng có thể đưa nó vào một trình soạn thảo hiểu schema hoặc một công cụ kiểm tra hợp lệ."
   },
+  "0ba3180e5e8cd1b3": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "5e9d061800a14d0b",
+      "reviewed": false
+    },
+    "srcHash": "0ba3180e5e8cd1b3",
+    "status": "machine",
+    "text": "**Ba biến thể mang kích thước lưu trữ, và chỉ một trong số đó cảnh báo rằng kích thước đã bị bỏ.** Khác biệt nằm ở chỗ bạn có được lựa chọn hay không. `sizeLimit` của một volume `ephemeral` là tùy chọn, nên việc viết nó là một quyết định, và cảnh báo cho bạn biết giá trị đó không định hình gì trên đích này và có thể xóa đi — cảnh báo chỉ mang tính tư vấn và nằm ngoài luồng, tệp được tạo giống hệt từng byte như khi không có nó, và `--no-unsupported-field-warnings` tắt nó cùng với cả lớp cảnh báo. `size` của một volume `persistent` hoặc `persistentTemplate` là bắt buộc, nên không phiên bản nào của tài liệu bỏ nó đi: một cảnh báo mỗi lần build ở đó sẽ xuất hiện với mọi workload stateful mà không nêu gì bạn có thể thay đổi, nên khác biệt này được giải thích ở đây thay vì được báo cáo mỗi lần build. Khi nhắm tới compose, `size`, `class` và `accessModes` của một volume persistent không định hình gì trong tệp được tạo — thứ bạn nhận được là một volume có tên thông thường, với kích thước và nền lưu trữ theo mặc định của volume driver trên máy chủ compose. `class` và `accessModes` là tùy chọn, nên mỗi trường bạn viết ra đều được báo cáo giống như `sizeLimit` của một volume `ephemeral`: một cảnh báo `unsupported-field` cho mỗi trường, mang tính tư vấn và nằm ngoài luồng, được tắt bằng cùng một cờ. Hãy định kích thước bộ lưu trữ bên dưới trên máy chủ, hoặc trên đích Kubernetes nơi các trường này thực sự đi tới đầu ra."
+  },
   "0ba584a8cc1a3fdc": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -8097,6 +8122,13 @@
     "srcHash": "0cdc12418b7c3618",
     "status": "machine",
     "text": "**Ba trụ cột của base, nguyên văn** — `values.upstream_path`,\n  `infra.port` / `engine_version` / `compute` / `overrides`, và\n  `provides.host` / `port` / `protocol`, mỗi mục kèm mô tả riêng của base."
+  },
+  "0ce28cea827f349a": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "0ce28cea827f349a",
+    "status": "machine",
+    "text": "Các khóa trong ma trận ở trên cũng được truyền theo tầng qua Aggregate, và nhà cung cấp áp dụng những gì cơ chế truyền tầng để lại trên mỗi thành phần. `aggrega.ai/namespace` của một hệ thống con đặt mọi thành phần bên dưới nó; giá trị riêng của một thể hiện thành phần thì thay vào đó đặt chính thành phần đó. Một mô-đun mà Aggregate nhập vào mang cơ chế truyền tầng riêng của nó: các hệ thống con và thể hiện thành phần của nó tác động đến các thành phần riêng của mô-đun, và không gì mà Aggregate nhập khai báo vươn vào bên trong một mô-đun."
   },
   "0ce457030b016792": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -12215,6 +12247,13 @@
     "status": "machine",
     "text": "Chỉ `.parameters`. Mọi dữ liệu khác chưa được phân giải."
   },
+  "136858e156d9b324": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "136858e156d9b324",
+    "status": "machine",
+    "text": "Những gì được tính là in ra đường dẫn được giới hạn hẹp, và ranh giới được vạch ở nơi template chắc chắn in nó ra:"
+  },
   "136a21dce30f89bb": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -14000,6 +14039,13 @@
     "srcHash": "16618c8543269faa",
     "status": "machine",
     "text": "**`list-entities` với `release`** liệt kê các thực thể mà Release đó thấy. Các Features được liệt kê là những Features mà các thư mục catalog của nó khai báo, và một tài liệu của workspace nằm dưới một thư mục catalog mà chỉ các Releases khác đọc sẽ bị loại ra, nên mỗi biến thể được liệt kê cho Release build với nó và không cho Release nào khác. Một tài liệu không nằm dưới thư mục catalog nào — một Release, Aggregate của nó và Manifest của nó được viết bên cạnh các catalog — được liệt kê cho mọi Release."
+  },
+  "1666be54c8080edd": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "1666be54c8080edd",
+    "status": "machine",
+    "text": "`--upgrade` đọc toàn bộ mọi kho lưu trữ, không so sánh gì với chỉ mục đã được ghi. Hãy dùng nó để xây dựng lại chỉ mục chỉ từ registry; nó không nhận ra thêm điều gì mà một lần làm mới bỏ sót."
   },
   "1668325abbac2d4c": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -16228,6 +16274,13 @@
     "status": "machine",
     "text": "Tính tất định và tính toàn vẹn"
   },
+  "1a2e30c0d834dab1": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "1a2e30c0d834dab1",
+    "status": "machine",
+    "text": "Lớp lưu trữ, chế độ truy cập và kích thước không được giữ lại (compose không có hình dạng tương đương). Một `class` hoặc `accessModes` được viết ra sẽ phát sinh một cảnh báo `unsupported-field` nêu tên nó tại tọa độ nơi nó được viết (`volumes.<name>.persistent.class`, `volumes.<name>.persistent.accessModes`); bỏ qua cả hai thì không phát sinh gì. `size` bắt buộc không phát sinh cảnh báo — xem bên dưới"
+  },
   "1a305f57d165b3cd": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -17931,6 +17984,13 @@
     "srcHash": "1cc29dd17ffd70e2",
     "status": "machine",
     "text": "**Nó trả lời ngay cả trong một workspace không chứa gì.** Bộ từ vựng được biên dịch vào binary, nên việc này không cần tài liệu, lockfile hay catalog nào — đó chính là workspace mà người viết đang ở khi bắt đầu tài liệu đầu tiên của họ."
+  },
+  "1cc6d5af1e2b4fdb": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "1cc6d5af1e2b4fdb",
+    "status": "machine",
+    "text": "phân giải tag của mọi phiên bản thành manifest mà tag đó trỏ tới, nhờ đó một phiên bản cũ hơn được phát hành lại dưới tag hiện có sẽ được đọc lại;"
   },
   "1ccb7e0d6ac6a0bb": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -22162,6 +22222,17 @@
     "status": "machine",
     "text": "**Một cảnh báo tư vấn.** Bản dựng báo cáo nó rồi tiếp tục, và đầu ra được kết xuất vẫn như nhau dù bạn có xử lý nó hay không. Mỗi cảnh báo được trình bày đầy đủ trên [warnings.md](./warnings.md) — điều gì khiến nó xuất hiện, nó được đọc ở đâu trong quá trình biên dịch, nó in ra gì, và cần làm gì với nó — và các mục bên dưới cho biết phần nào, thay vì lặp lại ở đây."
   },
+  "2375add2622a90f2": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "revision": {
+      "from": "5f34f5b8292b1950",
+      "reviewed": false
+    },
+    "srcHash": "2375add2622a90f2",
+    "status": "machine",
+    "text": "Kỷ luật này quan trọng vì chú thích lan truyền theo tầng — các chú thích được viết trên hệ thống con của một Aggregate lan tới mọi thành phần trong hệ thống con đó, các chú thích riêng của một thể hiện thành phần ghi đè chú thích của hệ thống con chứa nó, và các chú thích của một mô-đun tới được các thành phần riêng của mô-đun đó; các chú thích trên một ranh giới của một Release lan tới mọi thành phần trong ranh giới đó. Một chú thích dành cho nhà cung cấp tới được đầu ra đã kết xuất từ phía nào cũng được, và khi cả hai phía cùng ghi một khóa thì giá trị của Release là giá trị được áp dụng. Nếu không có kỷ luật tiền tố, một chú thích phía Aggregate có thể âm thầm ghi đè một khóa nguồn gốc do nền tảng phát ra, hoặc một chú thích doanh nghiệp có thể xung đột với một khóa quy ước danh mục. Bảng tiền tố làm cho các đối tượng trở nên tường minh và làm cho quy tắc ngăn xung đột có thể được thực thi tại thời điểm xuất bản."
+  },
   "2375bf081ea1aeb9": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -24993,6 +25064,17 @@
     "status": "machine",
     "text": "Một artifact đã phát hành là bất biến, nhưng việc thu hồi thì không: một phiên bản có thể bị\nrút lại sau lần cuối bạn kiểm tra. Cơ chế loại trừ đọc những gì workspace của bạn đã ghi lại\nvào lần cuối nó xây dựng chỉ mục registry cục bộ, vì vậy nó bảo vệ bạn khỏi việc chọn\nmột phiên bản *được biết* là đã bị thu hồi. Nó không thể cho bạn biết rằng một phiên bản hiện\nkhông bị thu hồi."
   },
+  "280d2c8066f45770": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "d30ae1d125ff09f8",
+      "reviewed": false
+    },
+    "srcHash": "280d2c8066f45770",
+    "status": "machine",
+    "text": "Việc đặt một trong các khóa này trên một Release hoặc trong một Aggregate **không có tác dụng gì đến đầu ra được render**. Không provider nào đọc chúng, và không có giá trị mặc định nào được áp dụng thay cho chúng — cụ thể, không có hậu tố DNS nào được áp dụng cho `aggrega.ai/cluster-domain`, nên một Recipe cần cluster domain phải cung cấp nó như một giá trị thông thường thay vì dựa vào annotation này. Một tác giả Recipe cần một trong các hành vi này thể hiện nó dưới dạng một giá trị Recipe hoặc một trường `infra` của component."
+  },
   "280f374f11d1967e": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -27552,6 +27634,13 @@
     "status": "machine",
     "text": "Ánh xạ kiểu MinIO tới Recipe Compose (`compose/minio`) và thông tin xác thực tới `dotenv-secret`."
   },
+  "2c64c5da1c3dae18": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "2c64c5da1c3dae18",
+    "status": "machine",
+    "text": "Các annotation mà Aggregate khai báo đi tới cùng các khóa đó, với thứ tự ưu tiên thấp hơn annotation của Release. Một khóa được khai báo trên một hệ thống con hoặc trên một instance thành phần — trong chính Aggregate, hoặc trong một module mà nó nhập, nơi khóa đi tới các thành phần riêng của module — áp dụng cho thành phần ở bất cứ đâu Release không đặt giá trị cho khóa đó; nơi Release đặt một giá trị, trên ranh giới hoặc trên mục của thành phần, giá trị của Release là giá trị được áp dụng. Annotation riêng của một thực thể catalog không bao giờ đặt giá trị này. `aggrega.ai/chart-name` là ngoại lệ đối với phạm vi của Aggregate: nó đặt tên cho một bản lắp ráp chứ không phải một thành phần, và được đọc từ các ranh giới Release đóng góp vào bản lắp ráp đó."
+  },
   "2c651908c5854b00": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -28031,6 +28120,13 @@
     "status": "machine",
     "text": "**Đơn vị là thứ được đếm.** `total_tokens` là số token mà phản hồi của mỗi model báo cáo đã đọc và viết cộng lại; `prompt_tokens` và\n`completion_tokens` đếm một phía. Gateway đếm những gì phản hồi báo cáo và không định giá gì cả, nên nó không giữ ngân sách bằng đô la Mỹ."
   },
+  "2d5d3c38c9dd95c0": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "2d5d3c38c9dd95c0",
+    "status": "machine",
+    "text": "`aggrega.ai/chart-name` là khóa duy nhất nằm ngoài phạm vi này: nó đặt tên cho một umbrella chart được lắp ráp từ nhiều thành phần, nên nó được đọc từ các ranh giới Release đóng góp vào chart đó, không bao giờ từ các annotation của một thành phần."
+  },
   "2d6348db0140cbe0": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -28306,6 +28402,13 @@
     "srcHash": "2dc1e90ab7a7f703",
     "status": "machine",
     "text": "Cùng một Aggregate điều khiển cả hai. Chỉ có Release, Manifest của nó và *lớp Recipe* được nạp lúc build là thay đổi. Mọi tệp ở đây đều biên dịch được bằng CLI `aggrega` đi kèm, và đầu ra đã render chạy được: khởi động stack, mở Adminer trong trình duyệt, và đăng nhập vào cơ sở dữ liệu đang chạy."
+  },
+  "2dc7c3fc282d2b58": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "2dc7c3fc282d2b58",
+    "status": "machine",
+    "text": "**Đường dẫn không được in ra** khi phép đọc nằm bên trong thân `if`, `with` hoặc `range` hoặc trong một nhánh `else`, vì việc phép đọc đó có chạy hay không phụ thuộc vào một điều kiện, và điều kiện đó có thể chính là phép kiểm tra ngăn nó gặp phải giá trị rỗng — vì vậy `{{ if .values.user }}{{ .values.user }}{{ end }}` bên cạnh một `range .values.user` vẫn render như trước nay. Nó cũng không được in ra khi đó là phép kiểm tra của chính một guard, phép gán của một biến, hoặc một đối số cho một hàm — `{{ .values.user | quote }}`, `{{ toYaml .values.user }}` — mà đầu ra là câu trả lời của hàm thay vì văn bản giữ chỗ."
   },
   "2dc9967cb2d88190": {
     "at": "2026-10-22T22:51:17.853388+00:00",
@@ -32145,6 +32248,13 @@
     "status": "machine",
     "text": "Loại thực thể"
   },
+  "33f0d4a36aba487a": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "33f0d4a36aba487a",
+    "status": "machine",
+    "text": "**Một cạnh `uses` trỏ tới một đợt muộn hơn được phát ra đúng như đã viết, và được báo cáo.** `depends_on` được phát ra phản ánh những gì đã khai báo — cả các cạnh `uses` lẫn các đợt. Một cạnh có bên tiêu thụ nằm ở đợt *sớm hơn* đích mà nó sử dụng thì khẳng định điều ngược lại với những gì các đợt khẳng định: cạnh khiến bên tiêu thụ chờ đích, trong khi các đợt khiến đích chờ bên tiêu thụ, qua mọi đợt nằm giữa chúng. Tệp được hợp nhất thể hiện cả hai, tạo thành một tập phụ thuộc vòng mà Docker Compose từ chối khởi động. Bản build nêu tên từng cạnh như vậy trong một cảnh báo nêu rõ cả hai service và cả hai đợt, để vòng lặp lộ ra khi bạn build thay vì tại `docker compose up`. Cảnh báo mang tính tư vấn — bản build thành công và các byte được render giống hệt như khi không có nó — và `--no-unsupported-field-warnings` không tắt nó, vì không có gì bị bỏ đi: hai khai báo đều được thể hiện, và cùng nhau chúng không thể khởi động. Nó chỉ bao phủ cặp trực tiếp: nó nêu tên hai service mà một cạnh kết nối thay vì truy vết toàn bộ vòng lặp. Mọi vòng lặp được tạo từ các cạnh `uses` và các đợt cùng nhau đều đi qua ít nhất một cạnh như vậy, nên luôn được báo cáo; một vòng lặp chỉ do các cạnh `uses` tạo thành, không liên quan tới đợt nào, và một vòng lặp được khép lại bởi một mục `depends_on` viết trong một tệp compose mà Recipe cung cấp, đều được phát ra đúng như đã viết và không được báo cáo. Hãy giữ hướng cạnh và thứ tự đợt nhất quán: đặt bên tiêu thụ vào đợt của đích hoặc một đợt muộn hơn, hoặc đặt đích vào đợt của bên tiêu thụ hoặc một đợt sớm hơn."
+  },
   "33f135032fa531b5": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -34446,6 +34556,17 @@
     "status": "machine",
     "text": "bash"
   },
+  "37d652ae2eedb2ad": {
+    "at": "2026-11-01T00:06:18.869Z",
+    "job": "session-0003-20261101000618",
+    "revision": {
+      "from": "e88977b6f544b52b",
+      "reviewed": false
+    },
+    "srcHash": "37d652ae2eedb2ad",
+    "status": "machine",
+    "text": "Boolean. Cấm mọi lưu lượng mạng đi ra: mọi lệnh sẽ fetch, pull, acquire, push, sign hoặc liên hệ một registry đều từ chối một cách rõ ràng thay vì kết nối, và một bản build chỉ dùng những gì máy đã có — lockfile, cache và các thư mục catalog cục bộ của nó, từ đó `--auto-pull` điền các thực thể catalog của lockfile mà không cần truy cập registry (một Recipe có chart được tải từ nguồn từ xa vẫn dừng khi offline). Khi đó việc khám phá đọc chỉ mục cục bộ — thông báo ngừng hỗ trợ được lấy từ chỉ mục đã build thay vì thăm dò trực tiếp, và tầng phân giải catalog từ registry từ xa bị bỏ qua; gợi ý plugin mà một lệnh không được nhận diện in ra chỉ đọc chỉ mục cục bộ, bất kể thiết lập này là gì. Việc xác minh tài liệu đã được cache hoặc ghim vẫn chạy — offline cấm việc tải, không cấm kiểm tra cục bộ. [`--offline`](global-flags.md#--offline) là cờ ở trên nó, theo cả hai chiều: nó đặt chế độ cho một lần chạy, và `--offline=false` cho phép mạng trong một lần chạy khi biến này hoặc một tệp cấu hình đã bật chế độ đó."
+  },
   "37d673bac07737f0": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -36738,6 +36859,17 @@
     "status": "machine",
     "text": "Phát hiện được định vị tại mục riêng của Feature sau — bên trong khối `features:` của component, hoặc, với một Feature mà một kết nối mang theo, tại mục của nó dưới kết nối đó trong tài liệu đã viết nó, chẳng hạn `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>` trong Aggregate. Thông báo nêu tên khóa, cơ chế phân phối, và cả hai Features theo tên mà chúng mang trên component; một Feature mà một kết nối mang theo được gọi tên bằng alias của kết nối và slot mà nó lấp đầy, nối với nhau bằng một dấu chấm. Mỗi khóa va chạm được báo cáo riêng."
   },
+  "3bbcb8fc2a30dc14": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "revision": {
+      "from": "eb555c1bfdc06fcd",
+      "reviewed": false
+    },
+    "srcHash": "3bbcb8fc2a30dc14",
+    "status": "machine",
+    "text": "Ngữ cảnh thời điểm render mà host trao cho guest, được mang dưới dạng các byte của tài liệu JSON của nó; schema này không khai báo đối tượng đó. Đó là ngữ cảnh mà một bước pipeline của cùng node nhận, cộng thêm độ rộng thụt lề: parameters, các giá trị tham số của Release được sắp xếp theo tên, vắng mặt khi không có; annotations, các annotation của node được chia theo nơi mỗi annotation được viết thành aggregate, release và catalog, mỗi phần vắng mặt khi rỗng; boundary, ranh giới chứa node: name, path (các đoạn của nó), sync_wave (vắng mặt khi bằng 0), directory, sub_directory (vắng mặt khi không có) và annotations (tập mà các ranh giới của Release truyền xuống node, với tập của mục Release riêng của nó được xếp lớp sau cùng; vắng mặt khi rỗng); và yaml_indent, độ rộng thụt lề trên toàn bộ lần render mà guest dùng để tuần tự hóa đầu ra của nó. Lần render của một FeatureRecipe phạm vi ranh giới, vốn không có component host, nhận ngữ cảnh mà bước pipeline của nó nhận, cộng thêm yaml_indent: parameters; annotations chỉ mang nhóm release, tức tập annotation riêng của ranh giới; và một boundary mang name, path của nó và chính tập đó làm annotations. Các annotation aggrega.ai/* phổ biến được đọc từ nhóm aggregate với nhóm release được ghi đè lên trên, nên một khóa mà cả hai cùng mang sẽ lấy giá trị của Release; một provider của thư viện chuẩn đọc chúng từ tập đã xếp lớp đó và không bao giờ từ nhóm catalog, nên một giá trị catalog không bao giờ quyết định annotation nào, và một FeatureRecipe phạm vi ranh giới, vốn có ngữ cảnh không mang nhóm aggregate, render theo các giá trị của ranh giới của nó chứ không theo giá trị của bất kỳ component nào."
+  },
   "3bbf9237b253b95e": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -38029,6 +38161,13 @@
     "srcHash": "3dd7cdd955d95e1b",
     "status": "machine",
     "text": "`--verify-determinism` render mỗi component hai lần từ cùng một đầu vào và\ndừng lại nếu hai lần render khác nhau. Ở đây nó vượt qua, và cây mà nó ghi ra giống từng byte\nvới cây mà lần build đầu tiên đã ghi. Cả hai điều này đều đúng vì tài liệu duy nhất mà\nchart tạo mới mỗi lần không bao giờ đến được đầu ra."
+  },
+  "3ddbc62aef00f636": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "3ddbc62aef00f636",
+    "status": "machine",
+    "text": "Mỗi cách đọc riêng lẻ đều có câu trả lời. Một giá trị chưa đặt được in ra sẽ render thành rỗng, và một giá trị chưa đặt được lặp qua sẽ không lặp gì cả. Một đường dẫn được đọc theo cả hai cách thì không thể có câu trả lời nào: render nó thành rỗng sẽ khiến `range` thất bại trên văn bản, còn để nó chưa đặt sẽ in văn bản giữ chỗ của template engine là `<no value>` vào artifact trong khi bản build vẫn thành công. Vì vậy không câu trả lời nào được đưa ra và thay vào đó bản build dừng lại."
   },
   "3dddac2d3b224870": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -46941,6 +47080,13 @@
     "status": "machine",
     "text": "Các cạnh uses nội bộ của boundary — các cạnh có hướng mà cả hai đầu mút đều nằm bên trong cây con của boundary, mỗi cạnh được bổ sung provides của producer và ánh xạ inject của consumer. Guest đọc chúng để quyết định consumer nào cần ghi đè env và giá trị nào cần ghi. Không trong suốt ở tầng schema này; guest đọc hình dạng cạnh đã bổ sung thông qua hợp đồng wire template-context."
   },
+  "4c0413e9e41c40f8": {
+    "at": "2026-11-01T00:54:34.111Z",
+    "job": "session-0007-20261101005434",
+    "srcHash": "4c0413e9e41c40f8",
+    "status": "machine",
+    "text": "Trang này được dịch bằng máy. [Đọc bản gốc tiếng Anh](english-original)."
+  },
   "4c08059a8ae1174e": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -48133,6 +48279,17 @@
     "srcHash": "4e2577d9b29cf4a2",
     "status": "machine",
     "text": "Một tình trạng được bề mặt tài nguyên tài liệu hấp thụ. Một gói tài liệu đã được lưu vào bộ nhớ đệm và nội dung của nó đã được xác minh, nhưng trang được yêu cầu không có trong đó. Tình trạng này khác với việc hoàn toàn không có gói nào: gói có mặt và nguyên vẹn, chỉ là mục đó bị thiếu."
+  },
+  "4e2581047da0db86": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "revision": {
+      "from": "27117377b64565d6",
+      "reviewed": false
+    },
+    "srcHash": "4e2581047da0db86",
+    "status": "machine",
+    "text": "Một dấu đánh dấu ngừng hỗ trợ, một chữ ký và một ngày phát hành đều được gắn vào một phiên bản đã phát hành dưới dạng một đối tượng riêng, trỏ ngược về phiên bản đó — đó chính là điều cho phép nhà phát hành ngừng hỗ trợ hoặc ký một phiên bản mà không cần phát hành lại — nên không cái nào trong số chúng thêm tag hay thay đổi manifest của chính phiên bản. Chúng thay đổi các tệp đính kèm của phiên bản, và đó chính là thứ mà bước kiểm tra thứ ba xác thực lại. Việc loại trừ phiên bản và `aggrega inspect` đều đọc chỉ mục này, nên một phiên bản bị thu hồi kể từ lần làm mới trước sẽ bị loại khỏi việc lựa chọn, và được hiển thị, ngay khi lần làm mới tiếp theo đã chạy."
   },
   "4e259e97cb5cba07": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -50857,6 +51014,17 @@
     "status": "machine",
     "text": "Biên dịch một Release dựa trên catalog cục bộ:"
   },
+  "52896d83cdaadad0": {
+    "at": "2026-11-01T00:18:45.802Z",
+    "job": "session-0004-20261101001845",
+    "revision": {
+      "from": "60dc7f22b69d4f71",
+      "reviewed": false
+    },
+    "srcHash": "52896d83cdaadad0",
+    "status": "machine",
+    "text": "**Nội suy tham số trong một Aggregate** — các tham chiếu `{{ .parameters.<key> }}` mà chính văn bản của Aggregate chứa — là bề mặt sớm nhất trong số này: nó chạy trên tài liệu thô trước khi catalog được phân giải, nên chính sách của nó áp dụng cho văn bản mà chưa bề mặt nào khác thấy. Một tham chiếu đến tham số mà Release không bao giờ điền **render ra rỗng**, và một pipe `default` hoặc một điều kiện `if` trên phép đọc như vậy hoạt động đúng như trên tham số chưa được điền. Một tham chiếu mà template **lặp** qua vẫn tiếp tục lặp như rỗng, đó là điều mà việc duyệt qua một danh sách tùy chọn cần — trừ khi văn bản cũng in nó ra, khi đó nó sẽ dừng như mô tả trong “A template reads and iterates a path that holds nothing (Một template vừa đọc vừa lặp qua một đường dẫn không chứa gì)” bên dưới. Một tham chiếu có **cha** vắng mặt — `.parameters.db.host` khi không có tham số `db` nào được điền — vẫn dừng, vì không có gì để đi xuống, và việc cung cấp một cha sẽ đổi việc dừng lấy một artifact sai một cách âm thầm. **Có một giới hạn đáng nêu như một giới hạn thay vì một chính sách:** một tham chiếu neo tại một **gốc** mà bề mặt không định nghĩa sẽ được để nguyên thay vì render thành rỗng, nên nó tồn tại trong tài liệu đã nội suy dưới dạng văn bản giữ chỗ của chính template engine, `<no value>`. Không có gì trên bề mặt này dừng vì nó, vì vậy hãy neo mọi tham chiếu tham số tại `.parameters`, và hiểu một `<no value>` lạc lõng là một gốc bị viết sai chính tả."
+  },
   "528a18f9214894d7": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -52829,6 +52997,17 @@
     "status": "machine",
     "text": "Quy tắc không bao giờ đọc `programs`. Quy tắc của plugin này được biên dịch vào guest, nên một bản gắn kết cung cấp thiết lập và không có tệp chính sách nào — cùng hình dạng với một guest được xây quanh một engine đã biên dịch sẵn, và ngược lại với một guest tải quy tắc từ `sources`."
   },
+  "5568b51f1e28b64e": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "36428c7abdb4b961",
+      "reviewed": false
+    },
+    "srcHash": "5568b51f1e28b64e",
+    "status": "machine",
+    "text": "Providers đọc các annotation cụ thể để cấu hình ngữ cảnh riêng của nền tảng — được đặt trên một ranh giới Release hoặc một mục thành phần Release, hoặc được khai báo trong Aggregate trên một hệ thống con hoặc một instance thành phần. Bản thân trình biên dịch không phụ thuộc vào *giá trị* của các annotation này — nó chuyển tiếp chúng dưới dạng chuỗi không tường minh. Mỗi provider khai báo những annotation nào nó đọc, ở phạm vi nào, và giá trị mặc định nào được áp dụng khi annotation vắng mặt. Khai báo đó nằm trong `spec.provider.wellKnownAnnotations` của một Plugin kết xuất Provider, và nó được cố ý giữ hẹp: một provider chỉ liệt kê một khóa ở nơi nó đọc khóa đó."
+  },
   "5569a9784433a476": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -54470,6 +54649,17 @@
     "srcHash": "5841b8cf57098571",
     "status": "machine",
     "text": "**8. Release:** Bộ định tuyến triển khai. Nó liên kết một `aggregate` với một `manifest` và ánh xạ các thành phần tới các ranh giới triển khai vật lý (ví dụ: `aws-eks-production`). Để duy trì một quy trình làm việc DRY, các Releases hỗ trợ kế thừa qua từ khóa `extends`, cho phép các bản phát hành dành riêng cho môi trường kế thừa gọn gàng từ một bản phát hành cơ sở toàn cục. Nó thực hiện hợp đồng aggregate trừu tượng bằng cách tiêm các thực tế vật lý nghiêm ngặt vào khối `parameters`, và tiêm việc định cỡ vật lý (như CPU hoặc cổng) qua namespace song song `infra`. Để bảo vệ Aggregate như nguồn sự thật duy nhất, schema Release cấm một cách cơ học khối `values:` — Ops không thể khai báo `values` trên bất kỳ Component hay Feature nào từ một Release. Sự khác biệt theo môi trường của các giá trị dành cho nhà phát triển đi qua **Parameter Hoisting**: nhà phát triển công khai một trường có kiểu `parameters.*` trong Aggregate, template `values` của Component tham chiếu tới nó, và Release cung cấp tham số cho môi trường của mình. Các giá trị được kết xuất khác nhau giữa các môi trường, trong khi Aggregate — bề mặt soạn thảo quy định *những* giá trị nào tồn tại và chúng chảy *như thế nào* — vẫn là nguồn sự thật duy nhất. Xem [§8 Ràng buộc 4 (trạng thái bị thay đổi âm thầm)](06-data-taxonomy-and-composition.md) để biết lệnh cấm ở cấp schema được nêu tường minh. Điều then chốt là, để ngăn các triển khai “thay đổi aggregate” không thể truy vết, khi một Release dùng `extends`, việc khai báo một `aggregate` sẽ bị schema Release từ chối (ràng buộc schema không cho phép khai báo `aggregate` khi dùng `extends`). Bản phát hành con phải ánh xạ tới chính xác cùng ý định của nhà phát triển như bản cha. Tuy nhiên, `manifest` trở thành tùy chọn, mở khóa “liên kết muộn” — cho phép Ops kế thừa toàn bộ topology vật lý nhưng thay thế chính xác tệp khóa phụ thuộc."
+  },
+  "58430e655fe536b3": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "revision": {
+      "from": "66889866bfd69f5f",
+      "reviewed": false
+    },
+    "srcHash": "58430e655fe536b3",
+    "status": "machine",
+    "text": "Một trường cấp cao nhất không chứa gì cho node này — `.workload` trên một Recipe không tổng hợp cái nào, `.source` trên một Recipe không có source, `.features` trên một Component không có attachment nào — được đọc là rỗng trong một value template, đúng như một khóa chưa được đặt dưới `.values`: `{{ .workload }}` không kết xuất gì, một `default` áp lên nó cung cấp giá trị dự phòng của mình, và một `if` hoặc `with` áp lên nó đi vào nhánh false. Một `range` trên nó không lặp qua gì cả. Một lần đọc bên dưới nó — `{{ .workload.containers }}` — vẫn dừng lại, vì không có gì để đi sâu vào. Và một template vừa in một trường như vậy ở nơi nó luôn chạy — bên ngoài mọi `if`, `with` và `range` — vừa lặp qua nó sẽ dừng lại và nêu tên trường đó, như với bất kỳ đường dẫn nào không chứa gì mà được đọc theo cả hai cách, vì không có giá trị nào vừa được in ra thành rỗng vừa được lặp như rỗng: xem [A template reads and iterates a path that holds nothing (Một template vừa đọc vừa lặp qua một đường dẫn không chứa gì)](../errors/fatal-halts.md#a-template-reads-and-iterates-a-path-that-holds-nothing)."
   },
   "5846049fb26d2b4f": {
     "at": "2026-10-22T10:44:41.513626+00:00",
@@ -57075,6 +57265,13 @@
     "status": "machine",
     "text": "`aggrega registry list` và `aggrega registry update` phản hồi cùng tình huống đó theo cách khác, và\nđiều này là có chủ ý. Liệt kê các registry khi không có registry nào là một danh sách đầy đủ của một tập rỗng,\nvà một lần xây dựng chỉ mục không có gì để duyệt thì không còn việc gì để làm: cả hai đều là thao tác đã hoàn tất, nên\ncả hai đều báo trên standard output và thoát với mã không. Chỉ có lần tìm kiếm là đang báo rằng nó không thể làm\nđiều được yêu cầu."
   },
+  "5c6e39998690494a": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "5c6e39998690494a",
+    "status": "machine",
+    "text": "Những gì một lần làm mới đọc lại"
+  },
   "5c6eb15c354f3137": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -57116,6 +57313,13 @@
     "srcHash": "5c7cffffc37e79fb",
     "status": "machine",
     "text": "Phần render riêng của một component — một tên mà provider của nó suy ra cho chính component đó chứ không cho một trong các attachment của nó — không mang tọa độ thứ hai, nên phát hiện kết thúc ở tên của component."
+  },
+  "5c7da0e1f89d90f1": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "5c7da0e1f89d90f1",
+    "status": "machine",
+    "text": "**Annotation bên trong một module.** Các annotation riêng của một module đi tới các thành phần riêng của module đó đúng như annotation của một Aggregate đi tới các thành phần của chính nó, dù được khai báo trên một trong các hệ thống con của nó hay trên một instance thành phần, nên `main-db` được render vào namespace `data` mà module khai báo. Aggregate nhập module không khai báo gì vươn vào bên trong module; Release thì có, và giá trị của nó thắng trên cùng một khóa — viết `annotations: { aggrega.ai/namespace: prod-data }` trên mục `main-db` ở trên, hoặc trên ranh giới `prod-cluster`, sẽ đặt `main-db` vào đó thay thế."
   },
   "5c7f0bc6e061dec7": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -58322,6 +58526,17 @@
     "srcHash": "5e6b78f84536d866",
     "status": "machine",
     "text": "Ghim SHA-256 ở dạng hex chữ thường. Với đầu vào https, đây là digest của các byte payload; với đầu vào oci, đây là manifest digest mà tham chiếu được phân giải tới. Đặt tên cho blob trong kho tại `sha256/<digest>`."
+  },
+  "5e6dd0da11ffbf7b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "51ec9ce295d93819",
+      "reviewed": false
+    },
+    "srcHash": "5e6dd0da11ffbf7b",
+    "status": "machine",
+    "text": "Bốn lỗi trên các template này được báo cáo dưới các điều kiện riêng của chúng. Một mục `provides:` được báo cáo dưới “A `provides:` template could not be evaluated (Không thể đánh giá template)” bên dưới, với câu này và lý do của engine bên trong thông báo của nó. Một phép đọc `index` đối với một khóa mà map không chứa được báo cáo dưới “A template indexes a map with a key the map does not hold (Một template đánh chỉ mục một map bằng một khóa mà map không chứa)” ở trên. Một template in ra và lặp qua một đường dẫn không chứa gì bị từ chối trước khi chạy, dưới “A template reads and iterates a path that holds nothing (Một template đọc và lặp qua một đường dẫn không chứa gì)” ở trên. Và một template không phân tích được sẽ dừng trước khi chạy, nên đó không phải điều kiện này."
   },
   "5e70a54540c12763": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -62909,6 +63124,17 @@
     "srcHash": "65c2493ab2b7e8d7",
     "status": "machine",
     "text": "JSONPatchOp[]"
+  },
+  "65c2af911a598288": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "revision": {
+      "from": "573da18752721f8f",
+      "reviewed": false
+    },
+    "srcHash": "65c2af911a598288",
+    "status": "machine",
+    "text": "Mỗi dấu đánh dấu mà lần duyệt đọc sẽ tạo ra một dòng nêu tên repository, phiên bản và mức độ nghiêm trọng mà bên phát hành đã ghi — `warning`, `error` hoặc `retracted` — cùng với việc dấu đánh dấu đó có được ghi lại hay không. Một phiên bản có các tệp đính kèm không thay đổi kể từ lần làm mới trước được giữ nguyên như đã ghi thay vì được đọc lại, nên dấu đánh dấu của nó không được báo cáo lại; số lượng bên dưới vẫn tính cả nó. Một dấu đánh dấu chỉ được ghi lại khi chữ ký của chính nó được xác minh khớp với các bên ký mà chính sách tin cậy của registry chấp nhận. Một dấu có mặt nhưng không đọc được, hoặc có mặt nhưng không được chấp nhận, sẽ được báo cáo đúng như vậy và bị loại khỏi chỉ mục thay vì được ghi lại dựa trên bằng chứng không thể xác thực."
   },
   "65c65b47370a92fc": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -69163,6 +69389,17 @@
     "status": "machine",
     "text": "Một component do module đóng góp cũng gặp hai dạng đầu tiên này, được đọc từ tài liệu của chính module khi composition import nó được build; khi đó chúng nêu Aggregate của module và khóa bên trong tài liệu của nó."
   },
+  "6fff5391365d2baf": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "revision": {
+      "from": "c1f04abfc67b4c2b",
+      "reviewed": false
+    },
+    "srcHash": "6fff5391365d2baf",
+    "status": "machine",
+    "text": "Mọi lệnh đều từ chối một đối số vị trí mà nó không dùng đến, và báo sự từ chối đó bằng một trạng thái thoát khác không thay vì hoàn tất như thể lời gọi là hợp lệ. Quy tắc này áp dụng cho cả các lệnh chỉ tồn tại để nhóm các lệnh con, nơi một tên lệnh con gõ sai được nhận như một đối số vị trí không nhận dạng được: phần trợ giúp của lệnh được in ra và trạng thái thoát khác không, để một lỗi gõ trong script thất bại rõ ràng thay vì trông như một lần chạy thành công. `aggrega` khi được gọi với một lệnh không nhận dạng được cũng hành xử như vậy, và còn nêu thêm tên lệnh gần khớp nhất, nếu có lệnh đủ gần."
+  },
   "7000483027a021f9": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -71774,6 +72011,13 @@
     "status": "machine",
     "text": "Một cảnh báo tư vấn được nêu ra khi một Release được kiểm tra theo các quy ước xuất bản; nó không bao giờ dừng bất cứ điều gì, và một bản build không nêu ra nó. Một máy chủ kiểm tra khóa giữ khóa mà nó xác minh trong một slot riêng, và một bên gọi trình một khóa trên kết nối mà qua đó nó tới máy chủ đó. Không đầu nào thấy khóa của đầu kia, nên hai khóa là một chỉ vì tác giả của chúng viết cùng một locator ở cả hai đầu. Điều kiện này báo cáo một kết nối có đích khai báo slot cho khóa mà nó yêu cầu từ bên gọi, khi chúng không khớp: kết nối mang thông tin xác thực còn slot khóa của đích chưa được điền, slot khóa của đích đã được điền còn kết nối không mang thông tin xác thực, hoặc cả hai đều được điền nhưng viết locator khác nhau."
   },
+  "7485eaf7f454e3a7": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "7485eaf7f454e3a7",
+    "status": "machine",
+    "text": "Thông báo được phát ra, ở dòng cuối cùng của báo cáo — các khung phía trên nêu tên node và template, và phần đầu mang mã của điều kiện này:"
+  },
   "748c39faacc0d97e": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -72328,6 +72572,13 @@
     "srcHash": "7548a55f129f85e2",
     "status": "machine",
     "text": "**`.context.render_facts` (map của các list, xem bên dưới).** Những gì provider của component báo cáo về đầu ra nó đã kết xuất, theo khóa là tên fact. Được đọc bởi một FeatureRecipe gắn vào component, trên mọi template của nó chạy sau khi component đã kết xuất; không có ở mọi nơi khác."
+  },
+  "7549c8510d8e2df0": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "7549c8510d8e2df0",
+    "status": "machine",
+    "text": "Một template của Recipe hoặc FeatureRecipe đọc các nhóm annotation theo tên — `.context.annotations.aggregate`, `.context.annotations.release` và `.context.annotations.catalog` mỗi nhóm chứa những gì phía đó đã viết — nên một template đọc một khóa vị trí đặt từ một nhóm chỉ thấy giá trị của phía đó."
   },
   "754e052170e763fe": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -79441,6 +79692,13 @@
     "status": "machine",
     "text": "Kết xuất sau các đích — `spec.readsTargetRenderFacts`"
   },
+  "80db2eb1978a13f0": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "80db2eb1978a13f0",
+    "status": "machine",
+    "text": "A template reads and iterates a path that holds nothing (Một template đọc và lặp qua một đường dẫn không chứa gì)"
+  },
   "80de3df94cea1513": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -85241,6 +85499,13 @@
     "status": "machine",
     "text": "ClosureEntity[] hoặc null"
   },
+  "8ab8d95f0485bf35": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "8ab8d95f0485bf35",
+    "status": "machine",
+    "text": "Release nằm trên Aggregate ở mọi khóa. Khi Release đặt một khóa cho một thành phần — trên ranh giới của nó hoặc trên mục riêng của thành phần — giá trị của Release được áp dụng; khi nó không đặt khóa nào, giá trị của Aggregate được áp dụng. Hai phía xếp lớp theo từng khóa, nên một Release chỉ đặt `aggrega.ai/namespace` sẽ để `aggrega.ai/image-registry` mà Aggregate đã khai báo tiếp tục có hiệu lực."
+  },
   "8aba1ff41e80411e": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -87908,6 +88173,13 @@
     "srcHash": "8eea64137c2933de",
     "status": "machine",
     "text": "Trong **cú pháp hiện tại**, thân rule được mở đầu bằng `if`, một rule thu thập\nvào một tập hợp thể hiện điều đó bằng `contains`, và module nêu rõ nó được viết bằng cú pháp nào\nbằng cách khai báo `import rego.v1` trên một dòng riêng bên dưới khai báo\npackage:"
+  },
+  "8ef1763c59956347": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "8ef1763c59956347",
+    "status": "machine",
+    "text": "**Một cách đọc là đủ.** Hãy đọc đường dẫn theo một cách — một `range` cũng ghi ra những gì nó cần, hoặc in thông qua một hàm như `toYaml` hoặc `join` tự đưa ra câu trả lời cho một giá trị chưa đặt."
   },
   "8ef241c5676e5b91": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -92849,6 +93121,13 @@
     "status": "machine",
     "text": "Một sự từ chối khi chuyển một mô tả nguồn bên ngoài thành các tệp soạn thảo nháp, không phải khi build. Nguồn được chỉ định là một thư mục, và một thư mục được giao cho trình nhập của nó dưới dạng đúng những tệp mà các mẫu tệp đã khai báo của trình nhập chọn — nên trình nhập đọc những tệp nào của một thư mục là tuyên bố của chính trình nhập. Trình nhập phục vụ định dạng của nguồn không khai báo mẫu tệp nào: nó đọc một tệp, và không nói gì về việc những tệp nào của một thư mục là của nó."
   },
+  "973af8888b04c016": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "973af8888b04c016",
+    "status": "machine",
+    "text": "Phép nội suy tham số trong một Aggregate cũng báo cáo cùng dòng đó dưới mã của điều kiện này. Một mục `provides:` báo cáo lỗi template dưới “A `provides:` template could not be evaluated (Không thể đánh giá template)”, nên ở đó phần đầu mang mã của điều kiện đó và dòng ở trên là lý do mà nó mang, bao gồm cả đường dẫn."
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -95634,6 +95913,17 @@
     "status": "machine",
     "text": "**Cách khắc phục:** cả hai đều do bên xuất bản xử lý chứ không phải bạn, và cách khắc phục nằm ở thư mục phiên bản mà thực thể được xuất bản từ đó. Cho mỗi thực thể một thư mục phiên bản riêng, để thư mục đó chứa một thực thể và các tệp thuộc về nó — bố cục mà mọi thực thể đã xuất bản đều tuân theo, trong đó thư mục được đặt tên theo `metadata.version` của thực thể và nằm dưới tên riêng của thực thể. Sau đó xuất bản lại ở một phiên bản mới: các byte đã xuất bản là bất biến, nên việc xuất bản lại đè lên phiên bản hiện có sẽ bị từ chối chứ không được sửa. Nếu bạn đang sử dụng chứ không phải xuất bản, hãy chuyển thông báo cho người xuất bản artifact; các tên tệp trong đó cho biết thư mục cần tách."
   },
+  "9be0da29a429f7cd": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "3e25fcdcc50c05d8",
+      "reviewed": false
+    },
+    "srcHash": "9be0da29a429f7cd",
+    "status": "machine",
+    "text": "Mỗi ranh giới CloudFormation được kết xuất thành một stack. Khi một cạnh `uses` đi từ ranh giới này sang ranh giới khác, provider `cloudformation` cần biết stack ngang hàng nằm ở đâu để định hình tham chiếu: hai stack trong cùng tài khoản và vùng trao đổi giá trị qua export và import stack; một stack ngang hàng ở tài khoản hoặc vùng khác cần một lượt đọc output stack liên tài khoản, tùy chọn dưới một vai trò được đảm nhận. Các annotation này mang ngữ cảnh vị trí đó. Mỗi annotation được đọc vào thời điểm provider định hình một tham chiếu như vậy, và được phân giải qua chuỗi kế thừa annotation thông thường tại thời điểm đó — giá trị đặt trên component thắng giá trị đặt trên ranh giới, và giá trị do Release đặt thắng giá trị do Aggregate khai báo. Vì vậy, giá trị ở cấp ranh giới là cách thông dụng để biểu đạt chúng, chứ không phải cách duy nhất. Chúng là các chuỗi con trỏ vô hướng không trong suốt — provider chuyển chúng vào tham chiếu mà nó xây dựng và không bao giờ phân giải chúng theo trạng thái AWS thực; tài khoản, vùng và vai trò do Release cung cấp hoặc được khai báo trong Aggregate, và môi trường runtime phân giải lượt đọc vật lý cuối cùng. Khi mọi annotation đều vắng mặt, provider coi stack ngang hàng là cùng tài khoản, cùng vùng và không cung cấp vai trò nào."
+  },
   "9be0eb56c6c758a6": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -96506,6 +96796,13 @@
     "srcHash": "9d15b515c2878073",
     "status": "machine",
     "text": "Một giá trị được ghép từ nhiều phần thì được ghép trước rồi ghi qua `toJson` một lần, như các ví dụ bên dưới."
+  },
+  "9d1821afc3756297": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "9d1821afc3756297",
+    "status": "machine",
+    "text": "Một lệnh in đường dẫn không chứa gì bên trong một thân thực sự chạy vẫn ghi ra `<no value>`, điều mà phép kiểm tra này không chạm tới. Một cách viết của đường dẫn là cùng một đường dẫn với mọi cách viết khác, nên một lệnh in theo một cách viết và một `range` theo cách viết khác được xét cùng nhau, và thông báo trích dẫn cách viết mà template viết trước. Một đường dẫn chứa giá trị được in và lặp như trước nay, còn một đường dẫn có cha không chứa gì thì được để cho lần dừng mà việc đi xuống qua giá trị rỗng vốn đã gây ra."
   },
   "9d1d97e432885ee6": {
     "at": "2026-10-22T23:44:14.843805+00:00",
@@ -98519,6 +98816,17 @@
     "status": "machine",
     "text": "`persistentTemplate` — không có tạo mẫu volume theo từng replica, nên volume thu gọn thành một persistent volume dùng chung duy nhất thay vì biến mất."
   },
+  "a0a85d5aebae453e": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "58c7ddb75f9680f8",
+      "reviewed": false
+    },
+    "srcHash": "a0a85d5aebae453e",
+    "status": "machine",
+    "text": "Đi kèm `form: stateful`; compose không có primitive tạo mẫu volume theo từng bản sao, nên hành vi theo từng bản sao bị mất, và một cảnh báo `unsupported-field` cho biết volume đã trở thành một volume duy nhất mà mọi bản sao dùng chung. Lớp lưu trữ, chế độ truy cập và kích thước không được giữ lại, giống hệt như với `persistent`: một `class` hoặc `accessModes` được viết ra sẽ phát sinh một cảnh báo `unsupported-field` tại `volumes.<name>.persistentTemplate.class` hoặc `volumes.<name>.persistentTemplate.accessModes`, còn `size` bắt buộc thì không phát sinh cảnh báo nào"
+  },
   "a0a93d560bc59e87": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -99222,6 +99530,17 @@
     "srcHash": "a1984496a8ce1049",
     "status": "machine",
     "text": "Một instance component và một module sub-aggregate đều chấp nhận một công tắc `active:` quyết định thực thể đó có thuộc topology đã biên dịch hay không. Nếu bỏ qua nó, thực thể sẽ có mặt; đó là mặc định và là trường hợp thông thường."
+  },
+  "a19950882199ba3b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "11e587160c58abb5",
+      "reviewed": false
+    },
+    "srcHash": "a19950882199ba3b",
+    "status": "machine",
+    "text": "Các annotation ở trên đi *vào* bản build — Release hoặc Aggregate tạo chúng, các provider tiêu thụ chúng. Providers cũng phát ra một tập label song song đi *ra khỏi* bản build, gắn chúng vào đầu ra đã render để các công cụ phía sau có thể truy ngược các tài nguyên runtime về nội dung catalog đã tạo ra chúng. Các label nguồn gốc này không được viết trên Release; chúng được suy ra từ chính trạng thái của bản build (định danh Recipe, đường dẫn boundary, tên aggregate, môi trường, sync wave, phiên bản trình biên dịch) và được provider phát ra tại thời điểm render."
   },
   "a19a4da694069749": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -100009,6 +100328,13 @@
     "status": "machine",
     "text": "Một tên bị từ chối vì phân giải thành không gì cả, không bao giờ vì hình dạng của nó: tên có dấu chấm là bình thường, vì một component nằm sâu một module mang tiền tố của module đó. Một component có toggle `active:` phân giải thành `false` vẫn có thể được nêu tên — tắt một component không đòi hỏi phải sửa Release cấu hình nó."
   },
+  "a2f48690d7fa364d": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "a2f48690d7fa364d",
+    "status": "machine",
+    "text": "xác thực lại các tệp đính kèm của mọi phiên bản — chữ ký, các tuyên bố ngày phát hành và các dấu đánh dấu ngừng hỗ trợ của nó — nhờ đó một chữ ký, một ngày hoặc một dấu đánh dấu được gắn vào một phiên bản kể từ lần trước sẽ được đọc và xác minh, và làm điều tương tự với chữ ký của một dấu đánh dấu ngừng hỗ trợ mà nó đã đánh giá trước đó;"
+  },
   "a2f7c9ba2ab2530c": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -100726,6 +101052,13 @@
     "srcHash": "a4167aeb608d50a1",
     "status": "machine",
     "text": "Mỗi Release khai báo một trường `manifest:` chỉ định Manifest của nó (trừ khi Release dùng `extends:`, khi đó nó kế thừa con trỏ manifest của cha). CLI `aggrega build` đọc trực tiếp trường này; không tồn tại cờ CLI `--manifest`, nên đặc tả phụ thuộc luôn được commit vào Git cùng với chính Release, giúp lịch sử triển khai có thể kiểm toán thông qua lịch sử Git của chính Release."
+  },
+  "a416a66a00eaac48": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "a416a66a00eaac48",
+    "status": "machine",
+    "text": "so sánh chính sách tin cậy của registry với chính sách mà chỉ mục được xây dựng theo, nhờ đó khi chính sách thay đổi, mọi phiên bản sẽ được đọc lại theo chính sách mới."
   },
   "a416daa4df97b4de": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -107461,6 +107794,13 @@
     "status": "machine",
     "text": "Một plugin đi từ một tệp `.wasm` trên đĩa đến một artifact đã được xác minh, có thể dùng cho build, qua ba giai đoạn."
   },
+  "aede51d754ff4669": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "aede51d754ff4669",
+    "status": "machine",
+    "text": "Một `null` tường minh trong Release chỉ rút lại giá trị riêng của Release. Một mục thành phần ghi `aggrega.ai/namespace: null` sẽ loại bỏ không gian tên mà ranh giới Release của nó lẽ ra đã trao cho nó, và khi đó thành phần nhận giá trị mà Aggregate của nó khai báo — hoặc không nhận giá trị nào, khi Aggregate cũng không khai báo giá trị nào. Một Release không thể loại bỏ một giá trị mà Aggregate khai báo; nó chỉ có thể đặt một giá trị của riêng mình đè lên giá trị đó."
+  },
   "aedeac9d55bcad24": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -110450,6 +110790,13 @@
     "srcHash": "b33e14f2799de4d0",
     "status": "machine",
     "text": "Liệu socket có phải được nối để bản build tiếp tục hay không."
+  },
+  "b343438768c9d898": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "b343438768c9d898",
+    "status": "machine",
+    "text": "**Đường dẫn phải có mặt.** Hãy cung cấp nó — trong `values:` của Aggregate, `infra:` của Release hoặc tham số mà Release điền — hoặc khai báo nó là bắt buộc trong schema chi phối nó, để việc thiếu nó được báo cáo tại nơi nó được viết."
   },
   "b344e04753a754eb": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -123666,6 +124013,13 @@
     "status": "machine",
     "text": "`valuesMapping` của Recipe (inline, `$import:` tệp, hoặc `$import:` thư viện)"
   },
+  "c84d527a427e5991": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "c84d527a427e5991",
+    "status": "machine",
+    "text": "xác thực lại danh sách tag, nhờ đó một phiên bản được phát hành hoặc bị xóa kể từ lần trước sẽ được nhận ra;"
+  },
   "c84d60a5bf4fecec": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -128827,6 +129181,13 @@
     "srcHash": "d028780d8bb55501",
     "status": "machine",
     "text": "Tên Provider (chuỗi thuần)"
+  },
+  "d028791cc179e958": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "d028791cc179e958",
+    "status": "machine",
+    "text": "Mỗi bước kiểm tra là một yêu cầu nhỏ — phân giải digest của manifest, hoặc một yêu cầu có điều kiện mà registry trả lời là không thay đổi mà không gửi gì — nên một lần làm mới registry không thay đổi sẽ không tải xuống gì. Một phiên bản mà các lần đọc chưa hoàn tất hết, hoặc mang một dấu đánh dấu ngừng hỗ trợ không được chấp nhận, sẽ được đọc lại ở lần làm mới tiếp theo. Với một registry không thể cho biết các tệp đính kèm của một phiên bản có thay đổi hay không, mọi phiên bản sẽ được đọc lại ở mỗi lần làm mới: câu trả lời vẫn như nhau, và chi phí cũng bằng một lần đọc lại toàn bộ."
   },
   "d029f87e3d80f8fd": {
     "at": "2026-10-22T11:48:02.910092+00:00",
@@ -135730,6 +136091,17 @@
     "status": "machine",
     "text": "Bản dựng dừng lại thay vì ghép một đường dẫn như vậy. Thông báo nêu tên provider đã khai báo giá trị và chính giá trị đó, để thấy rõ cần thay đổi provider nào và nó đã khai báo gì."
   },
+  "db7374b6ac7ae0be": {
+    "at": "2026-11-01T00:18:45.802Z",
+    "job": "session-0004-20261101001845",
+    "revision": {
+      "from": "5a8b1376763a36d5",
+      "reviewed": false
+    },
+    "srcHash": "db7374b6ac7ae0be",
+    "status": "machine",
+    "text": "**Value template** (`valuesMapping` của Recipe, các mục `locals:` và `provides:`, phần thân `artifacts:`, phần thân Workload, `injectMapping` và `pipeline.with` của FeatureRecipe, và các template `value:` self-inject cấp component) được đánh giá với `missingkey=zero`, nên một tham chiếu đến khóa chưa được định nghĩa không dừng bản build — phép đọc render ra rỗng, và rỗng là thứ đến được artifact. Điều *vẫn* dừng trên bề mặt này là một tham chiếu đi xuống **xuyên qua** một container mà tác giả chưa bao giờ cung cấp — `.values.tls.ca` khi không có `tls` nào được viết — vì không có gì để đi xuống. Chỉ khóa cuối cùng của một tham chiếu có tất cả container đều hiện diện mới render ra rỗng. Một trường cấp cao nhất mà ngữ cảnh định nghĩa nhưng không chứa gì — `.workload` trên một Recipe không tổng hợp gì, `.features` trên một component không có attachment nào — cũng render ra rỗng theo cùng cách khi được đọc nguyên khối. Một tham chiếu vẫn là một tham chiếu dù được viết thế nào: `.values.list`, `$.values.list` và `(.values).list` chỉ cùng một khóa, nên duyệt nó theo một cách viết cũng là duyệt nó theo mọi cách viết, và một khóa được đọc từ một trụ cột trong ngoặc đơn sẽ render, hoặc dừng, đúng như cách viết trực tiếp. Một khóa mà template duyệt qua vẫn tiếp tục lặp như rỗng khi chưa được đặt, và một khóa mà template vừa in ra vừa duyệt qua sẽ dừng khi chưa được đặt — xem “A template reads and iterates a path that holds nothing (Một template vừa đọc vừa lặp qua một đường dẫn không chứa gì)” bên dưới. Việc bảo vệ hoạt động như mong đợi: `{{ .values.optional_field | default \"fallback\" }}` thực sự cung cấp giá trị dự phòng, vì một giá trị chưa đặt được tính là rỗng đối với `default` và là falsy đối với `if`. Tác giả cần phân biệt vắng-mặt với giá-trị-không — phân biệt “khóa vắng mặt” với “khóa hiện diện và rỗng” — dùng helper `optional` được mô tả tại [`templates/sprig-functions.md`](../templates/sprig-functions.md), và đọc một khóa nhất định theo một cách duy nhất trong mỗi template: một khóa mà cùng template đó cũng đọc dưới dạng `.values.<key>` được tính là hiện diện, nên `optional` báo giá trị rỗng của nó thay vì giá trị dự phòng. Điều chính sách này không bao gồm là phép đọc qua `index`: đánh chỉ mục một map bằng khóa mà nó không chứa sẽ dừng và nêu tên khóa ở đây cũng như trên mọi bề mặt — xem “A template indexes a map with a key the map does not hold (Một template đánh chỉ mục một map bằng khóa mà map không chứa)” bên dưới."
+  },
   "db76e8d3372a8cc6": {
     "at": "2026-10-30T00:43:49.791Z",
     "job": "session-0040-20261030004349",
@@ -136545,6 +136917,13 @@
     "srcHash": "dc8c892b2aa7c90d",
     "status": "machine",
     "text": "Danh sách kiểm tra nâng tham số"
+  },
+  "dc8e4acdb92e7b50": {
+    "at": "2026-11-01T00:51:57.735Z",
+    "job": "session-0006-20261101005157",
+    "srcHash": "dc8e4acdb92e7b50",
+    "status": "machine",
+    "text": "Các annotation Provider được khai báo trong Aggregate"
   },
   "dc8f6fc98ebbcb6c": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -139045,6 +139424,13 @@
     "srcHash": "e0416104e1fc2b32",
     "status": "machine",
     "text": "*Mọi* tham chiếu vi phạm trong template đều được nêu tên, nên một thân với tới hai pillar vắng mặt sẽ báo cho bạn cả hai chứ không chỉ cái xuất hiện trước. Mỗi tham chiếu được báo cáo tại tài liệu khai báo mục đó, được trích dẫn đúng như bạn đã viết và kèm chú thích về output mà nó thuộc về:"
+  },
+  "e0419cd9219ddb6d": {
+    "at": "2026-10-31T23:45:41.020Z",
+    "job": "session-0001-20261031234541",
+    "srcHash": "e0419cd9219ddb6d",
+    "status": "machine",
+    "text": "**Một lệnh không nhận dạng được cũng cho biết cách tìm một plugin CLI mang tên đó.** Câu trả lời lấy từ chỉ mục cục bộ của registry mặc định mà [`aggrega registry update`](cli/aggrega-registry.md) xây dựng và [`aggrega search`](cli/aggrega-search.md) đọc, nên nó được trả về ngay và từ bị gõ sai không bao giờ được gửi tới registry, dù trực tuyến hay ngoại tuyến. Khi chỉ mục có một plugin CLI mang tên đó, thông báo nêu lệnh `aggrega plugin add cli <name>` để cài đặt nó. Nếu không, thông báo nêu lệnh tìm kiếm để tìm nó, `aggrega search <name> --kind plugin --plugin-type cli`, với tên được đặt trong dấu nháy cho shell khi cần; khi chưa có chỉ mục nào được xây dựng, thông báo nêu `aggrega registry update` trước, vì lệnh tìm kiếm chỉ đọc chỉ mục."
   },
   "e0419d8c2226e1ce": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -146671,6 +147057,13 @@
     "status": "machine",
     "text": "Cột ngay sau điểm kết thúc của token mà phát hiện nói đến."
   },
+  "ecf93604df7806b8": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ecf93604df7806b8",
+    "status": "machine",
+    "text": "**Đường dẫn có thể vắng mặt.** Hãy bảo vệ phép đọc được in: `{{ with .values.user }}{{ . }}{{ end }}` hoặc `{{ if .values.user }}{{ .values.user }}{{ end }}` không in gì khi đường dẫn chưa được đặt, và `range` bên cạnh vẫn tiếp tục lặp như qua rỗng."
+  },
   "ecfb36dc93702284": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -147297,6 +147690,13 @@
     "status": "machine",
     "text": "Phân giải tham chiếu `aggregates[].type` của cha"
   },
+  "ede1df7e78e2dabd": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ede1df7e78e2dabd",
+    "status": "machine",
+    "text": "template reads a path as a value and iterates it, and the data holds nothing at that path (path `<path>`). supply a value at the path, guard the printed read with an if or with over the path, or read it one way only (Template đọc một đường dẫn như một giá trị và lặp qua nó, và dữ liệu không chứa gì tại đường dẫn đó. Hãy cung cấp một giá trị tại đường dẫn, bảo vệ phép đọc được in bằng if hoặc with trên đường dẫn, hoặc chỉ đọc nó theo một cách)"
+  },
   "ede2e4d5275182dd": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -147566,6 +147966,13 @@
     "srcHash": "ee78abc330e5577c",
     "status": "machine",
     "text": "**Tính tất định là trách nhiệm của guest.** Không có gì kiểm tra điều đó thay bạn trong một\nbản build thông thường. Ở đây nó đến từ việc sắp xếp các khóa nguồn gốc trước khi xuất\nchúng và từ việc duyệt các mục artifact theo thứ tự mà payload mang,\nvà các bước kiểm tra gần cuối trang này đo lường kết quả."
+  },
+  "ee78bd79ba73555b": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "ee78bd79ba73555b",
+    "status": "machine",
+    "text": "**Đường dẫn được in ra** khi một action chỉ gồm đường dẫn đó và không có gì khác — `{{ .values.user }}`, `{{ $.values.user }}`, `{{ (.values).user }}`, hoặc một biến được gắn với đường dẫn, `{{ $u }}` sau `{{ $u := .values.user }}` — tại một điểm mà template đạt tới mỗi lần chạy."
   },
   "ee79739d342d3342": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -149687,6 +150094,13 @@
     "srcHash": "f1c48acec4205b8e",
     "status": "machine",
     "text": "Tên của Component bên dưới."
+  },
+  "f1c98ff946e8fcdd": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "f1c98ff946e8fcdd",
+    "status": "machine",
+    "text": "Một lần làm mới so sánh những gì registry hiện phục vụ với những gì chỉ mục đã ghi, và đọc lại mọi thứ đã thay đổi — cùng một câu trả lời mà một lần đọc lại toàn bộ đưa ra. Với mỗi kho lưu trữ, nó:"
   },
   "f1cb05a190ee7228": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -152325,6 +152739,13 @@
     "srcHash": "f5d33a0c73364e28",
     "status": "machine",
     "text": "Một mục `volumes:` do tác giả viết là thứ cần chú ý, vì nó có thể mang phần thân riêng — một `driver`, `driver_opts` hoặc `labels`. Khi hai thành phần đóng góp khai báo cùng một tên với phần thân **khác nhau**, bản build dừng với `TRANSLATION_ERROR`, nêu tên volume và mọi bộ `(boundary, node)` đóng góp. Hai tác giả bất đồng về một volume duy nhất không có câu trả lời nào để bộ lắp ráp chọn: giữ một phần thân bất kỳ sẽ loại bỏ những gì tác giả kia đã viết, khỏi một bản build lẽ ra thành công. Hãy giải quyết bằng cách làm cho hai khai báo giống hệt nhau, khi cả hai tác giả muốn nói cùng một volume, hoặc đổi tên một trong hai, khi họ muốn nói hai volume. Các network cấp cao nhất là một network cho mỗi boundary đóng góp, được đặt tên theo [Cách suy ra tên network](#how-a-network-name-is-derived); hai boundary đóng góp có cùng chú thích `aggrega.ai/namespace` được hợp nhất thành một network duy nhất dùng chung cho cả hai."
+  },
+  "f5d7c78d61f186f8": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "srcHash": "f5d7c78d61f186f8",
+    "status": "machine",
+    "text": "**Cách khắc phục:** xác định template muốn nói đến cách đọc nào trong hai cách."
   },
   "f5da3c2187bb80d1": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -154970,6 +155391,17 @@
     "status": "machine",
     "text": "Kiểm thử một policy trước khi nó chặn build"
   },
+  "fa1718661f404f49": {
+    "at": "2026-11-01T00:38:27.292Z",
+    "job": "session-0005-20261101003827",
+    "revision": {
+      "from": "d306d355d85905e5",
+      "reviewed": false
+    },
+    "srcHash": "fa1718661f404f49",
+    "status": "machine",
+    "text": "Mọi thứ ở trên đều là annotation của *provider*: được viết trên Release hoặc được khai báo trong Aggregate, được trình biên dịch chuyển tiếp dưới dạng một chuỗi không minh bạch, và được một provider đọc. Một bộ từ vựng thứ hai, nhỏ hơn nhiều, đi theo chiều ngược lại — được Architect viết trên `metadata.annotations` **của chính một thực thể catalog**, được **trình biên dịch** đọc, và không bao giờ được provider nhìn thấy. Bất biến 1 ở trên nói về bộ từ vựng của provider và không áp dụng cho các khóa này; trình biên dịch chỉ đọc đúng các khóa được liệt kê ở đây và không đọc khóa nào khác."
+  },
   "fa20eb85d69369e6": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -157186,6 +157618,13 @@
     "srcHash": "fdb443dddeddf5cc",
     "status": "machine",
     "text": "`hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, nhà phát hành `core` (phẳng, không có danh mục)"
+  },
+  "fdb5b44e15548cec": {
+    "at": "2026-10-31T23:56:26.063Z",
+    "job": "session-0002-20261031235626",
+    "srcHash": "fdb5b44e15548cec",
+    "status": "machine",
+    "text": "Đọc toàn bộ mọi kho lưu trữ, không so sánh gì với chỉ mục đã được ghi (một lần làm mới không có cờ này vốn đã đọc lại mọi thứ đã thay đổi)"
   },
   "fdb6e444648b1e8f": {
     "at": "2026-10-29T21:31:42.799Z",
