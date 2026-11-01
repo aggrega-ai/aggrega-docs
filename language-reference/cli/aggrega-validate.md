@@ -57,7 +57,7 @@ The line changes neither the verdict nor the exit code.
 - resolves the closure-scoped `extends` chains, failing on a resolution error;
 - validates each resolved entity's schema pillars (closure-scoped), failing on a schema-pillar error;
 - runs the **same pre-render value conformance a build runs** — it resolves the Release's parameters into the authored values (so a `{{ .parameters.* }}` value is checked as resolved, not as a template) and validates the result against the closure's composed schemas, including conformance against the composed parent+child schema for an `extends`-ing entity. A value that violates its schema fails with a non-zero exit;
-- applies the same provider input-kind capability check the whole-catalog mode runs, scoped to the closure;
+- evaluates every **Recipe and FeatureRecipe assertion** against the values the Release resolves to, as a build evaluates them before it renders: each component's Recipe is bound as the Manifest maps it, its `locals` and `provides` are resolved, and the first assertion that fails — one that calls `fail`, or one whose template stops on a key it does not find — fails the validation with the condition and the sentence a build halts with. A `locals` or `provides` template that cannot be evaluated fails it too, as it fails a build. The provider each Recipe renders through is asked the name it gives that component's resources, as a build asks it, because a Recipe's `provides` may read that name; nothing is rendered. These assertions are evaluated only when nothing above has already failed, so a Release reports the earliest fault a build would halt on;
 - surfaces schema-pillar-overlap and narrowing-on-extend findings as informational `notice:` lines that never change the exit code;
 - shows each `x-aggrega-*` keyword an entity it reads authors inline in its schema content as a `warning:` line, once per entity, as a build shows it — it never changes the exit code either.
 
@@ -192,7 +192,7 @@ The report on standard output says where the run stopped, and the command exits 
 
 Only an assertion that calls `fail` is a warning. An assertion that stops on a key it reads but does not find, or that does not parse, is a fault in the assertion's own text rather than a failed assertion, and is judged as any other stop is. Every other fault keeps its place as the check's verdict.
 
-[`aggrega build`](./aggrega-build.md) of a Release that does not satisfy the assertion halts on it with an error, naming the assertion and carrying its author's sentence, as it always does. The editor's entity check through [`aggrega serve`](./aggrega-serve.md) gives the same warning, drawn on the assertion's own key where the Recipe declares it, and the `validate` tool of [`aggrega mcp`](./aggrega-mcp.md) answers `valid: true` with the warning among its `notices`.
+[`aggrega build`](./aggrega-build.md) of a Release that does not satisfy the assertion halts on it with an error, naming the assertion and carrying its author's sentence, as it always does, and `aggrega validate --release` over that Release fails on it with the same error. The editor's entity check through [`aggrega serve`](./aggrega-serve.md) gives the same warning, drawn on the assertion's own key where the Recipe declares it, and the `validate` tool of [`aggrega mcp`](./aggrega-mcp.md) answers `valid: true` with the warning among its `notices`.
 
 ### What single-entity correctness does not check
 
@@ -378,6 +378,9 @@ share one pass.
 With --release, validate checks the entities a Release's dependency closure
 reaches: closure-scoped pillars, extends, and pre-render authored-value
 conformance — the same correctness a build applies, scoped to that Release.
+It then evaluates the Recipe and FeatureRecipe assertions against the values
+that Release resolves to, as a build does before it renders, and reports a
+failing assertion as a build reports it. Nothing is rendered.
 
 With an entity path, validate checks one entity file. The kinds it accepts
 as a single-entity target are Component, Feature, Recipe, FeatureRecipe,
