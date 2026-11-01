@@ -14,6 +14,7 @@ import {
 import notFoundPages from "./src/not-found.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
+import { codeThemes } from "./src/code-themes.mjs";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
@@ -81,24 +82,31 @@ export default defineConfig({
       locales: starlightLocales(),
       disable404Route: true,
       routeMiddleware: "./src/routeData.ts",
-      // Fenced code blocks render on the dark functional surface in both the
-      // light and dark site themes. A single dark syntax theme is pinned and
-      // the light/dark auto-switch is disabled, so code never flips to a light
-      // surface in light mode. The syntax theme supplies only the token
-      // colours; the surface behind the code, the editor/terminal frame, and
-      // the frame chrome are bound to the brand neutral surface tokens so every
-      // code surface across the site is the one shared dark surface. Inline code
-      // and callouts already use that same surface.
+      // Fenced code blocks follow the site theme: a light code surface in the
+      // light theme and a dark one in the dark theme, switched together with
+      // the site's light/dark switch. The two syntax themes are built from the
+      // brand's code-surface and syntax role tokens (src/code-themes.mjs), and
+      // the surface behind the code, the editor and terminal frames, and the
+      // frame bars are bound to the --color-code-* custom properties, so each
+      // resolves per theme. The brand's own test holds every syntax colour at
+      // 4.5:1 or more on its surface, so the highlighter's contrast adjustment
+      // is turned off and the brand colours render exactly. Inline code sits on
+      // the same code surface (src/styles/brand.css).
       expressiveCode: {
-        themes: ["github-dark"],
-        useStarlightDarkModeSwitch: false,
+        themes: codeThemes,
+        minSyntaxHighlightingColorContrast: 0,
         styleOverrides: {
-          codeBackground: "var(--color-neutral-900)",
+          codeBackground: "var(--color-code-surface)",
+          borderColor: "var(--color-code-frame)",
           frames: {
-            editorBackground: "var(--color-neutral-900)",
-            terminalBackground: "var(--color-neutral-900)",
-            editorTabBarBackground: "var(--color-neutral-800)",
-            terminalTitlebarBackground: "var(--color-neutral-800)",
+            editorBackground: "var(--color-code-surface)",
+            terminalBackground: "var(--color-code-surface)",
+            editorActiveTabBackground: "var(--color-code-surface)",
+            editorTabBarBackground: "var(--color-code-frame)",
+            terminalTitlebarBackground: "var(--color-code-frame)",
+            editorActiveTabForeground: "var(--color-code-text)",
+            terminalTitlebarForeground: "var(--color-code-text)",
+            frameBoxShadowCssValue: "none",
           },
         },
       },

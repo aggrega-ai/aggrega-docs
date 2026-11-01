@@ -20,8 +20,10 @@ served at `aggrega.ai/docs`.
 - **Theme.** Colours, fonts, the logo, and the per-size tab icons come from the
   shared brand package, through Starlight's `customCss` and `logo` options and
   the page head. No brand value is retyped; every colour and size is a token
-  reference. Code surfaces (inline, fenced, and callouts) all use the one shared
-  dark surface.
+  reference. Code follows the site theme: fenced and inline code sit on the
+  brand's code surface, light in the light theme and dark in the dark theme, and
+  the syntax colours are the brand's syntax role tokens (`src/code-themes.mjs`).
+  Callouts use the shared dark surface.
 - **Search.** Starlight's built-in Pagefind index provides client-side search
   over the built site. It is independent of any command-line search.
 - **SEO.** Each page emits a self-referential canonical link, Open Graph and
