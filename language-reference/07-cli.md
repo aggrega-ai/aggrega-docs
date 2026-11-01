@@ -62,7 +62,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
 | `aggrega push-artifact` | Publish a standalone data artifact (such as a documentation bundle) to an OCI registry |
 | `aggrega registry` | Manage registries and their signature trust policy |
-| `aggrega scaffold` | Draft a starter document for an entity kind from its schema |
+| `aggrega scaffold` | Draft a starter document for an entity kind, or write a runnable example into a new directory |
 | `aggrega search` | Search the local index of configured registries |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |

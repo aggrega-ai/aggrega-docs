@@ -6,13 +6,15 @@ Draft a starter document for an entity kind from its schema
 **Synopsis**
 
 ```
-aggrega scaffold <kind> [name]
+aggrega scaffold <kind> [name] | --example <name> [dir] | --example --list [flags]
 ```
 
 **Description**
 
 ```
-Draft a starter document for an entity kind from its schema.
+Draft a starter document for an entity kind from its schema, or write one of the documentation's runnable examples into a new directory.
+
+Drafting a starter document
 
 The kind is the lowercase-hyphenated schema token — for example component, aggregate, release, recipe, manifest, or feature. Run aggrega get-schema --list to print the whole set; a token no schema answers to is refused with that set in the message, so a typo is corrected without a second lookup.
 
@@ -25,7 +27,28 @@ Nothing is written to disk. The document goes to standard output, so a redirect 
   aggrega scaffold component my-service > my-service.yaml
 
 The same starter document is served to an assistant by the scaffold tool that aggrega mcp exposes, which returns these bytes alongside a machine-readable payload; this command is the terminal route to the same drafting.
+
+Writing a runnable example
+
+With --example, the argument is the name of one of the runnable examples the documentation publishes, and the command writes that example's files into a new directory — the second argument, or a directory named after the example in the current directory when there is none — then prints the commands the example's own page gives for building it:
+
+  aggrega scaffold --example redis-cache
+
+The directory must not exist yet, or must be empty; a directory holding anything is refused and left as it is. With --list, the command prints every example there is, each with its level and the first sentence of its page, and writes nothing:
+
+  aggrega scaffold --example --list
+
+The examples are read from the documentation bundle published for this version of aggrega on the default registry — or, where none is published for it, the newest one published for an earlier version. It is kept in the cache every project on this machine shares, so a second example needs no second download. It is fetched through the same network settings as every other registry read, and verified against this workspace's signature policy before it is kept or read; a bundle that does not verify is refused, never used. Offline, an example is written only from a copy already cached on this machine.
+
+An example's files are written only as files and directories inside the directory named: a bundle carrying an entry that would land outside it, or a link, is refused whole and nothing is written.
 ```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--example` | `false` | write the runnable example the argument names into a new directory, read from the signed documentation bundle |
+| `--list` | `false` | with --example, print every runnable example the documentation publishes, and write nothing |
 <!-- END GENERATED: cli-scaffold -->
 
 ## What it does
