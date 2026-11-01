@@ -7,7 +7,7 @@ archive `npm pack` makes, and `package.json` depends on it by a
 
 | Archive | Package | Packed from |
 | --- | --- | --- |
-| `cognitio-a11y-1.0.0.tgz` | `@cognitio/a11y` 1.0.0, the accessibility panel | the `site-modules` repository at tag `a11y-v1.0.0`, commit `f23c0fa45243150fcf1ce0bc227f7a0f83effcca`; sha256 `1de4fd0b58d859bd9f7b90929165aba03eb8b7ebf16c613aa927686c251833e6` |
+| `cognitio-a11y-1.0.1.tgz` | `@cognitio/a11y` 1.0.1, the accessibility panel | the `site-modules` repository at tag `a11y-v1.0.1`, commit `ffc0542e720b8a1b46b515dbd2bb0c789caa7065`; sha256 `e6a4d865404a77dfe499c4cfa6bc26d8dc796e8b814260b17f2553afe327d91f` |
 
 ## Replacing a site-modules archive
 

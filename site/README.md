@@ -89,7 +89,7 @@ served at `aggrega.ai/docs`.
   language (`src/components/Footer.astro`).
 - **Accessibility panel.** Every page carries the reader's accessibility panel,
   `@cognitio/a11y`, carried in `vendor/` (see `vendor/VENDORED.md`): its button
-  at the bottom left, rendered in the browser by `src/components/PageFrame.astro`,
+  at the bottom right, rendered in the browser by `src/components/PageFrame.astro`,
   which wraps Starlight's page frame in the element the panel's settings act
   inside. Its configuration, `src/a11y-config.json`, is the same on the home site
   and the catalog, so a reader's settings carry between the three; its texts are

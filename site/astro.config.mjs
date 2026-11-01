@@ -119,9 +119,9 @@ export default defineConfig({
       // translated page, the notice that it was machine-translated, linking to
       // the page in English. The footer adds a link to the privacy page in the
       // reader's language. The page frame wraps the page in the accessibility
-      // panel's shell and mounts the panel, its button at the bottom left. The
-      // language picker is a list of links, each language other than the
-      // page's described by its name in the page's language.
+      // panel's shell and mounts the panel, its button at the bottom right. The
+      // language picker is a drop-down menu of links, each language other than
+      // the page's described by its name in the page's language.
       components: {
         Banner: "./src/components/Banner.astro",
         Footer: "./src/components/Footer.astro",
