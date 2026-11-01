@@ -179,6 +179,17 @@ published manifest. A repository with no conforming version is skipped; a
 repository that cannot be read is skipped with a note, so one unreadable
 repository does not abandon the whole index.
 
+A read the registry refuses or drops in passing — a 429 or 5xx answer, a
+connection reset or timed out, an answer cut short — is asked again a few times,
+with a growing wait between attempts, and where the registry says how long to
+wait (Retry-After) the wait is as long as it says. A repository with a read still
+failing after that is not recorded from this run: it keeps the record the index
+already holds for it, where that record was judged under the trust policy now in
+force, and is otherwise left out of the index; either way it is named as a
+repository that could not be read. So a version is never recorded unsigned,
+undated or without its deprecation marker because a read failed, with or without
+--upgrade.
+
 A registry whose repository listing repeats itself — naming a repository it has
 already named, or answering two pages in a row with no repository while still
 pointing to a next page — is not followed round again. That registry is reported
@@ -234,9 +245,10 @@ registry's trust policy reads every version again under the policy now in force,
 so does a repository whose entry in the index records none of these checks. An
 unchanged registry therefore costs one conditional request per repository and two
 small requests per version (three where a deprecation marker was judged), with
-nothing downloaded. A version whose reads did not all complete, or that carries a
-deprecation marker that was not honored, is read again on the next refresh, and so
-is every version of a registry that offers no way to revalidate attachments.
+nothing downloaded. A version is read again on the next refresh where it carries a
+deprecation marker that was not honored, or where this run got no way to
+revalidate its attachments — which, on a registry that offers none, is every
+version.
 
 Several repositories are read at a time. Everything the command records and prints
 comes out in repository order, so the index and the output are the same as reading
@@ -276,8 +288,10 @@ with whether the marker was recorded. A version whose attachments are unchanged 
 the last refresh is kept as recorded rather than read, so its marker is not reported
 again; the count below still includes it. A marker is recorded only when its own
 signature verifies against the signers the registry's trust policy honors. One that
-is present but unreadable, or present but not honored, is reported as such and left
-out of the index rather than recorded on evidence that could not be authenticated.
+is present but does not decode, or present but not honored, is reported as such and left
+out of the index rather than recorded on evidence that could not be authenticated. A
+marker the registry did not deliver is a different case: see
+[A read that fails](#a-read-that-fails).
 
 Each registry then reports how many markers its index now records, including when
 that number is zero. Where signature verification is switched off — globally, or for
@@ -341,15 +355,33 @@ next refresh has run.
 
 Each check is a small request — a manifest digest resolve, or a conditional request the
 registry answers as unchanged without sending anything — so a refresh of an unchanged
-registry downloads nothing. A version whose
-reads did not all complete, or that carries a deprecation marker that was not honored, is
-read again on the next refresh. A registry that cannot say whether a version's attachments
-changed has every version read again on every refresh: the answer is the same, and so is the
-cost of a full re-read.
+registry downloads nothing. A version that carries a deprecation marker that was not
+honored, or whose attachments this run got no way to revalidate, is read again on the next
+refresh. A registry that cannot say whether a version's attachments changed has every
+version read again on every refresh: the answer is the same, and so is the cost of a full
+re-read.
 
 `--upgrade` reads every repository in full, comparing nothing with the index already
 written. Use it to rebuild an index from the registry alone; it picks up nothing a refresh
 misses.
+
+## A read that fails
+
+A walk reads many small objects from a registry, and some reads fail in passing: the
+registry answers that it is overloaded or unavailable (a 429 or 5xx status), the connection
+is reset or times out, or an answer stops before it is complete. Each such read is asked
+again a few times, with a growing wait between attempts; where the registry says how long to
+wait, with a `Retry-After` header, the walk waits that long.
+
+A read that still fails is never taken as an answer. A signature that could not be read is
+not a version without a signature, and a deprecation marker that could not be read is not a
+version that was never withdrawn, so the walk records nothing about that repository from this
+run. The repository keeps the record the index already holds for it, where that record was
+judged under the registry's trust policy now in force, and is otherwise left out of the
+index. Either way the walk names the repository in its running commentary, saying which of
+the two happened and which read failed, and counts it among the repositories that could not
+be read in its closing summary. The same holds for a refresh and for `--upgrade`, and the
+next walk starts from whatever the index then holds, as it does for any repository.
 
 ## The public key a keyed policy pins
 
