@@ -409,20 +409,22 @@ A pipeline step, a provider, or a plugin attached at a verdict role whose `Plugi
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
-warning: plugin "governance/label-injector:1.0.0" resolved from cache with no recorded digest to check it against, so it runs unverified; run `aggrega pull --release <release>` to record it
+  warning: plugin "governance/label-injector:1.0.0" resolved from cache with no recorded digest to check it against, so it runs unverified; run `aggrega pull --release <release>` to record it
 ```
 
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
-warning: plugin "pipeline-step/patch" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
+  warning: plugin "pipeline-step/patch" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
 ```
+
+That is the line a build, a pull or a validation shows among its other warnings. A command that resolves a plugin outside such a run — installing, listing or running the workspace's own command-line plugins, or `aggrega lint` resolving the plugins it lints with — prints the same sentence on a line of its own, unindented.
 
 The line names the source the bytes came from — the same word `aggrega pull` and `aggrega plugin list` use for it — and ends in what holds for that source. For bytes from the content cache the fix is to pull the Release, which records the digest and makes every later run of that plugin a checked one. For bytes read from beside a `Plugin` entity in a catalog directory, a pull records the digest only for a plugin attached at a transform role, and the line says so: for any other plugin authored there, no pull changes it, and the way to bring it under a recorded digest is to publish it and reference the published entity.
 
-**It is raised once per plugin, however many times that plugin runs.** A render resolves its provider once per node, and the long-running editor service resolves an attachment on every request; repeating the line each time would bury it. One line per plugin reference is enough, because the condition is a property of the workspace rather than of any one node.
+**It is raised once per plugin in each run, however many times the run resolves that plugin.** A render resolves its provider once per node, and repeating the line each time would bury it. Each run reports it afresh — a build, a validation, a request the editor service answers — so whichever run you read tells you about the plugins it ran unverified.
 
-**Editor visibility.** This warning reaches no editor diagnostics at all, and `serve.build_on_inspect` makes no difference to it either way — it goes to standard error and nowhere else, so an editor session captures it in whatever log it keeps of the compiler rather than drawing it on a problems surface. That is deliberate, and it follows from the line above: the advisory is held to one per plugin reference for the life of the process, so it says nothing new as you edit, while a problem redrawn at editing cadence would crowd out the findings about the document in front of you. It changes no verdict and fails no resolution, so what a session answers is the same whether or not the line was written.
+**Editor visibility.** The warning reaches editor diagnostics with the run's other advisories, at warning severity: a validation of a Release publishes it on the Release's Aggregate, and a build or build preview the editor asks for publishes it on the `aggrega-build` layer. It names a plugin rather than a key you wrote, so it is placed at the head of the file. Because each run reports what it resolved, the entry stays for as long as a run resolves the plugin unverified and clears with the first run that does not. It changes no verdict and fails no resolution, so what a session answers is the same whether or not it is shown.
 
 **Two resolutions raise nothing, and neither is an oversight:**
 
