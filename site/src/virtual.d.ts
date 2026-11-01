@@ -16,3 +16,11 @@ declare module "virtual:aggrega-docs/machine-translation-notice" {
   >;
   export default notices;
 }
+
+// The module the site configuration provides (see analyticsModule in
+// src/analytics.mjs): the HTML of the analytics tags every page's head carries,
+// empty for a build not given the site token.
+declare module "virtual:aggrega-docs/analytics" {
+  const tags: string[];
+  export default tags;
+}

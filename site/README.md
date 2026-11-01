@@ -43,6 +43,15 @@ served at `aggrega.ai/docs`.
   Both are built from the same content collection and sidebar as the pages, in
   sidebar order; a published page the sidebar does not link follows under
   "Other pages". The same input always produces the same bytes.
+- **Analytics.** The site counts visits with Cloudflare Web Analytics, the
+  cookieless beacon the home site and the catalog load with the same site token,
+  so it shows no consent banner. It is the one analytics script the site loads
+  (`src/analytics.mjs`), and a build adds it to every page's head only when the
+  environment holds the site token in `SITE_WEB_ANALYTICS_TOKEN`; a build
+  without it, such as a local one, loads none, and a token not made of letters
+  and digits stops the build, naming the variable. Every page's footer links to
+  the privacy page the home site serves at the domain's root, in the page's
+  language (`src/components/Footer.astro`).
 
 ## Versions
 
@@ -133,8 +142,8 @@ npm run dev       # local preview
   approach) would improve them.
 - Breadcrumb segments are humanised from route names, so an initialism such as
   "CLI" renders as "Cli" until a proper-noun map is added.
-- The sidebar's group labels and the version selector's accessible label are
-  written in English in the site configuration and show in English on every
-  language's pages.
+- The sidebar's group labels, the version selector's accessible label and the
+  footer's privacy link label are written in English in the site project and
+  show in English on every language's pages.
 - Callout panels use the shared dark surface with the default per-type border; a
   per-type accent colour from the brand's semantic palette is a later refinement.

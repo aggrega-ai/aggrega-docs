@@ -15,6 +15,7 @@ import notFoundPages from "./src/not-found.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
+import { analyticsModule } from "./src/analytics.mjs";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
@@ -60,22 +61,28 @@ export default defineConfig({
     ],
   },
   // The routes of the translated pages that still hold English text, for the
-  // route data (src/routeData.ts), and each language's machine-translation
-  // notice, for the banner (src/components/Banner.astro).
-  vite: { plugins: [untranslatedPagesModule(), machineTranslationNoticeModule()] },
+  // route data (src/routeData.ts), each language's machine-translation notice,
+  // for the banner (src/components/Banner.astro), and the analytics beacon of a
+  // build given the site token, for the page head (src/analytics.mjs).
+  vite: {
+    plugins: [untranslatedPagesModule(), machineTranslationNoticeModule(), analyticsModule()],
+  },
   integrations: [
     starlight({
       title: "Aggrega",
       // A version selector is mounted above the sidebar, and the document head
-      // adds per-version canonical and noindex handling for non-latest builds.
+      // adds per-version canonical and noindex handling for non-latest builds,
+      // and the analytics beacon of a build given the site token.
       // The not-found page is the site's own, one per language (see
       // src/pages/[...locale]/404.astro), so Starlight's is turned off. The
       // route data marks a translated page that still holds English text as
       // not fully translated (src/routeData.ts). The banner adds, on every
       // translated page, the notice that it was machine-translated, linking to
-      // the page in English.
+      // the page in English. The footer adds a link to the privacy page in the
+      // reader's language.
       components: {
         Banner: "./src/components/Banner.astro",
+        Footer: "./src/components/Footer.astro",
         Head: "./src/components/Head.astro",
         Sidebar: "./src/components/Sidebar.astro",
       },

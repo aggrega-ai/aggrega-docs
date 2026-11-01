@@ -1,0 +1,30 @@
+---
+import Default from "@astrojs/starlight/components/Footer.astro";
+
+// Starlight's own footer, then a link to the privacy page the home site serves
+// at the domain's root. The home site publishes the documentation's languages
+// under the same path segments (/privacy/ in English, /ja/privacy/ in
+// Japanese), so a page links to the privacy page in the page's language. The
+// link's label is written in English here and shows in English on every
+// language's pages. The link is left out of the search index, which holds each
+// page's own text.
+const { locale } = Astro.locals.starlightRoute;
+const privacyHref = locale ? `/${locale}/privacy/` : "/privacy/";
+---
+
+<Default />
+<p class="privacy-link" data-pagefind-ignore><a href={privacyHref}>Privacy</a></p>
+
+<style>
+  .privacy-link {
+    margin-top: 1.5rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  .privacy-link a {
+    color: inherit;
+  }
+  .privacy-link a:hover {
+    color: var(--sl-color-white);
+  }
+</style>

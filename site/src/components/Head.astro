@@ -1,4 +1,5 @@
 ---
+import analyticsTags from "virtual:aggrega-docs/analytics";
 import { resolveVersioning } from "../versioning.mjs";
 import faviconIco from "@aggrega-ai/brand/logo/favicon.ico?url";
 import favicon192 from "@aggrega-ai/brand/logo/favicon-192.png?url";
@@ -183,3 +184,5 @@ const structuredData = {
 
 {head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
 <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+{/* The analytics beacon, on a build given the site token (src/analytics.mjs). */}
+{analyticsTags.length > 0 && <Fragment set:html={analyticsTags.join("\n")} />}
