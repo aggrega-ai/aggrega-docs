@@ -167,8 +167,8 @@ policy quietly substituting one.
 ## Build both
 
 ```bash
-./build-release.sh negative-authored -- --auto-pull    # expected to fail
-./build-release.sh delegated         -- --auto-pull
+aggrega build --release release-negative-authored.yaml --auto-pull    # expected to fail
+aggrega build --release release-delegated.yaml --auto-pull
 ```
 
 `--auto-pull` fills the lockfile during the build; `aggrega pull --release
@@ -183,11 +183,10 @@ diagnostic a policy refusal carries — see
 [the diagnostic reference](../../errors/sentinels.md):
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
+[… omitted: the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: db: the root_password credential carries declared-sensitive material in its payload at values.origin
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 Read the leaf path. The attachment's payload carries two values; the refusal
@@ -292,11 +291,10 @@ Rebuild both releases — and put `policy.rego` back afterwards, since the rest 
 this page assumes it. **Both are now refused**, with the same sentence:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
+[… omitted: the pull's lines — the same refusal among them — and a lint notice about core/secret-value]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: db: the root_password credential handles sensitive material
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 That is not the rule misfiring — it is the rule being asked a coarser question
@@ -392,6 +390,6 @@ check working, not a fault in the example.
 ## Build
 
 ```bash
-./build-release.sh negative-authored -- --auto-pull    # refused; exits 1
-./build-release.sh delegated         -- --auto-pull    # builds
+aggrega build --release release-negative-authored.yaml --auto-pull    # refused; exits 1
+aggrega build --release release-delegated.yaml --auto-pull            # builds
 ```

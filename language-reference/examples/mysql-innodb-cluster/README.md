@@ -63,8 +63,8 @@ would be a second thing to keep in step for no gain.
 ## Build
 
 ```bash
-./build-release.sh single -- --auto-pull
-./build-release.sh replicated -- --auto-pull
+aggrega build --release release-single.yaml --auto-pull
+aggrega build --release release-replicated.yaml --auto-pull
 ```
 
 `--auto-pull` writes the lockfile a fresh clone lacks during the build. Each
@@ -73,7 +73,7 @@ an earlier one left. Remove `dist/` between runs to read one Release's output on
 its own:
 
 ```bash
-rm -rf dist && ./build-release.sh replicated -- --auto-pull
+rm -rf dist && aggrega build --release release-replicated.yaml --auto-pull
 ```
 
 Each Release renders five files: the database's custom resource, and the four
@@ -90,7 +90,7 @@ dist/stack/helm/mysql-operator/serviceaccount.yaml
 ## What the database renders to
 
 ```yaml
-# dist/stack/helm/db/innodbcluster.yaml  —  ./build-release.sh single
+# dist/stack/helm/db/innodbcluster.yaml  —  aggrega build --release release-single.yaml
 apiVersion: mysql.oracle.com/v2
 kind: InnoDBCluster
 metadata:
@@ -172,11 +172,10 @@ whether the controller is installed. It asks instead. Leave
 `control_plane_present` unset and the build stops:
 
 ```text
-[… omitted: the helper's report, and the pull's lines, which carry the same halt]
+[… omitted: the pull's lines, which carry the same halt]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: Recipe "mysql-innodb-cluster" instance "db" assertion "mysql_operator_prerequisite": assertion "Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite": template: Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite:1:48: executing "Recipe/mysql-innodb-cluster/db/mysql_operator_prerequisite" at <fail "the MySQL Operator control plane must be installed in the target cluster before this realization emits its InnoDBCluster custom resource; once the control plane is present, affirm the prerequisite by setting infra.control_plane_present to true in the Release">: error calling fail: assertion failed: the MySQL Operator control plane must be installed in the target cluster before this realization emits its InnoDBCluster custom resource; once the control plane is present, affirm the prerequisite by setting infra.control_plane_present to true in the Release
-[… omitted: the helper's closing line, reporting aggrega's exit status, 1]
 ```
 
 Nothing is written. A custom resource nobody is reconciling is not a smaller

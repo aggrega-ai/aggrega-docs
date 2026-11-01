@@ -109,41 +109,31 @@ spelled differently on the two targets.
 ## Build
 
 This example ships three releases, so name the one you want. One release builds
-per run. In a fresh clone, pass `--auto-pull` through the helper the first time
-each release is built, so its lockfile is filled during the build. The first
-Terraform build fetches the RDS module from its git repository, at the commit
-the Recipe's own pin records:
+per run. In a fresh copy, pass `--auto-pull` the first time each release is
+built, so its lockfile is filled during the build. The first Terraform build
+fetches the RDS module from its git repository, at the commit the Recipe's own
+pin records:
 
 ```bash
-./build-release.sh terraform -- --auto-pull
+aggrega build --release release-terraform.yaml --auto-pull
 ```
 
 It prints, with `<workspace>` standing for this example's folder:
 
 ```
-[… omitted: the helper's report of which aggrega binary it used]
-# example : aws-rds-and-ecs-service
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-terraform.yaml --auto-pull
-
 Pull complete: release-terraform.lock (entities=11, source_artifacts=1, external_inputs=0)
-Total build time:              15.7s
+Total build time:               9.4s
 Build completed: 151 files written to <workspace>/dist
 ```
 
 Once the lockfile exists, the plain command builds against it:
 
 ```bash
-./build-release.sh terraform
+aggrega build --release release-terraform.yaml
 ```
 
 ```
-[… omitted: the helper's report of which aggrega binary it used]
-# example : aws-rds-and-ecs-service
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-terraform.yaml
-
-Total build time:               9.0s
+Total build time:               5.7s
 Build completed: 151 files written to <workspace>/dist
 ```
 
@@ -243,16 +233,12 @@ Success! The configuration is valid.
 ## One CloudFormation stack
 
 ```bash
-./build-release.sh one-stack
+aggrega build --release release-one-stack.yaml --auto-pull
 ```
 
 ```
-[… omitted: the helper's report of which aggrega binary it used]
-# example : aws-rds-and-ecs-service
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-one-stack.yaml
-
-Total build time:               5.0s
+Pull complete: release-one-stack.lock (entities=11, source_artifacts=0, external_inputs=0)
+Total build time:               6.2s
 Build completed: 1 files written to <workspace>/dist
 ```
 
@@ -297,16 +283,12 @@ task definition reads an attribute of `Db`, it creates the instance first. See
 ## Two CloudFormation stacks
 
 ```bash
-./build-release.sh two-stacks
+aggrega build --release release-two-stacks.yaml --auto-pull
 ```
 
 ```
-[… omitted: the helper's report of which aggrega binary it used]
-# example : aws-rds-and-ecs-service
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-two-stacks.yaml
-
-Total build time:               4.3s
+Pull complete: release-two-stacks.lock (entities=11, source_artifacts=0, external_inputs=0)
+Total build time:               6.2s
 Build completed: 2 files written to <workspace>/dist
 ```
 

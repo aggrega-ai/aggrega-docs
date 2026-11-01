@@ -90,6 +90,10 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml restart agen
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml exec agent quickstart-ask demo "What is my name?"
 ```
 
+Give the agent a moment to start again before the last command: run straight
+after the restart, it fails with an error ending in `Connection refused`, and
+run again a moment later, it answers. The two answers:
+
 ```json
 {
   "thread": "demo",

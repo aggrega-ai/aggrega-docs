@@ -60,10 +60,10 @@ single line in the Manifest.
 ## Build
 
 ```bash
-./build-release.sh selfhosted -- --auto-pull
-./build-release.sh managed -- --auto-pull
-./build-release.sh managed-dns -- --auto-pull
-./build-release.sh external -- --auto-pull
+aggrega build --release release-selfhosted.yaml --auto-pull
+aggrega build --release release-managed.yaml --auto-pull
+aggrega build --release release-managed-dns.yaml --auto-pull
+aggrega build --release release-external.yaml --auto-pull
 ```
 
 `--auto-pull` writes each Release's lockfile on its first build; later builds
@@ -72,7 +72,7 @@ an earlier one left. Remove `dist/` between runs to read one realization's outpu
 on its own:
 
 ```bash
-rm -rf dist && ./build-release.sh managed
+rm -rf dist && aggrega build --release release-managed.yaml
 ```
 
 ## What each one renders
@@ -154,7 +154,7 @@ and the application receives it:
   value: db.internal.example.net
 ```
 
-| variable | `./build-release.sh managed` | `./build-release.sh managed-dns` |
+| variable | `release-managed.yaml` | `release-managed-dns.yaml` |
 | --- | --- | --- |
 | `DB_HOST` | `${module.db.address}` | `db.internal.example.net` |
 | `DB_PORT` | `5432` | `5432` |

@@ -234,8 +234,8 @@ that names that store.
 ## Build
 
 ```bash
-./build-release.sh local -- --auto-pull
-./build-release.sh store -- --auto-pull
+aggrega build --release release-local.yaml --auto-pull
+aggrega build --release release-store.yaml --auto-pull
 ```
 
 `--auto-pull` resolves the catalog into a lockfile beside the Release on the
@@ -246,8 +246,8 @@ each run's output aside to compare the two:
 
 ```bash
 out=$(mktemp -d)
-rm -rf dist && ./build-release.sh local -- --auto-pull && cp -r dist "$out/local"
-rm -rf dist && ./build-release.sh store -- --auto-pull && cp -r dist "$out/store"
+rm -rf dist && aggrega build --release release-local.yaml --auto-pull && cp -r dist "$out/local"
+rm -rf dist && aggrega build --release release-store.yaml --auto-pull && cp -r dist "$out/store"
 ( cd "$out" && diff -r local store )
 ```
 
@@ -256,8 +256,8 @@ every node is rendered twice and the build halts if any node's two renders
 differ.
 
 ```bash
-./build-release.sh local -- --verify-determinism
-./build-release.sh store -- --verify-determinism
+aggrega build --release release-local.yaml --verify-determinism
+aggrega build --release release-store.yaml --verify-determinism
 ```
 
 ## Files

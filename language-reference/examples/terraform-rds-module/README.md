@@ -109,7 +109,7 @@ silently picking a provider for you.
 ## Build
 
 ```bash
-./build-release.sh -- --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 `--auto-pull` writes the lockfile a fresh clone lacks during the build.

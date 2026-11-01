@@ -63,18 +63,13 @@ per run. Each release's first build needs its lockfile, which the pull writes:
 
 ```bash
 aggrega pull --release release-one-stack.yaml
-./build-release.sh one-stack
+aggrega build --release release-one-stack.yaml
 ```
 
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```
-[… omitted: the helper's report of which aggrega binary it used]
-# example : cloudformation-rds-stack
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-one-stack.yaml
-
-Total build time:               4.3s
+Total build time:               4.1s
 Build completed: 1 files written to <workspace>/dist
 ```
 
@@ -283,7 +278,7 @@ are authored.
 
 ```bash
 aggrega pull --release release-two-stacks.yaml
-./build-release.sh two-stacks
+aggrega build --release release-two-stacks.yaml
 ```
 
 Nothing in `aggregate.yaml` changes. The application still declares that it uses
@@ -351,7 +346,7 @@ For how the export name is built, and when the consumer reads through
 
 ```bash
 aggrega pull --release release-negative-name-collision.yaml
-./build-release.sh negative-name-collision
+aggrega build --release release-negative-name-collision.yaml
 ```
 
 `aggregate-name-collision.yaml` attaches the alarm **twice** to one component,
@@ -361,11 +356,7 @@ there. Their **outputs** do: each publishes `alarm-id`, an output is named for t
 host component and the entry, and the host is the same component for both.
 
 ```
-[… omitted: the pull's lines, which report the same collision while writing the lockfile, and the helper's report of which aggrega binary it used]
-# example : cloudformation-rds-stack
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-negative-name-collision.yaml
-
+[… omitted: the pull's lines, which report the same collision while writing the lockfile]
 [TRANSLATION_ERROR E0038]
   dispatch groups whose contributors derive one name more than once in one key space
   caused by (2):
@@ -374,8 +365,6 @@ host component and the entry, and the host is the same component for both.
   ---
     [TRANSLATION_ERROR] release-negative-name-collision.yaml
       derived name collision: one name is derived more than once in one key space ("paymentsXzhdbXXalarmXzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom-strict", provider "cloudformation", dispatch path "name-collision/cloudformation")
-
-build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
 
 Four things to read out of that, and each one is deliberate.
