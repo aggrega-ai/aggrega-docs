@@ -20,5 +20,5 @@ Cross-references between chapters use relative links; external references to the
 12. [Day-2 Lifecycles](12-day-two-lifecycles.md)
 13. [Catalog and Registry](13-catalog-and-registry.md)
 14. [Extensibility](14-extensibility.md)
-15. [Aggrega Studio](15-aggrega-studio.md)
+15. [Editors, assistants and other frontends](15-editors-assistants-and-frontends.md)
 16. [Recipe Input Composition](16-recipe-input-composition.md)

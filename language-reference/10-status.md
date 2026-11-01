@@ -147,16 +147,16 @@ The Aggrega CLI registers the build pipeline plus introspection. Per-command sta
 
 See [`07-cli.md`](07-cli.md) for the CLI overview and the [Language Reference index](README.md) for every per-command reference page.
 
-## Aggrega Studio
+## Editors and other frontends
 
-Aggrega Studio is the design-time surface for visualizing and authoring Aggregate topologies. Per-surface status:
+Every frontend shows what the `aggrega` binary compiled; none carries a compiler of its own. Per-surface status:
 
-- **IR graph contract — available.** The IR graph schema (the canonical inter-process contract any Studio implementation builds against) ships as part of the Aggrega schema distribution. Consumers can author Studio implementations against this schema today.
-- **React Flow canvas — planned.** The Studio's interactive topology canvas (visualizing the IR graph; supporting Aggregate authoring) is documented as designed in [`../architecture/15-aggrega-studio.md`](../architecture/15-aggrega-studio.md). No frontend implementation ships in the open-source repository today.
-- **Reading the graph from a command — available.** `aggrega build` accepts `--ir-graph`, and so do `aggrega inspect` given a Release and `aggrega validate --release`; the flag writes the graph that run resolved to stdout as JSON in addition to whatever the command already produces. A daemon session reads the same graph at `aggrega/irGraph`.
-- **Headless CLI streaming mode — planned.** The headless mode (CLI emits the IR graph as newline-delimited JSON to stdout for frontend consumption) is documented in chapter 15. What ships today is one document per invocation rather than a stream: no command emits a sequence of graphs on a single stdout as a topology changes.
+- **IR graph contract — available.** The IR graph schema, the contract every frontend reads the graph against, ships as part of the Aggrega schema distribution; see [the IR schema reference](schema/other/ir.md).
+- **Reading the graph from a command — available.** `aggrega build` accepts `--ir-graph`, and so do `aggrega inspect` given a Release and `aggrega validate --release`; the flag writes the graph that run resolved to stdout as JSON in addition to whatever the command already produces. A daemon session reads the same graph at `aggrega/irGraph`, and the MCP server's `cli-inspect`, `cli-build` and `cli-validate` tools take it as their `ir_graph` argument.
+- **Topology graph in Visual Studio Code — available.** The [Aggrega extension for Visual Studio Code](../authoring/editor.md) draws the selected Release's IR graph as an interactive graph and attaches Features from it, asking the `aggrega serve` daemon for both.
+- **Headless CLI streaming mode — planned.** The headless mode emits the IR graph as newline-delimited JSON on stdout for a frontend to consume as the topology changes. What ships today is one document per invocation rather than a stream: no command emits a sequence of graphs on a single stdout as a topology changes.
 
-See [`../architecture/15-aggrega-studio.md`](../architecture/15-aggrega-studio.md) for the Studio's design surface and roadmap.
+See [`../architecture/15-editors-assistants-and-frontends.md`](../architecture/15-editors-assistants-and-frontends.md) for how the editor, the assistant and the daemon reach the compiler.
 
 ## Design directions
 

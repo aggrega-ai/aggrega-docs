@@ -222,7 +222,7 @@ export default defineConfig({
             "architecture/12-day-two-lifecycles",
             "architecture/13-catalog-and-registry",
             "architecture/14-extensibility",
-            "architecture/15-aggrega-studio",
+            ...present("architecture/15-aggrega-studio", "architecture/15-editors-assistants-and-frontends"),
             "architecture/16-recipe-input-composition",
           ],
         },

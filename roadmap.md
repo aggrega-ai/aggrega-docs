@@ -4,7 +4,7 @@ The directions Aggrega is working in, in plain words. This page gives no dates. 
 
 ## A visual view of your architecture
 
-Aggrega Studio is the visual frontend in the works: it draws the graph the compiler resolves from your files and lets you author an Aggregate on a canvas. It reads the same graph `--ir-graph` writes today, described by a published schema, so what it shows is what the compiler builds. A streaming mode, in which the command line sends the graph as it changes, belongs to the same work. See [Aggrega Studio](architecture/15-aggrega-studio.md).
+Aggrega Studio is the visual frontend in the works: it draws the graph the compiler resolves from your files and lets you author an Aggregate on a canvas. It reads the same graph `--ir-graph` writes today, described by a published schema, so what it shows is what the compiler builds. A streaming mode, in which the command line sends the graph as it changes, belongs to the same work. See [Editors, assistants and other frontends](architecture/15-editors-assistants-and-frontends.md).
 
 ## Taking over what already runs
 
