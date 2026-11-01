@@ -53,6 +53,17 @@ nothing is written.
 --agent may be given more than once. Where several of the named assistants read
 the same folder, the skill is written there once.
 
+With --global and no --agent, the skill is installed for the assistants found
+on this machine: each one whose configuration folder is in your home directory
+or whose command is on your PATH, as the table below names them. The command
+prints each assistant it found and what found it. At a terminal it then asks
+before writing: press Enter to install for those, or type the identifiers of
+other assistants to add them. Where standard input is not a terminal it
+installs for the assistants found without asking. Where it finds none and is
+given none, it writes nothing and says so. A project installation is for the
+assistants a project's people use rather than those on one machine, so it
+always names them with --agent.
+
 The skill is written as a folder named aggrega holding SKILL.md, and every file
 written carries a comment line saying where it comes from. Running the command
 again replaces a copy carrying that line, which is how a newer aggrega brings
@@ -62,22 +73,24 @@ writes nothing; move it aside or remove it, then run the command again. Every
 target is checked before anything is written, so a refusal leaves every folder
 as it was.
 
-The assistants it installs for, and the folders each one reads:
+The assistants it installs for, the folders each one reads, and what finds each
+on this machine — its configuration folder in your home directory, or its
+command on your PATH:
 
-  --agent          assistant        project folder    per-user folder
-  amp              Amp              .agents/skills    ~/.config/amp/skills
-  antigravity      Antigravity      .agents/skills    ~/.gemini/config/skills
-  antigravity-cli  Antigravity CLI  .agents/skills    ~/.gemini/antigravity-cli/skills
-  claude-code      Claude Code      .claude/skills    ~/.claude/skills
-  cline            Cline            .cline/skills     ~/.cline/skills
-  codex            Codex            .agents/skills    ~/.agents/skills
-  cursor           Cursor           .cursor/skills    ~/.cursor/skills
-  gemini-cli       Gemini CLI       .gemini/skills    ~/.gemini/skills
-  github-copilot   GitHub Copilot   .github/skills    ~/.copilot/skills
-  goose            Goose            .agents/skills    ~/.agents/skills
-  opencode         OpenCode         .opencode/skills  ~/.config/opencode/skills
-  windsurf         Windsurf         .devin/skills     ~/.codeium/windsurf/skills
-  zed              Zed              .agents/skills    ~/.agents/skills
+  --agent          assistant        project folder    per-user folder                   found by
+  amp              Amp              .agents/skills    ~/.config/amp/skills              ~/.config/amp, amp
+  antigravity      Antigravity      .agents/skills    ~/.gemini/config/skills           ~/.gemini/antigravity, antigravity
+  antigravity-cli  Antigravity CLI  .agents/skills    ~/.gemini/antigravity-cli/skills  ~/.gemini/antigravity-cli
+  claude-code      Claude Code      .claude/skills    ~/.claude/skills                  ~/.claude, claude
+  cline            Cline            .cline/skills     ~/.cline/skills                   ~/.cline, cline
+  codex            Codex            .agents/skills    ~/.agents/skills                  ~/.codex, codex
+  cursor           Cursor           .cursor/skills    ~/.cursor/skills                  ~/.cursor, cursor
+  gemini-cli       Gemini CLI       .gemini/skills    ~/.gemini/skills                  gemini
+  github-copilot   GitHub Copilot   .github/skills    ~/.copilot/skills                 ~/.copilot, copilot
+  goose            Goose            .agents/skills    ~/.agents/skills                  ~/.config/goose, goose
+  opencode         OpenCode         .opencode/skills  ~/.config/opencode/skills         ~/.config/opencode, opencode
+  windsurf         Windsurf         .devin/skills     ~/.codeium/windsurf/skills        ~/.codeium/windsurf, windsurf
+  zed              Zed              .agents/skills    ~/.agents/skills                  ~/.config/zed, zed
 
 An assistant that is not listed is refused by name. It can still use Aggrega
 through its MCP server: connect it to "aggrega mcp" as
@@ -88,7 +101,7 @@ https://aggrega.ai/docs/authoring/setup/ describes.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--agent` | `[]` | Assistant to install the skill for, by identifier (for example claude-code, codex, cursor or gemini-cli). Repeatable; the help lists every identifier and the folder each one writes. |
+| `--agent` | `[]` | Assistant to install the skill for, by identifier (for example claude-code, codex, cursor or gemini-cli). Repeatable; the help lists every identifier and the folder each one writes. Required without --global; with --global and none given, the skill is installed for the assistants found on this machine. |
 | `--global` | `false` | Install into each assistant's per-user skill folder in your home directory, which it reads in every project, instead of the project skill folder at the root of your workspace. |
 
 **`aggrega skills list` description**
@@ -102,7 +115,7 @@ each assistant reads skills from. It writes nothing.
 
 ## What it does
 
-`aggrega skills install` writes the Aggrega skill into the skill folder of each AI assistant you name with `--agent`. A skill is a folder holding a `SKILL.md` file in the open [Agent Skills](https://agentskills.io/specification) format: a short frontmatter block naming the skill and saying when to use it, followed by instructions. An assistant that reads skills loads it when your request matches, so it knows how to install Aggrega, how to connect to [`aggrega mcp`](aggrega-mcp.md), how to start a workspace, and how to run the authoring loop described in [Getting Started with Authoring](../../authoring/getting-started.md).
+`aggrega skills install` writes the Aggrega skill into the skill folder of each AI assistant you name with `--agent`, or, with `--global` and no `--agent`, of each one it finds on this machine. A skill is a folder holding a `SKILL.md` file in the open [Agent Skills](https://agentskills.io/specification) format: a short frontmatter block naming the skill and saying when to use it, followed by instructions. An assistant that reads skills loads it when your request matches, so it knows how to install Aggrega, how to connect to [`aggrega mcp`](aggrega-mcp.md), how to start a workspace, and how to run the authoring loop described in [Getting Started with Authoring](../../authoring/getting-started.md).
 
 The skill carries no copy of any schema or entity contract. It tells the assistant to ask the binary for every structural answer — the MCP tools where the server is connected, the `aggrega` command line otherwise — and to read the [published documentation](https://aggrega.ai/docs/) for what things mean. The skill is built into the binary, so the copy it writes matches the version you have installed.
 
@@ -127,6 +140,27 @@ aggrega skills install --agent codex --agent zed --global
 ```
 Installed the aggrega skill for Codex and Zed at /home/you/.agents/skills/aggrega
 ```
+
+## The assistants on this machine
+
+With `--global` and no `--agent`, the command installs the skill for the assistants it finds on this machine. An assistant counts as found when its own configuration folder is in your home directory, or its command is on your `PATH`; the `found by` column of the table in the description above names both for every assistant. A folder or command is used only where it belongs to that assistant alone, so finding it never stands for another one: the shared `.agents/skills` folder finds nobody, and `.gemini`, where Gemini CLI and Antigravity both keep files, finds neither — Gemini CLI is found by its `gemini` command, and each Antigravity product by its own folder beneath `.gemini`. An assistant whose configuration lives elsewhere on your system is found by its command, or named with `--agent`.
+
+The command prints each assistant it found and what found it, then installs:
+
+```bash
+aggrega skills install --global
+```
+
+```
+Found Claude Code (claude-code), from the folder /home/you/.claude
+Found Codex (codex), from the command /usr/local/bin/codex
+Installed the aggrega skill for Claude Code at /home/you/.claude/skills/aggrega
+Installed the aggrega skill for Codex at /home/you/.agents/skills/aggrega
+```
+
+**At a terminal it asks first.** After the lines naming what it found, it asks you to confirm: press Enter to install for those, or type the identifiers of other assistants, separated by spaces or commas, to add them. Where it found none, it asks for the identifiers instead, and an empty answer writes nothing. **Where standard input is not a terminal** — a script, an assistant running the command for you, or the assistant's own tool for it — it asks nothing and installs for the assistants it found. Where it finds none and is given none, it writes nothing, says so, and exits non-zero.
+
+Naming any `--agent` skips the search: the command installs for the assistants you named and no others. A project installation, without `--global`, always names them: it is for the assistants the project's people use, which this machine does not tell.
 
 ## Installing again, and what it refuses
 
@@ -154,6 +188,12 @@ Install it for Gemini CLI and Cursor in every project of yours:
 
 ```bash
 aggrega skills install --agent gemini-cli --agent cursor --global
+```
+
+Install it in every project of yours for the assistants on this machine:
+
+```bash
+aggrega skills install --global
 ```
 
 Bring an installed copy up to the binary you have just upgraded to:

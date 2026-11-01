@@ -37,7 +37,7 @@ What the command does:
 - **It installs the binary for you alone**, as `~/.local/bin/aggrega` on Linux and macOS and as `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows, creating the folder when it is missing and replacing an earlier copy there in one step, so running the command again updates the one you have. It never uses `sudo`. On Windows it also removes the mark a file downloaded from the internet can carry, as `Unblock-File` does in [the manual steps](#the-windows-prebuilt-binary). On macOS it downloads with `curl`, so the binary it installs carries no quarantine mark (see [The macOS prebuilt binary](#the-macos-prebuilt-binary)).
 - **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints the line that puts it there and names the file your shell reads it from: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, which takes a `fish_add_path` line, and `~/.profile` for any other shell. It does not add that line itself: add it and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it.
 - **It prints the installed version** by running the binary, and adds a note when another `aggrega` comes before the one it installed on your `PATH`.
-- **It ends with the next steps**, one line to copy for each: the command that sets up shell completion for your shell, as [Set up shell completion as you install](#set-up-shell-completion-as-you-install) describes; the `aggrega skills install` command that adds the Aggrega skill to an AI assistant, with `aggrega skills list` naming the assistants it installs for; and the address of [Connect an MCP client](#connect-an-mcp-client) below.
+- **It ends with the next steps**, one line to copy for each: the command that sets up shell completion for your shell, as [Set up shell completion as you install](#set-up-shell-completion-as-you-install) describes; `aggrega skills install --global`, which adds the Aggrega skill to the AI assistants on your machine, as [Add the assistant skill as you install](#add-the-assistant-skill-as-you-install) describes; and the address of [Connect an MCP client](#connect-an-mcp-client) below. A step an option has already done is reported as done instead.
 
 `install.sh`, the Linux and macOS script, needs `curl` or `wget`, `uname`, and `sha256sum` or `shasum`. `install.ps1`, the Windows one, runs in Windows PowerShell 5.1 and in PowerShell 7.
 
@@ -82,16 +82,40 @@ It sets completion up for you alone, without administrator rights, for the shell
 
 `XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `BASH_COMPLETION_USER_DIR` and `ZDOTDIR` move those folders and files as each shell reads them. A new terminal or window loads the completion. Running the command again rewrites a script only when the installed `aggrega` writes a different one, and adds the lines to `~/.zshrc` or the profile only once; that is also how to add completion to an install you already have, since the command installs the binary again on the way.
 
-**When completion cannot be set up** — a shell it does not set up, such as `dash`, a folder it cannot write, or a PowerShell execution policy that runs no profile — the binary is still installed and runs. The command says why the step failed, prints the next steps, and ends with status `3`. The statuses are:
+#### Add the assistant skill as you install
+
+With `--skills` (`-Skills` in PowerShell), the install command also installs the Aggrega skill — the instructions that teach an AI assistant to install and use Aggrega — in every project of yours, for the AI assistants on your machine. Both options can be given together:
+
+```bash
+curl -fsSL https://aggrega.ai/install.sh | sh -s -- --completion --skills
+```
+
+```powershell
+& ([scriptblock]::Create((irm https://aggrega.ai/install.ps1))) -Completion -Skills
+```
+
+It runs the installed binary's own `aggrega skills install --global`, which looks for the assistants on your machine — each one whose configuration folder is in your home directory, or whose command is on your `PATH` — and prints each one it found and what found it. Then:
+
+- **At a terminal, it asks first.** Press Enter to install the skill for the assistants it found, or type the identifiers of others to add them, separated by spaces or commas; `aggrega skills list` prints the identifiers. Under `curl … | sh` the script reads itself from the pipe, so it asks through your terminal instead.
+- **With no terminal to ask through**, as in a script, it installs for the assistants it found.
+- **To choose the assistants yourself**, give them after the option, separated by commas: `--skills claude-code,cursor`, or `--skills=claude-code,cursor`, and in PowerShell `-Skills claude-code,cursor`. It then installs for those and looks for no others.
+
+It prints each skill folder it writes, such as `~/.claude/skills/aggrega` for Claude Code, all of them beneath your home directory. Running the command again replaces the copies an earlier run wrote, which is how the skill follows the binary to a newer version. [`aggrega skills`](../language-reference/cli/aggrega-skills.md) describes the command, the folder each assistant reads and what finds each one.
+
+#### When a step cannot be done
+
+**When completion cannot be set up** — a shell it does not set up, such as `dash`, a folder it cannot write, or a PowerShell execution policy that runs no profile — **or the skill cannot be installed** — no assistant found and none named, an identifier it does not know, or a file at a skill folder that an installation did not write — the binary is still installed and runs. The command says why the step failed, prints the next steps, and ends with a status saying which step failed. The statuses are:
 
 | Status | Meaning |
 |---|---|
-| `0` | `aggrega` is installed, and completion is set up where the option asked for it |
+| `0` | `aggrega` is installed, and every step an option asked for succeeded |
 | `1` | nothing was installed, or the installed `aggrega` did not run |
-| `2` | `install.sh` was given an option it does not take; it did nothing |
+| `2` | the command was given an option it does not take, or a list naming no assistant; it did nothing |
 | `3` | `aggrega` is installed and runs, but setting up shell completion failed |
+| `4` | `aggrega` is installed and runs, but installing the skill failed |
+| `5` | `aggrega` is installed and runs, but both of those failed |
 
-The PowerShell script never closes the window it runs in, so it leaves the status in `$LASTEXITCODE`, and every status but `0` ends in an error, which `powershell -Command` and `pwsh -Command` report as exit status `1`. An option it does not take is refused by PowerShell itself, before anything runs.
+The PowerShell script never closes the window it runs in, so it leaves the status in `$LASTEXITCODE`, and every status but `0` ends in an error, which `powershell -Command` and `pwsh -Command` report as exit status `1`.
 
 ### Install with the Windows installer
 
