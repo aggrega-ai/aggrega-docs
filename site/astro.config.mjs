@@ -325,7 +325,6 @@ export default defineConfig({
             },
           ],
         },
-        ...present("roadmap"),
         {
           label: "Catalog",
           link: "https://aggrega.ai/catalog",
