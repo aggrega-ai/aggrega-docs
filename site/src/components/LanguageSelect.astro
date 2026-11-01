@@ -1,0 +1,211 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+import context from "virtual:starlight/project-context";
+import config from "virtual:starlight/user-config";
+// Starlight exports this helper from no package entry point, so it is imported
+// by path, as src/components/Banner.astro imports its helpers.
+import { localizedUrl } from "../../node_modules/@astrojs/starlight/utils/localizedUrl.ts";
+
+// The language picker, in the header and in the narrow screen's menu, in place
+// of Starlight's drop-down: a button opening a list of links, one per published
+// language, each to the page the reader is on in that language, as Starlight's
+// own picker computes it. The links are plain anchors in the built page, so the
+// picker works without client JavaScript; each language is named in its own
+// language and marked with its own `lang`.
+//
+// Every language other than the page's also carries its name in the page's
+// language (on an English page, 日本語 is "Japanese"), shown beside it while the
+// link is hovered or has the keyboard's focus and given to assistive technology
+// as the link's description. The browser supplies the name, through its own
+// Intl.DisplayNames, after the page has loaded, so nothing is translated by hand
+// and a browser that cannot name a language shows nothing extra. A list of
+// links rather than a native drop-down carries these, because the options of a
+// native drop-down take neither the focus nor a description on every platform.
+const route = Astro.locals.starlightRoute;
+const currentCode = route.locale ?? "root";
+const locales = Object.entries(config.locales ?? {});
+const current = config.locales?.[currentCode];
+const options = locales.map(([code, locale]) => ({
+  href: localizedUrl(Astro.url, code, context.trailingSlash).pathname,
+  label: locale!.label,
+  lang: locale!.lang ?? code,
+  current: code === currentCode,
+}));
+---
+
+{
+  config.isMultilingual && current && (
+    <aggrega-lang-select data-page-lang={current.lang}>
+      <details>
+        <summary>
+          <span class="sr-only">{Astro.locals.t("languageSelect.accessibleLabel")}: </span>
+          <Icon name="translate" class="label-icon" />
+          <span lang={current.lang}>{current.label}</span>
+          <Icon name="down-caret" class="caret" />
+        </summary>
+        <ul>
+          {options.map(({ href, label, lang, current: isCurrent }) => (
+            <li>
+              <a href={href} hreflang={lang} lang={lang} aria-current={isCurrent ? "page" : undefined}>
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </aggrega-lang-select>
+  )
+}
+
+<script>
+  // The language names, read in the browser, and the menu's closing: on Escape,
+  // returning the focus to its button, and on a click or a focus outside it.
+  function languageNameIn(code: string, inLang: string): string | undefined {
+    if (typeof Intl === "undefined" || typeof Intl.DisplayNames !== "function") return undefined;
+    try {
+      if (Intl.DisplayNames.supportedLocalesOf([inLang]).length === 0) return undefined;
+      const name = new Intl.DisplayNames([inLang], { type: "language", fallback: "none" }).of(code);
+      return name === undefined || name === "" ? undefined : name;
+    } catch {
+      return undefined;
+    }
+  }
+
+  let count = 0;
+
+  class AggregaLanguageSelect extends HTMLElement {
+    connectedCallback() {
+      const details = this.querySelector("details");
+      const summary = this.querySelector("summary");
+      if (!details || !summary) return;
+      const pageLang = this.dataset.pageLang ?? "";
+      const instance = ++count;
+      for (const link of this.querySelectorAll<HTMLAnchorElement>("a[lang]")) {
+        if (link.getAttribute("aria-current") === "page") continue;
+        const name = languageNameIn(link.lang, pageLang);
+        if (name === undefined || name === link.textContent?.trim()) continue;
+        const hint = document.createElement("span");
+        hint.id = `language-name-${instance}-${link.lang}`;
+        hint.lang = pageLang;
+        hint.setAttribute("aria-hidden", "true");
+        hint.dataset.languageName = "";
+        hint.textContent = name;
+        link.append(hint);
+        link.setAttribute("aria-describedby", hint.id);
+      }
+      this.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || !details.open) return;
+        details.open = false;
+        summary.focus();
+      });
+      document.addEventListener("click", (event) => {
+        if (details.open && !this.contains(event.target as Node)) details.open = false;
+      });
+      this.addEventListener("focusout", (event) => {
+        if (details.open && !this.contains(event.relatedTarget as Node | null)) details.open = false;
+      });
+    }
+  }
+  customElements.define("aggrega-lang-select", AggregaLanguageSelect);
+</script>
+
+<style>
+  aggrega-lang-select {
+    position: relative;
+    display: block;
+  }
+  summary {
+    --sl-label-icon-size: 0.875rem;
+    --sl-caret-size: 1.25rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-block: 0.625rem;
+    padding-inline: calc(var(--sl-label-icon-size) + 0.5rem) calc(var(--sl-caret-size) + 0.25rem);
+    color: var(--sl-color-gray-2);
+    cursor: pointer;
+    list-style: none;
+    white-space: nowrap;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover {
+    color: var(--sl-color-white);
+  }
+  summary .label-icon,
+  summary .caret {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  summary .label-icon {
+    font-size: var(--sl-label-icon-size);
+    inset-inline-start: 0;
+  }
+  summary .caret {
+    font-size: var(--sl-caret-size);
+    inset-inline-end: 0;
+  }
+  @media (min-width: 50rem) {
+    summary {
+      font-size: var(--sl-text-sm);
+    }
+  }
+  ul {
+    position: absolute;
+    z-index: 10;
+    top: 100%;
+    inset-inline-end: 0;
+    min-width: 12rem;
+    margin: 0;
+    padding: 0.25rem 0;
+    list-style: none;
+    background-color: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline-shade);
+    border-radius: 0.5rem;
+    box-shadow: var(--sl-shadow-md);
+  }
+  /* In the narrow screen's menu the picker sits at the menu's end, so its list opens upwards. */
+  :global(#starlight__sidebar) ul {
+    top: auto;
+    bottom: 100%;
+  }
+  li {
+    margin: 0;
+  }
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.375rem 1rem;
+    color: var(--sl-color-gray-1);
+    font-size: var(--sl-text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  a:hover,
+  a:focus-visible {
+    background-color: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+  }
+  a[aria-current="page"] {
+    font-weight: 600;
+  }
+  a :global([data-language-name]) {
+    visibility: hidden;
+    margin-inline-start: auto;
+    padding: 0.0625rem 0.375rem;
+    border: 1px solid var(--sl-color-hairline-light);
+    border-radius: 0.25rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+    font-weight: 400;
+  }
+  a:hover :global([data-language-name]),
+  a:focus-visible :global([data-language-name]) {
+    visibility: visible;
+  }
+</style>
