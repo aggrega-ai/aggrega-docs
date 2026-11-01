@@ -1,0 +1,9 @@
+# Learn Aggrega
+
+A path through the documentation, in the order to read it the first time. Each step says what it teaches and links the pages that teach it.
+
+1. **The ideas behind Aggrega.** What Aggrega is for and where it sits: [Vision and Positioning](../architecture/01-vision-and-positioning.md). How the work divides between the people who describe an application and the people who decide how and where it runs: [Team Topologies and the Four Domains](../architecture/03-team-topologies-and-domains.md). The kinds of file you write, and which domain each belongs to: [The Entity Taxonomy](../architecture/04-entity-taxonomy.md).
+2. **A first real example.** A complete workspace you build with the `aggrega` CLI, and the files the build writes: [An agent, a router, and two upstream models](../language-reference/examples/ai-agent-and-model-router/README.md). [Runnable Examples](../language-reference/examples/README.md) lists the others, and [Examples by product and capability](../language-reference/examples/by-product-and-capability.md) finds one by what it deploys.
+3. **Writing your own files.** The loop that takes a file from blank to validated: [Authoring Aggrega files](getting-started.md). Which files are yours to write: [Personas](personas.md) and [Entities by Role](entities-by-role.md).
+4. **The catalog and Features.** Where the components you use come from, and how they are published and pinned: [Catalog and Registry](../architecture/13-catalog-and-registry.md). How a Feature attaches an operational behaviour to a component: [Features and Policies](../language-reference/examples/03-features-and-policies.md), then the [Feature](../language-reference/entities/feature.md) reference.
+5. **The reference.** Every entity, keyword, template, command and error: [Language Reference](../language-reference/README.md), starting with [How to use this reference](../language-reference/01-getting-started.md).

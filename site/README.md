@@ -12,7 +12,26 @@ served at `aggrega.ai/docs`.
   any page: the `docs` content collection (`src/content.config.ts`) points its
   loader at the repository root (`base: ".."`) and reads the same files the
   repository ships. Page titles come from each file's first heading, since the
-  corpus carries no frontmatter.
+  corpus carries no frontmatter; Starlight renders the title above the page, so
+  a remark plugin (`src/plugins/drop-title-heading.mjs`) leaves that heading out
+  of the rendered body, and the title shows once.
+- **Sidebar.** The sidebar is configured in `astro.config.mjs`. It opens with a
+  "Start here" group: the home, the pages for working with an AI assistant,
+  Setup labelled "Install", and the Learn Aggrega path; the Authoring group lists
+  the rest of `authoring/`. Every version is built with this one site project
+  from its own tag's pages, and an entry naming a page the tag lacks would stop
+  the build, so each entry that a published tag may lack goes through
+  `present()`, which keeps it only where the corpus holds the page.
+- **The home.** The root `README.md` is plain Markdown. A remark plugin
+  (`src/plugins/docs-home.mjs`) wraps its body in `.docs-home` and marks a list
+  whose items each open with one bold link as a row of cards;
+  `src/styles/home.css` gives it the home site's type, cards and labelled
+  install commands. Its translations get the same treatment.
+- **Copyable text.** A blockquote with `<!-- copyable -->` on the line above it,
+  such as the prompt for an AI assistant, is shown as a code block with a copy
+  button (`src/plugins/copyable-blockquote.mjs`, `src/styles/copyable.css`). It
+  is a blockquote rather than a fenced block so that the translation tool
+  translates its sentences, keeping every inline code span byte for byte.
 - **Relative links.** Body prose links between pages are authored as relative
   Markdown paths (for example `../entities/component.md`). A remark plugin
   (`src/plugins/rewrite-relative-md-links.mjs`) rewrites those to the built
@@ -151,7 +170,8 @@ npm run dev       # local preview
   approach) would improve them.
 - Breadcrumb segments are humanised from route names, so an initialism such as
   "CLI" renders as "Cli" until a proper-noun map is added.
-- The sidebar's group labels, the version selector's accessible label, the
+- The sidebar's group labels and the labels it gives an entry ("What is
+  Aggrega", "Install"), the version selector's accessible label, the
   footer's privacy link label and the accessibility panel's texts are written in
   English in the site project and show in English on every language's pages.
 - Callout panels use the shared dark surface with the default per-type border; a

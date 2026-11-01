@@ -1,0 +1,149 @@
+/* The documentation's home, set like the home site: its display type for the
+   title and the section headings, its muted lead, its bordered cards and its
+   labelled install commands, spaced on the same scale. Every value is a brand
+   token; none is retyped. The page's body is wrapped in .docs-home and its card
+   list carries .docs-home-cards (src/plugins/docs-home.mjs), so these rules
+   reach no other page. They are unlayered, so they take precedence over
+   Starlight's layered content styles. */
+
+/* The page title Starlight renders above the body: the home site's heading. */
+main:has(.docs-home) h1#_top {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-4xl);
+  line-height: 1.1;
+}
+
+@media (min-width: 40rem) {
+  main:has(.docs-home) h1#_top {
+    font-size: var(--font-size-5xl);
+  }
+}
+
+/* Section headings: the home site's section heading, with a hairline above
+   each section after the first. */
+.sl-markdown-content .docs-home h2 {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-3xl);
+  line-height: 1.2;
+  margin-top: var(--space-16);
+  padding-top: var(--space-10);
+  border-top: 1px solid var(--color-border);
+}
+
+.sl-markdown-content .docs-home > h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* The paragraph opening a section is its lead. */
+.sl-markdown-content .docs-home h2 + p {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.sl-markdown-content .docs-home p,
+.sl-markdown-content .docs-home li {
+  max-width: 48rem;
+}
+
+/* The entry cards: a grid of bordered panels, each one link wide. */
+.sl-markdown-content .docs-home ul.docs-home-cards {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--space-10);
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li {
+  position: relative;
+  max-width: none;
+  margin: 0;
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  transition: border-color 0.15s ease-in-out;
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li:hover,
+.sl-markdown-content .docs-home ul.docs-home-cards > li:focus-within {
+  border-color: var(--color-link);
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p {
+  margin: 0;
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p:first-child {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p:first-child strong {
+  font-weight: inherit;
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p:first-child a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* The card's link covers the whole card, so the card is one target. */
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p:first-child a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.sl-markdown-content .docs-home ul.docs-home-cards > li > p + p {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* An install command: the line naming where it runs, set as the home site's
+   label, directly above its code block. */
+.sl-markdown-content .docs-home p:has(+ .expressive-code) {
+  margin-top: var(--space-6);
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.sl-markdown-content .docs-home p + .expressive-code {
+  margin-top: var(--space-2);
+}
+
+/* The command itself: a plain one-line panel with its copy button in view, as
+   the home site draws it, without the terminal window's title bar. */
+.docs-home .expressive-code .frame.is-terminal .header {
+  display: none;
+}
+
+.docs-home .expressive-code .frame.is-terminal pre {
+  border-radius: var(--radius-md);
+}
+
+.docs-home .expressive-code .copy {
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+}
+
+.docs-home .expressive-code .copy button {
+  opacity: 1;
+}
+
+.sl-markdown-content .docs-home .expressive-code + p {
+  margin-top: var(--space-8);
+}

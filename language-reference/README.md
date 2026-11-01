@@ -24,7 +24,7 @@ Within Tier 3, the `spec.templates` / `$instantiate:` mechanic (parametric helpe
 
 ## Reading order
 
-1. [Getting Started](01-getting-started.md)
+1. [How to use this reference](01-getting-started.md)
 2. [Naming Conventions](02-naming-conventions.md)
 3. [Entity Reference Overview](03-entities.md)
    - **Tier 1**: [aggregate](entities/aggregate.md), [component](entities/component.md), [recipe](entities/recipe.md), [manifest](entities/manifest.md), [release](entities/release.md)

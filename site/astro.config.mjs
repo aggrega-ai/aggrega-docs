@@ -15,6 +15,9 @@ import {
 import notFoundPages from "./src/not-found.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
+import dropTitleHeading from "./src/plugins/drop-title-heading.mjs";
+import copyableBlockquote from "./src/plugins/copyable-blockquote.mjs";
+import docsHome from "./src/plugins/docs-home.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
 
@@ -42,9 +45,27 @@ const corpusFromProject = path
 const corpusDirectory = (directory) => `${corpusFromProject}/${directory}`;
 
 // Every published version renders its tag's pages with this one site project,
-// and a sidebar entry naming a page its tag does not hold stops the build. The
-// roadmap page is therefore linked only where the corpus holds it.
-const roadmapEntry = existsSync(path.join(corpusRoot, "roadmap.md")) ? ["roadmap"] : [];
+// and a sidebar entry naming a page its tag does not hold stops the build. So
+// every entry naming a page that a published tag may lack is given through
+// present(), which keeps an entry only where the corpus holds its page — a
+// page `<slug>.md`, or a section's `<slug>/README.md` — and keeps a group only
+// with the entries left in it. An entry is a page's slug, an object naming its
+// `slug`, or a group of such entries; an entry with a `link` is no page of the
+// corpus and is always kept.
+const holdsPage = (slug) =>
+  [`${slug}.md`, `${slug}/README.md`].some((file) => existsSync(path.join(corpusRoot, file)));
+
+function present(...entries) {
+  return entries.flatMap((entry) => {
+    if (typeof entry === "string") return holdsPage(entry) ? [entry] : [];
+    if (entry.items) {
+      const items = present(...entry.items);
+      return items.length > 0 ? [{ ...entry, items }] : [];
+    }
+    if (entry.link) return [entry];
+    return holdsPage(entry.slug) ? [entry] : [];
+  });
+}
 
 // English is the root locale, served unprefixed at /docs; every published
 // language is served under its own path segment (src/translations.mjs reads the
@@ -64,6 +85,14 @@ export default defineConfig({
     remarkPlugins: [
       ...remarkHeadingIds,
       [rewriteRelativeMdLinks, { contentRoot: corpusRoot }],
+      // The page's title heading is left out of the rendered body, since
+      // Starlight renders the title itself; a blockquote marked copyable is
+      // shown as a block with a copy button; and the home is given the
+      // classes its stylesheet (src/styles/home.css) styles. The title heading
+      // is dropped before the home's body is wrapped.
+      dropTitleHeading,
+      copyableBlockquote,
+      [docsHome, { contentRoot: corpusRoot }],
     ],
   },
   // The routes of the translated pages that still hold English text, for the
@@ -133,14 +162,19 @@ export default defineConfig({
         dark: "@aggrega-ai/brand/logo/mark-dark.svg",
         alt: "Aggrega",
       },
-      // The accessibility panel's stylesheet, the two reading fonts it offers
-      // (downloaded only for a reader who picks one), and the site's rules for
-      // the panel (src/styles/a11y.css).
+      // The brand's tokens, fonts and type classes and the theme bound to them
+      // (src/styles/brand.css); the home's look (src/styles/home.css) and the
+      // copyable blocks' (src/styles/copyable.css); the accessibility panel's
+      // stylesheet, the two reading fonts it offers (downloaded only for a
+      // reader who picks one), and the site's rules for the panel
+      // (src/styles/a11y.css).
       customCss: [
         "@aggrega-ai/brand/tokens.css",
         "@aggrega-ai/brand/fonts.css",
         "@aggrega-ai/brand/typography.css",
         "./src/styles/brand.css",
+        "./src/styles/home.css",
+        "./src/styles/copyable.css",
         "@cognitio/a11y/toolbar.css",
         "@fontsource/atkinson-hyperlegible/400.css",
         "@fontsource/atkinson-hyperlegible/700.css",
@@ -149,13 +183,27 @@ export default defineConfig({
         "./src/styles/a11y.css",
       ],
       sidebar: [
-        { label: "Start Here", link: "/" },
-        {
-          // The group opens on the setup page, whose first section installs the
-          // binary, so a reader starting here installs it before reading on.
-          label: "Getting Started",
-          items: ["authoring/setup", "language-reference/01-getting-started"],
-        },
+        // The sidebar opens with the ways in: the home, the pages for working
+        // with an AI assistant, installing, and the path through the
+        // documentation. The pages in this group are listed nowhere else in
+        // the sidebar.
+        ...present({
+          label: "Start here",
+          items: [
+            { label: "What is Aggrega", link: "/" },
+            {
+              label: "AI assistants",
+              items: [
+                "authoring/ai-assistant",
+                "authoring/mcp-server",
+                "authoring/skill",
+                "authoring/what-your-assistant-can-do",
+              ],
+            },
+            { label: "Install", slug: "authoring/setup" },
+            "authoring/learn-aggrega",
+          ],
+        }),
         {
           label: "Concepts & Architecture",
           items: [
@@ -178,14 +226,22 @@ export default defineConfig({
             "architecture/16-recipe-input-composition",
           ],
         },
-        {
+        // The authoring guide's pages other than those Start here lists.
+        ...present({
           label: "Authoring",
-          items: [{ autogenerate: { directory: corpusDirectory("authoring") } }],
-        },
+          items: [
+            "authoring",
+            "authoring/getting-started",
+            "authoring/personas",
+            "authoring/entities-by-role",
+            "authoring/editor",
+          ],
+        }),
         {
           label: "Language Reference",
           items: [
             "language-reference",
+            ...present("language-reference/01-getting-started"),
             "language-reference/02-naming-conventions",
             "language-reference/03-entities",
             "language-reference/04-vocabulary",
@@ -267,7 +323,7 @@ export default defineConfig({
             },
           ],
         },
-        ...roadmapEntry,
+        ...present("roadmap"),
         {
           label: "Catalog",
           link: "https://aggrega.ai/catalog",

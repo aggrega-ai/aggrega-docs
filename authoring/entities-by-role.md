@@ -70,5 +70,5 @@ These kinds serve authors across roles rather than belonging to one.
 
 ## Next
 
-- [Getting Started](getting-started.md) — the authoring loop, end to end.
+- [Authoring Aggrega files](getting-started.md) — the authoring loop, end to end.
 - [Personas](personas.md) — the roles behind this map.

@@ -1,4 +1,6 @@
-# Aggrega Documentation
+# Aggrega
+
+## What is Aggrega
 
 Aggrega is an open-source compiler for AI-era architecture. Describe the components of an application and how they connect; Aggrega turns them, deterministically, into the deployment files that run it.
 
@@ -7,25 +9,39 @@ Aggrega is an open-source compiler for AI-era architecture. Describe the compone
 - **One application, many platforms.** The same application runs on Docker Compose on a laptop and on Kubernetes in production: changing target changes a mapping, not your code.
 - **Reproducible and governed.** Same input, same output, with every dependency pinned in a lockfile. Your policies plug into the compiler and stop a build that breaks them, saying what to fix.
 
-User-facing documentation for the Aggrega language and compiler, written in English and translated into every other language the site offers.
+Aggrega is Italian for 'it brings together': the name says what the tool does, gathering the parts of an application into one description.
+
+- **[Use it with your AI assistant](authoring/ai-assistant.md)**
+
+  Paste one prompt into an assistant that can run commands: it installs Aggrega, adds the Aggrega skill and connects to the Aggrega MCP server, checking with you before it installs anything.
+
+- **[Learn Aggrega](authoring/learn-aggrega.md)**
+
+  A path through the documentation in reading order, from what Aggrega is for to the language reference.
 
 ## Install
 
-`curl -fsSL https://aggrega.ai/install.sh | sh` on Linux and macOS, or `irm https://aggrega.ai/install.ps1 | iex` in PowerShell on Windows, installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, the manual download, and connecting an AI assistant.
+On Linux and macOS:
 
-An AI assistant that can run commands on your machine can install and set up Aggrega for you from one prompt you paste into it: [Use Aggrega from your AI assistant](authoring/ai-assistant.md) gives the prompt. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
+```bash
+curl -fsSL https://aggrega.ai/install.sh | sh
+```
 
-## Architecture
+On Windows, in PowerShell:
 
-[architecture/](architecture/README.md) — the "why" of Aggrega. Vision, positioning, mental model, compiler pipeline at conceptual level, enterprise governance, catalog, extensibility, design choices. Follow the numbered chapters 01 through 16 in order for first-time reading.
+```powershell
+irm https://aggrega.ai/install.ps1 | iex
+```
 
-## Authoring Guide
+Either command installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, Homebrew, Scoop, winget and the manual download, and connecting an AI assistant. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
 
-[authoring/](authoring/README.md) — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Getting Started](authoring/getting-started.md); to have your AI assistant install and set up Aggrega itself, paste the prompt in [Use Aggrega from your AI assistant](authoring/ai-assistant.md).
+## The documentation
 
-## Language Reference
+User-facing documentation for the Aggrega language and compiler, written in English and translated into every other language the site offers. It has three parts.
 
-[language-reference/](language-reference/README.md) — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, plugins/, schema/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.
+- **[Architecture](architecture/README.md)** — the "why" of Aggrega. Vision, positioning, mental model, compiler pipeline at conceptual level, enterprise governance, catalog, extensibility, design choices. Follow the numbered chapters 01 through 16 in order for first-time reading.
+- **[Authoring Guide](authoring/README.md)** — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Authoring Aggrega files](authoring/getting-started.md); to have your AI assistant install and set up Aggrega itself, paste the prompt in [Set up Aggrega with your AI assistant](authoring/ai-assistant.md).
+- **[Language Reference](language-reference/README.md)** — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, plugins/, schema/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.
 
 ## About Aggrega
 
