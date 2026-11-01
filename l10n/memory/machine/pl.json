@@ -18810,6 +18810,17 @@
     "status": "machine",
     "text": "**Katalog główny obszaru roboczego należy do samego wywołania.** Przez standardowe wejście i wyjście jest to katalog główny obszaru roboczego wyznaczonego przez wywołanie, jak opisano w sekcji [W którym obszarze roboczym odpowiadane jest wywołanie](#which-workspace-a-call-is-answered-in): katalog wskazany przez `workspace_root`, w przeciwnym razie katalog główny, z którym uruchomiono serwer, a w przeciwnym razie obszar roboczy odnaleziony na podstawie katalogu, w którym serwer został uruchomiony — a jeśli encja Release wskazana ścieżką bezwzględną przenosi wywołanie do własnego obszaru roboczego tej encji Release, to katalog główny tego obszaru. Jest to katalog główny, pod którym `aggrega build` zapisuje dla tej samej encji Release i tego samego wskazanego katalogu głównego, więc folder, w którym akurat działa serwer, otrzymuje `dist` tylko wtedy, gdy jest katalogiem głównym wyznaczonym przez wywołanie, tak jak w terminalu otwartym w tym miejscu. Przez HTTP jest to obszar roboczy obsługiwany przez serwer i nic nie jest zapisywane poza nim."
   },
+  "1d7c47ac538ef802": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "971fd996c2be4d6f",
+      "reviewed": false
+    },
+    "srcHash": "1d7c47ac538ef802",
+    "status": "machine",
+    "text": "`--agent` przyjmuje tylko identyfikatory z tabeli powyżej; każdy z nich to identyfikator, którego otwarte narzędzie wiersza poleceń do umiejętności używa dla tego samego asystenta. Każdy inny identyfikator jest odrzucany z podaniem jego nazwy i listy znanych identyfikatorów. Asystent, którego nie ma na liście, nadal może korzystać z Aggrega: należy połączyć go z serwerem MCP, jak opisuje strona [Podłączanie serwera MCP](../../ai-assistants/mcp-server.md), a uzyska dostęp do tych samych narzędzi i materiałów referencyjnych, na które wskazuje umiejętność."
+  },
   "1d7eea51da6a961e": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -20970,6 +20981,17 @@
     "srcHash": "20b96163aeca4bc2",
     "status": "machine",
     "text": "O odmowie rozstrzyga się, gdy encja Recipe każdego komponentu jest powiązana, a każdy provider opisał sam siebie — przed wyrenderowaniem pierwszego komponentu i przed obliczeniem jakiegokolwiek wpisu, więc build odrzucony w tym miejscu nic nie renderuje. Każda błędna encja Recipe jest zgłaszana w jednym buildzie, raz dla każdego renderowanego przez nią komponentu; jeśli wyników jest więcej niż jeden, są grupowane pod `Recipes declaring boundary artifacts whose provider does not accept them`. Encja Recipe powiązana z providerem, którego build nie potrafi rozwiązać, nie jest tu zgłaszana: taki build zatrzymuje się w miejscu wyboru providera, wskazując powiązanie."
+  },
+  "20b9e38ebd5db5de": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "fb7e39c7ae6797d6",
+      "reviewed": false
+    },
+    "srcHash": "20b9e38ebd5db5de",
+    "status": "machine",
+    "text": "**Katalog główny uruchomienia, który nie jest istniejącym folderem, jest obsługiwany jako odmowa przez standardowe wejście i wyjście.** Jeśli `--workspace-root` lub `AGGREGA_WORKSPACE_ROOT` wskazuje folder, który nie istnieje, lub wskazuje plik, serwer zapisuje odmowę do swojego strumienia błędów i mimo to się uruchamia, dzięki czemu klient, który nie pokazuje użytkownikowi niczego z tego strumienia, i tak pokazuje przyczynę. Serwer odpowiada na `initialize` oraz na żądania list narzędzi, zasobów i promptów, a na każde wywołanie, które działałoby w tym obszarze roboczym, odpowiada odmową: na wywołanie narzędzia — wynikiem zakończonym niepowodzeniem, na odczyt encji `catalog://` lub strony dokumentacji — błędem. Odmowa podaje nazwę flagi albo zmiennej wraz z ustawieniem **Workspace folder** aplikacji desktopowej, które ją ustawia — ustawieniem opisanym w sekcji [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) — i przytacza wartość dokładnie w takiej postaci, w jakiej ją podano; wartość, którą klient wysłał bez jej uzupełnienia, jest przytaczana tak, jak dotarła, i nic w niej nie jest rozpoznawane. Narzędzie uruchamiające polecenie nie uruchamia żadnego dla wywołania, które nie wskazuje własnego obszaru roboczego, ponieważ folderu, w którym polecenie by się uruchomiło, nie ma, i odpowiada tą samą odmową. Na wywołanie wskazujące własny obszar roboczy odpowiedź jest udzielana w nim, a na to, co nie działa w żadnym obszarze roboczym — schemat, prompt, pomoc polecenia — odpowiedź jest udzielana jak na każdym serwerze. Nasłuchujący serwer jest natomiast odrzucany przy starcie, zanim cokolwiek zostanie powiązane, z tą samą odmową, dzięki czemu ten, kto go nadzoruje, odczyta błąd tam, gdzie go szuka."
   },
   "20baad6ef9335f44": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -28239,6 +28261,17 @@
     "srcHash": "2c68361eafa95d24",
     "status": "machine",
     "text": "Czego ta konfiguracja nie obejmuje"
+  },
+  "2c71bb04e7790662": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "90e8b5c0b4bd1ddb",
+      "reviewed": false
+    },
+    "srcHash": "2c71bb04e7790662",
+    "status": "machine",
+    "text": "W domyślnym transporcie `stdio` serwer komunikuje się przez standardowe wejście i wyjście procesu. W tej postaci nie jest to polecenie uruchamiane interaktywnie — klient obsługujący MCP uruchamia je jako podproces i komunikuje się w protokole przez stdio; strona [Podłączanie serwera MCP](../../ai-assistants/mcp-server.md#where-each-client-keeps-its-server-list) podaje, gdzie każdy klient przechowuje wpis, który je uruchamia. Uruchomienie go zmienia CLI w asystenta tworzenia znającego Aggrega, działającego w edytorze lub kliencie czatu."
   },
   "2c7496dcbee6bdac": {
     "at": "2026-10-29T21:59:45.311Z",
@@ -61236,6 +61269,17 @@
     "status": "machine",
     "text": "[`validation-surface.md`](validation-surface.md) — cztery warstwy walidacji schematów, w tym opisane wyżej trzy poziomy walidacji filarów."
   },
+  "60af07aa1f4aff96": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "a3030438add17e1e",
+      "reviewed": false
+    },
+    "srcHash": "60af07aa1f4aff96",
+    "status": "machine",
+    "text": "Cykl tworzenia, który rozpoczyna to polecenie — wygenerowanie struktury, wypełnienie symboli zastępczych, walidacja — opisano w rozdziale [Tworzenie plików Aggrega](../../authoring/getting-started.md)."
+  },
   "60af2afcc6df918a": {
     "at": "2026-10-22T23:53:36.766860+00:00",
     "job": "msgbatch_01Wu8raobvwEgmrA6bGpzuKQ",
@@ -93577,6 +93621,17 @@
     "status": "machine",
     "text": "Blok literałowy nie może przenieść każdego znaku w zapisanej postaci:"
   },
+  "94cf03e19c3c960d": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "bb9fb6aa421252af",
+      "reviewed": false
+    },
+    "srcHash": "94cf03e19c3c960d",
+    "status": "machine",
+    "text": "Jedynym wymaganiem wstępnym jest zainstalowany plik binarny `aggrega` dostępny w `PATH` klienta. Ścieżki konfiguracji poszczególnych klientów i rozwiązywanie problemów opisano na stronie [Podłączanie serwera MCP](../../ai-assistants/mcp-server.md). Aby pobrać schemat bezpośrednio z wiersza poleceń, bez klienta, należy użyć [`aggrega get-schema`](aggrega-get-schema.md)."
+  },
   "94d3b895f1076e7b": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -101210,6 +101265,17 @@
     "status": "machine",
     "text": "Blok `translation` w ustawieniach dołączenia deklaruje, które klucze decyzji są odczytywane i z jakim poziomem ważności zgłaszany jest każdy z nich. Zastępuje on domyślne mapowanie, zamiast je rozszerzać: klucz, którego nie wymienia, nie jest odczytywany."
   },
+  "a12226995e9e7e23": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "a86960c2acd825db",
+      "reviewed": false
+    },
+    "srcHash": "a12226995e9e7e23",
+    "status": "machine",
+    "text": "Polecenia `aggrega mcp` należy używać, gdy asystent AI ma pomagać w tworzeniu encji Aggrega na podstawie rzeczywistych schematów i dokumentacji referencyjnej — tak aby jego sugestie opierały się na dokładnej strukturze akceptowanej przez kompilator, a nie na domysłach. Wpisuje się to bezpośrednio w pętlę tworzenia: asystent odczytuje schemat i dokumentację referencyjną danego rodzaju, generuje szkielet, wypełnia pola należące do danej roli i przeprowadza walidację, zanim zwróci szkic. Opis tej pętli zawiera strona [Tworzenie plików Aggrega](../../authoring/getting-started.md)."
+  },
   "a122fc5071fcc243": {
     "at": "2026-10-22T12:16:26.328227+00:00",
     "job": "msgbatch_01AmdFteRWMHi1UpnWokTXuL",
@@ -102295,6 +102361,17 @@
     "srcHash": "a2be75fec9207269",
     "status": "machine",
     "text": "Slot Black-Box nigdy nie jest przywoływany z bloku `attachments:` kontenera workloadu i nie\njest dla niego generowany żaden zasób Kubernetes Secret — wartość trafia do kontenera\nbezpośrednio przez potok inject."
+  },
+  "a2bf106daf61a17e": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "b094cbf81adf6d20",
+      "reviewed": false
+    },
+    "srcHash": "a2bf106daf61a17e",
+    "status": "machine",
+    "text": "`aggrega skills install` zapisuje umiejętność Aggrega do folderu umiejętności każdego asystenta AI wskazanego za pomocą `--agent` lub, z `--global` i bez `--agent`, każdego asystenta znalezionego na tej maszynie. Umiejętność to folder zawierający plik `SKILL.md` w otwartym formacie [Agent Skills](https://agentskills.io/specification): krótki blok frontmatter, który podaje nazwę umiejętności i mówi, kiedy jej używać, a po nim instrukcje. Asystent, który czyta umiejętności, ładuje ją, gdy żądanie do niej pasuje, dzięki czemu wie, jak zainstalować Aggrega, jak połączyć się z [`aggrega mcp`](aggrega-mcp.md), jak rozpocząć obszar roboczy i jak przeprowadzić pętlę tworzenia opisaną na stronie [Tworzenie plików Aggrega](../../authoring/getting-started.md)."
   },
   "a2bf6bf292445a98": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -124819,6 +124896,17 @@
     "status": "machine",
     "text": "uruchomienie dla całego katalogu, gdy znajduje się w katalogu; `--release` dla encji Release, która go wdraża"
   },
+  "c58aae9de4a17d76": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "f8f97d9f108fbb2d",
+      "reviewed": false
+    },
+    "srcHash": "c58aae9de4a17d76",
+    "status": "machine",
+    "text": "**Różnica jest zgłaszana i nigdy nie powoduje odmowy.** Serwer uruchamia się i odpowiada na każde wywołanie dokładnie tak, jak gdyby obie wersje były zgodne. Co różnica oznacza dla instalacji desktopowej i jak ujednolicić obie wersje, opisano na stronie [Podłączanie serwera MCP](../../ai-assistants/mcp-server.md#claude-desktop)."
+  },
   "c58b1401a9f1bd90": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -145801,6 +145889,17 @@
     "status": "machine",
     "text": "Odczytywać `.infra` dla wymiarowania fizycznego (wymiarowania zapisanego przez Ops)."
   },
+  "e5abaddf389992de": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "3e04ffb05a6eff63",
+      "reviewed": false
+    },
+    "srcHash": "e5abaddf389992de",
+    "status": "machine",
+    "text": "Cykl tworzenia, któremu służy to polecenie — poznanie kształtu, szkielet, wypełnienie, walidacja — opisano na stronie [Tworzenie plików Aggrega](../../authoring/getting-started.md)."
+  },
   "e5b1dbcae58f18c3": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -161762,6 +161861,17 @@
     "srcHash": "fef549c964a7acec",
     "status": "machine",
     "text": "**Zakres:** definiowane w korzeniu encji `Aggregate`; wypełniane przez encję `Release` (CI/CD) inline w `parameters:` lub przez `parameters: { $import: <path> }` wskazujące zewnętrzny plik parametrów."
+  },
+  "fef87ea417c50e10": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "cb8db606ed9bdcf3",
+      "reviewed": false
+    },
+    "srcHash": "fef87ea417c50e10",
+    "status": "machine",
+    "text": "`aggrega mcp --transport http` udostępnia protokół przez HTTP zamiast przez standardowe wejście i wyjście. `mcp.transport` w konfiguracji obszaru roboczego to klucz, który ta flaga nadpisuje, a jego wartość domyślna, `stdio`, jest tym, czego oczekuje klient uruchamiający polecenie — dlatego serwer, z którym łączą się inne osoby, ma w swojej konfiguracji `transport: http`, a klient uruchomiony z katalogu objętego tą konfiguracją nadal łączy się z serwerem przez jego własne strumienie. W obu przypadkach jest to ten sam serwer — ten sam obszar roboczy i te same powierzchnie protokołu — a zmienia się to, jak wiadomość do niego dociera, jak kończy się wywołanie i co musi posiadać ten, kto go uruchamia. Ta sekcja opisuje to, co konfiguruje operator; wpis, którego klient potrzebuje, aby połączyć się z działającym serwerem, znajduje się na stronie [Podłączanie serwera MCP](../../ai-assistants/mcp-server.md#a-server-reached-over-https)."
   },
   "fefb55a194d78f5a": {
     "at": "2026-10-31T17:45:00.119Z",

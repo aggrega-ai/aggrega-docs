@@ -18810,6 +18810,17 @@
     "status": "machine",
     "text": "**工作区根目录由调用自身决定。** 通过标准输入输出时，它是该调用所解析的工作区的根目录，如[调用在哪个工作区中得到应答](#which-workspace-a-call-is-answered-in)所述：即 `workspace_root` 指定的根目录，否则为服务器启动时指定的根目录，否则为从服务器启动所在目录找到的工作区——并且，若以绝对路径指定的 Release 将调用移入该 Release 自己的工作区，则为那个工作区的根目录。它就是 `aggrega build` 针对同一 Release 和同一指定根目录所写入的根目录，因此只有当服务器恰好运行所在的文件夹正是调用所解析的根目录时，该文件夹才会得到一个 `dist`，就像在该文件夹中打开的终端一样。通过 HTTP 时，它是服务器所服务的工作区，不会在其外部写入任何内容。"
   },
+  "1d7c47ac538ef802": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "971fd996c2be4d6f",
+      "reviewed": false
+    },
+    "srcHash": "1d7c47ac538ef802",
+    "status": "machine",
+    "text": "`--agent` 只接受上表中的标识符，每个标识符都是开放的 skills 命令行工具对同一助手使用的标识符。任何其他标识符都会按名称被拒绝，并附上它认识的标识符列表。未列出的助手仍然可以使用 Aggrega：按照[连接 MCP 服务器](../../ai-assistants/mcp-server.md)中的描述将其连接到 MCP 服务器，它就能访问 skill 所指向的相同工具和参考资料。"
+  },
   "1d7eea51da6a961e": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -20970,6 +20981,17 @@
     "srcHash": "20b96163aeca4bc2",
     "status": "machine",
     "text": "一旦每个 component 的 Recipe 都已绑定，且每个 provider 都已描述自身，就会判定是否拒绝——这发生在第一个 component 渲染之前、任何条目求值之前，因此在此被拒绝的构建不会渲染任何内容。所有出错的 Recipe 会在一次构建中全部报告，对其渲染的每个 component 各报告一次；结果不止一个时，归组在 `Recipes declaring boundary artifacts whose provider does not accept them` 之下。绑定到构建无法解析的 provider 的 Recipe 不会在此报告：该构建会在选择 provider 时中止，并指出该绑定。"
+  },
+  "20b9e38ebd5db5de": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "fb7e39c7ae6797d6",
+      "reviewed": false
+    },
+    "srcHash": "20b9e38ebd5db5de",
+    "status": "machine",
+    "text": "**在标准输入输出上，不是现有文件夹的启动根目录会以拒绝的形式提供服务。** 如果 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指向不存在的文件夹或指向一个文件，服务器会将拒绝信息写入其错误流，但仍照常启动，这样即使客户端不向用户显示该错误流，也能显示原因。它会应答 `initialize` 及其工具、资源和提示列表，而每个会在该工作区中执行操作的调用都以该拒绝作为应答：工具调用表现为失败的结果，读取 `catalog://` 实体或文档页面表现为错误。拒绝信息会指明该标志，或者指明该变量以及设置它的桌面应用程序 **Workspace folder** 设置——即 [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) 中描述的设置——并完全按给定的原样引用其值；客户端未填写便发送的值按到达时的原样引用，其中的任何内容都不会被识别。对于未指定自身工作区的调用，运行命令的工具不会启动任何命令，因为该命令本应启动所在的文件夹并不存在，并以同样的拒绝作为应答。指定了自身工作区的调用在该工作区中得到应答，而不在任何工作区中执行的操作——schema、提示、命令帮助——则与在任何服务器上一样得到应答。监听器则改为在启动时、在绑定任何内容之前以同样的拒绝被拒绝，这样负责监管它的人可以在查找故障的地方读到该故障。"
   },
   "20baad6ef9335f44": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -28246,6 +28268,17 @@
     "srcHash": "2c68361eafa95d24",
     "status": "machine",
     "text": "此配置未包含的内容"
+  },
+  "2c71bb04e7790662": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "90e8b5c0b4bd1ddb",
+      "reviewed": false
+    },
+    "srcHash": "2c71bb04e7790662",
+    "status": "machine",
+    "text": "使用默认的 `stdio` 时，它通过进程的标准输入和输出通信。在这种形式下，它不是你交互式运行的命令——支持 MCP 的客户端将其作为子进程启动，并通过 stdio 使用该协议通信；[连接 MCP 服务器](../../ai-assistants/mcp-server.md#where-each-client-keeps-its-server-list)列出了每个客户端在何处保存启动它的条目。运行它会把 CLI 变成你的编辑器或聊天客户端中一个了解 Aggrega 的编写助手。"
   },
   "2c7496dcbee6bdac": {
     "at": "2026-10-29T21:59:45.311Z",
@@ -61246,6 +61279,17 @@
     "status": "machine",
     "text": "[`validation-surface.md`](validation-surface.md) — 四个 schema 校验层，包括上文的三个支柱校验层级。"
   },
+  "60af07aa1f4aff96": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "a3030438add17e1e",
+      "reviewed": false
+    },
+    "srcHash": "60af07aa1f4aff96",
+    "status": "machine",
+    "text": "关于该命令开启的编写循环——起草结构、填写占位符、验证——参见[编写 Aggrega 文件](../../authoring/getting-started.md)。"
+  },
   "60af2afcc6df918a": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -93592,6 +93636,17 @@
     "status": "machine",
     "text": "字面量块无法按原样携带所有字符："
   },
+  "94cf03e19c3c960d": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "bb9fb6aa421252af",
+      "reviewed": false
+    },
+    "srcHash": "94cf03e19c3c960d",
+    "status": "machine",
+    "text": "唯一的前提是已安装的 `aggrega` 二进制文件位于客户端的 `PATH` 中。各客户端的配置路径和故障排查，请参见[连接 MCP 服务器](../../ai-assistants/mcp-server.md)。若要不借助客户端、直接从命令行获取 schema，请参见 [`aggrega get-schema`](aggrega-get-schema.md)。"
+  },
   "94d3b895f1076e7b": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -101225,6 +101280,17 @@
     "status": "machine",
     "text": "挂载设置中的 `translation` 块声明读取哪些决定键，以及每个键报告时的严重级别。它替换默认映射而不是扩展它：未指明的键不会被读取。"
   },
+  "a12226995e9e7e23": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "a86960c2acd825db",
+      "reviewed": false
+    },
+    "srcHash": "a12226995e9e7e23",
+    "status": "machine",
+    "text": "当你希望 AI 助手依据真实的 schema 和参考文档帮助编写 Aggrega 实体时，请使用 `aggrega mcp`，这样它的建议基于编译器所接受的确切结构，而不是凭猜测得出。它可以直接融入编写流程：助手读取某个 kind 的 schema 和参考文档，生成骨架，填写你的角色负责的字段，并在交回草稿之前进行校验。有关该流程，请参阅[编写 Aggrega 文件](../../authoring/getting-started.md)。"
+  },
   "a122fc5071fcc243": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -102310,6 +102376,17 @@
     "srcHash": "a2be75fec9207269",
     "status": "machine",
     "text": "Black-Box 槽从不在 workload 容器的 `attachments:` 块中被引用，也不会\n为其生成 Kubernetes Secret 资源 — 值直接通过 inject 管道\n到达容器。"
+  },
+  "a2bf106daf61a17e": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "b094cbf81adf6d20",
+      "reviewed": false
+    },
+    "srcHash": "a2bf106daf61a17e",
+    "status": "machine",
+    "text": "`aggrega skills install` 将 Aggrega skill 写入你用 `--agent` 指明的每个 AI 助手的 skill 文件夹；带 `--global` 且未指定 `--agent` 时，则写入它在本机上找到的每个助手的 skill 文件夹。skill 是一个文件夹，其中包含一个采用开放 [Agent Skills](https://agentskills.io/specification) 格式的 `SKILL.md` 文件：一个简短的 frontmatter 块，指明 skill 的名称并说明何时使用它，后面是说明内容。读取 skills 的助手会在你的请求与之匹配时加载它，从而知道如何安装 Aggrega、如何连接到 [`aggrega mcp`](aggrega-mcp.md)、如何开始一个工作区，以及如何运行[编写 Aggrega 文件](../../authoring/getting-started.md)中描述的编写循环。"
   },
   "a2bf6bf292445a98": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -124848,6 +124925,17 @@
     "status": "machine",
     "text": "全目录运行（当其位于目录文件夹中时）；对部署它的 Release 使用 `--release`"
   },
+  "c58aae9de4a17d76": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "f8f97d9f108fbb2d",
+      "reviewed": false
+    },
+    "srcHash": "c58aae9de4a17d76",
+    "status": "machine",
+    "text": "**差异只会被报告，绝不会导致拒绝。** 服务器照常启动，并像两者一致时一样回答每一个调用。差异对桌面安装意味着什么，以及如何使两者一致，见[连接 MCP 服务器](../../ai-assistants/mcp-server.md#claude-desktop)。"
+  },
   "c58b1401a9f1bd90": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -145826,6 +145914,17 @@
     "status": "machine",
     "text": "读取 `.infra` 获取物理规格（Ops 编写的规格）。"
   },
+  "e5abaddf389992de": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "3e04ffb05a6eff63",
+      "reviewed": false
+    },
+    "srcHash": "e5abaddf389992de",
+    "status": "machine",
+    "text": "关于此命令所服务的编写循环——了解结构、生成脚手架、填充、验证——请参阅[编写 Aggrega 文件](../../authoring/getting-started.md)。"
+  },
   "e5b1dbcae58f18c3": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -161791,6 +161890,17 @@
     "srcHash": "fef549c964a7acec",
     "status": "machine",
     "text": "**作用范围：** 在 `Aggregate` 的根部定义；由 `Release`（CI/CD）在 `parameters:` 下内联提供，或通过指向外部参数文件的 `parameters: { $import: <path> }` 提供。"
+  },
+  "fef87ea417c50e10": {
+    "at": "2026-11-01T19:11:28.489Z",
+    "job": "session-0012-20261101191128",
+    "revision": {
+      "from": "cb8db606ed9bdcf3",
+      "reviewed": false
+    },
+    "srcHash": "fef87ea417c50e10",
+    "status": "machine",
+    "text": "`aggrega mcp --transport http` 通过 HTTP 而非标准输入输出提供协议服务。工作区配置中的 `mcp.transport` 是该标志所覆盖的键，其默认值 `stdio` 正是派生该命令的客户端所期望的——因此供他人访问的服务器在其配置中写有 `transport: http`，而从该配置所覆盖的目录启动的客户端仍通过自身的流访问服务器。两种方式下都是同一个服务器——同一个工作区、同样的协议接口——改变的是消息如何到达它、调用如何结束，以及运行它的人需要持有什么。本节介绍运维人员需要配置的内容；客户端访问正在运行的服务器所需的条目见[连接 MCP 服务器](../../ai-assistants/mcp-server.md#a-server-reached-over-https)。"
   },
   "fefb55a194d78f5a": {
     "at": "2026-10-31T23:45:41.020Z",
