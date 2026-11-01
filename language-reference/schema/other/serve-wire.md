@@ -1000,14 +1000,17 @@ _Additional properties are not permitted._
 
 ### `ScaffoldEntityParams`
 
-Drafts a starter document for an entity kind. The skeleton is derived from the schema set the binary carries, so nothing is read from a workspace and nothing is written — the answer is text, and where it goes is the client's.
+Drafts a starter document for an entity kind, or writes one of the documentation's runnable examples into a new directory of the workspace, or lists them. Drafting derives the skeleton from the schema set the binary carries, so nothing is read from a workspace and nothing is written — the answer is text, and where it goes is the client's. Writing an example writes the new directory and nothing else, and the examples are read from the signed documentation bundle published for the binary's version, or the newest published before it where none is, verified against the workspace's signature policy before it is kept or read: a bundle that does not verify is refused, and offline only a copy already cached is read. A request sending the fields of two forms together — kind with example or list, list with example, name with example or list, dir without example — is refused before anything is read.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootAccepted | no | The absolute path of a workspace. This method's subject is not a workspace — it answers from what the binary itself carries — so the field is accepted and not read. It is admitted because a client may send it uniformly on every request without having to know which methods consult it. |
+| `workspaceRoot` | string | no | The absolute path of the workspace. Drafting does not read it. Writing or listing an example requires it: the workspace's configuration decides where the documentation is fetched from and which signatures it must carry, and an example is written inside it. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `kind` | string | no | The entity kind to draft, named by its lowercase token, such as component, aggregate, release, recipe or featurerecipe — the token `aggrega/getSchema` lists for it. |
-| `name` | string | no | The name to write into the drafted document. |
+| `name` | string | no | The name to write into the drafted document. Sent only with kind. |
+| `example` | string | no | The runnable example to write, by the name the list of examples gives it. Sent instead of kind. |
+| `list` | boolean | no | Whether to answer with every runnable example the documentation publishes, writing nothing. Sent without example and without kind. |
+| `dir` | string | no | The new directory to write the example into, relative to the workspace root; absent writes it into a directory named after the example there. It must not exist yet or must be empty: one holding anything is refused and left as it is, and an absolute value, or one leading out of the workspace as written or through a link, is refused before anything is read. Sent only with example. |
 
 _Additional properties are not permitted._
 
@@ -2493,12 +2496,30 @@ _Additional properties are not permitted._
 
 ### `ScaffoldEntityResult`
 
-The drafted starter document.
+The drafted starter document, the list of runnable examples, or the example written — each form answering with its own fields and leaving the others absent.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `kind` | string | yes | The entity kind that was drafted. |
-| `skeleton` | string | yes | The drafted document's text. |
+| `kind` | string | no | The entity kind that was drafted. Present on a draft. |
+| `skeleton` | string | no | The drafted document's text. Present on a draft. |
+| `examples` | ScaffoldExample[] | no | Every runnable example the documentation publishes, each once, in name order. Present on a list that found any. |
+| `example` | string | no | The example that was written. Present on a write. |
+| `dir` | string | no | The directory the example was written into, relative to the workspace root, as the request named it or, where it named none, as the example's name. Present on a write. |
+| `files` | string[] | no | Each file written, relative to dir and slash-separated, in the order the documentation carries them. Present on a write. |
+| `next` | string[] | no | The commands the example's page gives for building it, line by line as the page writes them, comments included: the first shell block under its Build heading. Absent where the page gives none. |
+| `version` | string | no | The version of the documentation the example was read from: the binary's own where one is published for it, otherwise the newest published before it. Present on a write. |
+
+_Additional properties are not permitted._
+
+### `ScaffoldExample`
+
+One runnable example the documentation publishes.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The example's name, which a request sends as example to write it. |
+| `level` | string | yes | The level the example's page declares for it. |
+| `summary` | string | yes | The first sentence of the example's page. |
 
 _Additional properties are not permitted._
 
