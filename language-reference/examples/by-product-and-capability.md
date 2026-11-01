@@ -121,12 +121,14 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-init-config](postgres-init-config/README.md) (`start`) — `core/datastore/postgres` exposes two optional developer values that shape the database's first start: `init_scripts` (SQL or shell run once on initialization) and `custom_config` (a `postgresql.conf` fragment).
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 
 ### `core/datastore/redis`
 
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 
 ### `core/datastore/valkey`
@@ -377,6 +379,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [prometheus-scrape](prometheus-scrape/README.md) (`start`) — This example compiles a small, real stack — a **Prometheus** metrics server scraping **two Grafana dashboards servers** — from one Developer-authored `Aggregate` to two targets.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 
 ### `credentials`
 
@@ -402,6 +405,7 @@ credential attachments and how each target delivers them.
 - [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 - [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
@@ -440,6 +444,7 @@ Features attached for something other than a credential, such as routing, monito
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 
@@ -514,6 +519,7 @@ Terraform or CloudFormation output for managed cloud services.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 - [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
@@ -535,4 +541,5 @@ a Recipe that fetches what it renders: an upstream chart, a git repository or a 
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
 - [mariadb-bitnami-credential-set](mariadb-bitnami-credential-set/README.md) (`authoring`) — A single MariaDB database realized by the **Bitnami Helm chart**, whose passwords are supplied by **one multi-key referenceable secret** (`core/referenced-secret-set`).
 - [openbao-secrets](openbao-secrets/README.md) (`start`) — This example compiles a small, real stack — a single **OpenBao** secrets server — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official OpenBao Helm chart**.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [sealed-secrets-controller](sealed-secrets-controller/README.md) (`start`) — This example compiles a small, real stack — the **sealed-secrets** controller — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official sealed-secrets Helm chart** served from an HTTPS chart repository.

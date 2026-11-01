@@ -1,0 +1,24 @@
+# A web app and its PostgreSQL
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: quickstart-web-local
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: quickstart-web
+  manifest: quickstart-web-compose
+  components:
+    web:
+      infra:
+        # The quickstart web application, pinned by the digest of its
+        # multi-platform index, so every build runs the same bytes.
+        image: hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:cf87f67716c9c6fea961aceba636ca349e47af3900817f38090106647794e8d7
+        # The port it listens on, published on your machine's loopback address.
+        port: 8080
+    # Every component the Aggregate declares is placed by the Release; the
+    # database runs with its defaults.
+    db: {}

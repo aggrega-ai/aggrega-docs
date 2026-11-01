@@ -102,6 +102,14 @@ authoring.
   Recipe routing in the Manifest. Builds against the standard-library catalog
   it references; the same stack reappears in the Authoring tier below, built
   from scratch.
+- **[quickstart-web](quickstart-web/)** — a web application with PostgreSQL,
+  grown one step at a time, each step a workspace of its own: the application
+  and its database on Docker Compose, then a Redis cache, then the same
+  components on AWS through Terraform — an ECS service, an RDS instance and an
+  ElastiCache cache — and finally the database's backups, from one `core/backup`
+  attachment in the Release. The two Compose steps run on your machine with
+  `docker compose up`, the password read from your shell rather than from any
+  file. A script beside it builds every step and checks each outcome.
 - **[adhoc-uses-socket](adhoc-uses-socket/)** — a console wired to its database
   through the socket its Component declares, and to a model endpoint through a
   socket no catalog entity declares. Both edges deliver into the same container

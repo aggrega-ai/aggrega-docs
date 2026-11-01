@@ -1,0 +1,29 @@
+# Add backups
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: quickstart-web-aws
+  version: "1.0.0"
+  description: >
+    Ops mapping for AWS through Terraform. PostgreSQL binds the Recipe that
+    vendors the terraform-aws-modules project's published RDS module, Redis the
+    one that vendors its ElastiCache module, and the server the Recipe that
+    runs it as an Amazon ECS service on Fargate. All three are sourced Recipes,
+    so each component becomes a module block of one root configuration.
+spec:
+  mappings:
+    components:
+      type:
+        core/compute/server:1.0.0: terraform/server-ecs:1.0.0
+        core/datastore/postgres:1.0.0: terraform/postgres-rds-terraform-aws-modules:1.0.0
+        core/datastore/redis:1.0.0: terraform/redis-elasticache:1.0.0
+    features:
+      type:
+        # The backup Feature binds the FeatureRecipe that leaves the backup to
+        # the instance's own automated backups. It renders nothing: the
+        # database Recipe reads the attachment and passes the module its
+        # backup inputs itself.
+        core/backup:1.0.0: terraform/backup-native:1.0.0

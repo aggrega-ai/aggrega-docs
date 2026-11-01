@@ -1,0 +1,76 @@
+# Add a cache
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: quickstart-web
+  version: "1.0.0"
+  description: >
+    A small web application that keeps notes in PostgreSQL. This is the whole
+    developer-authored surface: which components there are, what each one
+    connects to, and the names the application reads. Where it runs is decided
+    by the Release and the Manifest.
+spec:
+  components:
+    # ── The web application ─────────────────────────────────────────────
+    # core/compute/server packages no software of its own: the Release names
+    # the image that runs. The application reads the names the PostgreSQL
+    # client libraries read by convention, so the edge below dictates exactly
+    # those, each filled from an entry the database publishes.
+    web:
+      type: core/compute/server
+      # The password the application signs in with. Its origin is a Compose
+      # variable reference, which Docker Compose fills from your shell when the
+      # stack starts, so no file carries the password itself.
+      features:
+        db_password:
+          type: core/secret-value
+          values:
+            key: PGPASSWORD
+            origin: "${QUICKSTART_DB_PASSWORD}"
+      uses:
+        database:
+          db:
+            target: db
+            inject:
+              env:
+                - in: PGHOST
+                  from: host
+                - in: PGPORT
+                  from: port
+                - in: PGUSER
+                  from: user
+                - in: PGDATABASE
+                  from: database
+        # The application uses a Redis cache when REDIS_HOST is set, so this
+        # edge is all it takes: the cache's address and port, under the names
+        # the application reads.
+        cache:
+          cache:
+            target: cache
+            inject:
+              env:
+                - in: REDIS_HOST
+                  from: host
+                - in: REDIS_PORT
+                  from: port
+
+    # ── The database ────────────────────────────────────────────────────
+    # The schema defaults give a database named appdb owned by appuser. The
+    # password attachment reads the same variable as the application's, so
+    # the two ends agree on it.
+    db:
+      type: core/datastore/postgres
+      features:
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
+            origin: "${QUICKSTART_DB_PASSWORD}"
+
+    # ── The cache ───────────────────────────────────────────────────────
+    # An in-memory Redis with the schema defaults.
+    cache:
+      type: core/datastore/redis

@@ -1,0 +1,47 @@
+# Same database, managed on AWS
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: quickstart-web-aws
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: quickstart-web
+  manifest: quickstart-web-aws
+  # Every account-specific value below is a placeholder: 123456789012 is the
+  # account number AWS documentation uses in examples, and the subnet, security
+  # group, subnet group, cluster and role names stand for resources you already
+  # run. Replace them with your own before planning.
+  components:
+    web:
+      infra:
+        image: hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:cf87f67716c9c6fea961aceba636ca349e47af3900817f38090106647794e8d7
+        port: 8080
+        # The ECS service runs in a cluster, subnets and security groups that
+        # already exist, under a role ECS pulls the image and writes logs with.
+        overrides:
+          cluster: example-cluster
+          subnet_ids:
+            - subnet-0123456789abcdef0
+            - subnet-0fedcba9876543210
+          vpc_security_groups:
+            - sg-0fedcba9876543210
+          execution_role_arn: arn:aws:iam::123456789012:role/example-ecs-task-execution
+    db:
+      infra:
+        # The RDS instance is placed in a DB subnet group that already exists.
+        overrides:
+          subnet_group: example-private-db-subnets
+          vpc_security_groups:
+            - sg-0123456789abcdef0
+    cache:
+      infra:
+        # ElastiCache runs Redis OSS up to 7.1.
+        engine_version: "7.1"
+        overrides:
+          subnet_group: example-private-cache-subnets
+          vpc_security_groups:
+            - sg-0123456789abcdef1
