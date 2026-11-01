@@ -173,9 +173,9 @@ an `origin`, and the build prints, before anything else:
 
 The one string the Release does write, a Secret's name, is published exactly as
 written: the build cannot tell a name from a key, so a key typed where a name
-goes would appear in the manifest as that name. The graph `aggrega build
---ir-graph` prints withholds it either way, because `origin` is declared
-sensitive.
+goes would appear in the manifest as that name. The graph
+`aggrega build --ir-graph` prints withholds it either way, because `origin` is
+declared sensitive.
 
 ## What the guard does
 
