@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
@@ -39,6 +40,11 @@ const corpusFromProject = path
   .split(path.sep)
   .join("/");
 const corpusDirectory = (directory) => `${corpusFromProject}/${directory}`;
+
+// Every published version renders its tag's pages with this one site project,
+// and a sidebar entry naming a page its tag does not hold stops the build. The
+// roadmap page is therefore linked only where the corpus holds it.
+const roadmapEntry = existsSync(path.join(corpusRoot, "roadmap.md")) ? ["roadmap"] : [];
 
 // English is the root locale, served unprefixed at /docs; every published
 // language is served under its own path segment (src/translations.mjs reads the
@@ -261,6 +267,7 @@ export default defineConfig({
             },
           ],
         },
+        ...roadmapEntry,
         {
           label: "Catalog",
           link: "https://aggrega.ai/catalog",

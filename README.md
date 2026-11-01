@@ -29,6 +29,8 @@ An AI assistant that can run commands on your machine can install and set up Agg
 
 ## About Aggrega
 
+The Aggrega compiler is open source under [Apache-2.0](https://github.com/aggrega-ai/aggrega-cli/blob/main/LICENSE), and stays that way: there is no closed edition of the compiler.
+
 The ecosystem is built on four pillars:
 
 1. **The Separation Model (OAM-Inspired):** Design guidance that separates Developer Intent (the abstract "What" and "How much") from Platform Ops physical reality (the physical "How" and "Where"). The compiler does not enforce the split: it accepts any authoring pattern that passes schema validation.

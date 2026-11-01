@@ -94,6 +94,7 @@ function corpusLoader(patterns: string[]): Loader {
 // translated tree.
 const pages = [
   "README.md",
+  "roadmap.md",
   "architecture/**/*.md",
   "authoring/**/*.md",
   "language-reference/**/*.md",
