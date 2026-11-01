@@ -186,7 +186,10 @@ wait (Retry-After) the wait is as long as it says. A repository with a read stil
 failing after that is not recorded from this run: it keeps the record the index
 already holds for it, where that record was judged under the trust policy now in
 force, and is otherwise left out of the index; either way it is named as a
-repository that could not be read. So a version is never recorded unsigned,
+repository that could not be read, as the walk goes and again in the closing
+summary under its registry's row, with the kind of the read's last failure — the
+status the registry answered, a timeout, a reset, an answer cut short — and the
+read that failed. So a version is never recorded unsigned,
 undated or without its deprecation marker because a read failed, with or without
 --upgrade.
 
@@ -379,9 +382,23 @@ version that was never withdrawn, so the walk records nothing about that reposit
 run. The repository keeps the record the index already holds for it, where that record was
 judged under the registry's trust policy now in force, and is otherwise left out of the
 index. Either way the walk names the repository in its running commentary, saying which of
-the two happened and which read failed, and counts it among the repositories that could not
-be read in its closing summary. The same holds for a refresh and for `--upgrade`, and the
-next walk starts from whatever the index then holds, as it does for any repository.
+the two happened and which read failed, and names it again in its closing summary, on a line
+of its own under its registry's row, among the repositories that could not be read:
+
+```text
+Indexed 1 registry.
+  registry.example.com: 41 entities, 1 repository could not be read
+    component/core/web: the registry answered 503 Service Unavailable: …
+```
+
+Each such line opens with the kind of the read's last failure — the status the registry
+answered with, a read that timed out, a connection that was reset, or an answer cut short —
+followed by the failure itself, which says which read it was. A failure of none of those
+kinds, such as a trust root that could not be obtained to verify a signature against, is
+given as the failure alone. The `aggrega/registryUpdate` method of
+[`aggrega serve`](aggrega-serve.md) answers with the same repositories under each host's
+`skipped`, each with the same `reason`. The same holds for a refresh and for `--upgrade`, and the next walk
+starts from whatever the index then holds, as it does for any repository.
 
 ## The public key a keyed policy pins
 
