@@ -115,7 +115,7 @@ each assistant reads skills from. It writes nothing.
 
 ## What it does
 
-`aggrega skills install` writes the Aggrega skill into the skill folder of each AI assistant you name with `--agent`, or, with `--global` and no `--agent`, of each one it finds on this machine. A skill is a folder holding a `SKILL.md` file in the open [Agent Skills](https://agentskills.io/specification) format: a short frontmatter block naming the skill and saying when to use it, followed by instructions. An assistant that reads skills loads it when your request matches, so it knows how to install Aggrega, how to connect to [`aggrega mcp`](aggrega-mcp.md), how to start a workspace, and how to run the authoring loop described in [Getting Started with Authoring](../../authoring/getting-started.md).
+`aggrega skills install` writes the Aggrega skill into the skill folder of each AI assistant you name with `--agent`, or, with `--global` and no `--agent`, of each one it finds on this machine. A skill is a folder holding a `SKILL.md` file in the open [Agent Skills](https://agentskills.io/specification) format: a short frontmatter block naming the skill and saying when to use it, followed by instructions. An assistant that reads skills loads it when your request matches, so it knows how to install Aggrega, how to connect to [`aggrega mcp`](aggrega-mcp.md), how to start a workspace, and how to run the authoring loop described in [Authoring Aggrega files](../../authoring/getting-started.md).
 
 The skill carries no copy of any schema or entity contract. It tells the assistant to ask the binary for every structural answer — the MCP tools where the server is connected, the `aggrega` command line otherwise — and to read the [published documentation](https://aggrega.ai/docs/) for what things mean. The skill is built into the binary, so the copy it writes matches the version you have installed.
 
@@ -174,7 +174,7 @@ Every target is checked before anything is written, so a refusal for one assista
 
 ## Assistants it does not know
 
-`--agent` takes only the identifiers in the table above, each one the identifier the open skills command-line tool uses for the same assistant. Any other identifier is refused by name, with the list of the ones it knows. An assistant that is not listed can still use Aggrega: connect it to the MCP server as [Setup](../../authoring/setup.md#connect-an-mcp-client) describes, and it reaches the same tools and reference material the skill points to.
+`--agent` takes only the identifiers in the table above, each one the identifier the open skills command-line tool uses for the same assistant. Any other identifier is refused by name, with the list of the ones it knows. An assistant that is not listed can still use Aggrega: connect it to the MCP server as [Connect the MCP server](../../ai-assistants/mcp-server.md) describes, and it reaches the same tools and reference material the skill points to.
 
 ## Examples
 

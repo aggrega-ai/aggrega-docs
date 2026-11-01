@@ -195,4 +195,4 @@ aggrega scaffold --example --list
 aggrega scaffold --example redis-cache my-cache
 ```
 
-For the authoring loop this command starts — draft the shape, fill the placeholders, validate — see [Getting Started with Authoring](../../authoring/getting-started.md).
+For the authoring loop this command starts — draft the shape, fill the placeholders, validate — see [Authoring Aggrega files](../../authoring/getting-started.md).
