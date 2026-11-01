@@ -4604,6 +4604,8 @@ It is distinct from the two refusals that run *before* evaluation on the same bl
 Emitted message, naming the component instance, the entry inside the block, and what the evaluation reported:
 > provides template evaluation failed (node `"<instance>"`, provides[`"<key>"`], `<what the evaluation reported>`)
 
+**The head carries this condition's code, `E0056`, whatever the evaluation reported.** Where the evaluation stopped on a halting condition of its own — an `index` read of a key the map does not hold is the usual one — that condition is reported beneath this one rather than in its place: under `caused by (2):`, this condition's sentence comes first and the evaluation's own report second, its sentence included. So a reader matching codes keys every failed `provides:` entry on `E0056`, and reads what made the evaluation fail from the condition beneath it, whose sentence resolves to its own code in [the table of every condition](./sentinels.md#every-condition-by-short-code) — `E0327` for the absent key.
+
 **How to fix:** open the Recipe's `provides:` block at the key the message names and read the reported reason — it usually names a parse position or a function. Missing-key handling on this surface renders an absent final key as nothing rather than failing, so a failure here is a structural fault: a template that does not parse, a reference descending through a container that was never supplied, or an `index` read of a key the map does not hold, which the reported reason names. Where the value is genuinely optional, read it through the `optional` helper rather than descending into something that may not be there.
 
 ### A Recipe or FeatureRecipe does not publish a `provides` key its contract declares
