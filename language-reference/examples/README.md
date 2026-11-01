@@ -110,6 +110,15 @@ authoring.
   attachment in the Release. The two Compose steps run on your machine with
   `docker compose up`, the password read from your shell rather than from any
   file. A script beside it builds every step and checks each outcome.
+- **[quickstart-ai](quickstart-ai/)** — a LangGraph agent grown one step at a
+  time, each step a workspace of its own: the agent on a local Ollama model with
+  its conversations kept in Valkey, then a LiteLLM gateway adding a hosted
+  OpenAI model with the local one as its fallback, then guardrails on the
+  gateway — personal data masked in its logs by Presidio and prompt injection
+  refused by pattern — and finally the same components built for Kubernetes,
+  the OpenAI key read from a Secret there. The three Compose steps run on your
+  machine with `docker compose up` and need no API key. A script beside it
+  builds every step and checks each outcome.
 - **[adhoc-uses-socket](adhoc-uses-socket/)** — a console wired to its database
   through the socket its Component declares, and to a model endpoint through a
   socket no catalog entity declares. Both edges deliver into the same container

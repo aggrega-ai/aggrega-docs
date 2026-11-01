@@ -1,0 +1,26 @@
+# Same app, on Kubernetes
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: quickstart-ai-cluster
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: quickstart-ai
+  manifest: quickstart-ai-kubernetes
+  components:
+    agent:
+      infra:
+        # On Kubernetes the agent runs the image the Release names; this is the
+        # same quickstart agent the Compose steps run, pinned by the digest of
+        # its multi-platform index.
+        image: hub.aggrega.ai/tools/quickstart-agent:1.0.0@sha256:99816fe5ab1015d2576bd7bffe5a51ca07fec41fe650bda17c5555143367acab
+    gateway: {}
+    gpt: {}
+    llm: {}
+    memory: {}
+    analyzer: {}
+    anonymizer: {}

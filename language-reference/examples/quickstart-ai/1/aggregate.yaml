@@ -1,0 +1,45 @@
+# An agent with a local model and memory
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: quickstart-ai
+  version: "1.0.0"
+  description: >
+    A small LangGraph agent that answers through a model and remembers each
+    conversation. This is the whole developer-authored surface: which
+    components there are and what each one connects to. Where they run is
+    decided by the Release and the Manifest.
+spec:
+  components:
+    # ── The agent ───────────────────────────────────────────────────────
+    # A LangGraph application. Its model connection hands it the endpoint and
+    # the model name, and its checkpointer connection the store it keeps every
+    # conversation in, under the variable names the application reads.
+    agent:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: quickstart.graph:app
+      uses:
+        model:
+          local:
+            target: llm
+        checkpointer_db:
+          memory:
+            target: memory
+
+    # ── The model ───────────────────────────────────────────────────────
+    # Ollama serving a small model that answers on an ordinary laptop's CPU.
+    # The model name is pulled when the stack starts, never at build time.
+    llm:
+      type: core/ai-model/ollama
+      values:
+        model: llama3.2:1b
+
+    # ── The memory ──────────────────────────────────────────────────────
+    # A Valkey store holding each conversation, so the agent picks a
+    # conversation up where it stopped, even after it restarts.
+    memory:
+      type: core/datastore/valkey

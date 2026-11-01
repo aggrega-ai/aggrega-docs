@@ -1,0 +1,32 @@
+# Same app, on Kubernetes
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: quickstart-ai-kubernetes
+  version: "1.0.0"
+  description: >
+    Ops mapping for Kubernetes: each component type binds a Recipe that
+    synthesizes its workload, so the build fetches no chart, and each
+    attachment the realization that writes it into the gateway's
+    configuration or delivers it to the gateway.
+spec:
+  mappings:
+    components:
+      type:
+        core/ai-agent/langgraph:1.0.0: helm/langgraph:1.0.0
+        core/ai-model/ollama:1.0.0: helm/ollama:1.0.0
+        core/datastore/valkey:1.0.0: helm/valkey:1.0.0
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+        core/security/presidio-analyzer:1.0.0: helm/presidio-analyzer:1.0.0
+        core/security/presidio-anonymizer:1.0.0: helm/presidio-anonymizer:1.0.0
+    features:
+      type:
+        core/fallback-chain:1.0.0: helm/fallback-chain:1.0.0
+        core/prompt-deny-patterns:1.0.0: helm/prompt-deny-patterns-litellm:1.0.0
+        # The OpenAI key: a Secret that already exists in the namespace, which
+        # the gateway's Deployment reads through a secretKeyRef.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

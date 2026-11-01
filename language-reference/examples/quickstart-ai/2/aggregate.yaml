@@ -1,0 +1,85 @@
+# Add a cloud model, with the local one as fallback
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: quickstart-ai
+  version: "1.0.0"
+  description: >
+    A small LangGraph agent that answers through a model and remembers each
+    conversation. This is the whole developer-authored surface: which
+    components there are and what each one connects to. Where they run is
+    decided by the Release and the Manifest.
+spec:
+  components:
+    # ── The agent ───────────────────────────────────────────────────────
+    # A LangGraph application. Its model connection hands it the endpoint and
+    # the model name, and its checkpointer connection the store it keeps every
+    # conversation in, under the variable names the application reads.
+    agent:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: quickstart.graph:app
+      uses:
+        # The agent now reaches its model through the gateway, which publishes
+        # the one model name the agent asks for.
+        model:
+          gateway:
+            target: gateway
+        checkpointer_db:
+          memory:
+            target: memory
+
+    # ── The gateway ─────────────────────────────────────────────────────
+    # A LiteLLM gateway in front of two models: cloud, a hosted OpenAI model,
+    # and local, the Ollama model. It publishes cloud as the model the agent
+    # asks for, and a request cloud cannot answer is sent on to local.
+    gateway:
+      type: core/gateway/litellm
+      values:
+        model: cloud
+      features:
+        fallbacks:
+          type: core/fallback-chain
+          values:
+            chains:
+              - alias: cloud
+                fallbacks: [local]
+            max_hops: 1
+      uses:
+        models:
+          # The OpenAI key is a Compose variable reference, filled from your
+          # shell when the stack starts, so no file carries the key.
+          cloud:
+            target: gpt
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: LITELLM_MODEL_CLOUD_API_KEY
+                  origin: "${OPENAI_API_KEY}"
+          local:
+            target: llm
+
+    # ── The cloud model ─────────────────────────────────────────────────
+    # OpenAI's hosted API, asked for a small model.
+    gpt:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini
+
+    # ── The local model ─────────────────────────────────────────────────
+    # Ollama serving a small model that answers on an ordinary laptop's CPU.
+    # The model name is pulled when the stack starts, never at build time.
+    llm:
+      type: core/ai-model/ollama
+      values:
+        model: llama3.2:1b
+
+    # ── The memory ──────────────────────────────────────────────────────
+    # A Valkey store holding each conversation, so the agent picks a
+    # conversation up where it stopped, even after it restarts.
+    memory:
+      type: core/datastore/valkey

@@ -22,6 +22,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/ai-model/anthropic`
 
@@ -34,6 +35,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/ai-model/ollama`
 
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/ai-model/openai`
 
@@ -43,6 +45,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/ai-model/openai-compatible`
 
@@ -136,6 +139,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [valkey-cache](valkey-cache/README.md) (`start`) — This lean example compiles a single **Valkey** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 
 ### `core/devtool/adminer`
@@ -184,6 +188,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/gateway/nginx`
 
@@ -273,11 +278,13 @@ described in [The header on each example](README.md#the-header-on-each-example).
 
 - [ai-gateway-log-masking](ai-gateway-log-masking/README.md) (`start`) — A support assistant has to work with customers' names and email addresses, so the model it calls must see them.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/security/presidio-anonymizer`
 
 - [ai-gateway-log-masking](ai-gateway-log-masking/README.md) (`start`) — A support assistant has to work with customers' names and email addresses, so the model it calls must see them.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/security/sealed-secrets`
 
@@ -379,6 +386,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [prometheus-scrape](prometheus-scrape/README.md) (`start`) — This example compiles a small, real stack — a **Prometheus** metrics server scraping **two Grafana dashboards servers** — from one Developer-authored `Aggregate` to two targets.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 
 ### `credentials`
@@ -405,6 +413,7 @@ credential attachments and how each target delivers them.
 - [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
@@ -444,6 +453,7 @@ Features attached for something other than a credential, such as routing, monito
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
 - [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
