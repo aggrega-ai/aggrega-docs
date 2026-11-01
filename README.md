@@ -15,6 +15,10 @@ Aggrega is Italian for 'it brings together': the name says what the tool does, g
 
   Paste one prompt into an assistant that can run commands: it installs Aggrega, adds the Aggrega skill and connects to the Aggrega MCP server, checking with you before it installs anything.
 
+- **[Quickstart](getting-started.md)**
+
+  Install Aggrega, write a runnable example into a folder and run it on your machine, then grow it one step at a time: an AI agent on a local model, or a web app with PostgreSQL.
+
 - **[Learn Aggrega](learn.md)**
 
   A path through the documentation in reading order, from what Aggrega is for to the language reference.
