@@ -20,11 +20,11 @@ List the assistants it can be installed for, with the folder each one reads:
 aggrega skills list
 ```
 
-The install command can add it too, as it installs the binary: [Add the assistant skill as you install](setup.md#add-the-assistant-skill-as-you-install) gives the option.
+The install command can add it too, as it installs the binary: [Add the assistant skill as you install](../install.md#add-the-assistant-skill-as-you-install) gives the option.
 
 ## What the skill tells your assistant
 
-The skill tells the assistant how to install Aggrega, how to connect it to the `aggrega mcp` server, how to start a workspace, and how to run the authoring loop — scaffold, validate, build — that [Authoring Aggrega files](getting-started.md) describes. It carries no copy of any schema or entity contract: it sends the assistant to the binary for every structural answer — the MCP tools where the server is connected, the `aggrega` command line otherwise — and to the published documentation for what things mean.
+The skill tells the assistant how to install Aggrega, how to connect it to the `aggrega mcp` server, how to start a workspace, and how to run the authoring loop — scaffold, validate, build — that [Authoring Aggrega files](../authoring/getting-started.md) describes. It carries no copy of any schema or entity contract: it sends the assistant to the binary for every structural answer — the MCP tools where the server is connected, the `aggrega` command line otherwise — and to the published documentation for what things mean.
 
 The skill and the MCP server do different jobs, and an assistant works best with both. The skill is instructions the assistant reads; the server, which [Connect the MCP server](mcp-server.md) connects, is the tools it calls. An assistant that is not in the `--agent` list skips the skill and still reaches the same tools and reference material through the server.
 

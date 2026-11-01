@@ -1,4 +1,4 @@
-# Setup
+# Install Aggrega
 
 Aggrega needs two things: the `aggrega` binary installed, and, to author with an AI assistant, your assistant's client connected to the MCP server the binary carries. The commands come first; what each one does, and the other ways to install, follow them.
 
@@ -45,7 +45,7 @@ A version string means the binary is found and runnable. That is everything the 
 
 ## Connect an MCP client
 
-Your AI assistant's client starts Aggrega's MCP server by running `aggrega mcp`, and [Connect the MCP server](mcp-server.md) gives the command or the entry that adds it, client by client.
+Your AI assistant's client starts Aggrega's MCP server by running `aggrega mcp`, and [Connect the MCP server](ai-assistants/mcp-server.md) gives the command or the entry that adds it, client by client.
 
 ## Each way to install, in detail
 
@@ -133,7 +133,7 @@ It runs the installed binary's own `aggrega skills install --global`, which look
 - **With no terminal to ask through**, as in a script, it installs for the assistants it found.
 - **To choose the assistants yourself**, give them after the option, separated by commas: `--skills claude-code,cursor`, or `--skills=claude-code,cursor`, and in PowerShell `-Skills claude-code,cursor`. It then installs for those and looks for no others.
 
-It prints each skill folder it writes, such as `~/.claude/skills/aggrega` for Claude Code, all of them beneath your home directory. Running the command again replaces the copies an earlier run wrote, which is how the skill follows the binary to a newer version. [`aggrega skills`](../language-reference/cli/aggrega-skills.md) describes the command, the folder each assistant reads and what finds each one.
+It prints each skill folder it writes, such as `~/.claude/skills/aggrega` for Claude Code, all of them beneath your home directory. Running the command again replaces the copies an earlier run wrote, which is how the skill follows the binary to a newer version. [`aggrega skills`](language-reference/cli/aggrega-skills.md) describes the command, the folder each assistant reads and what finds each one.
 
 #### When a step cannot be done
 

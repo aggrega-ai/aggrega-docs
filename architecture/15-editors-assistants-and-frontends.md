@@ -32,7 +32,7 @@ Its topology graph is the IR graph. The extension sends `aggrega/irGraph` for th
 
 `aggrega mcp` runs the binary as a Model Context Protocol server, so an AI assistant discovers Aggrega's operations and calls them rather than reading command output. Over standard input and output it speaks newline-delimited JSON-RPC 2.0, which is how a client that starts it as a subprocess reaches it; over HTTP it serves one endpoint, `/mcp`, for callers on other machines. Its tools are the compiler's operations — reading schemas, describing the workspace, validating, building, drafting and editing documents — and each call is answered by the same binary the command line runs.
 
-[Connect the MCP server](../authoring/mcp-server.md) covers connecting each client, and [What your assistant can do with Aggrega](../authoring/what-your-assistant-can-do.md) covers what the tools offer.
+[Connect the MCP server](../ai-assistants/mcp-server.md) covers connecting each client, and [What your assistant can do with Aggrega](../ai-assistants/what-it-can-do.md) covers what the tools offer.
 
 ## The `aggrega serve` daemon
 

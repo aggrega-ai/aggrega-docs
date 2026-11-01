@@ -11,11 +11,11 @@ Aggrega is an open-source compiler for AI-era architecture. Describe the compone
 
 Aggrega is Italian for 'it brings together': the name says what the tool does, gathering the parts of an application into one description.
 
-- **[Use it with your AI assistant](authoring/ai-assistant.md)**
+- **[Use it with your AI assistant](ai-assistants/set-up.md)**
 
   Paste one prompt into an assistant that can run commands: it installs Aggrega, adds the Aggrega skill and connects to the Aggrega MCP server, checking with you before it installs anything.
 
-- **[Learn Aggrega](authoring/learn-aggrega.md)**
+- **[Learn Aggrega](learn.md)**
 
   A path through the documentation in reading order, from what Aggrega is for to the language reference.
 
@@ -33,19 +33,19 @@ On Windows, in PowerShell:
 irm https://aggrega.ai/install.ps1 | iex
 ```
 
-Either command installs the `aggrega` binary for the current user. [Setup](authoring/setup.md#install-the-binary) covers what the command does, Homebrew, Scoop, winget and the manual download; [Connect the MCP server](authoring/mcp-server.md) connects an AI assistant. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
+Either command installs the `aggrega` binary for the current user. [Install](install.md#install-the-binary) covers what the command does, Homebrew, Scoop, winget and the manual download; [Connect the MCP server](ai-assistants/mcp-server.md) connects an AI assistant. The [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) brings validation, navigation, hover and completion to Aggrega YAML, backed by the `aggrega` binary.
 
 ## The documentation
 
 User-facing documentation for the Aggrega language and compiler, written in English and translated into every other language the site offers. It has three parts.
 
 - **[Architecture](architecture/README.md)** — the "why" of Aggrega. Vision, positioning, mental model, compiler pipeline at conceptual level, enterprise governance, catalog, extensibility, design choices. Follow the numbered chapters 01 through 16 in order for first-time reading.
-- **[Authoring Guide](authoring/README.md)** — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Authoring Aggrega files](authoring/getting-started.md); to have your AI assistant install and set up Aggrega itself, paste the prompt in [Set up Aggrega with your AI assistant](authoring/ai-assistant.md).
+- **[Authoring Guide](authoring/README.md)** — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Authoring Aggrega files](authoring/getting-started.md); to have your AI assistant install and set up Aggrega itself, paste the prompt in [Set up Aggrega with your AI assistant](ai-assistants/set-up.md).
 - **[Language Reference](language-reference/README.md)** — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, plugins/, schema/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.
 
 ## About Aggrega
 
-The Aggrega compiler is open source under [Apache-2.0](https://github.com/aggrega-ai/aggrega-cli/blob/main/LICENSE), and stays that way: there is no closed edition of the compiler.
+The Aggrega compiler is open source under [Apache-2.0](https://github.com/aggrega-ai/aggrega-cli/blob/main/LICENSE), and stays that way: there will be no closed edition of the compiler, no open-core. All the features of the compiler will be available in the open source version.
 
 The ecosystem is built on four pillars:
 

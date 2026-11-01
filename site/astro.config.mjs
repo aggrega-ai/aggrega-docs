@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
@@ -13,6 +12,8 @@ import {
   untranslatedPagesModule,
 } from "./src/translations.mjs";
 import notFoundPages from "./src/not-found.mjs";
+import { heldRoute } from "./src/moved-pages.mjs";
+import movedPageRedirects from "./src/redirects.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
 import dropTitleHeading from "./src/plugins/drop-title-heading.mjs";
@@ -49,21 +50,24 @@ const corpusDirectory = (directory) => `${corpusFromProject}/${directory}`;
 // every entry naming a page that a published tag may lack is given through
 // present(), which keeps an entry only where the corpus holds its page — a
 // page `<slug>.md`, or a section's `<slug>/README.md` — and keeps a group only
-// with the entries left in it. An entry is a page's slug, an object naming its
+// with the entries left in it. A page that moved (src/moved-pages.mjs) is
+// listed at whichever of its paths the corpus holds, so a tag holding it at its
+// earlier path keeps the entry. An entry is a page's slug, an object naming its
 // `slug`, or a group of such entries; an entry with a `link` is no page of the
 // corpus and is always kept.
-const holdsPage = (slug) =>
-  [`${slug}.md`, `${slug}/README.md`].some((file) => existsSync(path.join(corpusRoot, file)));
-
 function present(...entries) {
   return entries.flatMap((entry) => {
-    if (typeof entry === "string") return holdsPage(entry) ? [entry] : [];
+    if (typeof entry === "string") {
+      const slug = heldRoute(entry);
+      return slug ? [slug] : [];
+    }
     if (entry.items) {
       const items = present(...entry.items);
       return items.length > 0 ? [{ ...entry, items }] : [];
     }
     if (entry.link) return [entry];
-    return holdsPage(entry.slug) ? [entry] : [];
+    const slug = heldRoute(entry.slug);
+    return slug ? [{ ...entry, slug }] : [];
   });
 }
 
@@ -196,14 +200,14 @@ export default defineConfig({
             {
               label: "AI assistants",
               items: [
-                "authoring/ai-assistant",
-                "authoring/mcp-server",
-                "authoring/skill",
-                "authoring/what-your-assistant-can-do",
+                "ai-assistants/set-up",
+                "ai-assistants/mcp-server",
+                "ai-assistants/skill",
+                "ai-assistants/what-it-can-do",
               ],
             },
-            { label: "Install", slug: "authoring/setup" },
-            "authoring/learn-aggrega",
+            { label: "Install", slug: "install" },
+            "learn",
           ],
         }),
         {
@@ -335,5 +339,7 @@ export default defineConfig({
     }),
     notFoundPages(),
     searchIndexOrder(),
+    // The redirects from every moved page's earlier address (src/redirects.mjs).
+    movedPageRedirects(),
   ],
 });

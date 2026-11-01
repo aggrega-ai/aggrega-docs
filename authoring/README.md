@@ -9,18 +9,18 @@ The guide is written for two audiences at once: a person authoring by hand in an
 1. [Authoring Aggrega files](getting-started.md) — the end-to-end authoring loop: pick your role, learn the shape, scaffold, fill, validate, build. Start here.
 2. [Personas](personas.md) — the four collaborating authoring roles (developer, architect, operations, operator) and the guidance-not-enforcement framing behind them.
 3. [Entities by Role](entities-by-role.md) — every entity kind mapped to the role that typically owns it, so you know which file each concern belongs in.
-4. [Setup](setup.md) — install the `aggrega` binary, with the commands first; its connect section points to [Connect the MCP server](mcp-server.md).
+4. [Install](../install.md) — install the `aggrega` binary, with the commands first; its connect section points to [Connect the MCP server](../ai-assistants/mcp-server.md).
 5. [Use Aggrega in Visual Studio Code](editor.md) — the Aggrega extension for Visual Studio Code: what it needs, the welcome page, its panels and the topology graph, and every setting and command.
 
-[Learn Aggrega](learn-aggrega.md) places this guide in a path through the whole documentation.
+[Learn Aggrega](../learn.md) places this guide in a path through the whole documentation.
 
 ## Working with an AI assistant
 
-1. [Set up Aggrega with your AI assistant](ai-assistant.md) — one prompt to paste into an assistant that can run commands, so it installs Aggrega, adds the Aggrega skill and connects itself to the server.
-2. [Connect the MCP server](mcp-server.md) — the server entry client by client, [where each client keeps it](mcp-server.md#where-each-client-keeps-its-server-list), a server reached over HTTPS, and how to check the connection.
-3. [The Aggrega skill](skill.md) — the instructions an assistant loads for Aggrega: installing them and keeping them current.
-4. [What your assistant can do with Aggrega](what-your-assistant-can-do.md) — what the connected server lets an assistant read, check, build and publish.
+1. [Set up Aggrega with your AI assistant](../ai-assistants/set-up.md) — one prompt to paste into an assistant that can run commands, so it installs Aggrega, adds the Aggrega skill and connects itself to the server.
+2. [Connect the MCP server](../ai-assistants/mcp-server.md) — the server entry client by client, [where each client keeps it](../ai-assistants/mcp-server.md#where-each-client-keeps-its-server-list), a server reached over HTTPS, and how to check the connection.
+3. [The Aggrega skill](../ai-assistants/skill.md) — the instructions an assistant loads for Aggrega: installing them and keeping them current.
+4. [What your assistant can do with Aggrega](../ai-assistants/what-it-can-do.md) — what the connected server lets an assistant read, check, build and publish.
 
 ## How the assistant surfaces relate to this guide
 
-The `aggrega mcp` server exposes this guide, the language reference, and the JSON Schemas as resources an assistant reads before it writes YAML, plus tools that scaffold and validate entities. The assistant's built-in authoring prompts point back at these pages rather than restating them, so this guide is the single prose home for the authoring method. See [Authoring Aggrega files](getting-started.md) for the loop and [Connect the MCP server](mcp-server.md) for the connection.
+The `aggrega mcp` server exposes this guide, the language reference, and the JSON Schemas as resources an assistant reads before it writes YAML, plus tools that scaffold and validate entities. The assistant's built-in authoring prompts point back at these pages rather than restating them, so this guide is the single prose home for the authoring method. See [Authoring Aggrega files](getting-started.md) for the loop and [Connect the MCP server](../ai-assistants/mcp-server.md) for the connection.

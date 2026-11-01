@@ -1,6 +1,6 @@
 # Connect the MCP server
 
-Aggrega's MCP server is the `aggrega mcp` command, and the `aggrega` binary is its only prerequisite: [Install the binary](setup.md#install-the-binary) installs it with one command. The server runs as a subprocess of your client over stdio, reads its schemas from the binary and its documentation pages from a copy it fetches once into your machine's cache, and needs no separate service, port, or account. Where someone else already runs a server for you, you need neither the binary nor any of this: see [A server reached over HTTPS](#a-server-reached-over-https).
+Aggrega's MCP server is the `aggrega mcp` command, and the `aggrega` binary is its only prerequisite: [Install the binary](../install.md#install-the-binary) installs it with one command. The server runs as a subprocess of your client over stdio, reads its schemas from the binary and its documentation pages from a copy it fetches once into your machine's cache, and needs no separate service, port, or account. Where someone else already runs a server for you, you need neither the binary nor any of this: see [A server reached over HTTPS](#a-server-reached-over-https).
 
 ## Clients that add it with one command
 
@@ -37,11 +37,11 @@ Most MCP-capable clients launch the server the same way — they run the `aggreg
 }
 ```
 
-Once the client restarts and connects, the Aggrega authoring prompts, resources, and tools become available. [What your assistant can do with Aggrega](what-your-assistant-can-do.md) describes them, [Authoring Aggrega files](getting-started.md) shows what to do with them, and the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference covers the command itself.
+Once the client restarts and connects, the Aggrega authoring prompts, resources, and tools become available. [What your assistant can do with Aggrega](what-it-can-do.md) describes them, [Authoring Aggrega files](../authoring/getting-started.md) shows what to do with them, and the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference covers the command itself.
 
 **Nothing in the entry selects a protocol revision.** Aggrega speaks both `2026-07-28` and `2025-06-18`, on standard input and output and over HTTPS alike, so a client of either connects and reaches the same prompts, resources, and tools. Which one a client asks for is settled on the wire rather than in your configuration.
 
-**An assistant that can run commands can do all of this itself** — install the binary, add the Aggrega skill, and connect to the server — from one prompt you paste into it: see [Set up Aggrega with your AI assistant](ai-assistant.md).
+**An assistant that can run commands can do all of this itself** — install the binary, add the Aggrega skill, and connect to the server — from one prompt you paste into it: see [Set up Aggrega with your AI assistant](set-up.md).
 
 ## Where each client keeps its server list
 
@@ -116,7 +116,7 @@ Claude Desktop installs a local server from an extension package — the server 
 
 Aggrega's package carries no program of its own. It launches the `aggrega` executable you name, with the single `mcp` argument, and speaks the protocol over that process's standard input and output — the same server every entry above starts. It starts the file at the path you give it rather than looking `aggrega` up on your `PATH`, and it hands that server the workspace you choose. To add it:
 
-1. Install the `aggrega` binary, as described in [Install the binary](setup.md#install-the-binary). The install command and the manual steps there both keep it in a folder of your own — on Windows `%LOCALAPPDATA%\Programs\aggrega` rather than a system folder such as `C:\Windows\System32` — so that you can replace it without administrator rights.
+1. Install the `aggrega` binary, as described in [Install the binary](../install.md#install-the-binary). The install command and the manual steps there both keep it in a folder of your own — on Windows `%LOCALAPPDATA%\Programs\aggrega` rather than a system folder such as `C:\Windows\System32` — so that you can replace it without administrator rights.
 2. Install `aggrega-<version>.mcpb` from Claude Desktop's extension settings.
 3. Set the package's two required settings. **Path to the aggrega executable** is the full path of the executable you installed — on macOS and Linux the `aggrega` in `.local/bin` in your home folder, such as `/Users/you/.local/bin/aggrega`; on Windows the full path ending in `aggrega.exe`, such as `C:\Users\you\AppData\Local\Programs\aggrega\aggrega.exe`. **Workspace folder** is the folder of the Aggrega workspace the assistant works in: the folder that holds your project's `.aggrega-config.yaml`. Set both: Claude Desktop saves the settings with **Workspace folder** left empty and starts the server all the same, and the server then answers every request the assistant makes in the workspace with a refusal saying the **Workspace folder** setting is empty and telling you to set it to the folder that holds your workspace's `.aggrega-config.yaml`, rather than working in the folder Claude Desktop started it in.
 4. Quit Claude Desktop fully, then start it again. A server the application has already started keeps running, and renaming the executable does not stop it, so a changed setting takes effect only once the application has quit and started again. On Windows, Task Manager shows whether an `aggrega` process is still running.

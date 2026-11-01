@@ -11,7 +11,7 @@ import { languageOfRoute, routeOf } from "../translations.mjs";
 // - the whole body is wrapped in an element of the class `docs-home`, so the
 //   home's rules reach nothing outside it;
 // - a list each of whose items opens with a paragraph holding nothing but one
-//   bold link — `- **[Learn Aggrega](authoring/learn-aggrega.md)**`, then the
+//   bold link — `- **[Learn Aggrega](learn.md)**`, then the
 //   item's text as a paragraph of its own — is given the class
 //   `docs-home-cards` and shown as a row of cards, each card the link's page.
 //

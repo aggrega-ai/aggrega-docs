@@ -6,9 +6,9 @@ served at `aggrega.ai/docs`.
 
 ## How it is built
 
-- **Single source.** The site renders the repository's root `README.md` and
-  the Markdown in `architecture/`, `authoring/`, and `language-reference/` in
-  place. There is no second copy of
+- **Single source.** The site renders the repository's root `README.md`,
+  `install.md` and `learn.md` and the Markdown in `ai-assistants/`,
+  `architecture/`, `authoring/`, and `language-reference/` in place. There is no second copy of
   any page: the `docs` content collection (`src/content.config.ts`) points its
   loader at the repository root (`base: ".."`) and reads the same files the
   repository ships. Page titles come from each file's first heading, since the
@@ -16,16 +16,27 @@ served at `aggrega.ai/docs`.
   a remark plugin (`src/plugins/drop-title-heading.mjs`) leaves that heading out
   of the rendered body, and the title shows once.
 - **Sidebar.** The sidebar is configured in `astro.config.mjs`. It opens with a
-  "Start here" group: the home, the pages for working with an AI assistant,
-  Setup labelled "Install", and the Learn Aggrega path; the Authoring group lists
-  the rest of `authoring/`. Every version is built with this one site project
-  from its own tag's pages, and an entry naming a page the tag lacks would stop
-  the build, so each entry that a published tag may lack goes through
-  `present()`, which keeps it only where the corpus holds the page. A group
-  nested in another group is labelled at the size of the links beside it, in
-  bold (`src/styles/sidebar.css`), whichever group it sits in. A renamed
-  page is listed under both its names, so the tags holding the old file and
-  the tree holding the new one each keep the entry they hold.
+  "Start here" group: the home, the pages for working with an AI assistant
+  (`ai-assistants/`), Install (`install.md`), and the Learn Aggrega path
+  (`learn.md`) — each page's address matching its place in the menu; the
+  Authoring group lists the pages of `authoring/`. Every version is built with
+  this one site project from its own tag's pages, and an entry naming a page the
+  tag lacks would stop the build, so each entry that a published tag may lack
+  goes through `present()`, which keeps it only where the corpus holds the page.
+  A group nested in another group is labelled at the size of the links beside
+  it, in bold (`src/styles/sidebar.css`), whichever group it sits in. A renamed
+  page is listed under both its names, and a page that moved is listed at
+  whichever of its paths the corpus holds (`src/moved-pages.mjs`), so the tags
+  holding the old file and the tree holding the new one each keep the entry
+  they hold.
+- **Moved pages.** Every page that moved keeps its earlier address working. The
+  build writes a `_redirects` file (`src/redirects.mjs`) answering each earlier
+  address, in English and in every published language, with a permanent (301)
+  redirect to the new one; a browser keeps the fragment it was asked for. A
+  version whose corpus still holds a page at its earlier path gets no redirect
+  for it. Workers static assets read `_redirects` at the root of a Worker's
+  assets, above the directory of the pages, and the version build moves it
+  there.
 - **The home.** The root `README.md` is plain Markdown. A remark plugin
   (`src/plugins/docs-home.mjs`) wraps its body in `.docs-home` and marks a list
   whose items each open with one bold link as a row of cards;

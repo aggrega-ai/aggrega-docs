@@ -91,9 +91,14 @@ function corpusLoader(patterns: string[]): Loader {
 }
 
 // The pages of the corpus, and the same pages in each published language's
-// translated tree.
+// translated tree. The translation configuration (l10n/l10n.config.json,
+// adapter.include) and the documentation bundle (scripts/build-docs-bundle.sh)
+// read the same pages.
 const pages = [
   "README.md",
+  "install.md",
+  "learn.md",
+  "ai-assistants/**/*.md",
   "architecture/**/*.md",
   "authoring/**/*.md",
   "language-reference/**/*.md",

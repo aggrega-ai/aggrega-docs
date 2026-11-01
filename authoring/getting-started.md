@@ -8,7 +8,7 @@ Authoring in Aggrega is a short, repeatable loop. Whichever entity you are writi
 4. **Fill in the fields your role owns**, leaving the rest to their owners.
 5. **Validate**, then compile.
 
-This page walks the loop once, both for a person authoring by hand and for an AI assistant authoring through the Model Context Protocol server. The two paths are the same loop over the same reference surfaces. Both need the `aggrega` binary: [Install the binary](setup.md#install-the-binary) installs it with one command.
+This page walks the loop once, both for a person authoring by hand and for an AI assistant authoring through the Model Context Protocol server. The two paths are the same loop over the same reference surfaces. Both need the `aggrega` binary: [Install the binary](../install.md#install-the-binary) installs it with one command.
 
 ## 1. Pick the entity your role owns
 
@@ -56,12 +56,12 @@ The `aggrega mcp` command runs a Model Context Protocol server that turns any MC
 - **Read the reference** through resources: `schema://<kind>` for a kind's JSON Schema, `langref://<path>` for any reference page, and `authoring://<topic>` for this guide.
 - **Act on your workspace** through tools: `scaffold` to start a correct skeleton, `validate` to check a draft, `describe` to inspect a catalog entity, and `get-schema` to fetch a schema by kind.
 
-Everything the assistant reads is served from your machine: the schemas are built into the binary, and the guide and reference pages come from the documentation bundle kept in your machine's cache, which the server fetches from the registry when it starts and finds no copy there. Reading a page, scaffolding and validating do not reach the network; where the bundle cannot be fetched, the schemas are still served and the pages are not. To connect a client, follow [Connect the MCP server](mcp-server.md); [What your assistant can do with Aggrega](what-your-assistant-can-do.md) covers the rest of what it reaches. For the command itself, see the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference.
+Everything the assistant reads is served from your machine: the schemas are built into the binary, and the guide and reference pages come from the documentation bundle kept in your machine's cache, which the server fetches from the registry when it starts and finds no copy there. Reading a page, scaffolding and validating do not reach the network; where the bundle cannot be fetched, the schemas are still served and the pages are not. To connect a client, follow [Connect the MCP server](../ai-assistants/mcp-server.md); [What your assistant can do with Aggrega](../ai-assistants/what-it-can-do.md) covers the rest of what it reaches. For the command itself, see the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference.
 
 ## Where to go next
 
 - [Personas](personas.md) — understand the four roles before you pick an entity.
 - [Entities by Role](entities-by-role.md) — the full kind-to-role map.
-- [Setup](setup.md) — install the binary; [Connect the MCP server](mcp-server.md) connects your assistant.
-- [Set up Aggrega with your AI assistant](ai-assistant.md) — one prompt that has your assistant install and connect Aggrega itself.
+- [Install](../install.md) — install the binary; [Connect the MCP server](../ai-assistants/mcp-server.md) connects your assistant.
+- [Set up Aggrega with your AI assistant](../ai-assistants/set-up.md) — one prompt that has your assistant install and connect Aggrega itself.
 - [CLI Overview](../language-reference/07-cli.md) — every `aggrega` subcommand.
