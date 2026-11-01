@@ -325,11 +325,11 @@ policy sits in the product,
 ## What this target makes visible about the authored form
 
 The managed-database Recipe sets the engine's own managed-password directive
-unconditionally and reads no injected credential, so on this target the material
-the authored Aggregate supplies has nowhere to land in the rendered artifact. The
-policy refuses it where it actually is: in a file the workspace keeps under
-version control. That is the governance concern, and it is a separate matter
-from what any Recipe would have rendered.
+unconditionally and reads no injected credential, so on this target it halts the
+build on the authored attachment itself, naming the slot, rather than accept
+material with nowhere to land. The policy refuses it first, where it actually is:
+in a file the workspace keeps under version control. That is the governance
+concern, and it is a separate matter from what any Recipe would have rendered.
 
 Which is also why the two Features are peers rather than alternatives of equal
 standing on every target. Bind the author-supplied Feature where you
