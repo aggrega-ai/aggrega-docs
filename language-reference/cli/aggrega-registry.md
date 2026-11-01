@@ -191,7 +191,14 @@ summary under its registry's row, with the kind of the read's last failure — t
 status the registry answered, a timeout, a reset, an answer cut short — and the
 read that failed. So a version is never recorded unsigned,
 undated or without its deprecation marker because a read failed, with or without
---upgrade.
+--upgrade. Each registry's row in the closing summary also says how many reads
+were asked again, whether or not they then succeeded, and says zero when none
+was.
+
+Every signature a registry's walk verifies against the public Sigstore trust root
+is verified against the same copy of that root, fetched once for the walk rather
+than once per signature; a registry whose trust policy pins a trust root of its
+own is verified against that file.
 
 A registry whose repository listing repeats itself — naming a repository it has
 already named, or answering two pages in a row with no repository while still
@@ -387,9 +394,14 @@ of its own under its registry's row, among the repositories that could not be re
 
 ```text
 Indexed 1 registry.
-  registry.example.com: 41 entities, 1 repository could not be read
+  registry.example.com: 41 entities, 1 repository could not be read, 4 reads retried
     component/core/web: the registry answered 503 Service Unavailable: …
 ```
+
+The registry's row also says how many reads were asked again, each read counted once however
+many attempts it took and whether or not it then succeeded, and says `0 reads retried` when
+none was. A walk whose reads all succeeded in the end shows no repository on its row, so this
+count is what says how close it came to leaving one out.
 
 Each such line opens with the kind of the read's last failure — the status the registry
 answered with, a read that timed out, a connection that was reset, or an answer cut short —
