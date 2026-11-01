@@ -289,9 +289,9 @@ the last refresh is kept as recorded rather than read, so its marker is not repo
 again; the count below still includes it. A marker is recorded only when its own
 signature verifies against the signers the registry's trust policy honors. One that
 is present but does not decode, or present but not honored, is reported as such and left
-out of the index rather than recorded on evidence that could not be authenticated. A
-marker the registry did not deliver is a different case: see
-[A read that fails](#a-read-that-fails).
+out of the index rather than recorded on evidence that could not be authenticated — and
+so is one the registry answers it does not hold. A marker whose read failed is a
+different case: see [A read that fails](#a-read-that-fails).
 
 Each registry then reports how many markers its index now records, including when
 that number is zero. Where signature verification is switched off — globally, or for
