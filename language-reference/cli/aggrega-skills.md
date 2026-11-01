@@ -94,7 +94,7 @@ command on your PATH:
 
 An assistant that is not listed is refused by name. It can still use Aggrega
 through its MCP server: connect it to "aggrega mcp" as
-https://aggrega.ai/docs/authoring/setup/ describes.
+https://aggrega.ai/docs/install/ describes.
 ```
 
 **`aggrega skills install` flags**
