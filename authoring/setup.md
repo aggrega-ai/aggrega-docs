@@ -35,8 +35,9 @@ What the command does:
 - **It picks the default binary for your machine** from the latest release: Linux and macOS on 64-bit x86 or 64-bit ARM, Windows on 64-bit x86. It refuses any other system or processor with a message saying which it found or where to turn instead. On a Mac with Apple silicon it picks the Apple silicon binary, even from a shell running through Rosetta 2.
 - **It checks the binary against the release's `SHA256SUMS`** before installing anything. A download whose SHA-256 digest differs from the one the list gives is deleted, nothing is installed, and the command stops with a message naming both digests.
 - **It installs the binary for you alone**, as `~/.local/bin/aggrega` on Linux and macOS and as `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows, creating the folder when it is missing and replacing an earlier copy there in one step, so running the command again updates the one you have. It never uses `sudo`. On Windows it also removes the mark a file downloaded from the internet can carry, as `Unblock-File` does in [the manual steps](#the-windows-prebuilt-binary). On macOS it downloads with `curl`, so the binary it installs carries no quarantine mark (see [The macOS prebuilt binary](#the-macos-prebuilt-binary)).
-- **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints the line that puts it there and names the file your shell reads it from: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, which takes a `fish_add_path` line, and `~/.profile` for any other shell. It edits none of them: add the line and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it.
+- **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints the line that puts it there and names the file your shell reads it from: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, which takes a `fish_add_path` line, and `~/.profile` for any other shell. It does not add that line itself: add it and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it.
 - **It prints the installed version** by running the binary, and adds a note when another `aggrega` comes before the one it installed on your `PATH`.
+- **It ends with the next steps**, one line to copy for each: the command that sets up shell completion for your shell, as [Set up shell completion as you install](#set-up-shell-completion-as-you-install) describes; the `aggrega skills install` command that adds the Aggrega skill to an AI assistant, with `aggrega skills list` naming the assistants it installs for; and the address of [Connect an MCP client](#connect-an-mcp-client) below.
 
 `install.sh`, the Linux and macOS script, needs `curl` or `wget`, `uname`, and `sha256sum` or `shasum`. `install.ps1`, the Windows one, runs in Windows PowerShell 5.1 and in PowerShell 7.
 
@@ -57,6 +58,40 @@ In PowerShell, set it in the window first; it stays set there until you remove i
 $env:AGGREGA_VERSION = "<version>"
 irm https://aggrega.ai/install.ps1 | iex
 ```
+
+#### Set up shell completion as you install
+
+With `--completion`, `install.sh` also sets up shell completion, so that the Tab key completes `aggrega` commands and flags. Options go after `sh -s --`, which hands them to the script `sh` reads from the pipe:
+
+```bash
+curl -fsSL https://aggrega.ai/install.sh | sh -s -- --completion
+```
+
+`irm … | iex` passes no option to a script, so in PowerShell run it as a script block, which takes `-Completion`:
+
+```powershell
+& ([scriptblock]::Create((irm https://aggrega.ai/install.ps1))) -Completion
+```
+
+It sets completion up for you alone, without administrator rights, for the shell your `SHELL` setting names, or in PowerShell for the PowerShell it runs in. It uses the script the installed binary's own `aggrega completion` writes, and names every file it writes or changes:
+
+- **bash**: it writes the script into `~/.local/share/bash-completion/completions`, the folder the bash-completion package reads your own completions from. Bash completion for `aggrega` needs that package.
+- **zsh**: it writes `_aggrega` into `~/.local/share/zsh/site-functions` and adds three lines to `~/.zshrc` that put that folder on zsh's function path and load it, running `compinit` where nothing in the file ran it first.
+- **fish**: it writes `aggrega.fish` into `~/.config/fish/completions`, which fish reads on its own.
+- **PowerShell**: it writes the script as `%LOCALAPPDATA%\aggrega\completion.ps1` and adds two lines that load it to your profile for every host of the PowerShell it runs in, `$PROFILE.CurrentUserAllHosts`. Windows PowerShell and PowerShell 7 keep separate profiles, so run it from each one you use. A profile runs only where the execution policy a new window takes is `RemoteSigned`, `Unrestricted` or `Bypass`; under any other, such as `Restricted`, it writes nothing and says which policy it found. It never changes the policy.
+
+`XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `BASH_COMPLETION_USER_DIR` and `ZDOTDIR` move those folders and files as each shell reads them. A new terminal or window loads the completion. Running the command again rewrites a script only when the installed `aggrega` writes a different one, and adds the lines to `~/.zshrc` or the profile only once; that is also how to add completion to an install you already have, since the command installs the binary again on the way.
+
+**When completion cannot be set up** — a shell it does not set up, such as `dash`, a folder it cannot write, or a PowerShell execution policy that runs no profile — the binary is still installed and runs. The command says why the step failed, prints the next steps, and ends with status `3`. The statuses are:
+
+| Status | Meaning |
+|---|---|
+| `0` | `aggrega` is installed, and completion is set up where the option asked for it |
+| `1` | nothing was installed, or the installed `aggrega` did not run |
+| `2` | `install.sh` was given an option it does not take; it did nothing |
+| `3` | `aggrega` is installed and runs, but setting up shell completion failed |
+
+The PowerShell script never closes the window it runs in, so it leaves the status in `$LASTEXITCODE`, and every status but `0` ends in an error, which `powershell -Command` and `pwsh -Command` report as exit status `1`. An option it does not take is refused by PowerShell itself, before anything runs.
 
 ### Install with the Windows installer
 
