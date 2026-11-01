@@ -5927,9 +5927,9 @@ Emitted message, quoting what the verifier reported:
 
 A reference that resolves to an artifact of some other kind — a catalog entity, a plugin — is rejected rather than cached as documentation, so a mis-pointed reference fails where it is pointed rather than later as a bundle that cannot be read.
 
-**Where it arises.** The documentation bundle is acquired into the cache every project on the machine shares, from the workspace's configured registry under the reserved `docs` namespace: by the assistant-facing server once, when it starts and before it answers anything, and by `aggrega explain` and an editor's explanation of a code the first time either needs it — in each case only where the machine holds no copy the workspace's signature check admits. This is the check every acquisition runs on what came back.
+**Where it arises.** The documentation bundle is acquired into the cache every project on the machine shares, from the workspace's configured registry under the reserved `docs` namespace: by the assistant-facing server once, when it starts and before it answers anything, by `aggrega explain` and an editor's explanation of a code the first time either needs it, and by `aggrega scaffold --example` — in each case only where the machine holds no copy the workspace's signature check admits. This is the check every acquisition runs on what came back.
 
-**It never stops a session.** The acquisition reports its outcome on the server's log stream and the connection proceeds either way; what a rejected artifact costs is the documentation resources, which then answer not-found for that session.
+**It never stops a session.** The acquisition reports its outcome on the server's log stream and the connection proceeds either way; what a rejected artifact costs is the documentation resources, which then answer not-found for that session. `aggrega scaffold --example` has nothing to write without the bundle, so there it is the command's refusal, and nothing is written.
 
 Emitted message, naming the reference and both media types:
 > docscache: `<reference>`@`<version>` has media type `"<what was found>"`, want `"<what a documentation bundle is>"`: docscache: artifact is not a documentation bundle
@@ -5940,9 +5940,9 @@ Emitted message, naming the reference and both media types:
 
 <!-- covers: pkg/docscache.ErrPageNotFound -->
 
-A condition the documentation resource surface absorbs. A documentation bundle was cached and its contents verified, and the page asked for is not in it. It is distinct from having no bundle at all: the bundle is present and sound, and the entry is missing from it.
+A documentation bundle was cached and its contents verified, and the page asked for — or, for `aggrega scaffold --example`, the example's directory — is not in it. It is distinct from having no bundle at all: the bundle is present and sound, and the entry is missing from it.
 
-**It reaches no build and no diagnostic.** Its one consumer is the surface that serves documentation pages to an editor or an assistant, and that surface turns it into an ordinary not-found answer for the resource that was requested. So the condition is answered where it arises and never becomes a message anyone reads.
+**It reaches no build.** The surface that serves documentation pages to an editor or an assistant turns it into an ordinary not-found answer for the resource that was requested. `aggrega scaffold --example` reports it as a refusal naming the example and the bundle, followed by a pointer to `aggrega scaffold --example --list`, which prints the examples the bundle does carry, and writes nothing.
 
 **Which of the two not-found answers you get is worth knowing apart**, even though the surface renders them the same. This one means the bundle is cached and sound and the page is not in it. The other — no bundle the workspace may read, because none is cached or the only copy is one the workspace's signature check refuses — means the acquisition did not complete, and the server's log stream says why.
 

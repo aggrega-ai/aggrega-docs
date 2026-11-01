@@ -1,6 +1,6 @@
 # aggrega scaffold
 
-Draft a starter document for an entity kind from its schema
+Draft a starter document for an entity kind, or write a runnable example into a new directory
 
 <!-- BEGIN GENERATED: cli-scaffold -->
 **Synopsis**
@@ -53,6 +53,8 @@ An example's files are written only as files and directories inside the director
 
 ## What it does
 
+The command has two forms. `aggrega scaffold <kind>` drafts a starter document from a kind's schema and prints it, which is what this section and the next three describe. `aggrega scaffold --example <name>` writes one of the documentation's runnable examples into a new directory instead — see [Starting from a runnable example](#starting-from-a-runnable-example).
+
 `aggrega scaffold <kind>` prints a starter document for one entity kind to standard output. The document carries exactly the fields that kind's schema requires: `apiVersion` and `kind` are filled in, because the schema fixes them, and every other required value is left as a placeholder for you to replace.
 
 The optional `[name]` seeds `metadata.name` for a kind whose schema requires one:
@@ -78,7 +80,7 @@ The kind is the lowercase-hyphenated schema token — `component`, `aggregate`, 
 
 **The document comes from the kind's own contract and from nothing else.** It is not a worked example. There is no namespace, no category, no label values filled in for you, and no commented suggestion of what people usually write — because none of those is something the compiler requires. A catalog chooses its own naming, its own categories and its own directory layout; the schema decides the fields, and the schema is all this command reads. A starter document that guessed at the rest would teach you a rule that does not exist.
 
-**It writes no file.** The document goes to standard output, so a redirect decides where it lands and nothing on disk is replaced without you asking for it:
+**Drafting writes no file.** The document goes to standard output, so a redirect decides where it lands and nothing on disk is replaced without you asking for it:
 
 ```bash
 aggrega scaffold component my-service > my-service.yaml
@@ -103,6 +105,66 @@ What each value takes is read from the kind's own schema: the values it accepts 
 
 The starter document is the same bytes whichever surface asks for it. An AI assistant connected through [`aggrega mcp`](aggrega-mcp.md) reaches it as the `scaffold` tool, which returns the document as text alongside a machine-readable payload. An editor driving [`aggrega serve`](aggrega-serve.md) reaches it at `aggrega/scaffoldEntity`. The document is derived from the schema once, so the one you draft at a terminal and the one an assistant drafts for you are byte for byte identical.
 
+Writing a runnable example is offered on fewer surfaces. Neither the `scaffold` tool nor `aggrega/scaffoldEntity` writes one. An assistant connected over standard input and output reaches it only through `cli-scaffold`, the tool that runs this command in a separate process: sent `example` with the example's name as its argument, it writes the example as the command does, a relative directory resolving in the folder the command runs in, and hands back what the command printed. Because of that form, the capability index reports `cli-scaffold` as writing. Over HTTP, where no command tool is offered, and from an editor, there is no route to it.
+
+## Starting from a runnable example
+
+The documentation carries runnable examples — each a directory holding an Aggregate, its Releases and whatever else it builds from, with a page saying how to build it. `--example` writes one of them into a new directory, so you can start from a working project rather than from a blank one:
+
+```bash
+aggrega scaffold --example redis-cache
+```
+
+```
+Wrote the example redis-cache into redis-cache (12 files).
+
+Next:
+
+  cd redis-cache
+  # Local development (Docker Compose), no authentication
+  aggrega build --release release-compose.yaml --auto-pull
+  ...
+
+Its page, redis-cache/README.md, explains what it shows.
+```
+
+**What it writes, and where.** The example's files, as the documentation carries them, into the directory you name as the second argument — or, when you name none, a directory called after the example in the folder you run the command in. The directory must not exist yet, or must be empty. Anything else is refused and left exactly as it was: a directory that holds a file, a file standing at that path, or a link. Directories above it that do not exist yet are created. No file of the example is left anywhere else, and none is put in place before all of them are written: they are written aside first and moved in once every one of them is there.
+
+**The commands it prints next** are the ones the example's own page gives: the first `sh`, `bash` or `shell` block under the page's `## Build` heading, as the page writes it, comments included, after a `cd` into the directory. An example whose page has no such block is answered with the path of its page instead.
+
+**Which examples there are.** `--list` prints every example, once each, in name order — its name, the level its page declares, and the first sentence of its page — and writes nothing:
+
+```bash
+aggrega scaffold --example --list
+```
+
+```
+EXAMPLE                LEVEL         DESCRIPTION
+...
+redis-cache            start         This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
+...
+```
+
+The list is the documentation's own list of examples, the one published beside them as [Examples by product and capability](../examples/by-product-and-capability.md). A name the bundle carries no example under is refused, pointing you at `--list`, and nothing is written.
+
+**Where the examples come from.** They are read from the documentation bundle — the signed archive of the published documentation that [`aggrega explain`](aggrega-explain.md) reads its walk-throughs from — published on your workspace's default registry. The bundle read is the one published for the version of `aggrega` you are running. Where none is published for that version, it is the newest one published for an earlier release, and the command says so on standard error:
+
+```
+note: no documentation is published for 0.9.1; the examples are read from the documentation published for 0.9.0, the newest before it
+```
+
+A build of `aggrega` made from some commits after a release — one whose `aggrega version` reads like `0.9.0-12-g1a2b3c4d` — reads the documentation of the release it was built after, `0.9.0` here, or an earlier one where that is not published. A build stamped with no release number reads the documentation of its own version or none.
+
+**It is verified before it is used.** The bundle is fetched through the same network settings as every other registry read, and its signature is checked against your workspace's signature policy for that registry before it is kept — and again before a copy already on the machine is read, so a copy another project's looser policy let in is not used under yours. A bundle your policy does not accept is refused, and nothing is written.
+
+**It is fetched once per machine.** The bundle is kept in the cache every Aggrega project on the machine shares — see [`aggrega cache`](aggrega-cache.md) — so a second example, or a second project, needs no second download, and `aggrega explain` reads the same copy where both read the same version.
+
+**Offline, it reads only what is cached.** In an offline workspace nothing is fetched: an example is written from a copy already on the machine that your policy admits — the one for this version, or else the newest earlier one cached — and with none, the command refuses with the offline refusal every network read gives, naming how to allow the network.
+
+**A bundle carrying something unexpected is refused whole.** The bundle comes from a registry, so the extraction trusts nothing about its layout: an entry whose name would land outside the directory you named, or outside the bundle, and an entry that is a link or anything other than a file or a directory, each refuse the whole example, naming the entry, and nothing is written. An executable file in the example stays executable.
+
+**The workspace's configuration is read.** The default registry and the signature policy come from it, so a configuration file that is a link leading out of the workspace stops the example form as it stops every other command that reads the configuration — see [the workspace boundary](workspace-boundary.md).
+
 ## Examples
 
 Draft an unnamed Release and read it on the terminal:
@@ -122,6 +184,13 @@ Check what you still owe before filling anything in:
 ```bash
 aggrega scaffold component my-service > my-service.yaml
 aggrega validate my-service.yaml
+```
+
+See which runnable examples there are, then write one into a directory of your choosing:
+
+```bash
+aggrega scaffold --example --list
+aggrega scaffold --example redis-cache my-cache
 ```
 
 For the authoring loop this command starts — draft the shape, fill the placeholders, validate — see [Getting Started with Authoring](../../authoring/getting-started.md).
