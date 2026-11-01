@@ -1,0 +1,66 @@
+/*
+ * The site's rules for the accessibility panel (@cognitio/a11y), whose own
+ * stylesheet is loaded before this file.
+ *
+ * The panel's colours, font and radii come from the brand's theme role tokens,
+ * so the panel and its reading mode follow the light and dark themes. They are
+ * declared on :root, where reading mode, drawn outside the panel, reads them;
+ * the home site and the catalog declare the same values.
+ */
+:root {
+  --a11y-font-family: var(--font-sans);
+  --a11y-button-background: var(--color-link);
+  --a11y-button-icon: var(--color-bg);
+  --a11y-panel-background: var(--color-bg);
+  --a11y-panel-text: var(--color-text);
+  --a11y-muted-text: var(--color-text-muted);
+  --a11y-border: var(--color-border);
+  --a11y-tile-background: var(--color-surface);
+  --a11y-tile-active-background: var(--color-border);
+  --a11y-accent: var(--color-link);
+  --a11y-on-accent: var(--color-bg);
+  --a11y-reading-button-background: var(--color-bg);
+  --a11y-radius: var(--radius-md);
+  --a11y-control-radius: var(--radius-sm);
+}
+
+/*
+ * The panel's letter spacing and text alignment act on a <main> that is a direct
+ * child of the shell. Starlight places <main> deeper, inside its content
+ * columns, so these rules apply the same two preferences, with the same values,
+ * to the <main> it renders.
+ */
+html.a11y-letter-spacing .site-shell main * {
+  letter-spacing: var(--a11y-letter-spacing) !important;
+  word-spacing: calc(var(--a11y-letter-spacing) * 2) !important;
+}
+html.a11y-align-left .site-shell main :is(p, li, h1, h2, h3, h4, h5, h6, td, th, dd, blockquote) {
+  text-align: left !important;
+}
+html.a11y-align-center .site-shell main :is(p, li, h1, h2, h3, h4, h5, h6, td, th, dd, blockquote) {
+  text-align: center !important;
+}
+html.a11y-align-right .site-shell main :is(p, li, h1, h2, h3, h4, h5, h6, td, th, dd, blockquote) {
+  text-align: right !important;
+}
+
+/*
+ * The panel's button sits at the bottom left of the window. On a wide screen
+ * the sidebar stops above it, so no entry of the sidebar is ever under the
+ * button. On a narrow screen the button is over the content and over the open
+ * menu, so the page and the menu end with room enough that their last entries —
+ * the menu's theme and language selectors among them — scroll clear of it.
+ */
+@media (min-width: 50rem) {
+  .sidebar-pane {
+    inset-block-end: 5.5rem;
+  }
+}
+@media (max-width: 49.99rem) {
+  .sidebar-content {
+    padding-bottom: 6rem;
+  }
+  .site-shell main {
+    padding-bottom: 6rem;
+  }
+}

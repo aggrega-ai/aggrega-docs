@@ -79,11 +79,13 @@ export default defineConfig({
       // not fully translated (src/routeData.ts). The banner adds, on every
       // translated page, the notice that it was machine-translated, linking to
       // the page in English. The footer adds a link to the privacy page in the
-      // reader's language.
+      // reader's language. The page frame wraps the page in the accessibility
+      // panel's shell and mounts the panel, its button at the bottom left.
       components: {
         Banner: "./src/components/Banner.astro",
         Footer: "./src/components/Footer.astro",
         Head: "./src/components/Head.astro",
+        PageFrame: "./src/components/PageFrame.astro",
         Sidebar: "./src/components/Sidebar.astro",
       },
       locales: starlightLocales(),
@@ -122,11 +124,20 @@ export default defineConfig({
         dark: "@aggrega-ai/brand/logo/mark-dark.svg",
         alt: "Aggrega",
       },
+      // The accessibility panel's stylesheet, the two reading fonts it offers
+      // (downloaded only for a reader who picks one), and the site's rules for
+      // the panel (src/styles/a11y.css).
       customCss: [
         "@aggrega-ai/brand/tokens.css",
         "@aggrega-ai/brand/fonts.css",
         "@aggrega-ai/brand/typography.css",
         "./src/styles/brand.css",
+        "@cognitio/a11y/toolbar.css",
+        "@fontsource/atkinson-hyperlegible/400.css",
+        "@fontsource/atkinson-hyperlegible/700.css",
+        "@fontsource/opendyslexic/400.css",
+        "@fontsource/opendyslexic/700.css",
+        "./src/styles/a11y.css",
       ],
       sidebar: [
         { label: "Start Here", link: "/" },

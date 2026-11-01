@@ -52,6 +52,14 @@ served at `aggrega.ai/docs`.
   and digits stops the build, naming the variable. Every page's footer links to
   the privacy page the home site serves at the domain's root, in the page's
   language (`src/components/Footer.astro`).
+- **Accessibility panel.** Every page carries the reader's accessibility panel,
+  `@cognitio/a11y`, carried in `vendor/` (see `vendor/VENDORED.md`): its button
+  at the bottom left, rendered in the browser by `src/components/PageFrame.astro`,
+  which wraps Starlight's page frame in the element the panel's settings act
+  inside. Its configuration, `src/a11y-config.json`, is the same on the home site
+  and the catalog, so a reader's settings carry between the three; its texts are
+  `src/strings/accessibility-panel.json`, and its stylesheet, the two reading
+  fonts and the site's rules for it (`src/styles/a11y.css`) are in `customCss`.
 
 ## Versions
 
@@ -142,8 +150,8 @@ npm run dev       # local preview
   approach) would improve them.
 - Breadcrumb segments are humanised from route names, so an initialism such as
   "CLI" renders as "Cli" until a proper-noun map is added.
-- The sidebar's group labels, the version selector's accessible label and the
-  footer's privacy link label are written in English in the site project and
-  show in English on every language's pages.
+- The sidebar's group labels, the version selector's accessible label, the
+  footer's privacy link label and the accessibility panel's texts are written in
+  English in the site project and show in English on every language's pages.
 - Callout panels use the shared dark surface with the default per-type border; a
   per-type accent colour from the brand's semantic palette is a later refinement.
