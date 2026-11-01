@@ -1,5 +1,7 @@
 # Runnable Examples
 
+To start, [Getting started](../../getting-started.md) installs Aggrega and walks two of these examples step by step.
+
 Complete, forkable workspaces you can compile with the `aggrega` CLI. Each is a
 self-contained directory — a Developer-authored `Aggregate` and one or more
 `Release`/`Manifest` pairs — that builds with no setup beyond what its page names.

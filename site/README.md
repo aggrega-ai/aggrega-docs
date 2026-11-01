@@ -7,7 +7,7 @@ served at `aggrega.ai/docs`.
 ## How it is built
 
 - **Single source.** The site renders the repository's root `README.md`,
-  `install.md` and `learn.md` and the Markdown in `ai-assistants/`,
+  `getting-started.md`, `install.md` and `learn.md` and the Markdown in `ai-assistants/`,
   `architecture/`, `authoring/`, and `language-reference/` in place. There is no second copy of
   any page: the `docs` content collection (`src/content.config.ts`) points its
   loader at the repository root (`base: ".."`) and reads the same files the
@@ -17,8 +17,9 @@ served at `aggrega.ai/docs`.
   of the rendered body, and the title shows once.
 - **Sidebar.** The sidebar is configured in `astro.config.mjs`. It opens with a
   "Start here" group: the home, the pages for working with an AI assistant
-  (`ai-assistants/`), Install (`install.md`), and the Learn Aggrega path
-  (`learn.md`) — each page's address matching its place in the menu; the
+  (`ai-assistants/`), the Getting started quickstart (`getting-started.md`),
+  Install (`install.md`), and the Learn Aggrega path (`learn.md`) — each page's
+  address matching its place in the menu; the
   Authoring group lists the pages of `authoring/`. Every version is built with
   this one site project from its own tag's pages, and an entry naming a page the
   tag lacks would stop the build, so each entry that a published tag may lack
@@ -37,6 +38,11 @@ served at `aggrega.ai/docs`.
   for it. Workers static assets read `_redirects` at the root of a Worker's
   assets, above the directory of the pages, and the version build moves it
   there.
+- **The quickstart's commands.** Every command `getting-started.md` shows is one
+  the page it comes from gives: the example's own README, or `install.md` for
+  installing. `node scripts/check-getting-started-commands.mjs`, run from the
+  repository root, holds each command block of the page to its source and exits
+  non-zero naming the command that differs; `--help` describes the rule.
 - **The home.** The root `README.md` is plain Markdown. A remark plugin
   (`src/plugins/docs-home.mjs`) wraps its body in `.docs-home` and marks a list
   whose items each open with one bold link as a row of cards;

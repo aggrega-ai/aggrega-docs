@@ -96,6 +96,7 @@ function corpusLoader(patterns: string[]): Loader {
 // read the same pages.
 const pages = [
   "README.md",
+  "getting-started.md",
   "install.md",
   "learn.md",
   "ai-assistants/**/*.md",

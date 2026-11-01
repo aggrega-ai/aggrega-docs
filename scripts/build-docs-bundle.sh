@@ -7,8 +7,8 @@
 #
 # The bundle carries exactly the reader-facing documentation: the architecture
 # chapters, the language reference, the authoring guide, the AI assistant pages,
-# and the top-level README, install and Learn Aggrega pages — the pages the
-# documentation site publishes. It is NOT a catalog entity — it has no entity envelope and no kind —
+# and the top-level README, Getting started, install and Learn Aggrega pages —
+# the pages the documentation site publishes. It is NOT a catalog entity — it has no entity envelope and no kind —
 # so it rides the
 # generic data-artifact transport (`aggrega push-artifact`), not the
 # kind-dispatched `aggrega push`.
@@ -57,8 +57,8 @@ while [ "$#" -gt 0 ]; do
     -h|--help)
       printf 'Usage: build-docs-bundle.sh [--output PATH]\n'
       printf '  Packs architecture/, language-reference/, authoring/, ai-assistants/,\n'
-      printf '  README.md, install.md and learn.md into a deterministic .tar.gz for\n'
-      printf '  `aggrega push-artifact`.\n'
+      printf '  README.md, getting-started.md, install.md and learn.md into a\n'
+      printf '  deterministic .tar.gz for `aggrega push-artifact`.\n'
       printf '  Default output: dist/aggrega-docs.tar.gz\n'
       exit 0 ;;
     *) die "unexpected argument: $1" ;;
@@ -69,7 +69,7 @@ done
 # Ordered explicitly (not globbed) so the bundle's scope is a reviewed decision,
 # not whatever happens to sit in the tree. Each must exist; a missing member is
 # a packaging error, not a silently smaller bundle.
-MEMBERS=(architecture language-reference authoring ai-assistants README.md install.md learn.md)
+MEMBERS=(architecture language-reference authoring ai-assistants README.md getting-started.md install.md learn.md)
 for m in "${MEMBERS[@]}"; do
   [ -e "$DOCS_ROOT/$m" ] || die "expected documentation content missing: $m"
 done

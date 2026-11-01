@@ -190,8 +190,8 @@ export default defineConfig({
       ],
       sidebar: [
         // The sidebar opens with the ways in: the home, the pages for working
-        // with an AI assistant, installing, and the path through the
-        // documentation. The pages in this group are listed nowhere else in
+        // with an AI assistant, the quickstart, installing, and the path
+        // through the documentation. The pages in this group are listed nowhere else in
         // the sidebar.
         ...present({
           label: "Start here",
@@ -206,6 +206,7 @@ export default defineConfig({
                 "ai-assistants/what-it-can-do",
               ],
             },
+            "getting-started",
             { label: "Install", slug: "install" },
             "learn",
           ],
