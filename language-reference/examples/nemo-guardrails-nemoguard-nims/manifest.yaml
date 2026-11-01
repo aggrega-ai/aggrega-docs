@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: nemo-guardrails-nemoguard-nims-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The gateway's routing table is a configuration body, realized on this
+        # target alone, and the guard writes its NemoGuard rails only here,
+        # which is why this example is Kubernetes-only.
+        core/ai-agent/langgraph:1.0.0: helm/langgraph:1.0.0
+        core/datastore/valkey:1.0.0: helm/valkey:1.0.0
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/security/nemo-guardrails:1.0.0: helm/nemo-guardrails:1.0.0
+        core/security/trustyai-huggingface-detector:1.0.0: helm/trustyai-huggingface-detector:1.0.0
+        # The content-safety model is the NIM component under its own name, so
+        # the NIM's own Recipe realizes it: a StatefulSet running the NIM
+        # container directly, with no chart.
+        core/ai-model/nemoguard-content-safety:1.0.0: helm/nvidia-nim:1.0.0
+        core/security/nemoguard-jailbreak-detect:1.0.0: helm/nemoguard-jailbreak-detect:1.0.0
+    features:
+      type:
+        # The realization for this gateway: it checks the guard and the map, and
+        # writes the request policy that keeps every request but a chat
+        # completion away from the guard.
+        core/prompt-injection-shield:1.0.0: helm/prompt-injection-shield-litellm:1.0.0
+        # Every credential is a Secret that already exists in the namespace,
+        # named in the Release. This realization renders no resource, so no
+        # credential passes through a file this workspace writes.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

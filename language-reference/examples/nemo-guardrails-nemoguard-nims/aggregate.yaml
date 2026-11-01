@@ -1,0 +1,128 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: nemo-guardrails-nemoguard-nims
+  version: "1.0.0"
+  description: >
+    An agent whose model requests cross an AI gateway that sends each one
+    through NVIDIA NeMo Guardrails, which checks it with a prompt-injection
+    classifier and with two of NVIDIA's NemoGuard models — content safety and
+    jailbreak detection — before forwarding what it admits to the model. The
+    two NemoGuard models are licensed NVIDIA products the Release runs on its
+    own GPUs. This file, the Manifest and the Release are the whole of what
+    anyone authors here: every Component, Feature and Recipe named below ships
+    in the standard-library catalog.
+spec:
+  components:
+    # ── The agent ───────────────────────────────────────────────────────────
+    # A LangGraph agent, the Release's own application image. Its model is the
+    # gateway: the gateway carries model.aggrega.ai/api and publishes an
+    # endpoint and one alias, so the agent's Recipe delivers them as
+    # OPENAI_BASE_URL and OPENAI_MODEL.
+    agent:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: app.graph:graph
+        recursion_limit: 25
+      uses:
+        model:
+          gateway_model:
+            target: router
+            # The gateway asks callers for no key here, so the connection
+            # carries no credential and says so.
+            values:
+              unauthenticated: true
+        checkpointer_db:
+          run_state:
+            target: checkpointer
+
+    # Where the agent keeps its run state.
+    checkpointer:
+      type: core/datastore/valkey
+
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # One alias, typed into values.models. With the shield attached the gateway
+    # sends the alias to the guard over the OpenAI API, so its target is written
+    # openai/<model>, the model name the guard's upstream serves.
+    router:
+      type: core/gateway/litellm
+      values:
+        models:
+          - name: assistant
+            target: openai/gpt-4o-mini
+      features:
+        # The shield puts the guard on every model request's path. Its
+        # realization runs the guard's threshold as the sensitivity's, so the
+        # guard below keeps its default, 0.5, the one standard names.
+        shield:
+          type: core/prompt-injection-shield
+          values:
+            sensitivity: standard
+      uses:
+        guard:
+          screening:
+            target: guard
+
+    # ── The guard ───────────────────────────────────────────────────────────
+    # NeMo Guardrails' server in the model's path. For each chat request it
+    # sends the latest user message to three checks, and forwards what all
+    # three admit to the model API the Release names, presenting its own
+    # credential.
+    guard:
+      type: core/security/nemo-guardrails
+      features:
+        # The credential the guard presents to the model API. Only the data key
+        # is written here; the Release names the Secret that holds it.
+        upstream_key:
+          type: core/referenced-secret
+          values:
+            key: upstream-key
+      uses:
+        # The prompt-injection classifier the guard's own rail calls; required.
+        detector:
+          classifier:
+            target: detector
+        # NVIDIA's content-safety model: the guard asks it whether the message
+        # is safe against NVIDIA's harm categories.
+        content_safety:
+          safety:
+            target: safety
+        # NVIDIA's jailbreak classifier: the guard asks it whether the message
+        # is an attempt to make the model ignore its instructions. This rail
+        # lets the request through when the classifier cannot be reached.
+        jailbreak_detection:
+          jailbreak:
+            target: jailbreak
+
+    # TrustyAI's Hugging Face detector, running its default prompt-injection
+    # classifier, whose weights it fetches where it runs.
+    detector:
+      type: core/security/trustyai-huggingface-detector
+
+    # ── The NemoGuard models ────────────────────────────────────────────────
+    # Each fetches its model from NVIDIA with the NGC API key when it starts.
+    # Only the data key is written here; the Release names the Secret that holds
+    # the key, so no key appears in any file of this workspace.
+    #
+    # values.model is the name the content-safety NIM answers to, which it
+    # takes from its own model manifest; its model listing, /v1/models, shows
+    # it on the running server.
+    safety:
+      type: core/ai-model/nemoguard-content-safety
+      values:
+        model: llama-3.1-nemoguard-8b-content-safety
+      features:
+        ngc_api_key:
+          type: core/referenced-secret
+          values:
+            key: NGC_API_KEY
+    jailbreak:
+      type: core/security/nemoguard-jailbreak-detect
+      features:
+        ngc_api_key:
+          type: core/referenced-secret
+          values:
+            key: NGC_API_KEY

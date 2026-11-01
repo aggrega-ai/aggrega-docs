@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: nemo-guardrails-nemoguard-nims-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: nemo-guardrails-nemoguard-nims
+  manifest: nemo-guardrails-nemoguard-nims-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  #
+  # Every credential below is named, never written: each `origin` is the name of
+  # a Kubernetes Secret that already exists in the namespace the Release deploys
+  # to, created by whoever deploys it.
+  components:
+    agent:
+      infra:
+        # The application image. The catalog packages the agent runtime; the
+        # graph the agent runs is your own code.
+        image: ghcr.io/example/assistant:1.4.0
+
+    checkpointer: {}
+
+    router:
+      infra:
+        port: 4000
+
+    guard:
+      infra:
+        # The model API the guard forwards what it admits to, with its API
+        # path. A pointer string the guard resolves when it forwards; the
+        # compiler never contacts it.
+        upstream_endpoint: https://api.openai.com/v1
+        # The catalog names no image of the guard, and neither does this
+        # example: set this to a copy of the build you run, mirrored into a
+        # registry you control.
+        image: registry.example.com/mirror/nemo-guardrails-server:change-me
+      features:
+        upstream_key:
+          infra:
+            # The Secret holding the model API's key under the data key
+            # upstream-key.
+            origin: upstream-provider-key
+
+    detector:
+      infra:
+        # As for the guard: a copy of the build you run, in a registry you
+        # control.
+        image: registry.example.com/mirror/guardrails-detector-huggingface-runtime:change-me
+
+    safety:
+      infra:
+        # The content-safety NIM image you are entitled to pull, from NVIDIA's
+        # registry. The catalog names none.
+        image: nvcr.io/nim/nvidia/llama-3.1-nemoguard-8b-content-safety:change-me
+        # The image-pull Secret granting access to nvcr.io.
+        image_pull_secret: ngc-registry
+      features:
+        ngc_api_key:
+          infra:
+            # The Secret holding the NGC API key under the data key
+            # NGC_API_KEY.
+            origin: ngc-api-key
+
+    jailbreak:
+      infra:
+        image: nvcr.io/nim/nvidia/nemoguard-jailbreak-detect:change-me
+        image_pull_secret: ngc-registry
+      features:
+        ngc_api_key:
+          infra:
+            origin: ngc-api-key

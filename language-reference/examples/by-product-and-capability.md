@@ -20,11 +20,16 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/ai-agent/langgraph`
 
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 
 ### `core/ai-model/anthropic`
 
 - [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
+
+### `core/ai-model/nemoguard-content-safety`
+
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 
 ### `core/ai-model/ollama`
 
@@ -127,6 +132,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/datastore/valkey`
 
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [valkey-cache](valkey-cache/README.md) (`start`) — This lean example compiles a single **Valkey** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
 
@@ -174,6 +180,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 - [ai-gateway-log-masking](ai-gateway-log-masking/README.md) (`start`) — A support assistant has to work with customers' names and email addresses, so the model it calls must see them.
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 
 ### `core/gateway/nginx`
@@ -250,6 +257,11 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/security/nemo-guardrails`
 
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
+
+### `core/security/nemoguard-jailbreak-detect`
+
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 
 ### `core/security/openbao`
 
@@ -272,6 +284,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 ### `core/security/trustyai-huggingface-detector`
 
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 
 ### `core/storage/barman-cloud-plugin`
 
@@ -359,6 +372,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [nginx-gateway](nginx-gateway/README.md) (`start`) — This example compiles a small, real stack — an **NGINX** reverse-proxy gateway fronting a **web backend** — from one Developer-authored `Aggregate` to two targets.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
@@ -386,6 +400,7 @@ credential attachments and how each target delivers them.
 - [multikey-secret-synth](multikey-secret-synth/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
 - [mysql-standalone](mysql-standalone/README.md) (`start`) — This lean example compiles a single **MySQL** database from Developer-authored `Aggregate`s to two targets.
 - [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
 - [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
@@ -422,6 +437,7 @@ Features attached for something other than a credential, such as routing, monito
 - [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
