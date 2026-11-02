@@ -21,9 +21,13 @@ spec:
 
   source: ./charts/adminer
 
+  # The image serves Adminer on 8080, so the chart's container port and the
+  # Service's target port stay 8080 whatever port an operator sets; the chart's
+  # port value, from infra.port, is the Service's port, and provides.port is
+  # that Service port.
   provides:
     host: "{{ .context.instance_id }}"
-    port: "8080"
+    port: "{{ optional .infra `port` 8080 }}"
 
   valuesMapping: |
     {

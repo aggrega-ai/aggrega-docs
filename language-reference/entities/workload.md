@@ -239,9 +239,11 @@ Multiple services on a single Workload are common for exposing internal and exte
 | --- | --- | --- | --- |
 | `ClusterIP` | the workload's peers, on the target's own network | a Service of type `ClusterIP` | publishes nothing; peers reach the port on the compose network |
 | `Headless` | the same, with no cluster address | a Service of type `ClusterIP` with `clusterIP: None` | publishes nothing |
-| `NodePort` | beyond the target's own network | a Service of type `NodePort` | each port published on every host interface, as `<port>:<port>` |
+| `NodePort` | beyond the target's own network | a Service of type `NodePort` | each port published on every host interface, as `<service port>:<container port>` |
 | `LoadBalancer` | beyond the target's own network | a Service of type `LoadBalancer` | the same as `NodePort` |
-| `Loopback` | the host's own loopback address only | **halts the build**, naming the service | each port published on the IPv4 loopback address, as `127.0.0.1:<port>:<port>` |
+| `Loopback` | the host's own loopback address only | **halts the build**, naming the service | each port published on the IPv4 loopback address, as `127.0.0.1:<service port>:<container port>` |
+
+A service port's number and the container port it names are two numbers, as a Kubernetes Service's `port` and `targetPort` are: helm writes the entry's number as the Service `port` and targets the container port by its name, and compose publishes the entry's number on the host onto the container port's number. Where the two numbers are equal, compose writes that number on both sides.
 
 `Loopback` is for a port that something on the same machine reaches — a browser or an agent running on the host — and that nothing else should. On compose the binding is the IPv4 loopback address alone: the IPv6 loopback address `::1` is not bound, so address the port as `127.0.0.1` rather than through a name that may resolve to `::1`. A declared transport is spelled on the entry as on any published port, as in `127.0.0.1:5514:5514/udp`.
 

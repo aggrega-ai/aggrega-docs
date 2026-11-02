@@ -21,7 +21,10 @@ spec:
 
   # provides.host is the name of the Service that serves the UI: the helm
   # provider names the synthesized Service "<rendered_name>-<service-key>",
-  # here "<rendered_name>-default".
+  # here "<rendered_name>-default". The image serves Adminer on 8080, so the
+  # container port stays 8080 whatever port an operator sets; infra.port is
+  # the Service's port, which targets the container port by its name, and
+  # provides.port is that Service port.
   provides:
     host: "{{ .context.rendered_name }}-default"
     port: "{{ optional .infra `port` 8080 }}"
@@ -39,7 +42,7 @@ spec:
           {{ $k }}: "{{ $v | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
           {{- end }}
         ports:
-          http: {{ optional .infra `port` 8080 }}
+          http: 8080
     services:
       default:
         type: NodePort
