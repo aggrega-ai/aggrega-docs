@@ -121,14 +121,20 @@ export default defineConfig({
       // reader's language. The page frame wraps the page in the accessibility
       // panel's shell and mounts the panel, its button at the bottom right. The
       // language picker is a drop-down menu of links, each language other than
-      // the page's described by its name in the page's language.
+      // the page's described by its name in the page's language. The header
+      // carries the Aggrega menu the home site and the catalog show
+      // (src/site-nav.mjs), its wordmark leads to the home page, and its theme
+      // switch is one button.
       components: {
         Banner: "./src/components/Banner.astro",
         Footer: "./src/components/Footer.astro",
         Head: "./src/components/Head.astro",
+        Header: "./src/components/Header.astro",
         LanguageSelect: "./src/components/LanguageSelect.astro",
         PageFrame: "./src/components/PageFrame.astro",
         Sidebar: "./src/components/Sidebar.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
       },
       locales: starlightLocales(),
       disable404Route: true,

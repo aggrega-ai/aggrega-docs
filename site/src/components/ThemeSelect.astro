@@ -1,0 +1,60 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+
+// The theme switch, in place of Starlight's drop-down: one button flipping the
+// page between light and dark, drawn as the home site's and the catalog's are, a
+// moon in the light theme and a sun in the dark one. The choice is stored where
+// Starlight stores it, so Starlight's own script applies it before the page is
+// painted on every later page. Which icon shows is decided by the stylesheet
+// from the page's theme, so the button is right before the script runs.
+---
+
+<aggrega-theme-toggle>
+  <button type="button" class="toggle" aria-label={Astro.locals.t("themeSelect.accessibleLabel")}>
+    <Icon name="moon" size="1.25rem" class="moon" />
+    <Icon name="sun" size="1.25rem" class="sun" />
+  </button>
+</aggrega-theme-toggle>
+
+<script>
+  /** Where Starlight keeps the reader's theme. */
+  const storageKey = "starlight-theme";
+
+  class AggregaThemeToggle extends HTMLElement {
+    connectedCallback() {
+      this.querySelector("button")?.addEventListener("click", () => {
+        const root = document.documentElement;
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem(storageKey, next);
+        } catch {
+          // Storage disabled: the switch applies to this page and is not remembered.
+        }
+      });
+    }
+  }
+  customElements.define("aggrega-theme-toggle", AggregaThemeToggle);
+</script>
+
+<style>
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    background: none;
+    color: var(--sl-color-white);
+    cursor: pointer;
+  }
+  .toggle:hover {
+    background-color: var(--sl-color-gray-6);
+  }
+  :global([data-theme="dark"]) .moon,
+  :global([data-theme="light"]) .sun {
+    display: none;
+  }
+</style>

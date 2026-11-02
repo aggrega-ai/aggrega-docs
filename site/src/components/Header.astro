@@ -1,0 +1,128 @@
+---
+import config from "virtual:starlight/user-config";
+import { Icon } from "@astrojs/starlight/components";
+import LanguageSelect from "virtual:starlight/components/LanguageSelect";
+import Search from "virtual:starlight/components/Search";
+import SiteTitle from "virtual:starlight/components/SiteTitle";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+import { GITHUB_HREF, LABELS, catalogHref, docsHref } from "../site-nav.mjs";
+
+// The header, in place of Starlight's: the wordmark leading to the Aggrega home
+// page, this site's search, then the Aggrega menu the home site and the catalog
+// show in the same order and look (src/site-nav.mjs): the documentation, the
+// catalog, the examples and the GitHub repository, the theme switch and the
+// language picker. On a narrow screen the menu's links are left out and the
+// theme switch and the language picker move into Starlight's menu, as before.
+const route = Astro.locals.starlightRoute;
+const base = import.meta.env.BASE_URL;
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== "@astrojs/starlight/components/Search.astro";
+const newTabId = "site-nav-new-tab";
+---
+
+<div class="header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+  </div>
+  <div class="sl-flex print:hidden">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <nav aria-label="Aggrega" class="site-nav">
+      <a href={route.siteTitleHref}>{LABELS.docs}</a>
+      <a href={catalogHref(route.locale)}>{LABELS.catalog}</a>
+      <a href={docsHref(base, route.locale, "language-reference/examples/")}>{LABELS.examples}</a>
+      <a
+        href={GITHUB_HREF}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="icon-link"
+        aria-label={LABELS.githubStar}
+        aria-describedby={newTabId}
+        title={LABELS.githubStar}
+      >
+        <Icon name="github" size="1.25rem" />
+        <Icon name="star" size="1rem" />
+      </a>
+      <span id={newTabId} hidden>{LABELS.newTab}</span>
+    </nav>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .header {
+    display: flex;
+    gap: var(--sl-nav-gap);
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .title-wrapper {
+    overflow: clip;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    min-width: 0;
+  }
+
+  .right-group {
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-inline-end: 1rem;
+  }
+
+  .site-nav a {
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-nav a:hover {
+    color: var(--sl-color-text-accent);
+  }
+
+  .site-nav .icon-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 2.25rem;
+    padding-inline: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+  }
+
+  @media (min-width: 50rem) {
+    :global(:root[data-has-sidebar]) {
+      --__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+    }
+    :global(:root:not([data-has-toc])) {
+      --__toc-width: 0rem;
+    }
+    .header {
+      --__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+      --__main-column-fr: calc(
+        (
+            100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+              (2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+              var(--sl-content-width)
+          ) / 2
+      );
+      display: grid;
+      grid-template-columns:
+        minmax(calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))), auto)
+        1fr
+        auto;
+      align-content: center;
+    }
+  }
+</style>
