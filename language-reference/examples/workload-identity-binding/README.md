@@ -25,7 +25,7 @@ aggrega build --release release.yaml --auto-pull
 
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the
 example's own `./catalog` (the `local/compute/identity-app` Component and its
-`helm/identity-app` synth Recipe) and the sibling hub catalog (the
+`helm/identity-app` synth Recipe) and the hub registry (the
 `core/gcp-workload-identity` Feature and its FeatureRecipe). `--auto-pull` writes
 the lockfile a fresh clone lacks during the build.
 Three manifests land under `dist/helm/helm/`.

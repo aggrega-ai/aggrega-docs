@@ -68,8 +68,8 @@ aggrega pull --release release.yaml                 # resolve once, then build w
 aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
-This workspace resolves its entities through the `catalog_dirs` in
-`.aggrega-config.yaml`, so no `--catalog` flag is needed.
+This workspace resolves its entities from the default registry
+`.aggrega-config.yaml` names, so no `--catalog` flag is needed.
 
 The realization of the router's `selection` attachment runs one plugin that
 ships in neither the compiler nor the catalog, the gateway configuration step

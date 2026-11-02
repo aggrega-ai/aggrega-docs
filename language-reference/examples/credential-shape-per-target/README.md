@@ -273,8 +273,8 @@ aggrega build --release release-store.yaml --verify-determinism
   `manifest-local.yaml` apart from its own name and that one line.
 - `release-local.yaml`, `release-store.yaml` — the two Releases. Identical
   apart from their own names and which Manifest each points at.
-- `.aggrega-config.yaml` — points resolution at the sibling catalog; a standalone
-  clone resolves from the hub registry instead.
+- `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
+  from.
 
 The `origin` values here are placeholders. They are not credentials for any real
 service, and on the local target both are rendered into the output in the clear.

@@ -114,13 +114,12 @@ aggrega build --release release-negative-without-omits.yaml --auto-pull --verify
 aggrega build --release release-negative-stale-omits.yaml --auto-pull                          # halts; exits 1
 ```
 
-This workspace needs **the standard-library catalog checked out beside this
-repository**. `.aggrega-config.yaml` lists the workspace's own `catalog/` first,
-which holds the two teaching Recipes, and then
-`../../../../aggrega-hub/aggrega-catalog`, which supplies the Component and the
-standard-library Recipe; that path is relative to this directory. With it in
-place every entity resolves from those two directories and no registry
-credential is needed.
+`.aggrega-config.yaml` lists the workspace's own `catalog/`, which holds the
+two teaching Recipes; the Component and the standard-library Recipe resolve
+from `hub.aggrega.ai`, the default registry it names. With a checkout of the
+standard-library catalog, name its `aggrega-catalog` directory with `--catalog`
+and every entity resolves from those two directories, with no registry
+credential needed.
 
 `--auto-pull` fills each Release's lockfile during the build; lockfiles and the
 rendered output are generated, not shipped. Resolving a lockfile fetches the
@@ -368,8 +367,8 @@ release-negative-stale-omits.yaml    1      halt      OK: E0334, the expected se
 check: every build ended as expected.
 ```
 
-It needs what a single build needs: the sibling catalog, and the network for the
-chart. It uses the binary `./build-release.sh` resolves, so
+It needs what a single build needs: the standard-library catalog, and the
+network for the chart. It uses the binary `./build-release.sh` resolves, so
 `AGGREGA_BIN` chooses it; arguments after `--` reach every build. It refuses to
 start while a `dist/` sits in this directory, because it compares the trees the
 builds write, and it leaves none behind. Its exit status is the whole verdict,

@@ -29,8 +29,8 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
   `terraform/mariadb-rds`, the credential Feature type to
   `terraform/generated-secret`, and the backup Feature type to
   `terraform/backup-native`.
-- `.aggrega-config.yaml` — points resolution at the sibling catalog; a
-  standalone clone resolves from the hub registry instead.
+- `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
+  from.
 
 ## Build
 

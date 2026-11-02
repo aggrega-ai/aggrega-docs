@@ -68,8 +68,8 @@ aggrega pull --release release.yaml                 # resolve once, then build w
 aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
-This workspace resolves the catalog entities through the `catalog_dirs` in
-`.aggrega-config.yaml`; nothing is fetched from a chart repository.
+This workspace resolves the catalog entities from the default registry
+`.aggrega-config.yaml` names; nothing is fetched from a chart repository.
 
 The build prints, with `<workspace>` standing for this example's folder:
 

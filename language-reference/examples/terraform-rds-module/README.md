@@ -83,8 +83,8 @@ for what the engine does if you try.
   credential Feature type to `terraform/generated-secret`, and the backup
   Feature type to `terraform/backup-native`, which renders nothing: the Recipe
   reads the attachment and supplies the module's backup inputs itself.
-- `.aggrega-config.yaml` — points resolution at the sibling catalog; a
-  standalone clone resolves from the hub registry instead.
+- `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
+  from.
 
 ## The credential slot on a managed target
 

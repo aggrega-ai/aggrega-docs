@@ -59,8 +59,8 @@ aggrega pull --release release.yaml                 # resolve once, then build w
 aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
-This workspace resolves the catalog entities through the `catalog_dirs` in
-`.aggrega-config.yaml`. The gateway's own Recipe writes the log masking, so the
+This workspace resolves the catalog entities from the default registry
+`.aggrega-config.yaml` names. The gateway's own Recipe writes the log masking, so the
 build runs no plugin beyond those the compiler carries.
 
 The build prints, with `<workspace>` standing for this example's folder:

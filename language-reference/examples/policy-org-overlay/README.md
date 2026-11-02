@@ -165,11 +165,11 @@ reason a pipeline's build stops.
 
 ## Building
 
-**The standard-library catalog has to be checked out beside this repository.**
-`.aggrega-config.yaml` lists `../../../../aggrega-hub/aggrega-catalog`, relative
-to this directory, which supplies the Components, the Recipes, the Feature and
-its FeatureRecipe. Nothing is fetched from a registry, so the builds run offline
-and need no login. `--auto-pull` fills the lockfile during the build; the
+**The standard-library catalog supplies the Components, the Recipes, the
+Feature and its FeatureRecipe.** They resolve from `hub.aggrega.ai`, the default
+registry `.aggrega-config.yaml` names. With a checkout of the catalog named with
+`--catalog`, nothing is fetched from a registry, so the builds run offline and
+need no login. `--auto-pull` fills the lockfile during the build; the
 lockfile and the rendered output are generated, not shipped.
 
 With the team's file alone:
@@ -308,7 +308,7 @@ decision keys, see [the governance socket](../../plugins/policy-socket.md).
 - `manifest.yaml` — binds each component type and the secret Feature to its
   Docker Compose Recipe.
 - `release.yaml` — the one Release.
-- `.aggrega-config.yaml` — the team's file: the catalog search stack and the
+- `.aggrega-config.yaml` — the team's file: the default registry and the
   team's attachment.
 - `policies/team.rego` — the team's rule.
 - `org/config.yaml` — the organization's global configuration file and its

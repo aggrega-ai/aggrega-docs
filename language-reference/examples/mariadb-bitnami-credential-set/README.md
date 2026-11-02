@@ -33,10 +33,10 @@ aggrega build --release release.yaml --auto-pull
 
 The `mariadb-bitnami` Recipe resolves from this example's own local `catalog/`
 copy — an enterprise-authored local sourced Recipe — while the
-`core/datastore/mariadb` Component and the credential features resolve from the
-sibling hub catalog. Both directories are listed under `catalog_dirs` in
-`.aggrega-config.yaml`, where the local `catalog/` takes precedence. The Bitnami
-chart is pulled from its OCI source.
+`core/datastore/mariadb` Component and the credential features resolve from
+`hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names; the local
+`catalog/` is listed under `catalog_dirs` there. The Bitnami chart is pulled
+from its OCI source.
 
 ## What the credential produces
 

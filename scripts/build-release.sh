@@ -7,9 +7,10 @@
 #
 # The examples come in two shapes:
 #
-#   consumption  — a bare release.yaml plus a .aggrega-config.yaml whose
-#                  catalog_dirs supply the catalog. No local catalog/ dir; the
-#                  config drives entity resolution. Built with no --catalog flag.
+#   consumption  — a bare release.yaml plus a .aggrega-config.yaml naming the
+#                  default registry that supplies the catalog entities, and the
+#                  example's own catalog directory where it has one. Built with
+#                  no --catalog flag.
 #
 #   multi-target — release-<P>.yaml paired with a sibling catalog-<P>/ (same
 #                  <P> token, e.g. release-helm.yaml + catalog-helm/). Built with
@@ -43,10 +44,9 @@
 #     to meet this: pass --catalog explicitly after `--`, or write a config.
 #   * Rule 2 fires on a catalog_dirs KEY being declared, not on the directories it
 #     lists being present. The paths in an example's config are relative to that
-#     example, so a workspace copied away from its checkout keeps declaring paths
-#     that no longer resolve, and the build refuses the first of them, naming the
-#     entry. The script warns on stderr when it can see that has happened, and
-#     says so when it cannot read the list well enough to tell.
+#     example; a listed directory that is not there is refused by the build, which
+#     names the entry. The script warns on stderr when it can see that has
+#     happened, and says so when it cannot read the list well enough to tell.
 #   * Rule 1 reads the workspace.releases map in block style only, matching an
 #     entry by its key (the release file, bare or ./-prefixed, quoted or not). A
 #     map written in flow style is not read, and rule 1 then passes the flag.
@@ -112,7 +112,8 @@
 #                   <P> token (e.g. `helm` for release-helm.yaml). Optional when
 #                   the example has exactly one release file.
 #   -- EXTRA        Everything after `--` is forwarded to `aggrega build`
-#                   verbatim (e.g. --debug, --trace).
+#                   verbatim (e.g. --debug, --trace, or --catalog <dir> to read
+#                   a local copy of the catalog ahead of the registry).
 #
 # Environment:
 #   AGGREGA_BIN          Use this binary, unconditionally (see rule 1 above).
@@ -363,10 +364,9 @@ elif declares_catalog_dirs .aggrega-config.yaml; then
   rule="2 (.aggrega-config.yaml catalog_dirs drives resolution)"
 
   # Rule 2 says the config drives resolution; it does not check that what the
-  # config names is there. The paths are relative to this directory, so a
-  # workspace copied away from its checkout keeps declaring paths that no longer
-  # resolve, which the build refuses. Warn ahead of it when that is visible, and
-  # say so plainly when the list cannot be read.
+  # config names is there. The paths are relative to this directory, and the
+  # build refuses one that names nothing. Warn ahead of it when that is visible,
+  # and say so plainly when the list cannot be read.
   entries_read=0
   missing_dirs=""
   while IFS= read -r entry; do
@@ -383,7 +383,7 @@ elif declares_catalog_dirs .aggrega-config.yaml; then
     printf 'build-release: .aggrega-config.yaml declares catalog_dirs, but this script could not read the list (flow style, or a shape it does not parse). Whether those directories exist has NOT been checked.\n' >&2
   elif [ -n "$missing_dirs" ]; then
     printf 'build-release: .aggrega-config.yaml declares catalog_dirs that do not exist from %s: %s\n' "$(pwd)" "$missing_dirs" >&2
-    printf 'build-release: the build refuses a listed directory that does not exist; remove the entry to resolve those entities from the configured registry. Copying an example away from its checkout is the usual cause — the paths are relative to the example.\n' >&2
+    printf 'build-release: the build refuses a listed directory that does not exist; create it, or remove the entry. The paths are relative to the example.\n' >&2
   fi
 else
   rule="3 (configured/hub catalog fallback)"

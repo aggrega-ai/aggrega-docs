@@ -98,10 +98,9 @@ The rendered output and the lockfile are generated, not shipped: this example
 commits its inputs and regenerates everything else. `--auto-pull` resolves the
 lockfile during the build; `aggrega pull --release release-delivers.yaml` once
 beforehand does the same thing and lets later builds run with no flag at all.
-The catalog checkout is listed under `catalog_dirs` in `.aggrega-config.yaml`,
-which also names `hub.aggrega.ai` as the default registry, so a standalone
-consumer removes that entry and resolves the entities from the hub; neither the build nor
-`aggrega inspect` needs a `--catalog` flag.
+The catalog entities resolve from `hub.aggrega.ai`, the default registry
+`.aggrega-config.yaml` names, so neither the build nor `aggrega inspect` needs
+a `--catalog` flag.
 
 ## Read the output
 

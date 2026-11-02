@@ -178,10 +178,10 @@ aggrega build --release release-staging.yaml --auto-pull
 aggrega build --release release-production.yaml --auto-pull
 ```
 
-**The standard-library catalog has to be checked out beside this repository.**
-`.aggrega-config.yaml` lists `../../../../aggrega-hub/aggrega-catalog`, relative
-to this directory, which supplies every Component, Recipe and Feature here and
-the three Plugin entities. Nothing is fetched from a registry, so the builds run
+**The standard-library catalog supplies every Component, Recipe and Feature
+here and the three Plugin entities.** They resolve from `hub.aggrega.ai`, the
+default registry `.aggrega-config.yaml` names. With a checkout of the catalog
+named with `--catalog`, nothing is fetched from a registry, so the builds run
 offline and need no login. `--auto-pull` fills each Release's lockfile during the
 build; lockfiles and the rendered output are generated, not shipped.
 
@@ -411,7 +411,7 @@ sits in the product, [Governance and Compliance](../../../architecture/11-govern
 - `manifest.yaml` — binds each component type and the secret Feature to its
   Docker Compose Recipe. Shared by both Releases.
 - `release-staging.yaml`, `release-production.yaml` — the two environments.
-- `.aggrega-config.yaml` — the catalog search stack and the four governance
+- `.aggrega-config.yaml` — the default registry and the four governance
   attachments.
 - `policies/support-tier.rego` — the label-transform policy.
 - `policies/production-support.rego` — the verdict.

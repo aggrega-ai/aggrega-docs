@@ -43,8 +43,8 @@ Output blocks on this page are copied from a real run, per
   CloudFormation Manifest, so both assemble into a single stack.
 - `release-two-stacks.yaml` — the same intent split across two boundaries, so
   the server's reference to the database crosses a stack edge.
-- `.aggrega-config.yaml` — points resolution at the standard-library catalog
-  checked out beside this documentation.
+- `.aggrega-config.yaml` — names the hub registry the standard-library catalog
+  resolves from.
 
 The entities this example uses all live in that catalog. Nothing is copied in
 beside the release files.

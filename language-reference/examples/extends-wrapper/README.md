@@ -121,11 +121,10 @@ commits its inputs and regenerates everything else. `--auto-pull` resolves the
 lockfile during the build; `aggrega pull --release release-reviewed.yaml` once
 beforehand does the same thing and lets later builds run with no flag at all.
 
-Both the wrapper and the base it extends live in the shared catalog, whose
-checkout is listed under `catalog_dirs` in `.aggrega-config.yaml` — which also
-declares `hub.aggrega.ai` as the default registry, so a standalone consumer
-removes that entry and resolves the entities from the hub. Either way the build command needs no
-`--catalog` flag, and neither does `aggrega inspect` run from this directory.
+Both the wrapper and the base it extends live in the shared catalog, which
+resolves from `hub.aggrega.ai`, the default registry `.aggrega-config.yaml`
+declares. The build command needs no `--catalog` flag, and neither does
+`aggrega inspect` run from this directory.
 
 The rendered `dist/compose/docker-compose.yaml` carries the evidence:
 

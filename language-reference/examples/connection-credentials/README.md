@@ -68,8 +68,8 @@ aggrega pull --release release-matched.yaml                 # resolve, then buil
 aggrega build --release release-matched.yaml --auto-pull    # or resolve during the build
 ```
 
-The workspace resolves its entities through the `catalog_dirs` in
-`.aggrega-config.yaml`, so no `--catalog` flag is needed.
+The workspace resolves its entities from the default registry
+`.aggrega-config.yaml` names, so no `--catalog` flag is needed.
 
 The pull prints:
 

@@ -355,11 +355,11 @@ aggrega build --release release.yaml --config governance-cel.yaml --auto-pull
 aggrega build --release release-by-hand.yaml --auto-pull
 ```
 
-**The standard-library catalog has to be checked out beside this repository.**
-`.aggrega-config.yaml` lists `../../../../aggrega-hub/aggrega-catalog`, relative
-to this directory. That catalog supplies every Component, Feature, Recipe and
-FeatureRecipe here, and both engines' Plugin entities. Nothing is fetched from
-a registry, so the builds run offline and need no login. `--auto-pull` fills
+**The standard-library catalog supplies every Component, Feature, Recipe and
+FeatureRecipe here, and both engines' Plugin entities.** They resolve from
+`hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names. With a
+checkout of the catalog named with `--catalog`, nothing is fetched from a
+registry, so the builds run offline and need no login. `--auto-pull` fills
 each Release's lockfile during the build. Lockfiles and the rendered output are
 generated, not shipped.
 
@@ -434,7 +434,7 @@ expansion with no policy, see
 - `release.yaml` — the Release the policy annotates; only `gateway` writes an
   annotation.
 - `release-by-hand.yaml` — the control: every annotation written by hand.
-- `.aggrega-config.yaml` — the catalog search stack; no governance attachment.
+- `.aggrega-config.yaml` — the default registry; no governance attachment.
 - `governance-rego.yaml`, `governance-cel.yaml` — the policy attached at
   `annotation-transform` through each engine, each named with `--config`.
 - `governance-monitoring-as-string.yaml` — the planted mistake, named with

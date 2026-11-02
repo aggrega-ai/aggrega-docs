@@ -62,18 +62,19 @@ how the layer underneath is made.
 
 ## Build
 
-From this directory, with a checkout of the standard-library catalog
-available (in this repository layout it sits four levels up):
+From this directory, with the catalog entities resolved from `hub.aggrega.ai`,
+the default registry `.aggrega-config.yaml` names:
 
 ```bash
-aggrega pull --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
-aggrega build --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
+aggrega pull --release release.yaml
+aggrega build --release release.yaml
 ```
 
 The pull resolves every referenced entity and pins it in `release.lock`
-(identity + content digest; run it again to regenerate a stale lockfile,
-naming the catalog the build reads). The build reads that lockfile — without
-it, the build halts and names the two ways forward, the pull or `--auto-pull`
+(identity + content digest; run it again to regenerate a stale lockfile).
+With a checkout of the standard-library catalog, name its `aggrega-catalog`
+directory with `--catalog` on both commands to read the entities from there.
+The build reads that lockfile — without it, the build halts and names the two ways forward, the pull or `--auto-pull`
 — and renders `dist/compose/docker-compose.yaml`. The Release authors its components
 directly (no `boundaries:` block), so the compiler folds them into the
 synthesized default scope and emits flat under `dist/` — one boundary, no

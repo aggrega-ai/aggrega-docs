@@ -291,11 +291,11 @@ CEL engine, and `terraform` in the Release's file name for `helm`, `compose` or
 `cloudformation`, with their planted Releases `release-helm-unpinned.yaml`,
 `release-compose-unpinned.yaml` and `release-cloudformation-unencrypted.yaml`.
 
-**The standard-library catalog has to be checked out beside this repository.**
-`.aggrega-config.yaml` lists `../../../../aggrega-hub/aggrega-catalog`, relative
-to this directory, which supplies every Component, Recipe, Feature and
-FeatureRecipe here and carries both engines' Plugin entities. Nothing is fetched from a registry,
-so the builds run offline and need no login. `--auto-pull` fills each Release's
+**The standard-library catalog supplies every Component, Recipe, Feature and
+FeatureRecipe here and carries both engines' Plugin entities.** They resolve
+from `hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names. With a
+checkout of the catalog named with `--catalog`, nothing is fetched from a
+registry, so the builds run offline and need no login. `--auto-pull` fills each Release's
 lockfile during the build; lockfiles and the rendered output are generated, not
 shipped.
 
@@ -391,7 +391,7 @@ roles, the payloads and the decision keys, see
 - `release-<target>.yaml`, `release-<target>-unpinned.yaml`,
   `release-<target>-unencrypted.yaml` — a control and a planted violation per
   target.
-- `.aggrega-config.yaml` — the catalog search stack; no governance attachment.
+- `.aggrega-config.yaml` — the default registry; no governance attachment.
 - `governance-rego.yaml`, `governance-cel.yaml` — the rule attached at
   `render-verdict` through each engine, each named with `--config`.
 - `policies/house-rule.rego`, `policies/house-rule.cel` — the rule, once per

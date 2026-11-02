@@ -8,8 +8,8 @@
 # Usage: ./build-release.sh [RELEASE] [-- EXTRA aggrega build args]
 #   RELEASE is a release*.yaml filename or its <P> token; optional when this
 #   example has a single release file. The shared helper auto-discovers the
-#   catalog source (here the sibling hub catalog named in .aggrega-config.yaml)
-#   and echoes the equivalent direct aggrega build command. See that helper for
+#   catalog source (here the hub registry .aggrega-config.yaml names) and
+#   echoes the equivalent direct aggrega build command. See that helper for
 #   the full discovery rules and binary resolution.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

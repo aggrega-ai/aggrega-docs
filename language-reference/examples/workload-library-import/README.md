@@ -52,7 +52,7 @@ aggrega pull --release release.yaml   # pins BaseWorkloads in release.lock
 aggrega build --release release.yaml
 ```
 
-The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`
+The catalog resolves from the hub registry named in `.aggrega-config.yaml`
 (which supplies `BaseWorkloads` and the helm provider) plus this example's local
 `catalog/` (the `web-service` Component and Recipe). Manifests land under
 `dist/app/helm/` — the boundary's `directory:` followed by the provider

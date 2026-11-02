@@ -25,7 +25,7 @@ each the way its slot demands.
 aggrega build --release release.yaml --auto-pull
 ```
 
-The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
+The catalog resolves from the hub registry named in `.aggrega-config.yaml`,
 so no `--catalog` flag is needed, and `--auto-pull` writes the lockfile a fresh
 clone lacks during the build. Four manifests land under `dist/helm/helm/`.
 

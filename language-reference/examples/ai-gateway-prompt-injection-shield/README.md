@@ -54,8 +54,8 @@ aggrega pull --release release.yaml                 # resolve once, then build w
 aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
-This workspace resolves the catalog entities through the `catalog_dirs` in
-`.aggrega-config.yaml`. The shield's realization runs one plugin that ships in
+This workspace resolves the catalog entities from the default registry
+`.aggrega-config.yaml` names. The shield's realization runs one plugin that ships in
 neither the compiler nor the catalog, the gateway configuration step
 `pipeline-step/litellm-gateway-config`, which the resolution fetches from the
 registry `default_registry` names, `hub.aggrega.ai`.

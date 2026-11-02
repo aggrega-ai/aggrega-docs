@@ -176,8 +176,8 @@ render time came from the Component's declaration, not from the module.
   any real service.
 - `manifest.yaml` — binds the component type to the Terraform Recipe
   `terraform/external-object-store`, which sources its module locally.
-- `.aggrega-config.yaml` — points resolution at the sibling catalog; a standalone
-  clone resolves from the hub registry instead.
+- `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
+  from.
 
 Both credential halves are `parameters` rather than authored values because they
 are values an operator supplies and differ per environment. A Release cannot

@@ -26,9 +26,10 @@
 #     role, and write no dist/.
 #
 # Each build runs in its own copy of this workspace, made in a temporary
-# directory, with the catalog path in its .aggrega-config.yaml made absolute so
-# that it still resolves from there. Nothing in this directory is written: no
-# lockfile and no dist/.
+# directory. The configuration lists no catalog directory, so the catalog
+# entities come from the hub registry, unless the builds are given one — a
+# --catalog passed after --, or AGGREGA_CATALOG_DIRS in the environment.
+# Nothing in this directory is written: no lockfile and no dist/.
 #
 # Every build runs through the shared build-release helper, so the aggrega
 # binary is the one that helper resolves — AGGREGA_BIN, when it is set. Each
@@ -40,9 +41,7 @@
 #
 # Prints one line per build and the files the policy's attachments rendered,
 # and exits 1 if any outcome differs from its expectation, printing the output
-# of each build that differed. Exits 2 before building anything if the
-# standard-library catalog is not checked out where .aggrega-config.yaml
-# expects it.
+# of each build that differed.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HELPER="$HERE/../../../scripts/build-release.sh"
@@ -86,24 +85,16 @@ refusal_reason() {
 # The components the policy injects the planted string on.
 REFUSED="api worker"
 
-CATALOG_REL="../../../../aggrega-hub/aggrega-catalog"
-[ -d "$HERE/$CATALOG_REL" ] || die "the standard-library catalog is not checked out at $HERE/$CATALOG_REL, where .aggrega-config.yaml expects it"
-CATALOG_ABS="$(cd "$HERE/$CATALOG_REL" && pwd)"
-
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-# copy <dir>: a copy of this workspace in <dir>, its catalog path made absolute.
+# copy <dir>: a copy of this workspace in <dir>.
 copy() {
-  local dir="$1" cfg next
+  local dir="$1"
   mkdir -p "$dir"
-  cp -R "$HERE/aggregate.yaml" "$HERE/manifest.yaml" "$HERE/release.yaml" "$HERE/release-by-hand.yaml" \
-    "$HERE/governance-rego.yaml" "$HERE/governance-cel.yaml" "$HERE/governance-monitoring-as-string.yaml" \
-    "$HERE/policies" "$dir/"
-  cfg="$(cat "$HERE/.aggrega-config.yaml")"
-  next="${cfg//"$CATALOG_REL"/"$CATALOG_ABS"}"
-  [ "$next" != "$cfg" ] || die "no catalog path $CATALOG_REL in .aggrega-config.yaml to make absolute"
-  printf '%s\n' "$next" > "$dir/.aggrega-config.yaml"
+  cp -R "$HERE/.aggrega-config.yaml" "$HERE/aggregate.yaml" "$HERE/manifest.yaml" "$HERE/release.yaml" \
+    "$HERE/release-by-hand.yaml" "$HERE/governance-rego.yaml" "$HERE/governance-cel.yaml" \
+    "$HERE/governance-monitoring-as-string.yaml" "$HERE/policies" "$dir/"
   printf '# A --config file that attaches nothing.\n' > "$dir/no-policy.yaml"
 }
 

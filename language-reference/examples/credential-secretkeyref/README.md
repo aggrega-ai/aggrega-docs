@@ -24,8 +24,8 @@ aggrega build --release release-negative.yaml --auto-pull   # expected to fail (
 ```
 
 Every release resolves its catalog entities through this workspace's
-`.aggrega-config.yaml` — the catalog checkout beside this one, or the hub
-registry from a standalone clone — so no `--catalog` flag is needed, and
+`.aggrega-config.yaml`, from the hub registry it names as the default, so no
+`--catalog` flag is needed, and
 `--auto-pull` writes the lockfile a fresh clone lacks during the build.
 
 ## Helm — a referenceable Secret + `secretKeyRef`

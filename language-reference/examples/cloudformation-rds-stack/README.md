@@ -35,8 +35,8 @@ Output blocks on this page are copied from a real run, per
   **expected to fail.** Attaches the alarm twice to one component.
 - `manifest.yaml` — binds each component type and each attached Feature to the
   Recipe that implements it on this target.
-- `.aggrega-config.yaml` — points resolution at the sibling catalog; a
-  standalone clone resolves from the hub registry instead.
+- `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
+  from.
 
 Every release binds the database's `root_password` slot on its entry for
 `payments-db`, with `core/generated-secret`. RDS owns the administrator password on

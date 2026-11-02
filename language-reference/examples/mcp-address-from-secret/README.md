@@ -43,21 +43,20 @@ Two Releases share the one Aggregate, each with a Manifest of its own:
 ## Building
 
 ```bash
-aggrega build --release release-helm.yaml --auto-pull --offline       # → dist/kubernetes/
-aggrega build --release release-compose.yaml --auto-pull --offline    # → dist/local/
+aggrega build --release release-helm.yaml --auto-pull       # → dist/kubernetes/
+aggrega build --release release-compose.yaml --auto-pull    # → dist/local/
 ```
 
 Each Release writes to its own directory, so the two rendered trees coexist and
 can be compared side by side.
 
-The standard-library catalog has to be checked out beside this repository.
-`.aggrega-config.yaml` lists this workspace's own `catalog/` first, which holds
-the agent and its two Recipes, and then `../../../../aggrega-hub/aggrega-catalog`,
-relative to this directory, which supplies everything else. With both in place
-every entity resolves from those two directories, so the build completes with
-`--offline`, which refuses every network reach. `--auto-pull` writes each
-Release's lockfile during the build; lockfiles and the rendered output are
-generated, not shipped.
+`.aggrega-config.yaml` lists this workspace's own `catalog/`, which holds the
+agent and its two Recipes; everything else resolves from `hub.aggrega.ai`, the
+default registry it names. With a checkout of the standard-library catalog
+named with `--catalog`, every entity resolves from those two directories, so
+the build also completes with `--offline`, which refuses every network reach.
+`--auto-pull` writes each Release's lockfile during the build; lockfiles and
+the rendered output are generated, not shipped.
 
 The Kubernetes build prints, with `<workspace>` standing for this example's
 folder:

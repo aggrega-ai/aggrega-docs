@@ -86,12 +86,11 @@ than per Release.
 
 **Two things have to be in place before a first build:**
 
-- **The standard-library catalog, checked out beside this repository.**
-  `.aggrega-config.yaml` lists this workspace's own `catalog/` first, which holds
-  the claims assistant and the OPA engine's Plugin entity, and then
-  `../../../../aggrega-hub/aggrega-catalog`, which supplies everything else,
-  the Rego and CEL engines' Plugin entities included. That path is relative to
-  this directory.
+- **The standard-library catalog.** `.aggrega-config.yaml` lists this
+  workspace's own `catalog/`, which holds the claims assistant and the OPA
+  engine's Plugin entity. Everything else, the Rego and CEL engines' Plugin
+  entities included, resolves from the hub registry below, or from a checkout
+  of the catalog named with `--catalog`.
 - **The hub registry.** The data-masking realization writes its
   guardrails through one plugin that ships in neither the compiler nor the
   catalog, the gateway configuration step
@@ -403,7 +402,7 @@ opa      release-masking-off-route.yaml   1     halt      OK: E0005, the expecte
 check: every build ended as expected.
 ```
 
-It needs what a single build needs: the sibling catalog and the hub
+It needs what a single build needs: the standard-library catalog and the hub
 registry. It uses the binary `./build-release.sh` resolves, so `AGGREGA_BIN`
 chooses it; arguments after `--` reach every build, so `./check.sh -- --offline`
 runs it without the network once everything it pulls is cached. It refuses to

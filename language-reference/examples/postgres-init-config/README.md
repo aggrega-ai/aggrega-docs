@@ -29,7 +29,7 @@ aggrega build --release release-bare.yaml --auto-pull
 aggrega build --release release-config.yaml --auto-pull
 ```
 
-The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
+The catalog resolves from the hub registry named in `.aggrega-config.yaml`,
 so no `--catalog` flag is needed, and `--auto-pull` writes the lockfile a fresh
 clone lacks during the build. The bare release writes three files under
 `dist/helm/helm/`; the configured release writes those three plus two more under

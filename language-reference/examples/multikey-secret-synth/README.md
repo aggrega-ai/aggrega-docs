@@ -20,7 +20,7 @@ aggrega build --release release.yaml --auto-pull
 
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the
 example's own `./catalog` (the `local/compute/app` Component and its
-`helm/app` synth Recipe) and the sibling hub catalog (the multi-key credential
+`helm/app` synth Recipe) and the hub registry (the multi-key credential
 Feature, its FeatureRecipe, and the helm Provider). `--auto-pull` writes the
 lockfile a fresh clone lacks during the build. Three manifests land under
 `dist/helm/helm/`.

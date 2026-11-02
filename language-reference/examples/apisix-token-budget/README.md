@@ -59,7 +59,7 @@ aggrega build --release release.yaml --auto-pull    # or resolve during the buil
 
 Resolving pins the APISIX chart the gateway's Recipe renders, fetched from the
 chart's own repository, so it needs the network. This workspace resolves the
-catalog entities through the `catalog_dirs` in `.aggrega-config.yaml`.
+catalog entities from the default registry `.aggrega-config.yaml` names.
 
 The build prints, with `<workspace>` standing for this example's folder:
 

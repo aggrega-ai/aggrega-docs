@@ -88,8 +88,8 @@ aggrega build --release release.yaml --auto-pull    # or resolve during the buil
 
 Resolving pins the three charts the Recipes render — Envoy Gateway's and
 Envoy AI Gateway's from Docker Hub, cert-manager's from quay.io — so it needs
-the network. This workspace resolves the catalog entities through the
-`catalog_dirs` in `.aggrega-config.yaml`.
+the network. This workspace resolves the catalog entities from the
+default registry `.aggrega-config.yaml` names.
 
 Building with `--auto-pull` prints, with `<workspace>` standing for this example's folder:
 

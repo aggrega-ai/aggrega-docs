@@ -91,8 +91,8 @@ each run under. Every account-specific value there is a placeholder.
 
 ## Building it
 
-The workspace reads the standard-library catalog from a checkout beside this
-repository (`.aggrega-config.yaml` names it). Every Recipe here renders from the
+The workspace reads the standard-library catalog from the hub registry
+`.aggrega-config.yaml` names. Every Recipe here renders from the
 catalog alone, so every build runs offline once the lockfile is resolved.
 
 ```bash

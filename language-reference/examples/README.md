@@ -21,18 +21,18 @@ The examples come in two modes — the two ends of one curriculum:
   `catalog/` directory at the workspace root is read whether or not anything names
   it, so a workspace that authors teaching content of its own can simply keep it
   there. A workspace that carries an `.aggrega-config.yaml` also reads every
-  directory listed under `catalog_dirs` — the standard catalog checkout, and any
-  other directory it keeps entities in. The listed directories are searched first
-  and `catalog/` last, and the stack is first-win, so an entity in an
-  earlier-searched directory shadows one of the same identity in a later one: a
-  workspace whose own entity has to win over a standard-library one of the same
-  identity lists the directory holding it ahead of the checkout. A workspace that
-  authors nothing locally needs no local entry, and one that carries neither a
-  `catalog/` directory nor an `.aggrega-config.yaml` resolves entirely through the
-  configured registry. Writing `catalog_dirs` as an empty list says the workspace
-  has no local catalog at all. The paths in `catalog_dirs` are relative to the
-  workspace, so a copy taken somewhere else needs them adjusted before they
-  resolve again.
+  directory listed under `catalog_dirs`, each one a directory it keeps entities
+  in. The listed directories are searched first and `catalog/` last, and the
+  stack is first-win, so an entity in an earlier-searched directory shadows one
+  of the same identity in a later one. What no local directory declares — the
+  standard-library entities — resolves from the registry the configuration
+  names as `default_registry`, `hub.aggrega.ai`. A workspace that authors
+  nothing locally needs no local entry, and one that carries neither a
+  `catalog/` directory nor an `.aggrega-config.yaml` resolves entirely through
+  the configured registry. Writing `catalog_dirs` as an empty list says the
+  workspace has no local catalog at all. Every path in `catalog_dirs` names a
+  directory inside the workspace, so a copy of the whole workspace taken
+  somewhere else builds as it is.
 
   A multi-target workspace that keeps a separate catalog per target names each
   target's directories under `workspace.releases`, keyed by its Release file, so

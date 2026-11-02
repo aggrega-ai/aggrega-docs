@@ -135,8 +135,8 @@ placeholder.
 
 ## Building it
 
-The workspace reads the standard-library catalog from a checkout beside this
-repository (`.aggrega-config.yaml` names it). Velero and the Barman Cloud plugin
+The workspace reads the standard-library catalog from the hub registry
+`.aggrega-config.yaml` names. Velero and the Barman Cloud plugin
 are installed through their projects' own charts, so the two Kubernetes
 Releases need those projects' chart repositories reachable from the build;
 every other Release renders from the catalog alone.

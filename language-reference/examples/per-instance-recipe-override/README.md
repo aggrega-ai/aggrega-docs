@@ -51,10 +51,9 @@ provider ships in the standard catalog. The override lesson's own toys — the
 `example/compute/greeter` demo component and its two recipes (`greeter-blue` /
 `greeter-green`), which exist purely to make the per-instance override visible —
 live in the shared catalog under the `example/` publisher, alongside the
-standard-library entities. The catalog checkout is listed under `catalog_dirs`
-in `.aggrega-config.yaml`, which also declares `hub.aggrega.ai` as the default
-registry, so a standalone consumer removes that entry and resolves the entities from the hub — the
-build command needs no `--catalog` flag.
+standard-library entities. `.aggrega-config.yaml` declares `hub.aggrega.ai` as
+the default registry, so the entities resolve from the hub — the build command
+needs no `--catalog` flag.
 
 The rendered `dist/app/compose/docker-compose.yaml` shows the override firing —
 `greeter-default` runs `image: greeter:blue`, `greeter-special` runs

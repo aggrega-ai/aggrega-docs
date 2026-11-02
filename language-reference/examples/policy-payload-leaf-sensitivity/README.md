@@ -339,8 +339,8 @@ catch mechanically.
 
 Every entity this workspace consumes comes from the published standard-library
 catalog: the Component, the two Features, the Recipe, the two FeatureRecipes and
-the governance Plugin entity — read from the checkout listed under
-`catalog_dirs`, or from the hub registry for a standalone clone.
+the governance Plugin entity — read from the hub registry `.aggrega-config.yaml`
+names, or from a checkout of the catalog named with `--catalog`.
 
 `uri: governance/rego:0.8.6` names that Plugin entity. It is an identity: a
 `<pluginType>/<name>` coordinate plus a version, and both halves are part of the
@@ -351,17 +351,17 @@ in resolution: an attachment naming a version that no catalog directory, no
 registry and not the `aggrega` binary itself carries stops the build. The binary
 carries the engine's entity at its own release's version only.
 
-Built beside the catalog checkout, the example needs nothing else: every entity
-resolves from that checkout with no network, and the engine that runs is the one
-compiled into the `aggrega` binary. A standalone clone reads the entities from
-`hub.aggrega.ai`.
+Built with `--catalog` naming a checkout of the catalog, the example needs
+nothing else: every entity resolves from that checkout with no network, and the
+engine that runs is the one compiled into the `aggrega` binary. Without it the
+entities are read from `hub.aggrega.ai`.
 
-A standalone clone also needs a compiler of the release that published the
+A build reading the hub also needs a compiler of the release that published the
 plugin version the attachment names — for `governance/rego:0.8.6`, the `0.8.6`
 release of `aggrega`. The Rego engine is compiled into the CLI binary, and its
 version is the compiler release that ships it. A compiler of any other release,
 or one built from source between releases, carries a different build of the
-engine: a standalone build with it halts with `E0135` (`oci: content digest
+engine: a build reading the hub with it halts with `E0135` (`oci: content digest
 mismatch`), because the module that compiler carries does not match the digest
 the hub publishes for `governance/rego:0.8.6`. That halt is the plugin's digest
 check working, not a fault in the example.
@@ -384,7 +384,7 @@ check working, not a fault in the example.
 - `policy.rego` — the house rule, keyed on the per-leaf marking.
 - `policy-attachment-wide.rego` — the control, keyed on the whole-attachment
   answer. Not attached by default.
-- `.aggrega-config.yaml` — the catalog search stack and the governance
+- `.aggrega-config.yaml` — the default registry and the governance
   attachment.
 
 ## Build

@@ -56,8 +56,8 @@ under helm, with no change to developer intent.
 ## Variant A — local (Docker Compose): the bridge
 
 ```bash
-aggrega pull --release release-compose.yaml --catalog catalog-compose --catalog ../../../../aggrega-hub/aggrega-catalog
-aggrega build --release release-compose.yaml --catalog catalog-compose --catalog ../../../../aggrega-hub/aggrega-catalog
+aggrega pull --release release-compose.yaml --catalog catalog-compose
+aggrega build --release release-compose.yaml --catalog catalog-compose
 ```
 
 A parent `bridge` boundary holds two children, `frontend` (adminer) and
@@ -110,8 +110,8 @@ out of the box); a real deployment uses the credential subsystem.
 ## Variant B — Kubernetes (Helm): namespaces + cross-namespace DNS
 
 ```bash
-aggrega pull --release release-helm.yaml --catalog catalog-helm --catalog ../../../../aggrega-hub/aggrega-catalog
-aggrega build --release release-helm.yaml --catalog catalog-helm --catalog ../../../../aggrega-hub/aggrega-catalog
+aggrega pull --release release-helm.yaml --catalog catalog-helm
+aggrega build --release release-helm.yaml --catalog catalog-helm
 ```
 
 The same Aggregate, deployed to Kubernetes. Two **sibling** boundaries, each with
@@ -203,7 +203,7 @@ work that lives outside the neutral core.
 
 ```text
 cross-boundary-networking/
-├── .aggrega-config.yaml      # marks this folder as the workspace root; lists the standard catalog
+├── .aggrega-config.yaml      # marks this folder as the workspace root; names the hub registry
 ├── aggregate.yaml            # SHARED developer intent (both variants)
 ├── release-compose.yaml      # Variant A: parent bridge boundary + two networks
 ├── manifest-compose.yaml
@@ -213,10 +213,10 @@ cross-boundary-networking/
 └── catalog-helm/             # local adminer helm recipe (the components + the rest from standard)
 ```
 
-This example **consumes the standard library**. Each variant builds with a
-repeatable `--catalog`: its own local directory first, then the standard catalog
-(`--catalog catalog-<variant> --catalog ../../../../aggrega-hub/aggrega-catalog`),
-so the first-win search stack resolves local entities before the shared ones.
+This example **consumes the standard library**. Each variant builds with
+`--catalog catalog-<variant>`, its own local directory, and resolves what that
+directory does not declare from `hub.aggrega.ai`, the default registry
+`.aggrega-config.yaml` names, so local entities resolve before the shared ones.
 `core/datastore/postgres`, the shared `core/devtool/adminer` UI component, the
 `core/compose-bridge` and `core/k8s-dns-resolver` Features with their compose and helm
 FeatureRecipes, and the `compose`/`helm` providers come from the standard catalog. What

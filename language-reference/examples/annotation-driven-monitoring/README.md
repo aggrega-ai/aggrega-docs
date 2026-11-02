@@ -88,9 +88,8 @@ This example consumes `core/prometheus-exporter` and its ServiceMonitor
 FeatureRecipe (plus the `helm` provider) from the **standard library**. The
 `example/compute/service` demo component and its recipe live in the shared catalog
 under the `example/` publisher, alongside those standard-library entities. Its
-`.aggrega-config.yaml` lists the catalog checkout under `catalog_dirs` and
-declares `hub.aggrega.ai` as the default registry, so a standalone consumer
-removes that entry and resolves the entities from the hub — neither command needs a `--catalog` flag.
+`.aggrega-config.yaml` declares `hub.aggrega.ai` as the default registry, so the
+entities resolve from the hub — neither command needs a `--catalog` flag.
 
 | Component | Boundary | interval | port | path |
 | --- | --- | --- | --- | --- |

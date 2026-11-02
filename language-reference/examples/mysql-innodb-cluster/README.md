@@ -57,8 +57,8 @@ would be a second thing to keep in step for no gain.
   `release-replicated.yaml` — the operator's sizing.
   They differ in their `metadata.name` and in `server_instances`, and every other
   field is held equal on purpose so that one line is the whole difference.
-- `.aggrega-config.yaml` — points entity resolution at
-  the standard-library catalog. This example authors no entities of its own.
+- `.aggrega-config.yaml` — names the hub registry the standard-library catalog
+  resolves from. This example authors no entities of its own.
 
 ## Build
 

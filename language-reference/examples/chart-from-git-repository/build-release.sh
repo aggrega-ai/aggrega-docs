@@ -10,8 +10,8 @@
 #   required here because this example carries two: `chart`, which builds the
 #   chart out of the git repository, and `negative`, which demonstrates a loud
 #   guardrail and is expected to exit non-zero. The shared helper auto-discovers
-#   the catalog source (here this workspace's own catalog/ plus the sibling hub
-#   catalog named in .aggrega-config.yaml) and echoes the equivalent direct
+#   the catalog source (here this workspace's own catalog/ plus the hub
+#   registry named in .aggrega-config.yaml) and echoes the equivalent direct
 #   aggrega build command. See that helper for the full discovery rules and
 #   binary resolution.
 set -euo pipefail

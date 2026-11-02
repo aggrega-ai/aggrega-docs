@@ -20,9 +20,11 @@
 #
 # The two copies are made in a temporary directory. Each holds this workspace's
 # Aggregate, Manifest, production Release and policies, and an
-# .aggrega-config.yaml derived from this one with the catalog path made absolute,
-# so that it still resolves from there. No file in this directory is edited; the
-# two builds made here fill its lockfiles, as any build does.
+# .aggrega-config.yaml derived from this one. The configuration lists no catalog
+# directory, so the catalog entities come from the hub registry, unless the
+# builds are given one — a --catalog passed after --, or AGGREGA_CATALOG_DIRS in
+# the environment. No file in this directory is edited; the two builds made here
+# fill its lockfiles, as any build does.
 #
 # Every build runs through the build-release.sh helper, so the aggrega binary is
 # the one that helper resolves — AGGREGA_BIN, when it is set. Each build passes
@@ -35,8 +37,7 @@
 # Prints one line per build and the labels each node ends with, and exits 1 if
 # any outcome differs from its expectation, printing the output of each build
 # that differed. Exits 2 before building anything if a dist/ directory is
-# already here, or if the standard-library catalog is not checked out where
-# .aggrega-config.yaml expects it.
+# already here.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HELPER="$HERE/../../../scripts/build-release.sh"
@@ -106,10 +107,6 @@ SENTENCE='web is built for production and carries no ops.example.com/support-tie
 
 [ -e "$HERE/dist" ] && die "$HERE/dist exists; remove it first — the builds write dist/ and this script compares the trees they write"
 
-CATALOG_REL="../../../../aggrega-hub/aggrega-catalog"
-[ -d "$HERE/$CATALOG_REL" ] || die "the standard-library catalog is not checked out at $HERE/$CATALOG_REL, where .aggrega-config.yaml expects it"
-CATALOG_ABS="$(cd "$HERE/$CATALOG_REL" && pwd)"
-
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" "$HERE/dist"' EXIT
 
@@ -122,9 +119,6 @@ copy() {
   mkdir -p "$dir"
   cp -R "$HERE/aggregate.yaml" "$HERE/manifest.yaml" "$HERE/release-production.yaml" "$HERE/policies" "$dir/"
   cfg="$(cat "$HERE/.aggrega-config.yaml")"
-  next="${cfg//"$CATALOG_REL"/"$CATALOG_ABS"}"
-  [ "$next" != "$cfg" ] || die "no catalog path $CATALOG_REL in .aggrega-config.yaml to make absolute"
-  cfg="$next"
   case "$2" in
     none)
       next="${cfg%%$'\n'plugins:*}"
