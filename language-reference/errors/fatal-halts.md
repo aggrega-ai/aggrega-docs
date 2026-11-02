@@ -262,6 +262,24 @@ Emitted message:
 
 **How to fix:** add the `source:` pointer the overlay was written for, or remove the `valuesMapping` and let the attachment do its work another way — `artifacts:` to emit files of its own, `injectMapping:` to reshape what it delivers, or neither, for a pure-wiring attachment.
 
+### A pipeline declares one step id twice
+
+<!-- covers: pkg/validator/envelope.ErrDuplicatePipelineStepID -->
+
+A Recipe or FeatureRecipe declares the same `id` on two steps of its `spec.pipeline`. A step publishes the outputs it returns under its id, and a later step of the same pipeline reads them as `.steps.<id>.outputs`, so two steps sharing an id would leave that later step reading whichever of the two published last rather than the one you meant.
+
+The rule covers one document's own pipeline. A component's Recipe and the FeatureRecipes attached to it each run their pipeline separately, and each pipeline starts with no step outputs, so a Recipe step and an attached FeatureRecipe step may carry the same id.
+
+No schema can state this rule — JSON Schema has no keyword for a list whose entries are unique by one of their fields — so a schema-aware editor accepts such a document, and the check runs as the document is read, right after the schema check. Every surface that reads a Recipe or FeatureRecipe reports it: [`aggrega validate`](../cli/aggrega-validate.md) on the file or over the whole catalog, a build loading the catalog, a pull admitting a fetched entity, the editor's diagnostics, and a document edit, which is refused rather than written. A document that also fails its schema reports the schema's findings first, and this refusal once they are fixed.
+
+Each repeat is a finding of its own, positioned at the repeated `id` and naming the step that declared the id first, with its line and column. Where an id appears three times, both later steps name the first.
+
+Emitted message, for a FeatureRecipe whose second step repeats the first step's id. The category and this condition's short code, `E0370`, reach you in the bracketed head:
+
+> a pipeline declares one step id twice (FeatureRecipe, at `<path>`); `<line>`:`<column>`: spec.pipeline[1].id: step id `"<id>"` is already declared at spec.pipeline[0].id (line `<line>`, column `<column>`). give each step of the pipeline its own id, and point every `.steps.<id>` reference a later step makes at the step it means
+
+**How to fix:** rename one of the two steps, so each id is declared once. Then read every later step's `with:` and `when:` templates for `.steps.<id>` references to the id you kept, and point each at the step whose outputs it means — the rename is what makes the two steps' outputs separately reachable.
+
 ### A file cannot be read, or its bytes do not parse
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
@@ -5967,6 +5985,8 @@ A refusal on a document edit, not on a build. One structured edit — adding a c
 
 **A document that was already invalid reports it too.** The check runs even where the edit changed nothing, so an edit against a document the product would refuse to read says so rather than reporting success.
 
+**The check is the one every reading of the document applies**, so it also refuses a Recipe or FeatureRecipe whose pipeline declares one step id twice, a rule no schema can state; the objection after the sentence then opens with that condition's own sentence and advice, as described under [A pipeline declares one step id twice](#a-pipeline-declares-one-step-id-twice).
+
 Emitted message, carrying the schema's own objection after the sentence — the document kind and the file, then the position, the key at fault and what the schema said there — and closing with the advice:
 > the edit was refused because the resulting document would not be valid, and nothing was written: document envelope validation failed (`<kind>`, at `<path>`); `<line>`:`<column>`: `<field-path>`: … `<the schema's own objection>`. correct the document to match its kind's schema
 
@@ -6609,6 +6629,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0367` | `a scalar annotation value does not route to exactly one path of its binding` | A bare annotation value does not route to exactly one path of its binding |
 | `E0368` | `FeatureRecipe injectMapping output writes a key no delivery mechanism of the host reads` | An attached Feature's injectMapping output writes deliveries under a key nothing delivers |
 | `E0369` | `template reads a path as a value and iterates it, and the data holds nothing at that path` | A template reads and iterates a path that holds nothing |
+| `E0370` | `a pipeline declares one step id twice` | A pipeline declares one step id twice |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

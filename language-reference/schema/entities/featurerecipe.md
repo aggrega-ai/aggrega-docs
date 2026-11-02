@@ -86,7 +86,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `id` | string | yes | A unique programmatic identifier for this step, allowing downstream plugins to reference its outputs. Pattern: `^[a-zA-Z0-9_]+$`. |
+| `id` | string | yes | A programmatic identifier for this step, unique among the steps of this pipeline: a document declaring one id on two of its steps is refused when it is read. A later step of the same pipeline reads this step's outputs as `.steps.<id>.outputs`. Pattern: `^[a-zA-Z0-9_]+$`. |
 | `plugin` | string | yes | The reference to the Plugin entity this step runs, always scoped by the plugin's own socket type: `<pluginType>/<name>` with an optional version, as in `parser/yaml` or `parser/yaml:1.0.0`. The scope is mandatory rather than one form among several — an unscoped `name:version` is refused, because two sockets may hold a plugin of the same name and the scope is what makes the entity resolvable. The build resolves the entity to its content-addressed .wasm artifact — located from the plugin's identity and the configured registry, its digest pinned in the lockfile — and loads the bytes. A bare .wasm or artifact reference is not accepted here. |
 | `function` | string | yes | The exported Wasm function to invoke. |
 | `with` | string | no | Inline Go template evaluating to a JSON/YAML map that strictly satisfies this plugin's explicit input schema. |
