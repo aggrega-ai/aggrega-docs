@@ -53,7 +53,7 @@ provider ships in the standard catalog. The override lesson's own toys — the
 live in the shared catalog under the `example/` publisher, alongside the
 standard-library entities. The catalog checkout is listed under `catalog_dirs`
 in `.aggrega-config.yaml`, which also declares `hub.aggrega.ai` as the default
-registry, so a standalone consumer resolves the entities from the hub — the
+registry, so a standalone consumer removes that entry and resolves the entities from the hub — the
 build command needs no `--catalog` flag.
 
 The rendered `dist/app/compose/docker-compose.yaml` shows the override firing —

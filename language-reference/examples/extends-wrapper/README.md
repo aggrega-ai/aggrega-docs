@@ -124,7 +124,7 @@ beforehand does the same thing and lets later builds run with no flag at all.
 Both the wrapper and the base it extends live in the shared catalog, whose
 checkout is listed under `catalog_dirs` in `.aggrega-config.yaml` — which also
 declares `hub.aggrega.ai` as the default registry, so a standalone consumer
-resolves the entities from the hub. Either way the build command needs no
+removes that entry and resolves the entities from the hub. Either way the build command needs no
 `--catalog` flag, and neither does `aggrega inspect` run from this directory.
 
 The rendered `dist/compose/docker-compose.yaml` carries the evidence:

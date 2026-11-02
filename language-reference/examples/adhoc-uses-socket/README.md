@@ -100,7 +100,7 @@ lockfile during the build; `aggrega pull --release release-delivers.yaml` once
 beforehand does the same thing and lets later builds run with no flag at all.
 The catalog checkout is listed under `catalog_dirs` in `.aggrega-config.yaml`,
 which also names `hub.aggrega.ai` as the default registry, so a standalone
-consumer resolves the entities from the hub and neither the build nor
+consumer removes that entry and resolves the entities from the hub; neither the build nor
 `aggrega inspect` needs a `--catalog` flag.
 
 ## Read the output

@@ -90,7 +90,7 @@ FeatureRecipe (plus the `helm` provider) from the **standard library**. The
 under the `example/` publisher, alongside those standard-library entities. Its
 `.aggrega-config.yaml` lists the catalog checkout under `catalog_dirs` and
 declares `hub.aggrega.ai` as the default registry, so a standalone consumer
-resolves the entities from the hub — neither command needs a `--catalog` flag.
+removes that entry and resolves the entities from the hub — neither command needs a `--catalog` flag.
 
 | Component | Boundary | interval | port | path |
 | --- | --- | --- | --- | --- |

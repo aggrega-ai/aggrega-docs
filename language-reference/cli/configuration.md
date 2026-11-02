@@ -86,21 +86,25 @@ so an entity kept elsewhere is reached by listing the directory that holds it an
 its name. A listed directory outside the project is a root of its own, so a link beneath it leading out
 of it is not read either. [The workspace boundary](workspace-boundary.md) states the whole rule.
 
-**A listed directory where nothing exists is read as holding nothing.** Every command reads it the
-way it would read an empty directory there — a pull, a build, a validation, an inspection, the editor
-through `aggrega serve` and an assistant through `aggrega mcp` alike — so a project can list a sibling
-checkout that a copy taken without it does not carry, and resolve from a registry what that checkout
-would have supplied. The same holds for a directory a Release's own entry lists. A pull and a build
-print a line naming the directory and the setting that lists it:
+**A listed directory must be a directory.** A listed path where nothing exists, or where a file or a
+link leading nowhere stands, is refused before anything is read or written by every command that reads
+the catalog — a pull, a build, a validation, an inspection, a lint, and the same operations driven from
+the editor through `aggrega serve` or from an assistant through `aggrega mcp` — so a build never runs
+against fewer catalogs than you listed. The refusal names the entry as written, the path it resolved
+to, the configuration file and line listing it, and the list it sits in:
 
 ```text
-  catalog: <directory> is listed under `workspace.catalog_dirs` in .aggrega-config.yaml and does not exist, so nothing is read from it
+<project>/.aggrega-config.yaml:4: the `workspace.catalog_dirs` entry "../shared/aggrega-catalog" names <directory>, which does not exist; create that directory, or remove the entry: workspace configuration is invalid
 ```
 
-A mistyped entry is read the same way, so that line is what tells you a directory you meant to read
-was not read. Two cases are not read as holding nothing. A `--catalog` directory that does not exist
-was typed for one command, and `aggrega build` refuses it, naming the directory. A listed directory
-that is there and cannot be read is refused by the commands that load the whole catalog, naming it.
+Create the directory, or remove the entry: a copy of a project taken without a sibling checkout it
+lists removes that entry, and resolves from a registry what the checkout would have supplied. The same
+holds for a directory a Release's own entry lists, for one a configuration file your pipeline owns or
+the global file adds, and for one `AGGREGA_CATALOG_DIRS` carries, which the refusal names in place of a
+file. The configuration itself still loads, so a command that reads no catalog still runs. A
+`--catalog` directory that does not exist was typed for one command, and `aggrega build` refuses it,
+naming the directory. A listed directory that is there and cannot be read is refused by the commands
+that load the whole catalog, naming it.
 
 **Writing the list as empty says this project has no local catalog at all**, and it is the one
 spelling that stops `catalog` being read too:
@@ -528,7 +532,9 @@ you used names that Release's entry as the place to list the directory holding i
 
 An entry naming a file that does not exist is refused when the configuration loads, naming the entry
 and the file. Renaming a Release therefore stops every command until the entry is renamed with it,
-rather than letting the Release build against the workspace's list with nothing to say so.
+rather than letting the Release build against the workspace's list with nothing to say so. A
+directory an entry lists must be a directory, as one the workspace's list names must be: one that is
+not is refused by every command reading that Release's catalog, naming the entry and its line.
 
 What concerns no single Release still reads the workspace's list: a lint or a validation of the whole
 catalog, a lookup of an entity by name, an Aggregate inspected on its own, and an editor's listing of
