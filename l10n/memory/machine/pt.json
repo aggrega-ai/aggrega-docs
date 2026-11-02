@@ -1865,6 +1865,17 @@
     "status": "machine",
     "text": "**`status`, `prune` e `clear`** não listam nada através de uma ligação dessas. Quando um dos próprios diretórios da cache é a ligação, `status` para com [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside), e um `prune` ou um `clear` para com `E0320` antes de listar ou remover o que quer que seja — pelo que nada daquilo para que a ligação aponta é removido, e a ligação fica onde está. Quando um ficheiro dentro de um deles é a ligação, os três param com `E0321`."
   },
+  "07d9133c976a4021": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "7128970ea7c8815c",
+      "reviewed": false
+    },
+    "srcHash": "07d9133c976a4021",
+    "status": "machine",
+    "text": "C. Suporte nativo de IaC"
+  },
   "07dc029e77c28f4e": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -5950,6 +5961,17 @@
     "srcHash": "1bf29859d1224319",
     "status": "machine",
     "text": "*Todos os campos acima são aceites pelo esquema da Recipe, e o compilador consome os três tipos de entrada — a renderização sourced, a síntese de Workload e a emissão de artifacts. O que difere é o suporte por provider — que provider renderiza que tipo de entrada —, registado na Matriz de capacidades de Provider no fim deste capítulo.*"
+  },
+  "1c013d610924e475": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "fa105b732c4bdd32",
+      "reviewed": false
+    },
+    "srcHash": "1c013d610924e475",
+    "status": "machine",
+    "text": "Os verbos de nível superior `aggrega <command>` que um plugin `cli` contribui, como uma lista ordenada que preserva a ordem declarada pelo autorrelato `describe()` do plugin. **Gerido pela máquina e só de leitura — não o escreva.** `aggrega plugin sync` lê a superfície de comandos do autorrelato `describe()` do plugin e regista-a aqui, para que os comandos que um plugin CLI instala sejam legíveis a partir da entidade sem carregar o `.wasm`. Um plugin que não seja `cli` não contribui comandos e regista uma lista vazia. O host instala exatamente este conjunto; um conjunto registado que divirja do autorrelato `describe()` do plugin interrompe o carregamento, e a publicação recusa um conjunto dessincronizado do binário e indica ao autor que o volte a registar. Para ressincronizar o registo depois de alterar o plugin, execute [`aggrega plugin sync`](../cli/aggrega-plugin.md)."
   },
   "1c0254f9522c008e": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -14532,6 +14554,13 @@
     "status": "machine",
     "text": "`compose/mariadb` (contentor de desenvolvimento local)"
   },
+  "456cfc6c39c7a321": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "srcHash": "456cfc6c39c7a321",
+    "status": "machine",
+    "text": "`spec.capability` pode conter uma fixação de versão nas formas que `implements` aceita — exata (`helm:<version>`) ou um intervalo com acento circunflexo (`helm:^<version>`) — que seleciona a versão do plugin do provider que renderiza a Recipe; uma fixação que nenhuma versão disponível satisfaça interrompe a compilação. Sem fixação (`spec.capability: \"helm\"`), é a versão disponível mais alta que a renderiza. As versões disponíveis são as que `aggrega plugin list` mostra: os providers incorporados no `aggrega` têm a versão do próprio compilador. A fixação não faz parte do nome da Recipe: um Manifest mapeia uma Recipe que declare `capability: \"compose:1.2.3\"` como `compose/<name>:<version>`, exatamente como uma sem fixação, e alterar a fixação nunca lhe muda o nome; um valor de mapeamento que escreva a fixação no nome (`compose:1.2.3/<name>:<version>`) é recusado como referência de recipe malformada (`E0095`) antes de qualquer pesquisa."
+  },
   "4580bded8674b90b": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -18018,6 +18047,17 @@
     "status": "machine",
     "text": "Domínio 3: Base de infraestrutura (as «implementações»)"
   },
+  "55614ffaad14ef12": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "e49bcbafb433d8d2",
+      "reviewed": false
+    },
+    "srcHash": "55614ffaad14ef12",
+    "status": "machine",
+    "text": "*Nota: `injectMapping` é exclusivo das FeatureRecipes e isola a interceção de variáveis do `valuesMapping`. O `valuesMapping` da Recipe base consome, sem o saber, as strings `.context.inject` reescritas geradas pelos blocos `injectMapping` da FeatureRecipe, pelo que os dois se mantêm desacoplados.*"
+  },
   "5563fcd196893806": {
     "at": "2026-11-02T19:15:07.814Z",
     "job": "session-0005-20261102191507",
@@ -18230,6 +18270,17 @@
     "status": "machine",
     "text": "Para garantir simetria arquitetónica em todo o ecossistema, o Aggrega utiliza um contrato de execução normalizado que se aplica uniformemente a cada socket Wasm do pipeline do compilador."
   },
+  "56526f37bc73b46d": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "40761b1cdbb0d8b1",
+      "reviewed": false
+    },
+    "srcHash": "56526f37bc73b46d",
+    "status": "machine",
+    "text": "`planned` — objetivo de design para a distribuição de catálogos. O resolvedor de três níveis atual (os ficheiros que uma Release indica por caminho, catálogos do workspace, registo OCI remoto) está documentado em [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); o resolvedor ao nível da entidade consome URIs OCI através dessa cascata, mas a forma OCI do campo `source:` de cada Recipe ainda não está ligada nos providers."
+  },
   "5657077f8cc28614": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -18278,6 +18329,17 @@
     "srcHash": "5684d48f5d8ff323",
     "status": "machine",
     "text": "**Um compilador que este editor consegue executar** — o binário `aggrega` indicado em `aggrega.server.binaryPath`."
+  },
+  "568abcd9a2220b99": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "0ebfda429f11ddc6",
+      "reviewed": false
+    },
+    "srcHash": "568abcd9a2220b99",
+    "status": "machine",
+    "text": "A. Esquemas de source orientados por Wasm"
   },
   "5697d03daef4de9c": {
     "at": "2026-10-30T06:04:18.554Z",
@@ -18604,6 +18666,17 @@
     "srcHash": "5851cb991be0667c",
     "status": "machine",
     "text": "**`[realization: <name>:<version>]`** — a FeatureRecipe que o Manifest da Release associa à anexação: pelo próprio nome da anexação quando o Manifest mapeia esse nome — para uma anexação escrita numa ligação, o alias e a posição unidos por um ponto — ou, caso contrário, pelo seu tipo de Feature. É a realização com que uma compilação dos mesmos documentos renderiza a anexação, e o mesmo valor que o grafo compilado contém na anexação como `realization` (consulte [`--ir-graph`](#the-compiled-graph---ir-graph)), pelo que esta vista e o grafo não podem nomear realizações diferentes. Vem em último lugar na cláusula."
+  },
+  "585e5c34c75a5924": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "02e57e548feff87c",
+      "reviewed": false
+    },
+    "srcHash": "585e5c34c75a5924",
+    "status": "machine",
+    "text": "`Recipe.spec.workload:` declara o corpo de Workload que o compilador sintetiza em recursos nativos do provider. É um dos três tipos de entrada que uma Recipe pode declarar, a par de `source:` (renderização com source) e `artifacts:` (manifestos auxiliares). Pelo menos um dos três tem de estar presente em qualquer provider; um serviço que a compilação não aprovisiona declara um `workload:` com `form: reference`."
   },
   "5863d601576bf494": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -21241,6 +21314,13 @@
     "srcHash": "647a95fe56bbfcec",
     "status": "machine",
     "text": "Cada um é tentado no máximo três vezes, com meio segundo e depois um segundo de intervalo. A resolução do digest é uma leitura e não é repetida. Um passo que continua a falhar após a sua última tentativa é registado para essa referência segundo o modo continuar e reportar, com o seu erro, e o lote avança — um anexo falhado é reportado como a assinatura que não pôde ser anexada; qualquer outra falha é registada de imediato."
+  },
+  "6481f0e6b1a620ac": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "srcHash": "6481f0e6b1a620ac",
+    "status": "machine",
+    "text": "Um valor que só existe depois de a infraestrutura ser aplicada continua a ser um ponteiro que o destino resolve — uma interpolação `${ ... }` do Terraform, um `Ref` ou `Fn::GetAtt` do CloudFormation — e nunca é avaliado no momento da compilação."
   },
   "6495eeb71dd37dfe": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -25366,6 +25446,13 @@
     "status": "machine",
     "text": "Uma referência a uma entrada que o bloco define **mais abaixo** interrompe o build indicando a falha de ordenação (mova a definição para cima de quem a lê); uma referência a uma chave que o bloco **não declara de todo** interrompe o build indicando a chave (corrija a grafia). **A verificação segue um alias do bloco:** uma chave alcançada através do ponto que um corpo `with .locals` volta a associar, ou através de uma variável associada a `.locals`, interrompe o build exatamente nos mesmos termos que a grafia direta, tal como uma chave lida do bloco entre parênteses — `{{ (.locals).nope }}` ou `{{ ($.locals).nope }}`. Só uma grafia lhe escapa: uma chave alcançada através de uma chamada cujo resultado o texto do template não consegue nomear — `{{ index .locals \"nope\" }}`, ou `{{ (default dict .locals).nope }}`. Um campo lido do resultado de uma chamada destas não interrompe o build e renderiza o texto literal `<no value>`; a leitura com `index` interrompe o build indicando a chave, porque `index` interrompe o build em todas as superfícies de template quando o mapa que lê não contém a chave — consulte [errors/fatal-halts.md](../errors/fatal-halts.md) «A template indexes a map with a key the map does not hold (Um template indexa um mapa com uma chave que o mapa não contém)». `provides:` lê o bloco totalmente resolvido, porque os locals desta FeatureRecipe são resolvidos antes dos seus provides; um template `provides:` que indique uma chave não declarada interrompe o build. São as mesmas regras que o bloco `locals:` de uma Recipe segue — consulte [entities/recipe.md](recipe.md) «O bloco `locals:`»."
   },
+  "78fd96e8644ba7c2": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "srcHash": "78fd96e8644ba7c2",
+    "status": "machine",
+    "text": "**CloudFormation:** um template com source, YAML ou JSON, e os fragmentos de recursos que uma Recipe escreve são normalizados em JSON de forma longa e fundidos num único template de stack por boundary, com a saída de `valuesMapping:` a preencher os parâmetros que um template com source declara. Consulte [o provider cloudformation](../providers/cloudformation.md)."
+  },
   "78fe8e07f2a9bcff": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -25999,6 +26086,13 @@
     "srcHash": "7bf61d3efd3867a3",
     "status": "machine",
     "text": "`scheduling`"
+  },
+  "7bf6402393d38f29": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "srcHash": "7bf6402393d38f29",
+    "status": "machine",
+    "text": "**Apenas `$import:` de source único.** `$import:` aceita um único source. A fusão de vários sources não é suportada em `valuesMapping:`. Uma Recipe que precise de compor vários fragmentos de mapeamento utiliza uma entrada de MappingLibrary com composição interna `define` / `template` do template Go, um ficheiro local com diretivas `template` do template Go que invocam ficheiros vizinhos, ou composição inline para conteúdo curto. Consulte [entities/mappinglibrary](mappinglibrary.md) para a entidade da biblioteca e [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) para a distinção mais geral `$ref:` / `$import:`."
   },
   "7c0c3124ad451d76": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -26785,6 +26879,17 @@
     "srcHash": "80cd6cf4e7b5d85c",
     "status": "machine",
     "text": "**Não é uma fronteira de segurança.** Nada neste capítulo é um mecanismo de confidencialidade. O modelo de credenciais é um modelo de *ligações*: decide de onde vem um ponteiro ou um valor, quem o pode restringir e como chega a um contentor. Proteger o material é tarefa do cofre de segredos, do cluster e da pipeline que trata a árvore renderizada."
+  },
+  "80d3f78aaf9f6a1c": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "81443cf3cf8e1447",
+      "reviewed": false
+    },
+    "srcHash": "80d3f78aaf9f6a1c",
+    "status": "machine",
+    "text": "Os engenheiros de Ops escrevem o conteúdo de mapeamento para traduzir o contexto abstrato antes de o plugin de renderização Wasm ser executado. A linguagem de mapeamento é o template Go (text/template + Sprig); a biblioteca Sprig está pré-registada; as ações habituais `define` e `template` são suportadas, e `include` não está registada."
   },
   "80d773f02926fe54": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -28141,6 +28246,13 @@
     "status": "machine",
     "text": "`aggrega edit-document <edit> <file>` aplica uma edição estruturada a um documento do espaço de trabalho e deixa cada byte em que não tocou exatamente como foi escrito. A edição é nomeada primeiro e o documento em segundo lugar:"
   },
+  "879903834a4fc19f": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "srcHash": "879903834a4fc19f",
+    "status": "machine",
+    "text": "**Exemplo C: Recipe de Component concreta (associa a infraestrutura)** O Ops mapeia a interface genérica para a realidade física. (É aqui que os detalhes de rede L4 são associados — seja definidos diretamente no código, seja, como acontece com a porta do proxy abaixo, obtidos a partir do bloco `infra` que a Release preenche.)"
+  },
   "879a6fe01b0da9bc": {
     "at": "2026-10-22T23:08:42.660Z",
     "job": "session-0053-20261022230842",
@@ -28644,6 +28756,17 @@
     "status": "machine",
     "text": "**Correlacione pelo token, nunca pelo id do pedido.** Uma notificação não contém nenhum id — não é resposta a nada — e o token é a única coisa nela que aponta de volta para a sua chamada. Isso é deliberado: em muitos clientes o id do pedido pertence ao transporte e nunca chega ao código que fez a chamada, enquanto o token é um valor que esse código já tem."
   },
+  "8a27dfbd8b8c1b7a": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "be653f26309458b2",
+      "reviewed": false
+    },
+    "srcHash": "8a27dfbd8b8c1b7a",
+    "status": "machine",
+    "text": "Modelo mental: `spec.capability` indica o formato de saída pretendido (por exemplo, `helm`, `terraform`, `compose`); o compilador resolve-o para o plugin Wasm que renderiza esse formato (por exemplo, `provider/helm`). O autor declara o formato; a Aggrega associa a ferramenta."
+  },
   "8a27e249a1194699": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -29007,6 +29130,13 @@
     "srcHash": "8bcf2bc93d2fc722",
     "status": "machine",
     "text": "**Sem caracteres universais:** Os caracteres universais (por exemplo, `[\"*\"]`) são rejeitados pelo esquema para evitar «dependências fantasma» e a ligação automática não autorizada."
+  },
+  "8bdbd6a25e78b36b": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "srcHash": "8bdbd6a25e78b36b",
+    "status": "machine",
+    "text": "O inventário é a referência canónica do que os autores podem colocar em `source:`; as suas etiquetas são as que [`10-status.md`](../10-status.md) define."
   },
   "8bddf5f7c863b33b": {
     "at": "2026-10-23T00:02:45.677Z",
@@ -32750,6 +32880,17 @@
     "srcHash": "9d421eec387f95fb",
     "status": "machine",
     "text": "Uma Recipe tem de exprimir mais do que aquilo que um conjunto fixo de chaves (por exemplo, `image`, `environment`, `ports`, `replicas`) mapeado sobre um Deployment e um Service consegue conter, nomeadamente:"
+  },
+  "9d436d61a8b46da1": {
+    "at": "2026-11-02T23:06:17.995Z",
+    "job": "session-0018-20261102230617",
+    "revision": {
+      "from": "b93088b00dc001d9",
+      "reviewed": false
+    },
+    "srcHash": "9d436d61a8b46da1",
+    "status": "machine",
+    "text": "**O que abrange.** Apenas o que `source:` renderiza. Um `workload:` e as entradas de `artifacts:` nunca são filtrados: são escritos na Recipe, pelo que um documento que não se quer aí é um que se deixa por escrever. A chave exige `source:`; um documento que viole essa regra é recusado quando é lido, indicando a regra."
   },
   "9d480a80de0d4bdd": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -38091,6 +38232,17 @@
     "status": "machine",
     "text": "Para dados estáticos fornecidos pelo programador (como a propriedade por equipa ou a classificação de dados), as empresas nunca devem depender diretamente do catálogo open source em bruto. Em vez disso, o Platform Architect escreve uma baseline empresarial — os campos que cada componente interno tem de ter, declarados uma única vez numa entrada de SchemaLibrary — e utiliza um papel de veredicto de governação para impor a sua utilização."
   },
+  "b5a5fbd4719d8a71": {
+    "at": "2026-11-02T23:06:17.995Z",
+    "job": "session-0018-20261102230617",
+    "revision": {
+      "from": "c0dda47d17a2c0f6",
+      "reviewed": false
+    },
+    "srcHash": "b5a5fbd4719d8a71",
+    "status": "machine",
+    "text": "`Recipe.spec.pipeline:` é um array sequencial de passos de pipeline Wasm que são executados após a renderização sobre o conjunto de documentos renderizados, devolvendo cada um patches RFC 6902 e efeitos secundários. Cada entrada declara um `id` (identificador do passo: letras, dígitos e sublinhados), um `plugin` (a entidade Plugin que o passo executa, delimitada pelo seu tipo de plugin — `pipeline-step/<name>`, opcionalmente com uma versão; uma referência `.wasm` simples ou a um artefacto é recusada), uma `function` (o export do plugin a invocar), um corpo de template Go `with:` opcional que fornece o payload do plugin, e um template Go `when:` opcional que determina se o passo é executado — um resultado falso ignora o passo como pass-through, deixando o conjunto de documentos inalterado. A condição `when:`, a sua independência de `optional:` e a sua regra de veracidade são tratadas em pormenor em [entities/featurerecipe.md](featurerecipe.md) «Passos condicionais — `when:`»:"
+  },
   "b5a6a7c999bb7de0": {
     "at": "2026-10-22T23:08:42.660Z",
     "job": "session-0053-20261022230842",
@@ -38379,6 +38531,17 @@
     "srcHash": "b7178310840e2081",
     "status": "machine",
     "text": "**Suporte transversal**"
+  },
+  "b72082abcec3ac99": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "ca47b6e925aafdf5",
+      "reviewed": false
+    },
+    "srcHash": "b72082abcec3ac99",
+    "status": "machine",
+    "text": "**O que o núcleo resolve.** Nenhum provider valida chaves de source próprias. Um source *obtido* é resolvido por uma identidade nativa cujo `kind` seleciona um resolvedor — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment` e `git-repository`. Um source destinado a ser obtido tem de conter `kind` e `url`; a coordenada adicional que seleciona o conteúdo depende do kind. Os kinds de chart e de fragmento aceitam `version`, e fixam-na tal como está escrita. `git-repository` aceita `ref` — uma tag, um ramo ou um commit — e, opcionalmente, `module_subdir`, que indica o diretório dentro do repositório que constitui o artefacto; como apenas um commit identifica conteúdo que não pode ser reapontado, a referência é resolvida no momento do bloqueio e o lockfile regista tanto a referência escrita como o commit para o qual foi resolvida. Um `module_subdir` que, tal como está escrito, sobe acima do repositório — uma barra invertida conta como separador — é recusado antes de qualquer obtenção. O repositório é arquivado a partir do seu próprio checkout: uma ligação simbólica incluída num commit é arquivada como o ficheiro ou diretório para que aponta, quando este se encontra dentro do repositório, e uma que saia dele interrompe o pull, indicando a ligação pela sua posição no repositório. Um source estruturado cujo `url:` indica um caminho do sistema de ficheiros não é obtido: é lido do disco nas mesmas condições que uma string de caminho simples, com um `url:` relativo ancorado no diretório que contém o ficheiro da entidade que o declara. Um source estruturado que omita `kind`/`url` também não é obtido e, se se pretendia uma obtenção, a compilação é interrompida de forma explícita na descida de sources no momento do bloqueio, em vez de se resolver silenciosamente em nada. O conteúdo é sempre fixado antecipadamente; o compilador nunca obtém estado de runtime em tempo real."
   },
   "b7291adc21f21621": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -39522,6 +39685,13 @@
     "status": "machine",
     "text": "Forçar allow_undeclared_recipe_provides=true"
   },
+  "bc5a1d22ab302300": {
+    "at": "2026-11-02T23:06:17.995Z",
+    "job": "session-0018-20261102230617",
+    "srcHash": "bc5a1d22ab302300",
+    "status": "machine",
+    "text": "*O esquema exige `environment:` em cada Release; o valor é informativo, e o compilador só o lê para escrever a etiqueta `aggrega.ai/environment`.*"
+  },
   "bc649bdac8a77d8e": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -40351,6 +40521,17 @@
     "srcHash": "c0a52445b7f1d260",
     "status": "machine",
     "text": "Este capítulo detalha a física interna do compilador Go, definindo a forma como o YAML abstrato é traduzido em configurações físicas ao longo do pipeline de compilação, do grafo de Representação Intermédia (IR) e dos sockets de execução WebAssembly (Wasm)."
+  },
+  "c0ac61c6f7e3302e": {
+    "at": "2026-11-02T23:06:16.435Z",
+    "job": "session-0017-20261102230616",
+    "revision": {
+      "from": "e782f0cba91d7cb2",
+      "reviewed": false
+    },
+    "srcHash": "c0ac61c6f7e3302e",
+    "status": "machine",
+    "text": "**A verificação acompanha um alias do bloco.** Uma chave alcançada através do ponto que um corpo `with .locals` volta a associar, ou através de uma variável associada a `.locals`, é verificada exatamente nas mesmas condições que a forma direta: `{{ with .locals }}{{ .nope }}{{ end }}` e `{{ $l := .locals }}{{ $l.nope }}` interrompem ambos a compilação indicando `.locals.nope`, tal como `{{ .locals.nope }}`, e o mesmo fazem `{{ (.locals).nope }}` e `{{ ($.locals).nope }}`, porque os parênteses produzem o próprio bloco e nada mais. Uma única forma escapa à verificação: uma chave alcançada através de uma chamada cujo resultado o texto do template não consegue nomear — `{{ index .locals \"nope\" }}`, ou `{{ (default dict .locals).nope }}` — porque o que essa chamada devolve é decidido quando o template é executado e não pelo que está escrito. Uma chave ausente lida como campo do resultado dessa chamada não interrompe a compilação e renderiza o texto literal `<no value>` em vez de nada. Uma chave ausente alcançada através de `index` interrompe a compilação, indicando a chave, porque `index` interrompe em todas as superfícies de template quando o mapa que lê não contém a chave pedida — um relatório diferente do desta verificação, documentado em [errors/fatal-halts.md](../errors/fatal-halts.md) em «A template indexes a map with a key the map does not hold (Um template indexa um mapa com uma chave que o mapa não contém)». `index` continua, portanto, a ser a forma de alcançar uma chave cujo nome é ele próprio calculado, como `{{ index .locals (printf \"secret_target_%s\" .values.slot) }}`, e um nome calculado que o bloco não declara continua a ser reportado pela sua chave."
   },
   "c0acc01339abb16e": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -42438,6 +42619,17 @@
     "status": "machine",
     "text": "Reescrever cirurgicamente variáveis `env` injetadas ou formatar FQDNs para um chamador sem exigir JSONPatch Wasm."
   },
+  "ca19f62766a6a98e": {
+    "at": "2026-11-02T23:06:17.995Z",
+    "job": "session-0018-20261102230617",
+    "revision": {
+      "from": "83142d55474de597",
+      "reviewed": false
+    },
+    "srcHash": "ca19f62766a6a98e",
+    "status": "machine",
+    "text": "Para um exemplo completo — o Secret gerado de um chart obtido deixado de fora, a interrupção por determinismo que o mesmo chart encontra sem a entrada, e a interrupção numa entrada que não corresponde a nada, cada um de uma compilação real — consulte [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/README.md)."
+  },
   "ca201386cf44963a": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -42476,6 +42668,13 @@
     "srcHash": "ca3207cd5b321a9a",
     "status": "machine",
     "text": "uma vez, quando o trabalho começa"
+  },
+  "ca3a3c67f3271d20": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "srcHash": "ca3a3c67f3271d20",
+    "status": "machine",
+    "text": "Uma equipa de Ops que traga o seu próprio infrastructure-as-code mantém-no no diretório da própria Recipe — um diretório de módulo ou de template como `./src`, indicado por `source:` — ou obtém-no com um `source:` estruturado (um módulo Terraform a partir do seu repositório git, com `kind: git-repository`), ou escreve-o como corpos com template em [`artifacts:`](#the-artifacts-field--auxiliary-manifests). A camada de mapeamento (`valuesMapping:` — inline, importação de ficheiro ou importação de biblioteca) fornece o contexto abstrato a esse código, e o provider emite o resultado no formato próprio do destino; nenhuma linguagem de configuração é convertida noutra:"
   },
   "ca47b6e925aafdf5": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -45387,6 +45586,17 @@
     "status": "machine",
     "text": "um Service do tipo `ClusterIP` com `clusterIP: None`"
   },
+  "d96f0e510312d195": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "d631220cad801db7",
+      "reviewed": false
+    },
+    "srcHash": "d96f0e510312d195",
+    "status": "machine",
+    "text": "`available` — o resolvedor de source nativo lê a forma `{kind, url, version, chart, ref, module_subdir}` (o esquema de `url:` seleciona o kind — `oci://` → chart OCI, `https://….tgz` → arquivo de chart, raiz de repositório `https://` emparelhada com `chart:` → chart de repositório — ou indique-o com `kind:`), obtém e fixa o artefacto em `aggrega pull`, e a compilação extrai-o da cache. Incluir um chart localmente (vendoring) é suportado como alternativa, e não é obrigatório. O esquema aceita um objeto estruturado aberto. Consulte [`providers/helm.md`](../providers/helm.md) «Conjunto de chaves `source:`»."
+  },
   "d96f60cd575c0d66": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -47300,6 +47510,17 @@
     "status": "machine",
     "text": "`spec.provider`"
   },
+  "e1fcd7105639f1c8": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "b5754c13140873ca",
+      "reviewed": false
+    },
+    "srcHash": "e1fcd7105639f1c8",
+    "status": "machine",
+    "text": "**O que o compilador verifica e não verifica.** O compilador não inspeciona as saídas de `valuesMapping:` à procura de campos de nomes de recursos cloud sem estas interpolações. A disciplina é mantida pelos autores de Recipes (que sabem que campos identificam recursos globalmente únicos para o provider de destino) e pelos revisores (que detetam padrões de recursos sem nome na revisão de PR). Um plugin linter poderia assinalar Recipes cujas saídas de `valuesMapping:` referenciem campos de nomes de recursos cloud sem interpolação de `release_name` / `instance_id`; o socket do linter é disponibilizado e executado através de [`aggrega lint`](../cli/aggrega-lint.md) (consulte [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) «Critério de colocação: o socket do linter vs. os papéis de veredicto de governação»), e nenhuma das regras do linter de publicação verifica isto."
+  },
   "e203af57b8e71c7a": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -48116,6 +48337,17 @@
     "status": "machine",
     "text": "Assistente para o qual instalar a skill, por identificador (por exemplo claude-code, codex, cursor ou gemini-cli). Repetível; a ajuda enumera cada identificador e a pasta em que cada um escreve."
   },
+  "e5dec9ae02e74390": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "ee9a408e651231b2",
+      "reviewed": false
+    },
+    "srcHash": "e5dec9ae02e74390",
+    "status": "machine",
+    "text": "`available` — todos os providers disponibilizados (helm, helm-chart, compose, terraform, cloudformation) aceitam uma string de caminho simples do sistema de ficheiros."
+  },
   "e5e3119f3766f61c": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -48288,6 +48520,17 @@
     "srcHash": "e6e9070cbbf98a5f",
     "status": "machine",
     "text": "**`aggrega scaffold` — available.** Redige um documento inicial para qualquer tipo de entidade a partir do esquema desse tipo — todos os campos que exige, com um marcador de posição onde é necessário um valor — e escreve-o na saída padrão."
+  },
+  "e6ebc2d7d049269f": {
+    "at": "2026-11-02T23:06:16.435Z",
+    "job": "session-0017-20261102230616",
+    "revision": {
+      "from": "3a4187e6a0a87496",
+      "reviewed": false
+    },
+    "srcHash": "e6ebc2d7d049269f",
+    "status": "machine",
+    "text": "**O bloco é `artifacts:` num segundo âmbito.** `artifacts` é o seu único membro, e tem exatamente a forma do próprio [`artifacts:`](#the-artifacts-field--auxiliary-manifests) da Recipe: os mesmos três modos — conteúdo inline, um `$import:` de ficheiro, um `$import:` de biblioteca cujos ficheiros ficam aninhados sob a chave da entrada como `<key>/<filename>` — a mesma regra de chave para nome de ficheiro e o mesmo alfabeto para uma chave, e o mesmo contexto de template, pelo que uma entrada lê `.values`, `.infra`, `.locals` e o resto exatamente como uma entrada de `artifacts:` o faz. Precisa de pelo menos uma entrada, e qualquer outro membro sob `boundary:` é recusado quando a Recipe é lida. Uma FeatureRecipe não tem um bloco deste tipo."
   },
   "e703bc2b08168d0e": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -49648,6 +49891,17 @@
     "status": "machine",
     "text": "**8. Release:** O encaminhador. Vincula um `aggregate` a um `manifest` e mapeia componentes para fronteiras físicas (por exemplo, `aws-eks-production`). Para manter um fluxo de trabalho DRY, as Releases suportam herança através da palavra-chave `extends`, permitindo que as versões específicas de um ambiente herdem de forma limpa de uma versão base global. Cumpre o contrato abstrato do aggregate injetando realidades físicas estritamente no bloco `parameters`, e injeta o dimensionamento físico (como CPU ou portas) através do namespace paralelo `infra`. Para proteger o Aggregate como fonte única de verdade, o esquema da Release proíbe mecanicamente um bloco `values:` — o Ops não pode declarar `values` em nenhum Component nem Feature a partir de uma Release. A variação por ambiente dos valores visíveis para o programador flui através do **Parameter Hoisting**: o programador expõe um campo tipado `parameters.*` no Aggregate, o template `values` do Component referencia-o e a Release cumpre o parâmetro para o seu ambiente. Os valores renderizados diferem entre ambientes, enquanto o Aggregate — a superfície de criação de *quais* valores existem e de *como* fluem — permanece a fonte única de verdade. Ver a restrição 4, «A Release não pode substituir os valores do programador», em [Restrições arquiteturais e padrões recomendados](06-data-taxonomy-and-composition.md#8-architectural-constraints-and-recommended-patterns) para a proibição a nível de esquema declarada explicitamente. Fundamentalmente, para evitar Releases «que mutam o aggregate» impossíveis de rastrear, quando uma Release usa `extends`, declarar um `aggregate` é rejeitado pelo esquema da Release (a restrição do esquema não permite declarar `aggregate` quando se usa `extends`). A versão filha tem de mapear para exatamente a mesma intenção do programador que a sua mãe. O `manifest`, no entanto, torna-se opcional, desbloqueando o «Late Binding» — permitindo ao Ops herdar toda a topologia física, mas trocar cirurgicamente o lockfile de dependências."
   },
+  "ed4d93745b0c5dd2": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "500c8aedf0baa0ec",
+      "reviewed": false
+    },
+    "srcHash": "ed4d93745b0c5dd2",
+    "status": "machine",
+    "text": "Esta disciplina é um de vários contratos sociais mantidos por convenção — disciplina de autoria que os autores aprendem com a documentação e não com a imposição do compilador. Consulte [`vocabulary/social-contracts.md`](../vocabulary/social-contracts.md) para a lista completa de convenções e a fundamentação arquitetural da classificação de cada contrato."
+  },
   "ed51ba115718031e": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -50227,6 +50481,17 @@
     "srcHash": "f02e3114083cc400",
     "status": "machine",
     "text": "O que a skill diz ao assistente"
+  },
+  "f02ed7be8c356bdc": {
+    "at": "2026-11-02T23:06:17.995Z",
+    "job": "session-0018-20261102230617",
+    "revision": {
+      "from": "d4a3f24214474c5c",
+      "reviewed": false
+    },
+    "srcHash": "f02ed7be8c356bdc",
+    "status": "machine",
+    "text": "Todos os blocos de metadados de uma Release aceitam um campo `environment:` — uma string livre que identifica o ambiente em que a Release é implementada (valores típicos: `production`, `staging`, `dev`). O campo é informativo: não tem enumeração, nem padrão ao nível do esquema, nem validação entre entidades para além de `type: string`. O compilador emite o seu valor como a etiqueta `aggrega.ai/environment` em todos os manifestos Kubernetes que o fornecedor helm renderiza, a par do resto do conjunto de etiquetas de proveniência da Aggrega; o fornecedor helm-chart acrescenta as mesmas etiquetas a cada artefacto carregado através de `$import:` que coloca num sub-chart, enquanto os templates próprios do sub-chart contêm o que o seu autor escreveu. O fornecedor compose aplica o mesmo valor como a etiqueta `aggrega.ai/environment` a cada serviço que emite."
   },
   "f0365feec75b024d": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -51384,6 +51649,17 @@
     "status": "machine",
     "text": "Substitua a ligação pelo próprio ficheiro: mova um documento que é uma entidade para um diretório próprio, e coloque o `.wasm` construído ao lado da sua entidade Plugin em vez de uma ligação para ele."
   },
+  "f6096a8e9886a792": {
+    "at": "2026-11-02T22:45:50.112Z",
+    "job": "session-0016-20261102224550",
+    "revision": {
+      "from": "1414e0e3bf07706f",
+      "reviewed": false
+    },
+    "srcHash": "f6096a8e9886a792",
+    "status": "machine",
+    "text": "**Inventário de esquemas do campo source.** O campo `source:` aceita várias variantes de forma no esquema. O suporte em runtime de cada variante varia consoante o provider; a tabela abaixo documenta o que faz cada forma."
+  },
   "f60ce865c3511577": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -52462,6 +52738,13 @@
     "status": "machine",
     "text": "Uma entidade com uma versão retirada continua a ser listada. Uma coluna `NOTES` nomeia as versões deixadas de fora, e só aparece num resultado que tenha algo a reportar. Uma entidade cujas versões publicadas foram todas retiradas é reportada com `(none)` como versão e uma nota a dizer que não resta nenhuma versão, em vez de ser retirada do resultado — uma entidade omitida seria indistinguível de uma que não existe."
   },
+  "fb17eb6215e352cc": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "srcHash": "fb17eb6215e352cc",
+    "status": "machine",
+    "text": "**Terraform:** um módulo é copiado ficheiro a ficheiro, e um corpo escrito pelo autor é emitido exatamente como está escrito, tanto em HCL nativo (`main.tf`) como em Terraform JSON (`.tf.json`) — a CLI `terraform` lê ambos. A configuração raiz do boundary, `aggrega.modules.tf`, chama o diretório de cada componente como um bloco `module`, e a saída de `valuesMapping:` de um módulo com source torna-se os argumentos desse bloco. Consulte [o provider terraform](../providers/terraform.md)."
+  },
   "fb35de3fe9661a21": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -53396,6 +53679,17 @@
     "srcHash": "ffa21194bc71c0c9",
     "status": "machine",
     "text": "**Sem fontes aleatórias, sem estado externo.** As transformações são funções puras sobre os inputs que declaram (conteúdo da entidade, cadeia de pais, lockfile). O estado externo só é consultado durante a resolução (obtenção de artefactos OCI), e o conteúdo resolvido é endereçado por conteúdo através do digest."
+  },
+  "ffaef73dc294b298": {
+    "at": "2026-11-02T22:45:48.640Z",
+    "job": "session-0015-20261102224548",
+    "revision": {
+      "from": "d115f2dc7ae2f060",
+      "reviewed": false
+    },
+    "srcHash": "ffaef73dc294b298",
+    "status": "machine",
+    "text": "**A string universal (rápida e limpa):** ideal para caminhos locais, artefactos OCI e repositórios Git. O compilador deduz o método de obtenção pelo prefixo e pelo sufixo da string (`./src`, `https://github.com/example/module.git`, `oci://...`): um URL que termine em `.git`, ou escrito com `git://` ou `ssh://`, é um repositório Git obtido no seu ramo predefinido, e um URL `https://` que não indique nem um repositório nem um chart `.tgz` ou um fragmento `.yaml` é recusado por ser ambíguo."
   },
   "ffb1311ce39f6278": {
     "at": "2026-11-02T19:28:46.630Z",
