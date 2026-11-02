@@ -1005,7 +1005,7 @@ Emitted message, as the plugin receives it:
 
 **How to fix:** nothing in your own files causes this and no authoring change clears it — it is a property of the plugins the build is configured with. The plugin that asks for a parse from inside a parse is the one to correct, so report the condition to whoever publishes it, quoting the message. Where that plugin is yours, have it read the source it was handed directly rather than asking the host to parse another one while it is itself serving a parse.
 
-### The workspace configuration file does not satisfy its schema
+### The workspace configuration is invalid
 
 <!-- covers: pkg/workspaceconfig.ErrConfigInvalid -->
 
@@ -1020,31 +1020,31 @@ These shapes report here beyond a plain schema objection, each because the schem
 A registry host — the `host` of a `registries` entry, or the host `default_registry` begins with where it does not name one of those entries by its `name:`, in which case it stands for that entry's host — is written as the host itself: lowercase, containing a dot, or `localhost`, or a single name followed by a port, or an IP address (an IPv6 one in brackets), each with an optional `:port`, and no scheme or credentials. A `registries` entry's host carries no path; `default_registry` may follow its host with `/` and a repository path — lowercase segments joined by `/`, with no tag, digest or trailing `/`. A value that names a host in another spelling is refused naming the spelling to write — for `default_registry`, the whole location, path included — so that the trust policy kept under that host applies to it; that includes port 443 on a host reached over HTTPS, since it is that host's default port. A path that is not a repository path is refused naming the host it follows, and an entry's `name:` followed by a path is refused naming the two spellings written instead, the name alone or the entry's host followed by the path, since a name stands for its entry's host and not for a location under it. A value that names no host at all — a single name with no port that no entry carries, text with spaces or braces in it — is refused as not a host, and for `default_registry` the refusal says an entry's name would do as well. `AGGREGA_DEFAULT_REGISTRY` is held to the same reading and refused the same way, naming the variable.
 
 **Emitted messages.** A schema objection names the file, the field path, and what the schema said:
-> workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: file failed schema validation
+> workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: workspace configuration is invalid
 
 The fix-it forms open with the file and say a sentence about the specific shape in place of the field path and the schema's objection. An `artifact_cache_dir` naming the workspace root:
-> `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): file failed schema validation
+> `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): workspace configuration is invalid
 
 an unusable `signing.kinds` entry, which also names the wildcard that covers every kind:
-> `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
+> `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: workspace configuration is invalid
 
 a provider binding written as a registry location, which names the entry, the capability and the form to write:
-> workspaceconfig: `<path>`: plugins.providers[`<n>`] binds capability `"<capability>"` to `"oci://<registry>/<repository>"`, which is where a plugin is published rather than which plugin it is; a provider binding names its plugin by its identity — write `uri: provider/<name>`, with an optional `:<version>`: file failed schema validation
+> workspaceconfig: `<path>`: plugins.providers[`<n>`] binds capability `"<capability>"` to `"oci://<registry>/<repository>"`, which is where a plugin is published rather than which plugin it is; a provider binding names its plugin by its identity — write `uri: provider/<name>`, with an optional `:<version>`: workspace configuration is invalid
 
 a registry host written in another spelling, here `HUB.AGGREGA.AI`:
-> `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: file failed schema validation
+> `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: workspace configuration is invalid
 
 a default registry whose host is written in another spelling ahead of its repository path, here `GHCR.io/acme`, which names the whole location to write:
-> `<path>`: default_registry `"GHCR.io/acme"` is not written as the registry location it names; write `"ghcr.io/acme"` — the registry host lowercase, with no scheme, credentials or default port, followed by the repository path — which keeps that host's trust policy applying to it: file failed schema validation
+> `<path>`: default_registry `"GHCR.io/acme"` is not written as the registry location it names; write `"ghcr.io/acme"` — the registry host lowercase, with no scheme, credentials or default port, followed by the repository path — which keeps that host's trust policy applying to it: workspace configuration is invalid
 
 an entry's name followed by a path, here `local/acme` where the entry named `local` is for `127.0.0.1:5000`:
-> `<path>`: default_registry `"local/acme"` is the name of the registries entry `"local"` followed by a path, and an entry's name stands for that entry's host alone; write `"local"` to use the entry, or its host followed by the path, `"127.0.0.1:5000/acme"`: file failed schema validation
+> `<path>`: default_registry `"local/acme"` is the name of the registries entry `"local"` followed by a path, and an entry's name stands for that entry's host alone; write `"local"` to use the entry, or its host followed by the path, `"127.0.0.1:5000/acme"`: workspace configuration is invalid
 
 a value that names no host, whose sentence lists the forms a host takes:
-> `<path>`: registries[`<n>`].host `"<value>"` is not a registry host; write a lowercase host name containing a dot (registry.example.com), localhost, a single name followed by a port (registry:5000), or an IP address, an IPv6 one in brackets — each with an optional :port and nothing else: file failed schema validation
+> `<path>`: registries[`<n>`].host `"<value>"` is not a registry host; write a lowercase host name containing a dot (registry.example.com), localhost, a single name followed by a port (registry:5000), or an IP address, an IPv6 one in brackets — each with an optional :port and nothing else: workspace configuration is invalid
 
 and an empty `workspace:` marker:
-> workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: file failed schema validation
+> workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: workspace configuration is invalid
 
 Two more name a key written in the wrong place — `default_registry`, `offline`, `auto_pull` and `artifact_cache_dir` all sit at the top level rather than under `workspace:`, and the parse cache's block is `parse_cache:`. Each says which key it means and where that key belongs.
 
@@ -1072,7 +1072,7 @@ and an inert `with:`, which reports in the same shape and names where the config
 > workspaceconfig: the provider socket binding for capability `"<capability>"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket
 
 A `function:` written in `.aggrega-config.yaml` does not reach its sentence above: the workspace configuration's schema declares no such key on a provider binding, so the file is refused first, under `E0224`, and the remedy is the same — remove the key:
-> workspaceconfig: `<file>`: plugins.providers[`<index>`].function: against /$defs/FixedEntryPluginRef: unexpected property: "function": file failed schema validation
+> workspaceconfig: `<file>`: plugins.providers[`<index>`].function: against /$defs/FixedEntryPluginRef: unexpected property: "function": workspace configuration is invalid
 
 **How to fix:** the fix is in `.aggrega-config.yaml` and each message names the exact edit. On a governance, linter or importer attachment, replace the `capability:` with the `uri:` of the plugin you meant to attach. On a provider binding, remove the named key — and where it was `with:`, move that configuration into the Recipe that renders through the provider, which is the surface that reads it.
 
@@ -6526,7 +6526,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0221` | `merger: invalid merge input` | The schema-merge step's own input guard |
 | `E0222` | `registry alias matches more than one host` | A registry alias matches more than one host |
 | `E0223` | `a cross-cutting socket is bound by capability but attaches by uri` | A plugin binding sets a key the socket it attaches to does not read |
-| `E0224` | `file failed schema validation` | The workspace configuration file does not satisfy its schema |
+| `E0224` | `workspace configuration is invalid` | The workspace configuration is invalid |
 | `E0225` | `capability is bound to more than one provider plugin` | A capability is bound to more than one provider plugin |
 | `E0226` | `registry alias is already used by another host` | A registry alias is already bound to another host |
 | `E0227` | `a governance attachment declares no role or an unknown role` | A governance attachment declares no role, or one that is not a known role |

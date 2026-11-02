@@ -437,7 +437,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousRegistryAlias()` | `ambiguous-registry-alias` | `registry alias matches more than one host` |
 | `ErrCapabilityOnCrossCuttingSocket()` | `capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
 | `ErrColonInProviderBindingCapability()` | `colon-in-provider-binding-capability` | `a provider socket binding names a capability containing a colon, which no Recipe can select` |
-| `ErrConfigInvalid()` | `workspace-config-invalid` | `file failed schema validation` |
+| `ErrConfigInvalid()` | `workspace-config-invalid` | `workspace configuration is invalid` |
 | `ErrDuplicateImporterAttachment()` | `duplicate-importer-attachment` | `importer is attached by more than one plugins.importer entry` |
 | `ErrDuplicateProviderTarget()` | `duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `ErrDuplicateRegistryAlias()` | `duplicate-registry-alias` | `registry alias is already used by another host` |
@@ -720,7 +720,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0221` | `schema-merge-input-invalid` | `merger: invalid merge input` |
 | `E0222` | `ambiguous-registry-alias` | `registry alias matches more than one host` |
 | `E0223` | `capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
-| `E0224` | `workspace-config-invalid` | `file failed schema validation` |
+| `E0224` | `workspace-config-invalid` | `workspace configuration is invalid` |
 | `E0225` | `duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `E0226` | `duplicate-registry-alias` | `registry alias is already used by another host` |
 | `E0227` | `governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
