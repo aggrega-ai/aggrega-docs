@@ -108,7 +108,7 @@ The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structur
 
 An ordered array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that this provider reads, together with the behavior applied when each is absent. Each entry carries a `key` (the provider-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), an optional `defaultBehavior` (what the provider does when the annotation is absent), and an optional `scope` listing where the provider reads the key — `sourced`, `synthesized` or `artifactsStandalone`, the Recipe input kinds, or `boundary` for a key read once per boundary. `key` and `purpose` are required; entries preserve author order.
 
-The field is documentation-of-contract: it describes which platform directives the provider reads, for catalog readers and the `aggrega inspect` surface. The compiler reads it in one way only: an entry whose `scope` names an input kind the block's own `contract.inputKinds` does not claim contradicts that claim, and the Plugin is refused, naming the key and the scope. It never cross-checks the annotations a build actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
+The field is the provider's support claim, and the compiler reads it in two ways. An entry whose `scope` names an input kind the block's own `contract.inputKinds` does not claim contradicts that claim, and the Plugin is refused, naming the key and the scope. And when a build renders through this provider, an `aggrega.ai/` annotation that no entry covers on any input kind the render declares draws a warning naming the key, the provider and those input kinds; the value still passes through untouched and the build does not halt. Absent, the field makes no claim at all, and no such warning is raised for this provider. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
 
 ```yaml
 metadata:
@@ -128,6 +128,22 @@ spec:
 ```
 
 The per-provider annotation sets and `workloadSchema` content the standard-library providers ship are documented at [`../providers/well-known-annotations.md`](../providers/well-known-annotations.md), [`../providers/helm.md`](../providers/helm.md), [`../providers/helm-chart.md`](../providers/helm-chart.md), and [`../providers/compose.md`](../providers/compose.md).
+
+### `spec.provider.readsNoWellKnownAnnotations`
+
+Declares that this provider reads none of the platform-native well-known annotation keys. It is a support claim covering no key, and it says something that leaving both it and `wellKnownAnnotations` out does not: an absent claim is silence, while this one is the provider's own statement that it reads nothing under the reserved `aggrega.ai/` namespace. A build rendering through such a provider warns about every `aggrega.ai/` annotation that reaches the render, naming the key, the provider and the input kinds the render declares; the value still passes through untouched and the build does not halt.
+
+Only `true` may be written, so leaving the field out stays the one way to say nothing. It cannot be written together with `wellKnownAnnotations`: a provider that reads some of the keys lists those there instead. Both refusals are schema-level, so the Plugin is refused when it is read.
+
+```yaml
+spec:
+  provider:
+    capabilities:
+      - terraform
+    readsNoWellKnownAnnotations: true
+```
+
+The standard-library `terraform` provider declares it; [`../providers/terraform.md`](../providers/terraform.md) says what that means for a Release rendered through it.
 
 ### `spec.provider.contract`
 

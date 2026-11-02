@@ -266,6 +266,18 @@ The build reads none of the module's `variable` or `output` blocks, writes nothi
 
 The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as its template evaluates, an HCL body opening with the provenance comments, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.
 
+## Platform annotations
+
+The terraform provider reads none of the [`aggrega.ai/` annotations](well-known-annotations.md). A vendored module, a Recipe's artifact files and the root configuration the provider writes have no slot for a namespace, a registry prefix, a pull secret or a service account, so a value set for one changes nothing in the rendered configuration; a module that needs such a value takes it as one of its own inputs, through the component's `values`.
+
+The provider says so in its Plugin entity, with `readsNoWellKnownAnnotations: true` (see the [Plugin entity](../entities/plugin.md)), and the build therefore warns about every `aggrega.ai/` annotation that reaches a render through it — once per key and per render, naming the input kinds that render declares:
+
+```text
+  warning: node "db" (provider "terraform"): target "terraform" does not support annotation aggrega.ai/namespace on sourced input and ignored it
+```
+
+The value still passes through the build untouched, and the build does not halt: a boundary annotation cascades onto every component beneath it, and a boundary whose components render through different targets is ordinary rather than a mistake. The warning belongs to the `unsupported-field` class and is silenced with that class's flag.
+
 ## Declared-sensitive module inputs
 
 Terraform is the one standard-library target with a native per-value sensitivity primitive, so a datum an author declared sensitive can be rendered in Terraform's own terms rather than only recorded in Aggrega's.
