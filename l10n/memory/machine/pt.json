@@ -1872,6 +1872,13 @@
     "status": "machine",
     "text": "Para lotes em script, obtenha o token uma vez antecipadamente e exporte-o, assinando cada referência sem uma ida e volta pelo navegador:"
   },
+  "07e90ca28132f326": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "07e90ca28132f326",
+    "status": "machine",
+    "text": "O fornecedor `terraform` da biblioteca padrão declara-o; [`../providers/terraform.md`](../providers/terraform.md) explica o que isso significa para uma Release renderizada através dele."
+  },
   "07ed5db1d7476d6f": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -2859,12 +2866,30 @@
     "status": "machine",
     "text": "**A herança é fusão de esquemas, não associação de interfaces.** Uma cadeia `extends:` de Feature produz uma única Feature resolvida, não uma família polimórfica. O URI da Feature base da cadeia não é o que o campo `feature:` de uma associação de Manifest referencia — os Manifests associam pelo URI da Feature folha, e o esquema resolvido inclui as propriedades herdadas. O contrato de Feature que uma FeatureRecipe `implements:` é igualmente o URI da folha; as FeatureRecipes não navegam pela cadeia de herança."
   },
+  "0d8c93f8e385827b": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "c74ddf89f4269bd9",
+      "reviewed": false
+    },
+    "srcHash": "0d8c93f8e385827b",
+    "status": "machine",
+    "text": "Um `Plugin` é um plugin WebAssembly endereçado por conteúdo: um artefacto `.wasm` alojado em OCI, fixado pelo digest `sha256`, que declara o tipo de socket que implementa, a versão de ABI a que se destina, um ponteiro opcional para uma assinatura e um bloco runtime opcional. A entidade é a superfície de criação e de metadados de um plugin; a resolução de dependências fixa o artefacto pelo digest e a política de confiança por registo verifica a sua assinatura no pull. O compilador não interpreta o comportamento do plugin — encaminha a referência fixada; o runtime WebAssembly executa os bytes."
+  },
   "0d9062b7036f1e77": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
     "srcHash": "0d9062b7036f1e77",
     "status": "machine",
     "text": "**`--upgrade` é recusado liminarmente sob a postura, e é a única opção aqui que o é.** Uma atualização total faz flutuar cada dependência para a versão mais alta que um registo oferece no momento, pelo que precisa de perguntar a um registo o que serve atualmente. Um pull normal não precisa: respeita as fixações que já regista, resolve apenas o que não tem nenhuma e pode, portanto, ser satisfeito com o que a máquina contém. A recusa indica qual dos três locais definiu a postura e como permitir a rede numa execução."
+  },
+  "0d9a1655330443a9": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "0d9a1655330443a9",
+    "status": "machine",
+    "text": "`spec.provider.readsNoWellKnownAnnotations`"
   },
   "0dac54d5ba9eec68": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -6433,6 +6458,13 @@
     "status": "machine",
     "text": "**Caminho local.** Uma referência `aggregate`, `manifest` ou `extends` de uma Release, ou o `extends` de um Manifest, que comece por `./` ou `../` (um prefixo de caminho relativo POSIX) é lida diretamente do disco, relativamente à Release. Sem consulta ao catálogo, sem chamada ao registo. O prefixo explícito distingue a intenção de caminho local da consulta por nome ao nível sintático: uma Release que escreva `aggregate: ./aggregate.yaml` nomeia um ficheiro; `aggregate: checkout` nomeia um Aggregate pelo seu `metadata.name`. O resolvedor nunca examina o conteúdo da cadeia para decidir que nível se aplica — o prefixo é o discriminador. Qualquer outra referência, incluindo um `type` de Component num Aggregate, resolve-se através do nível de espaço de trabalho e cache e do nível de registo: uma entidade escrita localmente coloca-se em `catalog/` na raiz do espaço de trabalho ou num diretório que `workspace.catalog_dirs` lista, e um `type` escrito como caminho de ficheiro relativo interrompe a compilação como uma entidade que nenhum catálogo contém."
   },
+  "1e5270af91924c21": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "1e5270af91924c21",
+    "status": "machine",
+    "text": "A versão de ABI host/guest a que o plugin se destina. `v1alpha1` é o valor aceite; uma nova revisão da ABI acrescenta um. Obrigatório."
+  },
   "1e54c90d84ed6d1a": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -7079,6 +7111,13 @@
     "status": "machine",
     "text": "Um **Component ou Feature** fica por aí: envelope de esquema, forma e estrutura de pilares. Um Component isolado não tem `values` nem `infra` de autoria para renderizar isoladamente, pelo que não há nada para renderizar — a sua correção é totalmente coberta pelos níveis de esquema e de pilares."
   },
+  "214651c2f0430540": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "214651c2f0430540",
+    "status": "machine",
+    "text": "Um plugin implementa exatamente um tipo de socket, pelo que a sua entidade contém um único bloco. A lista é o relatório do próprio plugin: `aggrega plugin gen-catalog` lê o `describe()` do plugin e escreve no bloco cada capacidade que este reporta. Um autor pode restringir a lista antes de publicar, omitindo uma capacidade que o plugin reporta mas que a entidade publicada não deve oferecer; `aggrega validate <entity> --plugin <file.wasm>` e `aggrega push` aceitam uma lista restringida e imprimem um aviso que indica cada capacidade reportada pelo plugin que a lista omite. Nenhum dos dois aceita uma lista que indique uma capacidade que o plugin não reporta: ambos a recusam, indicando cada uma dessas capacidades e as capacidades que o plugin efetivamente reporta, pelo que uma lista publicada nunca oferece mais do que o plugin fornece. Uma entidade pipeline-step cujo plugin reporta `helm` e `helm-chart`, e que lista também `compose`, é recusada desta forma:"
+  },
   "214ba9c62194901d": {
     "at": "2026-11-02T19:55:20.081Z",
     "job": "session-0012-20261102195520",
@@ -7436,6 +7475,17 @@
     "srcHash": "22d2263dc5505b74",
     "status": "machine",
     "text": "**Paridade de interfaces e implementação automática:** para evitar que as Ops dupliquem YAML de Recipe quando um arquiteto cria uma variante ligeiramente alterada de um Component de base, uma extensão planeada introduzirá a completude estrita da implementação. Com essa extensão, o compilador permitirá que a Recipe de um pai implemente sem esforço um Component filho *se e só se* o filho não tiver introduzido quaisquer *novos* sockets `usesSchema` nem novas chaves de raiz em `values`/`infra`/`provides`. Se o filho expandir a interface com novas chaves, o template do pai é inerentemente incapaz de as consumir. O padrão Tracker Struct (que emite avisos quando um template de renderização não lê uma variável fornecida, para evitar a «infraestrutura fantasma») é o guardrail correspondente da fase de renderização. Quando estiver implementado, o bloqueio das chaves divergentes na fase de resolução garantirá que a Recipe está estruturalmente completa para o contrato do filho antes de a renderização começar."
+  },
+  "22d35db7f86c6a03": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "99182f342ecad558",
+      "reviewed": false
+    },
+    "srcHash": "22d35db7f86c6a03",
+    "status": "machine",
+    "text": "As capacidades que este fornecedor serve — nomes de capacidades como `helm` ou `compose` — cuja forma de saída renderiza. Um fornecedor é genérico entre artefactos que partilham a forma de saída de uma capacidade, não entre todas as capacidades, pelo que a lista indica as capacidades que o próprio plugin reporta: `aggrega plugin gen-catalog` regista-a a partir do `describe()` do plugin, e um autor pode restringi-la antes de publicar. As entradas mantêm a ordem em que são registadas."
   },
   "22de46467b5587f0": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -9261,6 +9311,17 @@
     "status": "machine",
     "text": "O Zed suporta as ferramentas e os prompts do protocolo, pelo que o seu agente alcança as ferramentas e os prompts de criação do Aggrega, mas não os recursos que o servidor também disponibiliza."
   },
+  "2aaff57a17c848d8": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "711eb308643dd18d",
+      "reviewed": false
+    },
+    "srcHash": "2aaff57a17c848d8",
+    "status": "machine",
+    "text": "Metadados padrão do catálogo. `name`, `version` e `pluginType` são obrigatórios; `version` é uma Semantic Version estrita (p. ex., `1.2.0`). Os campos opcionais — `description`, `maintainers`, `license`, `repository`, `home`, `keywords` — seguem a mesma forma que todas as entidades de catálogo têm, e `metadata` não aceita nenhuma outra chave. Uma versão publicada é imutável: voltar a publicar uma versão existente é rejeitado no controlo de publicação."
+  },
   "2ac97c61dd7dda32": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -10553,6 +10614,17 @@
     "status": "machine",
     "text": "O artefacto é um arquivo que não pode ser extraído"
   },
+  "31d92aef367f9284": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "021b32ba74aec512",
+      "reviewed": false
+    },
+    "srcHash": "31d92aef367f9284",
+    "status": "machine",
+    "text": "O bloco de passo de pipeline de um plugin `pluginType: pipeline-step`. O seu único campo, `capabilities`, indica os fornecedores cuja saída renderizada o passo do plugin sabe transformar — nomes de capacidades como `helm` ou `compose`. Um passo é escrito para a forma de saída de um fornecedor de cada vez, pelo que a lista indica os fornecedores que o próprio plugin reporta; as entradas mantêm a ordem em que são registadas. O bloco só está presente em plugins de passo de pipeline."
+  },
   "31dc0cfab02e19da": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -11779,6 +11851,17 @@
     "status": "machine",
     "text": "bash"
   },
+  "37d652ae2eedb2ad": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "e88977b6f544b52b",
+      "reviewed": false
+    },
+    "srcHash": "37d652ae2eedb2ad",
+    "status": "machine",
+    "text": "Booleano. Proíbe toda a saída de rede: todos os comandos que obteriam, fariam pull, adquiririam, fariam push, assinariam ou contactariam um registo recusam ruidosamente em vez de estabelecer ligação, e uma compilação recorre apenas ao que a máquina já contém — o seu lockfile, a sua cache e os seus diretórios de catálogo locais, a partir dos quais `--auto-pull` preenche as entidades de catálogo de um lockfile sem chegar a um registo (uma Recipe cujo chart é obtido de uma origem remota continua a parar em modo offline). A descoberta lê então o índice local — o aviso de descontinuação é servido a partir do índice construído em vez de ser sondado em tempo real, e o nível de resolução de catálogo de registo remoto é ignorado; a sugestão de plugin que um comando não reconhecido imprime lê apenas o índice local, seja qual for o valor desta definição. A verificação de material já em cache ou fixado continua a correr — o modo offline proíbe a obtenção, não a verificação local. [`--offline`](global-flags.md#--offline) é a flag acima dela, em ambos os sentidos: define a postura para uma execução, e `--offline=false` permite a rede para uma execução em que esta variável ou um ficheiro de configuração a tenha definido."
+  },
   "37e0b81eaeafecb4": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -12278,6 +12361,17 @@
     "status": "machine",
     "text": "**As regras de inferência:**"
   },
+  "3a705340f942e9e4": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "f19ba7aaefb11234",
+      "reviewed": false
+    },
+    "srcHash": "3a705340f942e9e4",
+    "status": "machine",
+    "text": "Um array ordenado que enumera as chaves de anotações bem conhecidas nativas da plataforma — as que estão no espaço de nomes reservado `aggrega.ai/` — que este fornecedor lê, juntamente com o comportamento aplicado quando cada uma está ausente. Cada entrada contém uma `key` (a anotação lida pelo fornecedor, p. ex., `aggrega.ai/namespace`), um `purpose` (o que a anotação controla quando está presente), um `defaultBehavior` opcional (o que o fornecedor faz quando a anotação está ausente) e um `scope` opcional que lista onde o fornecedor lê a chave — `sourced`, `synthesized` ou `artifactsStandalone`, os tipos de entrada da Recipe, ou `boundary` para uma chave lida uma vez por fronteira. `key` e `purpose` são obrigatórios; as entradas preservam a ordem de criação."
+  },
   "3a85a5fe846a347c": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -12685,6 +12779,17 @@
     "srcHash": "3c6017a1d4d3439e",
     "status": "machine",
     "text": "Onde fica o lock"
+  },
+  "3c64b02021efbf8f": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "083b7befcdeec0f5",
+      "reviewed": false
+    },
+    "srcHash": "3c64b02021efbf8f",
+    "status": "machine",
+    "text": "**Exclusividade mútua.** `spec.components:` e `spec.subsystems:` são mutuamente exclusivos na raiz do Aggregate — escreva um ou outro, nunca ambos. Um documento que declare ambos para no carregamento com um erro de envelope. (Um subsistema a que um programador chama explicitamente `default` é um subsistema declarado comum, endereçado pelo seu caminho qualificado `spec.subsystems.default.components.<name>` — a omissão do âmbito sintetizado baseia-se na proveniência, não no nome.)"
   },
   "3c6b2d92e8972b42": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -14623,6 +14728,13 @@
     "status": "machine",
     "text": "Cada anexação de Feature na vista da Release contém um parêntese de proveniência. O parêntese pode assumir uma forma compacta (um parêntese por Feature quando a proveniência da anexação é uniforme em todas as folhas) ou uma forma por folha (um parêntese por folha quando as folhas da anexação vêm de origens heterogéneas). Existem três corpos de parêntese; aplicam-se da mesma forma a ambas as formas."
   },
+  "46682d125e6ab303": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "46682d125e6ab303",
+    "status": "machine",
+    "text": "Só pode ser escrito `true`, pelo que omitir o campo continua a ser a única forma de não dizer nada. Não pode ser escrito juntamente com `wellKnownAnnotations`: um fornecedor que lê algumas das chaves lista-as aí em vez disso. Ambas as recusas são ao nível do esquema, pelo que o Plugin é recusado quando é lido."
+  },
   "466ae0f893bbc681": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -15142,6 +15254,17 @@
     "srcHash": "48a49b67cb3e7048",
     "status": "machine",
     "text": "[aggrega-cache.md](aggrega-cache.md) — o que o diretório que `artifact_cache_dir` nomeia contém realmente, e porque é que uma entidade aí guardada que nenhum lockfile fixa não é encontrada por uma compilação."
+  },
+  "48a596651222600e": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "a5a8477299171a13",
+      "reviewed": false
+    },
+    "srcHash": "48a596651222600e",
+    "status": "machine",
+    "text": "O bloco de parser de um plugin `pluginType: parser`. O seu único campo, `capabilities`, indica os formatos de origem que o plugin transforma numa árvore estruturada canónica, cada um escrito `parse:<format>`. O prefixo faz parte da entrada, pelo que um plugin que lê vários formatos lista uma entrada por formato. `aggrega plugin gen-catalog` regista a lista a partir do próprio `describe()` do plugin, um autor pode restringi-la antes de publicar, e as entradas mantêm a ordem em que são registadas. O bloco só está presente em plugins de parser."
   },
   "48bad704d04c0ad3": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -18032,6 +18155,17 @@
     "status": "machine",
     "text": "`aggrega validate <entity-path>` verifica um ficheiro de entidade de catálogo. Aplica um conjunto de verificações por níveis, parando na primeira falha bloqueante, para que uma quebra de esquema apareça ruidosamente antes de qualquer trabalho de catálogo:"
   },
+  "561863395aca09e3": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "aee17d264f0829d2",
+      "reviewed": false
+    },
+    "srcHash": "561863395aca09e3",
+    "status": "machine",
+    "text": "O compilador agrupa-os num subsistema `default` sintetizado. A identidade dos nós não muda — `api` continua a ser `api`, nunca `default.api` —, pelo que um Aggregate escrito desta forma é intercambiável com a forma explícita de subsistema único, e endereçá-lo (em destinos `uses:`, em diagnósticos) usa o caminho simples `spec.components.<name>`. O âmbito sintetizado é registado fielmente no IR exportado (com um marcador de subsistema sintetizado), mas nunca aparece nos caminhos que um autor escreve ou lê."
+  },
   "5618b80ad104de36": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -19111,6 +19245,17 @@
     "status": "machine",
     "text": "valida os pilares de esquema de cada entidade resolvida (no âmbito do fecho), falhando num erro de pilar de esquema;"
   },
+  "5b3a324826fb522d": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "4e46d8b72400efc0",
+      "reviewed": false
+    },
+    "srcHash": "5b3a324826fb522d",
+    "status": "machine",
+    "text": "Uma *capacidade* é aquilo que um consumidor pede a um plugin — uma capacidade de renderização que uma Recipe pede, ou um formato de origem que um build precisa de ler. As capacidades de um plugin são registadas dentro do bloco que pertence ao seu tipo de socket, pelo que o bloco em que a lista se encontra é o que determina o significado das suas entradas:"
+  },
   "5b3edfa68391c2f5": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -19666,6 +19811,17 @@
     "srcHash": "5deca56c67742df3",
     "status": "machine",
     "text": "O que cada valor aceita é lido do próprio esquema do tipo: os valores que aceita onde o esquema os lista, uma versão semântica onde pede uma e, caso contrário, a própria descrição do campo no esquema. Forneça esses valores e o mesmo comando aceita o documento. Nada na sua forma tem de mudar, porque a forma veio do esquema."
+  },
+  "5df6f93e7579b51d": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "5f4836f95f735460",
+      "reviewed": false
+    },
+    "srcHash": "5df6f93e7579b51d",
+    "status": "machine",
+    "text": "Os nomes das funções do anfitrião que o plugin importa. Derivado pela máquina e só de leitura — não o crie: `aggrega plugin sync` lê as funções do anfitrião a partir da secção de importação do `.wasm` e regista este campo, a publicação recusa um registo que difira do binário, e o valor reflete o binário publicado, validado face à lista de permissões selecionada. O anfitrião regista exatamente este conjunto, dando a cada plugin a superfície de anfitrião de privilégio mínimo de que o seu binário precisa; o pull volta a derivar e verifica o carimbo face ao binário. Para pré-visualizar o valor antes de publicar, execute `aggrega inspect --plugin <file.wasm>`."
   },
   "5df7c5707fd70555": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -20766,6 +20922,17 @@
     "status": "machine",
     "text": "Profundidade de resolução por tipo"
   },
+  "631b6ebf5b22ece6": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "366563ac5f2c71ce",
+      "reviewed": false
+    },
+    "srcHash": "631b6ebf5b22ece6",
+    "status": "machine",
+    "text": "O contrato de comportamento de renderização em tempo de compilação autodeclarado por um plugin de renderização de fornecedor: os tipos de entrada que renderiza, como monta a saída por nó de um grupo de despacho, o par de delimitadores de template que aplica aos ficheiros de artefactos importados, se uma única instância carregada pode servir todas as travessias, se respeita entradas de omissão e se aceita os ficheiros que uma Recipe contribui para a saída partilhada da sua fronteira. Fica ao lado de `capabilities` no mesmo bloco, mas responde a uma pergunta diferente: a lista de capacidades diz *que* capacidades este plugin serve, enquanto o contrato diz *como* as renderiza. `aggrega plugin gen-catalog` regista-o a partir do próprio autorrelatório `describe()` do plugin, e o anfitrião verifica-o face a esse autorrelatório na publicação e no carregamento; uma divergência interrompe o processo. A ausência não declara nenhum contrato de comportamento de renderização, e a verificação cruzada compara apenas as afirmações por exportação. Todos os campos são opcionais."
+  },
   "631fa020f704ced0": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -21384,6 +21551,17 @@
     "srcHash": "66189708d837c171",
     "status": "machine",
     "text": "Referência da CLI: [aggrega-build](cli/aggrega-build.md), [aggrega-inspect](cli/aggrega-inspect.md), [aggrega-pull](cli/aggrega-pull.md), [aggrega-lint](cli/aggrega-lint.md), [aggrega-auth](cli/aggrega-auth.md), [aggrega-cache](cli/aggrega-cache.md), [aggrega-config](cli/aggrega-config.md), [aggrega-deprecate](cli/aggrega-deprecate.md), [aggrega-edit-document](cli/aggrega-edit-document.md), [aggrega-explain](cli/aggrega-explain.md), [aggrega-get-schema](cli/aggrega-get-schema.md), [aggrega-import](cli/aggrega-import.md), [aggrega-login](cli/aggrega-login.md), [aggrega-logout](cli/aggrega-logout.md), [aggrega-mcp](cli/aggrega-mcp.md), [aggrega-pin](cli/aggrega-pin.md), [aggrega-plugin](cli/aggrega-plugin.md), [aggrega-push](cli/aggrega-push.md), [aggrega-push-artifact](cli/aggrega-push-artifact.md), [aggrega-registry](cli/aggrega-registry.md), [aggrega-scaffold](cli/aggrega-scaffold.md), [aggrega-search](cli/aggrega-search.md), [aggrega-serve](cli/aggrega-serve.md), [aggrega-sign](cli/aggrega-sign.md), [aggrega-skills](cli/aggrega-skills.md), [aggrega-validate](cli/aggrega-validate.md), [aggrega-version](cli/aggrega-version.md), [global-flags](cli/global-flags.md), [configuration](cli/configuration.md), [environment-variables](cli/environment-variables.md), [workspace-boundary](cli/workspace-boundary.md)"
+  },
+  "6619034538be99e7": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "470c119e5c4b5408",
+      "reviewed": false
+    },
+    "srcHash": "6619034538be99e7",
+    "status": "machine",
+    "text": "Uma entrada que nomeia um ficheiro que não existe é recusada quando a configuração é carregada, nomeando a entrada e o ficheiro. Mudar o nome de uma Release para, portanto, todos os comandos até que a entrada seja renomeada com ela, em vez de deixar a Release compilar com a lista do espaço de trabalho sem nada que o indique. Um diretório que uma entrada liste tem de ser um diretório, tal como tem de o ser um que a lista do espaço de trabalho indique: um que não o seja é recusado por todos os comandos que leem o catálogo dessa Release, nomeando a entrada e a sua linha."
   },
   "661a4238b076c994": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -23378,12 +23556,26 @@
     "status": "machine",
     "text": "Uma credencial por lote"
   },
+  "7018e209e265e18e": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "7018e209e265e18e",
+    "status": "machine",
+    "text": "**Uma saída que não pode ser lida para o build.** Quando a saída do template não se lê como nenhuma das duas formas — a causa habitual é um escalar entre aspas quebrado pelo valor que contém —, nenhuma das suas chaves poderia ser entregue, pelo que o build para, indicando a associação e a FeatureRecipe, em vez de renderizar o componente como se nada tivesse sido entregue; consulte [fatal-halts.md](../errors/fatal-halts.md) «An attached Feature's injectMapping output cannot be read (A saída injectMapping de uma Feature associada não pode ser lida)». O motivo indicado é omitido quando depende de um valor declarado sensível. Uma saída vazia, ou que é interpretada como um dicionário que não entrega nada, não entrega nada e não é uma falha."
+  },
   "702b1f7a9a429f30": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
     "srcHash": "702b1f7a9a429f30",
     "status": "machine",
     "text": "A autoria em Aggrega é um ciclo curto e repetível. Seja qual for a entidade que se escreve — o Aggregate de um programador, o Component de um arquiteto, uma Recipe de operações ou a Release de um operador —, os mesmos cinco passos levam de um ficheiro em branco a um ficheiro validado:"
+  },
+  "70480392c11dccc3": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "70480392c11dccc3",
+    "status": "machine",
+    "text": "Declara que este fornecedor não lê nenhuma das chaves de anotações bem conhecidas nativas da plataforma. É uma afirmação de suporte que não cobre nenhuma chave, e diz algo que omitir tanto este campo como `wellKnownAnnotations` não diz: uma afirmação ausente é silêncio, enquanto esta é a declaração do próprio fornecedor de que não lê nada no espaço de nomes reservado `aggrega.ai/`. Um build que renderiza através de um fornecedor assim emite um aviso para cada anotação `aggrega.ai/` que chega à renderização, indicando a chave, o fornecedor e os tipos de entrada que a renderização declara; o valor continua a passar inalterado e o build não é interrompido."
   },
   "704d3673a9bf5ce3": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -23490,6 +23682,17 @@
     "srcHash": "70d31eb57235863c",
     "status": "machine",
     "text": "`aggrega/buildPreview` — reportar o que um build da Release **escreveria**, sem escrever nada. `release` tem o mesmo contrato que acima. Executa o mesmo cálculo que `aggrega/build` executa, com as mesmas verificações, pelo que uma Release ou seria recusada por ambos ou é reportada por ambos — o que faz da escolha entre eles uma escolha sobre a saída e não sobre o rigor. Um diretório de catálogo que a Release lê e que não pode ser percorrido, ou que contém uma ligação que conduz para fora do diretório dentro do qual as suas leituras têm de ficar, é recusado da mesma forma, antes de qualquer renderização, e o mesmo acontece com um diretório que a configuração do espaço de trabalho lista e que não é um diretório, como em `aggrega/build`. A resposta contém `files`, os nomes relativos à saída que um build emitiria, ordenados, juntamente com quaisquer `notices`; não há `outputDirectory`, porque nada foi escrito em lado nenhum que se possa nomear. Uma Release que recusa durante a renderização é respondida e publicada exatamente como `aggrega/build` a responde e publica. **Recusa `autoPull`** com um erro de parâmetros inválidos que nomeia o que enviar em vez disso: preencher dependências escreve o lockfile, e este pedido não escreve nenhum lockfile. Não alcança nenhum registo. `policyInput` é a única escrita que faz, e só quando é enviado: escreve as cargas úteis de governação nesse diretório exatamente como `aggrega/build` faz — os ficheiros que `aggrega build --dry-run --policy-input` escreve — deixando intactos o diretório de saída e o lockfile, com o mesmo relato nos `notices` e o mesmo limite: **num pedido que falha, os ficheiros escritos estão no disco e o relato não consta da resposta.**"
+  },
+  "70e48f234d15eed8": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "6b345289e210b776",
+      "reviewed": false
+    },
+    "srcHash": "70e48f234d15eed8",
+    "status": "machine",
+    "text": "**Um bloco por tipo de socket** — `spec.provider`, `spec.pipelineStep`, `spec.parser`, `spec.importer`. Um plugin contém o único bloco que o seu `metadata.pluginType` indica, e cada bloco contém uma lista `capabilities:` — registada a partir do próprio `describe()` do plugin por `aggrega plugin gen-catalog` — cujo significado pertence apenas a esse bloco: a lista de um fornecedor indica as capacidades que serve, a de um passo de pipeline indica as capacidades de fornecedor com que o seu passo é compatível, e as de um parser e de um importador indicam formatos de origem, escritos `parse:<format>` e `import:<format>`. É a contenção que transporta o significado — não é possível chegar a uma entrada de capacidade sem primeiro ler o bloco que diz de que tipo de afirmação se trata."
   },
   "7102bd7b3341b802": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -23860,6 +24063,13 @@
     "srcHash": "72b0c4cc31d0da27",
     "status": "machine",
     "text": "Taxonomia de dados e composição"
+  },
+  "72b923052fe24a30": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "72b923052fe24a30",
+    "status": "machine",
+    "text": "Um consumidor resolve exatamente com base no que está listado."
   },
   "72b9bc574bd2d88f": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -25144,6 +25354,17 @@
     "srcHash": "78f51c42f4e9e32c",
     "status": "machine",
     "text": "Uma **Recipe** é, além disso, **renderizada isoladamente**. Esta é uma faceta da correção de uma única entidade, não o seu ponto principal: depois de os níveis de esquema e de forma passarem, validate resolve o Component de `implements` da Recipe a partir do catálogo, sintetiza um Aggregate, um Manifest e uma Release mínimos em torno de uma única instância desse Component associada à Recipe em teste, e conduz o verdadeiro pipeline de compilação sobre eles — primeiro a resolução e as guardas (com a renderização ignorada), depois uma renderização real da saída isolada. Cada valor obrigatório e cada campo de infra obrigatório sem predefinição é preenchido com um marcador de posição do seu tipo declarado — os valores no Aggregate sintetizado, a infra na Release sintetizada — e todos os outros valores e campos de infra recebem a predefinição do seu esquema através do resolvedor; a Release encaminha a instância para uma fronteira predefinida sintetizada e não declara nenhum `values:` nem nenhuma computação que o Aggregate não tenha declarado. Um marcador de posição é um valor que as restrições declaradas do próprio campo aceitam: a constante ou o primeiro valor que um `enum` enumera, um número dentro dos seus limites, uma cadeia com o seu comprimento e no seu `format`, uma versão semântica quando o seu `pattern` pede uma, tantos itens de lista quantos exige, e todas as propriedades que um objeto exige. Qualquer outro `pattern`, uma condição `validate:` ou `when:`, uma composição de esquemas e uma restrição sobre que itens uma lista contém não são consultados, pelo que um campo que dependa de um deles pode ainda assim recusar o seu marcador de posição; validate reporta então essa recusa nas palavras do próprio esquema. Os artefactos renderizados são impressos para que um autor veja a saída isolada antes de ligar a entidade a um Aggregate completo. Como uma estrutura de teste de entidade única preenche apenas esses campos obrigatórios, não estabelece nenhuma ligação e não anexa nenhuma Feature, uma Recipe cujos templates leem um valor que apenas uma ligação ou uma Feature anexada fornece não pode ser renderizada isoladamente; validate reporta essa renderização como não tentada e não como falhada. Uma asserção que chama `fail` é reportada como aviso em vez de fazer falhar a verificação — consulte [uma asserção falhada é um aviso](#a-failed-assertion-is-a-warning). Uma renderização que para por qualquer outro motivo não foi concluída, e validate reporta-a com o diagnóstico de renderização subjacente até à frase que nomeia o que a parou."
+  },
+  "78f62946802b7b69": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "32382a523d647251",
+      "reviewed": false
+    },
+    "srcHash": "78f62946802b7b69",
+    "status": "machine",
+    "text": "Uma referência a uma entrada que o bloco define **mais abaixo** interrompe o build indicando a falha de ordenação (mova a definição para cima de quem a lê); uma referência a uma chave que o bloco **não declara de todo** interrompe o build indicando a chave (corrija a grafia). **A verificação segue um alias do bloco:** uma chave alcançada através do ponto que um corpo `with .locals` volta a associar, ou através de uma variável associada a `.locals`, interrompe o build exatamente nos mesmos termos que a grafia direta, tal como uma chave lida do bloco entre parênteses — `{{ (.locals).nope }}` ou `{{ ($.locals).nope }}`. Só uma grafia lhe escapa: uma chave alcançada através de uma chamada cujo resultado o texto do template não consegue nomear — `{{ index .locals \"nope\" }}`, ou `{{ (default dict .locals).nope }}`. Um campo lido do resultado de uma chamada destas não interrompe o build e renderiza o texto literal `<no value>`; a leitura com `index` interrompe o build indicando a chave, porque `index` interrompe o build em todas as superfícies de template quando o mapa que lê não contém a chave — consulte [errors/fatal-halts.md](../errors/fatal-halts.md) «A template indexes a map with a key the map does not hold (Um template indexa um mapa com uma chave que o mapa não contém)». `provides:` lê o bloco totalmente resolvido, porque os locals desta FeatureRecipe são resolvidos antes dos seus provides; um template `provides:` que indique uma chave não declarada interrompe o build. São as mesmas regras que o bloco `locals:` de uma Recipe segue — consulte [entities/recipe.md](recipe.md) «O bloco `locals:`»."
   },
   "78fe8e07f2a9bcff": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -28976,6 +29197,13 @@
     "status": "machine",
     "text": "**`assertions:` é onde um Component que estende se torna mais restritivo.** Um Component que `extends:` uma base herda literalmente o bloco de pilares da base e não declara conteúdo de pilares próprio, pelo que uma especialização que tenha de admitir menos do que o esquema herdado indica aqui a restrição como um predicado e não como uma folha de esquema estreitada — uma regra que rejeita um valor que os pilares herdados aceitam. O par trabalhado e o comportamento completo de herança estão em «Criação no catálogo: estender Components base» acima: as regras acumulam-se ao longo da cadeia a começar pela raiz, e reutilizar o nome de uma regra herdada para uma regra diferente é rejeitado, em vez de lhe ser permitido substituí-la."
   },
+  "8cd9ebf9b5569255": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "8cd9ebf9b5569255",
+    "status": "machine",
+    "text": "**Uma chave de nível superior é um mecanismo, e `all` não é um deles.** Cada chave de nível superior de uma saída em forma de dicionário indica o mecanismo através do qual as suas entradas são entregues: `env`, `file` e `arg`, ou qualquer outro nome, que é entregue como um mecanismo próprio com esse nome. `.context.inject.all` é construído a partir desses mecanismos depois da fusão e nunca é fundido a partir de uma saída, pelo que entradas escritas sob `all:` não chegariam a nada; em vez disso, o build para, indicando a associação, a chave e a FeatureRecipe, e dizendo que chaves uma saída pode conter — consulte [fatal-halts.md](../errors/fatal-halts.md) «An attached Feature's injectMapping output writes deliveries under a key nothing delivers (A saída injectMapping de uma Feature associada escreve entregas sob uma chave que nada entrega)». Escreva essas entradas sob o mecanismo a partir do qual o componente as lê."
+  },
   "8d095d77ce7f5e23": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -32473,6 +32701,13 @@
     "status": "machine",
     "text": "Um valor mantém o tipo que os seus caracteres transmitem"
   },
+  "9d15b515c2878073": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "9d15b515c2878073",
+    "status": "machine",
+    "text": "Um valor montado a partir de várias partes é primeiro montado e depois escrito uma única vez através de `toJson`, como fazem os exemplos abaixo."
+  },
   "9d20c11e2fc1867c": {
     "at": "2026-10-22T15:57:26.084Z",
     "job": "session-0045-20261022155726",
@@ -34361,6 +34596,17 @@
     "status": "machine",
     "text": "**`[POLICY_ERROR]`** — a compilação foi rejeitada por um plugin de políticas anexado num papel de veredicto de governação. Não é uma falha de superfície de autoria: a entrada está bem formada, mas falha uma regra de governação (conformidade, FinOps ou segurança) que o plugin impõe. A correção é pôr a implementação em conformidade com a política imposta, ou reconsiderar o anexo da política. A mensagem indica o plugin que rejeitou e contém a mensagem da regra que ele forneceu."
   },
+  "a634d2c2ba366f11": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "e352ca5c4c732e9a",
+      "reviewed": false
+    },
+    "srcHash": "a634d2c2ba366f11",
+    "status": "machine",
+    "text": "**A própria configuração do espaço de trabalho** — todos os `.aggrega-config.yaml` desde a raiz até ao diretório em que um comando corre, e o `.aggrega-config-append-ci.yaml` de um pipeline ao lado de qualquer um deles. Todos os comandos que leem a configuração, o servidor de linguagem e as ferramentas de um assistente leem-na antes de tudo o resto, pelo que um destes ficheiros que seja uma ligação que conduz para fora para cada um deles aí, em vez de os deixar correr com uma configuração feita a partir do que restou: [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside). Os comandos `aggrega` que nunca a leem — `version`, `help`, `completion`, `explain`, `get-schema`, `scaffold` ao esboçar um documento inicial, `skills list`, `plugin run-local`, `plugin sync`, `auth token` e `logout` — correm como habitualmente, com um aviso que nomeia a ligação. `scaffold --example` lê-a, para o registo predefinido e a política de assinaturas, e para aí, tal como qualquer outro leitor. O servidor de linguagem, e o servidor de um assistente que fala através dos seus próprios fluxos, arrancam mesmo assim sobre um espaço de trabalho destes, para que o que ele contém possa ser listado: as listagens de Releases e de entidades respondem, lidas sem nenhum diretório de catálogo e nada mais configurado, e nomeiam o ficheiro entre as ligações não lidas. Todos os outros pedidos que a configuração decide — uma compilação, uma pré-visualização, um grafo, uma validação, um lint, uma descrição, a configuração efetiva, a Release predefinida — param com `E0321` nomeando a ligação, tal como o servidor de um assistente a quem se pede que escute por HTTP, cujo endereço e autorização a configuração teria definido."
+  },
   "a63e169f75c12172": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -34761,6 +35007,13 @@
     "srcHash": "a827ede4c9db9649",
     "status": "machine",
     "text": "A taxonomia semântica de etiquetas (a convenção da biblioteca padrão)"
+  },
+  "a8282f6c417c3f27": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "a8282f6c417c3f27",
+    "status": "machine",
+    "text": "As exportações que o plugin oferece, cada uma com a sua capacidade declarada, como uma lista ordenada que preserva a ordem de criação. Uma exportação é um ponto de entrada com nome para o qual o anfitrião despacha (por exemplo `render_node`, `lint_naming`, `step`); o bloco de capacidade por exportação indica o que essa exportação faz, tal como `aggrega plugin gen-catalog` o regista a partir do autorrelatório `describe()` do plugin, e o anfitrião verifica-o face a esse autorrelatório na publicação e no carregamento. A ausência não declara nenhuma superfície de exportação criada pelo autor."
   },
   "a82d7a79c19e9d8f": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -36248,6 +36501,17 @@
     "status": "machine",
     "text": "As Releases oferecidas são as que se encontram dentro da pasta à qual o servidor de linguagem se ancorou, designadas relativamente a ela, porque é essa a forma que aceita. Onde uma Release não pode ser oferecida, o editor indica quantas são e onde se encontram, em vez de as omitir em silêncio. O servidor de linguagem não lê nenhuma Release através de uma ligação que saia dessa pasta, pelo que uma Release que a árvore de ficheiros do editor mostra através de uma ligação que sai dela — uma ligação para um diretório exterior, ou para um ficheiro de Release exterior — não é oferecida. A única exceção é uma ligação para um ficheiro de Release que a configuração do workspace indica, como `build.authoring_release` ou como chave de `workspace.releases`: essa Release é lida através da sua ligação e oferecida. Ao abrir, o seletor indica-o numa notificação própria, designando pelo seu caminho relativo a essa pasta cada ligação desse tipo que se encontre onde o servidor de linguagem de outro modo leria: primeiro as ligações para diretórios, depois as ligações para ficheiros. Uma ligação cujo nome termina em `.yaml` ou `.yml` é indicada seja qual for o conteúdo do ficheiro para onde leva, porque esse ficheiro não é lido para o descobrir."
   },
+  "aecd351c8b956ec9": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "d7a255bce5ecc555",
+      "reviewed": false
+    },
+    "srcHash": "aecd351c8b956ec9",
+    "status": "machine",
+    "text": "O corpo é compilado para JSON Schema 2020-12 quando o Plugin é carregado — uma salvaguarda estrutural que rejeita um esquema malformado no carregamento e não na renderização. Se uma Recipe `workload:` é suportada é determinado pela capacidade de síntese do fornecedor associado, não pela presença deste campo: uma Recipe em modo sintetizado associada a um fornecedor que não consegue sintetizar é interrompida ruidosamente no momento da renderização. O catálogo da biblioteca padrão mantém `workloadSchema` sincronizado com a capacidade do fornecedor. O campo é o contrato documentado; nada mais o lê. Os próprios corpos de Workload são validados contra o esquema de Workload incorporado gerido pela plataforma, não contra este campo por fornecedor."
+  },
   "aecf7faf89fda987": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -36289,6 +36553,13 @@
     "srcHash": "aee446f6c1181fe1",
     "status": "machine",
     "text": "Uma entrada com esse nome que contenha outra coisa é recusada em vez de substituída, porque substituir o que foi escrito não é uma das quatro."
+  },
+  "aee60adf096426a7": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "srcHash": "aee60adf096426a7",
+    "status": "machine",
+    "text": "**Escreva cada valor através de `toJson`.** O renderizador lê a saída do template como YAML, pelo que um valor interpolado entre aspas tal como está ou quebra essa saída ou é lido de volta alterado assim que contém uma aspa dupla ou uma barra invertida — uma palavra-passe é o caso habitual. `toJson` escreve o valor como uma string JSON, que o YAML lê de volta exatamente, pelo que o valor é entregue com todos os caracteres que contém:"
   },
   "aeeedea3e97184bb": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -38269,6 +38540,13 @@
     "srcHash": "b84e7e70b29cb956",
     "status": "machine",
     "text": "Objeto estruturado cujo `url:` indica um caminho do sistema de ficheiros"
+  },
+  "b86524a35ba456bc": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "srcHash": "b86524a35ba456bc",
+    "status": "machine",
+    "text": "O campo é a afirmação de suporte do fornecedor, e o compilador lê-o de duas formas. Uma entrada cujo `scope` indica um tipo de entrada que o próprio `contract.inputKinds` do bloco não afirma contradiz essa afirmação, e o Plugin é recusado, com a indicação da chave e do âmbito. E quando um build renderiza através deste fornecedor, uma anotação `aggrega.ai/` que nenhuma entrada cobre em nenhum dos tipos de entrada que a renderização declara gera um aviso que indica a chave, o fornecedor e esses tipos de entrada; o valor continua a passar inalterado e o build não é interrompido. Se estiver ausente, o campo não faz qualquer afirmação, e não é emitido nenhum aviso desse tipo para este fornecedor. A validação do esquema verifica apenas a forma de cada entrada (a chave está no espaço de nomes `aggrega.ai/`, `purpose` está presente); é distinta da verificação em tempo de execução que rege a associação de um valor ao espaço de nomes reservado."
   },
   "b86edab7ccd40750": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -43433,6 +43711,17 @@
     "status": "machine",
     "text": "Exemplo"
   },
+  "d02ad3bb3d629cd9": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "6cd9e0379a2bb5db",
+      "reviewed": false
+    },
+    "srcHash": "d02ad3bb3d629cd9",
+    "status": "machine",
+    "text": "O bloco é o registo, legível no catálogo, dessa afirmação: `aggrega plugin gen-catalog` regista-o a partir do próprio autorrelatório `describe()` do plugin, e um autor pode restringi-lo antes de publicar. A imposição lê a mesma afirmação a partir do plugin: quando um passo toca num âmbito, o build é interrompido, a menos que o fornecedor que renderiza os documentos desse âmbito esteja entre os que o plugin afirma. Uma lista vazia ou ausente não declara nenhuma afirmação de compatibilidade, pelo que nenhum âmbito admite o passo."
+  },
   "d0359420d43c6703": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -43853,6 +44142,17 @@
     "srcHash": "d22cb0529787508d",
     "status": "machine",
     "text": "**O que é fixado ao lado de uma FeatureRecipe é o que é fixado ao lado de uma Recipe:** o digest de cada ficheiro que uma entrada `artifacts` importa, e de cada `source:` remota cujas coordenadas estejam escritas por extenso, num `entity.lock` no próprio diretório da FeatureRecipe, que o [`aggrega pin`](../cli/aggrega-pin.md) escreve e de que se faz commit ao lado dela. Um pull sobre uma FeatureRecipe cujo lock não regista essas fixações é interrompido e indica esse passo, a menos que seja pedido ao pull que o execute. Um build é interrompido quando um ficheiro importado deixa de corresponder ao seu digest, e quando o digest de uma origem diverge do registado no lockfile da Release (uma origem escrita num `ref:` de git é registada no commit para o qual foi resolvida e não é comparada); o próprio ficheiro da FeatureRecipe nunca é escrito. O [`aggrega pull`](../cli/aggrega-pull.md#the-entity-lock) descreve o ficheiro e como responder a cada interrupção."
+  },
+  "d22fe9ad33750d44": {
+    "at": "2026-11-02T20:12:02.178Z",
+    "job": "session-0014-20261102201202",
+    "revision": {
+      "from": "9f2e71d12d7b8190",
+      "reviewed": false
+    },
+    "srcHash": "d22fe9ad33750d44",
+    "status": "machine",
+    "text": "O bloco de importador de um plugin `pluginType: importer`. O seu campo `capabilities` indica os formatos de origem externos que o plugin transforma em ficheiros de criação Aggrega provisórios, cada um escrito `import:<format>`. O prefixo faz parte da entrada, pelo que um plugin que trata vários formatos lista uma entrada por formato. `aggrega plugin gen-catalog` regista a lista a partir do próprio `describe()` do plugin, um autor pode restringi-la antes de publicar, e as entradas mantêm a ordem em que são registadas. O bloco só está presente em plugins de importador."
   },
   "d23b432e04e2a490": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -44787,6 +45087,17 @@
     "srcHash": "d7b7d35761b00eaa",
     "status": "machine",
     "text": "`01-pillars-initial.yaml` — o instantâneo do `TemplateContext` por nó depois da resolução e antes de qualquer mutação por fase. Contém `.values`, `.infra`, `.context`, `.parameters`, `.metadata`."
+  },
+  "d7c351160f54e7e6": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "6f6b6609e1012e84",
+      "reviewed": false
+    },
+    "srcHash": "d7c351160f54e7e6",
+    "status": "machine",
+    "text": "O campo `injectMapping` é um `text/template` Go que o renderizador avalia no inject mapping, antes da execução da renderização da Recipe base. O template produz um dicionário JSON ou YAML com chaves de mecanismo opcionais (`env`, `file`, `arg`, ou um mecanismo personalizado que a Recipe do componente lê em `.context.inject.<name>`) — ou um mapa plano que assume `env` por predefinição — e o renderizador funde em profundidade esta sobreposição sobre o canal `.context.inject` do nó chamador. O encaminhamento do lado do chamador através de `injectMapping` é executado no inject mapping sem invocar uma sandbox Wasm para manipulações simples de strings; os plugins Wasm ficam reservados para alterações estruturais da AST através do array `pipeline`."
   },
   "d7d8b1cdf6f6f399": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -46876,6 +47187,17 @@
     "status": "machine",
     "text": "A maioria das ferramentas aceita um objeto: um nome de entidade, ou o caminho de uma Release. As duas abaixo não aceitam nenhum, e são a forma de um assistente acabado de chegar obter um."
   },
+  "e16662c9df0aa6f1": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "7203e37194f7b244",
+      "reviewed": false
+    },
+    "srcHash": "e16662c9df0aa6f1",
+    "status": "machine",
+    "text": "**Não é reutilização paramétrica além dos mecanismos dos templates Go.** Os autores que precisam de variação paramétrica usam a mecânica `{{ define }}` + `{{ template arg }}` dos templates Go dentro das entradas da biblioteca, ou compõem Components / Features que encapsulam as entradas da biblioteca com a sua própria variação. A própria entidade de biblioteca não tem nenhuma mecânica de helpers paramétricos (nenhum bloco `templates` análogo aos helpers paramétricos `spec.templates` da SchemaLibrary); o vocabulário de composição dos templates Go abrange o mesmo caso de utilização."
+  },
   "e1781c1ec57db592": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -48719,6 +49041,17 @@
     "srcHash": "ea5f41bcd4f12952",
     "status": "machine",
     "text": "**`--pre-publish` (controlo de publicação).** Obtém do registo a versão publicada mais recente da entidade que não seja pré-lançamento, executa as mesmas regras com a severidade **`halt`** e, além disso, classifica a alteração como `PATCH` / `MINOR` / `MAJOR` e para se o incremento proposto de `metadata.version` for menor do que a alteração exige. Use-o no fluxo de publicação, antes de `aggrega push`. `--pre-publish` aplica-se apenas à forma de entidade única."
+  },
+  "ea600d01c070d067": {
+    "at": "2026-11-02T20:11:57.931Z",
+    "job": "session-0013-20261102201157",
+    "revision": {
+      "from": "6e4940b009acc3ed",
+      "reviewed": false
+    },
+    "srcHash": "ea600d01c070d067",
+    "status": "machine",
+    "text": "`pipeline-step` — um passo no `pipeline:` de uma FeatureRecipe ou de uma Recipe que aplica patches ao conjunto de documentos renderizados."
   },
   "ea618ed351f5435f": {
     "at": "2026-10-22T22:12:52.746Z",
