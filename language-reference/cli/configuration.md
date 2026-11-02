@@ -168,6 +168,15 @@ plugins:
 A pull resolves the entry and records the plugin it chose in the Release's lockfile, and a build
 renders through what the lockfile records, so an edit here takes effect at the next pull.
 
+**The `uri` names the plugin by its identity, `provider/<name>`, never by where it is published.**
+`aggrega plugin add provider <query> --capability <capability>` writes the entry in that form,
+without a version: the entry selects which plugin serves the capability, the version is the one the
+Recipe pins or else the highest available, and the lockfile records the one the pull chose. A
+plugin the compiler carries inside it is served at the compiler's own version, so a version written
+on an entry for one of those resolves only when it is that version. An entry whose `uri` is a
+registry location — `oci://hub.aggrega.ai/plugin/provider/helm` — names no plugin's identity, and it
+is refused when the file loads, naming the entry and the form to write.
+
 **The entries are written once for the whole project, while a build is of one Release**, so an entry
 for a capability this Release never asks for is legal — another Release in the project reads it —
 and is reported as nothing. What each build and each `aggrega validate --release` does check is
