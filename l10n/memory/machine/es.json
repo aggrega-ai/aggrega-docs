@@ -5965,6 +5965,17 @@
     "status": "machine",
     "text": "**El problema:** el estado declarativo es perfecto para el aprovisionamiento Day-1, pero los desarrolladores necesitan ejecutar acciones imperativas: *«Haz una copia de seguridad de la base de datos ahora mismo.»* Una pipeline GitOps estrictamente declarativa no tiene un mecanismo nativo para volver a disparar un script estático."
   },
+  "20583123a298a125": {
+    "at": "2026-11-02T19:40:32.531Z",
+    "job": "session-0010-20261102194032",
+    "revision": {
+      "from": "e96de37d95976245",
+      "reviewed": false
+    },
+    "srcHash": "20583123a298a125",
+    "status": "machine",
+    "text": "`aggrega/deprecateArtifact` — adjunta un marcador de obsolescencia firmado a un artefacto ya publicado. Envía una única `reference` con su `severity` y su `reason`, o bien `from`, que nombra un archivo de lote relativo a la raíz del workspace; enviar ambos se rechaza. Los campos de contenido son obligatorios en lugar de solicitarse de forma interactiva: nadie está observando este flujo, de modo que una solicitud a la que le falta uno se rechaza indicando qué enviar. Pertenecen solo a la `reference` única: un archivo de lote lleva el contenido de cada marcador en sus propias entradas, de modo que una `severity`, un `reason`, un `replacement` o un `message` enviados junto a `from` se rechazan como parámetro no válido, nombrando cada uno de los enviados, en lugar de ignorarse. Aquí se aplican las mismas entradas sin clave que aceptan las dos solicitudes de firma, porque el marcador se firma por su propio digest, y las entradas de un archivo de lote quedan sujetas a una única credencial exactamente como lo están las referencias de un lote de firma. La respuesta incluye `marked`, donde cada entrada nombra la `reference` retirada, su `severity`, la marca de tiempo `issuedOn` y el `digest` del manifiesto propio del marcador (el marcador se adjunta como referrer sin etiqueta del artefacto que retira, así que nada más lo direcciona), junto con `reach`. **Esto escribe en un registro y llega más allá de esta máquina**; consulta [Acceder a un registro y escribir](#reaching-a-registry-and-writing)."
+  },
   "20615d71e22493b7": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -10130,6 +10141,17 @@
     "srcHash": "381565d892342b25",
     "status": "machine",
     "text": "**Continúa un listado leyendo tres campos de la respuesta.** `count` es cuántos registros contiene el espacio de trabajo, `offset` y `returned` dicen dónde empieza esta respuesta y cuántos lleva, y `more_remaining` dice si quedan más. Mientras `more_remaining` sea true, vuelve a llamar con `offset` más `returned`. Esa señal se calcula a partir de la página respecto al total en lugar de escribirse en la respuesta, así que no puede indicar que no queda nada mientras queden registros."
+  },
+  "38424a63e8bb199c": {
+    "at": "2026-11-02T19:40:32.531Z",
+    "job": "session-0010-20261102194032",
+    "revision": {
+      "from": "6f19f43672b30fd9",
+      "reviewed": false
+    },
+    "srcHash": "38424a63e8bb199c",
+    "status": "machine",
+    "text": "`aggrega/skillsInstall` — escribe la skill de Aggrega integrada en este binario en la carpeta de skills de cada asistente que nombra la solicitud, la misma instalación que realiza [`aggrega skills install`](aggrega-skills.md) en un terminal. `agents` enumera los asistentes por identificador, los identificadores que informa `aggrega/skillsList`; un identificador indicado dos veces se instala una sola vez, y donde varios de los asistentes nombrados leen una misma carpeta compartida, la skill se escribe allí una sola vez. Una instalación de proyecto lo exige. Una solicitud con `global` que no nombra ninguno instala para los asistentes encontrados en esta máquina, como hace `aggrega skills install --global` sin `--agent` — cada uno cuya carpeta de configuración está en el directorio personal, o cuyo comando está en el `PATH` del entorno del daemon — y se rechaza sin escribir nada donde no se encuentra ninguno; no se pregunta nada, e `installed` nombra los asistentes para los que escribió. Sin `global`, la skill va a la carpeta de proyecto de cada asistente **dentro del espacio de trabajo que nombra la solicitud**, nunca al directorio en el que se inició el daemon; con `global: true` va a la carpeta por usuario de cada asistente bajo el directorio personal que nombra el entorno del daemon (`HOME`, o `USERPROFILE` en Windows). Cada destino se comprueba antes de escribir nada, de modo que un rechazo deja cada carpeta como estaba: un identificador para el que no se conoce ninguna carpeta de skills se rechaza nombrándolo junto con los identificadores que existen, y un archivo en un destino que no lleva la línea de comentario que lleva cada copia escrita de la skill se rechaza nombrando su ruta. Una copia que lleva esa línea — una que escribió una instalación anterior, o una tomada del repositorio de skills publicado — se reemplaza, y así es como un `aggrega` más reciente actualiza la skill a su propia versión. Una carpeta de proyecto a la que se llega a través de un enlace que sale del espacio de trabajo se rechaza sin escribir nada, como cualquier escritura que hace el daemon en un espacio de trabajo — consulta [El límite del espacio de trabajo](workspace-boundary.md). La respuesta lleva `skill`, `installed` — una entrada por carpeta escrita, en el orden en que se nombraron los asistentes, cada una con los `agents` que la leen, la `folder` absoluta y `replaced` — y `scope`. **Con `global`, esto escribe carpetas que lee cada proyecto de la máquina** — consulta [Llegar a un registro, y escribir](#reaching-a-registry-and-writing)."
   },
   "3847b009a1cda716": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -20371,6 +20393,17 @@
     "status": "machine",
     "text": "**`aggrega lint` — disponible.** Ejecuta las reglas de disciplina de publicación sobre una entidad de catálogo con la severidad `warn`; `--pre-publish` las ejecuta con la severidad `halt` y añade una comprobación del incremento de versión respecto a la versión publicada actualmente de la entidad. Las reglas se distribuyen como un plugin Wasm opcional. Consulta [`cli/aggrega-lint.md`](cli/aggrega-lint.md)."
   },
+  "70d31eb57235863c": {
+    "at": "2026-11-02T19:40:27.537Z",
+    "job": "session-0009-20261102194027",
+    "revision": {
+      "from": "58e5be187319d75a",
+      "reviewed": false
+    },
+    "srcHash": "70d31eb57235863c",
+    "status": "machine",
+    "text": "`aggrega/buildPreview` — informa de lo que **escribiría** una compilación de la Release, sin escribir nada de ello. `release` lleva el mismo contrato que arriba. Ejecuta el mismo cálculo que `aggrega/build`, con los mismos controles, así que una Release o se rechazaría en ambas o se informa en ambas — y eso es lo que hace que elegir entre ellas sea una elección sobre la salida y no sobre el rigor. Un directorio de catálogo que lee la Release y que no se puede recorrer, o que contiene un enlace que sale del directorio dentro del cual deben quedarse sus lecturas, se rechaza de la misma manera, antes de renderizar nada, y lo mismo ocurre con un directorio que lista la configuración del espacio de trabajo y que no es un directorio, como en `aggrega/build`. La respuesta lleva `files`, los nombres relativos a la salida que emitiría una compilación, ordenados, junto con las `notices` que haya; no hay `outputDirectory`, porque no se escribió nada en ningún sitio que nombrar. A una Release que se rechaza mientras se renderiza se le responde, y se publica, exactamente como `aggrega/build` le responde y la publica. **Rechaza `autoPull`** con un error invalid-params que nombra qué enviar en su lugar: rellenar las dependencias escribe el lockfile, y esta solicitud no escribe ningún lockfile. No llega a ningún registro. `policyInput` es la única escritura que hace, y solo cuando se envía: escribe las cargas útiles de gobernanza en ese directorio exactamente como lo hace `aggrega/build` — los archivos que escribe `aggrega build --dry-run --policy-input` —, sin tocar el directorio de salida ni el lockfile, con el mismo recuento en las `notices` y el mismo límite: **en una solicitud que falla, los archivos escritos están en disco y el recuento no está en la respuesta.**"
+  },
   "7102bd7b3341b802": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -28261,6 +28294,17 @@
     "status": "machine",
     "text": "**Qué no contiene:**"
   },
+  "9d41e0ee61f938a2": {
+    "at": "2026-11-02T19:40:32.531Z",
+    "job": "session-0010-20261102194032",
+    "revision": {
+      "from": "53d7595e5f245fbf",
+      "reviewed": false
+    },
+    "srcHash": "9d41e0ee61f938a2",
+    "status": "machine",
+    "text": "`aggrega/registryUpdate` — actualiza el índice local consultable que lee `aggrega/search`. Un `registry` ausente actualiza todos los configurados; nombrar uno actualiza solo ese registro. `upgrade` vuelve a leer por completo cada repositorio, sin comparar nada con el índice ya escrito; una actualización sin él ya vuelve a leer todo lo que cambió. La respuesta lleva el número de registros de cada host, los repositorios que no pudo leer — cada uno con un `reason` que empieza por el tipo del último fallo de la lectura, donde lo hay —, `readsRetried`, cuántas de sus lecturas el registro rechazó o interrumpió por el camino y se volvieron a pedir, cada una contada una vez y cero incluido, los marcadores de obsolescencia que encontró, el `error` de un host que falló — con `unreachable` al lado donde no se pudo llegar a ese registro — e `indexRoot`, el directorio bajo la propia caché de este espacio de trabajo en el que se escribieron los índices. **Esto llega a cada registro que actualiza** — consulta [Llegar a un registro, y escribir](#reaching-a-registry-and-writing)."
+  },
   "9d421eec387f95fb": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -30082,6 +30126,17 @@
     "srcHash": "a745c8e16cfc6b9d",
     "status": "machine",
     "text": "Referencia a un volumen Secret"
+  },
+  "a748bf73024ed6eb": {
+    "at": "2026-11-02T19:40:32.531Z",
+    "job": "session-0010-20261102194032",
+    "revision": {
+      "from": "006481df2e81cabe",
+      "reviewed": false
+    },
+    "srcHash": "a748bf73024ed6eb",
+    "status": "machine",
+    "text": "`aggrega/scaffoldEntity` — un documento inicial para un tipo de entidad: exactamente los campos que exige el esquema de ese tipo, con los valores fijos `apiVersion` y `kind` ya rellenados y un marcador de posición en todos los lugares donde se necesita un valor. `kind` es obligatorio y es el token de esquema en minúsculas con guiones — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature`, etc.; `aggrega/getSchema` sin `kind` indica qué tokens puedes enviar, y un token al que no corresponde ningún esquema se rechaza con ese conjunto en el mensaje, de modo que una errata se corrige sin una segunda llamada. Un cliente que ofrece al autor la elección de un tipo lee `entityKinds` de ese método, que es el conjunto de tipos de los que se puede escribir un documento. `name` es opcional e inicializa `metadata.name` para los tipos cuyo esquema lo exige. La respuesta contiene `kind` y `skeleton`. Consulta [Qué te da una respuesta de scaffold](#what-a-scaffold-response-gives-you), porque la respuesta es un documento por escribir y no un documento que se haya escrito. El esqueleto se deriva del mismo esquema que devuelve `aggrega/getSchema`, de modo que ambos responden desde una única fuente. **Si se envía `example` en lugar de `kind`, el método escribe uno de los ejemplos ejecutables de la documentación en un directorio nuevo del espacio de trabajo**, como hace [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) en un terminal; si se envía solo `list: true`, responde con todos los ejemplos que hay y no escribe nada. Ambas formas necesitan el espacio de trabajo, así que una solicitud de cualquiera de ellas lo nombra en `workspaceRoot`, y una que no nombra ninguno se rechaza. `dir` nombra el directorio nuevo relativo a la raíz del espacio de trabajo y, por defecto, es el nombre del ejemplo; un valor absoluto, o uno que se resuelve fuera de la raíz — tal como está escrito o a través de un enlace — se rechaza antes de leer nada, y un directorio que contiene algo se rechaza y se deja como está. La respuesta a un listado lleva `examples`, cada uno con su `name`, su `level` y su `summary`; la respuesta a una escritura lleva `example`, `dir`, `files` — cada archivo escrito, relativo a `dir` —, `next`, los comandos que la página del ejemplo da para construirlo, ausente donde no da ninguno, y `version`, la versión de la documentación de la que se leyó el ejemplo. Los campos de dos formas enviados juntos — `kind` con `example`, `list` con `example` o `kind`, `name` con `example` o `list`, o `dir` sin `example` — se rechazan antes de leer nada, con las palabras con las que los rechaza la herramienta del asistente. **Una escritura obtiene el paquete de documentación donde la máquina no tiene ninguna copia que admita la propia comprobación de firmas del espacio de trabajo, y escribe dentro del espacio de trabajo** — consulta [Llegar a un registro, y escribir](#reaching-a-registry-and-writing)."
   },
   "a74d094145042268": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -39392,6 +39447,17 @@
     "status": "machine",
     "text": "Los caracteres de comentario dependen del lenguaje que los rodea:"
   },
+  "db053bd6c6be9770": {
+    "at": "2026-11-02T19:40:32.531Z",
+    "job": "session-0010-20261102194032",
+    "revision": {
+      "from": "785ffb55adc86643",
+      "reviewed": false
+    },
+    "srcHash": "db053bd6c6be9770",
+    "status": "machine",
+    "text": "`aggrega/releaseClosure` — el cierre de dependencias de una Release: qué entidades alcanza y en qué versiones resueltas, en `entities`, `libraries` y `plugins`, junto con las identidades `aggregate` y `manifest` en las que se resolvieron sus dos punteros, los `mappingDiagnostics` que haya generado la resolución y las `deprecations` registradas sobre lo que alcanzó — en su lockfile y en el [registro de confianza de plugins](aggrega-pull.md#the-plugin-trust-record) que está a su lado, de modo que un plugin retirado adjuntado en un rol de veredicto se nombra igual que una referencia fijada retirada. `release` es una ruta relativa a la raíz del workspace que nombra una Release dentro de ella, el mismo valor que acepta `aggrega/irGraph`, rechazada en las mismas formas, y requiere un lockfile por el mismo motivo. No se renderiza nada. Sus entradas no nombran ninguna `source`: dicen de qué depende la Release, no qué hizo una ejecución, que es lo que informa `aggrega/resolveDependencies`. Consulta [Un cierre no es el grafo](#a-closure-is-not-the-graph), porque un cliente que ya recibe el grafo no tiene esto."
+  },
   "db06d8c97bb54ae6": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -40644,6 +40710,13 @@
     "srcHash": "e12f855f01ac5a5d",
     "status": "machine",
     "text": "**Un pull busca un marcador de obsolescencia en cada artefacto cuya firma comprueba, e indica lo que encontró.** Un marcador cuya propia firma se verifica frente a un firmante que el pull acepta — el propio firmante del artefacto, o una identidad de `trusted_deprecation_identities` del registro — se registra y se anuncia con su gravedad y el firmante del marcador. Un marcador que el pull encontró y no pudo aceptar — ilegible, sin firmar, firmado por alguien en quien la política no confía, o con una firma que no se pudo comprobar — se informa como `marker present but not honored`, con el motivo, y no se registra. Una consulta que no pudo terminar — el pull no pudo abrir el registro del artefacto, o el listado de lo que tiene adjunto no respondió — se informa como `marker lookup did not complete`, con el motivo, y no registra nada, porque el pull no averiguó nada sobre si existe un marcador. Con un registro cuya propia política de confianza exige una firma para el tipo del artefacto y no es `advisory`, cualquiera de esos dos casos detiene el pull en lugar de informarse. Un artefacto sin marcador no produce ninguna línea, y donde la verificación de firmas está desactivada, para el espacio de trabajo o para el registro del artefacto, no se busca ningún marcador."
+  },
+  "e149f6d70df65fca": {
+    "at": "2026-11-02T19:40:27.537Z",
+    "job": "session-0009-20261102194027",
+    "srcHash": "e149f6d70df65fca",
+    "status": "machine",
+    "text": "`aggrega/build` — compila una Release y **escribe sus artefactos en el directorio de salida del espacio de trabajo**, el mismo directorio en el que escribe [`aggrega build`](aggrega-build.md) cuando se ejecuta desde la raíz del espacio de trabajo. `release` lleva el mismo contrato que arriba. Renderiza con todos los controles activos, así que una divergencia en la que se detendría una compilación desde la línea de comandos también se detiene aquí. Un directorio de catálogo que lee la Release y que no se puede recorrer — uno que existe y no se puede leer, por ejemplo — se rechaza como lo rechaza [`aggrega build`](aggrega-build.md), antes de escribir nada: ningún artefacto, y ningún lockfile cuando `autoPull` está activado. Lo mismo ocurre con un directorio que lista la configuración del espacio de trabajo y que no es un directorio, en los términos en que lo rechaza `aggrega build` ([De dónde se leen las entidades locales](configuration.md#where-local-entities-are-read-from)). El rechazo es el que da `aggrega/irGraph` para el mismo directorio, `1004` entity-not-resolvable con el informe de la línea de comandos en una sola línea, y un enlace que sale de las lecturas de un directorio de catálogo, o de los documentos junto a la Release, se rechaza como lo rechaza `aggrega/irGraph`, sin escribir nada. La respuesta nombra el `outputDirectory` en el que escribió y los `files` que escribió, cada uno relativo a ese directorio y ordenados, junto con las `notices` que haya generado la ejecución; los hallazgos que llevan una posición en el documento viajan en cambio por `aggrega/publishDiagnostics`. A una Release que se rechaza mientras se renderiza se le responde con ese rechazo en las palabras del compilador, con todas sus causas, y el rechazo se publica donde apunta — consulta [Un rechazo generado durante el renderizado](#a-refusal-raised-while-rendering). Cuando `autoPull` estaba activado, la respuesta lleva también `dependencyResolution`, el mismo informe con el que responde `aggrega/resolveDependencies`, de modo que un cliente que rellenó las dependencias como parte de la compilación lee lo que se fijó sin volver a preguntar — y de dónde tomó la resolución de esta compilación cada referencia, un dato sobre esa ejecución que el lockfile no registra. Cada aviso lleva la `class` de la superficie que lo generó — `deprecation`, `catalog`, `catalog-lint`, `extends`, `release-composition`, o `dependency-resolution` para una línea generada por la resolución de dependencias descrita más abajo — y una `class` vacía cuando el daemon no tiene nombre para esa superficie, que un cliente muestra como el `text` sin más en lugar de adivinar la coincidencia más cercana. Los archivos que la escritura encuentra en el directorio de salida, o en un directorio por debajo de él en el que escribió un archivo o por el que pasó, y que esta compilación no escribió se dejan donde están y se nombran en un único aviso después de los de la propia ejecución, bajo una `class` vacía, en la frase con la que `aggrega build` imprime su advertencia — consulta [Archivos que la compilación no escribió](aggrega-build.md#files-the-build-did-not-write); `files` nunca los nombra. `outputParent` dice dónde van los artefactos dentro del espacio de trabajo, y su nombre es todo lo que significa: es el directorio **dentro del cual se crea el directorio de salida**, así que enviar `docs` escribe los artefactos en `docs/dist` y no en `docs` mismo — exactamente lo que produce una compilación ejecutada en `docs` desde una terminal. Si lo omites, la compilación escribe donde escribe una ejecutada en la raíz del espacio de trabajo. **Se lee de forma distinta del `outputDir` que aceptan las demás solicitudes de escritura de aquí, y a propósito:** esas nombran el directorio *en el que* se escribe, este nombra el directorio padre de ese, y los dos llevan nombres distintos porque son cosas distintas. Sigue siendo un destino dentro del espacio de trabajo, así que un valor absoluto, uno que sube fuera de la raíz y uno que sale de ella a través de un enlace — un directorio enlazado fuera de la raíz, o un directorio aún no creado por debajo de uno así — se rechazan en lugar de resolverse. El directorio de salida creado dentro de él, y cada archivo que la compilación escribe allí, quedan sujetos también al espacio de trabajo: cuando uno de ellos sale del espacio de trabajo a través de un enlace, la compilación se rechaza con `1004` y la frase propia de la condición, que nombra el enlace y adónde lleva, y no se vacía ni se escribe nada. `autoPull` resuelve las dependencias de la Release antes de renderizar, la misma resolución que realiza `aggrega/resolveDependencies`, y está **desactivado a menos que una solicitud lo pida**, en línea con el valor predeterminado de la propia línea de comandos; sin él, una Release que no tiene lockfile se rechaza con el error lockfile-absent, que nombra qué ejecutar. **Con `autoPull` activado, esta solicitud llega a los registros y escribe el lockfile** — consulta [Llegar a un registro, y escribir](#reaching-a-registry-and-writing). Una solicitud que resuelve primero sigue renderizando la Release **una sola vez**: averiguar qué referencias remotas consume una Release es en sí un renderizado, así que la resolución ya ha renderizado aquello de lo que trata la compilación, y la compilación se responde a partir de ese renderizado en lugar de repetirlo. `policyInput` nombra un directorio dentro del espacio de trabajo, relativo a su raíz, en el que la compilación escribe también la carga útil que cada rol de gobernanza entrega a un plugin adjunto allí — los archivos que escribe [`aggrega build --policy-input`](aggrega-build.md), con los mismos nombres —, tanto si la compilación termina como si se detiene; las `notices` de la respuesta dicen entonces cuántos se escribieron y nombran cada rol para el que no se escribió ningún archivo, bajo una `class` vacía. **En una solicitud que falla, los archivos escritos están en disco y ese recuento no está en la respuesta:** el sobre de error lleva solo el rechazo. Es un destino, así que un valor absoluto o uno que sube fuera del espacio de trabajo se rechaza antes de que se ejecute nada."
   },
   "e152feadfb3f25e3": {
     "at": "2026-10-22T13:57:55.995Z",

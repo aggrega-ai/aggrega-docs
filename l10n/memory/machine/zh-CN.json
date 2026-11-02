@@ -71892,6 +71892,17 @@
     "status": "machine",
     "text": "应用渲染出的环境变量，三者并列对比："
   },
+  "70d31eb57235863c": {
+    "at": "2026-11-02T19:40:27.537Z",
+    "job": "session-0009-20261102194027",
+    "revision": {
+      "from": "58e5be187319d75a",
+      "reviewed": false
+    },
+    "srcHash": "70d31eb57235863c",
+    "status": "machine",
+    "text": "`aggrega/buildPreview` — 报告一次 Release 构建**将会**写入的内容，但不写入任何内容。`release` 遵循与上文相同的约定。它执行与 `aggrega/build` 相同的计算，使用相同的检查门，因此一个 Release 要么在两者中都会被拒绝，要么在两者中都会得到报告——正因如此，在两者之间的选择是关于输出的选择，而非关于严格程度的选择。Release 读取的目录中无法遍历的 catalog 目录，或包含指向其读取范围之外的链接的 catalog 目录，会以相同方式被拒绝，且在渲染任何内容之前；工作区配置列出、但实际上并不是目录的目录也同样被拒绝，与 `aggrega/build` 相同。响应携带 `files`，即构建将会输出的、相对于输出目录的名称（已排序），以及所有 `notices`；不存在 `outputDirectory`，因为没有写入任何位置可供指明。在渲染过程中拒绝的 Release，其响应和发布方式与 `aggrega/build` 完全相同。它**拒绝 `autoPull`**，返回 invalid-params 错误并指明应改为发送的内容：填充依赖会写入 lockfile，而此请求不写入 lockfile。它不访问任何 registry。`policyInput` 是它唯一会进行的写入，且仅在发送该参数时进行：它会与 `aggrega/build` 完全相同地将治理载荷写入该目录——即 `aggrega build --dry-run --policy-input` 写出的文件——不触动输出目录和 lockfile，在 `notices` 中给出相同的说明，并受相同的限制：**请求失败时，已写入的文件留在磁盘上，而这份说明不在回复中。**"
+  },
   "70e48f234d15eed8": {
     "at": "2026-10-29T21:59:45.311Z",
     "job": "session-0027-20261029215945",
@@ -144450,6 +144461,17 @@
     "srcHash": "e13f0e46628ac33b",
     "status": "machine",
     "text": "**模式 3：库 `$import:`。** 值是一个只含单个 `$import:` 键的映射，携带对某个 ArtifactLibrary 捆绑包的裸名称身份引用 `<Library>#/artifacts/<name>`。捆绑包是作为一个单元导入的一组文件，因此**一个条目会按捆绑包中的每个文件展开为一个输出，每个输出以 `<key>/<filename>` 的形式嵌套在映射键之下**——键命名的是使用位置，是这些文件所在的目录，而不是其中任何一个文件的名称。上面的第三个条目的键为 `operator-support`；如果 `PlatformArtifacts#/artifacts/OperatorSupport` 声明了 `crd.yaml` 和 `rbac.yaml`，这个单一条目就会生成 `operator-support/crd.yaml` 和 `operator-support/rbac.yaml`。该引用不携带注册表主机——带主机的 `oci://…` 形式会被拒绝——解析出的版本来自每个 Release 的锁文件，并且可以用 `<Library>:<version>#/artifacts/<name>` 断言一个可选的 `:<version>` 最低版本下限。关于该库实体和完整的引用语法，参见 [entities/artifactlibrary](artifactlibrary.md)。"
+  },
+  "e149f6d70df65fca": {
+    "at": "2026-11-02T19:40:27.537Z",
+    "job": "session-0009-20261102194027",
+    "revision": {
+      "from": "4073a7758749002f",
+      "reviewed": false
+    },
+    "srcHash": "e149f6d70df65fca",
+    "status": "machine",
+    "text": "`aggrega/build` — 编译一个 Release，并**将其产物写入工作区的输出目录**，即从工作区根目录运行 [`aggrega build`](aggrega-build.md) 时写入的同一目录。`release` 遵循与上文相同的约定。它在所有检查门均开启的情况下渲染，因此命令行构建会因之中止的偏差在这里同样会中止。Release 读取的目录中无法遍历的 catalog 目录（例如存在但无法读取的目录）会像 [`aggrega build`](aggrega-build.md) 那样被拒绝，且在写入任何内容之前：不产生任何产物，设置了 `autoPull` 时也不产生 lockfile。工作区配置列出、但实际上并不是目录的目录也同样被拒绝，所用措辞与 `aggrega build` 拒绝它时相同（[Where local entities are read from](configuration.md#where-local-entities-are-read-from)）。该拒绝与 `aggrega/irGraph` 对同一目录给出的拒绝相同，即 `1004` entity-not-resolvable，并附上命令行报告（单行）；指向 catalog 目录读取范围之外或 Release 旁文档之外的链接，会像 `aggrega/irGraph` 那样被拒绝，且不写入任何内容。响应会指明其写入的 `outputDirectory` 和写入的 `files`（均相对于该目录并已排序），以及运行中产生的所有 `notices`；带有文档位置的发现则改由 `aggrega/publishDiagnostics` 传递。在渲染过程中拒绝的 Release，其响应即为该拒绝，使用编译器的原话并包含所有原因，且该拒绝会发布到其所指向的位置——参见 [A refusal raised while rendering](#a-refusal-raised-while-rendering)。设置了 `autoPull` 时，响应还会携带 `dependencyResolution`，即与 `aggrega/resolveDependencies` 响应相同的报告，因此在构建过程中填充依赖的客户端无需再次请求即可读取已固定的内容——以及本次构建的解析从何处获取每个引用，这是关于该次运行的事实，lockfile 不会记录。每条 notice 都携带产生它的环节的 `class`——`deprecation`、`catalog`、`catalog-lint`、`extends`、`release-composition`，或对下文依赖解析产生的行使用 `dependency-resolution`——守护进程无法命名该环节时则为空 `class`，客户端此时应直接呈现 `text`，而不是猜测最接近的匹配。写入时在输出目录中、或在其下它写入过文件或经过的目录中发现的、并非由本次构建写入的文件，会保留在原处，并在运行自身的各条 notice 之后，以一条位于空 `class` 下的 notice 列出，所用句子与 `aggrega build` 打印其警告时相同——参见 [构建未写入的文件](aggrega-build.md#files-the-build-did-not-write)；`files` 从不列出它们。`outputParent` 指明产物在工作区内的位置，其名称即其全部含义：它是**创建输出目录的所在目录**，因此发送 `docs` 会将产物写入 `docs/dist`，而不是 `docs` 本身——与在终端中于 `docs` 下运行构建的结果完全相同。省略它时，构建写入的位置与在工作区根目录运行时相同。**它与此处其他写入请求所接受的 `outputDir` 含义不同，而且是有意为之：**后者指明*写入其中*的目录，而本参数指明该目录的父目录，二者名称不同，因为它们是不同的东西。它仍是工作区内的目标位置，因此绝对路径、越出根目录的值，以及通过链接越出根目录的值（根目录外的链接目录，或其下尚未创建的目录）都会被拒绝而不予解析。在其中创建的输出目录以及构建写入其中的每个文件同样受限于工作区：若其中任何一个通过链接越出工作区，构建会以 `1004` 被拒绝，并附上该条件自身的语句，指明该链接及其指向，且不清理或写入任何内容。`autoPull` 在渲染之前解析 Release 的依赖，与 `aggrega/resolveDependencies` 执行的解析相同，且**除非请求要求，否则为关闭状态**，与命令行自身的默认值一致；未设置时，没有 lockfile 的 Release 会以 lockfile-absent 错误被拒绝，并指明应运行的命令。**设置 `autoPull` 后，此请求会访问 registry 并写入 lockfile**——参见 [Reaching a registry, and writing](#reaching-a-registry-and-writing)。先进行解析的请求仍只渲染 Release **一次**：查明一个 Release 使用了哪些远程引用本身就是一次渲染，因此解析已渲染了构建所涉及的内容，构建直接基于该次渲染给出响应，而不再重复渲染。`policyInput` 指明工作区内的一个目录（相对于其根目录），无论构建完成还是中止，构建都会另外将每个治理角色交给挂接于该处的插件的载荷写入该目录——即 [`aggrega build --policy-input`](aggrega-build.md) 写出的那些文件，名称相同；随后响应的 `notices` 会说明写入了多少个文件，并在空 `class` 下指明每个未写入任何文件的角色。**请求失败时，已写入的文件留在磁盘上，而这份说明不在回复中：**错误信封只携带拒绝本身。它是一个目标位置，因此绝对路径或越出工作区的值会在任何操作运行之前被拒绝。"
   },
   "e14ce2d1af16cbe0": {
     "at": "2026-10-29T23:51:32.697Z",
