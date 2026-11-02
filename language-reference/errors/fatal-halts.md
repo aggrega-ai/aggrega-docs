@@ -326,9 +326,28 @@ The same three keys on a FeatureRecipe report the same condition and read the sa
 > `<n>` documents under the catalog directories declare an Aggrega apiVersion and could not be loaded, so nothing was checked: `<path>`, `<path>`
 > file load failed: the file could not be read, or its bytes did not parse (catalog document, failed to unmarshal YAML: `<the parser's reason>`)
 
-with `failed to decode the envelope:` and the line and what the decoder found there — `line 4 (metadata): a list is written where a map is expected` for a `metadata` written as a list — for a document that parses and does not decode, and `failed to read file:` and the operating system's reason for a file that could not be read.
+with `failed to decode the envelope:` and the line and what the decoder found there — `line 4 (metadata): a list is written where a map is expected` for a `metadata` written as a list — for a document that parses and does not decode, and `failed to read file:` and the operating system's reason for a file that could not be read. A document that loads and declares a kind no catalog holds is named by the same halt, counted in the same head, and listed under its own condition — see "A catalog document declares a kind a catalog does not hold" below.
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
+
+### A catalog document declares a kind a catalog does not hold
+
+<!-- covers: pkg/catalog.ErrUnknownCatalogDocumentKind -->
+
+A document under the catalog directories declares an Aggrega `apiVersion` — a line starting, unindented, with `apiVersion:` and a value beginning `aggrega.ai/` — and a `kind` that no catalog holds: a misspelling such as `Componnent`, a kind in the wrong case such as `component`, or no `kind` at all. A catalog files each document under the kind it declares, so such a document enters no catalog: a build, `inspect` and every other command that loads the catalog passes over it, and a reference to the entity it was meant to declare resolves to nothing.
+
+A catalog holds Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary, Aggregate and Plugin documents. Three other kinds legitimately sit in its directories and are never reported here: a Manifest and a Release kept beside the entities, and a Workload in the directory of the Recipe or FeatureRecipe that imports it.
+
+Whole-catalog [`aggrega validate`](../cli/aggrega-validate.md) and [`aggrega lint`](../cli/aggrega-lint.md), and the release-scoped lint, which walks the same directories, report it. Each reads every file before it halts, so one run names every such document together with any document that cannot be loaded at all, beneath one head that counts them and names their files; nothing is checked and no summary is printed. Each document is listed with the kind it declares, and the line closes with the kinds a catalog holds:
+
+> `<n>` documents under the catalog directories declare an Aggrega apiVersion and could not be loaded, so nothing was checked: `<path>`, `<path>`
+> catalog document declares a kind a catalog does not hold (kind "Componnent"). a catalog holds Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary, Aggregate and Plugin documents, and passes over a Workload, a Manifest or a Release; correct the kind, or move the file out of the catalog directories
+
+with `no kind` in place of `kind "<kind>"` for a document that declares none.
+
+A build does not stop on such a document: it passes over it as every load does, and a document no Release reaches never fails a build. Where a Release does reach the entity, the build stops at the reference, under "A reference names no entity the catalog holds" below, and the note beneath that failure names the file when it declares the name the reference asks for — see that entry.
+
+**How to fix:** open the file the message names and correct its `kind` to the kind the document is — the spelling and the case are both significant. A file that is not a catalog entity at all does not belong under the catalog directories; move it out, or give it an `apiVersion` that is not Aggrega's if it is another tool's document.
 
 ### A path names content outside the entity's own directory
 
@@ -1939,6 +1958,8 @@ for a library:
 
 and for a plugin bound to a provider socket, which is named by the workspace configuration key that carried it rather than by a catalog document:
 > resolve: no entity in the catalog matches this URI: entity `"<reference>"` (referenced from .aggrega-config.yaml.plugins.providers)
+
+Where a file under the catalog directories declares the name the reference asks for under a kind no catalog holds — a misspelled `kind`, say — `aggrega build` names that file, the kind it declares and the kinds a catalog holds in a note beneath this failure, and leaves out the advice about where local entities are read from; see [A refused catalog file and the failure it explains](error-translation.md#a-refused-catalog-file-and-the-failure-it-explains).
 
 **How to fix:** read the reference exactly as the message quotes it. A name that does not exist, a version that was never published, and a bare name whose registry the workspace is not pointed at all arrive here identically, so check the three in that order: correct the spelling; confirm the version exists; confirm the registry holding it is configured and reachable. Where the entity is one you author locally, confirm the file is inside the catalog the build walks.
 
@@ -6630,6 +6651,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0368` | `FeatureRecipe injectMapping output writes a key no delivery mechanism of the host reads` | An attached Feature's injectMapping output writes deliveries under a key nothing delivers |
 | `E0369` | `template reads a path as a value and iterates it, and the data holds nothing at that path` | A template reads and iterates a path that holds nothing |
 | `E0370` | `a pipeline declares one step id twice` | A pipeline declares one step id twice |
+| `E0371` | `catalog document declares a kind a catalog does not hold` | A catalog document declares a kind a catalog does not hold |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

@@ -101,6 +101,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrProviderBindingUnsatisfied()` | `provider-binding-unsatisfied` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` |
 | `ErrProviderVersionUnsatisfiable()` | `provider-version-unsatisfiable` | `no provider-rendering plugin version satisfies the recipe's provider version pin` |
 | `ErrQualifiedPluginReference()` | `plugin-reference-must-not-be-registry-qualified` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
+| `ErrUnknownCatalogDocumentKind()` | `unknown-catalog-document-kind` | `catalog document declares a kind a catalog does not hold` |
 | `ErrUnsatisfiableEntityVersion()` | `unsatisfiable-entity-version` | `no catalog version satisfies the referenced version constraint` |
 | `ErrUnscopedPluginReference()` | `plugin-reference-must-be-scoped` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
 | `ErrUnscopedRecipeReference()` | `recipe-reference-must-be-scoped` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
@@ -847,6 +848,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0368` | `inject-mapping-output-key-not-delivered` | `FeatureRecipe injectMapping output writes a key no delivery mechanism of the host reads` |
 | `E0369` | `absent-path-read-and-iterated` | `template reads a path as a value and iterates it, and the data holds nothing at that path` |
 | `E0370` | `duplicate-pipeline-step-id` | `a pipeline declares one step id twice` |
+| `E0371` | `unknown-catalog-document-kind` | `catalog document declares a kind a catalog does not hold` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
