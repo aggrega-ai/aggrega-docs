@@ -115,6 +115,13 @@
     "status": "machine",
     "text": "[`aggrega push`](cli/aggrega-push.md) — publica uma entidade de catálogo em um registry OCI, opcionalmente assinando-a no momento do push."
   },
+  "008fcb68844ac23d": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "008fcb68844ac23d",
+    "status": "machine",
+    "text": "Uma funcionalidade vinculada a toda a fronteira pode carregar um bloco `uses:`, e esse bloco se projeta para cada componente roteado para a fronteira: cada componente ganha uma aresta de dependência para os destinos que a funcionalidade nomeia e recebe por injeção os `provides` desses destinos. Isso expressa uma dependência compartilhada uma única vez na fronteira — “todo componente desta fronteira se comunica com o cache / coletor / barramento de mensagens compartilhado” — em vez de repetir a mesma aresta `uses:` em cada componente. Uma vinculação de Feature no nível do subsistema no Aggregate projeta seu `uses:` da mesma forma nos componentes do subsistema. `uses` é uma declaração de ligação da topologia, não um valor, então é permitida na Release. A projeção é independente do escopo de execução da Feature vinculada: uma Feature cuja FeatureRecipe é renderizada uma vez por fronteira ainda projeta seu `uses:` por componente, enquanto o próprio recurso compartilhado é renderizado uma vez."
+  },
   "008ff95a09d66b23": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -325,6 +332,13 @@
     "srcHash": "01af9296f436e210",
     "status": "machine",
     "text": "Instalar com um único comando"
+  },
+  "01bc1a8070cda55c": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "01bc1a8070cda55c",
+    "status": "machine",
+    "text": "O posicionamento parcial não aciona *esta* regra: um submódulo está posicionado assim que qualquer um de seus componentes alcança uma fronteira, então nomear um deles satisfaz o submódulo. Disso não decorre que os demais possam ser omitidos. Nada posiciona então cada componente que a fronteira não nomeou, e a regra de componentes abaixo o relata em sua própria chave — então um submódulo posicionado em parte interrompe o build uma vez para cada componente que deixou para trás, e não no submódulo. As duas grafias que posicionam um submódulo inteiro em uma linha são a entrada de roteamento e nomear cada componente; qualquer coisa entre as duas posiciona o que nomeia e nada mais."
   },
   "01ccf6992cb8daef": {
     "at": "2026-11-02T23:06:16.435Z",
@@ -1913,6 +1927,13 @@
     "status": "machine",
     "text": "Não pode ser escrito pelo usuário; anotações com o prefixo sem subdomínio declaradas em conteúdo do usuário são rejeitadas no momento da publicação"
   },
+  "092862fea120cb89": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "092862fea120cb89",
+    "status": "machine",
+    "text": "**Kubernetes (provedor helm / helm-chart).** Onde a onda não é `0`, cada recurso Kubernetes que o provedor helm renderiza para a fronteira carrega a anotação padrão do GitOps `argocd.argoproj.io/sync-wave: \"<N>\"`; os hooks do Helm carregam adicionalmente a anotação `helm.sh/hook-weight: \"<N>\"`, para que o mesmo valor de onda conduza a própria ordenação pre/post-install do Helm. O ArgoCD lê a anotação sync-wave e o Helm lê o peso de um hook, e cada um ordena a aplicação dos recursos de acordo. O provedor helm-chart copia os templates de um chart de origem como o autor os escreveu, então os recursos próprios de um subchart carregam a onda apenas onde esses templates a escrevem; um artefato carregado por `$import:` que ele adiciona carrega `argocd.argoproj.io/sync-wave` e nenhum `helm.sh/hook-weight` (veja [`providers/helm-chart.md`](../providers/helm-chart.md))."
+  },
   "092c2625b5f81f90": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -2699,6 +2720,13 @@
     "status": "machine",
     "text": "**Em vez disso, ela espera.** Envie `aggrega/diagnostics` para um arquivo que está sendo validado agora e a resposta chega quando essa validação termina, trazendo o que ela encontrou. Há uma única resposta correta para o arquivo, seja qual for o momento, e é essa a resposta que você recebe — nunca é uma lista vazia para um arquivo cuja validação está prestes a reportar erros, que é a única resposta errada da qual um cliente não consegue se recuperar, porque nada leva você a perguntar de novo sobre um arquivo que lhe disseram estar limpo. As outras operações baseadas em posição — `hover`, `completion`, `resolve`, `findReferences`, `findImplementations` — leem a análise e respondem a partir da análise, então não têm nada a esperar e nunca esperam."
   },
+  "0e23ffbbd31e22ef": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "0e23ffbbd31e22ef",
+    "status": "machine",
+    "text": "**Separação entre parâmetros e infra.** Os parâmetros carregam a intenção cognitiva do desenvolvedor expressa como slots tipados que o Aggregate declara; a Release os preenche. `infra:` na Release carrega o dimensionamento físico do operador (contagens de réplicas, limites de CPU/memória, classes de armazenamento) associado a componentes específicos ou a vinculações de Feature. Os parâmetros fluem para os templates `values:` do Aggregate por meio de `.parameters.X`; `infra:` flui para o template `valuesMapping:` da Recipe por meio de `.infra.X`. Veja [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) para a taxonomia dos pilares de dados e [templates/parameters-context.md](../templates/parameters-context.md) para o ciclo de vida dos parâmetros ao longo do pipeline."
+  },
   "0e38efcf58d986a0": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -2906,6 +2934,13 @@
     "status": "machine",
     "text": "**Ele mantém as capitalizações dos campos inalteradas.** Os campos de schema escritos pelo autor continuam em camelCase e as chaves do contexto do template continuam em snake_case. Nenhum dos identificadores deste registro é um campo em qualquer uma das duas superfícies — são nomes curtos e estáveis para uma flag, uma regra ou uma classe de constatações — de modo que um código de diagnóstico em kebab-case não diz nada sobre como se escreve um campo de schema."
   },
+  "0f1a2a27a301dc8a": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "0f1a2a27a301dc8a",
+    "status": "machine",
+    "text": "**Unidade de autoria de ondas vs. unidade implantável.** A fronteira é a unidade em que as ondas são escritas. A unidade implantável é o caminho de montagem para o qual os componentes são emitidos — por padrão 1:1 com a fronteira, mas duas fronteiras irmãs que compartilham um `directory:` se fundem em uma única saída montada (um `Chart.yaml`, um `docker-compose.yaml`). Quando isso acontece, a saída montada pode conter recursos de várias ondas; uma Application do ArgoCD que a lê ordena, dentro da Application, cada recurso pela anotação `sync-wave` que esse recurso carrega — no helm, cada recurso renderizado para uma onda diferente de zero, e no helm-chart, apenas um artefato carregado por `$import:`, enquanto os templates próprios de um subchart carregam o que o autor deles escreveu. O sequenciamento entre Applications através de caminhos é responsabilidade da CI do operador."
+  },
   "0f1ad614b83938aa": {
     "at": "2026-10-30T04:51:07.986Z",
     "job": "session-0056-20261030045107",
@@ -2948,6 +2983,13 @@
     "srcHash": "0f311f235c5bdce8",
     "status": "machine",
     "text": "**A solução: `syncWave` por fronteira na Release** O `Aggregate` do desenvolvedor permanece intocado. Como o sequenciamento é uma realidade operacional física, ele é gerenciado estritamente no Domínio 4 (a `Release`). Cada fronteira da Release carrega um campo opcional `syncWave: <integer>`, que permite ao operador de plataforma escalonar explicitamente a ordem de rollout no nível da fronteira."
+  },
+  "0f398e8577197e49": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "0f398e8577197e49",
+    "status": "machine",
+    "text": "Coloque cada subagregado listado em `Aggregate.spec.aggregates:` em exatamente uma fronteira."
   },
   "0f3c608ef7e8dd37": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -2997,6 +3039,13 @@
     "srcHash": "0f5f6a591f3dc093",
     "status": "machine",
     "text": "O que uma execução recusada ainda informa a você"
+  },
+  "0f624f6e2ccfc0ba": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "0f624f6e2ccfc0ba",
+    "status": "machine",
+    "text": "Posicionar um submódulo exige, portanto, `boundaries:`. A forma de escopo único não tem superfície de roteamento — `aggregates:` é uma chave de uma fronteira, não de `spec:` — e o mapa `components:` de nível superior aceita apenas nomes não qualificados, então uma Release que implanta um Aggregate que importa submódulos declara `boundaries:`."
   },
   "0f673237f1e8099c": {
     "at": "2026-10-22T14:15:44.761Z",
@@ -3422,6 +3471,13 @@
     "srcHash": "11b8525f52d77246",
     "status": "machine",
     "text": "O que é recusado e o que não é"
+  },
+  "11bd7d1316d37f91": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "11bd7d1316d37f91",
+    "status": "machine",
+    "text": "**Ligar um socket não associado.** Crie uma aresta para um socket que o `usesSchema` do Component declara, mas que o desenvolvedor deixou sem ligação, apontando para um componente existente. A aresta criada também pode carregar `infra` por aresta."
   },
   "11c1af3a01453b5a": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -4444,6 +4500,13 @@
     "status": "machine",
     "text": "Ignora o cache persistente em disco de compilação de plugins para este build e compila os guests de plugins do zero em um cache em memória que é descartado quando o build termina. Desativado por padrão, o que reutiliza o cache compartilhado em disco entre builds. Não altera a saída renderizada"
   },
+  "16e09d90d57d4c3a": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "16e09d90d57d4c3a",
+    "status": "machine",
+    "text": "Os componentes e as Features próprios do subagregado não são declarados novamente na Release — a Release os roteia em vez de repeti-los, e só nomeia um deles para configurá-lo."
+  },
   "16f0e1f0041eceb4": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -5156,6 +5219,13 @@
     "status": "machine",
     "text": "`aggrega push` pode assinar o artefato ao publicá-lo e anexar a assinatura como um referrer OCI — um bundle Sigstore (compatível com cosign) sobre o digest imutável do manifest do artefato. A assinatura é um manifest irmão, então assinar nunca reenvia nem altera os bytes publicados. O referrer nomeia seu bundle `signature.json`, então um cliente OCI genérico que baixa o referrer pelo seu digest grava o bundle nesse arquivo."
   },
+  "1a97cf81077bd9fe": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "1a97cf81077bd9fe",
+    "status": "machine",
+    "text": "**Valores de anotação estruturados.** Quando um binding do Manifest declara vários caminhos de roteamento do pilar infra para uma mesma chave de anotação, o valor da anotação do lado da Release pode ser um objeto estruturado que carrega valores para vários campos do esquema de uma Feature em uma única declaração:"
+  },
   "1a9db9d1cb4416de": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -5321,6 +5391,13 @@
     "srcHash": "1b818e0f5b65c133",
     "status": "machine",
     "text": "A fronteira ABI mantém o núcleo Go compacto, auditável e agnóstico em relação à nuvem. Trocar a lógica de renderização de um provedor é trocar um artefato Wasm, não recompilar o próprio Aggrega."
+  },
+  "1ba8eb1fbdd8638c": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "1ba8eb1fbdd8638c",
+    "status": "machine",
+    "text": "**E uma entrada de fronteira que nomeia um componente que o Aggregate implantado não contém interrompe o build.** As duas regras acima leem o posicionamento do lado do componente — algo o posicionou? Esta o lê do lado da Release: o nome é resolvido? Uma entrada que não é resolvida para nada não posiciona nada, de modo que seu `subDirectory`, suas anotações, seu `infra:` por componente e seus `uses:` configuram um componente que não existe, e o build para em vez de emitir uma implantação que a entrada nunca alcançou. As duas grafias são verificadas: um nome em `components:` de uma fronteira é lido como o id que o componente tem quando a composição está concluída, e um nome em `components:` de uma entrada de roteamento é lido como o nome local que ele tem dentro daquele submódulo. O diagnóstico relata o id que a entrada endereçou, que na grafia roteada não é o nome no arquivo — o arquivo escreve a metade local e o submódulo fornece seu prefixo."
   },
   "1bafa3509f805bba": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -6434,6 +6511,13 @@
     "status": "machine",
     "text": "avalia cada **asserção de Recipe e FeatureRecipe** em relação aos valores em que a Release se resolve, como um build as avalia antes de renderizar: a Recipe de cada componente é vinculada como o Manifest a mapeia, seus `locals` e `provides` são resolvidos, e a primeira asserção que falha — uma que chama `fail`, ou uma cujo template para em uma chave que não encontra — faz a validação falhar com a condição e a frase com que um build para. Um template `locals` ou `provides` que não pode ser avaliado também a faz falhar, como faz um build falhar. O provider pelo qual cada Recipe renderiza é consultado sobre o nome que dá aos recursos desse componente, como um build o consulta, porque os `provides` de uma Recipe podem ler esse nome; nada é renderizado. Essas asserções só são avaliadas quando nada acima já falhou, de modo que uma Release informa a falha mais antiga em que um build pararia;"
   },
+  "2155fe9f055cf974": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "2155fe9f055cf974",
+    "status": "machine",
+    "text": "Veja [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md) para o modelo do escopo padrão."
+  },
   "216628eb4daeb439": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -6545,6 +6629,13 @@
     "srcHash": "21da7d18df6fca43",
     "status": "machine",
     "text": "`file` faz parte da resposta em vez de ser algo que você já sabe. Um nó fornecido por um módulo importado foi escrito no próprio documento desse módulo com o nome que o módulo lhe deu, de modo que tanto o arquivo quanto o último segmento do contêiner diferem de qualquer coisa que você tenha enviado."
+  },
+  "21df8a5c10cce1c6": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "21df8a5c10cce1c6",
+    "status": "machine",
+    "text": "Cada fronteira na Release declara opcionalmente um campo inteiro `syncWave:`, que dá ao operador controle explícito sobre a ordem de implantação sem mexer no Aggregate do desenvolvedor. O número da onda é uma propriedade da própria fronteira; cada componente contido na subárvore da fronteira herda o valor de onda da sua fronteira quando os artefatos são emitidos."
   },
   "21e3aedb45783154": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -6662,12 +6753,26 @@
     "status": "machine",
     "text": "**Os três tipos de entrada — `source` + `valuesMapping` (com origem), `workload` (sintetizado) e `artifacts`:** idênticos em forma aos da Recipe base (consulte [Composição de entradas da Recipe](../../architecture/16-recipe-input-composition.md) e [`entities/recipe.md`](recipe.md)). Uma FeatureRecipe que carrega qualquer um deles é **geradora de recursos** — ela renderiza recursos ao lado do componente base. O local onde esses recursos ficam carrega o componente ao qual a Feature está anexada e depois o nome sob o qual ela está anexada, na forma, entre as duas, que o layout próprio do destino admite: como um diretório `{component}--{instance}/` ao lado do diretório do hospedeiro, sob o diretório em que esse destino coloca seus contribuidores, em um destino cujo provider dá a cada contribuidor uma posição própria; como um prefixo de nome de arquivo `{component}--{instance}--` ao lado dos arquivos próprios do componente, em um destino que lê apenas os arquivos localizados diretamente em um diretório. Em um provider que compõe seus contribuidores em um único documento, os recursos são, em vez disso, incorporados a esse documento — qualquer que seja a família à qual a Feature pertence: um CRD `ServiceMonitor` ou `ExternalSecret` como `artifacts:` inline ou via `$import`; um chart ou módulo externo via `source:` + `valuesMapping:`; ou o próprio compute (por exemplo, um Deployment de agente sidecar) via `workload:`. `valuesMapping:` compartilha os três modos de autoria da Recipe base (block scalar inline, `$import:` de arquivo, `$import:` de biblioteca para uma entrada de uma MappingLibrary) — consulte [`entities/recipe.md`](recipe.md) “O campo `valuesMapping` — três modos de autoria”. Por convenção, uma FeatureRecipe *modifica* o componente base ou *adiciona recursos ao lado* dele, mas o schema não restringe quais tipos de entrada ela pode usar — o compilador renderiza o que quer que a FeatureRecipe declare, limitado apenas pela capacidade do provider associado, e permanece sem opiniões próprias sobre se um determinado tipo é “apropriado para modificadores” (consulte [os invariantes fundamentais](../../architecture/05-invariants.md)). A síntese (`workload:`) exige um provider que a suporte; caso contrário, o build é interrompido na renderização com o diagnóstico de capacidade do provider."
   },
+  "2265c68eed39ca16": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "2265c68eed39ca16",
+    "status": "machine",
+    "text": "Restrições em nível de esquema"
+  },
   "2269ab563fa308f6": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
     "srcHash": "2269ab563fa308f6",
     "status": "machine",
     "text": "Depois que o cliente se reconectar, confirme que a integração está ativa: o cliente deve listar os prompts de criação de Aggrega (um por função, mais um modelo por entidade) e as ferramentas de criação — entre elas `scaffold`, `validate`, `describe` e `get-schema`. Peça ao assistente que gere o esqueleto de um componente, e ele deve retornar um esqueleto com os campos que um Component exige. Se nada aparecer, verifique se `aggrega version` é executado em um terminal e se o `command` do cliente aponta para o binário — a observação sobre o `PATH` acima cobre a causa mais comum."
+  },
+  "226d5c1f285cbb34": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "226d5c1f285cbb34",
+    "status": "machine",
+    "text": "Segregação espacial e caminhos de saída"
   },
   "2297ee83d11b1eea": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -7058,6 +7163,13 @@
     "srcHash": "23f18ea7b9488556",
     "status": "machine",
     "text": "Seu editor faz duas perguntas diferentes sobre uma entidade do catálogo, e são as duas com que esta página começa. A entidade está **correta** — ela é analisada, os pilares se resolvem, ela é renderizada? Isso é [`aggrega validate`](./aggrega-validate.md), e uma sessão do editor sempre responde a isso. A entidade é **publicável** — o nome segue a convenção, o arquivo está no diretório que sua categoria espera, os prefixos das anotações estão certos? Isso são estas regras, e uma sessão do editor só responde a isso quando você pede."
+  },
+  "2407f27ec7c038ae": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "2407f27ec7c038ae",
+    "status": "machine",
+    "text": "**Um componente que a Release não posiciona em lugar nenhum também interrompe o build, um nível abaixo.** A regra acima pergunta se um submódulo alcançou uma fronteira; esta pergunta o mesmo sobre cada componente que a composição contém. Um componente alcança uma fronteira sendo nomeado em `components:` dessa fronteira, ou estando dentro de um submódulo que uma fronteira roteia para si. Um que não alcança nenhum dos dois é renderizado fora de toda fronteira que a Release declara, recebendo seu `directory`, `subDirectory`, `syncWave`, cascata de anotações e `infra:` por componente de lugar nenhum — então o build para e nomeia o componente em vez de emitir artefatos que a configuração das fronteiras nunca alcançou."
   },
   "24080989136e47eb": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -7704,6 +7816,13 @@
     "status": "machine",
     "text": "**`cloudformation` leva `Resources`, `Outputs`, `Parameters`, `Mappings`, `Conditions`, `Metadata` e `Rules`, e constrói `Transform` a partir dos de cada contribuidor.** As transformações são unidas na ordem que o CloudFormation documenta, com os `Globals` do SAM acompanhando a transformação que os lê, e uma transformação que mudaria a forma como o conteúdo de outro contribuidor é implantado interrompe o build nomeando-a. `Description` não é levada, e o build avisa: ele emite um aviso de campo não suportado que nomeia a seção e o componente, assim como para qualquer outra chave de nível superior que a stack não leva, de modo que nada é descartado silenciosamente. O aviso é informativo — o template emitido é idêntico byte a byte ao que seria sem ele, e `--no-unsupported-field-warnings` silencia essa classe. `Outputs` é levado sob um nome que o provider restringe ao componente contribuidor, de modo que dois componentes que contribuem para uma mesma stack com uma saída de mesmo nome as mantêm separadas. [Seções de nível superior na stack montada](../language-reference/providers/cloudformation.md#top-level-sections-in-the-assembled-stack) explica cada seção, uma a uma."
   },
+  "27247ffeffc11845": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "27247ffeffc11845",
+    "status": "machine",
+    "text": "**Como um destino é escrito.** Um destino de aresta nomeia um componente do grafo montado, então é escrito com o caminho pontuado qualificado — `data.store`, não `store` — sempre que o destino pertence a um submódulo roteado. Isso vale mesmo onde a própria vinculação fica sob uma entrada de roteamento, cujas chaves `components:` são locais ao módulo: a chave diz *em qual componente a vinculação está* e o destino diz *qual componente a aresta alcança*, e apenas o segundo é um nome válido em todo o grafo. Um destino escrito com um nome local ao módulo não corresponde a nenhum componente e interrompe o build com o mesmo diagnóstico que qualquer aresta pendente produz."
+  },
   "272a95fb7e1d70ff": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -7954,6 +8073,13 @@
     "srcHash": "283dfc7fef4b4de7",
     "status": "machine",
     "text": "Argumentos posicionais e status de saída"
+  },
+  "2845bdd5d971ed18": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "2845bdd5d971ed18",
+    "status": "machine",
+    "text": "**Vários escopos.** Quando uma Release abrange mais de um agrupamento físico — clusters, regiões ou sync waves separados — declare fronteiras nomeadas sob `boundaries:`. Cada fronteira carrega seu próprio `directory:`, sua própria cascata de anotações e seu próprio `syncWave:`, e os componentes são endereçados dentro da sua fronteira."
   },
   "284e29517074f132": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -8529,6 +8655,13 @@
     "srcHash": "2b77fa45fac8a5ca",
     "status": "machine",
     "text": "**Uma sincronização nunca reescreve o que um autor escreveu e, em vez disso, recusa.** Uma sincronização que alteraria ou removeria uma parte que um autor editou, adicionaria uma parte onde um autor já escreveu uma, ou removeria uma parte que contém algo que um autor adicionou é recusada, nomeando cada uma dessas partes e o motivo em uma linha própria, nas palavras que `aggrega import --sync` usa — `<file> <key>: <why>`, ou `<file>: <why>` para um arquivo inteiro — e nada é gravado; um comentário escrito diretamente acima de uma chave de rascunho edita essa chave. Uma sincronização sobre um Aggregate que nenhum registro lista é recusada nomeando o Aggregate e o registro, assim como uma cujo registro não pode ser lido, já que sem o registro suas partes não podem ser distinguidas das de um autor. Ambas as recusas voltam como o erro invalid-params, também sob `dryRun`, e nomeiam `sync`. Reconcilie à mão cada parte nomeada, ou restaure o que a importação gravou ali, e envie a requisição novamente."
+  },
+  "2b835eac9e8c3af5": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "2b835eac9e8c3af5",
+    "status": "machine",
+    "text": "**Exemplo prático:**"
   },
   "2b84b198c50c7028": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -9431,6 +9564,13 @@
     "status": "machine",
     "text": "**Developer Intent** — Aggregate."
   },
+  "30bd50ec9920a877": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "30bd50ec9920a877",
+    "status": "machine",
+    "text": "As duas regras dividem o terreno perguntando sobre o submódulo do componente, não apenas se ele tem um. Um componente de um submódulo que a Release não posicionou **em lugar nenhum** fica a cargo da regra de submódulos, que relata aquele único erro de autoria uma vez na entrada `aggregates:` em vez de uma vez por componente que o módulo contém. Um componente de um submódulo que a Release posicionou **em parte** pertence a esta regra, porque a regra de submódulos lê esse módulo como posicionado e não diz nada sobre ele — então cada componente que a fronteira não nomeou é relatado aqui, em sua própria chave dentro do documento que o declara. Posicionar um submódulo em parte, portanto, nomeia exatamente o que você pretendia nomear, e informa você sobre cada componente que você não nomeou."
+  },
   "30cbf0f0d0ee8a79": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -9564,6 +9704,13 @@
     "srcHash": "318ecb06291a6658",
     "status": "machine",
     "text": "**Um código que este binário não declara é procurado na referência publicada.** Um plugin relata uma interrupção escolhendo uma condição que o compilador declara, então nenhuma condição é declarada em nenhum outro lugar. A referência publicada, [sentinels.md](../errors/sentinels.md), lista todas as condições que o produto declara, e ela pode ter sido publicada para uma versão diferente do binário que você está executando — então um código citado de um relatório feito com uma versão mais nova ou mais antiga ainda pode ser resolvido lá."
+  },
+  "319e093e9fbc7560": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "319e093e9fbc7560",
+    "status": "machine",
+    "text": "Quando o Aggregate declara submódulos aninhados via `spec.aggregates:`, a Release decide em qual fronteira os componentes de cada submódulo vão parar declarando `aggregates:` ao lado de `components:` dentro da fronteira de destino:"
   },
   "31a3321d76aa6b44": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -10161,6 +10308,13 @@
     "status": "machine",
     "text": "O que seu assistente pode fazer com o Aggrega"
   },
+  "34b02df760959eb7": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "34b02df760959eb7",
+    "status": "machine",
+    "text": "**Roteamento recursivo.** `aggregates:` é recursivo — cada entrada sob o `aggregates:` de uma fronteira pode ela própria declarar um mapa `aggregates:` aninhado para uma composição de módulos profundamente aninhada."
+  },
   "34b5cc7058fa70b9": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -10465,6 +10619,17 @@
     "srcHash": "36b91e5d04d1d2cf",
     "status": "machine",
     "text": "Correção é diferente de convenções. `aggrega validate` pergunta se o conteúdo é bem formado e compilaria; [`aggrega lint`](./aggrega-lint.md) pergunta se o conteúdo segue a disciplina de publicação do catálogo (nomenclatura, alinhamento com o diretório de categoria, tamanho do incremento de versão e o restante). Os dois comandos espelham os três escopos um do outro, para que você possa verificar qualquer uma das dimensões na granularidade de que precisar."
+  },
+  "36ba61111dccbfdf": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "083b7befcdeec0f5",
+      "reviewed": false
+    },
+    "srcHash": "36ba61111dccbfdf",
+    "status": "machine",
+    "text": "**Exclusão mútua.** `spec.components:` e `spec.boundaries:` são mutuamente exclusivos na raiz da Release — uma Release escreve um ou outro, nunca ambos. Um documento que declara ambos é interrompido no carregamento com um erro de envelope. A superfície `components` de nível superior carrega a mesma forma por componente, do lado do operador, que os `components` de uma fronteira carregam (`infra:`, `annotations:`, `uses:`)."
   },
   "36c19d7b9867cd99": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -11873,6 +12038,13 @@
     "status": "machine",
     "text": "O capítulo se organiza em dois grupos. **Arquitetura e contratos compartilhados** aborda o que todos os providers têm em comum — a arquitetura de sockets de plugin que liga o compilador Go ao plugin de provider Wasm, as anotações de fronteira que cada provider lê para configurar posicionamento e rede, e um índice que direciona você à página certa de cada provider. **Referências por provider** abordam os detalhes: as particularidades de escrita de cada provider, a estrutura do diretório de saída de cada provider e a semântica de tradução de cada provider para os mecanismos Workload e artifacts. Qual provider aceita qual tipo de entrada é respondido pela matriz de capacidades em [../architecture/16-recipe-input-composition.md](../architecture/16-recipe-input-composition.md), que é a tabela de referência."
   },
+  "3dcd07e20683e58a": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "3dcd07e20683e58a",
+    "status": "machine",
+    "text": "**Dois modos de autoria — seleção pela forma do conteúdo.** `parameters:` aceita um mapa YAML inline (modo 1, mostrado acima) ou uma única chave `$import:` apontando para um arquivo local (modo 2):"
+  },
   "3ddfd1f4d488b762": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -12853,6 +13025,13 @@
     "status": "machine",
     "text": "Visualizar um build sem gravá-lo"
   },
+  "43dd39d1a87b004f": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "43dd39d1a87b004f",
+    "status": "machine",
+    "text": "**Casos de uso.** A ordenação por ondas importa sempre que a inicialização de uma fronteira depende da conclusão prévia de outra. Padrão canônico: uma fronteira `infra` na onda 0 (VPC + banco de dados), uma fronteira `migrations` na onda 1 (job de migração de schema) e uma fronteira `apps` na onda 2 (a aplicação que consome o schema migrado). Sem ondas explícitas, as três são implantadas simultaneamente e a aplicação entra em crash-loop enquanto espera a migração terminar."
+  },
   "43df53a4cb1a34c6": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -13706,6 +13885,17 @@
     "srcHash": "47c52331e0220160",
     "status": "machine",
     "text": "Governança e conformidade"
+  },
+  "47cf3b19b999be35": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "5841b8cf57098571",
+      "reviewed": false
+    },
+    "srcHash": "47cf3b19b999be35",
+    "status": "machine",
+    "text": "**`values:` é proibido.** Para proteger o Aggregate como fonte única da verdade, o esquema da Release proíbe mecanicamente um bloco `values:` — o operador não pode declarar `values` em nenhum Component ou Feature a partir de uma Release. A proibição se estende às arestas `uses`: uma entrada `uses` por aresta de uma Release carrega `infra` e as vinculações que ela escreve na conexão, e essas também carregam `infra` — nunca `values` (os valores por aresta voltados ao desenvolvedor, e os valores de uma vinculação em uma conexão, permanecem no Aggregate). A variação por ambiente dos valores voltados ao desenvolvedor passa pelo **Parameter Hoisting**: o desenvolvedor expõe um campo tipado `parameters.*` no Aggregate, o template `values` do Component o referencia e a Release preenche o parâmetro para o seu ambiente. Veja [architecture/06-data-taxonomy-and-composition.md §8 Restrição 4](../../architecture/06-data-taxonomy-and-composition.md) para a proibição em nível de esquema declarada explicitamente. A superfície de arestas `uses` da Release — o que ela pode configurar e ligar — está documentada em [Configuração de conexão por aresta](#per-edge-connection-configuration) abaixo."
   },
   "47d63a07e1e1258a": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -15424,6 +15614,13 @@
     "status": "machine",
     "text": "Sobre `http`, ele serve o protocolo por HTTP: um único processo de longa duração em um host, alcançado por chamadores que não estão diante do seu teclado, escutando no endereço que `--listen` indica, ou `mcp.listen` quando o flag está ausente. Consulte [Alcançando o servidor por HTTPS](#reaching-the-server-over-https) para saber como esse listener é configurado e o que ele aceita."
   },
+  "5149ab53b9c7dccb": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "5149ab53b9c7dccb",
+    "status": "machine",
+    "text": "Configuração de conexão por aresta"
+  },
   "51565cdce0a0296a": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -16455,6 +16652,13 @@
     "status": "machine",
     "text": "**13. `model.aggrega.ai/api`**"
   },
+  "555e6eb8cec57f74": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "555e6eb8cec57f74",
+    "status": "machine",
+    "text": "**Um subsistema não contribui com nada para o caminho qualificado, então uma fronteira endereça um componente pelo seu nome simples, seja qual for a forma como o Aggregate o agrupa.** Somente a composição de submódulos qualifica um id. Um componente do Aggregate implantado é `store`, quer o autor o tenha escrito no nível superior, quer dentro de um subsistema chamado `data`; um componente um módulo abaixo é `data.store`, e ali `data` é o prefixo do módulo, e não de algum subsistema. Assim, uma entrada de fronteira escrita `data.store` para um componente que está em um *subsistema* chamado `data` não endereça nada: a própria entrada interrompe o build pela regra acima, e o componente a que ela se destinava também não alcança nenhuma fronteira. Corrigir a entrada para `store` resolve as duas coisas."
+  },
   "555fbd5c53541494": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -16507,6 +16711,13 @@
     "srcHash": "558fc0d5f1be562a",
     "status": "machine",
     "text": "Usa `<path>` como raiz do workspace, pulando a descoberta por completo. Quando a flag é omitida, `aggrega` descobre a raiz subindo a partir do diretório atual — ou, onde essa busca não encontra nada e o comando indica sua Release ou seu documento por um caminho absoluto, subindo em vez disso a partir da pasta desse arquivo; veja [Configuração](configuration.md#the-other-ways-a-project-root-is-recognised) para saber o que ancora uma raiz, em que ordem, e quais comandos indicam um arquivo assim."
+  },
+  "55a405be1a453245": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "55a405be1a453245",
+    "status": "machine",
+    "text": "**Um subagregado que a Release não posiciona em lugar nenhum interrompe o build.** O posicionamento é lido nas duas grafias, então o build só é interrompido quando *nenhuma* delas alcança o submódulo: nenhuma fronteira o roteia em `aggregates:`, e nenhuma fronteira nomeia qualquer um de seus componentes em `components:` pelo caminho pontuado qualificado. Qualquer uma das grafias sozinha o posiciona, e um submódulo cujos componentes são todos nomeados individualmente não precisa de entrada de roteamento. A correção cabe ao bloco `aggregates:` do Aggregate que importou o submódulo — o Aggregate que a Release implanta, para um que ele importa diretamente, e o próprio documento do submódulo importador, para um aninhado. O diagnóstico nomeia essa entrada pela chave com que o documento importador a escreve, de modo que, para um submódulo aninhado, ela aparece como o nome local, e não como o caminho pontuado."
   },
   "55af80a9b8fbe887": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -16828,6 +17039,13 @@
     "status": "machine",
     "text": "Você não precisa preparar nada disso manualmente: veja [A página de boas-vindas](#the-welcome-page)."
   },
+  "5731cce49b336213": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "5731cce49b336213",
+    "status": "machine",
+    "text": "Vinculação de Feature"
+  },
   "57390ad2b3f06f6d": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -16883,6 +17101,13 @@
     "srcHash": "5772154175537027",
     "status": "machine",
     "text": "Um pequeno conjunto de palavras-chave se repete nas entidades do Aggrega. Em vez de explicá-las novamente em cada página de entidade, os capítulos do vocabulário concentram a explicação em um único lugar por família de palavras-chave. Toda entidade que aceita uma dessas palavras-chave o faz com a mesma semântica que este conjunto de capítulos especifica."
+  },
+  "5777eb19a3fe880a": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "5777eb19a3fe880a",
+    "status": "machine",
+    "text": "**Vincular em uma conexão.** Coloque vinculações sob `features:` da entrada, indexadas por um slot que o socket declara em seu `featuresSchema` — os mesmos slots que a entrada de conexão do desenvolvedor preenche. Cada uma carrega `type`, uma `description` opcional e `infra`, e nunca `values`. Sob um slot que o desenvolvedor já preencheu na mesma conexão, a entrada dimensiona essa vinculação: escreva apenas `infra`, pois o tipo e os valores vêm do Aggregate (um `type` escrito aqui deve concordar com o do Aggregate, ou a compilação é interrompida nesta entrada, nomeando ambos). Sob um slot que o desenvolvedor deixou vazio, a vinculação é da própria Release e `type` é obrigatório. Em ambos os casos, o preenchimento está sujeito ao `selector` do slot e conta para um slot `required`, exatamente como o do desenvolvedor."
   },
   "577bdae8076c9887": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -17415,6 +17640,13 @@
     "status": "machine",
     "text": "`aggrega/skillsList` — as skills que este binário inclui e todo assistente para o qual `aggrega/skillsInstall` pode escrevê-las, a listagem que [`aggrega skills list`](aggrega-skills.md) imprime. Recebe o workspace e nada mais, e não lê nada dele. `skills` traz o `name` e a `description` de cada skill; `agents` traz o `id`, o `name` e a `projectFolder` de cada assistente — relativa à raiz de um projeto, que nesta superfície é o workspace que uma solicitação nomeia — e a `userFolder`, relativa ao diretório pessoal, ambas separadas por barras, ordenadas por identificador. Não escreve nada e não alcança nada."
   },
+  "5a1d330411769001": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "5a1d330411769001",
+    "status": "machine",
+    "text": "A Release pode vincular Features tanto no escopo da fronteira (política ampla) quanto no escopo específico de um componente (direcionamento preciso), com a execução seguindo o modelo de cebola de 5 camadas definido em [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md). As Features declaradas na Release contribuem com `type`, `infra` e `uses`; elas não podem declarar `values` (veja Restrições no nível do schema acima)."
+  },
   "5a269de5a98dd0ae": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -17488,6 +17720,13 @@
     "srcHash": "5aa4fad3f773a7a7",
     "status": "machine",
     "text": "Leia a chave em vez de deduzir a partir dos diagnósticos, porque as duas respostas podem parecer idênticas. Um documento bem formado validado sem Release responde com uma lista de diagnósticos vazia, que é exatamente o que um veredito completo limpo responde, então `checked` é a única coisa que separa “nada está errado” de “nada que precise de uma Release foi examinado”. Uma consequência decorre da mesma regra: um lockfile é reconhecido pela sua correlação com a Release que a solicitação nomeou, então uma solicitação que não nomeia nenhuma não reconhece nenhum lockfile e não informa nada sobre um."
+  },
+  "5aaeef660f2bbce4": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "5aaeef660f2bbce4",
+    "status": "machine",
+    "text": "As anotações de fronteira descem em cascata para cada componente contido; `infra` permanece estritamente localizado no componente que o recebe. O mapa recursivo `boundaries` permite aninhamento arbitrário (fronteira dentro de fronteira dentro de fronteira), enquanto as invariantes da cascata de anotações e do infra local valem em todos os níveis."
   },
   "5ab75b2de04174a4": {
     "at": "2026-10-23T03:05:44.362Z",
@@ -18132,6 +18371,13 @@
     "srcHash": "5e14c54d3d883b27",
     "status": "machine",
     "text": "`Recipe.spec.outputLabels:` é um mapa de chave de rótulo → valor que o provedor aplica a cada objeto que a saída renderizada da Recipe produz. É o lugar honesto para um *traço de realização* — uma propriedade de como uma Recipe específica realiza um componente, em oposição ao que o componente é. Tome o armazenamento com que uma realização persiste seus dados, escrito abaixo com a chave ilustrativa `example.io/storage-backing`: uma Recipe do Helm que monta um PersistentVolumeClaim e uma Recipe do Compose que monta um volume nomeado realizam o mesmo componente com mecanismos diferentes, então carregam `outputLabels` diferentes, e as ferramentas posteriores (alocação de custos, políticas, inventário) podem distingui-las nos recursos emitidos. A chave é ilustrativa — `example.io/` é um namespace de exemplo, e um catálogo escolhe as chaves que suas próprias ferramentas leem."
+  },
+  "5e14d98259c33663": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "5e14d98259c33663",
+    "status": "machine",
+    "text": "**Bloco de roteamento por agregado.** Uma entrada de roteamento aceita exatamente duas chaves e nada mais: `components:`, para configurar componentes individuais daquele submódulo, e um `aggregates:` aninhado para módulos aninhados mais profundamente. `annotations:` pertence à fronteira, e o `infra:` por componente pertence a uma entrada sob o próprio `components:` da entrada de roteamento."
   },
   "5e3005f673d1c8a7": {
     "at": "2026-10-30T05:41:23.167Z",
@@ -19334,6 +19580,13 @@
     "status": "machine",
     "text": "**disponível.** O esquema aceita a superfície; o compilador a consome; o comportamento corresponde ao contrato documentado. Autores que usam uma superfície `available` recebem o contrato documentado."
   },
+  "643eea2493f0bf1f": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "643eea2493f0bf1f",
+    "status": "machine",
+    "text": "Dentro de uma entrada de roteamento, um componente é identificado pelo nome que tem **dentro do seu submódulo** — `consumer`, não `data.consumer` — porque esse é o único nome que ele tem ali. O caminho pontuado qualificado é a forma como o mapa `components:` de uma fronteira endereça o mesmo componente; as duas grafias não são intercambiáveis, e uma entrada de roteamento rejeita uma chave pontuada."
+  },
   "6443fc955ce547d7": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -19547,6 +19800,13 @@
     "srcHash": "65926c3e6ba2e10c",
     "status": "machine",
     "text": "**Restrição 1: credenciais são anexos, não valores**"
+  },
+  "65960782eb7d2f9c": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "65960782eb7d2f9c",
+    "status": "machine",
+    "text": "**Uma vinculação que apenas a Release faz, escrita sem `type`,** interrompe a compilação na entrada de conexão, nomeando o slot. Uma vinculação que a Release faz não carrega `values`, então serve para uma Feature cujos `values` não exigem nada; uma cujo esquema exige um valor é interrompida pelo valor ausente na mesma entrada. As Features de credenciais da biblioteca padrão que carregam o localizador de quem chama não exigem nenhum em `values`: cada uma o aceita também em `infra` (veja abaixo)."
   },
   "65aefd1281b9c98d": {
     "at": "2026-10-22T17:21:40.169Z",
@@ -21060,6 +21320,13 @@
     "status": "machine",
     "text": "**`kind` em uma entrada de fechamento está presente apenas onde é conhecido.** Uma referência é coletada a partir de uma posição em um documento, e algumas posições dizem para que tipo de entidade apontam, enquanto outras não. O campo é reportado onde o local da referência registrou um e omitido onde não registrou, em vez de adivinhado a partir da forma do nome. Ele é reportado como a palavra que um autor escreve no início de um documento, que é a mesma palavra que toda interface que reporta um fechamento usa para a mesma entrada."
   },
+  "6e2b2ae9e26e34ee": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "6e2b2ae9e26e34ee",
+    "status": "machine",
+    "text": "`features:` é a única superfície de vinculação da Release, nos dois escopos — como é a do Aggregate. Uma credencial é uma Feature que carrega o rótulo `feature.aggrega.ai/kind: secret`, então uma credencial vinculada pelo operador é vinculada em `features:` como qualquer outra Feature, e nomeia seu segredo em `infra` exatamente como faz uma em uma conexão (veja [Configuração de conexão por aresta](#per-edge-connection-configuration)) — em um componente que o Aggregate deixou sem nenhuma, ou como o dimensionamento de uma vinculação que o Aggregate declarou sem nomear um segredo. Não existe uma segunda palavra-chave de vinculação em nenhum escopo; um documento que declara uma é rejeitado no carregamento com um erro de envelope que nomeia a propriedade inesperada."
+  },
   "6e33ee7e21a4aabe": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -21887,6 +22154,13 @@
     "status": "machine",
     "text": "**Infraestrutura e Cloud Ops (domínio 3):** são os engenheiros de infraestrutura que gerenciam a camada de execução física (Helm, AWS IAM, estado do Terraform). Ao isolar o domínio 3, a arquitetura permite que a empresa reutilize diretamente esse código de infraestrutura existente. Os engenheiros empacotam seus arquivos `.tf` padrão como `Recipes` e nunca precisam aprender linguagens de políticas específicas do catálogo, como Rego."
   },
+  "724782b3269e7ad9": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "724782b3269e7ad9",
+    "status": "machine",
+    "text": "Uma Release cumpre o contrato tipado de parâmetros que o Aggregate declara. `spec.parameters:` é a superfície de autoria — um mapa YAML cujas chaves correspondem às declarações `parameters.*` do Aggregate e cujos valores fornecem o preenchimento por ambiente."
+  },
   "72636aa95f4e65ee": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -22298,6 +22572,13 @@
     "status": "machine",
     "text": "**Você escolhe para onde vão os rascunhos, ou deixa isso para a raiz do espaço de trabalho.** `outputDir` é opcional, assim como `aggrega import --output-dir` e o `output_dir` da ferramenta `import` do assistente: uma requisição que não nomeia nenhum cria os rascunhos sob a raiz do espaço de trabalho — onde `aggrega import` grava quando não recebe nenhum destino, onde quer que seja executado — e uma requisição que nomeia um cria os rascunhos ali. Um diretório nomeado é um caminho dentro do espaço de trabalho, e um valor relativo é resolvido em relação à raiz do espaço de trabalho, e não em relação a um diretório em que o daemon esteja por acaso. A `source` que você converte é o outro caso e não fica confinada dessa forma: foi você quem selecionou esse arquivo ou diretório, então ele é lido onde quer que esteja, e lê-lo ali não muda onde os rascunhos vão parar. O diretório é criado se não existir. Sob `dryRun` nada é gravado, e cada rascunho ainda nomeia o caminho a que se destina, relativo ao `outputDir` que a resposta nomeia — o diretório que você enviou, ou a raiz do espaço de trabalho."
   },
+  "748c39faacc0d97e": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "748c39faacc0d97e",
+    "status": "machine",
+    "text": "Uma Release agrupa componentes em **fronteiras** — unidades físicas de implantação, cada uma com seu próprio diretório de saída e sua própria cascata de anotações. O caso de fronteira única é o comum, por isso não exige cerimônia."
+  },
   "748dc174f4529310": {
     "at": "2026-10-22T14:38:40.134Z",
     "job": "session-0042-20261022143840",
@@ -22455,6 +22736,13 @@
     "srcHash": "75440bd25b74a875",
     "status": "machine",
     "text": "**O que uma busca lê** — um documento abaixo de um diretório de catálogo, ou ao lado de uma Release que nomeia seu Aggregate ou seu Manifest por identidade, ou ao lado de um Manifest que nomeia dessa forma o Manifest que ele estende. A Release ou o Manifest nomeado para a operação não está entre esses documentos: foi lido onde foi nomeado — veja [Uma Release ou um Manifest nomeado através de um link](#a-release-or-a-manifest-named-through-a-link). Uma busca que pulasse um link desses poderia resolver em seu lugar outra entidade com o mesmo nome a partir de um diretório posterior, então um build, um pull, uma validação, uma inspeção que lê o catálogo, um lint de uma única Release ou do catálogo inteiro, e as solicitações do editor e de um assistente que compilam, visualizam, montam o grafo, validam, fazem lint ou descrevem uma Release são todos interrompidos antes que qualquer coisa seja resolvida ou verificada: [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside)."
+  },
+  "754e052170e763fe": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "754e052170e763fe",
+    "status": "machine",
+    "text": "Um componente de fronteira pode carregar um bloco `uses:` que configura ou liga as arestas da topologia dentro dos sockets que o `usesSchema` de catálogo do Component declara. Essa é a superfície por conexão do operador, delimitada para que o desenvolvedor mantenha a posse da arquitetura que escreveu:"
   },
   "754edb467831e78e": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -23070,6 +23358,13 @@
     "srcHash": "787432cfe029f4bc",
     "status": "machine",
     "text": "[Sentinelas de erro](errors/sentinels.md) — os três identificadores que toda condição carrega (o sentinela Go que um programa compara com `errors.Is`, o código sob o qual ela está registrada e o código curto que um diagnóstico imprime) e a tabela que resolve cada código curto."
+  },
+  "788467c14350df3b": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "788467c14350df3b",
+    "status": "machine",
+    "text": "**`extends` + `aggregate:` é rejeitado.** Para impedir Releases não rastreáveis que “alteram o aggregate”, quando uma Release usa `extends`, a declaração de um ponteiro `aggregate` é rejeitada pelo esquema da Release. A release filha deve corresponder exatamente à mesma intenção do desenvolvedor que sua release pai. O `manifest`, porém, torna-se opcional, liberando a “vinculação tardia” — permitindo que o operador herde toda a topologia física, mas troque cirurgicamente o Manifest."
   },
   "7889220dd0c12dfe": {
     "at": "2026-10-22T14:15:44.761Z",
@@ -23715,6 +24010,13 @@
     "srcHash": "7bd9a6e85a73b870",
     "status": "machine",
     "text": "Caminho para um YAML de Release cujas convenções são verificadas sobre o fechamento das suas dependências resolvidas (mutuamente exclusivo com um argumento de entidade). Um caminho relativo é resolvido em relação ao diretório em que você executa o comando, não em relação à raiz do workspace. Quando esse diretório não está em nenhum workspace e nenhuma raiz é indicada, um caminho absoluto encontra o workspace a partir da própria pasta da Release"
+  },
+  "7be9aef6b51cd8b7": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "7be9aef6b51cd8b7",
+    "status": "machine",
+    "text": "**Emissão por provedor.** O compilador emite o valor de onda da fronteira na saída renderizada, na forma nativa do provedor. Três das formas são detalhadas abaixo; o que a onda faz em **cada** provedor da biblioteca padrão, incluindo `terraform`, está tabelado em [`providers/reference-matrix.md`](../providers/reference-matrix.md) “O que a `syncWave` de uma fronteira faz em cada provedor”."
   },
   "7be9d456731676f1": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -24594,6 +24896,13 @@
     "status": "machine",
     "text": "**Quais provedores o aceitam.** Se um arquivo colocado ao lado da saída montada de uma boundary significa algo é uma propriedade do destino do provedor, então faz parte da declaração do próprio provedor. Uma Recipe que declara o bloco e cujo provedor não o aceita é recusada antes de qualquer renderização, seja qual for o resultado da renderização de suas entradas; veja [The provider does not support boundary artifacts (O provedor não oferece suporte a artefatos de boundary)](../errors/fatal-halts.md#the-provider-does-not-support-boundary-artifacts). A [tabela de capacidades](../../architecture/16-recipe-input-composition.md#provider-capability-matrix) lista o que cada provedor declara."
   },
+  "8163833418a2afe8": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "8163833418a2afe8",
+    "status": "machine",
+    "text": "Dois casos deliberadamente não interrompem o build. Um submódulo que não contribui com nenhum componente não tem nada a posicionar. Um submódulo cujo interruptor `active:` é resolvido como `false` nunca foi composto, então nenhum de seus componentes existe para ser posicionado."
+  },
   "8173bb2b06489a7a": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -25316,6 +25625,13 @@
     "srcHash": "85a34b4639179006",
     "status": "machine",
     "text": "**2. `model.aggrega.ai/capability`**"
+  },
+  "85c2a1549fdc0655": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "85c2a1549fdc0655",
+    "status": "machine",
+    "text": "**Variáveis de template.** `directory` é avaliado com `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}` e `{{ .parent_boundary.* }}` para dados em cascata de uma fronteira envolvente. `subDirectory` é avaliado com o mesmo conjunto mais `{{ .component_id }}` (somente em substituições por componente). O compilador avalia os templates de caminho com `missingkey=error` — referenciar uma variável não declarada interrompe a compilação com um diagnóstico preciso. Veja [variáveis de templates de caminho](../path-template-variables.md) para a matriz por contexto e as regras de cascata da fronteira pai."
   },
   "85c3c9b9565400e9": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -27107,6 +27423,13 @@
     "status": "machine",
     "text": "`metadata.labels`: use `feature.aggrega.ai/kind: secret` para marcar uma Feature como Feature de credencial. O label é um metadado descritivo para o autor, para o site do catálogo e para os seletores de labels; nenhum ramo do compilador o lê, e o que uma anexação produz é decidido pela FeatureRecipe para a qual o Manifest mapeia o seu tipo, não pelo label. Uma Feature de credencial e uma Feature comum são anexadas da mesma forma, na mesma superfície de anexação, em qualquer escopo. A família de credenciais da biblioteca padrão se divide por *resultado*: **`core/secret-value`** entrega um valor no pipe de injeção; **`core/referenced-secret`** nomeia um recurso secreto referenciável (um Secret do Kubernetes, um segredo do AWS Secrets Manager, uma entrada do Vault), criado pela saída de sua FeatureRecipe ou já existente, e declara um contrato de saída `schema.provides` — `name` (o localizador do recurso, neutro quanto ao provider) e `key` (o campo de dados dentro dele) — que um consumidor lê como `.features.<slot>.provides.<key>` para referenciar o recurso sem derivar novamente seu nome; **`core/referenced-secret-set`** materializa um recurso que carrega um conjunto de chaves de dados fornecido pelo chamador e publica apenas o localizador, para um consumidor cujo destino já conhece os nomes das chaves que lê; **`core/secret-provided`** expõe o valor de um segredo preexistente; **`core/generated-secret`** não produz nada, porque o mecanismo de destino gera e gerencia a credencial por conta própria, portanto não declara nem `values` nem `provides` e suas FeatureRecipes são pura fiação que não renderiza nenhum byte. Dois eixos separam os membros: quem fornece o material — um autor o escreve ou indica onde buscá-lo, ou o mecanismo de destino é inteiramente dono dele, como em `core/generated-secret` — e o que a anexação produz: um valor injetado, um recurso referenciável ou nada renderizado. Cada membro é par dos demais na mesma superfície de anexação, de modo que um slot de credencial está sempre vinculado e o que varia entre Releases é o que o vincula. Uma Feature de credencial que declara um contrato `schema.provides` obriga toda FeatureRecipe que a implementa a publicar essas chaves — caso contrário, o build é interrompido — e o `selector` de um slot de `featuresSchema` aponta para o membro da família de que precisa."
   },
+  "8ee889203b353af3": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "8ee889203b353af3",
+    "status": "machine",
+    "text": "**Padrão seguro.** Se `subDirectory` for omitido ou estiver vazio, o compilador aplica automaticamente `subDirectory: \"{{ .capability }}\"` — os artefatos de cada capacidade de renderização (Helm, Helm-chart, Compose, Terraform, CloudFormation) ficam em sua própria subpasta, evitando colisões de artefatos misturados nas ferramentas de CI/CD posteriores. Um `subDirectory: \"\"` escrito explicitamente é lido exatamente como um omitido, então também recebe esse padrão."
+  },
   "8eff023fa7cee662": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -27167,6 +27490,13 @@
     "status": "machine",
     "text": "**Um consumidor: policy sobre HCL do Terraform.** Uma policy da etapa de renderização que precisa inspecionar o Terraform produzido por um build não aprende HCL por conta própria. O host analisa o artefato HCL por meio do socket de analisadores e entrega ao plugin de policy a árvore JSON que ele já lê, de modo que a policy raciocina sobre dados estruturados no formato que todo outro socket recebe. Novos leitores de formatos externos se compõem da mesma maneira — pedir a árvore ao host e depois trabalhar em JSON —, de modo que a capacidade do compilador de entender um formato cresce com a adição de plugins de análise, e não com o crescimento do núcleo."
   },
+  "8f5dba33518e8e99": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "8f5dba33518e8e99",
+    "status": "machine",
+    "text": "O roteamento posiciona componentes. Cada componente de um submódulo roteado vai para a fronteira que o roteia e recebe dela `directory`, `subDirectory`, `syncWave` e a cascata de anotações — o mesmo contexto que um componente nomeado diretamente em `components:` recebe, incluindo a procedência `aggrega.ai/boundary-path` carimbada nos artefatos emitidos. Rotear um submódulo e endereçar cada um de seus componentes pelo caminho pontuado qualificado com um corpo vazio produzem, portanto, artefatos idênticos; o roteamento é a forma mais curta de dizer isso, e a única forma de dizê-lo sem conhecer o conteúdo do submódulo."
+  },
   "8f6b2bb5e3fe65e3": {
     "at": "2026-10-30T21:02:37.548Z",
     "job": "session-0020-20261030210237",
@@ -27222,6 +27552,13 @@
     "srcHash": "8fc399cad97d72a2",
     "status": "machine",
     "text": "Os comandos de um plugin de CLI e seus flags"
+  },
+  "8fd7d3095e8302e0": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "8fd7d3095e8302e0",
+    "status": "machine",
+    "text": "`core/secret-provided` é a que não serve para uma conexão: ela publica seu valor para que o bloco `inject:` da própria vinculação o entregue, e a vinculação de uma conexão não carrega bloco `inject:` em nenhum dos dois documentos, então em uma conexão nenhum bloco `inject:` o entrega. Use `core/referenced-secret` ou `core/secret-value` ali."
   },
   "8fdc5a2364bcb4cf": {
     "at": "2026-10-30T19:34:19.728Z",
@@ -27423,6 +27760,13 @@
     "srcHash": "90e8b5c0b4bd1ddb",
     "status": "machine",
     "text": "Sobre `stdio`, o padrão, ele se comunica pela entrada e saída padrão do processo. Nessa forma, ele não é um comando que você executa interativamente — um cliente compatível com MCP o inicia como subprocesso e fala o protocolo por stdio; [Setup](../../authoring/setup.md#where-each-client-keeps-its-server-list) lista onde cada cliente guarda a entrada que o inicia. Executá-lo transforma a CLI em um assistente de autoria que conhece o Aggrega dentro do seu editor ou cliente de chat."
+  },
+  "90f8020df43f23eb": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "90f8020df43f23eb",
+    "status": "machine",
+    "text": "**CloudFormation.** Cada recurso no template de stack montado depende, por meio de `DependsOn`, dos recursos da onda imediatamente anterior que contribuíram para o mesmo stack — então a onda fixa a ordem em que os recursos são criados e, inversamente, a ordem em que são excluídos. Não é uma ordenação por prontidão: um template de stack não tem noção de um recurso estar apto a atender. O `DependsOn` próprio de um fragmento é estendido em vez de substituído. Os Components que são montados em um stack diferente ficam fora de alcance, e sequenciar dois stacks é responsabilidade do operador. Veja [`providers/cloudformation.md`](../providers/cloudformation.md#deployment-ordering)."
   },
   "911910726b5c728c": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -29014,6 +29358,13 @@
     "status": "machine",
     "text": "[Padrões avançados](examples/08-advanced-patterns.md) — Exemplos 23 a 24: geração de recursos da FeatureRecipe via `source:` + `valuesMapping:`, a substituição do nível de nome do Manifest com âncoras YAML."
   },
+  "991d71e294263b1b": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "991d71e294263b1b",
+    "status": "machine",
+    "text": "**O caminho permanece sob a raiz de saída.** Um caminho que sobe para fora da raiz de saída (`..`, `../escape`, `a/../..`), um absoluto, ou um que não nomeia nenhum diretório — vazio, ou que, depois de limpo, resulta na própria raiz de saída — interrompe a compilação antes que qualquer coisa seja escrita. A mensagem nomeia a Release, a fronteira, o campo com problema (`directory:` ou `subDirectory:`) e o valor para o qual ele foi avaliado, já que esse valor muitas vezes é o resultado de um template."
+  },
   "992686aa2fe7ab69": {
     "at": "2026-10-30T20:32:14.370Z",
     "job": "session-0017-20261030203214",
@@ -30171,6 +30522,13 @@
     "status": "machine",
     "text": "**Três requisições não precisam de `workspaceRoot`, e cada uma porque seu objeto não é um espaço de trabalho.** `aggrega/getSchema` e `aggrega/scaffoldEntity` respondem a partir dos esquemas compilados no binário em execução, então um espaço de trabalho não contribui com nada para nenhuma delas — o que permite que ambas respondam em um diretório que ninguém preparou. `aggrega/initialize` é a terceira, e é onde você declara um espaço de trabalho em vez de atuar sobre um."
   },
+  "9ea4d4c387b6f301": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "9ea4d4c387b6f301",
+    "status": "machine",
+    "text": "Cada valor passa pela verificação do esquema declarado pelo Aggregate na camada do contrato de parâmetros, e a compilação é interrompida quando uma Release omite um parâmetro obrigatório (`E0165`, `parameter-missing`) ou fornece um valor que o contrato do seu slot recusa (`E0164`, `parameter-contract-violation`). Os parâmetros declarados com um `default:` recebem o valor padrão quando a Release omite o slot; o contrato tipado é o único vocabulário de autoria."
+  },
   "9ea5a68d1e9b6df9": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -30921,6 +31279,13 @@
     "status": "machine",
     "text": "Os dois plugins recebem em sequência do compilador o mesmo contexto de nó IR, de modo que se compõem de forma limpa, sem acoplamento direto entre eles. O compilador orquestra o pipeline; os plugins carregam o conhecimento do domínio."
   },
+  "a2209ad6e59f3b38": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "a2209ad6e59f3b38",
+    "status": "machine",
+    "text": "**Um nome para o qual o socket não declara nenhum slot** interrompe a compilação, exatamente como na entrada de conexão do Aggregate, nesta entrada da Release, nomeando os slots que o socket declara e aqueles dos quais o nome está a uma edição de distância."
+  },
   "a223fe9e37710922": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -31064,6 +31429,13 @@
     "srcHash": "a2d7d6dc234e3c58",
     "status": "machine",
     "text": "Por padrão, `aggrega version` imprime uma linha de versão legível por humanos."
+  },
+  "a2f1e2776832e385": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "a2f1e2776832e385",
+    "status": "machine",
+    "text": "Um nome é recusado por não ser resolvido para nada, e nunca por sua forma: um nome pontuado é comum, porque um componente um módulo abaixo carrega o prefixo desse módulo. Um componente cujo interruptor `active:` é resolvido como `false` continua nomeável — desativar um componente não exige editar a Release que o configura."
   },
   "a2f48690d7fa364d": {
     "at": "2026-11-02T19:28:42.678Z",
@@ -31957,6 +32329,13 @@
     "srcHash": "a75bc58f3542d52f",
     "status": "machine",
     "text": "[Instalação](../install.md) — instale o binário `aggrega`, com os comandos primeiro; a seção de conexão aponta para [Conecte o servidor MCP](../ai-assistants/mcp-server.md)."
+  },
+  "a771fa926ce21c67": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "a771fa926ce21c67",
+    "status": "machine",
+    "text": "Um caminho `$import:` relativo é resolvido a partir do diretório que contém a Release que o escreve, de onde quer que um comando seja executado, de modo que a linha de comando e o editor leem o mesmo arquivo; um caminho absoluto nomeia o seu próprio local, e qualquer um deles deve levar a um arquivo dentro do workspace — ou, para uma Release indicada fora do workspace, dentro do diretório que a contém. Os dois modos são mutuamente exclusivos nesse ponto, e só é possível importar um único arquivo. O empilhamento de parâmetros em vários arquivos cabe às cadeias `extends:` de Release: a Release pai fornece um conjunto base de parâmetros e a filha estende e sobrescreve por ambiente. Veja [Release composta / herança `extends:`](#composite-release-and-extends-inheritance) mais abaixo para o padrão."
   },
   "a77322e2df4f155a": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -33082,6 +33461,13 @@
     "status": "machine",
     "text": "**`aggrega build` não verifica a forma dos nomes.** A saída renderizada não depende dos nomes das entidades do Aggrega, de modo que um build sobre um catálogo com nomes não conformes não emite nenhum aviso nem nenhum diagnóstico e é bem-sucedido exatamente como seria de outra forma."
   },
+  "ad1c6b479d66c40e": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "ad1c6b479d66c40e",
+    "status": "machine",
+    "text": "Fronteiras e o escopo padrão"
+  },
   "ad211a13c16275ac": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -33944,6 +34330,13 @@
     "srcHash": "b1536afed3e8350b",
     "status": "machine",
     "text": "**Traefik Hub na frente dos modelos:** `core/gateway/traefik-hub`, o gateway pago da Traefik, serve os modelos conectados ao seu próprio socket `models` por meio do middleware Chat Completion do Traefik Hub. Sua única realização é uma Recipe de chart sobre o próprio chart Helm da Traefik; não há realização compose. Ele executa a imagem que a Release nomeia em `infra.image`, tag incluída, porque a Traefik distribui o Traefik Hub sob seus próprios termos e, por isso, o catálogo não nomeia nenhuma; o build é interrompido enquanto essa chave não estiver definida ou não nomear nenhuma tag. O token de licença chega ao gateway por referência ao Secret vinculado ao seu slot obrigatório `license`, sob a chave de dados `token`, nunca como valor, e o build é interrompido enquanto nada vincular esse slot ou ele publicar outra chave de dados. A Traefik exige HTTPS de saída para `api.traefik.io`, onde o gateway valida seu token; a partir do Traefik Hub v3.21, o gateway continua servindo enquanto esse host não pode ser alcançado, tentando novamente em segundo plano, e um token dura um ano por padrão, e o gateway para quando ele expira. A Recipe de chart desativa a exportação, feita pelo chart, dos logs de erro do gateway para a plataforma da Traefik e sua verificação de uma versão mais recente. O compilador não valida nenhum token e não contata nenhum fornecedor, então uma Release que compila sem erros não diz nada sobre se o gateway inicia. Cada modelo conectado recebe uma rota em `/<alias>/v1/chat/completions`, enviada ao `endpoint` que o modelo publica por meio de um Service do tipo ExternalName e pedindo o `model` que ele publica, qualquer que seja o nome de modelo que uma requisição traga, então é o caminho que escolhe o modelo; ele serve apenas chat completions. O gateway apresenta a credencial própria de cada conexão como um bearer token, que o Traefik Hub lê do Secret que o middleware Chat Completion da conexão nomeia, e uma conexão que alcança um modelo cujo `model.aggrega.ai/api` não é `openai`, ou cujo endpoint nomeia um endereço em vez de um host, interrompe o build. Ele publica a rota do alias que seu `values.model` nomeia como seu `endpoint` e esse alias como seu `model`, e traz `model.aggrega.ai/api: openai`, então o socket `model` de um agente o aceita como aceita o gateway de IA; sem nada conectado, publica ambas as chaves vazias. Uma Release pode nomear os chamadores do gateway em `infra.callers` e os hashes htpasswd de suas chaves pelo slot `caller_keys`: o middleware API Key do Traefik Hub então encabeça toda rota de modelo e recusa uma requisição que não apresenta nenhuma chave declarada como `Authorization: Bearer <key>`, e a chave é removida da requisição encaminhada; sem chamadores, as rotas ficam abertas. O que o Traefik Hub faz com a entrada de um chamador que nomeia um Secret ou uma chave de dados inexistente não é informado em sua referência, então, no pior caso, as rotas ficam tão abertas quanto sem chamadores. Dos controles abaixo, ele realiza o orçamento por período, o cache semântico para os chamadores que declara, os padrões de negação de prompts e o mascaramento de dados, por meio de middlewares do gateway de IA do Traefik Hub, e a cadeia de fallback e a política de retry, por meio do failover e do retry próprios da Traefik, cada um escrito nas rotas que sua Recipe de chart renderiza. O gateway de IA é um direito de uso incluído na licença, que nenhum build consegue ver, e o que o Traefik Hub faz com um token válido cuja licença não o inclui não está documentado, então vincular qualquer um dos quatro primeiros interrompe o build até que a Release defina `infra.ai_gateway_entitled` como `true`. Suas realizações da triagem de injeção de prompt, do registro de auditoria, da seleção de destino e da validação de respostas interrompem toda vinculação, cada uma informando o motivo, e o limite de concorrência não se vincula a ele, já que ele não traz nenhum valor `dataplane.aggrega.ai/concurrency-cap`. Que um gateway em execução aplique qualquer um desses controles não é observado por nenhum build."
+  },
+  "b15f22c3a52fc8e2": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "b15f22c3a52fc8e2",
+    "status": "machine",
+    "text": "O localizador é escrito em exatamente um pilar por vinculação. Uma vinculação que o carrega em ambos — os `values` do Aggregate e o `infra` da Release para o mesmo slot — ou em nenhum é interrompida na asserção da própria Feature (`E0033`), nomeando a Feature, a vinculação e o componente, e dizendo qual dos dois casos ocorreu. A regra pertence às entidades de catálogo dessas Features, não ao compilador, que avalia a asserção delas como avalia a de qualquer Feature. Os campos que não são o localizador mantêm o seu pilar: `key` continua sendo uma folha de `values`, então uma vinculação que apenas a Release faz lê a chave de dados padrão da Feature, `value`. A proibição de `values:` não muda — o localizador do operador é `infra`."
   },
   "b16247b4ac8946dd": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -34851,6 +35244,13 @@
     "status": "machine",
     "text": "Um nome dado sozinho é procurado na pilha própria do workspace. Informe `--release <release-path>` ao lado dele e o nome é procurado, em vez disso, na pilha dessa Release — os diretórios que a configuração do workspace atribui a essa Release, com quaisquer `--catalog` antepostos —, que é o que um build dessa Release lê. Um workspace que mantém uma variante de catálogo por Release, cada uma declarando a mesma entidade, responde portanto a um nome com a variante com a qual essa Release é construída:"
   },
+  "b56d2d47728c6f57": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "b56d2d47728c6f57",
+    "status": "machine",
+    "text": "**Uma fronteira declarada com o nome `default`.** A saída plana é uma propriedade da fronteira padrão *sintetizada*, não do nome. Uma fronteira chamada `default` que uma Release declara explicitamente sob `boundaries:` é uma fronteira nomeada comum: sua saída segue o seu `directory:` (por padrão `dist/boundaries/default/`), exatamente como qualquer outra fronteira declarada."
+  },
   "b57cdd1c3dfeafd9": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -34864,6 +35264,13 @@
     "srcHash": "b57fc407717b40c1",
     "status": "machine",
     "text": "`codex mcp add aggrega -- aggrega mcp` grava a mesma tabela para você. A extensão de IDE do Codex e o aplicativo de desktop do ChatGPT leem o mesmo arquivo, então a única entrada serve aos três."
+  },
+  "b59a0ffcea8253af": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "b59a0ffcea8253af",
+    "status": "machine",
+    "text": "**Um diretório, uma grafia.** O caminho avaliado é limpo uma única vez, de modo que `out/a`, `out//a`, `./out/a` e `out/a/` são um mesmo diretório. Fronteiras cujos caminhos, depois de limpos, resultam no mesmo diretório e que renderizam pelo mesmo provedor são montadas juntas, exatamente como fronteiras escritas com caminhos idênticos."
   },
   "b5a4c02c522140f1": {
     "at": "2026-10-30T05:41:23.167Z",
@@ -35593,6 +36000,13 @@
     "srcHash": "b9cb2d6c88554b2a",
     "status": "machine",
     "text": "[Component](../language-reference/entities/component.md), [Feature](../language-reference/entities/feature.md)"
+  },
+  "b9e6707a9f9a8989": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "b9e6707a9f9a8989",
+    "status": "machine",
+    "text": "O campo `aggregates:` — roteando submódulos aninhados para fronteiras"
   },
   "b9e6a9abe0db645d": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -36794,6 +37208,13 @@
     "srcHash": "bfcc8f3e59fc3a98",
     "status": "machine",
     "text": "**`mcp.authorization.issuer` e `mcp.authorization.resource` dizem quem emite os tokens que os chamadores apresentam e como este servidor se chama enquanto recurso para o qual eles são emitidos.** Ambos são obrigatórios sempre que o transporte `http` é escolhido, e sem eles um listener é recusado antes que qualquer coisa seja vinculada, porque toda requisição ao endpoint é respondida com um desafio bearer-token, e um desafio que não indica para onde ir é um desafio sobre o qual um cliente não consegue agir. Escreva endereços completos, com esquema e host incluídos: o issuer exatamente como esse servidor de autorização declara seu próprio identificador, e o recurso como o endereço que seus chamadores realmente alcançam — o host que um proxy à frente apresenta, onde houver um, em vez do endereço ao qual este processo se vincula. Ambos são publicados, sem que nenhuma credencial seja pedida, no documento de metadados OAuth do recurso protegido que o listener serve, que é onde um cliente procura onde obter um token. Nenhum dos dois contém nada secreto: um token chega na requisição que o apresenta e nunca é escrito em um arquivo de configuração. O issuer é um endereço `https`, a menos que o servidor de autorização rode nesta máquina — `localhost`, `127.0.0.1` ou `::1` —, e um listener que indica um issuer `http` sem criptografia em qualquer outro host é recusado antes que qualquer coisa seja vinculada, seja qual for a forma como ele lê suas chaves e seus chamadores: todo cliente é enviado ao issuer para obter seu token, então sobre `http` sem criptografia seu código de autorização e seu token atravessariam a rede sem proteção, e onde as chaves também são lidas de lá, qualquer um nesse caminho poderia substituí-las."
+  },
+  "bfd63794b37784ab": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "bfd63794b37784ab",
+    "status": "machine",
+    "text": "Uma Feature vinculada a uma fronteira é identificada por um nome de instância que você escolhe, e esse nome não pode ser `.` nem `..`. Em um provedor que dá a cada contribuidor um diretório próprio — terraform, em `modules/`, e helm-chart, em `charts/` —, os arquivos de uma Feature no nível da fronteira são escritos em um diretório com o nome apenas da instância, e nenhum desses dois nomes é um diretório próprio: o build para, nomeando a Release, a fronteira e a instância. Um nome que apenas contém pontos, como `audit.v2`, é um nome comum."
   },
   "bfdd4d0c42c2c409": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -38218,6 +38639,13 @@
     "status": "machine",
     "text": "**Um plugin que falha é informado com sua falha, em vez de ser removido da listagem.** `resolved` diz se a referência chegou a alcançar bytes de módulo, e um plugin que foi resolvido mas não conseguiu se descrever é informado exatamente assim — de modo que um anexo presente e inutilizável se distingue de um que nunca foi feito."
   },
+  "c74c28152e8a548e": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "c74c28152e8a548e",
+    "status": "machine",
+    "text": "Mais três interrupções mantêm as vinculações de uma conexão na sua conexão:"
+  },
   "c74ea9dc9cd25b58": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -38362,6 +38790,13 @@
     "srcHash": "c8003cc22cb0046d",
     "status": "machine",
     "text": "Instalar o Aggrega"
+  },
+  "c8010dc97bca9b31": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "c8010dc97bca9b31",
+    "status": "machine",
+    "text": "O `infra` por aresta resolvido flui para o contexto de renderização do componente *consumidor* em `.context.uses.<alias>.infra.<key>`; ele nunca aparece no contexto do componente de destino, de modo que a saída renderizada de um destino é invariante em relação aos consumidores que configuram arestas para ele. Uma vinculação em uma conexão também chega ao componente consumidor, como uma de suas vinculações: seu `infra` é mesclado com os `values` do Aggregate para o mesmo slot, e sua FeatureRecipe renderiza com base em ambos. A Recipe do componente consumidor a lê sob sua conexão, em `.context.uses.<alias>.features.<slot>`, e seu Workload a entrega nomeando a conexão ao lado do slot — veja [Entregar uma credencial que uma conexão carrega](workload.md#delivering-a-credential-a-connection-carries)."
   },
   "c803c258c94d6b12": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -38535,6 +38970,13 @@
     "srcHash": "c8c8ec278299e2c1",
     "status": "machine",
     "text": "`E0321`, uma leitura por meio de um link que sai de um diretório de catálogo ou do diretório de uma Release"
+  },
+  "c8ca32f72c33264f": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "c8ca32f72c33264f",
+    "status": "machine",
+    "text": "**Anotações conhecidas.** Além das chaves ad hoc, a biblioteca padrão do Aggrega define um conjunto de anotações conhecidas sob os namespaces `aggrega.ai/` e `feature.aggrega.ai/`, agrupadas nas categorias de posicionamento, rede, segurança e observabilidade. Quem adiciona anotações a uma fronteira de Release deve consultar [providers/well-known-annotations.md](../providers/well-known-annotations.md) para a matriz completa e as regras de consumo por provedor — a página documenta quais provedores aplicam cada chave conhecida e que comportamento emitem quando a chave está presente."
   },
   "c8d2fcf610cc584c": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -39392,6 +39834,13 @@
     "status": "machine",
     "text": "O `usesSchema` de uma Feature não aceita `featuresSchema`: uma conexão que uma Feature traça não carrega acoplamentos, e uma Feature que declara slots em um socket é recusada no carregamento. Uma credencial de que essa conexão precise é um slot no `featuresSchema` próprio da Feature."
   },
+  "cd6a8941313091d6": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "cd6a8941313091d6",
+    "status": "machine",
+    "text": "As anotações propagadas em cascata por esse mecanismo aparecem nos templates de Recipe posteriores por meio de `.context.annotations.release`; veja [Autoria de uma Recipe](recipe.md) e a [matriz de expansão de templates](../templates/expansion-matrix.md) para saber como os renderizadores as consomem."
+  },
   "cd6a9315c704a909": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -39913,6 +40362,13 @@
     "status": "machine",
     "text": "Se os bytes de uma versão fixada no registry não corresponderem mais ao digest que o lockfile registrou (uma violação de imutabilidade upstream), `pull` é interrompido com um erro de integridade em vez de adotar silenciosamente os bytes alterados — execute `--upgrade` para fixar novamente de forma deliberada."
   },
+  "cfef4c48b14a339c": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "cfef4c48b14a339c",
+    "status": "machine",
+    "text": "Duas garantias estruturais protegem o Aggregate como fonte única da verdade:"
+  },
   "cff82338016f9513": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -40075,6 +40531,13 @@
     "srcHash": "d0731ec7d781771f",
     "status": "machine",
     "text": "**Reproduzível e governado.** Mesma entrada, mesma saída, com cada dependência fixada em um lockfile. Suas políticas se conectam ao compilador e interrompem um build que as viola, dizendo o que corrigir."
+  },
+  "d075c64c4aaa410e": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "d075c64c4aaa410e",
+    "status": "machine",
+    "text": "Cada fronteira declara um `directory` físico de saída para seus artefatos compilados; os componentes dentro de uma fronteira podem substituí-lo por meio de um `subDirectory` por componente. O compilador calcula o caminho final do artefato juntando-os, em forma separada por barras em todas as plataformas: `Final_Path = Clean(Join(Evaluated(directory), Evaluated(subDirectory)))`."
   },
   "d092dcdf7053548a": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -40807,6 +41270,13 @@
     "status": "machine",
     "text": "**Nível 1 — Caminho local explícito.** Uma referência que começa com `./` ou `../` (um prefixo de caminho relativo POSIX) é lida diretamente do disco, relativa ao arquivo em que foi escrita. Nenhuma busca no catálogo, nenhuma chamada ao registry. O prefixo explícito distingue, no nível sintático, a intenção de caminho local da busca por nome de tipo: um Aggregate que escreve `type: core/api-server:1.0.0` é inequivocamente uma referência de tipo; `type: ./local-api-variant` é inequivocamente um arquivo local. O resolvedor nunca inspeciona o conteúdo da string para decidir qual nível se aplica — o prefixo é o discriminador."
   },
+  "d5317b80cc67657b": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "d5317b80cc67657b",
+    "status": "machine",
+    "text": "**Compose.** Cada serviço no arquivo compose em que uma fronteira é renderizada espera, por meio de `depends_on`, pelos serviços da onda imediatamente anterior que contribuíram para o mesmo arquivo — condicionado à saúde do destino onde o destino declara um `healthcheck`, e ao seu início onde não declara. Assim, a onda ordena os serviços de um arquivo e nada fora dele: fronteiras que são renderizadas em arquivos `docker-compose.yaml` separados são projetos compose separados, e sequenciá-los é responsabilidade do operador. As arestas `uses:` continuam a expressar a ordenação por aresta junto com a onda. Veja [`providers/compose.md`](../providers/compose.md#deployment-wave-ordering)."
+  },
   "d539b061d0761a19": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -41273,6 +41743,13 @@
     "srcHash": "d81d69460c73f96b",
     "status": "machine",
     "text": "Uma publicação com `--dry-run`. Todo o seu comportamento é informar o que publicaria sem chamar nada, o que a torna a forma de publicar segura offline, e não uma contradição da postura."
+  },
+  "d834b221e1acc2ec": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "d834b221e1acc2ec",
+    "status": "machine",
+    "text": "**Semântica do valor de onda.** `syncWave:` é um inteiro com sinal (positivo, zero ou negativo). O padrão quando o campo é omitido é `0`. Os valores de onda não são herdados de uma fronteira pai — cada fronteira que quer uma onda diferente do padrão declara uma explicitamente. Components não podem substituir a onda da sua fronteira (a onda é uma propriedade da unidade espacial, não de componentes individuais)."
   },
   "d83da0a2a87b5f52": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -41851,6 +42328,13 @@
     "status": "machine",
     "text": "Dois destes subcomandos produzem um arquivo, e o que eles produzem não é o mesmo tipo de coisa."
   },
+  "db373ce65e84b223": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "db373ce65e84b223",
+    "status": "machine",
+    "text": "Sequenciamento temporal — `syncWave` por fronteira"
+  },
   "db3a0a92875305a1": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -42154,12 +42638,26 @@
     "status": "machine",
     "text": "**Uma Release que o compilador recusa durante a renderização — um Workload que nomeia um slot que seu Component não declara, uma asserção que falha, um template que não pode ser avaliado, uma realização que não fornece o que deve fornecer — é relatada onde aponta e com as palavras do compilador, em toda requisição que a renderiza:** `aggrega/build`, `aggrega/buildPreview` e `aggrega/irGraph` com a etapa de renderização ativada. A resposta é um envelope de erro com o código `-32603`, cujo `message` é a recusa com cada causa abaixo dela, nas palavras que a linha de comando imprime para a mesma build: o nó que está sendo renderizado, depois o que nele recusou, cada causa após aquela que ela explica — precedida, quando a recusa nomeia uma condição registrada, pelo código curto dessa condição, como é [toda recusa que nomeia uma](#error-codes). Seu `data` nomeia o documento para o qual a recusa aponta como `file`, e o intervalo da chave nele como `line`, `column`, `end_line` e `end_column`, ao lado de `code` e `shortCode` da condição; uma recusa que não nomeia nenhuma chave, ou uma que o documento não contém, carrega apenas `file`, e uma que não aponta para nenhum documento nomeia o Aggregate da Release."
   },
+  "dc9ba6ab4e315247": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "dc9ba6ab4e315247",
+    "status": "machine",
+    "text": "A superfície é **criar-sem-redirecionar**: uma Release pode adicionar uma aresta a um socket não associado, mas não pode redirecionar uma aresta que o desenvolvedor já declarou. Uma entrada por aresta que nomeia um destino *diferente* do da aresta do desenvolvedor interrompe a compilação; uma entrada que nomeia o *mesmo* destino (ou o omite) configura essa aresta. A Release também não pode declarar `values` em uma aresta ou em uma vinculação que escreve ali (os valores voltados ao desenvolvedor permanecem no Aggregate), associar um socket que o `usesSchema` não declara, nem apontar uma aresta para um componente que não existe — cada um desses casos é uma interrupção fatal. O mesmo vale para uma entrada que define `infra` ou `features` em uma conexão que não existe depois que todas as arestas são traçadas, a menos que o componente consumidor esteja desativado com `active: false`. Veja [errors/fatal-halts.md](../errors/fatal-halts.md) §“Ao construir a topologia”."
+  },
   "dc9bf3ca400d04f1": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
     "srcHash": "dc9bf3ca400d04f1",
     "status": "machine",
     "text": "**Uma Release cuja composição as verificações do compilador rejeitam é recusada em vez de renderizada.** Resolver uma Release constrói o grafo, e as verificações que um build faz sobre o grafo finalizado — uma aresta `uses:` cujo alvo não satisfaz o `selector:` do seu socket, uma Feature vinculada a um componente que seu `appliesTo:` não admite, e as demais — são feitas aqui também, com o diagnóstico que um build dos mesmos documentos imprime. A recusa nomeia cada constatação em uma única execução em vez de parar na primeira, então uma única passada mostra a lista inteira a corrigir em vez da sua primeira entrada. É isso que mantém este comando honesto em relação a um deployment: uma visão que renderizasse uma composição que o build recusa informaria que um workspace está correto quando não está. As seleções que não resolvem nada não são afetadas — `--raw`, `--output yaml` e `--closure` reproduzem ou resolvem o que você escreveu sem construir um grafo."
+  },
+  "dcc0581d670b780b": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "dcc0581d670b780b",
+    "status": "machine",
+    "text": "Para o enquadramento arquitetural completo — o modelo de execução em DAG, a justificativa para colocar o sequenciamento temporal na Release em vez de no Aggregate, e a distinção entre unidade de autoria de ondas e unidade implantável — veja [`architecture/12-day-two-lifecycles.md` §1](../../architecture/12-day-two-lifecycles.md)."
   },
   "dcc6ab3f038d725a": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -42399,6 +42897,13 @@
     "srcHash": "ddb3efce9b30ad98",
     "status": "machine",
     "text": "6. Plugins de análise: leitura de formatos externos"
+  },
+  "ddbeb034048cc946": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "ddbeb034048cc946",
+    "status": "machine",
+    "text": "**Substituição plana.** Para desativar completamente os subdiretórios (todos os artefatos diretamente sob `directory`), defina `subDirectory: \".\"`. Um template `subDirectory` que é avaliado como uma string vazia — `\"{{ .parameters.sub }}\"` com `sub` definido como `\"\"`, por exemplo — também os desativa."
   },
   "ddbfd197b92c3bb5": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -42856,12 +43361,30 @@
     "status": "machine",
     "text": "**Um `source:` local escrito como template leva o diretório inteiro.** Um template como `./charts/{{ .values.flavour }}` só nomeia um diretório quando uma Release o preenche, então nenhuma publicação pode saber qual será. Uma entidade assim leva cada arquivo do seu próprio diretório que suas regras de exclusão registradas mantêm — nunca seu `.aggregaignore`, cujas regras viajam dentro do lock — e o push informa isso abaixo dos seus outros dados:"
   },
+  "dfefee61451719b8": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "dfefee61451719b8",
+    "status": "machine",
+    "text": "O bloco `parameters:`"
+  },
   "dffa6fd9392276e6": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
     "srcHash": "dffa6fd9392276e6",
     "status": "machine",
     "text": "Janela de debounce para a validação proativa ao alterar."
+  },
+  "dffc8d91c4799483": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "a0e81ca0bfd961a1",
+      "reviewed": false
+    },
+    "srcHash": "dffc8d91c4799483",
+    "status": "machine",
+    "text": "**Escopo único (o padrão).** Escreva os componentes diretamente sob `spec.components:` e omita o bloco `boundaries:`. O compilador os incorpora a uma fronteira `default` sintetizada cuja saída é **plana** — os artefatos ficam diretamente sob `dist/` (por provedor, por meio do padrão seguro de `subDirectory` descrito abaixo: `dist/compose/`, `dist/helm/`, …), sem nenhum segmento com o nome da fronteira no caminho. Essa é a implantação mais simples: `aggrega build` sobre um destino Compose plano ou de cluster único sem nomear fronteiras."
   },
   "dffd7b012c67ef8e": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -43160,6 +43683,13 @@
     "status": "machine",
     "text": "Nome de usuário do registry (solicitado se omitido)"
   },
+  "e1bf844eb1464ff0": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "e1bf844eb1464ff0",
+    "status": "machine",
+    "text": "Os valores estruturados descem em cascata com uma mesclagem profunda por subchave; as subchaves do nível mais próximo substituem as do pai. Um `null` por subchave exclui uma subchave enquanto as subchaves irmãs permanecem. O lado da Release aplica apenas as subchaves cujo pilar no mapa de binding é `infra`; as subchaves roteadas para `values` pertencem às anotações do lado do Aggregate. Para a explicação completa dos valores estruturados — composição entre os lados, validação de tipo por subchave, a disciplina dos padrões flexibilizados — veja [providers/well-known-annotations.md](../providers/well-known-annotations.md) §“Valores de anotação estruturados”."
+  },
   "e1cdd678407b1e32": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -43447,6 +43977,13 @@
     "srcHash": "e33ccbdee1aedb20",
     "status": "machine",
     "text": "As entradas abaixo são um padrão recomendado e cinco restrições. Os schemas impõem as restrições 4 e 5 — a Release não tem bloco `values`, e a instância de componente de um Aggregate não tem chave `labels`; as demais são convenções que o compilador não verifica."
+  },
+  "e341ef44faf56f95": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "e341ef44faf56f95",
+    "status": "machine",
+    "text": "Uma funcionalidade vinculada a um único componente carrega o mesmo bloco `uses:` e liga a mesma aresta a partir desse único componente: o componente ganha uma aresta de dependência para cada destino nomeado, recebe por injeção os `provides` desses destinos, e a aresta registra a vinculação como sua origem exatamente como faz a forma para toda a fronteira. As duas são uma única declaração em duas amplitudes — vincule na fronteira para ligar cada componente dela, vincule em um componente para ligar esse componente — e a escolha entre elas é uma questão de alcance, nunca do que a ligação faz. Nenhuma das duas cria computação: o destino precisa já nomear um componente que o Aggregate declarou, e um que não o faça interrompe o build. Uma conexão traçada por uma Feature não carrega vinculações próprias: sua entrada aceita `target` e `inject`, e uma chave `features:` ali é recusada quando a Release é carregada."
   },
   "e3470467eb27a76a": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -44918,6 +45455,13 @@
     "status": "machine",
     "text": "Arquivo de lote (YAML, ou JSON como subconjunto) cuja lista de nível superior anexa um marcador por entrada. Cada entrada contém reference, severity e reason, além de replacement e message opcionais. Mutuamente exclusivo com uma referência posicional."
   },
+  "eb0244cdab61640c": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "eb0244cdab61640c",
+    "status": "machine",
+    "text": "**O nome composto escrito em qualquer lugar que não seja a conexão** interrompe a compilação. Uma vinculação de conexão torna-se uma vinculação do componente consumidor chamada `<alias>.<slot>` (veja [a entrada de conexão do Aggregate](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)), e tanto as chaves `features:` próprias de uma entrada de componente quanto as de uma fronteira admitem um ponto. Uma entrada de componente que escreve esse nome, ou uma fronteira que o escreve de forma que ele alcance um componente cuja conexão o carrega — um componente colocado nessa fronteira ou em uma aninhada dentro dela, incluídos os de um submódulo roteado — interrompe a compilação nomeando ambas as grafias, uma vez para cada componente que alcança. O slot de um socket é preenchido em cada conexão e nunca por uma vinculação que desce em cascata de um escopo mais amplo."
+  },
   "eb1639b91be83e2b": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -46316,6 +46860,13 @@
     "status": "machine",
     "text": "[aggrega-push.md](aggrega-push.md) e [aggrega-sign.md](aggrega-sign.md) — as variáveis de assinatura e o alias do token de identidade."
   },
+  "f2ea67b843f9a56c": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "f2ea67b843f9a56c",
+    "status": "machine",
+    "text": "Um componente pertence a exatamente uma fronteira, e o build é interrompido quando um documento posiciona um componente duas vezes — o mesmo submódulo roteado para duas fronteiras, um submódulo roteado para uma fronteira enquanto um de seus componentes é nomeado em outra, ou um componente nomeado tanto diretamente quanto por meio de uma entrada de roteamento. O diagnóstico nomeia os dois locais, porque qual manter é decisão do autor. Rotear um submódulo para uma fronteira e nomear um de seus componentes sob essa *mesma* fronteira não é um conflito: o roteamento posiciona o componente e a entrada nomeada o configura."
+  },
   "f2edeabd53f7b78d": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -46727,6 +47278,13 @@
     "srcHash": "f4d4edfcc90820ec",
     "status": "machine",
     "text": "Resolução de `provides:` ciente da cascata"
+  },
+  "f4e76845bad26048": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "f4e76845bad26048",
+    "status": "machine",
+    "text": "**Configurar uma aresta existente.** Defina `infra` por aresta em uma aresta que o desenvolvedor já declarou. A entrada nomeia o alias do desenvolvedor e fornece `infra`; ela nomeia o mesmo destino que o desenvolvedor ligou ou omite o destino. O `infra` é validado em relação ao `infraSchema` do socket."
   },
   "f4e969475fe1b13f": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -48908,6 +49466,13 @@
     "srcHash": "ffc896927aca256f",
     "status": "machine",
     "text": "a string vazia"
+  },
+  "ffca8ded59782c99": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "srcHash": "ffca8ded59782c99",
+    "status": "machine",
+    "text": "**Uma credencial em uma conexão que a Release liga nomeia seu segredo em `infra`.** Uma conexão que a Release liga não tem entrada no Aggregate, então nada ali escreve os `values` da credencial, e a Release não escreve `values` em lugar nenhum. Cada Feature de credenciais da biblioteca padrão que carrega o localizador de quem chama — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` e `core/secret-provided` — portanto o aceita em `infra` além de em `values`: `origin`, ou `entries` para `core/referenced-secret-set`, com a mesma forma e a mesma declaração `sensitive: true` em ambos os pilares. Cada realização lê o pilar que o carregar."
   },
   "ffd240f7a2a608f2": {
     "at": "2026-10-30T07:09:12.317Z",

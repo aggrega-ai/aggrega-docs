@@ -2126,6 +2126,17 @@
     "status": "machine",
     "text": "Não editável pelo utilizador; as anotações com o prefixo simples declaradas em conteúdo do utilizador são rejeitadas no momento da publicação"
   },
+  "092862fea120cb89": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "revision": {
+      "from": "a0718ce52b06fca8",
+      "reviewed": false
+    },
+    "srcHash": "092862fea120cb89",
+    "status": "machine",
+    "text": "**Kubernetes (fornecedor helm / helm-chart).** Quando a wave não é `0`, todos os recursos Kubernetes que o fornecedor helm renderiza para a fronteira contêm a anotação habitual em GitOps `argocd.argoproj.io/sync-wave: \"<N>\"`; os hooks Helm contêm adicionalmente a anotação `helm.sh/hook-weight: \"<N>\"`, para que o mesmo valor de wave oriente a própria ordenação pre/post-install do Helm. O ArgoCD lê a anotação sync-wave e o Helm lê o peso de um hook, e cada um ordena a aplicação dos recursos em conformidade. O fornecedor helm-chart copia os templates de um chart de origem tal como o seu autor os escreveu, pelo que os recursos próprios de um sub-chart só contêm a wave onde esses templates a escrevem; um artefacto carregado por `$import:` que o fornecedor acrescenta contém `argocd.argoproj.io/sync-wave` e nenhum `helm.sh/hook-weight` (ver [`providers/helm-chart.md`](../providers/helm-chart.md))."
+  },
   "092c2625b5f81f90": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -3224,6 +3235,17 @@
     "srcHash": "0f14f1d9fa211e66",
     "status": "machine",
     "text": "**Deixa inalteradas as capitalizações dos campos.** Os campos de esquema escritos pelo autor continuam em camelCase e as chaves do contexto de template continuam em snake_case. Nenhum dos identificadores deste registo é um campo de qualquer das superfícies — são nomes curtos e estáveis para uma flag, uma regra ou uma classe de ocorrência —, pelo que um código de diagnóstico estar em kebab-case nada diz sobre como se escreve um campo de esquema."
+  },
+  "0f1a2a27a301dc8a": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "revision": {
+      "from": "eccb94e4836ea549",
+      "reviewed": false
+    },
+    "srcHash": "0f1a2a27a301dc8a",
+    "status": "machine",
+    "text": "**Unidade de autoria de waves vs. unidade implementável.** A fronteira é a unidade de autoria de waves. A unidade implementável é o caminho de montagem para o qual os componentes são emitidos — por predefinição 1:1 com a fronteira, mas duas fronteiras irmãs que partilham um `directory:` colapsam numa única saída montada (um `Chart.yaml`, um `docker-compose.yaml`). Quando isso acontece, a saída montada pode conter recursos de várias waves; uma Application do ArgoCD que a lê ordena, dentro da Application, cada recurso pela anotação `sync-wave` que esse recurso contém — no helm, todos os recursos renderizados para uma wave diferente de zero, e no helm-chart, apenas um artefacto carregado por `$import:`, contendo os templates próprios de um sub-chart o que o seu autor escreveu. A sequenciação entre Applications através de caminhos diferentes é uma preocupação da CI do operador."
   },
   "0f1ad614b83938aa": {
     "at": "2026-10-30T04:51:07.986Z",
@@ -8806,6 +8828,17 @@
     "srcHash": "283dfc7fef4b4de7",
     "status": "machine",
     "text": "Argumentos posicionais e estado de saída"
+  },
+  "2845bdd5d971ed18": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "f68c2b82c982e12a",
+      "reviewed": false
+    },
+    "srcHash": "2845bdd5d971ed18",
+    "status": "machine",
+    "text": "**Vários âmbitos.** Quando uma Release abrange mais do que um agrupamento físico — clusters, regiões ou sync waves separados — declare fronteiras com nome em `boundaries:`. Cada fronteira tem o seu próprio `directory:`, cascata de anotações e `syncWave:`, e os componentes são endereçados dentro da sua fronteira."
   },
   "284e29517074f132": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -25368,6 +25401,17 @@
     "status": "machine",
     "text": "Uma entidade SchemaLibrary tem o envelope de catálogo habitual. `apiVersion: aggrega.ai/v1alpha1` e `kind: SchemaLibrary` marcam o tipo de entidade; `metadata.name` é um identificador em PascalCase; `metadata.version` segue estritamente o controlo semântico de versões. O conteúdo da biblioteca fica em `spec`: `spec.schemas` é obrigatório (a biblioteca tem de declarar pelo menos uma entrada), e `spec.templates` é opcional (presente apenas quando a biblioteca usa helpers parametrizados)."
   },
+  "788467c14350df3b": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "b800fcc64a1f2e68",
+      "reviewed": false
+    },
+    "srcHash": "788467c14350df3b",
+    "status": "machine",
+    "text": "**`extends` + `aggregate:` é rejeitado.** Para evitar Releases «que alteram o aggregate» impossíveis de rastrear, quando uma Release usa `extends`, declarar um ponteiro `aggregate` é rejeitado pelo esquema da Release. A release filha tem de mapear exatamente para a mesma intenção do programador que a sua mãe. O `manifest`, no entanto, torna-se opcional, desbloqueando o «Late Binding» — permitindo ao operador herdar toda a topologia física, mas substituir cirurgicamente o Manifest."
+  },
   "7889220dd0c12dfe": {
     "at": "2026-10-22T23:08:42.660Z",
     "job": "session-0053-20261022230842",
@@ -29748,6 +29792,17 @@
     "status": "machine",
     "text": "`metadata.labels`: use `feature.aggrega.ai/kind: secret` para marcar uma Feature como Feature de credencial. A etiqueta é metadados descritivos para o autor, para o site do catálogo e para os seletores de etiquetas; nenhum ramo do compilador a lê, e o que uma anexação produz é decidido pela FeatureRecipe para a qual o Manifest mapeia o seu tipo, não pela etiqueta. Uma Feature de credencial e uma Feature comum são anexadas da mesma forma, na mesma superfície de anexação, em qualquer âmbito. A família de credenciais da biblioteca padrão divide-se pelo *resultado*: **`core/secret-value`** entrega um valor no canal de inject; **`core/referenced-secret`** indica um recurso secreto referenciável (um Secret do Kubernetes, um segredo do AWS Secrets Manager, uma entrada do Vault), um que a saída da sua FeatureRecipe cria ou um que já existe, e declara um contrato de saída `schema.provides` — `name` (o localizador do recurso, independente do fornecedor) e `key` (o campo de dados dentro dele) — que um consumidor lê como `.features.<slot>.provides.<key>` para referenciar o recurso sem voltar a derivar o seu nome; **`core/referenced-secret-set`** materializa um recurso que contém um conjunto de chaves de dados fornecido pelo chamador e publica apenas o localizador, para um consumidor cujo destino já conhece os nomes das chaves que lê; **`core/secret-provided`** expõe o valor de um segredo preexistente; **`core/generated-secret`** não produz nada, porque o motor de destino gera e gere ele próprio a credencial, pelo que não declara nem `values` nem `provides` e as suas FeatureRecipes são pura ligação que não renderiza nenhum byte. Dois eixos separam os membros: quem fornece o material — um autor escreve-o ou indica onde obtê-lo, ou o motor de destino é inteiramente dono dele, como com `core/generated-secret` — e o que a anexação produz: um valor injetado, um recurso referenciável ou nada renderizado. Cada membro é par dos outros na mesma superfície de anexação, pelo que um slot de credencial está sempre associado e o que varia entre Releases é aquilo que o associa. Uma Feature de credencial que declara um contrato `schema.provides` obriga cada FeatureRecipe que a implementa a publicar essas chaves — caso contrário, o build é interrompido — e o `selector` de um slot de `featuresSchema` visa o membro da família de que precisa."
   },
+  "8ee889203b353af3": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "1d3beb749e79e930",
+      "reviewed": false
+    },
+    "srcHash": "8ee889203b353af3",
+    "status": "machine",
+    "text": "**Valor predefinido seguro.** Se `subDirectory` for omitido ou estiver vazio, o compilador aplica automaticamente `subDirectory: \"{{ .capability }}\"` — os artefactos de cada capacidade de renderização (Helm, Helm-chart, Compose, Terraform, CloudFormation) ficam na sua própria subpasta, evitando colisões de artefactos mistos nas ferramentas de CI/CD a jusante. Um `subDirectory: \"\"` escrito explicitamente é lido exatamente como um omitido, pelo que também recebe este valor predefinido."
+  },
   "8ef241c5676e5b91": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -30103,6 +30158,13 @@
     "srcHash": "90e8b5c0b4bd1ddb",
     "status": "machine",
     "text": "Através de `stdio`, a predefinição, comunica pela entrada e saída padrão do processo. Nessa forma, não é um comando que se execute interativamente — um cliente compatível com MCP lança-o como subprocesso e fala o protocolo através de stdio; [Setup](../../authoring/setup.md#where-each-client-keeps-its-server-list) indica onde cada cliente guarda a entrada que o lança. Executá-lo transforma a CLI num assistente de autoria que conhece o Aggrega dentro do editor ou do cliente de chat."
+  },
+  "90f8020df43f23eb": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "90f8020df43f23eb",
+    "status": "machine",
+    "text": "**CloudFormation.** Cada recurso no template de stack montado depende, através de `DependsOn`, dos recursos da wave imediatamente anterior que contribuíram para o mesmo stack — pelo que a wave fixa a ordem pela qual os recursos são criados e, inversamente, a ordem pela qual são eliminados. Não se trata de uma ordenação por prontidão: um template de stack não tem noção de um recurso estar apto a prestar serviço. O `DependsOn` próprio de um fragmento é estendido em vez de substituído. Os Components que são montados num stack diferente estão fora de alcance, e a sequenciação de dois stacks é uma preocupação do operador. Ver [`providers/cloudformation.md`](../providers/cloudformation.md#deployment-ordering)."
   },
   "911910726b5c728c": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -33057,6 +33119,17 @@
     "srcHash": "9e9f9c1bbab3f413",
     "status": "machine",
     "text": "**Três pedidos não precisam de `workspaceRoot`, e cada um porque o seu sujeito não é um espaço de trabalho.** `aggrega/getSchema` e `aggrega/scaffoldEntity` respondem a partir dos esquemas compilados no binário em execução, pelo que um espaço de trabalho não contribui com nada para nenhum deles — o que permite a ambos responder num diretório que ninguém preparou. `aggrega/initialize` é o terceiro, e é onde declara um espaço de trabalho em vez de atuar sobre um."
+  },
+  "9ea4d4c387b6f301": {
+    "at": "2026-11-02T23:32:53.197Z",
+    "job": "session-0019-20261102233253",
+    "revision": {
+      "from": "bab687331d28c222",
+      "reviewed": false
+    },
+    "srcHash": "9ea4d4c387b6f301",
+    "status": "machine",
+    "text": "Cada valor passa pela verificação do esquema declarado pelo Aggregate na camada do contrato de parâmetros, e a compilação é interrompida quando uma Release omite um parâmetro obrigatório (`E0165`, `parameter-missing`) ou fornece um valor que o contrato do seu espaço recusa (`E0164`, `parameter-contract-violation`). Os parâmetros declarados com um `default:` recebem o valor predefinido quando a Release omite o espaço; o contrato tipado é o único vocabulário de autoria."
   },
   "9ea5a68d1e9b6df9": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -45353,6 +45426,13 @@
     "srcHash": "d81d69460c73f96b",
     "status": "machine",
     "text": "Uma publicação `--dry-run`. Todo o seu comportamento consiste em reportar o que publicaria sem chamar nada, o que faz dela a forma de publicação segura em modo offline e não uma contradição da postura."
+  },
+  "d834b221e1acc2ec": {
+    "at": "2026-11-02T23:32:54.656Z",
+    "job": "session-0020-20261102233254",
+    "srcHash": "d834b221e1acc2ec",
+    "status": "machine",
+    "text": "**Semântica do valor de wave.** `syncWave:` é um inteiro com sinal (positivo, zero ou negativo). O valor predefinido quando o campo é omitido é `0`. Os valores de wave não são herdados de uma fronteira pai — cada fronteira que pretenda uma wave diferente da predefinida declara-a explicitamente. Os Components não podem substituir a wave da sua fronteira (a wave é uma propriedade da unidade espacial, não dos componentes individuais)."
   },
   "d83da0a2a87b5f52": {
     "at": "2026-11-02T19:03:21.213Z",
