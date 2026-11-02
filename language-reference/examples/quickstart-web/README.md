@@ -359,7 +359,9 @@ the output, with your own credentials, after replacing the placeholders.
 
 ## Checking every step
 
-`./check.sh`, in this directory, builds the four steps and checks that each
+In a checkout of the documentation repository, which holds the shared build
+helper a copy written by `aggrega scaffold --example` does not carry,
+`./check.sh` in this directory builds the four steps and checks that each
 writes what this page shows: the two Compose files with their services and
 variables, and the two Terraform root configurations with their module blocks,
 their references and their backup settings. It prints one line per step and

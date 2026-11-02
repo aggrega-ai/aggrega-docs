@@ -56,7 +56,7 @@ names one source outside the Aggregate, a monitoring agent.
 ## Building
 
 ```bash
-./build-release.sh
+aggrega build --release release.yaml
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather
@@ -64,8 +64,8 @@ than shipped, so a fresh clone has none. Resolve one first, or let the build
 fill it:
 
 ```bash
-aggrega pull --release release.yaml      # resolve once, then build with no flag
-./build-release.sh -- --auto-pull        # or resolve during the build
+aggrega pull --release release.yaml                 # resolve once, then build with no flag
+aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
 This workspace resolves the catalog entities through the `catalog_dirs` in

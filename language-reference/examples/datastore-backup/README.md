@@ -142,12 +142,13 @@ Releases need those projects' chart repositories reachable from the build;
 every other Release renders from the catalog alone.
 
 ```bash
-./check.sh                                     # builds all six Releases and checks each outcome
-./build-release.sh helm-velero -- --auto-pull  # one Release
+aggrega build --release release-helm-velero.yaml --auto-pull  # one Release
 ```
 
-`check.sh` prints one line per Release and exits 0 only when each ended as this
-page describes:
+In a checkout of the documentation repository, which holds the shared build
+helper a copy written by `aggrega scaffold --example` does not carry,
+`./check.sh` builds all six Releases and checks each outcome. It prints one line
+per Release and exits 0 only when each ended as this page describes:
 
 ```text
 RELEASE                              EXIT  EXPECTED  VERDICT
@@ -418,16 +419,15 @@ reads when the files are applied. It checks nothing in the cluster either:
 
 `release-compose.yaml` attaches the same backup to the database on Docker
 Compose. No FeatureRecipe realizes `core/backup` there, so `manifest-compose.yaml`
-binds none, and `./build-release.sh compose -- --auto-pull` halts naming the
-attachment rather than deploying a database with no backup:
+binds none, and `aggrega build --release release-compose.yaml --auto-pull` halts
+naming the attachment rather than deploying a database with no backup:
 
 ```text
-[… omitted: the helper's report of the binary it runs and the command it runs it with, and what resolving the lockfile prints, the same halt among it]
+[… omitted: what resolving the lockfile prints, the same halt among it]
 [OPS_ERROR E0099]
   recipe resolution
   caused by (1):
     no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe implements this type
-[… omitted: the helper's closing line]
 ```
 
 The standard-library catalog holds no FeatureRecipe for `core/backup` on this

@@ -20,8 +20,7 @@ producer already owns, so the two cannot drift apart.
 ## Building
 
 ```bash
-./build-release.sh -- --auto-pull
-# equivalent to: aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the

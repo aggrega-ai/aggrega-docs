@@ -242,8 +242,8 @@ input.artifacts
       [… omitted: the image test, and the rest of the clause]
 ```
 
-Without the `has(d.services)` test, `./build-release.sh helm -- --config
-governance-cel.yaml --auto-pull` stops, whatever images the Kubernetes objects
+Without the `has(d.services)` test, `aggrega build --release release-helm.yaml
+--config governance-cel.yaml --auto-pull` stops, whatever images the Kubernetes objects
 run, exits `1` and writes no `dist/`, and the line that reports the fault names
 the policy file and the key:
 
@@ -282,14 +282,14 @@ tag, an encryption key — and the next build is judged again.
 ## Building
 
 ```bash
-./build-release.sh terraform -- --config governance-rego.yaml --auto-pull
-./build-release.sh terraform-unencrypted -- --config governance-rego.yaml --auto-pull   # halts; exits 1
+aggrega build --release release-terraform.yaml --config governance-rego.yaml --auto-pull
+aggrega build --release release-terraform-unencrypted.yaml --config governance-rego.yaml --auto-pull   # halts; exits 1
 ```
 
 Swap `governance-rego.yaml` for `governance-cel.yaml` to run the same rule on the
-CEL engine, and `terraform` for `helm`, `compose` or `cloudformation`, with
-their planted Releases `helm-unpinned`, `compose-unpinned` and
-`cloudformation-unencrypted`.
+CEL engine, and `terraform` in the Release's file name for `helm`, `compose` or
+`cloudformation`, with their planted Releases `release-helm-unpinned.yaml`,
+`release-compose-unpinned.yaml` and `release-cloudformation-unencrypted.yaml`.
 
 **The standard-library catalog has to be checked out beside this repository.**
 `.aggrega-config.yaml` lists `../../../../aggrega-hub/aggrega-catalog`, relative
@@ -302,11 +302,10 @@ shipped.
 The Terraform control completes. The planted Release halts:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, and the lines printed while the lockfile is resolved, which carry the refusal below once more and say the render that discovers external inputs could not finish]
+[… omitted: the lines printed while the lockfile is resolved, which carry the refusal below once more and say the render that discovers external inputs could not finish]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: terraform/modules/db/main.tf: the RDS instance db stores its data unencrypted
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 Each message names the file the rule judged, as its path under `dist/`, and the
@@ -324,6 +323,10 @@ from the CEL engine, each naming the engine that reported it; the other engine
 prints the same message under its own name.
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

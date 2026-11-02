@@ -96,12 +96,13 @@ repository (`.aggrega-config.yaml` names it). Every Recipe here renders from the
 catalog alone, so every build runs offline once the lockfile is resolved.
 
 ```bash
-./check.sh                              # builds all six Releases and checks each outcome
-./build-release.sh helm -- --auto-pull  # one Release
+aggrega build --release release-helm.yaml --auto-pull  # one Release
 ```
 
-`check.sh` prints one line per Release and exits 0 only when each ended as this
-page describes:
+In a checkout of the documentation repository, which holds the shared build
+helper a copy written by `aggrega scaffold --example` does not carry,
+`./check.sh` builds all six Releases and checks each outcome. It prints one line
+per Release and exits 0 only when each ended as this page describes:
 
 ```text
 RELEASE                              EXIT  EXPECTED  VERDICT
@@ -357,27 +358,27 @@ each makes is in the task's own output, shown above.
 and attaches `core/manual-trigger` to `report` as well. On Kubernetes and AWS a
 task with a schedule runs on it whether the attachment is there or not; on
 Docker Compose, with no scheduler, a task with a schedule has no realization,
-attached or not. `./build-release.sh compose-scheduled -- --auto-pull` halts:
+attached or not. `aggrega build --release release-compose-scheduled.yaml
+--auto-pull` halts:
 
 ```text
-[… omitted: the helper's report of the binary it runs and the command it runs it with, and what resolving the lockfile prints, the same halt among it]
+[… omitted: what resolving the lockfile prints, the same halt among it]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: Recipe "task" instance "report" assertion "schedule_refused": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: the component "report" is scheduled "30 2 * * 1-5", and Docker Compose has no scheduler: nothing in a compose file starts a service at a time, so the run would happen at none of the times written. Map core/compute/task to helm/task in the Manifest, which runs it on its schedule as a Kubernetes CronJob; or remove the schedule from the component in the Aggregate to run it once at each docker compose up, or attach core/manual-trigger to it there to start each run with docker compose run --rm
-[… omitted: the helper's closing line]
 ```
 
 `release-terraform-unscheduled.yaml` leaves `report_schedule` empty on
 Terraform, so `report` has neither a schedule nor the attachment, and nothing on
 AWS would ever start it. This is the case `core/manual-trigger` exists for, and
-`./build-release.sh terraform-unscheduled -- --auto-pull` halts naming it:
+`aggrega build --release release-terraform-unscheduled.yaml --auto-pull` halts
+naming it:
 
 ```text
-[… omitted: the helper's report of the binary it runs and the command it runs it with, and what resolving the lockfile prints, the same halt among it]
+[… omitted: what resolving the lockfile prints, the same halt among it]
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
   caused by: Recipe "task-ecs" instance "report" assertion "schedule_translates": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: the component "report" has no schedule and carries no core/manual-trigger attachment, so it runs once, and nothing on AWS starts a run that happens once: neither Terraform nor CloudFormation runs an Amazon ECS task when it applies, so the run would never happen. Give the component a schedule in the Aggregate; attach core/manual-trigger to it there to deploy its task definition alone, for the operator to start each run with aws ecs run-task; or map core/compute/task to helm/task in the Manifest, which runs it once on Kubernetes
-[… omitted: the helper's closing line]
 ```
 
 Here the schedule reaches the task through a parameter the Release fulfils, so

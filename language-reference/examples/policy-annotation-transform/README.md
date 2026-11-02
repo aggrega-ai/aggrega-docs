@@ -172,7 +172,7 @@ language has no `sprintf`. The role's half of the expression reads:
 ## What the build renders
 
 ```bash
-./build-release.sh release.yaml -- --config governance-rego.yaml --auto-pull
+aggrega build --release release.yaml --config governance-rego.yaml --auto-pull
 ```
 
 writes twelve files under `dist/shop/helm/`: a Deployment and a Service for
@@ -213,7 +213,7 @@ metadata:
 written on each component by hand. Built with no policy attached,
 
 ```bash
-./build-release.sh by-hand -- --auto-pull
+aggrega build --release release-by-hand.yaml --auto-pull
 ```
 
 it writes the same twelve files, byte for byte, as `release.yaml` with the
@@ -229,7 +229,7 @@ in the Release, so the value expands into the same attachment.
 The build graph records it, and `--ir-graph` prints the graph. Every component
 that received an injected annotation carries
 `aggrega.ai/injected-by`, naming the plugin, among its Release annotations.
-After `./build-release.sh release.yaml -- --config governance-rego.yaml
+After `aggrega build --release release.yaml --config governance-rego.yaml
 --auto-pull --ir-graph`, `api` reads:
 
 ```json
@@ -275,7 +275,7 @@ monitoring key. That binding routes three subkeys, and a string names none of
 them, so
 
 ```bash
-./build-release.sh release.yaml -- --config governance-monitoring-as-string.yaml --auto-pull
+aggrega build --release release.yaml --config governance-monitoring-as-string.yaml --auto-pull
 ```
 
 halts, exits `1` and writes no `dist/`. The policy injected the string on `api`
@@ -284,13 +284,12 @@ injected the value and the role it is attached at, so the value is traced to
 the policy that decided it, rather than to a line of the Release nobody wrote:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, and a warning that the attachment is in the global configuration named with --config]
+[… omitted: a warning that the attachment is in the global configuration named with --config]
 [OPS_ERROR E0367] .spec.boundaries.shop.components.api.annotations
   a scalar annotation value does not route to exactly one path of its binding (Release shop-production, at .spec.boundaries.shop.components.api.annotations, "feature.aggrega.ai/monitoring", carrying the bare value "30s", whose binding routes "interval, port, path", whose value plugin "governance/rego" injected at governance role "annotation-transform")
 ---
 [OPS_ERROR E0367] .spec.boundaries.shop.components.worker.annotations
   a scalar annotation value does not route to exactly one path of its binding (Release shop-production, at .spec.boundaries.shop.components.worker.annotations, "feature.aggrega.ai/monitoring", carrying the bare value "30s", whose binding routes "interval, port, path", whose value plugin "governance/rego" injected at governance role "annotation-transform")
-[… omitted: the helper's line reporting the exit status]
 ```
 
 ## Without the policy
@@ -298,20 +297,18 @@ the policy that decided it, rather than to a line of the Release nobody wrote:
 `release.yaml` built with no governance attachment,
 
 ```bash
-./build-release.sh release.yaml -- --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 halts. Its Component requires a `core/prometheus-exporter` attachment, and
 nothing gives one to `api` or `worker`:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used and its header]
 [DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.api
   missing required feature: attach a Feature of the required type to the component ("core/prometheus-exporter", required by component type "example/compute/service", under the requirement label "monitoring")
 ---
 [DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.worker
   missing required feature: attach a Feature of the required type to the component ("core/prometheus-exporter", required by component type "example/compute/service", under the requirement label "monitoring")
-[… omitted: the helper's line reporting the exit status]
 ```
 
 `gateway` is not named, because its Release entry writes its own monitoring.
@@ -353,9 +350,9 @@ through the catalog the workspace reads.
 ## Building
 
 ```bash
-./build-release.sh release.yaml -- --config governance-rego.yaml --auto-pull
-./build-release.sh release.yaml -- --config governance-cel.yaml --auto-pull
-./build-release.sh by-hand -- --auto-pull
+aggrega build --release release.yaml --config governance-rego.yaml --auto-pull
+aggrega build --release release.yaml --config governance-cel.yaml --auto-pull
+aggrega build --release release-by-hand.yaml --auto-pull
 ```
 
 **The standard-library catalog has to be checked out beside this repository.**
@@ -367,6 +364,10 @@ each Release's lockfile during the build. Lockfiles and the rendered output are
 generated, not shipped.
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

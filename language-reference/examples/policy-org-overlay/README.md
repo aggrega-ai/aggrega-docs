@@ -175,21 +175,20 @@ lockfile and the rendered output are generated, not shipped.
 With the team's file alone:
 
 ```bash
-./build-release.sh -- --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 the build prints the team's warning and completes. With the organization's file
 as well:
 
 ```bash
-./build-release.sh -- --auto-pull --config org/config.yaml
+aggrega build --release release.yaml --auto-pull --config org/config.yaml
 ```
 
 it prints the organization's records at `info` and its rule at `warn`, beside
 the team's warning, and still completes:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, and its header]
   info: policy plugin "rego": db runs core/datastore/mariadb 1.0.0, upstream licensing osi-approved
   info: policy plugin "rego": web runs core/devtool/adminer 1.0.0, upstream licensing osi-approved
   policy plugin "rego" warning: db runs with high availability off
@@ -208,11 +207,11 @@ With the pipeline's overlay copied in, the same command halts:
 
 ```bash
 cp pipeline/.aggrega-config-append-ci.yaml .
-./build-release.sh -- --auto-pull --config org/config.yaml
+aggrega build --release release.yaml --auto-pull --config org/config.yaml
 ```
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, and the overlay's warning shown above]
+[… omitted: the overlay's warning shown above]
 [… omitted: the lines printed while the lockfile is resolved, which carry the verdicts below once more, the refusal among them]
   info: policy plugin "rego": db runs core/datastore/mariadb 1.0.0, upstream licensing osi-approved
   info: policy plugin "rego": web runs core/devtool/adminer 1.0.0, upstream licensing osi-approved
@@ -222,7 +221,6 @@ cp pipeline/.aggrega-config-append-ci.yaml .
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: web runs core/devtool/adminer, in the devtool category, which the organization does not ship
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 The build exits `1` and writes no `dist/`. The organization's rule is reported
@@ -232,6 +230,10 @@ attachment alone. Remove `.aggrega-config-append-ci.yaml` from this directory to
 build without it again.
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

@@ -22,8 +22,7 @@ each the way its slot demands.
 ## Building
 
 ```bash
-./build-release.sh -- --auto-pull
-# equivalent to: aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,

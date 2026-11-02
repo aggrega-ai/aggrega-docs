@@ -100,7 +100,7 @@ aggrega build --release release.yaml
 
 ```sh
 cd ../ai-agent-and-model-router
-./build-release.sh
+aggrega build --release release.yaml
 ```
 
 Lockfiles are generated rather than shipped, so a fresh clone has none and the
@@ -121,7 +121,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Compile the Release
-        run: ./build-release.sh -- --auto-pull
+        run: aggrega build --release release.yaml --auto-pull
         working-directory: ai-agent-and-model-router
       - name: Images are pinned
         run: ./require-pinned-image.sh ../ai-agent-and-model-router/dist

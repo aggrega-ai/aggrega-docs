@@ -91,8 +91,6 @@ are both keys `core/ai-model/anthropic` declares in its `provides` pillar.
 ## Build it
 
 ```bash
-./build-release.sh delivers -- --auto-pull
-# equivalently:
 aggrega build --release release-delivers.yaml --auto-pull
 ```
 
@@ -162,14 +160,13 @@ ad-hoc edge asks for a third key:
 pillar, and nothing else. The build is **expected to fail**:
 
 ```bash
-./build-release.sh negative-undeclared-key -- --auto-pull
-# [… omitted: the helper's report of which aggrega binary it used, its header, and a refused: line carrying the message below]
+aggrega build --release release-negative-undeclared-key.yaml --auto-pull
+# [… omitted: a refused: line carrying the message below]
 # [DEVELOPER_ERROR E0156] .spec.components.web.uses.assistant.model
 #   invalid inject key: the from-key must name a declared provides key of the target
 #   component type (Aggregate adhoc-uses-socket-undeclared-key,
 #   at .spec.components.web.uses.assistant.model, "env", "ASSISTANT_API_KEY", "api_key",
 #   "core/ai-model/anthropic", "endpoint", "model")
-# build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
 
 The halt is the lesson, and *where* it fires is the part worth noticing: the

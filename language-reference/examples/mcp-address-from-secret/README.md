@@ -43,8 +43,8 @@ Two Releases share the one Aggregate, each with a Manifest of its own:
 ## Building
 
 ```bash
-./build-release.sh helm -- --auto-pull --offline       # release-helm.yaml    → dist/kubernetes/
-./build-release.sh compose -- --auto-pull --offline    # release-compose.yaml → dist/local/
+aggrega build --release release-helm.yaml --auto-pull --offline       # → dist/kubernetes/
+aggrega build --release release-compose.yaml --auto-pull --offline    # → dist/local/
 ```
 
 Each Release writes to its own directory, so the two rendered trees coexist and
@@ -63,11 +63,6 @@ The Kubernetes build prints, with `<workspace>` standing for this example's
 folder:
 
 ```text
-[… omitted: the helper's three lines naming the aggrega binary it used]
-# example : mcp-address-from-secret
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-helm.yaml --auto-pull --offline
-
 Pull complete: release-helm.lock (entities=11, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]

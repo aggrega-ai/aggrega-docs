@@ -113,8 +113,6 @@ served by it unchanged. Two facts hold at once here, and they are separate:
 ## Build it
 
 ```bash
-./build-release.sh reviewed -- --auto-pull
-# equivalently:
 aggrega build --release release-reviewed.yaml --auto-pull
 ```
 
@@ -175,11 +173,9 @@ internal tier is declared as the bare `core/gateway/nginx` base instead of the
 wrapper — and it is **expected to fail**:
 
 ```bash
-./build-release.sh negative-unreviewed -- --auto-pull
-[… omitted: the helper's report of the binary it used, and its # example, # rule and # command lines]
+aggrega build --release release-negative-unreviewed.yaml --auto-pull
 # [DEVELOPER_ERROR E0007] aggregate-unreviewed.yaml at .spec.components.edge.uses.reviewed_upstream.internal
 #   selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
-# build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
 
 The halt is the lesson. The base satisfies its own `upstream` socket — it is

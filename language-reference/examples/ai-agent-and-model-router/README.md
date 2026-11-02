@@ -55,7 +55,7 @@ in the rendered output; the section below shows what each one produces.
 ## Building
 
 ```bash
-./build-release.sh
+aggrega build --release release.yaml
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather
@@ -64,17 +64,12 @@ with no lockfile it halts and names the two ways forward. Resolve one first, or
 let the build fill it:
 
 ```bash
-aggrega pull --release release.yaml      # resolve once, then build with no flag
-./build-release.sh -- --auto-pull        # or resolve during the build
+aggrega pull --release release.yaml                 # resolve once, then build with no flag
+aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
-The helper echoes the equivalent direct command before running it. This
-workspace resolves its entities through the `catalog_dirs` in
-`.aggrega-config.yaml`, so no `--catalog` flag is needed:
-
-```bash
-aggrega build --release release.yaml
-```
+This workspace resolves its entities through the `catalog_dirs` in
+`.aggrega-config.yaml`, so no `--catalog` flag is needed.
 
 The realization of the router's `selection` attachment runs one plugin that
 ships in neither the compiler nor the catalog, the gateway configuration step

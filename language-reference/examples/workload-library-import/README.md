@@ -49,8 +49,7 @@ resolved and its entry rendered.
 
 ```bash
 aggrega pull --release release.yaml   # pins BaseWorkloads in release.lock
-./build-release.sh
-# equivalent to: aggrega build --release release.yaml
+aggrega build --release release.yaml
 ```
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`

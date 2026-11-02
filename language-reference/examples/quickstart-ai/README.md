@@ -277,7 +277,9 @@ a cluster.
 
 ## Checking every step
 
-`./check.sh`, in this directory, builds the four steps and checks that each
+In a checkout of the documentation repository, which holds the shared build
+helper a copy written by `aggrega scaffold --example` does not carry,
+`./check.sh` in this directory builds the four steps and checks that each
 writes what this page describes: the three Compose files with their services,
 their connections and the gateway's guardrails, and the Kubernetes manifests
 with the key read from the Secret. It prints one line per step and exits

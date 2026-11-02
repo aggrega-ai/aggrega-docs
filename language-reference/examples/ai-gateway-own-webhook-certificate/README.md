@@ -108,10 +108,10 @@ the output relies on exists somewhere else.
 ## Building
 
 ```bash
-./build-release.sh cert-manager -- --auto-pull
-./build-release.sh own-certificate -- --auto-pull
-./build-release.sh negative-without-omits -- --auto-pull --verify-determinism   # halts; exits 1
-./build-release.sh negative-stale-omits -- --auto-pull                          # halts; exits 1
+aggrega build --release release-cert-manager.yaml --auto-pull
+aggrega build --release release-own-certificate.yaml --auto-pull
+aggrega build --release release-negative-without-omits.yaml --auto-pull --verify-determinism   # halts; exits 1
+aggrega build --release release-negative-stale-omits.yaml --auto-pull                          # halts; exits 1
 ```
 
 This workspace needs **the standard-library catalog checked out beside this
@@ -133,11 +133,6 @@ network.
 `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used]
-# example : ai-gateway-own-webhook-certificate
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-cert-manager.yaml --auto-pull
-
 Pull complete: release-cert-manager.lock (entities=5, source_artifacts=1, external_inputs=0)
 [… omitted: the total build time, which differs per run]
 Build completed: 16 files written to <workspace>/dist
@@ -164,11 +159,6 @@ Recipe emits beside the chart. `release-own-certificate.yaml`, built the same
 way, prints:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used]
-# example : ai-gateway-own-webhook-certificate
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-own-certificate.yaml --auto-pull
-
 Pull complete: release-own-certificate.lock (entities=5, source_artifacts=1, external_inputs=0)
 [… omitted: the total build time, which differs per run]
 Build completed: 14 files written to <workspace>/dist
@@ -235,11 +225,6 @@ Built a second time with `--verify-determinism`, `release-own-certificate.yaml`
 prints:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used]
-# example : ai-gateway-own-webhook-certificate
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-own-certificate.yaml --verify-determinism
-
 [… omitted: the total build time, which differs per run]
 Build completed: 14 files written to <workspace>/dist
 ```
@@ -256,11 +241,10 @@ through `manifest-without-omits.yaml`, which binds the teaching Recipe with no
 `omits:` entry. Built with `--verify-determinism`:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, and the pull's lines]
+[… omitted: the pull's lines]
 [TRANSLATION_ERROR E0058] ai-controller
   rendering node "ai-controller"
   caused by: wasmengine: node "ai-controller" (provider "helm"): two renders of identical input produced different output: provider render is not deterministic
-[… omitted: the helper's line reporting the exit status]
 ```
 
 The build exits `1`. The two renders of the controller differ, because the chart
@@ -315,12 +299,11 @@ names the Secret after the controller's rendered name rather than after the key:
 Built:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, and the pull's lines]
+[… omitted: the pull's lines]
 [TRANSLATION_ERROR E0334] ai-controller
   rendering node "ai-controller"
   caused by: [CATALOG_ERROR] ai-controller
-    an omits entry left out nothing the source rendered (node "ai-controller", provider "provider/helm:0.8.5-13-g08c42cff", "envoy-ai-gateway-operator-stale-omits" omits[0], kind "Secret", name "ai-controller-webhook-tls"). correct the entry so it names something the source renders, or remove it; a source upgrade that renamed or removed it is the usual cause
-[… omitted: the helper's line reporting the exit status]
+    an omits entry left out nothing the source rendered (node "ai-controller", provider "provider/helm:0.8.8-75-g9e6ef4e0", "envoy-ai-gateway-operator-stale-omits" omits[0], kind "Secret", name "ai-controller-webhook-tls"). correct the entry so it names something the source renders, or remove it; a source upgrade that renamed or removed it is the usual cause
 ```
 
 The provider is named with the version of the binary that ran the build, so your
@@ -353,6 +336,10 @@ decide about an entry, and which providers honour it — is
 [Recipe → The `omits:` field](../../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

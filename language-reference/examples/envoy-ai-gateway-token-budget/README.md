@@ -74,7 +74,7 @@ same files less cert-manager's own.
 ## Building
 
 ```bash
-./build-release.sh
+aggrega build --release release.yaml
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather
@@ -83,7 +83,7 @@ fill it:
 
 ```bash
 aggrega pull --release release.yaml --pin-sources   # resolve once, then build with no flag
-./build-release.sh -- --auto-pull                   # or resolve during the build
+aggrega build --release release.yaml --auto-pull    # or resolve during the build
 ```
 
 Resolving pins the three charts the Recipes render — Envoy Gateway's and
@@ -94,11 +94,6 @@ the network. This workspace resolves the catalog entities through the
 Building with `--auto-pull` prints, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used]
-# example : envoy-ai-gateway-token-budget
-# rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release.yaml --auto-pull
-
 Pull complete: release.lock (entities=26, source_artifacts=3, external_inputs=0)
 [… omitted: a notice that core/referenced-secret declares origin in both of its pillars, and the total build time, which differs per run]
 Build completed: 113 files written to <workspace>/dist

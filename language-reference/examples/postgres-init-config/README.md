@@ -25,8 +25,8 @@ developer values:
 ## Building
 
 ```bash
-./build-release.sh bare -- --auto-pull      # release-bare.yaml
-./build-release.sh config -- --auto-pull    # release-config.yaml
+aggrega build --release release-bare.yaml --auto-pull
+aggrega build --release release-config.yaml --auto-pull
 ```
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,

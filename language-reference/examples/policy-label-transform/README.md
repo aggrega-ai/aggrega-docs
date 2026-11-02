@@ -49,11 +49,11 @@ They are attached in this workspace's `.aggrega-config.yaml`, under
 
 `0.8.6` is the version of the three Plugin entities in the standard-library
 catalog; the plugins themselves are compiled into the CLI, and a build serves
-them from there. `./build-release.sh production -- --auto-pull --detail` lists
-both, for each of the three:
+them from there. `aggrega build --release release-production.yaml --auto-pull
+--detail` lists both, for each of the three:
 
 ```text
-[… omitted: the helper's report and header, the line counting what the pull resolved, and the rows for the Components, the Recipes, the Feature and the FeatureRecipes, each found in the local catalog]
+[… omitted: the line counting what the pull resolved, and the rows for the Components, the Recipes, the Feature and the FeatureRecipes, each found in the local catalog]
   in-binary  Plugin         governance/label-injector         ← governance/label-injector:0.8.6
   local      Entity         governance/label-injector:0.8.6   ← .aggrega-config.yaml.plugins.governance
   in-binary  Plugin         governance/rego                   ← governance/rego:0.8.6
@@ -174,8 +174,8 @@ before it runs; `selector-tagger` attached there halts the build with:
 ## Building
 
 ```bash
-./build-release.sh staging -- --auto-pull
-./build-release.sh production -- --auto-pull
+aggrega build --release release-staging.yaml --auto-pull
+aggrega build --release release-production.yaml --auto-pull
 ```
 
 **The standard-library catalog has to be checked out beside this repository.**
@@ -189,7 +189,8 @@ build; lockfiles and the rendered output are generated, not shipped.
 
 `--ir-graph` prints the build graph on standard output, ahead of the build's
 summary, and the graph carries each node's labels as the transforms left them.
-After `./build-release.sh production -- --auto-pull --ir-graph`, `web` reads:
+After `aggrega build --release release-production.yaml --auto-pull --ir-graph`,
+`web` reads:
 
 ```json
 "web": {
@@ -288,14 +289,13 @@ Both Releases build: in staging the verdict asks for nothing, and in production
 every node carries a tier. Narrow the policy's coverage, and the verdict catches
 the node it leaves out. With `supported_categories` written `[datastore]` in
 `.aggrega-config.yaml`, `web` gets no support tier, and
-`./build-release.sh production -- --auto-pull` halts:
+`aggrega build --release release-production.yaml --auto-pull` halts:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, which carry the refusal below once more, and a lint notice about core/secret-value]
+[… omitted: the pull's lines, which carry the refusal below once more, and a lint notice about core/secret-value]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: web is built for production and carries no ops.example.com/support-tier label
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 The build exits `1` and writes no `dist/`. `release-staging.yaml` still builds
@@ -351,6 +351,10 @@ from, so the lockfile holds the plugin that made the change; a verdict decides
 only whether the build completes.
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

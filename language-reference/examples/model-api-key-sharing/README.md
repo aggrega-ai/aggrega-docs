@@ -20,13 +20,12 @@ consumer.
 
 ## Building
 
-Three releases, one per form. Build one per run with the helper script, which
-echoes the equivalent direct `aggrega build` command before running it:
+Three releases, one per form. Build one per run:
 
 ```bash
-./build-release.sh per-consumer    # release-per-consumer.yaml → dist/per-consumer/
-./build-release.sh shared          # release-shared.yaml       → dist/shared/
-./build-release.sh composed        # release-composed.yaml     → dist/composed/
+aggrega build --release release-per-consumer.yaml    # → dist/per-consumer/
+aggrega build --release release-shared.yaml          # → dist/shared/
+aggrega build --release release-composed.yaml        # → dist/composed/
 ```
 
 Each release writes to its own directory, so all three rendered trees coexist
@@ -36,16 +35,12 @@ A release needs its lockfile before it builds. On a fresh checkout, resolve one
 first — either as its own step or by letting the build fill it:
 
 ```bash
-aggrega pull --release release-shared.yaml     # resolve, then build normally
-./build-release.sh shared -- --auto-pull       # or resolve during the build
+aggrega pull --release release-shared.yaml                 # resolve, then build normally
+aggrega build --release release-shared.yaml --auto-pull    # or resolve during the build
 ```
 
 The releases resolve their catalog entities from the configured catalog, so no
-`--catalog` flag is needed; the direct invocation is:
-
-```bash
-aggrega build --release release-shared.yaml
-```
+`--catalog` flag is needed.
 
 All three build on the helm target, deliberately. The observable that separates
 the three forms is the **name of the Secret each agent's container references**,

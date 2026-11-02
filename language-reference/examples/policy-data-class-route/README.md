@@ -62,9 +62,9 @@ which a Release may do; it adds no component and changes no value.
 ## Building
 
 ```bash
-./build-release.sh masked -- --config governance-rego.yaml --auto-pull
-./build-release.sh unmasked -- --config governance-rego.yaml --auto-pull           # halts; exits 1
-./build-release.sh masking-off-route -- --config governance-rego.yaml --auto-pull  # halts; exits 1
+aggrega build --release release-masked.yaml --config governance-rego.yaml --auto-pull
+aggrega build --release release-unmasked.yaml --config governance-rego.yaml --auto-pull           # halts; exits 1
+aggrega build --release release-masking-off-route.yaml --config governance-rego.yaml --auto-pull  # halts; exits 1
 ```
 
 Swap `governance-rego.yaml` for `governance-cel.yaml` or `governance-opa.yaml` to
@@ -106,31 +106,28 @@ rendered output are generated, not shipped.
 `release-unmasked.yaml`, under each engine. The Rego engine:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "rego" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 The CEL engine:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "cel" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 OPA:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, a warning that the OPA guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
+[… omitted: a warning that the OPA guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
   policy plugin "opa" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
-[… omitted: the helper's line reporting the exit status]
 ```
 
 The build exits `1` and writes no `dist/`: the policy is evaluated over the
@@ -155,7 +152,7 @@ sentence a second time. The lockfile is still written.
 every engine lets it build, with `<workspace>` standing for this example's folder:
 
 ```text
-[… omitted: the helper's report of which aggrega binary it used, its header, the pull's lines, a lint notice, under OPA a warning that its guest runs unverified, and the total build time]
+[… omitted: the pull's lines, a lint notice, under OPA a warning that its guest runs unverified, and the total build time]
 Build completed: 17 files written to <workspace>/dist
 ```
 
@@ -371,6 +368,10 @@ engine. The OPA guest is read from beside its entity on every build, and since
 nothing records its digest, every build with it warns that it runs unverified.
 
 ## Checking every build
+
+This self-check runs in a checkout of the documentation repository, which holds
+the shared build helper it uses; a copy written by `aggrega scaffold --example`
+does not carry that helper.
 
 ```bash
 ./check.sh

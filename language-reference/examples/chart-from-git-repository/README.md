@@ -77,8 +77,7 @@ resolve to the exact commit that tag stood at when the lockfile was written.
 ## Building
 
 ```bash
-./build-release.sh chart -- --auto-pull
-# equivalent: aggrega build --release release-chart.yaml --auto-pull
+aggrega build --release release-chart.yaml --auto-pull
 ```
 
 This example carries two releases, so the one to build is named. The first build
@@ -173,19 +172,18 @@ identical to the working one but for its reference — it names a tag the
 repository does not carry:
 
 ```bash
-./build-release.sh negative -- --auto-pull
+aggrega build --release release-negative.yaml --auto-pull
 # exits non-zero
 ```
 
 ```text
-[… omitted: the helper's report of the binary it used, and its # example, # rule and # command lines]
 # [E0137]
 #   auto-pull: resolving the source of each Recipe and FeatureRecipe the Release
 #   uses: resolve: resolve source for recipe
 #   "helm/hello-world-git-missing-ref:1.0.0": sourceresolver: kind=git-repository
 #   url=https://github.com/helm/examples.git version=: oci: artifact not found at
 #   remote source (cause: reference not found)
-[… omitted: the rest of that line, a remediation naming the URL and version to check, and the helper's closing line reporting aggrega's exit status]
+[… omitted: the rest of that line, a remediation naming the URL and version to check]
 ```
 
 The repository is reachable and the clone succeeds; there is simply no such

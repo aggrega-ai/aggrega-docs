@@ -49,13 +49,12 @@ of its own:
 
 ## Building
 
-Build one release per run with the helper script, which echoes the equivalent
-direct `aggrega build` command before running it:
+Build one release per run:
 
 ```bash
-./build-release.sh matched           # release-matched.yaml        → dist/matched/
-./build-release.sh mismatched        # release-mismatched.yaml     → dist/mismatched/
-./build-release.sh operator-wired    # release-operator-wired.yaml → dist/operator-wired/
+aggrega build --release release-matched.yaml           # → dist/matched/
+aggrega build --release release-mismatched.yaml        # → dist/mismatched/
+aggrega build --release release-operator-wired.yaml    # → dist/operator-wired/
 ```
 
 Each release writes to its own directory, so the three rendered trees coexist
@@ -65,16 +64,12 @@ A release needs its lockfile before it builds, and lockfiles are generated
 rather than shipped. Resolve one first, or let the build fill it:
 
 ```bash
-aggrega pull --release release-matched.yaml     # resolve, then build normally
-./build-release.sh matched -- --auto-pull       # or resolve during the build
+aggrega pull --release release-matched.yaml                 # resolve, then build normally
+aggrega build --release release-matched.yaml --auto-pull    # or resolve during the build
 ```
 
 The workspace resolves its entities through the `catalog_dirs` in
-`.aggrega-config.yaml`, so no `--catalog` flag is needed:
-
-```bash
-aggrega build --release release-matched.yaml
-```
+`.aggrega-config.yaml`, so no `--catalog` flag is needed.
 
 The pull prints:
 

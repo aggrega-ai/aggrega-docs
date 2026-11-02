@@ -26,8 +26,7 @@ there is no re-derivation and no convention for the two sides to agree on.
 ## Building
 
 ```bash
-./build-release.sh -- --auto-pull
-# equivalent: aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml --auto-pull
 ```
 
 `--auto-pull` writes the lockfile a fresh clone lacks during the build.
