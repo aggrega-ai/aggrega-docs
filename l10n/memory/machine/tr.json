@@ -20712,6 +20712,17 @@
     "status": "machine",
     "text": "Dört değişken, bunlardan üçü kenarlar üzerinden iletilmiş ve **çıktı hangi soketin\nbildirilmiş olduğunu kaydetmez**:"
   },
+  "2029e0c3920c8bf0": {
+    "at": "2026-11-02T19:28:46.630Z",
+    "job": "session-0008-20261102192846",
+    "revision": {
+      "from": "65b35a0560177f19",
+      "reviewed": false
+    },
+    "srcHash": "2029e0c3920c8bf0",
+    "status": "machine",
+    "text": "`aggrega/irGraph` — editör içgözlemi için bir Release'in derlenmiş IR grafı. `release`, çalışma alanı köküne göre göreli bir yoldur ve bu kökün içindeki bir Release'i adlandırır; kökten çalıştırıldığında `aggrega build --release` komutunun aldığı değerin aynısıdır. Başka her biçim, bunun yerine ne gönderilmesi gerektiğini belirten standart geçersiz parametre hatasıyla reddedilir: mutlak bir yol, çalışma alanı kökünün dışına çözümlenen bir yol (ister yazıldığı hâliyle dışarı çıksın, ister dosyaya ya da yol üzerindeki bir dizine giden bir bağlantı üzerinden dışarı götürsün) ve boş bir değer çözümlenmek yerine reddedilir; böylece bir istek, çalışma alanının barındırmadığı bir dosya hakkında hiçbir zaman rapor vermez. Çalışma alanı yapılandırmanızın `build.authoring_release` olarak ya da `workspace.releases` anahtarlarından biri olarak adlandırdığı bir Release, dosyası nerede bulunursa bulunsun çalışma alanının barındırdığı bir Release'tir; bu nedenle çalışma alanının içinden ona giden bir bağlantı, `aggrega/releaseCandidates` onu listelediği gibi kabul edilir. Release'in okuduğu ve gezilemeyen bir katalog dizini (örneğin var olan ama okunamayan bir dizin), başka hiçbir şey okunmadan önce [`aggrega inspect`](aggrega-inspect.md) komutunun reddettiği gibi reddedilir: hata `1004` entity-not-resolvable'dır, mesajı komut satırının o dizin için yazdırdığı rapordur ve tek satırdadır (`[CATALOG_ERROR] <directory>: catalog load: …`), ve kalan dizinler üzerinden hiçbir graf çizilmez. Çalışma alanı yapılandırmasının listelediği ama bir dizin olmayan bir dizin girdisi (örneğin orada hiçbir şey bulunmuyorsa) aynı şekilde ve aynı anda `1004` entity-not-resolvable ile reddedilir; mesajı, her komutun ona verdiği rettir ve girdiyi, onu listeleyen yapılandırma dosyasını ve satırı ve ayarı adlandırır ([Yerel varlıkların okunduğu yer](configuration.md#where-local-entities-are-read-from)). Okumalarının içinde kalması gereken dizinin dışına götüren bir bağlantı barındıran bir katalog dizini (çalışma alanının içindeki bir katalog dizininin ya da yapılandırmanın dışarıda adlandırdığı bir dizinin altında, başka bir yerden bağlanmış bir belge veya dizin) aynı şekilde ve aynı anda, `1004` ile ve koşulun bağlantıyı ve nereye gittiğini adlandıran kendi cümlesiyle reddedilir: böyle bir bağlantı üzerinden hiçbir şey okunmaz ve onsuz çizilen bir graf, onun yerine aynı ada sahip başka bir varlığı çözümleyebilir. Release'in Aggregate'ini veya Manifest'ini kimliğiyle adlandırdığı durumda, Release'in yanındaki belgeler arasında dışarı götüren bir bağlantı da böyledir. Release'in, onun Manifest'inin ya da genişlettiği bir Release'in bir yolla (`aggregate:`, `manifest:`, `extends:` veya bir parameters `$import:`) adlandırdığı ve yazıldığı hâliyle ya da bir bağlantı üzerinden çalışma alanının dışına götüren bir dosya, koşulun kendi cümlesiyle reddedilir ([fatal-halts.md](../errors/fatal-halts.md) §“A reference to another file leads out of the directory it must stay inside (Başka bir dosyaya yapılan bir başvuru, içinde kalması gereken dizinin dışına çıkıyor)”); hatanın verileri onu Release'te dosyaya götüren anahtara yerleştirir ve o dosyadan hiçbir şey okunmaz. Yapılandırmanın çalışma alanının dışında adlandırdığı bir Release de aynı şekilde onu barındıran dizine bağlı tutulur; bu nedenle onun ya da zincirindeki bir Release'in götürdüğü ve o dizinden çıkan bir yol da reddedilir. `aggrega/releaseCandidates` öğesinin mutlak yollarla yanıt verdiğine dikkat edin; bu nedenle bir yüzeyi diğerinden besleyen bir istemci ikisi arasında dönüştürme yapar. Bu parametrenin, belge başına `file` ve `uri` parametrelerinin kabul ettiği bir yazımı reddetmesi kasıtlıdır ve buna neyin karar verdiğini [Gönderdiğiniz bir parametrenin hangi yazımları kabul ettiği](#which-spellings-a-parameter-you-send-accepts) açıklar. Graf, bir yazarın hassas olarak bildirdiği her değeri, `--ir-graph` seçeneğinin komut satırında gizlediği gibi aynen gizler: her biri [`aggrega-inspect`](aggrega-inspect.md#machine-readable-output) “Makine tarafından okunabilir çıktı” bölümünün tanımladığı işaretle değiştirilir ve geri kalan her şey derleyicinin kaydettiği şekilde taşınır. `unredacted: true` bu değerleri açık olarak ister; bu, komut satırındaki `--unredacted` seçeneğinin protokoldeki yazımıdır ve istemenin tek yoludur; yoksa ya da `false` ise yanıt bunları gizler. Bu durumda yanıtın ulaştığı her yer değerleri açık olarak taşır; bu nedenle bir istemci bunları yalnızca onu kullanan kişi istediğinde ister."
+  },
   "202c0231b9f67e63": {
     "at": "2026-11-01T22:35:23.290Z",
     "job": "session-0001-20261101223523",
@@ -31735,6 +31746,17 @@
     "srcHash": "318769933e75bbd7",
     "status": "machine",
     "text": "**Üretilen iletiler.** Her çakışan yol için bir bulgu raporlanır — çakışmanın gerçekleştiği birleştirmeyi kaç sınır beslemiş olursa olsun bir kez — böylece katkıda bulunanları iki yolda buluşan bir derleme size ikisini de bildirir ve hiçbir çakışma iki kez raporlanmaz:"
+  },
+  "318b2480bfca0864": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "c0b3edfbe8f52d19",
+      "reviewed": false
+    },
+    "srcHash": "318b2480bfca0864",
+    "status": "machine",
+    "text": "**Release'in okuduğu ve dolaşılamayan bir katalog dizini, herhangi bir şey yazılmadan önce, [`aggrega build`](aggrega-build.md) komutunun reddettiği gibi reddedilir.** Bu, çağrının `catalog_dirs` içinde adlandırdığı ve var olmayan bir dizindir (`aggrega build` komutunun var olmayan bir `--catalog` dizinini reddettiği gibi) ya da var olan ama okunamayan bir dizindir. `aggrega build`, Release'i çözümlemeden önce Release'in okuduğu her dizini yükler ve dolaşamadığı bir dizinde durur; `build` aynı dizinleri, içlerindeki hiçbir belgeyi okumadan, herhangi bir bağımlılık çözümlemesinden ve işlemeden önce dolaşır. Bu yüzden `auto_pull` gönderilmiş bir derleme hiçbir kilit dosyası yazmaz ve hiçbir şey işlenmez. Metin dizini komut satırının bildirdiği şekilde, tek satırda adlandırır: dizin, `catalog load` ve dosya sisteminin verdiği neden. Yük, Release'i boş bir `files` ile ve hiçbir bulgu olmadan adlandırır, çünkü hiçbir şey çalışmamıştır. Çalışma alanı yapılandırmasının dizin olarak listelediği ama dizin olmayan bir yol (örneğin orada hiçbir şey bulunmuyorsa) o dolaşmadan önce, aynı biçimde reddedilir; metin, `aggrega build` komutunun buna verdiği reddi taşır ve girdiyi, onu listeleyen yapılandırma dosyasını ve satırı adlandırır ([Yerel varlıkların okunduğu yer](configuration.md#where-local-entities-are-read-from)). Okumalarının içinde kalması gereken dizinin dışına çıkan bir bağlantı barındıran bir katalog dizini de aynı anda, hiçbir şey yazılmadan reddedilir; metin bağlantıyı ve nereye çıktığını adlandırır. `aggrega build` de bunu aynı şekilde reddeder."
   },
   "318e8549abe04ae7": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -54410,6 +54432,17 @@
     "status": "machine",
     "text": "Girdiler kökte belirtildiği için `modules/db/` tek başına, dağıtıldığı hâliyle plan yapabileceğiniz bir yapılandırma değildir — denerseniz motorun ne yaptığı için [Terraform sağlayıcı sayfasına](../../providers/terraform.md#where-a-components-inputs-are-supplied) bakın."
   },
+  "552fc3199e1d5f5c": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "db9b65321f4b1b5a",
+      "reviewed": false
+    },
+    "srcHash": "552fc3199e1d5f5c",
+    "status": "machine",
+    "text": "**Katalog araması.** Pull, hiçbir `--catalog` verilmediğinde bile `.aggrega-config.yaml` içindeki `catalog_dirs` ayarına uyar — ve yapılandırma `workspace.releases` altında bir Release'e kendi dizinlerini veriyorsa onlara da — ve `aggrega build` ile aynı ilk-kazanır arama yığınını çözümler; böylece sabitlediği bağımlılıklar build'in aradığıyla eşleşir. Dizin olarak listelenen ama dizin olmayan bir yol (örneğin orada hiçbir şey bulunmuyorsa), herhangi bir şey çözümlenmeden veya yazılmadan önce her iki komut tarafından reddedilir; [Yerel varlıkların okunduğu yer](configuration.md#where-local-entities-are-read-from) bölümünün gösterdiği gibi ret, girdiyi, onu listeleyen yapılandırma dosyasını ve satırı adlandırır."
+  },
   "55339ce979b0f395": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -60587,6 +60620,17 @@
     "srcHash": "5ef712d2f01dc0d0",
     "status": "machine",
     "text": "Altta yatan dosyası iki derleme arasında değişen bir yerel yol başvurusu, derleyicinin girdi biçimi değişmemiş olsa bile işlenmiş çıktıda meşru bir fark üretir — deterministik çıktı güvencesi korunur (aynı bayt girdisi → aynı bayt çıktısı), ancak yerel dosya değiştiği için girdiler farklıdır. Her kaynak için derlemeler arası değişmezliğe ihtiyaç duyan kataloglar, yapıtları yerel bir yoldan veya bir çalışma alanı dizininden okumak yerine bir kayıt defterinden kilit dosyasıyla sabitlenmiş önbelleğe çeker; kilit dosyası bayt kimliğinin dayanağıdır."
+  },
+  "5efb2e66a89ea164": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "6df2da54e85a7797",
+      "reviewed": false
+    },
+    "srcHash": "5efb2e66a89ea164",
+    "status": "machine",
+    "text": "**Bir ret durumunda uyarıları sınırlayan, yanıtın neyi taşıyabildiği değil, çalıştırmanın ne kadar ilerlediğidir.** Release çözümlenmeden önce çalışan bir denetimden gelen ret (önbellekteki sabitlenmiş bir girdi artık kendisi için kaydedilen özetle eşleşmiyorsa ve sabitlenmiş baytları hiçbir katalog dizini barındırmıyorsa ya da Release'in bağlı olduğu şeyler çözümlenemiyorsa) hiçbir uyarı bildirmez, çünkü henüz hiçbir şey ortaya çıkmamıştır. Bir Release'in genişlettiği Release ile nasıl birleştiğine ilişkin bulgular, Release çözümlendiği anda ve ardından gelen her denetimden önce ortaya çıkar; bu nedenle sonraki her ret bunları taşır: Manifest bir türü onu uygulamayan bir recipe'ye eşler, Release'in ulaştığı bir varlık şemasını karşılamaz, kilit dosyası artık Release'in çözümlendiği şeyle eşleşmez. İşlemenin kendi bulguları işleme çalışırken ortaya çıkar; bu nedenle bu önceki denetimlerden birinden gelen bir ret bunların hiçbirini taşımaz, işlemeden gelen bir ret ise kendisinden önce ortaya çıkan her şeyi taşır. Dolayısıyla bir ret durumunda `advisories` alanını tam olarak başarı durumunda okuduğunuz gibi okuyun: bu çalıştırmanın bulduklarını, bir terminalin yazdırdığı sırayla."
   },
   "5f0365a6ef71540a": {
     "at": "2026-10-22T23:05:22.318919+00:00",

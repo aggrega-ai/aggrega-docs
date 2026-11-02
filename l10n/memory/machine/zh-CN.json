@@ -20712,6 +20712,17 @@
     "status": "machine",
     "text": "四个变量，其中三个通过边交付，而且**输出并不\n记录哪个 socket 是已声明的**："
   },
+  "2029e0c3920c8bf0": {
+    "at": "2026-11-02T19:28:46.630Z",
+    "job": "session-0008-20261102192846",
+    "revision": {
+      "from": "65b35a0560177f19",
+      "reviewed": false
+    },
+    "srcHash": "2029e0c3920c8bf0",
+    "status": "machine",
+    "text": "`aggrega/irGraph` — 某个 Release 的已编译 IR 图，供编辑器内省使用。`release` 是相对于工作区根目录的路径，指向工作区内的一个 Release，与从根目录运行时 `aggrega build --release` 接受的值相同。其他任何形式都会被拒绝，并返回标准的 invalid-params 错误，说明应改为发送什么：绝对路径、解析到工作区根目录之外的路径（无论是按字面写法向上越出，还是经由链接越出，链接指向文件或途经的某个目录均算），以及空值，都会被拒绝而不会被解析，因此请求永远不会报告工作区并不包含的文件。你的工作区配置以 `build.authoring_release` 或 `workspace.releases` 的某个键的形式指定的 Release，无论其文件位于何处，都视为工作区所包含的 Release，因此工作区内指向它的链接会被接受，与 `aggrega/releaseCandidates` 列出它的方式一致。Release 读取的某个目录目录若无法遍历（例如存在但无法读取），会像 [`aggrega inspect`](aggrega-inspect.md) 那样被拒绝，且在读取其他任何内容之前：错误为 `1004` entity-not-resolvable，其消息是命令行针对该目录打印的报告，占一行（`[CATALOG_ERROR] <directory>: catalog load: …`），并且不会基于其余目录绘制图。工作区配置列出的某个目录若并不是目录（例如该处什么都不存在），会以同样的方式、在同一时刻被拒绝，返回 `1004` entity-not-resolvable，其消息是每个命令对它给出的拒绝，指出该条目、列出它的配置文件和行，以及相应的设置项（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）。若某个目录目录中包含一个链接，指向其读取必须限定在内的目录之外（即从别处链接而来的文档或目录，无论位于工作区内的目录目录之下，还是位于配置在工作区之外指定的目录目录之下），则会以同样的方式、在同一时刻被拒绝，返回 `1004`，并附上该情形自身的说明语句，指出该链接及其指向：不会通过此类链接读取任何内容，而不含该链接绘制的图可能会在其位置解析到另一个同名实体。同样，当 Release 按标识指定其 Aggregate 或 Manifest 时，Release 旁的文档中指向外部的链接也会被拒绝。Release、其 Manifest 或其所扩展的 Release 通过路径（`aggregate:`、`manifest:`、`extends:` 或 parameters 的 `$import:`）指定的文件，若按字面写法或经由链接越出工作区，会被拒绝，并附上该情形自身的说明语句（[fatal-halts.md](../errors/fatal-halts.md) §“A reference to another file leads out of the directory it must stay inside（对另一个文件的引用越出了其必须限定在内的目录）”），错误的 data 将其定位到 Release 中引出该文件的键上，且不会从该文件读取任何内容；配置在工作区之外指定的 Release 同样被限定在包含它的目录内，因此它或其链中所引出的 Release 所写的、离开该目录的路径也会被拒绝。注意 `aggrega/releaseCandidates` 返回的是绝对路径，因此在两个接口之间互相传递数据的客户端需要在两者之间转换。此参数拒绝逐文档参数 `file` 和 `uri` 所接受的某种写法，这是有意为之，[你发送的参数接受哪些写法](#which-spellings-a-parameter-you-send-accepts)说明了其依据。图会隐去作者声明为敏感的每个值，与命令行上 `--ir-graph` 的隐去方式完全相同：每个值都被替换为 [`aggrega-inspect`](aggrega-inspect.md#machine-readable-output) “Machine-readable output”所描述的标记，其余内容则按编译器记录的原样携带。`unredacted: true` 请求以明文返回这些值，它是命令行 `--unredacted` 在协议中的写法，也是唯一的请求方式；缺省或为 `false` 时，响应会隐去这些值。响应所到达之处随后都会携带明文值，因此客户端只应在其使用者已提出请求时才请求它们。"
+  },
   "202c0231b9f67e63": {
     "at": "2026-11-01T22:35:23.290Z",
     "job": "session-0001-20261101223523",
@@ -31742,6 +31753,17 @@
     "srcHash": "318769933e75bbd7",
     "status": "machine",
     "text": "**发出的消息。**每个冲突路径报告一条发现——只报一次，无论有多少 boundary 为发生冲突的组装提供了输入——因此贡献者在两个路径上相遇的构建会告诉你两处冲突，且每处都不会重复报告："
+  },
+  "318b2480bfca0864": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "c0b3edfbe8f52d19",
+      "reviewed": false
+    },
+    "srcHash": "318b2480bfca0864",
+    "status": "machine",
+    "text": "**Release 读取的目录目录若无法遍历，会在写入任何内容之前被拒绝，与 [`aggrega build`](aggrega-build.md) 拒绝它的方式相同。**这指调用在 `catalog_dirs` 中指定但不存在的目录（如同 `aggrega build` 拒绝不存在的 `--catalog` 目录），或者存在但无法读取的目录。`aggrega build` 在解析 Release 之前加载该 Release 读取的每个目录，并在遇到无法遍历的目录时停止；`build` 首先遍历相同的目录，不读取其中的任何文档，早于任何依赖解析，也早于渲染——因此传入 `auto_pull` 的构建不会写入 lockfile，也不会渲染任何内容。文本以命令行报告的方式在一行中指明该目录：目录、`catalog load`，以及文件系统给出的原因。载荷指明该 Release，带有空的 `files`，且没有任何发现，因为尚未运行任何内容。工作区配置列出的某个目录若不是目录——例如该处什么都不存在——会在该遍历之前以相同的形式被拒绝，文本携带 `aggrega build` 对其给出的拒绝，指明该条目以及列出它的配置文件和行（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）。目录目录中若包含一个指向其读取必须保持在内的目录之外的链接，会在同一时刻被拒绝，不写入任何内容，文本指明该链接及其指向——`aggrega build` 也以同样的方式拒绝它。"
   },
   "318e8549abe04ae7": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -54424,6 +54446,17 @@
     "status": "machine",
     "text": "由于输入在根配置中声明，单独的 `modules/db/` 并不是一个\n可以按部署状态进行规划的配置 — 如果你尝试这样做，引擎会如何处理，请参阅\n[Terraform provider 页面](../../providers/terraform.md#where-a-components-inputs-are-supplied)。"
   },
+  "552fc3199e1d5f5c": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "db9b65321f4b1b5a",
+      "reviewed": false
+    },
+    "srcHash": "552fc3199e1d5f5c",
+    "status": "machine",
+    "text": "**目录搜索。**即使未提供 `--catalog`，pull 也会遵循 `.aggrega-config.yaml` 中的 `catalog_dirs`——以及配置在 `workspace.releases` 下为某个 Release 指定的目录——并解析与 `aggrega build` 相同的先命中优先搜索栈，因此它固定的依赖与 build 搜索到的内容一致。列出的某个目录若不是目录——例如该处什么都不存在——两个命令都会在解析或写入任何内容之前拒绝它，并指明该条目以及列出它的配置文件和行，如 [本地实体从何处读取](configuration.md#where-local-entities-are-read-from) 所示。"
+  },
   "55339ce979b0f395": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -60590,6 +60623,17 @@
     "srcHash": "5ef712d2f01dc0d0",
     "status": "machine",
     "text": "如果某个本地路径引用的底层文件在两次编译之间发生变化，即使编译器的输入形态未变，也会在渲染输出中产生合理的差异——确定性输出的保证依然成立（相同的字节输入 → 相同的字节输出），只是由于本地文件改变，输入不同了。需要对每个来源都保持跨构建不变性的目录，会把制品从注册表拉取到由锁文件固定的缓存中，而不是从本地路径或工作区目录读取它们；锁文件是字节一致性的锚点。"
+  },
+  "5efb2e66a89ea164": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "6df2da54e85a7797",
+      "reviewed": false
+    },
+    "srcHash": "5efb2e66a89ea164",
+    "status": "machine",
+    "text": "**拒绝时 advisories 的范围取决于运行进行到了哪一步，而不是答复能够承载什么。**在 Release 解析之前运行的检查所引发的拒绝——缓存中某个固定的条目不再与为其记录的摘要匹配，且没有任何目录目录保存这些固定的字节，或者 Release 所依赖的内容无法解析——不报告任何 advisories，因为此时尚未引发任何内容。关于一个 Release 如何与其所扩展的 Release 组合的发现，在其解析的那一刻引发，早于随后的每一项检查，因此之后的每一次拒绝都带有它们：Manifest 将某个类型映射到未实现该类型的 recipe，Release 所触及的某个实体不满足其 schema，lockfile 不再与 Release 解析出的结果匹配。渲染自身的发现在渲染运行时引发，因此来自上述较早检查之一的拒绝不带有其中任何一项，而来自渲染的拒绝则带有在其之前引发的所有内容。所以，在拒绝时读取 `advisories` 的方式与成功时完全相同：本次运行发现了什么，顺序与终端打印的顺序一致。"
   },
   "5efc09fc5a9b9909": {
     "at": "2026-10-22T04:49:50.527667+00:00",

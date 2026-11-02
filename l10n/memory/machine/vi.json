@@ -20712,6 +20712,17 @@
     "status": "machine",
     "text": "Bốn biến, ba trong số đó được chuyển giao qua các cạnh, và **đầu ra không\nghi lại socket nào đã được khai báo**:"
   },
+  "2029e0c3920c8bf0": {
+    "at": "2026-11-02T19:28:46.630Z",
+    "job": "session-0008-20261102192846",
+    "revision": {
+      "from": "65b35a0560177f19",
+      "reviewed": false
+    },
+    "srcHash": "2029e0c3920c8bf0",
+    "status": "machine",
+    "text": "`aggrega/irGraph` — đồ thị IR đã biên dịch của một Release, dùng cho việc trình soạn thảo tự kiểm tra. `release` là một đường dẫn tương đối so với thư mục gốc của workspace, chỉ định một Release nằm trong đó — cùng giá trị mà `aggrega build --release` nhận khi chạy từ thư mục gốc. Mọi dạng khác đều bị từ chối bằng lỗi invalid-params tiêu chuẩn, nêu rõ nên gửi gì thay vào đó: một đường dẫn tuyệt đối, một đường dẫn phân giải ra ngoài thư mục gốc của workspace — dù nó leo ra ngoài theo cách viết hay dẫn ra ngoài qua một liên kết, tới tệp hoặc tới một thư mục trên đường đi — và một giá trị rỗng đều bị từ chối thay vì được phân giải, nên một yêu cầu không bao giờ báo cáo về một tệp mà workspace không chứa. Một Release mà cấu hình workspace của bạn chỉ định, dưới dạng `build.authoring_release` hoặc một khóa của `workspace.releases`, là Release mà workspace chứa dù tệp của nó nằm ở đâu, nên một liên kết bên trong workspace dẫn tới nó được chấp nhận, đúng như `aggrega/releaseCandidates` liệt kê nó. Một thư mục catalog mà Release đọc nhưng không thể duyệt — chẳng hạn một thư mục có tồn tại nhưng không đọc được — bị từ chối như [`aggrega inspect`](aggrega-inspect.md) từ chối nó, trước khi bất cứ thứ gì khác được đọc: lỗi là `1004` entity-not-resolvable, thông điệp của nó là báo cáo mà dòng lệnh in ra cho thư mục đó, trên một dòng (`[CATALOG_ERROR] <directory>: catalog load: …`), và không có đồ thị nào được dựng trên các thư mục còn lại. Một thư mục mà cấu hình workspace liệt kê nhưng không phải là thư mục — chẳng hạn không có gì tồn tại ở đó — bị từ chối theo cùng cách và vào cùng thời điểm, `1004` entity-not-resolvable, với thông điệp là lời từ chối mà mọi lệnh đưa ra cho nó, nêu tên mục đó, tệp cấu hình và dòng liệt kê nó, cùng thiết lập liên quan ([Where local entities are read from](configuration.md#where-local-entities-are-read-from)). Một thư mục catalog chứa một liên kết dẫn ra ngoài thư mục mà các lần đọc của nó phải ở bên trong — một tài liệu hoặc một thư mục được liên kết từ nơi khác, bên dưới một thư mục catalog trong workspace hoặc bên dưới một thư mục mà cấu hình chỉ định ở ngoài workspace — bị từ chối theo cùng cách và vào cùng thời điểm, với `1004` và câu thông báo riêng của điều kiện đó nêu tên liên kết và nơi nó dẫn tới: không có gì được đọc qua một liên kết như vậy, và một đồ thị được dựng khi không có nó có thể phân giải một thực thể khác cùng tên thay vào chỗ của nó. Một liên kết dẫn ra ngoài nằm giữa các tài liệu bên cạnh Release cũng vậy, khi Release chỉ định Aggregate hoặc Manifest của nó theo định danh. Một tệp mà Release, Manifest của nó hoặc một Release mà nó kế thừa chỉ định bằng đường dẫn — `aggregate:`, `manifest:`, `extends:` hoặc một `$import:` trong parameters — mà dẫn ra ngoài workspace, theo cách viết hay qua một liên kết, bị từ chối với câu thông báo riêng của điều kiện đó ([fatal-halts.md](../errors/fatal-halts.md) §“A reference to another file leads out of the directory it must stay inside (Một tham chiếu tới tệp khác dẫn ra ngoài thư mục mà nó phải ở bên trong)”), phần data của lỗi đặt nó vào khóa trong Release đã dẫn tới tệp đó, và không có gì được đọc từ tệp đó; một Release mà cấu hình chỉ định ở ngoài workspace cũng bị giới hạn theo cùng cách trong thư mục chứa nó, nên một đường dẫn mà nó hoặc một Release trong chuỗi của nó dẫn tới viết ra mà rời khỏi thư mục đó cũng bị từ chối. Lưu ý rằng `aggrega/releaseCandidates` trả lời bằng đường dẫn tuyệt đối, nên một client chuyển dữ liệu từ bề mặt này sang bề mặt kia cần chuyển đổi giữa hai dạng. Việc tham số này từ chối một cách viết mà các tham số theo từng tài liệu `file` và `uri` chấp nhận là có chủ ý, và [Which spellings a parameter you send accepts](#which-spellings-a-parameter-you-send-accepts) nói điều gì quyết định việc đó. Đồ thị giữ kín mọi giá trị mà tác giả đã khai báo là nhạy cảm, đúng như `--ir-graph` giữ kín chúng trên dòng lệnh: mỗi giá trị được thay bằng dấu đánh dấu mà mục “Machine-readable output” của [`aggrega-inspect`](aggrega-inspect.md#machine-readable-output) mô tả, và mọi thứ khác được mang theo đúng như trình biên dịch đã ghi lại. `unredacted: true` yêu cầu các giá trị đó ở dạng rõ — cách viết của giao thức cho `--unredacted` của dòng lệnh, và là cách duy nhất để yêu cầu; khi vắng mặt hoặc là `false`, câu trả lời giữ kín chúng. Khi đó, mọi nơi câu trả lời đến đều mang các giá trị ở dạng rõ, nên một client chỉ yêu cầu chúng khi người đang dùng nó đã yêu cầu."
+  },
   "202c0231b9f67e63": {
     "at": "2026-11-01T22:35:23.290Z",
     "job": "session-0001-20261101223523",
@@ -31735,6 +31746,17 @@
     "srcHash": "318769933e75bbd7",
     "status": "machine",
     "text": "**Các thông báo được phát ra.** Mỗi đường dẫn xung đột được báo cáo một phát hiện — một lần, bất kể có bao nhiêu boundary đã đưa vào bản lắp ráp nơi xung đột xảy ra — nên một bản build có các bên đóng góp gặp nhau trên hai đường dẫn sẽ báo cho bạn cả hai và không xung đột nào bị báo cáo hai lần:"
+  },
+  "318b2480bfca0864": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "c0b3edfbe8f52d19",
+      "reviewed": false
+    },
+    "srcHash": "318b2480bfca0864",
+    "status": "machine",
+    "text": "**Một thư mục catalog mà Release đọc nhưng không thể duyệt sẽ bị từ chối trước khi bất cứ thứ gì được ghi, như [`aggrega build`](aggrega-build.md) từ chối nó.** Đó là một thư mục mà lời gọi nêu tên trong `catalog_dirs` nhưng không tồn tại, như `aggrega build` từ chối một thư mục `--catalog` không tồn tại, hoặc một thư mục có tồn tại nhưng không thể đọc. `aggrega build` tải mọi thư mục mà Release đọc trước khi phân giải Release, và dừng lại ở thư mục nó không thể duyệt; `build` duyệt cùng các thư mục đó trước tiên, không đọc tài liệu nào trong đó, trước mọi bước phân giải phụ thuộc và trước quá trình render — nên một bản build được gửi kèm `auto_pull` không ghi lockfile nào, và không có gì được render. Văn bản nêu tên thư mục như dòng lệnh báo cáo, trên một dòng: thư mục, `catalog load`, và lý do mà hệ thống tệp đưa ra. Payload nêu tên Release, với một `files` rỗng và không có phát hiện nào, vì chưa có gì chạy. Một thư mục mà cấu hình workspace liệt kê nhưng không phải là thư mục — chẳng hạn không có gì tồn tại ở đó — sẽ bị từ chối trước bước duyệt đó, theo cùng hình thức, với văn bản mang lời từ chối mà `aggrega build` đưa ra cho nó, nêu tên mục đó cùng tệp cấu hình và dòng liệt kê nó ([Nơi đọc các thực thể cục bộ](configuration.md#where-local-entities-are-read-from)). Một thư mục catalog chứa một liên kết dẫn ra ngoài thư mục mà các lần đọc của nó phải nằm bên trong sẽ bị từ chối ở cùng thời điểm, không có gì được ghi, văn bản nêu tên liên kết và nơi nó dẫn tới — `aggrega build` từ chối nó theo cùng cách."
   },
   "318e8549abe04ae7": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -54410,6 +54432,17 @@
     "status": "machine",
     "text": "Vì các đầu vào được nêu trong cấu hình gốc, riêng `modules/db/` không phải là một\ncấu hình mà bạn có thể plan như khi đã triển khai — xem\n[trang provider Terraform](../../providers/terraform.md#where-a-components-inputs-are-supplied)\nđể biết engine làm gì nếu bạn thử."
   },
+  "552fc3199e1d5f5c": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "db9b65321f4b1b5a",
+      "reviewed": false
+    },
+    "srcHash": "552fc3199e1d5f5c",
+    "status": "machine",
+    "text": "**Tìm kiếm catalog.** Pull tuân theo `catalog_dirs` từ `.aggrega-config.yaml` ngay cả khi không có `--catalog` nào được truyền — và các thư mục riêng của một Release khi cấu hình cung cấp chúng dưới `workspace.releases` — và phân giải cùng một ngăn xếp tìm kiếm ưu tiên kết quả đầu tiên như `aggrega build`, nên các dependency mà nó pin khớp với những gì build tìm kiếm. Một thư mục được liệt kê nhưng không phải là thư mục — chẳng hạn không có gì tồn tại ở đó — sẽ bị cả hai lệnh từ chối trước khi bất cứ thứ gì được phân giải hoặc ghi, nêu tên mục đó cùng tệp cấu hình và dòng liệt kê nó, như [Nơi đọc các entity cục bộ](configuration.md#where-local-entities-are-read-from) trình bày."
+  },
   "55339ce979b0f395": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -60587,6 +60620,17 @@
     "srcHash": "5ef712d2f01dc0d0",
     "status": "machine",
     "text": "Một tham chiếu đường dẫn cục bộ có tệp nền thay đổi giữa hai lần biên dịch sẽ tạo ra một diff hợp lệ trong đầu ra đã kết xuất dù hình dạng đầu vào của trình biên dịch không đổi — bảo đảm đầu ra tất định vẫn được giữ (cùng đầu vào byte → cùng đầu ra byte), nhưng các đầu vào khác nhau vì tệp cục bộ đã thay đổi. Những catalog cần tính bất biến giữa các bản build cho mọi nguồn sẽ kéo artifact từ registry vào bộ nhớ đệm được lockfile ghim thay vì đọc chúng từ một đường dẫn cục bộ hoặc một thư mục workspace; lockfile là mỏ neo của tính đồng nhất từng byte."
+  },
+  "5efb2e66a89ea164": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "6df2da54e85a7797",
+      "reviewed": false
+    },
+    "srcHash": "5efb2e66a89ea164",
+    "status": "machine",
+    "text": "**Điều giới hạn các khuyến cáo khi bị từ chối là lượt chạy đã đi được bao xa, chứ không phải câu trả lời có thể mang được những gì.** Một lời từ chối từ một bước kiểm tra chạy trước khi Release được phân giải — một mục được ghim trong cache không còn khớp với digest được ghi cho nó và không thư mục catalog nào chứa các byte được ghim, hoặc những gì Release phụ thuộc vào không thể phân giải — không báo cáo khuyến cáo nào, vì chưa có gì được nêu ra. Các phát hiện về cách một Release kết hợp với Release mà nó mở rộng được nêu ra ngay khi nó được phân giải, trước mọi bước kiểm tra theo sau, nên mọi lời từ chối về sau đều mang chúng: Manifest ánh xạ một kiểu lên một recipe không triển khai nó, một thực thể mà Release chạm tới không thỏa mãn schema của nó, lockfile không còn khớp với những gì Release phân giải ra. Các phát hiện riêng của quá trình render được nêu ra khi render chạy, nên một lời từ chối từ một trong các bước kiểm tra trước đó không mang phát hiện nào trong số đó, và một lời từ chối từ quá trình render mang mọi thứ đã được nêu ra trước nó. Vì vậy hãy đọc `advisories` khi bị từ chối đúng như khi bạn đọc nó lúc thành công: những gì lượt chạy này đã phát hiện, theo thứ tự một terminal in ra."
   },
   "5f0365a6ef71540a": {
     "at": "2026-10-22T23:05:22.318919+00:00",

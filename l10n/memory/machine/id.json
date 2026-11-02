@@ -20712,6 +20712,17 @@
     "status": "machine",
     "text": "Empat variabel, tiga di antaranya dikirimkan melalui edge, dan **output tidak\nmencatat socket mana yang dideklarasikan**:"
   },
+  "2029e0c3920c8bf0": {
+    "at": "2026-11-02T19:28:46.630Z",
+    "job": "session-0008-20261102192846",
+    "revision": {
+      "from": "65b35a0560177f19",
+      "reviewed": false
+    },
+    "srcHash": "2029e0c3920c8bf0",
+    "status": "machine",
+    "text": "`aggrega/irGraph` — graf IR terkompilasi untuk suatu Release, untuk introspeksi editor. `release` adalah path relatif terhadap root workspace, yang menyebutkan Release di dalamnya — nilai yang sama yang diterima `aggrega build --release` ketika dijalankan dari root. Bentuk lain apa pun ditolak dengan kesalahan standar invalid-params yang menyebutkan apa yang harus dikirim sebagai gantinya: path absolut, path yang teresolusi di luar root workspace — baik keluar sebagaimana tertulis maupun melalui link, ke file atau ke direktori di sepanjang jalan — dan nilai kosong semuanya ditolak alih-alih diresolusi, sehingga permintaan tidak pernah melaporkan file yang tidak dimiliki workspace. Release yang disebutkan oleh konfigurasi workspace Anda, sebagai `build.authoring_release` atau sebagai kunci `workspace.releases`, adalah milik workspace di mana pun file-nya berada, sehingga link di dalam workspace yang mengarah kepadanya diterima, sebagaimana `aggrega/releaseCandidates` mencantumkannya. Direktori katalog yang dibaca Release dan tidak dapat ditelusuri — misalnya direktori yang ada tetapi tidak dapat dibaca — ditolak sebagaimana [`aggrega inspect`](aggrega-inspect.md) menolaknya, sebelum hal lain dibaca: kesalahannya adalah `1004` entity-not-resolvable, pesannya adalah laporan yang dicetak baris perintah untuk direktori tersebut, dalam satu baris (`[CATALOG_ERROR] <directory>: catalog load: …`), dan tidak ada graf yang digambar atas direktori yang tersisa. Direktori yang dicantumkan konfigurasi workspace tetapi bukan direktori — misalnya tidak ada apa pun di sana — ditolak dengan cara yang sama dan pada saat yang sama, `1004` entity-not-resolvable, dengan pesan berupa penolakan yang diberikan setiap perintah kepadanya, yang menyebutkan entri tersebut, file konfigurasi dan baris yang mencantumkannya, serta pengaturannya ([Dari mana entitas lokal dibaca](configuration.md#where-local-entities-are-read-from)). Direktori katalog yang berisi link yang keluar dari direktori tempat pembacaannya harus tetap berada — dokumen atau direktori yang di-link dari tempat lain, di bawah direktori katalog di dalam workspace atau di bawah direktori yang disebutkan konfigurasi di luarnya — ditolak dengan cara yang sama dan pada saat yang sama, dengan `1004` dan kalimat kondisi itu sendiri yang menyebutkan link tersebut dan ke mana arahnya: tidak ada yang dibaca melalui link seperti itu, dan graf yang digambar tanpanya dapat meresolusi entitas lain dengan nama yang sama sebagai gantinya. Begitu pula link yang keluar di antara dokumen di samping Release, di mana Release menyebutkan Aggregate atau Manifest-nya berdasarkan identitas. File yang disebutkan melalui path oleh Release, Manifest-nya, atau Release yang diperluasnya — `aggregate:`, `manifest:`, `extends:`, atau `$import:` pada parameters — dan yang keluar dari workspace, sebagaimana tertulis atau melalui link, ditolak dengan kalimat kondisi itu sendiri ([fatal-halts.md](../errors/fatal-halts.md) §“A reference to another file leads out of the directory it must stay inside (Referensi ke file lain keluar dari direktori tempat ia harus tetap berada)”), dengan data kesalahan yang menempatkannya pada kunci di Release yang mengarah ke file tersebut, dan tidak ada yang dibaca dari file itu; Release yang disebutkan konfigurasi di luar workspace dibatasi dengan cara yang sama pada direktori yang memuatnya, sehingga path yang ditulisnya, atau yang ditulis Release yang dituju rantainya, dan yang keluar dari direktori itu juga ditolak. Perhatikan bahwa `aggrega/releaseCandidates` menjawab dengan path absolut, sehingga klien yang mengisi satu permukaan dari yang lain mengonversi di antara keduanya. Bahwa parameter ini menolak ejaan yang diterima parameter per dokumen `file` dan `uri` memang disengaja, dan [Ejaan mana yang diterima parameter yang Anda kirim](#which-spellings-a-parameter-you-send-accepts) menjelaskan apa yang menentukannya. Graf ini menahan setiap nilai yang dideklarasikan sensitif oleh penulis, persis seperti `--ir-graph` menahannya di baris perintah: masing-masing diganti dengan penanda yang dijelaskan [`aggrega-inspect`](aggrega-inspect.md#machine-readable-output) di “Keluaran yang dapat dibaca mesin”, dan semua hal lainnya dibawa sebagaimana dicatat compiler. `unredacted: true` meminta nilai-nilai tersebut dalam bentuk terbuka — ejaan protokol untuk `--unredacted` pada baris perintah, dan satu-satunya cara memintanya; jika tidak ada atau `false`, jawabannya menahannya. Apa pun yang dijangkau jawaban kemudian membawa nilai-nilai tersebut dalam bentuk terbuka, sehingga klien hanya memintanya jika orang yang menggunakannya telah memintanya."
+  },
   "202c0231b9f67e63": {
     "at": "2026-11-01T22:35:23.290Z",
     "job": "session-0001-20261101223523",
@@ -31735,6 +31746,17 @@
     "srcHash": "318769933e75bbd7",
     "status": "machine",
     "text": "**Pesan yang dikeluarkan.** Satu temuan dilaporkan per path yang bertabrakan — satu kali, berapa pun banyaknya boundary yang memasok rakitan tempat tabrakan itu terjadi — sehingga build yang kontributornya bertemu di dua path memberi tahu Anda tentang keduanya dan tidak ada tabrakan yang dilaporkan dua kali:"
+  },
+  "318b2480bfca0864": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "c0b3edfbe8f52d19",
+      "reviewed": false
+    },
+    "srcHash": "318b2480bfca0864",
+    "status": "machine",
+    "text": "**Direktori katalog yang dibaca Release dan tidak dapat ditelusuri ditolak sebelum apa pun ditulis, sebagaimana [`aggrega build`](aggrega-build.md) menolaknya.** Itu adalah direktori yang disebutkan panggilan dalam `catalog_dirs` dan tidak ada, sebagaimana `aggrega build` menolak direktori `--catalog` yang tidak ada, atau direktori yang ada tetapi tidak dapat dibaca. `aggrega build` memuat setiap direktori yang dibaca Release sebelum me-resolve Release tersebut, dan berhenti pada direktori yang tidak dapat ditelusurinya; `build` menelusuri direktori yang sama terlebih dahulu, tanpa membaca dokumen apa pun di dalamnya, sebelum resolusi dependensi apa pun dan sebelum render — sehingga build yang dikirimi `auto_pull` tidak menulis lockfile, dan tidak ada yang dirender. Teksnya menyebutkan direktori tersebut sebagaimana baris perintah melaporkannya, dalam satu baris: direktori, `catalog load`, dan alasan yang diberikan sistem file. Payload-nya menyebutkan Release, dengan `files` yang kosong dan tanpa temuan, karena belum ada yang berjalan. Direktori yang dicantumkan konfigurasi ruang kerja yang ternyata bukan direktori — misalnya tidak ada apa pun di sana — ditolak sebelum penelusuran itu, dalam bentuk yang sama, dengan teks yang membawa penolakan yang diberikan `aggrega build` untuknya, menyebutkan entri tersebut serta file konfigurasi dan baris yang mencantumkannya ([Dari mana entitas lokal dibaca](configuration.md#where-local-entities-are-read-from)). Direktori katalog yang memuat tautan yang mengarah ke luar direktori tempat pembacaannya harus tetap berada ditolak pada saat yang sama, tanpa ada yang ditulis, dengan teks yang menyebutkan tautan tersebut dan ke mana arahnya — `aggrega build` menolaknya dengan cara yang sama."
   },
   "318e8549abe04ae7": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -54410,6 +54432,17 @@
     "status": "machine",
     "text": "Karena input dinyatakan di root, `modules/db/` secara tersendiri bukanlah\nkonfigurasi yang dapat Anda plan seperti saat di-deploy — lihat\n[halaman provider Terraform](../../providers/terraform.md#where-a-components-inputs-are-supplied)\nuntuk mengetahui apa yang dilakukan engine jika Anda mencobanya."
   },
+  "552fc3199e1d5f5c": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "db9b65321f4b1b5a",
+      "reviewed": false
+    },
+    "srcHash": "552fc3199e1d5f5c",
+    "status": "machine",
+    "text": "**Pencarian katalog.** Pull mematuhi `catalog_dirs` dari `.aggrega-config.yaml` bahkan ketika tidak ada `--catalog` yang diberikan — beserta direktori milik Release sendiri jika konfigurasi memberinya direktori di bawah `workspace.releases` — dan me-resolve tumpukan pencarian yang sama dengan aturan kecocokan pertama menang seperti `aggrega build`, sehingga dependensi yang di-pin-nya cocok dengan apa yang dicari build. Direktori terdaftar yang ternyata bukan direktori — misalnya tidak ada apa pun di sana — ditolak oleh kedua perintah sebelum apa pun di-resolve atau ditulis, dengan menyebutkan entri tersebut serta file konfigurasi dan baris yang mencantumkannya, seperti yang ditunjukkan [Dari mana entitas lokal dibaca](configuration.md#where-local-entities-are-read-from)."
+  },
   "55339ce979b0f395": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -60587,6 +60620,17 @@
     "srcHash": "5ef712d2f01dc0d0",
     "status": "machine",
     "text": "Referensi jalur lokal yang file dasarnya berubah di antara dua kompilasi menghasilkan diff yang sah pada output hasil render meskipun bentuk input compiler tidak berubah — jaminan output deterministik tetap terjaga (input byte yang sama → output byte yang sama), tetapi input-nya berbeda karena file lokal berubah. Katalog yang membutuhkan invariansi antar-build untuk setiap sumber menarik artefak dari registry ke cache yang disematkan lockfile alih-alih membacanya dari jalur lokal atau direktori workspace; lockfile adalah jangkar identitas byte."
+  },
+  "5efb2e66a89ea164": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "6df2da54e85a7797",
+      "reviewed": false
+    },
+    "srcHash": "5efb2e66a89ea164",
+    "status": "machine",
+    "text": "**Yang membatasi peringatan pada penolakan adalah sejauh mana proses berjalan, bukan apa yang mampu dibawa jawaban.** Penolakan dari pemeriksaan yang berjalan sebelum Release di-resolve — entri tersemat di cache tidak lagi cocok dengan digest yang tercatat untuknya dan tidak ada direktori katalog yang memuat byte yang disematkan, atau dependensi Release tidak dapat di-resolve — tidak melaporkan peringatan apa pun, karena belum ada yang dimunculkan. Temuan tentang cara sebuah Release tersusun dengan Release yang diperluasnya dimunculkan saat Release itu di-resolve, sebelum setiap pemeriksaan berikutnya, sehingga setiap penolakan sesudahnya membawanya: Manifest memetakan sebuah tipe ke resep yang tidak mengimplementasikannya, entitas yang dijangkau Release tidak memenuhi skemanya, lockfile tidak lagi cocok dengan hasil resolusi Release. Temuan milik render sendiri dimunculkan selama render berjalan, sehingga penolakan dari salah satu pemeriksaan sebelumnya itu tidak membawa satu pun darinya, dan penolakan dari render membawa semua yang dimunculkan sebelumnya. Jadi bacalah `advisories` pada penolakan persis seperti Anda membacanya pada keberhasilan: apa yang ditemukan proses ini, dalam urutan yang dicetak terminal."
   },
   "5f0365a6ef71540a": {
     "at": "2026-10-23T08:18:59.335953+00:00",

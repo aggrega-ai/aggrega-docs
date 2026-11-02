@@ -20712,6 +20712,17 @@
     "status": "machine",
     "text": "Cztery zmienne, z czego trzy dostarczone przez krawędzie, a **wyjście nie\nrejestruje, które gniazdo zostało zadeklarowane**:"
   },
+  "2029e0c3920c8bf0": {
+    "at": "2026-11-02T19:28:46.630Z",
+    "job": "session-0008-20261102192846",
+    "revision": {
+      "from": "65b35a0560177f19",
+      "reviewed": false
+    },
+    "srcHash": "2029e0c3920c8bf0",
+    "status": "machine",
+    "text": "`aggrega/irGraph` — skompilowany graf IR dla encji Release, do introspekcji w edytorze. `release` to ścieżka względna wobec katalogu głównego obszaru roboczego, wskazująca znajdującą się w nim encję Release — ta sama wartość, którą przyjmuje `aggrega build --release` uruchomione z katalogu głównego. Każda inna postać jest odrzucana standardowym błędem nieprawidłowych parametrów, który wskazuje, co należy wysłać zamiast niej: ścieżka bezwzględna, ścieżka prowadząca poza katalog główny obszaru roboczego — czy to wychodząca z niego w zapisanej postaci, czy prowadząca na zewnątrz przez dowiązanie, do pliku albo do katalogu po drodze — oraz wartość pusta są odrzucane, a nie rozwiązywane, więc żadne żądanie nie raportuje o pliku, którego obszar roboczy nie zawiera. Encja Release, którą nazywa konfiguracja obszaru roboczego, jako `build.authoring_release` lub jako klucz `workspace.releases`, należy do obszaru roboczego bez względu na to, gdzie leży jej plik, więc prowadzące do niej dowiązanie wewnątrz obszaru roboczego jest akceptowane, tak jak wymienia ją `aggrega/releaseCandidates`. Katalog katalogu encji, który czyta Release, a którego nie da się przejść — na przykład taki, który istnieje, ale nie da się go odczytać — jest odrzucany tak, jak odrzuca go [`aggrega inspect`](aggrega-inspect.md), zanim cokolwiek innego zostanie odczytane: błąd to `1004` entity-not-resolvable, jego komunikatem jest raport, który wiersz poleceń wypisuje dla tego katalogu, w jednym wierszu (`[CATALOG_ERROR] <directory>: catalog load: …`), i nie powstaje żaden graf z pozostałych katalogów. Katalog wymieniony w konfiguracji obszaru roboczego, który nie jest katalogiem — na przykład w jego miejscu nic nie istnieje — jest odrzucany w ten sam sposób i w tym samym momencie, z `1004` entity-not-resolvable, a jego komunikatem jest odmowa, jaką daje mu każde polecenie, wskazująca wpis, plik konfiguracji i wiersz, które go wymieniają, oraz ustawienie ([Where local entities are read from](configuration.md#where-local-entities-are-read-from)). Katalog katalogu encji zawierający dowiązanie prowadzące poza katalog, w którym muszą pozostać jego odczyty — dokument lub katalog dowiązany z innego miejsca, wewnątrz katalogu katalogu encji w obszarze roboczym albo wewnątrz takiego, który konfiguracja nazywa poza nim — jest odrzucany w ten sam sposób i w tym samym momencie, z `1004` i własnym zdaniem danego warunku, które wskazuje dowiązanie i miejsce, do którego prowadzi: przez takie dowiązanie nic nie jest odczytywane, a graf powstały bez niego mógłby w jego miejsce rozwiązać inną encję o tej samej nazwie. Tak samo jest z dowiązaniem prowadzącym na zewnątrz spośród dokumentów obok encji Release, gdy Release nazywa swoją encję Aggregate lub Manifest przez tożsamość. Plik, który Release, jej Manifest lub rozszerzana przez nią encja Release nazywa ścieżką — `aggregate:`, `manifest:`, `extends:` lub `$import:` parametrów — i który prowadzi poza obszar roboczy, w zapisanej postaci lub przez dowiązanie, jest odrzucany z własnym zdaniem danego warunku ([fatal-halts.md](../errors/fatal-halts.md) §„A reference to another file leads out of the directory it must stay inside (Odwołanie do innego pliku prowadzi poza katalog, w którym musi pozostać)”), przy czym dane błędu umieszczają go na kluczu w encji Release, który doprowadził do pliku, i nic nie jest z tego pliku odczytywane; encja Release, którą konfiguracja nazywa poza obszarem roboczym, jest w ten sam sposób ograniczona do zawierającego ją katalogu, więc ścieżka zapisana przez nią lub przez encję Release z jej łańcucha, która opuszcza ten katalog, również jest odrzucana. Należy pamiętać, że `aggrega/releaseCandidates` odpowiada ścieżkami bezwzględnymi, więc klient zasilający jedną powierzchnię drugą dokonuje konwersji między nimi. To, że ten parametr odrzuca zapis akceptowany przez parametry `file` i `uri` dotyczące dokumentu, jest zamierzone, a [Which spellings a parameter you send accepts](#which-spellings-a-parameter-you-send-accepts) wyjaśnia, co o tym decyduje. Graf ukrywa każdą wartość, którą autor zadeklarował jako wrażliwą, dokładnie tak, jak ukrywa ją `--ir-graph` w wierszu poleceń: każda jest zastępowana znacznikiem opisanym w [`aggrega-inspect`](aggrega-inspect.md#machine-readable-output) „Machine-readable output”, a wszystko inne jest przekazywane tak, jak zapisał to kompilator. `unredacted: true` żąda tych wartości jawnie — to protokołowy odpowiednik `--unredacted` z wiersza poleceń i jedyny sposób, by o nie poprosić; gdy go brak lub ma wartość `false`, odpowiedź je ukrywa. Wszystko, do czego trafi odpowiedź, zawiera wtedy te wartości jawnie, więc klient prosi o nie tylko tam, gdzie poprosiła o nie osoba, która z niego korzysta."
+  },
   "202c0231b9f67e63": {
     "at": "2026-11-01T22:35:23.290Z",
     "job": "session-0001-20261101223523",
@@ -31735,6 +31746,17 @@
     "srcHash": "318769933e75bbd7",
     "status": "machine",
     "text": "**Emitowane komunikaty.** Dla każdej kolidującej ścieżki zgłaszane jest jedno ustalenie — raz, niezależnie od liczby granic zasilających zestaw, w którym do kolizji doszło — więc kompilacja, w której kontrybutorzy spotkali się w dwóch ścieżkach, informuje o obu, a żadna kolizja nie jest zgłaszana dwukrotnie:"
+  },
+  "318b2480bfca0864": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "c0b3edfbe8f52d19",
+      "reviewed": false
+    },
+    "srcHash": "318b2480bfca0864",
+    "status": "machine",
+    "text": "**Katalog odczytywany przez Release, którego nie da się przejść, jest odrzucany, zanim cokolwiek zostanie zapisane, tak jak odrzuca go [`aggrega build`](aggrega-build.md).** Jest to katalog wskazany przez wywołanie w `catalog_dirs`, który nie istnieje — tak jak `aggrega build` odrzuca nieistniejący katalog `--catalog` — albo taki, który istnieje, ale nie da się go odczytać. `aggrega build` wczytuje każdy katalog odczytywany przez Release przed rozwiązaniem encji Release i zatrzymuje się na tym, którego nie może przejść; `build` najpierw przechodzi te same katalogi, nie odczytując w nich żadnego dokumentu, przed jakimkolwiek rozwiązywaniem zależności i przed renderowaniem — więc kompilacja z `auto_pull` nie zapisuje pliku blokady i nic nie jest renderowane. Tekst wskazuje katalog tak, jak zgłasza go wiersz poleceń, w jednym wierszu: katalog, `catalog load` i powód podany przez system plików. Ładunek wskazuje encję Release, z pustym `files` i bez ustaleń, ponieważ nic się nie wykonało. Katalog wymieniony w konfiguracji obszaru roboczego, który nie jest katalogiem — na przykład nic tam nie istnieje — jest odrzucany przed tym przejściem, w tej samej postaci, a tekst zawiera odmowę, którą wydaje dla niego `aggrega build`, wskazując wpis oraz plik konfiguracyjny i wiersz, które go wymieniają ([Skąd są odczytywane encje lokalne](configuration.md#where-local-entities-are-read-from)). Katalog zawierający dowiązanie prowadzące poza katalog, wewnątrz którego muszą pozostać jego odczyty, jest odrzucany w tym samym momencie, bez zapisania czegokolwiek, a tekst wskazuje dowiązanie i miejsce, do którego prowadzi — `aggrega build` odrzuca go w ten sam sposób."
   },
   "318e8549abe04ae7": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -54410,6 +54432,17 @@
     "status": "machine",
     "text": "Ponieważ dane wejściowe są określone w konfiguracji głównej, sam katalog `modules/db/` nie jest\nkonfiguracją, którą można zaplanować tak, jak zostanie wdrożona — na\n[stronie dostawcy Terraform](../../providers/terraform.md#where-a-components-inputs-are-supplied)\nopisano, co robi silnik przy takiej próbie."
   },
+  "552fc3199e1d5f5c": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "db9b65321f4b1b5a",
+      "reviewed": false
+    },
+    "srcHash": "552fc3199e1d5f5c",
+    "status": "machine",
+    "text": "**Wyszukiwanie w katalogach.** Pobranie respektuje `catalog_dirs` z `.aggrega-config.yaml` nawet bez podania `--catalog` — a także własne katalogi encji Release, jeśli konfiguracja podaje je w `workspace.releases` — i rozwiązuje ten sam stos wyszukiwania „pierwszy wygrywa” co `aggrega build`, więc przypinane zależności odpowiadają temu, co przeszukuje build. Wymieniony katalog, który nie jest katalogiem — na przykład nic tam nie istnieje — jest odrzucany przez oba polecenia, zanim cokolwiek zostanie rozwiązane lub zapisane, ze wskazaniem wpisu oraz pliku konfiguracyjnego i wiersza, które go wymieniają, jak pokazuje [Skąd odczytywane są lokalne encje](configuration.md#where-local-entities-are-read-from)."
+  },
   "55339ce979b0f395": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -60587,6 +60620,17 @@
     "srcHash": "5ef712d2f01dc0d0",
     "status": "machine",
     "text": "Odwołanie do ścieżki lokalnej, którego bazowy plik zmienia się między dwiema kompilacjami, wytwarza uprawnioną różnicę w wyrenderowanym wyniku, mimo że kształt wejścia kompilatora się nie zmienił — gwarancja deterministycznego wyniku zostaje zachowana (to samo wejście w bajtach → ten sam wynik w bajtach), ale wejścia się różnią, ponieważ zmienił się plik lokalny. Katalogi, które potrzebują niezmienności między kompilacjami dla każdego źródła, pobierają artefakty z rejestru do pamięci podręcznej przypiętej w pliku blokady, zamiast odczytywać je ze ścieżki lokalnej lub z katalogu obszaru roboczego; plik blokady jest kotwicą tożsamości bajtowej."
+  },
+  "5efb2e66a89ea164": {
+    "at": "2026-11-02T19:28:42.678Z",
+    "job": "session-0007-20261102192842",
+    "revision": {
+      "from": "6df2da54e85a7797",
+      "reviewed": false
+    },
+    "srcHash": "5efb2e66a89ea164",
+    "status": "machine",
+    "text": "**Zakres ostrzeżeń przy odmowie wyznacza to, jak daleko dotarł przebieg, a nie to, co odpowiedź jest w stanie przenieść.** Odmowa ze sprawdzenia wykonywanego przed rozwiązaniem encji Release — przypięty wpis w pamięci podręcznej nie odpowiada już zarejestrowanemu dla niego skrótowi i żaden katalog nie przechowuje przypiętych bajtów albo nie udało się rozwiązać zależności encji Release — nie zgłasza żadnych ostrzeżeń, ponieważ nic nie zostało jeszcze zgłoszone. Ustalenia dotyczące tego, jak encja Release składa się z encją Release, którą rozszerza, są zgłaszane w chwili jej rozwiązania, przed każdym kolejnym sprawdzeniem, więc niesie je każda późniejsza odmowa: Manifest mapuje typ na recipe, która go nie implementuje, encja osiągana przez Release nie spełnia swojego schematu, plik blokady nie odpowiada już temu, do czego rozwiązuje się Release. Własne ustalenia renderowania są zgłaszane w trakcie renderowania, więc odmowa z jednego z tych wcześniejszych sprawdzeń nie niesie żadnego z nich, a odmowa z renderowania niesie wszystko, co zgłoszono przed nią. Dlatego `advisories` przy odmowie należy czytać dokładnie tak samo jak przy powodzeniu: to, co znalazł ten przebieg, w kolejności, w jakiej wypisuje to terminal."
   },
   "5f0365a6ef71540a": {
     "at": "2026-10-22T23:05:22.318919+00:00",
