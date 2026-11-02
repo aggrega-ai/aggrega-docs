@@ -5372,6 +5372,17 @@
     "status": "machine",
     "text": "**Le digest de chaque fichier importé est recalculé et comparé à sa ligne**, un fichier `boundary.artifacts` exactement comme un fichier `artifacts`. Un fichier modifié après son épinglage arrête le build avec `[CATALOG_ERROR E0026]`, en nommant l’artefact comme le nomme sa ligne, le fichier importé et les deux digests."
   },
+  "1d4c785331db6617": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "b8ba1e2deae9144e",
+      "reviewed": false
+    },
+    "srcHash": "1d4c785331db6617",
+    "status": "machine",
+    "text": "Le reste de la surface se trouve dans la même réponse plutôt que derrière elle : d’autres outils qui s’exécutent au sein du serveur — `lint`, l’outil qui nomme la connexion écrite à un endroit d’un document, les deux outils de candidature, les outils de conteneur d’attachements et de point d’insertion, l’outil qui applique une modification délimitée à un document, `pin`, qui enregistre les épinglages de contenu des entrées d’une entité comme l’expose [Épingler les entrées propres d’une entité](#pinning-an-entitys-own-inputs), et les quatre outils de publication décrits ci-dessous, ainsi que des inventaires des caches et des registries configurés — et, **pour un client qui a lancé ce serveur sur son entrée et sa sortie standard**, un outil pour chaque commande que vous pourriez sinon taper, nommé d’après son chemin d’invocation. Ces outils de commande n’existent que sur ce transport : un serveur atteint sur HTTP n’en propose aucun, pour la raison donnée sous [Atteindre le serveur sur HTTPS](#reaching-the-server-over-https). **Rien n’est réservé pour un appel ultérieur.** La part d’une liste d’outils à présenter à un modèle est une décision qui revient au client — il récupère les définitions et choisit ce qu’il charge — et une définition qu’un client n’a jamais reçue est une opération qu’un modèle ne peut jamais appeler, aussi accessible que soit le nom de cet outil sur le fil. Lorsque la liste complète dépasse ce que votre client accepte, [Restreindre ce qu’annonce le serveur](#narrowing-what-the-server-announces) est la façon de la raccourcir. **`describe-capabilities` restreint cette surface au type d’entité que vous rédigez.** Avec un `kind`, il répond avec les outils qui servent ce type, déterminés d’après les types que déclare chaque outil plutôt que d’après les mots d’une description ; sans argument, il répond avec ce même index sur chaque outil que ce serveur vous propose — le nom de chacun, un objectif en une ligne, les types qu’il sert et s’il écrit, sans schémas d’arguments, de sorte que toute la surface arrive en une seule réponse lisible. Pour un outil `cli-`, le fait qu’il écrive dépend de ce que la commande qu’il exécute écrit ou non : `cli-build` est indiqué comme écrivant, car la commande enregistre les artefacts rendus sous la racine du workspace, de même que `cli-scaffold`, car avec `example` la commande écrit l’un des exemples exécutables de la documentation dans un nouveau répertoire, tandis qu’une commande qui ne fait que lire est indiquée comme en lecture seule, même lorsqu’elle remplit en chemin un cache que partagent tous les projets de la machine, comme l’outil qui exécute la même opération au sein du serveur ; avec `tools` nommant un ou plusieurs outils, il répond avec exactement les définitions complètes et les schémas d’arguments de ces outils. Les outils `cli-` ne sont jamais restreints par type, car rien n’enregistre quel type d’entité sert une commande, de sorte qu’une réponse limitée à un type les omet et que l’index sans argument est l’endroit où les lire. Les arguments d’un outil de commande sont nommés d’après les flags propres de la commande, de sorte que `--output-dir` est envoyé sous la forme `output_dir`, et un nom non reconnu est refusé avec la liste des graphies acceptées plutôt que d’être écarté en silence."
+  },
   "1d712b8458f6fc74": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -5988,6 +5999,17 @@
     "srcHash": "20ad3b3e6bbee2af",
     "status": "machine",
     "text": "**Les exécutables sont signés et notariés.** Chacun porte une signature de code réalisée avec le Developer ID de **Cognitio S.r.l.** — le certificat qu’Apple délivre à un développeur pour les logiciels distribués en dehors du Mac App Store — avec le runtime renforcé et un horodatage sécurisé, et le service de notarisation d’Apple a vérifié et notarié chacun d’eux. Gatekeeper, la vérification de macOS sur les logiciels provenant d’internet, évalue un programme qui porte la marque de quarantaine, la marque qu’un navigateur web ajoute à un fichier qu’il télécharge, et accepte celui qu’Apple a notarié, de sorte qu’un fichier téléchargé depuis la page de la release s’exécute tel quel. Un ticket de notarisation ne peut pas être attaché à un fichier exécutable isolé, Gatekeeper trouve donc le ticket en ligne la première fois que le fichier s’exécute ; sur un Mac hors ligne à ce moment-là, Gatekeeper peut bloquer le fichier jusqu’à ce que le Mac puisse joindre Apple."
+  },
+  "20b9e38ebd5db5de": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "fb7e39c7ae6797d6",
+      "reviewed": false
+    },
+    "srcHash": "20b9e38ebd5db5de",
+    "status": "machine",
+    "text": "**Une racine de lancement qui n’est pas un dossier existant est servie comme un refus sur l’entrée et la sortie standard.** Lorsque `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT` nomme un dossier qui n’existe pas, ou nomme un fichier, le serveur écrit le refus dans son flux d’erreur et démarre malgré tout, de sorte qu’un client qui ne montre rien de ce flux à son utilisateur en montre tout de même la raison. Il répond à `initialize` et à ses listes d’outils, de ressources et de prompts, et chaque appel qui agirait dans ce workspace reçoit le refus en réponse : un appel d’outil comme résultat en échec, une lecture d’une entité `catalog://` ou d’une page de documentation comme erreur. Le refus nomme le flag, ou la variable avec le paramètre **Workspace folder** de l’application de bureau qui la définit — le paramètre que décrit [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) — et cite la valeur exactement telle qu’elle a été donnée ; une valeur que le client a envoyée sans la renseigner est citée telle qu’elle est arrivée, et rien de son contenu n’est interprété. Un outil qui exécute une commande n’en démarre aucune pour un appel ne nommant aucun workspace propre, puisque le dossier dans lequel cette commande démarrerait n’existe pas, et répond avec le même refus. Un appel qui nomme un workspace propre y reçoit sa réponse, et ce qui n’agit dans aucun workspace — un schéma, un prompt, l’aide d’une commande — reçoit sa réponse comme sur n’importe quel serveur. Un listener est au contraire refusé au démarrage, avant que quoi que ce soit ne soit lié, avec le même refus, de sorte que quiconque le supervise lit l’échec là où il le cherche."
   },
   "20c704481bf5f6c1": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -6932,6 +6954,17 @@
     "srcHash": "25a0089e27c1eaf1",
     "status": "machine",
     "text": "`list-entities` et `list-releases` indiquent ce que contient votre espace de travail et en quelle quantité, puis remettent les enregistrements une page à la fois ; `describe` montre une entité ou tout ce qu’atteint une Release ; `config-show` rapporte la configuration en vigueur et l’origine de chaque paramètre. Le serveur rapporte aussi les caches, les registres configurés et les plugins qu’il résout. Voir [Découvrir ce que contient un espace de travail](../language-reference/cli/aggrega-mcp.md#finding-out-what-a-workspace-holds)."
+  },
+  "25a4ca825ba68639": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "19511961e0f297dd",
+      "reviewed": false
+    },
+    "srcHash": "25a4ca825ba68639",
+    "status": "machine",
+    "text": "**Release** exécute l’intégralité du pipeline de compilation jusqu’à l’IR — résolution, expansion des annotations, exécution des gardes, construction de la topologie, construction de l’IR — et rend l’arbre des nœuds par boundary avec les rattachements de Feature de chaque nœud et leur provenance. Les rattachements de gouvernance qui façonnent le graphe s’exécutent dans ce pipeline au lieu d’être ignorés pour une vue, de sorte que ce que vous lisez reflète ce qu’ils ont décidé : les labels d’un rattachement `label-transform` sont en place avant que quoi que ce soit ne soit comparé à eux, et les annotations injectées par un rattachement `annotation-transform` se développent en rattachements de Feature exactement comme une annotation que vous avez rédigée. Un rattachement dont cette commande ne peut pas résoudre le plugin l’arrête, plutôt que de vous laisser un graphe dessiné sans les décisions de ce plugin. Une Release qui en étend une autre est dessinée, dans cette vue et dans `--ir-graph`, comme la Release que compose sa chaîne `extends:` — celle que lit un build de cette Release —, de sorte qu’une Release qui ne nomme que sa Release parente montre l’Aggregate, le Manifest et les boundaries de cette parente sous son propre nom. Le Manifest que nomme une Release est lui aussi composé à travers sa propre chaîne `extends:`, que la Release étende quelque chose ou non, de sorte qu’un rattachement dont ce Manifest hérite le mappage montre la réalisation qu’utilise un build. `--raw` émet le fichier de la Release tel quel, sans pipeline. `--closure` pose une question différente sur la même Release et n’exécute aucun pipeline ; voir [La clôture de dépendances : `--closure`](#the-dependency-closure---closure)."
   },
   "25a99ea33a48a6c6": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -8018,6 +8051,17 @@
     "status": "machine",
     "text": "Résolution du catalogue"
   },
+  "2bdec2d28825b3a6": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "de2aaa503aac9ece",
+      "reviewed": false
+    },
+    "srcHash": "2bdec2d28825b3a6",
+    "status": "machine",
+    "text": "Tout ce que le serveur lit pour référence est servi depuis cette machine — les JSON Schema sont intégrés au binaire et la documentation est lue depuis le cache de paquets de documentation que conserve la machine, comme décrit ci-dessous. La rédaction d’un document de départ, la validation, la description, le build et le linting s’exécutent tous sur votre espace de travail et les caches locaux, et aucun n’atteint un registre de sa propre initiative : un rendu sert une référence externe épinglée depuis le magasin adressé par contenu et **décline** une référence non épinglée au lieu de la récupérer, ce qui maintient hors ligne toute la boucle d’inspection et de rendu. Vous pouvez demander deux lectures de registre : `describe` avec une référence de registre, qui récupère cette seule coordonnée, n’écrit rien et, sur HTTP, n’atteint qu’un registre avec lequel l’espace de travail servi est configuré ; et `scaffold` envoyé avec `example` ou `list`, qui acquiert le paquet de documentation depuis le registre par défaut de l’espace de travail lorsque la machine ne détient aucune copie qu’admet la politique de signature de l’espace de travail, en le vérifiant avant de le conserver, comme le fait [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example). La publication et la signature en sont le revers délibéré, et elles sont traitées plus haut."
+  },
   "2be4cf0cd48b9131": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -8080,6 +8124,17 @@
     "srcHash": "2c61657ff8829ad2",
     "status": "machine",
     "text": "Pour savoir à quel conteneur appartient une entrée avant d’en nommer un, et pour lire une position sans rien appliquer, consultez [`aggrega serve`](aggrega-serve.md)."
+  },
+  "2c71bb04e7790662": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "90e8b5c0b4bd1ddb",
+      "reviewed": false
+    },
+    "srcHash": "2c71bb04e7790662",
+    "status": "machine",
+    "text": "Sur `stdio`, la valeur par défaut, il communique par l’entrée et la sortie standard du processus. Sous cette forme, ce n’est pas une commande que vous exécutez de manière interactive — un client compatible MCP le lance comme sous-processus et parle le protocole sur stdio ; [Connecter le serveur MCP](../../ai-assistants/mcp-server.md#where-each-client-keeps-its-server-list) indique où chaque client conserve l’entrée qui le lance. L’exécuter transforme la CLI en un assistant de rédaction qui connaît Aggrega au sein de votre éditeur ou de votre client de chat."
   },
   "2c7496dcbee6bdac": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -13568,6 +13623,13 @@
     "status": "machine",
     "text": "Comme le paquet ne nomme aucun exécutable d’aucune plateforme, le même fichier s’applique à chaque plateforme qu’il déclare : macOS, Windows et Linux."
   },
+  "4c6d49ba57b1e57a": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "srcHash": "4c6d49ba57b1e57a",
+    "status": "machine",
+    "text": "`scaffold`, lorsqu’il écrit un exemple, nomme `dir` tel que vous l’avez envoyé, relativement à la racine, et chaque chemin de `files` relativement à ce répertoire ; la rédaction d’un brouillon et le listage ne nomment aucun emplacement."
+  },
   "4c8170a519f4d602": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -14908,6 +14970,13 @@
     "status": "machine",
     "text": "6. Le cycle de vie de l’import « brownfield »"
   },
+  "53c548fb841593aa": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "srcHash": "53c548fb841593aa",
+    "status": "machine",
+    "text": "Un Component nommé depuis le catalogue est affiché comme l’entité que le catalogue a résolue, de sorte qu’après une fusion `extends:` vous voyez l’entité fusionnée plutôt que le fichier rédigé ; un fichier de Component est affiché tel qu’il a été rédigé."
+  },
   "53c984939691565f": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -15372,6 +15441,17 @@
     "srcHash": "555fbd5c53541494",
     "status": "machine",
     "text": "Domaine 3 : base d’infrastructure (les « implémentations »)"
+  },
+  "5563fcd196893806": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "612ee883df356d88",
+      "reviewed": false
+    },
+    "srcHash": "5563fcd196893806",
+    "status": "machine",
+    "text": "Raison lisible par un humain de la dépréciation — pourquoi il est déprécié et quoi faire à la place. Obligatoire avec une référence positionnelle sauf si une invite interactive la fournit ; refusée à côté de --from, dont les entrées portent la leur."
   },
   "556f7505803d1420": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -16458,6 +16538,17 @@
     "srcHash": "5b787561d0a8d45a",
     "status": "machine",
     "text": "Le build est en lecture seule par défaut et n’affiche aucun détail de résolution. Lorsque l’étape de pull s’exécute — parce que --auto-pull a été passé ou que le workspace active auto_pull —, le build remplit le lockfile au sein du processus, qu’il en existe déjà un ou non, et cette option affiche pour chaque entité résolue ce que ce remplissage a fait : récupérée à neuf depuis un registre, réutilisation d’un slot du cache, trouvée dans un catalogue local, servie depuis l’intérieur du binaire du compilateur, ou externe (l’Aggregate ou le Manifest propre à la Release, lu depuis le fichier ou l’entrée que la Release nomme). Lorsqu’aucune étape de pull ne s’exécute, il affiche une ligne qui le signale au lieu des lignes par entité. Stdout uniquement ; non persisté"
+  },
+  "5b81d04221b5dc84": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "ba44cfb29b989356",
+      "reviewed": false
+    },
+    "srcHash": "5b81d04221b5dc84",
+    "status": "machine",
+    "text": "**Chaque issue est distinguée des autres.** Une Release qui se résout reçoit pour réponse la liste. Un chemin de Release qui ne désigne aucun fichier est refusé, en indiquant que le fichier n’existe pas. Une Release qui existe et dont la fermeture ne peut pas être résolue est refusée en indiquant ce qui n’a pas pu être résolu et d’où provenait la référence, suivi des fichiers que le chargement du catalogue a refusés — car un fichier refusé est la raison habituelle pour laquelle une entité que la Release atteint est manquante. Un [enregistrement de confiance des plugins](aggrega-pull.md#the-plugin-trust-record) situé à côté de la Release, qui existe et ne peut pas être lu, est refusé en indiquant ce qui n’a pas pu être lu, car une liste qui l’aurait ignoré ne signalerait aucun plugin retiré là où aucun n’a pu être vérifié. Une liste vide n’est jamais la réponse à aucun de ces cas : elle présenterait un chemin mal saisi, ou un workspace cassé, comme une Release qui ne dépend de rien."
   },
   "5b84e7c915382c78": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -21079,6 +21170,13 @@
     "status": "machine",
     "text": "**Modèle non pris en charge :** Ops tente de remplacer la logique cognitive d’un développeur (par ex. en changeant `workers: 4` en `workers: 10`) depuis la `Release`."
   },
+  "763ab6766d2d365e": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "srcHash": "763ab6766d2d365e",
+    "status": "machine",
+    "text": "Un rattachement nomme son plugin avec `uri:`, et `function:` nomme une fonction d’entrée de ce plugin. Une entrée qui nomme une `function:` et aucun `uri:` nomme une fonction d’aucun plugin, de sorte que la configuration est refusée dès sa lecture, sous [`E0224`](../errors/fatal-halts.md#the-workspace-configuration-is-invalid), en nommant le fichier et la place de l’entrée dans sa liste — ajoutez l’`uri` du plugin qui exporte la fonction. Une entrée qui ne nomme ni l’un ni l’autre ne rattache rien et est ignorée ; lorsqu’elle est la seule entrée, le linter standard s’exécute à sa propre fonction d’entrée par défaut, comme sans aucun `plugins.linter`."
+  },
   "763d8713c7b806e0": {
     "at": "2026-10-17T19:13:54.748Z",
     "job": "5c185f63f43c",
@@ -21307,6 +21405,17 @@
     "srcHash": "77955d67354db819",
     "status": "machine",
     "text": "Jour 30 — les petites équipes où les rôles se séparent (développeur + Ops + parfois Sécurité). Le Niveau 2 arrive par les Plugins de rendu des providers (les Ops choisissent entre Helm, Compose et helm-chart), les Features (la Sécurité gère les identifiants séparément de la configuration de l’application) et les FeatureRecipes (personnalisation au moment de la liaison, par provider)."
+  },
+  "779b9d4b8a6f6f69": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "42a05a2ad93418dd",
+      "reviewed": false
+    },
+    "srcHash": "779b9d4b8a6f6f69",
+    "status": "machine",
+    "text": "Les outils de publication, `sign-artifacts`, `deprecate-artifact`, `get-schema`, `explain-error` et `describe-capabilities` ne nomment d’eux-mêmes aucun emplacement sur l’hôte. Le message d’échec de chacun d’eux suit la règle applicable au texte : le refus que lève un workspace hors ligne nomme son `.aggrega-config.yaml` relativement à la racine."
   },
   "77a08689dc95e508": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -21617,6 +21726,17 @@
     "srcHash": "796b56c4eda9d889",
     "status": "machine",
     "text": "**À la compilation (validation et génération) :** l’équipe de plateforme écrit une policy (p. ex. Rego) évaluée dans un rôle de verdict de gouvernance qui énonce : *« Tout chemin qui passe par un gateway IA doit porter `core/data-masking`. »* S’il manque, le compilateur s’arrête. S’il est présent, la réalisation que lie le Manifest écrit le masquage dans la configuration que le gateway produit déjà : sur `core/gateway/litellm`, des entrées de garde-fous qui correspondent aux expressions régulières que liste l’attachement et qui envoient le texte, pour les types d’entités qu’il liste, à un analyzer et à un anonymizer Presidio raccordés aux sockets `pii_analyzer` et `pii_anonymizer` du gateway ; sur `core/gateway/kong-enterprise`, l’AI PII Sanitizer de Kong sur les routes de chat et de complétion de chaque modèle raccordé, écrit par la Recipe de chart du gateway, qui envoie le texte qu’il masque, avec les expressions régulières et les types d’entités que liste l’attachement, au service Kong AI PII raccordé au socket `pii_sanitizer` du gateway ; sur `core/gateway/agentgateway`, les gardes par expressions régulières propres au gateway, écrites dans sa configuration par sa Recipe de chart, qui remplacent chaque correspondance des motifs listés par l’attachement par `<masked>`, ou, sous `refuse`, répondent à la requête ou à la réponse par HTTP 403, et ne reconnaissent aucun type d’entité ; ces gardes ne masquent pas une réponse en streaming, donc tant que les réponses sont masquées, la même Recipe écrit une règle qui refuse par HTTP 403, avant sa transmission, une requête qui en demande une, ainsi que toute requête dont le corps dépasse les 2 MiB que le gateway lit pour cette règle, en streaming ou non ; sur `core/gateway/traefik-hub`, un Content Guard du gateway IA de Traefik Hub sur la route de chaque modèle raccordé, écrit par sa Recipe de chart, qui masque les correspondances des motifs listés par l’attachement au moyen de son moteur d’expressions régulières, ou celles des types d’entités qu’il liste au moyen de l’analyzer Presidio raccordé au socket `pii_analyzer` du gateway, un moteur par attachement ; sur `core/gateway/higress`, le plugin `ai-data-masking` de Higress sur la route de chaque modèle raccordé, écrit par sa Recipe de chart, qui remplace chaque correspondance des motifs listés par l’attachement dans les messages d’une requête de chat par le nom du motif entre crochets, et ne reconnaît aucun type d’entité. Une policy peut aussi poser la question plus étroite — le masquage se trouve-t-il entre les données restreintes et le fournisseur ? — en lisant les attachements de chaque composant le long de la route plutôt que les attachements de la route dans son ensemble, comme le fait [examples/policy-data-class-route](../language-reference/examples/policy-data-class-route/)."
+  },
+  "797398c96329fe73": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "84ddf21723d61bc2",
+      "reviewed": false
+    },
+    "srcHash": "797398c96329fe73",
+    "status": "machine",
+    "text": "**Les linters qu’exécute cette portée sont soumis à l’enregistrement des identités de plugins de confiance situé à côté de la Release**, comme un build les y soumet. Avant que l’un d’eux ne s’exécute, `--release` compare les rattachements `plugins.linter` configurés avec l’[enregistrement de confiance des plugins](./aggrega-pull.md#the-plugin-trust-record) : un plugin enregistré que la configuration ne rattache plus — un linter ou une porte — interrompt la passe, et un linter lu depuis le cache dont l’artefact n’est pas celui enregistré est refusé au lieu d’être exécuté. Un linter lu depuis le cache est aussi soumis à sa signature enregistrée, au moment de son chargement : lorsque son entrée enregistre une signature vérifiée, le matériel de signature que ce fait nomme dans le cache est vérifié de nouveau, et la passe s’arrête avec `E0144` s’il est absent ou différent, et avec `E0332` s’il a été créé pour un autre plugin que le linter lu — une `signature` copiée depuis une autre entrée —, quoi que dise l’exigence de signature ; lorsque la configuration de confiance du workspace exige une signature, une entrée n’en enregistrant aucune — ou l’absence d’entrée pour le linter, y compris un enregistrement supprimé — arrête la passe avec `E0331`, avec les mêmes paramètres qui feraient refuser à [`aggrega pull`](./aggrega-pull.md) un linter non signé. Chacun des trois nomme son remède, `aggrega pull --release <release>`, qui vérifie la signature du linter auprès de son registry, l’enregistre et met en cache le bundle qu’elle nomme, en réécrivant une copie en cache qui ne correspond plus à son digest. Un linter servi depuis la copie intégrée au binaire du compilateur n’est jamais soumis à l’exigence. Ce sont des échecs de la passe, pas des constats de convention, ils interrompent donc l’exécution là où un constat ne le ferait pas. Les portées catalogue entier et entité unique ne nomment aucune Release et ne lisent aucun enregistrement, de sorte qu’un linter qu’elles lisent depuis le cache n’est vérifié que par rapport à son manifeste en cache. Avant tout cela, `--release` nomme chaque retrait enregistré sur ce dont dépend la Release, sous la forme d’une ligne `deprecation:` dans les termes qu’affiche `aggrega build` — aussi bien un marqueur que le lockfile enregistre contre une référence épinglée qu’un marqueur que l’enregistrement de confiance enregistre contre un linter ou une porte —, de sorte que la passe le signale même là où un refus décrit ci-dessus l’arrête. Un retrait ne change aucun constat ni aucun code de sortie, et un enregistrement de confiance qui existe et ne peut pas être lu arrête la passe au lieu de passer pour un enregistrement qui n’enregistre rien."
   },
   "7983e2a09e56b4b6": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -24123,6 +24243,13 @@
     "status": "machine",
     "text": "🔴 **Un ajout de type `cli` qui ne nomme ni `global` ni `workspace` enregistre la commande à l’échelle de la machine.** Une extension de commande est un outillage à l’échelle de la machine ; sans substitution, elle est donc écrite dans le fichier de configuration global par lequel se résout chaque workspace de cette machine — et la commande qu’elle enregistre devient alors une commande `aggrega` de premier niveau pour chaque projet de cette machine, y compris des projets que personne dans cette session n’a nommés. Un ajout `provider`, `governance`, `linter` ou `importer` fonctionne à l’inverse : ceux-ci façonnent le build d’un seul projet ; sans substitution, ils vont donc dans le `.aggrega-config.yaml` propre à ce projet. Une suppression suit la même règle pour les mêmes types. Envoyez `workspace: true` pour garder une extension de commande locale, ou `global: true` pour envoyer l’un quelconque des autres dans le fichier partagé ; envoyer les deux est refusé. **Le `scope` de la réponse est dans tous les cas la déclaration qui fait foi, et un client devrait l’afficher avant d’agir sur le résultat.**"
   },
+  "889f5db52efa3f04": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "srcHash": "889f5db52efa3f04",
+    "status": "machine",
+    "text": "Un fichier de lot porte le contenu de chaque marqueur"
+  },
   "88a5b2887585770c": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -25121,6 +25248,13 @@
     "srcHash": "8e7b9120995fe197",
     "status": "machine",
     "text": "Si Aggrega codait en dur une logique propre à un domaine dans ses composants officiels, il cesserait d’être un compilateur sans parti pris et dégénérerait en framework à parti pris. À l’inverse, si la conformité est entièrement laissée au développeur, les tags critiques seront mal orthographiés, oubliés ou contournés."
+  },
+  "8e8e20a65842e6c5": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "srcHash": "8e8e20a65842e6c5",
+    "status": "machine",
+    "text": "La configuration propre d’une connexion est masquée de la même manière. Les `values` par connexion qu’un Aggregate écrit sur une entrée `uses` et l’`infra` par connexion qu’une Release y écrit sont régis par le **socket du composant consommateur** — le `valueSchema` et l’`infraSchema` qu’il déclare, les contrats par rapport auxquels cette configuration est validée — et jamais par les déclarations de la cible. Une feuille que l’un ou l’autre contrat déclare `sensitive: true` est remplacée par le marqueur dans les `values` et l’`infra` de l’arête, ainsi que dans l’entrée `uses` du nœud consommateur, qui porte les valeurs telles que l’auteur les a écrites ; chaque arête liste les feuilles qu’elle masque sous `sensitive_payload_leaves`, le champ qu’un nœud utilise pour les siennes. Une feuille du même nom sur une connexion dont le socket la déclare lisible est émise telle qu’elle est écrite."
   },
   "8e8ef115a3172cc9": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -26545,6 +26679,17 @@
     "status": "machine",
     "text": "Ce qui ne concerne aucune Release en particulier lit toujours la liste du workspace : un lint ou une validation de l’ensemble du catalogue, la recherche d’une entité par son nom, un Aggregate inspecté seul et la liste des entités du workspace dans un éditeur. `AGGREGA_CATALOG_DIRS` définit la liste du workspace et n’atteint aucune entrée ici, et un fichier de configuration appartenant à votre pipeline ne lit pas du tout la table."
   },
+  "96b4d1183eb37846": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "b940f69e5e4a8205",
+      "reviewed": false
+    },
+    "srcHash": "96b4d1183eb37846",
+    "status": "machine",
+    "text": "**`pull` lit depuis un registre et écrit dans le workspace vers lequel il est dirigé.** Il écrit le lockfile de cette Release, remplit le cache d’artefacts avec ce qu’il a résolu, et enregistre à côté du lockfile l’identité de chaque plugin renvoyant un verdict que votre workspace attache. Envoyé avec `pin_sources` — ou dans un workspace dont `pin_sources_at_pull` est activé et pour un appel qui ne l’envoie pas à false — il exécute aussi l’étape de pin de l’auteur de l’entité sur les Recipes et les FeatureRecipes que la Release construit à partir de vos répertoires de catalogue, en écrivant l’`entity.lock` à côté de chacune ; sans cela, un pull sur une telle entité dont le lock n’enregistre aucun pin pour une entrée qu’elle lit est refusé, en nommant l’étape. Les fichiers d’entité eux-mêmes ne sont jamais écrits. Rien de tout cela ne quitte la machine, et résoudre à nouveau est la manière de changer ce qui a été enregistré, c’est donc la plus légère des opérations d’écriture présentées ici. C’est l’un des tools conçus pour la boucle d’authoring qui écrivent dans le workspace : `pin` écrit l’`entity.lock` à côté de la Recipe ou de la FeatureRecipe que vous nommez, comme l’explique [Fixer les entrées propres d’une entité](#pinning-an-entitys-own-inputs) ; `gen-catalog` écrit des entités Plugin générées dans le répertoire que vous nommez ; `edit-document` applique une modification structurée et bornée à un document que vous avez déjà et le réécrit, en préservant chaque octet que la modification ne touche pas, comme l’explique [Appliquer une modification bornée à un document](#applying-one-bounded-edit-to-a-document) ; et `import` transforme une description produite par un autre outil en fichiers d’authoring brouillons et les écrit dans le workspace, comme l’explique [Transformer une description étrangère en entités brouillons](#turning-a-foreign-description-into-draft-entities) ; et `scaffold`, envoyé avec `example`, écrit l’un des exemples exécutables de la documentation dans un répertoire nouveau ou vide, `dir`, comme le fait [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example), ce qu’admet en HTTP la portée d’écriture dans le workspace. Ce répertoire de sortie, le guest que lit `gen-catalog` et tout overlay que vous lui donnez sont chacun relatifs à la racine du workspace, ou absolus sur l’entrée et la sortie standard, selon le même contrat que tout autre argument de chemin sur cette surface. Sur l’entrée et la sortie standard, la même capacité est aussi accessible sous la forme de `cli-pull`, qui exécute la commande ; en HTTP, ce tool n’existe pas."
+  },
   "96bde10631985e2e": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -27458,6 +27603,17 @@
     "status": "machine",
     "text": "**Aggrega: Open settings** — ouvre les préférences de cette extension. C’est aussi la roue dentée en haut à droite du panneau Commands. Elle ouvre la page de paramètres de l’éditeur lui-même filtrée sur cette extension, de sorte qu’il existe un seul endroit où réside une préférence et un seul endroit où elle est écrite. Distincte de **Show config**, qui rapporte ce que le *compilateur* a résolu pour le workspace plutôt que la configuration de votre éditeur."
   },
+  "9b41262b2f11282d": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "0b0535bb74f4a155",
+      "reviewed": false
+    },
+    "srcHash": "9b41262b2f11282d",
+    "status": "machine",
+    "text": "Un fichier YAML situé sous un répertoire de catalogue est un document Aggrega lorsque l’une de ses lignes commence, sans indentation, par `apiVersion:` et une valeur commençant par `aggrega.ai/`, entre guillemets ou non. Un document Aggrega qui ne peut pas être lu, dont le YAML ne s’analyse pas, ou dont le `kind`, le `metadata` ou le `spec` n’a pas la forme que prend l’enveloppe d’une entité — un `metadata` écrit sous forme de liste, par exemple — arrête l’exécution avec [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) une fois les répertoires lus, en nommant chacun de ces fichiers avec la raison donnée par la lecture ou par l’analyseur ; rien n’est linté et aucune ligne `conventions checked` n’est affichée. Un document qui se charge et déclare un `kind` qu’aucun catalogue ne contient — un `Componnent` mal orthographié, par exemple, ou aucun `kind` — arrête la même exécution avec [`E0371`](../errors/fatal-halts.md#a-catalog-document-declares-a-kind-a-catalog-does-not-hold), nommé à côté d’eux avec le type qu’il déclare ; un Manifest, une Release et un Workload qu’une Recipe importe depuis son propre répertoire sont ignorés. Tout autre YAML — les templates d’un chart Helm, qui ne s’analysent qu’une fois rendus, les values d’un chart, les définitions de workflow — est ignoré. `--release` s’arrête de la même manière sur un tel document sous ses répertoires de catalogue."
+  },
   "9b428a7ab92ae158": {
     "at": "2026-10-22T14:38:40.134Z",
     "job": "session-0042-20261022143840",
@@ -27667,6 +27823,17 @@
     "srcHash": "9c0782a871876d55",
     "status": "machine",
     "text": "**Un `.wasm` construit à partir d’un arbre de travail comportant des modifications non commitées est refusé.** Un tel build porte la marque `-dirty` à la fin de la version qu’il déclare — `1.0.0-dirty`, `1.0.0-3-g1a2b3c4-dirty`. C’est une version sémantique valide, mais elle nomme un commit qui ne contient pas ce qui a été construit ; personne ne pourrait donc reconstruire ce qui a été publié à partir de la version sous laquelle il a été publié. Le push le refuse, en nommant la version et la réparation : construisez le plugin à partir d’un checkout propre du commit que nomme le tag de la version publiée, afin qu’il déclare la version publiée elle-même — et, pour publier la modification, commitez-la avec la `metadata.version` de l’entité définie sur la nouvelle version et appliquez d’abord le tag à ce commit — plutôt que de copier dans l’entité la version que déclare une reconstruction. Une version de développement construite à partir d’un commit, telle que `1.0.0-3-g1a2b3c4`, et une préversion telle que `1.0.0-rc.1` sont toutes deux publiées. Le refus est [A plugin was built from a working tree with uncommitted changes (Un plugin a été construit à partir d’un arbre de travail comportant des modifications non commitées)](../errors/fatal-halts.md#a-plugin-was-built-from-a-working-tree-with-uncommitted-changes)."
+  },
+  "9c0d14296377183c": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "1bd07fea599e868b",
+      "reviewed": false
+    },
+    "srcHash": "9c0d14296377183c",
+    "status": "machine",
+    "text": "Message facultatif conservé pour l’audit et pour le diagnostic enregistré au moment du build ; vaut par défaut --reason s’il n’est pas défini. Refusé à côté de --from, dont les entrées portent le leur."
   },
   "9c1c04ba45eab6c6": {
     "at": "2026-10-30T19:42:05.833Z",
@@ -27939,6 +28106,17 @@
     "srcHash": "9d5f5289ae015f20",
     "status": "machine",
     "text": "Les chaînes sous `Aggregate.spec.components[].type` sont étendues en `/component/`."
+  },
+  "9d6be90b03b5a9ae": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "487785ceec91faa6",
+      "reviewed": false
+    },
+    "srcHash": "9d6be90b03b5a9ae",
+    "status": "machine",
+    "text": "Les outils qu’un assistant rencontre en premier sont conçus pour la boucle de rédaction : `list-entities` et `list-releases` pour découvrir ce que contient le workspace, `scaffold` pour un squelette portant les champs qu’exige son type, avec un espace réservé partout où une valeur est due — ou, avec `example`, pour écrire l’un des exemples exécutables de la documentation dans un nouveau répertoire, en répondant avec les fichiers écrits et les commandes pour le construire, et, avec `list: true`, pour lister les exemples — `get-schema` pour le JSON Schema d’une entité, `validate` pour valider un brouillon (il nomme chaque espace réservé que le brouillon porte encore, et ce que chacun accepte), `describe` pour décrire une entité du catalogue — ou une entité lue depuis son registry par référence — `pull` pour résoudre les dépendances d’une Release dans le cache local et écrire son lockfile, `build` pour construire une Release en ses artefacts rendus — en mémoire par défaut, sans aucun artefact écrit sur le disque, ou écrits dans `dist/` à la racine du workspace, là où `aggrega build` les écrit, lorsque vous envoyez `write` (et les dépendances ne sont résolues d’abord que si vous envoyez `auto_pull`), `gen-catalog` pour générer des entités Plugin à partir d’invités Wasm, et `explain-error` pour développer un diagnostic du compilateur en indications exploitables — y compris, lorsque le diagnostic commence par le code court d’une condition d’arrêt, cette condition et le guide publié de la correction à apporter, le même développement que celui que donne [`aggrega explain`](aggrega-explain.md) pour le même code dans un terminal."
   },
   "9d6f661624c9cc28": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -33227,6 +33405,17 @@
     "status": "machine",
     "text": "Les fichiers de chaque étape commencent par un commentaire d’une ligne qui nomme l’étape, et comparer un fichier avec celui de l’étape précédente montre exactement ce que l’étape ajoute :"
   },
+  "ba4432aeadcef1fe": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "6b9100b28c316ad3",
+      "reviewed": false
+    },
+    "srcHash": "ba4432aeadcef1fe",
+    "status": "machine",
+    "text": "Deux sortes de constats qu’affiche un terminal atteignent cette réponse ailleurs que dans `advisories`, parce que chacune a un emplacement qui en dit davantage. Un marqueur de dépréciation enregistré se trouve dans `deprecations`, que le lockfile l’ait enregistré pour une référence épinglée ou que l’[enregistrement de confiance des plugins](aggrega-pull.md#the-plugin-trust-record) situé à côté l’ait enregistré pour un plugin attaché dans un rôle qui renvoie un verdict d’acceptation ou de rejet. `describe` d’une Release nomme le même ensemble dans ses propres `deprecations`, et `validate` d’une Release parmi ses `notices`, chacun laissant le verdict tel quel ; un enregistrement de confiance présent mais illisible fait refuser l’un ou l’autre appel au lieu de passer pour un enregistrement qui ne consigne rien. Un parent dont hérite une entité et qui n’a pas pu être résolu arrête le build, il est donc nommé dans le texte du refus au lieu d’être listé comme un constat qui n’a rien changé. Une sorte est bornée par ce que cet outil charge plutôt que par ce que porte sa réponse : `aggrega build` charge chaque répertoire de catalogue configuré avant de résoudre une Release, et un avis concernant une forme de catalogue dépréciée proviendrait de ce chargement, alors que cet outil ne lit que ce qu’atteint la Release et n’effectue pas un tel chargement, de sorte qu’il ne signale aucun avis de ce genre. Aucun build n’en émet actuellement, donc les deux signalent les mêmes constats."
+  },
   "ba44cfb29b989356": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -35298,6 +35487,17 @@
     "status": "machine",
     "text": "une exécution sur le catalogue entier, lorsqu’il se trouve dans un répertoire de catalogue ; `--release` sur une Release qui le déploie"
   },
+  "c58aae9de4a17d76": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "f8f97d9f108fbb2d",
+      "reviewed": false
+    },
+    "srcHash": "c58aae9de4a17d76",
+    "status": "machine",
+    "text": "**Une différence est signalée et jamais refusée.** Le serveur démarre et répond à chaque appel exactement comme il le ferait avec les deux alignées. Ce qu’une différence signifie pour une installation de bureau, et comment réaligner les deux, se trouve dans [Connecter le serveur MCP](../../ai-assistants/mcp-server.md#claude-desktop)."
+  },
   "c58b1401a9f1bd90": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -36634,6 +36834,13 @@
     "srcHash": "cd3411226a5a9960",
     "status": "machine",
     "text": "**Préambule des locals :** avant l’exécution de tout template `provides`, le compilateur évalue les entrées `.locals` de la Recipe dans l’ordre où elles sont écrites, chacune par rapport à un contexte autonome local au nœud — `.context.instance_id`, `.values`, `.infra` et les entrées du même bloc résolues jusque-là, mais pas `.context.inject` ni `.context.uses`. Une entrée peut donc lire une entrée sœur définie au-dessus d’elle et reçoit la valeur résolue de celle-ci ; l’ordre d’écriture fait partie du contrat dès qu’une entrée en lit une autre, et le bloc n’est jamais réordonné pour qu’une référence se résolve. C’est la résolution préalable des locals qui permet à un template `provides` de lire `.locals`. Le template `.source` de la Recipe est évalué par rapport au même contexte une fois ces locals résolus, ce qui garde `.locals` réutilisable comme raccourci dans tous les templates d’une Recipe et permet aux auteurs de paramétrer `.source` (version du chart, chemin, registre) par frontière."
+  },
+  "cd3c90d5e3ba7ee9": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "srcHash": "cd3c90d5e3ba7ee9",
+    "status": "machine",
+    "text": "**Un build porte chaque avertissement qu’il a émis, dans la réponse elle-même.** Ce sont les constats qu’affiche `aggrega build` pendant qu’il travaille — un nom à une seule modification d’un nom déclaré, un paramètre que rien ne lit, une cible qui ne peut pas respecter un champ écrit par l’auteur, un verdict de gouvernance non bloquant, un répertoire de frontière qu’une Release a hérité de la Release qu’elle étend et qui se résout vers le même chemin, une propriété qu’un Component ou une Feature qu’atteint la Release déclare à la fois dans son pilier `values` et dans son pilier `infra`. Aucun d’eux ne change le résultat : un build qui porte des avertissements a tout de même réussi, et les fichiers qu’il renvoie sont les fichiers qu’il a produits. Ils arrivent dans l’ordre où un terminal les affiche, de sorte qu’un lecteur qui compare les deux trouve une seule séquence et non deux : d’abord tout ce qu’a émis le rendu, dans l’ordre où il l’a émis, puis les constats sur la Release et sur ce qu’elle atteint, qu’affiche `aggrega build` une fois le rendu terminé, et enfin, pour un build envoyé avec `write`, l’avertissement nommant chaque fichier que l’écriture a trouvé à côté des siens et qu’elle n’a pas écrit, et qu’elle laisse en place — celui qu’affiche `aggrega build` une fois ses fichiers écrits ([Fichiers que le build n’a pas écrits](aggrega-build.md#files-the-build-did-not-write))."
   },
   "cd4388473c31107b": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -40844,12 +41051,34 @@
     "status": "machine",
     "text": "Lorsqu’une annotation côté Aggregate ou côté Release correspond à une liaison, le compilateur synthétise un rattachement de Feature dont les charges utiles des piliers routent la valeur de l’annotation vers les chemins nommés. Le rattachement synthétisé est structurellement indiscernable d’un rattachement de Feature explicite déclaré par l’auteur au même site ; le rendu en aval, la validation et le contexte de template de la FeatureRecipe consomment les deux formes de manière uniforme. Pour la forme de la liaison, la partition côté/pilier et la discipline selon laquelle le rattachement explicite l’emporte, voir [entities/manifest.md](manifest.md) §« Liaisons de Feature pilotées par annotations ». Pour la règle de cascade côté Aggregate et un exemple d’écriture, voir [providers/well-known-annotations.md](../providers/well-known-annotations.md) §« Cascade d’annotations côté Aggregate »."
   },
+  "e5abaddf389992de": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "3e04ffb05a6eff63",
+      "reviewed": false
+    },
+    "srcHash": "e5abaddf389992de",
+    "status": "machine",
+    "text": "Pour la boucle de rédaction qu’alimente cette commande — apprendre la forme, créer le squelette, remplir, valider — consultez [Rédiger des fichiers Aggrega](../../authoring/getting-started.md)."
+  },
   "e5b5531bf7786aa2": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
     "srcHash": "e5b5531bf7786aa2",
     "status": "machine",
     "text": "Registry, tag et adressage par contenu"
+  },
+  "e5baf8549baed023": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "eaf5bf84da7c3e25",
+      "reviewed": false
+    },
+    "srcHash": "e5baf8549baed023",
+    "status": "machine",
+    "text": "Fichier de lot (YAML, ou JSON en tant que sous-ensemble) dont la liste de premier niveau attache un marqueur par entrée. Chaque entrée contient reference, severity et reason, ainsi que replacement et message facultatifs. Mutuellement exclusif avec une référence positionnelle et avec --severity, --reason, --replacement et --message."
   },
   "e5d4a2d552ca87f9": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -40892,6 +41121,17 @@
     "srcHash": "e61d6a34bb03acdc",
     "status": "machine",
     "text": "**Ce qui n’est pas nommé ne voyage pas, et c’est un consommateur qui s’en aperçoit.** Un fichier dont l’entité dépend sans le nommer via l’un des champs ci-dessus n’est pas dans la publication, et le build d’un consommateur échoue en nommant le chemin manquant à l’intérieur de son emplacement de cache — pas votre push. Nommez chaque fichier dont l’entité a besoin via l’un de ces champs."
+  },
+  "e63159141a70b757": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "e63159141a70b757",
+    "status": "machine",
+    "text": "**Lorsqu’il recherche un nom, `describe` refuse un répertoire de catalogue à travers lequel il résoudrait le nom et qui ne peut pas être parcouru, comme le refuse [`aggrega inspect`](aggrega-inspect.md)** — les répertoires de cette Release lorsqu’un `release` est envoyé, ceux de l’espace de travail lorsqu’aucun ne l’est, et tous ceux que l’appel nomme dans `catalog_dirs`. Un répertoire nommé par l’appel qui n’existe pas, ou qui existe mais ne peut pas être lu, est refusé avant que le nom ne soit recherché, et le texte nomme le répertoire comme le rapporte la ligne de commande, sur une seule ligne — le répertoire, `catalog load` et la raison donnée par le système de fichiers — au lieu de résoudre le nom à partir des répertoires restants. Un répertoire que la configuration de l’espace de travail liste et qui n’est pas un répertoire est refusé au même moment, le texte portant le refus que lui oppose chaque commande ([D’où sont lues les entités locales](configuration.md#where-local-entities-are-read-from)). Un `release` nommant un fichier qui n’existe pas est refusé avant cela, comme indiqué plus haut. Un répertoire de catalogue contenant un lien qui mène hors du répertoire dans lequel ses lectures doivent rester est refusé de la même façon, le texte nommant le lien et sa destination, car un nom résolu sans lui pourrait se résoudre à sa place vers une autre entité du même nom. La description de la fermeture des dépendances d’une Release n’est pas affectée par un répertoire qui ne peut pas être parcouru, et répond sur les répertoires qui peuvent l’être, comme le fait `aggrega inspect --closure` — sauf un répertoire que la configuration de l’espace de travail liste pour cette Release et qui n’est pas un répertoire, qu’elle refuse comme le refuse `aggrega inspect --closure` ; un lien menant hors des lectures d’un répertoire de catalogue, ou hors des documents situés à côté de la Release, l’interrompt, comme il interrompt un build."
   },
   "e6327a04176499d7": {
     "at": "2026-10-30T04:51:13.962Z",
@@ -41033,6 +41273,17 @@
     "srcHash": "e70f206ddebb445b",
     "status": "machine",
     "text": "Le rendu structurel d’une Feature est lié à sa [FeatureRecipe](featurerecipe.md) correspondante, qui mappe l’interface de la Feature vers une implémentation d’infrastructure concrète."
+  },
+  "e71bd7065ebe72e2": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "38d8f54199d52c52",
+      "reviewed": false
+    },
+    "srcHash": "e71bd7065ebe72e2",
+    "status": "machine",
+    "text": "Les trois niveaux de verbosité s’appliquent comme pour tout type. `--list` affiche uniquement les références, une par ligne, pour les pipes. Le niveau par défaut ajoute les identités résolues, la version en laquelle chaque référence s’est résolue, les documents partagés utilisés, tout mappage du Manifest dont la cible n’implémente pas le type vers lequel elle est mappée, et tout avis de dépréciation ou de retrait enregistré sur ce dont dépend la Release — dans son lockfile, contre une référence épinglée, et dans l’enregistrement de confiance des plugins situé à côté d’elle, contre un plugin rattaché dans un rôle qui renvoie un verdict d’acceptation ou de rejet — dans les termes qu’affiche `aggrega build` pour le même marqueur. `--detail` ajoute le type de chaque référence lorsque l’emplacement de la référence en a enregistré un — certaines positions d’un document disent vers quel type elles pointent et d’autres non, il est donc signalé là où il est connu au lieu d’être deviné d’après la forme du nom."
   },
   "e72be50c872cfb63": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -43530,6 +43781,17 @@
     "status": "machine",
     "text": "oui — à n’importe quelle portée, sous n’importe quel nom"
   },
+  "f5304f4582722748": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "d050b7bdac0ae917",
+      "reviewed": false
+    },
+    "srcHash": "f5304f4582722748",
+    "status": "machine",
+    "text": "Référence facultative de l’artefact qui remplace celui qui est déprécié. Refusée à côté de --from, dont les entrées portent la leur."
+  },
   "f5387f9bb6ed7031": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -44492,6 +44754,17 @@
     "status": "machine",
     "text": "Le compilateur Aggrega utilise l’**inférence sensible au contexte** lorsqu’il résout les URI OCI dans les Manifests. Si un ingénieur omet le nom de domaine complet (Fully Qualified Domain Name, FQDN) et le type d’entité architecturale, le compilateur se rabat automatiquement sur le registre par défaut (configuré dans `.aggrega-config.yaml`) et déduit le type d’entité d’après l’emplacement de la chaîne dans le schéma."
   },
+  "fa5dbd2f7fe06215": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "025c87a76fb33e57",
+      "reviewed": false
+    },
+    "srcHash": "fa5dbd2f7fe06215",
+    "status": "machine",
+    "text": "Sévérité de la dépréciation : l’une de warning, error, retracted. Obligatoire avec une référence positionnelle sauf si une invite interactive la fournit ; refusée à côté de --from, dont les entrées portent la leur."
+  },
   "fa67e0f20d81f74e": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -44774,6 +45047,13 @@
     "status": "machine",
     "text": "Épingler les entrées propres à une entité"
   },
+  "fbe1d726bfe1f55c": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "srcHash": "fbe1d726bfe1f55c",
+    "status": "machine",
+    "text": "Avec `--from`, la sévérité, la raison, le remplacement et le message de chaque marqueur proviennent de sa propre entrée dans le fichier de lot. Un `--severity`, `--reason`, `--replacement` ou `--message` passé à côté de `--from` est donc refusé plutôt qu’ignoré : la commande nomme chacun de ceux qui ont été passés et s’arrête avant que le fichier de lot ne soit lu, de sorte qu’aucun marqueur n’est attaché. Placez le contenu dans les entrées du fichier, ou dépréciez une seule référence avec ses flags de contenu."
+  },
   "fbe6c3cbae280670": {
     "at": "2026-10-17T19:16:13.188Z",
     "job": "b69211be1104",
@@ -44854,6 +45134,17 @@
     "srcHash": "fc42fac34e364473",
     "status": "machine",
     "text": "**`outcome` indique ce qu’il est advenu de l’appel, et les valeurs sont distinctes pour que vous puissiez les compter séparément.** `ok` s’est exécuté et a réussi. `tool-failure` s’est exécuté et est revenu signalé comme un échec que l’appelant peut corriger — un appel que ce serveur a servi et non un appel qu’il a refusé, il n’a donc pas sa place parmi vos refus. `error` est un refus renvoyé sous forme d’enveloppe d’erreur du protocole. `unauthenticated`, `forbidden` et `rate-capped` sont les informations d’identification, la limite d’origine ou de scope, et le plafond de débit par appelant qui rejettent une requête. `cancelled` est un appelant qui a fermé sa connexion avant d’obtenir une réponse."
+  },
+  "fc433a66f9850a40": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "bd1f324b921601f3",
+      "reviewed": false
+    },
+    "srcHash": "fc433a66f9850a40",
+    "status": "machine",
+    "text": "**`validate` avec un `entity` et un `release`** exécute les vérifications d’entité unique dans les termes de cette Release : les références de l’entité — le Component qu’implémente une Recipe, une SchemaLibrary à laquelle se réfère un pilier — se résolvent à travers les répertoires de catalogue de cette Release, et la réponse nomme la Release à côté de l’entité. Aucune fermeture n’est validée ; un `release` envoyé sans `entity` reste la portée de la Release. `catalog_dirs` est placé ici devant les répertoires de la Release, comme partout ailleurs. Un répertoire que la configuration de l’espace de travail liste et qui n’est pas un répertoire — rien n’existe à cet endroit, par exemple —, pour cette Release, ou pour l’espace de travail lorsqu’aucun `release` n’est envoyé, fait refuser l’appel avant toute vérification, son texte portant le refus que lui oppose chaque commande et nommant l’entrée ainsi que le fichier de configuration et la ligne qui la listent ([D’où sont lues les entités locales](configuration.md#where-local-entities-are-read-from)), comme le refuse [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms)."
   },
   "fc473a0e3915f03e": {
     "at": "2026-10-23T02:15:21.677Z",
@@ -45312,6 +45603,17 @@
     "srcHash": "fef549c964a7acec",
     "status": "machine",
     "text": "**Portée :** définis à la racine de l’`Aggregate` ; fournis par la `Release` (CI/CD) en ligne sous `parameters:` ou via `parameters: { $import: <path> }` pointant vers un fichier de paramètres externe."
+  },
+  "fef87ea417c50e10": {
+    "at": "2026-11-02T19:15:07.814Z",
+    "job": "session-0005-20261102191507",
+    "revision": {
+      "from": "cb8db606ed9bdcf3",
+      "reviewed": false
+    },
+    "srcHash": "fef87ea417c50e10",
+    "status": "machine",
+    "text": "`aggrega mcp --transport http` sert le protocole en HTTP plutôt que sur l’entrée et la sortie standard. `mcp.transport` dans la configuration du workspace est la clé que ce flag remplace, et sa valeur par défaut, `stdio`, est ce qu’attend un client qui lance la commande — ainsi un serveur que d’autres personnes atteignent porte `transport: http` dans sa configuration, et un client lancé depuis un répertoire que couvre cette configuration atteint tout de même le serveur sur ses propres flux. C’est le même serveur dans les deux cas — le même workspace et les mêmes surfaces de protocole — et ce qui change, c’est la manière dont un message l’atteint, la manière dont un appel se termine et ce que doit détenir la personne qui l’exploite. Cette section décrit ce qu’un opérateur configure ; l’entrée dont un client a besoin pour atteindre un serveur en cours d’exécution se trouve dans [Connecter le serveur MCP](../../ai-assistants/mcp-server.md#a-server-reached-over-https)."
   },
   "fefb55a194d78f5a": {
     "at": "2026-11-02T19:03:23.148Z",

@@ -131061,6 +131061,17 @@
     "status": "machine",
     "text": "**Locals 前导：** 在任何 `provides` 模板运行之前，编译器按书写顺序对 Recipe 的 `.locals` 条目求值，每个条目都基于一个自包含的节点本地上下文——`.context.instance_id`、`.values`、`.infra` 以及同一块中迄今已解析的条目，但不包括 `.context.inject` 或 `.context.uses`。因此，一个条目可以读取定义在其上方的同级条目，并获得该同级条目的已解析值；凡是一个条目读取另一个条目之处，作者书写的顺序都是契约的一部分，且绝不会为了让引用得以解析而对该块重新排序。先解析 locals，正是 `provides` 模板能够读取 `.locals` 的原因。在这些 locals 解析完成后，Recipe 的 `.source` 模板基于同一上下文求值，这使 `.locals` 可以作为 Recipe 各模板之间的简写复用，并让作者能够按边界对 `.source`（chart 版本、路径、仓库）进行参数化。"
   },
+  "cd3c90d5e3ba7ee9": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "3e732a2e41d0e366",
+      "reviewed": false
+    },
+    "srcHash": "cd3c90d5e3ba7ee9",
+    "status": "machine",
+    "text": "**构建在答复本身中携带它产生的每一条提示。** 这些就是 `aggrega build` 在工作时打印的发现：与某个已声明名称只差一处编辑的名称、没有任何地方读取的参数、无法支持某个已编写字段的目标、不致中止的治理裁定、Release 从其所扩展的 Release 继承且解析到同一路径的边界目录、Release 所触及的某个 Component 或 Feature 在其 `values` 和 `infra` 两个支柱中都声明的属性。它们都不会改变结果：携带提示的构建依然成功，它返回的文件就是它生成的文件。它们按终端打印的顺序到达，因此对比两者的读者看到的是同一个序列而不是两个：首先是渲染产生的所有内容，按其产生的顺序；然后是关于该 Release 及其所触及内容的发现，`aggrega build` 在渲染返回后打印它们；最后，对于发送了 `write` 的构建，是一条警告，指明写入时在其自身文件旁发现、但并非由它写入的每个文件，并将这些文件留在原处——即 `aggrega build` 在写完其文件后打印的那条警告（[构建未写入的文件](aggrega-build.md#files-the-build-did-not-write)）。"
+  },
   "cd3f9357c9a3b75e": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -147415,6 +147426,17 @@
     "status": "machine",
     "text": "可以在此连接上填充该 slot 的每个 Feature：其声明的适用范围被图节点的标签所满足（该节点携带的每个附件都受此约束），且其自身标签满足该 slot 的选择器。若某个 Feature 的适用范围或标签无法按选择器解读，则不会被提供，因为构建会拒绝而不是接受它。"
   },
+  "e63159141a70b757": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "e63159141a70b757",
+    "status": "machine",
+    "text": "**`describe` 查找名称时，会拒绝其解析名称所需经过但无法遍历的目录目录，与 [`aggrega inspect`](aggrega-inspect.md) 的拒绝方式相同**——发送 `release` 时为该 Release 的目录，未发送时为工作区自身的目录，以及调用在 `catalog_dirs` 中指定的任何目录。调用指定的目录若不存在，或存在但无法读取，会在查找名称之前被拒绝，文本以命令行报告的方式在一行中指明该目录——目录、`catalog load` 以及文件系统给出的原因——而不是从其余目录中解析名称。工作区配置中列出但并非目录的条目会在同一时刻被拒绝，其文本携带所有命令对它给出的拒绝（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）。如上所述，指向不存在文件的 `release` 会在此之前被拒绝。目录目录中若有链接指向其读取必须限定的目录之外，也会以同样方式被拒绝，文本指明该链接及其指向，因为不经过它解析的名称可能会解析到另一个同名实体。描述 Release 的依赖闭包不受无法遍历的目录影响，而是基于可遍历的目录作答，与 `aggrega inspect --closure` 相同——但工作区配置为该 Release 列出却并非目录的条目除外，它会像 `aggrega inspect --closure` 那样拒绝该条目；指向目录目录读取范围之外、或指向 Release 旁文档之外的链接会使其中止，就像会使构建中止一样。"
+  },
   "e6327a04176499d7": {
     "at": "2026-10-29T17:54:09.612Z",
     "job": "session-0007-20261029175409",
@@ -161662,6 +161684,17 @@
     "srcHash": "fc42fac34e364473",
     "status": "machine",
     "text": "**`outcome` 说明调用的结果，各取值互不相同，便于你分别计数。** `ok` 表示已运行并成功。`tool-failure` 表示已运行，但返回时被标记为调用方可以纠正的失败——这是服务器已处理而非拒绝的调用，因此不应计入你的拒绝数。`error` 是以协议错误信封返回的拒绝。`unauthenticated`、`forbidden` 和 `rate-capped` 分别表示凭据、来源或作用域限制、以及按调用方的速率上限拒绝了请求。`cancelled` 表示调用方在得到应答之前关闭了连接。"
+  },
+  "fc433a66f9850a40": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "bd1f324b921601f3",
+      "reviewed": false
+    },
+    "srcHash": "fc433a66f9850a40",
+    "status": "machine",
+    "text": "**带 `entity` 和 `release` 的 `validate`** 按该 Release 的视角运行单实体检查：实体的引用——Recipe 所实现的 Component、某个支柱所引用的 SchemaLibrary——通过该 Release 的目录目录解析，且答复在实体旁注明该 Release。不会验证闭包；不带 `entity` 发送的 `release` 仍然是 Release 范围。与其他所有地方一样，此处 `catalog_dirs` 会被前置到该 Release 的目录之前。工作区配置中列出但并非目录的条目——例如该处什么都不存在——无论针对该 Release，还是在未发送 `release` 时针对工作区，都会在检查任何内容之前使调用被拒绝，其文本携带所有命令对它给出的拒绝，指明该条目以及列出它的配置文件和行（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)），与 [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) 的拒绝方式相同。"
   },
   "fc473a0e3915f03e": {
     "at": "2026-10-22T02:18:58.122887+00:00",

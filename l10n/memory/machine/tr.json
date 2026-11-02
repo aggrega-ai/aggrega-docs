@@ -131032,6 +131032,17 @@
     "status": "machine",
     "text": "**Locals ön bölümü:** Herhangi bir `provides` şablonu çalışmadan önce derleyici, Recipe'nin `.locals` girdilerini yazıldıkları sırayla, her birini kendi içinde bütünlüklü, düğüme yerel bir bağlama karşı değerlendirir — `.context.instance_id`, `.values`, `.infra` ve aynı bloğun o ana kadar çözümlenmiş girdileri; ancak `.context.inject` veya `.context.uses` değil. Bu nedenle bir girdi, üstünde tanımlanmış bir kardeşi okuyabilir ve o kardeşin çözümlenmiş değerini alır; bir girdinin diğerini okuduğu her yerde yazım sırası sözleşmenin parçasıdır ve bir başvurunun çözümlenmesi için blok hiçbir zaman yeniden sıralanmaz. Önce locals'ın çözümlenmesi, bir `provides` şablonunun `.locals` okuyabilmesini sağlar. Recipe'nin `.source` şablonu, bu locals çözümlendikten sonra aynı bağlama karşı değerlendirilir; bu da `.locals` alanını bir Recipe'nin şablonları boyunca kısaltma olarak yeniden kullanılabilir tutar ve yazarların `.source` alanını (chart sürümü, yol, kayıt defteri) sınır başına parametrelendirmesine olanak tanır."
   },
+  "cd3c90d5e3ba7ee9": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "3e732a2e41d0e366",
+      "reviewed": false
+    },
+    "srcHash": "cd3c90d5e3ba7ee9",
+    "status": "machine",
+    "text": "**Bir derleme, ortaya çıkardığı her uyarıyı yanıtın kendisinde taşır.** Bunlar `aggrega build`'in çalışırken yazdırdığı bulgulardır: bildirilmiş bir addan tek düzenleme uzaklıktaki bir ad, hiçbir şeyin okumadığı bir parametre, yazılmış bir alanı karşılayamayan bir hedef, durdurmayan bir yönetişim kararı, bir Release'in genişlettiği Release'ten devraldığı ve aynı yola çözümlenen bir sınır dizini, Release'in ulaştığı bir Component'in veya Feature'ın hem `values` hem de `infra` sütunlarında bildirdiği bir özellik. Bunların hiçbiri sonucu değiştirmez: uyarı taşıyan bir derleme yine de başarılı olmuştur ve döndürdüğü dosyalar ürettiği dosyalardır. Uyarılar bir terminalin onları yazdırdığı sırayla gelir; böylece ikisini karşılaştıran bir okuyucu iki değil tek bir dizi bulur: önce render işleminin ortaya çıkardığı her şey, ortaya çıkardığı sırayla, ardından da `aggrega build`'in render işlemi döndükten sonra yazdırdığı, Release ve ulaştıklarıyla ilgili bulgular ve son olarak, `write` gönderilmiş bir derlemede, yazma işleminin kendi dosyalarının yanında bulduğu ve kendisinin yazmadığı her dosyayı adlandıran, bu dosyaları yerinde bırakan uyarı — `aggrega build`'in dosyalarını yazdıktan sonra yazdırdığı uyarı ([Derlemenin yazmadığı dosyalar](aggrega-build.md#files-the-build-did-not-write))."
+  },
   "cd3f9357c9a3b75e": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -147390,6 +147401,17 @@
     "status": "machine",
     "text": "Bu bağlantıda yuvayı doldurabilecek her Feature: bildirilmiş uygulanabilirliği graf düğümünün etiketlerince karşılanan (düğümün taşıdığı her eklenti buna tabidir) ve kendi etiketleri yuvanın seçicisini karşılayan Feature. Uygulanabilirliği ya da etiketleri seçiciye karşı okunamayan bir Feature önerilmez, çünkü bir derleme onu kabul etmek yerine reddeder."
   },
+  "e63159141a70b757": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "e63159141a70b757",
+    "status": "machine",
+    "text": "**Bir adı arayan `describe`, adı üzerinden çözümleyeceği ve dolaşılamayan bir katalog dizinini, [`aggrega inspect`](aggrega-inspect.md)'in reddettiği gibi reddeder** — bir `release` gönderildiğinde o Release'in dizinleri, gönderilmediğinde çalışma alanının kendi dizinleri ve çağrının `catalog_dirs` içinde adlandırdığı her dizin. Çağrının adlandırdığı, var olmayan ya da var olup okunamayan bir dizin, ad aranmadan önce reddedilir ve metin, adı kalan dizinlerden çözümlemek yerine dizini komut satırının bildirdiği gibi tek satırda adlandırır — dizin, `catalog load` ve dosya sisteminin verdiği neden. Çalışma alanı yapılandırmasının listelediği ama aslında dizin olmayan bir dizin aynı anda reddedilir; metni, her komutun ona verdiği reddi taşır ([Yerel varlıkların nereden okunduğu](configuration.md#where-local-entities-are-read-from)). Var olmayan bir dosyayı adlandıran bir `release`, yukarıda belirtildiği gibi bundan önce reddedilir. Okumalarının içinde kalması gereken dizinin dışına çıkan bir bağlantı içeren katalog dizini de aynı şekilde reddedilir ve metin bağlantıyı ve nereye çıktığını adlandırır; çünkü o olmadan çözümlenen bir ad, yerine aynı adlı başka bir varlığa çözümlenebilirdi. Bir Release'in bağımlılık kapanışını betimlemek, dolaşılamayan bir dizinden etkilenmez ve `aggrega inspect --closure`'ın yaptığı gibi dolaşılabilen dizinler üzerinden yanıt verir — çalışma alanı yapılandırmasının o Release için listelediği ama aslında dizin olmayan bir dizin hariç; onu, `aggrega inspect --closure`'ın reddettiği gibi reddeder; bir katalog dizininin okumalarının ya da Release'in yanındaki belgelerin dışına çıkan bir bağlantı ise, bir derlemeyi durdurduğu gibi onu da durdurur."
+  },
   "e6327a04176499d7": {
     "at": "2026-10-29T17:54:09.612Z",
     "job": "session-0007-20261029175409",
@@ -161633,6 +161655,17 @@
     "srcHash": "fc42fac34e364473",
     "status": "machine",
     "text": "**`outcome` çağrının ne olduğunu söyler ve değerler, onları ayrı ayrı sayabilmeniz için birbirinden farklıdır.** `ok` çalışmış ve başarılı olmuştur. `tool-failure` çalışmış ve çağıranın düzeltebileceği bir hata olarak işaretlenmiş şekilde dönmüştür — bu sunucunun reddettiği değil, hizmet verdiği bir çağrıdır, bu yüzden retleriniz arasına girmez. `error`, bir protokol hata zarfı olarak geri taşınan bir rettir. `unauthenticated`, `forbidden` ve `rate-capped` sırasıyla kimlik bilgisinin, köken ya da kapsam sınırının ve çağıran başına hız sınırının bir isteği geri çevirmesidir. `cancelled`, yanıtlanmadan önce bağlantısını kapatan bir çağırandır."
+  },
+  "fc433a66f9850a40": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "bd1f324b921601f3",
+      "reviewed": false
+    },
+    "srcHash": "fc433a66f9850a40",
+    "status": "machine",
+    "text": "**Bir `entity` ve bir `release` ile `validate`**, tek varlık denetimlerini o Release'in terimleriyle çalıştırır: varlığın başvuruları — bir Recipe'nin uyguladığı Component, bir sütunun başvurduğu SchemaLibrary — o Release'in katalog dizinleri üzerinden çözümlenir ve yanıt, varlığın yanında Release'i de adlandırır. Hiçbir kapanış doğrulanmaz; `entity` olmadan gönderilen bir `release` yine Release kapsamıdır. `catalog_dirs`, her yerde olduğu gibi burada da Release'in dizinlerinin önüne eklenir. Çalışma alanı yapılandırmasının listelediği ama aslında dizin olmayan bir dizin — örneğin orada hiçbir şey bulunmuyorsa —, o Release için ya da `release` gönderilmediğinde çalışma alanı için, herhangi bir şey denetlenmeden önce çağrının reddedilmesine yol açar; metni, her komutun ona verdiği reddi taşır ve girdiyi, onu listeleyen yapılandırma dosyasını ve satırı adlandırır ([Yerel varlıkların nereden okunduğu](configuration.md#where-local-entities-are-read-from)); bu, [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms)'in onu reddetmesiyle aynıdır."
   },
   "fc473a0e3915f03e": {
     "at": "2026-10-22T09:44:21.400057+00:00",

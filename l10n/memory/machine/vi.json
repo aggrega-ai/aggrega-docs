@@ -131032,6 +131032,17 @@
     "status": "machine",
     "text": "**Phần mở đầu locals:** Trước khi bất kỳ template `provides` nào chạy, trình biên dịch đánh giá các mục `.locals` của Recipe theo thứ tự chúng được viết, mỗi mục với một ngữ cảnh cục bộ nút khép kín — `.context.instance_id`, `.values`, `.infra`, và các mục của cùng khối đã được phân giải cho đến lúc đó, nhưng không có `.context.inject` hay `.context.uses`. Do đó một mục có thể đọc một mục anh em được định nghĩa phía trên nó và nhận giá trị đã phân giải của mục đó; thứ tự của tác giả là một phần của hợp đồng ở bất cứ đâu một mục đọc mục khác, và khối này không bao giờ được sắp xếp lại để làm một tham chiếu phân giải được. Việc phân giải locals trước là điều cho phép một template `provides` đọc `.locals`. Template `.source` của Recipe được đánh giá với cùng ngữ cảnh đó sau khi các locals đã được phân giải, điều này giữ cho `.locals` có thể tái sử dụng như dạng viết tắt trên các template của một Recipe và cho phép tác giả tham số hóa `.source` (phiên bản chart, đường dẫn, registry) theo từng ranh giới."
   },
+  "cd3c90d5e3ba7ee9": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "3e732a2e41d0e366",
+      "reviewed": false
+    },
+    "srcHash": "cd3c90d5e3ba7ee9",
+    "status": "machine",
+    "text": "**Một bản build mang theo mọi cảnh báo mà nó đã phát ra, ngay trên câu trả lời.** Đây là những phát hiện mà `aggrega build` in ra trong khi chạy — một tên chỉ cách một tên đã khai báo một lần chỉnh sửa, một tham số không có gì đọc, một target không thể đáp ứng một trường đã viết, một phán quyết quản trị không gây dừng, một thư mục ranh giới mà một Release kế thừa từ Release nó mở rộng và phân giải về cùng một đường dẫn, một thuộc tính mà một Component hoặc Feature mà Release chạm tới khai báo trong cả hai trụ `values` và `infra`. Không cái nào trong số đó thay đổi kết quả: một bản build mang cảnh báo vẫn thành công, và các tệp nó trả về là các tệp nó đã tạo ra. Chúng đến theo thứ tự mà terminal in ra, nên người đọc so sánh hai bên sẽ thấy một chuỗi chứ không phải hai: đầu tiên là mọi thứ mà quá trình render phát ra, theo thứ tự nó phát ra, rồi đến các phát hiện về Release và những gì nó chạm tới, điều mà `aggrega build` in ra khi quá trình render đã trả về, và cuối cùng, với một bản build được gửi `write`, là cảnh báo nêu tên từng tệp mà việc ghi tìm thấy bên cạnh các tệp của chính nó nhưng không do nó ghi, những tệp mà nó để nguyên tại chỗ — chính cảnh báo mà `aggrega build` in ra sau khi đã ghi xong các tệp của mình ([Các tệp mà bản build không ghi](aggrega-build.md#files-the-build-did-not-write))."
+  },
   "cd3f9357c9a3b75e": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -147390,6 +147401,17 @@
     "status": "machine",
     "text": "Mỗi Feature có thể lấp đầy slot trên kết nối này: một Feature có khả năng áp dụng đã khai báo được các nhãn của nút đồ thị thỏa mãn, điều mà mọi attachment nút mang đều phải tuân theo, và có các nhãn riêng thỏa mãn bộ chọn của slot. Một Feature có khả năng áp dụng hoặc nhãn không thể đọc được theo bộ chọn sẽ không được đề xuất, vì một bản build sẽ từ chối thay vì chấp nhận nó."
   },
+  "e63159141a70b757": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "e63159141a70b757",
+    "status": "machine",
+    "text": "**`describe` khi tra cứu một tên sẽ từ chối một thư mục catalog mà nó sẽ phân giải tên qua đó nhưng không thể duyệt được, như [`aggrega inspect`](aggrega-inspect.md) từ chối nó** — các thư mục của Release đó khi gửi một `release`, các thư mục riêng của workspace khi không gửi, và mọi thư mục mà lời gọi nêu trong `catalog_dirs`. Một thư mục mà lời gọi nêu nhưng không tồn tại, hoặc có tồn tại nhưng không đọc được, bị từ chối trước khi tên được tra cứu, và văn bản nêu thư mục như dòng lệnh báo cáo nó, trên một dòng — thư mục, `catalog load`, và lý do mà hệ thống tệp đưa ra — thay vì phân giải tên từ các thư mục còn lại. Một thư mục mà cấu hình workspace liệt kê nhưng không phải là thư mục bị từ chối ngay tại thời điểm đó, văn bản mang theo lời từ chối mà mọi lệnh đưa ra cho nó ([Nơi các thực thể cục bộ được đọc](configuration.md#where-local-entities-are-read-from)). Một `release` nêu một tệp không tồn tại bị từ chối trước cả điều đó, như đã nói ở trên. Một thư mục catalog chứa một liên kết dẫn ra ngoài thư mục mà các lần đọc của nó phải ở bên trong cũng bị từ chối theo cách tương tự, văn bản nêu liên kết và nơi nó dẫn tới, vì một tên được phân giải mà không có nó có thể phân giải thành một thực thể khác cùng tên thay thế. Việc mô tả dependency closure của một Release không bị ảnh hưởng bởi một thư mục không duyệt được, và trả lời dựa trên các thư mục duyệt được, như `aggrega inspect --closure` làm — ngoại trừ một thư mục mà cấu hình workspace liệt kê cho Release đó nhưng không phải là thư mục, thứ mà nó từ chối như `aggrega inspect --closure` từ chối; một liên kết dẫn ra ngoài phạm vi đọc của một thư mục catalog, hoặc ra ngoài các tài liệu bên cạnh Release, sẽ làm nó dừng lại, như nó làm một build dừng lại."
+  },
   "e6327a04176499d7": {
     "at": "2026-10-29T17:54:09.612Z",
     "job": "session-0007-20261029175409",
@@ -161633,6 +161655,17 @@
     "srcHash": "fc42fac34e364473",
     "status": "machine",
     "text": "**`outcome` cho biết lời gọi đã kết thúc ra sao, và các giá trị đều khác nhau để bạn có thể đếm riêng từng loại.** `ok` đã chạy và thành công. `tool-failure` đã chạy và trả về được đánh dấu là một lỗi mà bên gọi có thể sửa — một lời gọi máy chủ này đã phục vụ chứ không phải đã từ chối, nên nó không thuộc về các lần từ chối của bạn. `error` là một lần từ chối được trả về dưới dạng phong bì lỗi giao thức. `unauthenticated`, `forbidden` và `rate-capped` là thông tin xác thực, giới hạn về nguồn gốc hoặc phạm vi, và giới hạn tần suất theo từng bên gọi từ chối một yêu cầu. `cancelled` là một bên gọi đã đóng kết nối trước khi được trả lời."
+  },
+  "fc433a66f9850a40": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "bd1f324b921601f3",
+      "reviewed": false
+    },
+    "srcHash": "fc433a66f9850a40",
+    "status": "machine",
+    "text": "**`validate` với một `entity` và một `release`** chạy các kiểm tra trên một thực thể theo các điều kiện của Release đó: các tham chiếu của thực thể — Component mà một Recipe hiện thực, một SchemaLibrary mà một pillar tham chiếu — được phân giải qua các thư mục catalog của Release đó, và câu trả lời nêu Release bên cạnh thực thể. Không có closure nào được kiểm tra; một `release` được gửi mà không có `entity` vẫn là phạm vi Release. `catalog_dirs` được thêm vào trước các thư mục của Release ở đây cũng như ở mọi nơi. Một thư mục mà cấu hình workspace liệt kê nhưng không phải là thư mục — chẳng hạn không có gì tồn tại ở đó — đối với Release đó, hoặc đối với workspace khi không gửi `release`, sẽ khiến lời gọi bị từ chối trước khi bất cứ thứ gì được kiểm tra, văn bản mang theo lời từ chối mà mọi lệnh đưa ra cho nó, nêu mục đó cùng tệp cấu hình và dòng liệt kê nó ([Nơi các thực thể cục bộ được đọc](configuration.md#where-local-entities-are-read-from)), như [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) từ chối nó."
   },
   "fc473a0e3915f03e": {
     "at": "2026-10-22T10:44:41.513626+00:00",

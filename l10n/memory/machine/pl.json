@@ -131032,6 +131032,17 @@
     "status": "machine",
     "text": "**Preambuła locals:** Zanim zostanie uruchomiony jakikolwiek szablon `provides`, kompilator ewaluuje wpisy `.locals` encji Recipe w kolejności, w jakiej zostały zapisane, każdy względem samodzielnego kontekstu lokalnego dla węzła — `.context.instance_id`, `.values`, `.infra` oraz wpisów tego samego bloku rozwiązanych do tej pory, ale nie `.context.inject` ani `.context.uses`. Wpis może zatem odczytać sąsiedni wpis zdefiniowany nad nim i otrzymuje jego rozwiązaną wartość; kolejność autorska jest częścią kontraktu wszędzie tam, gdzie jeden wpis odczytuje inny, a blok nigdy nie jest przestawiany, aby odwołanie dało się rozwiązać. To wcześniejsze rozwiązanie locals pozwala szablonowi `provides` odczytać `.locals`. Szablon `.source` encji Recipe jest ewaluowany względem tego samego kontekstu po rozwiązaniu tych locals, co zachowuje `.locals` jako skrót wielokrotnego użytku we wszystkich szablonach encji Recipe i pozwala autorom parametryzować `.source` (wersję chartu, ścieżkę, rejestr) dla każdej granicy."
   },
+  "cd3c90d5e3ba7ee9": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "3e732a2e41d0e366",
+      "reviewed": false
+    },
+    "srcHash": "cd3c90d5e3ba7ee9",
+    "status": "machine",
+    "text": "**Build przenosi każde zgłoszone przez siebie ostrzeżenie w samej odpowiedzi.** Są to ustalenia, które `aggrega build` wypisuje w trakcie pracy: nazwa różniąca się o jedną edycję od zadeklarowanej, parametr, którego nic nie odczytuje, cel, który nie może uwzględnić napisanego pola, niezatrzymujący werdykt nadzoru, katalog graniczny odziedziczony przez encję Release po rozszerzanej encji Release, który rozwiązuje się do tej samej ścieżki, właściwość, którą encja Component lub Feature osiągana przez Release deklaruje zarówno w filarze `values`, jak i `infra`. Żadne z nich nie zmienia wyniku: build zawierający ostrzeżenia nadal się powiódł, a zwracane pliki są plikami, które wytworzył. Przychodzą w kolejności, w jakiej wypisuje je terminal, więc czytelnik porównujący oba źródła widzi jedną sekwencję, a nie dwie: najpierw wszystko, co zgłosił render, w kolejności zgłoszenia, potem ustalenia dotyczące encji Release i tego, co ona osiąga, które `aggrega build` wypisuje po zakończeniu renderu, a na końcu, w buildzie wysłanym z `write`, ostrzeżenie wskazujące każdy plik, który zapis znalazł obok własnych, a którego sam nie zapisał, i który pozostawia na miejscu — to samo, które `aggrega build` wypisuje po zapisaniu swoich plików ([Pliki, których kompilacja nie zapisała](aggrega-build.md#files-the-build-did-not-write))."
+  },
   "cd3f9357c9a3b75e": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -147390,6 +147401,17 @@
     "status": "machine",
     "text": "Każda encja Feature, która może wypełnić slot w tym połączeniu: taka, której zadeklarowaną stosowalność spełniają etykiety węzła grafu, z czym rozliczane jest każde dołączenie węzła, i której własne etykiety spełniają selektor slotu. Encja Feature, której stosowalności lub etykiet nie da się odczytać względem selektora, nie jest proponowana, ponieważ kompilacja raczej ją odrzuci, niż dopuści."
   },
+  "e63159141a70b757": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "e63159141a70b757",
+    "status": "machine",
+    "text": "**`describe` wyszukujący nazwę odrzuca katalog katalogowy, przez który rozwiązywałby nazwę, a którego nie można przejść, tak jak odrzuca go [`aggrega inspect`](aggrega-inspect.md)** — katalogi tej encji Release, gdy wysłano `release`, katalogi samej przestrzeni roboczej, gdy go nie wysłano, oraz wszystkie wskazane przez wywołanie w `catalog_dirs`. Katalog wskazany przez wywołanie, który nie istnieje albo istnieje, lecz nie da się go odczytać, jest odrzucany przed wyszukaniem nazwy, a tekst wskazuje katalog tak, jak zgłasza go wiersz poleceń, w jednym wierszu — katalog, `catalog load` i przyczynę podaną przez system plików — zamiast rozwiązywać nazwę z pozostałych katalogów. Katalog wymieniony w konfiguracji przestrzeni roboczej, który nie jest katalogiem, jest odrzucany w tym samym momencie, a tekst zawiera odmowę, jaką daje mu każde polecenie ([Skąd odczytywane są encje lokalne](configuration.md#where-local-entities-are-read-from)). `release` wskazujący nieistniejący plik jest odrzucany wcześniej, jak opisano powyżej. Katalog katalogowy zawierający dowiązanie prowadzące poza katalog, w którym muszą pozostać jego odczyty, jest odrzucany w ten sam sposób, a tekst wskazuje dowiązanie i miejsce, do którego prowadzi, ponieważ nazwa rozwiązana bez niego mogłaby w jego miejsce rozwiązać się do innej encji o tej samej nazwie. Na opis domknięcia zależności encji Release katalog, którego nie można przejść, nie ma wpływu — odpowiedź opiera się na katalogach, które da się przejść, tak jak robi to `aggrega inspect --closure` — z wyjątkiem katalogu wymienionego w konfiguracji przestrzeni roboczej dla tej encji Release, który nie jest katalogiem, a który opis odrzuca, tak jak odrzuca go `aggrega inspect --closure`; dowiązanie prowadzące poza odczyty katalogu katalogowego albo poza dokumenty obok encji Release zatrzymuje go, tak jak zatrzymuje budowanie."
+  },
   "e6327a04176499d7": {
     "at": "2026-10-29T17:54:09.612Z",
     "job": "session-0007-20261029175409",
@@ -161633,6 +161655,17 @@
     "srcHash": "fc42fac34e364473",
     "status": "machine",
     "text": "**`outcome` mówi, co stało się z wywołaniem, a wartości są rozłączne, aby można je było liczyć osobno.** `ok` – wywołanie wykonano i zakończyło się powodzeniem. `tool-failure` – wywołanie wykonano i wróciło oznaczone jako błąd, który wywołujący może poprawić; jest to wywołanie obsłużone przez serwer, a nie odrzucone, więc nie należy go zaliczać do odmów. `error` to odmowa przekazana jako koperta błędu protokołu. `unauthenticated`, `forbidden` i `rate-capped` oznaczają odrzucenie żądania odpowiednio przez poświadczenie, ograniczenie pochodzenia lub zakresu oraz limit częstotliwości na wywołującego. `cancelled` oznacza wywołującego, który zamknął połączenie przed otrzymaniem odpowiedzi."
+  },
+  "fc433a66f9850a40": {
+    "at": "2026-11-02T19:15:09.448Z",
+    "job": "session-0006-20261102191509",
+    "revision": {
+      "from": "bd1f324b921601f3",
+      "reviewed": false
+    },
+    "srcHash": "fc433a66f9850a40",
+    "status": "machine",
+    "text": "**`validate` z `entity` i `release`** wykonuje kontrole pojedynczej encji w kontekście tej encji Release: odwołania encji — Component implementowany przez Recipe, SchemaLibrary, do której odwołuje się filar — rozwiązują się przez katalogi katalogowe tej encji Release, a odpowiedź wskazuje encję Release obok encji. Żadne domknięcie nie jest walidowane; `release` wysłany bez `entity` nadal oznacza zakres encji Release. `catalog_dirs` jest tu, jak wszędzie, dołączany przed katalogami encji Release. Katalog wymieniony w konfiguracji przestrzeni roboczej, który nie jest katalogiem — bo na przykład nic tam nie istnieje — dla tej encji Release albo dla przestrzeni roboczej, gdy nie wysłano `release`, powoduje odrzucenie wywołania przed sprawdzeniem czegokolwiek, a jego tekst zawiera odmowę, jaką daje mu każde polecenie, i wskazuje wpis oraz plik konfiguracji i wiersz, który go wymienia ([Skąd odczytywane są encje lokalne](configuration.md#where-local-entities-are-read-from)), tak jak odrzuca go [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms)."
   },
   "fc473a0e3915f03e": {
     "at": "2026-10-22T09:44:21.400057+00:00",
