@@ -1318,6 +1318,13 @@ with `function:`. The host refuses a dispatch to an export the guest did not dec
 in its `describe()` self-report, so an attachment naming a role its guest does not
 serve is reported by name, before the guest runs, rather than quietly doing nothing.
 
+`function:` names an export on the plugin the `uri` names. An attachment in a verdict
+role — `ir-verdict` or `render-verdict` — that names a `function:` and no `uri:` names
+a function on no plugin, so the configuration is refused as it is read, under
+[`E0224`](../errors/fatal-halts.md#the-workspace-configuration-is-invalid), naming the
+file and the entry's place in its list: add the `uri` of the plugin that exports the
+function.
+
 The `plugins.governance` list has an additive companion, `plugins.governance_append`:
 entries in the companion are concatenated onto the resolved `governance` list at each
 configuration layer, so a workspace or a global config composes policy

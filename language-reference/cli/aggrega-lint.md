@@ -119,6 +119,8 @@ The rules ship as a standard publishing-linter Wasm plugin. Because the rules li
 
 A workspace may attach more than one linter under `plugins.linter`, and every attachment runs: in the order the attachments are written, each at its own entry function, with all of their findings reported together. That is what lets a catalog keep the standard rules and add its own alongside them instead of choosing between the two. `--plugin` is the exception — it runs exactly one artifact from a filesystem path in place of the configured attachments, which is what makes it useful while developing a rule.
 
+An attachment names its plugin with `uri:`, and `function:` names an entry function on that plugin. An entry that names a `function:` and no `uri:` names a function on no plugin, so the configuration is refused as it is read, under [`E0224`](../errors/fatal-halts.md#the-workspace-configuration-is-invalid), naming the file and the entry's place in its list — add the `uri` of the plugin that exports the function. An entry naming neither attaches nothing and is passed over; where it is the only entry, the standard linter runs at its own default entry function, as it does with no `plugins.linter` at all.
+
 ## What a linter plugin is handed
 
 No parameter value reaches a linter plugin, at any scope. A parameter's value can be a credential itself — a secret attachment's `origin` may be a template reading a parameter the Release fulfils, and the secret is then that parameter's value — and the plugin a workspace attaches may be one it did not write, so every document is handed over with its parameter values withheld:
