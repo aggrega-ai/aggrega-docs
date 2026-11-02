@@ -107,6 +107,26 @@ Build completed: 4 files written to <workspace>/dist
 
 `<workspace>` stands here for the workspace root, which the line spells out as a full path. Where no workspace is found and nothing names one, the folder the command was run from is the root, so `dist/` is written there. A `dist` that is a link leading out of the workspace is refused before anything in it is removed or written. A Release that declares no boundaries writes per provider: `dist/<provider>/<files>`. A declared boundary with no `directory:` writes per boundary, per provider: `dist/boundaries/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
 
+### Files the build did not write
+
+A build writes its own files and removes nothing it did not write, with one exception: `dist/boundaries/`, which a build regenerates in full, is cleared before the write, so a file a build of another variant left there does not survive into a tree that no longer produces it. Everything else in `dist/` is left as it stands — a file an earlier build wrote that this one no longer produces, a file a boundary's `directory:` placed there on an earlier run, and a file you put there yourself alike — because the build cannot tell a leftover from a file you keep there on purpose.
+
+What it does instead is tell you. Once its files are written, the build looks in `dist/` itself and in every directory beneath it that it wrote a file into or passed through to write one deeper, and names each file there that it did not write this run, in one warning on standard error. The files are named by their paths relative to `dist/`, sorted, so the same tree is reported the same way on every run:
+
+```text
+  warning: the output directory holds 2 file(s) this build did not write, in directories it wrote into; nothing was removed, so they sit beside this build's output: "app/stale-from-earlier-run.yaml", "beside-the-tree.txt"
+```
+
+The closing line then counts them:
+
+```text
+Build completed: 1 files written to <workspace>/dist, beside 2 file(s) this build did not write
+```
+
+A directory the build wrote nothing into, and nothing beneath, is not looked into, so a folder of your own kept under `dist/` is not listed file by file. A build that finds no such file prints no warning, and its closing line is the one shown under [Output](#output). Either way the files the build writes are the same bytes. To compare two builds, or to start from nothing, remove `dist/` before building.
+
+[`aggrega serve`](aggrega-serve.md)'s `aggrega/build` request and the assistant's `build` tool ([`aggrega mcp`](aggrega-mcp.md)) write through the same step, so they name the same files in the same sentence: the daemon as one of its answer's `notices`, and the tool as the last of its `advisories`. A dry run writes nothing, so it reports none of this.
+
 ### YAML indentation
 
 Every rendered YAML artifact — docker-compose files, Helm chart templates and values, and Kubernetes manifests — is emitted at a uniform indentation width. The width is set by `build.yaml_indent` in `.aggrega-config.yaml` and defaults to **2** (the conventional width for those formats):
