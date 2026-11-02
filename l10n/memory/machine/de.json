@@ -1185,6 +1185,17 @@
     "status": "machine",
     "text": "**Das Format wird an der Quelle erkannt, sofern Sie es nicht nennen.** Die Erkennung verwendet die Signaturen, die die Importer deklarieren — die des Workspace-Katalogs ebenso wie die der Core-Importer des Compilers —, die die Plugin-Entität jedes Importers aufzeichnet — die Syntax, in der eine Quelle gelesen wird, die Dateinamen, für die eine Signatur gilt, und die Pfade, die der geparste Baum enthalten muss oder nicht enthalten darf —, sodass der Daemon selbst kein Format kennt und das Format eines neuen Importers erkannt wird, ohne dass sich sonst etwas ändert. Die Erkennung liest nur die Quelle, die Sie gesendet haben — bei einem Verzeichnis nur die Dateien, die die Dateimuster einer Signatur auswählen — und kein Netzwerk, wobei jede gelesene Datei mit dem Parser geparst wird, den der Katalog des Workspace für eine Syntax bereitstellt — oder, für eine Syntax, für die der Katalog keinen Parser bereitstellt, mit dem, den der Compiler selbst mitbringt —, einmal für jede Syntax, in der eine auf ihren Namen zutreffende Signatur sie liest; der Importer liest die Quelle dann mit demselben Parser. Eine Signatur, die kein Dateimuster deklariert, gilt für die von Ihnen gesendete Datei, wie auch immer sie heißt, und für keine Datei eines Verzeichnisses; die Signaturen der Importer für Langflow, Flowise und n8n sind von dieser Art und lesen JSON, und die des Dify-Importers liest YAML, daher liest das Erkennen einer einzeln gesendeten Datei diese als JSON und als YAML, was keinen Parser im Katalog des Workspace erfordert: Der Compiler bringt einen JSON- und einen YAML-Parser mit, und einer, den der Katalog bereitstellt, wird an seiner Stelle verwendet. Eine Quelle, auf die keine Signatur passt, wird abgelehnt, wobei nach `format` gefragt wird und die Formate genannt werden, die die Importer anbieten, unter der Bedingung [No importer recognises the source (Kein Importer erkennt die Quelle)](../errors/fatal-halts.md#no-importer-recognises-the-source); eine Quelle, auf die Signaturen mehr als eines Formats passen, wird abgelehnt, wobei diese genannt werden, unter der Bedingung [More than one importer recognises the source (Mehr als ein Importer erkennt die Quelle)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Das `data` jeder Ablehnung enthält `code` und `shortCode` ihrer Bedingung, sodass ein Client anhand des Codes statt anhand des Wortlauts nach dem Format fragt. Keines von beiden wird erraten, weil ein geratenes Format den falschen Importer auflöst und selbstbewussten Unsinn erzeugt. `format` in der Antwort ist das verwendete, erkannte oder genannte Format, sodass ein Client, der es weggelassen hat, erfährt, was er bekommen hat."
   },
+  "05bde230130e7ba9": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "9499bfea65bf8447",
+      "reviewed": false
+    },
+    "srcHash": "05bde230130e7ba9",
+    "status": "machine",
+    "text": "**An welchem Dokument ein Eintrag veröffentlicht wird, folgt aus derselben Regel.** Eine Validierung, die ein Release nennt, beantwortet das Aggregate dieses Release, das Release selbst und das Dokument jedes Moduls, das das Aggregate importiert. Ein im Release positionierter Befund — die Ablehnung eines Eintrags, den das Release an eine der Verbindungen einer Komponente schreibt, der Dimensionierung, die es dieser Verbindung gibt, eines Anhangs, den es dort füllt oder dimensioniert, einer Verbindung, die es verdrahtet, eines Feature, das nur das Release an eine Komponente oder an eine Grenze anhängt, oder der `infra`, die es einem Anhang gibt — wird veröffentlicht, wenn das Release-Dokument validiert wird, an dem Schlüssel im Release, der ihn geschrieben hat, und am Aggregate überhaupt nicht. Ein im eigenen Dokument eines Moduls positionierter Befund — die Ablehnung dessen, was eine der Komponenten des Moduls deklariert, eines Sockets, den seine Anhänge verdrahten, seiner Werte oder der Werte an seinen eigenen Verbindungen — wird veröffentlicht, wenn das Dokument dieses Moduls validiert wird, an dem Schlüssel dort, der ihn geschrieben hat, und am Aggregate überhaupt nicht. Jeder andere Befund, den die Validierung dieses Release auslöst, darunter ihre Befunde auf Abhängigkeitsebene, wird am Aggregate veröffentlicht. Ein Befund zu dem, was der Betreiber geschrieben hat, erscheint also, während das Release geöffnet ist, und einer zu dem, was ein Modul deklariert, während dieses Modul geöffnet ist, gleich welche Phase des Builds ihn ausgelöst hat; ein Editor, der jedes geöffnete Dokument gegen das Release validiert, zeigt jeden davon dort an. Ein Release, dessen Abhängigkeiten sich überhaupt nicht auflösen lassen, löst keinen dieser Befunde aus, und das Scheitern ihrer Auflösung ist ein einziger Eintrag am Anfang des eigenen Dokuments des Release und jedes anderen dagegen validierten Dokuments, das der Daemon erkennt, wie [Live-Validierung](#live-validation) beschreibt, und nicht als einzelne Entität prüft — sein Aggregate, sein Manifest, eine Bibliothek, ein anderes Release, die Workspace-Konfiguration —, mit dem Präfix `Dependencies:` und mit dem eigenen Bericht der Auflösung darüber, was sie angehalten hat. Am eigenen Dokument des Release ist der Eintrag dieser Bericht und nichts weiter. An jedem anderen Dokument sagt er zuerst, dass das Dokument gegen dieses Release geprüft wird, und nennt das Release so, wie eine Anfrage es nennt — `Dependencies: this document is checked against the Release <release>, whose dependencies cannot be resolved:`, gefolgt von dem Bericht —, weil nichts in diesem Dokument sagt, gegen welches Release es geprüft wurde: Ein Editor, der jedes geöffnete Dokument gegen das eine ausgewählte Release prüft, setzt den Eintrag auf Dokumente, die nichts mit diesem Release zu tun haben, und der Name ist das, was Ihnen sagt, dass die Auswahl die Ursache ist. Eine Datei, die der Daemon nicht erkennt, trägt keinen solchen Eintrag, gleich welches Release mit ihr genannt wurde."
+  },
   "05bdf421c4bd9145": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -3585,6 +3596,17 @@
     "status": "machine",
     "text": "Regelplatzierung: Welche Regeln im Policy-Plug-in und welche im Schema pro Component liegen"
   },
+  "13c3b439b24dabd0": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "4fcacdfb8e977628",
+      "reviewed": false
+    },
+    "srcHash": "13c3b439b24dabd0",
+    "status": "machine",
+    "text": "Werte, die ein Autor als sensibel deklariert hat, werden aus dem Graphen zurückgehalten — einschließlich der `values` und `infra` einer Verbindung, wo der Socket der konsumierenden Komponente ein Blatt als sensibel deklariert —, in der strukturierten Form, die unter [`aggrega inspect`](aggrega-inspect.md#machine-readable-output) beschrieben ist. `--unredacted` neben `--ir-graph` gibt sie stattdessen aus, zu den Bedingungen, die `aggrega inspect --unredacted` nennt: Es erreicht den Graphen und nichts anderes, was dieser Befehl schreibt, und was immer die Ausgabe erreicht, enthält diese Werte dann im Klartext. Ohne `--ir-graph` übergeben, wird es abgelehnt, weil es nichts gäbe, was es offenlegen könnte."
+  },
   "13c8dda170d41294": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -5432,6 +5454,17 @@
     "status": "machine",
     "text": "**Das Workspace-Stammverzeichnis ist das des Aufrufs selbst.** Über Standardeingabe und -ausgabe ist es das Stammverzeichnis des Workspace, den der Aufruf aufgelöst hat, wie [In welchem Workspace ein Aufruf beantwortet wird](#which-workspace-a-call-is-answered-in) darlegt: das Stammverzeichnis, das `workspace_root` nennt, sonst das Stammverzeichnis, mit dem der Server gestartet wurde, sonst der Workspace, der von dem Verzeichnis aus gefunden wird, in dem der Server gestartet wurde – und, wenn ein über einen absoluten Pfad benanntes Release den Aufruf in den eigenen Workspace dieses Release verlegt, das Stammverzeichnis dieses Workspace. Es ist das Stammverzeichnis, unter das `aggrega build` für dasselbe Release und dasselbe benannte Stammverzeichnis schreibt, sodass der Ordner, in dem der Server gerade läuft, nur dann ein `dist` erhält, wenn dieser Ordner das Stammverzeichnis ist, das der Aufruf aufgelöst hat, so wie es in einem dort geöffneten Terminal wäre. Über HTTP ist es der Workspace, den der Server bedient, und außerhalb davon wird nichts geschrieben."
   },
+  "1d7c47ac538ef802": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "971fd996c2be4d6f",
+      "reviewed": false
+    },
+    "srcHash": "1d7c47ac538ef802",
+    "status": "machine",
+    "text": "`--agent` akzeptiert nur die Kennungen aus der Tabelle oben, jede davon die Kennung, die das offene Kommandozeilenwerkzeug für Skills für denselben Assistenten verwendet. Jede andere Kennung wird namentlich abgelehnt, mit der Liste der bekannten. Ein nicht aufgeführter Assistent kann Aggrega trotzdem verwenden: Verbinden Sie ihn mit dem MCP-Server, wie [Den MCP-Server verbinden](../../ai-assistants/mcp-server.md) beschreibt, und er erreicht dieselben Werkzeuge und dasselbe Referenzmaterial, auf die der Skill verweist."
+  },
   "1d7eeea24551fcce": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -6127,6 +6160,13 @@
     "srcHash": "214491d54db18aec",
     "status": "machine",
     "text": "Eine **Component oder ein Feature** endet hier: Schema-Umschlag, Form und Säulenstruktur. Eine einzelne Component hat keine verfassten `values` oder `infra`, die isoliert gerendert werden könnten, also gibt es nichts zu rendern — ihre Korrektheit ist durch die Schema- und Säulenstufen vollständig abgedeckt."
+  },
+  "214ba9c62194901d": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "214ba9c62194901d",
+    "status": "machine",
+    "text": "wertet es jede **Recipe- und FeatureRecipe-Assertion** gegen die Werte aus, zu denen das Release aufgelöst wird, so wie ein Build sie vor dem Rendern auswertet: Das Recipe jeder Komponente wird so gebunden, wie das Manifest es zuordnet, seine `locals` und `provides` werden aufgelöst, und die erste fehlschlagende Assertion — eine, die `fail` aufruft, oder eine, deren Template an einem Schlüssel anhält, den es nicht findet — lässt die Validierung mit der Bedingung und dem Satz fehlschlagen, mit denen ein Build anhält. Auch ein `locals`- oder `provides`-Template, das nicht ausgewertet werden kann, lässt sie fehlschlagen, wie es einen Build fehlschlagen lässt. Der Provider, über den jedes Recipe rendert, wird nach dem Namen gefragt, den er den Ressourcen dieser Komponente gibt, so wie ein Build ihn fragt, weil die `provides` eines Recipe diesen Namen lesen können; gerendert wird nichts. Diese Assertions werden nur ausgewertet, wenn nichts von dem oben Genannten bereits fehlgeschlagen ist, sodass ein Release den frühesten Fehler meldet, an dem ein Build anhalten würde;"
   },
   "216628eb4daeb439": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -6830,6 +6870,13 @@
     "status": "machine",
     "text": "Der Server bietet einen Block mit Hinweisen für das Modell an, den Ihr Client ihm vor dem ersten Aufruf vorlegen kann. Ein Client auf `2026-07-28` liest ihn aus der Antwort auf `server/discover`; ein Client auf `2025-06-18` liest ihn aus der Antwort auf seinen `initialize`-Handshake. **Es ist auf beiden Wegen derselbe Text, Byte für Byte**, und derselbe Text für jeden Client, der einen Prozess erreicht: Nichts darin wird ausgehandelt, und nichts wird aus dem abgeleitet, was der Client gesendet hat, oder aus der Anmeldeinformation, die er vorgelegt hat, sodass das, was einem Modell beim Verbinden gesagt wird, weder zwischen Sitzungen noch zwischen Clients variiert."
   },
+  "24b78d3977cb97fd": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "24b78d3977cb97fd",
+    "status": "machine",
+    "text": "**Mit `--release` allein** liest validate die Lockfile des Release, daher nennt die Zeile `aggrega pull --release <release>`, das die Bibliothek auflöst und ihren Eintrag verzeichnet, oder das Verfassen der Bibliothek unter einem Katalogverzeichnis."
+  },
   "24c50c18d0f2cfa9": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -7099,6 +7146,13 @@
     "srcHash": "25f9798e157fcac7",
     "status": "machine",
     "text": "**3. Compiler-Ausführung und topologische Validierung**"
+  },
+  "2612cf5ba49c7625": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "2612cf5ba49c7625",
+    "status": "machine",
+    "text": "Der Artefakt-Cache enthält, was ein Abruf dort abgelegt hat, und eine zwischengespeicherte SchemaLibrary zählt nur dann als Kataloginhalt, wenn ein Eintrag in der Lockfile eines Release für ihren Digest bürgt — siehe [Was der Cache ist und was nicht](./aggrega-cache.md#what-the-cache-is-and-what-it-is-not). Wenn sich eine `$ref:` zu nichts auflöst, während der Cache eine Bibliothek enthält, die kein Lockfile-Eintrag pinnt und die kein von der Prüfung gelesenes Katalogverzeichnis liefert, folgt auf den Bericht eine `remediation:`-Zeile, die jede solche Bibliothek nennt und die Maßnahme, die für den fehlgeschlagenen Umfang funktioniert:"
   },
   "261660cbdcfa5c47": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -7441,6 +7495,17 @@
     "srcHash": "27c0daf4db3609f9",
     "status": "machine",
     "text": "**Go-Template-Kontext** (innerhalb von `valuesMapping:`-Blockskalaren einer Recipe, `injectMapping:`-Blockskalaren eines FeatureRecipe, Mapping-Einträgen einer MappingLibrary, `assertions:`-Rümpfen von Assertion-Blöcken): Verwenden Sie `{{/* ... */}}` für Template-Kommentare, die die Template-Engine erkennt und beim Rendern entfernt, oder `#` für Kommentare auf YAML-Ebene außerhalb des Template-Rumpfs."
+  },
+  "27c9aae531d16e6e": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "e239d5bab1e1a8d1",
+      "reviewed": false
+    },
+    "srcHash": "27c9aae531d16e6e",
+    "status": "machine",
+    "text": "Ein Build, ein Pull, eine Validierung oder ein `aggrega inspect`, das unter einem von Ihnen verwendeten Namen keine Entität findet, sagt, woher dieses Projekt lokale Entitäten liest und was zu ändern ist, damit die genannte gelesen wird. Nichts dergleichen sagt es, wo Sie die leere Liste geschrieben haben — keinen lokalen Katalog zu lesen ist genau das, was Sie dort deklariert haben, und ein Vorschlag, das zu ändern, würde Ihnen widersprechen. Ebenso wenig sagt es dies, wo das Dokument, das diesen Namen deklariert, gelesen und abgelehnt wurde: Dieses Dokument liegt bereits dort, wo der Katalog liest, daher nennt der Bericht stattdessen, wogegen das Dokument verstößt, die Zeile und die Einschränkung, und es zu verschieben würde nichts beheben. Ein Dokument, das so fehlerhaft ist, dass der von ihm deklarierte Name gar nicht gelesen werden kann, lässt sich dem von Ihnen verwendeten Namen nicht zuordnen, daher wird die Auskunft trotzdem gegeben — und wo dieses Dokument eine Aggrega-apiVersion deklariert, nennt ein Build, ein Pull oder eine Validierung eines Release es neben der Auskunft, mit dem eigenen Grund des Parsers, da es die zu öffnende Datei sein kann. Ein Fehler, der die Entität gefunden hat und sie nicht akzeptieren konnte — eine Registry, die nun unter einer Version, die Ihre Lockfile pinnt, andere Bytes ausliefert, eine Datei, die die Entität mitführt und die nicht gelesen werden kann —, ist ebenfalls keine fehlende Entität und meldet allein seine eigene Abhilfe."
   },
   "27d009b600abcaee": {
     "at": "2026-10-22T03:54:29.551Z",
@@ -7975,6 +8040,13 @@
     "status": "machine",
     "text": "Die Formate für Schemainhalte finden Sie unter [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md)."
   },
+  "2aef39c1514561e7": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "2aef39c1514561e7",
+    "status": "machine",
+    "text": "Der Befehl gibt jeden gefundenen Assistenten aus und wodurch er gefunden wurde, und installiert dann:"
+  },
   "2af4adb6322f546c": {
     "at": "2026-10-30T19:53:23.628Z",
     "job": "session-0013-20261030195323",
@@ -8214,6 +8286,17 @@
     "status": "machine",
     "text": "Jeder der beiden Befehle installiert die Binärdatei `aggrega` für den aktuellen Benutzer. [Installation](install.md#install-the-binary) beschreibt, was der Befehl tut, sowie Homebrew, Scoop, winget und den manuellen Download; [Den MCP-Server verbinden](ai-assistants/mcp-server.md) verbindet einen KI-Assistenten. Die [Aggrega-Erweiterung für Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) bringt Validierung, Navigation, Hover und Vervollständigung für Aggrega-YAML, gestützt auf die Binärdatei `aggrega`."
   },
+  "2c81cf11081d6934": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "dda5868c54d99d69",
+      "reviewed": false
+    },
+    "srcHash": "2c81cf11081d6934",
+    "status": "machine",
+    "text": "macht es Befunde zu Überschneidungen von Schema-Säulen und zur Einengung beim Erweitern als informative `notice:`-Zeilen sichtbar, die den Exit-Code nie ändern;"
+  },
   "2c841c691c02923b": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -8297,6 +8380,17 @@
     "srcHash": "2d2eea2832af7b58",
     "status": "machine",
     "text": "Template-Referenz: [expansion-matrix](templates/expansion-matrix.md), [template-context-contract](templates/template-context-contract.md), [sprig-functions](templates/sprig-functions.md), [parameters-context](templates/parameters-context.md), [assertions-block](templates/assertions-block.md)"
+  },
+  "2d334991aae0c87b": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "5d45d42b6779aef1",
+      "reviewed": false
+    },
+    "srcHash": "2d334991aae0c87b",
+    "status": "machine",
+    "text": "Da es dieselben Prüfungen wie ein Build ausführt, führt es auch dieselben angehängten Gate-Plugins aus — und unterliegt daher demselben Verzeichnis vertrauenswürdiger Plugin-Identitäten wie ein Build. Ein Workspace, der ein Plugin anhängt, das ein Urteil aus Annahme oder Ablehnung zurückgibt, hat ein [Plugin-Vertrauensverzeichnis](./aggrega-pull.md#the-plugin-trust-record) neben seinem Release, und `--release` vergleicht die Konfiguration damit, bevor eines dieser Plugins läuft: Ein verzeichnetes Gate, das die Konfiguration nicht mehr anhängt, hält die Validierung an, und ein aus dem von `aggrega pull` befüllten Cache aufgelöstes Plugin, dessen Artefakt nicht das verzeichnete ist, wird abgelehnt statt ausgeführt. Ein Workspace, der nichts verzeichnet hat, hat kein Verzeichnis, was für diesen Vergleich nichts ändert. `--release` nennt außerdem jede Rücknahme, die gegen das verzeichnet ist, wovon das Release abhängt, auf der Standardfehlerausgabe als `deprecation:`-Zeile in den Worten, die `aggrega build` ausgibt: eine Markierung, die die Lockfile gegen eine gepinnte Referenz verzeichnet, ebenso wie eine, die das Vertrauensverzeichnis gegen ein in einer Urteilsrolle angehängtes Plugin verzeichnet. Eine Rücknahme ändert weder das Urteil noch den Exit-Code, und ein vorhandenes Vertrauensverzeichnis, das nicht gelesen werden kann, hält die Validierung an, statt als eines durchzugehen, das nichts verzeichnet."
   },
   "2d755b50f2b078f2": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -8424,6 +8518,13 @@
     "srcHash": "2e0dbd93c7dd20ba",
     "status": "machine",
     "text": "Vokabular der Parameter-Slots"
+  },
+  "2e122cb75a5112cc": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "2e122cb75a5112cc",
+    "status": "machine",
+    "text": "Die Assistenten auf diesem Rechner"
   },
   "2e1d920056aea639": {
     "at": "2026-10-23T03:05:44.362Z",
@@ -10343,6 +10444,17 @@
     "status": "machine",
     "text": "**Sie können die beiden unterscheiden.** Jedes veröffentlichte Problem nennt die Ebene, die es gemeldet hat, sodass ein Benennungsproblem und ein Auflösungsfehler in derselben Datei als zwei verschiedene Dinge erscheinen statt als ein einziges, zweimal gemeldetes Problem."
   },
+  "398c4cc5f87c6391": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "7f80b1b6187ba3e8",
+      "reviewed": false
+    },
+    "srcHash": "398c4cc5f87c6391",
+    "status": "machine",
+    "text": "Legen Sie das Verzeichnis an oder entfernen Sie den Eintrag: Eine Kopie eines Projekts, die ohne einen von ihm aufgeführten benachbarten Checkout erstellt wurde, entfernt diesen Eintrag und löst aus einer Registry auf, was der Checkout geliefert hätte. Dasselbe gilt für ein Verzeichnis, das der eigene Eintrag eines Release aufführt, für eines, das eine Konfigurationsdatei Ihrer Pipeline oder die globale Datei hinzufügt, und für eines, das `AGGREGA_CATALOG_DIRS` enthält, das die Ablehnung anstelle einer Datei nennt. Die Konfiguration selbst wird weiterhin geladen, sodass ein Befehl, der keinen Katalog liest, weiterhin läuft. Ein `--catalog`-Verzeichnis, das nicht existiert, wurde für einen einzelnen Befehl eingegeben, und `aggrega build` lehnt es ab und nennt das Verzeichnis. Ein aufgeführtes Verzeichnis, das vorhanden ist und nicht gelesen werden kann, wird von den Befehlen, die den gesamten Katalog laden, unter Nennung des Verzeichnisses abgelehnt."
+  },
   "399dde30295153a1": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -10991,6 +11103,17 @@
     "srcHash": "3cd437c7143e191e",
     "status": "machine",
     "text": "[Recipe](../language-reference/entities/recipe.md), [FeatureRecipe](../language-reference/entities/featurerecipe.md), providerrenderndes [Plugin](../language-reference/entities/plugin.md)"
+  },
+  "3cd73d9398420ee0": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "d1ac60defde28e15",
+      "reviewed": false
+    },
+    "srcHash": "3cd73d9398420ee0",
+    "status": "machine",
+    "text": "**Die Anfragen, die sich an eine Registry wenden, teilen sich in die, die lesen, und die, die veröffentlichen.** `aggrega/resolveDependencies` holt, was ein Release braucht, und `aggrega/build` kommt hinzu, wenn — und nur wenn — sein Feld `autoPull` es auffordert, zuerst die Abhängigkeiten aufzulösen; in diesem Fall erreicht es eine Registry und schreibt das Lockfile, bevor es rendert; `aggrega/registryUpdate` durchläuft jede konfigurierte Registry, um den lokalen Suchindex neu aufzubauen; `aggrega/pluginAdd` durchsucht die konfigurierte Registry nach dem Plugin, das eine Anfrage nennt, und liest seine veröffentlichten Versionen, um eine davon festzulegen; `aggrega/registryAdd` fragt die Registry, die es registriert, nach der Vertrauensrichtlinie, die diese Registry ankündigt, es sei denn, die Anfrage lehnt den Abruf ab oder liefert eine eigene Richtlinie, und `aggrega/configInit` fragt die Registry, die es einrichtet, nach derselben; `aggrega/explainError` beschafft das Dokumentationspaket, aus dem es die ausführliche Erläuterung einer Bedingung liest, einmalig, wo der Cache, den alle Projekte auf dem Rechner teilen, keine Kopie hält, die die eigene Signaturprüfung des Workspaces zulässt — siehe [`aggrega explain`](aggrega-explain.md); `aggrega/scaffoldEntity`, mit `example` oder `list` gesendet, beschafft dasselbe Paket unter denselben Bedingungen, und ein Schreibvorgang schreibt das Beispiel dann in ein neues Verzeichnis des Workspaces; `aggrega/import` holt einen Core-Importer aus der Standard-Registry des Workspaces, einmalig, wo der Rechner ihn noch nicht hat — siehe [Was Ihnen eine Import-Antwort sagt](#what-an-import-response-tells-you); und `aggrega/entityDefinition` liest die Entität, die eine Registry-Referenz nennt, wenn eine als sein `name` gesendet wird, und schreibt nichts. `aggrega/publishEntity`, `aggrega/publishArtifact`, `aggrega/signArtifacts` und `aggrega/deprecateArtifact` schreiben in eine — Bytes, eine Signatur oder eine Rückzugsmarkierung. Eine Anfrage erreicht eine Registry nur, wenn sie dafür gesendet wurde: Eine Auflistung meldet, was die Konfiguration festlegt, eine Suche liest einen Offline-Schnappschuss, und eine mit `dryRun` angeforderte Veröffentlichung berechnet, was sie senden würde, und kontaktiert niemanden."
   },
   "3cd7db7bec97a650": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -14628,6 +14751,17 @@
     "status": "machine",
     "text": "Einige Plugins werden an anderer Stelle aufgezeichnet, und ihre Markierungen stammen von dort. Ein `plugins.linter`-Attachment und ein `plugins.governance`-Attachment in einer `ir-verdict`- oder `render-verdict`-Rolle prägen nichts von der gerenderten Ausgabe, daher werden sie in [`plugins-trust.yaml`](../schema/other/plugins-trust.md) neben der Lockfile gepinnt statt in der Lockfile selbst. Jeder Eintrag dort enthält die Markierung, die für das genannte Plugin gefunden wurde, neben seiner Identität, und `aggrega pull` zeichnet eine auf dieselbe Weise auf, wie es eine Markierung in einer Lockfile-Zeile aufzeichnet."
   },
+  "51afe14458701d39": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "214491d54db18aec",
+      "reviewed": false
+    },
+    "srcHash": "51afe14458701d39",
+    "status": "machine",
+    "text": "Eine **Component oder ein Feature** endet hier: Schema-Umschlag, Form und Säulenstruktur. Eine einzelne Component hat keine verfassten `values` oder `infra`, die isoliert gerendert werden könnten, also gibt es nichts zu rendern — ihre Korrektheit ist durch die Schema- und Säulenstufen vollständig abgedeckt. Jedes `x-aggrega-*`-Schlüsselwort, das ihr Schemainhalt inline verfasst, wird unter den beratenden Hinweisen auf der Standardfehlerausgabe als `warning:`-Zeile gemeldet, die das Schlüsselwort nennt, die Stelle, an der es steht, und die deklarative Tabelle, die stattdessen zu verfassen ist; es ändert nie das Urteil oder den Exit-Code."
+  },
   "51cf9105c2126083": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -16175,6 +16309,17 @@
     "status": "machine",
     "text": "`aggrega auth` fasst Befehle zusammen, die sich mit der **Signieridentität** befassen — dem OIDC-Identitätstoken, das beim schlüssellosen Signieren verwendet wird. Es unterscheidet sich von `aggrega login`, das Benutzername/Passwort-Zugangsdaten für Registries speichert: `auth` betrifft, wer Sie beim Signieren sind, `login` betrifft, wie Sie eine Registry erreichen."
   },
+  "58bc877ea5dd660b": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "9e9f9c1bbab3f413",
+      "reviewed": false
+    },
+    "srcHash": "58bc877ea5dd660b",
+    "status": "machine",
+    "text": "**Drei Anfragen brauchen kein `workspaceRoot`, und jede, weil ihr Gegenstand kein Workspace ist.** `aggrega/getSchema` und `aggrega/scaffoldEntity` antworten aus den Schemas, die in die laufende Binärdatei kompiliert sind, sodass ein Workspace zu keiner von beiden etwas beiträgt — und das erlaubt beiden, in einem Verzeichnis zu antworten, das niemand vorbereitet hat. `aggrega/initialize` ist die dritte, und dort deklarieren Sie einen Workspace, statt auf einen zu wirken. Die andere Form von `aggrega/scaffoldEntity`, die die ausführbaren Beispiele der Dokumentation schreibt oder auflistet, wirkt dagegen auf einen Workspace, und eine Anfrage dafür nennt einen wie jede andere."
+  },
   "58c7083ee2bc89c4": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -16466,6 +16611,17 @@
     "srcHash": "5a7d5db2cf512c1a",
     "status": "machine",
     "text": "eine an ein Artefakt angehängte Deprecation-Markierung"
+  },
+  "5a85d73ef81ba185": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "2a4d52581668aa8d",
+      "reviewed": false
+    },
+    "srcHash": "5a85d73ef81ba185",
+    "status": "machine",
+    "text": "[`aggrega build`](./aggrega-build.md) eines Release, das die Assertion nicht erfüllt, hält daran mit einem Fehler an, nennt die Assertion und enthält den Satz ihres Autors, wie immer, und `aggrega validate --release` über dieses Release schlägt daran mit demselben Fehler fehl. Die Entitätsprüfung des Editors über [`aggrega serve`](./aggrega-serve.md) gibt dieselbe Warnung aus, gezeichnet am eigenen Schlüssel der Assertion, wo das Recipe sie deklariert, und das `validate`-Tool von [`aggrega mcp`](./aggrega-mcp.md) antwortet `valid: true` mit der Warnung unter seinen `notices`."
   },
   "5a86084df9614560": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -17678,6 +17834,13 @@
     "status": "machine",
     "text": "Menschenlesbarer Grund für die Deprecation — warum es veraltet ist und was stattdessen zu tun ist. Erforderlich, sofern nicht --from oder eine interaktive Abfrage ihn liefert."
   },
+  "613ba9521dc33056": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "613ba9521dc33056",
+    "status": "machine",
+    "text": "Eine Bibliothek, die nur der Artefakt-Cache enthält"
+  },
   "613c388009a83f6c": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -17893,6 +18056,13 @@
     "srcHash": "6262358a5bba9ca8",
     "status": "machine",
     "text": "`noSlotReason` fehlt überall dort, wo ein Slot existiert, und `slots` und `noSlotReason` fehlen beide in der Antwort auf eine Anfrage, die keine Verbindung benannt hat – so wird eine Anfrage, die keine Verbindung benennt, ohne eines der beiden Felder beantwortet."
+  },
+  "62692f3f566b50c3": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "62692f3f566b50c3",
+    "status": "machine",
+    "text": "zeigt es jedes `x-aggrega-*`-Schlüsselwort, das eine von ihm gelesene Entität inline in ihrem Schemainhalt verfasst, als `warning:`-Zeile an, einmal pro Entität, so wie ein Build es anzeigt — auch dies ändert den Exit-Code nie."
   },
   "626a2193a72781e4": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -19314,6 +19484,13 @@
     "status": "machine",
     "text": "**Jeder andere Eintrag, den ein Pull erneut nachschlagen würde, wird abgefragt,** weil nur die Antwort der Registry sagt, ob der Pull ihn ändern würde: ein Eintrag, dessen Bytes diese Prüfung abgerufen hat, und ein Eintrag, dessen zwischengespeichertes Signaturbündel entfernt wurde, unlesbar ist oder verändert wurde. Die Prüfung fragt die Registry, wie es der Pull täte, und meldet den Eintrag, wo die Antwort seine Signatur erfasst, ersetzt oder löscht. Das verifizierte Signaturbündel wird so zwischengespeichert, wie ein Pull es zwischenspeichert, daher besteht ein Eintrag, dessen zwischengespeichertes Bündel entfernt wurde, während seine Registry die erfasste Signatur noch bereitstellt, die Prüfung und hinterlässt einen reparierten Cache."
   },
+  "6aa65b7d42d40172": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "6aa65b7d42d40172",
+    "status": "machine",
+    "text": "Die Angabe eines beliebigen `--agent` überspringt die Suche: Der Befehl installiert für die von Ihnen genannten Assistenten und keine anderen. Eine Projektinstallation ohne `--global` nennt sie immer: Sie ist für die Assistenten bestimmt, die die Personen des Projekts verwenden, und das verrät dieser Rechner nicht."
+  },
   "6ab390ee4fd11385": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -20343,6 +20520,13 @@
     "srcHash": "707ec1ce3c5d21fd",
     "status": "machine",
     "text": "**Schema-Kompilier-Cache.** Das `spec.schema.{infra,values}` jedes Feature wird einmal pro Build kompiliert und über Kaskadendurchläufe hinweg wiederverwendet. Wiederholte Typvalidierung pro Unterschlüssel gegen dasselbe Feature-Schema (ein Kaskadenbereich pro Komponente, bei Hunderten von Komponenten) liest das kompilierte Schema, statt es erneut zu kompilieren. Zwischen Builds wird nichts aufbewahrt, sodass ein geändertes Feature-Schema vom nächsten Build neu kompiliert wird."
+  },
+  "7080470d8fedc13b": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "7080470d8fedc13b",
+    "status": "machine",
+    "text": "Installieren Sie ihn in jedem Ihrer Projekte für die Assistenten auf diesem Rechner:"
   },
   "7088287139b37614": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -27840,6 +28024,17 @@
     "status": "machine",
     "text": "`edit-document` wendet an, was die beiden oben beschriebenen Tools ermitteln. Ein Aufruf fügt einen Eintrag unter einem Container hinzu oder setzt einen Skalar, und er kann nichts anderes. **Es schreibt das von Ihnen angegebene Dokument innerhalb des Workspace**, daher benötigt es über HTTPS `aggrega:workspace-write`: Ein Aufrufer, der nur `aggrega:read` besitzt, findet es in der Tool-Liste, und ein Aufruf von ihm wird unter Nennung dieses Scopes abgelehnt."
   },
+  "9b487e946a7bf748": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "9990d61e327b033c",
+      "reviewed": false
+    },
+    "srcHash": "9b487e946a7bf748",
+    "status": "machine",
+    "text": "Ein Verzeichnis, das die Workspace-Konfiguration aufführt und das kein Verzeichnis ist — weil dort etwa nichts existiert —, für dieses Release oder, wenn kein `--release` angegeben ist, für den Workspace, wird abgelehnt, bevor irgendetwas geprüft wird, so wie jeder Befehl, der diesen Katalog liest, es ablehnt ([Woher lokale Entitäten gelesen werden](configuration.md#where-local-entities-are-read-from)): Die Ablehnung nennt den Eintrag, die Konfigurationsdatei und die Zeile, die ihn aufführen, sowie die Einstellung, und es wird kein Urteil abgegeben. Die Entitätsprüfung des Editors über [`aggrega serve`](./aggrega-serve.md) gibt dieselbe Ablehnung als einzigen Eintrag zur Datei der Entität aus, auf der Fehlerstufe, und das `validate`-Tool von [`aggrega mcp`](./aggrega-mcp.md) lehnt den Aufruf damit ab."
+  },
   "9b493a3cfcc4210d": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -29309,6 +29504,13 @@
     "status": "machine",
     "text": "**Was die Standardbibliothek enthält.** `core/gateway/litellm`, `core/gateway/kong`, `core/gateway/kong-enterprise`, `core/gateway/apisix`, `core/gateway/envoy-gateway`, `core/gateway/traefik-hub`, `core/gateway/agentgateway` und `core/gateway/higress` tragen `openai`, ebenso die selbst gehosteten Server `core/ai-model/vllm`, `ollama`, `docker-model-runner`, `tgi`, `tei`, `nvidia-nim` und `litellm`, die verwalteten APIs `core/ai-model/openai`, `openai-embedding` und `nvidia-api` sowie der Broker `core/ai-model/openai-compatible`, der auf einen Dienst gerichtet wird, der diese API spricht. `core/ai-model/anthropic` trägt `anthropic`, und `core/ai-model/gemini` trägt `gemini`. Jede andere Modellkomponente trägt `native`."
   },
+  "a2bf106daf61a17e": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "a2bf106daf61a17e",
+    "status": "machine",
+    "text": "`aggrega skills install` schreibt den Aggrega-Skill in den Skill-Ordner jedes KI-Assistenten, den Sie mit `--agent` nennen, oder, mit `--global` und ohne `--agent`, jedes Assistenten, den es auf diesem Rechner findet. Ein Skill ist ein Ordner mit einer `SKILL.md`-Datei im offenen Format [Agent Skills](https://agentskills.io/specification): ein kurzer Frontmatter-Block, der den Skill benennt und sagt, wann er zu verwenden ist, gefolgt von Anweisungen. Ein Assistent, der Skills liest, lädt ihn, wenn Ihre Anfrage dazu passt, und weiß so, wie Aggrega installiert wird, wie er sich mit [`aggrega mcp`](aggrega-mcp.md) verbindet, wie ein Workspace angelegt wird und wie die in [Aggrega-Dateien verfassen](../../authoring/getting-started.md) beschriebene Authoring-Schleife abläuft."
+  },
   "a2c80ff19ab1f577": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -29674,6 +29876,17 @@
     "srcHash": "a477a5c8e80623e7",
     "status": "machine",
     "text": "Was ein Eintrag bewirkt, hängt davon ab, ob der Importer, den er nennt, das Format ausweist, das ein Import anfordert:"
+  },
+  "a499c2e59de8dba6": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "8bed0440a904dec6",
+      "reviewed": false
+    },
+    "srcHash": "a499c2e59de8dba6",
+    "status": "machine",
+    "text": "**Ein Aggrega-Dokument, das nicht geladen werden kann, hält den Lauf an.** Eine YAML-Datei unter einem Katalogverzeichnis ist ein Aggrega-Dokument, wenn eine ihrer Zeilen ohne Einrückung mit `apiVersion:` und einem Wert beginnt, der mit `aggrega.ai/` anfängt, in Anführungszeichen oder nicht. Ein solches Dokument, das nicht gelesen werden kann, dessen YAML sich nicht parsen lässt oder dessen `kind` oder `metadata` nicht die Form hat, die der Umschlag einer Entität annimmt — etwa ein als Liste geschriebenes `metadata` —, hält den Lauf mit [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) an, sobald die Verzeichnisse gelesen wurden, und nennt jede solche Datei mit dem Grund, den das Lesen oder der Parser angegeben hat; es wird nichts geprüft und keine `catalog validation passed`-Zeile ausgegeben. Ein Dokument, das geladen wird und einen `kind` deklariert, den kein Katalog enthält — etwa ein falsch geschriebenes `Componnent` oder gar kein `kind` —, hält denselben Lauf mit [`E0371`](../errors/fatal-halts.md#a-catalog-document-declares-a-kind-a-catalog-does-not-hold) an und wird neben jenen mit der Art genannt, die es deklariert; ein Manifest, ein Release und eine Workload, die ein Recipe aus seinem eigenen Verzeichnis importiert, werden übergangen. Jedes andere YAML — die Templates eines Helm-Charts, die sich erst nach dem Rendern parsen lassen, Chart-Werte, Workflow-Definitionen — wird übergangen."
   },
   "a49b716cf9b2ed55": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -30414,6 +30627,17 @@
     "status": "machine",
     "text": "Ausgabeformat: text\\|yaml."
   },
+  "a90b6dee5980c047": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "e5de0550a63a3671",
+      "reviewed": false
+    },
+    "srcHash": "a90b6dee5980c047",
+    "status": "machine",
+    "text": "Assistent, für den der Skill installiert wird, anhand seiner Kennung (zum Beispiel claude-code, codex, cursor oder gemini-cli). Wiederholbar; die Hilfe listet jede Kennung und den Ordner auf, in den jede schreibt. Ohne --global erforderlich; mit --global und ohne Angabe wird der Skill für die auf diesem Rechner gefundenen Assistenten installiert."
+  },
   "a90c6d242d05ff45": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -30628,6 +30852,13 @@
     "srcHash": "aa0e0bef043628c2",
     "status": "machine",
     "text": "🔴 **`halted: true` ist kein Fehler, und es als solchen zu behandeln, ist der Irrtum, gegen den Sie entwerfen sollten.** Ein Importer, der nicht alles umwandeln konnte, entwirft trotzdem, was er konnte: Die Antwort enthält diese Entwürfe, `written` nennt sie, und `diagnostics` sagt, was ausgelassen wurde. Das ist die nützlichste Antwort, die die Operation gibt, und sie kommt als Ergebnis statt als Fehlschlag, gerade damit Sie dem Autor beide Hälften zeigen können. Unter `sync` schreibt dieselbe Antwort nichts — `files`, `written` und `drift` sind leer —, weil ein Teilentwurf sich wie eine Quelle lesen würde, die jeden Teil weggelassen hat, den der Importer nicht erreicht hat. Eine Quelle, die der Importer überhaupt nicht lesen konnte, ist ein anderer Fall und kommt tatsächlich als Fehler zurück."
+  },
+  "aa0ff5abb2693f11": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "aa0ff5abb2693f11",
+    "status": "machine",
+    "text": "Mit `--global` und ohne `--agent` installiert der Befehl den Skill für die Assistenten, die er auf diesem Rechner findet. Ein Assistent gilt als gefunden, wenn sein eigener Konfigurationsordner in Ihrem Home-Verzeichnis liegt oder sein Befehl in Ihrem `PATH` steht; die Spalte `found by` der Tabelle in der Beschreibung oben nennt beides für jeden Assistenten. Ein Ordner oder Befehl wird nur dort verwendet, wo er allein diesem Assistenten gehört, sodass sein Fund nie für einen anderen steht: Der gemeinsame Ordner `.agents/skills` findet niemanden, und `.gemini`, in dem sowohl Gemini CLI als auch Antigravity Dateien ablegen, findet keinen von beiden — Gemini CLI wird über seinen Befehl `gemini` gefunden und jedes Antigravity-Produkt über seinen eigenen Ordner unterhalb von `.gemini`. Ein Assistent, dessen Konfiguration an anderer Stelle Ihres Systems liegt, wird über seinen Befehl gefunden oder mit `--agent` genannt."
   },
   "aa148787b58750d3": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -31404,6 +31635,17 @@
     "srcHash": "ade8625d48841a07",
     "status": "machine",
     "text": "**Ein erneuter Pull schlägt eine Signatur genau dort erneut nach, wo ein Build die Zeile ablehnen würde, und es gibt zwei solche Zeilen.**"
+  },
+  "adefa700b3acef1e": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "b4846fa5efbc18c5",
+      "reviewed": false
+    },
+    "srcHash": "adefa700b3acef1e",
+    "status": "machine",
+    "text": "**Eine zusammen mit einem Release genannte Katalogentität wird als einzelne Entität geprüft, in den Begriffen dieses Release.** Ein `file`, das eine Component, ein Feature, ein Recipe, ein FeatureRecipe oder ein Plugin enthält und mit einem `release` gesendet wird, erhält die Prüfung, die [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) ausführt, über den ungespeicherten Puffer des Editors: Seine Referenzen — die Component, die ein Recipe implementiert, eine Bibliothek, auf die eine Säule verweist — werden über die Katalogverzeichnisse aufgelöst, die die Workspace-Konfiguration diesem Release gibt, sodass eine Datei in den Begriffen des Release, das mit ihr baut, sauber sein und in den Begriffen eines Release scheitern kann, dessen Verzeichnisse nicht enthalten, worauf sie verweist. Das ist das Urteil, das die Befehlszeile und das `validate`-Werkzeug von [`aggrega mcp`](aggrega-mcp.md) für dieselbe Entität neben demselben Release fällen, und wie deren Prüfung durchläuft sie keinen Abschluss und liest kein Lockfile. Ein blockierender Befund ist ein Fehlereintrag in den eigenen Worten der Prüfung und mit ihren Codes, gezeichnet an dem Schlüssel, den er in der Entität nennt, und, wo er keinen nennt, am `kind:`-Schlüssel der Entität, wie [Was ein Diagnoseeintrag enthält](#what-a-diagnostic-entry-carries) beschreibt — es sei denn, ein Build meldet diesen Fehler bereits für die Datei; dann ist der Eintrag des Builds die einzige Meldung; ein Hinweis, den die Prüfung beim Lesen des Katalogs auslöst, ist ein Warnungseintrag davor; eine saubere Prüfung über Verzeichnisse, die alle vorhanden sind, liefert keinen Eintrag. Eine fehlgeschlagene Assertion — eine, die `fail` aufruft, im Recipe oder in der Component, die es implementiert — ist hier kein blockierender Befund, sondern ein Warnungseintrag in den Worten der Prüfung und mit ihren Codes, abgeschlossen durch den Satz `A Release must satisfy this assertion before a build of it can pass.` und dort gezeichnet, wo der blockierende Befund stünde: die Assertion eines Recipe am eigenen Schlüssel dieser Assertion unter `assertions`, die einer Component am `kind:`-Schlüssel des Recipe. Wie ein blockierender Befund tritt er hinter den Eintrag eines Builds zurück, der denselben Fehler für die Datei meldet. Die Prüfung baut die Entität um Platzhalter und Schema-Standardwerte statt um die Werte, die ein Release setzt, daher kann sie eine Assertion, die auf ein Release wartet, nicht von einer defekten unterscheiden und überlässt das Urteil einem Build, der dieselbe Assertion als Fehler meldet ([eine fehlgeschlagene Assertion ist eine Warnung](aggrega-validate.md#a-failed-assertion-is-a-warning)). Ein Verzeichnis, das die Workspace-Konfiguration für das Release auflistet und das kein Verzeichnis ist — dort existiert etwa nichts —, beendet die Prüfung an dieser Stelle: Die Datei trägt statt des Urteils der Prüfung einen einzigen Fehlereintrag, die Ablehnung, die jeder Befehl für dieses Verzeichnis ausgibt und die den Eintrag, die Konfigurationsdatei und die Zeile, die ihn auflistet, sowie die Einstellung nennt ([Woher lokale Entitäten gelesen werden](configuration.md#where-local-entities-are-read-from)). Ein `release`, das keine Datei oder ein Verzeichnis nennt, wird für die Datei mit dem Satz beantwortet, mit dem die Befehlszeile es ablehnt, statt in den Begriffen des Workspace geprüft zu werden. Was ein Build einer einzelnen Entität nicht ersetzen kann, wird so beurteilt, wie die Befehlszeile es beurteilt, und was die Befehlszeile beiseitelässt oder nicht prüft, liefert hier keinen Eintrag — siehe [was die Korrektheit einer einzelnen Entität nicht prüft](aggrega-validate.md#what-single-entity-correctness-does-not-check) und, für ein Recipe, dessen Template einen Wert liest, den nur eine Kante der Topologie oder ein angehängter Berechtigungsnachweis liefert, [Korrektheit einer einzelnen Entität](aggrega-validate.md#single-entity-correctness-an-entity-path). Das eigene Aggregate des Release, ein Manifest, ein Release und eine Bibliothek werden nicht einzeln geprüft, weil die Einzelentitätsprüfung diese Arten nicht annimmt; für sie bleiben die oben beschriebenen Prüfungen des Abschlusses. Ein Puffer mit Workload-Inhalt wird als YAML gelesen, das kein Aggrega-Dokument ist, denn dieser Inhalt wird im `workload:`-Feld eines Recipe oder eines FeatureRecipe geschrieben und dort geprüft, wo er steht; die Befehlszeile und das `validate`-Werkzeug prüfen, wenn ihnen eine Workload-Datei per Pfad übergeben wird, deren Form für sich allein."
   },
   "adf15fa0d2e29b2b": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -33987,6 +34229,13 @@
     "status": "machine",
     "text": "**Ein Pipeline-Schritt liest nur die eigenen Fakten seines Hosts.** Ein Schritt kann die eigenen Dokumente der Host-Komponente umschreiben, und die eigene Ausgabe einer Komponente bleibt gleich, wer auch immer sich mit ihr verbindet, sodass `with:` und `when:` eines Schritts nie die Komponenten sehen, die sich mit dem Host verbinden — ob das FeatureRecipe den Schlüssel setzt oder nicht, der entscheidet, wann die Anbindung rendert, und nichts darüber, was ein Schritt sieht. Ein inline geschriebenes `with:` oder `when:` eines Schritts, das `render_facts` unterhalb von `.context.used_by` liest, hält daher den Build an, bevor irgendetwas gerendert wird, mit dem Kurzcode `E0326`, und nennt die Referenz und das Feld des Schritts — statt einen leeren Wert zu rendern. Lesen Sie die eigenen Fakten des Hosts in einem Schritt unter `.context.render_facts`, vollständig ausgeschrieben, und die Fakten der Aufrufer in `valuesMapping:`, `workload:` oder `artifacts:` des FeatureRecipe. Diese Prüfung liest das Template so, wie es geschrieben ist, mit denselben Grenzen wie die obige."
   },
+  "bb47048d9132c2fd": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "bb47048d9132c2fd",
+    "status": "machine",
+    "text": "Die Zeile ändert weder das Urteil noch den Exit-Code."
+  },
   "bb484337f8144dd2": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -34063,6 +34312,13 @@
     "srcHash": "bb8dcebb4f8a9582",
     "status": "machine",
     "text": "Die Signiereingaben können über die Umgebung bereitgestellt werden und überschreiben dann den Block `signing:` von `.aggrega-config.yaml`, während ein Flag weiterhin Vorrang hat:"
+  },
+  "bb9682bd670c2116": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "bb9682bd670c2116",
+    "status": "machine",
+    "text": "**Die `uri` nennt das Plugin über seine Identität, `provider/<name>`, nie über den Ort, an dem es veröffentlicht ist.** `aggrega plugin add provider <query> --capability <capability>` schreibt den Eintrag in dieser Form, ohne Version: Der Eintrag wählt aus, welches Plugin die Fähigkeit bedient, die Version ist die, die das Recipe pinnt, andernfalls die höchste verfügbare, und die Lockfile verzeichnet die, die der Pull gewählt hat. Ein Plugin, das der Compiler in sich mitführt, wird in der eigenen Version des Compilers bereitgestellt, sodass eine Version, die auf einem Eintrag für ein solches Plugin geschrieben ist, nur dann aufgelöst wird, wenn sie diese Version ist. Ein Eintrag, dessen `uri` ein Registry-Ort ist — `oci://hub.aggrega.ai/plugin/provider/helm` —, nennt keine Plugin-Identität und wird beim Laden der Datei abgelehnt, unter Nennung des Eintrags und der zu schreibenden Form."
   },
   "bb9c23b438a2647d": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -35186,6 +35442,13 @@
     "status": "machine",
     "text": "`--name` ist der Schlüssel, unter dem der Eintrag geschrieben wird – der Instanzname, der Name der Anbindung, der Alias der Verbindung oder der Schlüssel des Werts. `--socket` wird für `wire-edge` gelesen und andernfalls ignoriert."
   },
+  "c1efb8a587ba6bb5": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "srcHash": "c1efb8a587ba6bb5",
+    "status": "machine",
+    "text": "Dieser Abschnitt behandelt das Entwerfen. Die andere Form der Methode schreibt ein ausführbares Beispiel, und ihre Antwort wird zusammen mit der Methode weiter oben beschrieben."
+  },
   "c1f04abfc67b4c2b": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -35241,6 +35504,13 @@
     "srcHash": "c2143663b95c942a",
     "status": "machine",
     "text": "Der Entwickler verfasst das **Aggregate**: was die Anwendung ist und was sie braucht, ausgedrückt als Absicht. Der Entwickler sagt „Ich brauche eine Datenbank dieser Größe und einen Dienst, der sie nutzt“, nicht „Stelle eine AWS-RDS-Instanz in diesem Subnetz bereit“. Physische Infrastruktur wird bewusst dem Katalog und dem Betrieb überlassen, sodass das Aggregate fähigkeitsagnostisch bleibt — dieselbe Absicht wird für einen Laptop, eine Cloud oder einen Unternehmenscluster kompiliert, ohne dass sich die Datei des Entwicklers ändert."
+  },
+  "c2189bcafdbc6b18": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "c2189bcafdbc6b18",
+    "status": "machine",
+    "text": "**An einem Terminal fragt er zuerst.** Nach den Zeilen, die nennen, was er gefunden hat, bittet er Sie um Bestätigung: Drücken Sie die Eingabetaste, um für diese zu installieren, oder geben Sie die Kennungen weiterer Assistenten, getrennt durch Leerzeichen oder Kommas, ein, um sie hinzuzufügen. Hat er keinen gefunden, fragt er stattdessen nach den Kennungen, und eine leere Antwort schreibt nichts. **Wenn die Standardeingabe kein Terminal ist** — ein Skript, ein Assistent, der den Befehl für Sie ausführt, oder das eigene Werkzeug des Assistenten dafür —, fragt er nichts und installiert für die gefundenen Assistenten. Findet er keinen und wird ihm keiner genannt, schreibt er nichts, meldet dies und endet mit einem Exit-Code ungleich null."
   },
   "c2240ccfe0478f7e": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -36688,6 +36958,13 @@
     "status": "machine",
     "text": "Um den IR-Graphen ohne fest codierte Regeln aufzubauen, liest der Compiler ihn aus drei expliziten Deklarationen:"
   },
+  "c9f9976e7346c63b": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "c9f9976e7346c63b",
+    "status": "machine",
+    "text": "**Ein aufgeführtes Verzeichnis muss ein Verzeichnis sein.** Ein aufgeführter Pfad, an dem nichts existiert oder an dem eine Datei oder ein ins Leere führender Link steht, wird von jedem Befehl, der den Katalog liest, abgelehnt, bevor irgendetwas gelesen oder geschrieben wird — von einem Pull, einem Build, einer Validierung, einer Inspektion, einem Lint und denselben Vorgängen, die aus dem Editor über `aggrega serve` oder von einem Assistenten über `aggrega mcp` ausgelöst werden —, sodass ein Build nie gegen weniger Kataloge läuft, als Sie aufgeführt haben. Die Ablehnung nennt den Eintrag, wie er geschrieben ist, den Pfad, zu dem er aufgelöst wurde, die Konfigurationsdatei und die Zeile, die ihn aufführen, sowie die Liste, in der er steht:"
+  },
   "ca201386cf44963a": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -37533,6 +37810,13 @@
     "srcHash": "ceed3f5ee43734a8",
     "status": "machine",
     "text": "Entitätshülle"
+  },
+  "cf00ccb643d6a528": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "cf00ccb643d6a528",
+    "status": "machine",
+    "text": "**Ohne Argument sowie mit einem Entitätspfad, ob `--release` angegeben ist oder nicht**, liest validate Bibliotheken nur aus Katalogverzeichnissen und liest keine Lockfile, sodass ein verzeichneter Eintrag sein Urteil nicht ändern würde. Die Zeile sagt dies und verweist darauf, die Bibliothek unter einem Katalogverzeichnis zu verfassen, oder auf `aggrega pull --release <release>` gefolgt von `aggrega validate --release <release>`, das das Release gegen die Bibliotheken prüft, die seine Lockfile pinnt."
   },
   "cf08b5dcba2a2c8b": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -39306,6 +39590,17 @@
     "status": "machine",
     "text": "Boolesche Werte"
   },
+  "da39f748269612c7": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "01116f7fff66776d",
+      "reviewed": false
+    },
+    "srcHash": "da39f748269612c7",
+    "status": "machine",
+    "text": "Dies ist das katalogweite Gegenstück zur Validierung pro Release eines Builds — die Stelle, an der eine defekte Katalog-Entität sichtbar werden soll, bevor ein Release sie erreicht. Es hält lautstark an bei einem Aggrega-Dokument, das es nicht laden kann, und bei jeder Verletzung der Schema-Säulen, jeder nicht auflösbaren oder ungültigen Bibliothek, jedem Fehler bei der `extends`-Auflösung, jeder Ortskollision und jedem Eingabeart-Fähigkeitsfehler. Befunde zu Überschneidungen von Schema-Säulen und zur Einengung beim Erweitern sowie jedes `x-aggrega-*`-Schlüsselwort, das eine Component oder ein Feature inline in ihrem Schemainhalt verfasst, sind beratende `notice:`-Zeilen, die den Exit-Code nie ändern."
+  },
   "da3c6525a88f4e84": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -39563,6 +39858,13 @@
     "srcHash": "db8811e8f657542a",
     "status": "machine",
     "text": "**Control Planes, die die Ausgabe von Aggrega konsumieren.** Sie arbeiten innerhalb eines laufenden Clusters und wenden deklarative Artefakte an. Aggrega arbeitet strikt ahead-of-time — es erzeugt die Manifeste, die diese Systeme abgleichen."
+  },
+  "db950de34e3bd549": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "srcHash": "db950de34e3bd549",
+    "status": "machine",
+    "text": "**Ihre Veraltungshinweise decken beide Orte ab, an denen ein Rückzug festgehalten wird.** Eine Markierung an einer festgelegten Referenz steht im Lockfile; eine Markierung an einem Plugin, das in einer Rolle angehängt ist, die ein Urteil aus Annahme oder Ablehnung liefert — ein `plugins.governance`-Anhang bei `ir-verdict` oder `render-verdict` oder ein `plugins.linter`-Anhang —, steht im [Plugin-Vertrauensdatensatz](aggrega-pull.md#the-plugin-trust-record) daneben, daher liest die Validierung beide und nennt jede zurückgezogene Referenz und jedes zurückgezogene Plugin als Warnung am Anfang des Aggregate, in den Worten, die `aggrega build` ausgibt. Ein Hinweis ändert kein Urteil. Ein Vertrauensdatensatz, der vorhanden ist und nicht gelesen werden kann, wird anstelle der Validierung als Fehler gemeldet, statt als einer gelesen zu werden, der nichts festhält. `aggrega/releaseClosure` meldet dieselbe Menge in seinem `deprecations`."
   },
   "db979cf4ce4d5553": {
     "at": "2026-10-22T10:25:30.703Z",

@@ -36533,6 +36533,17 @@
     "status": "machine",
     "text": "Nieprzejrzyste właściwości kognitywne przekazywane do encji Component, walidowane przez jej schemat."
   },
+  "398c4cc5f87c6391": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "7f80b1b6187ba3e8",
+      "reviewed": false
+    },
+    "srcHash": "398c4cc5f87c6391",
+    "status": "machine",
+    "text": "Należy utworzyć katalog albo usunąć wpis: kopia projektu wykonana bez sąsiedniego checkoutu, który projekt wymienia, usuwa ten wpis i rozwiązuje z rejestru to, co ten checkout by dostarczył. To samo dotyczy katalogu wymienionego we własnym wpisie encji Release, katalogu dodanego przez plik konfiguracyjny należący do potoku albo przez plik globalny oraz katalogu przekazanego w zmiennej `AGGREGA_CATALOG_DIRS`, którą odrzucenie wskazuje zamiast pliku. Sama konfiguracja nadal się wczytuje, więc polecenie, które nie odczytuje żadnego katalogu encji, nadal działa. Nieistniejący katalog `--catalog` został wpisany dla jednego polecenia i `aggrega build` go odrzuca, wskazując ten katalog. Wymieniony katalog, który istnieje, ale nie może zostać odczytany, jest odrzucany przez polecenia wczytujące cały katalog encji, które go wskazują."
+  },
   "3992481a36e61e30": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -98400,6 +98411,17 @@
     "status": "machine",
     "text": "`features` — encje Features dołączone w innym celu niż poświadczenie, na przykład routing, monitorowanie, budżet, cache lub maskowanie."
   },
+  "9b487e946a7bf748": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "9990d61e327b033c",
+      "reviewed": false
+    },
+    "srcHash": "9b487e946a7bf748",
+    "status": "machine",
+    "text": "Katalog wymieniony w konfiguracji obszaru roboczego, który nie jest katalogiem — bo na przykład nic w tym miejscu nie istnieje — dla tej encji Release lub dla obszaru roboczego, gdy nie podano `--release`, jest odrzucany, zanim cokolwiek zostanie sprawdzone, tak jak odrzuca go każde polecenie, które go odczytuje ([Skąd odczytywane są encje lokalne](configuration.md#where-local-entities-are-read-from)): odrzucenie wskazuje wpis, plik konfiguracyjny i wiersz, które go wymieniają, oraz ustawienie, i nie jest wydawany żaden werdykt. Kontrola encji w edytorze za pośrednictwem [`aggrega serve`](./aggrega-serve.md) podaje to samo odrzucenie jako jedyny wpis dla pliku encji, na poziomie błędu, a narzędzie `validate` w [`aggrega mcp`](./aggrega-mcp.md) odrzuca z nim wywołanie."
+  },
   "9b493a3cfcc4210d": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -110407,6 +110429,17 @@
     "srcHash": "adee9f1ee530f7db",
     "status": "machine",
     "text": "a przy `empty_credentials` równym `marked` wartość `infra.endpoint` jest pozostawiana encji Release, a komentarz wymienia `user part` i `query`, każdą z pominiętą wartością."
+  },
+  "adefa700b3acef1e": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "b4846fa5efbc18c5",
+      "reviewed": false
+    },
+    "srcHash": "adefa700b3acef1e",
+    "status": "machine",
+    "text": "**Encja katalogu wskazana razem z encją Release jest sprawdzana jako pojedyncza encja, w kategoriach tej encji Release.** `file` zawierający Component, Feature, Recipe, FeatureRecipe lub Plugin, wysłany z `release`, przechodzi sprawdzenie, które wykonuje [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms), na niezapisanym buforze edytora: jego odwołania — Component, który implementuje Recipe, biblioteka, do której odwołuje się filar — są rozwiązywane przez katalogi, które konfiguracja obszaru roboczego przypisuje tej encji Release, więc jeden plik może być poprawny w kategoriach encji Release, która jest z nim budowana, i niepoprawny w kategoriach encji Release, której katalogi nie zawierają tego, do czego się odwołuje. Jest to werdykt, który wiersz poleceń i narzędzie `validate` z [`aggrega mcp`](aggrega-mcp.md) dają dla tej samej encji przy tej samej encji Release, i podobnie jak one nie przechodzi żadnego domknięcia ani nie odczytuje pliku blokady. Blokujące zgłoszenie to jeden wpis błędu słowami samego sprawdzenia i z jego kodami, rysowany przy kluczu, który wskazuje w encji, a jeśli nie wskazuje żadnego, przy kluczu `kind:` encji, jak opisuje [Co zawiera wpis diagnostyki](#what-a-diagnostic-entry-carries) — chyba że kompilacja już raportuje ten błąd w pliku, a wtedy jedynym raportem jest wpis kompilacji; ostrzeżenie zgłoszone przez sprawdzenie podczas odczytu katalogu to wpis ostrzeżenia przed nim; czyste sprawdzenie nad katalogami, które wszystkie istnieją, nie daje żadnego wpisu. Niespełniona asercja — taka, która wywołuje `fail`, w encji Recipe lub w encji Component, którą ona implementuje — nie jest tu blokującym zgłoszeniem, lecz wpisem ostrzeżenia, słowami sprawdzenia i z jego kodami, zakończonym zdaniem `A Release must satisfy this assertion before a build of it can pass.` i rysowanym tam, gdzie byłoby zgłoszenie blokujące: asercja encji Recipe przy własnym kluczu tej asercji w `assertions`, asercja encji Component przy kluczu `kind:` encji Recipe. Podobnie jak zgłoszenie blokujące ustępuje ono wpisowi kompilacji raportującemu ten sam błąd w pliku. Sprawdzenie buduje encję wokół symboli zastępczych i wartości domyślnych schematu, a nie wartości ustawianych przez encję Release, więc nie potrafi odróżnić asercji czekającej na encję Release od asercji błędnej i pozostawia werdykt kompilacji, która raportuje tę samą asercję jako błąd ([niespełniona asercja jest ostrzeżeniem](aggrega-validate.md#a-failed-assertion-is-a-warning)). Katalog, który konfiguracja obszaru roboczego podaje dla encji Release, a który nie jest katalogiem — na przykład nic w tym miejscu nie istnieje — zatrzymuje sprawdzenie: plik otrzymuje jeden wpis błędu zamiast werdyktu sprawdzenia, czyli odmowę, którą każde polecenie daje temu katalogowi, wskazującą wpis, plik konfiguracji i wiersz, który go wymienia, oraz ustawienie ([Skąd odczytywane są encje lokalne](configuration.md#where-local-entities-are-read-from)). `release`, który nie wskazuje żadnego pliku lub wskazuje katalog, otrzymuje w pliku odpowiedź w postaci zdania, którym odrzuca go wiersz poleceń, zamiast sprawdzenia w kategoriach obszaru roboczego. To, czego kompilacja pojedynczej encji nie może zastąpić, jest oceniane tak, jak ocenia to wiersz poleceń, a to, co wiersz poleceń pomija lub czego nie sprawdza, nie daje tu żadnego wpisu — zob. [czego nie sprawdza poprawność pojedynczej encji](aggrega-validate.md#what-single-entity-correctness-does-not-check) oraz, dla encji Recipe, której szablon odczytuje wartość dostarczaną wyłącznie przez krawędź topologii lub dołączone poświadczenie, [poprawność pojedynczej encji](aggrega-validate.md#single-entity-correctness-an-entity-path). Własna encja Aggregate encji Release, Manifest, Release ani biblioteka nie są sprawdzane pojedynczo, ponieważ sprawdzenie pojedynczej encji nie przyjmuje tych rodzajów; podlegają one opisanym wyżej sprawdzeniom domknięcia. Bufor zawierający treść Workload jest odczytywany jako YAML niebędący dokumentem Aggrega, ponieważ taka treść jest zapisywana w polu `workload:` encji Recipe lub FeatureRecipe i jest sprawdzana tam, gdzie się znajduje; wiersz poleceń i narzędzie `validate`, którym przekaże się plik Workload przez ścieżkę, sprawdzają jego kształt samodzielnie."
   },
   "adf15fa0d2e29b2b": {
     "at": "2026-10-29T20:34:12.781Z",
@@ -129089,6 +129122,13 @@
     "srcHash": "c9f70564debc98ff",
     "status": "machine",
     "text": "Aby zbudować graf IR bez zakodowanych na sztywno reguł, kompilator odczytuje go z trzech jawnych deklaracji:"
+  },
+  "c9f9976e7346c63b": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "c9f9976e7346c63b",
+    "status": "machine",
+    "text": "**Wymieniony katalog musi być katalogiem.** Wymieniona ścieżka, pod którą nic nie istnieje albo pod którą znajduje się plik lub dowiązanie prowadzące donikąd, jest odrzucana, zanim cokolwiek zostanie odczytane lub zapisane, przez każde polecenie odczytujące katalog encji — pobranie, budowanie, walidację, inspekcję, lint oraz te same operacje uruchamiane z edytora przez `aggrega serve` lub z asystenta przez `aggrega mcp` — więc budowanie nigdy nie jest uruchamiane na mniejszej liczbie katalogów, niż wymieniono. Odrzucenie wskazuje wpis w zapisanej postaci, ścieżkę, na którą został rozwiązany, plik konfiguracyjny i wiersz, które go wymieniają, oraz listę, w której się znajduje:"
   },
   "c9fb4e1e4c4e1d12": {
     "at": "2026-10-22T22:51:15.481474+00:00",

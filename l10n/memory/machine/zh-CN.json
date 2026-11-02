@@ -36540,6 +36540,17 @@
     "status": "machine",
     "text": "传递给 Component 的不透明认知属性，由其 schema 校验。"
   },
+  "398c4cc5f87c6391": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "7f80b1b6187ba3e8",
+      "reviewed": false
+    },
+    "srcHash": "398c4cc5f87c6391",
+    "status": "machine",
+    "text": "创建该目录，或删除该条目：在不带它所列出的同级检出的情况下复制的项目会删除该条目，并从注册表解析该检出本应提供的内容。Release 自身条目列出的目录、由你的流水线所拥有的配置文件或全局文件添加的目录，以及 `AGGREGA_CATALOG_DIRS` 携带的目录同样如此；对于后者，拒绝信息会指明该变量而不是某个文件。配置本身仍会加载，因此不读取任何目录的命令仍可运行。不存在的 `--catalog` 目录是为单个命令输入的，`aggrega build` 会拒绝它并指明该目录。存在但无法读取的已列出目录会被加载全部目录的命令拒绝，并指明该目录。"
+  },
   "3992481a36e61e30": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -98415,6 +98426,17 @@
     "status": "machine",
     "text": "`features`——为凭据以外的用途附加的 Features，例如路由、监控、预算、缓存或脱敏。"
   },
+  "9b487e946a7bf748": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "revision": {
+      "from": "9990d61e327b033c",
+      "reviewed": false
+    },
+    "srcHash": "9b487e946a7bf748",
+    "status": "machine",
+    "text": "工作区配置列出的目录如果不是目录（例如该处什么都不存在），无论是针对该 Release，还是在未给出 `--release` 时针对工作区，都会在检查任何内容之前被拒绝，正如读取这些目录的每个命令都会拒绝它（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）：拒绝信息会指明该条目、列出它的配置文件和行以及相应设置，并且不给出结论。通过 [`aggrega serve`](./aggrega-serve.md) 进行的编辑器实体检查会将同一拒绝作为该实体文件上的唯一条目给出，级别为错误，而 [`aggrega mcp`](./aggrega-mcp.md) 的 `validate` 工具会以此拒绝该调用。"
+  },
   "9b493a3cfcc4210d": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -110436,6 +110458,17 @@
     "srcHash": "adee9f1ee530f7db",
     "status": "machine",
     "text": "而当 `empty_credentials` 为 `marked` 时，`infra.endpoint` 留给 Release 提供，注释列出 `user part` 和 `query`，各自的值均被省去。"
+  },
+  "adefa700b3acef1e": {
+    "at": "2026-11-02T19:55:14.786Z",
+    "job": "session-0011-20261102195514",
+    "revision": {
+      "from": "b4846fa5efbc18c5",
+      "reviewed": false
+    },
+    "srcHash": "adefa700b3acef1e",
+    "status": "machine",
+    "text": "**与 Release 一同指定的目录实体，会按该 Release 的条件作为单个实体检查。** 持有 Component、Feature、Recipe、FeatureRecipe 或 Plugin 的 `file`，若与 `release` 一同发送，会在编辑器的未保存缓冲区上得到 [`aggrega validate <path> --release <release>`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) 所运行的检查：其引用——Recipe 实现的 Component、某个支柱引用的库——会通过工作区配置为该 Release 给出的目录进行解析，因此同一文件可能按使用它构建的 Release 的条件是干净的，而按另一个其目录不包含其所引用内容的 Release 的条件则失败。这与命令行和 [`aggrega mcp`](aggrega-mcp.md) 的 `validate` 工具针对同一实体、同一 Release 给出的判定相同，并且与它们一样，不遍历闭包，也不读取锁文件。阻塞性发现是一个错误条目，使用检查自身的措辞并携带其代码，绘制在它在实体中指出的键上，若未指出键，则绘制在实体的 `kind:` 键上，如 [What a diagnostic entry carries（诊断条目携带的内容）](#what-a-diagnostic-entry-carries) 所述——除非构建已在该文件上报告了该错误，此时构建的条目即为唯一的报告；检查在读取目录时提出的建议是位于其前面的警告条目；在目录全部存在的情况下检查干净，则不产生任何条目。失败的断言——即在 Recipe 或其实现的 Component 中调用 `fail` 的断言——在这里不是阻塞性发现，而是一个警告条目，使用检查的措辞并携带其代码，以句子 `A Release must satisfy this assertion before a build of it can pass.` 结尾，并绘制在阻塞性发现本应所在的位置：Recipe 的断言绘制在 `assertions` 下该断言自身的键上，Component 的断言绘制在 Recipe 的 `kind:` 键上。与阻塞性发现一样，若构建的条目在该文件上报告了相同错误，则让位于构建的条目。该检查围绕占位符和 schema 默认值构建实体，而不是使用 Release 设置的值，因此无法区分等待 Release 的断言和已损坏的断言，而将判定留给构建，构建会将同一断言报告为错误（[失败的断言是警告](aggrega-validate.md#a-failed-assertion-is-a-warning)）。工作区配置为该 Release 列出的目录若并非目录——例如那里什么都不存在——检查便不会越过它：该文件携带一个错误条目，取代检查的判定，即每个命令对该目录给出的拒绝，指出该条目、列出它的配置文件和行，以及该设置（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）。未指向任何文件或指向目录的 `release`，会在该文件上以命令行拒绝它时使用的句子作答，而不是按工作区的条件进行检查。单个实体的构建所无法替代的内容，按命令行的判定方式判定，而命令行搁置或不检查的内容在这里不产生任何条目——参见[单实体正确性不检查的内容](aggrega-validate.md#what-single-entity-correctness-does-not-check)，以及对于模板读取仅由拓扑边或附加凭据提供的值的 Recipe，参见[单实体正确性](aggrega-validate.md#single-entity-correctness-an-entity-path)。Release 自身的 Aggregate、Manifest、Release 和库不会逐个检查，因为单实体检查不接受这些种类；它们保留上述闭包检查。持有 Workload 内容的缓冲区被视为非 Aggrega 文档的 YAML，因为该内容写在 Recipe 或 FeatureRecipe 的 `workload:` 字段中，并在其所在之处进行检查；命令行和 `validate` 工具在通过路径获得 Workload 文件时，会单独检查其结构。"
   },
   "adf15fa0d2e29b2b": {
     "at": "2026-10-29T20:34:12.781Z",
@@ -129118,6 +129151,13 @@
     "srcHash": "c9f70564debc98ff",
     "status": "machine",
     "text": "为了在没有硬编码规则的情况下构建 IR 图，编译器从三种显式声明中读取它："
+  },
+  "c9f9976e7346c63b": {
+    "at": "2026-11-02T19:55:20.081Z",
+    "job": "session-0012-20261102195520",
+    "srcHash": "c9f9976e7346c63b",
+    "status": "machine",
+    "text": "**列出的目录必须是目录。** 列出的路径如果什么都不存在，或者那里是一个文件或一个不指向任何地方的链接，都会在读取或写入任何内容之前被每个读取所列目录的命令拒绝——拉取、构建、验证、检查、lint，以及通过 `aggrega serve` 从编辑器或通过 `aggrega mcp` 从助手驱动的相同操作——因此构建永远不会在比你列出的更少的目录上运行。拒绝信息会指明按原样书写的条目、它解析到的路径、列出它的配置文件和行，以及它所在的列表："
   },
   "c9fb4e1e4c4e1d12": {
     "at": "2026-10-22T03:12:40.354254+00:00",
