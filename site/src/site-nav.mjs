@@ -30,9 +30,6 @@ export function docsHref(base, locale, route = "") {
 /** The repository the GitHub entry leads to. */
 export const GITHUB_HREF = "https://github.com/aggrega-ai/aggrega-cli";
 
-// The menu's labels, from their English source (src/strings/site-nav.json).
-// 🔴 They show in English on every language's pages: nothing translates that
-// file yet.
-import labels from "./strings/site-nav.json" with { type: "json" };
-
-export const LABELS = labels;
+// The menu's labels are written in src/strings/site-nav.md and translated with
+// the documentation; the header reads each language's labels from the module
+// virtual:aggrega-docs/site-nav (siteNavLabels in src/translations.mjs).

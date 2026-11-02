@@ -146,7 +146,8 @@ machine-translated, linking to the same page in English
 written once, in English, in `src/strings/machine-translation-notice.md`, which
 the translation configuration translates with the pages but the site never
 publishes as a page; a language whose memory has no translation of it shows it
-in English.
+in English. The labels of the menu at the top of every page are written and
+translated the same way, in `src/strings/site-nav.md`, each read by its key.
 A translated heading keeps its English heading's anchor, so a link to a section
 resolves in every language. A build with no translated pages present, such as a
 local one, serves every page of a published language in English with that notice.

@@ -5,7 +5,8 @@ import LanguageSelect from "virtual:starlight/components/LanguageSelect";
 import Search from "virtual:starlight/components/Search";
 import SiteTitle from "virtual:starlight/components/SiteTitle";
 import ThemeSelect from "virtual:starlight/components/ThemeSelect";
-import { GITHUB_HREF, LABELS, catalogHref, docsHref } from "../site-nav.mjs";
+import siteNav from "virtual:aggrega-docs/site-nav";
+import { GITHUB_HREF, catalogHref, docsHref } from "../site-nav.mjs";
 
 // The header, in place of Starlight's: the wordmark leading to the Aggrega home
 // page, this site's search, then the Aggrega menu the home site and the catalog
@@ -13,8 +14,12 @@ import { GITHUB_HREF, LABELS, catalogHref, docsHref } from "../site-nav.mjs";
 // catalog, the examples and the GitHub repository, the theme switch and the
 // language picker. On a narrow screen the menu's links are left out and the
 // theme switch and the language picker move into Starlight's menu, as before.
+// The labels are the page's language's translation of src/strings/site-nav.md
+// (siteNavLabels in src/translations.mjs), each marked with the language it is
+// in, so a label the translation memory lacks is marked as English.
 const route = Astro.locals.starlightRoute;
 const base = import.meta.env.BASE_URL;
+const labels = siteNav[route.locale ?? ""] ?? siteNav[""];
 const shouldRenderSearch =
   config.pagefind || config.components.Search !== "@astrojs/starlight/components/Search.astro";
 const newTabId = "site-nav-new-tab";
@@ -29,22 +34,25 @@ const newTabId = "site-nav-new-tab";
   </div>
   <div class="sl-hidden md:sl-flex print:hidden right-group">
     <nav aria-label="Aggrega" class="site-nav">
-      <a href={route.siteTitleHref}>{LABELS.docs}</a>
-      <a href={catalogHref(route.locale)}>{LABELS.catalog}</a>
-      <a href={docsHref(base, route.locale, "language-reference/examples/")}>{LABELS.examples}</a>
+      <a href={route.siteTitleHref} lang={labels.docs.lang}>{labels.docs.text}</a>
+      <a href={catalogHref(route.locale)} lang={labels.catalog.lang}>{labels.catalog.text}</a>
+      <a href={docsHref(base, route.locale, "language-reference/examples/")} lang={labels.examples.lang}>
+        {labels.examples.text}
+      </a>
       <a
         href={GITHUB_HREF}
         target="_blank"
         rel="noopener noreferrer"
         class="icon-link"
-        aria-label={LABELS.githubStar}
+        lang={labels.githubStar.lang}
+        aria-label={labels.githubStar.text}
         aria-describedby={newTabId}
-        title={LABELS.githubStar}
+        title={labels.githubStar.text}
       >
         <Icon name="github" size="1.25rem" />
         <Icon name="star" size="1rem" />
       </a>
-      <span id={newTabId} hidden>{LABELS.newTab}</span>
+      <span id={newTabId} lang={labels.newTab.lang} hidden>{labels.newTab.text}</span>
     </nav>
     <ThemeSelect />
     <LanguageSelect />

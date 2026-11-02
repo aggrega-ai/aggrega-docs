@@ -7,6 +7,7 @@ import {
   corpusRoot,
   hasTranslatedTrees,
   machineTranslationNoticeModule,
+  siteNavModule,
   starlightLocales,
   translationPackage,
   untranslatedPagesModule,
@@ -101,10 +102,12 @@ export default defineConfig({
   },
   // The routes of the translated pages that still hold English text, for the
   // route data (src/routeData.ts), each language's machine-translation notice,
-  // for the banner (src/components/Banner.astro), and the analytics beacon of a
-  // build given the site token, for the page head (src/analytics.mjs).
+  // for the banner (src/components/Banner.astro), each language's labels of the
+  // menu at the top of the page, for the header (src/components/Header.astro),
+  // and the analytics beacon of a build given the site token, for the page head
+  // (src/analytics.mjs).
   vite: {
-    plugins: [untranslatedPagesModule(), machineTranslationNoticeModule(), analyticsModule()],
+    plugins: [untranslatedPagesModule(), machineTranslationNoticeModule(), siteNavModule(), analyticsModule()],
   },
   integrations: [
     starlight({

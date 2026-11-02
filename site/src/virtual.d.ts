@@ -17,6 +17,14 @@ declare module "virtual:aggrega-docs/machine-translation-notice" {
   export default notices;
 }
 
+// The module the site configuration provides (see siteNavModule in
+// src/translations.mjs): the labels of the menu at the top of every page, by the
+// path segment of the language whose pages show them, English under "".
+declare module "virtual:aggrega-docs/site-nav" {
+  const labels: Record<string, Record<string, { text: string; lang: string }>>;
+  export default labels;
+}
+
 // The module the site configuration provides (see analyticsModule in
 // src/analytics.mjs): the HTML of the analytics tags every page's head carries,
 // empty for a build not given the site token.

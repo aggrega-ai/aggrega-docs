@@ -37,7 +37,9 @@ import list from "./languages.json" with { type: "json" };
 // configuration translates that file with the pages, so the version build
 // generates its translation into each language's tree beside them; the site
 // shows each language's translation on that language's pages, and the English
-// text where the memory has none (machineTranslationNoticeModule()).
+// text where the memory has none (machineTranslationNoticeModule()). The labels
+// of the menu at the top of every page are written and translated the same way,
+// in the file SITE_NAV_LABELS (siteNavModule()).
 
 /** The language every page is written in, served at the unprefixed root. */
 export const sourceLanguage = { lang: list.source.lang, label: list.source.label };
@@ -63,6 +65,12 @@ const UNTRANSLATED_FILE = "untranslated-pages.json";
  * translated with the pages and is not a page: the site never publishes it.
  */
 export const MACHINE_TRANSLATION_NOTICE = "site/src/strings/machine-translation-notice.md";
+
+/**
+ * The source of the labels of the menu at the top of every page, relative to the
+ * corpus root. Like the notice, it is translated with the pages and is not a page.
+ */
+export const SITE_NAV_LABELS = "site/src/strings/site-nav.md";
 
 /** The link destination the notice's source writes, which the site replaces with the English page's address. */
 const NOTICE_LINK_DESTINATION = "english-original";
@@ -210,6 +218,26 @@ export function untranslatedPagesModule(root = corpusRoot) {
   };
 }
 
+/**
+ * The path of a language's translation of one of the site's own strings files,
+ * which the translation configuration translates with the pages: undefined when
+ * no translated tree of the language is present. A tree present without the file
+ * stops with an error naming what the file holds, since that language would
+ * show it in English with no sign of why.
+ */
+function translatedString(rel, lang, holds, root) {
+  const { treesDir } = translationLayout(root);
+  if (!existsSync(path.join(treesDir, lang))) return undefined;
+  const file = path.join(root, translatedPath(rel, lang, root));
+  if (!existsSync(file)) {
+    throw new Error(
+      `The translated pages of ${lang} are present without ${file}, ${holds} in ` +
+        `that language: the translation configuration translates ${rel} with the pages.`,
+    );
+  }
+  return file;
+}
+
 /** The site project's own directory, which the content collection's file paths are relative to. */
 const siteProjectRoot = fileURLToPath(new URL("..", import.meta.url));
 
@@ -263,14 +291,8 @@ export function machineTranslationNotices(root = corpusRoot) {
     publishedLanguages.map(({ lang, locale }) => {
       const tree = path.join(treesDir, lang);
       const entry = { tree: `${toPosix(path.relative(siteProjectRoot, tree))}/`, lang: sourceLanguage.lang, ...source };
-      if (!existsSync(tree)) return [locale, entry];
-      const file = path.join(root, translatedPath(MACHINE_TRANSLATION_NOTICE, lang, root));
-      if (!existsSync(file)) {
-        throw new Error(
-          `The translated pages of ${lang} are present without ${file}, the machine-translation notice in ` +
-            `that language: the translation configuration translates ${MACHINE_TRANSLATION_NOTICE} with the pages.`,
-        );
-      }
+      const file = translatedString(MACHINE_TRANSLATION_NOTICE, lang, "the machine-translation notice", root);
+      if (!file) return [locale, entry];
       const parts = noticeParts(readFileSync(file, "utf-8"), file);
       const translated = parts.before !== source.before || parts.link !== source.link || parts.after !== source.after;
       return [locale, { ...entry, lang: translated ? lang : sourceLanguage.lang, ...parts }];
@@ -293,6 +315,75 @@ export function machineTranslationNoticeModule(root = corpusRoot) {
     resolveId: (id) => (id === NOTICE_MODULE ? resolved : undefined),
     load: (id) =>
       id === resolved ? `export default ${JSON.stringify(machineTranslationNotices(root))};` : undefined,
+  };
+}
+
+// A label of the menu, from a line of its Markdown outside any HTML comment: a
+// list item holding the label's key in inline code, then the label, after a
+// colon a translation may write in its own script.
+const LABEL_ITEM = /^\s*[-*+]\s+`([A-Za-z][A-Za-z0-9]*)`\s*[:：]?\s*(.*?)\s*$/;
+
+function labelItems(markdown) {
+  const labels = {};
+  for (const line of markdown.replace(/<!--[\s\S]*?-->/g, "").split(/\r?\n/)) {
+    const match = line.match(LABEL_ITEM);
+    if (match && match[2] !== "") labels[match[1]] = unescapeMarkdown(match[2]);
+  }
+  return labels;
+}
+
+/**
+ * The labels of the menu at the top of every page, by the path segment of the
+ * language whose pages show them, English under "": for each key of
+ * SITE_NAV_LABELS, the label's text and the language it is in.
+ *
+ * A language's labels are its translation of SITE_NAV_LABELS, which the version
+ * build generates into the language's tree; a label the translation lacks, or
+ * gives as the English text, is the English label, marked as English. Without a
+ * translated tree every label is the English one. A translated tree present
+ * without the file stops with an error.
+ */
+export function siteNavLabels(root = corpusRoot) {
+  const sourceFile = path.join(root, SITE_NAV_LABELS);
+  const source = labelItems(readFileSync(sourceFile, "utf-8"));
+  if (Object.keys(source).length === 0) {
+    throw new Error(`${sourceFile} must list the menu's labels, each a list item \`key\`: label; it lists none.`);
+  }
+  const english = Object.fromEntries(
+    Object.entries(source).map(([key, text]) => [key, { text, lang: sourceLanguage.lang }]),
+  );
+  return Object.fromEntries([
+    ["", english],
+    ...publishedLanguages.map(({ lang, locale }) => {
+      const file = translatedString(SITE_NAV_LABELS, lang, "the menu's labels", root);
+      if (!file) return [locale, english];
+      const translated = labelItems(readFileSync(file, "utf-8"));
+      return [
+        locale,
+        Object.fromEntries(
+          Object.keys(source).map((key) => {
+            const text = translated[key];
+            return [key, text && text !== source[key] ? { text, lang } : english[key]];
+          }),
+        ),
+      ];
+    }),
+  ]);
+}
+
+const SITE_NAV_MODULE = "virtual:aggrega-docs/site-nav";
+
+/**
+ * A Vite plugin providing the module `virtual:aggrega-docs/site-nav`: the labels
+ * siteNavLabels() reads, as its default export, read once while the site is
+ * configured.
+ */
+export function siteNavModule(root = corpusRoot) {
+  const resolved = `\0${SITE_NAV_MODULE}`;
+  return {
+    name: "aggrega-docs-site-nav",
+    resolveId: (id) => (id === SITE_NAV_MODULE ? resolved : undefined),
+    load: (id) => (id === resolved ? `export default ${JSON.stringify(siteNavLabels(root))};` : undefined),
   };
 }
 
