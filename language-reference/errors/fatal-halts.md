@@ -1029,7 +1029,7 @@ an unusable `signing.kinds` entry, which also names the wildcard that covers eve
 > `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: workspace configuration is invalid
 
 a provider binding written as a registry location, which names the entry, the capability and the form to write:
-> workspaceconfig: `<path>`: plugins.providers[`<n>`] binds capability `"<capability>"` to `"oci://<registry>/<repository>"`, which is where a plugin is published rather than which plugin it is; a provider binding names its plugin by its identity — write `uri: provider/<name>`, with an optional `:<version>`: workspace configuration is invalid
+> `<path>`: plugins.providers[`<n>`] binds capability `"<capability>"` to `"oci://<registry>/<repository>"`, which is where a plugin is published rather than which plugin it is; a provider binding names its plugin by its identity — write `uri: provider/<name>`, with an optional `:<version>`: workspace configuration is invalid
 
 a linter or verdict-role governance attachment naming an entry function and no plugin, which names the list, the entry and the function, here on `plugins.linter`:
 > workspaceconfig: `<path>`: plugins.linter[`<n>`] names the entry function `"<function>"` but no plugin `uri`; an attachment on this list selects its plugin by `uri`, so this one attaches no plugin and `"<function>"` is never called — add the `uri` of the plugin that exports it: workspace configuration is invalid
