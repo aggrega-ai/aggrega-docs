@@ -65,10 +65,26 @@ function listCell(items) {
   return cell(items.join(", "));
 }
 
+// Wraps a value in inline code inside a table cell: the cell's text is shown
+// exactly as the binary reports it, in every language the documentation is
+// translated into, because a translation leaves a cell holding only inline code
+// as it is. A backtick in the value lengthens the fence so the span still closes.
+function codeCell(text) {
+  const s = cell(text);
+  if (s === "—") return s;
+  const longest = Math.max(0, ...(s.match(/`+/g) ?? []).map((run) => run.length));
+  const fence = "`".repeat(longest + 1);
+  const pad = s.startsWith("`") || s.endsWith("`") ? " " : "";
+  return `${fence}${pad}${s}${pad}${fence}`;
+}
+
 // The version cell prefers full provenance (version and commit) and falls back
-// to whichever is present, mirroring how the binary renders it.
+// to whichever is present, mirroring how the binary renders it. It is machine
+// output, so it is written as inline code: its text changes with every release,
+// and as prose it would be new text to translate each time the page is
+// regenerated.
 function versionCell(entry) {
-  if (entry.error) return cell(`error: ${entry.error}`);
+  if (entry.error) return codeCell(`error: ${entry.error}`);
   const { commit } = entry;
   // Committed reference carries the clean, reproducible version; strip a
   // dev-tree `-dirty` suffix here so the page stays stable. The live
@@ -76,9 +92,9 @@ function versionCell(entry) {
   const version = typeof entry.version === "string"
     ? entry.version.replace(/-dirty$/, "")
     : entry.version;
-  if (version && commit) return cell(`${version} (commit ${commit})`);
-  if (version) return cell(version);
-  if (commit) return cell(`(commit ${commit})`);
+  if (version && commit) return codeCell(`${version} (commit ${commit})`);
+  if (version) return codeCell(version);
+  if (commit) return codeCell(`(commit ${commit})`);
   return "—";
 }
 
