@@ -42,30 +42,25 @@ The examples come in two modes — the two ends of one curriculum:
   `mariadb-adminer` is the worked authoring example; the entities it builds are
   the same kind the consumption examples consume.
 
-Each workspace on the list below carries a `build-release.sh` helper that builds
-one release per run, echoing the equivalent direct `aggrega build` command first.
-Run `./build-release.sh` in a single-release example, or name the release for a
-multi-release one (`./build-release.sh helm`).
-
-The helper works out the catalog source from the workspace it is run in: a
-`catalog-<target>/` directory sitting beside `release-<target>.yaml` is passed as
-`--catalog`, and otherwise the workspace's own `.aggrega-config.yaml` — or, with
-no such file, the configured registry — supplies the entities. It looks only in
-the workspace directory, so it never finds a catalog that sits somewhere else in
-a repository; pass `--catalog` yourself after `--` when building a workspace of
-your own that keeps its catalog elsewhere. It also reports, on every run, which
-`aggrega` binary it used and where that binary came from, so output you compare
-against a page here is never from an unidentified build — and it prefers building
-the CLI from source over reusing one that the sources have since moved past. Set
-`AGGREGA_BIN` to choose the binary yourself.
+Build one release per run with `aggrega build --release <release file>`; each
+example's page gives its own commands. The workspace supplies its catalog as
+described above; pass `--catalog` yourself for a catalog directory the workspace
+does not name, as the pages that need it show.
 
 Lockfiles are generated rather than shipped, so a fresh clone has none and the
 first build needs one. `aggrega build` is read-only by default: with no lockfile
-it halts and names the two ways forward. Pass `--auto-pull` through the helper
-for that first build — `./build-release.sh -- --auto-pull`, or
-`./build-release.sh helm -- --auto-pull` when naming a release — to resolve the
-lockfile during the build; running `aggrega pull --release <release>.yaml` once
+it halts and names the two ways forward. Pass `--auto-pull` for that first
+build — `aggrega build --release release.yaml --auto-pull` — to resolve the
+lockfile during the build; running `aggrega pull --release <release file>` once
 beforehand does the same and lets every later build run with no flag.
+
+In a checkout of the documentation repository, most workspaces also carry a
+`build-release.sh` helper that the repository's own checks build through. It
+runs `aggrega build` for one release, echoing the command first, and reports which
+`aggrega` binary it used and where that binary came from; set `AGGREGA_BIN` to
+choose the binary. A copy written by `aggrega scaffold --example` carries the
+helper without the shared script it calls, so build such a copy with
+`aggrega build` directly.
 
 These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
