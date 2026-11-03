@@ -5128,6 +5128,13 @@
     "status": "machine",
     "text": "El rechazo se decide una vez que la Recipe de cada componente y la FeatureRecipe de cada vinculación están enlazadas y cada proveedor se ha descrito a sí mismo — antes de que se renderice el primer componente y antes de que se evalúe ninguna entrada, por lo que una compilación rechazada aquí no renderiza nada. Se comprueba en cada documento que renderiza una fuente: la Recipe de un componente; la FeatureRecipe que una vinculación enlaza en un componente, una vez por cada componente que lleva la vinculación; y una FeatureRecipe que genera una sola vez para un límite, una vez, en el límite que la declara. Cada documento en falta se notifica en una sola compilación; cuando hay más de uno, los hallazgos se agrupan bajo `documents declaring omits whose provider does not honour them`. Un documento enlazado a un proveedor que la compilación no puede resolver no se notifica aquí: esa compilación se detiene donde se selecciona el proveedor, nombrando el enlace."
   },
+  "162a79a1621539fd": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "162a79a1621539fd",
+    "status": "machine",
+    "text": "duplicate entity identity within a single catalog directory (Component identity `\"<identity>\"`) (identidad de entidad duplicada dentro de un mismo directorio de catálogo (identidad de Component))"
+  },
   "162a8ad1596b7334": {
     "at": "2026-11-03T03:00:33.649Z",
     "job": "session-0042-20261103030033",
@@ -6108,6 +6115,13 @@
     "status": "machine",
     "text": "La advertencia se escribe en la salida de error estándar, encabezada por `warning:`, después de cualquier nota informativa. Lleva el mensaje completo de la aserción —la entidad, la instancia, el nombre de la aserción y la frase que escribió su autor— cerrado por una frase más:"
   },
+  "1a546974d751ca0f": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "1a546974d751ca0f",
+    "status": "machine",
+    "text": "**Cómo corregirlo:** sustituye el enlace por una copia de aquello a lo que lleva, o elimínalo; o, donde la entidad deba permanecer fuera del espacio de trabajo, enumera el directorio que la contiene en `catalog_dirs` en la configuración del espacio de trabajo, o pásalo con `--catalog`, de modo que el directorio se lea como un directorio de catálogo propio. Enumera el directorio al que lleva el enlace, no aquel en el que se encuentra: un enlace encontrado bajo un directorio se evalúa igual sea cual sea la forma en que se leyó ese directorio, así que enumerarlo no cambia nada. Donde el enlace es el propio directorio `catalog` convencional del espacio de trabajo, basta con enumerar `catalog` — o el directorio al que apunta — en `catalog_dirs`, o pasar cualquiera de los dos con `--catalog`, ya que un directorio que nombras se lee donde apunta. Donde el enlace es el archivo de bloqueo de una Release, elimínalo y vuelve a hacer el pull de la Release, que escribe un archivo de bloqueo nuevo junto a ella. Un Manifest no tiene nivel de catálogo, así que un Manifest que lee la Release se guarda junto a la propia Release. Donde el enlace es un archivo de configuración, sustitúyelo por una copia guardada en el espacio de trabajo; una configuración que quieras compartir entre espacios de trabajo se lee nombrándola como archivo de configuración global, con `--config` o `AGGREGA_CONFIG`, por debajo de los archivos propios de cada espacio de trabajo. Donde el enlace está junto a una entidad que se fija o se publica, sustitúyelo por el propio archivo, o mueve un documento que sea una entidad a un directorio propio; donde es el `.wasm` junto a una entidad Plugin, coloca allí el propio `.wasm` compilado. Donde el enlace es el directorio de la caché de artefactos o algo dentro de él, elimínalo — un pull vuelve a llenar la caché — o, para guardar la caché en otro lugar, establece `artifact_cache_dir` en ese directorio, escrito de forma relativa a la raíz del espacio de trabajo (`../shared-cache`). Donde el enlace está confirmado en un repositorio que recupera una fuente `git-repository`, cámbialo en ese repositorio — haz que apunte dentro del repositorio, o confirma el propio archivo — y nombra la revisión que contiene el cambio. Donde el enlace es una superposición bajo el directorio de superposiciones de una generación de catálogo, sustitúyelo por la propia superposición, o nombra como directorio de superposiciones un directorio que contenga todas las superposiciones. Donde el enlace está en un directorio que importas, conserva el archivo en sí en el directorio en lugar de un enlace a él, o importa el directorio al que lleva el enlace."
+  },
   "1a5dd6a8f5023a69": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -6741,6 +6755,13 @@
     "srcHash": "1d29f8aa9600d4ba",
     "status": "machine",
     "text": "`hub.aggrega.ai/schemalibrary/aidatastores:1.0.0` — SchemaLibrary, definiciones de esquema compartidas; el `metadata.name` en PascalCase `AIDatastores` pasa a minúsculas en el nombre del repositorio"
+  },
+  "1d313e710da70111": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "1d313e710da70111",
+    "status": "machine",
+    "text": "Una Release y un Manifest pueden nombrar otro archivo mediante una ruta: los `aggregate:` y `manifest:` de una Release escritos como `./…` o `../…`, su `extends:`, el `extends:` de un Manifest escrito como ruta, y los `parameters: { $import: … }` de una Release. Un documento del espacio de trabajo solo alcanza de esa forma archivos dentro del espacio de trabajo. Una Release que se encuentra fuera del espacio de trabajo — una que nombras en la línea de comandos, o una que nombra la configuración del espacio de trabajo — y un Manifest que nombras por sí solo en la línea de comandos fuera del espacio de trabajo solo alcanzan archivos dentro de su propio directorio: ese directorio es una raíz propia, como lo es un directorio que nombras fuera del espacio de trabajo, y cada Release a la que lleva su cadena `extends:` queda limitada al mismo directorio. Una ruta que, tal como está escrita, sube fuera de ese directorio, y una ruta que permanece dentro tal como está escrita pero encuentra en el camino un enlace simbólico que lleva fuera, se rechazan ambas, y no se lee nada del archivo que nombran. Una ruta que lleva a un archivo que aún no existe bajo el directorio no se rechaza aquí; se informa como un archivo que no se pudo leer. [El límite del espacio de trabajo](../cli/workspace-boundary.md#a-reference-a-document-writes) explica por qué se limita una referencia además de la ruta que nombras."
   },
   "1d38186bc621d6d7": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -7423,6 +7444,13 @@
     "status": "machine",
     "text": "La condición bajo la que se registran es `compactform: $ref unresolvable`."
   },
+  "20281bd443c9b14a": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "20281bd443c9b14a",
+    "status": "machine",
+    "text": "Dos entidades del mismo tipo, cargadas desde el mismo directorio de catálogo, tienen la misma identidad. Una identidad es lo que nombra una referencia, así que dos archivos que reclaman una misma identidad dejan a cada referencia a ella con dos respuestas."
+  },
   "2029e0c3920c8bf0": {
     "at": "2026-11-02T19:28:46.630Z",
     "job": "session-0008-20261102192846",
@@ -7680,6 +7708,13 @@
     "srcHash": "216628eb4daeb439",
     "status": "machine",
     "text": "**Un importador básico que la máquina aún no tiene se obtiene una vez, en la primera importación que lo necesita.** Procede del registro predeterminado del espacio de trabajo, ceñido al módulo que publica la versión del compilador y verificado como un pull verifica un plugin que obtiene — su firma según la política de confianza de ese registro, y las funciones de host que usa — y se guarda en la caché de contenido del espacio de trabajo, que es lo único que se escribe para él: ningún lockfile y ningún registro de plugins de confianza. Cada importación posterior lo lee de allí y no llega a ningún registro. Un módulo que no supera la verificación es un error con el código de su condición, y no se guarda nada; uno que no se puede obtener — el espacio de trabajo está sin conexión, su registro no es accesible o el registro no lo contiene — es un error bajo [A plugin's `.wasm` is not on this machine (El módulo de un plugin no está en esta máquina)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), que nombra el importador, su versión y qué pone su módulo en la máquina. La propia solicitud no nombra ningún registro, y una importación que ya tiene en la máquina todos los importadores que necesita no llega a ninguna red."
+  },
+  "217eb8ffa2c9c51c": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "217eb8ffa2c9c51c",
+    "status": "machine",
+    "text": "**Un directorio que nombraste y que está fuera del espacio de trabajo**, para lo que está debajo de él: un directorio de catálogo que pasas con `--catalog`, o que la configuración del espacio de trabajo incluye en `catalog_dirs` — para el espacio de trabajo o para una sola Release —, y el directorio de una Release que nombras, o que nombra la configuración, que está fuera del espacio de trabajo. El directorio en sí se usa tal como lo nombraste — uno que es un enlace se lee allí adonde apunta — y lo que se lee debajo de él permanece dentro de él. Eso incluye el directorio convencional `catalog` una vez que lo nombras: incluido en `catalog_dirs`, o pasado con `--catalog`, un `catalog` que es un enlace que lleva fuera del espacio de trabajo se lee allí adonde apunta, como cualquier otro directorio que nombres. Nombrar en su lugar el sitio al que apunta, con cualquier grafía, o un directorio por encima de ese sitio, también lo nombra: el directorio que nombraste ya lee lo que hay allí, así que se lee una sola vez, a través de ese directorio. Nombrar un directorio en la configuración es la forma en que un espacio de trabajo lee entidades guardadas fuera de él."
   },
   "217f218331b8b504": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -8031,6 +8066,13 @@
     "srcHash": "22c61cc38f6e51e9",
     "status": "machine",
     "text": "Nombra un Aggregate guardado en otro lugar por su `metadata.name` y enumera su directorio de catálogo; mantén un Manifest, una Release que nombra un `extends:` y un archivo de parámetros dentro del espacio de trabajo — o, para un documento que nombraste desde fuera, en su propio directorio; o abre el espacio de trabajo en un directorio que contenga ambos documentos."
+  },
+  "22c88dee8015a000": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "22c88dee8015a000",
+    "status": "machine",
+    "text": "**Cómo corregirlo:** dos direcciones, y el mensaje nombra ambas. Elimina las claves de mapeo duplicadas y conserva la que debe responder por el tipo — esto es lo correcto cuando las claves adicionales son restos de un cambio de versión. O fija la versión en el lado de la autoría, de modo que el tipo que declara el componente nombre exactamente la clave que querías, lo cual es lo correcto cuando las varias claves son deliberadas y distintos componentes realmente quieren Recipes distintas."
   },
   "22d1ffbf160dca84": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -9935,6 +9977,13 @@
     "status": "machine",
     "text": "**A una política se le dice dónde está el material declarado sensible, y nunca se le entrega el material.** Cada hoja que el grafo marca como declarada sensible —en los `values` o el `infra` de cualquier asociación, sea cual sea el ámbito o la conexión en que se escribió, en el `infra` de una asociación de límite y en los `values` y el `infra` propios de un nodo— llega a la política como un marcador de clave única, `{\"aggrega_withheld\": \"declared\"}`, en lugar del valor. La clave se conserva, así que una política sigue viendo qué hojas lleva una carga útil; el marcado que nombra esas hojas se conserva, así que una política sigue viendo cuáles de ellas llevan material declarado; y cada hecho enumerado arriba llega como antes, junto con cada valor que ninguna declaración marca. Ninguno de los hechos sobre los que razona una política —qué es una asociación, qué rellena, a qué se presenta, qué dice de ella su entidad de catálogo y por dónde viaja su material secreto— es un valor que un autor pueda declarar sensible, y el material en sí es lo único que una política no necesita para juzgar adónde va. Es la misma retención que aplica la línea de comandos cuando imprime el grafo y que aplica el daemon cuando responde a la solicitud que un editor hace de él. Esas superficies devuelven los valores a una persona que los pide explícitamente; la copia de una política no ofrece tal solicitud. Se aplica solo a la copia de la política: el grafo a partir del cual renderiza la compilación queda intacto, así que no cambia ningún byte renderizado."
   },
+  "2aa5a9b4dfad6337": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "2aa5a9b4dfad6337",
+    "status": "machine",
+    "text": "La categoría del diagnóstico es `[OPS_ERROR]`: la referencia está escrita en una Release o en un Manifest."
+  },
   "2aacdc819da70afe": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -10060,6 +10109,13 @@
     "srcHash": "2b33e90fa8167dda",
     "status": "machine",
     "text": "Un asistente de IA que pueda ejecutar comandos en tu máquina puede instalar y configurar Aggrega por ti a partir de un único prompt que pegues en él: [Usar Aggrega desde tu asistente de IA](authoring/ai-assistant.md) proporciona el prompt. La [extensión de Aggrega para Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) aporta validación, navegación, información al pasar el cursor y autocompletado al YAML de Aggrega, con el respaldo del binario `aggrega`."
+  },
+  "2b3f8ec4b469e9e3": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "2b3f8ec4b469e9e3",
+    "status": "machine",
+    "text": "Desde dónde se resuelve una ruta sigue la misma regla que la referencia del lenguaje enseña para cada clave: los `aggregate:` y `manifest:` de una Release, y el `extends:` de un Manifest, junto a la Release que nombra un comando o una solicitud — o, para un Manifest que nombras por sí solo, junto a ese Manifest; el `extends:` de una Release y un `$import:` de los parámetros, junto a la Release que lo escribe, de modo que cada eslabón de una cadena `extends:` nombra a su padre junto a sí mismo. El diagnóstico nombra el directorio desde el que se resolvió."
   },
   "2b45f62f8a6bd850": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -10960,6 +11016,13 @@
     "srcHash": "2fe59bbfc9d888fe",
     "status": "machine",
     "text": "Un paso que sigue fallando tras su último intento se registra para esa referencia según el modo continuar e informar, con su error, y el lote sigue adelante — un adjunto fallido se notifica como la firma que no se pudo adjuntar; cualquier otro fallo se registra de inmediato."
+  },
+  "2fe898618e180d76": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "2fe898618e180d76",
+    "status": "machine",
+    "text": "no catalog version satisfies the referenced version constraint: entity `\"<reference>\"` (referenced from `<referring paths>`) (ninguna versión del catálogo satisface la restricción de versión referenciada)"
   },
   "2ff253b40f1ddde1": {
     "at": "2026-10-23T02:15:21.677Z",
@@ -11876,6 +11939,13 @@
     "status": "machine",
     "text": "**Prefijo de anotación** — los espacios de nombres reservados (`aggrega.ai/`, y `feature.aggrega.ai/` fuera de una Feature) pertenecen a la plataforma y se rechazan en otras claves. Activada de forma predeterminada; desactivable con `allow_aggrega_ai_prefix`."
   },
+  "33f5e6a8e6d65586": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "33f5e6a8e6d65586",
+    "status": "machine",
+    "text": "Todo tipo de entidad llega aquí a través de una única selección, de modo que una fijación imposible de satisfacer se comporta igual dondequiera que esté escrita: una errata de versión en el mapeo de una Recipe de un Manifest se rechaza exactamente igual que la misma errata en un tipo de componente."
+  },
   "33fc10cb3d4185e4": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -12603,6 +12673,13 @@
     "srcHash": "377edc7488b5b907",
     "status": "machine",
     "text": "Aggrega no implementa su propia autenticación para registros remotos. La autenticación usa las configuraciones de las herramientas estándar en orden de prioridad:"
+  },
+  "3781bc2b131046b2": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "3781bc2b131046b2",
+    "status": "machine",
+    "text": "a file this operation reads leads through a link out of the directory it must stay inside (reading `<workspace>/catalog-local/component/app/1.0.0/component.yaml`, which must stay inside `<workspace>`, the link `<workspace>/catalog-local/component/app/1.0.0/component.yaml` leads to `<elsewhere>/component.yaml`). nothing was read through that link. Remove the link, or make it lead to a place inside `<workspace>`. To read what is kept outside, list the directory holding it as a catalog directory in the workspace configuration, rather than reaching it through a link beneath one: a listed directory is read where it leads, even when it is itself a link (un archivo que lee esta operación sale, a través de un enlace, del directorio dentro del cual debe permanecer (al leer un archivo que debe permanecer dentro del espacio de trabajo, el enlace lleva a otro lugar). no se leyó nada a través de ese enlace. Elimina el enlace, o haz que lleve a un lugar dentro del espacio de trabajo. Para leer lo que se guarda fuera, enumera el directorio que lo contiene como directorio de catálogo en la configuración del espacio de trabajo, en lugar de alcanzarlo mediante un enlace bajo uno de ellos: un directorio enumerado se lee donde lleva, incluso cuando es en sí mismo un enlace)"
   },
   "378cdb2f07b5915c": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -14333,6 +14410,13 @@
     "status": "machine",
     "text": "**Plantillas en el clúster.** La FeatureRecipe de la credencial emite un recurso que da formato a la cadena *en el clúster*, usando el sistema de plantillas propio del operador del vault. La aplicación hace referencia entonces por su nombre al Secret de plataforma resultante, y el compilador ha conectado la relación sin tener nunca el material:"
   },
+  "3f2984e27374fb3a": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "3f2984e27374fb3a",
+    "status": "machine",
+    "text": "Two catalog entities in one directory share an identity (Dos entidades del catálogo en un mismo directorio comparten una identidad)"
+  },
   "3f39623715f9a586": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -14687,6 +14771,13 @@
     "srcHash": "410ef959d9d691b0",
     "status": "machine",
     "text": "**Exactamente uno, garantizado por la Feature.** Un adjunto lleva el localizador en un solo pilar, nunca en ambos y nunca en ninguno. El esquema de ningún pilar puede expresarlo, porque cada pilar se valida por separado; lo hace el propio bloque `assertions` de cada Feature, y un adjunto que lo incumple detiene la compilación nombrando la Feature, el adjunto y el componente. Ese es el contrato de la entidad de catálogo, respetado como toda aserción de Feature: el compilador evalúa la plantilla que escribió el autor de la Feature y no tiene ninguna regla propia sobre credenciales, pilares o localizadores."
+  },
+  "4128d45ccb8a44d1": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "4128d45ccb8a44d1",
+    "status": "machine",
+    "text": "No catalog version satisfies a version constraint (Ninguna versión del catálogo satisface una restricción de versión)"
   },
   "4162cb9b056bd955": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -16173,6 +16264,13 @@
     "status": "machine",
     "text": "Aggrega trata la lógica de infraestructura de la misma forma en que Docker trata las imágenes de contenedor, utilizando los estándares de la Open Container Initiative (OCI) mediante ORAS (OCI Registry As Storage). Los usuarios pueden alojar su catálogo de Aggrega en cualquier registro estándar (GHCR, AWS ECR, Aggrega Hub)."
   },
+  "47bd095fa7d281ef": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "47bd095fa7d281ef",
+    "status": "machine",
+    "text": "Una búsqueda por tipo coincidió con más de una clave de mapeo del Manifest. Las claves de tipo se comparan con tolerancia de versión, de modo que `core/api-server`, `core/api-server:1.0.0` y `core/api-server:2.0.0`, escritas como claves de mapeo separadas, responden todas por el mismo tipo base — y una búsqueda que alcanza dos de ellas tiene dos Recipes entre las que elegir y ninguna regla para preferir una."
+  },
   "47c52331e0220160": {
     "at": "2026-10-22T06:52:21.462Z",
     "job": "session-0021-20261022065221",
@@ -17497,6 +17595,13 @@
     "status": "machine",
     "text": "Una solicitud del servidor de lenguaje rechazada por una ruta que conduce hacia fuera"
   },
+  "4e40a765e8eeb537": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "4e40a765e8eeb537",
+    "status": "machine",
+    "text": "Mensaje emitido, para una fijación en un puntero `extends:`:"
+  },
   "4e45046b60c7eb4c": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -17770,6 +17875,13 @@
     "status": "machine",
     "text": "**No alcanza nada** — lee una definición, inspecciona lo que fija una Release, renderiza artefactos en memoria y los devuelve. No deja nada atrás: no se escribe nada, y la respuesta es todo lo que produce."
   },
+  "4f8c81a1e856d3bd": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "4f8c81a1e856d3bd",
+    "status": "machine",
+    "text": "Mensaje emitido. Se abre con la frase propia de la condición, luego la referencia tal como está escrita, el documento en el que está escrita para un `extends:` y un `$import:` de los parámetros, el directorio desde el que se resuelve, el lugar al que lleva, el directorio dentro del cual debe permanecer, y el enlace donde uno la saca fuera; luego el remedio. Para un documento del espacio de trabajo:"
+  },
   "4f954deba22f5266": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -17888,6 +18000,13 @@
     "srcHash": "4ff79e84d77a7c06",
     "status": "machine",
     "text": "El proveedor helm emite el campo como el `spec.suspend: true` del CronJob. En Kubernetes, `kubectl create job <name> --from=cronjob/<cronjob>` inicia una ejecución a partir del CronJob suspendido, y la programación se reanuda en cuanto `spec.suspend` vuelve a ser `false`. `suspend: false` se renderiza exactamente igual que un `suspend` omitido, de modo que el campo no cambia ninguna salida hasta que se establece. El proveedor compose no tiene una forma programada y se detiene ante cualquier carga de trabajo `form: scheduled`, suspendida o no."
+  },
+  "4ff80af66ec80670": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "4ff80af66ec80670",
+    "status": "machine",
+    "text": "Mensaje emitido. Se abre con la frase propia de la condición, luego la ruta que alcanzó la lectura, el directorio dentro del cual debe permanecer, el enlace que encuentra en el camino y el lugar al que lleva ese enlace, y luego el remedio:"
   },
   "4ff8a65ed5e8f55e": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -19676,6 +19795,13 @@
     "status": "machine",
     "text": "A. Esquemas de origen dirigidos por Wasm"
   },
+  "568c1aeea5047978": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "568c1aeea5047978",
+    "status": "machine",
+    "text": "Mensaje emitido, para una referencia que alcanzan las dependencias de una Release — un tipo de componente, un valor de mapeo de un Manifest — indicando dónde se recogió:"
+  },
   "5697d03daef4de9c": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -21264,6 +21390,13 @@
     "status": "machine",
     "text": "**La regla es una propiedad y no una lista de nombres de campos**: un valor se retiene cuando nombra un lugar del sistema de archivos del host, quienquiera que lo haya establecido y sea cual sea la capa de la que proceda. Un valor que se añada más adelante a cualquiera de las dos lecturas queda sujeto a esa misma propiedad."
   },
+  "5d6e8985e0e05057": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "5d6e8985e0e05057",
+    "status": "machine",
+    "text": "El diagnóstico no lleva categoría: lo que falla es la disposición en disco, no un documento que hayas escrito."
+  },
   "5d73c73b20f01be5": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -22248,6 +22381,13 @@
     "srcHash": "61b345f4c47ae841",
     "status": "machine",
     "text": "La biblioteca estándar de Aggrega incluye tres providers de renderizado — `helm`, `helm-chart` y `compose` — además del provider de componentes virtuales eval. Estado por provider:"
+  },
+  "61bceee85bb5207d": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "61bceee85bb5207d",
+    "status": "machine",
+    "text": "La compilación se detiene en lugar de resolver la clave que haya leído primero. Elegir una haría que la salida renderizada dependiera del orden en que se recorrió el mapeo, que es exactamente lo que la salida idéntica byte a byte descarta."
   },
   "61d41e688015b4c3": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -23658,6 +23798,13 @@
     "status": "machine",
     "text": "**Por qué:** por convención, los Components son agnósticos respecto a las capacidades. Los destinos de hardware físico residen en las Recipes de Ops o en anotaciones `.context` genéricas, no dentro de la lógica cognitiva central de la aplicación."
   },
+  "6864bc41ef0a7f20": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "6864bc41ef0a7f20",
+    "status": "machine",
+    "text": "Qué directorio es depende de dónde se encuentre el directorio que se lee:"
+  },
   "68701a5fe79aece2": {
     "at": "2026-11-03T03:00:32.047Z",
     "job": "session-0041-20261103030032",
@@ -24783,6 +24930,13 @@
     "status": "machine",
     "text": "También indica lo que no enumera, y por qué: los destinos de renderizado disponibles y los tipos de biblioteca instalados son propiedades de tus plugins y de tu conjunto de esquemas, así que las superficies de recursos los informan directamente en lugar de que las orientaciones lleven una copia que podría discrepar."
   },
+  "6de7d22676a46392": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "6de7d22676a46392",
+    "status": "machine",
+    "text": "**Un repositorio que obtiene una fuente se somete a su propio checkout.** Cuando un pull — `aggrega pull`, o una compilación o una solicitud del editor o de un asistente que resuelve las dependencias de una Release — obtiene una fuente `git-repository`, hace checkout del repositorio y archiva el directorio que nombra la fuente, y el checkout es un directorio propio: cada enlace que contiene el repositorio, incluido el propio `module_subdir`, se somete a él. Un enlace a un archivo o a un directorio dentro del repositorio se archiva como aquello a lo que apunta, con el nombre del enlace. Un enlace que lleva fuera del repositorio — que podría apuntar a cualquier archivo de la máquina que ejecuta el pull — no se lee: el pull se detiene nombrando el enlace y adónde lleva, y no se guarda nada en caché. El checkout es un directorio temporal que se elimina en cuanto el pull se detiene, así que el mensaje nombra el enlace por su lugar en el repositorio — `chart/secret.txt`, como en la primera línea de la salida de la línea de comandos y en la frase — y el directorio dentro del cual debe permanecer como el repositorio y la revisión que nombra la fuente: `which must stay inside the repository <url> at <ref> (commit <commit>)`, o `at commit <commit>` cuando la fuente no nombra ningún `ref` o nombra el propio commit. Adónde lleva el enlace se nombra como el lugar de tu máquina que es. El remedio que nombra este mensaje es el propio del repositorio: el enlace está confirmado allí, así que se cambia allí — haciéndolo apuntar dentro del repositorio, o sustituyéndolo por el archivo en sí — y la fuente nombra entonces una revisión que contiene el cambio. Un enlace de directorio que lleva de vuelta a un directorio que el archivado ya está leyendo a través de él también detiene el pull, porque el árbol que representa no tiene fin; ese rechazo es un error simple y no esta condición."
+  },
   "6dea68cbf361a1e4": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -24796,6 +24950,13 @@
     "srcHash": "6decaa7871efb8af",
     "status": "machine",
     "text": "De qué es responsable el operador: el mapa de enrutamiento del Manifest, la satisfacción de parámetros de la Release, el acoplamiento de las Features cuyas entradas son operativas y el `infra` por arista que una Release escribe en una conexión. El operador satisface los puntos de variación expuestos por el desarrollador; la Release no puede introducir nuevos valores de aplicación ni nuevo cómputo — estos provienen solo del Aggregate."
+  },
+  "6dedc774ee233e41": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "6dedc774ee233e41",
+    "status": "machine",
+    "text": "a reference a document makes to another file leads out of the directory it must stay inside (`.spec.aggregate: ../aggregates/app.yaml`, resolved from `<directory>`, which leads to `<parent>/aggregates/app.yaml`, outside `<directory>`, the directory of a document named outside the workspace `<workspace>`). nothing was read from that file. A Release or a Manifest named outside the workspace — on the command line, or by the workspace configuration — reaches only files inside its own directory `<directory>`: move the file there — or, where a link carries the reference out, make the link lead there — or name the document from a workspace holding both documents. An Aggregate kept outside that directory is reached by its name rather than a path, from a catalog directory the workspace configuration lists (una referencia que hace un documento a otro archivo sale del directorio dentro del cual debe permanecer: la referencia, resuelta desde el directorio, lleva fuera del directorio de un documento nombrado fuera del espacio de trabajo. no se leyó nada de ese archivo. Una Release o un Manifest nombrados fuera del espacio de trabajo — en la línea de comandos, o por la configuración del espacio de trabajo — solo alcanzan archivos dentro de su propio directorio: mueve allí el archivo — o, donde un enlace saca fuera la referencia, haz que el enlace lleve allí — o nombra el documento desde un espacio de trabajo que contenga ambos documentos. Un Aggregate guardado fuera de ese directorio se alcanza por su nombre en lugar de por una ruta, desde un directorio de catálogo que enumera la configuración del espacio de trabajo)"
   },
   "6df26651dc467b0d": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -26515,6 +26676,13 @@
     "status": "machine",
     "text": "El registro de confianza de plugins"
   },
+  "7551deedaaf18aeb": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "7551deedaaf18aeb",
+    "status": "machine",
+    "text": "A Manifest maps two version-distinct keys onto one type (Un Manifest asigna dos claves de versión distinta a un mismo tipo)"
+  },
   "755354ef93002873": {
     "at": "2026-10-22T23:28:05.653Z",
     "job": "session-0054-20261022232805",
@@ -27855,6 +28023,13 @@
     "status": "machine",
     "text": "Todo lo anterior rige los nombres en la superficie de escritura: un nombre de instancia que eliges, un campo de esquema que el lenguaje define para que lo completes, una clave del contexto de la plantilla que lees. Otros dos registros rigen los identificadores que **define la propia plataforma** y que tú solo relees o escribes. Están separados porque cumplen funciones distintas, y la función decide la forma."
   },
+  "7b3636c2d459af4f": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "7b3636c2d459af4f",
+    "status": "machine",
+    "text": "Una fijación que no tiene ninguna de las formas que adopta una fijación es una condición distinta, descrita más abajo en «A version pin is none of the forms a pin takes (Una fijación de versión no tiene ninguna de las formas que adopta una fijación)»."
+  },
   "7b3a2ad190831f97": {
     "at": "2026-11-03T00:27:36.365Z",
     "job": "session-0026-20261103002736",
@@ -29156,6 +29331,13 @@
     "srcHash": "8209e62602d613bf",
     "status": "machine",
     "text": "el espacio de trabajo sobre el que se lanzó el proceso"
+  },
+  "821039c552674683": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "821039c552674683",
+    "status": "machine",
+    "text": "La regla es la misma para cada tipo de entidad indexado: Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary y Aggregate. La detención se sitúa en el segundo archivo y nombra el tipo y la identidad que colisionaron."
   },
   "822062ace2e8ae11": {
     "at": "2026-11-02T23:06:17.995Z",
@@ -30706,6 +30888,13 @@
     "status": "machine",
     "text": "**Disciplina de autoría.** Un Component `core/web-server` que declara `spec.inject: [env, file]` opta por la entrega transparente: el autor del Aggregate dicta qué nombres de variables de entorno llevan qué valores. Un Component que declara `spec.inject: []` (u omite el campo) mantiene la entrega opaca: el `valuesMapping:` de la Recipe decide qué campos fluyen hacia qué variables del contenedor, y el desarrollador no puede sobrescribirlo en el Aggregate. El patrón Black-Box se adapta a Components con un contrato estable (un Component `core/postgres-db` cuya Recipe sabe cómo conectar la contraseña de la base de datos a una variable de entorno `POSTGRES_PASSWORD`); el patrón transparente se adapta a Components en los que la intención del desarrollador nombra legítimamente detalles de entrega (un `core/web-server` cuya aplicación lee `LOG_LEVEL` desde un nombre de variable no estándar que el desarrollador quiere personalizar)."
   },
+  "88eef13f21f3994b": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "88eef13f21f3994b",
+    "status": "machine",
+    "text": "no catalog version satisfies the referenced version constraint (Component `<name>`, at `.extends`, no catalog version satisfies extends parent `\"<reference>\"`) (ninguna versión del catálogo satisface la restricción de versión referenciada: ninguna versión del catálogo satisface el padre de extends)"
+  },
   "88f773d8b069257a": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -31598,6 +31787,13 @@
     "srcHash": "8cb1ca3b1a0cac08",
     "status": "machine",
     "text": "Una aplicación web y su PostgreSQL"
+  },
+  "8cb1d96a0b49afd5": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "8cb1d96a0b49afd5",
+    "status": "machine",
+    "text": "Lo que se juzga es cada entrada de la que la lectura tomaría algo: un enlace a un archivo con nombre de documento YAML, y un enlace a un directorio, que puede contener documentos propios. Un enlace que lleva a algún lugar dentro del directorio en el que debe permanecer la lectura se lee donde el recorrido lo encuentra. Un enlace a un archivo del que ninguna lectura del catálogo toma nada — un archivo de notas, un archivo comprimido de chart — no se juzga aquí, y un enlace que no lleva a ninguna parte no tiene nada detrás que leer."
   },
   "8cb1deef0a2452ee": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -34838,6 +35034,13 @@
     "status": "machine",
     "text": "**`cloudformation` conserva `Resources`, `Outputs`, `Parameters`, `Mappings`, `Conditions`, `Metadata` y `Rules`, y construye `Transform` a partir de los de cada contribuyente.** Las transformaciones se unen en el orden que documenta CloudFormation, con los `Globals` de SAM viajando junto a la transformación que los lee, y una transformación que cambiaría cómo se despliega el contenido de otro contribuyente detiene la build nombrándola. `Description` no se conserva y, a diferencia de compose, la build lo indica: emite una advertencia de campo no admitido que nombra la sección y el componente, igual que con cualquier otra clave de nivel superior que el stack no conserve, de modo que nada se descarta en silencio. La advertencia es informativa — la plantilla emitida es idéntica byte a byte a la que sería sin ella, y `--no-unsupported-field-warnings` silencia esa clase. `Outputs` se conserva bajo un nombre que el provider acota al componente contribuyente, de modo que dos componentes que aportan a un mismo stack una salida con el mismo nombre las mantienen separadas. [Secciones de nivel superior en el stack ensamblado](../language-reference/providers/cloudformation.md#top-level-sections-in-the-assembled-stack) da cuenta de cada sección una por una."
   },
+  "9b6119ecaa290979": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "9b6119ecaa290979",
+    "status": "machine",
+    "text": "**Cómo corregirlo:** para un Aggregate guardado fuera del espacio de trabajo, escribe su `metadata.name` en lugar de una ruta, y enumera el directorio que lo contiene en `catalog_dirs` en la configuración del espacio de trabajo, o pásalo con `--catalog` — un directorio de catálogo es la forma en que un espacio de trabajo alcanza entidades guardadas fuera de él. Un Manifest, una Release que nombra un `extends:` y un archivo de parámetros se leen junto a la Release y nunca se buscan por nombre, así que mantenlos dentro del espacio de trabajo, o abre el espacio de trabajo en un directorio que contenga tanto la Release como el archivo. Para una Release o un Manifest que nombraste desde fuera del espacio de trabajo, mantén lo que nombra en su propio directorio, o compílalo en el espacio de trabajo que contiene tanto el documento como lo que nombra. Donde un enlace saca fuera la ruta, sustituye el enlace por una copia de aquello a lo que lleva, o haz que lleve dentro del directorio."
+  },
   "9b6918d6d29ef4d5": {
     "at": "2026-10-30T19:08:02.729Z",
     "job": "session-0008-20261030190802",
@@ -37787,6 +37990,13 @@
     "status": "machine",
     "text": "**7. Manifest:** el archivo de bloqueo de dependencias. Usa una asignación plana de URI: un diccionario `components.type` asigna los tipos de componentes del catálogo a URI de Recipe, y un diccionario `features.type` asigna los tipos de Feature a URI de FeatureRecipe. La resolución es una búsqueda directa de URI en el archivo de bloqueo y el catálogo; la determinación de la capacidad se deriva del campo `spec.capability` de cada Recipe resuelta en el momento de la compilación. Tras la resolución, cada entidad debe tener una asignación o el compilador se detiene. Para mantener un ecosistema DRY, los Manifests admiten un patrón de composición al estilo de Kustomize mediante la palabra clave `extends`, lo que permite que los manifiestos específicos de un entorno (como local o staging) hereden limpiamente de un manifiesto base global y solo declaren sus sobrescrituras específicas."
   },
+  "a86168bf6b884dff": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "a86168bf6b884dff",
+    "status": "machine",
+    "text": "La condición es recuperable, lo que permite al editor mostrarla como diagnóstico mientras sigues escribiendo en lugar de abandonar el documento. En la línea de comandos se une en una detención."
+  },
   "a865d73b4a10b157": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -38804,6 +39014,13 @@
     "status": "machine",
     "text": "[./aggrega-sign.md](./aggrega-sign.md): firma a posteriori un artefacto ya publicado (el equivalente posterior a la publicación de `--sign`)."
   },
+  "acfadadc1e3d14b6": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "acfadadc1e3d14b6",
+    "status": "machine",
+    "text": "**El archivo de bloqueo de una Release se somete del mismo modo, tanto donde se lee como donde se escribe.** El archivo de bloqueo junto a una Release se lee para obtener las fijaciones contra las que resuelven una compilación, un pull, una validación, un lint, una inspección, `aggrega cache prune` y las solicitudes del editor y de un asistente, y se somete al directorio al que se somete su escritura: el espacio de trabajo, o el directorio propio de la Release para una Release nombrada fuera de él. Uno que sea un enlace que lleva fuera no se lee, y cada una de esas operaciones se detiene nombrando el enlace en lugar de resolver contra fijaciones guardadas en otro lugar de la máquina, o sin ellos. El remedio que nombra este mensaje es el propio del archivo de bloqueo: tiene un único lugar, junto a la Release, donde lo escribe un pull."
+  },
   "acfc58d1afa3300d": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -39572,6 +39789,13 @@
     "status": "machine",
     "text": "2. La mecánica del contrato de esquema unificado"
   },
+  "afd6b7bd928b2a31": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "afd6b7bd928b2a31",
+    "status": "machine",
+    "text": "A file the operation reads leads through a link out of the directory it must stay inside (Un archivo que la operación lee lleva, a través de un enlace, fuera del directorio dentro del cual debe permanecer)"
+  },
   "afdb67c021c47aba": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -39645,6 +39869,20 @@
     "srcHash": "b02dda8fcc918e5e",
     "status": "machine",
     "text": "Escribir también en stdout, como JSON, el grafo IR que calculó esta ejecución, además de todo lo que este comando ya produce. Los valores que un autor declaró sensibles se ocultan en él; pasa --unredacted para imprimirlos en su lugar. Se aplica a una Release, el único tipo que se resuelve a un grafo; cualquier otro tipo rechaza la solicitud en lugar de descartarla silenciosamente"
+  },
+  "b036311dc7220a39": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "b036311dc7220a39",
+    "status": "machine",
+    "text": "**Un listado, en cambio, pasa por alto un enlace así y no lista nada de lo que hay detrás.** El índice de entidades del editor, sus autocompletados y los candidatos que ofrece no listan una entidad representada por un enlace que lleva fuera, y el índice de entidades nombra un enlace así dentro del espacio de trabajo entre los enlaces que no leyó."
+  },
+  "b04046504ceadf6b": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "b04046504ceadf6b",
+    "status": "machine",
+    "text": "con `Feature` en lugar de `Component` donde es la cadena de una Feature la que lleva la fijación."
   },
   "b057f45140f09d3a": {
     "at": "2026-11-03T01:59:06.045Z",
@@ -40144,6 +40382,13 @@
     "status": "machine",
     "text": "Un ejemplo desarrollado, para que las dos mitades sean concretas. Una Release que declara un parámetro que ninguna referencia lee, y cuyo renderizado luego no puede completarse, vuelve como un fallo cuyo texto lleva el rechazo del renderizado y cuya carga lleva el aviso de parámetro no leído con su `severity`, su `message`, su `code` y su `key_path` — la misma entrada, con los mismos valores, que la misma Release informa en la respuesta cuando el renderizado sí se completa — junto a la entrada `refusal` de lo que detuvo el renderizado. Una Release que extiende otra y hereda un directorio de frontera sin ninguna variable de plantilla, y cuyo Manifest asigna un tipo a una receta que no lo implementa, vuelve como ese rechazo con una entrada de `advisories` por cada directorio heredado, cada una con `code` `inherited-boundary-directory-is-literal`. Una Release cuyas dependencias no se pueden resolver, en un espacio de trabajo cuyos directorios de catálogo enumerados existen todos, vuelve como un fallo sin ninguna clave `advisories`, porque no se había emitido nada cuando se detuvo."
   },
+  "b29424e5484fbc12": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "b29424e5484fbc12",
+    "status": "machine",
+    "text": "con la palabra propia del tipo en lugar de `Component` — `recipe identity`, `feature recipe identity`, `Plugin identity`, `SchemaLibrary identity` y así sucesivamente."
+  },
   "b297b4d8981b0f9c": {
     "at": "2026-11-03T00:27:36.365Z",
     "job": "session-0026-20261103002736",
@@ -40246,6 +40491,13 @@
     "status": "machine",
     "text": "The provider does not support omits (El proveedor no admite omits)"
   },
+  "b304580c3ac2087f": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "b304580c3ac2087f",
+    "status": "machine",
+    "text": "**La caché de artefactos del espacio de trabajo se somete del mismo modo, tanto donde se lee como donde se escribe.** Todo lo que se lee de la caché bajo `artifact_cache_dir` — una entidad, un plugin o una biblioteca en caché y el manifiesto junto a ellos, un archivo de código fuente y sus metadatos, una entrada externa fijada, un bundle de firma, el índice de búsqueda local de un registro — y cada entrada del espacio de trabajo que listan `aggrega cache status`, `aggrega cache prune` y `aggrega cache clear`, se somete al directorio al que se somete una escritura en la caché: el propio directorio de la caché, tanto el predeterminado `.aggrega/cache` como uno que la configuración nombre subiendo fuera de la raíz del espacio de trabajo. Cualquier cosa en ella que sea un enlace que lleva fuera del directorio de la caché — a otro lugar dentro del espacio de trabajo tanto como a cualquier otro sitio — no se lee, y tampoco nada detrás de un directorio de caché escrito dentro de la raíz del espacio de trabajo que sea a su vez un enlace que lleva fuera del espacio de trabajo: una compilación, un pull, una validación, una búsqueda, los tres comandos de la caché y las solicitudes del editor y de un asistente que leen la caché se detienen nombrando el enlace — incluido el contenido que la caché guarda bajo un digest registrado, ya que un digest dice qué son los bytes, no desde dónde pueden leerse. Un directorio de caché escrito dentro de la raíz del espacio de trabajo que sea un enlace a otro lugar dentro del espacio de trabajo se lee allí adonde lleva. El aviso de obsolescencia que imprime `aggrega inspect`, que no decide nada, queda fuera. Un prune o un clear trata uno de los directorios propios de la caché que sea un enlace que lleva fuera del directorio de la caché, o un directorio de caché que sea a su vez un enlace que lleva fuera del espacio de trabajo, como la eliminación que sería, bajo «A path the operation writes leads through a link out of the directory it must stay inside (Una ruta que la operación escribe lleva, a través de un enlace, fuera del directorio dentro del cual debe permanecer)», antes de listar nada. El remedio que nombra este mensaje es el propio de la caché: una vez eliminado el enlace, un pull vuelve a llenar la caché, y una caché guardada en otro lugar se nombra con `artifact_cache_dir`, relativa a la raíz del espacio de trabajo, en lugar de alcanzarse a través de un enlace."
+  },
   "b30d9163bf5f2f6d": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -40315,6 +40567,17 @@
     "srcHash": "b344e04753a754eb",
     "status": "machine",
     "text": "Un segmento de la ruta estructural hasta el nodo al que se refiere la edición, desde la raíz del documento. Repítela una vez por segmento, empezando por el más externo. Recibe un segmento cada vez en lugar de una única ruta con puntos porque el punto es un carácter válido en un nombre que escribes, así que una ruta unida podría direccionar una clave que nadie escribió"
+  },
+  "b34c1e09ff57c0c6": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "revision": {
+      "from": "f320a39a252717d9",
+      "reviewed": false
+    },
+    "srcHash": "b34c1e09ff57c0c6",
+    "status": "machine",
+    "text": "**Una búsqueda de la que depende una compilación se detiene en un enlace así en lugar de pasarlo por alto.** La entidad detrás del enlace podría ser la que nombra una referencia, y pasarla por alto en silencio permitiría que otra entidad del mismo nombre, de un directorio de catálogo posterior, se resolviera en su lugar. Así, `aggrega build`, `aggrega pull`, `aggrega validate`, `aggrega inspect` dondequiera que lea el catálogo, un lint de una sola Release, y las solicitudes del editor y de un asistente que compilan, previsualizan, grafican, validan o describen una Release se detienen todos antes de resolver nada, nombrando el enlace. Un lint de todo el catálogo se detiene del mismo modo: su veredicto responde por cada documento que contienen los directorios de catálogo, así que no informa de un catálogo limpio mientras uno de ellos no pudo leerse. El directorio de la Release se somete a la misma regla dondequiera que una Release nombre su Aggregate o su Manifest por identidad, o que un Manifest nombre así el Manifest que extiende, y el escaneo se detiene en un enlace entre los documentos junto a la Release aunque el enlace no sea el que nombra una referencia, por la misma razón por la que allí lo detiene un duplicado: el directorio no puede responder por un nombre mientras uno de sus documentos no pueda leerse. La Release sobre la que se invocó la operación — o un Manifest que inspeccionas por sí solo — no es uno de esos documentos: se leyó donde se nombró, así que una Release que es a su vez un enlace que lleva fuera se lee allí adonde apunta, y lo que nombra se busca junto al enlace, en el directorio en el que la nombraste ([Una Release o un Manifest nombrados a través de un enlace](../cli/workspace-boundary.md#a-release-or-a-manifest-named-through-a-link))."
   },
   "b34de6d6333939c6": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -41778,6 +42041,13 @@
     "status": "machine",
     "text": "[Component](../language-reference/entities/component.md), [Feature](../language-reference/entities/feature.md)"
   },
+  "b9d85c03faa0c00e": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "b9d85c03faa0c00e",
+    "status": "machine",
+    "text": "**Cómo corregirlo:** cambia el nombre de una de las dos entidades o muévela a un directorio propio. Para una Recipe o una FeatureRecipe, la identidad incluye el ámbito del proveedor y la versión, así que dos archivos que solo difieren en la versión no colisionan — una colisión real ahí significa que la misma versión se publicó dos veces. La causa habitual es copiar el archivo de una entidad para empezar una nueva y olvidar cambiar `metadata.name`."
+  },
   "b9e6707a9f9a8989": {
     "at": "2026-11-02T23:32:54.656Z",
     "job": "session-0020-20261102233254",
@@ -42609,6 +42879,13 @@
     "status": "machine",
     "text": "En lugar de escribir manualmente infraestructura como código compleja o de fijar en el código los puertos de red, los desarrolladores simplemente declaran *qué* necesita su aplicación para sobrevivir. El compilador de Aggrega genera de forma determinista las configuraciones de infraestructura física (charts de Helm, manifiestos de Kubernetes, Docker Compose) necesarias para ejecutarla. Traduce las solicitudes abstractas en los artefactos estáticos exactos que el entorno de destino necesita para establecer seguridad impuesta por hardware, límites de red zero-trust y proxies L7 del plano de datos."
   },
+  "bd17137f3f985213": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "bd17137f3f985213",
+    "status": "machine",
+    "text": "**Cómo corregirlo:** cambia la fijación a una versión que el catálogo contenga, o añade esa versión al catálogo. `aggrega inspect` enumera las versiones en las que está disponible una entidad. Un rango caret con el que no coincide nada suele significar que las versiones disponibles están todas por debajo del mínimo que indica — amplía el rango, o publica la versión que la referencia está esperando."
+  },
   "bd1b74b72da4264c": {
     "at": "2026-11-03T01:01:59.650Z",
     "job": "session-0029-20261103010159",
@@ -43093,6 +43370,13 @@
     "srcHash": "bf6fbbf3e1e6ccaf",
     "status": "machine",
     "text": "[../errors/warnings.md](../errors/warnings.md): los hallazgos informativos que validate muestra como líneas `notice:`."
+  },
+  "bf78d6d8be6794ef": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "bf78d6d8be6794ef",
+    "status": "machine",
+    "text": "**El espacio de trabajo**, para un directorio de catálogo o el directorio de una Release que esté dentro de él. Esto vale para el directorio convencional `catalog` del espacio de trabajo siempre que nadie lo haya nombrado — cuando se lee solo porque está ahí: entonces es del propio espacio de trabajo, así que un `catalog` que sea a su vez un enlace que lleva fuera del espacio de trabajo no se lee."
   },
   "bf7a9b77ce96c18d": {
     "at": "2026-11-03T00:27:34.341Z",
@@ -46983,6 +47267,13 @@
     "status": "machine",
     "text": "**artifacts-only** (informalmente: «inline»)"
   },
+  "d0183d3c111739b0": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "d0183d3c111739b0",
+    "status": "machine",
+    "text": "**Dentro de un directorio esto detiene la compilación; entre directorios, no.** La misma identidad presente en dos directorios de catálogo distintos se resuelve como un ocultamiento en el que gana el primero — gana el directorio listado antes —, que es lo que permite a un directorio local sobrescribir deliberadamente una entidad publicada. Solo una colisión *dentro* de un mismo directorio es un error de autoría que ninguna lectura vuelve intencionado."
+  },
   "d01c3e060ef2c541": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -49560,6 +49851,13 @@
     "status": "machine",
     "text": "**Lo que incluye la biblioteca estándar.** Ningún Component `core/` lleva esta etiqueta. La clase de los datos de un componente es una afirmación sobre cómo una organización usa el componente, no una propiedad del producto válida en cada Release, por lo que, según la regla Naked Base, queda fuera de la base: una organización la lleva en su propio Component — una especialización mediante `extends`, como lo es el asistente de siniestros del ejemplo desarrollado, o una base propia bajo la Enterprise Exception descrita más arriba."
   },
+  "dccd8d70cf71b551": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "dccd8d70cf71b551",
+    "status": "machine",
+    "text": "y para una Release o un Manifest nombrados fuera del espacio de trabajo, cuyo propio directorio es aquel dentro del cual deben permanecer:"
+  },
   "dcd30fb1e8a80782": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -51351,6 +51649,13 @@
     "status": "machine",
     "text": "El bloque `spec.parameters:` del Aggregate declara el contrato tipado de los parámetros que la Release cumplimenta. Cada slot de parámetro lleva un `type` declarado, una `description` opcional, un `default` opcional, restricciones opcionales del espacio de valores y (para los slots de tipo objeto) una estructura anidada. El compilador valida cada valor suministrado por la Release contra el contrato durante la resolución, antes de que se ejecute la interpolación de parámetros."
   },
+  "e4c0533eb38c4f60": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "e4c0533eb38c4f60",
+    "status": "machine",
+    "text": "Dos lugares se leen como un todo en lugar de un archivo cada vez: un directorio de catálogo, desde cualquier documento bajo el cual puede responder una búsqueda por nombre, y el directorio que contiene una Release, contra cuyos Aggregates y Manifests se resuelve una Release que los nombra por identidad. Un enlace simbólico entre esos archivos puede llevar a cualquier parte de la máquina, así que cada uno de esos directorios tiene un directorio dentro del cual deben permanecer sus lecturas, y un enlace que sale de él no se lee. [El límite del espacio de trabajo](../cli/workspace-boundary.md) establece la regla que se aplica aquí y las demás rutas a las que afecta."
+  },
   "e4c180dd3b68aa56": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -51543,6 +51848,13 @@
     "srcHash": "e59a05ca47edbff8",
     "status": "machine",
     "text": "Cuando una anotación del lado del Aggregate o del lado de la Release coincide con un binding, el compilador sintetiza una vinculación de Feature cuyas cargas de pilar enrutan el valor de la anotación hacia las rutas nombradas. La vinculación sintetizada es estructuralmente indistinguible de una vinculación de Feature explícita declarada por el autor en el mismo punto; el renderizado posterior, la validación y el contexto de plantillas de la FeatureRecipe consumen ambas formas de manera uniforme. Para la forma del binding, la partición entre lado y pilar y la disciplina por la que prevalece la vinculación explícita, consulta [entities/manifest.md](manifest.md) §«Bindings de Feature impulsados por anotaciones». Para la regla de cascada del lado del Aggregate y un ejemplo de autoría, consulta [providers/well-known-annotations.md](../providers/well-known-annotations.md) §«Cascada de anotaciones del lado del Aggregate»."
+  },
+  "e5a0d39b52105cd1": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "e5a0d39b52105cd1",
+    "status": "machine",
+    "text": "**Las superposiciones que lee una generación de catálogo se someten del mismo modo.** `aggrega plugin gen-catalog --from-embedded` lee cada superposición bajo el directorio de superposiciones que recibe — escrito con `--overlay`, elegido en el editor o nombrado por un asistente — y somete cada una al directorio bajo el que se lee ese directorio de superposiciones: el espacio de trabajo, para un directorio de superposiciones dentro de él, y el propio directorio de superposiciones para uno nombrado fuera del espacio de trabajo. El directorio de superposiciones se usa tal como lo nombraste — uno que es un enlace se lee allí adonde apunta. Una superposición bajo él que sea un enlace que lleva fuera del directorio al que se somete no se lee, y tampoco un enlace de directorio que lleva fuera de él, que puede contener superposiciones propias: la generación se detiene nombrando el enlace, sin escribir nada, en lugar de generar sin la superposición. Una superposición que es un enlace que lleva a otro lugar dentro del directorio al que se somete se lee allí adonde apunta; en un enlace de directorio que lleva dentro de él no se entra. El remedio que nombra este mensaje es el propio de una superposición: guarda la superposición en sí bajo el directorio de superposiciones, o nombra como directorio de superposiciones un directorio que contenga todas las superposiciones."
   },
   "e5a2d9a0633952eb": {
     "at": "2026-11-02T23:06:16.435Z",
@@ -52265,6 +52577,13 @@
     "srcHash": "e902620096d88d71",
     "status": "machine",
     "text": "El `mkdir` crea la carpeta donde aún no existe. `~/.local/bin` no está en el `PATH` que macOS asigna a un terminal nuevo, así que añade la línea de [Instalarlo a mano](#install-it-by-hand) a `~/.zshrc`, o a `~/.bash_profile` para bash, salvo que ya esté allí."
+  },
+  "e902a33edfc8d80b": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "e902a33edfc8d80b",
+    "status": "machine",
+    "text": "Cada superficie que resuelve lo que nombra una Release se detiene en ello, antes de que se lea el archivo: `aggrega pull`, `aggrega build`, `aggrega validate`, `aggrega inspect` de una Release o de un Manifest, un lint de una sola Release, y las solicitudes del editor y de un asistente que compilan, previsualizan, representan como grafo, validan o describen una Release. En el editor, el diagnóstico se coloca en la clave de la Release que llevó al archivo."
   },
   "e90b64dec1be6324": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -53207,6 +53526,13 @@
     "status": "machine",
     "text": "feature merge conflict: reconcile the Aggregate and Release declarations for the feature (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.uses.<socket>.<alias>`, the Aggregate names `\"<aggregate-declared-type>\"`, the Release names `\"<release-declared-type>\"`, for the slot `\"<slot>\"`, on the connection `\"<alias>\"`, through socket `\"<socket>\"`, of component `\"<component>\"`). Drop the type from the Release's entry so it sizes the attachment the Aggregate declares, or name the same Feature in both documents. (conflicto de fusión de funcionalidad: concilia las declaraciones del Aggregate y de la Release para la funcionalidad (Release, en la ruta de la conexión, el Aggregate nombra un tipo, la Release nombra otro, para el slot, en la conexión, a través del socket, del componente). Quita el tipo de la entrada de la Release para que dimensione la vinculación que declara el Aggregate, o nombra la misma Feature en ambos documentos.)"
   },
+  "ed13f8d55b40999a": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "ed13f8d55b40999a",
+    "status": "machine",
+    "text": "a reference a document makes to another file leads out of the directory it must stay inside (`.spec.aggregate: ../shared/app.yaml`, resolved from `<workspace>`, which leads to `<elsewhere>/shared/app.yaml`, outside the workspace `<workspace>`). nothing was read from that file. A document in the workspace reaches only files inside `<workspace>`: move the file there — or, where a link carries the reference out, make the link lead there — or open the workspace at a directory holding both documents. An Aggregate kept outside that directory is reached by its name rather than a path, from a catalog directory the workspace configuration lists (una referencia que hace un documento a otro archivo sale del directorio dentro del cual debe permanecer: la referencia, resuelta desde el espacio de trabajo, lleva fuera del espacio de trabajo. no se leyó nada de ese archivo. Un documento del espacio de trabajo solo alcanza archivos dentro del espacio de trabajo: mueve allí el archivo — o, donde un enlace saca fuera la referencia, haz que el enlace lleve allí — o abre el espacio de trabajo en un directorio que contenga ambos documentos. Un Aggregate guardado fuera de ese directorio se alcanza por su nombre en lugar de por una ruta, desde un directorio de catálogo que enumera la configuración del espacio de trabajo)"
+  },
   "ed22ae205bf171a8": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -53284,6 +53610,13 @@
     "srcHash": "ed59f339d29a5527",
     "status": "machine",
     "text": "El transporte sobre `stdout` mantiene sencilla la integración en todo el ecosistema de frontends: las tuberías de Unix, `child_process.spawn` de Node.js, los patrones de subproceso de los clientes de lenguaje y las herramientas ad hoc basadas en `jq` consumen todos `stdout` sin envoltorios de protocolo. La regla de encuadre se fija en la capa del esquema, por delante del comando de streaming."
+  },
+  "ed6b8951bc0a753d": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "ed6b8951bc0a753d",
+    "status": "machine",
+    "text": "Un nombre en lugar de una ruta no se evalúa aquí — `aggregate: payments`, `extends: base-manifest`. Se busca entre los documentos junto a la Release y, para un Aggregate, en los directorios de catálogo, que quedan limitados por la regla de «A file the operation reads leads through a link out of the directory it must stay inside (Un archivo que lee la operación sale, a través de un enlace, del directorio dentro del cual debe permanecer)» más arriba."
   },
   "ed6de88fa63e64c1": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -54054,6 +54387,13 @@
     "status": "machine",
     "text": "`aggrega` está instalado, y todos los pasos que pidió una opción se completaron correctamente"
   },
+  "f17a6180cd4b6793": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "f17a6180cd4b6793",
+    "status": "machine",
+    "text": "manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous: type `\"<type>\"` matches version-distinct keys `[<keys>]` — pin the authored type's version or remove the duplicate mapping keys (el Manifest asigna varias claves de versión distinta al mismo tipo base; la búsqueda de tipo a Recipe es ambigua: el tipo coincide con claves de versión distinta — fija la versión del tipo escrito o elimina las claves de mapeo duplicadas)"
+  },
   "f17fa5fbaa584dc6": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -54162,6 +54502,13 @@
     "srcHash": "f1d9e457ede09732",
     "status": "machine",
     "text": "aggrega serve"
+  },
+  "f1ee24531429da19": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "f1ee24531429da19",
+    "status": "machine",
+    "text": "**Un directorio que importas queda limitado a sí mismo.** `aggrega import` con un directorio, la herramienta de importación del asistente y el método `aggrega/import` de la sesión entregan al importador los archivos del directorio que seleccionan sus patrones de archivo, cada uno en su lugar dentro del directorio, de modo que el directorio es aquel dentro del cual permanecen esas lecturas, dondequiera que esté — dentro del espacio de trabajo tanto como fuera de él. Lo que se evalúa es cada entrada de la que la importación tomaría algo: un enlace a un archivo que selecciona uno de los patrones pertinentes — los patrones del importador que sirve el formato indicado o, donde el formato se reconoce, los de cada importador entre los que elige la importación, incluidos los [importadores core](../plugins/core-importers.md) del compilador — y un enlace a un directorio, en el que nunca se entra. Un enlace que sale del directorio, hacia otro lugar del espacio de trabajo o a cualquier otro sitio, no se lee: la importación se detiene nombrando el enlace antes de que se abra ningún archivo del directorio, sin escribir nada. Un enlace seleccionado a un archivo situado en otro lugar dentro del directorio se lee donde apunta, con el nombre propio del enlace, y un enlace a un archivo que ningún patrón selecciona no se evalúa ni se lee. El propio directorio se usa tal como lo nombraste — uno que es un enlace se lee donde apunta. Alcanzada a través de un listener, la herramienta del asistente nombra el enlace por su lugar en el espacio de trabajo y no dice nada de adónde lleva. El remedio que nombra este mensaje es el propio de un directorio importado: conserva el archivo en sí en el directorio en lugar de un enlace a él, o importa el directorio al que lleva el enlace."
   },
   "f1fb2b394e697933": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -54366,6 +54713,13 @@
     "status": "machine",
     "text": "**`describe`, al buscar un nombre, rechaza un directorio de catálogo a través del cual resolvería el nombre y que no puede recorrerse, igual que lo rechaza [`aggrega inspect`](aggrega-inspect.md)**: los directorios de esa Release cuando se envía un `release`, los propios del espacio de trabajo cuando no se envía ninguno, y cualquiera que la llamada nombre en `catalog_dirs`. Un directorio que nombra la llamada y que no existe, o uno que existe y no puede leerse, se rechaza antes de buscar el nombre, y el texto nombra el directorio tal como lo informa la línea de comandos, en una sola línea —el directorio, `catalog load` y el motivo que dio el sistema de archivos— en lugar de resolver el nombre a partir de los directorios restantes. Un directorio que la configuración del espacio de trabajo incluye donde no existe nada no se rechaza: se lee como vacío, tal como lo lee cada comando ([De dónde se leen las entidades locales](configuration.md#where-local-entities-are-read-from)). Un `release` que nombra un archivo que no existe se rechaza antes de eso, como se indicó arriba. Un directorio de catálogo que contiene un enlace que lleva fuera del directorio dentro del cual deben permanecer sus lecturas se rechaza de la misma manera, con el texto nombrando el enlace y adónde lleva, porque un nombre resuelto sin él podría resolverse en su lugar en otra entidad con el mismo nombre. Describir el cierre de dependencias de una Release no se ve afectado por un directorio que no puede recorrerse, y responde sobre los directorios que sí pueden recorrerse, como hace `aggrega inspect --closure`; un enlace que lleva fuera de las lecturas de un directorio de catálogo, o fuera de los documentos junto a la Release, lo detiene, igual que detiene un build."
   },
+  "f3274bc3bd30438c": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "f3274bc3bd30438c",
+    "status": "machine",
+    "text": "**Un archivo leído junto a una entidad se somete del mismo modo.** Dos operaciones leen un archivo que está junto al documento propio de una entidad en lugar de uno que nombra una referencia. Fijar una entidad, o publicarla, lee cada uno de los demás documentos YAML del directorio de la entidad para saber si otra entidad lo comparte. Cargar una entidad Plugin escrita en un directorio de catálogo lee el `.wasm` compilado depositado junto a ella. Cada uno se somete al directorio bajo el que se leyó el documento propio de la entidad — el espacio de trabajo, un directorio de catálogo que nombraste fuera de él o, para una entidad que fijas o publicas nombrando su documento fuera del espacio de trabajo, el directorio propio de ese documento — y uno que sea un enlace que lleva fuera de él no se lee. `aggrega pin`, `aggrega push` con o sin `--dry-run`, un pull que fija, y la fijación y la publicación del editor y de un asistente se detienen nombrando el enlace, porque un documento que quedó sin leer podría ser la entidad que estorba. Una compilación o un pull que carga el plugin también se detiene nombrando el enlace, en lugar de ejecutar bytes guardados en otro lugar de la máquina o de buscar el plugin en otra parte. El remedio que nombra este mensaje es el propio de un archivo junto a una entidad: guarda allí el archivo en sí."
+  },
   "f32843e356a1a07d": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -54400,6 +54754,13 @@
     "srcHash": "f345e47fa0ab5611",
     "status": "machine",
     "text": "**Con el comando de compilación siempre te encuentras antes con otra cosa.** Fijar las fuentes de una Release no permite saber qué tipo de artefacto nombra una referencia vacía, así que `aggrega pull` informa de esa referencia como ambigua y no escribe ninguna entrada de archivo de bloqueo para ella — y una compilación lee un archivo de bloqueo en lugar de escribirlo, así que rechaza el archivo de bloqueo ausente o que ya no coincide antes de que ocurra cualquier renderizado. En cualquier caso, el comando de compilación te devuelve uno de esos dos rechazos y no esta detención. La detención en sí es la que encuentras con [`aggrega validate`](../cli/aggrega-validate.md) sobre el archivo de la Recipe, que renderiza esa Recipe de forma aislada, y con la herramienta de compilación que expone [`aggrega mcp`](../cli/aggrega-mcp.md), que renderiza una Release sin ningún archivo de bloqueo. La corrección es la misma en todos ellos."
+  },
+  "f3477c2bd4cc921a": {
+    "at": "2026-11-03T03:37:29.359Z",
+    "job": "session-0045-20261103033729",
+    "srcHash": "f3477c2bd4cc921a",
+    "status": "machine",
+    "text": "**Los archivos de configuración del espacio de trabajo se someten al espacio de trabajo del mismo modo.** Cada `.aggrega-config.yaml` desde la raíz del espacio de trabajo hasta el directorio en el que se ejecuta un comando, y el `.aggrega-config-append-ci.yaml` que un pipeline guarda junto a cualquiera de ellos, es contenido propio del espacio de trabajo. Uno que sea un enlace que lleva fuera del espacio de trabajo — o al que se llega a través de un enlace de directorio que lleva fuera — no se lee, y como cada comando, el servidor de lenguaje del editor y las herramientas de un asistente leen la configuración antes que cualquier otra cosa, cada uno se detiene ahí, nombrando el enlace, en lugar de ejecutarse con una configuración hecha de lo que quedara. El servidor de lenguaje, y el servidor de un asistente que se comunica por sus propios flujos, arrancan igualmente sobre un espacio de trabajo así: los listados de sus Releases y de sus entidades responden, leídos sin nada configurado, y nombran el archivo entre los enlaces que no leyeron, mientras que cualquier otra solicitud que decide la configuración se rechaza con esta condición, nombrando el enlace. El remedio que nombra este mensaje es el propio de la configuración: el archivo de configuración global es la única configuración que se lee dondequiera que se guarde, nombrada con `--config` o `AGGREGA_CONFIG`."
   },
   "f3596d836c317c06": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -54464,6 +54825,13 @@
     "srcHash": "f3914eb170dec1ea",
     "status": "machine",
     "text": "**Reexportar la interfaz de un módulo anidado.** Una entrada de `exportedComponents:` puede apuntar al alias exportado de un subagregado anidado en lugar de a un componente declarado directamente — un módulo que vuelve a publicar parte de un módulo que importa, bajo su propio nombre de interfaz y opcionalmente con un nombre nuevo. Una arista `uses:` cuyo destino es un alias reexportado de ese tipo se resuelve de forma transitiva a lo largo de la cadena hasta el nodo interno concreto, de modo que un módulo compone módulos más profundos en su propia interfaz pública sin exponer su organización interna, y un consumidor nunca necesita saber a qué profundidad está anidado el destino. La disciplina de la interfaz estable se mantiene en cada salto: cada módulo reexporta solo lo que decide publicar. Un destino reexportado que no se resuelve en ningún nodo interno detiene la compilación de forma explícita, igual que un destino directo colgante, y una cadena de reexportación que se cierra sobre sí misma se rechaza en lugar de seguirse indefinidamente."
+  },
+  "f3954da9ff00a58d": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "f3954da9ff00a58d",
+    "status": "machine",
+    "text": "con `written in <document>` después de la referencia para un `extends:` o un `$import:` de los parámetros, y `the link <link> leads to <place>` al final, donde un enlace saca fuera la ruta. Una referencia `aggregate:` o `manifest:` no nombra ningún documento: una Release que extiende otra puede haberla heredado de una Release más arriba en la cadena, y se resuelve junto a la Release que nombra el comando en cualquier caso."
   },
   "f3956620c9038e62": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -55266,6 +55634,13 @@
     "srcHash": "f6c5eaba0e32c602",
     "status": "machine",
     "text": "La skill no lleva ninguna copia de ningún esquema ni contrato de entidad. Indica al asistente que pida al binario cada respuesta estructural — las herramientas MCP donde el servidor está conectado y, si no, la línea de comandos `aggrega` — y que lea la [documentación publicada](https://aggrega.ai/docs/) para saber qué significan las cosas. La skill está integrada en el binario, así que la copia que escribe coincide con la versión que tienes instalada."
+  },
+  "f6ca837475334d5f": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "f6ca837475334d5f",
+    "status": "machine",
+    "text": "Una referencia nombra una entidad que el catálogo contiene y fija una versión que el catálogo no contiene: una versión exacta que falta, o un rango caret con el que no coincide nada disponible. Se distingue de una simple ausencia, en la que el propio nombre es desconocido — aquí la entidad existe y solo la versión no puede satisfacerse, por eso el mensaje lo dice en lugar de informar de la entidad como ausente y enviarte a buscar una errata en el nombre."
   },
   "f6d0bf4f655a6c99": {
     "at": "2026-10-30T04:51:07.986Z",
@@ -56755,6 +57130,13 @@
     "srcHash": "fcbf4ec450dc094b",
     "status": "machine",
     "text": "**Un valor está pendiente incluso donde el esquema lo aceptaría vacío.** Una Recipe o FeatureRecipe generada lleva `capability` e `implements` vacíos. Su esquema admite una cadena vacía, pero una vacía no nombra ningún provider ni ningún tipo, así que `aggrega validate` indica ambos como aún pendientes hasta que los rellenes. Esa lectura corresponde a validar un único archivo de entidad: una ejecución sobre todo el catálogo, `aggrega validate --release` y [`aggrega build`](aggrega-build.md) no la aplican. Consulta [marcadores de posición aún pendientes](aggrega-validate.md#placeholders-still-owed) para ver lo que abarca."
+  },
+  "fcca66b002088809": {
+    "at": "2026-11-03T03:37:30.908Z",
+    "job": "session-0046-20261103033730",
+    "srcHash": "fcca66b002088809",
+    "status": "machine",
+    "text": "A reference to another file leads out of the directory it must stay inside (Una referencia a otro archivo sale del directorio dentro del cual debe permanecer)"
   },
   "fccdfdd865480cc1": {
     "at": "2026-10-30T21:31:35.304Z",
