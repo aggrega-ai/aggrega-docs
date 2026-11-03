@@ -2618,6 +2618,13 @@
     "status": "machine",
     "text": "2. Véritable inversion de contrôle et câblage sémantique"
   },
+  "0667bcb4713d057c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "0667bcb4713d057c",
+    "status": "machine",
+    "text": "Nœud par nœud"
+  },
   "06697efc3c508be4": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -3982,6 +3989,13 @@
     "status": "machine",
     "text": "**Description de `aggrega cache evict`**"
   },
+  "09df093ede0733c3": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "09df093ede0733c3",
+    "status": "machine",
+    "text": "Les paramètres qu’il lit"
+  },
   "09e1d0a52cf25f6d": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -4367,6 +4381,13 @@
     "srcHash": "0b0d91a68fb9eb31",
     "status": "machine",
     "text": "La lecture du YAML en arbre ne développe pas les alias, de sorte qu’un document de cette forme est lu sans objection et n’échoue que lorsque quelque chose le parcourt. Le refus se situe donc entre la lecture et le parcours — et un build lit le YAML rédigé à plus d’un endroit, si bien que la même condition peut être rencontrée à plus d’un endroit. Quatre endroits la signalent, chacun encadrant la même explication avec ce qui localise le document sur cette surface :"
+  },
+  "0b0e25c256217510": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "0b0e25c256217510",
+    "status": "machine",
+    "text": "**Une description de serveur du registre.** Le `server.json` que publie le registre MCP : son `name`, et son premier paquet ou, lorsqu’il n’en liste aucun, son premier point d’accès distant. Un paquet npm ou PyPI est démarré à partir de la ligne de commande que forment son lanceur — son `runtimeHint`, ou `npx` pour npm et `uvx` pour PyPI —, ses `runtimeArguments`, le paquet avec sa version, écrit `<identifier>@<version>` pour npm et `<identifier>==<version>` pour PyPI, et ses `packageArguments`, avec ses `environmentVariables` comme environnement. Un argument positionnel est son `value`, ou son `default` ; un argument nommé est écrit `<name>=<value>` lorsqu’il a l’un ou l’autre, et comme son `name` lorsqu’il n’a ni l’un ni l’autre. Un paquet OCI s’exécute à partir de l’image que nomme son `identifier`. Un point d’accès distant est joint à son `url` et reçoit ses `headers`. Chaque autre paquet et point d’accès distant que liste la description est nommé dans un commentaire, puisqu’une instance n’en exécute qu’un."
   },
   "0b11f421c7c2a712": {
     "at": "2026-11-03T08:51:39.660Z",
@@ -9016,6 +9037,13 @@
     "status": "machine",
     "text": "**Un chemin que nomme un appel reste lui aussi à l’intérieur de ce workspace.** En HTTP, un argument de chemin est résolu par rapport à la racine du workspace et refusé s’il en sort — un chemin relatif qui remonte hors du workspace, un chemin absolu qui nomme un autre endroit, et un chemin relatif qui sort du workspace par un lien vers un fichier ou un répertoire qui s’y trouve reviennent chacun comme un échec nommant l’argument, sans nommer ni la racine du workspace ni l’endroit que le chemin aurait atteint ; un chemin relatif est restitué tel que vous l’avez envoyé. Chaque argument de chemin est jugé selon l’endroit où il mène, d’après la définition de l’intérieur que donne [La frontière du workspace](workspace-boundary.md#what-lies-inside-the-workspace), que l’outil le lise ou l’écrive — le répertoire dans lequel `gen-catalog` écrit sa sortie, le document que `edit-document` réécrit et l’entité à côté de laquelle `pin` écrit son verrou tout autant qu’un document qu’un outil lit — de sorte qu’un chemin pas encore créé sous un lien qui sort du workspace est refusé comme l’est ce lien, sans que rien ne soit lu ni écrit. Une `release` nommant une Release que nomme la configuration du workspace servi, en tant que `build.authoring_release` ou en tant que clé de `workspace.releases`, est atteinte par cette configuration et acceptée à travers un lien où que se trouve son fichier ; aucun autre argument n’a cette exception. Lorsque le chemin que vous visiez est à l’intérieur de ce workspace mais a été écrit de manière absolue, le refus vous donne l’écriture relative à la racine à envoyer à la place, de sorte qu’un appelant qui a deviné la mauvaise forme apprend la bonne plutôt que seulement qu’elle était mauvaise. Cela vaut pour les chemins qu’un appel nomme comme son objet — le document à valider, la Release à construire, le répertoire dans lequel une génération écrit sa sortie — et pour ceux dans lesquels un outil écrit, pas moins que pour ceux qu’il lit : un appelant qui atteint un serveur par le réseau demande à une machine qu’il ne peut pas voir de lire et d’écrire des fichiers, et le workspace choisi par l’opérateur est l’endroit où cette lecture et cette écriture sont contenues. Sur l’entrée et la sortie standard, les arguments de chemin de chaque outil conservent le contrat décrit plus bas pour cet outil, où un chemin peut être absolu et peut pointer hors du workspace — la personne qui appelle possède la machine sur laquelle tourne le serveur, de sorte que la confiner à un répertoire qu’elle a elle-même choisi n’apporterait rien. Les deux outils dont l’opération elle-même ne répond que sur un document que contient le workspace, `insertion-point` et `edit-document`, conservent ce comportement sur les deux transports, et refusent un document hors du workspace, qu’il soit écrit ainsi ou atteint par un lien qui en sort. Ce qui est respecté sur l’entrée et la sortie standard, c’est le chemin que nomme un appel et rien au-delà. Ce que l’opération lit et écrit ensuite pour son propre compte est contenu sur les deux transports exactement comme lorsque la même commande est saisie dans un terminal : un parcours ou une recherche ne lit pas à travers un lien qui sort du workspace, un fichier qu’une Release du workspace ou son Manifest nomme par un chemin n’est pas lu depuis l’extérieur du workspace — et un fichier que nomme une Release nommée par l’appel hors du workspace n’est pas lu depuis l’extérieur du répertoire qui contient cette Release — et un fichier écrit sous un répertoire — le workspace, ou un répertoire nommé par l’appel — reste à l’intérieur de ce répertoire. [La frontière du workspace](workspace-boundary.md#the-two-assistant-transports) place les deux transports à côté de la ligne de commande et de l’éditeur, et indique ce qui reste ouvert sur l’entrée et la sortie standard : un document dans un workspace que vous avez cloné peut amener un assistant à nommer un chemin hors du workspace, et ce chemin est respecté tel qu’il est nommé."
   },
+  "17568ae75072f1a6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "17568ae75072f1a6",
+    "status": "machine",
+    "text": "Le flux lui-même n’est pas porté, et la valeur d’aucun champ n’est lue."
+  },
   "1757efae47e07262": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -11040,6 +11068,13 @@
     "status": "machine",
     "text": "Le fragment `#/mappings/<name>` sélectionne l’entrée et distingue une référence de mapping du `#/schemas/<name>` de la SchemaLibrary. La référence utilise le même modèle d’identité par nom simple que le `$ref:` de la SchemaLibrary — `<Library>#/mappings/<name>`, sans hôte de registre. La version est fournie par le lockfile propre à chaque Release (nom + version + digest du contenu) ; un auteur peut affirmer un plancher de version minimale facultatif sous la forme `<Library>:<version>#/mappings/<name>` (le séparateur de version est `:`, comme pour les mappings de recipe/feature et l’épinglage du lockfile), et l’emplacement physique est lié au moment de la résolution."
   },
+  "1c9da569c8f03574": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "1c9da569c8f03574",
+    "status": "machine",
+    "text": "Un `.mcp.json` de Claude Code listant un serveur joint via HTTP et un autre démarré avec `npx` :"
+  },
   "1c9e1db911cc5c12": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -12163,6 +12198,13 @@
     "srcHash": "1f5d64b92820f823",
     "status": "machine",
     "text": "Signification"
+  },
+  "1f60d21a42b73d3d": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "1f60d21a42b73d3d",
+    "status": "machine",
+    "text": "`infra.endpoint` prend l’adresse sans aucune partie portant une clé, si bien que les parties de l’adresse qu’écrit la source et qu’il omet — la partie utilisateur avant le `@`, la requête après le `?` et le fragment après le `#`, tout ce qui suit le premier `#` étant le fragment — sont listées dans le même commentaire, chacune à côté de son nom et telle qu’écrite, sans le `@`, le `?` ou le `#` qui la sépare. Un consommateur lisant sa clé dans l’adresse fournit l’adresse entière sur sa propre connexion à l’outil. Un serveur joint à `https://user:pw@api.example.com/mcp?key=k`, sans aucun paramètre, est produit en brouillon ainsi :"
   },
   "1f619fbf4c3deab2": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -13953,6 +13995,13 @@
     "status": "machine",
     "text": "**Une entrée externe est la seule chose qui n’interrompt pas, et elle le signale à la place.** Le rendu qui les trouve ne peut pas récupérer ce qui n’est pas déjà stocké, donc un pull hors ligne sur une Release avec une entrée externe non épinglée se termine, écrit chaque épinglage de dépendance qu’il a résolu, et signale trois choses : que le rendu n’a pas abouti, ce qu’il a épinglé, et qu’un build de cette Release s’interrompra en nommant l’URL. Les épinglages de dépendances qu’il a écrits sont corrects — rien en eux ne dépendait du rendu — ils sont donc conservés plutôt que jetés pour qu’un lecteur les reproduise."
   },
+  "23e96700e691768d": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "23e96700e691768d",
+    "status": "machine",
+    "text": "pour l’environnement d’un serveur, l’emplacement `server_env`, rattaché comme `core/referenced-secret-set` avec une entrée sous `infra.entries` par variable, ayant pour clé le nom de la variable."
+  },
   "23f18ea7b9488556": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -14650,6 +14699,13 @@
     "status": "machine",
     "text": "résultat"
   },
+  "25a87c9781e8e1c9": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "25a87c9781e8e1c9",
+    "status": "machine",
+    "text": "Le modèle que sert une partie"
+  },
   "25a99ea33a48a6c6": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -14847,6 +14903,13 @@
     "status": "machine",
     "text": "`containers/auth.json` dans le répertoire que nomme `XDG_RUNTIME_DIR` (Podman / Skopeo)"
   },
+  "2643f125b3923da6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "2643f125b3923da6",
+    "status": "machine",
+    "text": "**En-têtes par défaut et requête par défaut sur un nœud OpenAI qu’aucune connexion n’atteint** — les `default_headers` et `default_query` d’un nœud `OpenAIEmbeddings` de Langflow, et les `baseOptions` d’un nœud `chatOpenAI` ou `openAIEmbeddings` de Flowise, où que se trouve le nœud, y compris la configuration du modèle qu’un agentflow sélectionne, là où le brouillon ne relie pas le nœud et ne trouve aucune connexion l’atteignant tel qu’il est écrit ; là où c’est le cas, ils relèvent du câblage, comme ci-dessus. Chacun est repéré en entier et, écrit vide, conserve sa nature — un objet comme `{}`, une liste comme `[]`, du texte comme une chaîne vide — et est rapporté une seule fois."
+  },
   "264527f982476152": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -15007,6 +15070,13 @@
     "srcHash": "26b273ff7b7e87af",
     "status": "machine",
     "text": "`connection-at-position` répond à la question qui précède le volet connexion des deux outils ci-dessus, lorsque vous disposez d’un endroit dans un document plutôt que d’un nœud dans un graphe — une ligne que vous regardez dans un Aggregate ou une Release. Transmettez `file`, le document, relatif à la racine de l’espace de travail ou absolu et lu depuis le disque de la même manière que `insertion-point` en lit un ; `position`, une `line` et un `character` tous deux comptés à partir de zéro, mesurés dans les unités que nomme `position_encoding`, exactement comme `insertion-point` lit cet argument ; et `release`, la Release dont le graphe compilé enregistre les connexions. La Release est requise aussi pour un endroit dans l’Aggregate : un nœud du graphe et une connexion n’existent que sur un graphe compilé."
+  },
+  "26b4ac42f501348f": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "26b4ac42f501348f",
+    "status": "machine",
+    "text": "`importer/mcp` lit les serveurs MCP que liste la configuration d’un client MCP, ou l’unique serveur que décrit une description de serveur du registre MCP, et produit en brouillon chaque serveur comme une instance de l’outil MCP de la bibliothèque standard, `core/ai-tool/mcp`. Chaque serveur en est un, si bien que l’importateur n’évalue aucun candidat et ne rapporte aucune décision de mappage."
   },
   "26b4c10f0088e674": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -16488,6 +16558,13 @@
     "srcHash": "2a9ef29579f9a72d",
     "status": "machine",
     "text": "[../language-reference/entities/workload.md](../language-reference/entities/workload.md) — la map `attachments:` du conteneur et ses règles de validation."
+  },
+  "2aa20178d313cd2f": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "2aa20178d313cd2f",
+    "status": "machine",
+    "text": "**Une entrée contenant des identifiants sous le nom d’identifiants** — l’`api_key` d’un nœud `OlivyaComponent` de Langflow, le `verification_token` de chaque composant Composio, et le `mem0_config` d’un nœud `mem0_chat_memory`, dont la valeur entière conserve sa nature lorsqu’elle est écrite vide ; ainsi que le `webhookSecret` et le `callbackSecret` d’un nœud `startAgentflow` de Flowise et le `bearerToken` d’un nœud `teradataMCP`. Chacun est repéré en entier. Une entrée dont le nom ne fait que ressembler à des identifiants — le nom d’une clé stockée ailleurs, un nom d’utilisateur, ou une option que le composant déclare comme non secrète — n’est pas repérée."
   },
   "2aa5234cce992f97": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -18594,6 +18671,13 @@
     "status": "machine",
     "text": "La signature est produite avant le téléversement et non après, donc un échec de signature aboutit lui aussi ici et rien n’est publié."
   },
+  "3030ee0e1a598d5e": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3030ee0e1a598d5e",
+    "status": "machine",
+    "text": "Ce que devient un serveur"
+  },
   "30360229eddcb37d": {
     "at": "2026-11-03T07:45:15.507Z",
     "job": "session-0071-20261103074515",
@@ -19094,6 +19178,13 @@
     "srcHash": "3163715b3da92c2c",
     "status": "machine",
     "text": "Deux structures sont signalées ici, et elles sont vérifiées à des moments différents. Une référence dont la **forme** ne peut pas être une entité — un chemin du système de fichiers, ou une référence d’artefact telle qu’une URL `oci://`, un `.wasm` nu ou un condensé `@sha256:` — est refusée d’emblée sur les surfaces qui n’acceptent que des références d’entité. Une référence qui ne nomme aucune entité détenue par quoi que ce soit est refusée après la recherche, et ce que dit le message dépend de la façon dont elle est écrite : une URI d’entité Plugin — `<pluginType>/<name>`, éventuellement versionnée — est signalée comme une entité qu’aucun répertoire de catalogue ne contient, que le binaire n’embarque pas et qu’aucun pull n’a récupérée, et toute autre référence se voit indiquer de prendre cette forme. Les deux structures signalent la même condition, de sorte que la réponse d’une build à l’une ou à l’autre est la même."
+  },
+  "317a448799951296": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "317a448799951296",
+    "status": "machine",
+    "text": "Ce que le brouillon laisse à la Release"
   },
   "317b49391b17db09": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -20103,6 +20194,13 @@
     "status": "machine",
     "text": "Si le nœud est un scalaire de type chaîne, on sélectionne le mode inline (Mode 1)."
   },
+  "342586f69a721fb7": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "342586f69a721fb7",
+    "status": "machine",
+    "text": "`aggregate.yaml` est un Aggregate en brouillon nommé `<target_namespace>/flow` contenant une instance de `core/ai-tool/mcp` par serveur. Une instance a pour clé le nom de son serveur, en minuscules, chaque suite de caractères autres que des lettres et des chiffres étant écrite comme un seul trait d’union, avec un suffixe numérique lorsqu’un serveur précédent a pris la clé. Lorsque la clé n’est pas le nom du serveur tel qu’il est écrit, ou que l’importation a lu plusieurs fichiers, un commentaire au-dessus de l’instance nomme le serveur et le fichier dont il provient. Aucun agent n’est produit en brouillon pour les utiliser."
+  },
   "342870adcc183b75": {
     "at": "2026-11-03T10:00:41.851Z",
     "job": "session-0087-20261103100041",
@@ -20123,6 +20221,13 @@
     "srcHash": "342990191ccf3c4e",
     "status": "machine",
     "text": "`E0236` est retiré : plus rien ne le signale, et le numéro n’est jamais attribué à une autre condition. La condition que ce numéro nommait a été supprimée, et aucun build ne la signale."
+  },
+  "3430bdf76e300254": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3430bdf76e300254",
+    "status": "machine",
+    "text": "Avec `layout: nodes`, une importation produit en brouillon chaque nœud du flux comme un Component propre, et écrit :"
   },
   "3439ee91e9245057": {
     "at": "2026-11-03T18:10:58.903Z",
@@ -20797,6 +20902,13 @@
     "srcHash": "362fd3415332e374",
     "status": "machine",
     "text": "[mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — Cet exemple compile une petite stack réelle — une base de données **MariaDB** précédée d’une interface web **Adminer** — à partir d’un seul `Aggregate` écrit par le développeur vers **deux plateformes**."
+  },
+  "363343608f9985c8": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "363343608f9985c8",
+    "status": "machine",
+    "text": "Une valeur qui est une référence de variable et rien d’autre — le nom nu `${NAME}`, dont une variable prédéfinie telle que `${workspaceFolder}`, `${env:NAME}` ou `${input:id}` — ne contient aucune valeur propre : elle est écrite comme le texte qu’elle est quoi que dise le paramètre, le pont la transmettant au serveur sans la développer, et n’est nommée dans aucun avertissement, comme une référence [dans un flux](#credential-values-the-flow-holds). Une variable d’environnement dont la valeur est une telle référence est écrite avec sa clé et sans valeur, sa référence étant nommée dans le commentaire au-dessus de l’entrée, pour que la Release la fournisse, et un en-tête ou une partie de l’adresse dont la valeur est une telle référence est listé avec la référence dont il tire sa valeur. Une référence portant du texte après un opérateur — une valeur par défaut, une alternative, un message ou une affectation, comme `${NAME:-value}` ou `${NAME-value}`, avec ou sans deux-points — contient ce texte, et il en va de même du texte à côté d’une référence ; chacun est repéré comme toute autre valeur."
   },
   "363735f9fab968f1": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -21925,6 +22037,13 @@
     "status": "machine",
     "text": "`core/observability/thanos-query`"
   },
+  "3971e7023e9e38a6": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3971e7023e9e38a6",
+    "status": "machine",
+    "text": "À côté, `release.yaml` est une Release en brouillon du même nom, dont le `spec.aggregate` nomme l’Aggregate, portant pour chaque instance les entrées opérationnelles qu’indique la source :"
+  },
   "39762858ed26f37b": {
     "at": "2026-10-30T21:31:35.304Z",
     "job": "session-0023-20261030213135",
@@ -22005,6 +22124,13 @@
     "srcHash": "398c4cc5f87c6391",
     "status": "machine",
     "text": "Créez le répertoire, ou supprimez l’entrée : une copie d’un projet prise sans un checkout voisin qu’il liste supprime cette entrée, et résout depuis un registre ce que le checkout aurait fourni. Il en va de même pour un répertoire que liste l’entrée propre d’une Release, pour un répertoire qu’ajoute un fichier de configuration appartenant à votre pipeline ou le fichier global, et pour un répertoire que porte `AGGREGA_CATALOG_DIRS`, que le refus nomme à la place d’un fichier. La configuration elle-même se charge toujours, de sorte qu’une commande qui ne lit aucun catalogue s’exécute toujours. Un répertoire `--catalog` qui n’existe pas a été saisi pour une seule commande, et `aggrega build` le refuse en nommant le répertoire. Un répertoire listé qui existe et ne peut pas être lu est refusé par les commandes qui chargent le catalogue entier, qui le nomment."
+  },
+  "3995ccf3a5dff2be": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3995ccf3a5dff2be",
+    "status": "machine",
+    "text": "Ce qu’il lit"
   },
   "399dde30295153a1": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -22534,6 +22660,13 @@
     "srcHash": "3ad5cd4d6af72a7e",
     "status": "machine",
     "text": "Une Release que la table ne nomme pas lit le `workspace.catalog_dirs` propre au workspace. Une Release que la table nomme lit ses propres répertoires quelle que soit la façon dont elle est construite — `aggrega build` ou `aggrega pull` dans un terminal, l’éditeur via `aggrega serve`, un assistant via `aggrega mcp` — de sorte qu’aucun d’eux n’a besoin d’un flag pour trouver son catalogue. Un `--catalog <dir>` sur la ligne de commande est toujours parcouru avant les répertoires de la Release, pour cette seule invocation. Et une recherche qui ne trouve aucune entité sous un nom que vous avez utilisé désigne l’entrée de cette Release comme l’endroit où lister le répertoire qui la contient."
+  },
+  "3ad5ec16d7e62ce0": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3ad5ec16d7e62ce0",
+    "status": "machine",
+    "text": "Chaque valeur que le paramètre laisse telle qu’elle est écrite parvient au brouillon, et l’auteur l’examine, guidé par les avertissements `credential-carried`. Aucune règle portant sur un champ n’atteint non plus le reste d’un flux, si bien que l’auteur l’examine aussi avant de partager un brouillon : le code propre d’un composant, que porte le flux et dans lequel un composant personnalisé peut contenir une clé ; les entrées que l’éditeur ajoute à un nœud au-delà de celles que déclare son composant ; le corps avec lequel une requête est envoyée, comme celui d’un nœud `APIRequest` ou `httpAgentflow`, qui peut porter un jeton ; les arguments qu’un nœud transmet au client de son modèle ou à un loader sous la forme d’un objet qui lui est propre, comme les `model_kwargs` d’un nœud `EmbeddingModel` de Langflow ou les `additionalInputs` d’un nœud `replicate` de Flowise, qui peuvent porter une clé sous n’importe quel nom ; une adresse autre que celle d’un serveur MCP, qui peut porter une clé dans sa partie utilisateur ou sa requête ; le code d’un nœud Code de n8n, ainsi que les en-têtes ou la requête d’un nœud qui envoie une requête que l’importateur n’énumère pas ci-dessus ; et le texte libre tel qu’un prompt ou un message."
   },
   "3ad79e7efcc07baf": {
     "at": "2026-11-03T08:18:34.158Z",
@@ -24303,6 +24436,13 @@
     "status": "machine",
     "text": "**Templating côté cluster.** La FeatureRecipe d’identifiant émet une ressource qui formate la chaîne *dans le cluster*, au moyen du templating propre à l’opérateur du coffre. L’application référence ensuite par son nom le Secret de plateforme résultant, et le compilateur a câblé la relation sans jamais détenir le contenu secret :"
   },
+  "3f24da8adb25930c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3f24da8adb25930c",
+    "status": "machine",
+    "text": "**En-têtes de requête** — sur Langflow, les `headers` d’un nœud `APIRequest`, `URLComponent`, `CloudflareWorkersAIEmbeddings` ou `ConfluentKafkaProducer` et les `api_headers` d’un nœud `DoclingRemote` ; sur Flowise, les `headers` d’un nœud `httpAgentflow`, `getApiChain`, `postApiChain`, `openApiChain`, `apiLoader`, `openAPIToolkit` ou `searXNG`, les `requestsGetHeaders`, `requestsPostHeaders`, `requestsPutHeaders` et `requestsDeleteHeaders` des outils Requests, et les `baseOptions` — les en-têtes par défaut qu’envoie le client d’un modèle — d’un nœud `azureChatOpenAI`, `azureOpenAIEmbeddings`, `chatCerebras`, `chatOpenAICustom`, `openAIEmbeddingsCustom`, `chatOpenRouter`, `chatSambanova` ou `openAI` ; sur n8n, les `headerParameters`, `jsonHeaders`, `headerParametersUi` et `headerParametersJson` d’un nœud `n8n-nodes-base.httpRequest` — sa version actuelle conserve les deux premiers, ses versions antérieures les deux autres — et du même nœud utilisé comme outil d’un agent, les `parametersHeaders` et `jsonHeaders` d’un nœud `@n8n/n8n-nodes-langchain.toolHttpRequest`, et les `headerParametersUi` d’un nœud `n8n-nodes-base.graphql`. Le nom d’un en-tête ne porte aucun secret, si bien que la valeur de chaque en-tête est repérée et son nom conservé, quelle que soit la forme que prennent les en-têtes : un objet associant des noms à des valeurs, des lignes d’une clé et d’une valeur — sur n8n, des lignes d’un `name` et d’un `value` — ou des objets que Langflow fusionne en entier dans les en-têtes. Chaque en-tête est rapporté par son nom. Un élément d’une liste qui n’est pas une ligne d’en-tête est repéré en entier et rapporté par sa position. Les en-têtes écrits en texte sont repérés en entier, sauf sur Flowise et n8n où le texte contient les en-têtes sous forme d’objet JSON : là, écrit vide, le texte est réécrit sur place, chaque valeur vide, et rapporté une seule fois avec les noms des en-têtes qu’il contient. Un texte n8n commençant par `=` est une expression que n8n évalue lorsque le workflow s’exécute, et il est repéré en entier. Écrites vides, toutes les valeurs le sont, y compris celles des en-têtes qui ne contiennent aucun secret tels que `User-Agent`, si bien qu’une requête importée est envoyée avec ces valeurs vides jusqu’à ce que son auteur les rétablisse."
+  },
   "3f2984e27374fb3a": {
     "at": "2026-11-03T03:37:29.359Z",
     "job": "session-0045-20261103033729",
@@ -25314,6 +25454,13 @@
     "srcHash": "4278c11a644afc2b",
     "status": "machine",
     "text": "Une entrée qui ne correspond à rien est une affirmation sur la source qui n’est plus vraie. La cause habituelle est une mise à niveau de la source qui a renommé ou supprimé ce que l’entrée désigne — et un document ou un service renommé se trouve alors dans la sortie sous son nouveau nom, ce qui est exactement ce que l’entrée avait été écrite pour tenir à l’écart —, et l’autre est une erreur dans l’entrée elle-même. Passer outre livrerait ce que l’entrée devait laisser de côté, de sorte que la build s’arrête et nomme l’entrée."
+  },
+  "427986381ea00677": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "427986381ea00677",
+    "status": "machine",
+    "text": "L’importateur MCP lit `target_namespace` et `empty_credentials`, tels que les décrit [Paramètres](#settings), et aucun autre paramètre."
   },
   "4281d8b5aba8b1fa": {
     "at": "2026-11-03T10:52:18.070Z",
@@ -26615,6 +26762,13 @@
     "srcHash": "4552e6bdabb74767",
     "status": "machine",
     "text": "**Comment corriger :** ouvrez l’entité à la ligne que nomme le message et resserrez la référence pour qu’elle forme un seul jeton. Un saut de ligne avant le `#` en est la cause habituelle — une référence coupée sur deux lignes pour tenir dans une colonne se lit comme une seule valeur pour YAML et comme une référence cassée ici ; écrivez-la donc sur une seule ligne, quelle que soit sa longueur. L’autre cause est une espace finale avant le guillemet fermant : elle se retrouve dans la version minimale, où elle nomme une version qu’aucun artefact publié ne porte. Pour la seconde forme, la référence se trouve dans la bibliothèque nommée juste avant elle dans le message ; corrigez-la là où cette bibliothèque déclare l’entrée."
+  },
+  "4555c029e3e298f5": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "4555c029e3e298f5",
+    "status": "machine",
+    "text": "Le `metadata.environment` et le `spec.manifest` de la Release sont laissés non définis, chacun nommé dans un commentaire là où il se place : aucune source ne nomme l’environnement dans lequel une Release est déployée, et l’importateur ne produit aucun Manifest en brouillon — à moins que l’importation ne reçoive une cible, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds). Le Manifest que vous écrivez fait correspondre chaque serveur à sa réalisation — `helm/mcp-stdio-bridge` ou `compose/mcp-stdio-bridge` pour une ligne de commande, `helm/mcp-remote` ou `compose/mcp-remote` pour une adresse, `helm/mcp` pour une image — et `core/referenced-secret-set` à la sienne ; un Manifest produit en brouillon ne fait correspondre ni l’un ni l’autre. Le schéma de la Release exige les deux, si bien qu’un build s’arrête en les nommant tant qu’ils ne sont pas définis."
   },
   "456aba341950432e": {
     "at": "2026-11-03T08:18:34.158Z",
@@ -28134,6 +28288,13 @@
     "srcHash": "4908eca7ea51978d",
     "status": "machine",
     "text": "`scheduling` regroupe quatre primitives d’ordonnancement natives de K8s — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — en un seul bloc organisé par finalité. Chaque sous-champ a exactement la forme du champ de pod spec Kubernetes correspondant :"
+  },
+  "491187d1f3dbfb39": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "491187d1f3dbfb39",
+    "status": "machine",
+    "text": "les entrées propres de la plateforme : sur Langflow, `infra.image`, et l’emplacement `admin_password` tant que `values.require_authentication` reste à `true` ; sur Flowise, `infra.image`, `infra.owner_email` et l’emplacement `owner_password`, les deux derniers requis tant que `values.flow_definition` est défini ; sur n8n, `infra.image` ;"
   },
   "491228d8803bf9a7": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -29711,6 +29872,13 @@
     "status": "machine",
     "text": "**Le seuil et son compromis.** Le lint n’apparie des noms qu’à une distance d’une modification, et seulement lorsque les deux noms comptent au moins quatre caractères. En dessous de cette longueur, presque chaque nom court se trouve à une modification de tous les autres, de sorte que les apparier produirait du bruit plutôt que du signal ; au-delà d’une modification, les paires cessent de ressembler à des fautes de frappe. Une transposition compte pour une modification plutôt que deux, car une paire de caractères permutés est l’erreur la plus courante et un comptage plus strict la manquerait."
   },
+  "4de575215f9be2cc": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "4de575215f9be2cc",
+    "status": "machine",
+    "text": "Un commentaire au-dessus de l’instance de la plateforme nomme ce que le flux ne peut pas fournir, et que fournit la Release :"
+  },
   "4deadb52bc15e501": {
     "at": "2026-11-03T10:34:02.595Z",
     "job": "session-0092-20261103103402",
@@ -30908,6 +31076,13 @@
     "srcHash": "5102317ff664c561",
     "status": "machine",
     "text": "Compose n’a pas de référence de secret, donc la Release compose remplit le même slot avec `core/secret-value`, dont l’origine est une référence de variable Compose. Extrait de `release-compose.yaml` :"
+  },
+  "51033328f4cfed6f": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "51033328f4cfed6f",
+    "status": "machine",
+    "text": "Le brouillon par défaut porte le flux : l’instance de la plateforme prend l’export comme `values.flow_definition`, écrit comme le décrit [Comment le flux est écrit dans le brouillon](#how-the-flow-is-written-into-the-draft). Un auteur qui écrit un flux à la main dans un Aggregate — dans un brouillon disposé nœud par nœud, ou dans un Aggregate qui lui est propre — l’écrit de la même façon. Un Component qui exécute un flux tel qu’il a été rédigé prend l’export comme valeur — `flow_definition` sur `core/ai-agent/langflow` et `core/ai-agent/flowise` de la bibliothèque standard — et le texte d’un Aggregate est lu comme un template, si bien que les doubles accolades que contient l’export seraient lues comme des actions de template : un chatflow Flowise écrit `{{<node id>.data.instance}}` pour chaque connexion entre deux nœuds, un prompt Flowise nomme une variable `{{question}}`, et un export Langflow porte le code source de ses composants, où les accolades peuvent également apparaître. Écrivez chaque `{{` de l’export comme `{{\"{{\"}}`, à l’intérieur d’un scalaire de bloc, et l’interpolation rétablit le texte de l’export avant que les Recipes du Component ne le lisent ; [Texte qui contient ses propres doubles accolades](../templates/parameters-context.md#text-that-carries-its-own-double-braces) explique pourquoi. Une valeur d’identifiants que contient l’export a sa place dans un secret que rattache la Release, et non dans l’Aggregate : écrivez-la vide, comme le fait le brouillon là où le paramètre `empty_credentials` le lui demande."
   },
   "51073acc37ebbac9": {
     "at": "2026-10-30T04:51:07.986Z",
@@ -37381,6 +37556,13 @@
     "status": "machine",
     "text": "9. Compatibilité de Feature et sûreté topologique"
   },
+  "611fc50ebe823b35": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "611fc50ebe823b35",
+    "status": "machine",
+    "text": "`aggregate.yaml` — un Aggregate en brouillon nommé `<target_namespace>/flow`, composant les nœuds du flux : une entrée pour chacun, et chaque arête du flux comme une connexion `uses` du nœud qu’elle alimente, nommée d’après le nœud qui l’alimente."
+  },
   "61233e87f18f020d": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -37830,6 +38012,13 @@
     "srcHash": "623bb5945e270eb1",
     "status": "machine",
     "text": "9. Le périmètre de sécurité & les garde-fous explicites sur l’egress (destinations hors périmètre)"
+  },
+  "624087adb541d226": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "624087adb541d226",
+    "status": "machine",
+    "text": "Aucune clé d’infrastructure de `core/ai-tool/mcp` ne prend la valeur d’un en-tête : les identifiants d’un serveur distant sont détenus par chaque consommateur, sur sa connexion à l’outil, et l’importation ne produit aucun consommateur en brouillon. Le commentaire au-dessus de l’entrée du serveur liste donc chaque en-tête que la source lui envoie, à côté de sa valeur telle qu’écrite — une chaîne entre guillemets doubles qui se relit exactement comme le texte de la source — pour que vous le déplaciez sur la connexion du consommateur qui le présente. Un en-tête dont la source n’écrit pas la valeur, comme une entrée d’en-tête du registre sans valeur ni valeur par défaut, est listé comme n’en ayant aucune. L’image que nomme un paquet OCI est écrite telle quelle, et n’est pas une valeur qu’atteint le paramètre."
   },
   "62465fb1373f62f7": {
     "at": "2026-11-03T12:45:16.288Z",
@@ -38610,6 +38799,13 @@
     "status": "machine",
     "text": "`when:` et `optional:` sont indépendants. `when:` décide si une étape s’exécute ou non ; `optional:` atténue l’échec d’une étape *en cours d’exécution*. Une étape peut déclarer les deux — `when:` contrôle l’entrée et, si l’étape s’exécute, `optional:` régit la façon dont un échec en son sein est traité. Un template `when:` dont le rendu échoue est un défaut de rédaction et interrompt le build indépendamment de `optional:`."
   },
+  "647ef5d414307eb4": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "647ef5d414307eb4",
+    "status": "machine",
+    "text": "**Langflow** — le `model_name` d’un nœud `OpenAIModel` ou `AnthropicModel` ; le `model` d’un nœud `OpenAIEmbeddings` ; et le remplacement `model_name` d’un nœud `LanguageModelComponent` ou `EmbeddingModel` là où il est défini, et sinon le modèle que sélectionne son champ `model`."
+  },
   "6481f0e6b1a620ac": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -39279,6 +39475,13 @@
     "srcHash": "663aeaf54a733824",
     "status": "machine",
     "text": "Consultez [La taxonomie des entités](04-entity-taxonomy.md) pour une vue d’ensemble visuelle des entités regroupées par domaine et pour les descriptions détaillées de chaque entité."
+  },
+  "6642598703fd0fb6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "6642598703fd0fb6",
+    "status": "machine",
+    "text": "un fichier sous `components/` pour chaque nœud qu’elle produit en brouillon — un Component en brouillon nommé `<target_namespace>/<category>/<name>`, le nom étant tiré du type du nœud, à la version `0.1.0`, ses champs de valeur comme des champs de type chaîne d’un objet `values` fermé et ses champs d’identifiants comme des emplacements d’identifiants requis dont une Recipe décide de la livraison."
   },
   "6646983160ed2e1e": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -47944,6 +48147,13 @@
     "status": "machine",
     "text": "required uses socket not populated (Component, at `.spec.components.<instance>.uses.<socket>`, `\"<socket-name>\"`, declared required by component type `\"<component-type>\"`) (socket uses requis non renseigné (Component, au chemin du socket, avec le nom du socket, déclaré requis par le type de composant indiqué))"
   },
+  "7cec076ebdfc17bd": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "7cec076ebdfc17bd",
+    "status": "machine",
+    "text": "L’importateur MCP"
+  },
   "7cf4a30007d2e1ab": {
     "at": "2026-10-30T19:08:02.729Z",
     "job": "session-0008-20261030190802",
@@ -48368,6 +48578,13 @@
     "status": "machine",
     "text": "Pour les propriétés imbriquées, le chemin est le chemin pointé vers la propriété depuis la racine du pilier :"
   },
+  "7e447ba3eeba7c70": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "7e447ba3eeba7c70",
+    "status": "machine",
+    "text": "Avec le [paramètre `attach_egress_allowlist`](#settings) à `true`, l’instance de la plateforme déclare aussi la Feature `core/egress-allowlist` de la bibliothèque standard sous `features`, comme `egress-allowlist`, de sorte que la plateforme ne se connecte qu’aux composants qu’atteignent ses connexions, à ses propres pods et au DNS du cluster — la contrepartie sortante d’une [arête `uses` comme appel déclaré](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares). Le brouillon déclare le type du rattachement et rien d’autre, puisque le rattachement d’un Aggregate ne porte aucun `infra`, et le commentaire au-dessus de l’instance nomme ce que la Release y définit, sous `features.egress-allowlist.infra` de l’entrée de la plateforme : `control_plane_present: true`, l’affirmation de l’opérateur que le plugin réseau du cluster applique la politique réseau, sans laquelle le build s’arrête ; et `admitted_destinations`, une plage d’adresses pour chaque connexion dont le cluster n’exécute pas la cible, comme un modèle hébergé, sans laquelle le build s’arrête en nommant cette connexion. Le commentaire nomme aussi `aggrega.ai/namespace` pour la frontière qui contient la plateforme, puisque la politique est placée dans le namespace de ses charges de travail et que le build s’arrête là où elles ne sont émises dans aucun. La décision de chaque partie reliée indique que le rattachement admet sa connexion, et l’importation rapporte le rattachement comme `feature-attached`. Compose n’a pas de politique réseau, si bien qu’un build compose d’un tel brouillon s’arrête en nommant le rattachement ; là où la plateforme accueille une connexion, les lignes compose ci-dessus sont montrées à l’intérieur du bloc `features` de l’instance, sans seconde clé `features`."
+  },
   "7e465050a7d51405": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -48675,6 +48892,13 @@
     "srcHash": "7f275fe44e55b737",
     "status": "machine",
     "text": "A pipeline step's typed input or output does not satisfy its declared contract (L’entrée ou la sortie typée d’une étape de pipeline ne satisfait pas son contrat déclaré)"
+  },
+  "7f28d691c40c4a2e": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "7f28d691c40c4a2e",
+    "status": "machine",
+    "text": "Ce que la source n’indique pas est omis et nommé dans un commentaire au-dessus de l’entrée : une commande dont le lanceur ne figure dans aucune des deux images de pont omet `infra.stdio_runtime` ; un argument qu’une description du registre laisse à son utilisateur est écrit comme un élément vide ; une variable dont la source n’écrit pas la valeur est écrite avec sa clé et sans valeur. Le build s’arrête alors en nommant chacun — un élément vide et une entrée sans valeur ne satisfont pas le schéma du champ qui les contient, et la réalisation qui lit un `infra.stdio_runtime`, un `infra.stdio_command` ou un `infra.endpoint` non défini s’arrête en le nommant."
   },
   "7f313acbbc9b8f62": {
     "at": "2026-11-03T03:19:38.005Z",
@@ -50030,6 +50254,13 @@
     "srcHash": "82e7f1014f79c987",
     "status": "machine",
     "text": "**Comment corriger :** rien dans vos fichiers d’entité n’en est la cause, et rien de ce que vous pouvez écrire dans un catalogue ou un espace de travail ne l’élimine. Si vous exécutez l’outil en ligne de commande publié, ce n’est pas une condition que vous pouvez atteindre, et un problème de signature que vous observez réellement est signalé à la place par l’une des conditions de vérification de bundle ci-dessus. Si vous utilisez le paquet de signature directement depuis votre propre logiciel, la charge utile, la signature et la clé doivent être les trois qui vont ensemble — une charge utile resérialisée entre la signature et la vérification est la cause habituelle, puisque les octets diffèrent alors même si le contenu se lit de la même façon."
+  },
+  "82ee73b15acade89": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "82ee73b15acade89",
+    "status": "machine",
+    "text": "Le brouillon est écrit de la même façon pour chaque cible. Sur la cible compose, la Recipe de la plateforme lit chaque secret que la Release rattache seule sous une même clé, `value`, si bien que le mot de passe de l’administrateur ou du propriétaire et les identifiants d’une connexion arriveraient tous deux sous celle-ci et arrêteraient le build. Là où la plateforme accueille une connexion, un commentaire à l’intérieur de son instance montre les lignes qui déclarent ce mot de passe avec une clé qui lui est propre, chacune commentée là où elle doit se trouver — `owner_password` avec la clé `OWNER_PASSWORD` sur Flowise, comme dans l’exemple ci-dessus, et `admin_password` avec la clé `LANGFLOW_SUPERUSER_PASSWORD` sur Langflow. Décommentez-les pour effectuer le build pour compose ; la Release rattache toujours l’emplacement, en nommant le même type ou aucun. La plateforme n8n ne prend aucun secret propre, si bien que son brouillon ne montre pas de telles lignes ; sa Recipe compose lit les identifiants que la Release rattache sur ses connexions sous la même clé unique, si bien qu’une Release rattachant des identifiants sur deux de ses connexions arrête le build compose en les nommant toutes deux, et un Aggregate nommant `values.key` sur l’une d’elles l’évite."
   },
   "82ef202008fef8ba": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -54125,6 +54356,13 @@
     "status": "machine",
     "text": "Sans le test `has(d.services)`, `aggrega build --release release-helm.yaml\n--config governance-cel.yaml --auto-pull` s’arrête, quelles que soient les images qu’exécutent les objets Kubernetes, se termine avec `1` et n’écrit aucun `dist/`, et la ligne qui signale la défaillance nomme le fichier de politique et la clé :"
   },
+  "8daac1e5a1fb2d15": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "8daac1e5a1fb2d15",
+    "status": "machine",
+    "text": "Comment le flux est écrit dans le brouillon"
+  },
   "8dae985835ff464e": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -56020,6 +56258,13 @@
     "status": "machine",
     "text": "**Entrées SchemaLibrary partagées (`$ref:` inter-documents) :** Les définitions JSON Schema réutilisables sont stockées dans des entités de catalogue SchemaLibrary (Tier 3). Elles sont référencées par identité via un `$ref:` inter-documents (`<library>#/schemas/<entry>`, sans hôte — la version provient du lockfile) depuis tout schéma de Component ou de Feature consommateur. Le compilateur compactform parcourt la chaîne à la compilation en propageant la pile de résolution ; chaque propriété de la forme résolue porte une annotation `x-aggrega-source` qui l’attribue à l’entrée de bibliothèque parente immédiate. Consultez [entities/schemalibrary](../language-reference/entities/schemalibrary.md) pour la forme de rédaction de l’entité bibliothèque et [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) pour la sémantique de résolution."
   },
+  "9296e7c08527426b": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "9296e7c08527426b",
+    "status": "machine",
+    "text": "Valeurs d’identifiants que contient un serveur"
+  },
   "92a61e01bb9ef6ba": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -56465,6 +56710,13 @@
     "status": "machine",
     "text": "Terraform RDS (artefact HCL inline)"
   },
+  "93bce7f0615a7f25": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "93bce7f0615a7f25",
+    "status": "machine",
+    "text": "Chaque valeur de la configuration d’un serveur qu’écrit la Release — la valeur de chaque en-tête, chaque élément de sa ligne de commande, son adresse, chaque partie de l’adresse qu’omet `infra.endpoint` et chaque valeur d’environnement — peut porter une clé, et aucun client n’en marque une comme identifiants, si bien que l’importation repère chacune comme un membre de la configuration d’un serveur MCP ; une entrée du registre marquée `isSecret` est repérée comme une valeur que son format marque comme identifiants. Une entrée du registre — une variable d’environnement ou l’en-tête d’un point d’accès distant — est lue comme son `value`, ou son `default` lorsqu’elle n’en écrit aucun. Par défaut, chacune est reportée telle qu’écrite dans la Release et nommée dans un avertissement `credential-carried` par son serveur et l’endroit où elle se trouve — `headers.<header>`, `infra.stdio_command.<position>`, `infra.endpoint` ou `server_env.<variable>`, et une partie de l’adresse par l’`url` dans laquelle elle est écrite et le nom de la partie, comme dans « url of node remote-search is carried with its query as written (l’url du nœud remote-search est reportée avec sa requête telle qu’écrite) » — jamais par sa valeur. Avec le [paramètre `empty_credentials`](#settings) à `marked` ou `all`, chacune est écrite vide et rapportée avec `credential-emptied` : un élément de la ligne de commande comme un élément vide, une adresse et une valeur d’environnement omises, si bien que le build s’arrête en nommant chacune, et la valeur d’un en-tête ou une partie de l’adresse omise du commentaire, qui ne nomme alors que l’en-tête ou la partie. L’`infra.stdio_runtime` d’un client est lu sur la commande telle que l’écrit la Release, si bien qu’une commande écrite vide l’omet aussi."
+  },
   "93be749e7fb2abbc": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -56828,6 +57080,13 @@
     "srcHash": "94c59d798ae8b82c",
     "status": "machine",
     "text": "Cet ordre est la raison d’être de la vérification. Il rend aussi cette condition nettement distincte d’un rejet : le plugin ne s’est pas exécuté, aucun verdict n’a été rendu, et rien de la build n’a été jugé. Un plugin qui ne déclare aucun schéma de paramètres accepte n’importe quels paramètres, de sorte qu’un rattachement à l’un de ces plugins ne rencontre jamais cette condition."
+  },
+  "94cb35c651d31f7c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "94cb35c651d31f7c",
+    "status": "machine",
+    "text": "Un bloc littéral ne peut pas porter chaque caractère tel qu’il est écrit :"
   },
   "94cf03e19c3c960d": {
     "at": "2026-11-02T19:28:42.678Z",
@@ -57281,6 +57540,13 @@
     "srcHash": "9601497c22be8a54",
     "status": "machine",
     "text": "compactform at `<path-inside-the-schema>`:`<line>` (keyword `\"$mode\"`): value must be `compact` or `jsonschema` (compactform : la valeur doit être l’une des deux indiquées)"
+  },
+  "9607f30141e6feca": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "9607f30141e6feca",
+    "status": "machine",
+    "text": "pour un paquet OCI, `infra.image` ;"
   },
   "960b72f863e68c59": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -58123,6 +58389,13 @@
     "srcHash": "9844a25dc09e9019",
     "status": "machine",
     "text": "**Quel appariement est comparé.** Les clés `provides:` écrites dans la Recipe liée, comparées aux clés `spec.schema.provides:` déclarées par le type de Component. Cet ensemble déclaré est le même que celui par rapport auquel une clé `from:` à l’intérieur d’un bloc `inject:` est vérifiée, de sorte que les deux s’accordent sur ce qu’un Component déclare. La comparaison est exacte et non un test de ressemblance ; contrairement aux deux lints de quasi-correspondance ci-dessus, elle n’a donc aucun seuil et n’apparie aucun nom."
+  },
+  "984821aeaac935cf": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "984821aeaac935cf",
+    "status": "machine",
+    "text": "là où la plateforme accueille une connexion, les identifiants que chaque connexion présente à la partie qu’elle atteint, rattachés sur cette connexion."
   },
   "984b86428c3d6777": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -62063,6 +62336,13 @@
     "srcHash": "a1f2a8cacb334f95",
     "status": "machine",
     "text": "Un nœud `LanguageModelComponent` ou `EmbeddingModel` s’exécute sur l’un de plusieurs fournisseurs de modèles — celui que nomme son champ `provider` ou, là où celui-ci est vide, le fournisseur du modèle que sélectionne son champ `model` — et remet sa clé à ce fournisseur. La plateforme livre la connexion de modèle pour un client compatible avec OpenAI, si bien qu’un tel nœud n’est écrit avec les variables que là où il s’exécute sur `OpenAI` : un nœud qui s’exécute sur un autre fournisseur, qui n’en sélectionne aucun, qui nomme son fournisseur au moyen d’une variable globale ou qui prend son modèle d’un autre nœud est écrit sans aucune d’elles, de sorte que le brouillon ne dirige jamais un autre fournisseur vers la clé de la connexion. Là où aucun champ d’un tel nœud ne donne l’adresse de son API — un nœud `LanguageModelComponent` n’en contient aucune pour OpenAI, et le champ `api_base` d’un nœud `EmbeddingModel` peut être absent, ou vide là où il ne peut pas nommer de variable — le client OpenAI sur lequel il s’exécute prend `OPENAI_BASE_URL` dans l’environnement, si bien que le nœud atteint tout de même l’adresse que livre la plateforme."
+  },
+  "a1f6feb10673fa86": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "a1f6feb10673fa86",
+    "status": "machine",
+    "text": "Un répertoire est lu au travers des configurations client qu’il contient — chaque fichier nommé comme l’une des quatre, à n’importe quelle profondeur — dans l’ordre de leurs chemins, et chaque serveur de chaque fichier est produit en brouillon dans un seul Aggregate."
   },
   "a1f8c84fbf428488": {
     "at": "2026-11-03T15:47:42.282Z",
@@ -66619,6 +66899,13 @@
     "status": "machine",
     "text": "Chaque service externe est déclaré comme un composant distinct, et non regroupé dans un tableau à cibles multiples. Si une application appelle cinq API tierces différentes, le développeur déclare cinq composants `core/external-service` distincts. C’est cette déclaration par service qui permet aux moteurs de politiques et aux plugins Wasm de cibler individuellement chaque destination sortante — en attachant à chaque dépendance externe des politiques d’egress différentes, des fonctionnalités de proxy différentes ou des points d’ancrage d’observabilité différents."
   },
+  "ada7dc6a628f05dc": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "ada7dc6a628f05dc",
+    "status": "machine",
+    "text": "est produit en brouillon ainsi :"
+  },
   "adb1b19490ca3cb0": {
     "at": "2026-11-03T01:42:01.047Z",
     "job": "session-0033-20261103014201",
@@ -66723,6 +67010,13 @@
     "srcHash": "aded2f23155b36f4",
     "status": "machine",
     "text": "Que chaque consommateur détienne ses propres informations d’identification ou que plusieurs en partagent les mêmes est un choix fait là où les informations d’identification sont rattachées, et non une propriété de l’entité du catalogue. [`model-api-key-sharing/`](model-api-key-sharing/README.md) effectue le build des deux formes avec deux consommateurs chacune — la multiplicité à laquelle elles diffèrent — sur les informations d’identification que porte la connexion de chaque agent, et montre ce que chacune rend, y compris une valeur par défaut partagée qu’une connexion remplace par un rattachement qui lui est propre."
+  },
+  "adee9f1ee530f7db": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "adee9f1ee530f7db",
+    "status": "machine",
+    "text": "et avec `empty_credentials` à `marked`, `infra.endpoint` est laissé à la Release et le commentaire liste `user part` et `query`, chacune avec sa valeur omise."
   },
   "adefa700b3acef1e": {
     "at": "2026-11-02T19:55:14.786Z",
@@ -69343,6 +69637,13 @@
     "status": "machine",
     "text": "`.boundary.labels` — l’union des labels du sous-arbre, en préservant l’ordre d’écriture."
   },
+  "b42b155c46a5b380": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "b42b155c46a5b380",
+    "status": "machine",
+    "text": "Chaque autre membre d’un serveur — `cwd`, `envFile`, l’`auth` de Cursor, ou un membre que son type de serveur ne lit pas, comme l’`url` d’un serveur démarré à partir d’une ligne de commande — n’est écrit nulle part, et est nommé dans un commentaire au-dessus de l’entrée du serveur dans la Release, puisque aucune clé d’infrastructure de `core/ai-tool/mcp` ne le prend. Les `inputs` d’une configuration, qui décrivent ce que Visual Studio Code demande à l’utilisateur et ne contiennent aucune valeur, ne sont pas lus. Les serveurs, leur environnement et leurs en-têtes conservent l’ordre dans lequel la source les écrit, sauf dans une configuration lue comme du JSON avec commentaires, qui conserve l’ordre dans lequel les écrit son arbre analysé : l’ordre des noms (voir [Une configuration contenant des commentaires](#a-configuration-holding-comments))."
+  },
   "b42cd49c40fc9bb1": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -69945,6 +70246,13 @@
     "srcHash": "b5b2dd9f5cd78527",
     "status": "machine",
     "text": "**LangGraph** — une source nommée `langgraph.json` qui s’analyse comme du JSON et porte un objet à `graphs` ; ou une source de n’importe quel nom qui s’analyse comme du JSON, porte un objet à `graphs` et dont le `$schema` est le texte `https://langgra.ph/schema.json`, le schéma que LangGraph publie pour sa configuration. Une configuration sous un autre nom qui ne nomme aucun schéma est importée en nommant `--format langgraph`. Aucune signature d’importateur ne nomme de fichier d’environnement, donc la reconnaissance d’un répertoire n’en ouvre aucun."
+  },
+  "b5baaaa4e4c13aae": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "b5baaaa4e4c13aae",
+    "status": "machine",
+    "text": "**La configuration d’un client.** Le `.mcp.json` de Claude Code, le `claude_desktop_config.json` de Claude Desktop et le `.cursor/mcp.json` de Cursor listent leurs serveurs par nom sous `mcpServers` ; le `.vscode/mcp.json` de Visual Studio Code les liste sous `servers`, et un fichier listant des serveurs sous les deux est lu d’abord sous `mcpServers`. Un serveur dont le `type` est `stdio`, ou qui ne nomme aucun `type` et porte un `command`, est démarré à partir d’une ligne de commande — son `command` et ses `args` — avec son `env` comme environnement. Un serveur dont le `type` est `http`, `streamable-http` ou `sse`, ou qui ne nomme ni `type` ni `command` et porte une `url`, est joint à son `url` et reçoit ses `headers`."
   },
   "b5c6b0288117d1d4": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -73042,6 +73350,13 @@
     "status": "machine",
     "text": "`db` (déjà renseigné)"
   },
+  "bd98af282c77529e": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "bd98af282c77529e",
+    "status": "machine",
+    "text": "Une Release ne peut pas écrire de valeur. Donc, là où le nœud ne nomme aucun modèle que le brouillon puisse écrire — il n’en sélectionne aucun, le nomme au moyen d’une variable globale ou d’une expression lue seulement lorsque le flux s’exécute, le prend d’un autre nœud qui lui est connecté, ou est d’un type dont l’importateur ne lit pas le champ de modèle — un commentaire à l’intérieur de la partie laisse `values.model` à l’auteur, et l’importation le rapporte avec `model-not-named`. Une partie que le brouillon produit en brouillon est écrite sans valeur."
+  },
   "bd9930d1bc30f484": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -74020,6 +74335,13 @@
     "srcHash": "c000c7c98f76d361",
     "status": "machine",
     "text": "**Une URL de source ne contient aucun identifiant.** Une Recipe ou FeatureRecipe dont l’`url` de source écrit un utilisateur avant son hôte — `https://user:token@charts.example.com/…`, ou un jeton écrit seul comme `https://token@charts.example.com/…` — est refusée avec `E0361` à la lecture du document, avant toute récupération : la validation de la Recipe la refuse, tout comme chaque pull, pin et build qui l’atteint. Le message nomme l’hôte et jamais l’identifiant : [A source URL carries a credential (Une URL de source contient un identifiant)](../errors/fatal-halts.md#a-source-url-carries-a-credential). Placez plutôt l’identifiant dans une entrée `machine` du fichier netrc. En SSH, un utilisateur écrit seul — `ssh://git@github.com/…` — nomme un compte plutôt qu’un secret et est accepté, tandis qu’un mot de passe écrit à cet endroit est refusé lui aussi."
+  },
+  "c006d5d719a03589": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "c006d5d719a03589",
+    "status": "machine",
+    "text": "Porter le flux exporté lui-même"
   },
   "c007728b5b406596": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -79453,6 +79775,13 @@
     "status": "machine",
     "text": "Une Recipe nomme une même clé à la fois dans `outputComponentLabels:` et dans `outputLabels:`. Les deux blocs apposent sur la même surface d’étiquettes à partir de sources différentes — le premier promeut la valeur que porte le composant, le second écrit la valeur saisie par l’auteur de la Recipe — si bien qu’une clé nommée dans les deux arriverait avec deux valeurs candidates et rien pour dire laquelle l’emporte. Cette règle est vérifiée lorsque la Recipe est chargée, après la règle de l’espace de noms réservé ci-dessus, si bien qu’une Recipe qui enfreint les deux signale d’abord l’espace de noms réservé : la correction de cette faute ne dépend pas de ce que contient l’autre bloc."
   },
+  "cdb6bac37e601a52": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "cdb6bac37e601a52",
+    "status": "machine",
+    "text": "l’adresse de chaque serveur MCP relié à la plateforme, `infra.endpoint` de sa partie ;"
+  },
   "cdb7911f8296a63f": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -79522,6 +79851,13 @@
     "srcHash": "cde302b5d1365cbd",
     "status": "machine",
     "text": "Une arête `uses` est l’énoncé, par l’Aggregate, qu’un composant en appelle un autre. Le compilateur achemine vers l’appelant les valeurs que la cible publie et ne restreint rien : à elle seule, une arête n’admet pas l’appelant et ne refuse personne d’autre, et une charge de travail qui atteint l’adresse de la cible sans arête l’atteint tout de même."
+  },
+  "cde3974a1f901bc1": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "cde3974a1f901bc1",
+    "status": "machine",
+    "text": "**Paramètres de requête** — sur Langflow, les `query_params` d’un nœud `APIRequest` ou `GoogleSerperAPI` et les `search_params` d’un nœud `SerpAPI`, `Serp`, `SearchAPI` ou `SearchComponent` ; sur Flowise, les `queryParams` d’un nœud `httpAgentflow` et les `customParameters` d’un loader `searchApi` ; sur n8n, les `queryParameters`, `jsonQuery`, `queryParametersUi` et `queryParametersJson` d’un nœud `n8n-nodes-base.httpRequest`, utilisé comme outil ou non, les `parametersQuery` et `jsonQuery` d’un nœud `@n8n/n8n-nodes-langchain.toolHttpRequest`, et les `queryParameters` et `queryParametersJson` qu’un nœud `n8n-nodes-base.facebookGraphApi` conserve parmi ses `options`. Chacun est envoyé comme la chaîne de requête d’une requête, et un paramètre de requête peut porter une clé — certaines API de recherche prennent la leur comme `api_key` dans la requête — si bien que chacun est repéré comme le sont les en-têtes : chaque valeur, son nom conservé, quelle que soit la forme que prennent les paramètres, et chacun rapporté par son nom ; les paramètres écrits en texte sont repérés en entier, sauf sur Flowise et n8n où le texte les contient sous forme d’objet JSON, lequel, écrit vide, est réécrit sur place et rapporté une seule fois avec les noms qu’il contient. Écrites vides, toutes les valeurs le sont, y compris celles des paramètres qui ne contiennent aucun secret, si bien qu’une requête importée est envoyée avec ces valeurs vides — ou, depuis un nœud HTTP de Flowise, qui n’envoie aucun paramètre dont la valeur est vide, sans eux — jusqu’à ce que son auteur les rétablisse."
   },
   "cde409dda34fe6db": {
     "at": "2026-11-03T06:41:11.801Z",
@@ -81508,6 +81844,13 @@
     "status": "machine",
     "text": "Par défaut, une importation écrit :"
   },
+  "d2b576a38b7422e6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "d2b576a38b7422e6",
+    "status": "machine",
+    "text": "**Un retour chariot** — d’une paire CR LF, ou isolé — est écrit comme un seul saut de ligne. Un document JSON n’en contient qu’entre ses jetons, où tout espace blanc se lit de la même façon, si bien que la plateforme lit le même flux. L’importation rapporte leur nombre avec `carriage-returns-rewritten`."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -81745,6 +82088,13 @@
     "srcHash": "d3576afb5f581643",
     "status": "machine",
     "text": "**Elle ne juge pas la réponse du modèle**, ni les arguments des appels d’outils ni les images."
+  },
+  "d36c0a66e3e8ed61": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "d36c0a66e3e8ed61",
+    "status": "machine",
+    "text": "Visual Studio Code lit `.vscode/mcp.json` comme du JSON avec commentaires, et l’importateur MCP aussi : sa signature pour ce fichier le lit au moyen du parseur qui sert `parse:jsonc`, si bien qu’une configuration contenant des commentaires `//` et `/* */` et des virgules finales est reconnue sans qu’aucun format soit nommé, et l’importateur lit chaque source listant ses serveurs sous `servers` au moyen de ce parseur. Une telle configuration est produite en brouillon exactement comme la même configuration sans ses commentaires ni ses virgules finales. Le parseur écrit les membres d’un objet dans l’ordre des noms, si bien que les serveurs d’une telle configuration, leur environnement et leurs en-têtes sont produits en brouillon dans l’ordre des noms, qu’elle contienne ou non un commentaire ; une ligne de commande conserve son ordre. Les autres clients et le registre lisent leurs fichiers comme du JSON, et l’importateur aussi : un `.mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json` ou `server.json` contenant un commentaire n’est reconnu par aucune signature et, importé en nommant `--format mcp`, s’arrête sous `parse-failed` avec la raison du parseur. Un commentaire ouvert par `/*` et jamais fermé est laissé tel qu’écrit, et le parseur refuse le fichier."
   },
   "d37284a3b2662f46": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -83000,6 +83350,13 @@
     "status": "machine",
     "text": "`manifest.yaml` — lie chaque type de composant et la Feature de secret à sa Recipe Docker Compose."
   },
+  "d7565c43684b19f7": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "d7565c43684b19f7",
+    "status": "machine",
+    "text": "Hormis les valeurs que le paramètre écrit vides, ce que le brouillon écrit pour que le flux atteigne ses parties, et les retours chariot écrits comme des sauts de ligne décrits ci-dessous, le flux est porté tel qu’il a été exporté, si bien qu’un flux qui n’a rien de tout cela à modifier est porté octet pour octet."
+  },
   "d75c86031e359515": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -84168,6 +84525,13 @@
     "status": "machine",
     "text": "La séparation entre « bibliothèque » et « consommateur » est intentionnelle. Les Recipes encodent des instructions de build (source, valuesMapping, artifacts). Les FeatureRecipes encodent des rattachements comportementaux. Les MappingLibraries n’encodent que des fragments de template — le contenu de template Go que d’autres entités consomment au moment du rendu. Garder les trois rôles distincts permet à chaque type d’entité d’évoluer à son propre rythme ; les auteurs qui n’ont pas besoin de contenu de template partagé ne rencontrent jamais l’entité bibliothèque."
   },
+  "da8f62347063e7b6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "da8f62347063e7b6",
+    "status": "machine",
+    "text": "**Tout autre caractère qu’un bloc littéral ne peut pas porter** empêche le flux d’être porté : un caractère de saut de ligne — U+0085, U+2028 ou U+2029 ; un caractère de contrôle autre que la tabulation et le saut de ligne — de U+0000 à U+001F, U+007F, et de U+0080 à U+009F ; les non-caractères U+FFFE et U+FFFF ; et un octet qui ne fait pas partie d’une séquence UTF-8. `values.flow_definition` est alors laissé non défini, avec un commentaire qui l’indique, le reste est produit en brouillon, et l’importation rapporte `definition-not-carried` pour chaque sorte de caractère, avec le nombre qu’en contient le flux et la ligne et la colonne du premier."
+  },
   "da919120dea0bef8": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -85236,6 +85600,13 @@
     "status": "machine",
     "text": "inheritance merge failed (Manifest `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which could not be resolved: `<what looking produced>`). Verify the extends reference is a relative path or the name of a Manifest in the Release's directory (échec de la fusion d'héritage : l'entité étend une référence qui n'a pas pu être résolue. Vérifiez que la référence extends est un chemin relatif ou le nom d'un Manifest dans le répertoire de la Release)"
   },
+  "dcea9b85993422a7": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "dcea9b85993422a7",
+    "status": "machine",
+    "text": "**Une requête entière écrite comme une ligne de commande** — le `curl_input` d’un nœud `APIRequest` de Langflow et le `curl` d’un nœud `Webhook`, repérés en entier, y compris la valeur par défaut du Webhook. Aucun des deux n’est lu lorsque le flux s’exécute : le premier ne fait que remplir les champs du nœud dans l’éditeur, le second montre un exemple."
+  },
   "dcefe84226c5491e": {
     "at": "2026-11-03T08:51:38.120Z",
     "job": "session-0079-20261103085138",
@@ -85792,6 +86163,13 @@
     "srcHash": "de12a26ae9a3bd47",
     "status": "machine",
     "text": "Surface de validation"
+  },
+  "de1370f94912d482": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "de1370f94912d482",
+    "status": "machine",
+    "text": "**n8n** — le paramètre `model` d’un nœud de chat, de complétion ou d’embeddings que met en correspondance la table de l’importateur, ou son `modelName` sur les nœuds Google Gemini et Vertex, écrit comme un nom ou comme la valeur du sélecteur dans lequel les nœuds plus récents de n8n le conservent. n8n omet d’un export un paramètre défini à sa valeur par défaut, si bien qu’un nœud qui conserve le modèle par défaut n’en nomme aucun dans l’export."
   },
   "de1a0289f456072c": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -86398,6 +86776,13 @@
     "srcHash": "dfbb09e4b37368af",
     "status": "machine",
     "text": "Si le fichier cible existe déjà, `init` refuse plutôt que de l’écraser ; `--force` écrit quand même, en fusionnant l’entrée du registre dans le fichier existant et en préservant les autres paramètres."
+  },
+  "dfbc7d96221d30ad": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "dfbc7d96221d30ad",
+    "status": "machine",
+    "text": "Une connexion dans le brouillon ne porte aucun identifiant : la Release rattache ceux que présente chaque connexion, comme le dit le commentaire au-dessus de la plateforme."
   },
   "dfcdfb92a4dff3fd": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -89498,6 +89883,13 @@
     "status": "machine",
     "text": "[aggrega-cache.md](aggrega-cache.md) — ce que contient réellement `artifact_cache_dir`."
   },
+  "e833072288961124": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "e833072288961124",
+    "status": "machine",
+    "text": "Le flux n’est pas porté non plus là où une valeur que le brouillon écrit vide ou à nouveau ne se trouve pas dans les octets de l’export à l’endroit où son arbre analysé la contient, et l’importation rapporte `definition-not-carried` en nommant l’emplacement de cette valeur. L’identifiant du flux est alors le sien là où le brouillon peut le porter, et sinon un identifiant dérivé des identifiants des nœuds du flux."
+  },
   "e8371e29a347bc8c": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -90644,6 +91036,13 @@
     "srcHash": "eaee9e6acb81b6de",
     "status": "machine",
     "text": "La WorkloadLibrary est livrée avec un seul mode de rédaction : les templates Go. `spec` n’accepte aucune surface de rédaction parallèle ni aucune porte de sortie d’expressivité au niveau de la bibliothèque."
+  },
+  "eaf221c8c6414bad": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "eaf221c8c6414bad",
+    "status": "machine",
+    "text": "pour un serveur joint à une adresse, `infra.endpoint` : l’adresse sans sa partie utilisateur, sa requête et son fragment, puisque le Component prend l’adresse sans aucune partie portant une clé ; chaque partie qu’il omet est écrite dans le commentaire au-dessus de l’entrée, à côté de l’adresse, comme le décrit [Valeurs d’identifiants que contient un serveur](#credential-values-a-server-holds) ;"
   },
   "eaf582a639d2916a": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -93941,6 +94340,13 @@
     "status": "machine",
     "text": "Un plugin peut renvoyer des observations en même temps que son résultat, et chacune porte une gravité tirée d’un ensemble fermé : l’une arrête la build et nomme ce qu’il faut corriger, une autre est affichée à côté d’une build qui se termine tout de même, et la dernière enregistre l’observation et ne change rien. Une gravité hors de cet ensemble est une gravité pour laquelle l’hôte n’a aucun acheminement, et la build s’arrête."
   },
+  "f3873fff0a11bcb0": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "f3873fff0a11bcb0",
+    "status": "machine",
+    "text": "Une configuration contenant des commentaires"
+  },
   "f38a4e10087380f4": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -95837,6 +96243,13 @@
     "status": "machine",
     "text": "Externe — personne dans cette Release n’exécute le serveur"
   },
+  "f80ff6f7938df884": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "f80ff6f7938df884",
+    "status": "machine",
+    "text": "Une partie que le brouillon référence et dont le Component déclare une valeur nommée `model` — comme le fait, et l’exige, chaque Component de modèle de la bibliothèque standard — est écrite avec le nom du modèle que sélectionne son nœud, comme `values.model` :"
+  },
   "f8103e05f575170c": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -96401,6 +96814,13 @@
     "srcHash": "f9b3694bbc81fd70",
     "status": "machine",
     "text": "**Extensions `x-aggrega-*` directes** — rédiger directement des clés `x-aggrega-*` dans un schéma de Component ou de Feature est déconseillé au profit du chemin de rédaction de premier plan. Active par défaut ; désactivable avec `allow_direct_x_aggrega_extensions`."
+  },
+  "f9b3d012e6b2fb42": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "f9b3d012e6b2fb42",
+    "status": "machine",
+    "text": "Le flux est écrit comme un bloc littéral YAML dont le chomping conserve ses sauts de ligne finaux, de sorte que `values.flow_definition` se relit comme le texte propre du flux. Le texte d’un Aggregate est lu comme un template, si bien que chaque `{{` que contient le flux — un chatflow Flowise écrit `{{<node id>.data.instance}}` pour chaque connexion entre deux nœuds — est écrit comme `{{\"{{\"}}`, que l’interpolation reconvertit en les deux accolades, comme le décrit [Texte qui contient ses propres doubles accolades](../templates/parameters-context.md#text-that-carries-its-own-double-braces). Le nom d’un modèle est écrit de la même façon."
   },
   "f9b56c704a78db10": {
     "at": "2026-11-03T05:17:11.041Z",
@@ -97326,6 +97746,13 @@
     "status": "machine",
     "text": "OpenBao stocke et génère des jetons, des mots de passe, des certificats et d’autres secrets, et en contrôle l’accès derrière une API HTTP authentifiée, et chiffre son état au repos sur un volume de données durable. Il s’exécute ici comme un seul serveur autonome qui conserve son état dans le backend de stockage sur fichier intégré, si bien qu’il est rendu comme un serveur avec état en cours d’exécution, adossé à un volume persistant, plutôt que comme une ressource cloud managée. Le serveur est initialisé et descellé à l’exécution dans le cluster — son jeton root et ses clés de descellement sont produits par le serveur en cours d’exécution après son démarrage — si bien qu’aucune information d’identification n’est déclarée dans l’Aggregate et qu’aucun secret n’est matérialisé au moment du build."
   },
+  "fbcda382133e28f9": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "fbcda382133e28f9",
+    "status": "machine",
+    "text": "**Flowise** — le `modelName` d’un nœud `chatOpenAI`, `chatAnthropic` ou `openAIEmbeddings`."
+  },
   "fbd24a5204b632e2": {
     "at": "2026-11-03T04:04:12.316Z",
     "job": "session-0048-20261103040412",
@@ -98189,6 +98616,13 @@
     "srcHash": "fe450faa5a9eada1",
     "status": "machine",
     "text": "**Une clé obligatoire manquante n’a pas de position propre** — elle est par définition absente du document. La violation pointe plutôt vers la clé englobante, qui est l’endroit où l’entrée manquante doit figurer. Ainsi, `spec.capability: missing required property` pointe vers `spec:`, et c’est là que vous l’ajoutez."
+  },
+  "fe479a5ba85ac879": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "fe479a5ba85ac879",
+    "status": "machine",
+    "text": "pour un serveur démarré à partir d’une ligne de commande, `infra.stdio_command`, sa commande puis chaque argument, un élément chacun ; et `infra.stdio_runtime`, l’écosystème du lanceur, `npm` lorsque la commande est `npx`, `npm` ou `node`, `pypi` lorsqu’elle est `uvx`, `uv`, `python` ou `python3` et, pour un paquet du registre, son registre, `npm` ou `pypi` ;"
   },
   "fe493f3efac38a64": {
     "at": "2026-11-03T13:44:12.861Z",

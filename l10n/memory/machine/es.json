@@ -2618,6 +2618,13 @@
     "status": "machine",
     "text": "2. Verdadera inversión de control y conexión semántica"
   },
+  "0667bcb4713d057c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "0667bcb4713d057c",
+    "status": "machine",
+    "text": "Nodo por nodo"
+  },
   "06697efc3c508be4": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -3982,6 +3989,13 @@
     "status": "machine",
     "text": "**Descripción de `aggrega cache evict`**"
   },
+  "09df093ede0733c3": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "09df093ede0733c3",
+    "status": "machine",
+    "text": "Los ajustes que lee"
+  },
   "09e1d0a52cf25f6d": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -4367,6 +4381,13 @@
     "srcHash": "0b0d91a68fb9eb31",
     "status": "machine",
     "text": "Leer YAML en un árbol no expande los alias, así que un documento con esta forma se lee sin objeciones y solo falla cuando algo lo recorre. Por eso el rechazo se sitúa entre la lectura y el recorrido — y una compilación lee el YAML escrito por el autor en más de un punto, así que la misma condición puede encontrarse en más de uno. Cuatro puntos la informan, y cada uno enmarca la misma explicación con lo que localiza el documento en esa superficie:"
+  },
+  "0b0e25c256217510": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "0b0e25c256217510",
+    "status": "machine",
+    "text": "**Una descripción de servidor del registro.** El `server.json` que publica el registro MCP: su `name`, y su primer paquete o, donde no enumera ninguno, su primer remoto. Un paquete de npm o de PyPI se inicia desde la línea de comandos que forman su lanzador — su `runtimeHint`, o `npx` para npm y `uvx` para PyPI —, sus `runtimeArguments`, el paquete con su versión, escrito `<identifier>@<version>` para npm y `<identifier>==<version>` para PyPI, y sus `packageArguments`, con sus `environmentVariables` como entorno. Un argumento posicional es su `value`, o su `default`; un argumento con nombre se escribe `<name>=<value>` donde tiene uno de los dos, y como su `name` donde no tiene ninguno. Un paquete OCI se ejecuta a partir de la imagen que nombra su `identifier`. Un remoto se alcanza en su `url` y recibe sus `headers`. Cada otro paquete y remoto que enumera la descripción se nombra en un comentario, ya que una instancia ejecuta solo uno de ellos."
   },
   "0b11f421c7c2a712": {
     "at": "2026-11-03T08:51:39.660Z",
@@ -9016,6 +9037,13 @@
     "status": "machine",
     "text": "**Una ruta que nombra una llamada también permanece dentro de ese workspace.** Por HTTP, un argumento de ruta se resuelve respecto a la raíz del workspace y se rechaza si sale de ella — una ruta relativa que sube fuera del workspace, una ruta absoluta que nombra otro lugar y una ruta relativa que sale del workspace a través de un enlace a un archivo o un directorio que está ahí vuelven cada una como un fallo que nombra el argumento, sin nombrar ni la raíz del workspace ni el lugar al que la ruta habría llegado; una ruta relativa se devuelve tal como la enviaste. Cada argumento de ruta se juzga por adónde lleva, según la definición de «dentro» que da [El límite del workspace](workspace-boundary.md#what-lies-inside-the-workspace), tanto si la herramienta lo lee como si lo escribe — el directorio en el que `gen-catalog` escribe su salida, el documento que `edit-document` reescribe y la entidad junto a la que `pin` escribe su bloqueo tanto como un documento que lee una herramienta — así que una ruta aún no creada bajo un enlace que sale del workspace se rechaza igual que ese enlace, sin que se lea ni se escriba nada. Una `release` que nombra una Release que nombra la configuración del workspace servido, como `build.authoring_release` o como clave de `workspace.releases`, se alcanza a través de esa configuración y se acepta a través de un enlace dondequiera que esté su archivo; ningún otro argumento tiene esa excepción. Cuando la ruta que querías está dentro de ese workspace pero se escribió de forma absoluta, el rechazo te da la forma relativa a la raíz que debes enviar en su lugar, de modo que a un llamante que adivinó la forma equivocada se le indica la correcta en lugar de solo decirle que era equivocada. Eso vale para las rutas que una llamada nombra como su objeto — el documento que se ha de validar, la Release que se ha de compilar, el directorio en el que una generación escribe su salida — y para aquellas en las que escribe una herramienta no menos que para las que lee: un llamante que llega a un servidor por la red le pide a una máquina que no puede ver que lea y escriba archivos, y el workspace que eligió el operador es donde se contienen esa lectura y esa escritura. Por entrada y salida estándar, los argumentos de ruta de cada herramienta mantienen el contrato descrito más abajo para esa herramienta, donde una ruta puede ser absoluta y puede apuntar fuera del workspace — la persona que llama es dueña de la máquina en la que se ejecuta el servidor, así que confinarla a un directorio que eligió ella misma no aportaría nada. Las dos herramientas cuya propia operación responde solo sobre un documento que contiene el workspace, `insertion-point` y `edit-document`, mantienen eso en ambos transportes, y rechazan un documento fuera del workspace tanto si está escrito así como si se alcanza a través de un enlace que sale de él. Lo que se respeta por entrada y salida estándar es la ruta que nombra una llamada y nada más allá. Lo que la operación lee y escribe luego por su cuenta se contiene en ambos transportes exactamente igual que cuando el mismo comando se escribe en un terminal: un recorrido o una búsqueda no lee a través de un enlace que sale del workspace, un archivo que una Release del workspace o su Manifest nombra mediante una ruta no se lee desde fuera del workspace — y uno que nombra una Release que la llamada nombró fuera del workspace no se lee desde fuera del directorio que contiene esa Release — y un archivo escrito bajo un directorio — el workspace, o uno que nombró la llamada — permanece dentro de ese directorio. [El límite del workspace](workspace-boundary.md#the-two-assistant-transports) sitúa los dos transportes junto a la línea de comandos y el editor, y expone lo que queda abierto por entrada y salida estándar: un documento en un workspace que clonaste puede llevar a un asistente a nombrar una ruta fuera del workspace, y esa ruta se respeta tal como se nombra."
   },
+  "17568ae75072f1a6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "17568ae75072f1a6",
+    "status": "machine",
+    "text": "El propio flujo no se lleva, y no se lee el valor de ningún campo."
+  },
   "1757efae47e07262": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -11040,6 +11068,13 @@
     "status": "machine",
     "text": "El fragmento `#/mappings/<name>` selecciona la entrada y distingue una referencia de mapping del `#/schemas/<name>` de la SchemaLibrary. La referencia usa el mismo modelo de identidad por nombre simple que el `$ref:` de la SchemaLibrary — `<Library>#/mappings/<name>`, sin ningún host de registro. La versión la proporciona el lockfile de cada Release (nombre + versión + digest del contenido); un autor puede afirmar un mínimo de versión opcional como `<Library>:<version>#/mappings/<name>` (el separador de versión es `:`, igual que en los mappings de recipe/feature y en el pin del lockfile), y la ubicación física se vincula en el momento de la resolución."
   },
+  "1c9da569c8f03574": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "1c9da569c8f03574",
+    "status": "machine",
+    "text": "Un `.mcp.json` de Claude Code que enumera un servidor alcanzado por HTTP y otro iniciado con `npx`:"
+  },
   "1c9e1db911cc5c12": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -12163,6 +12198,13 @@
     "srcHash": "1f5d64b92820f823",
     "status": "machine",
     "text": "Significado"
+  },
+  "1f60d21a42b73d3d": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "1f60d21a42b73d3d",
+    "status": "machine",
+    "text": "`infra.endpoint` acepta la dirección sin ninguna parte que lleve una clave, así que las partes de la dirección que escribe el origen y que omite — la parte de usuario antes de la `@`, la consulta después del `?` y el fragmento después del `#`, siendo el fragmento todo lo que sigue al primer `#` — se enumeran en el mismo comentario, cada una junto a su nombre y tal como está escrita, sin la `@`, el `?` o el `#` que la separa. Un consumidor que lee su clave de la dirección proporciona la dirección completa en su propia conexión a la herramienta. Un servidor alcanzado en `https://user:pw@api.example.com/mcp?key=k`, sin ningún ajuste, se genera como borrador así:"
   },
   "1f619fbf4c3deab2": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -13953,6 +13995,13 @@
     "status": "machine",
     "text": "**Una entrada externa es lo único que no detiene, y en su lugar lo indica.** El renderizado que las encuentra no puede descargar lo que no está ya almacenado, así que un pull sin conexión sobre una Release con una entrada externa sin fijar termina, escribe todos los pines de dependencias que resolvió e informa de tres cosas: que el renderizado no terminó, qué fijó, y que un build de esta Release se detendrá nombrando la URL. Los pines de dependencias que escribió son correctos —nada en ellos dependía del renderizado—, así que se conservan en lugar de descartarse para que un lector los reproduzca."
   },
+  "23e96700e691768d": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "23e96700e691768d",
+    "status": "machine",
+    "text": "para el entorno de un servidor, la ranura `server_env`, vinculada como `core/referenced-secret-set` con una entrada bajo `infra.entries` por variable, cuya clave es el nombre de la variable."
+  },
   "23f18ea7b9488556": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -14650,6 +14699,13 @@
     "status": "machine",
     "text": "resultado"
   },
+  "25a87c9781e8e1c9": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "25a87c9781e8e1c9",
+    "status": "machine",
+    "text": "El modelo que sirve una parte"
+  },
   "25a99ea33a48a6c6": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -14847,6 +14903,13 @@
     "status": "machine",
     "text": "`containers/auth.json` dentro del directorio que indica `XDG_RUNTIME_DIR` (Podman / Skopeo)"
   },
+  "2643f125b3923da6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "2643f125b3923da6",
+    "status": "machine",
+    "text": "**Encabezados predeterminados y una consulta predeterminada en un nodo OpenAI al que no llega ninguna conexión** — los `default_headers` y `default_query` de un nodo `OpenAIEmbeddings` de Langflow, y los `baseOptions` de un nodo `chatOpenAI` u `openAIEmbeddings` de Flowise, dondequiera que esté el nodo, incluida la configuración del modelo que selecciona un agentflow, donde el borrador ni conecta el nodo ni encuentra una conexión que llegue a él tal como está escrito; donde sí lo hace, son cableado, como se indica más arriba. Cada uno se localiza entero y, escrito vacío, conserva su tipo — un objeto como `{}`, una lista como `[]`, el texto como una cadena vacía — y se informa de él una sola vez."
+  },
   "264527f982476152": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -15007,6 +15070,13 @@
     "srcHash": "26b273ff7b7e87af",
     "status": "machine",
     "text": "`connection-at-position` responde a la pregunta previa a la mitad de conexiones de las dos herramientas anteriores, para cuando tienes un lugar en un documento en vez de un nodo en un grafo — una línea que estás viendo en un Aggregate o en una Release. Pasa `file`, el documento, relativo a la raíz del espacio de trabajo o absoluto y leído del disco del mismo modo en que `insertion-point` lee uno; `position`, una `line` y un `character`, ambos contados desde cero, medidos en las unidades que indica `position_encoding` exactamente como `insertion-point` lee ese argumento; y `release`, la Release cuyo grafo compilado registra las conexiones. La Release es obligatoria también para un lugar en el Aggregate: un nodo del grafo y una conexión solo existen en un grafo compilado."
+  },
+  "26b4ac42f501348f": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "26b4ac42f501348f",
+    "status": "machine",
+    "text": "`importer/mcp` lee los servidores MCP que enumera la configuración de un cliente MCP, o el único servidor que describe una descripción de servidor del registro MCP, y genera como borrador cada servidor como una instancia de la herramienta MCP de la biblioteca estándar, `core/ai-tool/mcp`. Todo servidor es una de ellas, así que el importador no puntúa ningún candidato y no informa de ninguna decisión de mapeo."
   },
   "26b4c10f0088e674": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -16488,6 +16558,13 @@
     "srcHash": "2a9ef29579f9a72d",
     "status": "machine",
     "text": "[../language-reference/entities/workload.md](../language-reference/entities/workload.md) — el mapa `attachments:` del contenedor y sus reglas de validación."
+  },
+  "2aa20178d313cd2f": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "2aa20178d313cd2f",
+    "status": "machine",
+    "text": "**Una entrada que contiene una credencial bajo el nombre de una credencial** — la `api_key` de un nodo `OlivyaComponent` de Langflow, el `verification_token` de cada componente de Composio y el `mem0_config` de un nodo `mem0_chat_memory`, cuyo valor completo conserva su tipo cuando se escribe vacío; y el `webhookSecret` y el `callbackSecret` de un nodo `startAgentflow` de Flowise y el `bearerToken` de un nodo `teradataMCP`. Cada uno se localiza entero. Una entrada cuyo nombre solo se parece al de una credencial — el nombre de una clave almacenada en otro lugar, un nombre de usuario o una opción que el componente declara como no secreta — no se localiza."
   },
   "2aa5234cce992f97": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -18594,6 +18671,13 @@
     "status": "machine",
     "text": "La firma se produce antes de la subida y no después, así que un fallo de firma también acaba aquí y no se publica nada."
   },
+  "3030ee0e1a598d5e": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3030ee0e1a598d5e",
+    "status": "machine",
+    "text": "En qué se convierte un servidor"
+  },
   "30360229eddcb37d": {
     "at": "2026-11-03T07:45:15.507Z",
     "job": "session-0071-20261103074515",
@@ -19094,6 +19178,13 @@
     "srcHash": "3163715b3da92c2c",
     "status": "machine",
     "text": "Aquí se informan dos estructuras, y se comprueban en momentos distintos. Una referencia cuya **forma** no puede ser una entidad — una ruta del sistema de archivos, o una referencia a un artefacto como una URL `oci://`, un `.wasm` sin más o un resumen `@sha256:` — se rechaza de entrada en las superficies que solo aceptan referencias a entidades. Una referencia que no nombra ninguna entidad que algo contenga se rechaza tras la búsqueda, y lo que dice el mensaje depende de cómo esté escrita: un URI de entidad Plugin — `<pluginType>/<name>`, opcionalmente con versión — se informa como una entidad que ningún directorio de catálogo contiene, que el binario no incluye y que ningún pull ha descargado, y a cualquier otra referencia se le indica que adopte esa forma. Ambas estructuras informan de la misma condición, de modo que la respuesta de una compilación a cualquiera de ellas es la misma."
+  },
+  "317a448799951296": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "317a448799951296",
+    "status": "machine",
+    "text": "Lo que el borrador deja para la Release"
   },
   "317b49391b17db09": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -20103,6 +20194,13 @@
     "status": "machine",
     "text": "Si el nodo es un escalar de cadena, se selecciona el modo inline (Modo 1)."
   },
+  "342586f69a721fb7": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "342586f69a721fb7",
+    "status": "machine",
+    "text": "`aggregate.yaml` es un Aggregate de borrador llamado `<target_namespace>/flow` que contiene una instancia de `core/ai-tool/mcp` por servidor. Una instancia tiene como clave el nombre de su servidor, en minúsculas, con cada secuencia de caracteres que no sean letras ni dígitos escrita como un solo guion, y un sufijo numérico donde un servidor anterior tomó la clave. Donde la clave no es el nombre del servidor tal como está escrito, o la importación leyó varios archivos, un comentario encima de la instancia nombra el servidor y el archivo del que procede. No se genera como borrador ningún agente que los use."
+  },
   "342870adcc183b75": {
     "at": "2026-11-03T10:00:41.851Z",
     "job": "session-0087-20261103100041",
@@ -20123,6 +20221,13 @@
     "srcHash": "342990191ccf3c4e",
     "status": "machine",
     "text": "`E0236` está retirado: ya nada lo notifica, y el número nunca se asigna a una condición distinta. La condición que nombraba este número se suprimió, y ninguna compilación la notifica."
+  },
+  "3430bdf76e300254": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3430bdf76e300254",
+    "status": "machine",
+    "text": "Con `layout: nodes`, una importación genera como borrador cada nodo del flujo como un Component propio, y escribe:"
   },
   "3439ee91e9245057": {
     "at": "2026-11-03T18:10:58.903Z",
@@ -20797,6 +20902,13 @@
     "srcHash": "362fd3415332e374",
     "status": "machine",
     "text": "[mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — Este ejemplo compila un stack pequeño y real — una base de datos **MariaDB** con una interfaz web **Adminer** delante — a partir de un único `Aggregate` escrito por el desarrollador para **dos plataformas**."
+  },
+  "363343608f9985c8": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "363343608f9985c8",
+    "status": "machine",
+    "text": "Un valor que es una referencia a una variable y nada más — el nombre a secas `${NAME}`, entre ellos una variable predefinida como `${workspaceFolder}`, `${env:NAME}` o `${input:id}` — no contiene ningún valor propio: se escribe como el texto que es, diga lo que diga el ajuste, y el puente lo pasa al servidor sin expandir, y no se nombra en ninguna advertencia, como ocurre con una referencia [en un flujo](#credential-values-the-flow-holds). Una variable de entorno cuyo valor es una de ellas se escribe con su clave y sin valor, con su referencia nombrada en el comentario encima de la entrada, para que la Release la proporcione, y un encabezado o una parte de la dirección cuyo valor es una de ellas se enumera con la referencia de la que lee. Una referencia que lleva texto después de un operador — un valor predeterminado, una alternativa, un mensaje o una asignación, como `${NAME:-value}` o `${NAME-value}`, con o sin dos puntos — contiene ese texto, y lo mismo ocurre con el texto junto a una referencia; cada uno se localiza como cualquier otro valor."
   },
   "363735f9fab968f1": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -21925,6 +22037,13 @@
     "status": "machine",
     "text": "`core/observability/thanos-query`"
   },
+  "3971e7023e9e38a6": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3971e7023e9e38a6",
+    "status": "machine",
+    "text": "Junto a él, `release.yaml` es una Release de borrador con el mismo nombre, cuyo `spec.aggregate` nombra el Aggregate, que lleva para cada instancia las entradas operativas que indica el origen:"
+  },
   "39762858ed26f37b": {
     "at": "2026-10-30T21:31:35.304Z",
     "job": "session-0023-20261030213135",
@@ -22005,6 +22124,13 @@
     "srcHash": "398c4cc5f87c6391",
     "status": "machine",
     "text": "Crea el directorio o elimina la entrada: una copia de un proyecto tomada sin un checkout contiguo que este lista elimina esa entrada, y resuelve desde un registro lo que el checkout habría aportado. Lo mismo vale para un directorio que lista la entrada propia de una Release, para uno que añade un archivo de configuración propiedad de tu pipeline o el archivo global, y para uno que contiene `AGGREGA_CATALOG_DIRS`, que el rechazo nombra en lugar de un archivo. La configuración en sí se sigue cargando, así que un comando que no lee ningún catálogo se sigue ejecutando. Un directorio `--catalog` que no existe se escribió para un solo comando, y `aggrega build` lo rechaza, nombrando el directorio. Un directorio listado que existe y no se puede leer lo rechazan los comandos que cargan el catálogo completo, nombrándolo."
+  },
+  "3995ccf3a5dff2be": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "3995ccf3a5dff2be",
+    "status": "machine",
+    "text": "Qué lee"
   },
   "399dde30295153a1": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -22534,6 +22660,13 @@
     "srcHash": "3ad5cd4d6af72a7e",
     "status": "machine",
     "text": "Una Release que el mapa no nombra lee el `workspace.catalog_dirs` propio del workspace. Una Release que el mapa sí nombra lee sus propios directorios sea cual sea la forma en que se compile —`aggrega build` o `aggrega pull` en un terminal, el editor a través de `aggrega serve`, un asistente a través de `aggrega mcp`—, así que ninguno de ellos necesita un flag para encontrar su catálogo. Un `--catalog <dir>` en la línea de comandos se sigue buscando antes que los directorios de la Release, para esa única invocación. Y una búsqueda que no encuentra ninguna entidad con un nombre que usaste nombra la entrada de esa Release como el lugar donde listar el directorio que la contiene."
+  },
+  "3ad5ec16d7e62ce0": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3ad5ec16d7e62ce0",
+    "status": "machine",
+    "text": "Cada valor que el ajuste deja tal como está escrito llega al borrador, y el autor lo revisa, guiado por las advertencias `credential-carried`. Tampoco llega ninguna regla sobre un campo al resto de un flujo, así que el autor también lo revisa antes de compartir un borrador: el código propio de un componente, que el flujo lleva y en el que un componente personalizado puede contener una clave; las entradas que el editor añade a un nodo además de las que declara su componente; el cuerpo con el que se envía una solicitud, como el de un nodo `APIRequest` o `httpAgentflow`, que puede llevar un token; los argumentos que un nodo pasa al cliente de su modelo o a un loader como un objeto propio, como los `model_kwargs` de un nodo `EmbeddingModel` de Langflow o los `additionalInputs` de un nodo `replicate` de Flowise, que pueden llevar una clave bajo cualquier nombre; una dirección distinta de la de un servidor MCP, que puede llevar una clave en su parte de usuario o en su consulta; el código de un nodo Code de n8n, y los encabezados o la consulta de un nodo que envía una solicitud que el importador no enumera más arriba; y el texto libre, como un prompt o un mensaje."
   },
   "3ad79e7efcc07baf": {
     "at": "2026-11-03T08:18:34.158Z",
@@ -24303,6 +24436,13 @@
     "status": "machine",
     "text": "**Plantillas en el clúster.** La FeatureRecipe de la credencial emite un recurso que da formato a la cadena *en el clúster*, usando el sistema de plantillas propio del operador del vault. La aplicación hace referencia entonces por su nombre al Secret de plataforma resultante, y el compilador ha conectado la relación sin tener nunca el material:"
   },
+  "3f24da8adb25930c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "3f24da8adb25930c",
+    "status": "machine",
+    "text": "**Encabezados de solicitud** — en Langflow, los `headers` de un nodo `APIRequest`, `URLComponent`, `CloudflareWorkersAIEmbeddings` o `ConfluentKafkaProducer` y los `api_headers` de un nodo `DoclingRemote`; en Flowise, los `headers` de un nodo `httpAgentflow`, `getApiChain`, `postApiChain`, `openApiChain`, `apiLoader`, `openAPIToolkit` o `searXNG`, los `requestsGetHeaders`, `requestsPostHeaders`, `requestsPutHeaders` y `requestsDeleteHeaders` de las herramientas Requests, y los `baseOptions` — los encabezados predeterminados que envía el cliente de un modelo — de un nodo `azureChatOpenAI`, `azureOpenAIEmbeddings`, `chatCerebras`, `chatOpenAICustom`, `openAIEmbeddingsCustom`, `chatOpenRouter`, `chatSambanova` u `openAI`; en n8n, los `headerParameters`, `jsonHeaders`, `headerParametersUi` y `headerParametersJson` de un nodo `n8n-nodes-base.httpRequest` — su versión actual guarda los dos primeros, sus versiones anteriores los otros dos — y del mismo nodo usado como herramienta de un agente, los `parametersHeaders` y `jsonHeaders` de un nodo `@n8n/n8n-nodes-langchain.toolHttpRequest`, y los `headerParametersUi` de un nodo `n8n-nodes-base.graphql`. El nombre de un encabezado no lleva ningún secreto, así que se localiza el valor de cada encabezado y se conserva su nombre, sea cual sea la forma que adopten los encabezados: un objeto de nombres a valores, filas de una clave y un valor — en n8n, filas de un `name` y un `value` — u objetos que Langflow fusiona enteros en los encabezados. De cada encabezado se informa por su nombre. Un elemento de una lista que no es una fila de encabezado se localiza entero y se informa de él por su posición. Los encabezados escritos como texto se localizan enteros, salvo en Flowise y n8n, donde el texto contiene los encabezados como objeto JSON: ahí, escrito vacío, el texto se reescribe en su sitio, con cada valor vacío, y se informa de él una sola vez con los nombres de los encabezados que contiene. Un texto de n8n que empieza por `=` es una expresión que n8n evalúa cuando se ejecuta el workflow, y se localiza entero. Escritos vacíos, lo están todos los valores, incluidos los de los encabezados que no contienen ningún secreto, como `User-Agent`, así que una solicitud importada se envía con ellos vacíos hasta que su autor los restaura."
+  },
   "3f2984e27374fb3a": {
     "at": "2026-11-03T03:37:29.359Z",
     "job": "session-0045-20261103033729",
@@ -25314,6 +25454,13 @@
     "srcHash": "4278c11a644afc2b",
     "status": "machine",
     "text": "Una entrada que no coincide con nada es una afirmación sobre la fuente que ya no es cierta. La causa habitual es una actualización de la fuente que renombró o eliminó lo que nombra la entrada — y un documento o servicio renombrado está entonces en la salida con su nuevo nombre, que es exactamente lo que la entrada se escribió para mantener fuera —, y la otra es un error en la propia entrada. Pasarla por alto entregaría lo que la entrada debía dejar fuera, así que la compilación se detiene y nombra la entrada."
+  },
+  "427986381ea00677": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "427986381ea00677",
+    "status": "machine",
+    "text": "El importador MCP lee `target_namespace` y `empty_credentials`, tal como los describe [Ajustes](#settings), y ningún otro ajuste."
   },
   "4281d8b5aba8b1fa": {
     "at": "2026-11-03T10:52:18.070Z",
@@ -26615,6 +26762,13 @@
     "srcHash": "4552e6bdabb74767",
     "status": "machine",
     "text": "**Cómo corregirlo:** abre la entidad en la línea que indica el mensaje y junta la referencia para que sea un único token. Un salto de línea antes del `#` es la causa habitual — una referencia partida en dos líneas para que quepa en una columna es un solo valor para YAML y una referencia rota aquí, así que escríbela en una sola línea por larga que sea. La otra es un espacio final antes de la comilla de cierre: queda dentro de la versión mínima, donde nombra una versión que ningún artefacto publicado lleva. Para la segunda forma, la referencia está dentro de la biblioteca nombrada justo antes de ella en el mensaje; corrígela donde esa biblioteca declara la entrada."
+  },
+  "4555c029e3e298f5": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "4555c029e3e298f5",
+    "status": "machine",
+    "text": "El `metadata.environment` y el `spec.manifest` de la Release se dejan sin definir, cada uno nombrado en un comentario donde corresponde: ningún origen nombra el entorno en el que se despliega una Release, y el importador no genera ningún Manifest como borrador — a menos que a la importación se le dé un destino, como describe [Qué añade un destino](#what-a-target-adds). El Manifest que escribes mapea cada servidor a su realización — `helm/mcp-stdio-bridge` o `compose/mcp-stdio-bridge` para una línea de comandos, `helm/mcp-remote` o `compose/mcp-remote` para una dirección, `helm/mcp` para una imagen — y `core/referenced-secret-set` a la suya; un Manifest generado como borrador no mapea ninguno de los dos. El esquema de la Release exige ambos, así que una compilación se detiene nombrándolos hasta que se definen."
   },
   "456aba341950432e": {
     "at": "2026-11-03T08:18:34.158Z",
@@ -28134,6 +28288,13 @@
     "srcHash": "4908eca7ea51978d",
     "status": "machine",
     "text": "`scheduling` agrupa cuatro primitivas de planificación nativas de K8s — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — en un único bloque organizado por propósito. Cada subcampo tiene exactamente la forma del campo correspondiente del pod spec de Kubernetes:"
+  },
+  "491187d1f3dbfb39": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "491187d1f3dbfb39",
+    "status": "machine",
+    "text": "las entradas propias de la plataforma: en Langflow, `infra.image`, y la ranura `admin_password` mientras `values.require_authentication` siga siendo `true`; en Flowise, `infra.image`, `infra.owner_email` y la ranura `owner_password`, las dos últimas obligatorias mientras `values.flow_definition` esté establecido; en n8n, `infra.image`;"
   },
   "491228d8803bf9a7": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -29711,6 +29872,13 @@
     "status": "machine",
     "text": "**El umbral y su compromiso.** El lint empareja nombres solo a una edición de distancia, y solo cuando ambos nombres tienen al menos cuatro caracteres. Por debajo de esa longitud casi cualquier nombre corto está a una edición de cualquier otro, así que emparejarlos produciría ruido en lugar de señal; más allá de una edición, los pares dejan de parecer erratas. Una transposición cuenta como una edición y no como dos, porque un par de caracteres intercambiados es el desliz más común y un recuento más estricto lo pasaría por alto."
   },
+  "4de575215f9be2cc": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "4de575215f9be2cc",
+    "status": "machine",
+    "text": "Un comentario sobre la instancia de la plataforma nombra lo que el flujo no puede suministrar, y que suministra la Release:"
+  },
   "4deadb52bc15e501": {
     "at": "2026-11-03T10:34:02.595Z",
     "job": "session-0092-20261103103402",
@@ -30908,6 +31076,13 @@
     "srcHash": "5102317ff664c561",
     "status": "machine",
     "text": "Compose no tiene referencias a secretos, así que la Release de compose rellena el mismo slot con `core/secret-value`, con una referencia a una variable de Compose como origen. De `release-compose.yaml`:"
+  },
+  "51033328f4cfed6f": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "51033328f4cfed6f",
+    "status": "machine",
+    "text": "El borrador predeterminado lleva el flujo: la instancia de la plataforma toma la exportación como `values.flow_definition`, escrita como describe [Cómo se escribe el flujo en el borrador](#how-the-flow-is-written-into-the-draft). Un autor que escribe un flujo a mano en un Aggregate — en un borrador dispuesto nodo por nodo, o en un Aggregate propio — lo escribe de la misma manera. Un Component que ejecuta un flujo tal como se creó toma la exportación como un valor — `flow_definition` en `core/ai-agent/langflow` y `core/ai-agent/flowise` de la biblioteca estándar — y el texto de un Aggregate se lee como una plantilla, así que las llaves dobles que contiene la exportación se leerían como acciones de plantilla: un chatflow de Flowise escribe `{{<node id>.data.instance}}` para cada conexión entre dos nodos, un prompt de Flowise nombra una variable como `{{question}}`, y una exportación de Langflow lleva el código fuente de sus componentes, donde las llaves también pueden aparecer. Escribe cada `{{` de la exportación como `{{\"{{\"}}`, dentro de un escalar de bloque, y la interpolación restaura el texto de la exportación antes de que lo lean las Recipes del Component; [Texto que contiene sus propias llaves dobles](../templates/parameters-context.md#text-that-carries-its-own-double-braces) describe por qué. Un valor de credencial que contiene la exportación corresponde a un secreto que vincula la Release, no al Aggregate: escríbelo vacío, como hace el borrador donde el ajuste `empty_credentials` se lo pide."
   },
   "51073acc37ebbac9": {
     "at": "2026-10-30T04:51:07.986Z",
@@ -37387,6 +37562,13 @@
     "status": "machine",
     "text": "9. Compatibilidad de Feature y seguridad topológica"
   },
+  "611fc50ebe823b35": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "611fc50ebe823b35",
+    "status": "machine",
+    "text": "`aggregate.yaml` — un Aggregate de borrador llamado `<target_namespace>/flow`, que compone los nodos del flujo: una entrada para cada uno, y cada arista del flujo como una conexión `uses` del nodo al que alimenta, nombrada según el nodo que la alimenta."
+  },
   "61233e87f18f020d": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -37836,6 +38018,13 @@
     "srcHash": "623bb5945e270eb1",
     "status": "machine",
     "text": "9. El perímetro de seguridad & las salvaguardas explícitas de egress (destinos fuera del perímetro)"
+  },
+  "624087adb541d226": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "624087adb541d226",
+    "status": "machine",
+    "text": "Ninguna clave de infraestructura de `core/ai-tool/mcp` acepta el valor de un encabezado: la credencial de un servidor remoto la tiene cada consumidor, en su conexión a la herramienta, y la importación no genera ningún consumidor como borrador. Así que el comentario encima de la entrada del servidor enumera cada encabezado que el origen le envía, junto a su valor tal como está escrito — una cadena entre comillas dobles que se vuelve a leer exactamente como el texto del origen — para que lo traslades a la conexión del consumidor que lo presenta. Un encabezado cuyo valor no escribe el origen, como una entrada de encabezado del registro sin valor ni valor predeterminado, se enumera como sin valor. La imagen que nombra un paquete OCI se escribe tal cual, y no es un valor al que llegue el ajuste."
   },
   "62465fb1373f62f7": {
     "at": "2026-11-03T12:45:16.288Z",
@@ -38616,6 +38805,13 @@
     "status": "machine",
     "text": "`when:` y `optional:` son independientes. `when:` decide si un paso se ejecuta o no; `optional:` suaviza el fallo de un paso *en ejecución*. Un paso puede declarar ambos — `when:` controla la entrada y, si el paso se ejecuta, `optional:` rige cómo se gestiona un fallo dentro de él. Una plantilla `when:` que no se puede renderizar es un defecto de autoría y detiene la compilación independientemente de `optional:`."
   },
+  "647ef5d414307eb4": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "647ef5d414307eb4",
+    "status": "machine",
+    "text": "**Langflow** — el `model_name` de un nodo `OpenAIModel` o `AnthropicModel`; el `model` de un nodo `OpenAIEmbeddings`; y la sobrescritura `model_name` de un nodo `LanguageModelComponent` o `EmbeddingModel` donde está establecida, y en caso contrario el modelo que selecciona su campo `model`."
+  },
   "6481f0e6b1a620ac": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -39285,6 +39481,13 @@
     "srcHash": "663aeaf54a733824",
     "status": "machine",
     "text": "Consulta [La taxonomía de entidades](04-entity-taxonomy.md) para ver un resumen visual de las entidades agrupadas por dominio y las descripciones detalladas de cada entidad."
+  },
+  "6642598703fd0fb6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "6642598703fd0fb6",
+    "status": "machine",
+    "text": "un archivo bajo `components/` por cada nodo que genera como borrador — un Component de borrador llamado `<target_namespace>/<category>/<name>`, con el nombre tomado del tipo del nodo, en la versión `0.1.0`, con sus campos de valor como campos de cadena de un objeto `values` cerrado y sus campos de credencial como ranuras de credencial obligatorias cuya entrega decide una Recipe."
   },
   "6646983160ed2e1e": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -47944,6 +48147,13 @@
     "status": "machine",
     "text": "required uses socket not populated (Component, at `.spec.components.<instance>.uses.<socket>`, `\"<socket-name>\"`, declared required by component type `\"<component-type>\"`) (socket uses obligatorio no poblado (Component, en la ruta del socket, con el nombre del socket, declarado obligatorio por el tipo de componente indicado))"
   },
+  "7cec076ebdfc17bd": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "7cec076ebdfc17bd",
+    "status": "machine",
+    "text": "El importador MCP"
+  },
   "7cf4a30007d2e1ab": {
     "at": "2026-10-30T19:08:02.729Z",
     "job": "session-0008-20261030190802",
@@ -48368,6 +48578,13 @@
     "status": "machine",
     "text": "Para las propiedades anidadas, la ruta es la ruta con puntos hasta la propiedad desde la raíz del pilar:"
   },
+  "7e447ba3eeba7c70": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "7e447ba3eeba7c70",
+    "status": "machine",
+    "text": "Con el [ajuste `attach_egress_allowlist`](#settings) en `true`, la instancia de la plataforma declara además la Feature `core/egress-allowlist` de la biblioteca estándar bajo `features`, como `egress-allowlist`, de modo que la plataforma se conecta solo a los componentes a los que llegan sus conexiones, a sus propios pods y al DNS del clúster — la contrapartida de salida de una [arista `uses` como llamada declarada](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares). El borrador declara el tipo de la vinculación y nada más, ya que la vinculación de un Aggregate no lleva ningún `infra`, y el comentario sobre la instancia nombra lo que la Release establece en ella, bajo `features.egress-allowlist.infra` de la entrada de la plataforma: `control_plane_present: true`, la afirmación del operador de que el plugin de red del clúster aplica la política de red, sin la cual la compilación se detiene; y `admitted_destinations`, un rango de direcciones para cada conexión cuyo destino no ejecuta el clúster, como un modelo alojado, sin el cual la compilación se detiene nombrando esa conexión. El comentario nombra también `aggrega.ai/namespace` para el límite que contiene la plataforma, ya que la política se coloca en el namespace de sus cargas de trabajo y la compilación se detiene donde estas no se emiten en ninguno. La decisión de cada parte conectada dice que la vinculación admite su conexión, y la importación informa de la vinculación como `feature-attached`. Compose no tiene política de red, así que una compilación de compose de un borrador así se detiene nombrando la vinculación; donde la plataforma admite una conexión, las líneas de compose de más arriba se muestran dentro del bloque `features` de la instancia, sin una segunda clave `features`."
+  },
   "7e465050a7d51405": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -48675,6 +48892,13 @@
     "srcHash": "7f275fe44e55b737",
     "status": "machine",
     "text": "A pipeline step's typed input or output does not satisfy its declared contract (La entrada o la salida tipada de un paso de pipeline no cumple su contrato declarado)"
+  },
+  "7f28d691c40c4a2e": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "7f28d691c40c4a2e",
+    "status": "machine",
+    "text": "Lo que el origen no indica se omite y se nombra en un comentario encima de la entrada: un comando cuyo lanzador no está en ninguna de las dos imágenes puente omite `infra.stdio_runtime`; un argumento que una descripción del registro deja a su usuario se escribe como un elemento vacío; una variable cuyo valor no escribe el origen se escribe con su clave y sin valor. La compilación se detiene entonces nombrando cada uno — un elemento vacío y una entrada sin valor no cumplen el esquema del campo que los contiene, y la realización que lee un `infra.stdio_runtime`, un `infra.stdio_command` o un `infra.endpoint` sin definir se detiene nombrándolo."
   },
   "7f313acbbc9b8f62": {
     "at": "2026-11-03T03:19:38.005Z",
@@ -50030,6 +50254,13 @@
     "srcHash": "82e7f1014f79c987",
     "status": "machine",
     "text": "**Cómo corregirlo:** nada en tus archivos de entidad lo causa, y nada que puedas escribir en un catálogo o en un espacio de trabajo lo elimina. Si ejecutas la herramienta de línea de comandos publicada, esta no es una condición que puedas alcanzar, y un problema de firma que estés viendo realmente lo informa en su lugar una de las condiciones de verificación del bundle descritas más arriba. Si usas el paquete de firma directamente desde software propio, la carga útil, la firma y la clave tienen que ser las tres que van juntas — una carga útil reserializada entre la firma y la verificación es la causa habitual, ya que los bytes difieren aunque el contenido se lea igual."
+  },
+  "82ee73b15acade89": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "82ee73b15acade89",
+    "status": "machine",
+    "text": "El borrador se escribe igual para cada destino. En el destino compose, la Recipe de la plataforma lee cada secreto que vincula la Release por sí sola bajo una única clave, `value`, así que la contraseña del administrador o del propietario y la credencial de una conexión llegarían ambas bajo ella y detendrían la compilación. Donde la plataforma admite una conexión, un comentario dentro de su instancia muestra las líneas que declaran esa contraseña con una clave propia, cada una comentada donde corresponde — `owner_password` con la clave `OWNER_PASSWORD` en Flowise, como en el ejemplo de más arriba, y `admin_password` con la clave `LANGFLOW_SUPERUSER_PASSWORD` en Langflow. Quítales el comentario para compilar para compose; la Release sigue vinculando la ranura, nombrando el mismo tipo o ninguno. La plataforma n8n no toma ningún secreto propio, así que su borrador no muestra tales líneas; su Recipe de compose lee las credenciales que la Release vincula en sus conexiones bajo la misma única clave, así que una Release que vincula una credencial en dos de sus conexiones detiene la compilación de compose nombrando ambas, y un Aggregate que nombra `values.key` en una de ellas lo evita."
   },
   "82ef202008fef8ba": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -54125,6 +54356,13 @@
     "status": "machine",
     "text": "Sin la comprobación `has(d.services)`, `aggrega build --release release-helm.yaml\n--config governance-cel.yaml --auto-pull` se detiene, sean cuales sean las imágenes que ejecutan los objetos de Kubernetes, sale con `1` y no escribe ningún `dist/`, y la línea que informa del fallo nombra el archivo de política y la clave:"
   },
+  "8daac1e5a1fb2d15": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "8daac1e5a1fb2d15",
+    "status": "machine",
+    "text": "Cómo se escribe el flujo en el borrador"
+  },
   "8dae985835ff464e": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -56008,6 +56246,13 @@
     "status": "machine",
     "text": "**Entradas compartidas de SchemaLibrary (`$ref:` entre documentos):** Las definiciones reutilizables de JSON Schema se almacenan en entidades de catálogo SchemaLibrary (Tier 3). Se referencian por identidad mediante `$ref:` entre documentos (`<library>#/schemas/<entry>`, sin host — la versión procede del lockfile) desde cualquier esquema de Component o Feature consumidor. El compilador compactform recorre la cadena en tiempo de compilación propagando la pila de resolución; cada propiedad de la forma resuelta lleva una anotación `x-aggrega-source` que la atribuye a la entrada de biblioteca padre inmediata. Consulta [entities/schemalibrary](../language-reference/entities/schemalibrary.md) para la forma de autoría de la entidad de biblioteca y [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) para la semántica de resolución."
   },
+  "9296e7c08527426b": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "9296e7c08527426b",
+    "status": "machine",
+    "text": "Valores de credenciales que contiene un servidor"
+  },
   "92a61e01bb9ef6ba": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -56453,6 +56698,13 @@
     "status": "machine",
     "text": "Terraform RDS (artefacto HCL en línea)"
   },
+  "93bce7f0615a7f25": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "93bce7f0615a7f25",
+    "status": "machine",
+    "text": "Cada valor de la configuración de un servidor que escribe la Release — el valor de cada encabezado, cada elemento de su línea de comandos, su dirección, cada parte de la dirección que omite `infra.endpoint` y cada valor de entorno — puede llevar una clave, y ningún cliente marca ninguno como credencial, así que la importación localiza cada uno como miembro de la configuración de un servidor MCP; una entrada del registro marcada con `isSecret` se localiza como un valor que su formato marca como credencial. Una entrada del registro — una variable de entorno o el encabezado de un remoto — se lee como su `value`, o su `default` donde no escribe ninguno. De forma predeterminada, cada uno se traslada tal como está escrito a la Release y se nombra en una advertencia `credential-carried` por su servidor y su lugar — `headers.<header>`, `infra.stdio_command.<position>`, `infra.endpoint` o `server_env.<variable>`, y una parte de la dirección por la `url` en la que está escrita y el nombre de la parte, como en «url of node remote-search is carried with its query as written (la url del nodo remote-search se traslada con su consulta tal como está escrita)» — nunca por su valor. Con el [ajuste `empty_credentials`](#settings) en `marked` o `all`, cada uno se escribe vacío y se informa de él con `credential-emptied`: un elemento de la línea de comandos como un elemento vacío, una dirección y un valor de entorno omitidos, de modo que la compilación se detiene nombrando cada uno, y el valor de un encabezado o una parte de la dirección omitidos del comentario, que nombra solo el encabezado o la parte. El `infra.stdio_runtime` de un cliente se lee del comando tal como lo escribe la Release, así que un comando escrito vacío también lo omite."
+  },
   "93be749e7fb2abbc": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -56816,6 +57068,13 @@
     "srcHash": "94c59d798ae8b82c",
     "status": "machine",
     "text": "Ese orden es el sentido mismo de la comprobación. También hace que esta condición se distinga claramente de un rechazo: el plugin no se ha ejecutado, no se ha llegado a ningún veredicto y no se ha juzgado nada de la compilación. Un plugin que no declara ningún esquema de configuración acepta cualquier configuración, así que una vinculación con uno de ellos nunca se encuentra con esta condición."
+  },
+  "94cb35c651d31f7c": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "94cb35c651d31f7c",
+    "status": "machine",
+    "text": "Un bloque literal no puede llevar todos los caracteres tal como están escritos:"
   },
   "94cf03e19c3c960d": {
     "at": "2026-11-02T19:28:42.678Z",
@@ -57269,6 +57528,13 @@
     "srcHash": "9601497c22be8a54",
     "status": "machine",
     "text": "compactform at `<path-inside-the-schema>`:`<line>` (keyword `\"$mode\"`): value must be `compact` or `jsonschema` (compactform: el valor debe ser uno de los dos indicados)"
+  },
+  "9607f30141e6feca": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "9607f30141e6feca",
+    "status": "machine",
+    "text": "para un paquete OCI, `infra.image`;"
   },
   "960b72f863e68c59": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -58111,6 +58377,13 @@
     "srcHash": "9844a25dc09e9019",
     "status": "machine",
     "text": "**Qué emparejamiento se compara.** Las claves `provides:` escritas en la Recipe asociada frente a las claves `spec.schema.provides:` declaradas del tipo de Component. Ese conjunto declarado es el mismo con el que se comprueba una clave `from:` dentro de un bloque `inject:`, así que ambos coinciden en lo que declara un Component. La comparación es exacta y no una prueba de parecido, así que, a diferencia de los dos lints de casi coincidencia anteriores, no tiene umbral y no empareja nombres."
+  },
+  "984821aeaac935cf": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "984821aeaac935cf",
+    "status": "machine",
+    "text": "donde la plataforma admite una conexión, la credencial que cada conexión presenta a la parte a la que llega, vinculada en esa conexión."
   },
   "984b86428c3d6777": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -62045,6 +62318,13 @@
     "srcHash": "a1f2a8cacb334f95",
     "status": "machine",
     "text": "Un nodo `LanguageModelComponent` o `EmbeddingModel` se ejecuta en uno de varios proveedores de modelos — el que nombra su campo `provider` o, donde este está vacío, el proveedor del modelo que selecciona su campo `model` — y entrega su clave a ese proveedor. La plataforma entrega la conexión de modelo para un cliente compatible con OpenAI, así que un nodo de este tipo se escribe con las variables solo donde se ejecuta en `OpenAI`: uno que se ejecuta en otro proveedor, que no selecciona ninguno, que nombra su proveedor mediante una variable global o que toma su modelo de otro nodo se escribe sin ninguna de ellas, de modo que el borrador nunca dirige a otro proveedor hacia la clave de la conexión. Donde ningún campo de un nodo de este tipo da la dirección de su API — un nodo `LanguageModelComponent` no contiene ninguna para OpenAI, y el campo `api_base` de un nodo `EmbeddingModel` puede faltar, o estar vacío donde no puede nombrar una variable — el cliente de OpenAI en el que se ejecuta toma `OPENAI_BASE_URL` del entorno, así que el nodo llega igualmente a la dirección que entrega la plataforma."
+  },
+  "a1f6feb10673fa86": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "a1f6feb10673fa86",
+    "status": "machine",
+    "text": "Un directorio se lee a través de las configuraciones de cliente que contiene — cada archivo con el nombre de una de las cuatro, a cualquier profundidad — en el orden de sus rutas, y cada servidor de cada archivo se genera como borrador en un único Aggregate."
   },
   "a1f8c84fbf428488": {
     "at": "2026-11-03T15:47:42.282Z",
@@ -66601,6 +66881,13 @@
     "status": "machine",
     "text": "Cada servicio externo se declara como un componente distinto, no agrupado en un array de varios destinos. Si una aplicación llama a cinco API de terceros diferentes, el desarrollador declara cinco componentes `core/external-service` distintos. Esta declaración por servicio es lo que permite a los motores de políticas y a los plugins Wasm dirigirse a cada destino saliente de forma individual — adjuntando a cada dependencia externa políticas de egress diferentes, funcionalidades de proxy diferentes o enganches de observabilidad diferentes."
   },
+  "ada7dc6a628f05dc": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "ada7dc6a628f05dc",
+    "status": "machine",
+    "text": "se genera como borrador así:"
+  },
   "adb1b19490ca3cb0": {
     "at": "2026-11-03T01:42:01.047Z",
     "job": "session-0033-20261103014201",
@@ -66705,6 +66992,13 @@
     "srcHash": "aded2f23155b36f4",
     "status": "machine",
     "text": "Que cada consumidor tenga su propia credencial o que varios compartan una es una elección que se hace donde se vincula la credencial, no una propiedad de la entidad del catálogo. [`model-api-key-sharing/`](model-api-key-sharing/README.md) compila ambas formas con dos consumidores cada una — la multiplicidad en la que difieren — sobre la credencial que lleva la conexión de cada agente, y muestra lo que renderiza cada una, incluido un valor predeterminado compartido que una conexión anula con una vinculación propia."
+  },
+  "adee9f1ee530f7db": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "adee9f1ee530f7db",
+    "status": "machine",
+    "text": "y con `empty_credentials` en `marked`, `infra.endpoint` se deja para la Release y el comentario enumera `user part` y `query`, cada uno con su valor omitido."
   },
   "adefa700b3acef1e": {
     "at": "2026-11-02T19:55:14.786Z",
@@ -69325,6 +69619,13 @@
     "status": "machine",
     "text": "`.boundary.labels` — la unión de las labels del subárbol, conservando el orden de escritura."
   },
+  "b42b155c46a5b380": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "b42b155c46a5b380",
+    "status": "machine",
+    "text": "Cualquier otro miembro de un servidor — `cwd`, `envFile`, el `auth` de Cursor, o un miembro que su tipo de servidor no lee, como la `url` de un servidor iniciado desde una línea de comandos — no se escribe en ningún sitio, y se nombra en un comentario encima de la entrada del servidor en la Release, ya que ninguna clave de infraestructura de `core/ai-tool/mcp` lo acepta. Los `inputs` de una configuración, que describen lo que Visual Studio Code pide al usuario y no contienen ningún valor, no se leen. Los servidores, su entorno y sus encabezados conservan el orden en que el origen los escribe, salvo en una configuración leída como JSON con comentarios, que conserva el orden en que los escribe su árbol analizado: el orden de los nombres (véase [Una configuración que contiene comentarios](#a-configuration-holding-comments))."
+  },
   "b42cd49c40fc9bb1": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -69927,6 +70228,13 @@
     "srcHash": "b5b2dd9f5cd78527",
     "status": "machine",
     "text": "**LangGraph** — un origen llamado `langgraph.json` que se analiza como JSON y lleva un objeto en `graphs`; o un origen de cualquier nombre que se analiza como JSON, lleva un objeto en `graphs` y cuyo `$schema` es el texto `https://langgra.ph/schema.json`, el esquema que LangGraph publica para su configuración. Una configuración con otro nombre que no nombra ningún esquema se importa nombrando `--format langgraph`. Ninguna firma de importador nombra un archivo de entorno, así que reconocer un directorio no abre ninguno."
+  },
+  "b5baaaa4e4c13aae": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "b5baaaa4e4c13aae",
+    "status": "machine",
+    "text": "**La configuración de un cliente.** El `.mcp.json` de Claude Code, el `claude_desktop_config.json` de Claude Desktop y el `.cursor/mcp.json` de Cursor enumeran sus servidores por nombre bajo `mcpServers`; el `.vscode/mcp.json` de Visual Studio Code los enumera bajo `servers`, y un archivo que enumera servidores bajo ambos se lee primero bajo `mcpServers`. Un servidor cuyo `type` es `stdio`, o que no nombra ningún `type` y lleva un `command`, se inicia desde una línea de comandos — su `command` y sus `args` — con su `env` como entorno. Un servidor cuyo `type` es `http`, `streamable-http` o `sse`, o que no nombra ni `type` ni `command` y lleva una `url`, se alcanza en su `url` y recibe sus `headers`."
   },
   "b5c6b0288117d1d4": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -73024,6 +73332,13 @@
     "status": "machine",
     "text": "`db` (ya rellenado)"
   },
+  "bd98af282c77529e": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "bd98af282c77529e",
+    "status": "machine",
+    "text": "Una Release no puede escribir un valor. Así que, donde el nodo no nombra ningún modelo que el borrador pueda escribir — no selecciona ninguno, lo nombra mediante una variable global o una expresión que solo se lee cuando se ejecuta el flujo, lo toma de otro nodo conectado a él, o es de un tipo cuyo campo de modelo el importador no lee —, un comentario dentro de la parte deja `values.model` para el autor, y la importación informa de ello con `model-not-named`. Una parte que el borrador genera como borrador se escribe sin ningún valor."
+  },
   "bd9930d1bc30f484": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -74002,6 +74317,13 @@
     "srcHash": "c000c7c98f76d361",
     "status": "machine",
     "text": "**Una URL de fuente no lleva credenciales.** Una Recipe o FeatureRecipe cuya `url` de fuente escribe un usuario antes de su host —`https://user:token@charts.example.com/…`, o un token escrito solo como `https://token@charts.example.com/…`— se rechaza con `E0361` al leerse el documento, antes de descargar nada: validar la Recipe la rechaza, y también cada pull, pin y build que la alcanza. El mensaje nombra el host y nunca la credencial: [A source URL carries a credential (Una URL de fuente lleva una credencial)](../errors/fatal-halts.md#a-source-url-carries-a-credential). Pon la credencial en una entrada `machine` del archivo netrc en su lugar. Por SSH, un usuario escrito solo —`ssh://git@github.com/…`— nombra una cuenta y no un secreto y se acepta, mientras que una contraseña escrita ahí también se rechaza."
+  },
+  "c006d5d719a03589": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "c006d5d719a03589",
+    "status": "machine",
+    "text": "Llevar el propio flujo exportado"
   },
   "c007728b5b406596": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -79435,6 +79757,13 @@
     "status": "machine",
     "text": "Una Recipe nombra una misma clave tanto en `outputComponentLabels:` como en `outputLabels:`. Los dos bloques estampan sobre la misma superficie de etiquetas desde fuentes distintas — el primero promueve el valor que lleva el componente, el segundo escribe el valor que tecleó el autor de la Recipe —, así que una clave nombrada en ambos llegaría con dos valores candidatos y nada que diga cuál prevalece. Esta regla se comprueba cuando se carga la Recipe, después de la regla del espacio de nombres reservado anterior, así que una Recipe que incumple ambas notifica primero el espacio de nombres reservado: la corrección de ese fallo no depende de lo que contenga el otro bloque."
   },
+  "cdb6bac37e601a52": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "cdb6bac37e601a52",
+    "status": "machine",
+    "text": "la dirección de cada servidor MCP conectado a la plataforma, `infra.endpoint` de su parte;"
+  },
   "cdb7911f8296a63f": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -79504,6 +79833,13 @@
     "srcHash": "cde302b5d1365cbd",
     "status": "machine",
     "text": "Una arista `uses` es la declaración del Aggregate de que un componente llama a otro. El compilador canaliza hacia el llamante los valores que publica el destino y no restringe nada: por sí sola, una arista ni admite al llamante ni rechaza a nadie más, y una carga de trabajo que alcanza la dirección del destino sin una arista la alcanza igualmente."
+  },
+  "cde3974a1f901bc1": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "cde3974a1f901bc1",
+    "status": "machine",
+    "text": "**Parámetros de consulta** — en Langflow, los `query_params` de un nodo `APIRequest` o `GoogleSerperAPI` y los `search_params` de un nodo `SerpAPI`, `Serp`, `SearchAPI` o `SearchComponent`; en Flowise, los `queryParams` de un nodo `httpAgentflow` y los `customParameters` de un loader `searchApi`; en n8n, los `queryParameters`, `jsonQuery`, `queryParametersUi` y `queryParametersJson` de un nodo `n8n-nodes-base.httpRequest`, usado como herramienta o no, los `parametersQuery` y `jsonQuery` de un nodo `@n8n/n8n-nodes-langchain.toolHttpRequest`, y los `queryParameters` y `queryParametersJson` que un nodo `n8n-nodes-base.facebookGraphApi` guarda entre sus `options`. Cada uno se envía como la consulta de una solicitud, y un parámetro de consulta puede llevar una clave — algunas API de búsqueda toman la suya como `api_key` en la consulta —, así que cada uno se localiza como los encabezados: cada valor, conservando su nombre, sea cual sea la forma que adopten los parámetros, y de cada uno se informa por su nombre; los parámetros escritos como texto se localizan enteros, salvo en Flowise y n8n, donde el texto los contiene como objeto JSON, que, escrito vacío, se reescribe en su sitio y del que se informa una sola vez con los nombres que contiene. Escritos vacíos, lo están todos los valores, incluidos los de los parámetros que no contienen ningún secreto, así que una solicitud importada se envía con ellos vacíos — o, desde un nodo HTTP de Flowise, que no envía ningún parámetro cuyo valor esté vacío, sin ellos — hasta que su autor los restaura."
   },
   "cde409dda34fe6db": {
     "at": "2026-11-03T06:41:11.801Z",
@@ -81490,6 +81826,13 @@
     "status": "machine",
     "text": "De forma predeterminada, una importación escribe:"
   },
+  "d2b576a38b7422e6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "d2b576a38b7422e6",
+    "status": "machine",
+    "text": "**Un retorno de carro** — de un par CR LF, o aislado — se escribe como un solo salto de línea. Un documento JSON solo contiene uno entre sus tokens, donde cualquier espacio en blanco se lee igual, así que la plataforma lee el mismo flujo. La importación informa de cuántos hay con `carriage-returns-rewritten`."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -81727,6 +82070,13 @@
     "srcHash": "d3576afb5f581643",
     "status": "machine",
     "text": "**No juzga la respuesta del modelo**, ni los argumentos de las llamadas a herramientas ni las imágenes."
+  },
+  "d36c0a66e3e8ed61": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "d36c0a66e3e8ed61",
+    "status": "machine",
+    "text": "Visual Studio Code lee `.vscode/mcp.json` como JSON con comentarios, y también el importador MCP: su firma para ese archivo lo lee mediante el analizador que sirve `parse:jsonc`, así que una configuración que contiene comentarios `//` y `/* */` y comas finales se reconoce sin que se nombre ningún formato, y el importador lee cada origen que enumera sus servidores bajo `servers` mediante ese analizador. Una configuración así se genera como borrador exactamente como la misma configuración sin sus comentarios ni sus comas finales. El analizador escribe los miembros de un objeto en el orden de los nombres, así que los servidores de una configuración así, su entorno y sus encabezados se generan como borrador en el orden de los nombres, contenga o no un comentario; una línea de comandos conserva su orden. Los demás clientes y el registro leen sus archivos como JSON, y también el importador: un `.mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json` o `server.json` que contiene un comentario no lo reconoce ninguna firma, e importado nombrando `--format mcp` se detiene con `parse-failed` y el motivo del analizador. Un comentario abierto con `/*` y nunca cerrado se deja tal como está escrito, y el analizador rechaza el archivo."
   },
   "d37284a3b2662f46": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -82988,6 +83338,13 @@
     "status": "machine",
     "text": "`manifest.yaml` — enlaza cada tipo de componente y la Feature de secreto con su Recipe de Docker Compose."
   },
+  "d7565c43684b19f7": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "d7565c43684b19f7",
+    "status": "machine",
+    "text": "Aparte de los valores que el ajuste escribe vacíos, lo que el borrador escribe para que el flujo llegue a sus partes y los retornos de carro escritos como saltos de línea que se describen más abajo, el flujo se lleva tal como se exportó, así que un flujo sin nada de esto que cambiar se lleva byte a byte."
+  },
   "d75c86031e359515": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -84156,6 +84513,13 @@
     "status": "machine",
     "text": "La separación entre «biblioteca» y «consumidor» es intencionada. Las Recipes codifican instrucciones de build (source, valuesMapping, artifacts). Las FeatureRecipes codifican vinculaciones de comportamiento. Las MappingLibraries codifican solo fragmentos de plantilla — el contenido de plantilla Go que otras entidades consumen en el momento del renderizado. Mantener los tres roles separados permite que cada tipo de entidad evolucione a su propio ritmo; los autores que no necesitan contenido de plantilla compartido nunca se encuentran con la entidad de biblioteca."
   },
+  "da8f62347063e7b6": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "da8f62347063e7b6",
+    "status": "machine",
+    "text": "**Cualquier otro carácter que un bloque literal no pueda llevar** impide que se lleve el flujo: un carácter de salto de línea — U+0085, U+2028 o U+2029; un carácter de control distinto del tabulador y del salto de línea — de U+0000 a U+001F, U+007F, y de U+0080 a U+009F; los no caracteres U+FFFE y U+FFFF; y un byte que no forma parte de una secuencia UTF-8. `values.flow_definition` se deja entonces sin establecer, con un comentario que lo indica, el resto se genera como borrador, y la importación informa de `definition-not-carried` para cada tipo de carácter, con cuántos contiene el flujo y la línea y la columna del primero."
+  },
   "da919120dea0bef8": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -85224,6 +85588,13 @@
     "status": "machine",
     "text": "inheritance merge failed (Manifest `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which could not be resolved: `<what looking produced>`). Verify the extends reference is a relative path or the name of a Manifest in the Release's directory (falló la fusión de la herencia: la entidad extiende una referencia que no se pudo resolver. Verifica que la referencia extends sea una ruta relativa o el nombre de un Manifest en el directorio de la Release)"
   },
+  "dcea9b85993422a7": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "dcea9b85993422a7",
+    "status": "machine",
+    "text": "**Una solicitud completa escrita como línea de comandos** — el `curl_input` de un nodo `APIRequest` de Langflow y el `curl` de un nodo `Webhook`, localizados enteros, incluido el valor predeterminado del Webhook. Ninguno de los dos se lee cuando se ejecuta el flujo: el primero solo rellena los campos del nodo en el editor, el segundo muestra un ejemplo."
+  },
   "dcefe84226c5491e": {
     "at": "2026-11-03T08:51:38.120Z",
     "job": "session-0079-20261103085138",
@@ -85780,6 +86151,13 @@
     "srcHash": "de12a26ae9a3bd47",
     "status": "machine",
     "text": "Superficie de validación"
+  },
+  "de1370f94912d482": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "de1370f94912d482",
+    "status": "machine",
+    "text": "**n8n** — el parámetro `model` de un nodo de chat, de completion o de embeddings que mapea la tabla del importador, o su `modelName` en los nodos Google Gemini y Vertex, escrito como un nombre o como el valor del selector en el que lo guardan los nodos más recientes de n8n. n8n deja fuera de una exportación un parámetro establecido en su valor predeterminado, así que un nodo que mantiene el modelo predeterminado no nombra ninguno en la exportación."
   },
   "de1a0289f456072c": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -86386,6 +86764,13 @@
     "srcHash": "dfbb09e4b37368af",
     "status": "machine",
     "text": "Si el archivo de destino ya existe, `init` se niega en lugar de sobrescribirlo; `--force` escribe de todos modos, fusionando la entrada del registro en el archivo existente y conservando las demás opciones."
+  },
+  "dfbc7d96221d30ad": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "dfbc7d96221d30ad",
+    "status": "machine",
+    "text": "Una conexión en el borrador no lleva ninguna credencial: la Release vincula la que presenta cada conexión, como dice el comentario sobre la plataforma."
   },
   "dfcdfb92a4dff3fd": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -89486,6 +89871,13 @@
     "status": "machine",
     "text": "[aggrega-cache.md](aggrega-cache.md) — lo que contiene realmente `artifact_cache_dir`."
   },
+  "e833072288961124": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "e833072288961124",
+    "status": "machine",
+    "text": "El flujo tampoco se lleva donde un valor que el borrador escribe vacío o de nuevo no está en los bytes de la exportación donde lo contiene su árbol analizado, y la importación informa de `definition-not-carried` nombrando el lugar de ese valor. El identificador del flujo es entonces el suyo propio donde el borrador puede llevarlo, y en caso contrario uno derivado de los identificadores de los nodos del flujo."
+  },
   "e8371e29a347bc8c": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -90626,6 +91018,13 @@
     "srcHash": "eaee9e6acb81b6de",
     "status": "machine",
     "text": "La WorkloadLibrary se ofrece con un único modo de autoría: las plantillas de Go. `spec` no acepta ninguna superficie de autoría paralela ni ninguna vía de escape de expresividad a nivel de biblioteca."
+  },
+  "eaf221c8c6414bad": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "eaf221c8c6414bad",
+    "status": "machine",
+    "text": "para un servidor alcanzado en una dirección, `infra.endpoint`: la dirección sin su parte de usuario, su consulta y su fragmento, ya que el Component acepta la dirección sin ninguna parte que lleve una clave; cada parte que omite se escribe en el comentario encima de la entrada, junto a la dirección, como describe [Valores de credenciales que contiene un servidor](#credential-values-a-server-holds);"
   },
   "eaf582a639d2916a": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -93917,6 +94316,13 @@
     "status": "machine",
     "text": "Un plugin puede devolver observaciones junto con su resultado, y cada una lleva una gravedad de un conjunto cerrado: una que detiene la compilación y nombra qué corregir, una que se muestra junto a una compilación que aun así se completa, y una que registra la observación y no cambia nada. Una gravedad fuera de ese conjunto es una para la que el anfitrión no tiene ningún encaminamiento, y la compilación se detiene."
   },
+  "f3873fff0a11bcb0": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "f3873fff0a11bcb0",
+    "status": "machine",
+    "text": "Una configuración que contiene comentarios"
+  },
   "f38a4e10087380f4": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -95813,6 +96219,13 @@
     "status": "machine",
     "text": "Externo — nadie en esta Release ejecuta el servidor"
   },
+  "f80ff6f7938df884": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "f80ff6f7938df884",
+    "status": "machine",
+    "text": "Una parte a la que el borrador hace referencia y cuyo Component declara un valor llamado `model` — como hace, y exige, cada Component de modelo de la biblioteca estándar — se escribe con el nombre del modelo que selecciona su nodo, como `values.model`:"
+  },
   "f8103e05f575170c": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -96383,6 +96796,13 @@
     "srcHash": "f9b3694bbc81fd70",
     "status": "machine",
     "text": "**Extensiones `x-aggrega-*` directas** — escribir directamente claves `x-aggrega-*` en un esquema de Component o de Feature se desaconseja en favor de la vía de escritura de primera clase. Activada de forma predeterminada; desactivable con `allow_direct_x_aggrega_extensions`."
+  },
+  "f9b3d012e6b2fb42": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "f9b3d012e6b2fb42",
+    "status": "machine",
+    "text": "El flujo se escribe como un bloque literal de YAML cuyo chomping conserva sus saltos de línea finales, de modo que `values.flow_definition` se vuelve a leer como el propio texto del flujo. El texto de un Aggregate se lee como una plantilla, así que cada `{{` que contiene el flujo — un chatflow de Flowise escribe `{{<node id>.data.instance}}` para cada conexión entre dos nodos — se escribe como `{{\"{{\"}}`, que la interpolación vuelve a convertir en las dos llaves, como describe [Texto que contiene sus propias llaves dobles](../templates/parameters-context.md#text-that-carries-its-own-double-braces). El nombre de un modelo se escribe de la misma manera."
   },
   "f9b56c704a78db10": {
     "at": "2026-11-03T05:17:11.041Z",
@@ -97308,6 +97728,13 @@
     "status": "machine",
     "text": "OpenBao almacena y genera tokens, contraseñas, certificados y otros secretos, y controla el acceso a ellos detrás de una API HTTP autenticada, y cifra su estado en reposo en un volumen de datos duradero. Aquí se ejecuta como un único servidor independiente que guarda su estado en el backend de almacenamiento en archivos integrado, así que se renderiza como un servidor con estado en ejecución respaldado por un volumen persistente, en lugar de como un recurso de nube gestionado. El servidor se inicializa y se desella en tiempo de ejecución dentro del clúster — su token raíz y sus claves de desellado los produce el servidor en ejecución después de iniciarse — así que no se declara ninguna credencial en el Aggregate y no se materializa ningún secreto en tiempo de compilación."
   },
+  "fbcda382133e28f9": {
+    "at": "2026-11-03T19:06:07.164Z",
+    "job": "session-0145-20261103190607",
+    "srcHash": "fbcda382133e28f9",
+    "status": "machine",
+    "text": "**Flowise** — el `modelName` de un nodo `chatOpenAI`, `chatAnthropic` u `openAIEmbeddings`."
+  },
   "fbd24a5204b632e2": {
     "at": "2026-11-03T04:04:12.316Z",
     "job": "session-0048-20261103040412",
@@ -98171,6 +98598,13 @@
     "srcHash": "fe450faa5a9eada1",
     "status": "machine",
     "text": "**Una clave obligatoria ausente no tiene posición propia** — por definición, no está en el documento. La infracción apunta en su lugar a la clave que la contiene, que es donde corresponde la entrada que falta. Así, `spec.capability: missing required property` apunta a `spec:`, y es ahí donde la añades."
+  },
+  "fe479a5ba85ac879": {
+    "at": "2026-11-03T19:06:08.912Z",
+    "job": "session-0146-20261103190608",
+    "srcHash": "fe479a5ba85ac879",
+    "status": "machine",
+    "text": "para un servidor iniciado desde una línea de comandos, `infra.stdio_command`, su comando y después cada argumento, un elemento cada uno; e `infra.stdio_runtime`, el ecosistema del lanzador, `npm` donde el comando es `npx`, `npm` o `node`, `pypi` donde es `uvx`, `uv`, `python` o `python3` y, para un paquete del registro, su registro, `npm` o `pypi`;"
   },
   "fe493f3efac38a64": {
     "at": "2026-11-03T13:44:12.861Z",
