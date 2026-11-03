@@ -1002,6 +1002,13 @@
     "status": "machine",
     "text": "**Terraform / OpenTofu** aprovisionan recursos en la nube a partir de HCL declarativo y gestionan el estado mediante un motor de CLI. Aggrega compila a artefactos estáticos y deja la ejecución del estado al entorno de ejecución; un destino de renderizado de Terraform se alcanza mediante el socket abierto."
   },
+  "0230b76e9f276c7a": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "0230b76e9f276c7a",
+    "status": "machine",
+    "text": "implícito (los contenedores compose exponen los puertos en los que escucha la imagen)"
+  },
   "0231f9b88ec912df": {
     "at": "2026-11-03T07:17:26.700Z",
     "job": "session-0069-20261103071726",
@@ -1656,6 +1663,13 @@
     "status": "machine",
     "text": "**El enganche del catálogo (dominio 2):** cuando un arquitecto define un componente SaaS público (p. ej., `core/external-service`), le adjunta una etiqueta corporativa inmutable (p. ej., `security.enterprise.com/zone: \"untrusted-external\"`)."
   },
+  "03829d30b3c943ce": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "03829d30b3c943ce",
+    "status": "machine",
+    "text": "**Modo Workload.** Una Recipe con `workload:` (inline o cargado mediante `$import:`) declara un documento `Workload`. El proveedor sintetiza uno o más servicios compose a partir de la especificación del Workload."
+  },
   "0388dc84b1e2aa5f": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -2290,6 +2304,13 @@
     "status": "machine",
     "text": "Cada vinculación de un nodo se encuentra en el mismo contenedor, sea lo que sea lo que produzca su Feature — una Feature operativa, una Feature de credenciales, una Feature de identidad. Ninguna familia recibe una proyección más estrecha que otra, así que una política que recorre el contenedor las ve todas y nunca necesita saber qué familia está mirando antes de poder leer un hecho."
   },
+  "04fee587e6e9d93d": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "04fee587e6e9d93d",
+    "status": "machine",
+    "text": "Como no se emite ningún servicio para un Workload `reference`, nada lee la tubería de entrega del componente que realiza: una credencial vinculada a ese componente — entregada en su tubería por `dotenv-secret`, o por el propio bloque `inject:` de una vinculación — no llegaría a ningún archivo emitido. Por eso, toda Recipe de Compose de la biblioteca estándar que realiza así un servicio externo, y cuyo Component declara un slot de credencial, rechaza una credencial que llene ese slot: la compilación se detiene nombrando el slot y el componente, en lugar de terminar con éxito sin la credencial. En compose, una credencial para un servicio externo se vincula al componente que lo llama, bajo la variable de entorno que lee ese componente. Ese rechazo es una aserción propia de cada Recipe, y se ejecuta antes de que este proveedor renderice nada. Este proveedor también rechaza en el propio nodo, sea cual sea el catálogo del que procede la Recipe: una vinculación en un nodo `reference` cuyo material se declara sensible — su Feature declara un campo `sensitive: true`, o lo hace el slot que llena — detiene la compilación con `TRANSLATION_ERROR` (`E0288`), nombrando el nodo y cada una de esas vinculaciones, tanto si algún slot declara el nombre bajo el que está vinculada como si no. Una vinculación que no lleva nada declarado sensible no se rechaza aquí. Esos Components declaran opcionales sus slots de credencial, así que en compose un slot que se deja vacío no detiene nada. Donde la realización de Kubernetes necesita la credencial — las Recipes `helm` de `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell` y `vapi` — esa Recipe exige el slot en su lugar, y detiene la compilación nombrándolo cuando está vacío."
+  },
   "0505795503da0e0a": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -2338,6 +2359,13 @@
     "srcHash": "051953bb1cb21b60",
     "status": "machine",
     "text": "Fuerza allow_aggrega_ai_prefix=false"
+  },
+  "051a8c47f010edfb": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "051a8c47f010edfb",
+    "status": "machine",
+    "text": "Docker Compose entrega las GPU reservadas al contenedor cuando el host de Docker tiene esa cantidad de GPU NVIDIA y está configurado para dárselas a los contenedores; la compilación no puede ver el host, así que un archivo que reserva GPU se ensambla del mismo modo dondequiera que vaya a ejecutarse. La entrada siempre indica su número, porque Compose lee una entrada de dispositivo sin número como todas las GPU del host. Solo se traduce la clave de NVIDIA: `amd.com/gpu` y la clave de cualquier otro fabricante mantienen la advertencia de la fila de claves descartadas. La fila `runtimeClassName` de [Campos a nivel de pod](#pod-level-fields) no cambia — compose no tiene equivalente de la clase de runtime, así que a un Workload que nombra un runtime con GPU se le indica que el runtime se omitió, mientras que su número de GPU se reserva."
   },
   "05207b3a156aaed5": {
     "at": "2026-11-03T21:51:54.059Z",
@@ -4539,6 +4567,13 @@
     "status": "machine",
     "text": "**El conjunto anunciado se fija cuando arranca el proceso**, así que cambiarlo requiere un reinicio y nada hace crecer la lista bajo un cliente que ya se ha conectado."
   },
+  "0a5f42e9abeb3a9a": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "0a5f42e9abeb3a9a",
+    "status": "machine",
+    "text": "Cualquier otro carácter se escribe como `-z` seguido de una letra que lo nombra: `s` para un separador de ruta, `h` para un guion que la regla anterior no mantiene. Todo lo demás — incluidos un espacio y una letra no ASCII — se escribe como `x` seguido del punto de código hexadecimal de seis dígitos del carácter, y un byte que no inicia ningún carácter como `b` seguido de su propio valor de dos dígitos, de modo que un nombre que no es texto válido se escribe igualmente de forma distinta en lugar de confundirse con otro."
+  },
   "0a631412a2831ef4": {
     "at": "2026-11-03T20:08:39.308Z",
     "job": "session-0152-20261103200839",
@@ -4573,6 +4608,13 @@
     "srcHash": "0a85decfe532762e",
     "status": "machine",
     "text": "**Qué archivo se lee.** El archivo que indica la variable de entorno `NETRC`, cuando está definida. Si no, `.netrc` en tu directorio personal; en Windows, `_netrc` en `%USERPROFILE%` cuando ese archivo existe, y `.netrc` allí cuando no existe. Un archivo que falta no contiene credenciales y no es un error. Un archivo que existe y no se puede leer, o que no sigue el formato netrc, detiene el comando con `E0360`, nombrando el archivo —y, para un fallo de formato, la línea—, pero nunca lo que contiene el archivo: [The netrc file cannot be read (El archivo netrc no se puede leer)](../errors/fatal-halts.md#the-netrc-file-cannot-be-read). En Linux y macOS, un archivo netrc que pueden leer otros usuarios de la máquina provoca una advertencia que lo nombra; haz que solo tú puedas leerlo (`chmod 600`)."
+  },
+  "0a8ad970aef4745b": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "0a8ad970aef4745b",
+    "status": "machine",
+    "text": "Sin equivalente compose en un solo host. La clave se descarta y la compilación emite una advertencia `unsupported-field` que la nombra, una por cada clave distinta, sin importar cuántas de las `requests` y los `limits` la llevaran. Su valor no se emite, así que no se comprueba"
   },
   "0a8d9c15f7981dcc": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -5027,6 +5069,13 @@
     "status": "machine",
     "text": "Recurre a `get-schema` cuando necesites la forma exacta de un tipo mientras escribes — qué campos son obligatorios, qué puede ser un valor, cómo se anida un bloque. Es la referencia con la que comprobar un archivo escrito a mano, y el punto de partida para aprender un tipo que no conoces. Como imprime JSON Schema legible por máquina, también puedes pasárselo a un editor compatible con esquemas o a una herramienta de validación."
   },
+  "0ba3180e5e8cd1b3": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "0ba3180e5e8cd1b3",
+    "status": "machine",
+    "text": "**Tres variantes llevan un tamaño de almacenamiento, y solo una de ellas advierte de que el tamaño se descartó.** La diferencia está en si tuviste elección. El `sizeLimit` de un volumen `ephemeral` es opcional, así que escribirlo fue una decisión, y la advertencia te dice que el valor no da forma a nada en este destino y puede eliminarse — es orientativa y fuera de banda, el archivo emitido es byte a byte lo que sería sin ella, y `--no-unsupported-field-warnings` la silencia junto con el resto de la clase. El `size` de un volumen `persistent` o `persistentTemplate` es obligatorio, así que ninguna versión del documento lo omite: una advertencia en cada compilación se dispararía ahí en cada carga de trabajo con estado sin nombrar nada que pudieras cambiar, por lo que la diferencia se explica aquí en lugar de notificarse en cada compilación. Con compose como destino, `size`, `class` y `accessModes` de un volumen persistente no dan forma a nada en el archivo emitido — lo que obtienes es un volumen con nombre simple, dimensionado y respaldado por lo que haga de forma predeterminada el controlador de volúmenes del host de compose. `class` y `accessModes` son opcionales, así que cada uno que escribas se notifica igual que el `sizeLimit` de un volumen `ephemeral`: una advertencia `unsupported-field` por campo, orientativa y fuera de banda, silenciada por el mismo indicador. Dimensiona el almacenamiento subyacente en el host, o en el destino Kubernetes, donde los campos sí llegan a la salida."
+  },
   "0ba584a8cc1a3fdc": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -5125,6 +5174,13 @@
     "status": "machine",
     "text": "Qué puede hacer sin preguntarte"
   },
+  "0bdc19fd9c977fec": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "0bdc19fd9c977fec",
+    "status": "machine",
+    "text": "`variables` y `attachments[as: env]` van a parar al único mapa `environment`, primero las entradas de las vinculaciones y después las `variables`, cada una en el orden en que se escribe — el orden que escribe el [proveedor helm](helm.md#provider-specific-quirks), de modo que un Workload renderiza una sola secuencia de entorno en todos los destinos. Compose no expande ninguna referencia `$(NAME)` entre las entradas de entorno de un servicio, así que en compose ese orden no tiene ningún significado en tiempo de ejecución. Como el mapa contiene cada nombre una sola vez, un contenedor que da un mismo nombre tanto como entrada de `variables` como entrada de `attachments` entregada `as: env` detiene la compilación en lugar de conservar uno de los dos valores (consulta [A container gives one environment variable two values (Un contenedor da dos valores a una misma variable de entorno)](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values))."
+  },
   "0bdefa7bcb7b956f": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -5160,6 +5216,13 @@
     "status": "machine",
     "text": "Este ejemplo consume el catálogo estándar: `core/datastore/mariadb`, `core/devtool/adminer`, `core/secret-value`, `core/secret-provided` y `core/shared-config` (con sus FeatureRecipes de helm `env-secret`, `provided-secret` y `shared-config`), la receta `adminer` y el proveedor `helm` se distribuyen todos en la biblioteca estándar. La Recipe `mariadb-bitnami` la lleva localmente este ejemplo — una Recipe con fuente escrita por una empresa en su propio directorio `catalog/`."
   },
+  "0c14f29b9c558200": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "0c14f29b9c558200",
+    "status": "machine",
+    "text": "Así, el componente `store` con un volumen que el Workload llama `data` da el nombre de volumen `store--data`, y `db-server` con `data` da `db-server--data`. Una entrada idéntica produce siempre el nombre idéntico."
+  },
   "0c1d5ddf5723b04b": {
     "at": "2026-11-03T22:09:07.585Z",
     "job": "session-0166-20261103220907",
@@ -5187,6 +5250,13 @@
     "srcHash": "0c24093cc38ff990",
     "status": "machine",
     "text": "De dónde se leen las entidades locales"
+  },
+  "0c24fec942f03530": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "0c24fec942f03530",
+    "status": "machine",
+    "text": "Tipos de entrada admitidos"
   },
   "0c259f82059187bf": {
     "at": "2026-11-03T08:01:05.098Z",
@@ -5460,6 +5530,13 @@
     "srcHash": "0cb3b80a56fa0a4b",
     "status": "machine",
     "text": "**Una sola forma de enrutamiento a lo largo de la cadena.** `boundaries:` y `components:` son mutuamente excluyentes dentro de una misma Release, y eso también se cumple a lo largo de una cadena: una base que declara límites con nombre junto con un hijo que declara componentes de nivel superior se rechaza, y el diagnóstico nombra ambos archivos y ambas claves. Elige una forma de enrutamiento y úsala hasta el fondo."
+  },
+  "0cb5b399e9c33150": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "0cb5b399e9c33150",
+    "status": "machine",
+    "text": "`nvidia.com/gpu`, bajo `resources.limits`, `resources.requests` o ambos"
   },
   "0cb7477e3b600896": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -7472,6 +7549,13 @@
     "srcHash": "116f3cb29f5cd8b3",
     "status": "machine",
     "text": "escribe los mismos doce archivos, byte a byte, que `release.yaml` con la política vinculada en cualquiera de los dos motores. Nada queda excluido de esa comparación: si una anotación se inyectó o no, no queda registrado en ningún archivo renderizado. `check.sh` compara los árboles en cada ejecución."
+  },
+  "117243ad298ee4b1": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "117243ad298ee4b1",
+    "status": "machine",
+    "text": "Campo de Compose"
   },
   "1178eca90bdaa41f": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -10802,6 +10886,13 @@
     "status": "machine",
     "text": "**Un límite que no es un número entero de tokens**, o uno superior a 4294967295."
   },
+  "19b2d8d5f5119e46": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "19b2d8d5f5119e46",
+    "status": "machine",
+    "text": "Forma de controlador"
+  },
   "19b72cbf6f776c73": {
     "at": "2026-11-03T05:31:59.590Z",
     "job": "session-0057-20261103053159",
@@ -11025,6 +11116,13 @@
     "srcHash": "1a2d4d2ecb2b469a",
     "status": "machine",
     "text": "workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: workspace configuration is invalid (workspace debe ser un mapeo; escribe un mapeo vacío para marcar una raíz de espacio de trabajo sin directorios de catálogo: la configuración del espacio de trabajo no es válida)"
+  },
+  "1a2e30c0d834dab1": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "1a2e30c0d834dab1",
+    "status": "machine",
+    "text": "La clase de almacenamiento, los modos de acceso y el tamaño no se conservan (compose no tiene una forma equivalente). Un `class` o un `accessModes` escrito por el autor genera una advertencia `unsupported-field` que lo nombra en su coordenada de autoría (`volumes.<name>.persistent.class`, `volumes.<name>.persistent.accessModes`); omitir cualquiera de los dos no genera nada. El `size` obligatorio no genera ninguna advertencia — consulta más abajo"
   },
   "1a305f57d165b3cd": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -13049,6 +13147,13 @@
     "status": "machine",
     "text": "Una referencia se resuelve en un repositorio que contiene el registro, y toda versión entre las que el descubrimiento de versiones podría haber elegido se ha marcado como retirada. No queda nada elegible que seleccionar."
   },
+  "1ea7d7b4c6b876e8": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "1ea7d7b4c6b876e8",
+    "status": "machine",
+    "text": "**La compilación se detiene cuando un nombre de export escrito por el autor es igual a uno que el proveedor deriva para un enlace entre límites en la misma compilación.** Ambas declaraciones llegarían a la plantilla ensamblada, dejando un nombre de export declarado dos veces en un mismo stack — y un nombre de export tiene que ser único, así que las dos no pueden coexistir. La detención indica el nombre de export derivado y las cuatro partes a partir de las que se construyó, para que puedas ver qué enlace lo produjo, y nombra la salida del stack bajo la que está la declaración escrita por el autor, marcada como un nombre que el proveedor ensambla y no uno que escribió una Recipe. **El nombre de export es el término que debes buscar en tus Recipes.** La entrada escrita por el autor lo escribe exactamente como la detención — esa identidad es lo que convierte a ambos en una colisión —, así que es la única cadena que aparece tanto en el mensaje como en tus propios archivos. Renombrar el nombre de export que declara esa entrada elimina la detención, y también lo hace quitar el bloque `Export:` de esa entrada y dejar que la conexión entre stacks publique el export por sí misma."
+  },
   "1ea96dc54c5f56a1": {
     "at": "2026-10-22T08:20:04.359Z",
     "job": "session-0025-20261022082004",
@@ -14287,6 +14392,13 @@
     "status": "machine",
     "text": "Predeterminado"
   },
+  "21b592b2b56a80a0": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "21b592b2b56a80a0",
+    "status": "machine",
+    "text": "**Un `DependsOn` escrito por el autor se amplía, nunca se sustituye.** Un fragmento que declara su propia restricción de orden la conserva: las entradas que escribió quedan primero, en el orden en que las escribió, y siguen las entradas de la oleada. Ambos requisitos se cumplen y ninguno oculta al otro. Se leen tanto un ID lógico único como una lista, y el valor combinado se emite como lista, que es la única forma de escribirlo que vale para cualquier número de entradas que produzca la combinación."
+  },
   "21bf64fcd7b57592": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -14405,6 +14517,13 @@
     "srcHash": "21f5c1b3318d3c94",
     "status": "machine",
     "text": "Para empezar, [Primeros pasos](../../getting-started.md) instala Aggrega y recorre paso a paso dos de estos ejemplos."
+  },
+  "21fa0aaf41976dc9": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "21fa0aaf41976dc9",
+    "status": "machine",
+    "text": "Una entrada de Outputs puede declarar su propio nombre de export"
   },
   "21fce41584d8a483": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -14662,6 +14781,13 @@
     "status": "machine",
     "text": "La entrada que no nombra nada no configura nada: su `directory`, su `subDirectory`, su `syncWave`, sus anotaciones y su `infra` por componente están escritos para un componente que no está, así que nada se renderiza bajo ellos y la compilación, de otro modo, tendría éxito con la configuración del operador silenciosamente inerte."
   },
+  "227cbc201edcabf6": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "227cbc201edcabf6",
+    "status": "machine",
+    "text": "Los tres slots de sonda de un Workload (`live`, `ready`, `startup`) se reducen al único `healthcheck` por servicio de compose, con la prioridad `live > ready > startup` (gana la señal de liveness más canónica). Donde esa reducción descarta un slot que el autor declaró, la compilación emite una advertencia `unsupported-field` que nombra el slot traducido y los slots descartados, de modo que una intención que no llega a ninguna parte de la salida se informa en lugar de perderse. Un bloque `health` que declara un solo slot se traduce sin pérdida y no emite nada, salvo que el slot establezca `successThreshold`: un healthcheck de compose no tiene campo para ello, así que un valor escrito por el autor — `1` incluido — se omite con una advertencia `unsupported-field` que lo nombra (`containers.<name>.health.<slot>.successThreshold`), y el resto del slot se traduce como muestra la tabla siguiente."
+  },
   "22882024016d31c7": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -14889,6 +15015,13 @@
     "srcHash": "23026c5c3b72d10c",
     "status": "machine",
     "text": "Para la mecánica subyacente — cómo se propagan en cascada las anotaciones, cómo la partición entre lado y pilar encamina los valores de las anotaciones hacia los pilares de la Feature y cómo la disciplina de que prevalece la vinculación explícita interactúa con las contribuciones basadas en anotaciones —, consulta [providers/well-known-annotations.md](../providers/well-known-annotations.md) y [entities/manifest.md](../entities/manifest.md), «Vinculaciones de Feature basadas en anotaciones»."
+  },
+  "23057a985039dd43": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "23057a985039dd43",
+    "status": "machine",
+    "text": "**Una solicitud de GPU reserva GPU NVIDIA.** Un contenedor de Workload que pide `nvidia.com/gpu: \"1\"` se renderiza como un servicio que lleva esta reserva, junto a cualquier `cpus` y `memory` que reserven sus solicitudes:"
   },
   "23077a312d9eb049": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -16099,6 +16232,13 @@
     "status": "machine",
     "text": "resultado"
   },
+  "25a6f409c3cc48bb": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "25a6f409c3cc48bb",
+    "status": "machine",
+    "text": "`healthcheck.test` de Compose"
+  },
   "25a87c9781e8e1c9": {
     "at": "2026-11-03T19:06:07.164Z",
     "job": "session-0145-20261103190607",
@@ -16232,6 +16372,13 @@
     "srcHash": "25d8058f81a02eda",
     "status": "machine",
     "text": "`aggrega/initialize` — handshake. Negocia la codificación de posiciones (el servidor prefiere UTF-8, luego UTF-16, luego UTF-32, y usa UTF-16 de forma predeterminada), recibe el espacio de trabajo que declaras para los diagnósticos enviados e informa de la raíz de ese espacio de trabajo, la capa de configuración de la que se resolvieron sus ajustes y el marcador que la resolvió. La respuesta lleva también `version`, la versión del binario que responde: el mismo valor que [`aggrega version`](aggrega-version.md) informa para ese binario. Describe el proceso que se está ejecutando, así que, una vez reemplazado el archivo desde el que se inició el daemon — por una recompilación en la misma ruta, por ejemplo —, `version` sigue nombrando el daemon en ejecución mientras que preguntar al archivo nombra a su sustituto; léelo aquí cuando la pregunta sea con qué versión estás hablando. `workspaceRoot` es opcional y declara un espacio de trabajo en lugar de actuar sobre él — consulta [Declarar el espacio de trabajo para el que quieres recibir diagnósticos](#declaring-the-workspace-you-want-diagnostics-pushed-for). Envía `capabilities.window.workDoneProgress: true` para indicar que tu cliente puede gestionar notificaciones de progreso; `capabilities.workDoneProgress` en la respuesta lo repite, y el campo está ausente para un cliente que no declaró nada. Consulta [Observar una operación larga](#watching-a-long-operation)."
+  },
+  "25e1c2a0d2f2b7ce": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "25e1c2a0d2f2b7ce",
+    "status": "machine",
+    "text": "Traducción de Compose"
   },
   "25e37d18cc01921a": {
     "at": "2026-10-30T19:42:05.833Z",
@@ -18376,6 +18523,13 @@
     "status": "machine",
     "text": "A valuesMapping key names no parameter of a sourced CloudFormation template (Una clave de valuesMapping no nombra ningún parámetro de una plantilla CloudFormation de origen)"
   },
+  "2b39260a118f689f": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "2b39260a118f689f",
+    "status": "machine",
+    "text": "Exposición de servicios"
+  },
   "2b3f8ec4b469e9e3": {
     "at": "2026-11-03T03:37:30.908Z",
     "job": "session-0046-20261103033730",
@@ -19404,6 +19558,13 @@
     "status": "machine",
     "text": "Qué forma te entregaron se puede leer en el valor: todo lo que tu plataforma lee como ruta absoluta es la segunda forma, y todo lo demás es relativo a la raíz del workspace. No necesitas comprobarlo para abrir el archivo (unir una relativa a la raíz y abrir una absoluta tal cual funcionan ambas cosas), pero un cliente que agrupa por documento del workspace puede distinguir las dos sin preguntar."
   },
+  "2de185bab71a2c08": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "2de185bab71a2c08",
+    "status": "machine",
+    "text": "**Cada recurso nombra todos los recursos de la oleada inmediatamente anterior que tenga recursos, y ninguna oleada anterior a esa.** CloudFormation encadena el resto: un recurso de la oleada `2` depende de la oleada `1`, que depende de la oleada `0`, así que toda la secuencia queda ordenada mientras la lista propia de cada recurso se mantiene del tamaño de una oleada y no de todo el stack. Las oleadas no tienen que ser contiguas, y los valores negativos son normales — `-1` es una elección habitual para un bucket o un rol que lee el resto del stack. La oleada más baja no nombra nada, porque nada la precede."
+  },
   "2de9062ba3202d74": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -20119,6 +20280,13 @@
     "status": "machine",
     "text": "`patches` RFC 6902 sobre el conjunto de documentos indexado por clave, más `side_effects` (emitir un nuevo documento o archivo), `diagnostics` y `outputs` que un paso posterior puede leer. La entrada del paso lleva ese conjunto de documentos indexado por clave y la entrada `with` renderizada del paso."
   },
+  "2f6f496c978eba77": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "2f6f496c978eba77",
+    "status": "machine",
+    "text": "**Modo de artefactos.** Las entradas `artifacts:` de una Recipe se evalúan como fragmentos compose, que se combinan en el archivo ensamblado según las reglas de [Fragmentos compose emitidos como artefactos](#artifacts-emitted-compose-fragments). Los artefactos pueden acompañar a una fuente o a un Workload, y también pueden ser toda la salida de una Recipe: una Recipe que declara `artifacts:` y ni `source:` ni `workload:` se renderiza aquí, aportando lo que declaren sus fragmentos. Así es como un componente que solo consta de recursos — un conjunto compartido de red y volúmenes, una configuración precargada — llega a un despliegue compose sin un Workload de relleno que ocupe el lugar de un cómputo que no tiene."
+  },
   "2f733b68ba05f284": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -20599,6 +20767,13 @@
     "srcHash": "30714fd201a8c68e",
     "status": "machine",
     "text": "**Esto detiene la compilación incluso para un paso declarado `optional: true`**, y esa distinción es todo el motivo por el que la condición está separada de un fallo del paso. Opcional tolera un paso que no pudo hacer su trabajo — una llamada que falló, un plugin que puso una objeción. No tolera una salida que el anfitrión no puede encaminar, ni una entrada que nunca tuvo la estructura que el export decía recibir: un contrato declarado es un compromiso, y una compilación que se saltara en silencio un paso cuyo contrato se rompió estaría informando de un éxito sobre una Feature que no hizo nada."
+  },
+  "307698d44ef5bde9": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "307698d44ef5bde9",
+    "status": "machine",
+    "text": "Tipo de servicio del Workload"
   },
   "3079e9747e64d4d2": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -21885,6 +22060,13 @@
     "status": "machine",
     "text": "La etiqueta de la imagen de Tempo se fija a partir de `infra.engine_version`, así que la carga de trabajo hace referencia a una etiqueta de imagen fijada."
   },
+  "3396c2c5462b0312": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "3396c2c5462b0312",
+    "status": "machine",
+    "text": "El orden que las oleadas no expresan sigue siendo asunto del propio CloudFormation, y las referencias entre recursos ya llevan buena parte de él: un `Fn::GetAtt` sobre un recurso del productor indica a CloudFormation que cree primero ese recurso. Un fragmento que necesita una restricción que ni las referencias ni las oleadas implican escribe `DependsOn` por sí mismo, que es el caso que conserva la combinación descrita arriba."
+  },
   "33977cac6bc4da58": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -22175,6 +22357,13 @@
     "srcHash": "3455423be2c4be1e",
     "status": "machine",
     "text": "La Release no nombra ninguna imagen para el agente: en Docker Compose, la Recipe del agente ejecuta entonces el agente quickstart, fijado por el digest de su índice de imágenes. El agente recibe `OPENAI_BASE_URL: http://llm:11434/v1`, `OPENAI_MODEL: llama3.2:1b` y el host y el puerto del almacén a partir de sus dos conexiones."
+  },
+  "3456ea89a4ee2f7c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "3456ea89a4ee2f7c",
+    "status": "machine",
+    "text": "**Qué es el orden: orden de creación y, a la inversa, orden de eliminación.** CloudFormation opera sobre los recursos en paralelo en la medida en que puede, y `DependsOn` anula ese paralelismo para operar sobre los recursos nombrados en un orden establecido. El atributo rige ambas direcciones, así que una oleada que crea un recurso antes también lo elimina después — la secuencia correcta de desmontaje viene con el orden sin necesitar nada más."
   },
   "345869f1adfeaf0f": {
     "at": "2026-11-03T16:48:59.633Z",
@@ -22491,6 +22680,13 @@
     "srcHash": "34f9423729f60cc2",
     "status": "machine",
     "text": "**La regla trata de cuándo se ejecuta una operación, no de qué superficie la ejecuta.** Una operación que obtiene o escribe se ejecuta porque una solicitud la nombró, y nunca como efecto secundario de validar un documento, inspeccionar un grafo o listar las entidades de un espacio de trabajo. Así, un editor que valida en cada pulsación no alcanza ninguna red ni reescribe ningún lockfile, mientras que una acción «resolver dependencias» en la que el usuario hace clic hace exactamente lo que hace `aggrega pull` — la misma resolución, tras ambas superficies, que escribe un lockfile idéntico byte a byte y llena la misma caché de artefactos."
+  },
+  "34fdd4cb6889789c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "34fdd4cb6889789c",
+    "status": "machine",
+    "text": "la primitiva compose a la que corresponde la variante de volumen referenciada — una entrada `volumes` en forma larga, una entrada `tmpfs:` a nivel de servicio o una referencia `configs:` a nivel de servicio (consulta [Volúmenes](#volumes))"
   },
   "3509b896173507d5": {
     "at": "2026-11-03T13:03:32.857Z",
@@ -26453,6 +26649,13 @@
     "status": "machine",
     "text": "Búsqueda de un Component en el catálogo"
   },
+  "3e7073b98ad103cf": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "3e7073b98ad103cf",
+    "status": "machine",
+    "text": "El proveedor compose acepta los tres tipos de entrada de una Recipe:"
+  },
   "3e77401fd5029beb": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -29908,6 +30111,13 @@
     "status": "machine",
     "text": "detiene la compilación"
   },
+  "46ef0ee44074b258": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "46ef0ee44074b258",
+    "status": "machine",
+    "text": "Sin publicación `ports:` — el servicio solo es accesible en la red de compose"
+  },
   "46f3da2799b7d5b8": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -31353,6 +31563,13 @@
     "status": "machine",
     "text": "la vinculación `shared-settings` en el límite"
   },
+  "4a41e0cba69d9307": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "4a41e0cba69d9307",
+    "status": "machine",
+    "text": "Correspondencia de funcionalidades del Workload"
+  },
   "4a448817546fc730": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -32476,6 +32693,13 @@
     "srcHash": "4d24de44b72ed3b3",
     "status": "machine",
     "text": "Una Recipe declara `source: \"\"` — una cadena vacía. El `source:` de una Recipe elige entre dos modos de autoría: el modo **sourceless**, en el que no hay ningún artefacto externo y la salida se produce por completo a partir de los demás tipos de entrada de la Recipe, y el modo **sourced**, en el que `source:` nombra un chart, un módulo o un archivo externo a partir del cual renderizar. Omitir el campo selecciona el primero, un valor no vacío selecciona el segundo y una cadena vacía no selecciona ninguno — por eso es una ambigüedad y no un valor con significado."
+  },
+  "4d266ac7d140a314": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "4d266ac7d140a314",
+    "status": "machine",
+    "text": "`environment` (forma de mapa)"
   },
   "4d26f517a3c64fe6": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -33874,6 +34098,13 @@
     "status": "machine",
     "text": "**Los pods propios del servidor de modelos, en `models`**, para que las réplicas de un mismo servidor puedan alcanzarse entre sí."
   },
+  "50c2703f28fdd6c7": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "50c2703f28fdd6c7",
+    "status": "machine",
+    "text": "El valor `syncWave:` de un límite de una Release ordena el aprovisionamiento del stack en el que se ensambla ese límite. Cada componente del límite hereda la oleada del límite, y donde varios límites se resuelven en el mismo directorio de salida — de modo que sus fragmentos se ensamblan en una sola plantilla —, el stack contiene más de una oleada y el proveedor expresa el orden entre ellas como `DependsOn`."
+  },
   "50c37f93ae51ccb0": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -33919,6 +34150,13 @@
     "srcHash": "50ee8d354d2ff314",
     "status": "machine",
     "text": "**`metadata.environment` en la Release — obligatorio.** El esquema de la Release enumera `environment` como campo `metadata` obligatorio; la build estampa su valor en la salida renderizada como la etiqueta `aggrega.ai/environment`. Consulta [`entities/release.md`](entities/release.md) para los cinco casos de uso prácticos de la sección Environment Metadata (atribución de costes OTel/FinOps, filtrado de trazas/logs OTel, orientación de operadores de Kubernetes, diferenciación de producción multirregión, delimitación del ámbito de cumplimiento)."
+  },
+  "50f0b27a8dbeb46d": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "50f0b27a8dbeb46d",
+    "status": "machine",
+    "text": "**una cantidad que compose no puede representar exactamente** — una cantidad negativa; una cantidad de memoria que no es un número entero de bytes (`1500m`, `4u`) o que supera los 9223372036854775807 bytes (`8Ei`); una cantidad de cpu más fina que nueve decimales de un núcleo, la precisión más fina que conserva la propia cantidad de Kubernetes, o mayor que 9223372036.854775807 núcleos; un número de GPU que no es un número entero de dispositivos (`0.5`, `500m`)."
   },
   "50f113645082e12b": {
     "at": "2026-11-03T20:08:39.308Z",
@@ -34478,6 +34716,13 @@
     "status": "machine",
     "text": "oci: content digest `<computed>` != manifest layer `<committed>`: oci: content digest mismatch (oci: el digest calculado del contenido difiere del que declara la capa del manifiesto: oci: discrepancia del digest de contenido)"
   },
+  "5224ee5e6ebe2091": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "5224ee5e6ebe2091",
+    "status": "machine",
+    "text": "Un nombre de volumen de compose acepta un conjunto de caracteres más reducido que el que puede llevar cualquiera de las dos identidades: letras, dígitos, puntos, guiones bajos y guiones. En lugar de sustituir un carácter que compose no acepta, la derivación lo escribe explícitamente, de modo que dos volúmenes que difieren en lo más mínimo llegan a dos nombres — y un nombre ensamblado puede leerse de vuelta en las dos identidades a partir de las que se construyó."
+  },
   "522f9ee27204b289": {
     "at": "2026-11-03T15:04:41.802Z",
     "job": "session-0121-20261103150441",
@@ -34579,6 +34824,13 @@
     "srcHash": "5265bf6f7d2ca8bc",
     "status": "machine",
     "text": "The schema-merge step's own input guard (La salvaguarda de entrada propia del paso de fusión de esquemas)"
+  },
+  "526b044ed46670fc": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "526b044ed46670fc",
+    "status": "machine",
+    "text": "Publicación `ports: [127.0.0.1:<host>:<container>]` — accesible desde el propio host y desde ningún otro lugar"
   },
   "526c838c86aaa8b2": {
     "at": "2026-11-03T16:07:28.924Z",
@@ -35105,6 +35357,13 @@
     "srcHash": "53a357a0c8569b0a",
     "status": "machine",
     "text": "**El problema:** la nube no es determinista en el momento de la creación. Recursos como las instancias de AWS RDS o los buckets de S3 generan hashes de URL aleatorios *solo después* de haberse aprovisionado físicamente. Como el compilador AOT genera la configuración *antes* de que la nube aprovisione nada, es físicamente imposible que el compilador inyecte la URL literal de la base de datos en la variable de entorno de un contenedor."
+  },
+  "53a480e304c08274": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "53a480e304c08274",
+    "status": "machine",
+    "text": "Volúmenes"
   },
   "53a89126634219a2": {
     "at": "2026-11-03T09:43:53.706Z",
@@ -36562,6 +36821,13 @@
     "srcHash": "56721f7d5604fbbb",
     "status": "machine",
     "text": "**El clasificador de jailbreak** rechaza cuando el clasificador de NVIDIA responde que el mensaje es un intento de jailbreak. La guarda envía el mensaje a su ruta `classify`; no se configura ninguna clave, porque el servicio interno del clúster no pide ninguna."
+  },
+  "56722ca1cfb185e8": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "56722ca1cfb185e8",
+    "status": "machine",
+    "text": "cualquier otra clave de recurso extendido — `amd.com/gpu` y cualquier otro `<domain>/<name>`"
   },
   "567e98fb9c80fc42": {
     "at": "2026-10-21T23:57:12.531Z",
@@ -38858,6 +39124,13 @@
     "status": "machine",
     "text": "**Compatible con la versión mayor (rango SemVer):** `implements: \"core/api-server:^1.0.0\"` — coincide con `>=1.0.0, <2.0.0`. Pensada para Recipes que se apoyan en las garantías de compatibilidad SemVer del Component: se asume que los incrementos menores y de parche son retrocompatibles según SemVer, y el compilador comprueba que la versión del Component satisface el rango."
   },
+  "5b8b24c874c18ab7": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "5b8b24c874c18ab7",
+    "status": "machine",
+    "text": "Los `resources` de un contenedor llegan al bloque `deploy.resources` de compose, que docker compose respeta en modo no swarm. Las `requests` de Kubernetes expresan un mínimo garantizado, así que se convierten en `reservations` de compose; los `limits` expresan un tope estricto, así que siguen siendo `limits`."
+  },
   "5b8f3592a2698a41": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -40205,6 +40478,13 @@
     "status": "machine",
     "text": "El primero lee las conexiones que escribiste en el Aggregate, e informa mientras se resuelven tus archivos. Nombra el mecanismo de entrega, la clave, y luego el socket y el alias de la primera conexión, en el orden de escritura, que también la reclama:"
   },
+  "5f0f0813d59d0b85": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "5f0f0813d59d0b85",
+    "status": "machine",
+    "text": "🔴 **La ruta de montaje es la ruta de un único archivo, no de un directorio.** Compose escribe el contenido de la config exactamente en la ruta de destino, mientras que un destino Kubernetes que monta un ConfigMap en una ruta produce un *directorio* que contiene un archivo por clave. Así, el mismo `path:` escrito designa aquí un archivo y allí un directorio: apunta el montaje de un volumen `configmap` al nombre de archivo que el contenedor debe leer (`/seed/config.json`), no al directorio que lo contendría, y una Recipe escrita para ambos destinos lleva una ruta distinta para cada destino. Nada en la compilación puede detectar una ruta escrita para la forma del otro destino — la ruta es una cadena opaca que el compilador transmite tal cual, y la salida emitida es válida en ambos casos. La referencia es por **nombre**, exactamente como un destino Kubernetes hace referencia a un recurso ConfigMap — nada lee el contenido de la config. La entrada `configs:` de nivel superior correspondiente proviene de la entrada `artifacts:` de la Recipe, cuyo fragmento de compose la declara con `content:` en línea; una referencia sin esa entrada detiene la compilación (consulta [Fragmentos compose emitidos como artefactos](#artifacts-emitted-compose-fragments)). Una referencia `configs:` lleva el nombre de la config y la ruta de montaje y nada más, por lo que el `readOnly` del montaje no tiene una expresión propia"
+  },
   "5f1067559e88ff5e": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -40629,6 +40909,13 @@
     "srcHash": "6033c91d2cb663ff",
     "status": "machine",
     "text": "El campo es opcional, y las tres cosas que puedes querer decir con él se pueden distinguir:"
+  },
+  "6036ca2730c852d1": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "6036ca2730c852d1",
+    "status": "machine",
+    "text": "Un montaje escrito sin `subPath` no lleva ningún bloque `volume:`. Un `subPath` en un montaje de un volumen `ephemeral`, `configmap` o `secret` detiene la compilación con un error `TRANSLATION_ERROR` que nombra el componente, el contenedor, la ruta escrita del montaje (`containers.<name>.volumeMounts[<i>]`), el volumen y el `subPath`: esas variantes llegan a compose como una entrada `tmpfs`, una referencia `configs:` y un montaje bind, ninguno de los cuales monta una parte de lo que entrega, así que de otro modo el montaje vería el volumen entero. Quita `subPath` de un montaje así, o monta un volumen `persistent`. Docker Compose lee `volume.subpath` desde la versión 2.26.0, en Docker Engine 26.0 o posterior; la compilación no puede ver el host que ejecutará el archivo, por lo que un archivo que lleve uno se ensambla igual dondequiera que vaya a ejecutarse."
   },
   "6037ca10a1542bb3": {
     "at": "2026-11-03T00:27:36.365Z",
@@ -41941,6 +42228,13 @@
     "srcHash": "636485868971eac5",
     "status": "machine",
     "text": "autor"
+  },
+  "636a020140f08636": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "636a020140f08636",
+    "status": "machine",
+    "text": "referencia `configs:` a nivel de servicio que nombra el configmap, montado en la ruta del montaje del volumen"
   },
   "636a457179df8091": {
     "at": "2026-11-03T11:32:02.259Z",
@@ -43807,6 +44101,13 @@
     "status": "machine",
     "text": "**Las plantillas de ruta** (`directory:` / `subDirectory:` de los límites de la Release) se evalúan con `missingkey=error`. Una referencia a una variable que la superficie no les da detiene la compilación en el momento del análisis — consulta «Path-template references a variable outside the allowlist (La plantilla de ruta hace referencia a una variable fuera de la lista de permitidos)» más arriba — y lo mismo ocurre con una clave mal escrita bajo `.manifest`, cuyas claves están declaradas. Una referencia permitida pero no definida en el momento de la evaluación, como una clave de `.parameters` que la Release no aporta, produce un error explícito en lugar de renderizar en silencio una cadena vacía en una ruta de directorio."
   },
+  "6839691e0bacb2d4": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "6839691e0bacb2d4",
+    "status": "machine",
+    "text": "volumen con nombre + declaración `volumes: { <volume-name>: {} }` de nivel superior, con el nombre formado según [Cómo se deriva un nombre de volumen](#how-a-volume-name-is-derived)"
+  },
   "683b9941aa375ebe": {
     "at": "2026-11-03T06:41:11.801Z",
     "job": "session-0065-20261103064111",
@@ -43834,6 +44135,13 @@
     "srcHash": "6859fa7f7e10aacf",
     "status": "machine",
     "text": "**Por qué:** por convención, los Components son agnósticos respecto a las capacidades. Los destinos de hardware físico residen en las Recipes de Ops o en anotaciones `.context` genéricas, no dentro de la lógica cognitiva central de la aplicación."
+  },
+  "685c719e09441b7e": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "685c719e09441b7e",
+    "status": "machine",
+    "text": "**El orden entre dos stacks no es expresable, y no se aproxima.** `DependsOn` nombra un recurso dentro de la misma plantilla, y los componentes que se ensamblan en otro stack quedan fuera de ella. Así, una oleada ordena cada recurso del stack en el que se ensambla y nada más allá. Secuenciar dos stacks es asunto del operador, del mismo modo que una referencia entre stacks es una resolución en tiempo de despliegue y no en tiempo de compilación."
   },
   "685dbf3a80b2afad": {
     "at": "2026-11-03T18:11:00.667Z",
@@ -44611,6 +44919,13 @@
     "status": "machine",
     "text": "**Cómo corregirlo:** nada en tus archivos de entidades causa esto — las rutas provinieron del proveedor. Infórmalo a quien lo publique, citando la ruta que nombra el mensaje. Si el proveedor es tuyo, devuelve cada ruta de salida como máximo una vez: construye la lista de rutas frente a un conjunto, para que un segundo archivo en una misma ruta se detecte donde se produce, y da al segundo archivo una ruta distinta si se quieren ambos."
   },
+  "6a18936376678198": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "6a18936376678198",
+    "status": "machine",
+    "text": "**No es un orden de disponibilidad.** Una plantilla de stack no expresa ninguna noción de que un recurso esté operativo, así que nada aquí espera a que uno esté listo — solo a que CloudFormation termine de crearlo. Esa es una diferencia real respecto a la misma oleada en [compose](compose.md#deployment-wave-ordering), donde se espera a un servicio que declara un `healthcheck` hasta que informa de que está sano: compose tiene una primitiva de disponibilidad sobre la que esperar y una plantilla de stack no tiene ninguna. El orden de creación es lo que ofrece este destino, y decirlo claramente es más útil que una advertencia adjunta a una promesa que no puede cumplir."
+  },
   "6a18fee62ce60bf7": {
     "at": "2026-11-03T16:48:59.633Z",
     "job": "session-0130-20261103164859",
@@ -45312,12 +45627,26 @@
     "status": "machine",
     "text": "Cualquiera de los tres campos puede informar de cualquiera de esos finales; un valor que no tiene ninguna de las dos formas termina con `line <line>: <shape> is written where text or a map is expected`, nombrando lo que se escribió — casi siempre `a list`."
   },
+  "6bebf16ed2c82f22": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "6bebf16ed2c82f22",
+    "status": "machine",
+    "text": "**Un volumen dice qué variante es y nada más.** Un volumen `secret` tiene exactamente una traducción — el montaje bind de solo lectura descrito arriba — y un volumen no lleva ningún campo `as:` para seleccionar otra. Entregar lo que un slot publicó como variable de entorno corresponde a una entrada `attachments` del contenedor (`as: env`) y no a un volumen; lo que compose hace con una entrada así se describe en [Lo que el proveedor compose no entrega](#what-the-compose-provider-does-not-deliver)."
+  },
   "6bf598c7be6549eb": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
     "srcHash": "6bf598c7be6549eb",
     "status": "machine",
     "text": "A un asistente de soporte le hacen las mismas preguntas todo el día con palabras ligeramente distintas. El gateway situado delante de su modelo puede responder a una pregunta a partir de la respuesta que dio a una anterior lo bastante cercana en significado, en lugar de volver a llamar al modelo. Este workspace compila un gateway así a manifiestos de Kubernetes, con el almacén en el que guarda esas respuestas."
+  },
+  "6c0139f5b134db6e": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "6c0139f5b134db6e",
+    "status": "machine",
+    "text": "**La comprobación tiene ámbito de compilación, y su ámbito es un stack.** Compara los nombres de export que declara un stack ensamblado con los nombres que el proveedor deriva para los enlaces entre límites que publican en ese mismo stack — la comparación que la compilación puede hacer a partir de lo que ha ensamblado. Dos stacks no se comparan entre sí. Y lo que un nombre escrito por el autor encuentra entre los exports ya desplegados en una cuenta y una región es una propiedad del despliegue, que queda fuera del alcance de cualquier derivación en tiempo de compilación, por la razón expuesta en *Frente a qué es único un nombre de export, y dónde termina eso*: el compilador no se autentica ante AWS, no lo consulta y no puede leer la salida de otra compilación. Un nombre de export escrito como función intrínseca en lugar de como cadena simple queda al otro lado de la misma línea — se resuelve en tiempo de despliegue, y nada aquí evalúa una función intrínseca, así que no hay ningún nombre que la compilación pueda comparar."
   },
   "6c05d9444f7ec3c4": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -46921,6 +47250,13 @@
     "status": "machine",
     "text": "Convierte texto fuente externo (HCL, TOML, YAML, JSON, JSON con comentarios) en un árbol JSON canónico."
   },
+  "6fbd766b1a71cc4d": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "6fbd766b1a71cc4d",
+    "status": "machine",
+    "text": "Traducción"
+  },
   "6fbde012fe00ca83": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -47215,6 +47551,13 @@
     "srcHash": "7088287139b37614",
     "status": "machine",
     "text": "`aggrega build` con un lockfile completo, que lee todo su cierre desde la caché. El único acceso que tiene es una reparación: donde la copia en el almacén de una entrada externa fijada ha desaparecido, esa entrada se vuelve a obtener por el digest que el lockfile ya registra. Con la postura activa no hay transporte ni siquiera para eso, así que la copia que falta detiene en cambio la compilación, nombrando la postura."
+  },
+  "7088ac09dce6df8b": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "7088ac09dce6df8b",
+    "status": "machine",
+    "text": "**El `subPath` de un montaje monta una parte de un volumen donde compose tiene una forma para ello.** Una entrada `volumeMounts` que nombra un volumen `persistent` o `persistentTemplate` con `subPath` se convierte en una entrada `volumes` en forma larga que lleva `volume.subpath`, de modo que el montaje ve el directorio o el archivo nombrado dentro del volumen en lugar de su raíz, y dos montajes de un mismo volumen con dos valores `subPath` distintos ven dos partes distintas de él:"
   },
   "7089324895d46eb5": {
     "at": "2026-11-03T08:01:06.602Z",
@@ -48736,6 +49079,13 @@
     "status": "machine",
     "text": "Su grafo de topología es el grafo IR. La extensión envía `aggrega/irGraph` para la Release seleccionada y dibuja la respuesta: las fronteras y los subsistemas como contenedores anidados, los componentes como nodos, las conexiones como aristas y, en un nodo o una conexión seleccionados, las Features asociadas a él. El compilador envía la topología y nunca coordenadas; la disposición se calcula en el editor. Asociar una Feature desde el grafo también pasa por el daemon: el compilador nombra el documento y el lugar dentro de él donde corresponde la asociación, y la extensión la escribe allí. Consulta [el grafo de topología](../authoring/editor.md#features) para ver lo que muestra y hace la vista."
   },
+  "742ef3051018f1af": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "742ef3051018f1af",
+    "status": "machine",
+    "text": "`command` (forma de lista) — proporciona los argumentos que recibe el punto de entrada, que es lo que sobrescribe el `command` de compose"
+  },
   "742ef82b215a2133": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -49186,6 +49536,13 @@
     "srcHash": "7531624cb8171430",
     "status": "machine",
     "text": "a plugin could not resolve something it requires to exactly one value (un plugin no pudo resolver a exactamente un valor algo que requiere) cloudformation-provider: the Recipe's or FeatureRecipe's valuesMapping writes the key `\"<key>\"`, and no template of the source declares a parameter of that name: template `\"<template>\"` declares `\"<parameter>\"`, …; a sourced template takes values only through the parameters it declares, so rename the key to the parameter it is meant for, or remove it from the valuesMapping (cloudformation-provider: el valuesMapping de la Recipe o la FeatureRecipe escribe la clave indicada, y ninguna plantilla de la fuente declara un parámetro con ese nombre: la plantilla indicada declara el parámetro indicado, …; una plantilla de origen recibe valores solo a través de los parámetros que declara, así que renombra la clave al parámetro al que está destinada, o elimínala del valuesMapping)"
+  },
+  "7533092a591b353d": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "7533092a591b353d",
+    "status": "machine",
+    "text": "El campo `type` de una entrada `services` del Workload decide si compose publica puertos, y en qué dirección del host:"
   },
   "75345ba4441165e3": {
     "at": "2026-11-03T18:10:58.903Z",
@@ -49865,6 +50222,13 @@
     "srcHash": "767142cb689018bf",
     "status": "machine",
     "text": "compila, idéntico byte a byte de una compilación a la siguiente"
+  },
+  "7682ba6395ca8059": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "7682ba6395ca8059",
+    "status": "machine",
+    "text": "Campo `healthcheck` de Compose"
   },
   "7684010fdf74abe5": {
     "at": "2026-10-30T19:34:19.728Z",
@@ -52082,6 +52446,13 @@
     "status": "machine",
     "text": "Asigna `storage.size` a una carga útil de Terraform `.tf.json`."
   },
+  "7badce93e247678c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "7badce93e247678c",
+    "status": "machine",
+    "text": "**Modo procedente de una fuente.** Una Recipe con `source:` que apunta a un archivo compose existente más `valuesMapping:` que produce un documento de superposición. Se carga el archivo compose base, se evalúa la superposición y ambos se combinan en profundidad según la semántica de superposición nativa de docker-compose."
+  },
   "7baebf9990e42d85": {
     "at": "2026-11-03T16:49:01.800Z",
     "job": "session-0131-20261103164901",
@@ -52811,6 +53182,13 @@
     "status": "machine",
     "text": "`aggrega.ai/aws-assume-role-arn` — el ARN del rol de IAM que asume una lectura de stack entre cuentas para llegar a los valores exportados de un stack homólogo."
   },
+  "7d6e6313f6ac780f": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "7d6e6313f6ac780f",
+    "status": "machine",
+    "text": "Forma de sonda del Workload"
+  },
   "7d7508b77e8788c4": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -52824,6 +53202,13 @@
     "srcHash": "7d7d9fb710fc579b",
     "status": "machine",
     "text": "una ejecución de todo el catálogo, cuando está en un directorio de catálogo"
+  },
+  "7d8ccfa9c302d1f9": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "7d8ccfa9c302d1f9",
+    "status": "machine",
+    "text": "**Transporte de los puertos.** Una entrada publicada lleva el transporte declarado en el puerto de contenedor que nombra, como el sufijo `/protocol` de compose: `53:53/udp`, o `127.0.0.1:53:53/udp` para una entrada `Loopback`. Un puerto que no declara ningún transporte se publica como `<host>:<container>` sin sufijo, lo que deja en vigor el valor predeterminado de compose. Compose escribe el transporte de un puerto publicado como `tcp` o `udp`; un puerto que declara `SCTP` no tiene grafía en compose, así que detiene la compilación con un error `TRANSLATION_ERROR` en lugar de publicar un puerto que llevaría un transporte distinto. Un puerto de contenedor que ningún servicio publica no llega a ninguna parte del archivo compose, así que un transporte declarado en un puerto así no tiene dónde escribirse y no detiene la compilación."
   },
   "7d9048ca49311737": {
     "at": "2026-11-03T16:27:44.181Z",
@@ -52866,6 +53251,13 @@
     "srcHash": "7d99ae7ff9931f25",
     "status": "machine",
     "text": "**Colisiones de ubicación OCI**: dos identidades de catálogo distintas que publicarían en la misma ubicación del registry se rechazan de forma explícita, de modo que una compilación nunca sobrescribe en silencio los bytes publicados de una entidad con los de otra."
+  },
+  "7d9d484c16cfaf0a": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "7d9d484c16cfaf0a",
+    "status": "machine",
+    "text": "La misma conversión"
   },
   "7d9eb503907847c0": {
     "at": "2026-11-02T23:06:17.995Z",
@@ -54990,6 +55382,13 @@
     "status": "machine",
     "text": "**Ejemplo B: el Component que extiende (especializar la línea base)** Un gateway se especializa a partir de esa línea base. Toma completos los pilares de la base, añade estructura propia —una etiqueta, un mecanismo de autoinyección, un socket de topología con una ranura de adjunción— y restringe el tiempo de espera heredado mediante una aserción. No repite la regla `audit-window-is-observable` de la línea base: esa regla se hereda y se evalúa primero, por lo que una instancia de este gateway debe satisfacer ambos límites: al menos 100 y como máximo 2000."
   },
+  "8348eed00a69c318": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "8348eed00a69c318",
+    "status": "machine",
+    "text": "Un volumen de secreto deliberadamente **no** sigue la traducción `configmap`: una entrada `configs:` en línea escribiría el valor del secreto en texto plano en el archivo compose emitido, y el compilador nunca resuelve un secreto en texto plano — un secreto sigue siendo un puntero en todas las etapas de la compilación. El origen del bind es el nombre `source` del secreto, resuelto como una ruta que el operador hace accesible en el host de compose con independencia de la compilación"
+  },
   "834c44ec3682e41e": {
     "at": "2026-11-03T10:00:41.851Z",
     "job": "session-0087-20261103100041",
@@ -55052,6 +55451,13 @@
     "srcHash": "837452cbc7e949ec",
     "status": "machine",
     "text": "**[quickstart-ai](quickstart-ai/)** — un agente LangGraph que crece paso a paso, cada paso un workspace propio: el agente sobre un modelo Ollama local con sus conversaciones guardadas en Valkey, luego un gateway LiteLLM que añade un modelo OpenAI alojado con el local como respaldo, luego guardrails en el gateway — datos personales enmascarados en sus registros por Presidio e inyección de prompts rechazada por patrón — y por último los mismos componentes construidos para Kubernetes, con la clave de OpenAI leída allí de un Secret. Los tres pasos de Compose se ejecutan en tu máquina con `docker compose up` y no necesitan ninguna clave de API. Un script junto a él compila cada paso y comprueba cada resultado."
+  },
+  "8378c48dd6a4e6cb": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "8378c48dd6a4e6cb",
+    "status": "machine",
+    "text": "Un volumen `persistent` o `persistentTemplate` se convierte en un volumen con nombre de compose: una entrada `volumes:` de nivel superior, referenciada por cada contenedor que lo monta. Un volumen de compose es almacenamiento compartido, y el bloque `volumes:` de nivel superior une sus entradas por nombre — así que dos volúmenes escritos que llegan a un mismo nombre se convierten en un solo volumen en el que escriben ambos contenedores, sin nada en el archivo emitido que muestre que se pretendían dos. Por eso el nombre se construye a partir de las dos identidades que juntas dicen de qué volumen se trata: el `<component>` al que pertenece el volumen, y el nombre que el Workload dio al volumen bajo `volumes:`."
   },
   "8379ca5cb26455d6": {
     "at": "2026-11-03T03:00:32.047Z",
@@ -55466,6 +55872,13 @@
     "srcHash": "84989bc2db4989fa",
     "status": "machine",
     "text": "**Un par de claves compartido, tomado por referencia.** El Store Gateway se autentica ante el almacén de objetos con la propia cuenta del almacén, así que ambos comparten un único par de claves. El módulo toma cada mitad como parámetro, `s3_access_key` y `s3_secret_key`, y vincula la Feature de credenciales `core/referenced-secret` con cada una dos veces: a las ranuras `access_key_id` y `secret_access_key` del almacén de objetos, y como `credential_id` y `credential` de la conexión del Store Gateway al almacén de objetos, la conexión en la que el gateway las presenta. Cada carga de trabajo lee ambas de Secrets en lugar de llevarlas en línea. Como el módulo vincula esa Feature, el Manifest la asigna. Este ejemplo deja los parámetros en los valores predeterminados de desarrollo del módulo y asigna la Feature a `k8s-secret-from-parameter`, que emite un Secret que lleva cada valor, así que el stack funciona de forma autónoma. Para una Release que lleva tráfico real, el Aggregate declara parámetros propios y los pasa hacia abajo a través de `aggregates.metrics.parameters`, la Release los satisface, y el Manifest asigna la Feature a `k8s-existing-secret`, que lee cada parámetro como el nombre de un Secret que ya existe en el namespace."
+  },
+  "84994198f51cc13b": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "84994198f51cc13b",
+    "status": "machine",
+    "text": "**un valor que no es una cantidad** — `lots`, `1.5 cores`, o la `m` que una plantilla vacía deja en `\"{{ .infra.cpu }}m\"`;"
   },
   "849e3283827b08c4": {
     "at": "2026-10-22T13:57:55.995Z",
@@ -60162,6 +60575,13 @@
     "status": "machine",
     "text": "Ámbito de ejecución — `spec.executionScope`"
   },
+  "8f6e567898b38d75": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "8f6e567898b38d75",
+    "status": "machine",
+    "text": "Sondas"
+  },
   "8f6fb4eb7f42c0e2": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -60470,6 +60890,13 @@
     "status": "machine",
     "text": "**Aggrega: Set authoring_release in .aggrega-config.yaml…** abre el archivo de configuración para que puedas establecer `build.authoring_release`. Esa configuración se confirma en el repositorio y se comparte, y tiene prioridad sobre el archivo marcador. Cuando el servidor de lenguaje informa de que el archivo de configuración es un enlace que sale del workspace de Aggrega, el archivo no se abre, y un error indica que sale del workspace, por lo que Aggrega no lo usa; el control de la página de bienvenida que crea una configuración del workspace hace lo mismo con un archivo que ya encuentra allí."
   },
+  "9039fe69f9fe71b3": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "9039fe69f9fe71b3",
+    "status": "machine",
+    "text": "Sin publicación `ports:`"
+  },
   "903c09685f56c989": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -60740,6 +61167,13 @@
     "srcHash": "90ee07846706634c",
     "status": "machine",
     "text": "`cross_boundary_linking` (opcional) — si el guest conecta una arista `uses` entre límites a través de sus exports `link_publish` y `link_resolve`; un guest lo declara verdadero exactamente cuando exporta ambos, y la carga rechaza un guest cuyo indicador y cuyos exports no coinciden."
+  },
+  "90f098d947e84130": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "90f098d947e84130",
+    "status": "machine",
+    "text": "El proveedor compose renderiza Recipes de Aggrega en un archivo Docker Compose. El proveedor ensambla por `(path, provider)`: los contribuidores compose de cada límite se encaminan al ensamblador indexado por el `directory:` evaluado del límite unido al `subDirectory:` de cada componente, y ese ensamblador emite un único `docker-compose.yaml` que contiene a todos los contribuidores de esa ruta. Dos límites hermanos que se evalúan a la misma ruta se funden en un único archivo compose combinado — el ejemplo canónico es un límite padre más dos límites hijos con `directory: \"{{ .parent_boundary.directory }}\"` (el [patrón compose-bridge](../entities/featurerecipe.md#the-compose-bridge-pattern))."
   },
   "90f5c819fc8ff9bf": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -62606,6 +63040,13 @@
     "status": "machine",
     "text": "A. Exfiltración de datos e interceptación de cargas útiles"
   },
+  "95a2eb69226b37d2": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "95a2eb69226b37d2",
+    "status": "machine",
+    "text": "Un número decimal de núcleos. Un número de núcleos escrito como número simple (`2`, `0.5`) se emite tal como está escrito; cualquier otra forma se convierte a partir de su valor (`500m` → `0.5`, `1500m` → `1.5`, `5n` → `0.000000005`, `1e1` → `10`)"
+  },
   "95abc4c9f3aca4ab": {
     "at": "2026-11-03T19:48:08.904Z",
     "job": "session-0149-20261103194808",
@@ -63597,6 +64038,13 @@
     "srcHash": "97dc7eeb2d46c273",
     "status": "machine",
     "text": "`ASSISTANT_ENDPOINT` y `ASSISTANT_MODEL` llegaron a través de `assistant`, el socket ad hoc, llevando el `provides.endpoint` y el `provides.model` de la Recipe del modelo."
+  },
+  "97e2f161d7b837aa": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "97e2f161d7b837aa",
+    "status": "machine",
+    "text": "Un valor vacío se escribe `-ze`, que ningún valor no vacío puede producir."
   },
   "97e3daf24ab9ddc6": {
     "at": "2026-11-03T21:35:44.738Z",
@@ -66814,6 +67262,13 @@
     "status": "machine",
     "text": "1. Un compilador determinista, no un generador de IaC"
   },
+  "9fb4438da5c1edfd": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "9fb4438da5c1edfd",
+    "status": "machine",
+    "text": "El bloque `Outputs:` de una Recipe es CloudFormation escrito por el autor, y una entrada en él puede llevar su propio `Export:` con un `Name:`. Ese nombre llega al stack ensamblado exactamente como está escrito — el proveedor no lo reescribe, no le añade un prefijo y no exige que se parezca a uno derivado."
+  },
   "9fba9512e2dcee1d": {
     "at": "2026-11-03T10:00:41.851Z",
     "job": "session-0087-20261103100041",
@@ -67301,6 +67756,13 @@
     "srcHash": "a0a65a8dac848750",
     "status": "machine",
     "text": "`persistentTemplate` — la generación de volúmenes por réplica a partir de una plantilla no está disponible, así que el volumen se reduce a un único volumen persistente compartido en lugar de desaparecer."
+  },
+  "a0a85d5aebae453e": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "a0a85d5aebae453e",
+    "status": "machine",
+    "text": "Complemento de `form: stateful`; compose no tiene una primitiva de plantillas de volumen por réplica, así que el comportamiento por réplica se pierde, y una advertencia `unsupported-field` indica que el volumen se convirtió en un único volumen que comparten todas las réplicas. La clase de almacenamiento, los modos de acceso y el tamaño no se conservan, exactamente como en `persistent`: un `class` o un `accessModes` escrito por el autor genera una advertencia `unsupported-field` en `volumes.<name>.persistentTemplate.class` o `volumes.<name>.persistentTemplate.accessModes`, y el `size` obligatorio no genera ninguna"
   },
   "a0ab04e706966d37": {
     "at": "2026-11-03T05:31:59.590Z",
@@ -67941,6 +68403,13 @@
     "srcHash": "a1c85109f8d7f5ff",
     "status": "machine",
     "text": "**La frontera del sandbox preaprovisionado:** Para las herramientas efímeras inventadas en tiempo de ejecución, el arquitecto define una funcionalidad (p. ej., `dynamic-execution-environment`). Al adjuntarla, el plugin de renderizado Wasm genera la configuración para aprovisionar un pool de cómputo restringido (como un runtime de WebAssembly). El metaagente inyecta código nuevo en este sandbox, pero su radio de impacto queda limitado de forma permanente por las políticas de red estáticas generadas."
+  },
+  "a1ca3d0d8fd00191": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "a1ca3d0d8fd00191",
+    "status": "machine",
+    "text": "bind-mount de `volumes` en forma larga, de solo lectura"
   },
   "a1dae529cffa38b0": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -69492,6 +69961,13 @@
     "status": "machine",
     "text": "Es una pestaña normal del editor y no un cuadro de diálogo a propósito: cada paso te pide que señales algo de tu propio espacio de trabajo, y un cuadro de diálogo taparía los archivos que contienen las respuestas. Está en el área del editor en lugar de en la vista de Aggrega, así que no ocupa espacio en la barra lateral y puede decir qué es el producto, algo para lo que una columna estrecha no tiene sitio. Es la pestaña propia de Aggrega, que se abre y se cierra en sus propios términos, y no ofrece ningún camino a la página de bienvenida del propio editor."
   },
+  "a57fc493cc984e81": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "a57fc493cc984e81",
+    "status": "machine",
+    "text": "Cómo se deriva un nombre de volumen"
+  },
   "a580478e9b2096c6": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -69701,6 +70177,13 @@
     "srcHash": "a5f4376725650c79",
     "status": "machine",
     "text": "Una vez que existe el lockfile, el comando simple compila contra él:"
+  },
+  "a5f74b5a9b6b3f59": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "a5f74b5a9b6b3f59",
+    "status": "machine",
+    "text": "Variante de volumen del Workload"
   },
   "a5fa1c3b1907125f": {
     "at": "2026-11-03T15:26:13.355Z",
@@ -70323,6 +70806,13 @@
     "status": "machine",
     "text": "adónde van los push"
   },
+  "a756700a72113a98": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "a756700a72113a98",
+    "status": "machine",
+    "text": "Campo del Workload"
+  },
   "a7568651c0e3473f": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -70744,6 +71234,13 @@
     "srcHash": "a86b8dc3816b5f5b",
     "status": "machine",
     "text": "**Las colisiones de nombres de archivo entre tipos de entrada son errores en tiempo de renderizado.** Si dos de los tipos de entrada de una Recipe —salida renderizada desde la fuente, salida sintetizada desde la carga de trabajo o salida emitida desde los artefactos— producen un archivo con el mismo nombre, el compilador emite un error fatal que identifica a cada contribuyente. Esta comprobación se ejecuta después de la traducción del Workload, por lo que ocurre en tiempo de renderizado y no de carga."
+  },
+  "a87057ae1506e997": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "a87057ae1506e997",
+    "status": "machine",
+    "text": "**Cambiar cualquiera de las dos identidades renombra el volumen de compose, y compose no renombra un volumen en su sitio.** El volumen se crea de nuevo con el nuevo nombre mientras el antiguo queda atrás con los datos dentro, así que el contenedor arranca con un almacenamiento vacío y el contenido queda en un volumen que nada monta. Renombra cualquiera de las dos identidades solo como un reemplazo que hay que planificar — con copia de seguridad, copiando los datos o programado — y no como un cambio que se despliega sin más."
   },
   "a871fac320987adf": {
     "at": "2026-10-22T14:15:44.761Z",
@@ -71756,6 +72253,13 @@
     "srcHash": "aae2b221d257878f",
     "status": "machine",
     "text": "Fuerza la visualización del progreso del pull incluso cuando stderr no es una terminal, imprimiendo una línea simple por paso a medida que se completa, con su tiempo. El valor predeterminado es auto: la lista interactiva de fases solo se muestra cuando stderr es una terminal que interpreta secuencias de escape, una terminal que no las interpreta recibe las mismas líneas simples, y la salida redirigida o canalizada no recibe ninguna"
+  },
+  "aae33a71a2c1bd48": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "aae33a71a2c1bd48",
+    "status": "machine",
+    "text": "Una entrada de dispositivo NVIDIA en el servicio del contenedor — `driver: nvidia`, `count:` el número de GPU, `capabilities: [gpu]`. El número es el del límite donde hay un límite escrito — el número que Kubernetes planifica para un recurso extendido — y el de la solicitud en caso contrario. Un número de `0` no pide ninguna GPU y no escribe ninguna entrada"
   },
   "aaff5f3fdce79920": {
     "at": "2026-11-03T11:32:05.600Z",
@@ -74106,6 +74610,13 @@
     "status": "machine",
     "text": "**3. Dominio Dev: el Aggregate**"
   },
+  "b035d14cde83a3b1": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "b035d14cde83a3b1",
+    "status": "machine",
+    "text": "Los tres tipos se combinan por adición, y una Recipe que no declara ninguno se rechaza al cargarse. Un `valuesMapping:` sin un `source:` al lado también se rechaza al cargarse la Recipe, sea cual sea el proveedor que nombre: no hay nada a lo que aplicar la superposición, y el diagnóstico te pide que declares el puntero `source:` o que elimines el `valuesMapping:`."
+  },
   "b036311dc7220a39": {
     "at": "2026-11-03T03:37:29.359Z",
     "job": "session-0045-20261103033729",
@@ -75188,6 +75699,13 @@
     "status": "machine",
     "text": "`aggrega/lint` no publica nada en la sesión. Responde sobre el sujeto que se le dio, y escribir sus hallazgos en la lista de problemas del editor reemplazaría lo que una validación publicó para archivos que la solicitud nunca cubrió. No se escribe nada en disco en ningún modo."
   },
+  "b2c598b005894a1e": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "b2c598b005894a1e",
+    "status": "machine",
+    "text": "Publicación `ports: [<host>:<container>]`, en todas las interfaces del host"
+  },
   "b2c9c54e0d2989f4": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -75261,6 +75779,13 @@
     "srcHash": "b2d8940a3f106c52",
     "status": "machine",
     "text": "Los slots de parámetro aceptan cualquier tipo que admita la forma compacta, incluidos objetos anidados y arrays de elementos tipados:"
+  },
+  "b2d991dc7c194e9f": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "b2d991dc7c194e9f",
+    "status": "machine",
+    "text": "Publicación `ports: [<host>:<container>]`, en todas las interfaces del host (compose no tiene un equivalente de balanceador de carga gestionado; la publicación en un puerto del host es el análogo más cercano)"
   },
   "b2dddedf43d9affc": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -75683,6 +76208,13 @@
     "status": "machine",
     "text": "**Un servidor de lenguaje que se detiene sin que se le pida se vuelve a iniciar, un número limitado de veces.** Cuando un servidor en ejecución termina, la extensión inicia uno nuevo; si ese también termina — al iniciarse, antes de haber respondido a la solicitud inicial de la extensión, o una vez en ejecución — se vuelve a iniciar a su vez, hasta `aggrega.server.respawnAttempts` reinicios en `aggrega.server.respawnWindowSeconds` segundos. El final posterior al último de ellos deja el servidor detenido y muestra **Aggrega language server has stopped responding.** (El servidor de lenguaje de Aggrega ha dejado de responder.), nombrando el comando que lo vuelve a iniciar, y a partir de ahí nada lo vuelve a iniciar por sí solo — así, un servidor que muere cada vez que se inicia se vuelve a iniciar ese número de veces y no más. El canal de salida de Aggrega describe cada paso con palabras: que el servidor se detuvo inesperadamente y cómo terminó, cada reinicio y cuántos permite el ajuste, un reinicio que no llegó a arrancar y por qué, y que no se vuelve a iniciar. Una detención o un reinicio que pediste — el comando de reinicio, un cambio de `aggrega.server.binaryPath` o un cambio de configuración que hizo la propia extensión — no se cuenta, y un reinicio pone el recuento a cero. El primer inicio, y un reinicio que pediste, no se repiten cuando fallan: cada uno termina en la notificación de que el servidor de lenguaje no pudo iniciarse, con el motivo."
   },
+  "b396c0d813987a63": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "b396c0d813987a63",
+    "status": "machine",
+    "text": "Cuando una Recipe declara `workload:`, el proveedor traduce la forma Workload propiedad de la plataforma a primitivas compose. La correspondencia es intencionadamente estrecha — la superficie de Compose es más pobre en formas que la de Kubernetes, y varias funcionalidades del Workload se degradan al equivalente compose más cercano con una pérdida documentada."
+  },
   "b399086193eb66c3": {
     "at": "2026-10-30T20:55:02.570Z",
     "job": "session-0019-20261030205502",
@@ -75794,6 +76326,13 @@
     "srcHash": "b3c1cbdc70529ef0",
     "status": "machine",
     "text": "connection alias is already used by another connection of the same component (`\"<alias>\"`, on component `\"<component>\"`, this connection wired into socket `\"<socket>\"`, with target `\"<target>\"`, written in `\"<file>\"`, at `\"<key path>\"`, the connection already holding the alias wired into socket `\"<socket>\"`, with target `\"<target>\"`, written in `\"<file>\"`, at `\"<key path>\"`). Give one of the two connections an alias of its own: a component reads each connection by its alias, whatever socket it is wired into. A list entry takes its target's name as its alias, so a target listed twice is listed once, or written as two keyed entries under two aliases. (el alias de conexión ya lo usa otra conexión del mismo componente: el alias y el componente indicados, el socket, el destino, el archivo y la ruta de claves de esta conexión, y luego los mismos datos de la conexión que ya ocupa el alias. Da a una de las dos conexiones un alias propio: un componente lee cada conexión por su alias, sea cual sea el socket en el que esté cableada. Una entrada de lista toma como alias el nombre de su destino, así que un destino listado dos veces se lista una sola vez, o se escribe como dos entradas con clave bajo dos alias.)"
+  },
+  "b3c6e8c730161195": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "b3c6e8c730161195",
+    "status": "machine",
+    "text": "Orden de despliegue"
   },
   "b3c95d33a8f526f7": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -77121,6 +77660,13 @@
     "status": "machine",
     "text": "Ruta al YAML de la entidad que se va a publicar (también se puede pasar como argumento posicional)"
   },
+  "b6e94e973cd7886a": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "b6e94e973cd7886a",
+    "status": "machine",
+    "text": "**La unión doble es lo que hace que el par no sea ambiguo, y una unión de un solo carácter no puede lograrlo.** Cualquiera de las dos identidades puede llevar a su vez un guion, así que una unión con un solo guion deja un nombre que se divide en más de un lugar: `db` con un volumen llamado `data-cache` y `db-data` con un volumen llamado `cache` darían ambos `db-data-cache`, y como el bloque de nivel superior une por nombre, los dos componentes compartirían un solo volumen sin nada en el archivo emitido que lo mostrara. Una identidad codificada nunca contiene un par de guiones, así que la unión doble no admite una segunda lectura: los dos llegan a `db--data-cache` y `db-data--cache`."
+  },
   "b6ec05232e2ebb6c": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -77233,6 +77779,13 @@
     "status": "machine",
     "text": "**Una línea de salida es un `report`.** Una operación que escribe varias líneas a la vez produce una notificación por línea, y una línea que la operación escribe por partes se informa una vez completa — así que un mensaje nunca es media frase."
   },
+  "b72d3afd819b6037": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "b72d3afd819b6037",
+    "status": "machine",
+    "text": "Las dos identidades se unen con `--`. Una sola identidad codificada nunca contiene ese par, así que el nombre unido dice sin ambigüedad dónde termina una identidad y dónde empieza la otra."
+  },
   "b732ccc930329322": {
     "at": "2026-11-03T17:29:39.514Z",
     "job": "session-0135-20261103172939",
@@ -77344,6 +77897,13 @@
     "srcHash": "b77a534e1c4e4751",
     "status": "machine",
     "text": "Así que la formulación honesta de lo que aporta este eje es:"
+  },
+  "b77cd5a27409444b": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "b77cd5a27409444b",
+    "status": "machine",
+    "text": "Campos del contenedor"
   },
   "b77f60bab287fabd": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -77729,6 +78289,13 @@
     "srcHash": "b8a061a0453342eb",
     "status": "machine",
     "text": "**Donde no se encontró ningún workspace y no se indicó ninguno, un push que descargaría una fuente remota para la comparación se rechaza antes de descargarla, igual que `aggrega pin`.** La comparación descarga cada fuente remota que la entidad escribe por completo en la caché de artefactos, exactamente como hace el paso de fijación, y una caché escrita en una carpeta desde la que no se encontró ningún workspace convertiría esa carpeta en un workspace. Así, cuando nada nombra una raíz y nada ancla una —desde la carpeta en la que ejecutas el push o, para una entidad indicada con una ruta absoluta, desde la propia carpeta de la entidad—, un push de una Recipe o FeatureRecipe con una fuente así se detiene antes de descargar la fuente, incluidos un dry run y `--pin-sources`, y nombra la fuente, la carpeta y las dos soluciones: indica tu workspace con `--workspace-root` o `AGGREGA_WORKSPACE_ROOT`, o dale a esa carpeta un `.aggrega-config.yaml` que contenga un bloque `workspace:`. La comparación no descarga nada para los dos tipos de entidad anteriores, ni para una cuya fuente es local, de modo que cada una de ellas se compara con su lock y se publica allí como en cualquier otro lugar; y cualquier otro tipo no está sujeto a un lock y no se rechaza por esto. [Configuración](configuration.md#the-other-ways-a-project-root-is-recognised) enumera los demás comandos para los que esto se aplica."
+  },
+  "b8a7813416fec794": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "b8a7813416fec794",
+    "status": "machine",
+    "text": "Una letra, un dígito, un punto y un guion bajo se conservan exactamente como se escribieron."
   },
   "b8ba1e2deae9144e": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -79147,6 +79714,13 @@
     "status": "machine",
     "text": "El lado del desarrollador proporciona `values` y el lado del operador proporciona `infra`, así que los dos nunca se disputan el mismo campo. Una Feature de credencial que toma su localizador de cualquiera de los dos lados lo declara como dos campos, uno por pilar, y su propia aserción rechaza un adjunto que lleve ambos, así que tampoco ahí la precedencia tiene un empate que resolver. La precedencia rige solo los valores de los campos; no reordena la evaluación, que sigue la secuencia de cascada de [10-compilation-pipeline.md](10-compilation-pipeline.md)."
   },
+  "bb6a616f20341e2a": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "bb6a616f20341e2a",
+    "status": "machine",
+    "text": "**Qué número va en qué lado.** Una entrada de servicio nombra un puerto de contenedor y le da un número, del mismo modo que un Service de Kubernetes asigna su `port` a un `targetPort`. El número de la entrada es el lado `<host>` del par publicado, y el número del puerto de contenedor al que se resuelve el nombre es el lado `<container>`. Así, un contenedor que declara `http: 8080` y una entrada `NodePort` que escribe `http: 8081` publican `8081:8080`: el puerto 8081 del host llega al puerto en el que sirve el contenedor. Una entrada que lleva el propio número del puerto de contenedor publica ese número en ambos lados, `8080:8080`. Un par en la red de compose alcanza el servicio por su nombre de servicio en el puerto del contenedor, nunca en el publicado — el puerto publicado pertenece al host — así que una Recipe que publica un puerto de su elección sigue entregando a sus consumidores el puerto del contenedor."
+  },
   "bb6bda9ad54fd581": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
@@ -79188,6 +79762,13 @@
     "srcHash": "bb749f783ae88806",
     "status": "machine",
     "text": "**Estructuras de datos complejas (p. ej., CoALA):** En lugar de limitarse a arrays planos, los arquitectos pueden usar JSON Schema 2020-12 (en forma compacta o completa) para imponer diccionarios profundamente estructurados en el bloque `uses`. Por ejemplo, para implementar el framework CoALA, un arquitecto puede exigir `semantic_memory`, `episodic_memory` y `working_memory` como destinos topológicos distintos. Los motores de políticas genéricos evalúan estas aristas estructuradas para exigir salvaguardas granulares de control de acceso para cada lóbulo cognitivo distinto."
+  },
+  "bb766e1f84993b0e": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "bb766e1f84993b0e",
+    "status": "machine",
+    "text": "Un guion se mantiene tal como se escribió siempre que el carácter que lo sigue se conserve directamente y no sea una `z` minúscula. Un guion seguido de una `z` minúscula abre una secuencia de escape, así que uno escrito en esa posición se escribe a su vez explícitamente — `api-zone` se convierte en `api-zhzone`, que es lo que permite leer de vuelta cualquier nombre sin adivinar. Un guion sin nada detrás se escribe explícitamente por la misma razón, así que `db-` da `db-zh`."
   },
   "bb7e2eb9ecbc1ee8": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -80320,6 +80901,13 @@
     "srcHash": "be7798e94b6013ce",
     "status": "machine",
     "text": "`aggrega registry remove <name|host>` elimina la entrada de política de confianza de un registro, indicada por su host o su alias. Solo elimina la política de confianza: el puntero `default_registry` queda intacto y la capacidad de hacer push a ese host no se ve afectada, de modo que el host vuelve a la confianza predeterminada en lugar de quedar inaccesible. Un `default_registry` escrito como el nombre de la entrada eliminada deja de nombrar nada, y se rechaza hasta que se reescriba."
+  },
+  "be7bff8175eb0d18": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "be7bff8175eb0d18",
+    "status": "machine",
+    "text": "Los campos de tiempo de espera de las sondas se corresponden con cadenas de duración al estilo de compose:"
   },
   "be7e9156bbc51963": {
     "at": "2026-11-03T08:51:38.120Z",
@@ -82689,6 +83277,13 @@
     "status": "machine",
     "text": "El mismo comando, con `--from=cronjob/report`, inicia una ejecución adicional de `report` entre las programadas."
   },
+  "c3d81ce0079f6623": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "c3d81ce0079f6623",
+    "status": "machine",
+    "text": "Un volumen que ningún contenedor monta genera una advertencia `unsupported-field` que lo nombra en su coordenada de autoría (`volumes.<name>`), porque lo que llega al archivo emitido difiere entonces mucho según la variante. `persistent` y `persistentTemplate` siguen produciendo su declaración de nivel superior, así que el volumen se crea y nada lo usa. `ephemeral`, `configmap` y `secret` no tienen ninguna expresión fuera del propio montaje — cada uno se traduce en algo escrito en la ruta de montaje, respectivamente una entrada `tmpfs`, una referencia `configs` o un montaje bind — así que, si nada monta uno de ellos, el volumen que declaraste no deja ningún rastro en la salida. Ese segundo caso es la razón de que exista la advertencia: sin ella, un volumen `configmap` cuyo montaje olvidaste simplemente estaría ausente, sin nada en el archivo emitido que lo hiciera notar. Cada contenedor de la carga de trabajo cuenta como contenedor que monta el volumen, incluidos los [contenedores de inicialización](#init-containers), así que un volumen montado solo por un contenedor de inicialización está conectado y no genera nada. La advertencia es orientativa y fuera de banda — el archivo emitido es byte a byte lo que sería sin ella — y `--no-unsupported-field-warnings` silencia la clase."
+  },
   "c3d983483eff72e6": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -83241,6 +83836,13 @@
     "status": "machine",
     "text": "Cada recurso renderizado se escribe en un archivo cuyo nombre proviene de lo que es el recurso y de cómo se llama. Dos recursos que comparten ambas cosas llevan el mismo nombre de archivo, así que uno ocuparía el hueco del otro y el renderizado se detiene en lugar de emitir un solo archivo donde se renderizaron dos recursos."
   },
+  "c537f24d498f4190": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "c537f24d498f4190",
+    "status": "machine",
+    "text": "Nada se redondea, y no se emite ningún valor que signifique otra cosa."
+  },
   "c53b0dbad1ef11ca": {
     "at": "2026-10-17T20:13:34.254Z",
     "job": "8f6b779492ae",
@@ -83254,6 +83856,13 @@
     "srcHash": "c53e07f5540eeb4a",
     "status": "machine",
     "text": "**Forma emitida.** Una línea por cada instancia de componente y clave, que nombra la Recipe que publicó la clave y el Component que no la declara:"
+  },
+  "c53edb956b80fb5e": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "c53edb956b80fb5e",
+    "status": "machine",
+    "text": "Recursos de los contenedores"
   },
   "c5412179f55f4e11": {
     "at": "2026-11-03T10:16:20.555Z",
@@ -84745,6 +85354,13 @@
     "status": "machine",
     "text": "a provider's omitted counts do not match the omits entries it was handed (node `\"<node-id>\"`, provider `\"<provider>\"`, handed `<n>` omits entries, returned `<m>` omitted counts) (los recuentos de omisiones de un proveedor no coinciden con las entradas omits que recibió (con el nodo y el proveedor indicados, el número indicado de entradas omits entregadas y el número indicado de recuentos de omisiones devueltos))"
   },
+  "c8b442ed883fcfbd": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "c8b442ed883fcfbd",
+    "status": "machine",
+    "text": "Normalmente no hay nada más que decir al respecto. Un nombre de export escrito por el autor que no coincide con ningún nombre que derive el proveedor se publica junto a los derivados y nunca se señala. **Escribirlo está admitido; solo una coincidencia no lo está.**"
+  },
   "c8b71eccafbc9e93": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -84814,6 +85430,13 @@
     "srcHash": "c8ca32f72c33264f",
     "status": "machine",
     "text": "**Anotaciones conocidas.** Además de las claves ad hoc, la biblioteca estándar de Aggrega define un conjunto de anotaciones conocidas bajo los espacios de nombres `aggrega.ai/` y `feature.aggrega.ai/`, agrupadas en las categorías de ubicación, redes, seguridad y observabilidad. Quienes añadan anotaciones a un límite de una Release deberían consultar [providers/well-known-annotations.md](../providers/well-known-annotations.md) para la matriz completa y las reglas de consumo por proveedor — la página documenta qué proveedores aplican cada clave conocida y qué comportamiento emiten cuando la clave está presente."
+  },
+  "c8cbbca5ecaf7dfb": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "c8cbbca5ecaf7dfb",
+    "status": "machine",
+    "text": "volumen con nombre + declaración de nivel superior, con el nombre formado del mismo modo (igual que `persistent`)"
   },
   "c8d2fcf610cc584c": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -87457,6 +88080,13 @@
     "status": "machine",
     "text": "Como un proveedor estampa la procedencia donde la admite su propio formato de salida, un proveedor cuyo formato no ofrece ese lugar para un archivo determinado emite ese archivo sin cambios y lo indica. Compose es el caso que hay que conocer: su lugar de procedencia es el bloque `labels:` de un servicio, así que un fragmento de artefacto compose que solo aporta `networks:`, `volumes:` o `configs:` de nivel superior no lleva procedencia, y el build emite una advertencia «skipped provenance label injection (inyección de etiquetas de procedencia omitida)» que nombra el artefacto. Esa advertencia es esperable para un fragmento de esa forma y no indica un problema: los servicios que emite el mismo componente llevan el conjunto completo, y nada cambia en los bytes emitidos. Lo que descarta es la tercera posibilidad: un archivo que sale del build sin estampar y sin que se nombre."
   },
+  "ceb42efe562def84": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "ceb42efe562def84",
+    "status": "machine",
+    "text": "Cada valor de `cpu`, `memory` y `nvidia.com/gpu` se lee como una cantidad, en la forma expuesta en [Workload → Cantidades de recursos](../entities/workload.md#resource-quantities), sobre el Workload tal como lo evaluaron las plantillas de la Recipe. Dos cosas detienen la compilación con un `TRANSLATION_ERROR`, y el error dice cuál de las dos encontró, nombrando la ruta del contenedor, si el valor es una solicitud o un límite, el recurso y el valor:"
+  },
   "ceb720e9b44786bd": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -88948,6 +89578,13 @@
     "status": "machine",
     "text": "extends chain exceeds maximum depth (Component `<name>`, rule extends). the bound is 10 and this chain reaches `<length>`; shorten the chain, or extend a base that sits closer to its root (la cadena extends supera la profundidad máxima. el límite es 10 y esta cadena lo sobrepasa; acorta la cadena, o extiende una base que esté más cerca de su raíz)"
   },
+  "d21589012a8caa93": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "d21589012a8caa93",
+    "status": "machine",
+    "text": "Comportamiento de Compose"
+  },
   "d21c4f936bd4e880": {
     "at": "2026-11-03T18:29:47.574Z",
     "job": "session-0141-20261103182947",
@@ -89319,6 +89956,13 @@
     "status": "machine",
     "text": "Este escenario muestra cómo un rol de veredicto de gobernanza —cuando Ops ha configurado la Release para invocarlo— detecta que un agente de IA está a punto de conectarse a una base de datos que carece de las etiquetas de cumplimiento requeridas, y detiene la compilación. El compilador Go principal transmite las etiquetas de forma opaca; la lógica de detección reside en el plugin Wasm que Ops ha elegido conectar."
   },
+  "d2f507d747997e46": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "d2f507d747997e46",
+    "status": "machine",
+    "text": "Provider Compose"
+  },
   "d2f85eea1ed560cb": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -89423,6 +90067,13 @@
     "srcHash": "d3314b528fb84922",
     "status": "machine",
     "text": "**Un archivo obtenido con `curl` no lleva marca de cuarentena**, así que se ejecuta sin esa evaluación: `curl` no añade la marca que añade un navegador."
+  },
+  "d332f67336712317": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "d332f67336712317",
+    "status": "machine",
+    "text": "`sizeLimit` no se conserva (la forma corta de tmpfs de compose no tiene tamaño). Un `sizeLimit` escrito por el autor genera una advertencia `unsupported-field` que lo nombra en su coordenada de autoría (`volumes.<name>.ephemeral.sizeLimit`), tanto si un contenedor monta el volumen como si no; omitir el campo no genera nada"
   },
   "d33a5b12145b6a6d": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -89884,6 +90535,13 @@
     "srcHash": "d4a45d861bff43b9",
     "status": "machine",
     "text": "Cuando una arista `uses` conecta dos componentes que caen en el **mismo** límite — el mismo stack — el valor consumido se conecta como un `Fn::GetAtt` contra el ID lógico del recurso del productor dentro de la única plantilla. El valor `provides` del productor fluye a la entrada renderizada del consumidor como una referencia nativa dentro del stack; no se necesita ningún export ni import. El fragmento del consumidor puede escribir ese valor sin comillas — `Value: {{ .context.inject.env.DB_HOST }}` — o entre comillas — `Value: \"{{ .context.inject.env.DB_HOST }}\"`: en ambos casos la plantilla lee `!GetAtt Db.Endpoint.Address` como la función intrínseca, porque una cadena que es exactamente una forma corta llega al stack como esa función intrínseca en un fragmento igual que en un `valuesMapping`. El ejemplo [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) lo muestra en una definición de tarea de Amazon ECS que lee la dirección de una instancia de RDS en un solo stack."
+  },
+  "d4a472616d107aff": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "d4a472616d107aff",
+    "status": "machine",
+    "text": "entrada de lista `tmpfs:` a nivel de servicio"
   },
   "d4a5cb60fcff616e": {
     "at": "2026-11-03T11:51:14.962Z",
@@ -94901,6 +95559,13 @@
     "status": "machine",
     "text": "Qué renderiza el chart en el modo de certificado propio"
   },
+  "e04ac86a10f60118": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "e04ac86a10f60118",
+    "status": "machine",
+    "text": "El `form` del Workload selecciona una forma abstracta de controlador (consulta [entities/workload.md](../entities/workload.md)). Compose renderiza `stateless` y `stateful` (y el valor predeterminado vacío, tratado como `stateless`) como servicios de larga duración; la forma `stateful` añade el volumen con nombre para un complemento `persistentTemplate`. Las formas `daemon`, `scheduled` y `task` no tienen una correspondencia limpia en compose de un solo host, así que un Workload que declara una de ellas con un límite de compose como destino detiene la compilación con un error `TRANSLATION_ERROR` que nombra la forma y el conjunto admitido — compose no degrada una forma no admitida a un servicio simple que tergiverse la intención. Un Workload `reference` declara un endpoint externo y ningún contenedor, así que compose no emite ningún servicio para él."
+  },
   "e04b210684700fed": {
     "at": "2026-10-22T02:44:28.692Z",
     "job": "session-0008-20261022024428",
@@ -96979,6 +97644,13 @@
     "srcHash": "e54a08d79e0cb26c",
     "status": "machine",
     "text": "Donde el fallo lo muestra un paso que proporciona una solución, la línea termina con el inicio de sesión que hay que ejecutar en el host que derivó:"
+  },
+  "e55d566d84f3ed99": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "e55d566d84f3ed99",
+    "status": "machine",
+    "text": "`entrypoint` (forma de lista) — sobrescribe el punto de entrada de la imagen, que es lo que hace esa clave de compose"
   },
   "e55e8ba6423b7bf7": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -100211,6 +100883,13 @@
     "status": "machine",
     "text": "**Las tres copias son un casi duplicado deliberado.** Cada una se escribe por separado a partir de la regla, de modo que una compilación en la que los motores discrepan muestra la discrepancia: la misma compilación que se detiene con un motor y se completa con otro es la señal. Ninguna se genera a partir de otra, y no deben fusionarse en una única implementación compartida, que haría coincidir a los motores por construcción y ocultaría la diferencia que esto existe para detectar. Cada archivo empieza diciéndolo."
   },
+  "ed207d9d391c537e": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "ed207d9d391c537e",
+    "status": "machine",
+    "text": "Compose tiene una primitiva de config propia, que es a lo que se traduce un volumen `configmap`. No tiene un equivalente de Kubernetes para Secret ni para las plantillas de volumen por réplica, así que esas variantes se degradan a la primitiva de compose más cercana:"
+  },
   "ed21e5c5b8abd04f": {
     "at": "2026-11-03T08:01:05.098Z",
     "job": "session-0073-20261103080105",
@@ -102824,6 +103503,13 @@
     "status": "machine",
     "text": "**Los archivos de configuración del espacio de trabajo se someten al espacio de trabajo del mismo modo.** Cada `.aggrega-config.yaml` desde la raíz del espacio de trabajo hasta el directorio en el que se ejecuta un comando, y el `.aggrega-config-append-ci.yaml` que un pipeline guarda junto a cualquiera de ellos, es contenido propio del espacio de trabajo. Uno que sea un enlace que lleva fuera del espacio de trabajo — o al que se llega a través de un enlace de directorio que lleva fuera — no se lee, y como cada comando, el servidor de lenguaje del editor y las herramientas de un asistente leen la configuración antes que cualquier otra cosa, cada uno se detiene ahí, nombrando el enlace, en lugar de ejecutarse con una configuración hecha de lo que quedara. El servidor de lenguaje, y el servidor de un asistente que se comunica por sus propios flujos, arrancan igualmente sobre un espacio de trabajo así: los listados de sus Releases y de sus entidades responden, leídos sin nada configurado, y nombran el archivo entre los enlaces que no leyeron, mientras que cualquier otra solicitud que decide la configuración se rechaza con esta condición, nombrando el enlace. El remedio que nombra este mensaje es el propio de la configuración: el archivo de configuración global es la única configuración que se lee dondequiera que se guarde, nombrada con `--config` o `AGGREGA_CONFIG`."
   },
+  "f353d6e04fc132d5": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "f353d6e04fc132d5",
+    "status": "machine",
+    "text": "La forma HTTP requiere que el contenedor declare al menos un puerto con nombre; el sintetizador elige el primer nombre de puerto por orden alfabético y usa su número para construir la URL de `curl`. Los contenedores sin puertos declarados no pueden usar sondas HTTP — el compilador se detiene con un `TRANSLATION_ERROR` que nombra la sonda en cuestión."
+  },
   "f3577bc6259cdf44": {
     "at": "2026-11-03T06:57:39.508Z",
     "job": "session-0067-20261103065739",
@@ -103832,6 +104518,13 @@
     "status": "machine",
     "text": "**Solo lee nombres.** El compilador compara los nombres que declaró el autor de la Feature con las Features que lleva un componente — el mismo tipo de evaluación que `appliesTo`, sobre datos que escribió el autor. Si dos Features son incompatibles es juicio del autor, y la lista es donde queda registrado."
   },
+  "f59fc4d6dd6304e7": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "f59fc4d6dd6304e7",
+    "status": "machine",
+    "text": "Una entrada `Loopback` se enlaza solo a la dirección de loopback IPv4. La dirección de loopback IPv6 `::1` no se enlaza: la sintaxis de puertos de compose lleva una sola dirección de host por entrada, y un host cuya interfaz de loopback no tiene dirección IPv6 no podría enlazarla, así que el servicio no arrancaría allí. Los clientes en el host alcanzan el puerto en `127.0.0.1`."
+  },
   "f5a10b94ca513f0e": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -104094,6 +104787,13 @@
     "srcHash": "f630bbd2e7eb12a3",
     "status": "machine",
     "text": "Un valor de mapeo del Manifest nombra una Recipe o una FeatureRecipe con una estructura que la gramática de referencias no puede expresar. Una referencia de receta acepta un nombre simple, un nombre con versión, un nombre calificado por capacidad o un nombre calificado por capacidad con versión — como máximo una `/`. Un valor que lleva más que eso (una ruta al estilo de un tipo de componente como `core/helm/eso-aws-fetcher:1.0.0`) nunca puede nombrar una entidad del catálogo, contenga lo que contenga el catálogo."
+  },
+  "f633f54c66682134": {
+    "at": "2026-11-03T23:30:44.700Z",
+    "job": "session-0174-20261103233044",
+    "srcHash": "f633f54c66682134",
+    "status": "machine",
+    "text": "Cuando varios servicios de un mismo Workload publican el mismo puerto de contenedor con el mismo número, se publica una vez, y gana el alcance más amplio: cualquier referencia `NodePort` o `LoadBalancer` lo publica en todas las interfaces del host, aunque una entrada `Loopback` también lo nombre y sea cual sea la entrada que se declare primero; un puerto que solo nombran entradas `Loopback` se publica en `127.0.0.1`. Un puerto de contenedor publicado con dos números se publica dos veces, una con cada uno. Los puertos publicados se enumeran en el orden de los puertos de contenedor, y por puerto publicado dentro de un mismo puerto de contenedor."
   },
   "f63495f2fb283e8a": {
     "at": "2026-10-30T20:11:56.421Z",
@@ -104424,6 +105124,13 @@
     "srcHash": "f6d5a8e8d9166af6",
     "status": "machine",
     "text": "`governance/rego:0.8.6`, con `policies/production-support.rego`"
+  },
+  "f6d958636d799c66": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "f6d958636d799c66",
+    "status": "machine",
+    "text": "Con las mismas entradas, el proveedor emite una plantilla de stack idéntica byte a byte en cada ejecución: los ID lógicos, las claves de salida, los nombres de export y el orden de los recursos son todos deterministas, así que una plantilla de stack de CloudFormation produce diffs limpios en la revisión GitOps."
   },
   "f6dd651f6c97b13e": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -105420,6 +106127,13 @@
     "srcHash": "f9519b5687a8cbc7",
     "status": "machine",
     "text": "**No cambia el veredicto de la compilación, con una excepción.** Ninguna compilación se detiene porque falte una declaración, y un catálogo cuyas entidades de credencial no llevan ninguna declaración compila correctamente. Ningún valor se acepta ni se rechaza porque exista una declaración, salvo cuando el `valuesMapping` de una Recipe o FeatureRecipe de CloudFormation lee un valor declarado sensible para llenar los parámetros de una plantilla obtenida: ahí se rechaza cada literal que vincula el mapeo, así que añadir una declaración puede convertir una compilación que tenía éxito en una que se detiene; consulta [A secret bound to a CloudFormation parameter would be written into the template (Un secreto vinculado a un parámetro de CloudFormation se escribiría en la plantilla)](../language-reference/errors/fatal-halts.md#a-secret-bound-to-a-cloudformation-parameter-would-be-written-into-the-template). En todos los demás casos, añadir declaraciones a un catálogo existente deja que cada compilación que tenía éxito siga teniéndolo."
+  },
+  "f951d00bcd6a63cd": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "f951d00bcd6a63cd",
+    "status": "machine",
+    "text": "entrada de `environment` con un valor vacío, y una advertencia que nombra la entrada (consulta [Lo que el proveedor compose no entrega](#what-the-compose-provider-does-not-deliver))"
   },
   "f95778810ae0768c": {
     "at": "2026-11-03T06:21:54.160Z",
@@ -106714,6 +107428,13 @@
     "status": "machine",
     "text": "Una arista que impone **cualquier** entrega a través de un socket cuya lista de permitidos está ausente o vacía también detiene la compilación. Es la declaración de caja negra cumpliendo su función: dice «la Recipe entrega esto internamente; no impongas la entrega», y una lista de permitidos vacía no permite nada en lugar de permitirlo todo."
   },
+  "fc207fb3f79ed48c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "fc207fb3f79ed48c",
+    "status": "machine",
+    "text": "**La compilación también se detiene cuando la salida en la que publica un enlace entre límites ya lleva un `Export` que el enlace no escribió.** Esa salida es la que el proveedor ensambla para la clave proporcionada que lee un consumidor, así que una Recipe cuyo bloque `Outputs:` escribe una entrada bajo esa misma clave, con un `Export:` propio, pone su export exactamente donde va el del enlace. A menos que el nombre de ese export sea exactamente el que deriva el proveedor — en cuyo caso es el propio export del enlace y todo consumidor lo importa —, los dos no pueden coexistir ahí: escribir el export del enlace sobrescribiría el tuyo, y conservar el tuyo dejaría a todo consumidor importando un nombre que el enlace no publicó. La detención indica el nombre de export derivado y las cuatro partes a partir de las que se construyó, y dice qué encontró en esa salida: el nombre de export que declara la entrada, un nombre escrito como función intrínseca, un bloque `Export:` que no nombra nada, o un `Export:` escrito como valor simple en lugar de como bloque. Quitar el bloque `Export:` de esa entrada la elimina, y la conexión entre stacks publica entonces el export que importa todo consumidor."
+  },
   "fc22a0e747eb608e": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -107240,6 +107961,13 @@
     "status": "machine",
     "text": "La autoría de los campos de contenedor sigue estas convenciones:"
   },
+  "fd74c20b3518331c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "fd74c20b3518331c",
+    "status": "machine",
+    "text": "Un contenedor cuya solicitud y cuyo límite de `nvidia.com/gpu` piden números distintos detiene la compilación de la misma manera, nombrando ambas rutas: compose reserva un solo número para un servicio, así que de lo contrario la traducción tendría que elegir uno. Escribe el mismo número en ambos, o solo el límite."
+  },
   "fd88c219edf01997": {
     "at": "2026-11-03T11:32:02.259Z",
     "job": "session-0098-20261103113202",
@@ -107587,6 +108315,13 @@
     "srcHash": "fe5d4f40141e32b7",
     "status": "machine",
     "text": "`<path>`: default_registry `\"GHCR.io/acme\"` is not written as the registry location it names; write `\"ghcr.io/acme\"` — the registry host lowercase, with no scheme, credentials or default port, followed by the repository path — which keeps that host's trust policy applying to it: workspace configuration is invalid (default_registry no está escrito como la ubicación de registro que nombra; escríbela — el host del registro en minúsculas, sin esquema, credenciales ni puerto predeterminado, seguido de la ruta de repositorio — lo que mantiene aplicada la política de confianza de ese host: la configuración del espacio de trabajo no es válida)"
+  },
+  "fe5d5996fef7b7f2": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "fe5d5996fef7b7f2",
+    "status": "machine",
+    "text": "**Un stack cuyos recursos llevan todos una misma oleada no obtiene nada de esto.** Tampoco una Release que no declara ningún `syncWave`: cada contribuidor lleva el valor predeterminado del campo, `0`, la plantilla ensamblada contiene una sola oleada, y la salida es exactamente la que sería si el proveedor no expresara ningún orden de oleadas."
   },
   "fe5e35868b086854": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -108026,6 +108761,13 @@
     "srcHash": "ff7c1975345eebaa",
     "status": "machine",
     "text": "Dos entradas no se comparan, de forma deliberada. Una entrada a nivel de límite no nombra ningún tipo de entrada, porque se resuelve una sola vez para todo un límite y no en la ruta de renderizado de un nodo concreto. Una entrada que no declara ningún nivel no hace ninguna afirmación por ruta: solo dice que el plugin lee la clave en algún lugar."
+  },
+  "ff8765a992c0624c": {
+    "at": "2026-11-03T23:30:42.700Z",
+    "job": "session-0173-20261103233042",
+    "srcHash": "ff8765a992c0624c",
+    "status": "machine",
+    "text": "Un número exacto de bytes, convertido a partir del valor sea cual sea la forma en que esté escrito — `8Gi` se convierte en `8589934592`, `1.5Gi` se convierte en `1610612736`, `1e3` se convierte en `1000`"
   },
   "ff8789bf0a5252a2": {
     "at": "2026-11-03T06:21:52.519Z",
