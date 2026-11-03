@@ -73,6 +73,13 @@
     "status": "machine",
     "text": "**Wer konsumiert es?** Der Static Analyzer, über den `usesSchema`-Selektor eines Sockets, sowie die Assertions des AI-Gateways, von `core/gateway/kong`, von `core/gateway/kong-enterprise`, von `core/gateway/apisix`, von `core/gateway/envoy-gateway`, von `core/gateway/traefik-hub`, von `core/gateway/agentgateway` und von `core/gateway/higress` bei jeder Verbindung zu ihren `models`-Sockets."
   },
+  "0038fc3b4aa2a8d9": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "0038fc3b4aa2a8d9",
+    "status": "machine",
+    "text": "Init-Services und Sidecar-Services teilen sich einen Namensraum, daher dürfen ein Eintrag `initContainers` und ein Eintrag `containers` nicht denselben Namen tragen. Wenn sie es doch tun, bricht der Compiler mit einem `TRANSLATION_ERROR` ab, der den Knoten, den Container-Namen und den Service-Namen nennt, den beide wollten, statt einen Service stillschweigend den anderen ersetzen zu lassen."
+  },
   "0040663f831b7dbe": {
     "at": "2026-11-03T22:29:54.265Z",
     "job": "session-0168-20261103222954",
@@ -911,6 +918,13 @@
     "status": "machine",
     "text": "**Komposition als Modul.** Eine Fähigkeit mit mehreren Arbeitslasten — eine Metrik-Leseschicht, die eigentlich ein Objektspeicher plus ein Store Gateway plus ein Abfrage-Frontend ist — wird als Sub-Aggregat verpackt, das drei Komponenten mit je einer einzigen Arbeitslast zusammensetzt, nicht als eine monolithische Komponente. Das Modul wird nach Namen importiert und überall wiederverwendet, wo eine Thanos-Leseschicht gebraucht wird."
   },
+  "01ded684d8fda98f": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "01ded684d8fda98f",
+    "status": "machine",
+    "text": "**Eine ID, die keine in diese Datei zusammengesetzte Komponente trägt** — etwa eine, die in eine andere compose-Datei zusammengesetzt wurde. Ein Netzwerk gehört zu einer Datei, daher nennt die Meldung die ID und die Datei, in der sich der Service befindet. Nennen Sie nur Komponenten, die in dieselbe Datei zusammengesetzt werden, oder entfernen Sie die ID."
+  },
   "01df3ee1f871e8f6": {
     "at": "2026-11-03T02:20:42.738Z",
     "job": "session-0037-20261103022042",
@@ -1596,6 +1610,13 @@
     "status": "machine",
     "text": "**Der Legacy-Ausweg (explizite Deklaration):** Wenn eine Legacy-Komponente einen unveränderlichen, fest codierten Port hat, legt der Platform Architect ausdrücklich ein Feld `port` in der `schema:`-Deklaration der Component offen. Dies gibt dem Developer einen validierten Weg, die physische Einschränkung zu deklarieren. Der Compiler trägt den Wert unverändert durch die Pipeline; das Recipe konsumiert ihn über `{{ .values.port }}`."
   },
+  "035f3b86b9284a7e": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "035f3b86b9284a7e",
+    "status": "machine",
+    "text": "Aus Kanten abgeleitete Einträge werden **ohne Bedingung** ausgegeben: Sie haben die Semantik `service_started`, unabhängig davon, ob das Ziel einen Healthcheck deklariert. Sie an die Gesundheit des Ziels zu binden — was die compose-Laufzeit den Start blockieren ließe, bis sich der Healthcheck des Ziels als gesund meldet — ist ausdrückbar, und eine Kante `uses` verlangt es nicht. Eine [Welle](#deployment-wave-ordering), die dasselbe Paar nennt, ist das Einzige, was die Bedingung eines aus einer Kante abgeleiteten Eintrags ändert, und sie tut es, weil die Welle es verlangt, und nicht, weil die Kante es tut."
+  },
   "0360bb629af45d7d": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -1869,6 +1890,13 @@
     "srcHash": "0401af2e3106b709",
     "status": "machine",
     "text": "Für dynamische Metadaten nutzen Unternehmen das **Mutation Gate — die Rolle `label-transform` des Governance-Sockets**, die während der Topologiekonstruktion läuft. Nachdem der Graph expandiert wurde und bevor die statische Analyse ihn auswertet, führt der Compiler das Wasm-Plugin aus, das das Unternehmen angehängt hat. Dieses Plugin liest die Umgebung des Release, die Labels, die die Knoten bereits deklarieren, und die Werte, die die Instanz jedes Knotens deklariert, und benennt die Labels, die die Knoten des Builds tragen sollen — so erreichen die erforderlichen Metadaten die Komponente, ohne dass der Entwickler sie tippt (z. B. das Label `compliance.aggrega.ai/data-class: restricted`, abgeleitet aus der Umgebung des Release, oder `datastore.aggrega.ai/engine: vector`, abgeleitet aus den deklarierten Erweiterungen einer Datenbank). Die Werte sind schreibgeschützt: Das Plugin entscheidet über Labels und sonst nichts."
+  },
+  "0409a4048573c494": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "0409a4048573c494",
+    "status": "machine",
+    "text": "**eine Konfiguration**, genannt durch einen Eintrag `configs:`, in einer der beiden Formen."
   },
   "0413fdba2be522ca": {
     "at": "2026-11-03T21:51:54.059Z",
@@ -2746,6 +2774,13 @@
     "srcHash": "05fb65553b8ba580",
     "status": "machine",
     "text": "`aggrega pull --verify` führt denselben Vergleich durch. Es schreibt keine der Dateien, die ein Pull committet, und übernimmt daher nichts; es meldet, ob diese Dateien noch beschreiben, was ein Pull heute auflösen würde, und der Datensatz ist eine davon. Es misst außerdem die Signatur jedes Eintrags an der, die die eigene Verifizierung des Plugins durch den Pull ergibt, und meldet einen Eintrag, dessen Signatur ein Pull erfassen, ersetzen oder entfernen würde — sowie ein Plugin, für das der Datensatz keinen Eintrag enthält, wo ein Build es ablehnt, weil keine Signatur erfasst ist —, wie [Es vergleicht die erfassten Signaturen, in beiden Dateien](#it-compares-the-recorded-signatures-in-both-files) beschreibt."
+  },
+  "06021c963a328b27": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "06021c963a328b27",
+    "status": "machine",
+    "text": "**Wo eine Welle und eine Kante `uses` dasselbe Paar nennen, trägt ein Eintrag beides.** Compose akzeptiert einen Eintrag pro Abhängigkeit, sodass ein Service, der ein Ziel über `uses` nutzt und zugleich eine Welle nach ihm liegt, einen einzigen Eintrag ausgibt, der an die Bedingung der Welle gebunden ist — die Anforderung der Welle ist die stärkere der beiden, und sie ist die ausgedrückte."
   },
   "0603408d7a616636": {
     "at": "2026-10-23T03:05:44.362Z",
@@ -3978,6 +4013,13 @@
     "status": "machine",
     "text": "Das Manifest entscheidet, welches Produkt die Datenbank sichert. Die beiden Kubernetes-Manifests betreiben die Datenbank auf zwei Arten — `helm/postgres`, ein StatefulSet, für Velero, und `helm/postgres-cloudnative-pg`, ein CloudNativePG-Cluster, für das Plugin — und binden für jede die Realisierung des Backups. `manifest-terraform.yaml` und `manifest-terraform-aws-backup.yaml` ordnen die Datenbank demselben Recipe zu und unterscheiden sich im FeatureRecipe, das sie an `core/backup` binden, und die daraus gebauten Releases unterscheiden sich, neben dem Manifest, das jedes nennt, allein in der Rolle."
   },
+  "08e9920b841f3f3b": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "08e9920b841f3f3b",
+    "status": "machine",
+    "text": "**Eine Boundary, deren Komponenten alle in einer Welle liegen, gibt hieraus nichts aus.** Ebenso ein Release, das überhaupt kein `syncWave` deklariert: Jeder Beitragende trägt den Standardwert des Felds, `0`, die zusammengeführte Datei enthält eine einzige Welle, und die Ausgabe ist genau so, wie sie wäre, wenn der Provider keine Wellenreihenfolge ausdrückte."
+  },
   "08ebce0ab4816e91": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -4241,6 +4283,13 @@
     "status": "machine",
     "text": "**Validierung der Bindungsziele (Katalog-Laden).** Beim Laden des Katalogs durchläuft der Compiler jede `features.annotations`-Bindung des Manifest und prüft, ob jeder unter `maps.infra` und `maps.values` deklarierte Punktpfad einer Eigenschaft entspricht, die `spec.schema.<pillar>` des referenzierten Feature tatsächlich deklariert. Eine Bindung, die zu einem Pfad routet, den das Feature-Schema nicht auflistet, bricht das Laden des Katalogs mit einem klaren OPS_ERROR ab, der den Bindungsschlüssel, den fehlenden Pfad, die Feature-URI und den Quellort nennt."
   },
+  "098e3c5a69e0714c": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "098e3c5a69e0714c",
+    "status": "machine",
+    "text": "Workload-Identität ist ein Cluster-Konzept"
+  },
   "09906f0b3c70f9f6": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -4366,6 +4415,13 @@
     "srcHash": "09bb03b3ba7c7099",
     "status": "machine",
     "text": "`severity` – `halt`, der Schweregrad des Befunds, der einen Build gestoppt hat."
+  },
+  "09c2747672d64481": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "09c2747672d64481",
+    "status": "machine",
+    "text": "**`null`: ersetzt und bleibt.** Ein Schlüssel, den das Overlay auf einem Service auf `null` setzt — einer der eigenen Schlüssel des Services wie `user`, `command` oder `healthcheck`, ein Eintrag in `environment`, ein Label oder ein Schlüssel direkt unter `healthcheck` oder `deploy` —, ersetzt den Wert der Basis wie jeder Skalar und wird als `key: null` in die compose-Datei geschrieben; er entfernt den Schlüssel nicht. Wo der Provider einen eigenen Wert in diesen Schlüssel schreibt, trägt die Datei stattdessen den Wert des Providers: `labels: null` belässt die [Provenienz-Labels](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output), die der Provider anbringt, und `networks: null` das Netzwerk, das er anhängt. Ein `null`, das irgendwo sonst im Overlay geschrieben wird, liegt außerhalb dieser Regel. Was ein `null` dann bedeutet, ist die Lesart von Compose für dieses Attribut — ein Eintrag in `environment` ohne Wert etwa übernimmt seinen Wert aus der Umgebung, in der `docker compose` läuft."
   },
   "09cac995178dfdae": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -6238,6 +6294,13 @@
     "status": "machine",
     "text": "`guest/go.mod` verweist auf Ihren Checkout des Kits:"
   },
+  "0e8dfe2cd03bbe85": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "0e8dfe2cd03bbe85",
+    "status": "machine",
+    "text": "wo nicht, ist das Warten `condition: service_started`, weil ein Service ohne Healthcheck sich nie als gesund melden kann und ein an seine Gesundheit gebundenes Warten nie erfüllt würde — die Datei würde nie hochfahren."
+  },
   "0e8e7025a048c4c1": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -6627,6 +6690,13 @@
     "srcHash": "0f3c608ef7e8dd37",
     "status": "machine",
     "text": "[`aggrega validate`](cli/aggrega-validate.md) — prüft die Korrektheit (Schema, Säulen, Referenzauflösung, `extends`, Eingabeart-Fähigkeit, isoliertes Rendering) über den gesamten Katalog, die Abhängigkeitshülle eines Release (`--release`) oder eine einzelne Entität."
+  },
+  "0f45876d714cb965": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "0f45876d714cb965",
+    "status": "machine",
+    "text": "Der compose-Provider leitet `depends_on` automatisch aus den Kanten `uses` der IR ab. Für jede Kante, deren Quelle und Ziel beide Services zur zusammengeführten compose-Datei beitragen, fügt der Provider dem Quell-Service `depends_on: [<target>]` hinzu."
   },
   "0f458c8acad108b5": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -8031,6 +8101,13 @@
     "status": "machine",
     "text": "**[Workload](../language-reference/entities/workload.md)** — eine plattformeigene Compiler-Art, keine Datei, die ein Entwickler oder Operator als Entität der obersten Ebene von Hand schreibt. Sie wird im `workload:`-Block eines Recipe verwendet, wo der Provider, mit dem das Recipe rendert, die normalisierte Workload-Form in seine native Form übersetzt. Recipe-Autoren interagieren über diesen Block mit ihr; die [Workload-Referenz](../language-reference/entities/workload.md) dokumentiert die Form."
   },
+  "1297d3d10adadff6": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "1297d3d10adadff6",
+    "status": "machine",
+    "text": "Mehrere werden auf ein Feld eines compose-Service abgebildet:"
+  },
   "12a38fd4f540d230": {
     "at": "2026-11-03T02:20:44.184Z",
     "job": "session-0038-20261103022044",
@@ -8932,6 +9009,13 @@
     "status": "machine",
     "text": "Die Anbindung befüllt keinen deklarierten Slot. Das ist ein positiver Befund: Die Slot-Menge wurde aufgelöst, und kein deklarierter Slot trägt diesen Namen."
   },
+  "14db1ecedb87960e": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "14db1ecedb87960e",
+    "status": "machine",
+    "text": "Eine weggelassene Einheit darf von dem, was übrig bleibt, nicht weiterhin genannt werden, weil compose eine Datei ablehnt, die einen Service, ein Volume oder eine Konfiguration nennt, die sie nicht deklariert. Sobald die Einheiten entfernt sind, bricht jeder Verweis, den die Datei noch auf eine von ihnen enthält, den Build ab, und die Meldung nennt jeden verweisenden Service oder Job, die Einheit, die er nennt, und das Feld, in dem der Verweis steht. Ein Verweis ist das, was die Compose Specification als einen Eintrag einer Datei definiert, der einen anderen nennt:"
+  },
   "14dc6b31626dc424": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -9142,6 +9226,13 @@
     "status": "machine",
     "text": "Eine Registry, deren Richtlinie keinen öffentlichen Schlüssel und keine vertrauenswürdige Identität festlegt, bietet nichts, woran eine Signatur zu beurteilen wäre, sodass eine Referenz dort signiert wird, was auch immer sie bereits trägt. Eine Referenz, die nur Signaturen trägt, die die Richtlinie nicht zulässt, wird signiert, da keine davon für einen Leser zählt, der unter dieser Richtlinie verifiziert."
   },
+  "157f58473f457cf7": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "157f58473f457cf7",
+    "status": "machine",
+    "text": "Eine Preemption-Reihenfolge setzt einen Scheduler voraus"
+  },
   "1581f725c1ab607e": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -9345,6 +9436,13 @@
     "srcHash": "15f526d400842b96",
     "status": "machine",
     "text": "**Schema-Umschlag** (jede Art) — genau die JSON-Schema-Prüfung pro Entität, die der Katalog-Loader an jeder Parse-Grenze ausführt."
+  },
+  "15f554f94bbd5265": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "15f554f94bbd5265",
+    "status": "machine",
+    "text": "**Ein Init-Service tritt dem Netzwerk seiner Boundary direkt bei**, statt den Netzwerk-Namespace des Haupt-Service zu teilen, wie es ein Sidecar tut. Das muss er: Der Haupt-Service wartet auf den Init-Service, und das Teilen eines Namespace ist selbst eine Abhängigkeit vom Haupt-Service, die das Warten zu einem Zyklus schließen würde, dessen Start compose verweigert. Ein Init-Container erreicht andere Services im Boundary-Netzwerk daher über den Service-Namen, teilt aber nicht den `localhost` des Haupt-Service."
   },
   "15f6b7b02d64cd1d": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -9904,6 +10002,13 @@
     "srcHash": "1731fc1271cf89da",
     "status": "machine",
     "text": "Ausgegebene Meldungen:"
+  },
+  "173a9d1aac980be3": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "173a9d1aac980be3",
+    "status": "machine",
+    "text": "Die schwächere Bedingung ist in der ausgegebenen Datei neben der stärkeren sichtbar, und der Build nennt zusätzlich jeden solchen Service in einer Warnung, sodass ein Autor, der eine Reihenfolge nach Bereitschaft erwartet hat, erfährt, welcher Teil der von ihm deklarierten Welle nur als Startreihenfolge ankommt. Die Warnung ist beratend: Der Build gelingt, und die gerenderten Bytes sind genau so, wie sie ohne sie wären. Einen Block `health:` zu diesem Container hinzuzufügen ist das, was das Warten aufwertet. `--no-unsupported-field-warnings` schaltet die Klasse stumm."
   },
   "173aa3d932f0516c": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -10486,6 +10591,13 @@
     "status": "machine",
     "text": "[Komposition](examples/06-composition.md) — Beispiele 14 bis 16: verschachtelte Aggregates und exportierte Components, externe Dienste und Parameter-Hoisting, Subsysteme mit kaskadierenden Annotationen."
   },
+  "18d3e26b23e69dc8": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "18d3e26b23e69dc8",
+    "status": "machine",
+    "text": "Compose bietet `dns` und `dns_search` an und nichts Feineres"
+  },
   "18d7b7e6b48188df": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -10927,6 +11039,13 @@
     "srcHash": "19c6763b820091a5",
     "status": "machine",
     "text": "An authored export name is one the build derives for a cross-stack reference (Ein verfasster Exportname ist einer, den der Build für eine stackübergreifende Referenz ableitet)"
+  },
+  "19c6abbe6d9b6425": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "19c6abbe6d9b6425",
+    "status": "machine",
+    "text": "Jeder Init-Service nach dem ersten wartet mit `condition: service_completed_successfully` auf seinen Vorgänger."
   },
   "19d4047f4c5c8b77": {
     "at": "2026-10-30T20:32:14.370Z",
@@ -12215,6 +12334,13 @@
     "srcHash": "1c91274e11af697d",
     "status": "machine",
     "text": "Das Fragment `#/mappings/<name>` wählt den Eintrag aus und unterscheidet eine Mapping-Referenz von `#/schemas/<name>` der SchemaLibrary. Die Referenz verwendet dasselbe Identitätsmodell mit bloßem Namen wie `$ref:` der SchemaLibrary — `<Library>#/mappings/<name>`, ohne Registry-Host. Die Version liefert die Lockfile pro Release (Name + Version + Inhalts-Digest); ein Autor kann eine optionale Mindestversion als `<Library>:<version>#/mappings/<name>` angeben (das Versionstrennzeichen ist `:`, passend zu den recipe/feature-Mappings und zum Lockfile-Pin), und der physische Ort wird zum Auflösungszeitpunkt gebunden."
+  },
+  "1c982545d83f6387": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "1c982545d83f6387",
+    "status": "machine",
+    "text": "Welchem Netzwerk ein Service beitritt"
   },
   "1c9da569c8f03574": {
     "at": "2026-11-03T19:06:08.912Z",
@@ -14273,6 +14399,13 @@
     "status": "machine",
     "text": "Das Muster des Standardbereichs finden Sie unter [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md)."
   },
+  "215bedff54fcb2f9": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "215bedff54fcb2f9",
+    "status": "machine",
+    "text": "Basis und Overlay werden gemäß der nativen Overlay-Semantik von docker-compose tief zusammengeführt."
+  },
   "21655eacf218945c": {
     "at": "2026-11-03T23:11:53.486Z",
     "job": "session-0171-20261103231153",
@@ -14370,6 +14503,13 @@
     "srcHash": "21a6b86168878ceb",
     "status": "machine",
     "text": "**Vererbung.** Eine auf einer Basis-Component deklarierte Pflicht wird von jeder Component geerbt, die sie per `extends:` erweitert, weil Metadaten-Annotationen entlang der extends-Kette zusammengeführt werden, wobei pro Schlüssel das Kind gewinnt. Ein Kind kann eine geerbte Pflicht daher umlenken, indem es dasselbe Label mit einem anderen Typ erneut deklariert, oder eigene Pflichten unter neuen Labels hinzufügen; es kann keine Pflicht entfernen, die die Basis deklariert hat."
+  },
+  "21ab8294e197721a": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "21ab8294e197721a",
+    "status": "machine",
+    "text": "`frontend` nennt `migrator` nicht: Die Reihenfolge reicht bis zur unmittelbar vorhergehenden Welle, und compose verkettet den Rest über `store`."
   },
   "21ad89ba58d8d202": {
     "at": "2026-11-03T17:48:59.915Z",
@@ -15477,6 +15617,13 @@
     "srcHash": "23dc598c54f93b8e",
     "status": "machine",
     "text": "Zeichenketten unter `Manifest.spec.mappings.features.type` oder `Manifest.spec.mappings.features.name` werden zu `/featurerecipe/` erweitert. Dazu gehören auch Credential-Features (mit dem Label `feature.aggrega.ai/kind: secret`) — sie verwenden denselben FeatureRecipe-Pfad."
+  },
+  "23e3468bbd3e5c24": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "23e3468bbd3e5c24",
+    "status": "machine",
+    "text": "Auch die Hooks `pre_start` eines Services und jeder Top-Level-Eintrag `jobs:` werden gelesen, auf die Verweise hin, die die Spezifikation jedem von ihnen erlaubt. Manche Werte sehen nur wie Verweise aus und werden nicht als solche gelesen: Ein Eintrag `volumes_from` oder `network_mode`, der mit `container:` beginnt, nennt einen Container, `external_links` nennt einen Container, den diese Datei nicht deklariert, ein `extends` mit einem `file:` nennt einen Service einer anderen Datei, und ein `credential_spec.config` kann eine Konfiguration nennen, die die Plattform statt der Datei hält. Jeder Wert wird so verglichen, wie er geschrieben ist, sodass ein über ein `${VARIABLE}` geschriebener Verweis keiner ist, den diese Prüfung sieht, und ein Verweis auf eine Einheit, die die Datei nie deklariert hat, bleibt, wie er ist."
   },
   "23e6b3deac4b32fc": {
     "at": "2026-10-22T17:21:40.169Z",
@@ -17923,6 +18070,13 @@
     "status": "machine",
     "text": "Der `.context` der Oberfläche ist der Grund dafür: Er trägt `instance_id`, `labels` und `annotations` und sonst nichts. `.context.inject` und `.context.uses` sind daher Schlüssel, die der Kontext dieser Oberfläche nicht definiert, und der Verweis bricht als „Template references a root the render context does not define (Das Template verweist auf eine Wurzel, die der Render-Kontext nicht definiert)“ weiter oben ab, beim Parsen, bevor irgendetwas gerendert wird. Die Diagnose nennt den Mechanismus und den Zustellschlüssel, zu denen das Template gehört, und führt die Schlüssel auf, die `.context` hier definiert — sodass dieselbe Meldung sowohl einen echten Zugriff auf knotenübergreifende Daten abdeckt als auch einen einfachen Tippfehler wie `{{ .context.nmae }}`, der der häufigere Fehler ist und sonst als nichts gerendert worden wäre."
   },
+  "29b3b2cec948baad": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "29b3b2cec948baad",
+    "status": "machine",
+    "text": "Ein Recipe mit `source: <path-to-compose-file>` und `valuesMapping:` durchläuft die folgende Pipeline:"
+  },
   "29ba39c933a3b018": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -18423,6 +18577,13 @@
     "srcHash": "2afb48c55843a97e",
     "status": "machine",
     "text": "Nur ein Abbruch-Urteil hält den Build an. Warn- und Info-Urteile werden gemeldet, und der Build läuft weiter. Jedes Abbruch-Urteil, das ein Plugin zurückgegeben hat, wird gemeldet, in der Reihenfolge, in der das Plugin sie ausgegeben hat, sodass ein einziger Lauf Sie über alle informiert."
+  },
+  "2afd67e18de496e2": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "2afd67e18de496e2",
+    "status": "machine",
+    "text": "**Wird die Identität eines Knotens geändert, wird das compose-Netzwerk umbenannt, und compose benennt ein Netzwerk nicht an Ort und Stelle um.** Das Netzwerk wird unter dem neuen Namen neu angelegt, und jeder Service darin wird neu erstellt, um sich daran anzuschließen, während das alte Netzwerk zurückbleibt, bis etwas es entfernt. Ein Netzwerk enthält keine Daten, daher geht nichts verloren — aber die Container darin starten tatsächlich neu, und alles, was eine Verbindung über die Änderung hinweg hält, sieht sie abbrechen. Ändern Sie eine Namespace-Annotation oder das Verzeichnis, in das eine compose-Datei geschrieben wird, als zu planende erneute Bereitstellung statt als Wert, den man an Ort und Stelle anpasst."
   },
   "2b0569cad4800ca2": {
     "at": "2026-11-03T01:23:33.287Z",
@@ -18952,6 +19113,13 @@
     "srcHash": "2c61657ff8829ad2",
     "status": "machine",
     "text": "Um herauszufinden, in welchen Container ein Eintrag gehört, bevor Sie einen angeben, und um eine Position zu lesen, ohne etwas anzuwenden, siehe [`aggrega serve`](aggrega-serve.md)."
+  },
+  "2c651908c5854b00": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "2c651908c5854b00",
+    "status": "machine",
+    "text": "Aus Kanten abgeleitete Einträge werden für eine stabile Ausgabe in alphabetischer Reihenfolge der Ziele ausgegeben. Kanten, deren Quelle oder Ziel von einem anderen Provider (helm oder helm-chart) bedient wird, werden übersprungen — `depends_on` gilt nur innerhalb der von compose bedienten Teilmenge des Release."
   },
   "2c68361eafa95d24": {
     "at": "2026-11-03T15:04:41.802Z",
@@ -19956,6 +20124,13 @@
     "status": "machine",
     "text": "`release.yaml` daneben ist ein entworfenes Release desselben Namens, das dieses Aggregate nennt. Es lässt in einem Kommentar über dem Eintrag jedes Graphen dessen `infra.image` offen — das Image, das die Anwendung ausführt und das `langgraph build` aus ihrer Konfiguration baut; der Build bricht ab und nennt das Image, bis es gesetzt ist. Ein Kommentar über dem ersten Graphen der Anwendung gibt die Umgebung an, die ihre Konfiguration deklariert, wie [Die Umgebung, die eine Konfiguration angibt](#the-environment-a-configuration-states) beschreibt. `metadata.environment` und `spec.manifest` des Release bleiben ungesetzt, jeweils in einem Kommentar genannt, es sei denn, dem Import wird ein Target gegeben, wie [Was ein Target hinzufügt](#what-a-target-adds) beschreibt."
   },
+  "2ebf8d37badacdb9": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "2ebf8d37badacdb9",
+    "status": "machine",
+    "text": "Warum compose es nicht berücksichtigen kann"
+  },
   "2ec241d1bd236968": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -20941,6 +21116,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Verschieben Sie die Erweiterung auf die eigene Socket- oder Anbindungsoberfläche der Entität, wo die Entitätsseiten für [component.md](../entities/component.md) und [feature.md](../entities/feature.md) sie deklarieren. Das Opt-out steht unter „Die Disziplinregeln“ in [aggrega-lint.md](../cli/aggrega-lint.md)."
   },
+  "30c20115d9f2065c": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "30c20115d9f2065c",
+    "status": "machine",
+    "text": "Der Haupt-Service und jeder Sidecar-Service warten mit derselben Bedingung auf den **letzten** Init-Service. Auf den letzten zu warten genügt, weil die Init-Services eine Kette bilden."
+  },
   "30c754e93d667f21": {
     "at": "2026-11-03T19:28:13.588Z",
     "job": "session-0147-20261103192813",
@@ -21760,6 +21942,13 @@
     "status": "machine",
     "text": "Die zwei Wege zum Gaten gibt es, weil die drei Bezeichner unterschiedlich weit reichen. Ein in Go geschriebenes Gate bindet diese Pakete ein, gleicht Sentinels ab und kann jeden der beiden Codes von jedem Fehler ablesen, den es hält. Ein um den Befehl herum geschriebenes Gate hat den Exit-Status und den ausgegebenen Text — und der ausgegebene Text nennt die Bedingung, weil der Kurzcode im Kopf in eckigen Klammern steht. Ein solches Gate richtet sich also nach diesem Kurzcode statt nach dem Wortlaut der Meldung, und die nach Meldungen geordneten Sichten bleiben der Weg, von einem bereits vorliegenden Wortlaut zurückzugehen. Gleichen Sie den Sentinel aus Go ab; richten Sie sich um den Befehl herum nach dem Kurzcode; lesen Sie den beschreibenden Code aus der strukturierten Diagnose, wo ein Client dieses Protokoll spricht."
   },
+  "32da679a3ad5ad61": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "32da679a3ad5ad61",
+    "status": "machine",
+    "text": "In der strukturierten Form entscheidet das, was `url:` trägt, darüber, ob etwas abgerufen wird. Ein über `https://` veröffentlichtes Fragment wird abgerufen und mit `kind: compose-https-fragment` fixiert; `aggrega pull` beschafft es, und der Build liest es aus dem Cache. Ein `url:`, das einen Dateisystempfad nennt, wird nicht abgerufen — es wird von der Festplatte gelesen, genau wie die obige Form mit reinem String verankert, und [`aggrega pin`](../cli/aggrega-pin.md) hält den Digest der Datei, die es nennt, in der Datei `entity.lock` neben dem Recipe fest, den ein Build dann vergleicht, bevor das Fragment gelesen wird. Ein entferntes Fragment lokal zu übernehmen (Vendoring) und `source:` auf die lokale Kopie zeigen zu lassen, wird als Alternative zum Abrufen unterstützt und ist nicht erforderlich. Das Schema akzeptiert ein offenes strukturiertes Objekt."
+  },
   "32e21969f0c651d6": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -21945,6 +22134,13 @@
     "srcHash": "33485a28b0321e48",
     "status": "machine",
     "text": "**So beheben Sie es:** Dies ist die Entscheidung des Operators, und es ist eine echte Entscheidung und keine Formalität. Vergleichen Sie den Aussteller und die Identität in der Meldung mit den vertrauenswürdigen Identitäten, die für diese Registry in `.aggrega-config.yaml` konfiguriert sind. Wo der Signierer einer ist, den Sie akzeptieren wollen, fügen Sie ihn hinzu — ein Eintrag nennt eine Identität oder ein dazu passendes Muster zusammen mit dem Aussteller, und beide müssen stimmen. Wo nicht, wurde das Artefakt von jemandem signiert, den Sie nicht akzeptiert haben, und die Identität hinzuzufügen, damit der Build durchläuft, ist die eine Reaktion, die zu vermeiden ist. Bei Registries, die ihre eigene Vertrauensrichtlinie bekannt geben, lässt sich diese beim Hinzufügen der Registry pinnen; so gelangen die vorgesehenen Identitäten hinein, ohne dass man sie abschreibt."
+  },
+  "334d5ad1e74c0e51": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "334d5ad1e74c0e51",
+    "status": "machine",
+    "text": "Die Auswahl einer alternativen Container-Runtime — etwa einer GPU-fähigen — hat keinen compose-Ausdruck"
   },
   "334d67adcdda9783": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -22204,6 +22400,13 @@
     "srcHash": "33ef6b2c475905ae",
     "status": "machine",
     "text": "Entitätsarten"
+  },
+  "33f0d4a36aba487a": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "33f0d4a36aba487a",
+    "status": "machine",
+    "text": "**Eine Kante `uses`, die auf eine spätere Welle zeigt, wird wie geschrieben ausgegeben und gemeldet.** Das ausgegebene `depends_on` spiegelt wider, was deklariert wurde — sowohl die Kanten `uses` als auch die Wellen. Eine Kante, deren Konsument in einer *früheren* Welle liegt als das Ziel, das er nutzt, besagt das Gegenteil dessen, was die Wellen besagen: Die Kante lässt den Konsumenten auf das Ziel warten, während die Wellen das Ziel, über jede Welle zwischen ihnen hinweg, auf den Konsumenten warten lassen. Die zusammengeführte Datei drückt beides aus, was eine zirkuläre Menge von Abhängigkeiten ergibt, die Docker Compose nicht startet. Der Build nennt jede solche Kante in einer Warnung, die beide Services und beide Wellen angibt, sodass der Zyklus beim Build zutage tritt statt bei `docker compose up`. Die Warnung ist beratend — der Build gelingt, und die gerenderten Bytes sind genau so, wie sie ohne sie wären —, und `--no-unsupported-field-warnings` schaltet sie nicht stumm, weil nichts verworfen wurde: Die beiden Deklarationen sind jeweils ausgedrückt, und zusammen können sie nicht starten. Sie deckt nur das direkte Paar ab: Sie nennt die zwei Services, die eine Kante verbindet, statt den ganzen Zyklus zu verfolgen. Jeder Zyklus, der aus Kanten `uses` und Wellen zusammen gebildet wird, verläuft durch mindestens eine solche Kante und wird daher immer gemeldet; ein Zyklus, der allein aus Kanten `uses` gebildet wird, ohne beteiligte Welle, und einer, der durch einen Eintrag `depends_on` in einer vom Recipe gelieferten compose-Datei geschlossen wird, werden wie geschrieben ausgegeben und nicht gemeldet. Halten Sie die Kantenrichtung und die Wellenreihenfolge konsistent: Platzieren Sie den Konsumenten in der Welle des Ziels oder einer späteren, oder das Ziel in der Welle des Konsumenten oder einer früheren."
   },
   "33f31d4cde8b25fd": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -23485,6 +23688,13 @@
     "srcHash": "37469d16afb5463a",
     "status": "machine",
     "text": "Bei einem Recipe oder FeatureRecipe, dessen `source:` ein Verzeichnis oder eine Datei daneben benennt, wird diese Quelle fixiert, wenn die Entität fixiert wird — durch `aggrega pin` oder durch einen Pull oder einen Push, der denselben Schritt ausführen soll. Die `entity.lock` neben der Entität erfasst einen Digest pro Datei, die die Quelle zu dem beisteuert, was eine Veröffentlichung der Entität mitführt, mit dem Pfad der Datei als Schlüssel. Sobald das Lock sie erfasst, vergleicht jeder Build die Quelle in ihrem aktuellen Zustand mit diesen Fixierungen, bevor der Provider sie liest, und weist eine Abweichung zurück — sodass ein Chart oder ein Modul, das nach dem Fixieren bearbeitet wurde, nie so gerendert wird, als wäre es geprüft worden. `aggrega pull --verify` führt denselben Vergleich durch und meldet eine Abweichung mit derselben Meldung. Ein Build nennt die Komponenteninstanz, deren Quelle er gerade auflöste, und darunter das Recipe-Dokument."
+  },
+  "37490bb1bb603082": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "37490bb1bb603082",
+    "status": "machine",
+    "text": "Innerhalb eines Services behalten die Quellen ihre eigene Reihenfolge und verschränken sich nicht: Das Warten auf die Init-Kette, deren Reihenfolge die ist, in der der Autor die Liste geschrieben hat, wird zuerst ausgegeben, dann die alphabetisch geordneten aus Kanten abgeleiteten Einträge, dann die alphabetisch geordneten aus Wellen abgeleiteten."
   },
   "374b04737523b04b": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -25246,6 +25456,13 @@
     "status": "machine",
     "text": "`graph_entrypoint`, der Importpfad des Graphen, wie die Konfiguration ihn schreibt;"
   },
+  "3b7ac64765c7b09e": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "3b7ac64765c7b09e",
+    "status": "machine",
+    "text": "**ein Volume**, genannt als Quelle eines Eintrags `volumes:` — die Kurzform `SOURCE:TARGET`, bei der die Quelle ein Name und kein Pfad ist, und die Langform von `type: volume`;"
+  },
   "3b7d0888ec0dbef4": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -25780,6 +25997,13 @@
     "status": "machine",
     "text": "Ausgegebene Meldung, die die Anbindung und den Geltungsbereich nennt, in dem die Komponente sitzt:"
   },
+  "3c98a37baafd70df": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "3c98a37baafd70df",
+    "status": "machine",
+    "text": "Zwei Formen lassen sich damit kombinieren. Ein Sidecar nennt weiterhin den Haupt-Service (`network_mode: \"service:<main>\"`) und folgt dem Haupt-Service also in das Netzwerk des Hosts, ohne selbst etwas zu deklarieren — so wie die Container eines Kubernetes-Pods einen Namespace teilen. Ein Init-Service nicht: Er tritt dem Boundary-Netzwerk aus eigenem Recht bei, weil das Teilen des Namespace des Haupt-Service das Warten des Haupt-Service auf ihn zirkulär machen würde. Eine Arbeitslast mit sowohl `hostNetwork` als auch `initContainers` führt ihren eigenen Service also im Netzwerk des Hosts aus, während ihre Init-Services im Boundary-Netzwerk bleiben, was enger ist als die Pod-Form, die sie modelliert; eine Warnung `unsupported-field` nennt diesen Unterschied, statt ihn erst zur Laufzeit entdecken zu lassen."
+  },
   "3c99f1f33643ed94": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -26029,6 +26253,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Korrigieren Sie bei Fehlen in Pfad-Templates den Feldnamen zu einem aus der Allowlist, die unter [`path-template-variables.md`](../path-template-variables.md) dokumentiert ist. Korrigieren Sie bei einem Fehlen in einer Assertion den Verweis — die meisten Meldungen sind ein falsch geschriebener Schlüssel — oder schützen Sie ihn, wo das Feld wirklich optional ist, mit `hasKey`, oder verwenden Sie den Helper `optional`; den bloßen Verweis in ein `default` einzuschließen, beseitigt den Abbruch nicht, weil der Verweis aufgelöst wird, bevor der Fallback läuft, und ihn über `index` zu lesen ebenso wenig, weil `index` bei einem Schlüssel abbricht, den die Map nicht enthält. Verwenden Sie bei Fehlen in Werte-Templates, wo eine leere Ausgabe unerwünscht ist, den Helper `optional`, oder liefern Sie den fehlenden Schlüssel als typisierte Deklaration `parameters.*` am Aggregate mit einem Wert aus dem Release, als Eintrag `provides:` einer vorgelagerten Component, verdrahtet über `uses[].inject`, oder als Eintrag `locals:` an derselben Entität."
   },
+  "3d0c951878cabd4c": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "3d0c951878cabd4c",
+    "status": "machine",
+    "text": "Der Rest hat kein Äquivalent auf einem einzelnen Host. **Keines wird stillschweigend verworfen:** Jedes geschriebene löst eine Warnung `unsupported-field` aus, die das Feld nennt, sodass ein Autor erfährt, welche Einstellung das Ziel nicht berücksichtigen konnte, statt es am laufenden Stack zu entdecken."
+  },
   "3d0f78a5ba09570d": {
     "at": "2026-11-03T16:48:59.633Z",
     "job": "session-0130-20261103164859",
@@ -26042,6 +26273,13 @@
     "srcHash": "3d131021f01a1291",
     "status": "machine",
     "text": "`aggrega validate` ohne Argument und `aggrega validate <entity-path>` mit oder ohne `--release` lesen Bibliotheken nur aus Katalogverzeichnissen und lesen keine Lockfile, daher ändert kein festgehaltener Eintrag ihr Urteil. Die Zeile sagt das und nennt `aggrega pull --release <release>`, gefolgt von `aggrega validate --release <release>`, das das Release gegen das prüft, was seine Lockfile pinnt."
+  },
+  "3d15882aef892b03": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "3d15882aef892b03",
+    "status": "machine",
+    "text": "Init-Container"
   },
   "3d160eed3f8dc414": {
     "at": "2026-11-03T16:48:59.633Z",
@@ -27679,6 +27917,13 @@
     "srcHash": "41688d753745bcdf",
     "status": "machine",
     "text": "`published` ist das, was gelesen wurde, und es ist in dieser Antwort vorhanden und in keiner nach Namen: die `reference`; `archive`, ob ihre Bytes ein Archiv waren, aus dem das Dokument entpackt wurde — `false`, wo die Koordinate das Dokument selbst enthielt; der `mediaType`, den das Manifest deklariert; und der `manifestDigest` dieses Manifests, den Sie nach `@` anstelle des Tags senden können, um genau dieselben Bytes erneut zu lesen."
+  },
+  "416a50776d31d26c": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "416a50776d31d26c",
+    "status": "machine",
+    "text": "**Der Schlüssel an einem Service, der `network_mode` schreibt.** Compose lässt einen Service mit einem `network_mode` keinen Netzwerken beitreten; entfernen Sie eines der beiden."
   },
   "417348a1ea52d752": {
     "at": "2026-11-03T17:29:36.700Z",
@@ -31386,6 +31631,13 @@
     "status": "machine",
     "text": "Der Build hält an, statt eines von beiden in die Anbindung der Verbindung einzufalten, denn dann zeigte keines der beiden Dokumente vollständig, was der Build damit tut. Der Slot eines Sockets wird pro Verbindung gefüllt, durch den eigenen Eintrag der Verbindung, und nie durch eine Anbindung, die aus einem weiteren Geltungsbereich auf ihn herabkaskadiert. Ein Schlüssel mit Punkt, den keine Verbindungsanbindung der Komponenten trägt, die er erreicht, ist ein gewöhnlicher Anbindungsname und wird nicht zurückgewiesen."
   },
+  "49bb61e50a9386c4": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "49bb61e50a9386c4",
+    "status": "machine",
+    "text": "`user` nennt eine Gruppe nur neben einem Benutzer, und der eigene Benutzer eines Containers tritt an die Stelle des Benutzers des Pods, sodass die Gruppe des Pods keinen so geschriebenen Service erreicht"
+  },
   "49be915f73678b75": {
     "at": "2026-11-03T12:09:20.360Z",
     "job": "session-0103-20261103120920",
@@ -32796,6 +33048,13 @@
     "srcHash": "4d6a1eaa0a9284c2",
     "status": "machine",
     "text": "Jeder Datensatz enthält außerdem `published`: jede Version, die der Index erfasst hat, in aufsteigender Versionsreihenfolge, jeweils mit dem `manifestDigest`, zu dem ihr Tag beim Erstellen des Index aufgelöst wurde, und, wo die Vertrauensrichtlinie dieses Workspace die eigene Signatur dieser Version verifiziert hat, ihrem `signer` — von mehreren, die sich verifizieren lassen, derjenige, den das Transparenzprotokoll am frühesten erfasst hat. Eine Version ohne `signer` trägt keine Signatur, die diese Richtlinie verifiziert hat, und mehr wird über sie nicht gesagt. Ein Konsument, der den Inhalt einer Version liest, adressiert ihn über diesen Digest — zum Beispiel `aggrega inspect oci://<host>/<repository>@<digest>` —, sodass er die Bytes liest, die der Index erfasst hat, unabhängig davon, was danach mit dem Tag geschieht."
+  },
+  "4d6eb743652ac6d2": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "4d6eb743652ac6d2",
+    "status": "machine",
+    "text": "**ein Service**, genannt durch `depends_on` in einer der beiden Formen, durch `links` (`SERVICE` oder `SERVICE:ALIAS`), durch `volumes_from` (`SERVICE` oder `SERVICE:MODE`), durch `network_mode`, `ipc`, `pid` oder `uts` mit dem Wert `service:<name>`, durch `extends`, das einen Service derselben Datei nennt, oder durch einen Wert `service:<name>` von `build.additional_contexts`;"
   },
   "4d722662b8e0c6af": {
     "at": "2026-11-03T11:51:14.962Z",
@@ -35086,6 +35345,13 @@
     "status": "machine",
     "text": "`aggrega registry` verwaltet die Registries, die der Workspace kennt, und ihre Richtlinie für das Signaturvertrauen. Die Identität einer Registry ist ihr Host; die Unterbefehle teilen sich ein Adressierungsmodell:"
   },
+  "52e20e37e0edde99": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "52e20e37e0edde99",
+    "status": "machine",
+    "text": "Felder auf Pod-Ebene"
+  },
   "52e6af65d763dd2c": {
     "at": "2026-11-03T18:11:00.667Z",
     "job": "session-0139-20261103181100",
@@ -35587,6 +35853,13 @@
     "status": "machine",
     "text": "Ein Policy-Plugin, das an einer Urteilsrolle der Governance angehängt ist, hat den zusammengesetzten Build anhand einer von ihm durchgesetzten Regel abgelehnt. Behebung: die durchgesetzte Policy erfüllen oder die Anbindung überdenken."
   },
+  "53f5b4ea94c8f54f": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "53f5b4ea94c8f54f",
+    "status": "machine",
+    "text": "Jedes andere Zeichen wird als `-z` geschrieben, gefolgt von einem Buchstaben, der es benennt: `s` für ein Pfadtrennzeichen, `h` für einen Bindestrich, den die obige Regel nicht beibehält. Alles andere — ein Leerzeichen und ein Nicht-ASCII-Buchstabe eingeschlossen — wird als `x` und der sechsstellige hexadezimale Codepunkt des Zeichens geschrieben, und ein Byte, das überhaupt kein Zeichen beginnt, als `b` und sein eigener zweistelliger Wert, sodass eine Identität, die kein gültiger Text ist, dennoch eindeutig ausgeschrieben wird, statt mit einer anderen zusammenzufallen."
+  },
   "53fa3aa5751b0c15": {
     "at": "2026-10-22T06:52:21.462Z",
     "job": "session-0021-20261022065221",
@@ -36032,6 +36305,13 @@
     "srcHash": "54c2753d133b4455",
     "status": "machine",
     "text": "Ein Schritt liest die Verbindungen, die sein Host herstellt, so wie das eigene Recipe des Hosts sie liest, und nie die Render-Fakten ihrer Ziele — für jedes FeatureRecipe, ob es `readsTargetRenderFacts: true` setzt oder nicht. Ein Schritt darf die eigenen Dokumente der Host-Komponente umschreiben, und das eigene Rendern des Hosts liest, was seine Ziele veröffentlichen, nie, was sie ausgegeben haben, daher werden die Templates eines Schritts ohne diese Fakten ausgewertet. Ein Schritt, der sie liest, würde daher nichts lesen, und der Build bricht ab, bevor irgendetwas gerendert wird, statt diesen Lesezugriff als leeren Wert zu rendern."
+  },
+  "54cbe9630ad0f42f": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "54cbe9630ad0f42f",
+    "status": "machine",
+    "text": "Jeder Service tritt einem Docker-Netzwerk bei; Sidecars erben es über ihren Verweis `network_mode` auf den Haupt-Service. In welchem Netzwerk ein Knoten landet, wird aus der Annotation `aggrega.ai/namespace` an diesem Knoten gelesen, mit dem Pfad der compose-Datei als Rückfall, wo der Knoten keine solche Annotation trägt — dem Verzeichnis, in das die Datei unterhalb des Ausgabeverzeichnisses des Builds geschrieben wird, etwa `bridge/compose` für eine Boundary, deren `directory:` `bridge` ist. Jeder Knoten ohne die Annotation in einer compose-Datei tritt also einem einzigen Netzwerk bei, das nach dem Pfad der Datei benannt ist, gleich in welcher Boundary er sich befindet: Nicht annotierte Boundaries, die eine compose-Datei teilen, teilen dieses Netzwerk, und `aggrega.ai/namespace` ist das, was sie trennt. Knoten mit unterschiedlichen Annotationen landen in einem Netzwerk pro unterschiedlicher Annotation. [Wie ein Netzwerkname abgeleitet wird](#how-a-network-name-is-derived) ist der Name, den diese Identität erzeugt."
   },
   "54d15d42a973896e": {
     "at": "2026-11-03T04:59:01.011Z",
@@ -40722,6 +41002,13 @@
     "status": "machine",
     "text": "[workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — Eine einzelne zustandslose App, auf Kubernetes durch die Workload-Synthese des helm-Providers gerendert — kein externes Chart."
   },
+  "5f831278a8a0b624": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "5f831278a8a0b624",
+    "status": "machine",
+    "text": "**Liste in Kurzform** (`depends_on: [<service-name>]`), wenn kein Eintrag dieses Services eine Bedingung trägt. Das ist jeder Service, dessen einzige Abhängigkeiten aus Kanten `uses` stammen."
+  },
   "5f85a609c6903828": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -41831,6 +42118,13 @@
     "status": "machine",
     "text": "`aggregate-undeclared-key.yaml` ist `aggregate-delivers.yaml` mit einer einzigen Änderung. Die Ad-hoc-Kante verlangt einen dritten Schlüssel:"
   },
+  "625c755a84ce7e09": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "625c755a84ce7e09",
+    "status": "machine",
+    "text": "Die Prüfung liest allein die eigene Datei des deklarierenden Recipe oder FeatureRecipe, sodass ein Verweis auf einen weggelassenen Service den Build auch dort abbricht, wo ein anderer Beitragender am selben Zusammensetzungspfad einen Service dieses Namens deklariert. Um den Verweis zu behalten, behalten Sie die Einheit. Um ihn zu entfernen, ändern Sie den verweisenden Eintrag über `valuesMapping:` — eine Liste dort ersetzt die Liste der Basisdatei, sodass `depends_on: []` eine leert — oder lassen Sie den verweisenden Service ebenfalls weg."
+  },
   "6262358a5bba9ca8": {
     "at": "2026-10-30T06:38:36.798Z",
     "job": "session-0071-20261030063836",
@@ -42400,6 +42694,13 @@
     "status": "machine",
     "text": "das Alphabet lässt es zu"
   },
+  "63cb9d3e7b1ccf18": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "63cb9d3e7b1ccf18",
+    "status": "machine",
+    "text": "Ein Init-Container wird genau wie jeder andere Container übersetzt: Sein `image` (einschließlich der Registry-Umschreibung, die eine Annotation `aggrega.ai/image-registry` anwendet), `command`, `args`, `variables`, `attachments`, `volumeMounts` und `securityContext` erreichen alle den Init-Service. Das sorgt dafür, dass die Konfiguration, die ein Init-Container trägt — meist eine Datei, die er einhängt und in ein Volume schreibt, das auch der Haupt-Container einhängt —, auf dem compose-Ziel erhalten bleibt, statt mit dem Container verloren zu gehen. Eine Form, die compose nicht ausdrücken kann, scheitert bei einem Init-Container genauso wie bei einem gewöhnlichen: Ein deklariertes `lifecycle` oder `envFrom` bricht den Build mit einem Fehler `TRANSLATION_ERROR` ab, der den Init-Container nennt, aus dem es stammt."
+  },
   "63cfca07605655c6": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -42504,6 +42805,13 @@
     "srcHash": "640f64b4a013e955",
     "status": "machine",
     "text": "In Claude Code:"
+  },
+  "640fc1e2666485b4": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "640fc1e2666485b4",
+    "status": "machine",
+    "text": "Das `depends_on` eines Services wird in einer der beiden Formen von compose ausgegeben, nie gemischt, weil compose für jeden Eintrag der Langform eine Bedingung verlangt:"
   },
   "641219a338699621": {
     "at": "2026-11-03T18:29:45.694Z",
@@ -43029,6 +43337,13 @@
     "srcHash": "656abe00a8957f8f",
     "status": "machine",
     "text": "Nennt jeden Marker, auf den er beim Durchlaufen der Registry trifft: das Repository, die Version, für die er erfasst wurde, den Schweregrad und ob der Marker erfasst wurde. Anschließend meldet jede Registry, wie viele Marker ihr Index nun enthält."
+  },
+  "656c338b775865dc": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "656c338b775865dc",
+    "status": "machine",
+    "text": "Den Netzwerken anderer Komponenten beitreten — `x-aggrega-networks-of`"
   },
   "656d9cb8d56cd40d": {
     "at": "2026-10-30T19:34:19.728Z",
@@ -43637,6 +43952,13 @@
     "status": "machine",
     "text": "root_password — Black-Box, zugestellt über den Inject-Kanal"
   },
+  "66e5d6fbbf2c0c33": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "66e5d6fbbf2c0c33",
+    "status": "machine",
+    "text": "**Eine Reihenfolge über zwei compose-Dateien hinweg ist nicht ausdrückbar, und sie wird nicht angenähert.** `depends_on` nennt einen Service innerhalb derselben Datei, und Boundaries, die zu unterschiedlichen Zusammensetzungspfaden ausgewertet werden, erzeugen unterschiedliche Dateien `docker-compose.yaml`, die die compose-Laufzeit als unabhängige Projekte behandelt. Eine Welle ordnet also jeden Service in der Datei, in die sie gerendert wird, und nichts außerhalb davon. Zwei compose-Projekte in eine Abfolge zu bringen ist Sache des Betreibers, so wie das [dateiübergreifende Routing](#what-the-compose-provider-does-not-deliver); ein gemeinsames `directory:` zu deklarieren ist das, was zwei Boundaries in eine Datei bringt, und es ist eine Entscheidung über die Form der Ausgabe, die aus eigenen Gründen zu treffen ist und nicht, um eine Reihenfolge zu erhalten."
+  },
   "66f993906d4f78a8": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -43909,6 +44231,13 @@
     "srcHash": "6794e2f7e96eaa6e",
     "status": "machine",
     "text": "[architecture/](architecture/README.md) — das „Warum“ von Aggrega. Vision, Positionierung, mentales Modell, Compiler-Pipeline auf konzeptioneller Ebene, Unternehmens-Governance, Katalog, Erweiterbarkeit, Designentscheidungen. Lesen Sie beim ersten Mal die nummerierten Kapitel 01 bis 16 der Reihe nach."
+  },
+  "679f39e9b399eb09": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "679f39e9b399eb09",
+    "status": "machine",
+    "text": "Multi-Container-Workloads"
   },
   "67ac8daeb1221e3f": {
     "at": "2026-11-03T21:35:42.901Z",
@@ -45230,6 +45559,13 @@
     "status": "machine",
     "text": "`aggrega build` folgt dem Prinzip des einzigen Einstiegspunkts: Das Release ist die einzige Kompilierungseingabe. `aggrega build --release release.yaml` liest die Zeiger `aggregate:` und `manifest:` des Release, um den Rest der Topologie zu finden, und erzeugt Ausgabe pro Grenze unter `dist/`: Eine benannte Grenze wird unter ihrem deklarierten `directory:` gerendert oder unter `dist/boundaries/<boundary-name>/`, wenn sie keines deklariert; ein Release, das statt benannter Grenzen `components:` auf oberster Ebene deklariert, wird flach unter `dist/` gerendert. Jede Komponente der Topologie muss zu einer dieser Grenzen gehören, und eine Komponente, die keine von ihnen enthält, bricht den Build ab: Eine Komponente gelangt in eine Grenze entweder dadurch, dass sie unter den `components:` dieser Grenze genannt wird, unter der ID, die sie nach dem Abflachen der Unter-Aggregates trägt, oder dadurch, dass sie in einem Unter-Aggregate liegt, das die Grenze unter `aggregates:` einbindet. Eine Komponente, die auf keinem der beiden Wege dorthin gelangt, würde außerhalb jeder vom Release deklarierten Grenze gerendert und bezöge ihren Ausgabeort, ihre Sync-Wave, ihre Annotationen und ihr komponentenspezifisches `infra:` aus dem Nichts; daher hält der Build an und nennt die Komponente, statt Artefakte auszugeben, auf die die Grenzkonfiguration des Release nie angewendet wurde. Dieselbe Beziehung wird von der Seite des Release aus geprüft: Ein Grenzeintrag, der eine Komponente nennt, die die Topologie nicht enthält, konfiguriert nichts, daher bricht auch er ab, und die Diagnose meldet die ID, die der Eintrag adressierte. `aggrega pull` teilt die Form mit dem Release als Eingabe; `aggrega inspect` nimmt jede Entität entgegen — einen Katalognamen, eine Entitätsdatei, eine Registry-Referenz oder ein Release; `aggrega push` nimmt eine Katalogentität entgegen; `aggrega validate` und `aggrega lint` akzeptieren eine Katalogentität, ein Release (über `--release`) oder den gesamten Katalog; `aggrega serve` läuft als langlebiger Prozess. Die Seite zu den globalen Flags dokumentiert Flags, die für alle Unterbefehle gelten."
   },
+  "6ad4dddfa1b04283": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "6ad4dddfa1b04283",
+    "status": "machine",
+    "text": "`securityContext` auf Container-Ebene wird teilweise übersetzt: `readOnlyRootFilesystem` → `read_only`, `capabilities.add` / `drop` → `cap_add` / `cap_drop`, `runAsUser` / `runAsGroup` → `user`. `runAsNonRoot` und `allowPrivilegeEscalation` haben keinen compose-Ausdruck und lösen dieselbe Warnung `unsupported-field` aus, ebenso ein `runAsGroup` eines Containers, das ohne ein `runAsUser` daneben geschrieben ist: Der Service läuft dann als Benutzer des Pods, wo der Pod einen setzt, ohne diese Gruppe."
+  },
   "6ad74f3d1f0ab158": {
     "at": "2026-11-03T13:44:11.193Z",
     "job": "session-0112-20261103134411",
@@ -45376,6 +45712,13 @@
     "srcHash": "6b4361c249fe0213",
     "status": "machine",
     "text": "Jeder Typ von Zugangsdaten, den die `credentials` eines Knotens nennen, und jeder Parameter auf oberster Ebene, den n8n als Passwort markiert, wird als Slot für Zugangsdaten entworfen; jeder andere Parameter des Knotens auf oberster Ebene ist ein Wertfeld. Das Entwerfen eines Knotens als Component liest keinen Feldwert."
+  },
+  "6b43b7f8cfbb76d4": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "6b43b7f8cfbb76d4",
+    "status": "machine",
+    "text": "Reihenfolge nach Bereitstellungswellen"
   },
   "6b4414e7b35208ba": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -46359,6 +46702,13 @@
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (ein Plugin hat keinen Ausdruck für ein Konstrukt, das dieser Build deklariert) compose: node `\"<node>\"` container `\"<container>\"`: compose: node `\"<node>\"` declares container envFrom; compose has no env-from-object primitive: compose has no env-from-object primitive; container declares envFrom (compose: im angegebenen Knoten und Container: compose: der angegebene Knoten deklariert envFrom für den Container; compose hat kein Primitiv für Umgebung aus einem Objekt: compose hat kein Primitiv für Umgebung aus einem Objekt; der Container deklariert envFrom)"
   },
+  "6dc47d9bd0696b7a": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "6dc47d9bd0696b7a",
+    "status": "machine",
+    "text": "Eine gänzlich fehlende Identität — ein Knoten ohne Annotation `aggrega.ai/namespace` in einer compose-Datei ohne Pfad — wird als `-ze` geschrieben, was keine von einem Autor geschriebene Identität erzeugen kann. Ein Netzwerk ohne Identität teilt daher nie Konnektivität mit einem, dessen Identität auf irgendeine bestimmte Weise geschrieben ist."
+  },
   "6dc638e87e8f68a0": {
     "at": "2026-11-03T22:29:54.265Z",
     "job": "session-0168-20261103222954",
@@ -46922,6 +47272,13 @@
     "srcHash": "6ef47102243d0191",
     "status": "machine",
     "text": "**`default_on: true` führt ihn bei jedem Aufruf aus.** Ein Aufrufer kann ihn nicht aus der Anfrage heraus abschalten, auch nicht mit einer Anfrage, die verlangt, die stets aktiven Guardrails des Gateways zu deaktivieren."
+  },
+  "6ef4801845b8cff4": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "6ef4801845b8cff4",
+    "status": "machine",
+    "text": "Die Reihenfolge, die der Authoring-Vertrag verspricht — die Init-Container laufen in der Reihenfolge, in der sie geschrieben sind, bis zum Abschluss, und jeder andere Container startet erst, nachdem alle beendet sind —, wird mit der Langform von `depends_on` ausgedrückt:"
   },
   "6ef8e86c48a5a364": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -48912,6 +49269,13 @@
     "status": "machine",
     "text": "Der Build schreibt eine Datei, `dist/compose/docker-compose.yaml`, und `docker compose` startet sie und kehrt zurück, sobald jeder Dienst läuft. **Der erste Start lädt die Modell-Laufzeitumgebung und das Modell herunter**, etwa 3 GB, bevor er zurückkehrt."
   },
+  "73aed4221f4fe837": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "73aed4221f4fe837",
+    "status": "machine",
+    "text": "Modus mit Quelle"
+  },
   "73b1a04800418ac2": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -49534,6 +49898,13 @@
     "srcHash": "75294cf15e825d06",
     "status": "machine",
     "text": "the entity's category label does not match the category directory the entity is filed under (das Kategorie-Label der Entität stimmt nicht mit dem Kategorieverzeichnis überein, unter dem die Entität abgelegt ist)"
+  },
+  "752c651d125728c3": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "752c651d125728c3",
+    "status": "machine",
+    "text": "Platzierung — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — setzt einen Scheduler voraus, der zwischen Knoten wählt. Compose läuft auf einem einzigen Host"
   },
   "753012b649bed620": {
     "at": "2026-10-30T19:53:23.628Z",
@@ -53292,6 +53663,13 @@
     "status": "machine",
     "text": "Ein Blatt erscheint nur dort, wo eine Deklaration es **abdeckt** — die Deklaration nennt dieses Blatt oder nennt ein Objekt, das es enthält, segmentweise über den gepunkteten Pfad abgeglichen. Nichts wird aus dem eigenen Text des Pfads gelesen, und kein Wert wird untersucht. Daher erscheint `key`, das in derselben Anbindung neben `origin` geschrieben ist, nie: Sein Feature deklariert nichts darüber."
   },
+  "7db3a66bdb9aa3b8": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "7db3a66bdb9aa3b8",
+    "status": "machine",
+    "text": "**Jeder Service wartet auf jeden Service der unmittelbar vorhergehenden Welle, die überhaupt Services hat, und auf keine frühere Welle als diese.** Compose löst den Rest transitiv auf: Ein Service in Welle `2` wartet auf Welle `1`, die auf Welle `0` wartet, sodass die gesamte Abfolge geordnet ist, während die eigene Liste jedes Services so groß wie eine Welle bleibt statt wie die ganze Datei. Wellen müssen nicht lückenlos sein, und negative Werte sind gewöhnlich — `-1` ist eine übliche Wahl für eine Migration, die vor allem anderen läuft."
+  },
   "7db3e2e469fac4c6": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -53779,6 +54157,13 @@
     "status": "machine",
     "text": "Das klassische Projekt, das die Tests dieses Importers importieren und dessen zwei Agenten beide `openai/gpt-4o` nennen, wird ohne Einstellung entworfen als:"
   },
+  "7f18eba7c6b12c35": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "7f18eba7c6b12c35",
+    "status": "machine",
+    "text": "Das `source:` des compose-Providers nennt eine YAML-Datei für docker-compose, die der Provider lesen und parsen kann, und es akzeptiert beide Formen, die das Feld `source:` annimmt: einen **reinen Dateisystempfad als String** und ein **strukturiertes Objekt**, dessen `url:` den Ort trägt. Wo immer dieser Ort ein Dateisystempfad ist, ist er an dem Verzeichnis verankert, das die `recipe.yaml` enthält, die ihn deklariert, nicht an dem Verzeichnis, aus dem der Build aufgerufen wird, und er muss innerhalb dieses Verzeichnisses bleiben: Ein Pfad, der daraus hinaussteigt, oder ein absoluter wird abgelehnt, weil jede Datei, die eine Veröffentlichung des Recipe mitführt, aus seinem Verzeichnis genommen wird — siehe [`entities/recipe.md`](../entities/recipe.md) „Content paths stay inside the Recipe's own directory (Inhaltspfade bleiben im eigenen Verzeichnis des Recipe)“. Die so benannte Datei wird mit dem Recipe veröffentlicht, eine Datei neben dem Recipe, die nichts von dem, was es deklariert, nennt, dagegen nicht."
+  },
   "7f1a85598bc8565f": {
     "at": "2026-11-03T17:29:36.700Z",
     "job": "session-0134-20261103172936",
@@ -54121,6 +54506,13 @@
     "srcHash": "800fd1d84e817fe6",
     "status": "machine",
     "text": "Der Konsument liest sie unter `.features.<instance-name>.provides.<key>` (oder `.features.<slot>.provides.<key>` für eine Zugangsdaten-Anbindung), analog zu `.context.uses.<alias>.provides` für eine `uses`-Kante. Wo die Anbindung auf einer der Verbindungen des Konsumenten geschrieben ist, liest der Konsument dieselbe Map unter dieser Verbindung, unter `.context.uses.<alias>.features.<slot>.provides.<key>`, und die Anbindung gehört nicht zu seinen `.features` (siehe [Die Anbindungen einer Verbindung](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures)). Der eigene `inject:`-Block der Anbindung löst seine `from:`-Verweise gegen dieselbe Map auf, sodass ein Autor einen der beiden Kanäle wählen kann: `provides` für einen Template-Lesezugriff, `inject` für die Lieferung in eine Umgebungsvariable, eine Datei oder ein Argument."
+  },
+  "801d6ca76bad41e5": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "801d6ca76bad41e5",
+    "status": "machine",
+    "text": "Die Einträge `initContainers` einer Workload werden zu eigenen Services und nutzen das Run-to-Completion-Idiom von compose. Jeder Eintrag fügt einen Service mit dem Namen `<component>-<container-name>` hinzu, nach demselben Benennungsschema, das Sidecars verwenden; ein Eintrag, der `name` weglässt, erhält den positionsbasierten Namen `init-<index>`, den die [Workload-Referenz](../entities/workload.md) dokumentiert."
   },
   "802277c699f99e14": {
     "at": "2026-11-03T04:04:10.739Z",
@@ -55609,6 +56001,13 @@
     "status": "machine",
     "text": "Ein Release erfüllt die Parameter, die ein Aggregate deklariert hat, auf eine von zwei Arten, und der Block wird anhand seiner Form gelesen. Entweder ist er ein Mapping von Parameternamen auf direkt geschriebene Werte, oder er ist ein Mapping mit genau einem Schlüssel, `$import:`, dessen Wert der Pfad einer YAML-Datei ist, die diese Werte enthält. Ein Block, der keines von beidem ist, wird beim Lesen zurückgewiesen, bevor irgendetwas die Werte mit den Deklarationen des Aggregate abgleicht."
   },
+  "83c9c9e37c4632c6": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "83c9c9e37c4632c6",
+    "status": "machine",
+    "text": "Das Ausgeben der Abschlussbedingung hebt keine Mindestversion von Compose an. `condition` und seine Werte gehören zur grundlegenden Compose Specification — anders als die Felder `restart` und `required` daneben im selben Langform-Block, die die Spezifikation an bestimmte Compose-Versionen bindet. Jede Mindestversion, die die Ausgabe des compose-Providers verlangt, kommt mit dem Konstrukt, das sie benötigt: **≥ 2.23.1** für inline `configs.content`, **≥ 2.26.0** für das `subPath` eines Mounts (siehe [Volumes](#volumes)) und 2.38 für [Modelle](#models). Die erste betrifft jede compose-Ausgabe, die eine Config mit inline `content:` trägt, und so kommen sowohl die Datei hinter einem Volume `configmap` als auch die Config hinter einer per Bridge verbundenen netzwerkübergreifenden Kante an — nicht nur ein einzelner Authoring-Pfad."
+  },
   "83d3c66eda42c1e3": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -56072,12 +56471,26 @@
     "status": "machine",
     "text": "**Aggrega: Show topology graph** — öffnet den Topologiegraphen für das ausgewählte Release. Das Zeichnen kompiliert dieses Release zu seiner Topologie, daher zeigt es den Fortschritt mit einer Cancel-Schaltfläche."
   },
+  "84f7cbd0a7a3578d": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "84f7cbd0a7a3578d",
+    "status": "machine",
+    "text": "**Maps: rekursiv zusammenführen.** Wenn Basis und Overlay dasselbe Map-Feld setzen, steigt die Zusammenführung rekursiv in die Map ab. Schlüssel, die in beiden vorhanden sind, folgen denselben Regeln; Schlüssel, die nur in einer vorhanden sind, bleiben unverändert erhalten."
+  },
   "84fce54c48f86d23": {
     "at": "2026-11-03T11:13:56.542Z",
     "job": "session-0097-20261103111356",
     "srcHash": "84fce54c48f86d23",
     "status": "machine",
     "text": "Ghost Infrastructure Tracker warnings (Warnungen des Ghost-Infrastructure-Trackers)"
+  },
+  "850156e59f3c5eed": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "850156e59f3c5eed",
+    "status": "machine",
+    "text": "**Die Abhängigkeit landet auf dem eigenen Service der Quellkomponente und auf keinem anderen Service, den diese Komponente beiträgt.** Eine Komponente, die zusätzlich [Init-Container](#init-containers) deklariert, trägt pro Eintrag einen bis zum Abschluss laufenden Service bei, und keiner davon erhält die aus der Kante abgeleitete Abhängigkeit — eine Kante nennt die Komponente, und ein Init-Service trägt einen eigenen Namen. Ein Init-Container, der das Ziel der Kante erreichen muss, etwa eine Schemamigration gegen eine Datenbank, auf die die Komponente mit `uses` verweist, trägt daher keine Reihenfolge gegenüber diesem Ziel und kann laufen, bevor es erreichbar ist, während der eigene Service der Komponente sowohl darauf wartet, dass die Init-Kette abgeschlossen ist, als auch darauf, dass das Ziel gestartet ist."
   },
   "850229530e88d932": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -58115,6 +58528,13 @@
     "srcHash": "89d43d309680cba8",
     "status": "machine",
     "text": "**Zwei Einstellungen ändern, was er installiert**, jeweils aus der Umgebung gelesen, in der das Skript läuft:"
+  },
+  "89ddd2bc033ee0bf": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "89ddd2bc033ee0bf",
+    "status": "machine",
+    "text": "**Ein Wert, der keine Liste von Zeichenketten ist.** Der Schlüssel nimmt eine Liste von Komponenten-IDs an, auch für eine einzige ID."
   },
   "89e1a0a18f0731df": {
     "at": "2026-11-03T12:45:16.288Z",
@@ -61030,6 +61450,13 @@
     "status": "machine",
     "text": "**`spec.signature`** — ein optionaler beschreibender Verweis auf die angehängte Signatur des Plugins (Abschnitt 8). Dieser Block ist reine Dokumentation: Er hält für Leser des Katalogs fest, wo die Signatur liegt und wie sie erzeugt wurde; er lässt das Plugin nicht selbst zu. Die durchsetzende Prüfung ist die Vertrauensrichtlinie pro Registry, die beim Pull angewendet wird."
   },
+  "90872f6dbfc66ab9": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "90872f6dbfc66ab9",
+    "status": "machine",
+    "text": "`user` (`\"1000\"` oder `1000:3000` mit einer Gruppe) auf jedem Service der Workload. Ein Container, der sein eigenes `securityContext.runAsUser` setzt, läuft stattdessen auf seinem eigenen Service als dieser Benutzer, mit seinem eigenen `runAsGroup`, wo er eines setzt"
+  },
   "9088a899473fa91d": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -63105,6 +63532,13 @@
     "srcHash": "95b7c32945d6573a",
     "status": "machine",
     "text": "Ein Push schreibt zuerst den Inhalt und hängt Signatur und Veröffentlichungsdatum danach an, sodass ein Push, der an einem dieser Anhänge scheitert — nach [seinen Wiederholungen](#when-the-registry-fails-a-write) —, den Inhalt ohne ihn veröffentlicht lässt und mit einem Exit-Code ungleich null endet, der nennt, was er nicht anhängen konnte. Derselbe Push, erneut ausgeführt, schließt diese Veröffentlichung ab. Er findet den Inhalt bereits veröffentlicht, gibt die Zeile `Already published:` aus, lädt nichts hoch und hängt an, was der Version noch fehlt, jeweils in der Zeile, die eine erste Veröffentlichung dafür ausgibt:"
+  },
+  "95b7cf98685f12a7": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "95b7cf98685f12a7",
+    "status": "machine",
+    "text": "Ein compose-Netzwerk ist gemeinsam genutzte L3-Konnektivität, und der Top-Level-Block `networks:` vereinigt seine Einträge nach Namen — zwei Identitäten, die bei einem Namen ankommen, werden also zu einem Netzwerk, in dem beide Gruppen von Services liegen und sich über den Service-Namen erreichen, ohne dass in der ausgegebenen Datei etwas zeigt, dass zwei Netzwerke gemeint waren. Der Name wird daher aus der Identität gebildet, die sagt, um welches Netzwerk es sich handelt: der Annotation `aggrega.ai/namespace` des Knotens oder dem Pfad der compose-Datei, wo der Knoten keine trägt."
   },
   "95bcae7fd5ea63cc": {
     "at": "2026-11-03T12:27:39.720Z",
@@ -66539,6 +66973,13 @@
     "status": "machine",
     "text": "Jeder Knoten wird gegen die Components des eigenen Katalogs des Workspace bewertet und gegen nichts anderes, wie der [Importer-Socket](plugin-contract.md#the-importer-socket--draft-authoring-output) beschreibt, und jeder Importer bringt eine kurze Tabelle mit, die gängige Knotentypen seines Formats — Chat- und Embedding-Modelle, Retrieval, HTTP-Anfragen und, bei Langflow, den MCP-Tools-Knoten `MCPTools`, der auf `core/ai-tool/mcp` abgebildet wird — auf Components der Standardbibliothek abbildet. Die Tabelle des n8n-Importers bildet die Chat- und Embedding-Modelle von n8n ab, sein MCP-Client-Werkzeug auf `core/ai-tool/mcp`, seine HTTP-Anfrage-Werkzeuge, sein SerpApi-Werkzeug, seine Vektorspeicher Qdrant, PGVector, Chroma, Milvus und Weaviate sowie seine Chat-Speicher Postgres und Redis. Ein Knoten, den n8n innerhalb des Workflows selbst ausführt — ein Agent, eine Chain, ein Trigger, ein Speicher, den der Workflow in seinem eigenen Prozess hält, ein Code-Werkzeug —, gehört dem Workflow, und keine Zeile bildet ihn ab. Eine Zeile dieser Tabelle zählt nur dann für eine Übereinstimmung, wenn der Katalog des Workspace die Component enthält, die sie nennt. Der Befehl meldet eine Zeile für jeden Knoten, den er abgebildet hat, mit dem, was er gewählt hat, der Trefferebene und der Punktzahl des besten Kandidaten, und eine Zeile mit dem Wortlaut `made no choice for <node id> (<node type>)` für einen Knoten, dem er keine eigene Component gibt. Ein Knoten, der auf eine Component des Katalogs verweist, statt entworfen zu werden, hat keine eigene Datei: Das entworfene Aggregate nennt die Component."
   },
+  "9d79be046fd7b324": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "9d79be046fd7b324",
+    "status": "machine",
+    "text": "Die Basis-compose-Datei unter `<path>` wird gelesen und als YAML geparst."
+  },
   "9d84a04ba5343791": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -68769,6 +69210,13 @@
     "srcHash": "a291e83bb8d3e8e7",
     "status": "machine",
     "text": "**Ein Datensatz, der sein Schema nicht erfüllt, hält jeden Befehl an, der ihn liest** — einen Build, einen Release-bezogenen Lint und einen Pull, einschließlich eines Pulls, der selbst nichts zu erfassen hat. Ein geleerter und ein beschädigter Datensatz sind bewusst verschieden: Leeren ist die Art, den letzten Eintrag zu entfernen, und ein geleerter Datensatz bleibt still, während eine Datei, deren Inhalt sich nicht mehr parsen lässt, ein Fehler ist und kein leerer Datensatz — sie als leer zu lesen, würde das Kürzen der Datei zu einem Weg machen, den Vergleich abzuschalten. Stellen Sie sie aus der Versionskontrolle wieder her, um die geprüften Identitäten zurückzubekommen."
+  },
+  "a2978c0a08b5e442": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "a2978c0a08b5e442",
+    "status": "machine",
+    "text": "Zwei Unterschiede zum Haupt-Service ergeben sich daraus, dass ein Init-Service ein Nicht-Haupt-Service ist:"
   },
   "a299f777b9984dee": {
     "at": "2026-11-03T19:28:13.588Z",
@@ -71272,6 +71720,13 @@
     "status": "machine",
     "text": "`core/gateway/kong`"
   },
+  "a873da39b7dc9238": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "a873da39b7dc9238",
+    "status": "machine",
+    "text": "Registry-Anmeldeinformationen auf einem compose-Host sind der eigene Anmeldestatus des Hosts, kein Feld der Datei"
+  },
   "a87a2214fb7fc2a4": {
     "at": "2026-11-03T14:26:21.542Z",
     "job": "session-0117-20261103142621",
@@ -71607,12 +72062,26 @@
     "status": "machine",
     "text": "**`dry_run` tut alles außer schreiben.** Das bearbeitete Dokument kommt als `content` zurück, nichts wird angelegt, und `written` ist leer — für einen Client, der dem Autor das Ergebnis vorlegt, bevor es gespeichert wird. Jedes andere Verhalten ist das des Schreibens, die Schemaprüfung eingeschlossen, sodass eine Anfrage, die das Schreiben ablehnen würde, auch damit abgelehnt wird. Ohne es wird das Dokument geschrieben und `content` fehlt, weil das Dokument dann auf der Festplatte liegt und `written` es nennt."
   },
+  "a95624ddc047975b": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "a95624ddc047975b",
+    "status": "machine",
+    "text": "`podSecurityContext.runAsGroup`, wo der Pod kein `runAsUser` setzt, oder wo ein Container — Haupt-, Sidecar- oder Init-Container — sein eigenes `runAsUser` und kein `runAsGroup` setzt"
+  },
   "a956da665078f00f": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
     "srcHash": "a956da665078f00f",
     "status": "machine",
     "text": "**So beheben Sie es:** Importieren Sie eine Datei des Formats für sich allein. Damit ein Importer Verzeichnisse seines Formats liest, deklariert sein Autor die Muster, nach denen seine Dateien benannt sind — das Feld `files` einer Erkennungssignatur in seiner Selbstauskunft describe(), die seine Plugin-Entität festhält, wenn sie erzeugt wird. [aggrega-import.md](../cli/aggrega-import.md) beschreibt, was ein Import eines Verzeichnisses liest."
+  },
+  "a957df6e0adbccae": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "a957df6e0adbccae",
+    "status": "machine",
+    "text": "Inferenz von `depends_on`"
   },
   "a95a950afb66c50b": {
     "at": "2026-11-03T12:09:20.360Z",
@@ -74892,6 +75361,13 @@
     "status": "machine",
     "text": "Die Erhaltung der Autorenreihenfolge ist ein tragender Vertrag des Workload-Modells — der Compiler gibt `containers`, `volumes`, `services`, die `ports` der Container, die `variables` der Container und die `attachments` der Container jeweils in der Reihenfolge aus, in der der Recipe-Autor sie deklariert hat, bei jedem Build. Recipe-Autoren können sich auf die geordnete Gestalt verlassen: Wenn das, was zur Laufzeit geschieht, von der Reihenfolge abhängt (Start von Sidecars, Verkettung mit `$(VAR)` in Umgebungsvariablen, `volumeMounts`, die auf zuvor deklarierte Volumes verweisen), IST die Authoring-Reihenfolge die Laufzeitreihenfolge innerhalb jeder dieser Sammlungen. Die Umgebung eines Containers kombiniert zwei davon, und über beide hinweg schreiben die synthetisierenden Provider zuerst die aus Anbindungen gelesenen Einträge (`attachments`, die `as: env` geliefert werden) und danach die einfachen `variables`, jede Art in der geschriebenen Reihenfolge — sodass auf einem Kubernetes-Ziel eine Variable als `$(NAME)` auf jede aus einer Anbindung gelesene Variable ihres Containers und auf jede vor ihr deklarierte Variable verweisen kann (siehe die [Umgebungsreihenfolge des helm-Providers](../providers/helm.md#provider-specific-quirks)). Ein Container, der einen Namen sowohl als Eintrag in `variables` als auch als `as: env` gelieferten Eintrag in `attachments` angibt, bricht den Build ab, weil allein diese Reihenfolge entscheiden würde, welchen der beiden Werte der Prozess sieht (siehe [A container gives one environment variable two values (Ein Container gibt einer Umgebungsvariable zwei Werte)](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values))."
   },
+  "b0e2633975c99b9c": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "b0e2633975c99b9c",
+    "status": "machine",
+    "text": "**Listen: ersetzen.** Wenn Basis und Overlay dasselbe Listenfeld setzen, ersetzt die Liste des Overlays die Liste der Basis vollständig (kein elementweises Zusammenführen oder Anhängen). Das entspricht dem Verhalten von `docker compose -f base.yaml -f overlay.yaml config`."
+  },
   "b0e6fd6f71adee32": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -75277,6 +75753,13 @@
     "srcHash": "b1c2f0268be73f09",
     "status": "machine",
     "text": "Das Wasm-Plugin konstruiert die benötigten Strings und gibt über `stdout` ein flaches JSON-Dictionary zurück (z. B. `{\"primary_endpoint\": \"oracle://...\"}`)."
+  },
+  "b1cf23c40a45faf0": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "b1cf23c40a45faf0",
+    "status": "machine",
+    "text": "Die Regeln der tiefen Zusammenführung:"
   },
   "b1d1ee1e0692926d": {
     "at": "2026-11-03T09:26:16.050Z",
@@ -77059,6 +77542,13 @@
     "status": "machine",
     "text": "**Flags von `aggrega config capture`**"
   },
+  "b5548eecba8eda04": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "b5548eecba8eda04",
+    "status": "machine",
+    "text": "Ein compose-Netzwerkname akzeptiert eine engere Zeichenmenge, als jede der beiden Identitäten enthalten darf: Buchstaben, Ziffern, Punkte, Unterstriche und Bindestriche. Statt ein Zeichen zu ersetzen, das compose nicht akzeptiert, schreibt die Ableitung es aus, sodass zwei Identitäten, die sich überhaupt unterscheiden, bei zwei Netzwerken ankommen — und ein Name lässt sich in die Identität zurücklesen, aus der er gebildet wurde."
+  },
   "b55699549924b48d": {
     "at": "2026-11-03T20:41:34.574Z",
     "job": "session-0155-20261103204134",
@@ -77637,6 +78127,13 @@
     "srcHash": "b6d2776aeba81427",
     "status": "machine",
     "text": "**Ein clustererweiternder Controller, keine Topologiekante.** sealed-secrets fügt der Cluster-API seine eigene benutzerdefinierte Ressource hinzu; Konsumenten fordern Secrets an, indem sie Ressourcen `SealedSecret` deklarieren, daher verdrahtet die Komponente keine Kante `uses` und exportiert nichts."
+  },
+  "b6d576e4ce026bbf": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "b6d576e4ce026bbf",
+    "status": "machine",
+    "text": "**Services, Volumes und Konfigurationen weglassen.** Das Overlay kann nichts aus der Basisdatei entfernen — ein Overlay-Wert ersetzt, er löscht nie —, daher sind die Einträge [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) eines Recipe oder eines FeatureRecipe für eine abgerufene Datei da, die einen Service bündelt, den das Release nicht ausführen darf. Dieser Provider berücksichtigt sie in diesem Modus und in keinem anderen: Eine synthetisierte Workload und ein Körper `artifacts:` werden ohne sie gerendert. Ein Eintrag nennt eine Top-Level-Einheit der Datei über ihr `kind` — `service`, `volume` oder `config` — und ihren `name`, den Schlüssel der Einheit unter `services:`, `volumes:` oder `configs:`, exakt verglichen. Eine compose-Datei hat keine Namespaces, daher bricht ein Eintrag, der einen `namespace` trägt, wie einer, der irgendeine andere Art nennt, den Build ab, wenn die Komponente gerendert wird, und nennt den Eintrag und die Arten, die dieser Provider akzeptiert; jeder Eintrag wird geprüft, bevor irgendetwas weggelassen wird. Die Einträge werden mit der Datei abgeglichen, sobald das obige Overlay in sie zusammengeführt ist, sodass eine vom Overlay hinzugefügte Einheit genauso weggelassen wird wie eine von der Basis deklarierte, und bevor der Provider etwas Eigenes hinzufügt, sodass ein Eintrag das nie nennt. Eine Einheit, die ein Eintrag nennt, wird entfernt, und ein Abschnitt, dessen Einheiten alle weggelassen werden, wird mit ihnen entfernt; jede andere Einheit wird genau so geschrieben, wie sie es ohne die Einträge würde. Die Einträge erreichen die Datei des Recipe oder FeatureRecipe, das sie deklariert, und nichts sonst: Was eine andere Komponente oder ein angebundenes Feature zur selben `docker-compose.yaml` beiträgt, bleibt unberührt, eine Einheit mit demselben Schlüssel eingeschlossen. Der Provider meldet, wie viele Einheiten jeder Eintrag weggelassen hat, und ein Eintrag, der keine weggelassen hat, bricht den Build ab; siehe [An omits entry left out nothing the source rendered (Ein omits-Eintrag hat nichts von dem weggelassen, was die Quelle gerendert hat)](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered)."
   },
   "b6d7520bc6e15a72": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -78964,6 +79461,13 @@
     "status": "machine",
     "text": "**Was zurückgehalten wird.** Aus `config-show`: der `value` einer Einstellung, wo der eigene Wert dieser Einstellung ein Ort ist – eine Bereitstellungs- oder Health-Adresse, die eine Socket-Datei sein kann; eine Zertifikats-, Private-Key- oder Key-Set-Datei; ein Katalogverzeichnis sowie die eigenen Katalogverzeichnisse eines Release unter `workspace.releases`, deren Einträge jeweils durch eine Release-Datei verschlüsselt sind; eine Plugin-Referenz; ein Authoring-Release. Außerdem die `source` einer Einstellung, wo die Ebene, die sie entschieden hat, eine Konfigurationsdatei ist, da eine solche Ebene durch den eigenen Pfad dieser Datei benannt wird – und in derselben Schreibweise und aus demselben Grund die Konfigurationsdatei-Einträge von `layers`. Aus `plugin-list`: die `uri` eines Plugins, wo diese Referenz selbst ein Dateisystempfad ist, und der Text eines Auflösungs- oder Beschreibungsfehlers, der aus den versuchten Orten zusammengesetzt ist und daher Orte nennt, die die Referenz selbst nicht nennt. Aus beiden: `workspace_root`."
   },
+  "ba03976208b46b67": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "ba03976208b46b67",
+    "status": "machine",
+    "text": "Wie ein Netzwerkname abgeleitet wird"
+  },
   "ba04df6bf9281371": {
     "at": "2026-11-03T03:00:32.047Z",
     "job": "session-0041-20261103030032",
@@ -79117,6 +79621,13 @@
     "srcHash": "ba35144e712c23a3",
     "status": "machine",
     "text": "Ausführliches MariaDB-Beispiel"
+  },
+  "ba36794d1f3c85d8": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "ba36794d1f3c85d8",
+    "status": "machine",
+    "text": "Workload-Felder auf Pod-Ebene gelten nur für den Haupt-Service — Sidecars teilen den Netzwerk-Namespace des Haupt-Service —, und ein [Init-Service](#init-containers) folgt derselben Regel. Die einzige Ausnahme ist der Benutzer des Pods: Ein Pod führt jeden seiner Container als `podSecurityContext.runAsUser` und `runAsGroup` aus, daher erreichen diese jeden Service, den die Workload erzeugt, Sidecar- und Init-Services eingeschlossen."
   },
   "ba3c74c1a18f50a1": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -81831,6 +82342,13 @@
     "status": "machine",
     "text": "CloudFormation-Stack mit Anbindungen"
   },
+  "c06f09711905b9e4": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "c06f09711905b9e4",
+    "status": "machine",
+    "text": "Ein Buchstabe, eine Ziffer, ein Punkt und ein Unterstrich werden genau so übernommen, wie sie geschrieben wurden, in der Groß- und Kleinschreibung, in der sie geschrieben wurden. `prod` und `Prod` sind also zwei Netzwerke, nicht eines."
+  },
   "c077d10d2cd1745b": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -84173,6 +84691,13 @@
     "status": "machine",
     "text": "Das Recipe konsumiert"
   },
+  "c61e5ea08cdaa180": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "c61e5ea08cdaa180",
+    "status": "machine",
+    "text": "Wenn zwei Boundaries in einem Zusammensetzungspfad zusammenfallen (gemeinsames `directory:`), teilen ihre Knoten ohne Annotation `aggrega.ai/namespace` das eine Netzwerk der Datei; geben Sie jeder Boundary ihre eigene Annotation `aggrega.ai/namespace`, und die zusammengeführte `docker-compose.yaml` deklariert einen Top-Level-Eintrag `networks:` pro Annotation. Services aus verschiedenen Boundaries innerhalb derselben compose-Datei können über ihre Service-Namen innerhalb der standardmäßigen DNS-Auflösung von compose kommunizieren, vorbehaltlich der eigenen Regeln von compose zur netzwerkübergreifenden Erreichbarkeit. Netzwerkübergreifendes L4-Routing innerhalb einer einzelnen compose-Datei ermöglicht das Feature `compose-bridge` der Standardbibliothek, als Kataloginhalt, von dem dieser Provider keine Logik enthält: An der Boundary des gemeinsamen Vorfahren angebunden, leitet sein FeatureRecipe ein Gateway aus den Kanten `uses` der Boundary ab, deren beide Enden in ihre eigene compose-Datei zusammengesetzt werden und in verschiedenen Netzwerken darin liegen — einen Service `aggrega-gw`, dessen nginx-Config `stream` jede per Bridge verbundene Kante proxyt (ein Block `server` pro Kante, auf dem Port des Ziels mit einem Rückfall `portBase` bei Kollisionen) —, und sein eigenes `injectMapping` schreibt die Host-Umgebungsvariable jedes Konsumenten auf `aggrega-gw:<port>` um, oder auf `aggrega-gw`, wobei die Port-Variable auf den Listen-Port umgeschrieben wird, wo dieselbe Verbindung beides liefert. Diese Umschreibung ersetzt den Wert, den die eigene Verbindung des Konsumenten geliefert hat; hat ein anderes an den Konsumenten angebundenes Feature dieselbe Variable geliefert, bricht der Build ab und nennt beide, statt ihn zu ersetzen. Das `valuesMapping` des FeatureRecipe schreibt diese Config als **eingehängte compose-Config** — einen Top-Level-Eintrag `configs:` mit inline `content:`, auf den das Gateway verweist und der unter `/etc/nginx/nginx.conf` eingehängt wird; das ist kein Mount, um den sich ein Betreiber kümmert — und nennt jeden per Bridge verbundenen Endpunkt unter dem `x-aggrega-networks-of` des Gateways, das dieser Provider in die Netzwerke auflöst, in denen diese Endpunkte platziert sind ([unten](#joining-the-networks-of-other-components--x-aggrega-networks-of)). Eine Kante, deren beide Enden in zwei compose-Dateien zusammengesetzt werden, wird nicht per Bridge verbunden und behält den eigenen Namen des Ziels; eine Boundary, die nichts zu verbinden hat, trägt dennoch das untätige Gateway, ohne Config und ohne Netzwerk außer ihrem eigenen; und eine Bridge, die an eine Boundary angebunden ist, deren compose-Datei keine Komponente enthält, bricht den Build ab, statt das Gateway nirgendwohin zu schreiben. Die Config `stream` trägt eine Direktive `resolver` und proxyt über eine Variable pro Kante (`set $uN <host>; proxy_pass $uN`), sodass jeder Upstream zum Verbindungszeitpunkt statt einmal beim Start aufgelöst wird — ein bloßes `proxy_pass` auf ein noch nicht laufendes Ziel würde das Gateway sonst beim Hochfahren scheitern lassen. (Das `$` in diesen Variablen wird innerhalb von `configs.content` zu `$$` escapt, damit die eigene Interpolation `$` von Docker Compose ein literales `$` für nginx übrig lässt.) Inline `configs.content` erfordert Docker Compose **≥ 2.23.1**. Siehe das [Compose-Bridge-Muster](../entities/featurerecipe.md#the-compose-bridge-pattern)."
+  },
   "c61ec58d222f19e0": {
     "at": "2026-11-03T11:13:56.542Z",
     "job": "session-0097-20261103111356",
@@ -86405,6 +86930,13 @@
     "status": "machine",
     "text": "`sources` — die Definitionsdateien, die die Anbindung unter `with.sources` deklariert hat, jede mit ihrem Basisnamen-Pfad und ihrem Inhalt, sodass ein Mutator von einer eingecheckten Regel- oder Zuordnungsdatei statt von Inline-Einstellungen gesteuert werden kann."
   },
+  "cad90fe442777b96": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "cad90fe442777b96",
+    "status": "machine",
+    "text": "**Mapping in Langform**, wenn irgendein Eintrag eine trägt — was geschieht, wenn der Service auch auf einen [Init-Container](#init-containers) wartet oder wenn eine [Bereitstellungswelle](#deployment-wave-ordering) ihn ordnet. Dort geben die aus Kanten abgeleiteten Einträge die explizite `condition: service_started` aus, die die Compose Specification als Äquivalent der Kurzform definiert, sodass sich ihre Bedeutung nicht ändert."
+  },
   "cae08bb261fbfb76": {
     "at": "2026-11-03T00:27:36.365Z",
     "job": "session-0026-20261103002736",
@@ -86810,6 +87342,13 @@
     "srcHash": "cbe9b73b8320b757",
     "status": "machine",
     "text": "signing: keyless signing requires a live identity provider, Fulcio, and Rekor: an identity token source is required (signing: schlüssellose Signierung erfordert einen aktiven Identitätsanbieter, Fulcio und Rekor: eine Quelle für Identitätstoken ist erforderlich)"
+  },
+  "cbed2225a6637cfa": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "cbed2225a6637cfa",
+    "status": "machine",
+    "text": "`user` trägt einen Benutzer und eine Gruppe; die Gruppe, der die Volumes eines Pods gehören, und weitere Gruppen für seine Prozesse werden nicht übersetzt"
   },
   "cbf17f6a7ab70706": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -87478,6 +88017,13 @@
     "srcHash": "cd8076074374dc5b",
     "status": "machine",
     "text": "Die App lauscht auf Port 8080 der Loopback-Adresse Ihres Rechners. Fragen Sie sie, womit sie verbunden ist, speichern Sie dann eine Notiz und lesen Sie sie zurück:"
+  },
+  "cd838ea8b9b5069e": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "cd838ea8b9b5069e",
+    "status": "machine",
+    "text": "**Die Bedingung hängt davon ab, was das Ziel erfüllen kann.** Eine Welle bedeutet, dass die frühere Gruppe läuft, bevor die spätere startet, was Bereitschaft und nicht Prozessstart ist, daher:"
   },
   "cd8419f6acac4179": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -88215,6 +88761,13 @@
     "srcHash": "cf00ccb643d6a528",
     "status": "machine",
     "text": "**Ohne Argument sowie mit einem Entitätspfad, ob `--release` angegeben ist oder nicht**, liest validate Bibliotheken nur aus Katalogverzeichnissen und liest keine Lockfile, sodass ein verzeichneter Eintrag sein Urteil nicht ändern würde. Die Zeile sagt dies und verweist darauf, die Bibliothek unter einem Katalogverzeichnis zu verfassen, oder auf `aggrega pull --release <release>` gefolgt von `aggrega validate --release <release>`, das das Release gegen die Bibliotheken prüft, die seine Lockfile pinnt."
+  },
+  "cf0802edbc0b73da": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "cf0802edbc0b73da",
+    "status": "machine",
+    "text": "Eine Workload mit mehreren Containern wird zu einem Haupt-Service plus einem Sidecar-Service pro Nicht-Haupt-Container. Der Haupt-Container ist derjenige mit dem Namen `main` (falls vorhanden) oder der erste Container in Deklarationsreihenfolge. Sidecars teilen den Netzwerk-Namespace des Haupt-Service über `network_mode: \"service:<main>\"` — die compose-Primitive, die dem Modell des gemeinsam genutzten Netzwerks eines Kubernetes-Pods am nächsten kommt."
   },
   "cf08b5dcba2a2c8b": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -89090,6 +89643,13 @@
     "srcHash": "d0d3a9324140c5f1",
     "status": "machine",
     "text": "`infra`: Der physische Footprint und die mechanische Dimensionierung (im Besitz von Ops, im Aggregate verboten)."
+  },
+  "d0da74971adaad1a": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "d0da74971adaad1a",
+    "status": "machine",
+    "text": "Jede Warnung in diesem Abschnitt ist beratend und Out-of-Band: Der Build ist erfolgreich, und die ausgegebene Datei ist Byte für Byte so, wie sie ohne sie wäre. `--no-unsupported-field-warnings` schaltet die Klasse stumm."
   },
   "d0dcc5c9e39e35df": {
     "at": "2026-11-03T12:09:20.360Z",
@@ -90259,6 +90819,13 @@
     "status": "machine",
     "text": "ein `StatefulSet` — der Single-Binary-Loki-Prozess, mit seinem Chunk-Store auf einem persistenten Volume,"
   },
+  "d3b7869a3b7fe1b9": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "d3b7869a3b7fe1b9",
+    "status": "machine",
+    "text": "Der Wert `syncWave:` einer Boundary eines Release ordnet die Services der compose-Datei, in die diese Boundary gerendert wird. Jede Komponente in der Boundary erbt die Welle der Boundary, und wo mehrere Boundaries ein `directory:` teilen — sodass ihre Beiträge in einer einzigen `docker-compose.yaml` zusammenfallen —, enthält die zusammengeführte Datei mehr als eine Welle, und der Provider drückt die Reihenfolge zwischen ihnen als `depends_on` aus."
+  },
   "d3c015b301839ffb": {
     "at": "2026-11-03T16:27:42.239Z",
     "job": "session-0128-20261103162742",
@@ -91047,6 +91614,13 @@
     "status": "machine",
     "text": "**Ein Datenspeicher in der Rolle eines Caches.** Valkey wird hier als In-Memory-Cache verwendet und speichert nichts dauerhaft, daher ist die Komponente als einfacher `server` statt als `stateful-server` typisiert. Auf Kubernetes rendert das synthetisierte helm-Recipe ein **Deployment**, kein StatefulSet, und fordert kein persistentes Volume an; auf Compose deklariert der Service kein Daten-Volume."
   },
+  "d60666fa222ade61": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "d60666fa222ade61",
+    "status": "machine",
+    "text": "Das zusammengeführte Dokument fließt dann neben allen Beiträgen im synthetisierten Modus in die Zusammenführung auf Release-Ebene ein, mit derselben Netzwerkbildung pro Boundary und derselben Inferenz von `depends_on`."
+  },
   "d617a0f376cb89fa": {
     "at": "2026-11-03T05:48:27.674Z",
     "job": "session-0060-20261103054827",
@@ -91102,6 +91676,13 @@
     "srcHash": "d6475a185f756d5d",
     "status": "machine",
     "text": "Domäne 2 — Platform Catalog"
+  },
+  "d64dc1553144d193": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "d64dc1553144d193",
+    "status": "machine",
+    "text": "**Ausführung im Netzwerk des Knotens.** Eine Arbeitslast, die `hostNetwork: true` deklariert, erhält `network_mode: host` auf ihrem eigenen Service, und dieser Service wird dann aus dem Boundary-Netzwerk herausgelassen, statt daran angeschlossen zu werden: compose lehnt einen Service ab, der sowohl `networks:` als auch `network_mode:` deklariert, daher sind die beiden Alternativen und keine Ergänzungen. Die praktische Folge ist die, die Host-Networking immer mit sich bringt — Peers erreichen den Service nicht mehr über seinen compose-Service-Namen in diesem Netzwerk, weil er nicht mehr darin ist; sie erreichen ihn über die eigenen Adressen des Hosts, was die Deklaration verlangt hat. Kein anderer Service der Boundary ist betroffen."
   },
   "d64e97d761df4287": {
     "at": "2026-10-22T07:22:08.562Z",
@@ -92322,6 +92903,13 @@
     "srcHash": "d960d87d88695ab2",
     "status": "machine",
     "text": "keine Antwort"
+  },
+  "d9611567f3755554": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "d9611567f3755554",
+    "status": "machine",
+    "text": "Jeder Init-Service trägt `restart: \"no\"`. Ein Init-Service läuft einmal; ein Service, der wieder hochkäme, würde nie den abgeschlossenen Zustand erreichen, auf den seine Abhängigen warten, daher ändert eine an einem Init-Container geschriebene `restartPolicy` daran nichts."
   },
   "d961dab35f1a1567": {
     "at": "2026-11-03T22:53:36.381Z",
@@ -94625,6 +95213,13 @@
     "status": "machine",
     "text": "**n8n** — der Parameter `model` eines Chat-, Completion- oder Embedding-Knotens, den die Tabelle des Importers abbildet, oder sein `modelName` bei den Knoten Google Gemini und Vertex, als Name geschrieben oder als Wert des Selektors, in dem die neueren Knoten von n8n ihn halten. n8n lässt einen auf seinen Standardwert gesetzten Parameter aus einem Export weg, daher nennt ein Knoten, der das Standardmodell beibehält, im Export keines."
   },
+  "de1484b7f0d73144": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "de1484b7f0d73144",
+    "status": "machine",
+    "text": "**Skalare: Das Overlay gewinnt.** Wenn Basis und Overlay dasselbe skalare Feld setzen, ersetzt der Wert des Overlays den Wert der Basis."
+  },
   "de1a0289f456072c": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -95759,6 +96354,13 @@
     "status": "machine",
     "text": "Der Abbruch wird an dem Recipe positioniert, das den Eintrag deklariert, und an dem verfassten Schlüssel darin — `.spec.provides.<name>` —, daher nennt er den zu bearbeitenden Block statt der Komponente, die das Recipe gebunden hat. Jeder Eintrag, der über die Oberfläche hinausgreift, wird im selben Build gemeldet; wo es mehr als einer ist, werden die Befunde unter `provides entries that reach outside the data they are evaluated against` gruppiert."
   },
+  "e0c2fc4024be9003": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "e0c2fc4024be9003",
+    "status": "machine",
+    "text": "wo der Ziel-Service einen `healthcheck` deklariert, ist das Warten `condition: service_healthy`;"
+  },
   "e0c6618e05473592": {
     "at": "2026-11-03T20:57:14.427Z",
     "job": "session-0157-20261103205714",
@@ -96372,6 +96974,13 @@
     "srcHash": "e22401b7d9ccc29f",
     "status": "machine",
     "text": "[Aggrega-Dateien verfassen](getting-started.md) — die Authoring-Schleife, von Anfang bis Ende."
+  },
+  "e22567e4f547d07b": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "e22567e4f547d07b",
+    "status": "machine",
+    "text": "ein Eintrag `extra_hosts` pro Hostname, in der Reihenfolge des Autors"
   },
   "e22821e7fe456b1b": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -97866,6 +98475,13 @@
     "status": "machine",
     "text": "Batch-Datei (YAML oder JSON als Teilmenge), deren Liste auf oberster Ebene pro Eintrag eine Markierung anhängt. Jeder Eintrag enthält reference, severity und reason sowie optional replacement und message. Schließt sich mit einer positionalen Referenz sowie mit --severity, --reason, --replacement und --message gegenseitig aus."
   },
+  "e5c49aa8077e87d8": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "e5c49aa8077e87d8",
+    "status": "machine",
+    "text": "**Die Welle wird weiterhin als Label festgehalten.** Die Reihenfolge wird neben dem Label `aggrega.ai/sync-wave` hinzugefügt, nicht an seiner Stelle: Am Label sieht jemand, der die ausgegebene Datei untersucht, aus welcher Welle ein Service stammt, was die Einträge `depends_on` nicht angeben."
+  },
   "e5c8f288f6cc70ec": {
     "at": "2026-11-02T23:06:16.435Z",
     "job": "session-0017-20261102230616",
@@ -97886,6 +98502,13 @@
     "srcHash": "e5d039fe23ecd372",
     "status": "machine",
     "text": "aggrega push: sign `<reference>`:`<version>`: `<the underlying failure>`: signing: registry requires signatures; refusing to push unsigned content (aggrega push: Signieren der angegebenen Version: der angegebene zugrunde liegende Fehlschlag: signing: Registry verlangt Signaturen; das Pushen unsignierten Inhalts wird verweigert)"
+  },
+  "e5d40e81976c2b98": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "e5d40e81976c2b98",
+    "status": "machine",
+    "text": "Die eigene Replikatanzahl von compose liegt unter `deploy:` und ist eine Funktion des Swarm-Modus"
   },
   "e5d4a2d552ca87f9": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -98890,6 +99513,13 @@
     "status": "machine",
     "text": "sein Manifest bindet"
   },
+  "e881fbb4a6ce62b2": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "e881fbb4a6ce62b2",
+    "status": "machine",
+    "text": "**Jedes Label, das der Autor eines Services geschrieben hat, bleibt.** Die `labels:` eines Services in der Basisdatei oder im Overlay können als Map oder als Liste von Einträgen `key=value` von Compose geschrieben werden, und jedes Label erreicht die compose-Datei neben den [Provenienz-Labels](../vocabulary/labels-and-annotations.md#provenance-labels-emitted-on-rendered-output), die der Provider anbringt. Ein Listeneintrag wird so gelesen, wie Compose ihn liest: Der Text vor seinem ersten `=` nennt das Label, der Text danach ist der Wert, und ein Eintrag ohne `=` ist ein Label mit leerem Wert. Eine Zahl oder ein true/false-Wert wird als sein Text geschrieben, sodass `replicas-hint: 2` die Datei als `replicas-hint: \"2\"` erreicht, und ein als `null` geschriebenes Label bleibt `null`. Wo ein geschriebenes Label und ein Provenienz-Label einen Schlüssel teilen, trägt die Datei den Provenienzwert. Ein Wert `labels:`, der weder eine Map noch eine Liste ist, und ein Listeneintrag, der kein Text ist, brechen den Build ab und nennen die Quelldatei und den Service. Die Service-Labels eines Körpers `artifacts:` nehmen die Map-Form an: Eine Liste dort bricht den Build ab und nennt das Artefakt und den Service."
+  },
   "e88977b6f544b52b": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -99071,6 +99701,13 @@
     "srcHash": "e8f58b33581d4401",
     "status": "machine",
     "text": "Eine SchemaLibrary kann unter `spec.templates` wiederverwendbare Strukturen deklarieren, jede mit eigenen `$params`, und ein Schema-Eintrag instanziiert dann eine davon, indem er sie unter `$instantiate:` benennt und ihre Parameter unter `$args:` angibt. Die Ersetzung ist wörtlich: Ein `$<name>`-Skalar im Inhalt des Templates wird durch den Wert des Arguments ersetzt. Es gibt keine Auswertung von Ausdrücken, keine Bedingungen und keine Schleifen, und ein ersetzter Wert wird so eingefügt, wie er ist, statt nach weiteren Markern durchsucht zu werden."
+  },
+  "e8fd3997ec0c1a17": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "e8fd3997ec0c1a17",
+    "status": "machine",
+    "text": "**Ein Namespace und der Pfad einer compose-Datei werden in denselben Raum geschrieben.** Sie sind zwei Arten, dasselbe zu benennen — in welchem Netzwerk ein Knoten liegt —, daher landen ein Knoten, dessen Namespace `app/compose` ist, und ein Knoten ohne Namespace in der compose-Datei unter `app/compose` absichtlich in einem Netzwerk, genau wie zwei Boundaries, die dieselbe Annotation `aggrega.ai/namespace` tragen. Wo Sie zwei Knoten getrennt haben wollen, geben Sie ihnen Identitäten, die sich unterscheiden."
   },
   "e902620096d88d71": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -100009,6 +100646,13 @@
     "status": "machine",
     "text": "A compact-form schema declares a field literally named `type` (Ein Schema in Kompaktform deklariert ein Feld, das buchstäblich so heißt)"
   },
+  "eb04465d609e3210": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "eb04465d609e3210",
+    "status": "machine",
+    "text": "**Workload-Felder auf Pod-Ebene werden nicht angewendet**, dieselbe Regel, der Sidecars folgen — ausgenommen der Benutzer des Pods, der jeden Service erreicht, wie [Felder auf Pod-Ebene](#pod-level-fields) beschreibt."
+  },
   "eb10d5e3c5e7f00b": {
     "at": "2026-11-03T17:29:39.514Z",
     "job": "session-0135-20261103172939",
@@ -100512,6 +101156,13 @@
     "srcHash": "ec305595a1710630",
     "status": "machine",
     "text": "**Ein als Objekt geschriebenes `env`** ist Teil der Konfiguration, daher werden seine Werte wie geschrieben in diesen Kommentar übernommen, in der Reihenfolge, in der die Konfiguration sie schreibt. Jeder Wert, der etwas enthält, kann Zugangsdaten tragen, die LangGraph nicht als Zugangsdaten markiert: Standardmäßig wird jeder wie geschrieben übernommen und in einer Warnung `credential-carried` über seine Konfiguration und seine Variable genannt, etwa `env.OPENAI_API_KEY`, niemals über seinen Wert. Mit der [Einstellung `empty_credentials`](#settings) auf `all` wird jeder ohne Wert geschrieben und mit `credential-emptied` gemeldet; auf `marked` wird jeder übernommen, da LangGraph keinen markiert."
+  },
+  "ec30a07dd6860f97": {
+    "at": "2026-11-03T23:48:35.245Z",
+    "job": "session-0176-20261103234835",
+    "srcHash": "ec30a07dd6860f97",
+    "status": "machine",
+    "text": "Das Template `valuesMapping` wird gegen den Template-Kontext des Recipe ausgewertet. Seine Ausgabe wird als compose-Overlay-Dokument behandelt — eine partielle compose-Datei, die Felder der Basis ergänzt oder überschreibt."
   },
   "ec319bb074480164": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -102787,6 +103438,13 @@
     "status": "machine",
     "text": "Legen Sie `guest/main.go` an:"
   },
+  "f178d73485360585": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "f178d73485360585",
+    "status": "machine",
+    "text": "Drei Dinge brechen den Build mit `TRANSLATION_ERROR` ab, wenn die Datei zusammengesetzt wird, und jedes nennt den Service:"
+  },
   "f17a6180cd4b6793": {
     "at": "2026-11-03T03:37:29.359Z",
     "job": "session-0045-20261103033729",
@@ -104055,6 +104713,13 @@
     "srcHash": "f4607268c01e2cdd",
     "status": "machine",
     "text": "Jedes fehlt in der Anbindung, wenn das Feature keines deklariert und wenn sein `type` zu keiner Katalogentität aufgelöst wird."
+  },
+  "f466ae263b32aecc": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "f466ae263b32aecc",
+    "status": "machine",
+    "text": "Ein Namespace `prod` ergibt also das Netzwerk `prod`, `core-net` ergibt `core-net`, und eine compose-Datei unter `dist/app/compose` ergibt `dist-zsapp-zscompose`. Identische Eingabe erzeugt immer den identischen Namen."
   },
   "f468b9209d190bd0": {
     "at": "2026-10-30T04:51:13.962Z",
@@ -106350,6 +107015,13 @@
     "srcHash": "f9d06e1f4794585a",
     "status": "machine",
     "text": "**Ein Workspace, dessen Konfiguration keinem Release eigene Katalogverzeichnisse zuweist,** wird einmal über seinen Suchstapel geprüft: die `--catalog`-Verzeichnisse, dann `workspace.catalog_dirs`, dann das Verzeichnis `catalog` im Workspace-Stammverzeichnis, sofern vorhanden."
+  },
+  "f9d177ac0acc944e": {
+    "at": "2026-11-03T23:48:32.946Z",
+    "job": "session-0175-20261103234832",
+    "srcHash": "f9d177ac0acc944e",
+    "status": "machine",
+    "text": "Ein Service, den ein Fragment schreibt — eine quellbasierte compose-Datei, sobald ihr Overlay eingemischt ist, oder ein Körper `artifacts:` —, kann den Netzwerken anderer Komponenten beitreten, die in dieselbe compose-Datei zusammengesetzt werden, indem er sie unter dem Erweiterungsschlüssel `x-aggrega-networks-of` nennt: eine Liste von Komponenten-IDs, den IDs, die das Aggregate seinen Komponenten gibt und die ein FeatureRecipe mit Boundary-Geltungsbereich als Schlüssel von `.boundary.components` und als `source` und `target` seiner Kantenlisten `.boundary` liest. Der Provider löst jede ID in das Netzwerk auf, in dem diese Komponente in dieser Datei platziert ist, durch dieselbe Platzierung, die jeder Knoten erhält, und fügt diese Netzwerke dem Service hinzu, jedes einmal und in Namensreihenfolge, vor dem eigenen Netzwerk des Service, dem er weiterhin beitritt. Der Schlüssel selbst wird aus der zusammengesetzten Datei weggelassen. Der Provider liest die IDs als aufzulösende Verweise und nichts darüber, was der Service tut, daher kann jedes Recipe oder FeatureRecipe den Schlüssel verwenden; das Gateway der compose-Bridge tritt auf diese Weise den Netzwerken der Endpunkte bei, zwischen denen es vermittelt."
   },
   "f9e2570c4c907913": {
     "at": "2026-11-03T03:00:32.047Z",
