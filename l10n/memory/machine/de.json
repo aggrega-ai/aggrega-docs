@@ -762,6 +762,13 @@
     "status": "machine",
     "text": "**Provider** (`provider`)"
   },
+  "032e5cb0ce95143b": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "032e5cb0ce95143b",
+    "status": "machine",
+    "text": "Eine Component oder ein Feature deklariert einen Schema-Vertrag, der nichts liefert, wogegen validiert werden könnte, sodass die Konfiguration, die er abdeckt, an nichts gemessen wird. Drei Verträge können den Fehler tragen, jeder in seinem eigenen Feld verfasst: das eigene `spec.schema` der Entität und die beiden kantenbezogenen Verträge, die ein Abhängigkeits-Socket deklariert — `valueSchema` für die Entwicklerseite einer Verbindung und `infraSchema` für die des Operators. Auch ein SchemaLibrary-Eintrag, auf den diese Verträge verweisen können, kann den dritten der unten beschriebenen Fehler tragen; wie dieser Fall gemeldet wird, ist weiter unten dargelegt."
+  },
   "032f23b947c3d482": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -2445,6 +2452,13 @@
     "status": "machine",
     "text": "Autoren von Recipes und FeatureRecipes schreiben Go-`text/template`-Code an bestimmten Auswertungsstellen: `provides`-Einträge, `locals`-Einträge, `valuesMapping` (inline oder per `$import:` geladen), `workload:`-Inhalt (inline oder per `$import:` geladen), `artifacts:`-Einträge (inline oder je Eintrag per `$import:` geladen) und das `injectMapping` eines FeatureRecipe. Jede Stelle wird in einer definierten Phase der Kompilierungspipeline ausgeführt und erhält eine definierte Sicht auf den Säulenkontext. Diese Kapitelgruppe dokumentiert die Template-Oberfläche: wo Templates ausgeführt werden, was der Kontext an jeder Stelle bereitstellt und welche Hilfsfunktionen verfügbar sind."
   },
+  "0a07c21416babbaf": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "0a07c21416babbaf",
+    "status": "machine",
+    "text": "Jeder Schlüssel, der nichts nennt, wird in einem einzigen Build gemeldet, in der Reihenfolge, in der das Manifest sie schreibt."
+  },
   "0a0f8f9f42423e95": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -2902,6 +2916,13 @@
     "status": "machine",
     "text": "**Laufzeit (physische Durchsetzung):** Sobald der Orchestrator die generierten Artefakte bereitgestellt hat, ersetzt das Gateway jeden Treffer im Anfragetext, den es maskiert, vor dem Weiterleiten durch einen Platzhalter, sodass der Modellanbieter den Platzhalter erhält; mit `action: refuse` leitet die Anbindung nichts von einer Anfrage weiter, die einen Treffer enthält, und beantwortet sie stattdessen mit einem Fehler. Ein Erkenner, der nicht erreichbar ist oder einen Fehler meldet, lässt die Anfrage fehlschlagen, sodass ihr Text nicht weitergegeben wird. Was die Maskierung nicht erreicht, entscheiden zwei Werte, deren Standardwerte der Schutz sind. Auf dem AI-Gateway maskiert das Gateway, sofern die Anbindung auch Antworten maskiert, den Text der Antwort und die Teile, die ein Modell oder sein Anbieter daneben hinzufügt — eine Ablehnung, Zitate und Annotationen, die Abfrage und die Ergebnisse einer Websuche, Felder unter eigenen Namen des Anbieters — oder sendet unter `refuse` nichts von einer Antwort, die einen Treffer enthält; eine gestreamte Antwort, die es per Muster maskiert, erreicht den Aufrufer vollständig, am Ende. Standardmäßig lehnt das AI-Gateway, was seine Maskierung in einer Anfrage nicht erreicht — eine Route wie die Bilderzeugung, ein Feld wie `safety_identifier`, ein Bild oder eine Datei in der Konversation, ein Tool, das der Anbieter selbst ausführt —, mit HTTP 400 ab, bevor es irgendetwas davon weiterleitet; ein Betreiber, der akzeptiert, dass solcher Text den Anbieter unmaskiert erreicht, setzt `allow_unmasked_text` an der Anbindung im Release, wobei die Realisierung genau auflistet, was dann durchgeht, und Inhalte, die kein Text sind, weiterhin `allow_non_text_content` unterliegen. Standardmäßig wird zurückgehalten, was eine maskierte Antwort enthält und ihre Maskierung nicht lesen kann — gesprochenes Audio und sein Transkript, ein Bild, die Wahrscheinlichkeiten der vom Modell gewählten Token —, und ein fehlgeschlagener Aufruf erreicht den Aufrufer mit einer festen Meldung anstelle der vom Anbieter zurückgegebenen; `allow_unmasked_reply_parts` lässt diese den Aufrufer unmaskiert erreichen. Den eigenen Text einer Antwort lässt dieser Wert nie durch, doch die Teile, die er durchlässt, können die Worte der Antwort enthalten: das Transkript einer gesprochenen Antwort, die Token hinter den Token-Wahrscheinlichkeiten, die Fehlermeldung eines Anbieters, die die Antwort zitiert. Auf `core/gateway/kong-enterprise` wird jeder Treffer durch einen nummerierten Platzhalter ersetzt, sodass eine Anbindung, die Muster unter `redact` auflistet, `placeholder_shows_name: false` setzt; `refuse` erreicht nur Anfragen, ab Kong 3.12, das eine Anfrage mit einem Treffer mit HTTP 400 beantwortet; und Antworten werden ab 3.12 maskiert, wobei eine Anfrage, die eine gestreamte Antwort verlangt, dann vor dem Weiterleiten abgelehnt und `allow_streamed_replies` abgelehnt wird. Kongs Sanitizer liest den Text der Benutzer-Turns, den Prompt einer Completion und den Nachrichtentext einer Antwort, und Kongs Referenz nennt keine Einstellung, die eine Anfrage wegen dessen ablehnt, was der Sanitizer nicht liest, oder den Rest einer Antwort zurückhält, sodass auf diesem Gateway jeder Schutz zur Build-Zeit namentlich abgelehnt wird, solange er seinen Standardwert behält, und eine Anbindung sich bauen lässt, sobald das Release sie lockert — `allow_unmasked_text` und `allow_non_text_content`, wo Anfragen maskiert werden, `allow_unmasked_reply_parts` und `mask_reasoning: false`, wo Antworten maskiert werden —, wobei `data-masking-kong-enterprise` auflistet, was jeder dann durchlässt. Dort passiert eine Antwort, deren Text nicht als die einzelne Zeichenkette ankommt, die die OpenAI-API zurückgibt, ungelesen, und ihr eigener Text erreicht den Aufrufer unmaskiert; der Schutz davor ist die Prüfung des Builds an jedem an dieses Gateway angeschlossenen Modell, die bei einem Modell abbricht, dessen `model.aggrega.ai/api` nicht `openai` ist. Auf `core/gateway/traefik-hub` wird jeder Treffer durch eine Folge von `*` ersetzt, die so lang ist wie der Treffer, sodass eine Anbindung, die Muster unter `redact` auflistet, `placeholder_shows_name: false` setzt; `refuse` antwortet mit HTTP 403 anstelle der Anfrage oder der Antwort; und eine maskierte Antwort wird vollständig zurückgehalten und am Ende gesendet, auch eine gestreamte, sodass eine Anbindung, die Entitätstypen in Antworten maskiert, `allow_streamed_replies` setzt. Traefiks Referenz sagt nicht, welche Felder einer Chat-Anfrage oder -Antwort Content Guard liest, und nennt keine Einstellung, die eine Anfrage ablehnt oder einen Teil einer Antwort zurückhält, wegen dessen, was es nicht liest, sodass auf diesem Gateway jeder Schutz zur Build-Zeit namentlich abgelehnt wird, solange er seinen Standardwert behält, und eine Anbindung sich bauen lässt, sobald das Release sie lockert — `allow_unmasked_text` und `allow_non_text_content`, wo Anfragen maskiert werden, `allow_unmasked_reply_parts` und `mask_reasoning: false`, wo Antworten maskiert werden —, wobei `data-masking-traefik-hub` auflistet, was jeder dann durchlässt. Eine Anbindung, die sowohl Muster als auch Entitätstypen auflistet, und eine zweite Maskierungsanbindung an einem Gateway werden abgelehnt, da Traefiks Referenz nicht sagt, ob ein zweiter Content Guard auf einer Route den vom ersten maskierten Text liest oder die Anfrage, wie der Aufrufer sie gesendet hat. Auf `core/gateway/higress` ersetzt die Higress-Erweiterung `ai-data-masking` jeden Treffer der Muster, die die Anbindung auflistet, im Inhalt und im Reasoning jeder Nachricht einer Chat-Anfrage durch den Namen des Musters in eckigen Klammern; sie maskiert nur Anfragen, daher werden `scope` `response` und `both` abgelehnt, und sie erkennt keine Entitätstypen. Die Erweiterung liest sonst nichts von einer Anfrage, daher schreibt die Chart-Recipe des Gateways, solange die Schutzmaßnahmen ihre Standardwerte behalten, außerdem die Request-Validation-Erweiterung von Higress, um mit HTTP 403, bevor irgendetwas weitergeleitet wird, eine Anfrage abzulehnen, die enthält, was die Maskierung nicht liest — einen nicht als JSON gesendeten Body oder einen, der keine Chat-Completion ist, eine Nachricht, deren Inhalt eine Liste oder null ist, einen Tool-Call oder Tool-Turn, den Namen einer Nachricht, jeden Parameter außer den Nicht-Text-Parametern einer Chat-Completion und den eigenen Tools, dem Antwortformat und den Stoppsequenzen des Entwicklers —, sowie, was auch immer die Anbindung lockert, eine Anfrage, deren Body die Higress-Erweiterungen überspringen — einen komprimierten Body, einen Content-Type, der `octet-stream` oder `grpc` enthält, ein Upgrade — und einen Body mit dem Unicode-Ersatzzeichen U+FFFD, als das diese Validierung ein Byte liest, das kein gültiges UTF-8 ist, da die Maskierungserweiterung einen Body, der kein gültiges UTF-8 ist, unmaskiert weiterleitet. Eine Anfrage, deren Body den 32-KiB-Puffer des Gateways überschreitet, wird mit HTTP 413 abgelehnt. Die Validierung liest nur einen Body, den ihr JSON-Decoder akzeptiert, sodass ein Client, der absichtlich gültiges JSON sendet, das der Decoder ablehnt — etwa eine Zahl jenseits dessen, was ein Double fasst —, jede Ablehnung seines Bodys passiert: Die Maskierungserweiterung maskiert dann nur den reinen Inhalt und das Reasoning jeder Nachricht, sodass ein aufgelisteter Wert an jeder anderen Stelle des Bodys — die Argumente eines Tool-Calls, ein Name, jedes andere Feld — unmaskiert weitergeleitet wird, ebenso wie Inhalt, der mit JSON-Escape-Sequenzen geschrieben ist, und ist ein solcher Body zudem kein gültiges UTF-8, wird alles unmaskiert weitergeleitet. Ein Client, der einen Body absichtlich mehr als 127 Ebenen tief verschachtelt, innerhalb eines Feldes, das die Validierung zulässt, etwa `tools`, sendet gültiges JSON, das die Validierung dekodiert und zulässt, doch der JSON-Leser der Maskierungserweiterung hält bei dieser Tiefe an, sodass auch mit JSON-Escape-Sequenzen geschriebener Inhalt in diesem Body unmaskiert weitergeleitet wird. Maskierung allein genügt nicht: Text, den kein Muster trifft und kein Erkenner erkennt, passiert unverändert; auf dem AI-Gateway werden Tool-Call-Argumente und Tool-Ergebnisse Wert für Wert maskiert, die Namen ihrer Schlüssel jedoch nicht; die eigenen Tool-Definitionen, Antwortformate und Stoppsequenzen des Entwicklers passieren wie gesendet; das Gateway und die Erkennungsdienste sehen den Originaltext; was das Gateway über einen Aufruf aufzeichnet — in seinem eigenen Log oder in dem, was es an eine Logging-Integration übergibt —, kann diesen Text weiterhin enthalten; und Verkehr, der das Gateway nicht durchquert, wird nicht berührt."
   },
+  "0c4eea016dde3483": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "0c4eea016dde3483",
+    "status": "machine",
+    "text": "Ausgegebene Meldung, positioniert an dem Recipe, in dem das leere `source:` geschrieben wurde, und an dem Schlüssel darin — `.spec.source` — statt an einer Komponente, die das Recipe bindet, weil der Eintrag von jeder Komponente geteilt wird, die das tut. Darüber wird entschieden, bevor irgendetwas gerendert wird, für jede Komponente im Build, sodass jede Komponente, deren Recipe den Eintrag leer lässt, in einem einzigen Build gemeldet wird; wo es mehr als eine ist, werden die Befunde unter `Recipe source entries that name neither authoring mode` gruppiert:"
+  },
   "0c5716122adc5a93": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -2950,6 +2971,13 @@
     "srcHash": "0c9ec9b6cec1e225",
     "status": "machine",
     "text": "Abgerufene Inhalte werden unter `.aggrega/cache` gespeichert, aufgeteilt in einen Teilbaum `entities/` für Katalogentitäten, einen Teilbaum `source-artifacts/` für Quellartefakte und einen Teilbaum `inputs/` für die externen Eingaben, die ein Rendering verbraucht. Der Slot einer Katalogentität ist nach ihrer Koordinate und Version benannt, der eines Quellartefakts nach seiner Abrufquelle, seiner Version und einem Präfix seines Inhalts-Digests, und der einer externen Eingabe nach ihrem Inhalts-Digest; was ein Build aus jedem davon liest, wird gegen das geprüft, was das Lockfile erfasst. Identische Versions-Pins teilen sich daher über Releases hinweg einen Slot. Jeder Quellartefakt-Slot enthält das maßgebliche Archiv, eine neu erzeugte Extraktion und eine kleine Metadatendatei; die Extraktion wird bei jedem Lesen neu erzeugt, daher hängt die Build-Ausgabe vom Archiv und vom Lockfile ab, nicht vom Zustand der extrahierten Dateien."
+  },
+  "0caa93f4ea24bece": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "0caa93f4ea24bece",
+    "status": "machine",
+    "text": "Die Säule **values** ist die Authoring-Oberfläche des Entwicklers. Sie wird **geschlossen** validiert — eine Eigenschaft, die das Schema nicht deklariert, wird als wahrscheinlicher Tippfehler zurückgewiesen. Ein values-Schema, das sich innerhalb seines eigenen Dokuments zusammensetzt (ein lokales `#/$defs` `$ref` oder `allOf`), wird aufgelöst und gegen diesen Definitionskontext validiert."
   },
   "0cb3b80a56fa0a4b": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -5192,6 +5220,13 @@
     "status": "machine",
     "text": "**Provenienz und helm-chart-Artefakte.** Die Provenienz wird in `metadata.labels` und `metadata.annotations` (gemäß der oben beschriebenen Aufteilung nach Zeichensatz) für per `$import:` geladene Dateien zusammengeführt, die einen YAML-Round-Trip mit erhaltenen Helm-Tokens überstehen — Dateien, die nur `[[ ]]`-Kontext von Aggrega verwenden oder Helm-`{{ }}` nur an Positionen von Skalaren in Anführungszeichen. Dateien mit strukturellen Helm-Template-Aktionen (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` an Positionen, an denen sie YAML-Struktur statt skalarer Blätter ausgeben) oder Dateien mit `{{ ... }}` ohne Anführungszeichen an Wertpositionen überstehen den YAML-Round-Trip von Aggrega nicht; der Build gibt eine Warnung „skipped provenance label injection (Injektion der Provenienz-Labels übersprungen)“ aus, die das Artefakt nennt, und reicht die Datei unverändert durch. **Diese Warnung ist für jede per `$import:` geladene helm-chart-Artefaktdatei zu erwarten, die strukturelle Helm-Template-Aktionen oder Helm-Wertersetzungen ohne Anführungszeichen verwendet** — das ist der Regelfall beim Verfassen von Helm in der Produktion, nicht der Randfall. Autoren, die Provenienz-Labels in solchen Dateien benötigen, injizieren sie über ein benanntes Template, das sie in der eigenen `_helpers.tpl` des Charts schreiben (zum Beispiel eines namens `aggrega.commonLabels`), oder über einen gleichwertigen Mechanismus auf Helm-Seite, nicht über die Pre-Template-Injektion von Aggrega."
   },
+  "167b064ad0d5be7a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "167b064ad0d5be7a",
+    "status": "machine",
+    "text": "authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, \"values.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (die verfasste Säule entspricht nicht ihrem deklarierten Schema) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.infra.<field>`, \"infra.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (die verfasste Säule entspricht nicht ihrem deklarierten Schema) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (die verfasste Säule entspricht nicht ihrem deklarierten Schema: Die Säule values entspricht nicht dem Feature-Schema) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.features.<attachment>.infra.<field>`, infra pillar does not conform to the Feature schema: `<constraint failure>`) (die verfasste Säule entspricht nicht ihrem deklarierten Schema: Die Säule infra entspricht nicht dem Feature-Schema) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (die verfasste Säule entspricht nicht ihrem deklarierten Schema: Die Säule values entspricht nicht dem Feature-Schema) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, \"values.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (die verfasste Säule entspricht nicht ihrem deklarierten Schema) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (die verfasste Säule entspricht nicht ihrem deklarierten Schema: Die Säule values entspricht nicht dem Feature-Schema) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (die verfasste Säule entspricht nicht ihrem deklarierten Schema: Die Säule values entspricht nicht dem Feature-Schema) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.uses.<socket>.<alias>.infra.<field>`, \"infra.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (die verfasste Säule entspricht nicht ihrem deklarierten Schema)"
+  },
   "1682127a3fba728c": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -5826,6 +5861,13 @@
     "srcHash": "19444483f694b4b3",
     "status": "machine",
     "text": "**Dies gilt unabhängig davon, von wo der Vorgang aufgerufen wird, nicht nur im Terminal.** Dieselben Vorgänge sind aus einer Editor-Sitzung und über den Tool-Aufruf eines Assistenten erreichbar, und ihre Antworten melden aus demselben Grund dieselbe Reichweite. Wo ein Assistent sie in Ihrem Namen aufrufen darf, siehe [`aggrega mcp`](aggrega-mcp.md)."
+  },
+  "19477b74fdf365e1": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "19477b74fdf365e1",
+    "status": "machine",
+    "text": "Die Säule **infra** ist die Dimensionierungsoberfläche des Operators, und sie wird nur geprüft, wenn die Component eine Säule `schema.infra` deklariert — diese Deklaration ist der Vertrag, für den sich die Komponente entscheidet. Sie wird **geschlossen** gegen diese Deklaration validiert und gegen nichts anderes, genau wie die Säule values gegen `schema.values` validiert wird: Ein Schlüssel, den die Component nicht deklariert, wird als Tippfehler zurückgewiesen, und bei einem Schlüssel, den sie deklariert, werden Typ und Bereich durchgesetzt. Eine Komponente, die einen vom Provider geschichteten Schlüssel wie `replicas` validiert haben möchte, deklariert diesen Schlüssel in ihrem eigenen `schema.infra`; das von einem Provider akzeptierte Vokabular wird über das `valuesMapping` in seinem Recipe erreicht, statt auf die verfasste infra-Oberfläche geschichtet zu werden."
   },
   "194b112c8e6ed51d": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -6844,6 +6886,13 @@
     "srcHash": "1dcefe02057df423",
     "status": "machine",
     "text": "**Das Problem:** Versehentliche Fehlkonfigurationen (z. B. die Anforderung von `workers: 500`) können finanzielle Schutzmechanismen umgehen und große Kostenüberschreitungen in der Cloud auslösen."
+  },
+  "1df5df970905478b": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "1df5df970905478b",
+    "status": "machine",
+    "text": "Recipe `source:` is an empty string (Das Feld source des Recipe ist ein leerer String)"
   },
   "1e0319eb1288cfae": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -8298,6 +8347,13 @@
     "srcHash": "23c088c9f1c84fe7",
     "status": "machine",
     "text": "Kardinalität"
+  },
+  "23ca90c29f3417e5": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "23ca90c29f3417e5",
+    "status": "machine",
+    "text": "Die Meldung enthält den Fehler so, wie das Werkzeug, das auf ihn gestoßen ist, ihn gemeldet hat: bei einem Kompilierfehler den Schlüssel innerhalb des Vertrags, die Quellzeile und das fehlerhafte Schlüsselwort; bei einem Inhalt, der keinen Validator baut, die Position, die der Validator zurückgewiesen hat; bei einem Formatnamen außerhalb der unterstützten Menge das Feld, das Schlüsselwort `format`, den Namen, wie er geschrieben ist, und jeden unterstützten Namen. Ein dokumentübergreifendes `$ref:` in einem Socket-Vertrag, dessen SchemaLibrary-Eintrag nicht in der geladenen Abschlussmenge liegt, führt zum selben Abbruch, wenn `aggrega validate` die Entität oder das Release prüft; in einem eigenen `spec.schema` einer Entität wird es so gemeldet, wie es „A `$ref:` is not written in a form the compiler can resolve (Ein Verweis ist nicht in einer Form geschrieben, die der Compiler auflösen kann)“ oben beschreibt. `aggrega pull` liest beide Stellen für die Bibliotheken, die ein Release benötigt, sodass eine im Katalog fehlende Bibliothek den Pull früher stoppt, wie es „A reference names no entity the catalog holds (Ein Verweis nennt keine Entität, die der Katalog enthält)“ (`E0114`) beschreibt, gleich welche der beiden Stellen auf sie verweist — und eine Bibliothek, die der Katalog enthält, wird für beide im Lockfile gepinnt."
   },
   "23cda815ddbddba9": {
     "at": "2026-10-30T20:32:14.370Z",
@@ -9900,6 +9956,13 @@
     "status": "machine",
     "text": "Standard-Katalogmetadaten. `name`, `version` und `pluginType` sind erforderlich; `version` ist eine strikte Semantic Version (z. B. `1.2.0`). Die optionalen Felder — `description`, `maintainers`, `license`, `repository`, `home`, `keywords` — folgen derselben Form, die jede Katalogentität trägt, und `metadata` akzeptiert keinen anderen Schlüssel. Eine veröffentlichte Version ist unveränderlich: Das erneute Veröffentlichen einer vorhandenen Version wird an der Veröffentlichungsprüfung abgelehnt."
   },
+  "2ab7b8924f2b1253": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "2ab7b8924f2b1253",
+    "status": "machine",
+    "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<component>\"` under mappings.features.name: no attachment in this build is named `\"<component>\"`; a features.name key names an attachment by its own name — the key it is written under in a component's features, or `<alias>.<slot>` for one written on a connection — never the component it is attached to; attachments of type `\"<feature-type>\"` in this build: `\"<attachments>\"`; `\"<component>\"` is a component, and a features.name key names the attachment rather than the component it is attached to — did you mean `\"<attachment>\"`? (der Schlüssel eines Namens-Mappings im Manifest nennt keine Komponenteninstanz und keine Anbindung in diesem Build, daher bindet der Eintrag nichts: Manifest, Schlüssel unter mappings.features.name: keine Anbindung in diesem Build trägt diesen Namen; ein features.name-Schlüssel nennt eine Anbindung bei ihrem eigenen Namen — dem Schlüssel, unter dem sie in den features einer Komponente geschrieben ist, oder Alias und Slot für eine an einer Verbindung geschriebene — niemals die Komponente, an die sie angebunden ist; Anbindungen des genannten Typs in diesem Build: aufgeführt; dieser Name ist eine Komponente, und ein features.name-Schlüssel nennt die Anbindung statt der Komponente, an die sie angebunden ist — meinten Sie die vorgeschlagene Anbindung?)"
+  },
   "2ac97c61dd7dda32": {
     "at": "2026-11-02T23:50:32.426Z",
     "job": "session-0022-20261102235032",
@@ -11004,6 +11067,13 @@
     "status": "machine",
     "text": "Die Entitätstaxonomie"
   },
+  "30636290b89f5924": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "30636290b89f5924",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. SchemaLibrary `\"<library>\"`: schema `\"<entry>\"` names a format no validator can check, so the values it constrains would go unmeasured: validator/jsonschema: schema resolution failed (at `<field>`, keyword `\"format\"`, format `\"<format>\"` is not supported; the supported formats are email, uri, hostname, ipv4, ipv6, uuid, date-time, date) (der deklarierte Schemavertrag konnte nicht zu einem verwendbaren Schema kompiliert werden, daher wurde nichts dagegen validiert: Korrigieren Sie den Vertrag dort, wo er deklariert ist, oder entfernen Sie ihn, wenn die Konfiguration, die er abdeckt, keine Validierung benötigt. SchemaLibrary: das Schema nennt ein Format, das kein Validator prüfen kann, sodass die Werte, die es einschränkt, ungemessen blieben: validator/jsonschema: Schemaauflösung fehlgeschlagen (im genannten Feld, Schlüsselwort format: das Format wird nicht unterstützt; die unterstützten Formate sind email, uri, hostname, ipv4, ipv6, uuid, date-time, date))"
+  },
   "3063aa534a0ed63e": {
     "at": "2026-11-03T01:59:06.045Z",
     "job": "session-0036-20261103015906",
@@ -11405,6 +11475,13 @@
     "status": "machine",
     "text": "Der Validierungsvertrag:"
   },
+  "323ef5dd20dbf997": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "323ef5dd20dbf997",
+    "status": "machine",
+    "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<key>\"` under mappings.components.name: no component instance in this build is named `\"<key>\"`; a components.name key names a component instance exactly as the Aggregate writes it; component instances of type `\"<component-type>\"` in this build: `\"<instances>\"`; did you mean `\"<instance>\"`? (der Schlüssel eines Namens-Mappings im Manifest nennt keine Komponenteninstanz und keine Anbindung in diesem Build, daher bindet der Eintrag nichts: Manifest, Schlüssel unter mappings.components.name: keine Komponenteninstanz in diesem Build trägt diesen Namen; ein components.name-Schlüssel nennt eine Komponenteninstanz genau so, wie das Aggregate sie schreibt; Komponenteninstanzen des genannten Typs in diesem Build: aufgeführt; meinten Sie die vorgeschlagene Instanz?)"
+  },
   "32448825d3602c90": {
     "at": "2026-11-03T01:59:04.506Z",
     "job": "session-0035-20261103015904",
@@ -11517,6 +11594,13 @@
     "srcHash": "3296e6fb67bce696",
     "status": "machine",
     "text": "Dies bewahrt das Modell einer Recheneinheit pro Autor: Ein Recipe synthetisiert die Arbeitslast der Component; ein FeatureRecipe synthetisiert seine eigene."
+  },
+  "32a46d2ab2ee80d1": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "32a46d2ab2ee80d1",
+    "status": "machine",
+    "text": "**Der Befund einer Anbindung wird in dem Dokument gemeldet, das die fehlerhafte Säule geschrieben hat**, unter dem Namen dieses Dokuments, und seinem Autor zugeordnet. Ihre `values` werden an dem Aggregate-Block gemeldet, der sie geschrieben hat — dem eigenen Eintrag `features:` der Komponente, `.spec.components.<component>.features.<attachment>.values.<field>`, vor dem Block eines Subsystems, der die Komponente erreicht — als Entwicklerfehler. Ihr `infra` wird an dem Release-Block gemeldet, der es geschrieben hat — dem Eintrag des Release für die Komponente, unter der Boundary, die sie nennt, vor dem eigenen Block `features:` der Boundary — als Operatorfehler. Eine Säule, die das Dokument, dem sie gehört, nicht geschrieben hat, wird dort gemeldet, wo die Anbindung selbst geschrieben wurde, also dort, wo ihr `type` genannt wird. Eine Anbindung, die nur das Release vornimmt und die keine `values` trägt, meldet also ein Feld, das ihr Feature in seinen `values` verlangt, am Eintrag des Release und als Operatorfehler, an einem Pfad, den das Release enthält — dem Eintrag der Komponente oder dem Block `features:` der Boundary für eine Anbindung, die die Boundary für jede Komponente unter ihr vornimmt:"
   },
   "32a793ec748c982b": {
     "at": "2026-11-02T23:06:16.435Z",
@@ -14256,6 +14340,13 @@
     "status": "machine",
     "text": "Dominierende(s) Schlüsselwort(e)"
   },
+  "3f3afee4db647765": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "3f3afee4db647765",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`, mapped to recipe `\"<uri>\"`). correct the mapping value in the Manifest, or publish the recipe it names (kein Rezept für die Komponenten-/Feature-Instanz aufgelöst: Fügen Sie für ihren Typ ein explizites Manifest-Mapping hinzu (Manifest, mit der Instanz, ihrem Typ und dem Rezept, dem sie zugeordnet ist). korrigieren Sie den Mapping-Wert im Manifest, oder veröffentlichen Sie das Rezept, das er nennt)"
+  },
   "3f3b6bfc59501e1d": {
     "at": "2026-10-30T21:31:35.304Z",
     "job": "session-0023-20261030213135",
@@ -16869,6 +16960,13 @@
     "status": "machine",
     "text": "`aggrega/configInit` und `aggrega/configCapture` erzeugen beide ein Konfigurationsdokument, und beide **schreiben es**. Die Antwort benennt die Datei; sie zu öffnen ist Ihr nächster Schritt, kein Ersatz für das Schreiben. Keine der beiden übergibt Ihnen Inhalt, den Sie selbst platzieren, es sei denn, Sie fordern das ausdrücklich an, denn eine Fähigkeit, deren Produkt ein nie geschriebenes Dokument ist, ist eine andere Fähigkeit unter demselben Namen."
   },
+  "4b8ae43a0ee4927f": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "4b8ae43a0ee4927f",
+    "status": "machine",
+    "text": "Die Meldung nennt das Manifest, den Schlüssel und den Abschnitt, in dem er geschrieben ist, die Namen dieser Art, die der Build tatsächlich enthält — eingegrenzt auf den Typ, den das Recipe oder FeatureRecipe des Eintrags implementiert, wo dieser Typ bekannt ist und der Build einen davon enthält — und, wo sie es erkennen kann, den Namen, den Sie wahrscheinlich gemeint haben: für einen Schlüssel `features.name`, der der Name einer Komponente ist, die Anbindungen dieses Typs, die die Komponente trägt; für einen Schlüssel `components.name`, der der Name einer Anbindung ist, die Komponente, die sie trägt; und andernfalls einen Namen, der eine Bearbeitung entfernt ist."
+  },
   "4b927f38035523a4": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -17163,6 +17261,13 @@
     "srcHash": "4d187589019732f1",
     "status": "machine",
     "text": "**Welche Sockets heute laufen.** Die Host-Laufzeit wird ausgeliefert. Der Publishing-Linter läuft über sie unter [`aggrega lint`](../language-reference/cli/aggrega-lint.md), und die In-Band-Build-Sockets — der Mutator für den Topologieaufbau, die Richtlinie der statischen Analyse und die Plugin-Pipeline — werden während `aggrega build` über denselben Host ausgeführt. Siehe [Status der Sprache](../language-reference/10-status.md) für den Bereitschaftsstand pro Socket."
+  },
+  "4d24de44b72ed3b3": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "4d24de44b72ed3b3",
+    "status": "machine",
+    "text": "Ein Recipe deklariert `source: \"\"` — einen leeren String. Das `source:` eines Recipe wählt zwischen zwei Erstellungsmodi: dem Modus **sourceless**, in dem es kein externes Artefakt gibt und die Ausgabe vollständig aus den anderen Eingabearten des Recipe erzeugt wird, und dem Modus **sourced**, in dem `source:` ein externes Chart, ein externes Modul oder eine externe Datei nennt, woraus gerendert wird. Das Weglassen des Feldes wählt den ersten, ein nicht leerer Wert den zweiten und ein leerer String keinen von beiden — es ist also eine Mehrdeutigkeit und kein Wert mit einer Bedeutung."
   },
   "4d2feef7d141a10c": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -20858,6 +20963,13 @@
     "status": "machine",
     "text": "Entitätsart"
   },
+  "5be1bf974d8f60ba": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "5be1bf974d8f60ba",
+    "status": "machine",
+    "text": "No Recipe is mapped for a component or feature instance (Für eine Komponenten- oder Feature-Instanz ist kein Recipe zugeordnet)"
+  },
   "5bf21d204a7899a7": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -21700,6 +21812,13 @@
     "srcHash": "6011bd5590383ffd",
     "status": "machine",
     "text": "Installieren Sie die Binärdatei `aggrega`, wie in [Das Binary installieren](../install.md#install-the-binary) beschrieben. Der Installationsbefehl und die manuellen Schritte dort legen sie beide in einem eigenen Ordner ab — unter Windows `%LOCALAPPDATA%\\Programs\\aggrega` statt eines Systemordners wie `C:\\Windows\\System32` —, sodass Sie sie ohne Administratorrechte ersetzen können."
+  },
+  "60225ca6a8583206": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "60225ca6a8583206",
+    "status": "machine",
+    "text": "Ausgegebene Meldungen, für eine Komponenteninstanz. Wo ein Mapping existiert und etwas Fehlendes nennt:"
   },
   "602cc952afea4209": {
     "at": "2026-11-02T19:03:23.148Z",
@@ -23937,6 +24056,13 @@
     "status": "machine",
     "text": "Gleitendes Fenster in Sekunden, über das diese Neustarts gezählt werden."
   },
+  "6a47d41152f62577": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "6a47d41152f62577",
+    "status": "machine",
+    "text": "Eine Feature-Instanz meldet dieselben drei Fälle in einer eigenen Struktur: `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`, `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest` und `feature \"<instance>\" (type \"<type>\"); no feature recipe implements this type`, jeweils nach dem Satz der Bedingung."
+  },
   "6a480da124d59845": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -24905,6 +25031,13 @@
     "srcHash": "6efefefea9c7bf2e",
     "status": "machine",
     "text": "Wofür der Architekt zuständig ist: das `schema:`, das Entwicklerwerte validiert, die `provides`-Ausgaben, die `uses`/`usesSchema`-Sockets und die Labels, die die semantische Identität tragen. Architekten schreiben keine physische Infrastruktur; sie definieren die Schnittstelle dazu."
+  },
+  "6f010645dc3b29e8": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "6f010645dc3b29e8",
+    "status": "machine",
+    "text": "A declared schema contract cannot be read as a schema (Ein deklarierter Schema-Vertrag kann nicht als Schema gelesen werden)"
   },
   "6f0c5d1506a99bd4": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -26140,6 +26273,13 @@
     "status": "machine",
     "text": "**Die Lösung: Deterministische Zeiger über die Credential-Säule** Aggrega löst dies, indem es den vorhandenen `inject`-Mechanismus nutzt und die Definition von „deterministisch“ von einer literalen IP-Adresse auf einen *deterministischen Zeiger* verlagert. Die generierte Konfiguration übergibt nicht die URL; sie übergibt den Pfad zu einem Cloud Vault, in dem die URL vorhanden sein *wird*."
   },
+  "74728bba0980f819": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "74728bba0980f819",
+    "status": "machine",
+    "text": "Und für einen Schlüssel `components.name`, der eine Bearbeitung vom Namen einer Instanz entfernt ist:"
+  },
   "747419c66e4a4cd2": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -26777,6 +26917,13 @@
     "srcHash": "770f018a561a03e4",
     "status": "machine",
     "text": "[Eingabearten](examples/07-input-kinds.md) — Beispiele 19 bis 22: Recipe-Komposition mit den drei Eingabearten (zustandsloser Dienst, nur synthetisiert, synthetisiertes Multi-Container-Recipe mit ConfigMap-Volumes, Chart aus Quelle mit Artefakten, Workload aus externer Datei, geladen über `workload: { $import: ... }`)."
+  },
+  "77100ed222901867": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "77100ed222901867",
+    "status": "machine",
+    "text": "A Manifest `name` mapping names nothing in the build (Ein Namens-Mapping im Manifest benennt nichts im Build)"
   },
   "771e41a4e9662d04": {
     "at": "2026-10-30T06:38:36.798Z",
@@ -27940,6 +28087,13 @@
     "status": "machine",
     "text": "Einstellungen für einen Server, den andere erreichen"
   },
+  "7c51b3088082dd1e": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7c51b3088082dd1e",
+    "status": "machine",
+    "text": "**Kantenbezogene Verbindungskonfiguration** wird auf die gleiche Weise gegen den kantenbezogenen Vertrag des Sockets validiert: die vom Entwickler verfassten `values` einer Kante gegen das `valueSchema` des Sockets und das vom Operator verfasste `infra` einer Kante (aus einem Release) gegen das `infraSchema` des Sockets. Ein Socket, der für eine Säule kein kantenbezogenes Schema deklariert, akzeptiert für sie keine validierte Konfiguration (Weglassen = kein Vertrag, nichts zu prüfen). Die Diagnose nennt die Kante über Konsument, Socket und Alias. Bei einer Komponente, die das eigene Aggregate des Release deklariert, wird das `infra` des Operators für jeden Eintrag gemessen, den das Release für eine ihrer Verbindungen schreibt — einschließlich eines Eintrags ohne `infra`, auf diese Weise wird ein Schlüssel `required:` ohne Default als fehlend gemeldet — und an diesem Eintrag im Release gemeldet, unter der Boundary, die die Komponente nennt, wo das Release Boundaries nennt, also dort, wo der Operator es bearbeitet; die `values` des Entwicklers werden am Verbindungseintrag im Aggregate gemeldet."
+  },
   "7c56a04fd9b6d61f": {
     "at": "2026-10-30T20:43:14.394Z",
     "job": "session-0018-20261030204314",
@@ -28445,6 +28599,13 @@
     "status": "machine",
     "text": "Was ein nach außen führender Link bewirkt"
   },
+  "7f313acbbc9b8f62": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7f313acbbc9b8f62",
+    "status": "machine",
+    "text": "Die Prüfung deckt die üblichen Schema-Einschränkungen ab: einen Wert des falschen Typs (eine Zeichenkette, wo das Schema eine Ganzzahl deklariert), einen Wert außerhalb eines deklarierten Bereichs oder eines `enum`, einen Wert, der ein deklariertes `pattern` nicht erfüllt, eine Zeichenkette, die keine gültige Instanz ihres deklarierten `format` ist — eines der [benannten Formate](../vocabulary/compact-form-authoring.md#named-formats) —, und ein **erforderliches** Feld, das nicht angegeben wurde. Ein Formatfehler nennt das Schlüsselwort und enthält den Wert, das Format und das, was daran falsch ist — so wie `aggrega pull` und `aggrega validate --release` ihn für ein Feld `uri` ausgeben, dem `::::` übergeben wird: `\"format\", \"value \\\"::::\\\" is not a valid uri: a URI begins with a scheme followed by a colon, such as https:\"`. Die Prüfung ist **Default-bewusst**: Ein Feld, dem das Schema einen `default:` gibt, gilt auch dann als angegeben, wenn es weggelassen wird, sodass ein erforderliches Feld mit Default die „fehlt“-Prüfung nie auslöst."
+  },
   "7f47652582c52c1c": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -28500,6 +28661,13 @@
     "srcHash": "7f8a82642b495ab7",
     "status": "machine",
     "text": "Autoren von Recipes und FeatureRecipes verweisen innerhalb eines `artifacts:`-Eintrags, dessen Wert eine `$import:`-Map ist, über die Identität des Bundles als bloßer Name auf ein Bundle:"
+  },
+  "7f8ec80ef5d206a6": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7f8ec80ef5d206a6",
+    "status": "machine",
+    "text": "Die Prüfung misst die Dimensionierung jeder Komponente, die das Release **platziert** hat, und auch ein Eintrag, der überhaupt keinen Block `infra:` schreibt, wird gemessen: Ein fehlender Block ist ein leerer, sodass ein Schlüssel `required:` ohne `default:` als fehlend gemeldet wird — genau der Fall, für den es einen solchen Schlüssel gibt. Beide Arten, eine Komponente zu platzieren, zählen. Sie unter den `components` einer Boundary zu nennen, platziert sie, und ebenso das Routen des Untermoduls, das sie beiträgt, unter `aggregates`; ein Routing-Eintrag platziert Komponenten, ohne etwas über eine einzelne von ihnen zu sagen, sodass eine so platzierte Komponente mit einem leeren Dimensionierungsblock beginnt und ein Schlüssel `required:` ohne Default an ihrem Typ als fehlend gemeldet wird. Eine Komponente, die das Release auf keinem der beiden Wege platziert, wird überhaupt nicht an diesem Vertrag gemessen. Sie hat einen anderen Fehler, und der Build meldet stattdessen diesen: eine Komponente, die in keiner Boundary platziert ist, wobei die beiden Wege, sie zu platzieren, genannt werden."
   },
   "7f97530b7cfc0330": {
     "at": "2026-11-02T23:06:17.995Z",
@@ -28669,6 +28837,13 @@
     "srcHash": "808e7ff9b1a6a28e",
     "status": "machine",
     "text": "Ein Blatt, dessen Schema `sensitive: true` deklariert, gibt anstelle seines Werts den festen Text `<redacted>` aus. Schlüssel, Säulenpräfix und Herkunftsklammer bleiben alle erhalten — nur der Wert wird ersetzt —, sodass das Layout weiterhin beantwortet, welche Blätter eine Entität trägt und woher jedes stammt. Zwei lesbare Oberflächen sind betroffen: der knotenweise `Values:`-Block eines Aggregate und der blattweise Anbindungsblock eines aufgelösten Release — einschließlich einer auf einer Verbindung geschriebenen Anbindung, die unter der Zeile dieser Verbindung ausgegeben wird und genau die Blätter zurückhält, die dasselbe Feature zurückhält, wenn die Komponente es selbst hält. Der kompilierte Graph eines Release unter `--ir-graph` hält dieselben Blätter in der strukturierten Form zurück, die unter [Maschinenlesbare Ausgabe](#machine-readable-output) beschrieben ist."
+  },
+  "809d9638bb10ab6a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "809d9638bb10ab6a",
+    "status": "machine",
+    "text": "Einem Typ, den das Aggregate ohne Version schreibt, werden die Recipes angeboten, die die Version implementieren, mit der der Build ihn kompiliert — die höchste Version dieser Component, die der Katalog enthält. Einer Instanz von `core/datastore/postgres`, wobei der Katalog diese Component in `1.0.0` enthält, wird jedes Recipe angeboten, das `spec.implements: core/datastore/postgres:1.0.0` deklariert, sowie jedes, das den unversionierten Typ oder einen Caret-Bereich deklariert, der `1.0.0` zulässt. Einem Typ, von dem der Katalog keine Component enthält, werden nur die Recipes angeboten, die genau diesen unversionierten Typ deklarieren."
   },
   "80ab08f1e061e35d": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -28890,6 +29065,13 @@
     "srcHash": "818cd8d91aea3a16",
     "status": "machine",
     "text": "Einstellung"
+  },
+  "818ee1104c01bc53": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "818ee1104c01bc53",
+    "status": "machine",
+    "text": "Wo kein Mapping existiert und Recipes vorhanden sind, die den Typ implementieren, werden sie als die zu pinnenden Kandidaten aufgeführt:"
   },
   "819717ae1675862f": {
     "at": "2026-10-30T20:11:56.421Z",
@@ -29711,6 +29893,13 @@
     "srcHash": "85a34b4639179006",
     "status": "machine",
     "text": "**2. `model.aggrega.ai/capability`**"
+  },
+  "85bc08ae917b1db8": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "85bc08ae917b1db8",
+    "status": "machine",
+    "text": "Ein SchemaLibrary-Eintrag, der ein Format außerhalb der unterstützten Menge nennt, führt zu diesem Abbruch, sobald seine Bibliothek gelesen wird, und die Zurückweisung nennt die Bibliothek und den Eintrag und verweist auf den Eintrag in der Bibliotheksdatei. `aggrega validate` über den ganzen Katalog liest jede Bibliothek und meldet den Eintrag daher unabhängig davon, ob ein Schema auf ihn verweist, während ein Release, dessen Abhängigkeitsauflösung die Bibliothek nie erreicht, sie nicht liest. Ein Release, dessen Schemas den Eintrag über ein `$ref:` tatsächlich erreichen, wird ebenfalls zurückgewiesen, doch die Zurückweisung nennt das Format nicht: `aggrega pull` meldet die Bibliothek als im Katalog nicht gefunden (`E0114`), und `aggrega validate --release` meldet das Ziel des Verweises als nicht gefunden (`E0121`). Führen Sie `aggrega validate` über den Katalog aus, um den Eintrag und den fehlerhaften Namen zu sehen."
   },
   "85c2a1549fdc0655": {
     "at": "2026-11-02T23:32:53.197Z",
@@ -30587,6 +30776,13 @@
     "status": "machine",
     "text": "Homebrew und Scoop installieren jeweils in eigene Ordner statt nach `~/.local/bin` oder `%LOCALAPPDATA%\\Programs\\aggrega` und aktualisieren nur die Kopie, die sie installiert haben. Verwenden Sie auf einem Rechner nur einen Installationsweg: Eine vom Installationsbefehl oder von Hand installierte Kopie und eine von Homebrew oder Scoop installierte sind zwei Kopien, und welcher Ordner in Ihrem `PATH` zuerst steht, entscheidet, welche ausgeführt wird."
   },
+  "896db56f142b7458": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "896db56f142b7458",
+    "status": "machine",
+    "text": "Der Typ einer Instanz hat kein Manifest-Mapping, das sich in ein Recipe auflöst, das der Katalog enthält. Die Auswahl des Recipe erfolgt **ausschließlich über Mappings**: Der Compiler wählt nie ein Recipe aus, indem er `spec.implements:` liest und unter den Kandidaten auswählt, daher führt ein nicht zugeordneter Typ zum Abbruch, ganz gleich, wie viele Recipes ihn implementieren. `implements` informiert die Wahl; der Autor trifft sie; das Manifest hält sie fest."
+  },
   "896e9385f2b95ff0": {
     "at": "2026-10-22T23:28:05.653Z",
     "job": "session-0054-20261022232805",
@@ -30839,6 +31035,13 @@
     "status": "machine",
     "text": "`metadata.name` ist bloß — es trägt kein Socket-Präfix. Die adressierbare Koordinate des Plugins, `plugin/<pluginType>/<name>`, wird aus `metadata.pluginType` und dem bloßen `metadata.name` abgeleitet; sie wird nicht in den Namen geschrieben."
   },
+  "8a6c465413837eb0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8a6c465413837eb0",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Öffnen Sie das Feld, das die Diagnose nennt, und korrigieren Sie das Fragment an dem gemeldeten Schlüssel und der gemeldeten Zeile — meist ein falsch geschriebenes Schlüsselwort, das Sie mit dem Schlüsselwortvokabular in [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) abgleichen, oder ein Wert, der dort steht, wo ein verschachteltes Schema hingehört. Nennt der Fehler ein nicht unterstütztes Format, schreiben Sie eines der [benannten Formate](../vocabulary/compact-form-authoring.md#named-formats) oder entfernen Sie das `format:`; ein Feld mit geheimem Material deklariert stattdessen [`sensitive: true`](../vocabulary/compact-form-authoring.md#declaring-a-leaf-sensitive--sensitive), da `password` kein Format ist. Bei einem SchemaLibrary-Eintrag gehört die Korrektur in die Bibliotheksdatei, die die Diagnose nennt. Nennt der Fehler einen dokumentübergreifenden Verweis, prüfen Sie, ob der SchemaLibrary-Eintrag existiert und ob die Bibliothek aus der Abschlussmenge der Abhängigkeiten des Release erreichbar ist. Benötigt die Konfiguration, die dieses Feld abdeckt, tatsächlich keine Validierung, entfernen Sie das Feld, statt einen Vertrag zu hinterlassen, den nichts lesen kann."
+  },
   "8a7525b1492fb848": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -30961,6 +31164,13 @@
     "srcHash": "8aeaae5c35579f53",
     "status": "machine",
     "text": "Der Daemon prüft bei jedem `aggrega/irGraph` ein Lockfile auf Drift, gegen das Release, das diese Anfrage genannt hat, und meldet Drift als nicht blockierende Warnung. Die Warnung nennt den Befehl, der dieses Lockfile mit dem Release darin neu schreibt, so geschrieben, wie die Anfrage es gesendet hat — `aggrega pull --release`, gefolgt von dem `release`, das Sie gesendet haben, so wie es an einem Terminal im Workspace-Root geschrieben wird. `aggrega/irGraph` erfordert, dass ein Lockfile vorhanden ist. Es gibt keine separate Prüfung beim Start: Eine Anfrage sagt, um welches Release es geht, daher wird das Urteil für dieses Release berechnet, wenn danach gefragt wird, statt einmal für ein im Voraus gewähltes Release."
+  },
+  "8aedac452d76175a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "8aedac452d76175a",
+    "status": "machine",
+    "text": "**Drei Fehler führen zu diesem Abbruch, und zwei davon sind leicht zu übersehen, weil der Vertrag in Ordnung aussieht.** Ein Socket-Vertrag lässt sich womöglich gar nicht zu JSON Schema 2020-12 kompilieren — ein falsch geschriebenes Schlüsselwort ist die häufigste Ursache; ein eigenes `spec.schema` einer Entität, das sich nicht kompilieren lässt, wird stattdessen unter der Kompaktform-Bedingung gemeldet, auf die seine Kompilierung gestoßen ist (`E0120` für ein unbekanntes Schlüsselwort, `E0116` für eine Einschränkung, die sein Typ nicht annimmt). Oder er kompiliert sauber und baut dennoch keinen Validator: Der Inhalt ist als Kompaktform lesbar und ist kein Schema, gegen das irgendetwas validiert werden kann, etwa ein bloßer Skalar, wo das Schema einer Eigenschaft hingehört (`items: nonsense`). Oder er ist in jeder anderen Hinsicht wohlgeformt und nennt ein Format außerhalb der unterstützten Menge — `format: password` oder eine falsche Schreibweise wie `format: emial` —, das zurückgewiesen wird, statt als Einschränkung gelesen zu werden, die nichts prüft, ob nun ein Wert das Feld erreicht oder nicht; die Namen, die ein `format` annehmen kann, sind unter [Benannte Formate](../vocabulary/compact-form-authoring.md#named-formats) aufgeführt. Alle drei sind eine einzige Bedingung, weil die Abhilfe dieselbe ist und das Übergehen jedes einzelnen von ihnen dieselbe Folge hat."
   },
   "8af0a3b6f89e7d75": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -31628,6 +31838,13 @@
     "status": "machine",
     "text": "Der Bericht auf der Standardausgabe sagt, wo der Lauf angehalten hat, und der Befehl endet mit `0`. Die eigene Assertion eines Recipe hält das Rendern an, daher lautet der Bericht `Render: stopped on a failed assertion, reported as a warning` nach `Resolution: valid`. Die Assertion einer Component wird ausgewertet, bevor etwas gerendert wird, daher lautet der Bericht `Resolution: stopped on a failed assertion, reported as a warning`, gefolgt von `Render: not attempted (the run stopped on that assertion)`. In beiden Fällen wird nichts gerendert, daher wird kein Artefakt ausgegeben."
   },
+  "8e0bea946c744d1a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8e0bea946c744d1a",
+    "status": "machine",
+    "text": "Dieselbe Bedingung erfasst ein Mapping, das existiert, aber ins Leere führt — ein Wert in einer akzeptierten Referenzstruktur, der ein Recipe nennt, das der Katalog nicht enthält, einschließlich eines, das unter einer anderen Version vorhanden ist als der, die der Wert pinnt, und eines, dessen bloßen Namen zwei Fähigkeiten zugleich anbieten. Keines davon löst sich in ein Recipe auf, von dem man sagen könnte, der Autor habe es gewählt. Ein Mapping-Wert, dessen *Struktur* keine Referenz ausdrücken kann, wird gesondert gemeldet, unter „Manifest mapping value is not a shape a recipe reference accepts (Der Mapping-Wert im Manifest hat keine Struktur, die eine Rezeptreferenz akzeptiert)“ weiter oben, sodass die Aussage, eine Entität fehle, nur über eine Referenz getroffen wird, die sich hätte auflösen können."
+  },
   "8e1862545fe5badb": {
     "at": "2026-10-30T06:59:34.584Z",
     "job": "session-0073-20261030065934",
@@ -31663,6 +31880,13 @@
     "status": "machine",
     "text": "`.boundary.assembly_path` — das Verzeichnis, relativ zum Ausgabeverzeichnis des Builds, in das die eigene Ausgabe der Anbindung assembliert wird: die ausgewerteten `directory:` und `subDirectory:` der Grenze, also das Verzeichnis, an das der Build diese Ausgabe leitet (`bridge/compose`). Es entspricht dem `source_assembly_path` oder `target_assembly_path` eines Verbindungsendpunkts genau dann, wenn dieser Endpunkt in dieselbe assemblierte Datei gerendert wird; ein FeatureRecipe vergleicht sie daher, um eine Verbindung innerhalb der eigenen Datei von einer in einer anderen Datei zu unterscheiden."
   },
+  "8e26190d03aade60": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "8e26190d03aade60",
+    "status": "machine",
+    "text": "**Feature-Anbindungen** werden auf die gleiche Weise validiert, gegen das `schema.values` / `schema.infra`, das das angebundene Feature deklariert. Anbindungen teilen sich eine Oberfläche, sodass ein Zugangsdaten-Feature — eines mit dem Label `feature.aggrega.ai/kind: secret` — genau wie jede andere Anbindung gegen sein eigenes deklariertes Schema gemessen wird. Der geprüfte Wert ist das **effektive zusammengeführte Ergebnis**, nachdem die Anbindungswerte über die Geltungsbereiche (Komponente, Subsystem, Boundary und komponentenspezifisch) kaskadiert sind — sodass ein Wert, der in einem Geltungsbereich zulässig eingeführt, aber in einem spezifischeren Geltungsbereich mit einem unzulässigen Wert überschrieben wurde, am zusammengeführten Ergebnis erkannt wird, nicht am Fragment. Eine Anbindung, deren Typ kein Schema deklariert, wird nicht validiert; das infra einer Anbindung wird gegen das eigene `schema.infra` der Anbindung validiert (eine Anbindung ist eine Überlagerung und trägt keine Provider-Vereinigung)."
+  },
   "8e2d3a4ffba1aeed": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -31676,6 +31900,13 @@
     "srcHash": "8e4ab154150982ae",
     "status": "machine",
     "text": "Vererbung über `extends:` ist der Katalogmechanismus, mit dem Plattformarchitekten spezialisierte Kindentitäten auf gemeinsamen Baselines aufbauen. Die beiden Katalogarten gehen bei ihren Datensäulen getrennte Wege. Die Eltern- und Kindschemata eines Feature werden beim Laden des Workspace zusammengesetzt und ergeben ein vereinheitlichtes Schema mit Provenienz pro Blatt. Eine erweiternde **Component** schreibt keinen Säuleninhalt: Sie schreibt die wörtliche Markierung `schema: inherited` und erhält den `schema:`-Block ihrer Basis genau so, wie die Basis ihn geschrieben hat, in jeder Tiefe einer Kette."
+  },
+  "8e4bed2f065dcfe2": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8e4bed2f065dcfe2",
+    "status": "machine",
+    "text": "recipe source is an empty string, which names neither sourceless mode nor sourced mode. omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode (das Feld source des Rezepts ist ein leerer String, der weder den Modus sourceless noch den Modus sourced benennt. lassen Sie das Feld source für den Modus sourceless weg, oder geben Sie für den Modus sourced einen nicht leeren Pfad oder URI an)"
   },
   "8e4c8d471d15411d": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -34405,6 +34636,13 @@
     "srcHash": "9a79799402908cb3",
     "status": "machine",
     "text": "**Die eigenen Bedingungen eines Providers werden aus der veröffentlichten Referenz beantwortet.** Ein Provider deklariert die Bedingungen, die er melden kann, und er deklariert sie in sich selbst statt im Compiler, der ihn lädt – daher werden ihre Codes gegen [sentinels.md](../errors/sentinels.md) aufgelöst, das jede Bedingung auflistet, die das Produkt deklariert."
+  },
+  "9a8fc32b49c900d0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "9a8fc32b49c900d0",
+    "status": "machine",
+    "text": "Ein Feature wird als `Feature \"<name>:<version>\"` benannt, der Vertrag eines Sockets über sein eigenes Feld, etwa `spec.usesSchema.<socket>.infraSchema`, und die Säule über diejenige, die der Vertrag einschränkt — `values`, `infra` oder `provides`. `aggrega validate` nennt die Entität ohne ihre Version, wenn es die eigene Datei der Entität erhält. Ein SchemaLibrary-Eintrag wird über seine Bibliothek und seinen Eintrag benannt:"
   },
   "9a910bd7c1e98f1e": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -37175,6 +37413,13 @@
     "status": "machine",
     "text": "Die Standardansicht wendet die `extends:`-Kette des Manifest an und stellt die aufgelösten Komponenten- und Feature-Zuordnungen sowie die Annotations-Bindungen dar. `--raw` zeigt die Datei so, wie sie verfasst wurde, vor der Auflösung von extends."
   },
+  "a6cb1885920913b5": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "a6cb1885920913b5",
+    "status": "machine",
+    "text": "Ein Schlüssel unter `spec.mappings.components.name` oder `spec.mappings.features.name` nennt keine Komponenteninstanz und keine Anbindung, die der Build enthält. Die Ebene `name` wird mit dem exakten Namen dessen abgeglichen, was realisiert wird: ein Schlüssel `components.name` mit dem Namen einer Komponenteninstanz, so wie das Aggregate ihn schreibt, und ein Schlüssel `features.name` mit dem **eigenen Namen einer Anbindung** — dem Schlüssel, unter dem sie in den `features:` einer Komponente geschrieben ist, oder `<alias>.<slot>` für eine an einer Verbindung geschriebene Anbindung — niemals mit dem Namen der Komponente, an der die Anbindung sitzt. Ein Schlüssel, der nichts nennt, würde nie herangezogen: Jede Instanz, für die er gedacht war, würde über die Ebene `type` aufgelöst, und der Build würde enden, ohne ein Wort über den ignorierten Eintrag zu verlieren. Deshalb bricht der Build stattdessen ab, bevor irgendetwas gerendert wird."
+  },
   "a6cb47559a8dc44f": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -37290,6 +37535,13 @@
     "srcHash": "a741b4795caacf32",
     "status": "machine",
     "text": "[`aggrega lint`](cli/aggrega-lint.md) — prüft Veröffentlichungskonventionen über den gesamten Katalog, die Abhängigkeitshülle eines Release (`--release`) oder eine einzelne Entität; `--pre-publish` ergänzt die registry-bewusste Prüfung der Versionserhöhung."
+  },
+  "a7423579327c1fb6": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "a7423579327c1fb6",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Lassen Sie das Feld `source:` ganz weg (oder setzen Sie es auf null), wenn das Recipe sourceless ist, oder geben Sie einen nicht leeren Pfad / URI / ein strukturiertes Quellobjekt an, wenn das Recipe sourced ist."
   },
   "a744a5e9c186dbdd": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -37718,6 +37970,13 @@
     "srcHash": "a933cebe36dd7030",
     "status": "machine",
     "text": "64-Bit-ARM (`uname -m` gibt `aarch64` aus)"
+  },
+  "a93e92a2fb7f8003": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "a93e92a2fb7f8003",
+    "status": "machine",
+    "text": "Der Vertrag bindet eine Komponente, wo auch immer sie verfasst wurde: Eine Komponente, die ein Untermodul beiträgt, wird genau so gemessen wie eine, die das eigene Aggregate des Release deklariert. Wie tief eine Komponente verschachtelt ist, ändert nicht, welche Einschränkungen ihres Typs gelten."
   },
   "a940d25189db91c4": {
     "at": "2026-11-03T01:42:01.047Z",
@@ -40499,6 +40758,13 @@
     "status": "machine",
     "text": "**Einschränkung 2: Fähigkeitsagnostische Components**"
   },
+  "b4b36fd4f8c7ac6e": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "b4b36fd4f8c7ac6e",
+    "status": "machine",
+    "text": "Der Build bricht ab, statt für Sie eine der beiden Lesarten zu wählen. Die Zurückweisung liest den Wert genau so, wie Sie ihn geschrieben haben, noch bevor ein Template darin ausgewertet wird, und benennt daher die Mehrdeutigkeit selbst, statt zu melden, was der leere Wert anschließend bewirkt hätte. Am häufigsten entsteht ein leeres `source:`, wenn man einen URI löscht und den Schlüssel stehen lässt: Gemeint war der Modus sourced, und den leeren String als sourceless zuzulassen, würde ein Release ohne das Artefakt ausliefern und nie sagen, welche der beiden Lesarten gewählt wurde."
+  },
   "b4c79b722ad46179": {
     "at": "2026-10-30T06:38:36.798Z",
     "job": "session-0071-20261030063836",
@@ -40980,6 +41246,13 @@
     "srcHash": "b7291adc21f21621",
     "status": "machine",
     "text": "**Eine Ausgabezeile ist ein `report`.** Eine Operation, die mehrere Zeilen auf einmal schreibt, erzeugt eine Benachrichtigung pro Zeile, und eine Zeile, die die Operation in Teilen schreibt, wird gemeldet, sobald sie vollständig ist — eine Meldung ist also nie ein halber Satz."
+  },
+  "b74013d4957619bb": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "b74013d4957619bb",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. Component `\"<type>:<version>\"`: spec.schema.values declares a schema no validator can be built from, so the values it constrains would go unmeasured: validator/jsonschema: schema resolution failed (at values.`<field>`, keyword `\"format\"`, format `\"<format>\"` is not supported; the supported formats are email, uri, hostname, ipv4, ipv6, uuid, date-time, date) (der deklarierte Schemavertrag konnte nicht zu einem verwendbaren Schema kompiliert werden, daher wurde nichts dagegen validiert: Korrigieren Sie den Vertrag dort, wo er deklariert ist, oder entfernen Sie ihn, wenn die Konfiguration, die er abdeckt, keine Validierung benötigt. Component: spec.schema.values deklariert ein Schema, aus dem sich kein Validator bauen lässt, sodass die Werte, die es einschränkt, ungemessen blieben: validator/jsonschema: Schemaauflösung fehlgeschlagen (im Feld unter values, Schlüsselwort format: das Format wird nicht unterstützt; die unterstützten Formate sind email, uri, hostname, ipv4, ipv6, uuid, date-time, date))"
   },
   "b74f2feca86b47ce": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -44263,6 +44536,13 @@
     "status": "machine",
     "text": "Mit einem Paketmanager installieren"
   },
+  "c5c402ab3932a08a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "c5c402ab3932a08a",
+    "status": "machine",
+    "text": "und ein Formatname außerhalb der unterstützten Menge in der Säule `values` einer Component:"
+  },
   "c5cd9740c9c0989d": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -44605,6 +44885,13 @@
     "status": "machine",
     "text": "Funktionsweise"
   },
+  "c756f595f1e354d9": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c756f595f1e354d9",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Korrigieren Sie den fehlerhaften Wert so, dass er das deklarierte Schema erfüllt, oder — wenn der Wert legitim ist — erweitern Sie das deklarierende Schema (`schema.values`/`schema.infra` der Component oder das des angebundenen Feature), sodass es ihn deklariert. Untersuchen Sie das deklarierte Schema einer Component mit `aggrega inspect <component-type>`, um die genauen Typen, Bereiche, Defaults und erforderlichen Felder zu sehen, die jede Säule erwartet."
+  },
   "c75db67e11a9560a": {
     "at": "2026-10-30T09:01:39.651Z",
     "job": "session-0076-20261030090139",
@@ -44810,6 +45097,13 @@
     "status": "machine",
     "text": "`core/random-password` ist nicht `core/generated-secret`. Jenes Feature übergibt ein Credential an eine Engine, die bereits seinen gesamten Lebenszyklus besitzt — eine verwaltete Datenbank, einen Datenbank-Controller — und rendert nichts. `core/random-password` rendert die Anforderung selbst, für eine Workload, deren Recipe erwartet, ein Credential übergeben zu bekommen."
   },
+  "c81fb949852d7f5a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c81fb949852d7f5a",
+    "status": "machine",
+    "text": "Dieselbe Anbindung, an der Komponente im Aggregate geschrieben, meldet `[DEVELOPER_ERROR E0168]` an `.spec.components.app.features.check.values.schema`, unter dem Aggregate-Namen. Ein Editor zeigt jeden Befund an dem Dokument, das ihn geschrieben hat, am tiefsten Schlüssel dieses Pfads, den das Dokument enthält."
+  },
   "c8224298db8f5ac4": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -44900,6 +45194,13 @@
     "srcHash": "c875da627926b5ff",
     "status": "machine",
     "text": "Status-Taxonomie"
+  },
+  "c87949e8796d30ee": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c87949e8796d30ee",
+    "status": "machine",
+    "text": "**Keinen Vertrag zu deklarieren und einen zu deklarieren, der nicht gelesen werden kann, sind verschiedene Situationen, und der Build behandelt sie unterschiedlich.** Ein Feld, das nichts deklariert, wird übersprungen: Die Konformität je Säule und je Kante ist optional, sodass ein Socket, der keine der beiden Säulen einschränkt, gewöhnliches Authoring ist und keine Diagnose auslöst. Ein Feld, das etwas Unlesbares deklariert, wird zurückgewiesen. Es zu übergehen, ließe jede Payload, die es abdeckt, unvalidiert, während der Build Erfolg meldet — eine Prüfung, die aufgehört hat zu laufen, ohne dass etwas sagt, dass sie aufgehört hat. Die Zurückweisung ist also das, was die beiden auseinanderhält: Stille bedeutet, dass es nichts zu prüfen gab, und ein Abbruch bedeutet, dass es etwas gab und es nicht gelesen werden konnte."
   },
   "c884d93d9cb9744b": {
     "at": "2026-11-03T00:27:36.365Z",
@@ -45467,6 +45768,13 @@
     "status": "machine",
     "text": "Ressourcenmengen sind für das Schema auf dieselbe Weise Zeichenketten: Keine der beiden Stufen prüft ihre Form. Das tut der synthetisierende Provider, auf der ausgewerteten Workload, und er bricht bei einem Wert außerhalb der Mengenform ab – siehe [Ressourcenmengen](#resource-quantities)."
   },
+  "cabd10b117be845d": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "cabd10b117be845d",
+    "status": "machine",
+    "text": "Ausgegebene Meldung, die die Entität mit ihrer Version und das Feld nennt, das den Vertrag deklariert, dann die Säule, die dieser Vertrag einschränkt, dann den Fehler — hier ein Socket-Vertrag mit einem falsch geschriebenen Schlüsselwort:"
+  },
   "cacaf08e4259b003": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -45487,6 +45795,13 @@
     "srcHash": "cae94870a42d329a",
     "status": "machine",
     "text": "Pro Anbindung trägt der Graph:"
+  },
+  "cb0f5c81e4eb005e": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "cb0f5c81e4eb005e",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`, recipes implementing it `\"<recipe-uris>\"`). pin one of them in the Manifest (kein Rezept für die Komponenten-/Feature-Instanz aufgelöst: Fügen Sie für ihren Typ ein explizites Manifest-Mapping hinzu (Manifest, mit der Instanz, ihrem Typ und den Rezepten, die ihn implementieren). pinnen Sie eines davon im Manifest)"
   },
   "cb12613ee9dddb21": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -47789,6 +48104,13 @@
     "status": "machine",
     "text": "3. Imperative Aktionen (die ausführbare Übergabe)"
   },
+  "d65c86b0521752f0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "d65c86b0521752f0",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. Component `\"<type>:<version>\"`: spec.usesSchema.`<socket>`.valueSchema declares a schema no validator can be built from, so the values it constrains would go unmeasured: compactform at `<key>`:`<line>` (keyword `\"<keyword>\"`): unknown keyword (der deklarierte Schemavertrag konnte nicht zu einem verwendbaren Schema kompiliert werden, daher wurde nichts dagegen validiert: Korrigieren Sie den Vertrag dort, wo er deklariert ist, oder entfernen Sie ihn, wenn die Konfiguration, die er abdeckt, keine Validierung benötigt. Component: spec.usesSchema.valueSchema des Sockets deklariert ein Schema, aus dem sich kein Validator bauen lässt, sodass die Werte, die es einschränkt, ungemessen blieben: compactform an dem genannten Schlüssel und der genannten Zeile: unbekanntes Schlüsselwort)"
+  },
   "d66260506ebcca83": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -47862,6 +48184,13 @@
     "srcHash": "d6b72fdbf2d81a34",
     "status": "machine",
     "text": "[authoring/](authoring/README.md) — das „Wie man sich hinsetzt und verfasst“ von Aggrega. Die Authoring-Schleife, die vier zusammenarbeitenden Rollen, die Zuordnung von Kinds zu Rollen und wie Sie einen KI-Assistenten über den Model-Context-Protocol-Server anbinden. Beginnen Sie mit [Erste Schritte](authoring/getting-started.md); damit Ihr KI-Assistent Aggrega selbst installiert und einrichtet, fügen Sie den Prompt aus [Aggrega über Ihren KI-Assistenten verwenden](authoring/ai-assistant.md) ein."
+  },
+  "d6ced66f9e3caa35": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "d6ced66f9e3caa35",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Fügen Sie das Mapping hinzu, das die Meldung verlangt, unter `spec.mappings.components.type` im Manifest, mit dem Komponententyp als Schlüssel und dem Recipe als Wert. Wo die Meldung Kandidaten aufführt, wählen Sie einen davon — diese Liste umfasst genau die Recipes, die deklarieren, dass sie den Typ in der Version implementieren, in die der Build ihn auflöst. Wo sie ein Recipe nennt, das nicht im Katalog ist, korrigieren Sie entweder den Wert oder fügen Sie das Recipe einem Katalogverzeichnis hinzu, das der Build liest; eine Version im Wert muss einer Version entsprechen, die der Katalog enthält. Wo nichts den Typ implementiert, fehlt das Recipe selbst."
   },
   "d6cf10778fccaedb": {
     "at": "2026-11-02T19:03:23.148Z",
@@ -51110,6 +51439,13 @@
     "status": "machine",
     "text": "Eine baumförmige Entität (Aggregate, Release) als flache Liste rendern, jeder Knoten mit seinem vollständigen gepunkteten Pfad als Präfix. Keine Wirkung bei tabellarischen Arten."
   },
+  "e55e964edd5e78bf": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "e55e964edd5e78bf",
+    "status": "machine",
+    "text": "Und wo überhaupt nichts den Typ implementiert, gibt es nichts aufzuführen:"
+  },
   "e5603214950d5707": {
     "at": "2026-11-02T18:47:12.619Z",
     "job": "session-0002-20261102184712",
@@ -52232,6 +52568,13 @@
     "status": "machine",
     "text": "Dieser Abschnitt behandelt die eigenen Slots der Component. Die Slots, die ein Socket für jede Verbindung deklariert, sind dagegen eine geschlossene Menge — siehe „Slots, die jede Verbindung füllt“ unter Topologie-Sockets."
   },
+  "ea4881e557c413be": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "ea4881e557c413be",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`). no recipe in the catalog implements this type; write one, then map the type to it (kein Rezept für die Komponenten-/Feature-Instanz aufgelöst: Fügen Sie für ihren Typ ein explizites Manifest-Mapping hinzu (Manifest, mit der Instanz und ihrem Typ). kein Rezept im Katalog implementiert diesen Typ; schreiben Sie eines und ordnen Sie den Typ dann diesem zu)"
+  },
   "ea4920671fda1b5e": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -53088,6 +53431,13 @@
     "srcHash": "ee4301e1ee91e7da",
     "status": "machine",
     "text": "Jeder andere Fehler beendet den Schritt sofort: ein abgelehnter Berechtigungsnachweis (`401`, `403` oder kein gespeicherter Berechtigungsnachweis für die Registry), jede andere Antwort der Registry, eine überhaupt nicht erreichbare Registry oder ein Push, den Sie unterbrechen. **Ein Schritt, der nach seinem letzten Versuch noch scheitert, lässt den Befehl scheitern, und der Fehler nennt den Schritt** — den Inhalt, das Manifest, den Tag, die Signatur oder das Veröffentlichungsdatum. Was frühere Schritte veröffentlicht haben, bleibt veröffentlicht; [Signieren](#signing) und [Das Veröffentlichungsdatum](#the-publication-date) erläutern, was das für die Version bedeutet."
+  },
+  "ee4baaf7a210ef18": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "ee4baaf7a210ef18",
+    "status": "machine",
+    "text": "Ausgegebene Meldung, für einen Schlüssel `features.name`, der als Name der Komponente geschrieben ist, an der die Anbindung sitzt:"
   },
   "ee6011be6754f96a": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -54043,6 +54393,13 @@
     "srcHash": "f344d7653fb4e893",
     "status": "machine",
     "text": "`aggrega/invalidate` — ein Cache-Invalidierungssignal vom Datei-Watcher des Editors."
+  },
+  "f345e47fa0ab5611": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "f345e47fa0ab5611",
+    "status": "machine",
+    "text": "**Beim Build-Befehl stoßen Sie immer zuerst auf etwas anderes.** Beim Pinnen der Quellen eines Release lässt sich nicht erkennen, welche Art von Artefakt eine leere Referenz benennt, daher meldet `aggrega pull` diese Referenz als mehrdeutig und schreibt keinen Lockfile-Eintrag für sie — und ein Build liest eine Lockfile, statt eine zu schreiben, sodass er die fehlende oder nicht mehr übereinstimmende Lockfile zurückweist, bevor irgendein Rendering stattfindet. So oder so liefert Ihnen der Build-Befehl eine dieser beiden Zurückweisungen und nicht diesen Abbruch. Auf den Abbruch selbst stoßen Sie mit [`aggrega validate`](../cli/aggrega-validate.md) über die Recipe-Datei, das dieses Recipe isoliert rendert, und mit dem Build-Werkzeug, das [`aggrega mcp`](../cli/aggrega-mcp.md) bereitstellt und das ein Release ganz ohne Lockfile rendert. Die Korrektur ist bei allen dieselbe."
   },
   "f3596d836c317c06": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -55547,6 +55904,13 @@
     "status": "machine",
     "text": "cyclic extends chain (`<kind>` `<name>`, rule extends). `<entity>` extends `<reference>`, which is already in the chain; remove the extends on `<entity>`, or point it at an entity outside the chain (zyklische extends-Kette (Typ und Name, Regel extends). Die Entität erweitert die Referenz, die bereits in der Kette ist; entfernen Sie das extends an der Entität oder lassen Sie es auf eine Entität außerhalb der Kette zeigen)"
   },
+  "f9e5f646ba02a991": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "f9e5f646ba02a991",
+    "status": "machine",
+    "text": "Die Zurückweisung nennt die Entität, die den Vertrag **deklariert** hat, und nicht das Dokument, das die Konfiguration geschrieben hat, weil dort die Korrektur hingehört. Ein Aggregate-Autor, dem ein Komponententyp übergeben wird, dessen Vertrag nicht gelesen werden kann, hat in seiner eigenen Datei nichts zu ändern. Die Zurückweisung tritt auf, während der Katalog gelesen wird, wo die deklarierende Entität, die Säule, das verfasste Feld und die Quellzeile alle bekannt sind — sodass derselbe Fehler identisch gemeldet wird, ob Sie ihn über einen Build, über `aggrega validate` oder über das Build-Werkzeug erreichen, das `aggrega mcp` bereitstellt. Ein Vertrag, den die Entität über `$import:` liest — ihr ganzes `spec.schema`, eine Säule davon oder der Vertrag eines Sockets —, wird an der importierten Datei gemeldet: Die Position nennt diese Datei und die Zeile darin, in der das Fragment geschrieben ist, während die Meldung weiterhin die Entität und das Feld nennt, das den Vertrag deklariert hat. Die Kompaktform-Abbrüche, auf die ein eigenes `spec.schema` einer Entität stößt, werden auf die gleiche Weise lokalisiert."
+  },
   "f9e812a3574d1c3b": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -55761,6 +56125,13 @@
     "srcHash": "fa78c708188351c5",
     "status": "machine",
     "text": "[./aggrega-mcp.md](./aggrega-mcp.md) — dieselbe Fähigkeit als Werkzeug `publish-entity`, das ein Assistent aufrufen kann und das mit diesen Einträgen als `windows_unusable_entries` antwortet. Lesen Sie, was diese Seite über das Zulassen sagt, bevor Sie es tun."
+  },
+  "fa7ce8541cc028e7": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "fa7ce8541cc028e7",
+    "status": "machine",
+    "text": "**Eine Anbindung, die eine Verbindung trägt**, wird auf die gleiche Weise gemessen und am Verbindungseintrag des Dokuments gemeldet, das die fehlerhafte Säule geschrieben hat, statt am eigenen Block `features:` der Komponente, der sie nicht enthält. Ihre `values` werden am Verbindungseintrag im Aggregate gemeldet, `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>` — im eigenen Dokument des Untermoduls, bei einer Komponente, die ein Untermodul beiträgt —, und ihr `infra` am Eintrag des Release für diese Verbindung, unter der Boundary, die die Komponente nennt, wo das Release Boundaries nennt. Eine Anbindung, die nur das Release vornimmt, wird für beide Säulen am Eintrag des Release gemeldet: Eine solche Anbindung trägt keine `values`, sodass ein Feature, dessen `values` ein Feld verlangen, es dort als fehlend meldet, an dem Eintrag, den der Operator geschrieben hat."
   },
   "fa7f5a072e643067": {
     "at": "2026-11-03T01:42:01.047Z",
@@ -56343,6 +56714,13 @@
     "status": "machine",
     "text": "Platform Architects verwenden das Schlüsselwort `extends`, um spezialisierte Schnittstellen über Unternehmens- oder Community-Baselines zu legen. Das Erweitern **komponiert die Struktur** und **erbt die Datensäulen vollständig**. Der Compiler durchläuft die Kette von der Basis abwärts; die beiden Hälften verhalten sich unterschiedlich, und dieser Unterschied ist das gesamte Authoring-Modell."
   },
+  "fc9bbb9411e6ed27": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "fc9bbb9411e6ed27",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Benennen Sie den Schlüssel in den Namen um, den die Meldung vorschlägt, oder in einen der Namen, die sie aufführt — bei einer Anbindung den Namen, unter dem sie geschrieben ist, nicht den ihrer Komponente. Wird der Eintrag nicht mehr gebraucht, entfernen Sie ihn; die Instanzen dieses Typs werden dann über die Ebene `type` aufgelöst."
+  },
   "fca1c5d9ab85c211": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -56878,6 +57256,13 @@
     "status": "machine",
     "text": "Was die Deklaration tut, genau formuliert:"
   },
+  "ff671cf0c896d22a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "ff671cf0c896d22a",
+    "status": "machine",
+    "text": "**Bei einem Blatt, das als `sensitive: true` deklariert ist, wird die Verletzung der Einschränkung zurückgehalten.** Der Fehlertext zitiert den fehlerhaften Wert, und eine Build-Diagnose wird von jedem gelesen, der den Build verfolgt; daher steht auf einem als sensibel deklarierten Blatt — oder irgendwo innerhalb eines als sensibel deklarierten Objekts — unten statt `<constraint failure>` der Text `<redacted>`. Dasselbe gilt an einer Position, die unter sich ein als sensibel deklariertes Blatt enthält, die Säule selbst eingeschlossen: Ein `$ref`, das neben anderen Schlüsselwörtern geschrieben ist, wird dort, wo es geschrieben ist, als Ganzes geprüft, sodass ein Fehler innerhalb der Definition, die es nennt, an dieser Position gemeldet wird und sonst den Wert des Blatts zitieren würde. Die Entität, der Feldpfad, die Säule und der Vertragsname werden weiterhin alle genannt, sodass die Diagnose Ihnen weiterhin sagt, wo der Fehler liegt; nur der Text, der den Wert wiedergeben würde, entfällt. Die Sensibilität wird je Säule gelesen, sodass ein Blatt, das in `values` und `infra` gleich benannt ist, nur in der Säule zurückgehalten wird, die es deklariert."
+  },
   "ff73908433a72a9e": {
     "at": "2026-11-03T03:00:32.047Z",
     "job": "session-0041-20261103030032",
@@ -56993,6 +57378,13 @@
     "srcHash": "ffd9f8a0087a2c63",
     "status": "machine",
     "text": "Ermöglicht einem Feature, das begrenzt, wie viele Anfragen eine Komponente gleichzeitig verarbeitet, eine Komponente auszuwählen, die eine Anfrage jenseits eines in ihrer Konfiguration festgelegten Limits zurückhalten oder ablehnen kann. Der Wert benennt, was ein Limit zählt: `total`, jede Anfrage, die die Komponente weiterleitet, gegen ein einziges Limit; `per-target`, die laufenden Anfragen an jedes Upstream-Ziel, an das sie sendet, mit einem Limit für jedes und keinem für ihre Summe."
+  },
+  "ffdaaca75eddae6d": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "ffdaaca75eddae6d",
+    "status": "machine",
+    "text": "**Eine wohlgeformte Einschränkung neben einer unlesbaren wird nicht durchgesetzt.** Ein Vertrag wird als ein Dokument gelesen, sodass ein einziges unlesbares Fragment jede daneben deklarierte Einschränkung außer Kraft setzt. Deshalb ist der Abbruch mehr wert als die Einschränkungen, die er kostet: Die Alternative ist ein Vertrag, der durchgesetzt aussieht, sich wie durchgesetzt liest und nichts durchsetzt."
   },
   "fff7f4057ca490ed": {
     "at": "2026-10-23T02:15:21.677Z",

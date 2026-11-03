@@ -762,6 +762,13 @@
     "status": "machine",
     "text": "**Provider** (`provider`)"
   },
+  "032e5cb0ce95143b": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "032e5cb0ce95143b",
+    "status": "machine",
+    "text": "Un Component o una Feature dichiara un contratto di schema che non fornisce nulla rispetto a cui validare, quindi la configurazione che copre viene misurata rispetto a nulla. Tre contratti possono portare l’errore, ciascuno scritto nel proprio campo: lo `spec.schema` dell’entità stessa e i due contratti per arco che un socket di dipendenza dichiara — `valueSchema` per il lato dello sviluppatore di una connessione e `infraSchema` per quello dell’operatore. Anche una voce di SchemaLibrary, a cui quei contratti possono fare riferimento, può portare il terzo degli errori descritti sotto; come viene segnalato quel caso è spiegato più avanti."
+  },
   "032f23b947c3d482": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -2445,6 +2452,13 @@
     "status": "machine",
     "text": "Gli autori di Recipe e FeatureRecipe scrivono codice Go `text/template` in specifici punti di valutazione: le voci `provides`, le voci `locals`, `valuesMapping` (inline o caricato con `$import:`), il contenuto `workload:` (inline o caricato con `$import:`), le voci `artifacts:` (inline o caricate con `$import:` per singola voce) e l’`injectMapping` delle FeatureRecipe. Ogni punto viene eseguito in una fase definita della pipeline di compilazione e riceve una vista definita del contesto dei pilastri. Questo insieme di capitoli documenta la superficie dei template: dove vengono eseguiti i template, che cosa espone il contesto in ogni punto e quali funzioni helper sono disponibili."
   },
+  "0a07c21416babbaf": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "0a07c21416babbaf",
+    "status": "machine",
+    "text": "Ogni chiave che non nomina nulla viene segnalata in una sola build, nell’ordine in cui il Manifest le scrive."
+  },
   "0a0f8f9f42423e95": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -2902,6 +2916,13 @@
     "status": "machine",
     "text": "**Runtime (applicazione fisica):** Una volta che l’orchestratore ha distribuito gli artefatti generati, il gateway sostituisce ogni corrispondenza nel testo della richiesta che maschera con un segnaposto prima di inoltrarla, così il provider del modello riceve il segnaposto; con `action: refuse` il collegamento non inoltra nulla di una richiesta che contiene una corrispondenza e risponde invece con un errore. Un riconoscitore che non è raggiungibile o che va in errore fa fallire la richiesta, così il suo testo non viene inoltrato. Ciò che il mascheramento non raggiunge è deciso da due valori i cui default costituiscono la protezione. Sull’AI gateway, quando il collegamento maschera anche le risposte, il gateway maschera il testo della risposta e le parti che un modello o il suo provider aggiunge accanto a esso — un rifiuto, citazioni e annotazioni, la query e i risultati di una ricerca web, campi con nomi propri del provider — oppure, con `refuse`, non invia nulla di una risposta che contiene una corrispondenza; una risposta in streaming che maschera per pattern raggiunge il chiamante per intero, alla fine. Per impostazione predefinita, ciò che il suo mascheramento non raggiunge in una richiesta — una route come la generazione di immagini, un campo come `safety_identifier`, un’immagine o un file nella conversazione, uno strumento che il provider esegue da sé — l’AI gateway lo rifiuta con HTTP 400 prima di inoltrarne qualsiasi parte; un operatore che accetta che tale testo raggiunga il provider non mascherato imposta `allow_unmasked_text` sul collegamento nella Release, e la realizzazione elenca esattamente ciò che allora passa, mentre il contenuto che non è testo resta governato da `allow_non_text_content`. Per impostazione predefinita, ciò che una risposta mascherata contiene e che il suo mascheramento non può leggere — audio parlato e la sua trascrizione, un’immagine, le probabilità dei token scelti dal modello — viene trattenuto, e una chiamata fallita raggiunge il chiamante con un messaggio fisso al posto di quello restituito dal provider; `allow_unmasked_reply_parts` lascia che queste parti raggiungano il chiamante non mascherate. Il testo stesso di una risposta non viene mai lasciato passare da questo valore, ma le parti che lascia passare possono contenere le parole della risposta: la trascrizione di una risposta parlata, i token dietro le probabilità dei token, il messaggio di errore di un provider che cita la risposta. Su `core/gateway/kong-enterprise` ogni corrispondenza è sostituita da un segnaposto numerato, quindi un collegamento che elenca pattern sotto `redact` imposta `placeholder_shows_name: false`; `refuse` raggiunge solo le richieste, a partire da Kong 3.12, che risponde a una richiesta contenente una corrispondenza con HTTP 400; e le risposte sono mascherate a partire dalla 3.12, nel qual caso una richiesta che chiede una risposta in streaming viene rifiutata prima di essere inoltrata, e `allow_streamed_replies` viene rifiutato. Il sanitizer di Kong legge il testo dei turni dell’utente, il prompt di una completion e il testo del messaggio di una risposta, e il riferimento di Kong non indica alcuna impostazione che rifiuti una richiesta per ciò che il sanitizer non legge o che trattenga il resto di una risposta, quindi su quel gateway ogni protezione viene rifiutata per nome in fase di build finché mantiene il suo default, e un collegamento compila una volta che la Release le allenta — `allow_unmasked_text` e `allow_non_text_content` dove sono mascherate le richieste, `allow_unmasked_reply_parts` e `mask_reasoning: false` dove lo sono le risposte — con `data-masking-kong-enterprise` che elenca ciò che ciascuna lascia allora passare. Lì una risposta il cui testo non arriva come la singola stringa restituita dall’API OpenAI passa senza essere letta, e il suo testo raggiunge il chiamante non mascherato; la salvaguardia è il controllo che la build esegue su ogni modello collegato a quel gateway, che si arresta su un modello il cui `model.aggrega.ai/api` non è `openai`. Su `core/gateway/traefik-hub` ogni corrispondenza è sostituita da una sequenza di `*` lunga quanto la corrispondenza, quindi un collegamento che elenca pattern sotto `redact` imposta `placeholder_shows_name: false`; `refuse` risponde HTTP 403 al posto della richiesta o della risposta; e una risposta mascherata viene trattenuta per intero e inviata alla fine, comprese quelle in streaming, quindi un collegamento che maschera tipi di entità nelle risposte imposta `allow_streamed_replies`. Il riferimento di Traefik non dice quali campi di una richiesta o di una risposta chat legga Content Guard, e non indica alcuna impostazione che rifiuti una richiesta, o trattenga parte di una risposta, per ciò che non legge, quindi su quel gateway ogni protezione viene rifiutata per nome in fase di build finché mantiene il suo default, e un collegamento compila una volta che la Release le allenta — `allow_unmasked_text` e `allow_non_text_content` dove sono mascherate le richieste, `allow_unmasked_reply_parts` e `mask_reasoning: false` dove lo sono le risposte — con `data-masking-traefik-hub` che elenca ciò che ciascuna lascia allora passare. Un collegamento che elenca sia pattern sia tipi di entità, e un secondo collegamento di mascheramento su uno stesso gateway, vengono rifiutati, poiché il riferimento di Traefik non dice se un secondo Content Guard su una route legga il testo mascherato dal primo o la richiesta così come l’ha inviata il chiamante. Su `core/gateway/higress` il plugin `ai-data-masking` di Higress sostituisce ogni corrispondenza dei pattern elencati dal collegamento, nel contenuto e nel ragionamento di ogni messaggio di una richiesta chat, con il nome del pattern tra parentesi quadre; maschera solo le richieste, quindi `scope` `response` e `both` vengono rifiutati, e non riconosce alcun tipo di entità. Il plugin non legge nient’altro di una richiesta, quindi finché le protezioni mantengono i loro default la Recipe del chart del gateway scrive anche il plugin di validazione delle richieste di Higress per rifiutare con HTTP 403, prima che qualcosa venga inoltrato, una richiesta che contiene ciò che il mascheramento non legge — un body non inviato come JSON o che non è una chat completion, un messaggio il cui contenuto è una lista o null, una tool call o un turno di tool, il nome di un messaggio, qualsiasi parametro tranne quelli non testuali di una chat completion e i tool, il formato di risposta e le sequenze di stop propri dello sviluppatore — e, qualunque cosa il collegamento allenti, una richiesta il cui body i plugin di Higress saltano — un body compresso, un content type che contiene `octet-stream` o `grpc`, un upgrade — e un body che contiene il carattere di sostituzione Unicode U+FFFD, che è il modo in cui quella validazione legge un byte che non è UTF-8 valido, poiché il plugin di mascheramento inoltra non mascherato un body che non è UTF-8 valido. Una richiesta il cui body supera il buffer di 32 KiB del gateway viene rifiutata con HTTP 413. La validazione legge solo un body che il suo decoder JSON accetta, quindi un client che invia deliberatamente JSON valido che il decoder rifiuta — per esempio un numero oltre ciò che un double può contenere — supera ogni rifiuto del suo body: il plugin di mascheramento maschera allora solo il contenuto semplice e il ragionamento di ogni messaggio, quindi un valore elencato in qualsiasi altro punto del body — gli argomenti di una tool call, un nome, qualsiasi altro campo — viene inoltrato non mascherato, così come il contenuto scritto con sequenze di escape JSON, e se tale body non è nemmeno UTF-8 valido, viene inoltrato tutto non mascherato. Un client che annida deliberatamente un body a più di 127 livelli di profondità, dentro un campo che la validazione ammette come `tools`, invia JSON valido che la validazione decodifica e ammette, ma il lettore JSON del plugin di mascheramento si ferma a quella profondità, quindi anche il contenuto scritto con sequenze di escape JSON in quel body viene inoltrato non mascherato. Il mascheramento non basta da solo: il testo che nessun pattern individua e nessun riconoscitore rileva passa invariato; sull’AI gateway, gli argomenti delle tool call e i risultati dei tool sono mascherati valore per valore, ma i nomi delle loro chiavi no; le definizioni dei tool, i formati di risposta e le sequenze di stop propri dello sviluppatore passano come inviati; il gateway e i servizi di riconoscimento vedono il testo originale; ciò che il gateway registra su una chiamata — nel proprio log, o in ciò che consegna a un’integrazione di logging — può ancora contenere quel testo; e il traffico che non attraversa il gateway non viene toccato."
   },
+  "0c4eea016dde3483": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "0c4eea016dde3483",
+    "status": "machine",
+    "text": "Messaggio emesso, posizionato sulla Recipe in cui è stato scritto il `source:` vuoto e sulla chiave al suo interno — `.spec.source` — anziché su un componente che lega la Recipe, perché la voce è condivisa da ogni componente che lo fa. Viene deciso prima di qualsiasi rendering, per ogni componente della build, quindi ogni componente la cui Recipe lascia la voce vuota viene segnalato in una sola build; dove ce n’è più di uno, i rilievi sono raggruppati sotto `Recipe source entries that name neither authoring mode`:"
+  },
   "0c5716122adc5a93": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -2950,6 +2971,13 @@
     "srcHash": "0c9ec9b6cec1e225",
     "status": "machine",
     "text": "Il contenuto scaricato viene memorizzato sotto `.aggrega/cache`, suddiviso in un sottoalbero `entities/` per le entità di catalogo, un sottoalbero `source-artifacts/` per gli artefatti sorgente e un sottoalbero `inputs/` per gli input esterni consumati da un rendering. Lo slot di un’entità di catalogo prende il nome dalla sua coordinata e dalla sua versione, quello di un artefatto sorgente da dove è stato scaricato, dalla sua versione e da un prefisso del digest del suo contenuto, e quello di un input esterno dal digest del suo contenuto; ciò che una build legge da ciascuno di essi viene confrontato con ciò che il lockfile registra. Pin di versione identici condividono quindi un solo slot tra più Releases. Ogni slot di artefatto sorgente contiene l’archivio autorevole, un’estrazione rigenerata e un piccolo file di metadati; l’estrazione viene rigenerata a ogni lettura, quindi l’output della build dipende dall’archivio e dal lockfile, non dallo stato dei file estratti."
+  },
+  "0caa93f4ea24bece": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "0caa93f4ea24bece",
+    "status": "machine",
+    "text": "Il pilastro **values** è la superficie di authoring dello sviluppatore. È validato in modo **chiuso** — una proprietà che lo schema non dichiara viene rifiutata come probabile refuso. Uno schema values che si compone all’interno del proprio documento (un `#/$defs` `$ref` locale o un `allOf`) viene risolto e validato rispetto a quel contesto di definizioni."
   },
   "0cb3b80a56fa0a4b": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -5192,6 +5220,13 @@
     "status": "machine",
     "text": "**Provenienza e artefatti helm-chart.** La provenienza viene unita in `metadata.labels` e `metadata.annotations` (secondo la suddivisione per set di caratteri descritta sopra) per i file caricati con `$import:` che superano il round-trip YAML con i token Helm preservati — file che usano solo il contesto Aggrega `[[ ]]` o con `{{ }}` di Helm solo in posizioni di scalari tra virgolette. I file con azioni di template Helm strutturali (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` in posizioni in cui emettono struttura YAML anziché foglie scalari), o con `{{ ... }}` senza virgolette in posizioni di valore, non sopravvivono al round-trip YAML di Aggrega; la build emette un avviso «skipped provenance label injection (iniezione delle label di provenienza saltata)» che nomina l’artefatto e lascia passare il file invariato. **Questo avviso è previsto per qualsiasi file di artefatto helm-chart caricato con `$import:` che usi azioni di template Helm strutturali o sostituzioni di valori Helm senza virgolette** — è il caso comune nell’authoring Helm in produzione, non il caso limite. Gli autori che hanno bisogno di label di provenienza su tali file le iniettano tramite un template con nome che scrivono nel `_helpers.tpl` del chart stesso (ad esempio uno chiamato `aggrega.commonLabels`) o un meccanismo equivalente lato Helm, non tramite l’iniezione pre-template di Aggrega."
   },
+  "167b064ad0d5be7a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "167b064ad0d5be7a",
+    "status": "machine",
+    "text": "authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, \"values.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (il pilastro scritto non è conforme al proprio schema dichiarato) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.infra.<field>`, \"infra.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (il pilastro scritto non è conforme al proprio schema dichiarato) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (il pilastro scritto non è conforme al proprio schema dichiarato: il pilastro values non è conforme allo schema della Feature) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.features.<attachment>.infra.<field>`, infra pillar does not conform to the Feature schema: `<constraint failure>`) (il pilastro scritto non è conforme al proprio schema dichiarato: il pilastro infra non è conforme allo schema della Feature) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (il pilastro scritto non è conforme al proprio schema dichiarato: il pilastro values non è conforme allo schema della Feature) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, \"values.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (il pilastro scritto non è conforme al proprio schema dichiarato) authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (il pilastro scritto non è conforme al proprio schema dichiarato: il pilastro values non è conforme allo schema della Feature) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`) (il pilastro scritto non è conforme al proprio schema dichiarato: il pilastro values non è conforme allo schema della Feature) authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.uses.<socket>.<alias>.infra.<field>`, \"infra.`<field>`\", \"`<keyword>`\", \"`<constraint failure>`\") (il pilastro scritto non è conforme al proprio schema dichiarato)"
+  },
   "1682127a3fba728c": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -5826,6 +5861,13 @@
     "srcHash": "19444483f694b4b3",
     "status": "machine",
     "text": "**Questo vale ovunque venga invocata l’operazione, non solo in un terminale.** Le stesse operazioni sono raggiungibili da una sessione dell’editor e dalla chiamata a uno strumento di un assistente, e le loro risposte riportano la stessa portata per lo stesso motivo. Dove un assistente può invocarle per tuo conto, vedi [`aggrega mcp`](aggrega-mcp.md)."
+  },
+  "19477b74fdf365e1": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "19477b74fdf365e1",
+    "status": "machine",
+    "text": "Il pilastro **infra** è la superficie di dimensionamento dell’operatore, e viene controllato solo quando il Component dichiara un pilastro `schema.infra` — quella dichiarazione è il contratto a cui il componente aderisce. È validato in modo **chiuso** rispetto a quella dichiarazione e a nient’altro, esattamente come il pilastro values è validato rispetto a `schema.values`: una chiave che il Component non dichiara viene rifiutata come refuso, e di una chiave che dichiara vengono imposti il tipo e l’intervallo. Un componente che vuole far validare una chiave stratificata dal provider come `replicas` dichiara quella chiave nel proprio `schema.infra`; il vocabolario accettato da un provider si raggiunge tramite il `valuesMapping` della sua Recipe, anziché essere stratificato sulla superficie infra scritta dall’autore."
   },
   "194b112c8e6ed51d": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -6844,6 +6886,13 @@
     "srcHash": "1dcefe02057df423",
     "status": "machine",
     "text": "**Il problema:** configurazioni errate accidentali (ad es. richiedere `workers: 500`) possono aggirare le salvaguardie finanziarie e innescare grandi sforamenti dei costi cloud."
+  },
+  "1df5df970905478b": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "1df5df970905478b",
+    "status": "machine",
+    "text": "Recipe `source:` is an empty string (Il campo source della Recipe è una stringa vuota)"
   },
   "1e0319eb1288cfae": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -8298,6 +8347,13 @@
     "srcHash": "23c088c9f1c84fe7",
     "status": "machine",
     "text": "Cardinalità"
+  },
+  "23ca90c29f3417e5": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "23ca90c29f3417e5",
+    "status": "machine",
+    "text": "Il messaggio riporta l’errore così come lo ha segnalato lo strumento che lo ha incontrato: per un errore di compilazione, la chiave all’interno del contratto, la riga del sorgente e la parola chiave incriminata; per un corpo che non costruisce alcun validatore, la posizione che il validatore ha rifiutato; per un nome di formato fuori dall’insieme supportato, il campo, la parola chiave `format`, il nome come è scritto e ogni nome supportato. Un `$ref:` tra documenti in un contratto di socket la cui voce di SchemaLibrary non è nella chiusura caricata porta allo stesso arresto quando `aggrega validate` controlla l’entità o la Release; nello `spec.schema` proprio di un’entità viene segnalato come descrive «A `$ref:` is not written in a form the compiler can resolve (Un riferimento non è scritto in una forma che il compilatore può risolvere)» più sopra. `aggrega pull` legge entrambi i punti per le librerie di cui una Release ha bisogno, quindi una libreria assente dal catalogo ferma il pull prima, come descrive «A reference names no entity the catalog holds (Un riferimento non nomina alcuna entità contenuta nel catalogo)» (`E0114`), qualunque dei due vi faccia riferimento — e una libreria contenuta nel catalogo viene vincolata nel lockfile per entrambi."
   },
   "23cda815ddbddba9": {
     "at": "2026-10-30T20:32:14.370Z",
@@ -9906,6 +9962,13 @@
     "status": "machine",
     "text": "Metadati standard del catalogo. `name`, `version` e `pluginType` sono obbligatori; `version` è una Semantic Version rigorosa (ad es. `1.2.0`). I campi opzionali — `description`, `maintainers`, `license`, `repository`, `home`, `keywords` — seguono la stessa forma di ogni entità di catalogo, e `metadata` non accetta altre chiavi. Una versione pubblicata è immutabile: ripubblicare una versione esistente viene rifiutato al controllo di pubblicazione."
   },
+  "2ab7b8924f2b1253": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "2ab7b8924f2b1253",
+    "status": "machine",
+    "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<component>\"` under mappings.features.name: no attachment in this build is named `\"<component>\"`; a features.name key names an attachment by its own name — the key it is written under in a component's features, or `<alias>.<slot>` for one written on a connection — never the component it is attached to; attachments of type `\"<feature-type>\"` in this build: `\"<attachments>\"`; `\"<component>\"` is a component, and a features.name key names the attachment rather than the component it is attached to — did you mean `\"<attachment>\"`? (la chiave di una mappatura per nome del Manifest non nomina alcuna istanza di componente né alcuna associazione in questa build, quindi la voce non lega nulla: Manifest, chiave sotto mappings.features.name: nessuna associazione in questa build ha quel nome; una chiave features.name nomina un’associazione con il suo nome proprio — la chiave sotto cui è scritta nei features di un componente, oppure alias e slot per una scritta su una connessione — mai il componente a cui è associata; associazioni del tipo indicato in questa build: elencate; quel nome è un componente, e una chiave features.name nomina l’associazione anziché il componente a cui è associata — intendevi l’associazione suggerita?)"
+  },
   "2ac97c61dd7dda32": {
     "at": "2026-11-02T23:50:32.426Z",
     "job": "session-0022-20261102235032",
@@ -11010,6 +11073,13 @@
     "status": "machine",
     "text": "La tassonomia delle entità"
   },
+  "30636290b89f5924": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "30636290b89f5924",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. SchemaLibrary `\"<library>\"`: schema `\"<entry>\"` names a format no validator can check, so the values it constrains would go unmeasured: validator/jsonschema: schema resolution failed (at `<field>`, keyword `\"format\"`, format `\"<format>\"` is not supported; the supported formats are email, uri, hostname, ipv4, ipv6, uuid, date-time, date) (non è stato possibile compilare il contratto di schema dichiarato in uno schema utilizzabile, quindi nulla è stato validato rispetto a esso: correggi il contratto dove è dichiarato, oppure rimuovilo se la configurazione che copre non richiede validazione. SchemaLibrary: lo schema nomina un formato che nessun validatore può verificare, quindi i valori che vincola resterebbero non misurati: validator/jsonschema: risoluzione dello schema non riuscita (nel campo indicato, parola chiave format: il formato non è supportato; i formati supportati sono email, uri, hostname, ipv4, ipv6, uuid, date-time, date))"
+  },
   "3063aa534a0ed63e": {
     "at": "2026-11-03T01:59:06.045Z",
     "job": "session-0036-20261103015906",
@@ -11417,6 +11487,13 @@
     "status": "machine",
     "text": "Il contratto di validazione:"
   },
+  "323ef5dd20dbf997": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "323ef5dd20dbf997",
+    "status": "machine",
+    "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<key>\"` under mappings.components.name: no component instance in this build is named `\"<key>\"`; a components.name key names a component instance exactly as the Aggregate writes it; component instances of type `\"<component-type>\"` in this build: `\"<instances>\"`; did you mean `\"<instance>\"`? (la chiave di una mappatura per nome del Manifest non nomina alcuna istanza di componente né alcuna associazione in questa build, quindi la voce non lega nulla: Manifest, chiave sotto mappings.components.name: nessuna istanza di componente in questa build ha quel nome; una chiave components.name nomina un’istanza di componente esattamente come la scrive l’Aggregate; istanze di componente del tipo indicato in questa build: elencate; intendevi l’istanza suggerita?)"
+  },
   "32448825d3602c90": {
     "at": "2026-11-03T01:59:04.506Z",
     "job": "session-0035-20261103015904",
@@ -11529,6 +11606,13 @@
     "srcHash": "3296e6fb67bce696",
     "status": "machine",
     "text": "Questo preserva il modello di un’unità di calcolo per autore: una Recipe sintetizza il carico di lavoro del Component; una FeatureRecipe sintetizza il proprio."
+  },
+  "32a46d2ab2ee80d1": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "32a46d2ab2ee80d1",
+    "status": "machine",
+    "text": "**Il rilievo di un’associazione viene segnalato nel documento che ha scritto il pilastro non conforme**, sotto il nome di quel documento, e attribuito al suo autore. I suoi `values` vengono segnalati nel blocco dell’Aggregate che li ha scritti — la voce `features:` del componente stesso, `.spec.components.<component>.features.<attachment>.values.<field>`, prima del blocco di un sottosistema che raggiunge il componente — come errore dello sviluppatore. Il suo `infra` viene segnalato nel blocco della Release che lo ha scritto — la voce della Release per il componente, sotto il confine che lo nomina, prima del blocco `features:` del confine stesso — come errore dell’operatore. Un pilastro che il documento a cui appartiene non ha scritto viene segnalato dove è stata scritta l’associazione stessa, cioè dove è nominato il suo `type`. Così un’associazione che solo la Release crea, che non porta alcun `values`, segnala un campo richiesto dai `values` della sua Feature nella voce della Release e come errore dell’operatore, in un percorso che la Release contiene — la voce del componente, oppure il blocco `features:` del confine per un’associazione che il confine crea per ogni componente al suo interno:"
   },
   "32a793ec748c982b": {
     "at": "2026-11-02T23:06:16.435Z",
@@ -14268,6 +14352,13 @@
     "status": "machine",
     "text": "Parole chiave dominanti"
   },
+  "3f3afee4db647765": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "3f3afee4db647765",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`, mapped to recipe `\"<uri>\"`). correct the mapping value in the Manifest, or publish the recipe it names (nessuna ricetta risolta per l’istanza di componente/funzionalità: aggiungi una mappatura esplicita nel Manifest per il suo tipo (Manifest, con l’istanza, il suo tipo e la ricetta a cui è mappata). correggi il valore della mappatura nel Manifest, oppure pubblica la ricetta che nomina)"
+  },
   "3f3b6bfc59501e1d": {
     "at": "2026-10-30T21:31:35.304Z",
     "job": "session-0023-20261030213135",
@@ -16881,6 +16972,13 @@
     "status": "machine",
     "text": "`aggrega/configInit` e `aggrega/configCapture` producono entrambi un documento di configurazione, ed entrambi **lo scrivono**. La risposta indica il file; aprirlo è la tua azione successiva, non un sostituto della scrittura. Nessuno dei due ti consegna contenuto da collocare tu, a meno che tu non lo chieda esplicitamente, perché una funzionalità il cui prodotto è un documento mai scritto è una funzionalità diversa che porta lo stesso nome."
   },
+  "4b8ae43a0ee4927f": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "4b8ae43a0ee4927f",
+    "status": "machine",
+    "text": "Il messaggio nomina il Manifest, la chiave e la sezione in cui è scritta, i nomi di quel genere che la build contiene effettivamente — ristretti al tipo implementato dalla Recipe o dalla FeatureRecipe della voce, dove quel tipo è noto e la build ne contiene uno — e, dove può stabilirlo, il nome che probabilmente intendevi: per una chiave `features.name` che è il nome di un componente, le associazioni di quel tipo che il componente porta; per una chiave `components.name` che è il nome di un’associazione, il componente che la porta; e altrimenti un nome a una modifica di distanza."
+  },
   "4b927f38035523a4": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -17175,6 +17273,13 @@
     "srcHash": "4d187589019732f1",
     "status": "machine",
     "text": "**Quali socket sono attivi oggi.** Il runtime host è disponibile. Il publishing-linter viene eseguito attraverso di esso con [`aggrega lint`](../language-reference/cli/aggrega-lint.md), e i socket di build in banda — il mutator di costruzione della topologia, la policy di analisi statica e la pipeline di plugin — vengono eseguiti tramite lo stesso host durante `aggrega build`. Vedi [Stato del linguaggio](../language-reference/10-status.md) per lo stato di prontezza di ogni socket."
+  },
+  "4d24de44b72ed3b3": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "4d24de44b72ed3b3",
+    "status": "machine",
+    "text": "Una Recipe dichiara `source: \"\"` — una stringa vuota. Il `source:` di una Recipe sceglie tra due modalità di scrittura: la modalità **sourceless**, in cui non c’è alcun artefatto esterno e l’output è prodotto interamente dagli altri tipi di input della Recipe, e la modalità **sourced**, in cui `source:` nomina un chart, un modulo o un file esterno da cui eseguire il rendering. Omettere il campo seleziona la prima, un valore non vuoto seleziona la seconda e una stringa vuota non seleziona nessuna delle due — quindi è un’ambiguità e non un valore con un significato."
   },
   "4d2feef7d141a10c": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -20870,6 +20975,13 @@
     "status": "machine",
     "text": "Tipo di entità"
   },
+  "5be1bf974d8f60ba": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "5be1bf974d8f60ba",
+    "status": "machine",
+    "text": "No Recipe is mapped for a component or feature instance (Nessuna Recipe è mappata per un’istanza di componente o di funzionalità)"
+  },
   "5bf21d204a7899a7": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -21712,6 +21824,13 @@
     "srcHash": "6011bd5590383ffd",
     "status": "machine",
     "text": "Installa il binario `aggrega`, come descritto in [Installare il binario](../install.md#install-the-binary). Il comando di installazione e i passaggi manuali descritti lì lo collocano entrambi in una tua cartella — su Windows `%LOCALAPPDATA%\\Programs\\aggrega` anziché una cartella di sistema come `C:\\Windows\\System32` — così da poterlo sostituire senza diritti di amministratore."
+  },
+  "60225ca6a8583206": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "60225ca6a8583206",
+    "status": "machine",
+    "text": "Messaggi emessi, per un’istanza di componente. Dove una mappatura esiste e nomina qualcosa di assente:"
   },
   "602cc952afea4209": {
     "at": "2026-11-02T19:03:23.148Z",
@@ -23949,6 +24068,13 @@
     "status": "machine",
     "text": "Finestra mobile, in secondi, entro cui vengono contati quei riavvii."
   },
+  "6a47d41152f62577": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "6a47d41152f62577",
+    "status": "machine",
+    "text": "Un’istanza di funzionalità riporta gli stessi tre casi in una struttura propria: `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`, `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest` e `feature \"<instance>\" (type \"<type>\"); no feature recipe implements this type`, ciascuno dopo la frase della condizione."
+  },
   "6a480da124d59845": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -24917,6 +25043,13 @@
     "srcHash": "6efefefea9c7bf2e",
     "status": "machine",
     "text": "Ciò di cui è responsabile l’architetto: lo `schema:` che valida i valori dello sviluppatore, gli output `provides`, i socket `uses`/`usesSchema` e le etichette che portano l’identità semantica. Gli architetti non scrivono l’infrastruttura fisica; ne definiscono l’interfaccia."
+  },
+  "6f010645dc3b29e8": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "6f010645dc3b29e8",
+    "status": "machine",
+    "text": "A declared schema contract cannot be read as a schema (Un contratto di schema dichiarato non può essere letto come schema)"
   },
   "6f0c5d1506a99bd4": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -26152,6 +26285,13 @@
     "status": "machine",
     "text": "**La soluzione: puntatori deterministici tramite il pilastro delle credenziali** Aggrega risolve il problema sfruttando il meccanismo `inject` esistente, spostando la definizione di «deterministico» da un indirizzo IP letterale a un *puntatore deterministico*. La configurazione generata non passa l’URL; passa il percorso di un Cloud Vault in cui l’URL *esisterà*."
   },
+  "74728bba0980f819": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "74728bba0980f819",
+    "status": "machine",
+    "text": "E per una chiave `components.name` a una modifica di distanza dal nome di un’istanza:"
+  },
   "747419c66e4a4cd2": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -26789,6 +26929,13 @@
     "srcHash": "770f018a561a03e4",
     "status": "machine",
     "text": "[Tipi di input](examples/07-input-kinds.md) — Esempi da 19 a 22: composizione di Recipe che mette in pratica i tre tipi di input (servizio stateless solo sintetizzato, Recipe sintetizzata multi-container con volumi ConfigMap, chart da sorgente con artifact, Workload da file esterno caricato tramite `workload: { $import: ... }`)."
+  },
+  "77100ed222901867": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "77100ed222901867",
+    "status": "machine",
+    "text": "A Manifest `name` mapping names nothing in the build (Una mappatura per nome del Manifest non nomina nulla nella build)"
   },
   "771e41a4e9662d04": {
     "at": "2026-10-30T06:38:36.798Z",
@@ -27952,6 +28099,13 @@
     "status": "machine",
     "text": "Impostazioni per un server raggiunto da altre persone"
   },
+  "7c51b3088082dd1e": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7c51b3088082dd1e",
+    "status": "machine",
+    "text": "**La configurazione di connessione per arco** viene validata allo stesso modo rispetto al contratto per arco del socket: i `values` di un arco scritti dallo sviluppatore rispetto al `valueSchema` del socket, e l’`infra` di un arco scritto dall’operatore (da una Release) rispetto all’`infraSchema` del socket. Un socket che non dichiara alcuno schema per arco per un pilastro non accetta per esso alcuna configurazione validata (omissione = nessun contratto, niente da controllare). La diagnostica nomina l’arco tramite consumatore, socket e alias. Su un componente dichiarato dall’Aggregate della Release stessa, l’`infra` dell’operatore viene misurato per ogni voce che la Release scrive per una delle sue connessioni — compresa una voce che non porta alcun `infra`, ed è così che una chiave `required:` senza default viene segnalata come mancante — e segnalato in quella voce nella Release, sotto il confine che nomina il componente quando la Release nomina dei confini, che è dove l’operatore lo modifica; i `values` dello sviluppatore vengono segnalati nella voce di connessione nell’Aggregate."
+  },
   "7c56a04fd9b6d61f": {
     "at": "2026-10-30T20:43:14.394Z",
     "job": "session-0018-20261030204314",
@@ -28457,6 +28611,13 @@
     "status": "machine",
     "text": "Che cosa fa un link che porta all’esterno"
   },
+  "7f313acbbc9b8f62": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7f313acbbc9b8f62",
+    "status": "machine",
+    "text": "Il controllo copre i vincoli di schema standard: un valore del tipo sbagliato (una stringa dove lo schema dichiara un intero), un valore fuori da un intervallo dichiarato o da un `enum`, un valore che non soddisfa un `pattern` dichiarato, una stringa che non è un’istanza valida del suo `format` dichiarato — uno dei [formati con nome](../vocabulary/compact-form-authoring.md#named-formats) — e un campo **obbligatorio** che non è stato fornito. Un errore di formato nomina la parola chiave e riporta il valore, il formato e ciò che non va — così come lo stampano `aggrega pull` e `aggrega validate --release` per un campo `uri` a cui è dato `::::`, `\"format\", \"value \\\"::::\\\" is not a valid uri: a URI begins with a scheme followed by a colon, such as https:\"`. È **consapevole dei default**: un campo a cui lo schema assegna un `default:` è considerato fornito anche quando è omesso, quindi un campo obbligatorio con default non fa mai scattare il controllo «mancante»."
+  },
   "7f47652582c52c1c": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -28512,6 +28673,13 @@
     "srcHash": "7f8a82642b495ab7",
     "status": "machine",
     "text": "Gli autori di Recipe e di FeatureRecipe fanno riferimento a un bundle all’interno di una voce `artifacts:` il cui valore è una mappa `$import:`, tramite l’identità a nome semplice del bundle:"
+  },
+  "7f8ec80ef5d206a6": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "7f8ec80ef5d206a6",
+    "status": "machine",
+    "text": "Il controllo misura il dimensionamento di ogni componente che la Release ha **collocato**, e viene misurata anche una voce che non scrive alcun blocco `infra:`: un blocco assente è un blocco vuoto, quindi una chiave `required:` priva di `default:` viene segnalata come mancante — che è proprio il caso per intercettare il quale esiste una chiave del genere. Contano entrambi i modi di collocare un componente. Nominarlo sotto i `components` di un confine lo colloca, e lo stesso fa instradare sotto `aggregates` il sottomodulo che lo contribuisce; una voce di instradamento colloca i componenti senza dire nulla su nessuno di essi, quindi un componente collocato in quel modo parte da un blocco di dimensionamento vuoto e una chiave `required:` senza default sul suo tipo viene segnalata come mancante. Un componente che la Release non colloca per nessuna delle due vie non viene affatto misurato rispetto a questo contratto. Ha un errore diverso, e il build segnala invece quello: un componente non collocato in alcun confine, con i due modi per collocarlo nominati."
   },
   "7f97530b7cfc0330": {
     "at": "2026-11-02T23:06:17.995Z",
@@ -28681,6 +28849,13 @@
     "srcHash": "808e7ff9b1a6a28e",
     "status": "machine",
     "text": "Una foglia il cui schema dichiara `sensitive: true` stampa il testo fisso `<redacted>` al posto del suo valore. La chiave, il prefisso del pilastro e la parentesi di provenienza vengono tutti mantenuti — viene sostituito solo il valore — quindi il layout risponde ancora alla domanda su quali foglie porti un’entità e da dove provenga ciascuna. Sono interessate due superfici leggibili: il blocco `Values:` per nodo di un Aggregate e il blocco degli agganci per foglia di una Release risolta — compreso un aggancio scritto su una connessione, stampato sotto la riga di quella connessione, che omette esattamente le foglie che la stessa Feature omette quando è il componente stesso a contenerla. Il grafo compilato di una Release con `--ir-graph` omette le stesse foglie nella forma strutturata descritta in [Output leggibile dalle macchine](#machine-readable-output)."
+  },
+  "809d9638bb10ab6a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "809d9638bb10ab6a",
+    "status": "machine",
+    "text": "A un tipo che l’Aggregate scrive senza versione vengono proposte le Recipes che implementano la versione con cui la build lo compila — la versione più alta di quel Component presente nel catalogo. A un’istanza di `core/datastore/postgres`, con il catalogo che contiene quel Component alla versione `1.0.0`, viene proposta ogni Recipe che dichiara `spec.implements: core/datastore/postgres:1.0.0`, oltre a quelle che dichiarano il tipo senza versione o un intervallo caret che ammette `1.0.0`. A un tipo di cui il catalogo non contiene alcun Component vengono proposte solo le Recipes che dichiarano quel tipo stesso senza versione."
   },
   "80ab08f1e061e35d": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -28902,6 +29077,13 @@
     "srcHash": "818cd8d91aea3a16",
     "status": "machine",
     "text": "Impostazione"
+  },
+  "818ee1104c01bc53": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "818ee1104c01bc53",
+    "status": "machine",
+    "text": "Dove non esiste alcuna mappatura e sono presenti Recipes che implementano il tipo, queste sono elencate come candidati da fissare:"
   },
   "819717ae1675862f": {
     "at": "2026-10-30T20:11:56.421Z",
@@ -29723,6 +29905,13 @@
     "srcHash": "85a34b4639179006",
     "status": "machine",
     "text": "**2. `model.aggrega.ai/capability`**"
+  },
+  "85bc08ae917b1db8": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "85bc08ae917b1db8",
+    "status": "machine",
+    "text": "Una voce di SchemaLibrary che nomina un formato fuori dall’insieme supportato porta a questo arresto quando la sua libreria viene letta, e il rifiuto nomina la libreria e la voce e punta alla voce nel file della libreria. `aggrega validate` sull’intero catalogo legge ogni libreria, quindi segnala la voce indipendentemente dal fatto che uno schema vi faccia riferimento, mentre una Release la cui risoluzione delle dipendenze non raggiunge mai la libreria non la legge. Anche una Release i cui schemi raggiungono la voce tramite un `$ref:` viene rifiutata, ma il rifiuto non nomina il formato: `aggrega pull` segnala la libreria come non trovata nel catalogo (`E0114`), e `aggrega validate --release` segnala la destinazione del riferimento come non trovata (`E0121`). Esegui `aggrega validate` sul catalogo per vedere la voce e il nome in errore."
   },
   "85c2a1549fdc0655": {
     "at": "2026-11-02T23:32:53.197Z",
@@ -30599,6 +30788,13 @@
     "status": "machine",
     "text": "Homebrew e Scoop installano ciascuno nelle proprie cartelle anziché in `~/.local/bin` o in `%LOCALAPPDATA%\\Programs\\aggrega`, e aggiornano solo la copia che hanno installato. Usa un solo modo di installazione su una macchina: una copia installata dal comando di installazione o a mano e un’altra installata da Homebrew o Scoop sono due copie, e la cartella che viene prima nel tuo `PATH` decide quale viene eseguita."
   },
+  "896db56f142b7458": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "896db56f142b7458",
+    "status": "machine",
+    "text": "Il tipo di un’istanza non ha alcuna mappatura nel Manifest che si risolva in una Recipe presente nel catalogo. La selezione della Recipe avviene **solo tramite mappatura**: il compilatore non sceglie mai una Recipe leggendo `spec.implements:` e scegliendo tra i candidati, quindi un tipo non mappato provoca un arresto, indipendentemente da quante Recipes lo implementino. `implements` orienta la scelta; l’autore la compie; il Manifest la registra."
+  },
   "896e9385f2b95ff0": {
     "at": "2026-10-22T23:28:05.653Z",
     "job": "session-0054-20261022232805",
@@ -30851,6 +31047,13 @@
     "status": "machine",
     "text": "`metadata.name` è semplice — non porta alcun prefisso di socket. La coordinata indirizzabile del plugin `plugin/<pluginType>/<name>` deriva da `metadata.pluginType` e dal `metadata.name` semplice; non viene scritta nel nome."
   },
+  "8a6c465413837eb0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8a6c465413837eb0",
+    "status": "machine",
+    "text": "**Come risolvere:** apri il campo indicato dalla diagnostica e correggi il frammento alla chiave e alla riga riportate — il più delle volte una parola chiave scritta male, da verificare rispetto al vocabolario delle parole chiave in [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md), oppure un valore scritto dove va uno schema annidato. Se l’errore indica un formato non supportato, scrivi uno dei [formati con nome](../vocabulary/compact-form-authoring.md#named-formats) oppure rimuovi il `format:`; un campo che contiene materiale segreto dichiara invece [`sensitive: true`](../vocabulary/compact-form-authoring.md#declaring-a-leaf-sensitive--sensitive), perché `password` non è un formato. Per una voce di SchemaLibrary, la correzione va nel file di libreria indicato dalla diagnostica. Se l’errore indica un riferimento tra documenti, verifica che la voce di SchemaLibrary esista e che la libreria sia raggiungibile dalla chiusura delle dipendenze della Release. Se la configurazione coperta da quel campo davvero non richiede validazione, rimuovi il campo invece di lasciare un contratto che nulla può leggere."
+  },
   "8a7525b1492fb848": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -30973,6 +31176,13 @@
     "srcHash": "8aeaae5c35579f53",
     "status": "machine",
     "text": "Il daemon controlla la deriva di un lockfile a ogni `aggrega/irGraph`, rispetto alla Release nominata da quella richiesta, segnalando la deriva come avviso non bloccante. L’avviso nomina il comando che riscrive quel lockfile con dentro la Release, scritto come la richiesta l’ha inviata — `aggrega pull --release` seguito dal `release` che hai inviato, che è come si scrive in un terminale nella radice del workspace. `aggrega/irGraph` richiede che sia presente un lockfile. Non c’è alcun controllo separato all’avvio: una richiesta dice di quale Release si tratta, quindi il verdetto viene calcolato per quella Release quando viene chiesto anziché una volta sola per una Release scelta in anticipo."
+  },
+  "8aedac452d76175a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "8aedac452d76175a",
+    "status": "machine",
+    "text": "**Tre errori portano a questo arresto, e due di essi sono facili da non notare perché il contratto sembra a posto.** Un contratto di socket può non compilare affatto in JSON Schema 2020-12 — una parola chiave scritta male è la causa più comune; uno `spec.schema` proprio di un’entità che non compila viene invece segnalato sotto la condizione di forma compatta incontrata dalla sua compilazione (`E0120` per una parola chiave sconosciuta, `E0116` per un vincolo che il suo tipo non accetta). Oppure può compilare senza problemi e tuttavia non costruire alcun validatore: il corpo è leggibile come forma compatta e non è uno schema rispetto a cui si possa validare qualcosa, come uno scalare semplice dove va lo schema di una proprietà (`items: nonsense`). Oppure può essere ben formato sotto ogni altro aspetto e nominare un formato fuori dall’insieme supportato — `format: password`, o un errore di grafia come `format: emial` — che viene rifiutato anziché letto come un vincolo che non controlla nulla, che un valore raggiunga o meno il campo; i nomi che un `format` può assumere sono elencati sotto [Formati con nome](../vocabulary/compact-form-authoring.md#named-formats). Tutti e tre sono un’unica condizione, perché il rimedio è lo stesso e lasciarne passare uno qualsiasi ha la stessa conseguenza."
   },
   "8af0a3b6f89e7d75": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -31640,6 +31850,13 @@
     "status": "machine",
     "text": "Il report sullo standard output dice dove si è fermata l’esecuzione, e il comando esce con `0`. L’asserzione propria di una Recipe ferma il render, quindi il report riporta `Render: stopped on a failed assertion, reported as a warning` dopo `Resolution: valid`. L’asserzione di un Component viene valutata prima che qualsiasi cosa venga renderizzata, quindi il report riporta `Resolution: stopped on a failed assertion, reported as a warning`, seguito da `Render: not attempted (the run stopped on that assertion)`. In entrambi i casi non viene renderizzato nulla, quindi non viene stampato alcun artefatto."
   },
+  "8e0bea946c744d1a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8e0bea946c744d1a",
+    "status": "machine",
+    "text": "La stessa condizione copre una mappatura che esiste ma non porta da nessuna parte — un valore in una struttura di riferimento accettata che nomina una Recipe che il catalogo non contiene, inclusa una presente con una versione diversa da quella vincolata dal valore, e una il cui nome semplice è offerto da due capacità insieme. Nessuna delle due si risolve in una Recipe che si possa dire scelta dall’autore. Un valore di mappatura la cui *struttura* nessun riferimento può esprimere viene segnalato a parte, sotto «Manifest mapping value is not a shape a recipe reference accepts (Il valore di mappatura del Manifest non ha una struttura accettata da un riferimento a una ricetta)» più sopra, così l’affermazione che un’entità è assente viene fatta solo riguardo a un riferimento che avrebbe potuto risolversi."
+  },
   "8e1862545fe5badb": {
     "at": "2026-10-30T06:59:34.584Z",
     "job": "session-0073-20261030065934",
@@ -31675,6 +31892,13 @@
     "status": "machine",
     "text": "`.boundary.assembly_path` — la directory, relativa alla directory di output della build, in cui viene assemblato l’output proprio del collegamento: i `directory:` e `subDirectory:` valutati del confine, ossia la directory verso cui la build instrada quell’output (`bridge/compose`). È uguale al `source_assembly_path` o al `target_assembly_path` di un’estremità di una connessione esattamente quando quell’estremità viene renderizzata nello stesso file assemblato, quindi una FeatureRecipe li confronta per distinguere una connessione all’interno del proprio file da una in un altro file."
   },
+  "8e26190d03aade60": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "8e26190d03aade60",
+    "status": "machine",
+    "text": "Le **associazioni di Feature** sono validate allo stesso modo, rispetto a `schema.values` / `schema.infra` dichiarati dalla Feature associata. Le associazioni condividono un’unica superficie, quindi una Feature per credenziali — una con l’etichetta `feature.aggrega.ai/kind: secret` — viene misurata rispetto al proprio schema dichiarato esattamente come qualsiasi altra associazione. Il valore controllato è il **risultato effettivo dell’unione** dopo che i valori delle associazioni si propagano a cascata tra i livelli (componente, sottosistema, confine e specifico del componente) — quindi un valore introdotto legittimamente a un livello ma sovrascritto con un valore non valido a un livello più specifico viene intercettato sul risultato dell’unione, non sul frammento. Un’associazione il cui tipo non dichiara alcuno schema non viene validata; l’infra di un’associazione è validato rispetto al `schema.infra` dell’associazione stessa (un’associazione è una sovrapposizione e non porta alcuna unione di provider)."
+  },
   "8e2d3a4ffba1aeed": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -31688,6 +31912,13 @@
     "srcHash": "8e4ab154150982ae",
     "status": "machine",
     "text": "L’ereditarietà tramite `extends:` è il meccanismo di catalogo che consente agli architetti di piattaforma di costruire entità figlie specializzate sopra baseline condivise. I due tipi di catalogo si separano sui loro pilastri di dati. Gli schemi padre e figlio di una Feature si compongono al caricamento del workspace, producendo uno schema unificato con provenienza per foglia. Un **Component** che estende non scrive alcun contenuto di pilastro: scrive il marcatore letterale `schema: inherited` e riceve il blocco `schema:` della sua base esattamente come la base lo ha scritto, a ogni profondità di una catena."
+  },
+  "8e4bed2f065dcfe2": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "8e4bed2f065dcfe2",
+    "status": "machine",
+    "text": "recipe source is an empty string, which names neither sourceless mode nor sourced mode. omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode (il source della ricetta è una stringa vuota, che non nomina né la modalità sourceless né la modalità sourced. ometti il campo source per la modalità sourceless, oppure indica un percorso o un URI non vuoto per la modalità sourced)"
   },
   "8e4c8d471d15411d": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -34417,6 +34648,13 @@
     "srcHash": "9a79799402908cb3",
     "status": "machine",
     "text": "**Le condizioni proprie di un provider ricevono risposta dal riferimento pubblicato.** Un provider dichiara le condizioni che può riportare, e le dichiara al proprio interno invece che nel compilatore che lo carica — quindi i loro codici si risolvono rispetto a [sentinels.md](../errors/sentinels.md), che elenca ogni condizione dichiarata dal prodotto."
+  },
+  "9a8fc32b49c900d0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "9a8fc32b49c900d0",
+    "status": "machine",
+    "text": "Una Feature è indicata come `Feature \"<name>:<version>\"`, il contratto di un socket con il suo stesso campo, ad esempio `spec.usesSchema.<socket>.infraSchema`, e il pilastro con quello che il contratto vincola — `values`, `infra` o `provides`. `aggrega validate`, quando riceve il file dell’entità stessa, nomina l’entità senza la sua versione. Una voce di SchemaLibrary è indicata con la sua libreria e la sua voce:"
   },
   "9a910bd7c1e98f1e": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -37187,6 +37425,13 @@
     "status": "machine",
     "text": "La vista predefinita applica la catena `extends:` del Manifest e presenta le mappature risolte di componenti e funzionalità insieme ai binding delle annotazioni. `--raw` mostra il file così come è stato scritto, prima della risoluzione di extends."
   },
+  "a6cb1885920913b5": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "a6cb1885920913b5",
+    "status": "machine",
+    "text": "Una chiave sotto `spec.mappings.components.name` o `spec.mappings.features.name` non nomina alcuna istanza di componente, né alcuna associazione, presente nella build. Il livello `name` viene confrontato con il nome esatto della cosa che viene realizzata: una chiave `components.name` con il nome di un’istanza di componente così come lo scrive l’Aggregate, e una chiave `features.name` con il **nome proprio di un’associazione** — la chiave sotto cui è scritta nei `features:` di un componente, oppure `<alias>.<slot>` per un’associazione scritta su una connessione — mai con il nome del componente su cui si trova l’associazione. Una chiave che non nomina nulla non verrebbe mai consultata: ogni istanza a cui era destinata si risolverebbe tramite il livello `type`, e la build terminerebbe senza una parola sulla voce che ha ignorato. Perciò la build si arresta, prima di qualsiasi rendering."
+  },
   "a6cb47559a8dc44f": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -37302,6 +37547,13 @@
     "srcHash": "a741b4795caacf32",
     "status": "machine",
     "text": "[`aggrega lint`](cli/aggrega-lint.md) — verifica le convenzioni di pubblicazione sull’intero catalogo, sulla chiusura delle dipendenze di una Release (`--release`) o su una singola entità; `--pre-publish` aggiunge il controllo dell’incremento di versione basato sul registry."
+  },
+  "a7423579327c1fb6": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "a7423579327c1fb6",
+    "status": "machine",
+    "text": "**Come risolvere:** ometti del tutto il campo `source:` (o impostalo a null) se la Recipe è sourceless, oppure fornisci un percorso / URI / oggetto source strutturato non vuoto se la Recipe è sourced."
   },
   "a744a5e9c186dbdd": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -37730,6 +37982,13 @@
     "srcHash": "a933cebe36dd7030",
     "status": "machine",
     "text": "ARM a 64 bit (`uname -m` stampa `aarch64`)"
+  },
+  "a93e92a2fb7f8003": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "a93e92a2fb7f8003",
+    "status": "machine",
+    "text": "Il contratto vincola un componente ovunque sia stato scritto: un componente contribuito da un sottomodulo viene misurato esattamente come uno dichiarato dall’Aggregate della Release stessa. Quanto profondamente un componente è annidato non cambia quali vincoli del suo tipo si applicano."
   },
   "a940d25189db91c4": {
     "at": "2026-11-03T01:42:01.047Z",
@@ -40511,6 +40770,13 @@
     "status": "machine",
     "text": "**Vincolo 2: Components agnostici rispetto alle capacità**"
   },
+  "b4b36fd4f8c7ac6e": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "b4b36fd4f8c7ac6e",
+    "status": "machine",
+    "text": "La build si arresta invece di scegliere al posto tuo una delle due letture. Il rifiuto legge il valore esattamente come lo hai scritto, prima di valutare qualsiasi template al suo interno, quindi nomina l’ambiguità stessa invece di riportare ciò che il valore vuoto avrebbe fatto in seguito. Il modo più comune di scrivere un `source:` vuoto è eliminare un URI e lasciare la chiave: si intendeva la modalità sourced, e accettare la stringa vuota come sourceless consegnerebbe una Release priva dell’artefatto senza mai dire quale delle due letture ha adottato."
+  },
   "b4c79b722ad46179": {
     "at": "2026-10-30T06:38:36.798Z",
     "job": "session-0071-20261030063836",
@@ -40992,6 +41258,13 @@
     "srcHash": "b7291adc21f21621",
     "status": "machine",
     "text": "**Una riga di output è un `report`.** Un’operazione che scrive più righe insieme produce una notifica per riga, e una riga che l’operazione scrive a pezzi viene riportata una volta completa — quindi un messaggio non è mai mezza frase."
+  },
+  "b74013d4957619bb": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "b74013d4957619bb",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. Component `\"<type>:<version>\"`: spec.schema.values declares a schema no validator can be built from, so the values it constrains would go unmeasured: validator/jsonschema: schema resolution failed (at values.`<field>`, keyword `\"format\"`, format `\"<format>\"` is not supported; the supported formats are email, uri, hostname, ipv4, ipv6, uuid, date-time, date) (non è stato possibile compilare il contratto di schema dichiarato in uno schema utilizzabile, quindi nulla è stato validato rispetto a esso: correggi il contratto dove è dichiarato, oppure rimuovilo se la configurazione che copre non richiede validazione. Component: spec.schema.values dichiara uno schema da cui non si può costruire alcun validatore, quindi i valori che vincola resterebbero non misurati: validator/jsonschema: risoluzione dello schema non riuscita (nel campo sotto values, parola chiave format: il formato non è supportato; i formati supportati sono email, uri, hostname, ipv4, ipv6, uuid, date-time, date))"
   },
   "b74f2feca86b47ce": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -44275,6 +44548,13 @@
     "status": "machine",
     "text": "Installare con un gestore di pacchetti"
   },
+  "c5c402ab3932a08a": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "c5c402ab3932a08a",
+    "status": "machine",
+    "text": "e un nome di formato al di fuori dell’insieme supportato nel pilastro `values` di un Component:"
+  },
   "c5cd9740c9c0989d": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -44617,6 +44897,13 @@
     "status": "machine",
     "text": "Cosa fa"
   },
+  "c756f595f1e354d9": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c756f595f1e354d9",
+    "status": "machine",
+    "text": "**Come risolvere:** correggi il valore incriminato in modo che soddisfi lo schema dichiarato, oppure — se il valore è legittimo — amplia lo schema che lo dichiara (`schema.values`/`schema.infra` del Component, o quello della Feature associata) perché lo dichiari. Ispeziona lo schema dichiarato di un Component con `aggrega inspect <component-type>` per vedere i tipi esatti, gli intervalli, i default e i campi obbligatori che ogni pilastro si aspetta."
+  },
   "c75db67e11a9560a": {
     "at": "2026-10-30T09:01:39.651Z",
     "job": "session-0076-20261030090139",
@@ -44822,6 +45109,13 @@
     "status": "machine",
     "text": "`core/random-password` non è `core/generated-secret`. Quella Feature consegna una credenziale a un motore che ne possiede già l’intero ciclo di vita — un database gestito, un controller di database — e non renderizza nulla. `core/random-password` renderizza la richiesta stessa, per un workload la cui Recipe si aspetta che le venga consegnata una credenziale."
   },
+  "c81fb949852d7f5a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c81fb949852d7f5a",
+    "status": "machine",
+    "text": "La stessa associazione scritta sul componente nell’Aggregate segnala `[DEVELOPER_ERROR E0168]` in `.spec.components.app.features.check.values.schema`, sotto il nome dell’Aggregate. Un editor mostra ciascuno sul documento che lo ha scritto, sulla chiave più profonda di quel percorso che il documento contiene."
+  },
   "c8224298db8f5ac4": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -44912,6 +45206,13 @@
     "srcHash": "c875da627926b5ff",
     "status": "machine",
     "text": "Tassonomia degli stati"
+  },
+  "c87949e8796d30ee": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "c87949e8796d30ee",
+    "status": "machine",
+    "text": "**Non dichiarare alcun contratto e dichiararne uno che non può essere letto sono situazioni diverse, e il build le tratta in modo diverso.** Un campo che non dichiara nulla viene saltato: la conformità per pilastro e per arco è facoltativa, quindi un socket che non vincola nessuno dei due pilastri è un normale caso di authoring e non produce alcuna diagnostica. Un campo che dichiara qualcosa di illeggibile viene rifiutato. Lasciarlo passare lascerebbe non validato ogni payload che copre mentre il build riporta un successo — un controllo che ha smesso di funzionare senza nulla che dica che ha smesso. Quindi è il rifiuto a tenere distinti i due casi: il silenzio significa che non c’era nulla da controllare, e un arresto significa che c’era qualcosa e non è stato possibile leggerlo."
   },
   "c884d93d9cb9744b": {
     "at": "2026-11-03T00:27:36.365Z",
@@ -45479,6 +45780,13 @@
     "status": "machine",
     "text": "Allo stesso modo, per lo schema le quantità di risorse sono stringhe: nessuna delle due fasi ne verifica la forma. Lo fa il provider che sintetizza, sul Workload valutato, e si interrompe su un valore al di fuori della forma di quantità — vedi [Quantità di risorse](#resource-quantities)."
   },
+  "cabd10b117be845d": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "cabd10b117be845d",
+    "status": "machine",
+    "text": "Messaggio emesso, che nomina l’entità con la sua versione e il campo che dichiara il contratto, poi il pilastro vincolato da quel contratto, poi l’errore — qui un contratto di socket che contiene una parola chiave scritta male:"
+  },
   "cacaf08e4259b003": {
     "at": "2026-10-17T20:35:57.134Z",
     "job": "b771c412104e",
@@ -45499,6 +45807,13 @@
     "srcHash": "cae94870a42d329a",
     "status": "machine",
     "text": "Per ogni associazione, il grafo porta:"
+  },
+  "cb0f5c81e4eb005e": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "cb0f5c81e4eb005e",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`, recipes implementing it `\"<recipe-uris>\"`). pin one of them in the Manifest (nessuna ricetta risolta per l’istanza di componente/funzionalità: aggiungi una mappatura esplicita nel Manifest per il suo tipo (Manifest, con l’istanza, il suo tipo e le ricette che lo implementano). fissane una nel Manifest)"
   },
   "cb12613ee9dddb21": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -47801,6 +48116,13 @@
     "status": "machine",
     "text": "3. Azioni imperative (il passaggio di consegne eseguibile)"
   },
+  "d65c86b0521752f0": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "d65c86b0521752f0",
+    "status": "machine",
+    "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. Component `\"<type>:<version>\"`: spec.usesSchema.`<socket>`.valueSchema declares a schema no validator can be built from, so the values it constrains would go unmeasured: compactform at `<key>`:`<line>` (keyword `\"<keyword>\"`): unknown keyword (non è stato possibile compilare il contratto di schema dichiarato in uno schema utilizzabile, quindi nulla è stato validato rispetto a esso: correggi il contratto dove è dichiarato, oppure rimuovilo se la configurazione che copre non richiede validazione. Component: spec.usesSchema.valueSchema del socket dichiara uno schema da cui non si può costruire alcun validatore, quindi i valori che vincola resterebbero non misurati: compactform alla chiave e alla riga indicate: parola chiave sconosciuta)"
+  },
   "d66260506ebcca83": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -47874,6 +48196,13 @@
     "srcHash": "d6b72fdbf2d81a34",
     "status": "machine",
     "text": "[authoring/](authoring/README.md) — il «come mettersi all’opera e scrivere» di Aggrega. Il ciclo di scrittura, i quattro ruoli che collaborano, la mappa dai kind ai ruoli e come collegare un assistente di IA tramite il server Model Context Protocol. Inizia da [Primi passi](authoring/getting-started.md); per far installare e configurare Aggrega al tuo assistente di IA, incolla il prompt di [Usare Aggrega dal tuo assistente di IA](authoring/ai-assistant.md)."
+  },
+  "d6ced66f9e3caa35": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "d6ced66f9e3caa35",
+    "status": "machine",
+    "text": "**Come risolvere:** aggiungi la mappatura richiesta dal messaggio, sotto `spec.mappings.components.type` nel Manifest, con il tipo di componente come chiave e la Recipe come valore. Dove il messaggio elenca dei candidati, scegline uno — quell’elenco è esattamente l’insieme delle Recipes che dichiarano di implementare il tipo alla versione in cui la build lo risolve. Dove nomina una Recipe non presente nel catalogo, correggi il valore oppure aggiungi la Recipe a una directory di catalogo letta dalla build; una versione nel valore deve corrispondere a una versione presente nel catalogo. Dove nulla implementa il tipo, il pezzo mancante è la Recipe stessa."
   },
   "d6cf10778fccaedb": {
     "at": "2026-11-02T19:03:23.148Z",
@@ -51122,6 +51451,13 @@
     "status": "machine",
     "text": "Rende un’entità ad albero (Aggregate, Release) come elenco piatto, con ogni nodo preceduto dal suo percorso completo con i punti. Nessun effetto sui tipi tabellari."
   },
+  "e55e964edd5e78bf": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "e55e964edd5e78bf",
+    "status": "machine",
+    "text": "E dove nulla implementa il tipo, non c’è nulla da elencare:"
+  },
   "e5603214950d5707": {
     "at": "2026-11-02T18:47:12.619Z",
     "job": "session-0002-20261102184712",
@@ -52244,6 +52580,13 @@
     "status": "machine",
     "text": "Questa sezione riguarda gli slot propri del Component. Gli slot che un socket dichiara per ciascuna connessione sono invece un insieme chiuso — vedi «Slot riempiti da ogni connessione» sotto Socket di topologia."
   },
+  "ea4881e557c413be": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "ea4881e557c413be",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`). no recipe in the catalog implements this type; write one, then map the type to it (nessuna ricetta risolta per l’istanza di componente/funzionalità: aggiungi una mappatura esplicita nel Manifest per il suo tipo (Manifest, con l’istanza e il suo tipo). nessuna ricetta nel catalogo implementa questo tipo; scrivine una, poi mappa il tipo su di essa)"
+  },
   "ea4920671fda1b5e": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -53100,6 +53443,13 @@
     "srcHash": "ee4301e1ee91e7da",
     "status": "machine",
     "text": "Ogni altro errore termina subito il passaggio: una credenziale rifiutata (`401`, `403`, o nessuna credenziale memorizzata per il registry), qualsiasi altra risposta del registry, un registry del tutto irraggiungibile, o un push che interrompi. **Un passaggio che fallisce ancora dopo l’ultimo tentativo fa fallire il comando, e l’errore nomina il passaggio** — il contenuto, il manifest, il tag, la firma o la data di pubblicazione. Ciò che i passaggi precedenti hanno pubblicato resta pubblicato; [Firma](#signing) e [La data di pubblicazione](#the-publication-date) spiegano cosa significa per la versione."
+  },
+  "ee4baaf7a210ef18": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "ee4baaf7a210ef18",
+    "status": "machine",
+    "text": "Messaggio emesso, per una chiave `features.name` scritta come nome del componente su cui si trova l’associazione:"
   },
   "ee6011be6754f96a": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -54055,6 +54405,13 @@
     "srcHash": "f344d7653fb4e893",
     "status": "machine",
     "text": "`aggrega/invalidate` — un segnale di invalidazione della cache proveniente dal file watcher dell’editor."
+  },
+  "f345e47fa0ab5611": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "f345e47fa0ab5611",
+    "status": "machine",
+    "text": "**Con il comando di build incontri sempre prima qualcos’altro.** Il pinning delle sorgenti di una Release non può stabilire quale tipo di artefatto nomini un riferimento vuoto, quindi `aggrega pull` segnala quel riferimento come ambiguo e non scrive alcuna voce di lockfile per esso — e una build legge un lockfile invece di scriverne uno, quindi rifiuta il lockfile mancante o non più corrispondente prima che avvenga qualsiasi rendering. In entrambi i casi il comando di build ti restituisce uno di quei due rifiuti e non questo arresto. L’arresto vero e proprio è quello che incontri con [`aggrega validate`](../cli/aggrega-validate.md) sul file della Recipe, che esegue il rendering di quella Recipe in isolamento, e con lo strumento di build esposto da [`aggrega mcp`](../cli/aggrega-mcp.md), che esegue il rendering di una Release priva di qualsiasi lockfile. La correzione è la stessa in ognuno di questi casi."
   },
   "f3596d836c317c06": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -55559,6 +55916,13 @@
     "status": "machine",
     "text": "cyclic extends chain (`<kind>` `<name>`, rule extends). `<entity>` extends `<reference>`, which is already in the chain; remove the extends on `<entity>`, or point it at an entity outside the chain (catena extends ciclica (tipo e nome, regola extends). L’entità estende il riferimento, che è già nella catena; rimuovi l’extends sull’entità, o puntalo a un’entità fuori dalla catena)"
   },
+  "f9e5f646ba02a991": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "f9e5f646ba02a991",
+    "status": "machine",
+    "text": "Il rifiuto nomina l’entità che ha **dichiarato** il contratto anziché il documento che ha scritto la configurazione, perché è lì che va la correzione. L’autore di un Aggregate a cui viene dato un tipo di componente il cui contratto non può essere letto non ha nulla da cambiare nel proprio file. Il rifiuto arriva mentre il catalogo viene letto, dove l’entità dichiarante, il pilastro, il campo scritto e la riga del sorgente sono tutti noti — quindi lo stesso errore viene segnalato in modo identico sia che tu lo raggiunga da un build, da `aggrega validate` o dallo strumento di build esposto da `aggrega mcp`. Un contratto che l’entità legge tramite `$import:` — il suo intero `spec.schema`, un suo pilastro o il contratto di un socket — viene segnalato nel file importato: la posizione nomina quel file e la riga in esso in cui è scritto il frammento, mentre il messaggio nomina comunque l’entità e il campo che ha dichiarato il contratto. Gli arresti di forma compatta che incontra lo `spec.schema` proprio di un’entità sono localizzati allo stesso modo."
+  },
   "f9e812a3574d1c3b": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -55773,6 +56137,13 @@
     "srcHash": "fa78c708188351c5",
     "status": "machine",
     "text": "[./aggrega-mcp.md](./aggrega-mcp.md) — la stessa funzionalità come strumento `publish-entity`, che un assistente può chiamare e che risponde con quelle voci come `windows_unusable_entries`. Leggi cosa dice quella pagina sul consentirlo prima di farlo."
+  },
+  "fa7ce8541cc028e7": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "fa7ce8541cc028e7",
+    "status": "machine",
+    "text": "**Un’associazione portata da una connessione** viene misurata allo stesso modo, e segnalata nella voce di connessione del documento che ha scritto il pilastro non conforme anziché nel blocco `features:` del componente stesso, che non la contiene. I suoi `values` vengono segnalati nella voce di connessione dell’Aggregate, `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>` — nel documento del sottomodulo stesso, per un componente contribuito da un sottomodulo — e il suo `infra` nella voce della Release per quella connessione, sotto il confine che nomina il componente quando la Release nomina dei confini. Un’associazione che solo la Release crea viene segnalata nella voce della Release per entrambi i pilastri: un’associazione del genere non porta `values`, quindi una Feature i cui `values` richiedono un campo lo segnala come mancante lì, nella voce scritta dall’operatore."
   },
   "fa7f5a072e643067": {
     "at": "2026-11-03T01:42:01.047Z",
@@ -56355,6 +56726,13 @@
     "status": "machine",
     "text": "I Platform Architects usano la parola chiave `extends` per stratificare interfacce specializzate sopra baseline aziendali o della community. L’estensione **compone la struttura** ed **eredita i pilastri dei dati per intero**. Il compilatore percorre la catena dalla base verso il basso; le due metà si comportano in modo diverso, e la differenza è l’intero modello di authoring."
   },
+  "fc9bbb9411e6ed27": {
+    "at": "2026-11-03T03:19:40.749Z",
+    "job": "session-0044-20261103031940",
+    "srcHash": "fc9bbb9411e6ed27",
+    "status": "machine",
+    "text": "**Come risolvere:** rinomina la chiave con il nome suggerito dal messaggio, o con uno dei nomi che elenca — per un’associazione, il nome sotto cui è scritta, non quello del suo componente. Se la voce non serve più, rimuovila; le istanze di quel tipo si risolvono allora tramite il livello `type`."
+  },
   "fca1c5d9ab85c211": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -56890,6 +57268,13 @@
     "status": "machine",
     "text": "Che cosa fa la dichiarazione, detto con esattezza:"
   },
+  "ff671cf0c896d22a": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "ff671cf0c896d22a",
+    "status": "machine",
+    "text": "**Una foglia dichiarata `sensitive: true` ha la propria violazione di vincolo nascosta.** Il testo dell’errore cita il valore incriminato, e una diagnostica di build è letta da chiunque osservi il build, quindi su una foglia dichiarata sensibile — o in qualunque punto all’interno di un oggetto dichiarato sensibile — il `<constraint failure>` qui sotto riporta invece `<redacted>`. Lo stesso vale in una posizione che contiene sotto di sé una foglia dichiarata sensibile, compreso il pilastro stesso: un `$ref` scritto accanto ad altre parole chiave viene controllato per intero dove è scritto, quindi un errore all’interno della definizione che nomina viene segnalato in quella posizione e altrimenti citerebbe il valore della foglia. L’entità, il percorso del campo, il pilastro e il nome del contratto sono comunque tutti nominati, quindi la diagnostica ti dice ancora dove si trova l’errore; viene omesso solo il testo che riprodurrebbe il valore. La sensibilità si legge per pilastro, quindi una foglia con lo stesso nome in `values` e `infra` viene nascosta solo nel pilastro che la dichiara."
+  },
   "ff73908433a72a9e": {
     "at": "2026-11-03T03:00:32.047Z",
     "job": "session-0041-20261103030032",
@@ -57005,6 +57390,13 @@
     "srcHash": "ffd9f8a0087a2c63",
     "status": "machine",
     "text": "Consente a una Feature che limita quante richieste un componente gestisce contemporaneamente di selezionare un componente in grado di trattenere o rifiutare una richiesta oltre un limite impostato nella sua configurazione. Il valore indica cosa conteggia un limite: `total`, ogni richiesta che il componente inoltra, rispetto a un unico limite; `per-target`, le richieste in corso verso ciascun target upstream a cui invia, con un limite per ciascuno e nessuno sul loro totale."
+  },
+  "ffdaaca75eddae6d": {
+    "at": "2026-11-03T03:19:38.005Z",
+    "job": "session-0043-20261103031938",
+    "srcHash": "ffdaaca75eddae6d",
+    "status": "machine",
+    "text": "**Un vincolo ben formato accanto a uno illeggibile non viene applicato.** Un contratto viene letto come un unico documento, quindi un solo frammento illeggibile disattiva ogni vincolo dichiarato insieme a esso. Ecco perché l’arresto vale più dei vincoli che costa: l’alternativa è un contratto che sembra applicato, si legge come applicato e non applica nulla."
   },
   "fff7f4057ca490ed": {
     "at": "2026-10-23T02:15:21.677Z",
