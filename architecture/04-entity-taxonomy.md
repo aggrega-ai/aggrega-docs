@@ -1,89 +1,22 @@
 # The Entity Taxonomy
 
-Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds, plus a Tier 3 library layer — the third tier of the Language Reference's [entity tier model](../language-reference/README.md#entity-tier-model) — that holds reusable schema, mapping, workload, and artifact content. The diagram below shows the entities and their relationships across the four domains plus the Tier 3 libraries. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/03-entities.md).
+Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds, plus a Tier 3 library layer — the third tier of the Language Reference's [entity tier model](../language-reference/README.md#entity-tier-model) — that holds reusable schema, mapping, workload, and artifact content. The overview below shows how the four domains and the Tier 3 libraries relate to one another; each section that follows opens with a diagram of its own entities, where an entity from another domain is drawn with a dashed outline. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/03-entities.md).
 
 ~~~mermaid
-%%{
-  init: {
-    'themeVariables': {
-      'fontSize': '25px'
-    }
-  }
-}%%
-graph LR
-    classDef domain fill:transparent,stroke-width:2px,font-weight:bold,font-style:italic,font-size:34px;
-    classDef role fill:transparent,stroke:none,font-weight:bold,font-style:italic,font-size:30px;
-    classDef baseNode stroke-width:2px,font-size:25px;
+graph TD
+    Intent["<b>Domain 1: Developer Intent</b><br/><i>Developer</i>"]
+    Catalog["<b>Domain 2: Platform Catalog</b><br/><i>Platform Architect</i>"]
+    Routing["<b>Domain 4: Routing & Policy</b><br/><i>Platform Operator / DevOps</i>"]
+    Infra["<b>Domain 3: Infrastructure Base</b><br/><i>Infrastructure Engineer / Ops</i>"]
+    Libs["<b>Tier 3: Libraries</b>"]
 
-    subgraph Dom1 ["Domain 1: Developer Intent"]
-        P1["Developer"]:::role
-        A["Aggregate<br/>The 'What'"]:::baseNode
-        P1 ~~~ A
-    end
-
-    subgraph Dom2 ["Domain 2: Platform Catalog"]
-        P2["Platform Architect"]:::role
-        CC["Component<br/>The Compute Interface"]:::baseNode
-        CapC["Feature<br/>The Operational Trait<br/>(plus Credential Features<br/>via feature.aggrega.ai/kind: secret label)"]:::baseNode
-        P2 ~~~ CC
-        CC ~~~ CapC
-    end
-
-    subgraph Dom4 ["Domain 4: Routing & Policy"]
-        P4["Platform Operator / DevOps"]:::role
-        EB["Release<br/>The Deployment Router"]:::baseNode
-        ENV["Manifest<br/>The Dependency Lockfile"]:::baseNode
-        P4 ~~~ EB
-        EB ~~~ ENV
-    end
-
-    subgraph Dom3 ["Domain 3: Infrastructure Base"]
-        P3["Infrastructure Engineer / Ops"]:::role
-        CD["Recipe<br/>The Implementation"]:::baseNode
-        CapD["FeatureRecipe<br/>The Binding<br/>(operational + credential)"]:::baseNode
-        T["Plugin<br/>Wasm Rendering /<br/>Pipeline / Linter Plugin"]:::baseNode
-        P3 ~~~ CD
-        CD ~~~ CapD
-        CapD ~~~ T
-    end
-
-    subgraph DL ["Tier 3: Libraries"]
-        SL["SchemaLibrary<br/>Reusable JSON Schema 2020-12 Definitions"]:::baseNode
-        ML["MappingLibrary<br/>Reusable Go Template Fragments"]:::baseNode
-        WL["WorkloadLibrary<br/>Reusable Workload Template Fragments"]:::baseNode
-        AL["ArtifactLibrary<br/>Reusable Named Artifact Bundles"]:::baseNode
-        SL ~~~ ML
-        ML ~~~ WL
-        WL ~~~ AL
-    end
-
-    %% Logical Flow Connections
-    A -.->|"Requests"| CC
-    A -.->|"Attaches — application intent, values<br/>(features: — one pillar, every family)"| CapC
-    A -->|"Binds via"| EB
-    EB -.->|"Attaches — operations, infra"| CapC
-
-    CC -.->|"Resolved to"| CD
-    CapC -.->|"Resolved to"| CapD
-
-    EB -->|"Uses"| ENV
-
-    ENV -->|"Resolves Interfaces to"| CD
-    ENV -->|"Resolves Interfaces to"| CapD
-
-    EB -->|"Renders via"| T
-
-    %% Library references (Tier 3 — opt-in for catalogs needing cross-Component reuse)
-    CC -.->|"$ref: &lt;Library&gt;#/schemas/&lt;name&gt;"| SL
-    CapC -.->|"$ref"| SL
-    CD -.->|"valuesMapping: { $import: &lt;Library&gt;#/mappings/&lt;name&gt; }"| ML
-    CapD -.->|"$import"| ML
-    CD -.->|"workload: { $import: &lt;Library&gt;#/workloads/&lt;entry&gt; }"| WL
-    CD -.->|"artifacts.&lt;name&gt;: { $import: &lt;Library&gt;#/artifacts/&lt;name&gt; }"| AL
-    CapD -.->|"$import"| AL
-
-    %% Apply the domain class to the subgraphs
-    class Dom1,Dom2,Dom3,Dom4,DL domain;
+    Intent -->|"requests, attaches"| Catalog
+    Intent -->|"binds via"| Routing
+    Routing -->|"attaches"| Catalog
+    Catalog -->|"resolved to"| Infra
+    Routing -->|"resolves, renders via"| Infra
+    Catalog -.->|"$ref"| Libs
+    Infra -.->|"$import"| Libs
 ~~~
 
 The corpus spans four domains plus the Tier 3 library layer:
@@ -109,10 +42,42 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 
 ## Domain 1: Developer Intent (The "What")
 
+~~~mermaid
+graph LR
+    classDef ext stroke-dasharray:5 4;
+
+    A["Aggregate<br/>The 'What'"]
+    CC["Component"]:::ext
+    CapC["Feature"]:::ext
+    EB["Release"]:::ext
+
+    A -.->|"Requests"| CC
+    A -.->|"Attaches"| CapC
+    A -->|"Binds via"| EB
+~~~
+
 * **Role:** The Developer. Focuses purely on AI architecture, cognitive loops, and application survival requirements. They need no knowledge of CEL, OPA, or physical ports.
 * **1. Aggregate:** The map-based declarative blueprint of the application topology. Serving as either the root Aggregate a Release builds or a parameterized, reusable module, it defines logical `components` and attaches, under `features`, the Features whose behaviour is application intent, with their `values`; a Feature whose inputs are all operational is attached by the operator in the Release instead (see Domain 4). A credential is requested on that same `features` attachment surface, through a credential Feature — there is no separate block for one. It defines abstract capacity requirements via `parameters` (typed contracts authored in the compact-form vocabulary) and payload state via `values`. Component instances support an optional `description` field for documentation and Studio rendering. It promotes the "Zero-Port" convention (abstracting network ports unless explicitly required by legacy code) with no target platform or namespace hardcoded.
 
 ## Domain 2: Platform Catalog (The "Interfaces & Intelligence")
+
+~~~mermaid
+graph TD
+    classDef ext stroke-dasharray:5 4;
+
+    A["Aggregate"]:::ext
+    EB["Release"]:::ext
+    CC["Component<br/>The Compute Interface"]
+    CapC["Feature<br/>The Operational Trait"]
+    CD["Recipe"]:::ext
+    CapD["FeatureRecipe"]:::ext
+
+    A -.->|"Requests"| CC
+    A -.->|"Attaches"| CapC
+    EB -.->|"Attaches"| CapC
+    CC -.->|"Resolved to"| CD
+    CapC -.->|"Resolved to"| CapD
+~~~
 
 * **Role:** The Platform Architect. The "Programmer" of the platform. They place each component on the operational ontology, author the programmable policies (Wasm mutators and validators), and establish the semantic duck-typing labels.
 * **2. Component:** The abstract interface for a compute node. It declares its base shape via the operational cloud ontology (e.g., `component.aggrega.ai/type: server`), and layers its cognitive identity via duck-typing labels (e.g., `model.aggrega.ai/capability: generative`). It declares credential slots via `featuresSchema` (required/optional, blackbox/transparent) and uses `schema:` (JSON Schema 2020-12, typically authored via the compact-form shorthand) to strictly validate the developer's opaque `values` block.
@@ -125,6 +90,25 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 
 ## Domain 3: Infrastructure Base (The "Implementations")
 
+~~~mermaid
+graph LR
+    classDef ext stroke-dasharray:5 4;
+
+    CC["Component"]:::ext
+    CapC["Feature"]:::ext
+    ENV["Manifest"]:::ext
+    EB["Release"]:::ext
+    CD["Recipe<br/>The Implementation"]
+    CapD["FeatureRecipe<br/>The Binding"]
+    T["Plugin<br/>The Wasm Plugin"]
+
+    CC -.->|"Resolved to"| CD
+    CapC -.->|"Resolved to"| CapD
+    ENV -->|"Resolves Interfaces to"| CD
+    ENV -->|"Resolves Interfaces to"| CapD
+    EB -->|"Renders via"| T
+~~~
+
 * **Role:** The Infrastructure Engineer / Ops. Owns the physical reality, network port assignment, and templating logic.
 * **4. Recipe:** The multi-provider translation template (e.g., Helm or Docker Compose). It establishes a strict 1:1 API Contract with the catalog component via the `implements` keyword. The Recipe maps the developer's `.values` into the physical format. It hardcodes the physical network ports (e.g., `5432`) and reads the target's `provides` through the `.context.uses` pipe, satisfying the Injection Contract without hardcoding database names.
 * **5. FeatureRecipe:** Explicitly maps a `Feature` to a concrete infrastructure implementation via the `implements` keyword. It mandates a target provider capability in `capability` (e.g., `helm`, `compose`). Because the platform unifies credential management into the Feature entity, FeatureRecipes handle both operational features (data masking, DNS routing, sidecar injection) and credential features (vault CRD generation, secret volume mounting). To support this full spectrum, it supports three distinct execution blocks:
@@ -136,6 +120,26 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 
 ## Domain 4: Routing & Policy (The "Glue")
 
+~~~mermaid
+graph TD
+    classDef ext stroke-dasharray:5 4;
+
+    A["Aggregate"]:::ext
+    EB["Release<br/>The Deployment Router"]
+    ENV["Manifest<br/>The Dependency Lockfile"]
+    CapC["Feature"]:::ext
+    T["Plugin"]:::ext
+    CD["Recipe"]:::ext
+    CapD["FeatureRecipe"]:::ext
+
+    A -->|"Binds via"| EB
+    EB -.->|"Attaches"| CapC
+    EB -->|"Uses"| ENV
+    EB -->|"Renders via"| T
+    ENV -->|"Resolves Interfaces to"| CD
+    ENV -->|"Resolves Interfaces to"| CapD
+~~~
+
 * **Role:** The Platform Operator / DevOps.
 * **7. Manifest:** The dependency lockfile. It uses a flat URI mapping: a `components.type` dictionary maps catalog component types to Recipe URIs, and a `features.type` dictionary maps Feature types to FeatureRecipe URIs. Resolution is direct URI lookup against the lockfile + catalog; capability determination flows from each resolved Recipe's `spec.capability` field at build time. After resolution, every entity must have a mapping or the compiler halts. To maintain a DRY ecosystem, Manifests support a Kustomize-style composition pattern via an `extends` keyword, allowing environment-specific manifests (like local or staging) to cleanly inherit from a global base manifest and only declare their specific overrides.
 * **8. Release:** The router. It binds an `aggregate` to a `manifest` and maps components to physical boundaries (e.g., `aws-eks-production`). To maintain a DRY workflow, Releases support inheritance via the `extends` keyword, allowing environment-specific releases to cleanly inherit from a global base release. It fulfills the abstract aggregate contract by injecting physical realities strictly into the `parameters` block, and injects physical sizing (like CPUs or ports) via the `infra` parallel namespace. To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — Ops cannot declare `values` on any Component or Feature from a Release. Per-environment variation of developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. The rendered values differ across environments while the Aggregate — the authoring surface for *which* values exist and *how* they flow — remains the single source of truth. See Constraint 4, "Release Cannot Override Developer Values", under [Architectural Constraints and Recommended Patterns](06-data-taxonomy-and-composition.md#8-architectural-constraints-and-recommended-patterns) for the schema-level ban stated explicitly. Crucially, to prevent untraceable "aggregate-mutating" Releases, when a Release uses `extends`, declaring an `aggregate` is rejected by the Release schema (the schema constraint disallows declaring `aggregate` when `extends` is used). The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding"—allowing Ops to inherit the entire physical topology but surgically swap the dependency lockfile.
@@ -144,6 +148,28 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 **Why split the Manifest from the Release.** Separating the software lockfile (Manifest) from the deployment router (Release) enables a shape the two entities could not produce alone: DevOps deploys a single application to multiple regional deployment routers — different Releases targeting different cloud regions, all referencing the same Manifest — without duplicating Recipe bindings across environments. Each regional Release carries its boundary layout and environment-specific parameters while consuming the same software lockfile the Manifest provides. Multi-region scaling follows from the domain separation, not from Manifest duplication.
 
 ## Tier 3: Libraries (Catalog Reuse)
+
+~~~mermaid
+graph LR
+    classDef ext stroke-dasharray:5 4;
+
+    CC["Component"]:::ext
+    CapC["Feature"]:::ext
+    CD["Recipe"]:::ext
+    CapD["FeatureRecipe"]:::ext
+    SL["SchemaLibrary<br/>JSON Schema definitions"]
+    ML["MappingLibrary<br/>Go template fragments"]
+    WL["WorkloadLibrary<br/>Workload template fragments"]
+    AL["ArtifactLibrary<br/>Named artifact bundles"]
+
+    CC -.->|"$ref"| SL
+    CapC -.->|"$ref"| SL
+    CD -.->|"valuesMapping $import"| ML
+    CapD -.->|"$import"| ML
+    CD -.->|"workload $import"| WL
+    CD -.->|"artifacts $import"| AL
+    CapD -.->|"$import"| AL
+~~~
 
 * **Role:** The Platform Architect (same persona as Domain 2), but the role kicks in only when catalog content grows large enough to benefit from cross-Component schema reuse or cross-Recipe reuse of templates, workload shapes, or artifact bundles. Solo authors and small catalogs ship without any Tier 3 entities.
 * **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library entry by identity — the host-less `<library>#/schemas/<name>` form (the version comes from the lockfile, not the reference). PascalCase naming, OCI-distributed, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.

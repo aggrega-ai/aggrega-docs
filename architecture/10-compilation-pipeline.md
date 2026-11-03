@@ -56,6 +56,7 @@ To remain strictly unopinionated about how its output is applied, the rendering 
 ```mermaid
 graph TD
     subgraph CLI_Orchestrator ["The Aggrega Compiler Pipeline"]
+        direction TB
         A["Resolution — The Resolver & Syntax Validator<br/>(Inheritance Merge + Parameter Interpolation + JSON Schema 2020-12 Validation)"] --> B["Topology construction — The Topology Builder<br/>(AST Expansion + governance label-transform)"]
         
         B -->|"Emits IR Graph"| C["Graph finalization<br/>(Normalization)"]
@@ -64,7 +65,11 @@ graph TD
         
         D -->|"Validated Topology"| E["Rendering<br/>Inject mapping: Pre-Render Interception (injectMapping)<br/>Base rendering (valuesMapping)<br/>The plugin pipeline: Wasm Mutation (pipeline)"]
     end
-    
+```
+
+```mermaid
+graph LR
+    E["Rendering"]
     E -->|"Stringified Artifacts"| F["Helm Charts"]
     E -->|"Stringified Artifacts"| G["Docker Compose"]
     E -->|"Stringified Artifacts"| H["Kubernetes Manifests"]
