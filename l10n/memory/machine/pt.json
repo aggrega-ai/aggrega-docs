@@ -3888,6 +3888,13 @@
     "status": "machine",
     "text": "No Compose, o agregador escreve um `fluent.conf` com uma fonte de entrada `forward` ligada à porta forward, e encaminha os registos correspondentes para a saída standard:"
   },
+  "09001e655a00232e": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "09001e655a00232e",
+    "status": "machine",
+    "text": "**Uma renderização que não transporta entradas não é alterada pelos campos.** Ambos os campos são opcionais e ausentes quando vazios, pelo que uma renderização que não transporta entradas atravessa o socket byte a byte tal como faria se os campos não existissem, e um guest que nunca os lê não é afetado por eles. O tipo `OmitEntry` é publicado nos três pacotes ABI e reexportado pelo kit de desenvolvimento de plugins de cada linguagem."
+  },
   "09052cc3fa56e5b5": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
@@ -4010,6 +4017,13 @@
     "srcHash": "094b3c2f5f6d63d8",
     "status": "machine",
     "text": "A divisão entre «biblioteca» e «consumidor» é intencional. As Recipes codificam instruções de build (source, valuesMapping, infraMapping, artifacts). As FeatureRecipes codificam anexações comportamentais. As MappingLibraries codificam apenas fragmentos de template — o conteúdo de template Go que outras entidades consomem no momento da renderização. Manter os três papéis distintos permite que cada tipo de entidade evolua ao seu próprio ritmo; os autores que não precisam de conteúdo de template partilhado nunca encontram a entidade de biblioteca."
+  },
+  "09542c9f91481c5e": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "09542c9f91481c5e",
+    "status": "machine",
+    "text": "`bytes` — os bytes da fonte."
   },
   "095ae11710a3a921": {
     "at": "2026-10-22T15:57:26.084Z",
@@ -6488,6 +6502,13 @@
     "status": "machine",
     "text": "Algumas páginas aqui são guias passo a passo escritos, e não espaços de trabalho que possa compilar, e uma ou duas mostram a estrutura de um payload em vez de uma execução específica dele. Um bloco assim não contém nenhuma promessa com que possa fazer um diff, pelo que o diz nas palavras à sua volta — nunca toma silenciosamente o lugar da coisa real. Se um bloco não o disser, foi copiado de uma execução e os dois estados acima aplicam-se-lhe."
   },
+  "0f915610d70ade33": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "0f915610d70ade33",
+    "status": "machine",
+    "text": "**Codificação de transmissão.** A entrada e a saída circulam ambas como **CBOR canónico** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1). Um guest descodifica a sua entrada e codifica a sua saída através dos pontos de entrada que `LinterInput` e `LinterOutput` do seu kit já transportam — `DecodeCBOR` e `EncodeCBOR` em Go, `decode_cbor` e `encode_cbor` em Rust, `decodeCBORLinterInput` e `encodeCBORLinterOutput` em TypeScript — lendo e escrevendo bytes (`Vec<u8>` em Rust, `Host.inputBytes()` e `Host.outputBytes(...)` em TypeScript). Nenhuma biblioteca CBOR é necessária e nada analisa bytes à mão. Os documentos de entidade — `proposed`, `previous`, `implemented_component` e `release` — e cada valor de `components` circulam como os bytes dos seus documentos JSON, pelo que um guest os analisa como JSON para examinar o conteúdo. `components` é um mapa que o schema marca como mapa que preserva a ordem, pelo que, na entrada de uma regra que lê uma Release inteira, circula como uma [lista ordenada de entradas](#maps-that-keep-their-order) pela ordem em que o Aggregate declara as suas instâncias de componente, e um guest lê-o através do contentor do seu kit que mantém a ordem. `policies` circula como um mapa que contém apenas os indicadores definidos, pelo que um indicador que não contenha é lido como falso, e cada constatação circula na forma partilhada `Diagnostic`. Uma resposta que não seja um `LinterOutput` nesta codificação — uma escrita como JSON, ou uma que transporte um campo de nível superior que a forma não declara — faz falhar o lint, nomeando o export chamado, em vez de ser lida como uma execução que não encontrou nada. Chamado diretamente com `aggrega plugin run-local --export lint_rules`, um linter recebe o payload JSON escrito pelo autor convertido para esta codificação, e a sua resposta é lida como a forma de saída do export e impressa como JSON — uma resposta que não tenha essa forma é recusada, nomeando o export, tal como uma compilação a recusa."
+  },
   "0f91a30d49b3f164": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -7448,6 +7469,13 @@
     "srcHash": "11c40a38a40c6871",
     "status": "machine",
     "text": "[`aggrega plugin`](cli/aggrega-plugin.md) — lista os plugins Wasm que a CLI consegue resolver, adiciona ou remove uma associação do workspace e verifica um guest antes de ser publicado."
+  },
+  "11c81c148bb24eaf": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "11c81c148bb24eaf",
+    "status": "machine",
+    "text": "**Não comunicar nada é completo.** Omitir `render_facts` é válido, e um fornecedor que não comunica nada renderiza exatamente como renderizaria sem o campo."
   },
   "11c81f75b302f530": {
     "at": "2026-10-23T01:04:16.342Z",
@@ -8880,6 +8908,13 @@
     "status": "machine",
     "text": "`sensitive_inject` — uma resposta por chave de entrega"
   },
+  "15a04febf27a607a": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "15a04febf27a607a",
+    "status": "machine",
+    "text": "**Deixa cada unidade correspondente de fora de tudo o que devolve** — os seus `files`, os nomes que declara em `derived_keys` e os factos que comunica em `render_facts` — pelo que nada do que o compilador recebe ainda a descreve."
+  },
   "15a26708702d75b7": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -9817,6 +9852,13 @@
     "srcHash": "17e56a0c4ce86554",
     "status": "machine",
     "text": "`AGGREGA_CATALOG_DIRS` vem do ambiente e não tem de todo ficheiro declarante, pelo que deve fornecer caminhos absolutos nela."
+  },
+  "17eadc204f8d014a": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "17eadc204f8d014a",
+    "status": "machine",
+    "text": "Um autor pode construir os campos de uma entrada a partir de um valor que declarou sensível — um recurso com o nome de uma definição sensível, por exemplo. Uma entrada assim chega com `\"sensitive\": true`, e o seu guest trata-a como trata qualquer outro valor marcado que a entrada de renderização transporta (ver [Valores que uma entrada marca como sensíveis](#values-an-input-marks-sensitive)): continua a fazer corresponder e a contar a entrada pelos seus campos, que é para isso que a entrada serve, e mantém cada um dos seus campos fora de uma recusa, de um aviso ou de uma linha de registo. A marcação abrange a entrada inteira, porque o compilador não diz que campo o valor produziu. Está ausente quando nenhum campo foi construído a partir de um valor assim."
   },
   "18056721922dd6f6": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -11433,6 +11475,13 @@
     "status": "machine",
     "text": "O Aggrega resolve isto ao funcionar como um **compilador topológico antecipado (Ahead-of-Time, AOT)**. Resolvemos os estrangulamentos mais críticos da engenharia de plataformas e da implantação de IA modernas:"
   },
+  "1bdd5becd4f46cc0": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "1bdd5becd4f46cc0",
+    "status": "machine",
+    "text": "Cada entrada é um `kind`, um `name` e um `namespace` opcional, já resolvidos em cadeias simples e listados pela ordem em que o autor os declarou; uma entrada que não se aplica à compilação não é transmitida. O que os três campos selecionam é o contrato próprio do seu fornecedor — o tipo, o nome e o namespace de um recurso no formato do seu destino — pelo que deve ser documentado para os autores que escrevem as entradas."
+  },
   "1bf29859d1224319": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -12922,6 +12971,13 @@
     "status": "machine",
     "text": "**O problema:** os frameworks de IA assumem que a infraestrutura simplesmente existe, deixando às Ops a tarefa de ligar manualmente agentes, pipelines de RAG e bases de dados com ficheiros YAML fragmentados e fixos no código."
   },
+  "1f457956644420f8": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "1f457956644420f8",
+    "status": "machine",
+    "text": "**Faz corresponder cada entrada ao que renderizou**, nos termos do seu formato."
+  },
   "1f4e464b6e13bdc1": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -13550,6 +13606,13 @@
     "srcHash": "20ad3b3e6bbee2af",
     "status": "machine",
     "text": "**Os executáveis estão assinados e notarizados.** Cada um tem uma assinatura de código feita com o Developer ID da **Cognitio S.r.l.** — o certificado que a Apple emite a um programador para software distribuído fora da Mac App Store — com o runtime reforçado e um carimbo temporal seguro, e o serviço de notarização da Apple verificou e notarizou cada um. O Gatekeeper, a verificação do macOS sobre software vindo da internet, avalia um programa que tenha a marca de quarentena, a marca que um browser acrescenta a um ficheiro que descarrega, e aceita um que a Apple tenha notarizado, pelo que um ficheiro descarregado da página da versão corre tal como está. Um ticket de notarização não pode ser anexado a um único ficheiro executável, pelo que o Gatekeeper encontra o ticket online na primeira vez que o ficheiro corre; num Mac que esteja offline nesse momento, o Gatekeeper pode bloquear o ficheiro até o Mac conseguir contactar a Apple."
+  },
+  "20b93c3094ca9132": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "20b93c3094ca9132",
+    "status": "machine",
+    "text": "**A compatibilidade decorre do que foi registado.** Um guest pode renderizar uma Recipe publicada para a sua capacidade quando fala a mesma versão da ABI, o seu contrato corresponde à declaração da sua entidade e não precisa de nenhum ficheiro fora do conjunto publicado. Um guest que precise de um ficheiro que o conjunto deixou de fora tem de fazer falhar a sua compilação de forma visível e nomear o ficheiro — a recusa pelo anfitrião de um empacotamento ou de uma leitura nomeia-o, e um guest transporta isso para a sua própria falha. Quando o plugin que o espaço de trabalho de um consumidor associa a uma capacidade declara regras diferentes das que o ficheiro de bloqueio de uma entidade regista, o pull do consumidor imprime um aviso que nomeia ambos os plugins e a diferença; nunca é interrompido por isso."
   },
   "20b96163aeca4bc2": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -14296,6 +14359,13 @@
     "srcHash": "229bf57deaa5baec",
     "status": "machine",
     "text": "Gerir registos e a sua política de confiança de assinaturas"
+  },
+  "229ca9da86f438c0": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "229ca9da86f438c0",
+    "status": "machine",
+    "text": "O tipo `RenderFact` é publicado nos três pacotes ABI e reexportado pelo kit de desenvolvimento de plugins de cada linguagem, e os exemplos de renderização dos kits comunicam dois factos junto aos seus ficheiros. Em Go, um valor é o JSON que o seu guest escreve; serializar uma slice de structs em vez de mapas é o que mantém as chaves de cada entrada pela ordem em que foram declaradas:"
   },
   "229f929cfabbf37b": {
     "at": "2026-10-23T00:02:45.677Z",
@@ -17835,6 +17905,13 @@
     "status": "machine",
     "text": "Um diretório é entregue ao importador como os ficheiros que as suas assinaturas indicam e nenhum outro, pelo que o programa da crew — o `crew.py` de um projeto clássico, o `main.py` de um fluxo, uma ferramenta que um projeto define em Python — nunca é lido. Um ficheiro importado por si só é lido como a declaração cuja forma tem. O diretório de um projeto pode conter várias crews, cada uma lida a partir do seu próprio diretório."
   },
+  "2b14ced76a687d1a": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "2b14ced76a687d1a",
+    "status": "machine",
+    "text": "O linter é uma disciplina de catálogo de adesão voluntária: o compilador não o executa durante `aggrega build` (com a única exceção do aviso que desaconselha `x-aggrega-*`, que surge com severidade `warn` durante a compilação e com severidade `halt` sob `aggrega lint --pre-publish`). Como as regras residem num plugin, uma empresa pode apontar `aggrega lint` para um plugin de linter diferente para impor a sua própria disciplina."
+  },
   "2b15251ac7d9342f": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -19935,6 +20012,13 @@
     "status": "machine",
     "text": "**A ordem só se mantém enquanto o mapa permanece no seu contentor.** Um guest que converte um payload num tipo de valor genérico da sua própria linguagem obtém, em vez disso, a ordem desse tipo: um `map[string]any` de Go não tem nenhuma, e o `serde_json::Value` de Rust mantém as chaves dos objetos ordenadas, a não ser que o crate seja compilado com a sua funcionalidade `preserve_order`."
   },
+  "3058d2fea5cd31b8": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "3058d2fea5cd31b8",
+    "status": "machine",
+    "text": "Nenhum valor de parâmetro chega a um plugin de linter, em qualquer âmbito em que `aggrega lint` seja executado. Antes de qualquer documento ser entregue, o anfitrião retém os valores predefinidos dos parâmetros de um Aggregate, os valores que este passa a cada módulo que importa e os parâmetros de uma Release, mantendo o contrato de cada declaração de parâmetro — apenas as chaves com que uma declaração é escrita, em cada nível de aninhamento — e qualquer texto de template que leia um parâmetro: o valor de um parâmetro pode ser ele próprio uma credencial, e o plugin anexado aqui pode ser código que o espaço de trabalho não escreveu. O que cada documento transporta está descrito em [O que é entregue a um plugin de linter](../cli/aggrega-lint.md#what-a-linter-plugin-is-handed)."
+  },
   "305d01540922dd14": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -20379,6 +20463,13 @@
     "srcHash": "31603d7607cead19",
     "status": "machine",
     "text": "**Quem o consome?** O motor de políticas e os Plugins de renderização Wasm."
+  },
+  "3160458f85da4561": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "3160458f85da4561",
+    "status": "machine",
+    "text": "**Um zero interrompe a compilação**, nomeando a primeira entrada, pela ordem do autor, cuja contagem é zero: o nó, o seu fornecedor, a posição da entrada na lista que o seu documento declara, e o tipo, o nome e o namespace em que se resolveu. O seu guest comunica o zero; a interrupção é do compilador. Ver [An omits entry left out nothing the source rendered (Uma entrada omits não deixou de fora nada do que a fonte renderizou)](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered)."
   },
   "3163715b3da92c2c": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -21369,6 +21460,13 @@
     "status": "machine",
     "text": "Tal como uma assinatura, o referrer published-at é um manifesto irmão que aponta de volta para o publicado, pelo que não move nenhum digest nem altera nenhuma tag, e a verificação ao publicar sobre uma versão existente não é afetada por ele. Um push repetido do mesmo conteúdo só anexa uma data a uma versão que não tenha nenhuma, indicando o seu próprio relógio — consulte [Concluir uma publicação que um push anterior deixou parcial](#completing-a-publication-an-earlier-push-left-partial). A data é lida do relógio uma única vez, antes da primeira tentativa de anexo, pelo que um anexo repetido — consulte [Quando o registo faz falhar uma escrita](#when-the-registry-fails-a-write) — indica a mesma data. Um push que publicou o seu conteúdo mas não conseguiu anexar a data depois dessas tentativas termina com código diferente de zero e nomeia o que não foi anexado. [`aggrega registry update`](aggrega-registry.md#the-publication-date-each-version-records) regista a data de cada versão juntamente com a fonte, das duas, de onde veio."
   },
+  "33ce0bf08daef7a4": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "33ce0bf08daef7a4",
+    "status": "machine",
+    "text": "**Comunica uma contagem por entrada** numa lista opcional `omitted` na sua saída, pela ordem em que as entradas chegaram, cada uma o número de unidades a que essa entrada correspondeu, contadas quer outra entrada também lhes tenha correspondido quer não:"
+  },
   "33d3c0538fb8c2bc": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -21494,6 +21592,13 @@
     "srcHash": "3439ee91e9245057",
     "status": "machine",
     "text": "`manifest.yaml` — associa o tipo de componente MariaDB à Recipe do Terraform `terraform/mariadb-rds-module`, que obtém o seu módulo de uma origem local, o tipo de Feature de credencial a `terraform/generated-secret`, e o tipo de Feature de cópia de segurança a `terraform/backup-native`, que não renderiza nada: a Recipe lê o anexo e fornece ela própria as entradas de cópia de segurança do módulo."
+  },
+  "343e3d4d9a829cbe": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "343e3d4d9a829cbe",
+    "status": "machine",
+    "text": "Comunicar factos sobre aquilo que um guest emitiu"
   },
   "3442c41536cf755e": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -22494,6 +22599,13 @@
     "srcHash": "36e54b2c010ebbc6",
     "status": "machine",
     "text": "as duas Releases do Kubernetes: o bucket para onde vão as cópias de segurança"
+  },
+  "36e79e67ee8a4394": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "36e79e67ee8a4394",
+    "status": "machine",
+    "text": "**O que o compilador faz com a sua resposta.** As entradas vêm da chave `omits:` que um autor escreve numa Recipe ou numa FeatureRecipe ([Recipe → O campo `omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source)); o compilador avalia os templates de cada entrada e entrega ao seu guest as que se aplicam. Depois lê as suas contagens, e apenas as suas contagens — nunca olha para dentro de um ficheiro devolvido para as verificar:"
   },
   "36eaefa61cbeb19a": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -23530,6 +23642,13 @@
     "srcHash": "398c4cc5f87c6391",
     "status": "machine",
     "text": "Crie o diretório ou remova a entrada: uma cópia de um projeto feita sem um checkout irmão que ele enumera remove essa entrada, e resolve a partir de um registo o que o checkout teria fornecido. O mesmo se aplica a um diretório que a entrada própria de uma Release enumera, a um que um ficheiro de configuração da sua pipeline ou o ficheiro global acrescenta, e a um que `AGGREGA_CATALOG_DIRS` contém, que a recusa nomeia em vez de um ficheiro. A configuração em si continua a ser carregada, pelo que um comando que não lê nenhum catálogo continua a correr. Um diretório `--catalog` que não existe foi escrito para um único comando, e `aggrega build` recusa-o, nomeando o diretório. Um diretório enumerado que existe e não pode ser lido é recusado pelos comandos que carregam o catálogo inteiro, que o nomeiam."
+  },
+  "3994a8cd724d0233": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "3994a8cd724d0233",
+    "status": "machine",
+    "text": "Deixar de fora unidades renderizadas"
   },
   "3995ccf3a5dff2be": {
     "at": "2026-11-03T19:06:08.912Z",
@@ -26219,6 +26338,13 @@
     "srcHash": "3ff3457e6d05a210",
     "status": "machine",
     "text": "O compilador constrói um registo de proveniência durante a compilação, que capta a versão do compilador e as versões do Aggregate, do Manifest e da Release que compilou — e nenhum carimbo temporal, pelo que o registo nunca quebra uma saída idêntica byte a byte. O renderizador helm emite a versão do compilador como a etiqueta `aggrega.ai/compiler-version` nos manifestos Kubernetes gerados, e o renderizador helm-chart nos ficheiros de template que uma Recipe acrescenta a um chart, já que copia sem alterações os templates próprios do chart; as equipas de segurança empresariais usam-no para identificar que artefactos renderizados foram compilados por que versão do compilador — algo importante quando é descoberta uma vulnerabilidade numa versão específica do compilador e os artefactos afetados têm de ser auditados."
+  },
+  "3ffa5b9574957992": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "3ffa5b9574957992",
+    "status": "machine",
+    "text": "O diretório de fonte local de uma Recipe — um chart colocado junto dela, um módulo — é publicado com a Recipe, e nem todos os ficheiros que contém lhe pertencem. Um guest de fornecedor declara o que o seu próprio ecossistema nunca distribui através de `source_ignore` no seu contrato, sob a forma de regras de exclusão na sintaxe que `.gitignore` usa:"
   },
   "3ffadddfb9147874": {
     "at": "2026-11-03T09:08:45.888Z",
@@ -29544,6 +29670,13 @@
     "status": "machine",
     "text": "Composição"
   },
+  "480cd868d1c0f07c": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "480cd868d1c0f07c",
+    "status": "machine",
+    "text": "**Comunicar não altera nenhum byte.** Os ficheiros que o compilador escreve são os ficheiros que o seu guest devolveu, quer haja factos a acompanhá-los quer não."
+  },
   "481135cdd2b39ab2": {
     "at": "2026-11-03T12:09:18.843Z",
     "job": "session-0102-20261103120918",
@@ -31286,6 +31419,13 @@
     "srcHash": "4c9078d35b7fe3ed",
     "status": "machine",
     "text": "Este capítulo define a forma como as equipas de plataforma impõem a conformidade empresarial, gerem os eventos do ciclo de vida do Dia 2 e garantem que a infraestrutura física escala em segurança entre vários ambientes."
+  },
+  "4c9135632e07583b": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "4c9135632e07583b",
+    "status": "machine",
+    "text": "Determinismo e reutilização de instâncias"
   },
   "4c9990367942ed94": {
     "at": "2026-10-23T00:02:45.677Z",
@@ -33977,6 +34117,13 @@
     "status": "machine",
     "text": "no source adapter serves the source kind (Recipe `<name>:<version>`, rule source-kind, at `<file>`). the source names kind `\"<kind>\"`; name a kind a source adapter serves (`<the served kinds>`), or write the source as a single URI whose shape names its kind (nenhum adaptador de origem serve o tipo de origem (Recipe, regra source-kind). a origem designa um tipo; designe um tipo que um adaptador de origem sirva, ou escreva a origem como um único URI cuja forma designe o seu tipo)"
   },
+  "5370a52b40048aa2": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "5370a52b40048aa2",
+    "status": "machine",
+    "text": "**Um contribuidor pode repetir um nome livremente.** Um nó pode ser renderizado em várias travessias — uma renderização de fonte, uma síntese de carga de trabalho, um posicionamento de artefactos — e as declarações fundem-se. O mesmo nome declarado duas vezes por um contribuidor é esse contribuidor a descrever um mesmo recurso duas vezes, não um conflito."
+  },
   "5373ae05b1882585": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -35965,6 +36112,13 @@
     "status": "machine",
     "text": "**Um servidor com estado num volume persistente.** A Recipe sourced configura o modo autónomo com o backend de armazenamento em ficheiro, pelo que o servidor mantém o seu estado cifrado num `PersistentVolumeClaim` montado em `/openbao/data`, dimensionado pelo `storage.size` do operador."
   },
+  "57dfb9365c735773": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "57dfb9365c735773",
+    "status": "machine",
+    "text": "`files` nomeia os ficheiros de exclusão que o ecossistema do guest respeita dentro de uma fonte. Sempre que o percurso de uma fonte encontra um deles, as suas linhas são lidas como regras adicionais para o diretório que o contém, depois dos padrões declarados."
+  },
   "57ecaf26b5d4c0d8": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -36652,6 +36806,13 @@
     "srcHash": "594f7611e6c1c9b5",
     "status": "machine",
     "text": "a plugin reported a failure that none of the declared kinds names (um plugin comunicou uma falha que nenhum dos tipos declarados nomeia) `<the plugin's own sentence>`"
+  },
+  "5950fc7aeb5b5296": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "5950fc7aeb5b5296",
+    "status": "machine",
+    "text": "**A ordem é sua.** Os factos mantêm a ordem pela qual o seu guest os lista, e cada valor mantém os seus próprios bytes — a ordem das entradas de uma lista e das chaves de cada objeto é a ordem que o seu guest escreveu. Os factos devem ser listados por uma ordem fixa, e cada entrada escrita com uma ordem de chaves fixa, para que dados de entrada idênticos produzam bytes idênticos; uma lista de factos em vez de um mapa existe precisamente para que essa ordem sobreviva no tipo de sequência próprio de cada kit sem nada a marcar, ao passo que um mapa mantém a ordem que um guest escreveu apenas quando o seu esquema o marca como mapa que preserva a ordem e o guest preenche o [contentor que mantém a ordem](#maps-that-keep-their-order) do seu kit."
   },
   "5952cb3f63d3fa00": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -39092,6 +39253,13 @@
     "status": "machine",
     "text": "the entity shares its directory with another entity, and an entity of its kind has a directory of its own (Recipe `\"<name>\"`, beside it: Recipe `\"<name>\"` in `<file>`). remediation: give each entity a directory of its own — move `<file>` into a directory of its own, together with any file only that entity reads; only the Aggregate, Manifest and Release kinds may share a directory with other entities (a entidade partilha o seu diretório com outra entidade, e uma entidade do seu tipo tem um diretório próprio (a Recipe indicada e, ao lado dela, a Recipe indicada no ficheiro indicado). correção: dar a cada entidade um diretório próprio — mover o ficheiro indicado para um diretório próprio, juntamente com qualquer ficheiro que só essa entidade leia; só os tipos Aggregate, Manifest e Release podem partilhar um diretório com outras entidades)"
   },
+  "5f6df3e0b77c8a27": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "5f6df3e0b77c8a27",
+    "status": "machine",
+    "text": "Cada facto é um `name` e um `value`, e ambos pertencem ao seu fornecedor: que factos comunica, o que cada nome significa e o que cada entrada contém fazem parte do contrato documentado próprio do seu fornecedor, pelo que devem ser documentados para os autores que os vão ler."
+  },
   "5f701bc8a03e7d8d": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -39722,6 +39890,13 @@
     "status": "machine",
     "text": "`aggregate.yaml` — um Aggregate de rascunho chamado `<target_namespace>/flow`, que compõe os nós do fluxo: uma entrada para cada um, e cada aresta do fluxo como uma ligação `uses` do nó que alimenta, com o nome do nó que a alimenta."
   },
+  "6122bb00d97e43bf": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "6122bb00d97e43bf",
+    "status": "machine",
+    "text": "`patterns` são regras lidas a partir da raiz do diretório da fonte, aplicadas por ordem, prevalecendo uma correspondência posterior sobre uma anterior."
+  },
   "61233e87f18f020d": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -40178,6 +40353,13 @@
     "srcHash": "6228d201c53aba76",
     "status": "machine",
     "text": "Padrão: **modo sintetizado** — sem `source:`, sem `artifacts:`; só o Workload conduz toda a saída. Pilares exercitados: `.values`, `.infra`, `.context.inject`, `.features`. Saída esperada: um Deployment + um Service ClusterIP por nó."
+  },
+  "6229d155083e585d": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "6229d155083e585d",
+    "status": "machine",
+    "text": "**Estado atual:** **disponível**. O publishing-linter é distribuído e executado através do anfitrião via `aggrega lint`."
   },
   "622d47964d80dc35": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -41565,6 +41747,13 @@
     "srcHash": "65d90e50c54c8e32",
     "status": "machine",
     "text": "Depois de ligado, chame a ferramenta `describe-capabilities` sem argumentos e resuma o que ela lista."
+  },
+  "65dd6b3de23da37b": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "65dd6b3de23da37b",
+    "status": "machine",
+    "text": "Convém conhecer três propriedades ao decidir o que declarar:"
   },
   "65e385b1425eb453": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -43647,6 +43836,13 @@
     "status": "machine",
     "text": "Os dois níveis não são um duplicado de conveniência um do outro, e a forma de credencial referenciável é o caso trabalhado que mostra porquê. Uma credencial referenciável publica `provides.name` e `provides.key` — o localizador do recurso e a chave de dados dentro dele — e **nenhum dos dois é sensível**: o nome de um Secret Kubernetes é público, e a chave dentro dele também. Ambos são renderizados em claro no manifesto do próprio consumidor como um `secretKeyRef`. No entanto, o slot que essa credencial preenche trata indiscutivelmente material secreto. Um nível sozinho não consegue exprimir ambos os factos: marcar os localizadores publicados para que o slot seja lido como sensível afirmaria algo falso sobre eles e levaria esse erro a todo o lado onde a declaração é lida."
   },
+  "6b3be3d75323e841": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "6b3be3d75323e841",
+    "status": "machine",
+    "text": "**Um documento que declara `omits:` cujo fornecedor não declara `omits: true` é recusado antes de qualquer renderização**, pelo que um autor fica a saber de imediato que a chave não teria efeito, em vez de encontrar o documento na saída. O compilador lê a sua declaração a partir do seu `describe()` assim que cada Recipe e FeatureRecipe da compilação está associada, e recusa antes de o primeiro componente ser renderizado — pelo que um guest que não declara a chave nunca recebe uma entrada. A recusa nomeia o fornecedor e o componente para o qual o documento renderiza, ou, para uma FeatureRecipe que gera uma única vez para uma fronteira, a fronteira e o anexo. Ver [The provider does not support omits (O fornecedor não suporta omits)](../errors/fatal-halts.md#the-provider-does-not-support-omits)."
+  },
   "6b3e070bd94ee5cd": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -44204,6 +44400,13 @@
     "srcHash": "6ccc9d2902e19cb2",
     "status": "machine",
     "text": "Leia-se o caminho da folha. O payload do anexo contém dois valores; a recusa nomeia `values.origin` e não menciona `values.key`. Essa única frase é a marcação por folha em ação — um anexo, duas folhas de payload, uma declaração, uma recusa."
+  },
+  "6ccffffc757f5679": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "6ccffffc757f5679",
+    "status": "machine",
+    "text": "O socket de linter é distribuído como o **publishing-linter** padrão, um ponto de controlo fora de banda que é executado através de `aggrega lint` e não em tempo de compilação. Consome uma entidade do catálogo (e, no modo `--pre-publish`, a versão atualmente publicada da entidade) e devolve uma lista de constatações, cada uma com uma severidade e uma mensagem; no modo `--pre-publish`, devolve também uma classificação do incremento de versão. O anfitrião despacha-o através do runtime Wasm integrado, por trás da mesma firewall de pureza AOT que qualquer outro socket. O conjunto completo de regras, as severidades e as exclusões por regra estão documentados em [`cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
   },
   "6cd9e0379a2bb5db": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -46076,6 +46279,13 @@
     "status": "machine",
     "text": "O padrão das três formas permite que as Recipes declarem o contrato de versão adequado ao seu acoplamento real ao esquema do Component. As Recipes fortemente ligadas a uma versão específica do esquema fixam-na exatamente; as Recipes que se apoiam nas garantias de compatibilidade SemVer do Component usam um intervalo compatível com a versão major; as Recipes cujo comportamento não depende de todo da versão do Component ficam sem versão. O resultado é que as subidas de versão minor de um Component não obrigam as Ops a fixar versões de Component nem a manter Recipes paralelas por versão."
   },
+  "7179f8cf7b013c21": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "7179f8cf7b013c21",
+    "status": "machine",
+    "text": "**Um nó pode comunicar em várias travessias.** Um nó pode ser renderizado como renderização de fonte, síntese de carga de trabalho e posicionamento de artefactos; os factos que cada uma comunica são mantidos pela ordem em que as travessias foram executadas, e um nome comunicado por mais de uma delas lê-se como uma única lista que as junta por essa ordem."
+  },
   "71822eb960ad8c86": {
     "at": "2026-11-03T15:04:41.802Z",
     "job": "session-0121-20261103150441",
@@ -46317,6 +46527,13 @@
     "srcHash": "72296e9af123d355",
     "status": "machine",
     "text": "Reportam-no juntamente com a sua própria saída."
+  },
+  "722e834d46e0d179": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "722e834d46e0d179",
+    "status": "machine",
+    "text": "**Estado atual:** **disponível**. Os guests helm, compose e cloudformation distribuídos com o compilador fazem a declaração e respeitam as entradas. O guest helm não escreve nenhum campo de nenhuma entrada num texto que devolve. Os guests compose e cloudformation nomeiam o tipo, o nome e o namespace de uma entrada quando recusam a entrada, e as unidades que uma entrada deixou de fora quando recusam um ficheiro ou um template que ainda as nomeia, e mostram aí cada campo de uma entrada marcada como `<redacted>`. Os guests helm-chart e terraform não fazem a declaração, pelo que um documento que declara `omits:` e que um deles renderiza é recusado."
   },
   "722e8cac65086bcb": {
     "at": "2026-10-30T21:31:35.304Z",
@@ -48507,6 +48724,13 @@
     "status": "machine",
     "text": "**Não resolve nada, e não precisa de nada do espaço de trabalho.** O documento é derivado dos esquemas que o binário contém, pelo que o método não acede a nenhum registo nem à rede, não consulta nenhum catálogo e não lê nenhum ficheiro. Responde da mesma forma em todos os espaços de trabalho, incluindo um diretório vazio sem nenhum documento Aggrega ainda — que é exatamente o espaço de trabalho em que está um autor que começa o seu primeiro documento, e onde a maioria dos outros métodos aqui quereria primeiro um documento ou um lockfile."
   },
+  "7722166710e0d67a": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "7722166710e0d67a",
+    "status": "machine",
+    "text": "Que um valor seja uma lista é a única coisa que o compilador aprende sobre ele. Indexa os factos por nome e entrega cada lista aos templates que a leem — os factos do componente anfitrião a cada Feature anexada a ele, os factos de cada chamador a uma Feature que declara ler os factos de renderização dos seus chamadores, e os factos de cada destino a uma Feature que declara ler os factos de renderização dos componentes a que o seu componente anfitrião está ligado, como descreve [o contexto de template](../templates/template-context-contract.md) — descodificando cada lista num valor que um template pode percorrer. Nunca aprende o que um nome ou uma entrada significa e nunca deriva um facto por si, pelo que um novo fornecedor pode comunicar novos factos sem qualquer alteração do lado do compilador. Os factos que uma Feature anexada ao nó comunica a partir da sua própria renderização são mantidos separados dos que a renderização própria do nó comunicou."
+  },
   "7726778612dd2cf0": {
     "at": "2026-11-03T09:26:16.050Z",
     "job": "session-0083-20261103092616",
@@ -50272,6 +50496,13 @@
     "status": "machine",
     "text": "O bloco `workspace:` é a exceção quanto a onde uma companheira pode ser escrita. Um ficheiro que transporta esse bloco marca o seu próprio diretório como a raiz do projeto, pelo que o ficheiro de um subprojeto que escrevesse `workspace.catalog_dirs_append` iniciaria um projeto próprio em vez de acrescentar ao projeto envolvente. A companheira dos diretórios de catálogo compõe-se entre o seu ficheiro global e o ficheiro da raiz do projeto."
   },
+  "7b83f773c0309d45": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "7b83f773c0309d45",
+    "status": "machine",
+    "text": "Declarar o que o ecossistema de uma fonte nunca distribui"
+  },
   "7b860beaf84a4120": {
     "at": "2026-11-03T11:51:13.440Z",
     "job": "session-0100-20261103115113",
@@ -51536,6 +51767,13 @@
     "srcHash": "7ef76349a156e7f1",
     "status": "machine",
     "text": "A schema declares an identifier the platform owns (Um esquema declara um identificador que pertence à plataforma)"
+  },
+  "7efcda5381eb2ee7": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "7efcda5381eb2ee7",
+    "status": "machine",
+    "text": "Declarar os nomes que um guest deriva"
   },
   "7f00b6ca3958df32": {
     "at": "2026-11-03T01:59:04.506Z",
@@ -54174,6 +54412,13 @@
     "status": "machine",
     "text": "Que formas aceita um parâmetro que envia"
   },
+  "85f3c30663a51864": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "85f3c30663a51864",
+    "status": "machine",
+    "text": "**Uma lista de contagens que não tenha uma contagem não negativa por cada entrada entregue interrompe a compilação** — ausente, demasiado curta, demasiado longa ou com uma contagem abaixo de zero — nomeando o nó, o seu fornecedor, quantas entradas foram enviadas e quantas contagens voltaram. Uma comunicação que não bate certo não deixa forma de saber que entrada deixou o quê de fora. Ver [A provider's omitted counts do not match the omits entries it was handed (As contagens de omissões de um fornecedor não correspondem às entradas omits que recebeu)](../errors/fatal-halts.md#a-providers-omitted-counts-do-not-match-the-omits-entries-it-was-handed)."
+  },
   "85f62247e417cf09": {
     "at": "2026-11-03T19:48:08.904Z",
     "job": "session-0149-20261103194808",
@@ -54600,6 +54845,13 @@
     "srcHash": "86db9b03fbdd65ee",
     "status": "machine",
     "text": "Um nó que o rascunho não liga a nenhum socket pode ainda assim ser alcançado por uma ligação que o rascunho efetivamente liga, tal como o nó está escrito: um cliente OpenAI sem endereço nem chave próprios lê do seu ambiente as `OPENAI_BASE_URL` e `OPENAI_API_KEY` que a plataforma entrega para a ligação de modelo. Onde isso acontece, o rascunho escreve o nó como escreveria um ligado, pelo que nada do que contém é enviado em vez do que a ligação fornece, e comunica-o com `part-reads-connection`:"
+  },
+  "86e4115fd34aee08": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "86e4115fd34aee08",
+    "status": "machine",
+    "text": "`boundary_artifacts: true` só deve ser declarado quando o seu destino lê um ficheiro colocado nesse diretório como parte da saída da fronteira. A entidade `Plugin` regista a mesma declaração como `spec.provider.contract.boundaryArtifacts`; onde a entidade transporta um contrato de comportamento de renderização, o carregamento recusa um guest cujo `describe()` indica um valor diferente. Uma Recipe que declara o bloco cujo fornecedor não o declara é recusada antes de qualquer renderização, nomeando o fornecedor e o componente; ver [The provider does not support boundary artifacts (O fornecedor não suporta artefactos de fronteira)](../errors/fatal-halts.md#the-provider-does-not-support-boundary-artifacts). Um ficheiro que uma destas fusões coloca sob um nome que a sua montagem também escreve interrompe a compilação como [dois contribuidores a escrever um mesmo caminho de saída](../errors/fatal-halts.md#two-contributors-write-the-same-output-path), pelo que os nomes que a sua montagem escreve fazem parte do que é documentado para os autores."
   },
   "86e856dad5c900b7": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -56391,6 +56643,13 @@
     "status": "machine",
     "text": "Ambos decidem apenas a partir das etiquetas de um nó e do seu Component. Nenhum dos dois lê o ambiente, pelo que escrevem as mesmas etiquetas nas duas Releases."
   },
+  "8b4d3ba802faa5ce": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "8b4d3ba802faa5ce",
+    "status": "machine",
+    "text": "Omitir `source_ignore` não declara nenhuma regra, e uma fonte que se renderize mantém então todos os ficheiros que as regras próprias do autor mantêm. O campo é opcional e não precisa de uma versão de ABI própria: um guest que o omita é carregado como um que não declara nada. A entidade `Plugin` regista a mesma declaração como `spec.provider.contract.sourceIgnore`; quando o faz, o carregamento recusa um guest cujo `describe()` indique algo diferente."
+  },
   "8b4ecad21f69a716": {
     "at": "2026-11-03T09:43:53.706Z",
     "job": "session-0086-20261103094353",
@@ -57108,6 +57367,13 @@
     "srcHash": "8d261e60c577e615",
     "status": "machine",
     "text": "A condição é comunicada antes de qualquer percurso, a partir daquilo que os plugins e os fornecedores declaram, e de novo como salvaguarda enquanto um nó é renderizado. Mensagens emitidas:"
+  },
+  "8d28727014d2b7d9": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "8d28727014d2b7d9",
+    "status": "machine",
+    "text": "**Codificação de transmissão.** A entrada e a saída circulam ambas como **CBOR canónico** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1), a codificação em que o mesmo `ParseInput` circula quando um guest o entrega a `aggrega_parse_source`. Um guest descodifica a sua entrada e codifica a sua saída através dos pontos de entrada que `ParseInput` e `ParseOutput` do seu kit já transportam — `DecodeCBOR` e `EncodeCBOR` em Go, `decode_cbor` e `encode_cbor` em Rust, `decodeCBORParseInput` e `encodeCBORParseOutput` em TypeScript — lendo e escrevendo bytes (`Vec<u8>` em Rust, `Host.inputBytes()` e `Host.outputBytes(...)` em TypeScript). Nenhuma biblioteca CBOR é necessária e nada analisa bytes à mão. Os bytes da fonte circulam como uma sequência de bytes em bruto, e o descodificador gerado coloca-os no tipo de campo próprio do kit: um slice de bytes em Go, uma string base64 em Rust e TypeScript. `options` e `tree` circulam como os bytes dos seus documentos JSON, pelo que a árvore que um analisador escreve chega ao seu consumidor literalmente. Um analisador que não consiga concluir diz porquê no `error` da saída, e a análise falha nomeando o analisador e essa mensagem; uma resposta que não seja um `ParseOutput` nesta codificação — uma escrita como JSON, ou uma que transporte um campo de nível superior que a forma não declara — faz também falhar a análise, nomeando o analisador e o seu export `parse`. Uma análise falhada interrompe uma compilação no papel render-verdict e chega a um importador como a falha com que `aggrega_parse_source` responde. O mesmo acontece com uma fonte que o analisador recusa — uma à qual responde com um diagnóstico `halt` junto da sua árvore: a chamada do importador falha com a mensagem de cada um desses diagnósticos, pela ordem do analisador, e nunca recebe a árvore. Chamado diretamente com `aggrega plugin run-local --export parse`, um analisador recebe o payload JSON escrito pelo autor convertido para esta codificação — a fonte escrita nesse payload como base64, tal como o JSON escreve qualquer campo de bytes — e a sua resposta é lida como a forma de saída do export e impressa como JSON — uma resposta que não tenha essa forma é recusada, nomeando o export, tal como uma compilação a recusa."
   },
   "8d2abffbc95669d1": {
     "at": "2026-11-03T20:08:31.409Z",
@@ -57939,6 +58205,13 @@
     "srcHash": "8ef241c5676e5b91",
     "status": "machine",
     "text": "Kubernetes (helm)"
+  },
+  "8ef759aec1b217d5": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "8ef759aec1b217d5",
+    "status": "machine",
+    "text": "**Forma de entrada (anfitrião → guest).** Um documento `ParseInput` que contém:"
   },
   "8efbee1391d8a425": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -59283,6 +59556,13 @@
     "srcHash": "923cb9efed79baef",
     "status": "machine",
     "text": "**Como corrigir:** remova a chave `omits:` ou renderize a fonte através de um fornecedor que a respeite. Quando uma Recipe `helm-chart` ou `terraform` usa como fonte um chart ou módulo local, uma linha no `.aggregaignore` ao lado da Recipe deixa antes de fora um ficheiro dessa fonte, a partir da próxima vez que a Recipe for fixada — consulte [`aggrega pin`](../cli/aggrega-pin.md)."
+  },
+  "92444a02587ffd82": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "92444a02587ffd82",
+    "status": "machine",
+    "text": "**Estado atual:** **disponível** — despachado no papel render-verdict para um artefacto num formato que a política não lê nativamente, através de `aggrega_parse_source` para um importador, e para reconhecer o formato de uma importação que não nomeie nenhum."
   },
   "9254e18bdbe068ff": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -67270,6 +67550,13 @@
     "status": "machine",
     "text": "**`release-bare.yaml`** (`aggregate-bare.yaml`) — `init_scripts` e `custom_config` por definir."
   },
+  "a577f6cf71aa23b0": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "a577f6cf71aa23b0",
+    "status": "machine",
+    "text": "Uma renderização de fonte pode nomear unidades que o fornecedor tem de deixar de fora do que renderiza — um Secret que um chart obtido gera de novo em cada renderização, por exemplo. Que unidade renderizada uma entrada nomeia é um conhecimento que só o seu fornecedor tem, pelo que as entradas circulam até ao seu guest e é o seu guest que as deixa de fora. Chegam na entrada de `render_node` como uma lista opcional `omits` junto ao `source_listing`:"
+  },
   "a57cee5caf25045d": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -67346,6 +67633,13 @@
     "srcHash": "a5be7bce34a7ab47",
     "status": "machine",
     "text": "Um assistente de IA ligado através de [`aggrega mcp`](aggrega-mcp.md) lê os mesmos bytes a partir do recurso `schema://<kind>`, pelo que o esquema com base no qual um assistente escreve e o esquema obtido na linha de comandos são idênticos. Esta página documenta o comando; não reproduz o conteúdo de nenhum esquema — execute o comando, ou abra a página correspondente da [referência de entidades](../entities/) para a explicação campo a campo do significado de cada campo."
+  },
+  "a5bebd914adfe372": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "a5bebd914adfe372",
+    "status": "machine",
+    "text": "**O âmbito é uma saída montada** — o conjunto de contribuidores cujos ficheiros se fundem. Um guest que pretenda unicidade num âmbito mais estreito ou mais amplo do que esse exprime o âmbito no nome do espaço que declara, o que mantém a escolha do lado de quem escreve o guest e não do lado do anfitrião."
   },
   "a5c542919be6aa74": {
     "at": "2026-11-03T20:25:36.476Z",
@@ -72925,6 +73219,13 @@
     "status": "machine",
     "text": "The provider does not support omits (O fornecedor não suporta omits)"
   },
+  "b2fecfc0b10aea20": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "b2fecfc0b10aea20",
+    "status": "machine",
+    "text": "O que o anfitrião faz com eles resume-se a uma única pergunta: dentro de um espaço, cada nome declarado é distinto entre os contribuidores cuja saída se funde numa única montagem? Dois contribuidores que declaram um mesmo nome num mesmo espaço interrompem a compilação, e a interrupção nomeia o espaço, o nome e ambos os contribuidores, pelo que um autor pode agir sem ler o fornecedor. Nomes distintos, e nomes que por acaso coincidem entre dois espaços *diferentes*, passam."
+  },
   "b302496519137e5f": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -74794,6 +75095,13 @@
     "status": "machine",
     "text": "**O que o núcleo resolve.** Nenhum provider valida chaves de source próprias. Um source *obtido* é resolvido por uma identidade nativa cujo `kind` seleciona um resolvedor — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment` e `git-repository`. Um source destinado a ser obtido tem de conter `kind` e `url`; a coordenada adicional que seleciona o conteúdo depende do kind. Os kinds de chart e de fragmento aceitam `version`, e fixam-na tal como está escrita. `git-repository` aceita `ref` — uma tag, um ramo ou um commit — e, opcionalmente, `module_subdir`, que indica o diretório dentro do repositório que constitui o artefacto; como apenas um commit identifica conteúdo que não pode ser reapontado, a referência é resolvida no momento do bloqueio e o lockfile regista tanto a referência escrita como o commit para o qual foi resolvida. Um `module_subdir` que, tal como está escrito, sobe acima do repositório — uma barra invertida conta como separador — é recusado antes de qualquer obtenção. O repositório é arquivado a partir do seu próprio checkout: uma ligação simbólica incluída num commit é arquivada como o ficheiro ou diretório para que aponta, quando este se encontra dentro do repositório, e uma que saia dele interrompe o pull, indicando a ligação pela sua posição no repositório. Um source estruturado cujo `url:` indica um caminho do sistema de ficheiros não é obtido: é lido do disco nas mesmas condições que uma string de caminho simples, com um `url:` relativo ancorado no diretório que contém o ficheiro da entidade que o declara. Um source estruturado que omita `kind`/`url` também não é obtido e, se se pretendia uma obtenção, a compilação é interrompida de forma explícita na descida de sources no momento do bloqueio, em vez de se resolver silenciosamente em nada. O conteúdo é sempre fixado antecipadamente; o compilador nunca obtém estado de runtime em tempo real."
   },
+  "b721ac419ab35468": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "b721ac419ab35468",
+    "status": "machine",
+    "text": "Convém conhecer quatro propriedades ao decidir o que comunicar:"
+  },
   "b724e8d157705e0b": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -76099,6 +76407,13 @@
     "srcHash": "ba3c74c1a18f50a1",
     "status": "machine",
     "text": "Workload"
+  },
+  "ba41e579f0f77c5f": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "ba41e579f0f77c5f",
+    "status": "machine",
+    "text": "**A declaração é lida quando uma entidade é fixada, não quando é renderizada.** O passo de fixação do autor resolve, no espaço de trabalho do autor, o plugin que serve a capacidade da entidade, compõe as regras do plugin com o próprio `.aggregaignore` do autor — cujas linhas vêm em último lugar e, por isso, prevalecem em qualquer caminho que nomeiem — e regista o nome do plugin, sem versão, juntamente com as regras compostas exatas, no `entity.lock` da entidade. Cada publicação, comparação e renderização posteriores dessa entidade aplicam as regras registadas; o anfitrião faz a correspondência e não tem qualquer opinião própria sobre nenhum ecossistema. Assim, os ficheiros que o guest recebe na renderização — a listagem e cada ficheiro que pede ao anfitrião para empacotar ou ler — são exatamente os ficheiros que uma publicação da entidade transporta, e a um ficheiro que as regras deixam de fora responde-se que não existe, nomeando-o. Uma ligação simbólica dentro de uma fonte é recusada antes de o guest ser invocado."
   },
   "ba41f8cc6b56563f": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -78131,6 +78446,13 @@
     "status": "machine",
     "text": "Imprime uma linha por compilação, depois os ficheiros que as duas associações renderizaram, e termina com 1 se algum resultado for diferente, imprimindo a saída dessa compilação:"
   },
+  "bf2dd9fa55ea29f4": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "bf2dd9fa55ea29f4",
+    "status": "machine",
+    "text": "**Forma de saída (guest → anfitrião).** Um documento `ParseOutput` que contém o `tree` — a fonte analisada como um documento JSON, cujo nível superior pode ser um objeto, um array ou um escalar — eventuais diagnósticos na forma partilhada `Diagnostic`, intervalos de fonte opcionais que localizam nós da árvore nos bytes originais, e uma falha em `error` quando a análise não pôde ser concluída. Cada campo e as suas restrições estão na [referência do schema do socket de analisador](../schema/plugins/wasm-parse.md) gerada."
+  },
   "bf334e1c0ab7c53f": {
     "at": "2026-11-03T05:48:25.701Z",
     "job": "session-0059-20261103054825",
@@ -78786,6 +79108,13 @@
     "srcHash": "c0a52445b7f1d260",
     "status": "machine",
     "text": "Este capítulo detalha a física interna do compilador Go, definindo a forma como o YAML abstrato é traduzido em configurações físicas ao longo do pipeline de compilação, do grafo de Representação Intermédia (IR) e dos sockets de execução WebAssembly (Wasm)."
+  },
+  "c0a7d5f1edab26d4": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "c0a7d5f1edab26d4",
+    "status": "machine",
+    "text": "**O valor de cada facto deve ser comunicado como uma lista — um array JSON — mesmo quando contém uma única entrada.** Um mesmo nome pode ser comunicado por mais de uma renderização de um componente: a sua própria renderização pode envolver várias chamadas — uma renderização de chart e um posicionamento de artefactos, por exemplo — e cada Feature anexada ao componente é renderizada através de uma chamada ao fornecedor própria. Nenhum fornecedor pode saber, ao renderizar, se a sua comunicação será a única sob um nome, pelo que cada comunicação é uma lista, e o compilador junta numa única lista as listas que um nome recebe. Um facto cujo valor seja qualquer outra coisa — um objeto, uma cadeia, um número, um booleano, `null` — é recusado quando o seu guest o devolve: a compilação é interrompida com o código curto `E0325`, nomeando o facto, o nó e o seu guest, e indicando qual era o valor. As entradas dentro de uma lista são quaisquer valores JSON na forma que for documentada."
   },
   "c0ac61c6f7e3302e": {
     "at": "2026-11-02T23:06:16.435Z",
@@ -79765,6 +80094,13 @@
     "srcHash": "c2ffc93c8dbe8fa4",
     "status": "machine",
     "text": "Um subconjunto de campos em toda a linguagem transporta valores de caminho de documento — cadeias que apontam para uma posição dentro de outro documento (a secção de volumes de um Workload renderizado, a entrada featuresSchema de um Component, o nível de mappings de um Manifest). Os valores seguem a sintaxe [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) — tokens separados por barras que identificam o caminho através do documento de destino."
+  },
+  "c2ffda50491cf32f": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "c2ffda50491cf32f",
+    "status": "machine",
+    "text": "O socket de analisador — saída de árvore canónica"
   },
   "c306c2e47367ad2f": {
     "at": "2026-11-03T16:27:44.181Z",
@@ -81046,6 +81382,13 @@
     "srcHash": "c63d95fa36097882",
     "status": "machine",
     "text": "**Uma composição que as verificações do compilador rejeitam não produz nenhum grafo.** A recusa descrita em [Comportamento em caso de erro](#error-behavior) acontece antes de algo ser escrito neste fluxo, pelo que um pipeline que o lê nunca recebe um grafo que uma compilação dos mesmos documentos recusaria — recebe as mesmas conclusões que uma compilação reportaria, e um código de saída diferente de zero."
+  },
+  "c63f58022b0f54e6": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "c63f58022b0f54e6",
+    "status": "machine",
+    "text": "Algumas coisas sobre a renderização de um nó só são visíveis para o fornecedor que a produziu — o que contêm os documentos que escreveu, que nomes definem, quantos elementos de algo emitiu — porque extraí-las dos bytes do ficheiro implica compreender o formato do fornecedor. `render_node` pode comunicar essas coisas por si próprio, numa lista opcional `render_facts` junto aos seus ficheiros:"
   },
   "c644eabc075b3475": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -82403,6 +82746,13 @@
     "srcHash": "c938955e31bb6d35",
     "status": "machine",
     "text": "O fornecedor helm copia literalmente cada quantidade de recurso para os manifestos que emite — os valores `resources.requests` e `resources.limits` de cada contentor e contentor de inicialização, incluindo recursos estendidos, e o `ephemeral.sizeLimit`, o `persistent.size` e o `persistentTemplate.size` de cada volume — e verifica primeiro cada uma face à forma de uma quantidade, no Workload tal como os templates da Recipe o avaliaram. Um valor fora dessa forma interrompe a compilação aqui, onde de outro modo seria compilado sem erros e recusado pelo cluster quando o chart fosse instalado."
+  },
+  "c9485df226f7a789": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "c9485df226f7a789",
+    "status": "machine",
+    "text": "Um guest que respeita as entradas faz três coisas:"
   },
   "c94910b78c0879b7": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -85288,6 +85638,13 @@
     "status": "machine",
     "text": "oci: tags/list `\"<repository>\"`: status `<code>`: oci: authentication required or failed (oci: tags/list do repositório indicado, com o código de estado: oci: autenticação necessária ou falhada)"
   },
+  "cfe3c406bd534836": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "cfe3c406bd534836",
+    "status": "machine",
+    "text": "Um fornecedor que faz as três coisas declara-o com `omits: true` no seu contrato. A entidade `Plugin` regista a mesma declaração como `spec.provider.contract.omits`; onde a entidade transporta um contrato de comportamento de renderização, o carregamento recusa um guest cujo `describe()` indica um valor diferente. As entradas acompanham uma listagem da fonte e nada mais: uma renderização de uma carga de trabalho sintetizada ou de um conjunto de artefactos nunca as transporta."
+  },
   "cfe3de0b880223e0": {
     "at": "2026-11-02T18:47:12.619Z",
     "job": "session-0002-20261102184712",
@@ -85915,6 +86272,13 @@
     "status": "machine",
     "text": "An `active:` toggle does not resolve to true or false (Um interruptor não se resolve em true nem em false)"
   },
+  "d12a34e430ed5f26": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "d12a34e430ed5f26",
+    "status": "machine",
+    "text": "Um zero é uma resposta completa: essa entrada não correspondeu a nada do que o seu guest renderizou. As contagens são tudo o que volta sobre o que foi deixado de fora; as próprias unidades estão simplesmente ausentes do que o seu guest devolveu."
+  },
   "d12b1347e698c839": {
     "at": "2026-11-03T11:51:14.962Z",
     "job": "session-0101-20261103115114",
@@ -86052,6 +86416,13 @@
     "srcHash": "d1846a7b0a1d91f9",
     "status": "machine",
     "text": "e, quando os bytes de um plugin são carregados, indicando também de onde vieram:"
+  },
+  "d187430768ae0f27": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "d187430768ae0f27",
+    "status": "machine",
+    "text": "Um analisador transforma uma fonte escrita num formato que o compilador não lê nativamente numa árvore estruturada canónica, pelo que um consumidor lê a árvore em vez de transportar um analisador próprio. O anfitrião resolve o analisador que anuncia o formato pedido como `parse:<format>` e chama o seu export `parse` em três pontos: quando uma política do papel render-verdict recebe um artefacto renderizado num formato que não lê nativamente, quando um importador pede ao anfitrião uma árvore através de `aggrega_parse_source`, e quando é reconhecida uma importação que não nomeia nenhum formato (ver [o socket importador](#the-importer-socket--draft-authoring-output) abaixo). Um guest nunca chama ele próprio um analisador."
   },
   "d188ba5d80d47296": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -89280,6 +89651,13 @@
     "status": "machine",
     "text": "e qualquer outra referência que não nomeie nenhuma entidade — uma sem âmbito de tipo de plugin, com mais de uma `/` antes da sua versão, ou que contenha um host de registo:"
   },
+  "da63f2f022475267": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "da63f2f022475267",
+    "status": "machine",
+    "text": "**Definições de tipos.** Os tipos de transmissão do analisador — `ParseInput`, `ParseOutput`, `NodeSpan` e `SourceSpan` — são publicados nos três pacotes ABI e reexportados pelo kit de desenvolvimento de plugins de cada linguagem, gerados a partir de um único codec para que os três se mantenham sincronizados. O exemplo `parse` de cada kit lê a sua entrada e escreve a sua saída desta forma, e o mesmo fazem os analisadores para HCL, TOML, YAML, JSON e JSON com comentários que são distribuídos dentro do binário."
+  },
   "da65de9b292a35d7": {
     "at": "2026-11-03T14:05:29.072Z",
     "job": "session-0115-20261103140529",
@@ -89737,6 +90115,13 @@
     "srcHash": "db7374b6ac7ae0be",
     "status": "machine",
     "text": "**Os templates de valores** (`valuesMapping` da Recipe, entradas `locals:` e `provides:`, corpos de `artifacts:`, corpos de Workload, `injectMapping` e `pipeline.with` da FeatureRecipe, e templates `value:` de self-inject ao nível do componente) são avaliados com `missingkey=zero`, pelo que uma referência a uma chave não definida não interrompe a compilação — a leitura não renderiza nada, e é nada que chega ao artefacto. O que *continua* a provocar uma interrupção nesta superfície é uma referência que desce **através de** um contentor que o autor nunca forneceu — `.values.tls.ca` onde nenhum `tls` foi escrito — porque não há nada em que descer. Só a chave final de uma referência cujos contentores estão todos presentes é renderizada como nada. Um campo de nível superior que o contexto define, mas para o qual não contém nada — `.workload` numa Recipe que não sintetiza nenhum, `.features` num componente sem anexos — é renderizado como nada da mesma forma quando lido por inteiro. Uma referência é uma só referência, seja qual for a grafia: `.values.list`, `$.values.list` e `(.values).list` nomeiam a mesma chave, pelo que percorrê-la com range numa grafia é percorrê-la em todas, e uma chave lida de um pilar entre parênteses é renderizada, ou provoca uma interrupção, exatamente como a grafia direta. Uma chave que o template percorre com range continua a iterar como nada quando não está definida, e uma chave que o template tanto imprime como percorre provoca uma interrupção quando não está definida — ver «A template reads and iterates a path that holds nothing (Um template lê e itera um caminho que não contém nada)» mais abaixo. As proteções funcionam como esperado: `{{ .values.optional_field | default \"fallback\" }}` fornece de facto o fallback, porque um valor não definido conta como vazio para `default` e como falso para `if`. Quem precisa do discriminador entre ausente e zero — distinguir «chave ausente» de «chave presente e vazia» — usa o helper `optional` documentado em [`templates/sprig-functions.md`](../templates/sprig-functions.md), e lê uma dada chave de uma só maneira por template: uma chave que o mesmo template também lê como `.values.<key>` conta como presente, pelo que `optional` comunica o seu valor vazio em vez do fallback. O que esta política não abrange é uma leitura através de `index`: indexar um mapa com uma chave que ele não contém provoca uma interrupção que nomeia a chave, aqui como em qualquer superfície — ver «A template indexes a map with a key the map does not hold (Um template indexa um mapa com uma chave que o mapa não contém)» mais abaixo."
+  },
+  "db76e8d3372a8cc6": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "db76e8d3372a8cc6",
+    "status": "machine",
+    "text": "O socket de linter — o linter de publicação"
   },
   "db773c5f028fa998": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -91460,6 +91845,13 @@
     "status": "machine",
     "text": "Um diretório nunca é passado ao importador: a sua assinatura não indica nenhum ficheiro, pelo que uma importação de um diretório que não indica nenhum formato não o reconhece, e uma que indica `--format agent-framework` é recusada com [An importer that declares no file patterns is handed a directory (Um importador que não declara padrões de ficheiro recebe um diretório)](../errors/fatal-halts.md#an-importer-that-declares-no-file-patterns-is-handed-a-directory) antes de qualquer ficheiro dele ser aberto. Em vez disso, cada agente declarativo deve ser importado como um ficheiro próprio. Uma origem a partir da qual o Agent Framework não constrói nenhum agente de prompt — uma cujo `kind` não é nem `Prompt`, em qualquer combinação de maiúsculas e minúsculas, nem `Agent` — é comunicada com `no-nodes`. O código da aplicação — o programa que carrega cada agente declarativo e as funções que associa às suas ferramentas — nunca está entre as origens: a aplicação carrega ela própria os seus agentes declarativos, a partir da imagem que a Release indica."
   },
+  "df2d410db90ec0f1": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "df2d410db90ec0f1",
+    "status": "machine",
+    "text": "Cada chave de `derived_keys` é um **espaço de chaves** que o guest nomeia, e cada espaço transporta os nomes que o guest derivou para ele, por ordem de derivação. Tanto os nomes dos espaços como os nomes dentro deles são o seu vocabulário: o anfitrião lê-os apenas como cadeias a comparar quanto à igualdade dentro de um mesmo espaço. Não analisa um nome, não aprende o que um espaço ou um nome significa e nunca deriva um por si — assim, uma única verificação cobre todo o tipo de nome que qualquer fornecedor deriva, e um novo fornecedor não precisa de novo código no anfitrião. Nos tipos publicados, `derived_keys` é um [mapa que mantém a ordem](#maps-that-keep-their-order), pelo que os espaços circulam pela ordem em que o seu guest os define."
+  },
   "df2f5bfa1620c1de": {
     "at": "2026-11-03T10:52:18.070Z",
     "job": "session-0093-20261103105218",
@@ -92121,6 +92513,13 @@
     "status": "machine",
     "text": "A interrupção é posicionada na Recipe que declara a entrada e na chave escrita dentro dela — `.spec.provides.<name>` —, pelo que nomeia o bloco a editar em vez do componente que associou a Recipe. Todas as entradas que saem da superfície são comunicadas na mesma compilação; onde há mais de uma, as constatações são agrupadas sob `provides entries that reach outside the data they are evaluated against`."
   },
+  "e0c6618e05473592": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "e0c6618e05473592",
+    "status": "machine",
+    "text": "**Estado atual:** **disponível**. O guest terraform distribuído com o compilador faz a declaração, e o Terraform lê cada ficheiro junto à configuração raiz da fronteira; os guests helm, compose, helm-chart e cloudformation não a fazem."
+  },
   "e0c83a77b78346c2": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -92173,6 +92572,13 @@
     "srcHash": "e0e492707f85ff1f",
     "status": "machine",
     "text": "Forma"
+  },
+  "e0e6ba3f6f28c4a4": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "e0e6ba3f6f28c4a4",
+    "status": "machine",
+    "text": "O anfitrião consome os bytes de saída de um guest literalmente, pelo que um guest tem de produzir uma saída idêntica a partir de uma entrada idêntica. Por predefinição, um guest é carregado de novo para cada nó — nenhum estado transita entre nós, por construção. Um guest que autodeclara `reusable_instance` é, em vez disso, carregado uma vez por compilação e a sua única instância serve cada travessia, o que recupera o custo dominante de instanciação por nó. Como a reutilização só é segura para um guest sem estado, `aggrega build --verify-determinism` renderiza cada nó duas vezes através da mesma instância e interrompe a compilação se as duas renderizações de qualquer nó diferirem; a compilação predefinida renderiza uma vez e confia na declaração. A cache de compilação do Wasm fica em disco e é partilhada por todo o processo, pelo que um guest é compilado uma vez e as compilações a quente saltam a recompilação."
   },
   "e0e7e476cac12eeb": {
     "at": "2026-10-30T06:04:18.554Z",
@@ -94814,6 +95220,13 @@
     "srcHash": "e78ab077a0dcbce8",
     "status": "machine",
     "text": "signing: a recorded signature is not the one a pull would record (`\"<reference>\"`, `<file>` records `<signature>`, made for another artifact, a pull would ask its registry for this artifact's own signature and record it). remediation: run `aggrega pull --release <release>` to bring `<file>` up to date (signing: uma assinatura registada não é a que um pull registaria: o ficheiro regista uma assinatura feita para outro artefacto, um pull pediria ao seu registo a própria assinatura deste artefacto e registá-la-ia. correção: executar o pull para atualizar o ficheiro)"
+  },
+  "e78e599176d1ef1b": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "e78e599176d1ef1b",
+    "status": "machine",
+    "text": "Um guest de fornecedor deriva habitualmente nomes de que a sua saída precisa mas que ninguém escreveu — o identificador pelo qual um destino endereça um recurso, o nome sob o qual uma saída é publicada para que outra a referencie — a partir da identidade do nó e do recurso que está a emitir. Dois nós podem chegar a um mesmo nome sempre que as partes de que são derivados coincidem, e como o nome vive dentro dos bytes do ficheiro que o anfitrião escreve tal como estão, o anfitrião não consegue ver o conflito: teria de analisar o formato do fornecedor para o encontrar, que é exatamente o conhecimento que permanece no guest."
   },
   "e7a1d90770d89978": {
     "at": "2026-11-03T12:27:39.720Z",
@@ -97468,6 +97881,13 @@
     "status": "machine",
     "text": "**Duas são reportadas sem perguntar a um registo,** porque um pull reescreve-as seja qual for a resposta do registo: uma entrada servida pela cache que não regista assinatura onde a configuração de confiança exige uma — o pull regista a assinatura do artefacto, ou para onde não é possível estabelecer nenhuma — e uma entrada cuja assinatura registada foi feita para outro artefacto, que o pull substitui pela do próprio artefacto."
   },
+  "edcc6c78296d9fdd": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "edcc6c78296d9fdd",
+    "status": "machine",
+    "text": "Aceitar os ficheiros com que uma Recipe contribui para a fronteira"
+  },
   "edcd28024794068c": {
     "at": "2026-11-03T12:45:18.099Z",
     "job": "session-0107-20261103124518",
@@ -97817,6 +98237,13 @@
     "srcHash": "eeb674bfc5c21488",
     "status": "machine",
     "text": "**Duck typing (traços semânticos através de etiquetas):** se os tipos de base são puramente cloud-native, toda a inteligência cognitiva, operacional e de conformidade é sobreposta inteiramente através de duck typing semântico. As etiquetas escritas pelo arquiteto de plataforma (por exemplo, `model.aggrega.ai/capability: generative`, `compliance.aggrega.ai/data-class: restricted`) funcionam como a verdadeira identidade do nó. As Features ligam-se dinamicamente aos componentes com base nestes seletores de etiquetas."
+  },
+  "eec868965d56aaf2": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "eec868965d56aaf2",
+    "status": "machine",
+    "text": "`format` — o formato pedido, uma das capacidades `parse:<format>` do analisador sem o seu prefixo."
   },
   "eecb648d5822b577": {
     "at": "2026-11-03T06:41:13.291Z",
@@ -99526,6 +99953,13 @@
     "status": "machine",
     "text": "**Detalhe do painel Registries** — cada linha nomeia o anfitrião do registo, o seu alias, onde houver um configurado, qual o registo predefinido, se são exigidas assinaturas para os artefactos obtidos a partir dele e se existe uma credencial para esse anfitrião. Ler a lista não contacta nenhum registo: o estado da credencial indica apenas a presença, pelo que diz que existe uma credencial e não que o registo a aceitaria. As operações que atuam sobre o conjunto inteiro são as duas primeiras linhas do painel — **Add registry**, e **Update index**, que atualiza o índice pesquisável de cada registo configurado —, enquanto as operações que atuam sobre um único registo estão na linha desse registo: atualizar o índice apenas para ele, remover a sua credencial guardada e remover o registo. A barra de título do próprio painel contém apenas a atualização. Adicionar um registo e remover um perguntam cada um que ficheiro de configuração alterar, oferecendo primeiro o ficheiro global partilhado por todos os projetos desta máquina, porque é aí que estas duas operações escrevem, salvo indicação em contrário; a outra opção é o ficheiro de configuração próprio deste projeto. Cada uma das duas termina nomeando o ficheiro que efetivamente alterou e até onde esse ficheiro chega, de acordo com o que o compilador fez e não com o que foi pedido. O servidor de linguagem lê a sua configuração ao arrancar, pelo que cada uma das duas é seguida de um reinício do servidor de linguagem, sem perguntar, e o painel e o passo do registo na página de boas-vindas são lidos de novo quando este regressa: o registo adicionado aparece na lista, ou o removido desapareceu, sem recarregar e sem atualizar. Depois de o servidor reiniciado ter lido a alteração, a mensagem final acrescenta que a alteração está agora em vigor; onde o reinício falhou, não o faz, porque a alteração está então no ficheiro mas ainda não em vigor. Remover um registo e remover uma credencial pedem cada um confirmação primeiro, e cada um indica o que a alteração alcança: a confirmação para um registo nomeia o ficheiro escolhido, pelo que retirar uma entrada do ficheiro global é descrito como algo que afeta todos os projetos que resolvem através dele, e retirar uma do ficheiro próprio deste projeto como algo que não afeta nenhum outro projeto, enquanto uma credencial é apagada do armazenamento partilhado de credenciais e a entrada do registo é deixada no lugar. Remover uma credencial não oferece escolha de ficheiro, porque o armazenamento de credenciais é partilhado por todos os projetos da máquina e não tem uma forma por projeto na qual escrever. A construção do índice mostra o progresso e pode ser interrompida, e é a única destas operações oferecida com um botão Cancel. Premi-lo termina o próprio percurso e não apenas a espera do editor, e a construção termina indicando que foi interrompida. Os registos de dados de cada registo só são escritos depois de terminado o seu próprio percurso, pelo que uma construção interrompida deixa indexados os registos cujos percursos tinham terminado, e o registo que estava a ser percorrido mantém o índice que tinha antes, inalterado — trata-se, portanto, de uma interrupção e não de uma reversão. Uma construção que chega ao fim indica quantas entidades foram indexadas a partir de quantos registos e o diretório sob o qual o índice foi escrito, o que mostra que uma atualização não altera nada daquilo através do qual outro projeto desta máquina resolve, e um registo que não conseguiu indexar é nomeado com o próprio motivo do compilador: um que não conseguiu alcançar é descrito como não alcançado — **⟨registry⟩ could not be reached:** (não foi possível alcançar ⟨registry⟩:) antes desse motivo — e um que respondeu e falhou de outra forma, como um cuja listagem de repositórios se repetia, o que termina o percurso desse registo em vez de o seguir de novo em círculo enquanto os outros registos continuam a ser indexados, é descrito como não indexável; a frase final nomeia os dois grupos separadamente. Atualizar o índice de um único registo que não pode ser alcançado termina da mesma forma, nomeando-o como não alcançado. Adicionar um registo também acede à rede, uma vez que obtém a política de confiança que o registo anuncia, e é oferecido sem botão Cancel; em qualquer dos casos, termina nomeando o ficheiro que escreveu. Um registo que não pôde ser alcançado é nomeado como não alcançado nessa mensagem final, antes do próprio motivo do compilador, em vez de ser descrito como não anunciando nenhuma política — incluindo o hub oficial, cuja entrada contém então a sua linha de base integrada. Onde um registo que não seja o hub oficial não anuncia nenhuma política de confiança ou não pôde ser alcançado — ou, com o espaço de trabalho offline, é recusado porque não foi possível obter nenhuma —, a mensagem final é seguida de uma pergunta que propõe fixar uma manualmente, com exatamente o que `--identity` e `--key` da linha de comandos aceitam nesse caso: identidades sem chave, cada uma escrita `identity=issuer` e introduzida uma de cada vez, um ficheiro de chave pública escolhido numa caixa de diálogo de ficheiros, ambos ou nenhum. O que for fornecido é registado novamente para o mesmo anfitrião no mesmo ficheiro, e essa mensagem final indica que tipo de política a entrada contém agora, sem repetir as identidades nem o ficheiro; uma identidade mal formada, ou um ficheiro de chave que não pode ser lido ou que não é uma chave pública, termina com a própria recusa do compilador. A recusa de um ficheiro que não é uma chave pública nomeia o que o compilador esperava e omite o que o ficheiro contém, pelo que uma chave privada escolhida por engano não aparece nem na notificação nem no canal de saída do Aggrega. Premir Escape em qualquer destes pedidos, ou escolher Neither, não fixa nada, e o que fica é o que a linha de comandos deixa quando não recebe nenhuma das duas opções. A um registo cuja política anunciada foi fixada, e ao hub oficial com a sua linha de base integrada, não é feita a pergunta. Remover um registo, remover uma credencial e ler a lista não contactam nenhum registo. O início de sessão num registo não é oferecido no painel, porque o comando lê uma palavra-passe a partir de um terminal e não existe nenhum por trás de um botão — execute-o num terminal e prima atualizar."
   },
+  "f30ac067680ce7cb": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "f30ac067680ce7cb",
+    "status": "machine",
+    "text": "**Declarar não altera nenhum byte.** O campo é uma afirmação sobre o que o guest derivou, nunca uma alteração ao que emitiu, pelo que a saída renderizada de um guest é idêntica quer declare quer não. Omitir `derived_keys` é válido e deixa a verificação inativa para esse guest."
+  },
   "f30b5d6be3302be9": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -101017,6 +101451,13 @@
     "status": "machine",
     "text": "**Uma funcionalidade anexada a um nó é avaliada pela sua própria FeatureRecipe, e não pela Recipe do nó.** Um anexo que gera recursos próprios renderiza-os através do destino que a sua FeatureRecipe nomeia, nos tipos de entrada que essa FeatureRecipe declara — pelo que uma anotação que o destino próprio do nó aplica pode não chegar a nada nos ficheiros do anexo, e o inverso também se verifica. Cada um é comunicado de forma independente, porque são ficheiros diferentes. O mesmo se aplica a uma funcionalidade anexada a uma fronteira em vez de a um componente com nome. Um anexo cuja FeatureRecipe não declara nenhum de `source:`, `workload:` e `artifacts:` não renderiza ficheiros próprios — contribui injetando valores, através da aresta `uses` que a sua Feature tem, ou através de um pipeline sobre documentos que outra coisa emitiu — pelo que não existe nenhuma saída própria da qual uma anotação possa estar ausente, e nada é avisado a seu respeito."
   },
+  "f67e0a703dbf995c": {
+    "at": "2026-11-03T20:57:16.080Z",
+    "job": "session-0158-20261103205716",
+    "srcHash": "f67e0a703dbf995c",
+    "status": "machine",
+    "text": "`options` — um documento de opções que o consumidor fornece para um comportamento específico do analisador, entregue literalmente. Ausente quando o consumidor não fornece nenhum."
+  },
   "f67f50773567a2ac": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -101163,6 +101604,13 @@
     "srcHash": "f6bd7a5fb0e4e309",
     "status": "machine",
     "text": "Acesso aos pilares dentro dos templates de Workload:"
+  },
+  "f6bdaf2233138ba3": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "f6bdaf2233138ba3",
+    "status": "machine",
+    "text": "Por isso, `render_node` devolve na sua saída `derived_keys` opcionais, e a direção inverte-se — em vez de o anfitrião inspecionar a saída, o guest declara e o anfitrião verifica:"
   },
   "f6be0e0327363576": {
     "at": "2026-11-03T18:49:44.706Z",
@@ -103821,6 +104269,13 @@
     "srcHash": "fd091d1c866c5f0d",
     "status": "machine",
     "text": "**A mesma interrupção abrange uma chave mal escrita um nível abaixo, sob um pilar cuja forma é declarada.** Alguns pilares têm um conjunto fixo de chaves que o compilador define: `.context`, `.metadata`, `.inject`, `.workload` e `.boundary` no contexto de renderização de Recipe e FeatureRecipe, e `.manifest` num template de caminho. Uma referência a uma chave que um desses pilares não define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — provoca uma interrupção exatamente como uma raiz errada, e o diagnóstico lista as chaves que esse pilar define. Outros pilares são **abertos**, porque aquilo que contêm são dados com chaves e não um conjunto que o compilador declara — entre eles `.values`, `.infra`, `.locals`, `.provides`, `.features` e `.steps` no contexto de renderização, e `.parameters` e `.parent_boundary` num template de caminho. Um pilar aberto aceita qualquer chave. Uma chave ausente sob um pilar aberto não é esta interrupção — segue a política de chaves em falta da superfície descrita em «Missing template key — asymmetric policy (Chave de template em falta — política assimétrica)» mais abaixo, pelo que `{{ .values.optional_field | default \"fallback\" }}` e qualquer outra expressão idiomática de chave opcional continuam a funcionar."
+  },
+  "fd0c6c2b8536983e": {
+    "at": "2026-11-03T20:57:14.427Z",
+    "job": "session-0157-20261103205714",
+    "srcHash": "fd0c6c2b8536983e",
+    "status": "machine",
+    "text": "Alguns ficheiros pertencem a uma fronteira como um todo, e não a um dos seus componentes — uma configuração de fornecedor que um destino lê uma única vez para tudo o que a fronteira implanta, por exemplo. Uma Recipe escreve-os sob [`spec.boundary.artifacts`](../entities/recipe.md#the-boundary-block--files-for-the-boundarys-shared-output), e é o compilador, não o seu guest, que faz o trabalho: avalia cada ficheiro no contexto em que uma entrada `artifacts:` é avaliada, funde por nome os ficheiros que cada contribuidor do grupo de despacho declarou, e escreve cada um uma única vez no diretório que contém a saída montada do grupo, junto ao que o seu `assemble_boundary` devolve. O seu guest não recebe nenhum destes ficheiros em nenhum export e nunca é consultado sobre nenhum deles, pelo que não há nada a implementar — apenas uma afirmação a fazer sobre o seu destino:"
   },
   "fd0df6a8c3534b65": {
     "at": "2026-10-23T06:35:49.623Z",
