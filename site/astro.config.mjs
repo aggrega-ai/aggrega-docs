@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import mermaid from "astro-mermaid";
 import { resolveVersioning } from "./src/versioning.mjs";
 import {
   corpusRoot,
@@ -22,6 +23,7 @@ import copyableBlockquote from "./src/plugins/copyable-blockquote.mjs";
 import docsHome from "./src/plugins/docs-home.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
+import installedChunks from "./src/installed-chunks.mjs";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
@@ -105,11 +107,23 @@ export default defineConfig({
   // for the banner (src/components/Banner.astro), each language's labels of the
   // menu at the top of the page, for the header (src/components/Header.astro),
   // and the analytics beacon of a build given the site token, for the page head
-  // (src/analytics.mjs).
+  // (src/analytics.mjs). The browser scripts made only of installed packages'
+  // code are written to a directory of their own (src/installed-chunks.mjs).
   vite: {
-    plugins: [untranslatedPagesModule(), machineTranslationNoticeModule(), siteNavModule(), analyticsModule()],
+    plugins: [
+      untranslatedPagesModule(),
+      machineTranslationNoticeModule(),
+      siteNavModule(),
+      analyticsModule(),
+      installedChunks(),
+    ],
   },
   integrations: [
+    // A fenced `mermaid` block is drawn as a diagram in the reader's browser,
+    // in the light or dark palette of the site's theme and redrawn when the
+    // theme switch changes it. It is registered before Starlight so the block
+    // reaches the browser as a diagram source rather than as highlighted code.
+    mermaid({ autoTheme: true, enableLog: false }),
     starlight({
       title: "Aggrega",
       // A version selector is mounted above the sidebar, and the document head

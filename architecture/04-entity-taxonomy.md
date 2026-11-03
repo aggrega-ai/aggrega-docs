@@ -5,21 +5,15 @@ Aggrega's architecture is organized into four domains, each owned by a different
 ~~~mermaid
 %%{
   init: {
-    'theme': 'base',
     'themeVariables': {
-      'fontSize': '25px',
-      'fontFamily': 'sans-serif',
-      'primaryTextColor': '#111',
-      'edgeLabelBackground': '#ffffff',
-      'clusterBkg': '#fafafa',
-      'clusterBorder': '#cccccc'
+      'fontSize': '25px'
     }
   }
 }%%
 graph LR
-    classDef domain fill:transparent,stroke:#cccccc,stroke-width:2px,font-weight:bold,font-style:italic,font-size:34px,color:#444;
-    classDef role fill:transparent,stroke:none,font-weight:bold,font-style:italic,font-size:30px,color:#444;
-    classDef baseNode fill:#eef2ff,stroke:#818cf8,stroke-width:2px,font-size:25px,color:#000;
+    classDef domain fill:transparent,stroke-width:2px,font-weight:bold,font-style:italic,font-size:34px;
+    classDef role fill:transparent,stroke:none,font-weight:bold,font-style:italic,font-size:30px;
+    classDef baseNode stroke-width:2px,font-size:25px;
 
     subgraph Dom1 ["Domain 1: Developer Intent"]
         P1["Developer"]:::role

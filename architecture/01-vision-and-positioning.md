@@ -58,11 +58,6 @@ graph TD
     B -->|"Manifest: local-dev"| C["Local Provider<br/>Docker Compose"]
     B -->|"Manifest: aws-prod"| D["Cloud Provider<br/>EKS + AWS Bedrock"]
     B -->|"Manifest: azure-prod"| E["Cloud Provider<br/>AKS + Azure OpenAI"]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style C fill:#bbf,stroke:#333,stroke-width:1px
-    style D fill:#bbf,stroke:#333,stroke-width:1px
-    style E fill:#bbf,stroke:#333,stroke-width:1px
 ~~~
 
 ## Platform Boundaries & Anti-Goals (What Aggrega Is Not)
