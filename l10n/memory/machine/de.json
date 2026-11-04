@@ -171,6 +171,13 @@
     "status": "machine",
     "text": "A plugin's `.wasm` is not on this machine (Die Wasm-Datei zu einem Plugin ist nicht auf diesem Rechner)"
   },
+  "005885ae878d36c7": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "005885ae878d36c7",
+    "status": "machine",
+    "text": "Rein anhängende Ergänzung der effektiven Liste `providers`. Die Einträge hier werden auf jeder Vorrangebene an die aufgelöste Basisliste angehängt, sodass Workspace- und globale Konfigurationen Provider-Bindungen zusammensetzen können, statt sie zu verdecken. Dieselbe Semantik des Zusammensetzens statt Verdeckens wie `governance_append`. Die Regel „ein Eintrag pro Fähigkeit“ gilt für die zusammengesetzte Liste, daher bricht ein angehängter Eintrag, der eine bereits von einer niedrigeren Ebene gebundene Fähigkeit nennt, die Auflösung deutlich sichtbar ab. Standardwert: `[]`"
+  },
   "005aca6773c2566c": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -3718,6 +3725,13 @@
     "status": "machine",
     "text": "`syntax` — das syntaktische Format, als das die Quelle geparst wird, ein Format, das ein Parser-Plugin als `parse:<syntax>` anbietet, etwa `json` oder `yaml`;"
   },
+  "07ab7b4c45bce35c": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "07ab7b4c45bce35c",
+    "status": "machine",
+    "text": "Optionale eigene Katalogverzeichnisse eines Release, für einen Workspace, der mehrere Katalogvarianten nebeneinander vorhält und jedes Release gegen eine davon baut. Jeder Schlüssel ist eine Release-Datei, geschrieben als Pfad relativ zu der Datei, die ihn deklariert; jeder Wert trägt `catalog_dirs` und `catalog_dirs_append` mit der Bedeutung, die sie in diesem Block haben, beschränkt auf dieses eine Release. Ein hier genanntes Release liest sein eigenes `catalog_dirs` anstelle der Liste dieses Blocks, gefolgt von seinem eigenen `catalog_dirs_append`; ein Eintrag, der `catalog_dirs` weglässt, behält die Liste dieses Blocks und hängt sein `catalog_dirs_append` danach an. Die Suchreihenfolge, das Verzeichnis `catalog` an der Wurzel des Workspace und die Bedeutung einer leeren Liste sind dieselben wie bei der eigenen Liste dieses Blocks, und ein Release, das diese Map nicht nennt, liest die Liste dieses Blocks genau wie zuvor. Das Release liest diese Verzeichnisse, wie auch immer es gebaut wird — in einem Terminal, aus einem Editor über `aggrega serve` oder über `aggrega mcp` —, und ein `--catalog`-Verzeichnis wird für einen einzelnen Aufruf weiterhin vor ihnen durchsucht. Ein Eintrag, der eine nicht existierende Datei nennt, wird beim Laden der Konfiguration abgelehnt, wobei der Eintrag und die Datei genannt werden, sodass das Umbenennen eines Release nicht unbemerkt den Katalog ändern kann, gegen den es gebaut wird. Über Konfigurationsdateien hinweg setzt sich der Eintrag jedes Release so zusammen wie die eigenen Schlüssel dieses Blocks: Das `catalog_dirs` einer näheren Datei für dieses Release ersetzt das einer entfernteren Datei, und das `catalog_dirs_append` jeder Datei dafür wird in Kaskadenreihenfolge angehängt. `AGGREGA_CATALOG_DIRS` setzt die Liste dieses Blocks und erreicht keinen Eintrag hier. Ein Vorgang, der kein einzelnes Release betrifft — ein Lint oder eine Validierung des gesamten Katalogs, das Nachschlagen einer Entität nach Namen oder die Auflistung der Entitäten des Workspace in einem Editor —, liest die Liste dieses Blocks und nicht diese."
+  },
   "07b050edf02078ed": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -4450,6 +4464,13 @@
     "srcHash": "092c2625b5f81f90",
     "status": "machine",
     "text": "**Ein Pin benennt Bytes, keinen Ort, daher wird ein Cache-Eintrag, der seinen Pin nicht mehr enthält, übergangen statt ihm zu vertrauen.** Eine an Ort und Stelle bearbeitete Entität — ein neuer Inhalt unter derselben `version` — hinterlässt im Inhalts-Cache den früheren Inhalt unter diesem Namen und dieser Version. Ein Katalogverzeichnis wird zuerst gelesen, daher wird eine Entität, die eines noch liefert, aus ihrer Datei gepinnt, und der veraltete Eintrag wird nie gelesen. Das Rendering, das der Pull ausführt, um die externen Eingaben des Release zu ermitteln, liest jeden Pin so, wie ein Build es tut, aus dem Katalogverzeichnis, das die gepinnten Bytes enthält, und meldet den übergangenen Eintrag mit dem Hinweis, den [`aggrega build`](aggrega-build.md#how-a-build-reads-what-the-lockfile-pins) ausgibt. Wo kein Katalogverzeichnis die Entität liefert und eine Registry erreichbar ist, ruft der Pull die gepinnte Version erneut ab, schreibt den Eintrag neu und meldet dies auf der Standardfehlerausgabe, unter Nennung des Eintrags und beider Digests:"
+  },
+  "0930ec45618ab011": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "0930ec45618ab011",
+    "status": "machine",
+    "text": "Obergrenze für die Bytes, die der Cache kompilierter Module auf der Festplatte belegt. Standardmäßig 53687091200 (50 GiB), eine Höchstgrenze, die unbegrenztes Wachstum stoppt, statt eines Budgets, das spürbar sein soll — ein einzelnes kompiliertes Plugin erreicht Hunderte von Megabytes, daher sammelt eine Maschine, die viele Plugin-Versionen baut, Gigabytes an. Setzen Sie sie über das, was ein einzelner Build kompiliert: Die Obergrenze wird angewendet, bevor ein Build irgendetwas kompiliert, daher führt eine Obergrenze unter der eigenen Arbeitsmenge eines einzelnen Builds dazu, dass jeder Build dieselben Module verwirft und neu kompiliert, und der Speicher spart nichts mehr ein. Da die Obergrenze zuerst angewendet wird und der Build danach schreibt, was er kompiliert, kann der Speicher zwischen Builds über der Obergrenze liegen; er wird zu Beginn des nächsten Builds erneut gekürzt. `0` deaktiviert die Obergrenze (der Speicher wächst unbegrenzt, und nichts wird je automatisch entfernt). Da der Speicher ein einziges Verzeichnis ist, das sich alle Workspaces teilen, gilt diese Obergrenze nicht pro Projekt, selbst wenn die eigene Datei eines Projekts sie trägt: Der Wert wird auf dieselbe Weise aufgelöst wie jeder andere Schlüssel, wobei die nähere Datei gewinnt, aber der Speicher hat trotzdem nur eine Größe. Die geltende Obergrenze ist die des jüngsten Builds, daher wirken zwei Projekte, die sie unterschiedlich begrenzen, abwechselnd beide, und eine niedrige Obergrenze im einen verwirft Maschinencode, den das andere kompiliert hat. Sie einmal in der globalen Konfigurationsdatei zu setzen, gibt der ganzen Maschine eine einzige Antwort. `aggrega config show --origin` nennt die Datei, aus der der effektive Wert jeder Einstellung stammt. Minimum: `0`. Standardwert: `53687091200`"
   },
   "09330f177a92fc2b": {
     "at": "2026-11-03T16:07:30.748Z",
@@ -5335,6 +5356,13 @@
     "status": "machine",
     "text": "Die Standardansicht baut die Topologie auf und zeigt jede Komponente mit ihren Werten und uses-Kanten, gefolgt vom berechneten Abhängigkeitsgraphen. Der Subsystembaum wird verschachtelt dargestellt; `--flat` rendert einen Abschnitt pro Knoten, jeweils mit seinem vollständigen gepunkteten Pfad als Schlüssel."
   },
+  "0b4f9c62260c82fa": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "0b4f9c62260c82fa",
+    "status": "machine",
+    "text": "Obergrenzen, die der HTTP-Listener auf den angenommenen Datenverkehr anwendet, damit ein einzelner Aufrufer den bedienenden Prozess nicht erschöpfen kann. Sie begrenzen, wie groß eine einzelne Anfrage sein darf, wie viele Anfragen gleichzeitig laufen und wie schnell ein Aufrufer senden darf. Keine davon lässt sich abschalten."
+  },
   "0b5782f63e9acd42": {
     "at": "2026-11-03T07:17:26.700Z",
     "job": "session-0069-20261103071726",
@@ -5912,6 +5940,13 @@
     "srcHash": "0c7cbda7c1d50674",
     "status": "machine",
     "text": "Form des Bezeichners"
+  },
+  "0c8280ff77634f81": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "0c8280ff77634f81",
+    "status": "machine",
+    "text": "Wenn true, akzeptiert der Veröffentlichungs-Linter Namen von Katalogentitäten, die nicht den dokumentierten Namenskonventionen des Projekts folgen. Standardmäßig false; eine einheitliche Benennung ist tragend für den Resolver, die Auswahl über Labels und die Ergonomie für Reviewer. Standardwert: `false`"
   },
   "0c83ede7abcb49bd": {
     "at": "2026-11-03T15:04:39.860Z",
@@ -7756,6 +7791,13 @@
     "status": "machine",
     "text": "Führen Sie das aus und bauen Sie erneut, oder bauen Sie mit `--auto-pull`, das zuerst denselben Pull ausführt. So oder so ist der Abbruch der Zweck und kein Hindernis: Ein Build rendert nicht gegen einen Pin, von dem er sehen kann, dass er veraltet ist."
   },
+  "106d0c27625a95ef": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "106d0c27625a95ef",
+    "status": "machine",
+    "text": "`aggrega-config.workspace`"
+  },
   "106df8c5d1f096c6": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -9530,6 +9572,13 @@
     "status": "machine",
     "text": "Rolle"
   },
+  "14741de0451f0a38": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "14741de0451f0a38",
+    "status": "machine",
+    "text": "Was dieser Server über die Bearer-Token erklärt, die seine Aufrufer vorlegen: welcher Autorisierungsserver sie ausstellt, die Adresse, die dieser Server für sich selbst als die Ressource veröffentlicht, für die sie ausgestellt werden, optional eine Datei, aus der die Verifizierungsschlüssel dieses Servers gelesen werden, und optional die Header, die ein vorgelagerter Proxy setzt, wenn stattdessen dieser Proxy die Token validiert. `issuer` und `resource` sind immer erforderlich, wenn der HTTP-Transport gewählt ist, und ohne sie wird ein Listener abgelehnt, bevor irgendetwas gebunden wird; ein Server, der über Standardeingabe und Standardausgabe kommuniziert, liest keinen dieser Werte. Beide werden im OAuth-Metadatendokument der geschützten Ressource veröffentlicht, das der Listener bereitstellt; es ist die einzige Antwort, die ein HTTP-Aufrufer erhält, ohne dass Anmeldedaten verlangt werden, weil ein Client es liest, um herauszufinden, wo er ein Token erhält. Dieser Block enthält kein geheimes Material: Ein Token wird von einem Aufrufer mit der Anfrage vorgelegt, die er stellt, und ist nie ein Konfigurationsfeld, und `jwks_file` nennt öffentliche Verifizierungsschlüssel statt etwas, das signiert."
+  },
   "147afbaff865a7c9": {
     "at": "2026-10-30T20:55:02.570Z",
     "job": "session-0019-20261030205502",
@@ -9747,6 +9796,13 @@
     "srcHash": "14e05398b640e34b",
     "status": "machine",
     "text": "Ein Pfad, den Sie auf der Befehlszeile eingeben — ein `--release`, ein `--catalog`, ein `--output-dir`, eine Datei zum Validieren, Linten, Pinnen oder Veröffentlichen, ein `--workspace-root` —, wird dort verwendet, wohin er führt, innerhalb oder außerhalb des Workspace, über jeden Link auf dem Weg. Was der Befehl dann auf eigene Rechnung liest und schreibt, bleibt an den Workspace gebunden, wer ihn auch ausführt: Er liest weder die Konfigurationsdateien des Workspace, ein Katalogdokument, ein Dokument neben einem Release noch die Lockdatei eines Release über einen Link, der aus dem Workspace herausführt, folgt keinem Pfad, den ein Release oder ein Manifest aus ihm hinaus schreibt, und schreibt weder seine Ausgabe noch seine Lockdatei noch seinen Cache über einen solchen Link. Ein Verzeichnis, das Sie außerhalb des Workspace angeben, wird für alles, was darunter liegt, genauso behandelt, und ein Release, das Sie außerhalb des Workspace angeben, erreicht nur Dateien in seinem eigenen Verzeichnis. `aggrega edit-document` ist der einzige Befehl, dessen eingegebener Pfad ebenfalls gebunden ist: Er bearbeitet nur ein Dokument, das der Workspace enthält. [Die Workspace-Grenze](cli/workspace-boundary.md) beschreibt die Regel, die Pfade, die absichtlich nach außen reichen, und die Abhilfe für jede Ablehnung."
+  },
+  "14e6ff96b9e22042": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "14e6ff96b9e22042",
+    "status": "machine",
+    "text": "Anzahl der Worker, die die Anfragewarteschlange bedienen. Standardmäßig 4, womit bis zu vier Anfragen gleichzeitig verteilt werden; setzen Sie den Wert auf 1, um Anfragen nacheinander in der Reihenfolge ihres Eintreffens auszuführen. Ein Wert unter 1 wird beim Start des Daemons auf 1 angehoben. Minimum: `1`. Standardwert: `4`"
   },
   "14eaf5dac6b98b20": {
     "at": "2026-11-04T02:29:24.071Z",
@@ -13329,6 +13385,13 @@
     "srcHash": "1c8c9c600a141a43",
     "status": "machine",
     "text": "Die AI-Gateways der Standardbibliothek tragen die Kontrollen für das Routing von Anfragen an LLM-APIs: `core/gateway/litellm`, das im Cluster läuft, und zwei gehostete Dienste — `core/gateway/cloudflare-ai-gateway`, das gehostete Gateway von Cloudflare, das sein Terraform-Recipe in einem Cloudflare-Konto anlegt, und `core/gateway/azure-api-management`, das AI-Gateway von Azure API Management, dessen Terraform-Recipe einer bereits bestehenden API-Management-Instanz eine API hinzufügt, die ein Modell bereitstellt, samt deren Backend und Policy. Die Helm- und Compose-Recipes jedes gehosteten Gateways verweisen darauf, wo es bereits konfiguriert ist. Manche Kontrollen sind Werte am Gateway selbst und manche sind daran angebundene Features, und jedes Feature unten gibt an, an welchem Gateway die Standardbibliothek es realisiert. Bei einem gehosteten Gateway wird jede Kontrolle in die eigene Konfiguration des Gateways geschrieben — eine Einstellung der Ressource des Cloudflare-Gateways, ein Element der Policy der API auf Azure API Management —, sodass nur sein Terraform-Recipe eine tragen kann, und seine Referenzen brechen den Build bei jeder Anbindung ab. Im Folgenden ist „das AI-Gateway“ `core/gateway/litellm`, „das gehostete Gateway“ `core/gateway/cloudflare-ai-gateway`, und das Gateway von Azure API Management wird voll ausgeschrieben."
+  },
+  "1c8cb9bf149aa72e": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "1c8cb9bf149aa72e",
+    "status": "machine",
+    "text": "Ursprünge, die im `Origin`-Header einer Anfrage akzeptiert werden. Eine Anfrage, deren `Origin`-Header einen Ursprung nennt, den diese Liste nicht enthält, wird mit `403` abgelehnt; eine Anfrage, die einen aufgeführten Ursprung nennt oder überhaupt keinen `Origin`-Header trägt, wird bedient. Ein Eintrag wird exakt mit dem Header verglichen, daher wird jeder so geschrieben, wie ein Browser einen Ursprung sendet: ein kleingeschriebenes Schema, `://`, ein kleingeschriebener Host — ein Name, eine IPv4-Adresse oder eine IPv6-Adresse in eckigen Klammern — und `:` mit dem Port, wo dieser nicht der Standardport des Schemas ist, ohne etwas danach. Zum Beispiel `https://app.example.com` oder `http://localhost:3000`. Ein Eintrag in jeder anderen Form könnte nie dem entsprechen, was ein Browser sendet, daher wird er beim Laden der Konfigurationsdatei abgelehnt, wobei die Datei und der Eintrag genannt werden: einer mit abschließendem `/` oder einem Pfad (`https://app.example.com/`), einer ohne Schema (`app.example.com`) und einer, der einen Großbuchstaben oder ein Leerzeichen enthält. Standardmäßig leer, sodass kein Ursprung akzeptiert wird und nur ein Aufrufer bedient wird, der keinen `Origin`-Header sendet. Ein browserbasierter Client braucht daher seinen Ursprung hier aufgeführt; ein Client, der kein Browser ist, sendet keinen solchen Header und braucht keinen Eintrag. Jeder Eintrag entspricht dem Muster `^[a-z][a-z0-9+.-]*://(?:[a-z0-9._-]+\\|\\[[0-9a-f:.]+\\])(?::[0-9]{1,5})?$`. Standardwert: `[]`"
   },
   "1c91274e11af697d": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -25243,6 +25306,13 @@
     "status": "machine",
     "text": "Der Top-Level-Abschnitt `models:` einer compose-Datei deklariert die KI-Modelle, die die Services der Datei verwenden, und einem Service wird ein Modell über seinen eigenen Eintrag `models:` gewährt. Der Provider übernimmt beides aus einem Fragment in die zusammengesetzte `docker-compose.yaml`, in der eigenen Schreibweise von Compose, ob das Fragment eine quellbasierte compose-Datei oder ein Körper `artifacts:` ist, der zu compose-YAML ausgewertet wird. Eine Workload deklariert kein Modell, daher trägt ein Recipe im Workload-Modus keines bei."
   },
+  "36a6814c40c1990f": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "36a6814c40c1990f",
+    "status": "machine",
+    "text": "Wo ein Supervisor fragt, ob dieser Prozess lebt und ob er bereit ist, einen Aufruf zu beantworten. Die beiden Prüfungen werden auf einer eigenen Adresse beantwortet und nie auf der Adresse, die `listen` nennt: Jede Anfrage an den Endpunkt trägt ein Bearer-Token, daher würde eine dort beantwortete Probe allem, was den Endpunkt erreichen kann, einen nicht authentifizierten Einblick in den Prozess geben und zugleich eine kostenlose Möglichkeit, ihn arbeiten zu lassen. Der Endpunkt beantwortet `/healthz` und `/readyz` mit demselben `404`, das er für jeden Pfad liefert, den er nicht bedient, mit Token wie ohne."
+  },
   "36aa049093217a75": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -28797,6 +28867,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Ändern Sie das der beiden, das falsch ist, sodass sie übereinstimmen — verschieben Sie die Datei unter das Verzeichnis, das ihr Label nennt, oder korrigieren Sie das Label auf die Kategorie, die das Verzeichnis nennt. Die geschlossene Menge der Kategorien und das Opt-out stehen unter „Die Disziplinregeln“ in [aggrega-lint.md](../cli/aggrega-lint.md)."
   },
+  "3e1e70caef74eba2": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "3e1e70caef74eba2",
+    "status": "machine",
+    "text": "Map von ReleaseCatalogConfig"
+  },
   "3e1f85a5a478d39e": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -29568,6 +29645,13 @@
     "status": "machine",
     "text": "interval"
   },
+  "3fe1eba49ff75675": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "3fe1eba49ff75675",
+    "status": "machine",
+    "text": "Wenn true, unterdrückt der Veröffentlichungs-Linter die Regel category-matches-directory. Die Konvention des Standardkatalogs verlangt, dass Components unter core/<category>/ ein zum Verzeichnissegment passendes component.aggrega.ai/category={category} deklarieren, wobei {category} einer der Werte aus einer geschlossenen Menge ist (etwa ai-agent, ai-model, ai-tool, datastore, gateway, compute, ...). Workspaces mit legitimen dauerhaften Ausnahmen steigen hier aus. Standardmäßig false. Standardwert: `false`"
+  },
   "3ff340dbe6a041be": {
     "at": "2026-11-03T10:34:02.595Z",
     "job": "session-0092-20261103103402",
@@ -29945,6 +30029,13 @@
     "srcHash": "40b458b39077eeb7",
     "status": "machine",
     "text": "Die Standardansicht eines Recipe zeigt einen Abschnitt pro deklariertem Eingabemodus, seine Fähigkeit und seine Werte-Zuordnung. `--show-implements` löst die Referenz `spec.implements` gegen den Katalog auf und rendert die gebundene Component zusammen mit den Anbindungen, die diese Component erfordert:"
+  },
+  "40b84ec132c6f18b": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "40b84ec132c6f18b",
+    "status": "machine",
+    "text": "CLI-Erweiterungs-Plugins, die als `aggrega`-Befehle auf oberster Ebene installiert werden. Jeder Eintrag pinnt ein CLI-Plugin über seine aufgelöste, auf eine Version gepinnte Artefaktreferenz und den Inhalts-Digest der Guest-Bytes, zu denen diese Referenz bei der Installation aufgelöst wurde. Anders als die vier übergreifenden Socket-Listen, deren Basisliste über die Kaskade der Konfigurationen hinweg vollständig ersetzt wird, setzt sich die CLI-Liste zusammen: Ein CLI-Plugin in der globalen Konfiguration registriert seine Befehle in jedem Workspace, eines in einer Workspace-Konfiguration registriert sich nur in diesem Projekt, und beide registrieren sich gemeinsam — daher braucht sie kein `_append`-Gegenstück. Die Befehlsnamen und die Hilfe, die jedes Plugin beisteuert, stammen aus der eigenen Selbstbeschreibung des Plugins, gelesen aus dem Describe-Cache auf der Festplatte, der nach `digest` geschlüsselt ist (ein Laden des Guests ist der Rückgriff bei kaltem Cache); die Liste trägt nur den Pin. Beim Aufruf des Befehls werden die aufgelösten Bytes erneut gehasht und mit `digest` verglichen; eine Abweichung bricht den Befehl deutlich sichtbar ab und weist an, neu zu pinnen, sodass ein Plugin, dessen Bytes sich seit dem Pinnen geändert haben, nie unbemerkt läuft. Standardwert: `[]`"
   },
   "40c01169e8b57e2b": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -32080,6 +32171,13 @@
     "status": "machine",
     "text": "Was der Build nicht tut"
   },
+  "454402bb1ec08a03": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "454402bb1ec08a03",
+    "status": "machine",
+    "text": "`aggrega-config.plugins`"
+  },
   "45453a603a07ea62": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -32760,6 +32858,13 @@
     "status": "machine",
     "text": "Mit einem separaten Katalogverzeichnis kompilieren:"
   },
+  "46d9cb1ef0289f94": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "46d9cb1ef0289f94",
+    "status": "machine",
+    "text": "Die Plugins des Importer-Sockets. Der Socket ruft die Einstiegsfunktion `import` auf; eine Anbindung nennt keine. Standardwert: `[]`"
+  },
   "46dc3bdde68e9f30": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -32899,6 +33004,13 @@
     "srcHash": "4716b450bf7d06ca",
     "status": "machine",
     "text": "**Ein Template darf einen solchen Wert nur kopieren.** Es darf den Wert ganz schreiben, innerhalb einer längeren Zeichenkette oder ihn durch eine Funktion leiten, die ihn unverändert lässt, etwa `quote`. Ein Vergleich, eine Verzweigung, eine Länge oder eine Funktion, die den Wert ändert — `eq`, `if`, `len`, `upper` —, würde gegen etwas anderes als den Wert entschieden, weil das Template auf einer solchen Verbindung einen Platzhalter erhält, den der Provider ersetzt, sobald beide Stacks zusammengesetzt sind. Stattdessen bricht der Build ab und nennt das Template und jeden Wert, den es gelesen hat, mit der Verbindung, von der es ihn gelesen hat, und der Komponente an jedem Ende; verzweigen Sie auf einem eigenen Wert der konsumierenden Komponente. Dasselbe gilt für das `injectMapping` eines angebundenen FeatureRecipe und für ein FeatureRecipe mit Boundary-Geltungsbereich, das die Verbindungen der Boundary liest. Ein innerhalb einer längeren Zeichenkette geschriebener Wert trifft außerdem auf die eigene Grenze des Providers: Eine Stack-übergreifende Referenz kann nur als ganzer Wert stehen, daher bricht eine innerhalb einer längeren Zeichenkette geschriebene intrinsische Funktion den Build ab, wie bei einem injizierten Wert."
+  },
+  "4719052d3943776e": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "4719052d3943776e",
+    "status": "machine",
+    "text": "Pfad zu einer Release-YAML-Datei, die der LSP als Kontext `current Release` für Inline-Diagnosen behandelt. Optional."
   },
   "471d90f159deb49c": {
     "at": "2026-11-03T15:47:42.282Z",
@@ -35728,6 +35840,13 @@
     "status": "machine",
     "text": "Jeder Datensatz enthält außerdem `published`: jede Version, die der Index erfasst hat, in aufsteigender Versionsreihenfolge, jeweils mit dem `manifestDigest`, zu dem ihr Tag beim Erstellen des Index aufgelöst wurde, und, wo die Vertrauensrichtlinie dieses Workspace die eigene Signatur dieser Version verifiziert hat, ihrem `signer` — von mehreren, die sich verifizieren lassen, derjenige, den das Transparenzprotokoll am frühesten erfasst hat. Eine Version ohne `signer` trägt keine Signatur, die diese Richtlinie verifiziert hat, und mehr wird über sie nicht gesagt. Ein Konsument, der den Inhalt einer Version liest, adressiert ihn über diesen Digest — zum Beispiel `aggrega inspect oci://<host>/<repository>@<digest>` —, sodass er die Bytes liest, die der Index erfasst hat, unabhängig davon, was danach mit dem Tag geschieht."
   },
+  "4d6cdb1cf070d086": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "4d6cdb1cf070d086",
+    "status": "machine",
+    "text": "Adresse, an die sich der Listener bindet, wenn der HTTP-Transport gewählt ist. Sie nennt, wo gelauscht wird, und wählt nichts: Den Transport wählt `transport`, und ist `stdio` gewählt, wird dieser Schlüssel nicht verwendet. Zwei Formen werden akzeptiert: `host:port` für eine TCP-Adresse und `unix:` gefolgt von einem Dateisystempfad für einen Unix-Domain-Socket. `aggrega mcp --listen <address>` überschreibt diesen Schlüssel für einen einzelnen Aufruf. Standardmäßig leer, und der HTTP-Transport braucht eine Adresse aus dem einen oder dem anderen: Fehlen beide, wird ein Start, der ihn wählt, abgelehnt, bevor irgendetwas gebunden wird. Eine Klartextadresse — eine, die ohne Zertifikat und Schlüssel unter `tls` erreicht wird — wird nur auf einer Loopback-Adresse (`127.0.0.1`, `::1` oder `localhost`, das zu einer davon aufgelöst wird) oder auf einem Unix-Socket akzeptiert, der Form, die ein Server verwendet, wenn ein vorgelagerter Proxy TLS terminiert; jede andere Adresse wird abgelehnt, bevor irgendetwas gebunden wird, wobei `mcp.tls.cert_file` und `mcp.tls.key_file` genannt werden. Dieselben zwei Formen sind die einzigen, die akzeptiert werden, mit oder ohne Zertifikat, wo `authorization.trusted_proxy` gesetzt ist, weil einem Header nur dort als Anmeldedaten vertraut werden kann, wo nichts außer dem Proxy ihn setzen kann. Standardwert: `\"\"`"
+  },
   "4d6eb743652ac6d2": {
     "at": "2026-11-03T23:48:35.245Z",
     "job": "session-0176-20261103234835",
@@ -37430,6 +37549,13 @@
     "srcHash": "5151fdc947f9e4cc",
     "status": "machine",
     "text": "sein `valuesMapping` schreibt die nginx-Konfiguration `stream` des Gateways, zugestellt als eingehängte Compose-**config** (`configs:` auf oberster Ebene, eingehängt unter `/etc/nginx/nginx.conf`); sie trägt einen `resolver` und einen `proxy_pass` mit Variable pro Kante, sodass der Upstream zum Verbindungszeitpunkt aufgelöst wird (das `$` wird zu `$$` maskiert, damit die Interpolation von Compose es für nginx unverändert lässt);"
+  },
+  "5154ed9b22a6c3b9": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "5154ed9b22a6c3b9",
+    "status": "machine",
+    "text": "CLIPluginRef[]"
   },
   "51565cdce0a0296a": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -40535,6 +40661,13 @@
     "status": "machine",
     "text": "Der veröffentlichte Service wird über eine **separate, auf die Exposition bezogene Stellschraube** benannt, deren eigene Voreinstellung ein festes Literal ist, unabhängig vom Namen der obersten Ebene. Ein Recipe, das nur die Stellschraube der obersten Ebene festlegt, würde eine Adresse veröffentlichen, auf die kein Service antwortet, und zwei Instanzen in einem Namespace würden beide einen Service unter diesem festen Literal ausgeben und kollidieren. Das Recipe setzt daher beide Stellschrauben aus der Instanz-ID, weshalb der oben ausgegebene Service nach der Instanz benannt ist und `provides.host` eine Adresse nennt, die existiert."
   },
+  "576705bd5c6602cf": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "576705bd5c6602cf",
+    "status": "machine",
+    "text": "Wenn true, unterdrückt der Veröffentlichungs-Linter die Regel provides-declared-by-component. Diese Regel meldet jeden Schlüssel, den ein Recipe in `spec.provides` veröffentlicht und den die durch sein `spec.implements` benannte Component nicht in der Säule `provides` ihres `spec.schema` deklariert. Die beiden sind getrennte Oberflächen: Was ein Recipe veröffentlicht, ist der Wert, den ein Konsument erhält, während das, was die Component deklariert, der Ausgabevertrag ist, gegen den eine Referenz `inject` `from:` geprüft wird — daher lässt ein Schlüssel, der veröffentlicht, aber nicht deklariert ist, eine solche Referenz abbrechen. Ein Recipe, das mehr veröffentlicht, als seine Component deklariert, wird ansonsten zur Build-Zeit akzeptiert, weshalb der Befund ein Hinweis und keine Ablehnung der Veröffentlichung ist. Standardmäßig false. Standardwert: `false`"
+  },
   "5767ff6e8cb25fa9": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -42127,6 +42260,13 @@
     "status": "machine",
     "text": "Lesen Sie den Schlüssel, statt aus den Diagnosen zu schließen, denn die beiden Antworten können identisch aussehen. Ein wohlgeformtes Dokument, das ohne Release validiert wird, antwortet mit einer leeren Diagnoseliste, genau wie ein sauberes vollständiges Urteil, sodass `checked` das Einzige ist, das „nichts ist falsch“ von „nichts, was ein Release braucht, wurde betrachtet“ unterscheidet. Aus derselben Regel folgt eine Konsequenz: Ein Lockfile wird an seiner Zuordnung zu dem Release erkannt, das die Anfrage nennt, daher erkennt eine Anfrage, die keines nennt, kein Lockfile und meldet nichts zu einem."
   },
+  "5aa6c7e480be31fc": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "5aa6c7e480be31fc",
+    "status": "machine",
+    "text": "`aggrega-config.build`"
+  },
   "5aaeef660f2bbce4": {
     "at": "2026-11-02T23:32:53.197Z",
     "job": "session-0019-20261102233253",
@@ -43372,6 +43512,13 @@
     "srcHash": "5d7962c3b97498df",
     "status": "machine",
     "text": "Fragen in den Begriffen eines Release"
+  },
+  "5d7a74da8a1d8a8e": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "5d7a74da8a1d8a8e",
+    "status": "machine",
+    "text": "Größter Anfragerumpf, den der Listener akzeptiert, in Bytes. Eine Anfrage, deren Rumpf ihn überschreitet, wird mit `413` abgelehnt, und der Rumpf wird nicht über die Obergrenze hinaus gelesen. Standardmäßig 4194304 (4 MiB), was weit über einem Tool-Aufruf liegt, der ein ganzes Authoring-Dokument trägt, und weit unter dem, womit ein einzelner Aufrufer einen erheblichen Anteil des Arbeitsspeichers des Prozesses belegen könnte. Das Minimum ist 1, es gibt also keinen Wert, der die Obergrenze abschaltet; erhöhen Sie sie, wo Aufrufer berechtigterweise größere Dokumente senden. Minimum: `1`. Standardwert: `4194304`"
   },
   "5d7b1d52f72959bb": {
     "at": "2026-11-03T23:11:53.486Z",
@@ -47159,6 +47306,13 @@
     "status": "machine",
     "text": "`manifest-store.yaml` — bindet dasselbe Feature an `k8s-external-secret`, das ein ExternalSecret rendert, das den Eintrag im Store nennt. Identisch mit `manifest-local.yaml` bis auf seinen eigenen Namen und diese eine Zeile."
   },
+  "6613e4af5b7f192f": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "6613e4af5b7f192f",
+    "status": "machine",
+    "text": "`aggrega-config.lint.publishing_discipline`"
+  },
   "66173ca13d9d0cf3": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -50472,6 +50626,17 @@
     "srcHash": "6dcb2f99b3300392",
     "status": "machine",
     "text": "**Der Klassencode eines Hinweises zur gerenderten Ausgabe** — `unsupported-field` ist einer, und [warnings.md](./warnings.md) beschreibt ihn. Er wird dort vergeben, wo der Hinweis ausgelöst wurde, statt als Bedingung registriert zu werden, daher hat er hier keine Zeile."
+  },
+  "6dcb9c166c7166aa": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "revision": {
+      "from": "cb8db606ed9bdcf3",
+      "reviewed": false
+    },
+    "srcHash": "6dcb9c166c7166aa",
+    "status": "machine",
+    "text": "Wie der Server erreicht wird: `stdio` spricht das Protokoll über die Standardeingabe und Standardausgabe des Prozesses, und so erreicht ihn ein Client, der den Befehl als Unterprozess startet; `http` stellt es über HTTP an der Adresse bereit, die `listen` nennt, und über HTTPS, wo `tls` ein Zertifikat und einen Schlüssel nennt. `aggrega mcp --transport stdio\\|http` überschreibt diesen Schlüssel für einen einzelnen Aufruf. Standardmäßig `stdio`, sodass ein Workspace, der nie einen Transport nennt, über Standardeingabe und Standardausgabe bedient wird, was auch immer dieser Block sonst enthält — ein Listener startet nur dort, wo `http` gewählt ist, hier oder auf der Kommandozeile. Jeder andere Wert wird beim Laden der Konfiguration abgelehnt. Setzen Sie `http` in der Konfiguration eines Servers, den Aufrufer über das Netzwerk erreichen, und lassen Sie den Schlüssel ungesetzt, wo ein Client den Server selbst startet: Ist `stdio` gewählt, wird eine Adresse in `listen` nicht verwendet, und der Server teilt das in einer Zeile auf seinem Fehlerstrom mit. Zulässige Werte: `\"stdio\"`, `\"http\"` Standardwert: `\"stdio\"`"
   },
   "6dd20e5067812bd7": {
     "at": "2026-11-03T09:08:45.888Z",
@@ -55669,6 +55834,13 @@
     "status": "machine",
     "text": "pkg/sourcecache"
   },
+  "790ce452991c7492": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "790ce452991c7492",
+    "status": "machine",
+    "text": "Die Plugins des Governance-Sockets. Jeder Eintrag nennt die `role` der Pipeline, an der er angebunden ist (`annotation-transform`, `label-transform`, `ir-verdict` oder `render-verdict`); die Rolle legt sowohl fest, was das Plugin ausgeben darf, als auch seine Standard-Einstiegsfunktion (`annotation-transform` → `transform_annotations`; `label-transform` → `mutate`; `ir-verdict` → `verdict_ir`; `render-verdict` → `verdict_render`). Standardwert: `[]`"
+  },
   "791813473e0963e2": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -58116,6 +58288,13 @@
     "srcHash": "7e877f4e1f125520",
     "status": "machine",
     "text": "Eine Zurückweisung beim Veröffentlichen, nicht bei einem Build. Jeder veröffentlichbare Entitätstyp hat einen Medientyp für jede der beiden Formen, die sein Artefakt annimmt — nur sein Dokument oder ein Archiv aus dem Dokument und den Dateien, die es deklariert —, und das Verpacken einer Entität schlägt diesen nach Typ nach. Diese Bedingung meldet einen Typ ohne Eintrag."
+  },
+  "7e8aab14f04e249f": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "7e8aab14f04e249f",
+    "status": "machine",
+    "text": "Wenn true, akzeptiert der Veröffentlichungs-Linter Annotationsschlüssel, die die reservierten Namensräume aggrega.ai/ und feature.aggrega.ai/ außerhalb ihrer kanonischen Kontexte verwenden. Die Regel für reservierte Präfixe kontrolliert die metadata.annotations von Katalogentitäten: Das bloße Präfix aggrega.ai/ ist plattformeigen (bekannte Annotationsschlüssel sind unabhängig von diesem Flag ausgenommen); das Präfix feature.aggrega.ai/ ist nur beim Typ Feature kanonisch. Standardmäßig false. Operatoren setzen dies, wenn Unternehmenswerkzeuge legitimerweise ein reserviertes Präfix verwenden müssen; es lockert beide Präfixe gemeinsam. Standardwert: `false`"
   },
   "7e8d31a3c5f83896": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -60921,6 +61100,13 @@
     "status": "machine",
     "text": "mapping-library import references an entry not present in the MappingLibrary (`\"<entry>\"`, MappingLibrary `\"<library>\"`) (ein Mapping-Bibliotheksimport verweist auf einen Eintrag, der in der MappingLibrary nicht vorhanden ist: mit dem angegebenen Eintrag und der angegebenen MappingLibrary)"
   },
+  "85355c990d3176cc": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "85355c990d3176cc",
+    "status": "machine",
+    "text": "Tools, die dieser Server ankündigt, genau so benannt, wie die Tool-Liste sie meldet. Lassen Sie den Schlüssel weg, wird jedes Tool angekündigt, das dieser Server anbietet, und das erwartet ein Client, der dem Protokoll folgt: Er ruft die gesamte Tool-Liste ab und entscheidet selbst, wie viel davon er einem Modell vorlegt. Schreiben Sie eine Liste, werden genau diese Tools angekündigt — ein ausgelassenes fehlt in der Tool-Liste, fehlt in dem, was `describe-capabilities` antwortet, und wird abgelehnt, wenn es per Name aufgerufen wird, wobei diese Einstellung genannt wird. Schreiben Sie eine leere Liste, wird nichts angekündigt. Setzen Sie den Schlüssel dort, wo der Client am anderen Ende begrenzt, wie viele Tools er registriert — manche Clients wenden diese Obergrenze auf alle Server an, mit denen sie gleichzeitig verbunden sind —, und nennen Sie die Tools, die dieser Client braucht. Er schränkt ein, was angekündigt wird, und sonst nichts: Er kann weder `deny_reach` erweitern, das eine Fähigkeit vollständig entzieht, noch die Scopes, die das Token eines Aufrufers trägt. Ein hier genanntes Tool einer Art, die `deny_reach` entzieht, bleibt aus der Tool-Liste heraus und wird beim Aufruf abgelehnt, wobei jene Einstellung genannt wird; eines, das hier genannt ist und das die Scopes des Aufrufers nicht zulassen, wird dennoch aufgeführt, und ein Aufruf des Tools wird unter Nennung des Scopes abgelehnt, der es zulassen würde. Jeder Name muss einer sein, den diese Binärdatei anbietet: Ein Name, auf den kein Tool hört, wird beim Start des Servers abgelehnt, weil derjenige, der eine engere Oberfläche angefordert hat, sonst eine andere bedient bekäme, ohne dass etwas darauf hinweist. Ein Name der Familie `cli-`, die einen `aggrega`-Befehl in einem separaten Prozess ausführt, wird auf beiden Transporten akzeptiert und kündigt über HTTP nichts an, wo keinem Aufrufer ein solches Tool angeboten wird. Wird auf beiden Transporten beim Start des Servers gelesen, sodass die angekündigte Menge für die Lebensdauer des Prozesses feststeht und eine Änderung einen Neustart erfordert."
+  },
   "8538b83b6b54f49d": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -61004,6 +61190,13 @@
     "srcHash": "856053fca6a8d0b8",
     "status": "machine",
     "text": "Das Dokumentations-Bundle gehört nicht dazu. Seine Bytes hängen nur von der Registry ab, in der es veröffentlicht ist, und von der Version, unter der es veröffentlicht ist; daher wird es einmal pro Maschine aufbewahrt, neben dem Speicher kompilierter Module unter demselben benutzerbezogenen Cache-Stammverzeichnis, unter `docs-bundles/<encoded-reference>/<encoded-version>/` unterhalb dieses Stammverzeichnisses: das Bundle, das Manifest, gegen das es verifiziert wird, und die Signaturen, die beim Holen verifiziert wurden. `artifact_cache_dir` reicht nicht bis dorthin. Bevor eine Seite daraus gelesen wird, werden diese Signaturen erneut verifiziert, und zwar unter der eigenen Signaturprüfung des lesenden Workspace für die Registry des Bundles, sodass eine Kopie, die die lockereren Einstellungen eines Workspace eingelassen haben, nicht an einen Workspace ausgeliefert wird, dessen Prüfung sie ablehnt — siehe [aggrega-explain](../language-reference/cli/aggrega-explain.md) und [aggrega-cache](../language-reference/cli/aggrega-cache.md)."
+  },
+  "8564b50a79eeb4bf": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "8564b50a79eeb4bf",
+    "status": "machine",
+    "text": "Pfad zur PEM-Zertifikatskette, die der Listener vorlegt, gelesen beim Start des Prozesses. Wird zusammen mit `key_file` gesetzt. Standardmäßig leer, sodass der Listener Klartext bereitstellt und `listen` auf eine Loopback-Adresse oder einen Unix-Socket beschränkt ist. Standardwert: `\"\"`"
   },
   "85675b8153c0a27d": {
     "at": "2026-11-03T16:07:28.924Z",
@@ -63500,6 +63693,13 @@
     "srcHash": "8aedac452d76175a",
     "status": "machine",
     "text": "**Drei Fehler führen zu diesem Abbruch, und zwei davon sind leicht zu übersehen, weil der Vertrag in Ordnung aussieht.** Ein Socket-Vertrag lässt sich womöglich gar nicht zu JSON Schema 2020-12 kompilieren — ein falsch geschriebenes Schlüsselwort ist die häufigste Ursache; ein eigenes `spec.schema` einer Entität, das sich nicht kompilieren lässt, wird stattdessen unter der Kompaktform-Bedingung gemeldet, auf die seine Kompilierung gestoßen ist (`E0120` für ein unbekanntes Schlüsselwort, `E0116` für eine Einschränkung, die sein Typ nicht annimmt). Oder er kompiliert sauber und baut dennoch keinen Validator: Der Inhalt ist als Kompaktform lesbar und ist kein Schema, gegen das irgendetwas validiert werden kann, etwa ein bloßer Skalar, wo das Schema einer Eigenschaft hingehört (`items: nonsense`). Oder er ist in jeder anderen Hinsicht wohlgeformt und nennt ein Format außerhalb der unterstützten Menge — `format: password` oder eine falsche Schreibweise wie `format: emial` —, das zurückgewiesen wird, statt als Einschränkung gelesen zu werden, die nichts prüft, ob nun ein Wert das Feld erreicht oder nicht; die Namen, die ein `format` annehmen kann, sind unter [Benannte Formate](../vocabulary/compact-form-authoring.md#named-formats) aufgeführt. Alle drei sind eine einzige Bedingung, weil die Abhilfe dieselbe ist und das Übergehen jedes einzelnen von ihnen dieselbe Folge hat."
+  },
+  "8aeeca40dd71f3e7": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "8aeeca40dd71f3e7",
+    "status": "machine",
+    "text": "`aggrega-config.mcp.limits`"
   },
   "8af0a3b6f89e7d75": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -66008,6 +66208,13 @@
     "status": "machine",
     "text": "**Abgrenzung zu Overlays von `injectMapping` und Mappings von `pipeline[].with`.** `locals:` erzeugt eine im Kontext sichtbare Map für nachgelagerte Templates; es trägt keine Ausgabe bei. `injectMapping` schreibt in die Pipe `.context.inject` des Konsumenten (aufruferseitige Mutation). `pipeline[].with` liefert die Nutzlast `args` des Wasm-Plugins. Die drei Oberflächen sind orthogonal — ein FeatureRecipe verwendet routinemäßig alle drei zusammen, wobei `locals:` die gemeinsamen abgeleiteten Strings trägt, auf die die anderen beiden verweisen."
   },
+  "903d246bdbe06dd6": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "903d246bdbe06dd6",
+    "status": "machine",
+    "text": "`aggrega-config.lint`"
+  },
   "903f0187f91458c3": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -67586,6 +67793,13 @@
     "status": "machine",
     "text": "`release.yaml` — das einzige Release."
   },
+  "93ca366454390bef": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "93ca366454390bef",
+    "status": "machine",
+    "text": "Obergrenze für die kumulierte Größe der Dokumente im Cache, in Bytes. Standardmäßig 100000000 (100 MB). `0` deaktiviert die Byte-Achse (keine durch die Gesamtzahl der Bytes ausgelöste Verdrängung). Minimum: `0`. Standardwert: `100000000`"
+  },
   "93ca613c619966df": {
     "at": "2026-10-22T08:20:04.359Z",
     "job": "session-0025-20261022082004",
@@ -68781,6 +68995,13 @@
     "srcHash": "96757ce4ea4fc6ca",
     "status": "machine",
     "text": "Beachten Sie `ADMINER_DEFAULT_SERVER: db-default` — für Kubernetes gibt das Datenbank-Recipe den clusterinternen Service-DNS-Namen aus, sodass dieselbe Kante des Aggregate auf diesem Ziel zu einer routbaren Adresse aufgelöst wird."
+  },
+  "967fc9a0c5233978": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "967fc9a0c5233978",
+    "status": "machine",
+    "text": "Provider-Auswahl pro Fähigkeit. Jeder Eintrag bindet eine Provider-Fähigkeit (den bloßen Namen der Fähigkeit, den ein Recipe über `spec.capability` bindet, z. B. `helm` oder `compose`) an die bloße Identität des Provider-Rendering-Plugins, das sie bedient (die Identität der Plugin-Entität, also ihr `metadata.pluginType` und ihr `metadata.name`, durch einen Schrägstrich verbunden, z. B. `provider/helm`), mit einem optionalen nachgestellten `:version` in denselben drei Formen wie ein Versions-Pin (bloß, exakt `:1.0.0` oder mit der Hauptversion kompatibler Bereich `:^1.0.0`). Dies ist die Oberfläche für Disambiguierung und Überschreibung in einem föderierten Katalog, in dem mehr als ein Provider-Plugin dieselbe Fähigkeit bedient: Die Bindung wählt, welches Plugin welches Herausgebers diese Fähigkeit rendert. Wenn eine Fähigkeit von genau einem Provider-Plugin bedient wird, ist kein Eintrag nötig. Über die zusammengesetzte Liste hinweg ist genau ein Eintrag pro Fähigkeit zulässig; eine doppelte Fähigkeit bricht die Auflösung deutlich sichtbar ab. Die Auflösung erfolgt beim Pull: Der Pull verzeichnet die aufgelöste Bindung im Lockfile pro Release, und der Build liest das Lockfile — eine Änderung hier nach einem Pull wird erst mit dem nächsten Pull übernommen, sodass die Build-Ausgabe davon unberührt bleibt (deterministische Ausgabe). Jeder Build und jede Validierung eines Release prüft außerdem jeden Eintrag hier, ob ein Recipe nach seiner Fähigkeit fragt oder nicht: Ein Eintrag, der ein Plugin nennt, das der Build vorhält und das die Fähigkeit des Eintrags nicht bedient, bricht ab und nennt, was dieses Plugin bedient, sowie eine um eine Bearbeitung abweichende Schreibweise, sofern es eine gibt; ein Eintrag, der eine Fähigkeit und kein Plugin nennt, wobei kein Provider-Plugin, das der Build liest, diese Fähigkeit bedient, wird als Warnung gemeldet statt abzubrechen, weil das Plugin, das sie bedient, eines sein kann, das nur ein anderes Release liest; und ein Eintrag für eine Fähigkeit, die ein Plugin bedient, nach der dieses Release aber nie fragt, ist zulässig und wird gar nicht gemeldet, da Einträge für den gesamten Workspace geschrieben werden und ein Build einem einzigen Release gilt. Eine `capability`, die einen Doppelpunkt enthält, wird beim Laden der Konfiguration abgelehnt: Das `spec.capability` eines Recipe wird bis zu seinem letzten Doppelpunkt als Fähigkeit und danach als Versions-Pin gelesen, sodass kein Recipe einen solchen Eintrag erreichen könnte. Ein fehlender Eintrag für eine eindeutig bediente Fähigkeit ist kein Fehler; ein fehlender Eintrag für eine mehrdeutig bediente Fähigkeit bricht den Pull deutlich sichtbar ab und listet die infrage kommenden Plugins auf. Die Koexistenz von Versionen bleibt erhalten: Die Bindung wählt das Plugin-Repository pro Fähigkeit, und der eigene Versions-Pin in `spec.capability` jedes Recipe wählt die Version innerhalb dieses Repositorys, sodass zwei Recipes, die unterschiedliche Versionen eines Providers pinnen, weiterhin nebeneinander bestehen. Standardwert: `[]`"
   },
   "9681e55d4aadd7a9": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -71083,6 +71304,13 @@
     "status": "machine",
     "text": "5. Asynchrone Ausführung und HITL-Infrastruktur"
   },
+  "9b7de9ca64c31015": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "9b7de9ca64c31015",
+    "status": "machine",
+    "text": "Rein anhängende Ergänzung der effektiven Liste `importer`. Dieselbe Semantik des Zusammensetzens statt Verdeckens wie `governance_append`. Standardwert: `[]`"
+  },
   "9b829702ce04adf8": {
     "at": "2026-10-30T19:42:05.833Z",
     "job": "session-0012-20261030194205",
@@ -71484,6 +71712,13 @@
     "status": "machine",
     "text": "`aggrega/connectionCandidates` — womit sich die benannte Entität verbinden darf. `node` ist der `metadata.name` einer Entität, dieselbe Koordinate, die `aggrega/attachCandidates` unter diesem Namen entgegennimmt. Siehe [Was Ihnen eine Antwort zu Verbindungskandidaten sagt](#what-a-connection-candidate-response-tells-you) weiter unten, denn die beiden Hälften der Antwort sind nicht gleich vollständig, und die Antwort sagt, welche welche ist."
   },
+  "9c5e8ecf3b7e1d4f": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "9c5e8ecf3b7e1d4f",
+    "status": "machine",
+    "text": "Zertifikat und Schlüssel, um TLS innerhalb des bedienenden Prozesses zu terminieren. Setzen Sie beide, um HTTPS direkt über den Listener bereitzustellen, den `listen` nennt. Lassen Sie beide ungesetzt, um Klartext bereitzustellen, was `listen` auf eine Loopback-Adresse oder einen Unix-Socket beschränkt — die Form für den Fall, dass ein vorgelagerter Proxy das Zertifikat hält. Beide Schlüssel sind Pfade zu Dateien auf der Festplatte; keiner enthält Schlüsselmaterial inline."
+  },
   "9c60a8dea695962a": {
     "at": "2026-11-03T05:48:25.701Z",
     "job": "session-0059-20261103054825",
@@ -71613,6 +71848,13 @@
     "srcHash": "9c97586480c01ed8",
     "status": "machine",
     "text": "Wo eine Datei unter den Katalogverzeichnissen den Namen, nach dem die Referenz fragt, unter einem Typ deklariert, den kein Katalog enthält — etwa ein falsch geschriebenes `kind` —, nennt der Hinweis unter diesem Fehler diese Datei, den Typ, den sie deklariert, und die Typen, die ein Katalog enthält, und lässt den Rat weg, wo lokale Entitäten gelesen werden, bei einem Build, der sein Lockfile befüllt, ebenso wie bei einem, der es liest, und auf jeder anderen Oberfläche, die diesen Fehler meldet; siehe [Eine zurückgewiesene Katalogdatei und der Fehler, den sie erklärt](error-translation.md#a-refused-catalog-file-and-the-failure-it-explains)."
+  },
+  "9c99091f6de94639": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "9c99091f6de94639",
+    "status": "machine",
+    "text": "Wenn true, akzeptiert der Veröffentlichungs-Linter die JSON-Schema-Konstrukte $dynamicRef / $dynamicAnchor in Kataloginhalten. Standardmäßig false; von diesen Konstrukten wird abgeraten, weil sie die Schemakomposition zur Kompilierzeit nicht-lokal machen. Standardwert: `false`"
   },
   "9c9b79b864e8821d": {
     "at": "2026-11-04T03:28:35.383Z",
@@ -74158,6 +74400,13 @@
     "status": "machine",
     "text": "Der Block `artifacts:` eines Recipe benennt eine Ausgabe pro Schlüssel, und ein unter einem Schlüssel importiertes Bundle steuert seine Dateien darunter bei. Zwei Ausgaben, die bei einem Dateinamen ankommen, würden bedeuten, dass eine die andere überschreibt, daher bricht der Build ab, statt zu wählen, welche bestehen bleibt."
   },
+  "a20a02c14662aa77": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "a20a02c14662aa77",
+    "status": "machine",
+    "text": "Ob der Daemon beim Validieren einer Katalogentität die Prüfung der Veröffentlichungskonventionen ausführt, sodass die Befunde, die `aggrega lint` zu dieser Entität meldet, auch als Probleme im Editor erscheinen. Die Befunde sind Hinweise: Ein Dokument, das sie auslöst, wird trotzdem validiert, und sein Release wird trotzdem aufgelöst und gerendert. Es läuft nur die Prüfung, die lokale Inhalte liest — keine Registry wird befragt, nichts wird abgerufen und nichts geschrieben —, und sie wird gegen den Puffer ausgewertet, den der Editor hält, statt gegen die Datei auf der Festplatte, sodass ein Name, den Sie korrigieren, nicht mehr gemeldet wird, bevor Sie speichern. Standardmäßig false: Eine Editor-Sitzung meldet, ob ein Dokument korrekt ist, und sagt nichts darüber, ob eine Entität veröffentlichbar ist, bis Sie diese zweite Ebene anfordern. Setzen Sie den Wert auf true, um sie anzufordern. Unabhängig von diesem Schlüssel kann ein Editor die Prüfung jederzeit direkt anfordern, und auf diesem Weg wird auch der Vergleich vor der Veröffentlichung mit der zuvor veröffentlichten Version erreicht. Standardwert: `false`"
+  },
   "a20bd689b434c326": {
     "at": "2026-10-30T20:20:36.751Z",
     "job": "session-0016-20261030202036",
@@ -74504,6 +74753,13 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "Jedes Ziel leitet seine eigenen Namen aus der Identität einer Komponente ab: Ein Chart-Installer leitet einen Release-Namen ab, ein Container-Orchestrator leitet Dienstnamen ab. Dieser Abbruch ist das Ziel, das mitteilt, dass es einen davon nicht verwenden kann."
+  },
+  "a2c3133a3a6a2ed7": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "a2c3133a3a6a2ed7",
+    "status": "machine",
+    "text": "`aggrega-config.compiled_module_cache`"
   },
   "a2c80ff19ab1f577": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -75206,6 +75462,13 @@
     "srcHash": "a44143ff1026bc22",
     "status": "machine",
     "text": "**Präfixe für Multi-Region-Gateways.** Wenn eine generische API-Komponente global bereitgestellt wird, kann ein regionales Routing-Feature selbstständig die Annotationen seiner eigenen Umgebungsgrenze nachschlagen, um den injizierten Verbindungszeichenfolgen für seine Aufrufer ein Präfix voranzustellen."
+  },
+  "a4474beb4e621622": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "a4474beb4e621622",
+    "status": "machine",
+    "text": "Schweregrad in der geordneten Menge `warning` < `error` < `retracted`, ab dem eine verzeichnete Deprecation-Markierung den Build abbricht. Er regelt beide Orte, an denen eine Markierung verzeichnet wird: das Lockfile, für alles, was ein Build Byte für Byte reproduziert, und den Vertrauensdatensatz der Plugins daneben, für ein Plugin, das in einer Rolle angebunden ist, die ein Urteil über Annahme oder Ablehnung zurückgibt — eine `plugins.governance`-Anbindung bei `ir-verdict` oder `render-verdict` sowie jede `plugins.linter`-Anbindung. Ein Regler, eine Regel, beide Speicher. Standardmäßig nicht gesetzt, und nicht gesetzt bedeutet, dass keine verzeichnete Markierung einen Abbruch auslöst: Eine Markierung wird gegen eine Version verzeichnet, die Sie bereits gepinnt haben, sodass ein Build, der einmal erfolgreich war, weiterhin erfolgreich ist. Benachrichtigung und Auflösung sind zwei getrennte Achsen, und keine von beiden ist dieser Regler. Jede Oberfläche, die einen der beiden Datensätze liest, meldet jede veraltete Referenz, die sie pinnt, und jedes vertrauenswürdige Plugin, das eine Markierung trägt — bei jedem Schweregrad —, und nennt dabei die Referenz bzw. das Plugin, den Schweregrad und die Meldung: `aggrega build`, `aggrega validate --release`, `aggrega lint --release`, der editorseitige Daemon sowie die KI-nativen Tools build, describe und validate. Das Anheben dieses Schwellenwerts verringert also nie, was Ihnen mitgeteilt wird. Dieser Regler regelt allein den Build: Er stoppt `aggrega build` (und das KI-native Tool build, das derselbe Vorgang ist), während die meldenden Oberflächen die Markierung nennen und weiterarbeiten. Nur eine `retracted`-Markierung beeinflusst, zu welcher Version eine Referenz aufgelöst wird, und zwar wenn `aggrega pull` eine Version wählt, nicht beim Build. Zulässige Werte: `\"warning\"`, `\"error\"`, `\"retracted\"`"
   },
   "a449fe95284d050a": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -76111,6 +76374,13 @@
     "status": "machine",
     "text": "`release-negative.yaml` **soll fehlschlagen**, und es ist hier, weil ein Abrufpfad, der nur auf seinem Erfolgspfad ausgeübt wird, nichts über seine Schutzmechanismen aussagt. Es stellt dasselbe Aggregate über `manifest-negative.yaml` bereit, das ein Recipe bindet, das bis auf seine Referenz mit dem funktionierenden identisch ist — sie nennt einen Tag, den das Repository nicht enthält:"
   },
+  "a6386806eb7e1382": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "a6386806eb7e1382",
+    "status": "machine",
+    "text": "`aggrega-config.mcp.tls`"
+  },
   "a63e169f75c12172": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -76166,6 +76436,13 @@
     "srcHash": "a6664b7114519e88",
     "status": "machine",
     "text": "Dieses schlanke Beispiel kompiliert eine einzelne **MySQL**-Datenbank aus vom Entwickler verfassten `Aggregate`s zu zwei Zielen:"
+  },
+  "a66abb1041e7803f": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "a66abb1041e7803f",
+    "status": "machine",
+    "text": "FixedEntryPluginRef[]"
   },
   "a66b3054af409a48": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -79546,6 +79823,13 @@
     "status": "machine",
     "text": "`core/observability/loki`"
   },
+  "add0dddec5c245d4": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "add0dddec5c245d4",
+    "status": "machine",
+    "text": "Workspace-weite Schalter für das Regelwerk des Veröffentlichungs-Linters. Die Flags `allow_*` lockern einzelne Prüfungen auf nicht empfohlene Muster. Die Unveränderlichkeit von Artefakten ist hier nicht konfigurierbar: `aggrega push` weigert sich bedingungslos, eine veröffentlichte Version zu überschreiben."
+  },
   "add7b3a331bffcf3": {
     "at": "2026-11-03T22:53:36.381Z",
     "job": "session-0170-20261103225336",
@@ -79920,6 +80204,13 @@
     "srcHash": "aea2ff3735756f31",
     "status": "machine",
     "text": "Ein einzelner Zustellmechanismus, verfasst als Array von Einträgen. Jeder Eintrag trägt ein 'in' (lokaler Bezeichner — Name einer Umgebungsvariablen, Dateipfad, Argument-Flag oder benutzerdefinierter mechanismusspezifischer Schlüssel) sowie genau eines von 'from' (ein aufzulösender provides-Schlüssel) oder 'value' (ein Literal-String, optional mit Go-Template-Ausdrücken, die bei der Auflösung der Selbstinjektion ausgewertet werden). 'from' wird gegen die provides des Ziels im Kontext uses[].inject aufgelöst oder gegen die eigenen provides der Komponente im Kontext component.inject."
+  },
+  "aea5bcd6c6bc5859": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "aea5bcd6c6bc5859",
+    "status": "machine",
+    "text": "Wie viele Anfragen ein einzelner Aufrufer pro Minute senden darf. Gezählt wird pro Aufrufer statt pro Server — gegen das Subjekt, das das Token des Aufrufers nennt, oder gegen die Identität, die ein vertrauenswürdiger Proxy zugesichert hat —, sodass ein vielbeschäftigter Aufrufer nicht das Kontingent eines anderen aufbrauchen kann. Ein Aufrufer darf so viele in einem Schub senden; das Kontingent füllt sich dann gleichmäßig wieder auf, mit einer weiteren Anfrage alle `60 / requests_per_minute` Sekunden, und eine Anfrage, die eintrifft, wenn nichts mehr davon übrig ist, wird mit `429` abgelehnt. Standardmäßig 120, also dauerhaft zwei pro Sekunde: weit über dem, was ein Assistent sendet, der einen Workspace steuert, und dennoch eine Grenze für einen Client, der in eine Schleife geraten ist. Das Minimum ist 1, es gibt also keinen Wert, der die Obergrenze abschaltet. Minimum: `1`. Standardwert: `120`"
   },
   "aea84bdaa79c91fe": {
     "at": "2026-11-03T17:48:59.915Z",
@@ -83542,6 +83833,13 @@
     "srcHash": "b5e4308205e91a1f",
     "status": "machine",
     "text": "[`policy-socket.md`](policy-socket.md) — der Governance-Socket im Detail: seine vier Rollen, die Schweregrade von Verdikten, der Eingabekanal des Betreibers, das Schreiben einer Richtlinie für eine der beiden im Compiler mitgelieferten Engines und die Referenz-Guests für Richtlinien."
+  },
+  "b5e719a3d865bd2b": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "b5e719a3d865bd2b",
+    "status": "machine",
+    "text": "Pfad zum privaten PEM-Schlüssel für das Zertifikat in `cert_file`, gelesen beim Start des Prozesses. Wird zusammen mit dieser Einstellung gesetzt. Ein Pfad zu einer Datei, nie Schlüsselmaterial inline. Standardmäßig leer, sodass der Listener Klartext bereitstellt und `listen` auf eine Loopback-Adresse oder einen Unix-Socket beschränkt ist. Standardwert: `\"\"`"
   },
   "b5e819e6a028e289": {
     "at": "2026-11-03T09:26:16.050Z",
@@ -90402,6 +90700,13 @@
     "status": "machine",
     "text": "Ein Name, den Sie geschrieben haben, erreicht seine Ausgabe genau so, wie Sie ihn geschrieben haben, und das macht den Namen in Ihrem Aggregate zu dem Namen, nach dem Sie in Ihrem Cluster suchen können. Das ist es wert, und deshalb wird eine Identität, die das Ziel zurückweisen würde, hier gemeldet, statt stillschweigend zu etwas repariert zu werden, das Sie nie geschrieben haben."
   },
+  "c44cd07c410c204c": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "c44cd07c410c204c",
+    "status": "machine",
+    "text": "Optionale, rein anhängende Ergänzung der effektiven Liste `catalog_dirs`. Auf jeder Vorrangebene werden die Einträge hier an die aufgelöste Basisliste angehängt, sodass Workspace- und globale Konfigurationen Katalogverzeichnisse zusammensetzen können, statt sie zu verdecken. Zusammenspiel auf derselben Ebene: Wenn auf einer Ebene sowohl `catalog_dirs` als auch `catalog_dirs_append` angegeben sind, ist der aufgelöste Wert auf dieser Ebene die Basisliste, gefolgt von der Anhängeliste. Standardwert: `[]`"
+  },
   "c44d8d57e0a3ee66": {
     "at": "2026-10-30T21:02:37.548Z",
     "job": "session-0020-20261030210237",
@@ -92207,6 +92512,13 @@
     "status": "machine",
     "text": "**Die Datei bleibt Byte für Byte so, wie sie war**, und das Schreiben selbst ist atomar, sodass eine abgelehnte oder unterbrochene Bearbeitung nicht von einer nie versuchten zu unterscheiden ist und Sie eine korrigierte Anfrage gegen das Ausgangsdokument erneut ausführen können. Deshalb wird hier auch keine Authoring-Regel wiederholt: Die Anforderung, dass ein Release-Dokument einen Entwicklerwert enthalten soll, wird von demselben Schema abgelehnt, das auch das von Hand geschriebene Dokument ablehnen würde."
   },
+  "c87247f7bdc051ba": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "c87247f7bdc051ba",
+    "status": "machine",
+    "text": "PluginRef[]"
+  },
   "c8725662e5e15675": {
     "at": "2026-11-03T02:39:27.070Z",
     "job": "session-0039-20261103023927",
@@ -92329,6 +92641,13 @@
     "srcHash": "c8a5053beb19bd57",
     "status": "machine",
     "text": "**Eine Bedingung, die der Editor auffängt.** Sie wird von der Editor-Integration selbst beantwortet und erreicht weder die Ausgabe eines Builds noch eine Diagnose."
+  },
+  "c8a918a04677a06c": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "c8a918a04677a06c",
+    "status": "machine",
+    "text": "Wie viele Anfragen der Listener gleichzeitig ausführt. Eine Anfrage, die eintrifft, während bereits so viele in Bearbeitung sind, wird mit `503` abgelehnt statt in eine Warteschlange gestellt, sodass ein Aufrufer aufgefordert wird, es erneut zu versuchen, statt hinter Arbeit zu warten, die er nicht sehen kann. Standardmäßig 16, was Raum für mehrere gleichzeitige Tool-Aufrufe lässt und einen kleinen Host dennoch reaktionsfähig hält; erhöhen Sie den Wert auf einem größeren Host. Das Minimum ist 1, es gibt also keinen Wert, der die Obergrenze abschaltet. Minimum: `1`. Standardwert: `16`"
   },
   "c8a967e132d4bfba": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -94089,6 +94408,13 @@
     "status": "machine",
     "text": "Das Repository des Compilers baut zehn eigene Importer-Plugins, eines für jedes Quellformat, und veröffentlicht sie mit jedem Compiler-Release:"
   },
+  "cc45200a02146988": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "cc45200a02146988",
+    "status": "machine",
+    "text": "`aggrega-config.parse_cache`"
+  },
   "cc455cb7a080fc20": {
     "at": "2026-11-03T11:13:54.733Z",
     "job": "session-0096-20261103111354",
@@ -94108,6 +94434,13 @@
     "srcHash": "cc4ea69b5d4f9804",
     "status": "machine",
     "text": "workload featuresSchema cross-check failed (Workload in Recipe `<name>:<version>`, at `<path>`, featuresSchema stage): `.containers.<name>.attachments.<KEY>.from`: references slot `\"<slot>\"` which is not declared in the Component's featuresSchema — either declare the slot in the Component (or Feature) featuresSchema, or rename the reference to an existing slot `.containers.<name>.attachments.<KEY>.from`: slot `\"<slot>\"` is blackbox (no `inject:` allowlist) and cannot be referenced from a Workload attachments entry — blackbox slots are delivered by Recipe-internal plumbing; remove the Workload-side reference, or widen the slot's inject allowlist if Workload-side delivery is intended `.containers.<name>.attachments.<KEY>.as`: delivery mechanism `\"<as>\"` is not permitted by slot `\"<slot>\"` (inject allowlist: `[<mechanisms>]`) — use one of the allowlisted delivery mechanisms (`[<mechanisms>]`), or widen the slot's inject allowlist in the Component/Feature featuresSchema `.containers.<name>.attachments.<KEY>.connection`: names connection `\"<alias>\"` for slot `\"<slot>\"`, but the component draws no connection under that alias — name a connection the component draws (`<aliases>`), or remove connection to read a slot the Component declares for its own attachments `.containers.<name>.attachments.<KEY>.from`: names slot `\"<slot>\"` of connection `\"<alias>\"`, which socket `\"<socket>\"` does not declare — name a slot socket `\"<socket>\"` declares (`<slots>`), or declare the slot in that socket's featuresSchema `.containers.<name>.attachments.<KEY>.from`: names `\"<alias>.<slot>\"`, the name the compiler composes for slot `\"<slot>\"` of connection `\"<alias>\"`; a slot a connection's socket declares is named by naming the connection — write connection: `<alias>` beside from: `<slot>` (featuresSchema-Abgleich der Arbeitslast fehlgeschlagen (Workload in Recipe, featuresSchema-Phase): verweist auf einen Slot, der im featuresSchema der Component nicht deklariert ist — deklarieren Sie den Slot im featuresSchema von Component (oder Feature), oder benennen Sie den Verweis in einen vorhandenen Slot um; der Slot ist eine Blackbox (keine Allowlist) und kann nicht aus einem attachments-Eintrag einer Workload referenziert werden — Blackbox-Slots werden durch Recipe-interne Mechanik bereitgestellt; entfernen Sie den Verweis auf Workload-Seite, oder erweitern Sie die inject-Allowlist des Slots, wenn eine Bereitstellung auf Workload-Seite beabsichtigt ist; der Bereitstellungsmechanismus ist für den Slot nicht zulässig (inject-Allowlist) — verwenden Sie einen der zugelassenen Bereitstellungsmechanismen, oder erweitern Sie die inject-Allowlist des Slots im featuresSchema von Component/Feature; nennt eine Verbindung für den Slot, aber die Komponente zieht unter diesem Alias keine Verbindung — nennen Sie eine Verbindung, die die Komponente zieht, oder entfernen Sie connection, um einen Slot zu lesen, den die Component für ihre eigenen Anbindungen deklariert; nennt einen Slot der Verbindung, den der Socket nicht deklariert — nennen Sie einen Slot, den der Socket deklariert, oder deklarieren Sie den Slot im featuresSchema dieses Sockets; nennt den Namen, den der Compiler für einen Slot einer Verbindung zusammensetzt; ein Slot, den der Socket einer Verbindung deklariert, wird benannt, indem die Verbindung genannt wird — schreiben Sie connection: neben from:)"
+  },
+  "cc519943c68a5678": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "cc519943c68a5678",
+    "status": "machine",
+    "text": "`aggrega-config.concurrency`"
   },
   "cc5214cd7ede0f13": {
     "at": "2026-11-04T03:28:35.383Z",
@@ -96717,6 +97050,13 @@
     "status": "machine",
     "text": "[Manifest](entities/manifest.md) — projektbezogene Mapping-Tabelle. Bindet abstrakte Component- und Feature-Typen an konkrete Recipe- und FeatureRecipe-URIs, unter `components` und `features`, mit der Suchreihenfolge `name` > versionierter `type` > unversionierter `type`."
   },
+  "d16c0c67f63312e3": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "d16c0c67f63312e3",
+    "status": "machine",
+    "text": "Einrückungsbreite (in Leerzeichen) für jedes gerenderte YAML-Artefakt — docker-compose-Dateien, Templates und Werte von Helm-Charts sowie Kubernetes-Manifeste. Standardmäßig 2, die konventionelle Breite für diese Formate. Minimum: `2`. Maximum: `9`. Standardwert: `2`"
+  },
   "d16e63d58ce833c3": {
     "at": "2026-11-04T00:44:12.025Z",
     "job": "session-0182-20261104004412",
@@ -97585,6 +97925,13 @@
     "srcHash": "d34c2d8d72641f99",
     "status": "machine",
     "text": "**`terraform` — verfügbar.** Sowohl der Quellmodus als auch Artefakte werden ausgeliefert; jede Boundary erhält eine Root-Konfiguration, `aggrega.modules.tf`, die jede Komponente als `module`-Block deklariert, dessen Dateien in einem eigenen Verzeichnis unter `modules/` liegen. Die synthetisierte Eingabeart ist für diesen Provider nicht anwendbar."
+  },
+  "d34cd67e05f4007b": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "d34cd67e05f4007b",
+    "status": "machine",
+    "text": "Obergrenze für die Anzahl zwischengespeicherter Parse-Ergebnisse. Standardmäßig 1000. `0` deaktiviert die Achse der Eintragsanzahl (keine durch die Eintragsanzahl ausgelöste Verdrängung). Minimum: `0`. Standardwert: `1000`"
   },
   "d3576afb5f581643": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -98604,6 +98951,13 @@
     "srcHash": "d61ad0c705ac1570",
     "status": "machine",
     "text": "Lesen Sie als Nächstes [Entitäten nach Rolle](entities-by-role.md) für die vollständige Zuordnung von Art zu Rolle, einschließlich der Bibliotheks- und Plugin-Arten, die alle vier Rollen unterstützen."
+  },
+  "d61f181633264163": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "d61f181633264163",
+    "status": "machine",
+    "text": "Rein anhängende Ergänzung der effektiven Liste `governance`. Die Einträge hier werden auf jeder Vorrangebene an die aufgelöste Basisliste angehängt, sodass Workspace- und globale Konfigurationen Governance-Anbindungen zusammensetzen können, statt sie zu verdecken. Standardwert: `[]`"
   },
   "d6202e51c84b1270": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -99748,6 +100102,13 @@
     "status": "machine",
     "text": "**Ein zweiter Schild am Gateway.**"
   },
+  "d8c720fb8e412fff": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "d8c720fb8e412fff",
+    "status": "machine",
+    "text": "Die Plugins des Linter-Sockets. Standard-Einstiegsfunktion: `lint_rules`. Die Exporte eines Linter-Plugins müssen mit `lint_` beginnen, daher nennt `function:` bei einem dieser Einträge einen Export mit diesem Präfix. Standardwert: `[]`"
+  },
   "d8cf10133da6b43c": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -100645,6 +101006,13 @@
     "status": "machine",
     "text": "[task-run-on-demand](task-run-on-demand/README.md) (`start`) — Ein Task, der `core/manual-trigger` trägt, ohne Start auf Kubernetes, Docker Compose, Terraform und CloudFormation bereitgestellt, neben einem Task, der nichts trägt, mit dem Befehl, der auf jedem Ziel einen Lauf startet."
   },
+  "dab05ccf91dec707": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "dab05ccf91dec707",
+    "status": "machine",
+    "text": "`aggrega-config.serve`"
+  },
   "dab300fccfd86a58": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -100834,6 +101202,13 @@
     "srcHash": "db0f3dbce210834a",
     "status": "machine",
     "text": "Jeder Eintrag — Listenelement oder Map-Alias — wird zu einer Kante, die in der Reihenfolge des Schreibens erhalten bleibt. Der `selector:` des Sockets gilt für jedes darüber verbundene Ziel (jede Kante wird während der statischen Analyse unabhängig typgeprüft), und `required: true` bedeutet, dass mindestens ein Ziel verbunden sein muss."
+  },
+  "db1e716a5763ff0e": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "db1e716a5763ff0e",
+    "status": "machine",
+    "text": "Wenn true, unterdrückt der Veröffentlichungs-Linter die Regel connection-credential-matches-target-key, die `aggrega lint --release` über das Release ausführt, das es nennt: das Release, das Aggregate, das es bereitstellt, und die Components, die die Instanzen dieses Aggregate verwenden. Für jede Verbindung, deren Ziel den Schlüssel deklariert, den es von seinen Aufrufern verlangt, vergleicht die Regel, worauf die beiden Enden verweisen: die Anmeldedaten, die die Verbindung vorlegt, und den Schlüssel, den das Ziel in seinem eigenen Slot hält. Sie meldet zwei Enden, die unterschiedliche Secrets nennen, und einen nur an einem Ende deklarierten Schlüssel, und sie zitiert keines von beiden. Keines der beiden Enden kann die Anbindungen des anderen sehen, daher stimmen die beiden nur durch Authoring-Disziplin überein — meist ein einziger Parameter, der beide speist —, und ein Build akzeptiert sie so oder so, weshalb der Befund ein Hinweis ist. Ein Workspace, dessen beide Enden absichtlich voneinander abweichen, steigt hier aus. Standardmäßig false. Standardwert: `false`"
   },
   "db2155461a3f916a": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -103595,6 +103970,13 @@
     "srcHash": "e06524a22e2bb9bb",
     "status": "machine",
     "text": "`named in the components block of boundary \"<boundary>\"` — die eigene Map `components:` der Boundary;"
+  },
+  "e06ef58e3cab6eed": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "e06ef58e3cab6eed",
+    "status": "machine",
+    "text": "Optionale Katalogverzeichnisse, aus denen dieser Workspace lokale Entitäten liest und die vor dem Rückgriff auf die Registry herangezogen werden. Jeder Eintrag ist ein Dateisystempfad, aufgelöst relativ zu der Datei, die ihn deklariert. Die Liste ist ein geordneter Suchstapel, bei dem der erste Treffer gewinnt: Das am frühesten aufgeführte Verzeichnis, das eine Identität deklariert, besitzt sie, und dieselbe Identität in einem späteren Verzeichnis wird verdeckt. Das Verzeichnis `catalog` an der Wurzel des Workspace wird ebenfalls gelesen, nach jedem aufgeführten Eintrag und nur, wenn es existiert — es sei denn, ein aufgeführter Eintrag enthält es bereits; in diesem Fall wird es als Teil dieses Eintrags gelesen —, sodass das Aufführen eines Verzeichnisses das ergänzt, was der Workspace bereits gelesen hat, statt es zu ersetzen. Diesen Schlüssel wegzulassen und ihn als leere Liste zu schreiben sind unterschiedliche Aussagen: Weggelassen liest der Workspace weiterhin `catalog`; als `[]` geschrieben liest er überhaupt keinen lokalen Katalog, und so sagt ein Workspace, dass er keinen hat. Ein Release, dem unter `releases` eigene Katalogverzeichnisse gegeben werden, liest diese anstelle dieser Liste. Auf die Wurzel bezogen: Lokale Katalogverzeichnisse gehören zu dieser Workspace-Wurzel, daher liegen sie auf der Wurzelmarkierung statt auf der obersten Ebene."
   },
   "e06fc559d0a85715": {
     "at": "2026-11-02T19:03:23.148Z",
@@ -106478,6 +106860,13 @@
     "srcHash": "e6d1e8b940f106ce",
     "status": "machine",
     "text": "**Ein OpenAI-Knoten von Flowise.** Der OpenAI-Client, auf dem Flowise einen Knoten vom Typ `chatOpenAI` oder `openAIEmbeddings` ausführt, liest `OPENAI_BASE_URL` und `OPENAI_API_KEY` aus der Umgebung, wo der Base Path des Knotens leer ist und er keine Zugangsdaten auswählt, daher schreibt der Entwurf einen Base Path, den der Export enthält, leer und ebenso die Zugangsdaten, die der Knoten auswählt, unter `data.credential`. Dieser Client sendet die Standard-Header des Knotens, seine `baseOptions`, mit Vorrang vor dem Header, den er aus dem Schlüssel bildet, daher schreibt der Entwurf ihren gesamten Wert leer und behält seine Art bei. Ein Modellknoten eines anderen Typs wird als unter der Adresse erreicht gemeldet, die der Chatflow oder seine eigenen Standardwerte angeben."
+  },
+  "e6dafd86dabed579": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "e6dafd86dabed579",
+    "status": "machine",
+    "text": "`aggrega-config.mcp`"
   },
   "e6e56f10fe9888b8": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -110192,6 +110581,13 @@
     "status": "machine",
     "text": "Diese Datei ist die, die der Installationsbefehl installiert, und die, die von Hand heruntergeladen wird. Zwei Varianten davon liegen daneben; der Installationsbefehl installiert keine davon, und jede wird auf dieselbe Weise von Hand installiert:"
   },
+  "eef6e5fc60b07137": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "eef6e5fc60b07137",
+    "status": "machine",
+    "text": "Wenn true, akzeptiert die Prüfung auf nicht empfohlene Muster zur Build-Zeit die Schlüsselwörter x-aggrega-selector und x-aggrega-inject, wenn sie direkt im Schemainhalt geschrieben sind. Standardmäßig false; der empfohlene Authoring-Weg ist usesSchema (für Abhängigkeits-Sockets) oder featuresSchema (für Bindungen von Anmeldedaten), die der Compiler zu diesen Schlüsselwörtern zusammensetzt. Standardwert: `false`"
+  },
   "eef8c22e00f71d43": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -111713,6 +112109,13 @@
     "srcHash": "f22df7394814a434",
     "status": "machine",
     "text": "Die Verbindung des Agenten hält die ganze Adresse"
+  },
+  "f2307cefbd9e3001": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "f2307cefbd9e3001",
+    "status": "machine",
+    "text": "Ob der Daemon beim Inspizieren eines IR-Graphen die Artefakt-Rendering-Phase ausführt, sodass die Hinweise, die `aggrega build` beim Rendern ausgibt, auch als Probleme im Editor erscheinen. Es fügt keine der Prüfungen hinzu, bei denen ein Build abbricht. In keinem Fall wird etwas auf die Festplatte geschrieben — keine gerenderten Artefakte, kein Ausgabeverzeichnis, kein Lockfile —, und die Rendering-Phase verändert den Graphen nie, sodass es dort, wo die Inspektion mit einem Graphen antwortet, in beiden Fällen derselbe Graph ist. Standardmäßig false, passend zu `aggrega inspect`: Der Terminalbefehl erreicht beim Inspizieren eines Graphen die Rendering-Phase nicht, gibt also ebenfalls keinen solchen Hinweis aus, und eine Inspektion im Editor, die keinen ausgibt, zeigt Ihnen dasselbe wie das Terminal. Setzen Sie den Wert auf true, um den Editor um diese zusätzliche Ebene zu bitten. Standardwert: `false`"
   },
   "f230a093c470f2e3": {
     "at": "2026-11-03T03:00:33.649Z",
@@ -114600,6 +115003,13 @@
     "status": "machine",
     "text": "Die beiden auseinanderzuhalten macht die Meldung umsetzbar: Das Erste ist ein Wert, den Sie in dem Dokument, das Sie gerade betrachten, neu schreiben müssen, und das Zweite ist eine Frage danach, was der Build sehen kann. Ein Verweis, der sich in sich selbst expandiert, ist wiederum etwas Drittes und wird oben als „A library reference expands into itself (Eine Bibliotheksreferenz expandiert in sich selbst)“ gemeldet."
   },
+  "f83330c2a29050b0": {
+    "at": "2026-11-04T03:52:15.070Z",
+    "job": "session-0200-20261104035215",
+    "srcHash": "f83330c2a29050b0",
+    "status": "machine",
+    "text": "Arten von Reichweite, die dieser Server nicht anbietet, was auch immer das Token eines Aufrufers sagt. Jede Operation deklariert, wie weit ihre eigenen Wirkungen reichen — `none` für eine, die liest oder rendert und nichts zurücklässt, `workspace` für eine, die innerhalb des Workspace schreibt, den dieser Prozess bedient, `registry` für eine, die veröffentlicht, signiert oder zurückzieht, und `machine` für eine, die verändert, was alle Workspaces auf dem Host gemeinsam nutzen —, und eine Art hier zu nennen, entzieht diesem Server jedes Tool dieser Art. Ein entzogenes Tool fehlt in der Tool-Liste und in dem, was `describe-capabilities` antwortet, für jeden Aufrufer, und wird es dennoch aufgerufen, wird der Aufruf unter Nennung dieser Einstellung abgelehnt, weil kein Scope es zulassen könnte. Standardmäßig leer, sodass der Server alles anbietet, was die Scopes seiner Aufrufer zulassen. Es ist eine Grenze, die sich der Server selbst setzt, zusätzlich zu der Grenze pro Aufrufer, die Scopes setzen: Ein Server, der Lesezugriffe bedient und sonst nichts, nennt hier die drei schreibenden Arten und kann dann selbst für einen Aufrufer, dessen Token jeden Scope trägt, nichts veröffentlichen. `machine` zu nennen wird akzeptiert und ändert nichts — über HTTP wird überhaupt kein Tool dieser Art angeboten, was eine Eigenschaft des Transports ist und keine Einstellung. Wird beim Start des Listeners gelesen: Ein Wert außerhalb der vier wird beim Laden der Konfiguration abgelehnt, und eine Änderung erfordert einen Neustart. Wird überhaupt nicht gelesen, solange der Server über Standardeingabe und Standardausgabe kommuniziert, wo der Aufrufer die Person ist, die den Prozess gestartet hat. Zulässige Werte für jeden Eintrag: `\"none\"`, `\"workspace\"`, `\"registry\"`, `\"machine\"`. Standardwert: `[]`"
+  },
   "f8354abec3608b58": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -115691,6 +116101,13 @@
     "srcHash": "fa822b61196acabe",
     "status": "machine",
     "text": "absoluter Pfad, der als Workspace-Stamm verwendet wird (überspringt die Erkennung)"
+  },
+  "fa82c6ae9d4dba3d": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "fa82c6ae9d4dba3d",
+    "status": "machine",
+    "text": "Wenn true, akzeptiert der Veröffentlichungs-Linter Überschreibungen von $id in Teilschemas innerhalb des Schemainhalts einer Entität. Standardmäßig false; Überschreibungen von $id brechen die Konvention eines kanonischen Bezeichners pro Schema, auf die sich sowohl der Resolver als auch der JSON-Schema-Validator stützen. Standardwert: `false`"
   },
   "fa8480a09528d035": {
     "at": "2026-10-22T16:24:02.036Z",
@@ -117046,6 +117463,13 @@
     "srcHash": "fd7b74ae7b1a28b7",
     "status": "machine",
     "text": "Map von string oder object oder null"
+  },
+  "fd8539801e02c261": {
+    "at": "2026-11-04T03:52:13.350Z",
+    "job": "session-0199-20261104035213",
+    "srcHash": "fd8539801e02c261",
+    "status": "machine",
+    "text": "Rein anhängende Ergänzung der effektiven Liste `linter`. Dieselbe Semantik des Zusammensetzens statt Verdeckens wie `governance_append`. Standardwert: `[]`"
   },
   "fd88c219edf01997": {
     "at": "2026-11-03T11:32:02.259Z",
