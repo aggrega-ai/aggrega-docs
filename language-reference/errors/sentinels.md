@@ -397,6 +397,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAssertionNameCollision()` | `assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `ErrCyclicExtension()` | `cyclic-extension` | `cyclic extends chain` |
 | `ErrDuplicateContainerEnvironmentVariable()` | `duplicate-container-environment-variable` | `a container declares one environment variable twice` |
+| `ErrEmptySource()` | `recipe-source-is-empty` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 | `ErrExtendsChainTooDeep()` | `extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `extends-merge-failed` | `inheritance merge failed` |
