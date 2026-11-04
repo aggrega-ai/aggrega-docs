@@ -4,6 +4,96 @@
 
 Features are modular operational behaviors attached to Components. Who attaches one follows from who decides its inputs: the developer attaches, in the Aggregate, a Feature whose behaviour is application intent, and operations attach, in the Release, one whose inputs are all operational. Masking is the developer's: the developer requests *what* they want (sensitive text masked before it reaches a model provider). Ops decides *how* it is realized (the FeatureRecipe the Manifest binds — here one that writes guardrails into the AI gateway's own configuration through a Wasm pipeline step).
 
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-lanes">
+<div class="diagram-lane">
+
+Without a Feature
+
+<div class="diagram-flow">
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>core/gateway/litellm</code></div>
+
+the gateway, realized by the Recipe the Manifest binds to it
+
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-output-file">
+
+the gateway's configuration
+
+as its own Recipe renders it
+
+</div>
+</div>
+</div>
+</div>
+<div class="diagram-lane">
+
+With the Feature attached
+
+<div class="diagram-flow">
+<div class="diagram-flow-part">
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>core/gateway/litellm</code></div>
+
+the gateway, realized by the Recipe the Manifest binds to it
+
+</div>
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>core/data-masking</code></div>
+
+the Feature, attached to the gateway in the Aggregate and realized by the FeatureRecipe the Manifest binds to it
+
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-group">
+<div class="diagram-node diagram-node-output-file">
+
+the same configuration, with masking
+
+guardrails and a request policy, written by the FeatureRecipe
+
+</div>
+<div class="diagram-node diagram-node-output-file">
+<div class="diagram-node-label"><code>data_masking.py</code></div>
+
+a module beside it, added with the attachment
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+Attaching `core/data-masking` to the gateway changes only what the build writes for the gateway: the FeatureRecipe writes its masking into the configuration the gateway's own Recipe renders, and a module is added beside it. Every other file the build writes is byte-identical to a build without the attachment.
+
+</figcaption>
+</figure>
+
 **1. Platform Catalog: The Feature Interface**
 The Feature uses an `appliesTo` label selector to restrict which Components can receive it — here the data-path capability a gateway declares when it can mask the chat and completion payload it routes. The `schema:` block defines the developer-facing configuration surface. Abridged from the standard library's `core/data-masking`, which also carries a description of every value:
 

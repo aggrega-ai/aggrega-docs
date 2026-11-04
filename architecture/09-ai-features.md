@@ -169,6 +169,61 @@ The developer's `values` blocks (which are opaque to the Go compiler but strictl
 
 The standard library's AI gateways carry the controls for routing requests to LLM APIs: `core/gateway/litellm`, which runs in the cluster, and two hosted services — `core/gateway/cloudflare-ai-gateway`, Cloudflare's hosted gateway, which its terraform Recipe creates in a Cloudflare account, and `core/gateway/azure-api-management`, the AI gateway of Azure API Management, whose terraform Recipe adds an API serving a model, with its backend and its policy, to an API Management instance that already exists. The helm and compose Recipes of each hosted gateway reference it where it is already configured. Some controls are values on a gateway itself and some are Features attached to it, and each Feature below says on which gateway the standard library realizes it. On a hosted gateway every control is written into the gateway's own configuration — a setting of the Cloudflare gateway's resource, an element of the API's policy on Azure API Management — so only its terraform Recipe can carry one, and its helm and compose Recipes halt the build on any attachment. Below, "the AI gateway" is `core/gateway/litellm`, "the hosted gateway" is `core/gateway/cloudflare-ai-gateway`, and Azure API Management's gateway is named in full.
 
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-outside">
+
+Outside Aggrega, at run time
+
+<div class="diagram-flow">
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-tool">
+
+agent
+
+its `model` socket wired to the gateway
+
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-tool">
+
+AI gateway
+
+with the controls attached to it
+
+<div class="diagram-node-items">
+
+token budget
+
+semantic cache
+
+prompt-injection shield
+
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-tool">
+
+model
+
+a provider behind the gateway
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+An agent's requests pass through the gateway its `model` socket is wired to, so every control attached to the gateway stands between the agent and the model. The three drawn here are the Features `core/period-budget`, `core/semantic-caching` and `core/prompt-injection-shield`, shown side by side for where they sit rather than as one gateway's configuration: the entries below say which gateway realizes each control and what halts the build.
+
+</figcaption>
+</figure>
+
 * **The models behind it:** the AI gateway's model map — the aliases it serves, each with the upstream a request for it is sent to — has two parts. A model component wired to the gateway's `models` socket, managed or self-hosted, is served under the connection's alias, its entry written from the `endpoint` and `model` the model publishes, strings the compiler pipes into the gateway's configuration and never resolves; the model is therefore a component of the graph, reached over an edge of its own. The gateway describes such a model to its proxy through the OpenAI API alone, so a connection reaching a model whose `model.aggrega.ai/api` is not `openai` halts the build, naming the connection. The other part is the gateway's `values.models`, entries typed by hand in the proxy's own provider/model notation: for an upstream the catalog does not model, for a provider whose own API is not the OpenAI API, and for several entries sharing one alias, which wired models cannot do, since each is served under its own connection's alias. A wired entry presents the credential its own connection carries, as "The key a caller presents" below describes, and never the gateway's `provider_key`; every hand-typed entry presents the one credential in that slot. An alias both parts publish halts the build, naming it, and so does a gateway neither part gives a model.
 * **In an agent's path:** the gateway publishes an `endpoint` and a `model`, the keys a model component publishes, and carries `model.aggrega.ai/api: openai`, so an agent's `model` socket takes the gateway directly and every control attached to it stands between that agent and the providers behind it. The `model` it publishes is the alias its `values.model` names, which the build halts on when neither part of the map publishes it; it may be left out only where the gateway serves a single alias and an entry of `values.models` publishes it, which is then the one published. A caller wanting another alias the map publishes asks the same endpoint for it by name. `core/gateway/cloudflare-ai-gateway` publishes the same two keys — the address of one of the gateway's endpoints, composed from the Cloudflare account and the gateway's id, and the model a caller asks for, which the gateway forwards unchecked — but carries no `model.aggrega.ai/api`, so an agent's `model` socket does not take it. `core/gateway/azure-api-management` publishes them too — the address of its API, composed from the instance's host and the API's path, and the model a caller asks for, forwarded unchecked — and carries no `model.aggrega.ai/api` either: the API answers the OpenAI chat completions request, but by default a caller presents an API Management subscription key in its own header rather than OpenAI's bearer token, so a plain OpenAI client is not enough to call it.
 * **Kong in front of models:** `core/gateway/kong`, the open-source Kong gateway, serves the models wired to its own `models` socket through Kong's AI proxy, and of the controls below it realizes prompt deny patterns alone, as Kong's AI Prompt Guard on every route of each wired model. Each wired model gets a chat route and a completion route under `/<alias>/v1`, written from the `endpoint` and `model` the model publishes, and its Recipes import those routes into the gateway's PostgreSQL backend before it starts. The route chooses the model, so a request is sent to the model its path names whatever model name it carries. The gateway presents each connection's own credential as a bearer token its configuration reads from the gateway's environment by name, and a connection reaching a model whose `model.aggrega.ai/api` is not `openai` halts the build. It publishes the route of the alias its `values.model` names as its `endpoint` and that alias as its `model`, and carries `model.aggrega.ai/api: openai`, so an agent's `model` socket takes it as it takes the AI gateway. With nothing wired to that socket the gateway serves no model and publishes both keys empty, and an agent wired to it then reads no address and no model name. The import adds and updates routes and removes none, so a route whose connection is removed keeps answering, and the prompt guard a `core/prompt-deny-patterns` attachment wrote keeps refusing once the attachment is removed, until each is deleted through Kong's Admin API. For the same reason the gateway declares no callers, and its model routes check no caller's key: Kong tells callers apart only as the consumers an authentication plugin names, and a consumer and its key, once imported, would stay able to authenticate after the caller is removed from the Release, a rotated key leaving the old one working; nor can a key-auth key be held by reference, so a caller's key could reach Kong only as a literal in a rendered file.

@@ -6,6 +6,96 @@ The split is **guidance, not a rule the compiler enforces**. The core compiler i
 
 ## The four roles
 
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-columns">
+<div class="diagram-column">
+
+Developer
+
+application intent
+
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+
+Aggregate
+
+</div>
+</div>
+</div>
+<div class="diagram-column">
+
+Platform architect
+
+the catalog contract
+
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+
+Components
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+Features
+
+</div>
+</div>
+</div>
+<div class="diagram-column">
+
+Platform operations
+
+infrastructure recipes
+
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+
+Recipes
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+FeatureRecipes
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+Plugins
+
+provider-rendering
+
+</div>
+</div>
+</div>
+<div class="diagram-column">
+
+Platform operator
+
+per-environment wiring
+
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+
+Manifests
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+Releases
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+Who typically writes which files. The split is guidance, not a rule the compiler enforces: in a small team or a solo project, one person writes all of them.
+
+</figcaption>
+</figure>
+
 ### Developer — application intent
 
 The developer authors the **Aggregate**: what the application is and what it needs, expressed as intent. The developer says "I need a database of this size and a service that uses it," not "provision an AWS RDS instance in this subnet." Physical infrastructure is deliberately left to the catalog and to operations, so the Aggregate stays capability-agnostic — the same intent compiles for a laptop, a cloud, or an enterprise cluster without the developer's file changing.

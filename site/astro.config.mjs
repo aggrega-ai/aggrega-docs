@@ -189,20 +189,25 @@ export default defineConfig({
         dark: "@aggrega-ai/brand/logo/mark-dark.svg",
         alt: "Aggrega",
       },
-      // The brand's tokens, fonts and type classes and the theme bound to them
-      // (src/styles/brand.css); the home's look (src/styles/home.css) and the
-      // copyable blocks' (src/styles/copyable.css); one style for every nested
-      // sidebar group label (src/styles/sidebar.css); the accessibility panel's
-      // stylesheet, the two reading fonts it offers (downloaded only for a
-      // reader who picks one), and the site's rules for the panel
-      // (src/styles/a11y.css).
+      // The brand's tokens, fonts and type classes, its diagrams' drawing
+      // vocabulary (every shape and its colour roles, shared with the home
+      // site), and the theme bound to them (src/styles/brand.css); the home's
+      // look (src/styles/home.css), the copyable blocks'
+      // (src/styles/copyable.css) and what the documentation's diagrams add to
+      // the brand's (src/styles/diagram.css);
+      // one style for every nested sidebar group label (src/styles/sidebar.css);
+      // the accessibility panel's stylesheet, the two reading fonts it offers
+      // (downloaded only for a reader who picks one), and the site's rules for
+      // the panel (src/styles/a11y.css).
       customCss: [
         "@aggrega-ai/brand/tokens.css",
         "@aggrega-ai/brand/fonts.css",
         "@aggrega-ai/brand/typography.css",
+        "@aggrega-ai/brand/diagram.css",
         "./src/styles/brand.css",
         "./src/styles/home.css",
         "./src/styles/copyable.css",
+        "./src/styles/diagram.css",
         "./src/styles/sidebar.css",
         "@cognitio/a11y/toolbar.css",
         "@fontsource/atkinson-hyperlegible/400.css",
