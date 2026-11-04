@@ -80,6 +80,13 @@
     "status": "machine",
     "text": "Init-Services und Sidecar-Services teilen sich einen Namensraum, daher dürfen ein Eintrag `initContainers` und ein Eintrag `containers` nicht denselben Namen tragen. Wenn sie es doch tun, bricht der Compiler mit einem `TRANSLATION_ERROR` ab, der den Knoten, den Container-Namen und den Service-Namen nennt, den beide wollten, statt einen Service stillschweigend den anderen ersetzen zu lassen."
   },
+  "003a5a34718f49a4": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "003a5a34718f49a4",
+    "status": "machine",
+    "text": "Diese Seite ist die Authoring-Referenz des helm-Providers. Zum providerübergreifenden Modell der Eingabezusammensetzung siehe [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). Zur Bereitschaft der einzelnen Provider siehe [Status der Sprache → Providers](../10-status.md#providers)."
+  },
   "0040663f831b7dbe": {
     "at": "2026-11-03T22:29:54.265Z",
     "job": "session-0168-20261103222954",
@@ -946,6 +953,13 @@
     "status": "machine",
     "text": "Gerenderte Artefakte landen unter `dist/`. `--auto-pull` löst während des Builds die Abhängigkeiten jedes Release in seine Lockfile auf; `aggrega pull --release\nrelease-compose.yaml` einmal vorab auszuführen tut dasselbe und lässt spätere Builds ohne das Flag laufen. Das synthetisierte Ziel benötigt keinen Abruf eines externen Charts — beide Recipes rendern die offiziellen Images direkt in Kubernetes-Ressourcen."
   },
+  "01fb22b1d92108b5": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "01fb22b1d92108b5",
+    "status": "machine",
+    "text": "Provider-spezifische Besonderheiten"
+  },
   "01fe0c11a7007b2d": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -1610,6 +1624,13 @@
     "status": "machine",
     "text": "**Übertragungskodierung.** Jeder Export dieses Sockets erhält seine Eingabe und liefert seine Ausgabe als **kanonisches CBOR** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1), in beide Richtungen. Ein Guest dekodiert seine Eingabe und kodiert seine Ausgabe über die Einstiegspunkte, die die Payload-Typen bereits tragen — `DecodeCBOR` und `EncodeCBOR` in Go, `decode_cbor` und `encode_cbor` in Rust und in TypeScript die Funktionen `decodeCBOR` und `encodeCBOR` jedes Typs, etwa `decodeCBORRenderNodeInput` und `encodeCBORRenderNodeOutput` —, wobei er Bytes liest und schreibt (`Vec<u8>` in Rust, `Host.inputBytes()` und `Host.outputBytes(...)` in TypeScript). Es ist keine CBOR-Bibliothek nötig, und nichts parst Bytes von Hand. Der `content` einer gerenderten Datei und jedes andere Byte-Feld werden als rohe Bytefolge übertragen, die der generierte Decoder in den eigenen Feldtyp des Kits füllt: ein Byte-Slice in Go, ein Base64-String in Rust und TypeScript. Die Maps, die das Schema als reihenfolgeerhaltend markiert — darunter die `values`, `features` und `uses` eines Knotens, die `derived_keys` einer Antwort und die `values` eines Beitragenden einer Assemblierung —, werden als [geordnete Listen von Einträgen](#maps-that-keep-their-order) in der Reihenfolge übertragen, in der der Build sie hält, und ein Guest liest sie über den reihenfolgeerhaltenden Container seines Kits. Jeder Wert der `values` eines Knotens wird als die Bytes seines eigenen JSON-Dokuments übertragen, sodass die Schlüssel innerhalb eines Werts die Reihenfolge behalten, in der sie geschrieben wurden; ebenso jeder Anbindungseintrag von `features`, der Render-Kontext, die geparste Arbeitslast, jede angereicherte Kante, jede herausgeschnittene Einheit und jede Patch-Operation, und ein Guest parst sie als JSON, um hineinzusehen. Jede Diagnose wird in der gemeinsamen Form `Diagnostic` übertragen. Eine Antwort, die in dieser Kodierung nicht die Ausgabeform ihres Exports hat — eine als JSON geschriebene oder eine, die ein Feld auf oberster Ebene trägt, das die Form nicht deklariert —, hält den Build an und nennt dabei den Export, den er aufgerufen hat. Die Payload-Beispiele auf dieser Seite sind zur besseren Lesbarkeit als JSON geschrieben. Direkt mit `aggrega plugin run-local --export render_node` oder mit einem anderen Export des Sockets aufgerufen, erhält ein Guest die vom Autor geschriebene JSON-Payload, in diese Kodierung umgewandelt, und seine Antwort wird als Ausgabeform des Exports gelesen und als JSON ausgegeben — eine Antwort, die diese Form nicht hat, wird unter Nennung des Exports abgelehnt, so wie ein Build sie ablehnt."
   },
+  "035505fed9cfc1e1": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "035505fed9cfc1e1",
+    "status": "machine",
+    "text": "**Das Einzige, was Aggrega in einem Chart ändert, das Sie lokal kopiert haben, ist das eigene Feld `name` dieses Charts.** In der `Chart.yaml` des platzierten Charts wird `name` auf die codierte Identität dessen gesetzt, was dieses Chart beigetragen hat."
+  },
   "035e5a30e469fa96": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -2248,6 +2269,13 @@
     "status": "machine",
     "text": "**Wo das Desktop-Bundle den Server gestartet hat, nennt dieselbe Antwort daneben die Version des Bundles.** Das Bundle enthält kein Programm: Es startet die ausführbare Datei `aggrega`, die seine Einstellung **Path to the aggrega executable** nennt; Bundle und ausführbare Datei werden also getrennt installiert und können aus verschiedenen Versionen stammen, und die Anwendung, die das Bundle auflistet, zeigt nur die Version des Bundles selbst. Das Bundle übergibt dem Server seine Version als `AGGREGA_BUNDLE_VERSION` in dessen Umgebung; der Server liest sie einmal, beim Start, und die Antwort enthält sie als `bundle_version`. Die beiden werden genau so verglichen, wie sie geschrieben sind, was ein fairer Vergleich ist, weil Bundle und ausführbare Datei einer Version mit der Versionsangabe dieser Version in derselben Form gestempelt werden, während sich ein Entwicklungs-Build von jeder Version unterscheidet. Sind beide gleich, nennt die Zeile beide und sagt nichts weiter. Unterscheiden sie sich, sagt die Zeile unter Nennung beider, dass die ausführbare Datei und das Bundle aus verschiedenen Versionen stammen, und die Hinweise, die der Server einem Modell beim Verbinden gibt, beginnen mit genau diesem Satz, sodass der Unterschied dem Modell vorliegt, bevor es fragt."
   },
+  "04e77f00138f6b1c": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "04e77f00138f6b1c",
+    "status": "machine",
+    "text": "Ein Schlüssel, den das `valuesMapping:` auf `null` setzt, wird als `null` in seinen Block geschrieben. Bei einer Installation mit Helm 4 entfernt ein `null` in der eigenen `values.yaml` des Umbrella-Charts den Standardwert des Sub-Charts für diesen Schlüssel nur dann, wenn die Installation auch Werte für dieses Sub-Chart liefert; eine Installation, die keine dafür liefert, verwirft das `null`, und der Standardwert des Sub-Charts bleibt bestehen. Ein `null` in den an `helm install` übergebenen Werten entfernt den Standardwert in jedem Fall."
+  },
   "04e8b8ad40f608c2": {
     "at": "2026-11-03T12:45:16.288Z",
     "job": "session-0106-20261103124516",
@@ -2877,6 +2905,13 @@
     "status": "machine",
     "text": "Der veröffentlichte Name und der Unterstrich in einem Slot-Namen"
   },
+  "061dbfdd05c1cc06": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "061dbfdd05c1cc06",
+    "status": "machine",
+    "text": "**Codierte Aliase und Chart-Namen.** Eine instance_id, ein Aggregatname oder ein Boundary-Pfad mit einem Zeichen, das ein Helm-Chart-Name oder ein Abhängigkeitsalias nicht akzeptiert, erscheint im gerenderten Umbrella-Chart codiert, gemäß „Wie ein Name abgeleitet wird“ oben. Eine Identität, die nur aus Buchstaben, Ziffern, Unterstrichen und Bindestrichen besteht, die die Ableitung beibehält, erscheint genau wie verfasst."
+  },
   "0625ba316f386800": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -3300,6 +3335,13 @@
     "srcHash": "0713b4b96d1858b1",
     "status": "machine",
     "text": "`manifest.yaml` — bindet den Komponententyp und beide Feature-Typen an ihre Terraform-Recipes. Von beiden Releases gemeinsam genutzt."
+  },
+  "071ce1b67f0d5893": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "071ce1b67f0d5893",
+    "status": "machine",
+    "text": "Eine instance_id `data.main-db` ergibt also den Alias `data-zdmain-db`, und das Aggregat `fullstack-app` mit dem Zusammensetzungspfad `boundaries/data/helm-chart` ergibt den Chart-Namen `fullstack-app--boundaries-zsdata-zshelm-chart`. Identische Eingabe erzeugt immer den identischen Namen."
   },
   "071e713672fff284": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -4657,6 +4699,13 @@
     "srcHash": "0a5f42e9abeb3a9a",
     "status": "machine",
     "text": "Jedes andere Zeichen wird als `-z` geschrieben, gefolgt von einem Buchstaben, der es benennt: `s` für ein Pfadtrennzeichen, `h` für einen Bindestrich, den die obige Regel nicht beibehält. Alles andere — ein Leerzeichen und ein Nicht-ASCII-Buchstabe eingeschlossen — wird als `x` und der sechsstellige hexadezimale Codepunkt des Zeichens geschrieben, und ein Byte, das überhaupt kein Zeichen beginnt, als `b` und sein eigener zweistelliger Wert, sodass ein Name, der kein gültiger Text ist, dennoch eindeutig ausgeschrieben wird, statt mit einem anderen zusammenzufallen."
+  },
+  "0a62954f0fdeb0a9": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "0a62954f0fdeb0a9",
+    "status": "machine",
+    "text": "Helm-Provider"
   },
   "0a631412a2831ef4": {
     "at": "2026-11-03T20:08:39.308Z",
@@ -8514,6 +8563,13 @@
     "status": "machine",
     "text": "**`validate_node_input`**, um die Eingabe eines Knotens strukturell zu prüfen, bevor irgendein Rendering läuft, sodass eine fehlerhafte Eingabe an der Authoring-Grenze gemeldet wird statt mitten im Rendern."
   },
+  "138243a03bb7d195": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "138243a03bb7d195",
+    "status": "machine",
+    "text": "Auflösung des Chart-Namens"
+  },
   "138382466a61e328": {
     "at": "2026-11-03T05:31:59.590Z",
     "job": "session-0057-20261103053159",
@@ -9197,6 +9253,13 @@
     "srcHash": "154d6ef221ef940e",
     "status": "machine",
     "text": "**Herkunft.** Ein explizit geschriebenes Feld schlägt eines, das durch annotationsgesteuerte Expansion beigesteuert wurde, unabhängig davon, aus welchem Geltungsbereich beide stammen."
+  },
+  "1550195d5a14059a": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "1550195d5a14059a",
+    "status": "machine",
+    "text": "[`entities/release.md`](../entities/release.md) — Boundary-Semantik des Release und Ausgabeverzeichnisse pro Boundary."
   },
   "155348333c9846aa": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -9921,6 +9984,13 @@
     "srcHash": "16f0e1f0041eceb4",
     "status": "machine",
     "text": "Einen Code direkt aus einem fehlgeschlagenen Build erklären:"
+  },
+  "16f115ce6ea8d1e5": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "16f115ce6ea8d1e5",
+    "status": "machine",
+    "text": "**Der `name` der Abhängigkeit und ihr `repository` sind unterschiedliche Strings, und das ist beabsichtigt.** `name` ist das, was das Chart an diesem Ort DEKLARIERT, weil Helm eine Abhängigkeit über den eigenen deklarierten Namen des Kind-Charts an dieses bindet; `repository` ist der Ort, an dem dieses Chart liegt. Bei einer Komponente lesen sich beide zufällig gleich, da beide aus derselben Instanz-ID abgeleitet sind. Bei einer Feature-Anbindung unterscheiden sie sich — der deklarierte Name trägt die zusammengesetzte Identität der Anbindung, während das Verzeichnis ihre beiden Koordinaten verbunden trägt —, sodass das Lesen des einen als das andere etwas benennt, das nicht da ist."
   },
   "16f2275b36c8cbc2": {
     "at": "2026-10-17T20:18:43.436Z",
@@ -11882,6 +11952,13 @@
     "status": "machine",
     "text": "Dieses Beispiel kompiliert einen einzelnen **RabbitMQ**-Message-Broker (AMQP) aus einem einzigen vom Entwickler verfassten `Aggregate` zu zwei Zielen:"
   },
+  "1b683a5993986d2e": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "1b683a5993986d2e",
+    "status": "machine",
+    "text": "Eine Feature-Anbindung, die ein Chart lokal kopiert, erhält ein eigenes Verzeichnis **neben** der Komponente, an die sie angebunden ist, eine Ebene unter `charts/`:"
+  },
   "1b6c991a7004dc1d": {
     "at": "2026-11-03T20:25:36.476Z",
     "job": "session-0153-20261103202536",
@@ -12580,6 +12657,13 @@
     "status": "machine",
     "text": "Ermöglicht einem Feature, das sensiblen Text maskiert, eine Komponente auszuwählen, die ihn in der Chat- und Completion-Payload, die sie routet, durch einen Platzhalter ersetzen kann, bevor der Text weiterläuft. Der Wert benennt die Genauigkeit: Mit `entity-recognition` ersetzt die Komponente Treffer von Mustern, die in ihrer Konfiguration angegeben sind, und zusätzlich Entitätstypen, die ein von ihr aufgerufener Erkennungsdienst erkennt; mit `pattern-list` ersetzt sie nur Treffer von Mustern aus ihrer Konfiguration und ruft keinen Erkennungsdienst auf."
   },
+  "1d1f1d4339461ac7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "1d1f1d4339461ac7",
+    "status": "machine",
+    "text": "**Modus mit Quelle.** Ein Recipe mit `source: <chart-path>` zeigt auf ein Helm-Chart-Verzeichnis auf der Festplatte. Das Helm-Go-SDK lädt das Chart, das Werte-Dictionary des Basis-Renderings wird mit den Standardwerten des Charts zusammengeführt, und die Templates des Charts werden zu flachem Kubernetes-YAML gerendert."
+  },
   "1d202d2784d6bda2": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -12829,6 +12913,13 @@
     "srcHash": "1dbedc151a2da1b5",
     "status": "machine",
     "text": "**Ein strukturiertes Objekt** — eine Map von Unterschlüssel zu Unterwert. Jeder Unterschlüssel des Objekts wird über die `maps` des Manifest-Bindings zum entsprechenden Feld des Feature-Schemas in der deklarierten Säule geleitet."
+  },
+  "1dc5b09080a4fd8a": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "1dc5b09080a4fd8a",
+    "status": "machine",
+    "text": "**Die beiden Koordinaten werden verbunden, nicht aneinandergehängt.** Ein Verzeichnisname wird aus dem Host und der Instanz über dieselbe unten beschriebene Escape-Regel gebildet, die auf jede Koordinate angewendet wird, bevor sie über `--` verbunden werden. Sie direkt über `--` aneinanderzureihen wäre mehrdeutig: Ein Host namens `a--b` mit einer Instanz `c` und ein Host `a` mit einer Instanz `b--c` würden dasselbe Verzeichnis erreichen. Jede Koordinate zuerst zu codieren hält sie auseinander, sodass ein verfasstes `--` innerhalb einer Koordinate als `-zh-` erscheint."
   },
   "1dc5be5cb6b5738a": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -13613,6 +13704,13 @@
     "status": "machine",
     "text": "Um aufgeblähtes YAML zu vermeiden, löst der Compiler Kurz-URIs kontextabhängig anhand der Schemaposition auf, an der sie vorkommen. Die Standard-Registry wird in `.aggrega-config.yaml` konfiguriert (standardmäßig `hub.aggrega.ai`)."
   },
+  "1f558b7d3fb803d7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "1f558b7d3fb803d7",
+    "status": "machine",
+    "text": "**Kein Template-Rendering auf helm-chart-Ebene.** Der Provider ruft die Render-Pipeline des Helm-SDK nicht auf; er kopiert und setzt zusammen. Autoren, die vorgerenderte flache Manifeste benötigen, sollten stattdessen den Modus mit Quelle des helm-Providers verwenden."
+  },
   "1f573e5775c7073f": {
     "at": "2026-11-03T14:26:19.593Z",
     "job": "session-0116-20261103142619",
@@ -13936,6 +14034,13 @@
     "srcHash": "20104a41021ff143",
     "status": "machine",
     "text": "Komplexe Koordination mehrerer Komponenten"
+  },
+  "2013c8b29d0cfec7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "2013c8b29d0cfec7",
+    "status": "machine",
+    "text": "**Das Einzige, was Sie beobachten können.** Ein Template, das den Namen seines eigenen Charts liest — `{{ .Chart.Name }}` und alles daraus Abgeleitete, etwa das verbreitete Idiom zur Ressourcenbenennung `{{ .Chart.Name }}-{{ .Release.Name }}` —, liest die codierte Instanzidentität, nicht den Namen, der in der `Chart.yaml` des Quell-Charts steht. Das ist es, was ein solches Template bereits gelesen hat, bevor das Feld gesetzt wurde, denn Helm meldet ein Sub-Chart unter dem Alias, über den sein übergeordnetes Chart es bindet; das Setzen des Feldes bringt die Datei auf der Festplatte in Übereinstimmung mit dem, was das Rendern bereits erzeugt hat. Für das ausgearbeitete Beispiel unten liest ein Template im Sub-Chart `api-east` also `api-east`."
   },
   "2015e17b5d0ee538": {
     "at": "2026-11-03T02:20:44.184Z",
@@ -16409,6 +16514,13 @@
     "status": "machine",
     "text": "**Der Abschluss und die aufgelöste Ansicht sind verschiedene Dokumente, und keines lässt sich aus dem anderen gewinnen.** Die aufgelöste Ansicht — das, was dieser Befehl standardmäßig für ein Release rendert — sagt, wie das Deployment aussieht: seine Grenzen, seine Komponentenknoten, was mit was verbunden ist und was an jeden Knoten angebunden ist. Der Abschluss sagt, was hinzugezogen wurde, um es zu bauen, und in welchen Versionen. Eine Entität kann erreicht werden, ohne je als Knoten zu erscheinen — das Recipe, dem ein Manifest einen Komponententyp zuordnet, wird von jedem Build erreicht und ist in keinem davon ein Knoten —, und ein Knoten hält den Komponententyp fest, als der er deklariert wurde, nicht die Version, zu der dieser Typ aufgelöst wurde. Wer also fragt „Warum hat sich diese Version geändert?“, „Was würde eine Änderung dieses gemeinsam genutzten Dokuments betreffen?“ oder „Wovon hängt dieses Deployment tatsächlich ab?“, fragt nach dem Abschluss, und wer die aufgelöste Ansicht vor sich hat, erhält ihn nicht durch genaueres Lesen."
   },
+  "25909af2467741e6": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "25909af2467741e6",
+    "status": "machine",
+    "text": "Wenn das `valuesMapping:` eines Sub-Charts gegen seinen Template-Kontext ausgewertet wird, befüllt die resultierende Werte-Map diesen nach Alias geschlüsselten Unterblock automatisch. Das gilt für jeden Beitragenden zum Umbrella-Chart, nicht nur für Komponenten: Eine Feature-Anbindung, die ein Chart lokal kopiert, ist ein eigenständiger Beitragender, sodass das `valuesMapping:` ihres FeatureRecipe einen eigenen Block befüllt, geschlüsselt nach dem Namen, den ihr platziertes Chart deklariert. Siehe [„Wo das Chart einer Anbindung landet“](#where-an-attachments-chart-lands)."
+  },
   "259134ba4b55acab": {
     "at": "2026-11-03T13:21:01.958Z",
     "job": "session-0111-20261103132101",
@@ -16896,6 +17008,13 @@
     "srcHash": "26c7f20b6c9a7baf",
     "status": "machine",
     "text": "**Das Ergebnis benennt, was aufgelöst wurde, nicht bloß, dass etwas aufgelöst wurde.** Es trägt das Lockfile, das es geschrieben oder mit dem es verglichen hat; `resolved`, jede Referenz, die die Auflösung erreicht hat, mit der Version, zu der jede aufgelöst wurde, der Art, die ein Autor schreibt, sofern die Auflösung eine festhält, und ihrer `source` – woher dieser Lauf die Referenz bezogen hat, mit dem Wort, das [`aggrega pull --detail`](aggrega-pull.md#the-lockfile) für dieselbe Auflösung ausgibt: `fetched-fresh`, `cache-reuse`, `local`, `in-binary` oder `external`; die Anzahl der Quellartefakte, externen Eingaben und vertrauenswürdigen Plugin-Identitäten, die das Lockfile danach enthält; und `diagnostics`, den eigenen Bericht der Auflösung in der Reihenfolge, in der sie jede Zeile ausgelöst hat – welcher Pin wiederverwendet, welche Signatur geprüft, welche Version als zurückgezogen übersprungen wurde. Diese Zeilen erreichen ein Terminal, wenn Sie den Befehl ausführen; hier stehen sie in der Antwort, weil ein Aufrufer, der kein Terminal liest, keinen anderen Weg hat, sie zu erhalten. `verified` ist nur bei einem Vergleich vorhanden, sodass Sie an seinem Fehlen einen Lauf, der geschrieben hat, von einem unterscheiden, der nur verglichen hat. Eine `source` beschreibt diesen Lauf auf diesem Rechner, daher hält das Lockfile sie nicht fest, und `describe`, das meldet, wovon ein Release abhängt, nennt keine."
+  },
+  "26c90ea0876ac95a": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "26c90ea0876ac95a",
+    "status": "machine",
+    "text": "**Kopie pro Beitragendem.** Für jeden an ein helm-chart-Recipe gebundenen Knoten kopiert der Provider den vollständigen Verzeichnisbaum des Quell-Charts in einen Sub-Chart-Slot. Dateien landen flach in der Ausgabe-Map pro Beitragendem; der Assembler nennt `charts` als das Unterverzeichnis, unter dem seine Beitragenden liegen, und der Orchestrator gibt jedem Beitragenden dort beim Zusammensetzen des Umbrella-Charts ein eigenes Verzeichnis — `charts/<instance_id>/` für eine Komponente. Eine Feature-Anbindung ist ebenfalls ein Beitragender — ob sie ein Chart lokal kopiert oder Manifeste über den helm-Provider rendert — und erhält ein Verzeichnis neben dem der Komponente statt darin; siehe [„Wo das Chart einer Anbindung landet“](#where-an-attachments-chart-lands)."
   },
   "26cc3ae533bce73c": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -18445,6 +18564,13 @@
     "status": "machine",
     "text": "Wo eine Referenz abgelehnt wurde, nennt der Lauf jede, die er nicht erreichen konnte, und verweist auf den Befehl, der sie festlegt:"
   },
+  "2a752559ca96a21b": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "2a752559ca96a21b",
+    "status": "machine",
+    "text": "Eine Boundary mit zwei Knoten, jeder Knoten an ein helm-chart-Recipe gebunden, das auf dasselbe Quell-Chart zeigt:"
+  },
   "2a7b28696c2d18ec": {
     "at": "2026-10-22T06:00:14.240Z",
     "job": "session-0018-20261022060014",
@@ -19078,6 +19204,13 @@
     "srcHash": "2c1cdc0be14422e5",
     "status": "machine",
     "text": "Der Rumpf ist für die Entitätshülle opak. Der Compiler speichert den String beim Laden der WorkloadLibrary wörtlich und parst das Template dort nicht; der Template-Parser läuft zum Zeitpunkt der Verwendung, wenn ein Recipe oder ein FeatureRecipe den Eintrag importiert. Das wörtliche Speichern des Fragments bewahrt die Treue zur verfassten Form für die erneute Ausgabe, und es bedeutet, dass ein Template-Fehler dort auftritt, wo der Eintrag verwendet wird und sein Säulenkontext bekannt ist, statt an der Bibliothek."
+  },
+  "2c21ecd8a64bd8c7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "2c21ecd8a64bd8c7",
+    "status": "machine",
+    "text": "**Warum das Umbrella-Chart dieses Feld braucht.** Der `name` eines Charts ist das, woran Helm eine Abhängigkeit des Umbrella-Charts bindet. Er wird von demjenigen geschrieben, der das Chart verfasst hat, und das ist bei einem von Upstream bezogenen Chart nicht die Person, die es bereitstellt — daher können zwei Komponenten in einem Zusammensetzungspfad ganz vernünftigerweise Charts lokal kopieren, deren Manifeste denselben Namen deklarieren. Behielten beide Sub-Charts diesen gemeinsamen Namen, würden beide Abhängigkeiten des Umbrella-Charts zu demjenigen der beiden aufgelöst, das Helm zuerst geladen hat: Das Chart der einen Komponente würde zweimal gerendert und das der anderen gar nicht, während die Werte jeder Komponente dennoch ankämen, sodass die Ausgabe vollständig aussähe und falsch wäre. Den Namen des platzierten Charts aus der Komponenteninstanz abzuleiten, beseitigt den gemeinsamen Namen ganz, weshalb nichts abgelehnt werden muss — einschließlich der beiden Fälle, für die es keine andere Abhilfe gibt: **dasselbe Chart unter zwei Komponenten lokal kopieren**, wo der Name konstruktionsbedingt geteilt ist, und **ein Chart lokal kopieren, das Sie nicht geschrieben haben**, dessen Namen Sie nicht ändern können."
   },
   "2c271d2a69b59218": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -21339,6 +21472,13 @@
     "srcHash": "3122587ad15ce5e7",
     "status": "machine",
     "text": "Ressourcenmengen"
+  },
+  "312c80c1bcbcccd1": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "312c80c1bcbcccd1",
+    "status": "machine",
+    "text": "Wird also ein Feature, das ein Chart lokal kopiert, unter dem Namen `guardrail` an eine Komponente namens `api` angebunden, wird ein Chart platziert, das `cfr-zh-api-zh-guardrail` deklariert, während das eigene Chart dieser Komponente weiterhin `api` deklariert. Die beiden sind getrennte Beitragende, und jedes deklariert einen eigenen Namen, statt dass beide den des Hosts deklarieren."
   },
   "31326dd4c4147f14": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -25108,6 +25248,13 @@
     "srcHash": "3a4a1dec474569d2",
     "status": "machine",
     "text": "Ein Recipe liest die an seine Komponente angebundenen Features unter `.features.<instance-name>` und die Credential-Features unter `.features.<slot>`. Beide haben dieselbe Anbindungsform — `.type`, `.values`, `.infra`, `.provides` —, sodass eine Anbindung auf dieselbe Weise gelesen wird, gleich welche Map sie enthält; was sie unterscheidet, ist das, was die Anbindung erzeugt."
+  },
+  "3a4df9daeb337628": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "3a4df9daeb337628",
+    "status": "machine",
+    "text": "Schlüsselsatz von `source:`"
   },
   "3a533afd21a2f672": {
     "at": "2026-11-03T13:03:32.857Z",
@@ -29445,6 +29592,13 @@
     "status": "machine",
     "text": "**Für eine Anbindung an eine Verbindung, die der Knoten zieht, fügen Sie `connection` hinzu** mit ihrem `socket`, ihrem `alias` und ihrem `document`, das hier erforderlich ist, weil jedes der beiden Dokumente eine solche enthalten kann. Mit `aggregate` ist die Antwort der eigene Eintrag der Verbindung in dem Dokument, in dem der Knoten verfasst wurde, mit ihrem `features`-Block zuletzt; eine Verbindung, die das Release gezogen hat, hat dort keinen Eintrag und wird abgelehnt. Mit `release` ist es der Eintrag pro Kante unter dem Eintrag des Release für den Knoten — `[\"spec\", \"boundaries\", \"cluster\", \"components\", \"gateway\", \"uses\", \"models\", \"gpt\", \"features\"]` —, gemeldet unabhängig davon, ob das Release diesen Eintrag pro Kante bereits schreibt, sodass `insertion-point` die noch zu schreibenden Schlüssel nennt; ein Release, das keinen Eintrag für den Knoten schreibt, wird abgelehnt, da es nicht Sache dieses Tools ist zu entscheiden, wo der Knoten platziert wird. Eine Verbindung, die ein Feature gezogen hat, wird in beiden Dokumenten abgelehnt."
   },
+  "44897dc2ca77e4c0": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "44897dc2ca77e4c0",
+    "status": "machine",
+    "text": "Das `source:` des helm-Providers benennt ein Chart, und es akzeptiert beide Formen, die das Feld `source:` annimmt: einen **reinen Dateisystempfad als String** und ein **strukturiertes Objekt**, dessen `url:` den Ort trägt. Wo immer dieser Ort ein Dateisystempfad ist, wird er an dem Verzeichnis verankert, das die `recipe.yaml` enthält, die ihn deklariert, nicht an dem Verzeichnis, aus dem der Build aufgerufen wird, und er muss innerhalb dieses Verzeichnisses bleiben: Ein Pfad, der aus ihm herausführt, oder ein absoluter wird abgelehnt, weil jede Datei, die eine Veröffentlichung des Recipe mitführt, aus seinem Verzeichnis genommen wird — siehe [`entities/recipe.md`](../entities/recipe.md) „Content paths stay inside the Recipe's own directory (Inhaltspfade bleiben im eigenen Verzeichnis des Recipe)“. Ein auf diese Weise benanntes Chart wird mit dem Recipe veröffentlicht, mit jeder Datei darunter, die die beim Fixieren des Recipe festgehaltenen Ignore-Regeln behalten — der helm-Provider lässt die Verzeichnisse der Versionskontrolle und die versteckten Dateien unter `templates/` des Charts weg und beachtet die eigene `.helmignore` des Charts, und die `.aggregaignore` des Autors hat das letzte Wort, wie [Welche Dateien mit einer Entität ausgeliefert werden](../cli/aggrega-pin.md#which-files-ship-with-an-entity) beschreibt —, während eine Datei neben dem Recipe, die nichts von dem benennt, was es deklariert, nicht mitveröffentlicht wird. Das Rendern liest dieselben Dateien, die die Veröffentlichung mitführt, sodass ein Chart aus Ihrem Verzeichnis und aus einer Registry gleich gerendert wird. Die Form, in der Sie es geschrieben haben, ändert daran nichts: Ein strukturiertes `source:`, dessen `url:` `./charts/api-server` ist, wird genau so verankert wie der reine String `./charts/api-server`."
+  },
   "44930b7cdcebf2ab": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -31564,6 +31718,13 @@
     "status": "machine",
     "text": "**`artifacts:` (Artefakte) — verfügbar.** Das Feld ist eine Map benannter Einträge; jeder Eintrag wird inline verfasst oder über ein eigenes `$import:` pro Eintrag geladen. Die Einträge werden ausgewertet, nachdem die Workload geparst und die Quelle aufgelöst ist, sodass ihnen der vollständige TemplateContext — einschließlich `.workload` und `.source` — zur Verfügung steht; sie erhalten Herkunftsangaben, die in `metadata.labels` und `metadata.annotations` zusammengeführt werden, bei Dokumenten, die Metadaten tragen (die für den Zeichensatz unsicheren Schlüssel — recipe-uri, boundary-path, sync-wave — als Annotationen, dieselbe Aufteilung, die die helm-Provider anwenden), und werden als separate Dateien neben der aus der Quelle gerenderten oder aus der Workload synthetisierten Ausgabe des Recipe ausgegeben. Provider-Dispatch — der flache helm-Provider gibt eigenständige Dateien in einem Verzeichnis aus, das nach der Komponente benannt ist, die sie deklariert hat, innerhalb des Boundary-Ausgabeverzeichnisses, denn der Schlüssel benennt die Datei und sagt nichts darüber, welche Komponente sie geschrieben hat; der compose-Provider leitet seine Ausgaben durch den Merger am Ende des Release; der helm-chart-Provider wertet jeden Eintrag mit den Aggrega-Begrenzern `[[ ]]` aus, sodass die Helm-Syntax `{{ }}` in derselben Datei bis zum nachgelagerten Rendern erhalten bleibt, und platziert dann jeden Eintrag nach seiner verfassten Form — einen per `$import:` geladenen Eintrag unter `boundaries/<bp>/charts/<nodeID>/templates/<authored-key>` (die Dateien eines Bundles unter diesem Schlüssel verschachtelt), neben den eigenen Templates des Charts aus der Quelle, und einen Eintrag mit Inline-Inhalt unter `boundaries/<bp>/charts/<nodeID>/<authored-key>`, dem Chart-Stamm, wo die eigenen Templates des Charts ihn über `.Files.Get` / `.Files.Glob` lesen. Dateinamenkollisionen zwischen Ursprüngen verschiedener Eingabearten (aus der Quelle gerendert, aus der Workload synthetisiert oder als Artefakt ausgegeben) werden zur Renderzeit vom ursprungsübergreifenden Kollisionsdetektor erkannt und erzeugen einen CATALOG_ERROR, der jeden Beitragenden nennt."
   },
+  "491df70b02a45829": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "491df70b02a45829",
+    "status": "machine",
+    "text": "Der `name` jedes Abhängigkeitseintrags ist der Name, den das platzierte Sub-Chart trägt — die eigene codierte Identität der Komponenteninstanz, derselbe Wert wie der `alias` — aus den Gründen in [„Der Chart-Name, der dem Umbrella-Chart gehört“](#the-chart-name-the-umbrella-owns). Seine `version` ist weiterhin die Version aus der eigenen `Chart.yaml` des Quell-Charts. Der Alias ordnet die Werte des Sub-Charts unter `values.yaml.<alias>.*` ein, entsprechend Helms Konvention für Umbrella-Werte, sodass sich Werte pro Instanz korrekt fortpflanzen, wenn das Umbrella-Chart installiert wird."
+  },
   "491fdd2f7a023d1b": {
     "at": "2026-11-03T14:26:21.542Z",
     "job": "session-0117-20261103142621",
@@ -32758,6 +32919,13 @@
     "status": "machine",
     "text": "Welche Säulen deklariert und welche offen sind, ist eine Eigenschaft der Oberfläche, nichts, was ein Template beeinflussen kann: Der Compiler liest es aus der Form des Render-Kontexts, den er gleich liefern wird. Das ist es, was den Tippfehler-Abbruch und das Rendern des optionalen Schlüssels im selben Template ermöglicht."
   },
+  "4c27274474c3d0f0": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "4c27274474c3d0f0",
+    "status": "machine",
+    "text": "Ausgearbeitetes Beispiel"
+  },
   "4c2cc6fb4cca4294": {
     "at": "2026-11-03T17:29:39.514Z",
     "job": "session-0135-20261103172939",
@@ -32971,6 +33139,13 @@
     "srcHash": "4cafa2dc2909957f",
     "status": "machine",
     "text": "`aggrega validate` meldet dieselbe Klausel unter dem Recipe, das den Block enthält, mit der Oberfläche, die sie gelesen hat, als Präfix und mit dem Kurzcode dieser Bedingung als Kopfzeile, weil der frühe Bericht dieselbe Bedingung ist:"
+  },
+  "4cb02650462b3b1a": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "4cb02650462b3b1a",
+    "status": "machine",
+    "text": "**Repository-Zeiger `file://`.** Die Abhängigkeitseinträge des Umbrella-Charts verwenden einen Repository-Zeiger `file://`, der das eigene Verzeichnis des Kind-Charts benennt — `file://charts/<instance_id>` für eine Komponente und das eigene Verzeichnis der Anbindung für ein Chart, das ein Feature mitbringt. Das ist die Konvention des lokalen Dateisystems für Kind-Charts im selben Baum und ermöglicht es `helm dependency build`, das Umbrella-Chart ohne Aufrufe externer Registries aufzulösen. Der Zeiger benennt einen Ort und nie den deklarierten Namen des Charts; die beiden unterscheiden sich bei einer Anbindung, und `helm dependency build` ist der Schritt, der einen Zeiger ablehnt, der ein nicht vorhandenes Verzeichnis benennt."
   },
   "4cb66aa640e06f75": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -36126,6 +36301,13 @@
     "status": "machine",
     "text": "**Externe Eingaben verhalten sich genau wie bei einem gewöhnlichen Build**, unter den Bedingungen, die [Externe Eingaben zur Build-Zeit](#external-inputs-at-build-time) darlegt. Ein Dry Run liest daher dieselbe festgelegte Hülle, die der Build lesen würde, für den er steht, und was er zeigt, ist das, was dieser Build schreiben würde."
   },
+  "54180b93fd2ebaaf": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "54180b93fd2ebaaf",
+    "status": "machine",
+    "text": "Bei einer Komponente ist das die eigene Identität der Komponenteninstanz — derselbe Wert wie der `alias` der Abhängigkeit —, und der Abhängigkeitseintrag des Umbrella-Charts nennt ebenfalls diesen Wert, sodass beide Seiten immer übereinstimmen."
+  },
   "541b2d8a45f75485": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -36672,6 +36854,13 @@
     "srcHash": "5513136876f8dcfa",
     "status": "machine",
     "text": "**Keine Signatur ist erforderlich.** Der Build läuft weiter und sagt es laut, statt zu schweigen. Die Abfrage hat in keiner Richtung etwas zum Verifizieren ergeben, daher würde eine Zurückweisung ein Artefakt aufgrund einer unbeantworteten Frage ablehnen — Schweigen aber würde sich wie ein sauberer Pull ohne Signatur lesen, was es nicht ist."
+  },
+  "551373a5b99079cf": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "551373a5b99079cf",
+    "status": "machine",
+    "text": "[`providers/helm.md`](helm.md) — Schwester-Provider, der flaches gerendertes Kubernetes-YAML statt eines Chart-Gerüsts ausgibt; übernimmt die Synthese von Arbeitslasten."
   },
   "5519467d37779be1": {
     "at": "2026-11-03T14:26:19.593Z",
@@ -37415,6 +37604,13 @@
     "status": "machine",
     "text": "a Feature reaches a component alongside a Feature it declares a conflict with (`\"<feature>\"`, attached in the Release on boundary `\"<boundary-path>\"`, conflicts with `\"<other-feature>\"`, attached in the Aggregate on component `\"<component>\"`, on component `\"<component>\"`). Attach only one of the two where they meet: remove one attachment, or move it to a scope that does not hold this component. (ein Feature erreicht eine Komponente zusammen mit einem Feature, mit dem es einen Konflikt deklariert (das angegebene Feature, angebunden im Release an der angegebenen Boundary, steht im Konflikt mit dem anderen angegebenen Feature, angebunden im Aggregate an der angegebenen Komponente, an der angegebenen Komponente). Binden Sie nur eines der beiden dort an, wo sie aufeinandertreffen: Entfernen Sie eine Anbindung, oder verschieben Sie sie in einen Geltungsbereich, der diese Komponente nicht enthält.)"
   },
+  "56c207920e46af67": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "56c207920e46af67",
+    "status": "machine",
+    "text": "**Ein Recipe, das `omits:` deklariert, wird abgelehnt.** Der Schlüssel [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) lässt Dokumente, die eine Quelle rendert, aus dem Build heraus, und dieser Provider rendert zur Build-Zeit kein Dokument: Er kopiert das Chart in das Umbrella-Chart, und die Templates des Charts werden gerendert, wenn das Umbrella-Chart installiert wird. Wo nichts gerendert wird, gibt es nichts auszulassen, daher deklariert dieser Provider nicht, dass er den Schlüssel berücksichtigt, und ein Recipe oder FeatureRecipe, das ihn deklariert, wird abgelehnt, bevor irgendetwas kopiert wird — siehe [The provider does not support omits (Der Provider unterstützt omits nicht)](../errors/fatal-halts.md#the-provider-does-not-support-omits). Für ein Chart, das Sie neben dem Recipe aufbewahren, lässt stattdessen eine Zeile in der dortigen `.aggregaignore` eine Datei des Charts weg, ab dem nächsten Mal, wenn das Recipe fixiert wird; für ein abgerufenes Chart, dessen Ausgabe ein Dokument verlieren muss, rendern Sie es über den Provider `helm`, der den Schlüssel berücksichtigt."
+  },
   "56c44bbc13f9887e": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -37456,6 +37652,13 @@
     "srcHash": "56d7b362ace1578d",
     "status": "machine",
     "text": "workspaceconfig: capability `\"<capability>\"` is bound to more than one provider plugin; keep exactly one plugins.providers entry per capability: capability is bound to more than one provider plugin (die Fähigkeit ist an mehr als ein Provider-Plugin gebunden; behalten Sie genau einen plugins.providers-Eintrag pro Fähigkeit: Fähigkeit ist an mehr als ein Provider-Plugin gebunden)"
+  },
+  "56e01e8ca55153ba": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "56e01e8ca55153ba",
+    "status": "machine",
+    "text": "**Dies ist der einzige Weg, den diese Werte haben.** Ein Chart, das ein Feature mitbringt, kommt mit seinen Dateien so an, wie sein Autor sie geschrieben hat — abgesehen von dem einzigen Manifest-Feld, das in [„Der Chart-Name, der dem Umbrella-Chart gehört“](#the-chart-name-the-umbrella-owns) beschrieben ist —, daher schreibt nichts Ihre Werte in dieses Chart, und der Block des Umbrella-Charts ist das, was sie liefert. Ein Chart, dessen Block nie angekommen ist, ist kein defektes Chart: Es rendert die Standardwerte, die seine eigene `values.yaml` mitliefert, und meldet Erfolg; geben Sie daher einem Standardwert einen Wert, der Ihnen auffallen würde, wenn Sie den Unterschied beim Authoring sehen wollen."
   },
   "56e301bbf3b4b6f5": {
     "at": "2026-11-03T04:04:12.316Z",
@@ -37589,6 +37792,13 @@
     "srcHash": "572c03552096ec99",
     "status": "machine",
     "text": "Nichts davon müssen Sie von Hand einrichten: siehe [Die Willkommensseite](#the-welcome-page)."
+  },
+  "572e1c950795f9da": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "572e1c950795f9da",
+    "status": "machine",
+    "text": "Jedes andere Zeichen wird als `-z` geschrieben, gefolgt von einem Buchstaben, der es benennt: `d` für einen Punkt, `s` für ein Pfadtrennzeichen, `h` für einen Bindestrich, den die obige Regel nicht beibehält. Alles andere wird als `x` und der sechsstellige hexadezimale Codepunkt des Zeichens geschrieben, und ein Byte, das überhaupt kein Zeichen beginnt, als `b` und sein eigener zweistelliger Wert — sodass ein Name, der kein gültiger Text ist, dennoch unterscheidbar ausgeschrieben statt zusammengelegt wird."
   },
   "5731cce49b336213": {
     "at": "2026-11-02T23:32:54.656Z",
@@ -38140,6 +38350,13 @@
     "status": "machine",
     "text": "Bindungen in `features.annotations` eines Manifest können das bloße Präfix `aggrega.ai/` nicht verwenden — es ist plattformeigenen Annotationen vorbehalten, die der Compiler ausgibt (OTel-/Provenienz-Labels usw.). Unterpräfixe mit Geltungsbereich (`component.aggrega.ai/*`, `compliance.aggrega.ai/*`, unternehmensspezifisch `acme.aggrega.ai/*`) bleiben für das Authoring durch Benutzer verfügbar. Die Menge der plattformreservierten Annotationen finden Sie unter [providers/well-known-annotations](../providers/well-known-annotations.md)."
   },
+  "5887803aca83b43c": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "5887803aca83b43c",
+    "status": "machine",
+    "text": "Ein an eine **Boundary** statt an eine Komponente angebundenes Feature hat keine Host-Komponente zu benennen, daher ist sein Verzeichnis allein sein Instanzname: `charts/aux/`."
+  },
   "588e9ec37f7d0e36": {
     "at": "2026-11-02T22:45:48.640Z",
     "job": "session-0015-20261102224548",
@@ -38631,6 +38848,13 @@
     "status": "machine",
     "text": "**Ein Projekt im JSON-first-Layout** — `crew.jsonc`, das die Agenten der Crew nach Namen unter `agents` und ihre Aufgaben unter `tasks` aufführt, und `agents/<name>.jsonc`, eine Datei pro Agent, alle als JSON mit Kommentaren gelesen, sodass ihre Kommentare und nachgestellten Kommas so gelesen werden, wie CrewAI sie liest. Die Agenten werden in der Reihenfolge gelesen, in der `crew.jsonc` sie aufführt, gefolgt von der Datei jedes anderen Agenten in Namensreihenfolge; für einen Agenten, den die Crew aufführt und dessen Datei dem Import nicht übergeben wurde, wird ein Kommentar geschrieben, der ihn nennt, und nichts entworfen. Dasselbe Layout in striktem JSON geschrieben — `crew.json` und `agents/<name>.json` — wird auf dieselbe Weise gelesen. Wo eine Crew oder ein Agent in beiden Schreibweisen vorliegt, ist die Datei `.jsonc` diejenige, die gelesen wird, wie CrewAI sie liest, und die Datei `.json` wird in einem Kommentar als nicht gelesen genannt."
   },
+  "59818e0d0260883e": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "59818e0d0260883e",
+    "status": "machine",
+    "text": "Das `source:` des helm-chart-Providers benennt ein Chart, und es akzeptiert beide Formen, die das Feld `source:` annimmt, gelesen genau so, wie es der [Schlüsselsatz von `source:` des helm-Providers](helm.md#source-keyset) beschreibt: einen **reinen Dateisystempfad als String** und ein **strukturiertes Objekt**, dessen `url:` den Ort trägt. Wo `url:` einen Dateisystempfad nennt, wird nichts abgerufen und das Chart von der Festplatte gelesen; wo es ein Transportschema trägt — zum Beispiel `oci://…` mit `kind: helm-oci-chart` —, ruft `aggrega pull` das Chart ab und fixiert es, und der Build kopiert es aus dem Cache als Sub-Chart in das Umbrella-Chart, zu denselben Bedingungen wie ein von der Festplatte gelesenes Chart."
+  },
   "598441564a82066a": {
     "at": "2026-11-03T00:44:41.577Z",
     "job": "session-0027-20261103004441",
@@ -38925,6 +39149,13 @@
     "srcHash": "5a137fec6e87c6a2",
     "status": "machine",
     "text": "`aggrega/skillsList` — die Skills, die dieses Binary mitliefert, und jeder Assistent, für den `aggrega/skillsInstall` sie schreiben kann, die Auflistung, die [`aggrega skills list`](aggrega-skills.md) ausgibt. Nimmt den Workspace und sonst nichts entgegen und liest nichts daraus. `skills` enthält `name` und `description` jedes Skills; `agents` enthält für jeden Assistenten `id`, `name`, `projectFolder` — relativ zur Wurzel eines Projekts, die auf dieser Oberfläche der Workspace ist, den eine Anfrage nennt — und `userFolder`, relativ zum Home-Verzeichnis, beide durch Schrägstriche getrennt, sortiert nach Bezeichner. Es schreibt nichts und erreicht nichts."
+  },
+  "5a1537f15c2f68b7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "5a1537f15c2f68b7",
+    "status": "machine",
+    "text": "Das Chart am Quellpfad muss eine gültige `Chart.yaml` enthalten. Renderings mit Quelle, die das Chart nicht laden können, geben den zugrunde liegenden Fehler des Helm-SDK wörtlich aus. Ein leeres `source: \"\"` ist keine Angelegenheit von helm: Es benennt weder den Modus ohne Quelle noch den Modus mit Quelle, sodass die Ablehnung, die es erhält, dieselbe ist, welchen Provider das Recipe auch anzielt, und sie erfolgt, bevor irgendein Chart geladen und bevor an diesen Provider verteilt wird. Welcher Befehl diese Ablehnung meldet — und welcher zuerst etwas anderes meldet —, ist in [`entities/recipe.md`](../entities/recipe.md) „Source field scheme inventory (Bestandsaufnahme der Schemata des Feldes source)“ und [`errors/fatal-halts.md`](../errors/fatal-halts.md) „Recipe `source:` is an empty string (Das Feld source des Recipe ist ein leerer String)“ dargelegt."
   },
   "5a15a0b2c6d6caf8": {
     "at": "2026-11-03T04:43:45.832Z",
@@ -40597,6 +40828,13 @@
     "status": "machine",
     "text": "Wo der Flow getragen wird, wird jeder verbundene Bestandteil damit gemeldet, welcher dieser Fälle zutrifft: `part-reads-connection`, wo der Flow den Bestandteil über dessen Verbindung erreicht, und `part-address-in-flow`, wo er den Bestandteil anders als über dessen Verbindung erreicht — unter einer Adresse, die der Flow enthält, oder einer, die die Standardwerte seiner Komponente angeben. Die Entscheidung des Bestandteils sagt dasselbe."
   },
+  "5e350eec78dba5dc": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "5e350eec78dba5dc",
+    "status": "machine",
+    "text": "Der helm-Provider erzeugt flaches gerendertes Kubernetes-YAML für GitOps-Konsumenten (ArgoCD, Flux). Der Provider setzt pro `(path, provider)` zusammen: Das gerenderte YAML jedes auf helm abzielenden Knotens wird an den Assembler geleitet, der nach dem ausgewerteten `directory:` der Boundary, verbunden mit dem komponentenspezifischen `subDirectory:`, geschlüsselt ist, und dieser Assembler gibt eine YAML-Datei pro Kubernetes-Ressource aus. Nachgelagerte Werkzeuge vergleichen die Dateien und wenden sie direkt an, ohne einen Helm-Installationsschritt."
+  },
   "5e3568a0aeb964b4": {
     "at": "2026-10-22T13:03:56.798Z",
     "job": "session-0037-20261022130356",
@@ -41274,6 +41512,13 @@
     "srcHash": "5fc207888bc2838b",
     "status": "machine",
     "text": "**10. MappingLibrary:** Wiederverwendbare Go-Template-Fragmente. Eine Bibliothek deklariert benannte Templates unter `spec.mappings:`. Recipes und FeatureRecipes nutzen Bibliothekseinträge per Identität über `valuesMapping: { $import: <library>#/mappings/<name> }`. Ein einziger Autorenmodus (nur Go-Templates); kein paralleler Jsonnet-Autorenpfad. Optional für Kataloge, die Recipe-übergreifende Wiederverwendung von Mappings benötigen: Gemeinsame Muster wie die Helper-Logik von Bitnami-Charts oder geteilte Pod-Template-Muster wiederholen sich in jedem Datastore-Recipe, das denselben Provider ansteuert, und Einträge einer MappingLibrary lagern diese Wiederholung aus dem Verfassen des einzelnen Recipe aus."
+  },
+  "5fc9509b2b57874e": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "5fc9509b2b57874e",
+    "status": "machine",
+    "text": "Das Umbrella-Chart deklariert die Anbindung außerdem als eine seiner Abhängigkeiten. Beide Hälften sind nötig: Ein Chart, das unter `charts/` vorhanden ist und in `dependencies:` fehlt, ist ein Lint-Fehler, und ein in `dependencies:` deklariertes Chart ohne passendes vorhandenes Kind-Chart führt dazu, dass das Umbrella-Chart das Laden verweigert."
   },
   "5fd4e32eb59b8212": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -43086,6 +43331,13 @@
     "status": "machine",
     "text": "`name` — sein Name: der `metadata.name` eines Dokuments; der Schlüssel einer Compose-Einheit unter `services:`, `volumes:` oder `configs:`; die logische ID einer CloudFormation-Ressource, ihr Schlüssel unter `Resources`."
   },
+  "6422a2356fb4b2f7": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "6422a2356fb4b2f7",
+    "status": "machine",
+    "text": "**Sie schreiben diesen Schlüssel nie selbst.** Sie schreiben die Werte an die Anbindung, und die `values.yaml` des Umbrella-Charts wird für Sie zusammengesetzt, mit dem Block bereits an der Adresse, unter der das platzierte Chart adressiert wird. Für ein an eine Komponente angebundenes Feature sind das die `values:`, die Sie an der Anbindung deklarieren, gelesen vom eigenen `valuesMapping:` des FeatureRecipe; für ein an eine Boundary angebundenes Feature ist es das `infra:`, das Sie dort deklarieren, da ein an eine Boundary angebundenes Feature keine Säule der Komponentenwerte hat. Was es auch ist, die Map, zu der `valuesMapping:` aufgelöst wird, wird zum eigenen Block der Anbindung im Umbrella-Chart:"
+  },
   "6427485f3cf001bc": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -44127,6 +44379,13 @@
     "status": "machine",
     "text": "Woher jedes Blatt stammt: `values_provenance` und `infra_provenance`"
   },
+  "66c87c3fb49a27f0": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "66c87c3fb49a27f0",
+    "status": "machine",
+    "text": "Pfadbasierte Komposition — die Umbrella-Form"
+  },
   "66cab8cbfd5164de": {
     "at": "2026-11-03T02:20:44.184Z",
     "job": "session-0038-20261103022044",
@@ -44476,6 +44735,13 @@
     "srcHash": "67b3797fe32cccb1",
     "status": "machine",
     "text": "Ein Zugangsdaten-FeatureRecipe rendert über denselben Durchlauf der Ressourcenerzeugung wie das jeder anderen Anbindung, und **seine `pipeline:` wird zu denselben Bedingungen ausgeführt**: Der Compiler durchläuft jede Anbindung, die in diesem Durchlauf Arbeit hat, als eine geordnete Folge und führt die jeweils deklarierte Pipeline aus, mit derselben Semantik der Dokumentmengen `/own` und `/host`. Eine Anbindung tritt dieser Folge aus einem von zwei Gründen bei — ihr FeatureRecipe deklariert eine Eingabeart und erzeugt also eigene Ressourcen, oder es deklariert eine `pipeline:` und schreibt also bereits ausgegebene Dokumente um. Eine Zugangsdaten-Anbindung kann daher in die gerenderten Dokumente der Host-Komponente eingreifen — ein Secret-Volume einhängen, eine Env-Referenz hinzufügen — genau wie eine operative Anbindung, und der einzige Unterschied zwischen beiden ist, wo ihre eigenen erzeugten Dateien landen."
+  },
+  "67b83f162d1b8429": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "67b83f162d1b8429",
+    "status": "machine",
+    "text": "Nichts anderes im Chart wird angetastet. Jede andere Datei kommt Byte für Byte so an, wie Sie sie geschrieben haben, und innerhalb von `Chart.yaml` sind jedes andere Feld, jeder Kommentar, die Schlüsselreihenfolge und die Anführungszeichen genau wie verfasst. Ein Schlüssel, der an anderer Stelle im Manifest verschachtelt ist und zufällig ebenfalls `name` heißt — etwa der Name eines Maintainers —, bleibt unberührt."
   },
   "67ba7a48835da2f8": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -45003,6 +45269,13 @@
     "srcHash": "6915da756415cd33",
     "status": "machine",
     "text": "Ein Schlüsselname, der an verschiedenen Stellen des Dokuments wiederkehrt, ist gewöhnlich und bleibt unberührt: `Type` erscheint einmal pro Ressource und `Value` einmal pro Ausgabe, wie viele Ressourcen und Ausgaben das Fragment auch trägt. Nur eine Wiederholung innerhalb eines einzigen Mappings verliert einen Körper."
+  },
+  "691ca40fed260994": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "691ca40fed260994",
+    "status": "machine",
+    "text": "Die drei lassen sich kombinieren: Ein Recipe kann ein Chart, eine Workload und `artifacts:` zusammen deklarieren, und jedes davon rendert und wird für sich ausgegeben, nebeneinander in der Ausgabe des Knotens — siehe [Was jeder Provider akzeptiert, vollständig](../../architecture/16-recipe-input-composition.md#what-each-provider-accepts-in-full)."
   },
   "691ef79f56547545": {
     "at": "2026-11-03T07:17:29.080Z",
@@ -47171,6 +47444,13 @@
     "status": "machine",
     "text": "*Jedes oben genannte Feld wird vom Recipe-Schema akzeptiert, und der Compiler verarbeitet heute alle drei Eingabearten – sourced Rendering, Workload-Synthese und die Ausgabe von artifacts werden alle ausgeliefert. Unterschiedlich ist die Unterstützung pro Anbieter – welcher Anbieter welche Eingabeart rendert –, festgehalten in der Provider-Fähigkeitsmatrix am Ende dieses Kapitels.*"
   },
+  "6e4895e70a0298a1": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "6e4895e70a0298a1",
+    "status": "machine",
+    "text": "Das Sub-Chart-Verzeichnis einer Komponente behält die instance_id genau so bei, wie sie verfasst wurde, sodass `charts/<instance_id>/` der Ort ist, an dem ihre Dateien landen, und das, worauf das `repository` der Abhängigkeit zeigt. Zwei Instanzen desselben Quell-Charts bestehen daher ohne Dateisystemkollision nebeneinander, und jede behält ihren eigenen Werteblock unter ihrem eigenen Alias."
+  },
   "6e4cb40e835db101": {
     "at": "2026-11-03T04:59:02.960Z",
     "job": "session-0054-20261103045902",
@@ -48387,6 +48667,13 @@
     "srcHash": "711fa67cda4fa503",
     "status": "machine",
     "text": "`aggrega inspect <release> --ir-graph` schreibt den Graphen, zu dem der Lauf aufgelöst wurde, als JSON auf die Standardausgabe, vor der Ansicht, die der Befehl ohnehin rendert. Ein JSON-Dokument, ein abschließender Zeilenumbruch, sodass ein Konsument, der den Stream dekodiert, den Graphen liest und aufhört."
+  },
+  "7129699a0c92c02f": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "7129699a0c92c02f",
+    "status": "machine",
+    "text": "[`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — providerübergreifende Provider-Fähigkeitsmatrix."
   },
   "712bd726d8c030e7": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -49812,6 +50099,13 @@
     "status": "machine",
     "text": "Ein Release gruppiert Komponenten in **Boundaries** — physische Bereitstellungseinheiten, jede mit eigenem Ausgabeverzeichnis und eigener Annotations-Kaskade. Der Fall mit einer einzigen Boundary ist der übliche und braucht daher keinen Aufwand."
   },
+  "748cd404027ab307": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "748cd404027ab307",
+    "status": "machine",
+    "text": "**Nur-Artefakte-Modus.** Ein Recipe mit `artifacts:` und weder `source:` noch `workload:` gibt die Manifeste aus, die sein Autor geschrieben hat, wobei die Provenienz-Labels und -Annotationen des Builds in die eigenen Metadaten jeder Ressource eingefügt werden."
+  },
   "748dc174f4529310": {
     "at": "2026-10-22T14:38:40.134Z",
     "job": "session-0042-20261022143840",
@@ -50164,6 +50458,13 @@
     "srcHash": "75345ba4441165e3",
     "status": "machine",
     "text": "`release.yaml` — Dimensionierung durch den Operator: Engine-Version, Speicher und HA für die Boundary `infra`. Der Eintrag für `db` darin bindet den erforderlichen Slot `root_password` der Component mit `core/generated-secret` — dem Feature für Zugangsdaten, das besagt, dass die Engine die Zugangsdaten besitzt (siehe unten) — und bindet `core/backup` an, das festlegt, wie lange die Instanz ihre Backups aufbewahrt."
+  },
+  "7536246cda08ca62": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "7536246cda08ca62",
+    "status": "machine",
+    "text": "**Werte folgen dem deklarierten Namen, nicht dem Verzeichnis.** Die Werte eines Kind-Charts werden unter dem Namen eingeordnet, den dieses Chart deklariert, daher werden Werte für das obige Chart über den *deklarierten* Namen von `api--guardrail` — `cfr-zh-api-zh-guardrail` — adressiert statt über sein Verzeichnis."
   },
   "7538e18dac097df1": {
     "at": "2026-11-03T12:27:39.720Z",
@@ -50598,6 +50899,13 @@
     "srcHash": "75fea72d4917cba8",
     "status": "machine",
     "text": "im zusammengesetzten Stack"
+  },
+  "7602243bce1e250e": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "7602243bce1e250e",
+    "status": "machine",
+    "text": "Ein Helm-Chart-Name und ein Helm-Abhängigkeitsalias akzeptieren jeweils eine engere Zeichenmenge, als ein Aggregatname, ein Boundary-Pfad oder eine instance_id enthalten kann. Statt ein Zeichen zu ersetzen, das das Ziel nicht akzeptiert, schreibt die Ableitung es aus, sodass zwei Identitäten, die sich nur in der Interpunktion unterscheiden, immer bei zwei Namen ankommen — und ein unter einem Alias geschriebener Wert immer nur das Sub-Chart erreichen kann, das dieser Alias benennt."
   },
   "760300f3ba66dc1b": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -53158,6 +53466,13 @@
     "status": "machine",
     "text": "`aggregate.yaml` — Entwicklerabsicht: eine Komponente `db` vom Typ `core/datastore/postgres`, deren beide Zugangsdaten-Slots mit `core/referenced-secret` gefüllt sind. Von beiden Releases unverändert verwendet."
   },
+  "7bdfd9713d83e058": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "7bdfd9713d83e058",
+    "status": "machine",
+    "text": "Der Provider läuft pro Zusammensetzungspfad in zwei Phasen:"
+  },
   "7be5541b78f818e8": {
     "at": "2026-11-03T16:49:01.800Z",
     "job": "session-0131-20261103164901",
@@ -53886,6 +54201,13 @@
     "srcHash": "7d9eb503907847c0",
     "status": "machine",
     "text": "**Was Sie weglassen, verantworten Sie.** Nichts im Build weiß, wofür ein Dokument da ist. Eines wegzulassen, von dem der Rest des Charts zur Laufzeit abhängt — das Secret, das ein Deployment einbindet, der ServiceAccount, unter dem ein Pod läuft —, erzeugt eine Ausgabe, die sauber baut und dann beim Anwenden fehlschlägt, es sei denn, etwas anderes, das daneben angewendet wird, stellt dieses Dokument bereit. Bei einer Compose-Datei und einem CloudFormation-Template prüft der Build sehr wohl, weil jede ihre eigenen Verweise angibt: Was übrig bleibt und noch eine weggelassene Einheit nennt — ein Service, der einen weggelassenen Service nennt, eine Ressource oder ein Output, die eine weggelassene Ressource nennen —, stoppt den Build, wie die folgende Tabelle beschreibt."
+  },
+  "7da3552259cc5612": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "7da3552259cc5612",
+    "status": "machine",
+    "text": "Wo das Chart einer Anbindung landet"
   },
   "7da56ae0f584116f": {
     "at": "2026-11-03T22:09:07.585Z",
@@ -59569,6 +59891,13 @@
     "status": "machine",
     "text": "Was der compose-Provider nicht liefert"
   },
+  "8b9337f4ff684fc7": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "8b9337f4ff684fc7",
+    "status": "machine",
+    "text": "[`entities/recipe.md`](../entities/recipe.md) — Authoring-Oberfläche des Recipe und die drei Eingabearten."
+  },
   "8b955ad8551bd2ba": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -60159,6 +60488,13 @@
     "srcHash": "8cfd2582179c1604",
     "status": "machine",
     "text": "signing: a recorded signature is not the one a pull would record (`\"<reference>\"`, `<file>` records `<signature>`, a pull would record `<signature>`). remediation: run `aggrega pull --release <release>` to bring `<file>` up to date (signing: Eine erfasste Signatur ist nicht die, die ein Pull erfassen würde: Die Datei erfasst eine Signatur, ein Pull würde eine andere erfassen. Abhilfe: Führen Sie den Pull aus, um die Datei auf den neuesten Stand zu bringen)"
+  },
+  "8cfe4c8157f0efd1": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "8cfe4c8157f0efd1",
+    "status": "machine",
+    "text": "Ein Buchstabe, eine Ziffer und ein Unterstrich werden genau wie verfasst übernommen."
   },
   "8d095d77ce7f5e23": {
     "at": "2026-10-23T03:05:44.362Z",
@@ -61941,6 +62277,13 @@
     "status": "machine",
     "text": "Ein deklarierter Workspace wird genau so aufgelöst wie einer, den eine Anfrage nennt, daher wird eine Deklaration, die einen relativen Pfad oder einen Pfad nennt, der kein Verzeichnis ist, beim Handshake abgelehnt, statt die Pushes auf einen unerwarteten Ort gerichtet zu lassen."
   },
+  "91242c05fc7673ee": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "91242c05fc7673ee",
+    "status": "machine",
+    "text": "Die Kaskade löst die DRY-Spannung auf natürliche Weise: Deklarieren Sie `aggrega.ai/chart-name` einmal an der übergeordneten Boundary, und untergeordnete Boundaries erben es über die Kaskade; Geschwister-Boundaries ohne gemeinsame übergeordnete Boundary müssen übereinstimmende Werte explizit deklarieren. Boundaries, für die nirgends in ihrer Kaskade `aggrega.ai/chart-name` deklariert ist, fallen auf den Aggregatnamen und den Zusammensetzungspfad zurück — das Ausgabeverzeichnis des Umbrella-Charts unter `dist/`, etwa `boundaries/data/helm-chart` —, die jeweils wie unten beschrieben codiert und verbunden werden."
+  },
   "912467237f37e8e8": {
     "at": "2026-11-03T18:29:45.694Z",
     "job": "session-0140-20261103182945",
@@ -62747,6 +63090,13 @@
     "status": "machine",
     "text": "Einträge werden in der Reihenfolge aufgelöst, in der sie geschrieben sind, und **ein Eintrag darf einen darüber definierten Geschwistereintrag lesen** und erhält dessen aufgelösten Wert:"
   },
+  "92f0f0c680b14a72": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "92f0f0c680b14a72",
+    "status": "machine",
+    "text": "Ein FeatureRecipe der Fähigkeit `helm`, das an eine Komponente auf diesem Ziel angebunden ist, bringt fertige Kubernetes-Manifeste statt eines Charts mit. Sie landen im eigenen Verzeichnis der Anbindung genau so, wie der [helm-Provider](helm.md) sie gerendert hat, und der Provider gibt diesem Verzeichnis die zwei Dinge, die es zu einem Chart machen, das Helm installiert: eine minimale `Chart.yaml`, die den eigenen Namen der Anbindung in der Version `0.1.0` deklariert, und ein einziges Template, `templates/rendered.yaml`, das jede gerenderte YAML-Datei über Helms `.Files.Get` anhand ihres Namens ausgibt:"
+  },
   "92f2f8a7fb52795b": {
     "at": "2026-11-03T05:31:59.590Z",
     "job": "session-0057-20261103053159",
@@ -63065,6 +63415,13 @@
     "srcHash": "93a7eee4ffe1cd2e",
     "status": "machine",
     "text": "In der Rolle, die Annotationen einfügt, sammelt eine Richtlinie eine Entscheidung pro Annotation unter `annotations` und benennt das Ziel über die Koordinate, die das Ziel selbst trägt, sowie den Schlüssel und seinen Wert:"
+  },
+  "93a8371d500a3d03": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "93a8371d500a3d03",
+    "status": "machine",
+    "text": "Der helm-Provider akzeptiert alle drei Eingabearten des Recipe in unterschiedlichen Rollen:"
   },
   "93b25abb6f938f1d": {
     "at": "2026-11-03T18:10:58.903Z",
@@ -63429,6 +63786,13 @@
     "srcHash": "949e2453d4076ddc",
     "status": "machine",
     "text": "Der Datenschlüssel ist `value` statt `api-key`, weil `key` ein Blatt der `values` ist, die nur das Aggregate schreibt, sodass eine Anbindung, die das Release allein vornimmt, den Standardwert des Features liest. Die Realisierung veröffentlicht diesen Schlüssel, und der Store liest ihn aus dem Veröffentlichten, sodass die beiden dennoch übereinstimmen."
+  },
+  "94b1492e2bff45c5": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "94b1492e2bff45c5",
+    "status": "machine",
+    "text": "[`10-status.md#providers`](../10-status.md#providers) — aktuelle Einstufung der Bereitschaft."
   },
   "94b17d9c2694e8da": {
     "at": "2026-10-30T20:20:36.751Z",
@@ -64531,6 +64895,13 @@
     "srcHash": "974dba7c13b40294",
     "status": "machine",
     "text": "**`aggrega/lint` fragt ausdrücklich danach.** Senden Sie `entity` für eine einzelne Katalog-Entität, `release` für jede Entität, die der Abhängigkeitsabschluss dieses Release erreicht, oder keines von beiden, um jede Entität unter den konfigurierten Katalogverzeichnissen zu prüfen – die drei Geltungsbereiche, die der Befehl hat. Das Senden von `entity` und `release` zugleich benennt zwei verschiedene Gegenstände und wird abgelehnt. Die Antwort enthält `checked`, die Anzahl der Entitätsdokumente, die der Lauf abgedeckt hat, und `files`, die Befunde, gruppiert nach dem Dokument, das sie jeweils betreffen, und nach Pfad sortiert, wobei die Einträge jeder Datei die oben beschriebene Diagnoseform haben. `halted` gibt an, ob das eigene Urteil des Laufs die Veröffentlichung verweigert."
+  },
+  "975778954abed785": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "975778954abed785",
+    "status": "machine",
+    "text": "Der deklarierte Name ist derjenige, den ein Chart deklarieren würde, das dieselbe Anbindung lokal kopiert hätte, sodass der Abhängigkeitseintrag des Umbrella-Charts und sein Werteblock genau wie oben beschrieben adressiert werden. `.Files.Get` gibt die Bytes einer Datei unverändert zurück, statt sie ein zweites Mal auszuwerten, sodass ein Manifest mit literalen Template-Klammern — das `{{ $labels.instance }}` einer Alerting-Regel, die Abfrage eines Dashboards — mit diesen unversehrt installiert wird. Seine Werte wurden in diese Manifeste aufgelöst, als der helm-Provider sie gerendert hat, sodass der Block, den die `values.yaml` des Umbrella-Charts unter diesem Namen trägt, von nichts gelesen wird."
   },
   "97581d8e9d9a8a84": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -65829,6 +66200,20 @@
     "status": "machine",
     "text": "**Katalog-Entitäten** — die Components, Features, Recipes, FeatureRecipes, Schema- und Mapping-Bibliotheken sowie Wasm-Plugins, auf die das Release verweist, transitiv aufgelöst (über `extends:`, `implements:`, `aggregate:`, Feature-Anbindungen und die Stellen `$import:` / `$ref:` in Bibliotheken) und aus der Registry abgerufen, wenn sie nicht bereits lokal vorliegen."
   },
+  "9a1dde6cf1a68895": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "9a1dde6cf1a68895",
+    "status": "machine",
+    "text": "Ein Chart lokal zu kopieren (Vendoring) wird als Alternative zum Abrufen unterstützt und ist nicht erforderlich. Das Schema akzeptiert ein offenes strukturiertes Objekt."
+  },
+  "9a24d51bf0b2e179": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "9a24d51bf0b2e179",
+    "status": "machine",
+    "text": "**Der `name` des platzierten Charts gehört dem Umbrella-Chart.** Er wird auf die codierte Identität dessen gesetzt, was das Chart beigetragen hat — die eigene Identität einer Komponenteninstanz oder, bei einem Chart, das eine Feature-Anbindung mitbringt, die eigene Identität dieser Anbindung —, und er ist das Einzige in einem lokal kopierten Chart, das Aggrega ändert. Siehe [„Der Chart-Name, der dem Umbrella-Chart gehört“](#the-chart-name-the-umbrella-owns)."
+  },
   "9a35af9b3c26dede": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -67122,6 +67507,13 @@
     "status": "machine",
     "text": "Eine Ausgabe in einem Body, der tatsächlich über einem Pfad läuft, der nichts enthält, schreibt weiterhin `<no value>`, was diese Prüfung nicht erreicht. Eine Schreibweise eines Pfads ist derselbe Pfad wie jede andere, sodass eine Ausgabe in einer Schreibweise und ein `range` in einer anderen zusammen beurteilt werden, und die Meldung zitiert die Schreibweise, die das Template zuerst geschrieben hat. Ein Pfad, der einen Wert enthält, wird ausgegeben und iteriert wie immer, und ein Pfad, dessen übergeordnetes Element nichts enthält, bleibt dem Abbruch überlassen, den das Absteigen durch nichts bereits auslöst."
   },
+  "9d1d97e432885ee6": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "9d1d97e432885ee6",
+    "status": "machine",
+    "text": "Nach der Komposition enthält der ausgewertete Zusammensetzungspfad der Boundary (standardmäßig `dist/<boundary-directory>/<capability>/`, weil `subDirectory:` standardmäßig `{{ .capability }}` ist):"
+  },
   "9d1f855a3b3a32e7": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -67717,6 +68109,13 @@
     "srcHash": "9ec7f7559c5f1383",
     "status": "machine",
     "text": "Die Regel liest die Platzierung statt der Schreibweise, sodass ein Modul, dessen Komponenten jeweils einzeln unter den `components` einer Boundary genannt sind, platziert ist und die Prüfung besteht: Es mangels eines Routing-Eintrags zurückzuweisen, würde eine Form des Verfassens ablehnen, die die Sprache zulässt. Auch ein nur teilweise platziertes Modul besteht — welche seiner Komponenten eigene Einträge tragen, ist die Frage der Komponentenregel, und alle, die es ausgelassen hat, werden dort gemeldet, jede an ihrem eigenen Schlüssel."
+  },
+  "9eca2cbe7aa65300": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "9eca2cbe7aa65300",
+    "status": "machine",
+    "text": "Die `Chart.yaml` des Umbrella-Charts hat folgende Form:"
   },
   "9ece76a7fbd4582a": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -69526,6 +69925,13 @@
     "status": "machine",
     "text": "Das Aggregate setzt eine MariaDB-Component (`db`) mit einer API-Server-Component (`api`) zusammen. Der typisierte Block `parameters:` deklariert Umgebung, Region, Datenbankkonfiguration und API-Konfiguration mit Parametern in verschachtelter Struktur. Das Template `db.values` wählt die Architektur anhand von `.parameters.environment`. Der Block `db.features` bindet an jeden Slot Zugangsdaten `core/secret-value` an und nennt den Schlüssel, unter dem sie zugestellt werden — die Schlüssel, die das Mapping liest; das Release liefert die Secret-Werte selbst. Der Socket `api.uses.primary_db` deklariert die Abhängigkeitskante im Graphen: Der Build prüft `db` gegen den Selektor des Sockets, und das Recipe der API erhält, was das Recipe von `db` unter `.context.uses.db` veröffentlicht, da eine nach Ziel aufgeführte Verbindung über den Namen des Ziels adressiert wird."
   },
+  "a28abb1a7f8aec11": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "a28abb1a7f8aec11",
+    "status": "machine",
+    "text": "Nur `url:` entscheidet, woher ein Chart gelesen wird. Die anderen Felder wählen aus, was abgerufen würde, sodass sie bei einem Pfad nichts auswählen — sie erreichen die eigenen Templates des Recipe dennoch als `.source.*`."
+  },
   "a28ce7cb803aca93": {
     "at": "2026-11-02T19:03:23.148Z",
     "job": "session-0004-20261102190323",
@@ -69560,6 +69966,13 @@
     "srcHash": "a299f777b9984dee",
     "status": "machine",
     "text": "Eine Zeile wird gelesen, wie die Tabellenzeile eines Flow-Importers gelesen wird: die Component, die Kategorie, in die ihr Name sie einordnet, ihre Merkmale und das letzte Segment ihres Namens als ihr Anbieter. Die [Einstellung `mapping_overrides`](#settings) legt sich unter dem Format `compose` über die Tabelle, nach Repository geschlüsselt, und ein Eintrag für ein Repository, das die Tabelle abbildet, nimmt den Platz der Zeile ein. So wird ein Image, das die Recipes des Standardkatalogs nicht nennen — Ihr eigenes oder eines, das eine Component des Katalogs unter einem anderen Repository ausführt —, durch einen Eintrag abgebildet:"
+  },
+  "a29ccfcc6d7e9dcd": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "a29ccfcc6d7e9dcd",
+    "status": "machine",
+    "text": "Wo zwei Identitäten einen Chart-Namen bilden — ein Aggregatname, der einen Zusammensetzungspfad qualifiziert —, werden sie durch `--` verbunden. Eine einzelne codierte Identität enthält dieses Paar nie, sodass der verbundene Name eindeutig angibt, welche Identität welche ist."
   },
   "a2a915f5c42b866e": {
     "at": "2026-11-03T18:29:45.694Z",
@@ -70238,6 +70651,13 @@
     "srcHash": "a427e2a48ce2dd55",
     "status": "machine",
     "text": "`tmpfs:`-Mount ohne Größenangabe (eine Warnung meldet ein verfasstes `sizeLimit`)"
+  },
+  "a42f696f66d9e1eb": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "a42f696f66d9e1eb",
+    "status": "machine",
+    "text": "**Was der Verzeichnisname zulässt.** ASCII-Buchstaben in beiden Schreibweisen, Ziffern, der Punkt und der Unterstrich werden so durchgereicht, wie Sie sie geschrieben haben, sodass sich `API--aux` und `web.api--aux` so lesen, wie Sie es erwarten würden. Ein von Ihnen geschriebener Bindestrich bleibt überall erhalten, wo das Zeichen danach eines dieser Zeichen ist, sodass `web-api--aux` unverändert bleibt; ein doppelter Bindestrich wird maskiert, weil das Paar die Verbindungsstelle ist. Alles andere wird nach derselben Regel maskiert wie ein Chart-Name. Die Menge ist so gezogen, weil diese Verzeichnisnamen sowohl Pfade auf der Festplatte als auch der Ort sind, den der Zeiger `file://` einer Abhängigkeit auflöst, und ein Zeichen, das in einem Dateinamen unproblematisch ist, eine URL abschneiden oder neu decodieren lassen kann."
   },
   "a432d9c4a9d5fdf5": {
     "at": "2026-10-22T16:24:02.036Z",
@@ -78797,6 +79217,13 @@
     "status": "machine",
     "text": "Die folgenden Dateien bilden einen Workspace, den Sie bauen können. Schreiben Sie jede an den Pfad, den ihre erste Zeile nennt, und führen Sie die zwei Befehle unter [End-to-End-Build](#end-to-end-build) aus; die Ausgabeblöcke auf dieser Seite sind aus einem Build dieser Dateien kopiert, wie [Die Ausgabe auf diesen Seiten lesen](reading-the-output.md) beschreibt."
   },
+  "b788bae59352f52a": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "b788bae59352f52a",
+    "status": "machine",
+    "text": "Ein `helm install <release-name> dist/<boundary-directory>/helm-chart` gegen dieses Layout installiert beide Instanzen als ein einziges Helm-Release, wobei die nach Alias geschlüsselten Werte des Umbrella-Charts die Templates jedes Sub-Charts steuern."
+  },
   "b78baedd8e04470b": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -79174,6 +79601,13 @@
     "srcHash": "b8a7813416fec794",
     "status": "machine",
     "text": "Ein Buchstabe, eine Ziffer, ein Punkt und ein Unterstrich werden genau so übernommen, wie sie geschrieben wurden."
+  },
+  "b8aad490feb6cb0b": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "b8aad490feb6cb0b",
+    "status": "machine",
+    "text": "Wo der `syncWave: <integer>` der Boundary nicht `0` ist, trägt jede ausgegebene Kubernetes-Ressource ihn als Annotation `argocd.argoproj.io/sync-wave: \"<N>\"`; Helm-Hooks tragen zusätzlich `helm.sh/hook-weight: \"<N>\"`. ArgoCD liest die sync-wave-Annotation und Helm das Gewicht eines Hooks, und beide ordnen die Ressourcen danach; eine Boundary in der Standardwelle `0` trägt keines von beiden, was beide Werkzeuge als Welle `0` lesen."
   },
   "b8ba1e2deae9144e": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -84102,6 +84536,13 @@
     "status": "machine",
     "text": "Der Name ist das, was eine Datei als Archiv statt als Richtlinientext kennzeichnet, wodurch die Wahl eine ausdrückliche Aussage des Betreibers selbst bleibt: Ein beschädigtes Archiv wird dann als beschädigtes Archiv gemeldet, unter Nennung der Datei und des fehlgeschlagenen Schritts, statt als Richtliniendatei gelesen zu werden, die sich nicht parsen lässt. Das Kodieren des Archivs ist ein Schritt, den der Betreiber hinzufügt, nachdem seine Toolchain es gebaut hat."
   },
+  "c39dd6dbe7857d12": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "c39dd6dbe7857d12",
+    "status": "machine",
+    "text": "Der `name` des Umbrella-Charts wird über die Annotationskaskade der Boundaries aufgelöst. Die effektive Annotation `aggrega.ai/chart-name` jeder beitragenden Boundary (der durch die Kaskade aufgelöste Wert, beim Aufstieg durch den Boundary-Baum) bestimmt den Umbrella-Namen; der aufgelöste Wert wird für die Chart-Namensposition genau wie jede andere Identität codiert, sodass ein Wert, der nur Buchstaben, Ziffern, Unterstriche und Bindestriche enthält, die die Regel unten beibehält, das Chart unverändert erreicht. Wenn der Zusammensetzungspfad Beitragende aus mehr als einer Boundary erhält, MUSS die effektive Annotation `aggrega.ai/chart-name` jedes Beitragenden zum selben Wert aufgelöst werden; Abweichungen brechen den Build mit einer Diagnose ab, die die widersprüchlichen Werte und die beitragenden Boundaries nennt."
+  },
   "c3a2b0dd031a7302": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -85578,6 +86019,13 @@
     "status": "machine",
     "text": "A plugin returned a diagnostic at a severity that is not declared (Ein Plugin hat eine Diagnose mit einem nicht deklarierten Schweregrad zurückgegeben)"
   },
+  "c75627f5979ecb2e": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "c75627f5979ecb2e",
+    "status": "machine",
+    "text": "**Ein Quell-Chart muss eine Version und einen Namen deklarieren.** Die Version des Abhängigkeitseintrags ist diejenige, die die eigene `Chart.yaml` des Quell-Charts deklariert, sodass ein Chart, das keine Version deklariert, den Build abbricht, statt eine zu erhalten — eine Abhängigkeit, die auf eine Version fixiert ist, die das Sub-Chart nicht trägt, würde die instanzspezifischen Werte des Umbrella-Charts daran hindern, es zu erreichen. Ein Chart, dessen `Chart.yaml` keinen Namen deklariert, mehr als ein YAML-Dokument enthält oder sich nicht parsen lässt, bricht den Build aus demselben Grund ab: Das Umbrella-Chart kann kein Sub-Chart zusammensetzen, das es nicht lesen kann."
+  },
   "c756f595f1e354d9": {
     "at": "2026-11-03T03:19:38.005Z",
     "job": "session-0043-20261103031938",
@@ -86701,6 +87149,13 @@
     "status": "machine",
     "text": "Schweregrad"
   },
+  "c99f3d889147b5f8": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "c99f3d889147b5f8",
+    "status": "machine",
+    "text": "Ein Chart, das eine **Feature-Anbindung** mitbringt, ist ein eigenständiger Beitragender und deklariert seine eigene Identität, statt die Identität der Komponente zu wiederholen, an die es angebunden ist. Diese Identität wird aus zwei Dingen zusammengesetzt, die Sie geschrieben haben — der Komponente, die die Anbindung beherbergt, und dem Namen, unter dem das Feature angebunden ist —, hinter einem kurzen Präfix, das sie als Identität einer Anbindung statt einer Komponente kennzeichnet; der zusammengesetzte Wert wird dann über die unten beschriebene Ableitung für die Position des Chart-Namens geschrieben, genau wie jede andere Identität."
+  },
   "c9a1dcec506d78c1": {
     "at": "2026-10-30T19:08:02.729Z",
     "job": "session-0008-20261030190802",
@@ -87566,6 +88021,13 @@
     "srcHash": "cb77c32f4e077e86",
     "status": "machine",
     "text": "path traversal entry `\"<name>\"`: oci: content digest mismatch (angegebener Eintrag mit Pfadtraversierung: oci: Abweichung des Inhalts-Digests)"
+  },
+  "cb792bad51df1ceb": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "cb792bad51df1ceb",
+    "status": "machine",
+    "text": "**Warum daneben statt darin.** Helm erkennt ein Kind-Chart unter `charts/*` — eine Ebene, kein rekursiver Durchlauf. Ein tiefer platziertes Chart ist kein Kind von irgendetwas; es sind Daten im Verzeichnis eines anderen Kindes, nur über `.Files` erreichbar. Ein im eigenen Chart-Verzeichnis der Komponente platziertes Chart würde also in die Ausgabe kopiert, ließe den Build gelingen und trüge keine seiner Ressourcen zu dem bei, was Sie bereitstellen — ohne dass irgendetwas es meldet. Jeden Beitragenden in seinem eigenen Verzeichnis auf oberster Ebene zu platzieren ist das, was die Ressourcen der Anbindung rendern lässt."
   },
   "cb7b40df5e1dfe0d": {
     "at": "2026-11-03T03:00:32.047Z",
@@ -90791,6 +91253,13 @@
     "status": "machine",
     "text": "An artifact that must be signed carries no signature (Ein Artefakt, das signiert sein muss, trägt keine Signatur)"
   },
+  "d28b000358f7ea18": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "d28b000358f7ea18",
+    "status": "machine",
+    "text": "Beide Sub-Charts sind Kopien des einen Quell-Charts, und jedes trägt den Namen seiner eigenen Instanz in seiner `Chart.yaml` — genau das erlaubt es, ein Chart zweimal in einem einzigen Umbrella-Chart lokal zu kopieren. Alles andere ist in beiden Kopien mit der Quelle identisch."
+  },
   "d28c1e9dc0b897a7": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -90860,6 +91329,13 @@
     "srcHash": "d2adc394908cead4",
     "status": "machine",
     "text": "das AI-Gateway: ein Alias, `assistant`, der über den Wächter an das Modell gesendet wird"
+  },
+  "d2afdbf4afcb6705": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "d2afdbf4afcb6705",
+    "status": "machine",
+    "text": "Beide Arten, kein Chart zu benennen, werden abgelehnt, und die beiden Ablehnungen kommen von verschiedenen Stellen — das ist wissenswert, weil sich nur eine davon ändert, wenn Sie die Fähigkeit wechseln. Ein `source:`, das **vorhanden ist und dennoch nichts deklariert**, wird vom Compiler abgelehnt, bevor irgendein Provider läuft, sodass das Ergebnis dasselbe ist, welche Fähigkeit das Recipe auch nennt; die Diagnose fordert Sie auf, das Feld für den Modus ohne Quelle wegzulassen oder einen nicht leeren Pfad zu nennen. **`source:` ganz wegzulassen** ist zulässiges Authoring — so fordert ein Recipe den Modus ohne Quelle an — und wird hier abgelehnt, weil **helm-chart nur die quellbasierte Eingabeart deklariert**, sodass der Compiler die Kombination mit derselben Meldung ablehnt, die er für jede Fähigkeit gibt, die für eine Eingabeart angefordert wird, die sie nicht deklariert. Was helm-chart selbst gehört, ist die Deklaration, keine eigene Ablehnung: Für Kubernetes-Ressourcen, die aus einem Block `workload:` erzeugt werden, verwenden Sie stattdessen die Fähigkeit `helm`."
   },
   "d2b2fd6bdb47d830": {
     "at": "2026-11-03T18:49:44.706Z",
@@ -91683,6 +92159,13 @@
     "srcHash": "d4e0d6d2dd4718c7",
     "status": "machine",
     "text": "parameters: shape must be an inline object or {$import: <local-path>}: $import: must be the only key (got `<n>` keys) at line `<line>` (parameters: die Form muss ein Inline-Objekt oder {$import: lokaler Pfad} sein: $import muss der einzige Schlüssel sein, in der genannten Zeile stehen mehrere Schlüssel) parameters: shape must be an inline object or {$import: <local-path>}: $import value must be a string scalar at line `<line>` (parameters: die Form muss ein Inline-Objekt oder {$import: lokaler Pfad} sein: der Wert von $import muss in der genannten Zeile ein Zeichenketten-Skalar sein)"
+  },
+  "d4e3c2f3c0db2f1c": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "d4e3c2f3c0db2f1c",
+    "status": "machine",
+    "text": "Der Chart-Name, der dem Umbrella-Chart gehört"
   },
   "d4e65cdb71a37a5f": {
     "at": "2026-11-03T12:45:16.288Z",
@@ -93674,6 +94157,13 @@
     "status": "machine",
     "text": "Kennzeichnet Arbeitslasten ausdrücklich als im Geltungsbereich von DSGVO/CCPA. Eine Policy, die ein Betreiber anhängt, kann es lesen, um bestimmte Features auf den Routen zu verlangen, die der Traffic einer solchen Arbeitslast nimmt — `core/data-masking` auf einem KI-Gateway, über das sie Modell-Traffic sendet, zum Beispiel; die Form, die [policy-data-class-route](../examples/policy-data-class-route/README.md) für eine Datenklasse prüft. Keine Component der Standardbibliothek trägt es; wie die Datenklasse ist es eine Aussage einer IT-Landschaft über ihre eigenen Komponenten."
   },
+  "da279f2ca0ad6e2a": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "da279f2ca0ad6e2a",
+    "status": "machine",
+    "text": "**Umbrella-Zusammensetzung pro `(path, provider)`.** Sobald alle Kopien pro Knoten für den Pfad abgeschlossen sind, gibt der Assembler am Root des Zusammensetzungspfads eine `Chart.yaml` + `values.yaml` des Umbrella-Charts aus. Das Umbrella-Chart deklariert eine Abhängigkeit pro beitragendem Knoten und leitet die Werte pro Knoten in nach instance-id geschlüsselte Unterblöcke. Wenn der Zusammensetzungspfad Beitragende aus mehr als einer Boundary erhält (Boundaries mit gemeinsamem `directory:`), landet jeder Beitragende als Abhängigkeit im selben Umbrella-Chart."
+  },
   "da283467493ff75b": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -94102,6 +94592,13 @@
     "srcHash": "db06d8c97bb54ae6",
     "status": "machine",
     "text": "**Jede Einstellung, die das Konfigurationsschema deklariert, wird berücksichtigt, wenn auch nicht jede mit einer eigenen Zeile.** Der additive `_append`-Begleiter einer Liste wird in der Zeile der Liste gemeldet, zu der er hinzufügt, sodass eine Ebene, die nur über den Begleiter beiträgt, in der Zeile dieser Liste benannt wird und der Begleiter keine eigene Zeile hat. Eine Einstellung innerhalb der Einträge einer Liste — die Vertrauensrichtlinie einer Registry, die Eingaben eines Plugin-Anhangs — ist durch die Zeile dieser Liste abgedeckt."
+  },
+  "db0849a7c81b0351": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "db0849a7c81b0351",
+    "status": "machine",
+    "text": "**Workload-Modus (synthetisiert).** Ein Recipe mit `workload:` (inline oder per `$import:` geladen) deklariert ein Workload-Dokument. Der Provider synthetisiert direkt aus der Workload-Spezifikation eine oder mehrere Kubernetes-Ressourcen pro Knoten — ein Controller-Objekt, das durch das `form` der Workload gewählt wird, plus Services pro Service und PVCs pro persistentem Volume; siehe [Workload-Modus (synthetisiert)](#workload-synthesized-mode)."
   },
   "db0f3dbce210834a": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -97467,6 +97964,13 @@
     "srcHash": "e217ec2722ba1c36",
     "status": "machine",
     "text": "**die Regel bereits existiert**, in einem Werkzeug, das Ihr Team ausführt und überprüft, über ein Format, das dieses Werkzeug bereits parst. Sie als Richtlinieninhalt für den Socket neu auszudrücken, ist Arbeit, an deren Ende keine neue Abdeckung steht."
+  },
+  "e220299f0c5d28cb": {
+    "at": "2026-11-04T00:28:09.122Z",
+    "job": "session-0179-20261104002809",
+    "srcHash": "e220299f0c5d28cb",
+    "status": "machine",
+    "text": "Das Chart am Quellpfad **muss in seinem Root eine gültige `Chart.yaml` enthalten**; fehlt sie, erscheint ein klarer Fehler, bevor das Kopieren läuft. Die Verzeichnisstruktur des Charts bleibt beim Kopieren erhalten — `templates/`, `values.yaml`, `Chart.yaml` und alle anderen Dateien sind nach der Komposition im Sub-Chart-Verzeichnis vorhanden. Jede Datei kommt mit den Bytes an, die Sie geschrieben haben, bis hin zu Kommentaren, Schlüsselreihenfolge und Anführungszeichen; die einzige Ausnahme ist das Feld `name` der eigenen `Chart.yaml` des Charts, das das Umbrella-Chart setzt — siehe [„Der Chart-Name, der dem Umbrella-Chart gehört“](#the-chart-name-the-umbrella-owns)."
   },
   "e22401b7d9ccc29f": {
     "at": "2026-11-02T18:47:12.619Z",
@@ -102170,6 +102674,13 @@
     "status": "machine",
     "text": "**Schwelle und ihr Zielkonflikt.** Der Lint paart Namen nur im Abstand von einer Bearbeitung und nur, wenn beide Namen mindestens vier Zeichen lang sind — dieselbe Grenze, die der Lint für beinahe passende Anbindungs-Slots verwendet, aus demselben Grund. Unterhalb dieser Länge liegt fast jeder kurze Name eine Bearbeitung von jedem anderen entfernt, sodass ihre Paarung Rauschen statt Signal erzeugen würde; jenseits einer Bearbeitung ähneln die Paare keinen Tippfehlern mehr. Eine Vertauschung zählt als eine Bearbeitung statt als zwei, weil ein vertauschtes Zeichenpaar der häufigste Ausrutscher ist und eine strengere Zählung ihn übersehen würde."
   },
+  "ed4bcda614ee9110": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "ed4bcda614ee9110",
+    "status": "machine",
+    "text": "Wenn ein Ressourcenname den verfassten Namen des Charts tragen muss, legen Sie diesen Namen in der `values.yaml` des Charts ab und lesen Sie ihn von dort — ein Wert gehört Ihnen, und Aggrega rührt ihn nicht an."
+  },
   "ed4d93745b0c5dd2": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -103956,6 +104467,13 @@
     "status": "machine",
     "text": "**Einrückung.** Ein Fragment, das aus einer tief verschachtelten Struktur herausgelöst wurde, wird meist ab dem linken Rand gezeigt, damit es für sich lesbar ist. Die Zeilen sind die ausgegebenen Zeilen; nur die führenden Leerzeichen haben sich geändert."
   },
+  "f156ff652dcfc718": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "f156ff652dcfc718",
+    "status": "machine",
+    "text": "Ein strukturiertes `source:` sagt dasselbe mit benannten Feldern, und was sein `url:` trägt, entscheidet, ob etwas abgerufen wird. Wo `url:` ein Transportschema trägt — `oci://…` für ein OCI-Chart, ein `https://….tgz` für ein direktes Chart-Archiv oder ein Repository-Root `https://` zusammen mit `chart:` —, wird das Chart abgerufen: Die Art ergibt sich aus dem URL-Schema oder aus einem expliziten `kind:`, `aggrega pull` ruft das Chart ab und fixiert es in der Lockdatei, und der Build entpackt es aus dem Cache. Wo `url:` einen Dateisystempfad benennt, wird nichts abgerufen und nichts fixiert — das Chart wird von der Festplatte gelesen und genau wie die obige reine String-Form verankert."
+  },
   "f1632c2f48ecf933": {
     "at": "2026-11-03T10:52:20.646Z",
     "job": "session-0094-20261103105220",
@@ -104372,6 +104890,13 @@
     "srcHash": "f27ba71d4f036507",
     "status": "machine",
     "text": "**Diese Invarianz macht die beiden Formen austauschbar.** Hätte die konsumierende Seite den Namen des Secrets selbst abgeleitet, hätte der Austausch der Bindung sie auf eine Ressource zeigen lassen, die unter diesem Namen nicht mehr existierte."
+  },
+  "f286296daba1d782": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "f286296daba1d782",
+    "status": "machine",
+    "text": "Eine Anbindung, deren FeatureRecipe über den helm-Provider rendert"
   },
   "f28cff3eabc31d14": {
     "at": "2026-11-03T20:25:36.476Z",
@@ -105319,6 +105844,13 @@
     "srcHash": "f4807744a73c928a",
     "status": "machine",
     "text": "Die Anbindungsfakten, die eine Governance-Richtlinie liest"
+  },
+  "f483fb5735f540e9": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "f483fb5735f540e9",
+    "status": "machine",
+    "text": "Wie ein Name abgeleitet wird"
   },
   "f48a1629ceea71ae": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -106316,6 +106848,13 @@
     "srcHash": "f6ca837475334d5f",
     "status": "machine",
     "text": "Ein Verweis nennt eine Entität, die der Katalog enthält, und pinnt eine Version, die der Katalog nicht enthält: eine exakte Version, die fehlt, oder einen Caret-Bereich, zu dem nichts Verfügbares passt. Das ist von einem einfachen Fehltreffer zu unterscheiden, bei dem der Name selbst unbekannt ist — hier existiert die Entität und nur die Version ist nicht erfüllbar, weshalb die Meldung genau das sagt, statt die Entität als fehlend zu melden und Sie nach einem Tippfehler im Namen suchen zu lassen."
+  },
+  "f6cbaf255904c847": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "f6cbaf255904c847",
+    "status": "machine",
+    "text": "**Die `Chart.yaml` des Sub-Charts ist erforderlich.** Der Kopiervorgang setzt eine vorhandene `Chart.yaml` im Root des Quellpfads voraus. Fehlt sie, bricht der Build ab, bevor der Umbrella-Schritt läuft."
   },
   "f6cc2523cbb9de69": {
     "at": "2026-11-03T23:11:55.145Z",
@@ -107362,6 +107901,13 @@
     "status": "machine",
     "text": "Eintrag in `environment` mit leerem Wert und eine Warnung, die den Eintrag nennt (siehe [Was der compose-Provider nicht liefert](#what-the-compose-provider-does-not-deliver))"
   },
+  "f9573411a68c2ff1": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "f9573411a68c2ff1",
+    "status": "machine",
+    "text": "Die `values.yaml` des Umbrella-Charts ist nach Alias geschlüsselt:"
+  },
   "f95778810ae0768c": {
     "at": "2026-11-03T06:21:54.160Z",
     "job": "session-0064-20261103062154",
@@ -107860,6 +108406,13 @@
     "srcHash": "fa5dbd2f7fe06215",
     "status": "machine",
     "text": "Schweregrad der Deprecation: einer von warning, error, retracted. Bei einer positionalen Referenz erforderlich, sofern nicht eine interaktive Abfrage ihn liefert; wird neben --from abgelehnt, dessen Einträge ihren eigenen mitbringen."
+  },
+  "fa5ed947428ca46f": {
+    "at": "2026-11-04T00:28:10.767Z",
+    "job": "session-0180-20261104002810",
+    "srcHash": "fa5ed947428ca46f",
+    "status": "machine",
+    "text": "Ein Bindestrich bleibt wie verfasst erhalten, wo immer das Zeichen nach ihm direkt übernommen wird und kein kleines `z` ist. Ein Bindestrich, auf den ein kleines `z` folgt, leitet ein Escape ein, sodass ein an dieser Stelle verfasster Bindestrich selbst ausgeschrieben wird — aus `api-zone` wird `api-zhzone`, und genau das erlaubt es, jeden Namen ohne Raten zurückzulesen."
   },
   "fa657b97515785d1": {
     "at": "2026-11-03T22:29:54.265Z",
