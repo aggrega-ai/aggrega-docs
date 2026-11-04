@@ -1128,6 +1128,13 @@
     "status": "machine",
     "text": "**Hook de disponibilidad SOC2.** Indica a la `FeatureRecipe` de Ops si debe generar físicamente configuraciones automatizadas de Snapshot/Volume Backup para el recurso."
   },
+  "021d454ac6e35850": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "021d454ac6e35850",
+    "status": "machine",
+    "text": "El payload que un guest del Provider devuelve desde su exportación render_node: los bytes serializados de cada archivo de salida que emitió el guest, los nombres que derivó en cada uno de sus propios espacios de claves, los hechos que informa sobre lo que emitió, con cuántas unidades renderizadas coincidió cada entrada omits que se le entregó, y los diagnósticos que el guest generó durante el renderizado. El guest devuelve los bytes serializados de cada archivo; el host los escribe tal cual y no ejecuta ningún serializador. El determinismo es responsabilidad del guest: una entrada idéntica debe producir bytes idénticos."
+  },
   "021e3562eb683aa3": {
     "at": "2026-11-03T21:35:42.901Z",
     "job": "session-0161-20261103213542",
@@ -3903,6 +3910,13 @@
     "status": "machine",
     "text": "Dirección en la que se responden las comprobaciones de actividad y de disponibilidad, en las mismas dos formas que admite `listen`: `host:port`, o `unix:` seguido de una ruta del sistema de archivos. De forma predeterminada está vacía, así que no se inicia ningún segundo listener y ninguna de las dos comprobaciones se responde en ningún sitio. Con una dirección establecida, `GET /healthz` se responde con `200` desde el momento en que el proceso está en ejecución, y `GET /readyz` se responde con `503` hasta que el espacio de trabajo se ha resuelto y el endpoint se ha enlazado, y con `200` a partir de entonces — que es la distinción que necesita un supervisor, ya que un proceso que está en marcha aún no es un proceso que pueda responder a una llamada. Cada respuesta es un código de estado con el cuerpo vacío, no se pide ningún token y no se lee ninguna cabecera; cualquier otra ruta en esta dirección da `404`, y cualquier otro método en estas dos da `405`. A diferencia de `listen`, esta dirección no está limitada al loopback o a un socket Unix y no se rechaza ninguna dirección para ella: apúntala a una de esas, que es para lo que existe, y ten en cuenta que cualquier cosa que pueda llegar a la dirección que elijas puede leer esas dos respuestas. Valor predeterminado: `\"\"`"
   },
+  "073f972d8dd21d38": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "073f972d8dd21d38",
+    "status": "machine",
+    "text": "El valor del hecho: un array JSON — siempre una lista, incluso con una sola entrada o ninguna — cuyas entradas son valores JSON cualesquiera con la forma que el proveedor documenta para ese nombre. Una lista es lo que permite que un nombre sea informado por más de un renderizado de un nodo: el host une las listas en una sola. Se lleva como el documento JSON que escribió el guest, byte a byte, de modo que el orden de las entradas de la lista y de las claves de cada objeto es el propio del guest."
+  },
   "0742f0f8d77a1fcf": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -4028,6 +4042,13 @@
     "srcHash": "0785b3b955f910a8",
     "status": "machine",
     "text": "**Condicionar a lo que tu catálogo registre en sus propios metadatos.** Una organización que guarda el estado de revisión, la residencia de los datos o la propiedad como anotaciones en sus entidades Feature puede exigirlas en cada asociación. Una regla basada en una anotación de la que Aggrega nunca ha oído hablar funciona exactamente igual de bien que una basada en una clave que distribuye, porque las anotaciones llegan tal como se escribieron —lo que también significa que una Feature y un Component se juzgan ahora en igualdad de condiciones, cada uno según los metadatos de catálogo que declara su propia entidad."
+  },
+  "078e0bf87d77ccb9": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "078e0bf87d77ccb9",
+    "status": "machine",
+    "text": "La ruta del límite del nodo, estampada como la anotación aggrega.ai/boundary-path en cada manifiesto emitido que lleva un bloque metadata."
   },
   "078f188c630c0435": {
     "at": "2026-10-30T05:41:23.167Z",
@@ -4333,6 +4354,13 @@
     "srcHash": "0825bc07aff12bc8",
     "status": "machine",
     "text": "Los recursos propios de una FeatureRecipe siguen el mismo camino que los de su componente anfitrión, porque una vinculación contribuye al ensamblado al que pertenece su anfitrión. Así que, donde el proveedor fusiona, los nombres de una vinculación se comparan con los de su componente anfitrión y con los de cada otra vinculación, exactamente como los nombres de dos componentes: todos acaban dentro del único documento, y de dos nombres iguales uno desplaza al otro allí. Donde el proveedor no fusiona, los recursos de la vinculación se escriben bajo un directorio que nombra el componente al que está vinculada, y sus nombres se siguen comparando con cada contribuidor al ensamblado — que es donde se detecta una identidad de recurso que tiene que ser única en todo un clúster. La comparación es, por tanto, la misma en ambos casos, y lo único que difiere es dónde acaba el nombre que quedaría desplazado."
+  },
+  "082ff4f3cca55a56": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "082ff4f3cca55a56",
+    "status": "machine",
+    "text": "El contenido del origen empaquetado (p. ej., los archivos de un chart de Helm, cada uno nombrado por su ruta relativa a la raíz del origen, en orden de recorrido) que el host lee y devuelve al guest en respuesta a una solicitud pack-source, de modo que el guest reconstruye en memoria el origen seleccionado y no toca ningún sistema de archivos. Es el payload de éxito de la función host pack-source."
   },
   "08341b715084fee8": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -5519,6 +5547,20 @@
     "status": "machine",
     "text": "La forma compacta decide qué significa un mapeo a partir de la estructura de su contenido: una clave `type:` marca una hoja de restricción, las palabras clave estructurales de JSON Schema marcan un fragmento que se deja pasar, y un mapeo de nombres simples marca un objeto cuyos hijos son esquemas. Un esquema que declara un campo *llamado* `type` es la única estructura que esas lecturas no pueden distinguir — parece una hoja de restricción y se quiere como un objeto con un solo campo —, así que la forma pide al autor que diga cuál, con una clave `$mode:` establecida en `compact` o `jsonschema`."
   },
+  "0a69b4aabadf403c": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "0a69b4aabadf403c",
+    "status": "machine",
+    "text": "El nombre de salida resuelto por el host para la entrada: la clave de mapa declarada por el autor, con un archivo proporcionado por un bundle de biblioteca anidado bajo esa clave. El guest coloca la entrada con este nombre o bajo una subruta específica del proveedor derivada de él."
+  },
+  "0a6e91a1a6f24c82": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "0a6e91a1a6f24c82",
+    "status": "machine",
+    "text": "El conjunto de artefactos preevaluado que el host entrega a un guest del Provider para que lo coloque en la salida del nodo. El host ya resolvió el origen de cada entrada (contenido inline o un archivo importado que leyó), lo evaluó como plantilla Go contra el contexto de renderizado usando el par de delimitadores de plantilla de artefacto declarado por el guest, y calculó los conjuntos de claves de etiquetas y anotaciones de la procedencia del build. El guest es responsable de la decisión de formato, la ubicación de la procedencia, la ruta en disco y los bytes finales. Las entradas conservan el orden del autor para que la salida colocada sea idéntica byte a byte entre ejecuciones con entrada idéntica."
+  },
   "0a702563207792a5": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -6669,6 +6711,13 @@
     "status": "machine",
     "text": "Un `$import:` de biblioteca nombra su biblioteca por identidad, nunca por el registro en el que resulte estar publicada. A través de qué registro se resuelve un nombre es configuración del espacio de trabajo, y qué versión se usa es la respuesta del lockfile, así que una referencia que lleva un host fija en un documento de catálogo dos cosas que corresponde decidir a la compilación — y el documento deja entonces de funcionar en cualquier espacio de trabajo configurado de otra manera."
   },
+  "0c9b1776176d7e70": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "0c9b1776176d7e70",
+    "status": "machine",
+    "text": "Verdadero cuando la plantilla a partir de la cual se evaluó el contenido de esta entrada lee un valor que un autor declaró sensible, o un valor rastreado hasta uno de ellos. Se lee de las referencias propias de la plantilla frente a las declaraciones, con el par de delimitadores con el que se evaluó el contenido — una referencia que alcanza un valor declarado, la plantilla que transmite la totalidad de sus datos o una plantilla que no se puede analizar cuentan todas — y nunca del propio contenido. El contenido es la salida de esa plantilla, por lo que nada en él puede remontarse al dato del que procede: un guest que compone un texto que lee una persona, un rechazo o una advertencia, mantiene toda parte del contenido fuera de ese texto cuando este campo es verdadero, incluido el propio mensaje de un analizador sobre el contenido. Se establece por entrada, de modo que, si la plantilla de una entrada lee un valor así, eso no dice nada sobre la de otra. Ausente cuando la plantilla no lee ningún valor así; la ausencia nunca afirma que el contenido no sea sensible."
+  },
   "0c9ec9b6cec1e225": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -7025,6 +7074,13 @@
     "srcHash": "0d77e1a1f09a2f14",
     "status": "machine",
     "text": "`template-context.context.annotations`"
+  },
+  "0d793d4beffec4b2": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "0d793d4beffec4b2",
+    "status": "machine",
+    "text": "El nombre de la unidad renderizada que nombra la entrada, en el vocabulario propio del proveedor."
   },
   "0d7a3ff54bb25573": {
     "at": "2026-11-03T17:29:39.514Z",
@@ -8445,6 +8501,13 @@
     "status": "machine",
     "text": "El formato sintáctico como el que se analiza la fuente — `json` o `yaml`, por ejemplo —, que es el formato que un plugin parser anuncia como `parse:<syntax>`. La fuente se analiza mediante el parser que el catálogo del espacio de trabajo ofrece para esa sintaxis o, para una sintaxis para la que el catálogo no ofrece ninguno, mediante el que lleva el compilador, como máximo una vez sea cual sea el número de firmas que nombran la sintaxis, y una fuente que no se puede analizar en ella no coincide con ninguna firma que la nombre. Una sintaxis para la que ninguno de los dos ofrece un parser detiene el reconocimiento nombrando la ausencia de ese parser. Al menos 1 carácter de longitud."
   },
+  "0ff97767612ee18a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "0ff97767612ee18a",
+    "status": "machine",
+    "text": "Los bytes en bruto del archivo exactamente como el host los leyó del origen local. Cada kit los lleva en su propio tipo de campo — en bruto donde ese tipo es un tipo de bytes, codificados en base64 donde es una cadena que el guest decodifica para recuperarlos — y el codificador generado convierte entre el campo y la forma en que el formato de transmisión lleva los bytes."
+  },
   "100320fc98fe8eef": {
     "at": "2026-11-03T05:48:25.701Z",
     "job": "session-0059-20261103054825",
@@ -8563,6 +8626,13 @@
     "srcHash": "102cb502ed7c1b4d",
     "status": "machine",
     "text": "Los tres proveedores, cuando es distinto de cero; una anotación en helm y helm-chart"
+  },
+  "102d9811087898a8": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "102d9811087898a8",
+    "status": "machine",
+    "text": "El formato en el que el guest declara que se renderizó el archivo emitido, para que el host pueda enviar el archivo a un analizador correspondiente. Ausente cuando el guest no declara ningún formato, en cuyo caso el host deduce el formato a partir de la extensión del archivo."
   },
   "1030d8b4d6cb2f77": {
     "at": "2026-11-04T01:29:32.976Z",
@@ -8865,6 +8935,13 @@
     "srcHash": "10b5da219b0321d4",
     "status": "machine",
     "text": "**Ninguno de los dos.** Los corchetes se omiten por completo y el diagnóstico es su mensaje. Se trata de un fallo que no nombra ninguna condición propia de Aggrega *y* no tiene ningún ámbito al que remitirte: un comando que rechaza sus argumentos, un archivo que no puede leer, una cancelación o un error notificado por una biblioteca que el compilador envuelve sin ninguna condición nuestra por debajo. No hay nada que resolver en [`sentinels.md`](sentinels.md), y el mensaje es todo lo que el fallo tiene que decir."
+  },
+  "10c2e81d54af6d27": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "10c2e81d54af6d27",
+    "status": "machine",
+    "text": "El mensaje de error en caso de fallo, que nombra la URL y la solución; ausente en caso de éxito."
   },
   "10c753ed57a3bbec": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -9524,6 +9601,13 @@
     "srcHash": "120867dc1cf6de5f",
     "status": "machine",
     "text": "Bajo demanda, fuera de cualquier build (`aggrega import`, el editor y la herramienta `import` del asistente)"
+  },
+  "120e605acb63cfa4": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "120e605acb63cfa4",
+    "status": "machine",
+    "text": "`RenderedFile`"
   },
   "120ffa2383426854": {
     "at": "2026-11-03T06:09:06.251Z",
@@ -11277,6 +11361,13 @@
     "srcHash": "15b705b34d5c5855",
     "status": "machine",
     "text": "[`aggrega scaffold`](cli/aggrega-scaffold.md) — imprime un documento inicial para un tipo de entidad, derivado del esquema de ese tipo: los campos obligatorios, con los fijos ya completados y un marcador de posición allí donde se necesite un valor. La redacción no escribe ningún archivo; redirige la salida adonde la quieras. Con `--example`, en cambio, escribe uno de los ejemplos ejecutables de la documentación en un directorio nuevo, y `--example --list` los nombra."
+  },
+  "15ba184309c6c915": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "15ba184309c6c915",
+    "status": "machine",
+    "text": "El conjunto de claves de la procedencia del build, calculado por el host para el nodo, que una etiqueta de Kubernetes no puede representar, indexado por nombre de anotación. Un guest que estampa la procedencia en metadata.annotations de un manifiesto inserta estas claves; un guest cuya salida no es YAML de Kubernetes las ignora."
   },
   "15c16fe0e34569ba": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -15147,6 +15238,13 @@
     "status": "machine",
     "text": "**Se vuelve a calcular el digest de cada archivo importado y se compara con su fila**, un archivo `boundary.artifacts` exactamente igual que un archivo `artifacts`. Un archivo editado después de fijarse detiene el build con `[CATALOG_ERROR E0026]`, nombrando el artefacto tal como lo nombra su fila, el archivo importado y ambos digests."
   },
+  "1d49f2a0ad7f6777": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "1d49f2a0ad7f6777",
+    "status": "machine",
+    "text": "Las entradas de artefacto que coloca el guest, en el orden del autor."
+  },
   "1d4c785331db6617": {
     "at": "2026-11-02T19:15:07.814Z",
     "job": "session-0005-20261102191507",
@@ -15287,6 +15385,13 @@
     "srcHash": "1d8aaf56db9a846d",
     "status": "machine",
     "text": "Una Release que deja la ranura sin rellenar se detiene, nombrando la ranura. Una Release para un clúster EKS rellena en cambio la misma ranura con `core/aws-irsa` y su `role_arn`, y su Manifest asigna esa Feature a su FeatureRecipe. El selector mantiene una credencial fuera de la ranura: una Feature de tipo secreto que la rellene provoca una detención."
+  },
+  "1d8ab386c751245d": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "1d8ab386c751245d",
+    "status": "machine",
+    "text": "El nombre del hecho, tomado del vocabulario documentado propio del proveedor."
   },
   "1d8d96c3a6f6b6e4": {
     "at": "2026-11-03T08:18:31.909Z",
@@ -15599,6 +15704,13 @@
     "srcHash": "1e21763a638968f0",
     "status": "machine",
     "text": "An entity's name does not follow the shape its kind expects (El nombre de una entidad no sigue la forma que espera su tipo)"
+  },
+  "1e265891f36fe9df": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "1e265891f36fe9df",
+    "status": "machine",
+    "text": "La ruta del archivo relativa a la raíz del origen (por ejemplo, Chart.yaml o templates/deployment.yaml)."
   },
   "1e2f40539bc5944d": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -21193,6 +21305,13 @@
     "status": "machine",
     "text": "mapa de FieldProvenance"
   },
+  "289c5f340fe79239": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "289c5f340fe79239",
+    "status": "machine",
+    "text": "La enumeración genérica de un origen adquirido que el host entrega al guest de un proveedor con origen: la raíz del origen, si esa raíz es un directorio, y las entradas ordenadas relativas a la raíz que hay debajo de ella. El host recorre el origen adquirido sin ningún conocimiento del dominio y no lee ningún contenido de archivo — solo lista nombres. El guest aplica su propia lógica de resolución sobre el listado (localizar la raíz de un chart, seleccionar un único documento compose, hacer vendoring de un árbol de módulos) y pide al host que empaquete una selección elegida mediante la función host pack-source. Las entradas se ordenan por ruta para que el listado sea idéntico byte a byte entre ejecuciones con entrada idéntica."
+  },
   "28a4930d632d5aad": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -22787,6 +22906,13 @@
     "status": "machine",
     "text": "En Compose la credencial es un secreto inject-value: su valor se entrega por la tubería de entorno del componente y se convierte en la variable de entorno del servicio `RABBITMQ_DEFAULT_PASS`. En Kubernetes la credencial es referenciable: se materializa como un Secret de Kubernetes, y el StatefulSet hace referencia a él mediante un `secretKeyRef` de entorno, así que la contraseña en texto plano nunca aparece en el manifiesto de la carga de trabajo. El valor `origin` de los Aggregates de autenticación es un marcador de posición de desarrollo; proporciona un valor real a través de tu fuente de credenciales para cualquier despliegue real. La contraseña de desarrollo escrita en línea que se usa cuando no hay ninguna credencial vinculada es igualmente solo para uso local."
   },
+  "2bbe70f3661ebb8f": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "2bbe70f3661ebb8f",
+    "status": "machine",
+    "text": "La respuesta de la función host pack-source: en caso de éxito, el origen empaquetado; en caso de fallo, un mensaje de error. Exactamente uno de los dos campos está rellenado. El fallo se entrega en banda en lugar de mediante un trap, de modo que un guest lleva un rechazo del sandbox o un fallo de lectura a sus propios diagnósticos como un fallo de renderizado determinista."
+  },
   "2bc172f273fd447d": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -22951,6 +23077,13 @@
     "srcHash": "2c27d5f9d8a06024",
     "status": "machine",
     "text": "**Lo que evita es una reorganización silenciosa más que una escritura fuera del directorio de salida.** El lugar donde se escriben los archivos está protegido de nuevo, así que un nombre que sube lo suficiente se rechaza ahí de todos modos. El nombre que supera esa protección es el que sube exactamente un nivel: vuelve a caer dentro del directorio de salida, en una posición que nadie eligió. Eso es peor que una escritura rechazada, porque toda protección contra colisiones en esta ruta lee un nombre tal como se compuso y no tal como se resuelve — así que dos archivos así pueden resolverse sobre una misma salida sin que nada informe de una colisión, y cuál sobrevive no lo decide nada que nadie haya escrito."
+  },
+  "2c2a68051e9fd17a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "2c2a68051e9fd17a",
+    "status": "machine",
+    "text": "La ubicación del archivo relativa a la raíz del origen, separada por barras."
   },
   "2c2af3055eb2eba4": {
     "at": "2026-11-03T05:48:25.701Z",
@@ -25403,6 +25536,13 @@
     "status": "machine",
     "text": "La referencia se cita relativa a la conexión de la que se leyó — `.render_facts`, o `.render_facts.<name>` —, porque una plantilla lee los llamadores una conexión a la vez, dentro de `{{ range .context.used_by }}` o de una conexión que elige. El campo nombra el bloque en el que se escribió la plantilla: `valuesMapping`, `workload` o `artifacts[<output-name>]`. Un `with:` o un `when:` de un paso de pipeline que lee los mismos hechos lo informa en su lugar la entrada siguiente, establezca lo que establezca la FeatureRecipe, porque establecer la clave no permitiría a un paso leerlos. Donde varios campos leen los hechos, cada uno recibe un informe propio bajo una línea que nombra lo que comparten:"
   },
+  "309b243f96feb5ab": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "309b243f96feb5ab",
+    "status": "machine",
+    "text": "Un archivo de salida que emitió un guest del Provider: su ruta en disco relativa a la raíz de salida del nodo y sus bytes serializados exactamente como los produjo el guest. El host escribe estos bytes tal cual y no ejecuta ningún serializador, por lo que la salida en disco es idéntica byte a byte a lo que emitió el guest."
+  },
   "309b6d280da9cef2": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -26523,6 +26663,13 @@
     "status": "machine",
     "text": "Como una transformación procesa toda la plantilla, llevar una cambia cómo se despliega el contenido de cada uno de los demás componentes, a menos que lo que hace se limite al contenido escrito para ella. Así que cada transformación recibe el tratamiento que respalda la propia documentación de CloudFormation sobre ella, y una combinación que el stack no puede llevar detiene la compilación, nombrando la transformación y cada componente del stack:"
   },
+  "32f35668f6f7ad86": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "32f35668f6f7ad86",
+    "status": "machine",
+    "text": "`SourceEntry`"
+  },
   "3302c19c3ff09471": {
     "at": "2026-10-30T04:51:07.986Z",
     "job": "session-0056-20261030045107",
@@ -26666,6 +26813,13 @@
     "srcHash": "3346518047f8f6c0",
     "status": "machine",
     "text": "**`--config` nombra el archivo de configuración global para esa ejecución.** Se lee en lugar del que la máquina leería en otro caso — el archivo que nombra `AGGREGA_CONFIG`, o la ubicación predeterminada — y el propio `.aggrega-config.yaml` de este espacio de trabajo sigue superponiéndose a él. Así que, para esa ejecución, no se aplica nada de lo que guardes en tu propio archivo global: otra vinculación de gobernanza, un `default_registry`, un ajuste sin conexión. Una credencial que hayas guardado con `aggrega login` no forma parte de ese archivo y sigue aplicándose. El archivo del espacio de trabajo declara los directorios del catálogo y ninguna vinculación de gobernanza propia; una lista que declarase sustituiría a la que contiene el archivo nombrado, por lo que la vinculación del archivo nombrado es la que se ejecuta."
+  },
+  "334665b586897fc6": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "334665b586897fc6",
+    "status": "machine",
+    "text": "Una entrada que nombra unidades renderizadas que un guest del Provider deja fuera de la salida de un nodo, con sus campos ya resueltos como cadenas simples y marcados donde alguno de ellos se produjo a partir de un valor declarado sensible. El socket no les atribuye ningún significado: cada proveedor documenta qué seleccionan kind, name, namespace y subchart en su propio formato, y los compara él mismo."
   },
   "33485a28b0321e48": {
     "at": "2026-11-03T05:31:59.590Z",
@@ -28722,6 +28876,13 @@
     "status": "machine",
     "text": "`retracted` es el nivel de retirada, y además actúa antes. Una versión registrada como retirada se **excluye de la consideración** cuando `aggrega pull` elige una versión para una referencia que no nombraba ninguna. Si otra versión publicada satisface la referencia, se toma esa versión y el pull lo indica, nombrando la versión que omitió, el motivo registrado contra ella y la versión que tomó en su lugar. Si no queda ninguna versión publicada que satisfaga la referencia, el pull se detiene e indica que todas las candidatas se han retirado — no notifica la entidad como inexistente, y nunca recurre a otra en silencio."
   },
+  "3791a743632def6b": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "3791a743632def6b",
+    "status": "machine",
+    "text": "SourceEntry[]"
+  },
   "3793d21a585de426": {
     "at": "2026-11-03T21:35:42.901Z",
     "job": "session-0161-20261103213542",
@@ -30580,6 +30741,13 @@
     "status": "machine",
     "text": "tres `ServiceAccount`s, una por carga de trabajo,"
   },
+  "3b306d1f7c2bedd5": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "3b306d1f7c2bedd5",
+    "status": "machine",
+    "text": "Un archivo de una proyección del origen preempaquetada: su ruta relativa a la raíz del origen y sus bytes en bruto, exactamente como el host los leyó del origen local en tiempo de compilación."
+  },
   "3b325109deb02ebf": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
@@ -31042,6 +31210,13 @@
     "srcHash": "3c1da95eddc804eb",
     "status": "machine",
     "text": "La consecuencia es deliberada: **un repositorio no puede fijar ninguna de estas opciones para quien lo abra.** Escribir una en un `.vscode/settings.json` del workspace no tiene efecto — el editor la marca como no aplicable allí y sigue usando tu valor. Si quieres que una elección quede registrada en el propio workspace, los dos comandos de Release de [Seleccionar una Release](#selecting-a-release) son los que lo hacen, y escriben `.aggrega/active-release` o `.aggrega-config.yaml` en lugar de una configuración del editor."
+  },
+  "3c2544b6c29b5184": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "3c2544b6c29b5184",
+    "status": "machine",
+    "text": "Los bytes serializados del archivo exactamente como los produjo el guest; el host escribe estos bytes tal cual y no ejecuta ningún serializador, por lo que la salida es idéntica byte a byte a lo que emitió el guest. Cada kit los lleva en su propio tipo de campo — en bruto donde ese tipo es un tipo de bytes, codificados en base64 donde es una cadena que el guest decodifica para recuperarlos — y el codificador generado convierte entre el campo y la forma en que el formato de transmisión lleva los bytes."
   },
   "3c25e2648c26157c": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -33685,6 +33860,13 @@
     "srcHash": "41180b7a46f87d70",
     "status": "machine",
     "text": "El importador Compose lee `target_namespace`, `reuse_mode`, `reuse_threshold`, `emit_hints`, `render_mode`, `mapping_overrides` y `empty_credentials`, tal como los describe [Ajustes](#settings), y ningún otro ajuste. La sugerencia que rige `emit_hints` se escribe solo en el archivo del Component generado como borrador; el Aggregate de borrador no lleva ninguna."
+  },
+  "4119cbe581c89967": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "4119cbe581c89967",
+    "status": "machine",
+    "text": "`ArtifactProjectionEntry`"
   },
   "411a16062b2027be": {
     "at": "2026-11-03T06:21:52.519Z",
@@ -37614,6 +37796,13 @@
     "status": "machine",
     "text": "**`mcp.health.listen` coloca las comprobaciones de liveness y readiness en una dirección propia.** Dale una dirección en cualquiera de las dos formas de `mcp.listen` y un segundo listener responde allí a `GET /healthz` — `200` desde el momento en que el proceso está en ejecución — y a `GET /readyz` — `503` hasta que el workspace se ha resuelto y el endpoint se ha enlazado, `200` a partir de entonces, que es lo que permite a un balanceador retener el tráfico hasta que el proceso pueda realmente responder a una llamada. Si la omites, ninguna de las dos comprobaciones se responde en ningún sitio. Nunca se responden en la dirección que indica `mcp.listen`, que les da el `404` que da a cada ruta que no sirve: una sonda allí sería una lectura no autenticada de un listener que rechaza todo lo demás. A diferencia de `mcp.listen`, esta dirección no está restringida y no se rechaza ninguna dirección para ella — apúntala a loopback o a un socket Unix, que es lo que alcanza un supervisor junto a este proceso, y ten en cuenta que cualquier cosa que pueda alcanzar la dirección que elijas puede leer esas dos respuestas."
   },
+  "485611ef3c9d6508": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "485611ef3c9d6508",
+    "status": "machine",
+    "text": "RenderedFile[]"
+  },
   "4859ba620cc4eb43": {
     "at": "2026-11-03T06:21:52.519Z",
     "job": "session-0063-20261103062152",
@@ -37950,6 +38139,13 @@
     "srcHash": "48e292d08071cf4d",
     "status": "machine",
     "text": "y, donde la comprobación criptográfica se cumple y la lectura de para qué artefacto se hizo la firma no coincide:"
+  },
+  "48e5eeb1891c9796": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "48e5eeb1891c9796",
+    "status": "machine",
+    "text": "El nombre del agregado, estampado como la etiqueta aggrega.ai/aggregate-name cuando no está vacío."
   },
   "48e60234bb03b23a": {
     "at": "2026-11-03T11:51:14.962Z",
@@ -38484,6 +38680,13 @@
     "status": "machine",
     "text": "**Una firma keyed, o la ausencia de firma, no lleva ninguna hora.** Así que, después de que lleguen la entidad y cualquier firma, `aggrega push` adjunta al manifest un pequeño referrer published-at —llamado `published-at.json` para un cliente OCI genérico— que contiene una marca de tiempo RFC 3339 en UTC con precisión de segundos, leída del propio reloj de la máquina que publica. No está firmado: es la declaración del publicador, y un lector la registra como tal. La línea `Publication date attached:` lo indica."
   },
+  "4a04083ecaf3543d": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "4a04083ecaf3543d",
+    "status": "machine",
+    "text": "Los bytes en bruto del payload obtenido en caso de éxito; ausentes en caso de fallo, y ausentes cuando el payload está vacío. En el formato de transmisión, los bytes viajan como una cadena de bytes, nunca como texto base64. El kit de Go los guarda como un slice de bytes; los kits de Rust y TypeScript los guardan como una cadena base64, que decodifica el wrapper de fetch de cada kit, de modo que cada wrapper devuelve los bytes en bruto del payload."
+  },
   "4a0755891fd70406": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -38603,6 +38806,13 @@
     "status": "machine",
     "text": "**Esquema con migración propia.** Al arrancar, el servidor aprovisiona y migra su propio esquema contra el backend, así que arranca con un esquema listo sin ningún paso de migración aparte."
   },
+  "4a37069bc2d9ab82": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "4a37069bc2d9ab82",
+    "status": "machine",
+    "text": "Si la raíz del origen adquirido es un directorio. Falso para un origen de un solo archivo (un documento compose aislado, un único archivo de módulo, un archivo comprimido), en cuyo caso entries está vacío y el guest empaqueta la propia raíz."
+  },
   "4a3a240c11b77d04": {
     "at": "2026-11-03T14:46:30.297Z",
     "job": "session-0119-20261103144630",
@@ -38699,6 +38909,13 @@
     "srcHash": "4a5c96ed49f419b6",
     "status": "machine",
     "text": "**Esa línea de comandos empieza con los flags globales con los que se inició este servidor que deciden la configuración — `--config` y `--offline`, si los diste — por delante del comando y de los flags propios de la llamada.** Así, el comando lee la configuración que lee cualquier otra herramienta de aquí: un servidor iniciado con `--offline` ejecuta sus comandos sin conexión, y uno iniciado con `--config` los ejecuta sobre ese archivo global. Un flag que la llamada envía para sí misma va después de ellos y prevalece, de modo que `offline: false` en una llamada accede a la red solo para esa llamada, y la línea de comandos devuelta muestra ambos. **Donde el servidor se inició con una raíz de workspace — mediante `--workspace-root` o mediante `AGGREGA_WORKSPACE_ROOT` — la línea de comandos empieza con esa raíz como `--workspace-root`, por delante de esos dos**, de modo que el comando toma ese directorio como raíz del workspace, como lo haría escrito con el mismo flag y como lo toma cada herramienta que se ejecuta dentro del servidor, en lugar de encontrar su workspace a partir del directorio en el que se inició el servidor. Una llamada que envía `workspace_root` nombra la suya, y la línea de comandos lleva solo esa — incluido un valor vacío, que el comando lee como se lee `--workspace-root \"\"` en una terminal: encontrar el workspace a partir del directorio en el que se inició el servidor. Un servidor iniciado sin ninguno de los dos no pasa ninguna raíz, así que sus comandos encuentran su workspace a partir de ese directorio, según la regla que [En qué workspace se responde una llamada](#which-workspace-a-call-is-answered-in) establece para cada herramienta — salvo el lanzamiento del bundle de escritorio con su ajuste **Workspace folder** vacío, en el que una llamada que no nombra un workspace propio no inicia ningún comando y se responde con el rechazo de ese ajuste. **El comando se inicia en la raíz del workspace que nombra la llamada o el lanzamiento**: el `workspace_root` propio de la llamada, convertido en absoluto respecto al directorio en el que se inició el servidor y pasado al comando en esa forma absoluta, o si no la raíz con la que se inició el servidor. Así, una ruta relativa que una llamada pasa como archivo que leer — un documento para `validate`, un `--release` o un `--catalog` — se lee dentro de ese workspace, como en una terminal abierta allí, y una build que ejecuta el comando escribe `dist/` bajo esa raíz. Donde nada nombra una raíz — ninguna raíz de lanzamiento, y ningún `workspace_root` o uno vacío — el comando se inicia en el directorio en el que se inició el servidor y lee una ruta relativa desde allí, como siempre ha hecho; un `workspace_root` que no nombra ninguna carpeta existente se pasa tal como se envió, y el comando lo rechaza con sus propias palabras. Un comando que registra un plugin de extensión de comandos no recibe ninguno de ellos, porque pasa cada argumento al plugin sin leerlo en lugar de analizar un flag global, en una terminal como aquí; se inicia en la misma carpeta que cualquier otro comando."
+  },
+  "4a60c359b4cef710": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "4a60c359b4cef710",
+    "status": "machine",
+    "text": "La ubicación del origen adquirido que enumeró el host. El guest la lleva a sus propios diagnósticos cuando no puede resolver el origen, de modo que una detención por resolución nombra el origen que proporcionó el autor."
   },
   "4a61996de8614175": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -39887,6 +40104,13 @@
     "srcHash": "4cc991c5bd6a91e6",
     "status": "machine",
     "text": "Cuando una parte del prompt no se aplica"
+  },
+  "4cce94d74abfd8b1": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "4cce94d74abfd8b1",
+    "status": "machine",
+    "text": "La lectura del contenido de un único archivo que un guest pide al host que realice mediante la función host read-source-file, para un guest cuya lógica de resolución debe inspeccionar el contenido de un archivo antes de elegir qué empaquetar. El host resuelve la ruta bajo la raíz del origen, rechazando cualquier escape por encima de ella, y devuelve los bytes del archivo."
   },
   "4cd1e9bb02343ade": {
     "at": "2026-10-22T03:15:20.401Z",
@@ -47411,6 +47635,13 @@
     "status": "machine",
     "text": "`core/generated-secret` no declara `values` en absoluto, así que no hay nada que una vinculación pueda escribir. Es el homólogo gestionado por el motor y no una versión más débil de lo mismo: lleva la misma etiqueta de familia de credenciales, enlaza la misma ranura, y sus Recipes no renderizan nada, porque la credencial pertenece al motor que gestiona la propia Recipe del componente."
   },
+  "5ac5d3354bfe3605": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "5ac5d3354bfe3605",
+    "status": "machine",
+    "text": "La oleada de despliegue heredada del límite que contiene este nodo (0 por defecto; se permiten valores negativos), que lleva el valor que el nodo IR guarda como `sync_wave`. Lo que un guest hace con ella es decisión propia del guest, y registrar el valor y ordenar según él son independientes y no alternativas — un guest puede hacer una cosa u otra, ambas o ninguna. Entre los proveedores de la biblioteca estándar: `helm` y `helm-chart` la emiten como una anotación `argocd.argoproj.io/sync-wave` en cada recurso renderizado y, además, como `helm.sh/hook-weight` en un recurso que el chart ya marca como hook de Helm; `compose` la registra como etiqueta de servicio y ordena los servicios del archivo en el que renderiza, mediante `depends_on` entre ellos; `cloudformation` ordena el aprovisionamiento del stack ensamblado, declarando que cada recurso de una oleada depende de los recursos de la oleada anterior; `terraform` ordena los bloques de módulo de la configuración raíz en la que se ensambla un límite, declarando que cada módulo de una oleada depende de los módulos de la oleada anterior, y además la registra con la procedencia del build del nodo."
+  },
   "5ac71df73b2d788e": {
     "at": "2026-11-04T00:08:18.382Z",
     "job": "session-0178-20261104000818",
@@ -47959,6 +48190,13 @@
     "srcHash": "5bcd334016f29e7e",
     "status": "machine",
     "text": "El archivo de bloqueo registra los dos tipos de vinculación de forma distinta. Después de una compilación de producción, `release-production.lock` lleva cada vinculación de transformación bajo `mutators:` — su plugin, su rol, sus ajustes, y el contenido y el digest de cada uno de sus archivos — y fija cada plugin de transformación bajo `plugins:`:"
+  },
+  "5bd1ccd749315599": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "5bd1ccd749315599",
+    "status": "machine",
+    "text": "El tipo de unidad renderizada que nombra la entrada, en el vocabulario propio del proveedor."
   },
   "5bd1ec03cfda1151": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -48534,6 +48772,13 @@
     "status": "machine",
     "text": "Una entrada `omits:` deja fuera un recurso de una plantilla CloudFormation de origen, y CloudFormation rechaza una plantilla que nombra un recurso que no declara. Así que, una vez eliminados los recursos de las entradas, cada referencia que las plantillas restantes siguen haciendo a uno de ellos detiene el renderizado: un `Ref`, un `Fn::GetAtt` en su forma de lista o en su forma de cadena con punto, el `DependsOn` de un recurso, o una variable de un `Fn::Sub` — leídos en cualquier parte del cuerpo de cada recurso y de cada salida. La lista completa, y los valores que solo parecen referencias, están en [cloudformation → Dejar recursos fuera de una plantilla de origen](../providers/cloudformation.md#leaving-resources-out-of-a-sourced-template)."
   },
+  "5d139b6597327aa4": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "5d139b6597327aa4",
+    "status": "machine",
+    "text": "La identidad de componente segura para Kubernetes — aquello a lo que PERTENECE un recurso que emite este nodo, que es lo que registra la procedencia y lo que consulta un selector. Cuando no está vacía, sustituye el id del nodo como valor de las etiquetas app.kubernetes.io/name y aggrega.ai/component-id; vacía significa que el id del nodo ya es válido como etiqueta y se usa directamente. Se lleva para cada recurso que emite una vinculación de Feature, sea cual sea la forma en que la vinculación los entrega, de modo que los recursos de una vinculación se distinguen de los de su componente host solo por la etiqueta. Aquello de lo que un guest deriva sus propios nombres se lleva por separado, derived_name_basis, y los dos responden a preguntas distintas."
+  },
   "5d19f0b9dc910cdd": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -48985,6 +49230,13 @@
     "srcHash": "5def6de6bf75e023",
     "status": "machine",
     "text": "Algunos proveedores combinan la salida por nodo de un grupo de despacho en un solo documento — un archivo compose fusionado, un chart paraguas. Hasta que se produce esa fusión no hay documentos separados, solo fragmentos, así que un parche que direcciona uno no tiene nada a lo que apuntar. Por eso un pipeline contra un componente así se aplaza entero y se vuelve a ejecutar una vez que la fusión ha producido los documentos, que es el camino ordinario y no requiere nada del autor."
+  },
+  "5df448444dff4111": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "5df448444dff4111",
+    "status": "machine",
+    "text": "El tipo de proveedor sin más, estampado como la etiqueta aggrega.ai/provider cuando no está vacío."
   },
   "5df57b8eae92dd21": {
     "at": "2026-11-04T05:50:41.976Z",
@@ -52595,6 +52847,13 @@
     "status": "machine",
     "text": "**Todo lo demás conserva su pilar.** `key` sigue siendo una hoja de `values`, así que una vinculación que hace solo la Release lee la clave de datos predeterminada, `value`. En compose, una referencia a una variable de Compose escrita en `infra.origin` — `${DB_PASSWORD}` — llega al archivo emitido exactamente como está escrita, como ocurre desde `values`. Y `infra.origin` se oculta igual que `values.origin`: el grafo que `build`, `validate` e `inspect` escriben con `--ir-graph` lleva el marcador de posición en lugar de cualquiera de los dos, y nombra la hoja que ocultó — `infra.origin` o `values.origin`."
   },
+  "65131ec94d90c765": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "65131ec94d90c765",
+    "status": "machine",
+    "text": "ArtifactProjectionEntry[]"
+  },
   "65150dee39948d9f": {
     "at": "2026-11-04T03:09:22.872Z",
     "job": "session-0196-20261104030922",
@@ -52906,6 +53165,13 @@
     "srcHash": "65ba0b098a30cfee",
     "status": "machine",
     "text": "`E0134` está retirado: ya nada lo notifica, y el número nunca se asigna a una condición distinta. Nombraba una entidad publicable cuyo directorio no llevaba el nombre de la versión que declara la entidad; una publicación no juzga el nombre de un directorio, y la condición que se genera cuando una entidad comparte su directorio con otra entidad allí donde su tipo tiene un directorio propio es `E0303`."
+  },
+  "65ba69c29d3027a9": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "65ba69c29d3027a9",
+    "status": "machine",
+    "text": "La identidad descriptiva e identificable por máquina de la condición que nombra el fallo — el código bajo el que está registrada la condición, en el mismo conjunto abierto en el que el compilador registra sus propias condiciones de detención, y no un miembro del catálogo cerrado de códigos de error de las funciones host del que toma su valor el hostfunc_error_code de un sobre de respuesta. Establecida junto al mensaje de error legible por personas; ausente en caso de éxito, y ausente cuando el guest no nombra ninguna condición de ese tipo. Un guest que se detiene informa aquí el identificador de la condición que nombra su mensaje, de modo que un consumidor se ramifica según él en lugar de recuperar una identidad leyendo el mensaje. El host resuelve este identificador frente a las condiciones que declara el compilador y publica los identificadores propios de la condición resuelta en el diagnóstico estructurado, de modo que un código que llega a un lector siempre se resuelve; un identificador que no nombra ninguna condición de ese tipo, o uno que la numeración ha retirado, detiene el build. Un guest sin una condición precisa que nombrar recurre en su lugar a una de las condiciones genéricas de fallo de plugin que el compilador declara con ese fin, y pone los detalles en su propio mensaje. Este identificador y condition_short_code se informan juntos, porque nombran una misma condición en dos formas: un guest que establece uno y no el otro ha nombrado una condición que el host no puede resolver, y entonces el host informa en su lugar su propia condición genérica de fallo de plugin, mientras el mensaje sigue llevando el fallo completo."
   },
   "65bc26cc0b9d8dd2": {
     "at": "2026-11-03T15:47:42.282Z",
@@ -55365,6 +55631,13 @@
     "status": "machine",
     "text": "Nombrar cualquier `--agent` omite la búsqueda: el comando instala para los asistentes que nombraste y para ningún otro. Una instalación de proyecto, sin `--global`, siempre los nombra: es para los asistentes que usan las personas del proyecto, algo que esta máquina no indica."
   },
+  "6ab3384f65888c99": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "6ab3384f65888c99",
+    "status": "machine",
+    "text": "mapa de string[]"
+  },
   "6ab390ee4fd11385": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -56833,6 +57106,13 @@
     "srcHash": "6dc47d9bd0696b7a",
     "status": "machine",
     "text": "Una identidad totalmente ausente — un nodo sin anotación `aggrega.ai/namespace` en un archivo compose sin ruta — se escribe `-ze`, que ninguna identidad escrita por un autor puede producir. Por eso, una red sin identidad nunca comparte conectividad con una que tiene una identidad escrita de alguna forma concreta."
+  },
+  "6dc637b0490d220a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "6dc637b0490d220a",
+    "status": "machine",
+    "text": "Diagnósticos que planteó el guest al validar la entrada del nodo. Cada elemento es la forma de diagnóstico compartida de los plugins Wasm. Vacío cuando la entrada superó la comprobación estructural."
   },
   "6dc638e87e8f68a0": {
     "at": "2026-11-03T22:29:54.265Z",
@@ -59302,6 +59582,13 @@
     "srcHash": "729c69c34ee62300",
     "status": "machine",
     "text": "y el override añadido nombra exactamente una:"
+  },
+  "729e798d38a0cfd5": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "729e798d38a0cfd5",
+    "status": "machine",
+    "text": "`OmitEntry`"
   },
   "729ea6932f6ba2f9": {
     "at": "2026-10-30T04:51:07.986Z",
@@ -62110,6 +62397,13 @@
     "status": "machine",
     "text": "Las herramientas de publicación, `sign-artifacts`, `deprecate-artifact`, `get-schema`, `explain-error` y `describe-capabilities` no nombran por sí mismas ningún lugar del host. El mensaje de un fallo de cualquiera de ellas sigue la regla del texto: el rechazo que genera un workspace sin conexión nombra su `.aggrega-config.yaml` de forma relativa a la raíz."
   },
+  "77a006b96e05df06": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "77a006b96e05df06",
+    "status": "machine",
+    "text": "Verdadero cuando los valores que lleva este payload son la salida del valuesMapping de la Recipe o de la FeatureRecipe enlazada, en lugar de los valores del nodo entregados tal como el autor los escribió. Un guest cuyo propio contrato enlaza con las entradas que declara su origen solo los valores que produjo un mapeo lee este campo, y deja sin leer los valores escritos para otra cosa, como los artefactos de la Recipe; un guest que enlaza los valores del nodo con su origen comoquiera que se hayan producido no lo lee. Registra cómo se produjeron los valores y nunca se deriva del nombre de una clave ni del contenido de un valor. Ausente donde no se ejecutó ningún valuesMapping, y en un payload que no lleva valores."
+  },
   "77a08689dc95e508": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -62172,6 +62466,13 @@
     "srcHash": "77c45d70ea0afba7",
     "status": "machine",
     "text": "El texto que se escribe."
+  },
+  "77c6506886ec5b39": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "77c6506886ec5b39",
+    "status": "machine",
+    "text": "El mensaje de error en caso de fallo, que nombra la selección y el motivo; ausente en caso de éxito."
   },
   "77cb211781fb0820": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -62977,6 +63278,13 @@
     "srcHash": "794ba54e23a5bd76",
     "status": "machine",
     "text": "Cada uno toma el directorio de salida como único argumento y recorre todo lo que haya en él. Ninguno sabe nada de dónde se ejecutó la compilación, de qué destino era ni de cómo está organizado el espacio de trabajo:"
+  },
+  "794baa0262abb9d9": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "794baa0262abb9d9",
+    "status": "machine",
+    "text": "El nombre del entorno, estampado como la etiqueta aggrega.ai/environment cuando no está vacío."
   },
   "794d551841628884": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -64521,6 +64829,13 @@
     "status": "machine",
     "text": "Configuración para un servidor al que acceden otras personas"
   },
+  "7c4dca9a63b81c5e": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "7c4dca9a63b81c5e",
+    "status": "machine",
+    "text": "`RenderFact`"
+  },
   "7c501f2cc21435a0": {
     "at": "2026-11-03T14:46:30.297Z",
     "job": "session-0119-20261103144630",
@@ -64597,6 +64912,13 @@
     "srcHash": "7c749d12b1641498",
     "status": "machine",
     "text": "**Con `dryRun` no se crea nada.** `written` está vacío, `files` lleva los mismos archivos que habría producido una escritura — con `sync`, los archivos que escribiría la sincronización, junto al `drift` que actualizaría — y no se crea ningún directorio — de modo que un editor puede ponerlos delante del autor para que los guarde, los modifique o los descarte. Todo lo demás que hace una escritura se hace: el mismo importador se ejecuta sobre la misma fuente e informa los mismos diagnósticos, así que una fuente que una escritura rechazaría también se rechaza aquí. Un importador básico obtenido con `dryRun` se guarda en la caché de contenido como con una escritura, porque adquirir el importador forma parte de ejecutarlo y no de colocar los borradores."
+  },
+  "7c754e8c614454f1": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "7c754e8c614454f1",
+    "status": "machine",
+    "text": "La versión del compilador, estampada como la etiqueta aggrega.ai/compiler-version cuando no está vacía."
   },
   "7c7fa77f76977060": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -68497,6 +68819,13 @@
     "status": "machine",
     "text": "Una FeatureRecipe que admite en los pods de su anfitrión exactamente los pods de los componentes que lo llaman, seleccionando los propios pods del anfitrión mediante el selector del controlador del anfitrión:"
   },
+  "84c9880f87c17c9e": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "84c9880f87c17c9e",
+    "status": "machine",
+    "text": "La forma de la selección: file empaqueta el único archivo situado en path; dir empaqueta los archivos inmediatos del directorio situado en path; tree empaqueta de forma recursiva todo el subárbol con raíz en path, en el orden de recorrido determinista del host. Valores permitidos: `\"file\"`, `\"dir\"`, `\"tree\"`"
+  },
   "84cc6286e64da6c3": {
     "at": "2026-11-03T16:27:42.239Z",
     "job": "session-0128-20261103162742",
@@ -72264,6 +72593,13 @@
     "status": "machine",
     "text": "selector violation (\"<selector-expression>\", declared on socket \"<socket-name>\", not satisfied by the labels of \"<target-id>\"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them. (violación del selector (la expresión indicada, declarada en el socket indicado, no la satisfacen las etiquetas del destino indicado). Añade al tipo de componente del destino las etiquetas que exige el selector, o cablea el socket a un componente que ya las lleve.)"
   },
+  "8bf9497bd1d497fd": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "8bf9497bd1d497fd",
+    "status": "machine",
+    "text": "`NodeProvenance`"
+  },
   "8c02c70fe1a0f1f7": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -73997,6 +74333,13 @@
     "status": "machine",
     "text": "**Aquí no hay ningún flag que publique contenido sin firmar.** Desactivar la firma explícitamente no relaja el rechazo — solo cambia el valor predeterminado para los artefactos en los que la firma es opcional."
   },
+  "8f34f0b0ede4d097": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "8f34f0b0ede4d097",
+    "status": "machine",
+    "text": "La versión resuelta del plugin de renderizado del proveedor, estampada como la etiqueta aggrega.ai/provider-version cuando no está vacía."
+  },
   "8f399cc1f3bd8acf": {
     "at": "2026-11-03T01:01:59.650Z",
     "job": "session-0029-20261103010159",
@@ -74388,6 +74731,13 @@
     "srcHash": "8fe51ed452c410f3",
     "status": "machine",
     "text": "**Cómo corregirlo:** vincula solo una de las dos donde se encuentran — elimina una de las vinculaciones, o mueve una a un nivel que no contenga este componente, como un límite hermano. Donde la vinculación procede de la expansión dirigida por anotaciones, lo que hay que cambiar es la anotación, no el bloque sobre el que se expandió. Si en realidad las dos Features pueden combinarse, lo que está mal es la declaración: elimina la otra Feature de la lista `conflictsWith` en la entidad de catálogo de la Feature que la declara."
+  },
+  "8fe59cebdd01876c": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "8fe59cebdd01876c",
+    "status": "machine",
+    "text": "El origen anidado del que procede la unidad nombrada, para un proveedor cuyo origen se ensambla a partir de orígenes anidados, como un chart a partir de sus subcharts. Ausente cuando el autor no escribió ninguno; con qué coincide una entrada sin subchart, y qué hace un proveedor cuyo origen no tiene orígenes anidados con una entrada que nombra uno, es el contrato propio del proveedor."
   },
   "8fe79cb1d6cc4c0f": {
     "at": "2026-11-04T01:29:35.126Z",
@@ -75613,6 +75963,13 @@
     "status": "machine",
     "text": "Marcador de obsolescencia retroactivo verificado descubierto en esta biblioteca en el momento del pull. La compilación lo informa y, donde el espacio de trabajo configuró un umbral de detención que la severidad registrada alcanza, se detiene — de modo que una biblioteca retirada después de fijarse la versión se anuncia en cada compilación en lugar de solo en la selección de versión, que una versión fijada explícitamente omite."
   },
+  "927f1409cc301f5b": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "927f1409cc301f5b",
+    "status": "machine",
+    "text": "Una entrada de un listado del origen: su ruta relativa a la raíz del origen y si es un directorio. El host solo lista nombres y no lee ningún contenido, por lo que una entrada no lleva bytes."
+  },
   "92819b7629031a45": {
     "at": "2026-11-04T01:50:23.893Z",
     "job": "session-0188-20261104015023",
@@ -75836,6 +76193,13 @@
     "srcHash": "92e4a8ce5b2e0b3d",
     "status": "machine",
     "text": "La detención lleva la clave escrita a la que se refiere — la entrada de socket `uses:`, o la entrada `features:` que nombra la vinculación — junto con el archivo que la declara, así que la posición que informa es la entrada que editas en lugar del comienzo del documento. Un Component escrito dentro de un subsistema se sitúa en el subsistema bajo el que se escribió, nivel por nivel. Una vinculación se sitúa en la entrada `features:` que la escribió, en el documento que la escribió, y se atribuye al autor de ese documento: el bloque propio del componente o el bloque de un subsistema en el Aggregate, un fallo del desarrollador; y, para una vinculación que solo hace la Release, su entrada para el componente o el bloque `features:` de un límite que contiene el componente, un fallo del operador. Donde ambos documentos escriben la vinculación, se sitúa donde se nombra su `type`, cosa que el Aggregate siempre hace. Una vinculación escrita en una conexión se sitúa en su clave bajo el `features:` de esa conexión, en el documento que la escribió — la entrada de conexión del Aggregate, o la entrada por arista de la Release para una vinculación que solo hace la Release. Una Feature que solo la Release vincula a un componente que su declaración no admite se informa así:"
+  },
+  "92e937d3af849228": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "92e937d3af849228",
+    "status": "machine",
+    "text": "La procedencia de la identidad del build para un nodo — la identidad del compilador, del agregado y del entorno que el guest estampa en cada manifiesto emitido como etiquetas aggrega.ai. Cada campo se omite cuando está vacío, de modo que una identidad parcial solo estampa las etiquetas que lleva."
   },
   "92edad5e214c4e0a": {
     "at": "2026-10-30T21:21:10.109Z",
@@ -76187,6 +76551,13 @@
     "status": "machine",
     "text": "**Cómo corregirlo:** establece `readsTargetRenderFacts: true` en el `spec` de la FeatureRecipe — `readsCallerRenderFacts: true` no elimina esta detención, ya que pone los hechos en los componentes que se conectan al anfitrión y no en aquellos a los que está cableado. Eso renderiza sus vinculaciones después de que todos los componentes se hayan renderizado, pone los hechos de cada destino en su conexión y no cambia nada más de lo que renderizan — consulta [la página de la entidad FeatureRecipe](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts). La clave es el contrato, y esta detención solo te ayuda a encontrar una plantilla que visiblemente la necesita: la comprobación lee la plantilla tal como está escrita, así que una referencia construida mientras se ejecuta la plantilla, o una escrita en contenido importado de un archivo o de una biblioteca, no detiene la compilación — establece la clave en una FeatureRecipe así de todos modos. Una plantilla que lee `.context.uses` de cualquier forma y además lee un campo llamado `render_facts` de algún otro valor — entre ellos los hechos de un llamador dentro de `{{ range .context.used_by }}` — también detiene la compilación; establece la clave, y también `readsCallerRenderFacts` donde la plantilla lee los hechos de sus llamadores."
   },
+  "93a0635e7d2d2cd0": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "93a0635e7d2d2cd0",
+    "status": "machine",
+    "text": "`SourceFileRequest`"
+  },
   "93a0e798ff83b32f": {
     "at": "2026-11-03T21:51:54.059Z",
     "job": "session-0164-20261103215154",
@@ -76316,6 +76687,13 @@
     "srcHash": "93d738ce29f29dff",
     "status": "machine",
     "text": "Un archivo que una compilación tenía que leer, o un documento de Aggrega que una comprobación de todo el catálogo leyó bajo los directorios del catálogo, no produjo nada que la superficie que lo nombró o lo leyó pudiera usar. O no se pudo leer del disco, o sus bytes se analizaron y el análisis no terminó limpiamente. Nada posterior se ejecuta sobre él, porque no hay contenido que comprobar con un esquema, ni componentes que colocar, ni plantilla que renderizar."
+  },
+  "93db3df22890215c": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "93db3df22890215c",
+    "status": "machine",
+    "text": "SourceProjection"
   },
   "93ec2e94eb6d6a38": {
     "at": "2026-11-04T06:11:40.115Z",
@@ -77183,6 +77561,13 @@
     "status": "machine",
     "text": "**Evaluación de provides:** el `provides` de la Recipe de `app-db` se evalúa como `{ host: \"app-db\", port: \"5432\" }`."
   },
+  "95beb219c413ca1e": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "95beb219c413ca1e",
+    "status": "machine",
+    "text": "El payload que un guest del Provider devuelve desde su exportación opcional validate_node_input: los diagnósticos que planteó una comprobación estructural de la entrada resuelta del nodo. La exportación consume la misma proyección RenderNodeInput que recibe render_node y no emite ningún archivo — solo informa de diagnósticos. Un diagnóstico de severidad halt detiene el build de forma explícita, nombrando el nodo y el proveedor; un diagnóstico de severidad warn o info se presenta en el resultado del build sin cambiar la salida renderizada. Una lista de diagnósticos vacía significa que la entrada superó la comprobación estructural."
+  },
   "95bf5aa0921c1b1f": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -77916,6 +78301,13 @@
     "status": "machine",
     "text": "Una política en `ir-verdict` lee en cambio el grafo de compilación entero, y sus nodos están un nivel más abajo, en **`input.graph.spec.nodes`**. Una regla que se pasa de un rol al otro se edita, no se copia: con la ruta equivocada no lee nada y nunca se activa. La carga útil de `ir-verdict` no lleva ningún `compilation_context`, así que un veredicto no puede leer el entorno de la Release. Por eso la primera política de aquí escribe también `ops.example.com/environment` en cada nodo: el veredicto lee el entorno de esa etiqueta."
   },
+  "9710f86cbd8f2858": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "9710f86cbd8f2858",
+    "status": "machine",
+    "text": "La procedencia de la identidad del build que el guest estampa en cada manifiesto emitido como etiquetas aggrega.ai."
+  },
   "971440cd7df33a1b": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -78409,6 +78801,13 @@
     "srcHash": "981070114ddb687a",
     "status": "machine",
     "text": "Los capítulos de arquitectura describen las superficies de diseño; esta página sigue el estado de implementación."
+  },
+  "98173ff3b5f2a61e": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "98173ff3b5f2a61e",
+    "status": "machine",
+    "text": "Claves renderizadas cuya identidad se recupera a partir de un dato que un autor declaró sensible, cada una asociada a la declaración de la que heredó esa sensibilidad. Viaja del host al guest en la entrada de renderizado — la dirección opuesta a la de los nombres que un guest declara en la salida de renderizado. Lo que nombra una clave sigue la forma que lleva este payload: en un payload que lleva los valores del nodo es una de las claves de ese mapa; en un payload que lleva un workload nombra una entrada en los mapas de vinculación propios del workload, donde los valores del nodo están vacíos. Una clave solo está presente donde la recuperación es exacta, uniendo una declaración a una identidad renderizada sin leer nada del texto propio de la clave y sin repartir entre claves individuales ninguna marca por nodo o por vinculación. Una clave inventada por una plantilla está, por tanto, ausente, porque ninguna declaración la nombra: las claves de salida del valuesMapping de una receta y el contenido de un artefacto los escriben plantillas, por lo que ninguno de los dos produce aquí una clave — si un payload así se produjo a partir de un valor declarado sensible lo lleva en cambio sensitive_values, y el sensitive_content propio de una entrada de artefacto. Por tanto, la ausencia indica que no se pudo recuperar la identidad de ninguna clave, nunca que nada en este payload lleve material sensible — un guest que lee una clave ausente como permiso para mostrar o emitir un valor en claro la ha leído al revés. Las claves llegan ordenadas, y eso es lo que hace que el payload sea idéntico byte a byte entre ejecuciones con entrada idéntica."
   },
   "981c8bcfdcf0769a": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -80968,6 +81367,13 @@
     "status": "machine",
     "text": "La capa global se resuelve en este orden:"
   },
+  "9d071c95bde060c8": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "9d071c95bde060c8",
+    "status": "machine",
+    "text": "Verdadero cuando los valores que lleva este payload los produjo una plantilla que lee un valor que un autor declaró sensible, o un valor rastreado hasta uno de ellos: el valuesMapping de una Recipe o de una FeatureRecipe, una única plantilla cuyas claves y valores de salida son invención suya, de modo que ninguna clave de esa salida puede rastrearse hasta el dato del que procede y en su lugar se marca el mapa entero. Se lee de las referencias propias de la plantilla frente a las declaraciones — una referencia que alcanza un valor declarado, la plantilla que transmite la totalidad de sus datos o una plantilla que no se puede analizar cuentan todas — y nunca del contenido de un valor ni del nombre de una clave. Un guest que compone texto que lee una persona, un rechazo o una advertencia, deja fuera de ese texto todo valor de los valores del nodo cuando esto es verdadero, y deja fuera el valor bajo cualquier clave que nombre sensitive_rendered_keys, lo sea o no: los dos se combinan, uno nombrando las claves cuya identidad se recupera exactamente y este cubriendo el mapa donde no puede recuperarse ninguna. Ausente cuando ninguna plantilla de ese tipo leyó un valor así, lo que incluye los valores que son ellos mismos las hojas declaradas, marcados en su lugar por clave en sensitive_rendered_keys, y ausente en un payload que no lleva valores. La ausencia nunca indica que ningún valor sea sensible."
+  },
   "9d0b3312d00f2a8e": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -81676,6 +82082,13 @@
     "srcHash": "9eb61908ae89d5e4",
     "status": "machine",
     "text": "**Cómo corregirlo:** cambia el nombre del componente por uno que el destino acepte, en cada superficie que lo nombra — el Aggregate que lo declara y la Release que lo coloca y lo configura. Donde el mensaje indica una longitud, no la superes. Donde no la indica, lee el motivo del destino: suele ser un carácter que el destino no admite, y con mayor frecuencia una letra mayúscula al inicio del nombre — o, con el destino helm, un dígito en esa posición. Prefiere letras minúsculas y dígitos con guiones entre las palabras; [el capítulo sobre nomenclatura](../02-naming-conventions.md) explica lo que cuesta un nombre con cada tipo de destino. Cambiar el nombre de un componente cambia el nombre que llevan sus recursos, así que en una aplicación ya desplegada trátalo como cualquier otro cambio de nombre de recursos."
+  },
+  "9eb74eb346e3edda": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "9eb74eb346e3edda",
+    "status": "machine",
+    "text": "La ubicación de la selección relativa a la raíz del origen, separada por barras. La cadena vacía (o \".\") nombra la propia raíz del origen, de modo que un origen de un solo archivo se empaqueta con una ruta vacía."
   },
   "9eb7c3cf47b41b69": {
     "at": "2026-11-04T00:08:18.382Z",
@@ -85781,6 +86194,13 @@
     "status": "machine",
     "text": "Los identificadores de los asistentes nombrados que leen esta carpeta, en el orden en que la solicitud los nombró."
   },
+  "a6474a5d8735f821": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "a6474a5d8735f821",
+    "status": "machine",
+    "text": "SourceFile[]"
+  },
   "a64cb3fcdcf665a2": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -87336,6 +87756,13 @@
     "srcHash": "a95a950afb66c50b",
     "status": "machine",
     "text": "`targetName` y el `serviceName` de respaldo nombran recursos del componente anfitrión, así que ambos se construyen a partir de `.context.rendered_name` — el nombre del componente anfitrión tal como lo informa su proveedor, escrito con los caracteres que admite un nombre de Kubernetes — y no a partir de `.context.instance_id`, que conserva cualquier guion bajo o mayúscula que lleve el nombre del componente."
+  },
+  "a95ac1a7b1faf298": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "a95ac1a7b1faf298",
+    "status": "machine",
+    "text": "`SourceFile`"
   },
   "a95ef9179b24c9ee": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -89384,6 +89811,13 @@
     "status": "machine",
     "text": "Nombre del artefacto dentro del espacio de nombres reservado docs/ (p. ej., «aggrega-docs» se publica en docs/aggrega-docs)"
   },
+  "ad78cee2a5dbd708": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "ad78cee2a5dbd708",
+    "status": "machine",
+    "text": "Las entradas relativas a la raíz bajo una raíz del origen que es un directorio, ordenadas por ruta. Vacío para una raíz del origen de un solo archivo."
+  },
   "ad7f13692efdeeb9": {
     "at": "2026-11-03T14:05:29.072Z",
     "job": "session-0115-20261103140529",
@@ -90527,6 +90961,13 @@
     "status": "machine",
     "text": "Dos contribuidores a un mismo ensamblado producen un archivo en la misma ruta de salida. Esto es distinto de la colisión de ID de instancia anterior: los componentes tienen nombres distintos y el ensamblado puede distinguirlos — son los *archivos* que emiten los que acaban en una misma ruta. Ocurre con más frecuencia donde un proveedor escribe la salida de cada contribuidor una junto a otra en lugar de bajo una posición por componente, de modo que dos componentes cuyas Recipes emiten el mismo nombre de archivo (dos entradas `artifacts:` ambas llamadas `main.tf`, por ejemplo) coinciden en una misma ruta. La salida propia del ensamblador puede colisionar con el archivo de un contribuidor de la misma manera."
   },
+  "af5e69ed95f81258": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "af5e69ed95f81258",
+    "status": "machine",
+    "text": "`SourceProjection`"
+  },
   "af5e9009eab43415": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -91213,6 +91654,13 @@
     "srcHash": "b0b1c299d1c8b953",
     "status": "machine",
     "text": "Mensaje emitido, que nombra el hecho, el nodo para el que se informó, el proveedor que lo informó y de qué clase era el valor:"
+  },
+  "b0b3b35d0a006e2a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "b0b3b35d0a006e2a",
+    "status": "machine",
+    "text": "El Workload evaluado por el host, posterior a la validación, que sintetiza el guest; opaco en esta capa del esquema para que el esquema del socket no vuelva a definir el contrato de la entidad Workload."
   },
   "b0b44101b37e6570": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -93334,6 +93782,13 @@
     "status": "machine",
     "text": "**Qué claves se requieren depende de la entrada**, y el hallazgo dice cuáles esperaba. Una entrada que nombra su propia `key:` aporta ella misma el campo, así que solo debe publicarse el `name` del recurso — que es lo que le permite hacer referencia a un recurso de varias claves. Una entrada que no nombra ninguna `key:` lee el único campo publicado del slot, así que deben estar tanto `name` como `key`."
   },
+  "b459c3c5ef51cb7a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "b459c3c5ef51cb7a",
+    "status": "machine",
+    "text": "Si la entrada es un directorio. Un guest que resuelve la raíz de un chart o un único archivo de origen dentro del listado lee este campo para distinguir los directorios de los archivos sin tocar el sistema de archivos."
+  },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
     "job": "session-0021-20261022065221",
@@ -94002,6 +94457,13 @@
     "srcHash": "b58ae6efd85777a7",
     "status": "machine",
     "text": "El registro para el que se inicializó la configuración."
+  },
+  "b5922f0fedfb0098": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "b5922f0fedfb0098",
+    "status": "machine",
+    "text": "Los archivos del origen, cada uno nombrado por su ruta relativa a la raíz del origen, en el orden de recorrido determinista del host."
   },
   "b59a0ffcea8253af": {
     "at": "2026-11-02T23:32:53.197Z",
@@ -95118,6 +95580,13 @@
     "status": "machine",
     "text": "Mensaje emitido (variante en la que el esquema no se resuelve):"
   },
+  "b7d8f0e7080976fe": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "b7d8f0e7080976fe",
+    "status": "machine",
+    "text": "Los bytes en bruto del archivo en caso de éxito; ausentes en caso de fallo. Cada kit los lleva en su propio tipo de campo — en bruto donde ese tipo es un tipo de bytes, codificados en base64 donde es una cadena que el guest decodifica para recuperarlos — y el codificador generado convierte entre el campo y la forma en que el formato de transmisión lleva los bytes."
+  },
   "b7da4e2e0294c6de": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -95545,6 +96014,13 @@
     "status": "machine",
     "text": "El resto de la superficie está en la misma respuesta y no detrás de ella: más herramientas que se ejecutan dentro del servidor — `lint`, la herramienta que nombra la conexión escrita en un punto de un documento, las dos herramientas de candidatura, las herramientas de contenedor de adjuntos y de punto de inserción, la herramienta que aplica una edición acotada a un documento, `pin`, que registra los pines de contenido de las entradas de una entidad como expone [Fijar las entradas propias de una entidad](#pinning-an-entitys-own-inputs), y las cuatro herramientas de publicación descritas más abajo, además de inventarios de las cachés y de los registries configurados — y, **para un cliente que lanzó este servidor sobre su entrada y salida estándar**, una herramienta por cada comando que de otro modo podrías escribir, con el nombre de su ruta de invocación. Esas herramientas de comando existen solo en ese transporte: un servidor al que se llega por HTTP no ofrece ninguna de ellas, por el motivo que se da en [Llegar al servidor por HTTPS](#reaching-the-server-over-https). **No se reserva nada para una llamada posterior.** Cuánto de una lista de herramientas poner delante de un modelo es una decisión que corresponde al cliente — obtiene las definiciones y elige qué cargar — y una definición que un cliente nunca recibió es una operación que un modelo nunca puede llamar, por muy accesible que sea el nombre de esa herramienta en el wire. Donde la lista completa supera lo que admite tu cliente, [Acotar lo que anuncia el servidor](#narrowing-what-the-server-announces) es la forma de acortarla. **`describe-capabilities` acota esa superficie al tipo de entidad que estás escribiendo.** Si recibe un `kind`, responde con las herramientas que sirven a ese tipo, obtenidas de los tipos que declara cada herramienta y no de las palabras de una descripción; sin argumentos, responde con ese mismo índice sobre cada herramienta que este servidor te ofrece — el nombre de cada una, un propósito en una línea, los tipos que sirve y si escribe, sin esquemas de argumentos, de modo que toda la superficie llega en una única respuesta legible. Para una herramienta `cli-`, si escribe depende de si escribe el comando que ejecuta: `cli-build` se indica como de escritura, porque el comando guarda los artefactos renderizados bajo la raíz del workspace, mientras que un comando que solo lee se indica como de solo lectura, incluso cuando por el camino llena una caché que comparten todos los proyectos de la máquina, igual que la herramienta que ejecuta la misma operación dentro del servidor; si recibe `tools` nombrando una o más, responde exactamente con las definiciones completas y los esquemas de argumentos de esas herramientas. Las herramientas `cli-` nunca se acotan por tipo, porque nada registra a qué tipo de entidad sirve un comando, de modo que una respuesta acotada a un tipo las omite y el índice sin argumentos es donde leerlas. Los argumentos de una herramienta de comando llevan el nombre de los flags propios del comando, de modo que `--output-dir` se envía como `output_dir`, y un nombre no reconocido se rechaza con la lista de grafías aceptadas en lugar de descartarse en silencio."
   },
+  "b8bc68f6994cc04c": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "b8bc68f6994cc04c",
+    "status": "machine",
+    "text": "La selección que un guest pide al host que empaquete a partir del origen adquirido mediante la función host pack-source. op nombra la forma de la selección y path la nombra de forma relativa a la raíz del origen; el host resuelve la ruta bajo la raíz del origen, rechazando cualquier escape por encima de ella, y devuelve los bytes empaquetados como un SourceProjection."
+  },
   "b8bdd478f7e13cac": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -95643,6 +96119,13 @@
     "srcHash": "b8ecc871baebbac3",
     "status": "machine",
     "text": "El comando tiene dos formas. `aggrega scaffold <kind>` redacta un documento inicial a partir del esquema de un tipo y lo imprime, que es lo que describen esta sección y las tres siguientes. `aggrega scaffold --example <name>` escribe en cambio uno de los ejemplos ejecutables de la documentación en un directorio nuevo — consulta [Empezar desde un ejemplo ejecutable](#starting-from-a-runnable-example)."
+  },
+  "b8ed29eb0956c0b8": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "b8ed29eb0956c0b8",
+    "status": "machine",
+    "text": "Los archivos de salida que emitió el guest, en orden de emisión. Cada uno nombra su ruta en disco y lleva los bytes serializados que el host escribe tal cual."
   },
   "b8f216d8f3d9f53a": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -97227,6 +97710,13 @@
     "srcHash": "bb7e4aea9c735a30",
     "status": "machine",
     "text": "El archivo de bloqueo de la Release que se eligió: el archivo que un pull escribe para ella y que lee una compilación. Ausente donde no se eligió ninguna Release."
+  },
+  "bb887205d74de490": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "bb887205d74de490",
+    "status": "machine",
+    "text": "Los nombres que el guest derivó al renderizar este nodo, indexados por el espacio de claves en el que los derivó, cada espacio con sus nombres en orden de derivación. Un guest que deriva el nombre por el que su salida direcciona un recurso ha puesto ese nombre dentro de los bytes del archivo que el host escribe tal cual, donde el host no puede verlo; declararlo aquí es la forma en que el guest pide al host que confirme que no hay dos derivaciones que hayan ido a parar al mismo nombre. El host compara la igualdad de los nombres declarados dentro de un espacio declarado y no hace nada más — no analiza un nombre, no aprende qué significa un espacio o un nombre y nunca deriva uno por sí mismo. Dos contribuyentes a la misma salida ensamblada que declaran el mismo nombre en el mismo espacio detienen el build, y la detención nombra el espacio, el nombre y ambos contribuyentes. Tanto los nombres de los espacios como los nombres que contienen son el vocabulario propio del guest: un guest que quiere unicidad en un ámbito más estrecho o más amplio que una salida ensamblada expresa ese ámbito en el nombre del espacio que declara. Conserva el orden de declaración, de modo que el payload es idéntico byte a byte entre ejecuciones con entrada idéntica. Ausente cuando el guest no deriva nombres que quiera que se comprueben, lo que deja la comprobación inerte para ese guest."
   },
   "bb88f6fe5ce3f5b5": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -99419,6 +99909,13 @@
     "status": "machine",
     "text": "Un valor que otro componente publica desde un stack distinto llega a la plantilla como una referencia entre stacks, el mismo `Fn::ImportValue` o `Fn::GetStackOutput` que recibe un fragmento (consulta [Conexión entre stacks](#cross-stack-wiring)), en cada lugar donde la plantilla hacía referencia al parámetro."
   },
+  "bfe7a30bf8a9f9fc": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "bfe7a30bf8a9f9fc",
+    "status": "machine",
+    "text": "La ruta de la entrada relativa a la raíz del origen, separada por barras (por ejemplo, Chart.yaml o templates/deployment.yaml)."
+  },
   "bfeb02c78d1495d7": {
     "at": "2026-11-03T09:26:18.087Z",
     "job": "session-0084-20261103092618",
@@ -99699,6 +100196,13 @@
     "status": "machine",
     "text": "Un paso de pipeline que se ejecutó antes del paso actual, para que un guest pueda inspeccionar lo que vino antes: el índice del paso en el pipeline, el plugin que nombró y los efectos secundarios que emitió ese paso."
   },
+  "c049d47ec9ebd04a": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "c049d47ec9ebd04a",
+    "status": "machine",
+    "text": "Declarado y retenido deliberadamente: el host nunca lo rellena, por lo que el mapa está ausente de todo payload de renderizado. Una arista saliente se consume antes del despacho — los valores publicados de la arista se rehidratan en el pipe inject propio del nodo, que la Recipe ya evaluó en los valores y el workload que recibe el guest — y un guest que ensambla un límite recibe en su lugar la lista de aristas en su propia entrada. Si se rellenara, indexaría las aristas uses salientes del nodo por alias de socket, cada una con los id ordenados de los nodos destino de ese socket en el orden del autor."
+  },
   "c053f030024399a8": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -99761,6 +100265,13 @@
     "srcHash": "c06f09711905b9e4",
     "status": "machine",
     "text": "Una letra, un dígito, un punto y un guion bajo se conservan exactamente como se escribieron, con las mayúsculas y minúsculas con que se escribieron. Así, `prod` y `Prod` son dos redes, no una."
+  },
+  "c0702c71cb43ec44": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "c0702c71cb43ec44",
+    "status": "machine",
+    "text": "Una entrada de artefacto preevaluada que el host entrega a un guest del Provider para que la coloque: su nombre de salida resuelto por el host, su tipo de origen, los bytes de contenido ya evaluados como plantilla, si la plantilla de la que proceden esos bytes lee un valor declarado sensible, y los conjuntos de claves de etiquetas y anotaciones de la procedencia del build que el host calculó para el nodo. El guest decide cómo colocar la procedencia (insertándola en los metadatos de un manifiesto, anteponiéndola como comentario o emitiendo un archivo complementario) y dónde termina el archivo."
   },
   "c074612d2eecbe90": {
     "at": "2026-11-04T00:44:10.257Z",
@@ -100064,6 +100575,13 @@
     "status": "machine",
     "text": "Qué hace"
   },
+  "c0e143a44ba00ebe": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "c0e143a44ba00ebe",
+    "status": "machine",
+    "text": "La versión de la Recipe enlazada, emparejada con recipe_name para formar la anotación aggrega.ai/recipe-uri; cuando cualquiera de las dos mitades está vacía, la anotación no se estampa."
+  },
   "c0e17cd1e9335759": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -100253,6 +100771,13 @@
     "srcHash": "c151be213c8cb282",
     "status": "machine",
     "text": "La compilación sale con `1`, y las líneas del pull llevan la misma frase por la misma razón que antes. El mensaje se lee de izquierda a derecha como dónde mirar: el componente, el proveedor que lo renderizó, la Recipe que declara la entrada y la posición de la entrada en su lista `omits:`, contando desde `0`, y luego el kind y el nombre a los que se resolvió la entrada. La condición `when:` es verdadera en este modo, así que la entrada se aplica; su nombre se renderiza como `ai-controller-webhook-tls`, el chart llamó a su Secret `ai-gateway-webhook-tls`, y la entrada no dejó nada fuera."
+  },
+  "c155bba57a5dfff0": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "c155bba57a5dfff0",
+    "status": "machine",
+    "text": "La identidad de la que un guest deriva sus propios nombres — el nombre de release que leen las plantillas de un instalador de charts, a partir del cual un guest así también puede nombrar los recursos que sintetiza para un componente, y el prefijo de los archivos que emite un renderizado de origen. Vacía significa que el id del nodo se usa directamente, que es el valor para un componente ordinario y para una vinculación de Feature por componente: una vinculación que entrega un chart o un fragmento escrito por su autor lo renderiza contra el nombre del componente HOST, porque las plantillas propias del autor nombran los recursos según ese nombre y uno distinto renombraría recursos ya desplegados. Un nodo cuyo id lleva sintaxis de marcador que el alfabeto de nombres de un destino rechaza lleva este valor de forma explícita en su lugar, de modo que el nombre que deriva un guest sigue siendo uno que el destino acepta. Está deliberadamente separada de label_component_id: un guest que CONSTRUYE recursos para una vinculación de Feature en lugar de renderizar el origen de su autor los nombra según la identidad, de modo que los recursos propios de la vinculación no pueden colisionar con los de su host, mientras que el nombre contra el que se renderiza el origen de un autor no cambia. Las dos llevan el mismo valor dondequiera que la identidad de un nodo sea también aquello contra lo que se renderiza su origen."
   },
   "c159d819fc9b7f9a": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -101272,6 +101797,13 @@
     "srcHash": "c344fbe0f79b94ad",
     "status": "machine",
     "text": "Intención del desarrollador: un componente `broker` de tipo `core/messaging/rabbitmq`, sin credencial — la Recipe proporciona una contraseña de desarrollo determinista escrita en línea."
+  },
+  "c347445cb821a6b8": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "c347445cb821a6b8",
+    "status": "machine",
+    "text": "Cada vinculación del nodo, proyectada sobre sus provides resueltos e indexada por el nombre de instancia de la vinculación que lleva una referencia de vinculación del workload; ausente cuando el nodo no lleva ninguna vinculación. El host copia las cadenas sin interpretarlas, de modo que el guest lee las entradas de los provides de una vinculación que necesite para resolver una referencia al recurso que produjo esa vinculación. Si una vinculación maneja material declarado sensible no se repite aquí: viaja en la entrada de feature correspondiente de la proyección del nodo, que un guest lee por el mismo nombre de instancia."
   },
   "c347ea25f59c237f": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -102880,6 +103412,13 @@
     "srcHash": "c6844b11b58213df",
     "status": "machine",
     "text": "Así que ponlo en el archivo global cuando quieras una sola respuesta para todo lo que compilas, y mantenlo por encima de lo que compila un solo build. `aggrega cache status` informa de lo que contiene actualmente el almacén, y `aggrega config show --origin` te indica de qué archivo procede realmente el límite bajo el que te estás ejecutando."
+  },
+  "c68d840b2a5b559d": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "c68d840b2a5b559d",
+    "status": "machine",
+    "text": "Verdadero cuando la plantilla que produjo workload lee un valor que un autor declaró sensible, o un valor rastreado hasta uno de ellos. Se lee de las referencias propias de la plantilla frente a las declaraciones — una referencia que alcanza un valor declarado, la plantilla que transmite la totalidad de sus datos o una plantilla que no se puede analizar cuentan todas — y nunca del contenido de ningún campo. Los campos de un workload renderizado no llevan ningún vínculo con los datos que leyó su plantilla, por lo que este campo marca todo el documento: un guest que compone un texto que lee una persona, un rechazo o una advertencia, mantiene fuera de ese texto todo valor que lleve el workload cuando este campo es verdadero, mientras que la forma del documento — sus claves y dónde se encuentra un valor — sigue siendo legible. Las entradas de vinculación que nombra sensitive_rendered_keys de la proyección del nodo están marcadas allí, esté o no establecido este campo. Ausente cuando la plantilla no lee ningún valor así; la ausencia nunca afirma que ningún campo sea sensible."
   },
   "c692ac4345f7a50d": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -106776,6 +107315,13 @@
     "status": "machine",
     "text": "**Especificidad.** Dentro de un mismo nivel de autoría, el ámbito más estrecho refina el más amplio **campo por campo**: un relleno a nivel de componente sobrescribe un adjunto de todo un subsistema o de toda una frontera con el mismo nombre de instancia solo en los campos que menciona, y los campos que omite conservan los valores del ámbito más amplio."
   },
+  "cd8b732197983197": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "cd8b732197983197",
+    "status": "machine",
+    "text": "`SourceFileResponse`"
+  },
   "cd91cdca1aa3471c": {
     "at": "2026-11-03T18:29:45.694Z",
     "job": "session-0140-20261103182945",
@@ -107221,6 +107767,13 @@
     "status": "machine",
     "text": "Intención del desarrollador: importa el módulo de gateway de API (`core/apisix`) y le pasa la clave de la Admin API del gateway desde un parámetro propio."
   },
+  "ce4e7bea93d7739b": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "ce4e7bea93d7739b",
+    "status": "machine",
+    "text": "La respuesta de la función host fetch-external-input: en caso de éxito, el contenido obtenido; en caso de fallo, un mensaje de error y su código. Una respuesta que no lleva ninguno de los dos campos de fallo es un éxito, de modo que un payload de longitud cero es la respuesta con todos los campos ausentes. El fallo se entrega en banda en lugar de mediante un trap, de modo que un guest lleva una URL que no se puede resolver o un fallo de obtención a sus propios diagnósticos como un fallo de renderizado determinista. La solicitud es una simple cadena de URL en lugar de un payload estructurado, por lo que solo la respuesta tiene una forma declarada."
+  },
   "ce50264de9fe7bfc": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
@@ -107469,6 +108022,13 @@
     "srcHash": "cea3e971aaac5212",
     "status": "machine",
     "text": "El `provides:` de una FeatureRecipe sigue la misma regla de locals: sus propios `locals:` se resuelven antes que su `provides:`, así que una entrada `provides` de una FeatureRecipe también lee `.locals`."
+  },
+  "cea3eb0dfdc97941": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "cea3eb0dfdc97941",
+    "status": "machine",
+    "text": "`SourceListing`"
   },
   "cea5ff7acc81b37b": {
     "at": "2026-11-03T15:04:41.802Z",
@@ -108411,6 +108971,13 @@
     "srcHash": "d05cd4dad8e74055",
     "status": "machine",
     "text": "URI de un Manifest base del que heredar los mapeos. El mapeo de un hijo reemplaza al de la base para la misma clave."
+  },
+  "d05eaedf4e2700c1": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "d05eaedf4e2700c1",
+    "status": "machine",
+    "text": "El origen empaquetado en caso de éxito; ausente en caso de fallo."
   },
   "d05fdffa9b8d7e21": {
     "at": "2026-11-02T20:11:57.931Z",
@@ -109402,6 +109969,13 @@
     "status": "machine",
     "text": "Si el daemon conservaba algo sobre el documento que descartar."
   },
+  "d214391f607567ff": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "d214391f607567ff",
+    "status": "machine",
+    "text": "El mensaje de error en caso de fallo, que nombra el archivo y el motivo; ausente en caso de éxito."
+  },
   "d21589012a8caa93": {
     "at": "2026-11-03T23:30:44.700Z",
     "job": "session-0174-20261103233044",
@@ -109548,6 +110122,13 @@
     "srcHash": "d25aa94afc721fe0",
     "status": "machine",
     "text": "Los datos de firma y el registry de destino se pueden proporcionar mediante el entorno, sobrescribiendo `.aggrega-config.yaml`, mientras que un flag sigue prevaleciendo:"
+  },
+  "d25f4635f613b266": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "d25f4635f613b266",
+    "status": "machine",
+    "text": "`ArtifactsProjection`"
   },
   "d26786b1253bfd9e": {
     "at": "2026-11-03T08:51:38.120Z",
@@ -111968,6 +112549,13 @@
     "status": "machine",
     "text": "El nivel de coincidencia en el que cae la puntuación."
   },
+  "d770736a837e96f9": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "d770736a837e96f9",
+    "status": "machine",
+    "text": "El conjunto de claves de la procedencia del build seguro para las etiquetas de Kubernetes que el host calculó para el nodo, indexado por nombre de etiqueta. Un guest que estampa la procedencia en metadata.labels de un manifiesto inserta estas claves; un guest cuya salida no es YAML de Kubernetes las ignora."
+  },
   "d773b0c2dc77d4fe": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -112802,6 +113390,13 @@
     "status": "machine",
     "text": "Una Feature se escribe una vez y se vincula muchas veces, así que el nombre que deriva una FeatureRecipe tiene que ser distinto para cada vinculación. Esta compone el componente host y el nombre de la vinculación: el host `payments-db`, llevado bajo `storage-headroom`, da `PaymentsDbStorageHeadroom`."
   },
+  "d9312173271d1374": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "d9312173271d1374",
+    "status": "machine",
+    "text": "NodeProvenance"
+  },
   "d9325ed4f114b6f0": {
     "at": "2026-11-02T22:45:48.640Z",
     "job": "session-0015-20261102224548",
@@ -113629,6 +114224,13 @@
     "status": "machine",
     "text": "`k8s-external-secret` lee `origin` como la entrada del almacén de secretos que hay que obtener. El `origin` de la conexión es el parámetro `provider_key_entry`, cumplido como `ai/openai-api-key`, así que la vinculación renderiza un `ExternalSecret` que un operador del almacén de secretos en el clúster reconcilia en un Secret. El `spec` completo de `dist/matched/helm/memory--llm-zdcredential--memory-externalsecret-memory-memory-llm-credential.yaml`:"
   },
+  "dab69bb49e98f814": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "dab69bb49e98f814",
+    "status": "machine",
+    "text": "La respuesta de la función host read-source-file: en caso de éxito, los bytes del archivo; en caso de fallo, un mensaje de error. Exactamente uno de los dos campos está rellenado. El fallo se entrega en banda en lugar de mediante un trap, de modo que un guest lleva un rechazo del sandbox o un fallo de lectura a sus propios diagnósticos como un fallo de renderizado determinista."
+  },
   "dab75ff5201474f5": {
     "at": "2026-10-30T21:02:37.548Z",
     "job": "session-0020-20261030210237",
@@ -114299,6 +114901,13 @@
     "srcHash": "dbe2f478a6fe3c3f",
     "status": "machine",
     "text": "Estas anotaciones son opacas para el compilador — canaliza sus valores hasta el proveedor sin interpretarlos (consulta [well-known-annotations.md](well-known-annotations.md)). Se escriben en el límite del **productor** — el stack que posee el valor exportado. Una lectura entre cuentas asume un rol en la cuenta del productor, así que la cuenta, la región y el rol que describen la lectura provienen todos de las anotaciones del límite del productor, no de las del consumidor."
+  },
+  "dbe42cc09c16704a": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "dbe42cc09c16704a",
+    "status": "machine",
+    "text": "array"
   },
   "dbe4fb0d9561b54e": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -116853,6 +117462,13 @@
     "status": "machine",
     "text": "El nombre del ejemplo, que una solicitud envía como example para escribirlo."
   },
+  "e05f32c1408c951e": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "e05f32c1408c951e",
+    "status": "machine",
+    "text": "El nombre de la Recipe enlazada, emparejado con recipe_version para formar la anotación aggrega.ai/recipe-uri; cuando cualquiera de las dos mitades está vacía, la anotación no se estampa."
+  },
   "e06524a22e2bb9bb": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -117126,6 +117742,13 @@
     "srcHash": "e0c86ad3232b08c9",
     "status": "machine",
     "text": "`release.yaml` satisface el pilar de dimensionamiento del operador por entorno: el tag de imagen del contenedor proviene de `infra.image_tag` (`myapp:1.2`), y la identidad — su Feature y los campos de esa Feature — proviene del relleno de la ranura. El Aggregate del desarrollador no contiene ninguno de los dos."
+  },
+  "e0ca244331ad0e98": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "e0ca244331ad0e98",
+    "status": "machine",
+    "text": "Un hecho que un guest del Provider informa sobre lo que emitió para un nodo: un nombre y una lista de entradas, ambos definidos y documentados por el proveedor. El host lleva el hecho tal como lo escribió el guest, rechaza uno cuyo valor no sea una lista y no aprende nada más sobre ninguna de las dos mitades."
   },
   "e0ce6456c4bb5f95": {
     "at": "2026-11-04T03:09:22.872Z",
@@ -119089,6 +119712,13 @@
     "status": "machine",
     "text": "**Renderizado base:** el `valuesMapping` del servidor web se renderiza con el FQDN ya presente en `.context.inject.env`."
   },
+  "e4b51daebaead733": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "e4b51daebaead733",
+    "status": "machine",
+    "text": "`FetchExternalInputResponse`"
+  },
   "e4bb74c031051b0c": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -119477,6 +120107,13 @@
     "srcHash": "e589da13fee20988",
     "status": "machine",
     "text": "**`[annotation: <key> from <source>]`** — la vinculación de Feature está **basada en anotaciones**. El compilador la sintetizó porque una anotación en `<source>` coincidió con una vinculación del Manifest que declara esta Feature. `<key>` es la clave de anotación que activó la vinculación (p. ej., `business.aggrega.ai/team`); `<source>` es la entidad que llevaba la anotación (`aggregate`, `release`, `component` o `manifest`). La vinculación sintetizada es estructuralmente idéntica a una explícita — el renderizado posterior trata ambas de la misma manera —, pero el corchete de procedencia las distingue para que la depuración siga siendo decidible."
+  },
+  "e58a295c2abded37": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "e58a295c2abded37",
+    "status": "machine",
+    "text": "Las vinculaciones de feature del nodo indexadas por alias de feature, que llevan la misma forma de vinculación de feature por nodo que lleva el IR. Cada entrada lleva los values, el infra y el mapeo inject de la vinculación junto con su marca de sensibilidad derivada, de modo que un guest lee solo a partir del payload si una vinculación maneja material declarado sensible. Conserva el orden del autor, de modo que el payload es idéntico byte a byte entre ejecuciones con entrada idéntica. Opaco en esta capa del esquema; el guest lee la forma de la entrada de feature a través del contrato de transmisión del IR."
   },
   "e5949d2d30ac3125": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -119911,6 +120548,13 @@
     "status": "machine",
     "text": "**Sin agentes del lado del cliente:** Aggrega es estrictamente un compilador de infraestructura de backend. No puede generar configuraciones para modelos de IA no gestionados que se ejecutan por completo en el navegador Chrome de un usuario final o en un dispositivo móvil perimetral."
   },
+  "e659b60f9048cbfa": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "e659b60f9048cbfa",
+    "status": "machine",
+    "text": "El contenido del workload preevaluado que el host entrega a un guest del Provider para que el guest sintetice en memoria a partir de él manifiestos nativos del proveedor, presente cuando la Recipe enlazada declara un workload en lugar de un origen de chart. El determinismo es responsabilidad del guest: una entrada idéntica debe producir bytes idénticos."
+  },
   "e65d9e70378612e2": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -120169,6 +120813,13 @@
     "srcHash": "e70466915abff3a8",
     "status": "machine",
     "text": "**Solo una cadena que TERMINA llega a ella.** Una cadena que vuelve sobre sí misma se informa como bucle, sea cual sea su longitud, así que esta condición nunca sustituye a un ciclo y su consejo — acortar la cadena — nunca se da para uno."
+  },
+  "e7070e7aa7762258": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "e7070e7aa7762258",
+    "status": "machine",
+    "text": "Los bytes de contenido ya evaluados como plantilla que el host produjo a partir del contenido inline o del archivo importado de la entrada, evaluados contra el contexto de renderizado usando el par de delimitadores de plantilla de artefacto declarado por el guest. Cada kit los lleva en su propio tipo de campo — en bruto donde ese tipo es un tipo de bytes, codificados en base64 donde es una cadena que el guest decodifica para recuperarlos — y el codificador generado convierte entre el campo y la forma en que el formato de transmisión lleva los bytes."
   },
   "e708151ca74aca92": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -120674,6 +121325,13 @@
     "srcHash": "e829345e1f900bbf",
     "status": "machine",
     "text": "Un bloque de firma: las URL de los servicios keyless, una referencia opcional a un archivo de clave para la firma con clave y la postura de confianza (`required` y `kinds`). Colocado en el nivel superior se aplica a todos los registros; colocado bajo una entrada de `registries[]` se aplica a ese host — cada campo deduce su ámbito de la ubicación. `required` es una única postura de confianza que cubre ambas direcciones (un push sin firmar dentro del ámbito se rechaza y un pull sin firmar dentro del ámbito se rechaza). Seguridad: no contiene material secreto — el token de identidad OIDC nunca es un campo de configuración (es de corta duración y se suministra en tiempo de ejecución), y `key_path` es la ruta a un archivo de clave, nunca bytes de clave inline. Esto refleja la asimetría del lado de la verificación: allí se permite una `public_key` inline, pero el lado de la firma solo lleva una ruta de clave. Un servidor `aggrega mcp` al que se llega por HTTP no consulta ningún `key_path` en ninguna de las dos ubicaciones, así que la firma con clave no es accesible a través de un listener así: una llamada que responde solo firma con un token de identidad que lleva esa llamada."
+  },
+  "e829c9467072de4d": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "e829c9467072de4d",
+    "status": "machine",
+    "text": "RenderFact[]"
   },
   "e82da275319c3a90": {
     "at": "2026-11-04T03:09:22.872Z",
@@ -121285,6 +121943,13 @@
     "srcHash": "e96d9d3a46299809",
     "status": "machine",
     "text": "IREdge[]"
+  },
+  "e96dc62334dd17be": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "e96dc62334dd17be",
+    "status": "machine",
+    "text": "`SourcePackResponse`"
   },
   "e96de37d95976245": {
     "at": "2026-10-23T00:20:00.768Z",
@@ -122043,6 +122708,13 @@
     "status": "machine",
     "text": "**artifacts** (informalmente: «inline»)"
   },
+  "eaa51908a41a03ca": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "eaa51908a41a03ca",
+    "status": "machine",
+    "text": "Hechos que el guest informa sobre lo que emitió para este nodo, en el orden en que el guest los enumera. Cada hecho empareja un nombre con un valor, y ambos son el vocabulario propio del guest: qué hechos informa un proveedor, qué significa cada nombre y qué contienen sus entradas forman parte del contrato documentado de ese proveedor, no del de este socket. El valor de todo hecho es una lista, incluso cuando contiene una sola entrada: el host rechaza un hecho cuyo valor es cualquier otra cosa, nombrando el proveedor y el hecho, y detiene el build. Es lo único que el host aprende sobre un valor. Indexa los hechos por nombre y entrega cada lista a las plantillas que la leen, uniendo las listas de un mismo nombre informadas por más de un renderizado del mismo nodo en el orden en que se ejecutaron esos renderizados, y nunca aprende qué significa un nombre o una entrada ni deriva un hecho por sí mismo — de modo que un proveedor puede informar algo que solo su propio conocimiento del formato puede ver, como una propiedad de los documentos que escribió, sin que el host aprenda ese formato. Informar hechos nunca cambia lo que se escribe: los archivos que escribe el host son los archivos que devolvió el guest, vayan o no acompañados de hechos. El guest enumera sus hechos en un orden fijo, de modo que el payload es idéntico byte a byte entre ejecuciones con entrada idéntica. Ausente cuando el guest no informa nada, lo cual es una respuesta completa y no una que falte."
+  },
   "eaa6588c77a03698": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -122592,6 +123264,13 @@
     "srcHash": "ebce43149335d624",
     "status": "machine",
     "text": "**Cómo corregirlo:** quita el usuario y la contraseña de la `url`, dejando la URL que nombra el host. Para una fuente descargada por http o https, pon la credencial en una entrada `machine` para ese host en tu archivo netrc, que lee cada descarga de un repositorio clásico de charts de Helm, de un fragmento compose o de un repositorio Git por HTTP o HTTPS — [Autenticación](../cli/aggrega-pull.md#authentication) describe qué archivo y qué entrada. Para un repositorio Git por SSH, el agente SSH proporciona la clave, y el usuario puede quedarse. Si la Recipe ya se confirmó o se publicó con la credencial dentro, la credencial está en ese historial: cámbiala también en el servidor."
+  },
+  "ebd3939b3754c859": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "ebd3939b3754c859",
+    "status": "machine",
+    "text": "Verdadero cuando la plantilla que produjo cualquiera de los campos kind, name, namespace o subchart de la entrada lee un valor que un autor declaró sensible, o un valor rastreado hasta uno de ellos. Se lee de la plantilla de cada campo frente a las declaraciones — una referencia que alcanza un valor declarado, la plantilla que transmite la totalidad de sus datos o una plantilla que no se puede analizar cuentan todas — y nunca de las cadenas resueltas. La marca cubre toda la entrada en lugar de nombrar el campo, de modo que un guest trata una entrada marcada como trata cualquier otro valor marcado de su entrada: sigue comparando y contando la entrada por sus campos, que es para lo que sirve la entrada, y mantiene cada uno de sus campos fuera de cualquier texto que lea una persona — un rechazo, una advertencia o una línea de registro. Ausente cuando la plantilla de ningún campo lee un valor así; la ausencia nunca afirma que ningún campo sea sensible."
   },
   "ebd896fc2edd8a02": {
     "at": "2026-11-03T01:02:01.114Z",
@@ -123916,6 +124595,13 @@
     "srcHash": "ee64ad1059c23b76",
     "status": "machine",
     "text": "`injections` — las anotaciones que se añaden, en orden. Cada una nombra una coordenada de destino existente (`boundary_path` y `component_name`) más la `annotation_key` y su `annotation_value`: una cadena, o un objeto de subclaves, que alimenta un enlace que enruta varias subclaves a la vez."
+  },
+  "ee68bfe8780d3066": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "ee68bfe8780d3066",
+    "status": "machine",
+    "text": "Con cuántas unidades renderizadas coincidió cada entrada de omits que llegó con la entrada: un recuento por cada entrada que se entregó al guest, en el mismo orden, cada uno el número de unidades con las que coincidió esa entrada, coincidiera también con ellas otra entrada o no. Un recuento de cero es una respuesta completa — la entrada no coincidió con nada de lo que renderizó el guest. Los recuentos son todo lo que el socket devuelve sobre lo que se dejó fuera: las unidades mismas simplemente están ausentes de lo que devolvió el guest. Ausente cuando no se entregó ninguna entrada al guest."
   },
   "ee68e01b3ed892c9": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -125301,6 +125987,13 @@
     "status": "machine",
     "text": "El plugin que la entrada anterior del pipeline nombra en su campo plugin, tal como está escrito."
   },
+  "f0c725470eb4072b": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "f0c725470eb4072b",
+    "status": "machine",
+    "text": "Las etiquetas de salida declaradas por el autor de la receta que el guest estampa en cada manifiesto emitido junto a la procedencia de la identidad del build, indexadas por nombre de etiqueta. Dos bloques escritos por el autor se fusionan en este único mapa: los pares clave-valor literales que una receta escribe en `outputLabels`, y una entrada por cada clave que una receta nombra en `outputComponentLabels`, cuyo valor se lee de esa clave en las etiquetas propias del componente renderizado — de modo que un valor promovido sigue al componente del que procede en lugar de repetirse en la receta. Ambos bloques son disjuntos del espacio de claves de la procedencia por la validación en tiempo de carga (ninguna clave aggrega.ai/ ni app.kubernetes.io/), por lo que el estampado nunca colisiona con una etiqueta de procedencia. Una clave promovida que el componente no declara no estampa nada y genera un aviso en lugar de una etiqueta vacía. Un guest cuya salida no es YAML de Kubernetes las traslada a su propia superficie de etiquetas (etiquetas de servicio de Compose) o las ignora."
+  },
   "f0cd44b0bfc7e300": {
     "at": "2026-11-03T18:49:44.706Z",
     "job": "session-0143-20261103184944",
@@ -125808,6 +126501,20 @@
     "srcHash": "f1cd9d3bef0e0958",
     "status": "machine",
     "text": "Un paso de `pipeline` puede llevar un campo `when:` opcional: una plantilla de Go inline que el compilador evalúa al recorrer el pipeline, con el mismo contexto de plantilla y el mismo evaluador que usa el cuerpo `with:` del paso. El resultado renderizado decide si el paso se ejecuta."
+  },
+  "f1d742d9cd87e601": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "f1d742d9cd87e601",
+    "status": "machine",
+    "text": "La ruta del archivo de salida relativa a la raíz de salida del nodo (por ejemplo, Chart.yaml o templates/deployment.yaml)."
+  },
+  "f1d757e4484cb7cd": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "f1d757e4484cb7cd",
+    "status": "machine",
+    "text": "`WorkloadProjection`"
   },
   "f1d9e457ede09732": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -128157,6 +128864,13 @@
     "srcHash": "f6375472956784de",
     "status": "machine",
     "text": "Cada comando de esta página es uno de los que da la página del propio ejemplo o, para la instalación, la página de instalación, por lo que cada sección enlaza a esa página para la explicación completa de lo que escribe el paso."
+  },
+  "f637e14a784b5d85": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "f637e14a784b5d85",
+    "status": "machine",
+    "text": "`ValidateNodeOutput`"
   },
   "f63c28d7d4dfac3d": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -130564,6 +131278,13 @@
     "status": "machine",
     "text": "Entradas de ArtifactLibrary a las que llega el cierre de dependencias de la Release a través de los sitios `artifacts.<name>: { $import: ... }` de Recipe / FeatureRecipe. La lista `consumers` de cada entrada registra qué entidad del catálogo hace referencia a qué paquetes `<entry-name>` de la biblioteca — un registro estructurado que hace rastreables los diffs del impacto de un cambio de versión de la biblioteca sin volver a resolver la Release. Valor predeterminado: `[]`"
   },
+  "faa30698cbc1572c": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "faa30698cbc1572c",
+    "status": "machine",
+    "text": "El identificador compacto de la misma condición — la letra E y cuatro dígitos, la forma que un lector cita, busca y pega en un informe — establecido junto al mensaje de error legible por personas; ausente en caso de éxito, y ausente cuando el guest no nombra ninguna condición de ese tipo. El host lo imprime en el encabezado entre corchetes del diagnóstico que produce para este fallo, de modo que una condición que genera un guest se puede citar exactamente igual que una que genera el compilador. El host resuelve el valor frente a las condiciones que declara el compilador en lugar de llevarlo de confianza: un valor que no nombra ninguna condición de ese tipo, un valor que la numeración ha retirado o una grafía que el registro no lleva detiene el build y cita el valor infractor, y el mensaje propio del guest se sigue informando. Se informa junto con condition_code, por el motivo indicado allí."
+  },
   "faa53f2d423366eb": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -130935,6 +131656,13 @@
     "srcHash": "fb6aff6aa2dec4e9",
     "status": "machine",
     "text": "La delegación en helpers de credenciales mediante `credsStore` y `credHelpers` se respeta en las tres ubicaciones, de modo que la integración con el llavero del sistema operativo mediante binarios helper delegados funciona sin configuración adicional. Para un catálogo OCI o un repositorio de charts privado, ejecuta `docker login <registry>` (o `helm registry login <registry>` para el OCI específico de Helm) antes de `aggrega pull`. Las credenciales persisten en el archivo de configuración estándar; Aggrega las lee automáticamente."
+  },
+  "fb7124752593c967": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "fb7124752593c967",
+    "status": "machine",
+    "text": "El namespace en el que se encuentra la unidad nombrada, para un proveedor cuyo formato coloca las unidades en uno. Ausente cuando el autor no escribió ninguno; con qué coincide una entrada sin namespace es el contrato propio del proveedor."
   },
   "fb736ce3f12fbe8e": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -131681,6 +132409,13 @@
     "status": "machine",
     "text": "**Un valor está pendiente incluso donde el esquema lo aceptaría vacío.** Una Recipe o FeatureRecipe generada lleva `capability` e `implements` vacíos. Su esquema admite una cadena vacía, pero una vacía no nombra ningún provider ni ningún tipo, así que `aggrega validate` indica ambos como aún pendientes hasta que los rellenes. Esa lectura corresponde a validar un único archivo de entidad: una ejecución sobre todo el catálogo, `aggrega validate --release` y [`aggrega build`](aggrega-build.md) no la aplican. Consulta [marcadores de posición aún pendientes](aggrega-validate.md#placeholders-still-owed) para ver lo que abarca."
   },
+  "fcc601f1a0dc7a47": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "fcc601f1a0dc7a47",
+    "status": "machine",
+    "text": "Si la entrada se escribió como contenido inline o como archivo importado. Un guest que rechaza una de las dos formas (un proveedor de umbrella chart rechaza el contenido inline) lee este campo para detenerse de forma explícita. Valores permitidos: `\"inline\"`, `\"import\"`"
+  },
   "fcca66b002088809": {
     "at": "2026-11-03T03:37:30.908Z",
     "job": "session-0046-20261103033730",
@@ -131967,6 +132702,13 @@
     "srcHash": "fd74c20b3518331c",
     "status": "machine",
     "text": "Un contenedor cuya solicitud y cuyo límite de `nvidia.com/gpu` piden números distintos detiene la compilación de la misma manera, nombrando ambas rutas: compose reserva un solo número para un servicio, así que de lo contrario la traducción tendría que elegir uno. Escribe el mismo número en ambos, o solo el límite."
+  },
+  "fd786e713bc628dc": {
+    "at": "2026-11-04T08:57:20.450Z",
+    "job": "session-0224-20261104085720",
+    "srcHash": "fd786e713bc628dc",
+    "status": "machine",
+    "text": "`SourcePackRequest`"
   },
   "fd7908e95bee63e5": {
     "at": "2026-11-04T07:36:16.499Z",
@@ -132516,6 +133258,13 @@
     "status": "machine",
     "text": "8. Firma y confianza"
   },
+  "fe919684f1d6750f": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "fe919684f1d6750f",
+    "status": "machine",
+    "text": "`RenderNodeOutput`"
+  },
   "fe9a4f01dc2e027f": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -132810,6 +133559,13 @@
     "srcHash": "ff3e562f8ed5da0a",
     "status": "machine",
     "text": "`candidates`: las Features que pueden rellenar este slot en esta conexión. Una build somete un attachment así a dos reglas, y se aplican ambas: la aplicabilidad declarada de la Feature contra las etiquetas finalizadas del nodo, a la que está sujeto cada attachment que lleva el nodo, y el `selector` del slot contra las propias etiquetas de la Feature. Así que los candidatos de un slot están siempre entre los del nodo, acotados por el selector. Una Feature contra cuyas etiquetas no puede evaluarse el selector no se ofrece, porque una build la rechaza en lugar de admitirla."
+  },
+  "ff447aa59373d0ff": {
+    "at": "2026-11-04T08:57:11.542Z",
+    "job": "session-0223-20261104085711",
+    "srcHash": "ff447aa59373d0ff",
+    "status": "machine",
+    "text": "Diagnósticos que el guest generó durante el renderizado. Cada elemento tiene la forma de diagnóstico compartida de los plugins Wasm."
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-03T02:20:44.184Z",
