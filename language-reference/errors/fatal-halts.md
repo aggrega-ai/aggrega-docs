@@ -3472,6 +3472,11 @@ The same fill written on the component in the Aggregate reports `[DEVELOPER_ERRO
 
 It is positioned at the attachment's key under that connection's `features:`, in the document that wrote the fill: the Aggregate's connection entry, or the Release's per-edge entry for a fill only the Release makes.
 
+**A slot's selector the grammar cannot read is also refused before anything fills the slot.** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors), over the whole catalog or over one Component or Feature, reads every slot selector the entity's own document declares — a Component's own slots, the slots its sockets declare, and a Feature's slots — and refuses one the grammar cannot read under this same condition whether or not anything fills the slot. The message is the could-not-be-evaluated form above; a slot a socket declares adds the socket:
+> attachment slot selector unsatisfied (`"<selector>"`, declared on slot `"<slot>"`, of socket `"<socket>"`, which could not be evaluated: `"<why it could not be evaluated>"`). Correct the selector on the slot's declaration in the socket's featuresSchema on the component's catalog entity.
+
+On a Feature's slot the remedy names the Feature's catalog entity instead. Nothing has filled the slot, so the fault is the catalog entity's: it is filed as `CATALOG_ERROR` and names the entity's file.
+
 **How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message says the constraint could not be evaluated, the selector expression is the fault: correct it in the Component's slot declaration, or in the socket's.
 
 ### An attachment written under another name fits a slot its component leaves empty
@@ -3829,6 +3834,12 @@ Emitted message:
 Either expression may also be written in a form the label grammar cannot read at all. That is reported as the same halt whose last value is the reason it could not be read rather than the label set it went unsatisfied by — which is what tells an expression that could not be evaluated apart from one that was evaluated and came out false:
 
 > selector violation ("<appliesTo-expression>", declared by Feature "<feature-type>", which could not be evaluated: "<why-it-could-not-be-read>"). Correct the appliesTo selector on the Feature's catalog entity.
+
+**A socket's selector the grammar cannot read is also refused before anything wires the socket.** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors), over the whole catalog or over one Component or Feature, reads every socket selector the entity's own document declares, and refuses one the grammar cannot read under this same condition whether or not any edge is wired through the socket:
+
+> selector violation ("<selector-expression>", declared on socket "<socket-name>", which could not be evaluated: "<why-it-could-not-be-read>"). Correct the selector on the socket's declaration in the component type's usesSchema.
+
+On a Feature's socket the remedy names the Feature's `usesSchema` instead. Nothing has wired the socket, so the fault is the catalog entity's: it is filed as `CATALOG_ERROR` and names the entity's file.
 
 The halt carries the authoring key it is about — the `uses:` socket entry, or the `features:` entry naming the attachment — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level. An attachment is positioned at the `features:` entry that wrote it, in the document that wrote it, and filed under that document's author: the component's own block or a subsystem's block in the Aggregate, a developer fault; and, for an attachment only the Release makes, its entry for the component or the `features:` block of a boundary holding the component, an operator fault. Where both documents write the attachment, it is positioned where its `type` is named, which the Aggregate always does. An attachment written on a connection is positioned at its key under that connection's `features:`, in the document that wrote it — the Aggregate's connection entry, or the Release's per-edge entry for an attachment only the Release makes. A Feature the Release alone attaches to a component its declaration does not admit reads:
 

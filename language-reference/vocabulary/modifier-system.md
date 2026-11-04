@@ -93,11 +93,15 @@ Two layers check a selector, with deliberately different strictness:
   the grammar: a selector it refuses — any of the shapes above — halts
   the build with a diagnostic naming the selector, the Feature, socket or
   slot declaring it, and the requirement it could not read. Parse
-  failures are loud and specific, never silently skipped. The parser
-  runs where a selector is evaluated — for each attachment of a Feature,
-  each edge wired through a socket, each fill of a slot — so a malformed
-  selector on a Feature nothing attaches, or on a socket or slot nothing
-  uses, is not reported until something does.
+  failures are loud and specific, never silently skipped. In a build the
+  parser runs where a selector is evaluated — for each attachment of a
+  Feature, each edge wired through a socket, each fill of a slot.
+  `aggrega validate`, over the whole catalog or over one Component or
+  Feature, also reads every socket and slot selector the entity's
+  document declares, so a malformed one on a socket or slot nothing uses
+  is refused there, under the code and in the words a build uses. A
+  malformed `appliesTo` on a Feature nothing attaches is not reported
+  until something does.
 
 A selector that parses but does not match is not an error in itself —
 it is an unsatisfied constraint. At static analysis, every Feature
