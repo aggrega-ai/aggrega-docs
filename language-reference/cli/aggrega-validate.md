@@ -313,6 +313,8 @@ The [`validate` tool of `aggrega mcp`](./aggrega-mcp.md) gives the same verdict 
 
 The single-entity mode's catalog load is tolerant: an unrelated broken entity elsewhere in the catalog is skipped rather than aborting the check, so it never blocks validating the target in isolation.
 
+A skipped file still explains a Component that goes missing because of it. Where a Recipe's `implements` target is not found and exactly one skipped file declares that Component, the report leads with that file's own refusal — its path, the constraint it breaks and the condition's short code in the head — followed by a `note:` saying the file was skipped at load, so the catalog holds nothing under the identity it declares, and then by the `implements target … not found in catalog` failure as the reason the file was needed. Where no skipped file declares that Component, or more than one does, the not-found failure leads and every skipped file is listed beneath it under `note: catalog files skipped at load`. This is the account [`aggrega build`](./aggrega-build.md) gives of a file it skipped, and the editor's entity check through [`aggrega serve`](./aggrega-serve.md) and the `validate` tool of [`aggrega mcp`](./aggrega-mcp.md) give it too. A catalog from which nothing was skipped reports exactly as it otherwise would.
+
 ## How validate relates to lint and build
 
 The three commands cover three different questions:
