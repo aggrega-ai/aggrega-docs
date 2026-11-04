@@ -122,6 +122,13 @@
     "status": "machine",
     "text": "**Ce que la cible doit faire tourner.** Une requête n’est satisfaite que là où quelque chose la satisfait. Sur `helm`, c’est le contrôleur, et le compilateur ne peut pas inspecter le cluster pour savoir s’il en tourne un, si bien que les FeatureRecipes helm arrêtent le build à moins que la Release n’affirme le prérequis avec `infra.control_plane_present: true` sur l’attachement. Sur `terraform` et `cloudformation`, l’apply ou la stack génère la valeur elle-même et rien ne doit tourner au préalable."
   },
+  "004504a1468cd96f": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "004504a1468cd96f",
+    "status": "machine",
+    "text": "L’octroi asymétrique — les templates de chemin lisent `.parameters` directement ; les templates de valeur non — permet à chaque couche de posséder ce dont elle a besoin : les `values:` côté développeur transmettent aux templates de valeur des données déjà résolues et propres à l’environnement ; les templates de chemin côté opérateur référencent des paramètres de région / environnement / identifiant de compte sans passer par le schéma `values` de l’Aggregate."
+  },
   "0048cfbdbadd3230": {
     "at": "2026-11-02T22:45:48.640Z",
     "job": "session-0015-20261102224548",
@@ -282,6 +289,13 @@
     "srcHash": "007b61ada2c5e2f9",
     "status": "machine",
     "text": "Une Recipe lie un fournisseur à version épinglée — `helm:1.0.0` ou `helm:^1.0.0` — et aucune version de Plugin de rendu de fournisseur ne satisfait l’épinglage. L’épinglage est une demande explicite, donc le build s’arrête plutôt que de l’ignorer et de rendre au moyen de n’importe quelle version qui sert le fournisseur à ce moment-là ; passer outre un épinglage en silence produirait une sortie dont la propre déclaration de l’auteur dit qu’elle ne devrait pas exister."
+  },
+  "00803539073b675a": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "00803539073b675a",
+    "status": "machine",
+    "text": "Rendu (évaluation des chemins)"
   },
   "00817260fb594830": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -1051,6 +1065,13 @@
     "status": "machine",
     "text": "**Composition en module.** Une capacité à plusieurs charges de travail — un niveau de lecture de métriques qui est en réalité un stockage d’objets plus un Store Gateway plus un front-end de requête — est empaquetée comme un sous-agrégat composant trois composants à charge de travail unique, et non comme un composant monolithique. Le module est importé par son nom et réutilisé partout où un niveau de lecture Thanos est nécessaire."
   },
+  "01dde99e44c6bcae": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "01dde99e44c6bcae",
+    "status": "machine",
+    "text": "1. L’arbre chronologique du pipeline (quand les données deviennent concrètes)"
+  },
   "01ded684d8fda98f": {
     "at": "2026-11-03T23:48:32.946Z",
     "job": "session-0175-20261103234832",
@@ -1490,6 +1511,13 @@
     "status": "machine",
     "text": "**Absent signifie lié à rien.** Un rattachement que le Manifest ne lie à aucune FeatureRecipe que contient le catalogue ne porte aucune `realization`. Un build d’une telle composition s’arrête avant de rendre, en nommant le rattachement sans correspondance — mais une politique à ce rôle est interrogée avant cet arrêt, elle peut donc rencontrer un rattachement qui n’en porte aucune. La règle ci-dessus laisse passer un tel rattachement, car son corps lie d’abord `realization` ; une règle qui veut le rapporter teste explicitement la clé manquante."
   },
+  "02cc542160a852cd": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "02cc542160a852cd",
+    "status": "machine",
+    "text": "`{{ .parameters.X }}` dans les chaînes YAML de la Release"
+  },
   "02cca047380098f8": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -1745,6 +1773,13 @@
     "srcHash": "031b6d48057d2b21",
     "status": "machine",
     "text": "Un chiffre initial peut légalement être écrit et ne coûte rien sous un fichier compose, mais la cible helm le refuse. Un nom de Service Kubernetes doit commencer par une lettre, et les Services qu’émet un chart ou un workload synthétisé portent le nom du composant ; un composant nommé `1cache` arrête donc un build helm — le refus nomme le composant et indique qu’un nom de Service doit commencer par une lettre — au lieu de produire des Services que le cluster refuserait."
+  },
+  "031ba1042cbd6d6a": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "031ba1042cbd6d6a",
+    "status": "machine",
+    "text": "Le pilier `parameters:` porte les valeurs de paramètres fournies par la Release et validées par rapport au contrat. Deux modèles mentaux parallèles régissent son accessibilité :"
   },
   "0322b1dd9482df07": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -4050,6 +4085,13 @@
     "status": "machine",
     "text": "Le `Workload` analysé est un **nouveau rendu**, et non une capture du document émis par le build, et les emplacements qui le portent — `09-artifact-evaluation/`, `10-engine-synthesis/` et `09b-feature-rendering-boundary.yaml` — l’indiquent dans une entrée `workload_note` à côté de lui. Un document rendu n’enregistre rien sur la déclaration dont provient un caractère donné, il n’y a donc aucune clé à laquelle effectuer une substitution à l’intérieur. Ce que montre la trace à la place, c’est le même template `workload:` évalué une seconde fois, sur un contexte dont les données déclarées sensibles se lisent déjà comme `<redacted>`. Comme le template voit une chaîne là où il y avait une chaîne, le résultat conserve la forme du document émis : les mêmes champs, aux mêmes endroits, avec `<redacted>` à la position même de la donnée masquée et le texte littéral qui l’entoure inchangé."
   },
+  "0777c05cf455afc5": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "0777c05cf455afc5",
+    "status": "machine",
+    "text": "Matrice d’expansion des templates"
+  },
   "077db5d6ba4e33e7": {
     "at": "2026-11-03T05:31:59.590Z",
     "job": "session-0057-20261103053159",
@@ -4102,6 +4144,13 @@
     "srcHash": "07903556284cbca4",
     "status": "machine",
     "text": "**Governance** (`governance`)"
+  },
+  "07a1605d4366ddb1": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "07a1605d4366ddb1",
+    "status": "machine",
+    "text": "`.metadata` — l’instance en cours d’évaluation : son `instance_id`, son type `component` et sa `resolved_version`, son `boundary_path`, ainsi que `aggregate_name`, `aggregate_version` et `release_version` du build."
   },
   "07a53319622aa5a3": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -4566,6 +4615,13 @@
     "status": "machine",
     "text": "la règle"
   },
+  "08771083a1114f0c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "08771083a1114f0c",
+    "status": "machine",
+    "text": "Référence de l’expansion des templates — la matrice complète"
+  },
   "08787ab737b31ad3": {
     "at": "2026-11-03T09:43:53.706Z",
     "job": "session-0086-20261103094353",
@@ -4982,6 +5038,13 @@
     "srcHash": "093e6cd08ad7de9c",
     "status": "machine",
     "text": "**3. Domaine de routage : le Manifest choisit la réalisation, par type ou pour cette seule connexion**"
+  },
+  "094675cbed0ca3ea": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "094675cbed0ca3ea",
+    "status": "machine",
+    "text": "Cette page documente la passe d’interpolation, les formes de valeur par slot, les modèles d’accès dans les chaînes YAML de l’Aggregate, l’exception des templates de chemin, et combien de temps la map fusionnée reste lisible. Pour la forme plus large du contexte de template de Recipe / FeatureRecipe (`.values`, `.infra`, `.uses`, etc.), voir [template-context-contract.md](template-context-contract.md). Pour la disponibilité par emplacement de template tout au long du pipeline de compilation, voir [expansion-matrix.md](expansion-matrix.md). Pour la forme de déclaration des contrats de paramètres typés sur l’Aggregate, voir [`entities/aggregate.md`](../entities/aggregate.md) §« Typed parameter contracts (Contrats de paramètres typés) ». Pour l’allowlist des variables de template de chemin qui inclut `.parameters.<slot>` lors de l’évaluation de `directory:` / `subDirectory:` d’une frontière, voir [`path-template-variables.md`](../path-template-variables.md)."
   },
   "0947f7b0aae2612e": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -5842,6 +5905,13 @@
     "status": "machine",
     "text": "**Visibilité dans l’éditeur.** L’avertissement atteint les diagnostics de l’éditeur par le serveur de langage avec la gravité avertissement. L’entrée se trouve dans le fichier de configuration plutôt que dans le document en cours de modification, elle est donc placée en tête de ce document plutôt que sur une clé."
   },
+  "0b017d2a4e6b82ca": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "0b017d2a4e6b82ca",
+    "status": "machine",
+    "text": "Composant de l’Aggregate"
+  },
   "0b0535bb74f4a155": {
     "at": "2026-10-30T06:38:36.798Z",
     "job": "session-0071-20261030063836",
@@ -5918,6 +5988,13 @@
     "srcHash": "0b2f52f876f40b53",
     "status": "machine",
     "text": "L’exemple comporte deux Components (`db` + `api`). Des Aggregates plus grands avec dix Components ou plus, des graphes de dépendances complexes et des Features transversales sollicitent nettement plus le bloc `parameters:` de l’Aggregate et les règles de mappage du Manifest. La compacité par Component de cet exemple se multiplie favorablement à grande échelle."
+  },
+  "0b31c578b6cd0875": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "0b31c578b6cd0875",
+    "status": "machine",
+    "text": "`assertions:` est le lieu des règles inter-champs. Il ne remplace pas :"
   },
   "0b33a48591935dbc": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -6052,6 +6129,13 @@
     "srcHash": "0b6c0da819fa7d73",
     "status": "machine",
     "text": "*Le schéma du Plugin déclare `spec.provider.workloadSchema` — son corps est compilé en JSON Schema 2020-12 lors du chargement du Plugin — et la consommation de `workload:` côté Recipe est livrée. La prise en charge de la synthèse est appliquée au moment du rendu par le contrôle des capacités du fournisseur, fondé sur la capacité que signale le fournisseur lié ; `workloadSchema` est le contrat documenté que le catalogue de la bibliothèque standard maintient synchronisé avec cette capacité, et non l’entrée du contrôle elle-même. `aggrega validate`, exécuté sur l’ensemble du catalogue, signale en outre en amont, avant un build, une Recipe `workload:` liée à un fournisseur qui ne synthétise pas, lorsque le catalogue contient l’entité Plugin de ce fournisseur.*"
+  },
+  "0b6d03e869913df4": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "0b6d03e869913df4",
+    "status": "machine",
+    "text": "`.values`, `.infra`, `.context.instance_id`, `.context.labels`, `.context.annotations.*` (les 3 compartiments), `.metadata.*` (`release_name`, `release_version`, `environment`, `aggregate_name`). **INTERDIT :** `.context.inject` (circulaire — le pipe est en cours de construction), `.context.uses` (utilisez plutôt `uses[].inject` pour le câblage entre composants). Le template se trouve dans le texte de l’Aggregate, que l’interpolation des paramètres de #1 lit en premier, écrivez-le donc échappé — `value: '{{\"{{\"}} .metadata.release_name }}'` — pour qu’il atteigne cette phase ; écrit tel quel, l’interpolation l’évalue et s’arrête, puisque le texte d’un Aggregate ne définit aucune racine hormis `.parameters`."
   },
   "0b6d71f581323400": {
     "at": "2026-11-03T04:04:10.739Z",
@@ -8382,6 +8466,13 @@
     "status": "machine",
     "text": "Permet à une Feature qui exige que le proxy vérifie avec qui il communique de sélectionner un composant capable de vérifier le certificat d’un upstream au regard d’une ancre de confiance fournie par la Release."
   },
+  "0fa7ef8c78540f9d": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "0fa7ef8c78540f9d",
+    "status": "machine",
+    "text": "Une boucle range parcourt les connexions d’un socket dans l’ordre alphabétique de leurs alias — ici `fast` avant `local` — et non dans l’ordre où l’Aggregate les a écrites. Un socket qui contient une seule connexion se lit de la même manière : `.uses.models.local.target` lit `llama`, que `fast` soit câblé à côté ou non, et `.uses.models.target` n’adresse aucune connexion et arrête le build."
+  },
   "0fa86908ecccfab3": {
     "at": "2026-11-03T13:03:35.411Z",
     "job": "session-0109-20261103130335",
@@ -8528,6 +8619,13 @@
     "srcHash": "0feb5161aeee345b",
     "status": "machine",
     "text": "Il ne s’applique qu’à cette portée — les portées catalogue entier et entité unique pilotent un harnais synthétisé plutôt qu’une Release, et ne résolvent aucun graphe — et le demander ailleurs est refusé plutôt que silencieusement ignoré. Si l’exécution s’arrête avant que le graphe ne soit résolu, rien n’est écrit sur la sortie standard et les propres diagnostics de la commande indiquent ce qui l’a arrêtée."
+  },
+  "0fed3984b9d5dbff": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "0fed3984b9d5dbff",
+    "status": "machine",
+    "text": "Le label est lu dans `labels`, qui sont ceux de la cible — le modèle — et jamais ceux du composant lui-même ; l’opt-out est lu dans les `values` de la connexion ; et les informations d’identification sont un slot sous les `features` de la connexion. Chacun est lu avec `optional` ou `hasKey`, car une cible peut ne porter aucun label de ce type et une connexion aucune valeur de ce type. Ce que signifie le label relève de la convention du catalogue : le build porte la chaîne et l’assertion décide de ce qu’elle signifie."
   },
   "0ff6cb3f2c8fef17": {
     "at": "2026-11-04T02:50:30.498Z",
@@ -10219,6 +10317,13 @@
     "status": "machine",
     "text": "Une connexion remplit un slot en portant un attachement sous le nom du slot dans son propre `features:` — sur l’entrée de connexion de l’Aggregate ([Aggregate](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)) ou sur celle de la Release ([Release](release.md#per-edge-connection-configuration)) — et l’attachement devient l’un des attachements du composant consommateur, nommé `<alias>.<slot>`."
   },
+  "133f3c47771d81bf": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "133f3c47771d81bf",
+    "status": "machine",
+    "text": "Les locals se résolvent avant les provides, de sorte que les propres provides du nœud n’existent pas encore lorsqu’un local est évalué. Un local qui a besoin d’une valeur que les provides publient aussi la calcule directement à partir de `.values` / `.infra` — et l’entrée `provides` lit ensuite le local."
+  },
   "134a8930a6976e3b": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -10274,6 +10379,13 @@
     "srcHash": "135f4f0a82f31e28",
     "status": "machine",
     "text": "**Options de `aggrega cache clear`**"
+  },
+  "13647d34cf4094ee": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "13647d34cf4094ee",
+    "status": "machine",
+    "text": "`.parameters` uniquement. Toutes les autres données ne sont pas encore résolues."
   },
   "136858e156d9b324": {
     "at": "2026-11-03T08:01:05.098Z",
@@ -11253,6 +11365,13 @@
     "status": "machine",
     "text": "Terraform est la seule cible de la bibliothèque standard dotée d’une primitive native de sensibilité par valeur, de sorte qu’une donnée qu’un auteur a déclarée sensible peut être rendue dans les termes propres de Terraform plutôt que seulement consignée dans ceux d’Aggrega."
   },
+  "156674cce4f2dc2d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "156674cce4f2dc2d",
+    "status": "machine",
+    "text": "**Note sur l’autonomie.** Les chaînes `source` (#5) partagent l’invariant d’autonomie de `provides` (#6) : les deux surfaces rejettent les références à `.context.inject` et `.context.uses`. La résolution de la source s’exécute avant l’hydratation d’inject qui renseigne `.context.inject`, et avant que quoi que ce soit en aval ne consomme la source résolue — la règle et sa justification valent donc pour les deux surfaces. Là où les deux diffèrent, c’est sur le pilier provides : une `source` de l’espace de travail partage son contexte avec les `locals` de l’entité déclarante, et une coordonnée distante en lit un sous-ensemble, de sorte que les deux refusent `.provides`, tandis que `provides` est lui-même la surface en cours de résolution. Les deux lisent `.locals`. La règle atteint la `source` d’une FeatureRecipe dans les mêmes conditions que celle d’une Recipe, chacune vérifiée par rapport à la propre surface `locals` de cette entité."
+  },
   "15680b9ae4c95bc6": {
     "at": "2026-11-02T22:45:48.640Z",
     "job": "session-0015-20261102224548",
@@ -12229,6 +12348,13 @@
     "srcHash": "171b29a6f2ad99e0",
     "status": "machine",
     "text": "**Initialiser une configuration écrit par défaut ce même fichier partagé, et pour la même raison.** `aggrega/configInit` enregistre un registre et sa politique de confiance, qui relèvent de l’outillage à l’échelle de la machine ; sans surcharge, il écrit donc la configuration par laquelle chaque projet de la machine résout — et il atteint ce registre une fois pour lire la politique qu’il annonce. Sa réponse porte la même paire `scope` que les deux méthodes de registre. Il s’en distingue sur un point sur lequel on peut compter : il **refuse plutôt que d’écraser** un fichier de configuration existant, si bien qu’il ne peut pas remplacer une configuration à partir de laquelle quelqu’un travaille, à moins que la requête n’envoie `force`. **Figer est le cas inverse :** `aggrega/configCapture` n’accepte aucune surcharge, écrit toujours le fichier de configuration propre au projet et n’atteint aucun registre, si bien que rien de ce qu’il fait n’est visible d’un autre projet. Voir [Ce que laisse une écriture de configuration](#what-a-configuration-write-leaves-behind)."
+  },
+  "1727cee558c14dee": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "1727cee558c14dee",
+    "status": "machine",
+    "text": "Chaque règle est propre à l’implémentation du chart Bitnami 20.x. Si une autre Recipe MariaDB est liée — un chart fait maison, une implémentation alternative — ces règles ne s’appliquent pas. Les règles de niveau Component (`replication-needs-two-secondaries`, `total-node-count-within-cap`) s’appliquent toujours, car ce sont des propriétés du contrat."
   },
   "1731fc1271cf89da": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -13728,6 +13854,13 @@
     "srcHash": "1a4a48f8ba3a0946",
     "status": "machine",
     "text": "L’avertissement est écrit sur la sortie d’erreur standard, introduit par `warning:`, après les éventuelles notes informatives. Il porte le message complet de l’assertion — l’entité, l’instance, le nom de l’assertion et la phrase écrite par son auteur — terminé par une phrase supplémentaire :"
+  },
+  "1a508bf1cf22665e": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "1a508bf1cf22665e",
+    "status": "machine",
+    "text": "Les deux rôles se ressemblent (tous deux exécutent des arrêts `{{ fail }}` sur des règles inter-champs), mais la répartition des responsabilités est porteuse :"
   },
   "1a546974d751ca0f": {
     "at": "2026-11-03T03:37:30.908Z",
@@ -18331,6 +18464,13 @@
     "status": "machine",
     "text": "Agrégats imbriqués servant de modules importés. Clés : une ou plusieurs lettres, chiffres, traits de soulignement ou traits d’union. Un point n’est pas autorisé. Motif : `^[a-zA-Z0-9_-]+$`."
   },
+  "22bce371fab16d34": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "22bce371fab16d34",
+    "status": "machine",
+    "text": "`.context.uses` fait référence aux provides d’autres nœuds, et l’évaluation des provides les exécute dans un ordre arbitraire. Les templates de provides restent autonomes afin que l’évaluation reste indépendante de l’ordre."
+  },
   "22bf3d7f85ac939a": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -20504,6 +20644,13 @@
     "status": "machine",
     "text": "Aggrega traite les frameworks à interaction humaine (comme AutoGen et LangGraph) comme des nœuds workers en boîte noire. Pour prendre en charge des agents « endormis » qui attendent une entrée humaine sans perdre leur état, **les architectes de plateforme peuvent écrire des déclarations `schema:` de Component** qui imposent strictement la liaison explicite de composants de catégorie datastore à ces agents, sélectionnés par le label de moteur du datastore — `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` pour un stockage dans lequel l’agent récupère par similarité, ou `datastore.aggrega.ai/engine: kv` pour un stockage dans lequel il enregistre des points de contrôle de son état d’exécution. Le socket se lie au label de moteur plutôt qu’à un nom de produit, de sorte qu’un auteur choisit quel stockage arrive et que la déclaration reste valable. En outre, pour les boucles de rétroaction de l’humain vers l’agent (p. ex. les intégrations Slack), il est possible de configurer un rôle de verdict de gouvernance qui rejette l’architecture à moins qu’un composant gateway explicitement déclaré ne soit attaché, garantissant des frontières d’entrée sécurisées pour les webhooks de rappel."
   },
+  "26d0ca8d17c4af2e": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "26d0ca8d17c4af2e",
+    "status": "machine",
+    "text": "**Comparaisons.** Les six comparaisons lisent deux nombres par leur valeur, quel que soit le type qui porte chacun : `lt .values.replicas 1.5` et `eq .values.replicas 3.0` répondent ici comme sur un template de valeur, un `0.1` écrit par l’auteur est `eq` à un `0.1` écrit dans l’assertion, et comparer un nombre avec un texte entre guillemets arrête le build dans les mêmes termes."
+  },
   "26d1ab8ad6cd57c6": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -20961,6 +21108,20 @@
     "status": "machine",
     "text": "**Rendu de base (template Go).** Évalué pour mapper les variables dans le chart/module d’infrastructure `source` sous-jacent. Un seul champ, trois modes de rédaction (inline, `$import:` de fichier, `$import:` de bibliothèque). Voir la sous-section ci-dessous pour le mécanisme de sélection."
   },
+  "27b02bab9a87038b": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "27b02bab9a87038b",
+    "status": "machine",
+    "text": "**Le champ `when:` de la forme compacte** — la *forme* conditionnelle (si les contraintes d’un sous-arbre s’appliquent). Utilisez `when:` pour les variations de forme ; utilisez `assertions:` lorsque la *combinaison de valeurs* est invalide d’une manière mieux exprimée sous forme de prédicat libre."
+  },
+  "27b0395f357a3964": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "27b0395f357a3964",
+    "status": "machine",
+    "text": "`.features` — les rattachements résolus, indexés par le nom d’instance que l’auteur a donné à chacun. Chaque entrée porte `type` (l’URI de catalogue de la Feature rattachée), `resolved_version` (la version liée pour ce build) et `values` (le contenu d’intention du développeur propre au rattachement). Un rattachement écrit sur l’une des connexions du composant n’en fait pas partie, exactement comme il ne fait pas partie des `.features` d’un template de Recipe : il est lu sous sa connexion, à `.uses.<socket>.<alias>.features.<slot>`, dans cette même forme."
+  },
   "27b1f37b5bde8bab": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -21248,6 +21409,13 @@
     "srcHash": "283f2854f4477a2f",
     "status": "machine",
     "text": "Chacun de ces endroits a un répertoire dans lequel il doit rester, et lequel dépend du répertoire sous lequel l’opération le compose :"
+  },
+  "283f2c6236488ffe": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "283f2c6236488ffe",
+    "status": "machine",
+    "text": "**Repli tenant compte du discriminant à l’intérieur du corps du Workload.** L’exemple `replicas: {{ .infra.replicas | default 1 }}` ci-dessus confond « l’auteur n’a pas défini `replicas` » avec « l’auteur a défini `replicas` à `0` » — `default` se déclenche dans les deux cas. Lorsqu’une Release rédige légitimement `infra.replicas: 0` pour exprimer le scale-to-zero (un pattern Knative / KEDA courant), la forme `| default 1` remplace silencieusement l’intention. La forme tenant compte du discriminant est `replicas: {{ optional .infra \"replicas\" 1 }}` — `optional` vérifie la présence de la clé et renvoie la valeur rédigée (zéro rédigé compris) lorsque la clé est définie, en ne se rabattant sur `1` que lorsque la clé est absente. Voir [`sprig-functions.md`](sprig-functions.md#optional--presence-aware-fallback) pour la sémantique complète et les indications sur quand la préférer."
   },
   "283f979686c44225": {
     "at": "2026-11-03T14:46:30.297Z",
@@ -22416,6 +22584,13 @@
     "status": "machine",
     "text": "Fait de signature vérifiée enregistré lorsque la signature de ce plugin a été vérifiée au moment du pull, par rapport à la même politique de confiance par registre que pour les entités du catalogue."
   },
+  "2a97ed442953a256": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "2a97ed442953a256",
+    "status": "machine",
+    "text": "Pour les messages longs ou porteurs de valeurs, utilisez `printf` :"
+  },
   "2a9ef29579f9a72d": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -23113,6 +23288,13 @@
     "status": "machine",
     "text": "**Sur un slot d’attachement — *tout ce qui lie ce point manipule du matériel secret*.** Un slot de `featuresSchema` déclare `sensitive: true` :"
   },
+  "2bf0d808baf9d2a8": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "2bf0d808baf9d2a8",
+    "status": "machine",
+    "text": "**Vérification des collisions :** avant la fusion dans le pipe `.context.inject`, le compilateur vérifie qu’aucune clé n’entre en collision avec les clés de uses-inject que résout la seconde moitié de l’hydratation d’inject. Les collisions arrêtent le build avec une erreur de clé de livraison en double."
+  },
   "2bf7be79ebbad506": {
     "at": "2026-11-04T06:48:44.911Z",
     "job": "session-0212-20261104064844",
@@ -23638,6 +23820,13 @@
     "srcHash": "2d10afee6007b7fc",
     "status": "machine",
     "text": "avec `no kind` à la place de `kind \"<kind>\"` pour un document qui n’en déclare aucun."
+  },
+  "2d10d2859904338e": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "2d10d2859904338e",
+    "status": "machine",
+    "text": "**Cette surface s’évalue avec `missingkey=error`.** Une référence à une clé que le contexte ne porte pas arrête le build — en nommant l’entité, l’instance, l’assertion et la clé absente — au lieu d’être rendue comme rien. Cette rigueur est ce qui rend une assertion digne de confiance : un prédicat dont la référence serait rendue vide comparerait avec rien et réussirait, de sorte qu’une seule faute de frappe retirerait silencieusement la règle que l’assertion a été écrite pour faire respecter. Cela signifie aussi que la référence nue se résout avant qu’un repli puisse s’exécuter, de sorte qu’un champ facultatif a besoin d’une forme qui tient compte de la présence ; [errors/fatal-halts.md](../errors/fatal-halts.md) donne la politique de clé manquante propre à chaque surface et les formes qui fonctionnent avec elle."
   },
   "2d1127182662cdbb": {
     "at": "2026-11-03T10:00:44.083Z",
@@ -24361,6 +24550,13 @@
     "srcHash": "2e6bbef696c774c4",
     "status": "machine",
     "text": "A resolved artifact is not a documentation bundle (Un artefact résolu n’est pas un bundle de documentation)"
+  },
+  "2e6be44ca3269911": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "2e6be44ca3269911",
+    "status": "machine",
+    "text": "**Les surfaces de template de chemin** (templates `directory:` et `subDirectory:` rédigés par l’opérateur sur les frontières de la Release) lisent `.parameters.<slot>` directement lors de l’évaluation des templates de chemin pendant le rendu. La map de paramètres fusionnée reste lisible jusqu’à la fin du rendu afin qu’un template de chemin puisse lire `.parameters` par rapport à l’allowlist fermée."
   },
   "2e6cb0e4de3dc41b": {
     "at": "2026-10-30T20:55:02.570Z",
@@ -25949,6 +26145,13 @@
     "status": "machine",
     "text": "`NameBoundOutput`"
   },
+  "31255e65cb622300": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "31255e65cb622300",
+    "status": "machine",
+    "text": "Aucune des deux surfaces de source ne porte de pilier provides : la surface de source de l’espace de travail partage son contexte avec les propres `locals` de l’entité déclarante, qui n’en a pas, et une coordonnée distante lit un sous-ensemble de ce contexte. Les locals se résolvent avant les provides afin que `provides:` puisse lire `.locals` ; le template de source lit les mêmes locals plutôt que de remonter jusqu’aux provides."
+  },
   "312b6e506d15032a": {
     "at": "2026-11-04T07:36:18.536Z",
     "job": "session-0216-20261104073618",
@@ -26387,6 +26590,13 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "Chaque `aggregate.yaml` s’ouvre sur un commentaire d’une ligne qui nomme son étape, tout comme un `release.yaml` ou un `manifest.yaml` là où cette étape le modifie. Comparer un fichier avec celui de l’étape précédente montre exactement ce que l’étape ajoute :"
+  },
+  "3229b5b710978a4a": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "3229b5b710978a4a",
+    "status": "machine",
+    "text": "**Lire ce que porte une connexion.** Une règle sur une connexion peut lire ce qu’est sa cible, ce que le développeur a écrit sur la connexion et ce qui y est rattaché, de sorte qu’elle tient quelle que soit la Recipe liée. Un Component dont le socket `models` déclare une valeur `unauthenticated` et un slot `credential` peut refuser une connexion vers une cible que son catalogue étiquette comme service hébergé lorsque cette connexion ne porte ni informations d’identification ni l’opt-out :"
   },
   "322bd73abe1decee": {
     "at": "2026-11-03T21:17:49.829Z",
@@ -28083,6 +28293,13 @@
     "status": "machine",
     "text": "**Un outil ou un magasin vectoriel de Flowise.** Un chatflow ne lit l’adresse que la plateforme livre pour l’un d’eux — `AGGREGA_TOOL_<ALIAS>_URL` ou `AGGREGA_VECTOR_STORE_<ALIAS>_URL` — qu’au moyen d’une variable Runtime de ce nom, que rien ne crée au démarrage. Le brouillon n’écrit rien pour cette adresse, et l’importation rapporte l’étape qui amène le chatflow à la lire : créer la variable Runtime dans la page Variables de Flowise, et la lire dans le nœud comme `$vars.<name>`."
   },
+  "359eb5059b503f93": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "359eb5059b503f93",
+    "status": "machine",
+    "text": "Les locals d’une Recipe partagent leur contexte avec son template `source` (#5), et cette surface n’offre pas le nom : le fait que le nœud fournisse une source, ce que décide le template `source`, est l’une des choses dont dépend le nom. La référence s’arrête avec le diagnostic de racine inconnue, qui liste `.context.instance_id` comme ce que `.context` y définit. Lisez plutôt la clé dans une entrée `provides`, ou dans un template de la phase de rendu de base."
+  },
   "35a9a79ef88afdb9": {
     "at": "2026-11-03T19:28:13.588Z",
     "job": "session-0147-20261103192813",
@@ -28180,6 +28397,13 @@
     "srcHash": "35d6e4989200b461",
     "status": "machine",
     "text": "Lorsqu’une arête `uses` passe d’une frontière à une autre, le fournisseur publie l’`Export` de la valeur consommée sur la sortie de stack qu’il assemble pour le composant producteur et la clé fournie — la même sortie qu’atteint une Recipe cloudformation lorsque son bloc `Outputs:` écrit une entrée sous cette clé. Un `Export:` déjà présent sur cette sortie n’est conservé que si son `Name:` est exactement le nom que dérive le fournisseur : c’est l’exportation qu’une référence inter-stacks antérieure vers la même valeur a déjà publiée, de sorte que chaque consommateur importe ce nom unique. Tout autre `Export:` à cet endroit provoque un arrêt, car écrire l’exportation du fournisseur écraserait ce que vous avez écrit, et conserver le vôtre laisserait chaque consommateur importer un nom que la référence n’a jamais publié."
+  },
+  "35d6ee6e18e3c448": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "35d6ee6e18e3c448",
+    "status": "machine",
+    "text": "Blocs `with:` du pipeline"
   },
   "35db7132b210b13e": {
     "at": "2026-10-30T20:55:02.570Z",
@@ -28289,6 +28513,13 @@
     "srcHash": "36078b355ec93c1d",
     "status": "machine",
     "text": "`aggrega validate` vérifie la **correction** — schéma, structure des piliers, résolution des références entre documents, chaînes `extends`, capacité du provider vis-à-vis du type d’entrée et (pour une entité qui effectue un rendu) le fait qu’elle effectue réellement son rendu. Elle a trois modes, sélectionnés par son argument, qui appliquent la même discipline de correction à trois portées : le **catalogue entier** (aucun argument), la **fermeture des dépendances d’une seule Release** (`--release`) et le fichier d’**une seule entité** (un chemin d’entité). Chaque portée répond à la même question — « ce contenu est-il correct ? » — sur une tranche différente du catalogue."
+  },
+  "360791fb1fc070e7": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "360791fb1fc070e7",
+    "status": "machine",
+    "text": "Toute surface de template de valeur après l’interpolation"
   },
   "361695b9f8e8b09a": {
     "at": "2026-11-03T00:44:41.577Z",
@@ -29093,6 +29324,13 @@
     "status": "machine",
     "text": "Valeurs par défaut par type"
   },
+  "37be53498e18151c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "37be53498e18151c",
+    "status": "machine",
+    "text": "Résolution de self-inject"
+  },
   "37c3ec16b76df2d2": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
@@ -29310,6 +29548,13 @@
     "srcHash": "3847b009a1cda716",
     "status": "machine",
     "text": "Le fichier est un contrat autonome ; la résolution se fait par rapport à une liaison du Manifest, exposée via `--show-implements`."
+  },
+  "384df8e0b397465c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "384df8e0b397465c",
+    "status": "machine",
+    "text": "**Contexte de template complet** + `.attachment_name`, `.inject` (les propres entrées `inject:` du rattachement, lorsque le rattachement rédige un bloc `inject:`), `.context.render_facts` — ce que le fournisseur de l’hôte a rapporté au sujet du rendu de l’hôte — et `.context.used_by` — les composants qui utilisent l’hôte, chacun portant ses propres faits de rendu lorsque la FeatureRecipe définit `readsCallerRenderFacts: true`. Chaque connexion sur `.context.uses` porte les faits de rendu de sa cible, à `.render_facts`, lorsque la FeatureRecipe définit `readsTargetRenderFacts: true`. `.context.instance_id` et `.context.rendered_name` sont l’identité du composant hôte et le nom que le propre fournisseur de l’hôte rapporte pour lui — la même valeur que lit la Recipe de l’hôte, sur les `locals:` et `provides:` de la FeatureRecipe aussi — et une référence à `.context.rendered_name` écrite en ligne provoque un arrêt sur un hôte dont le fournisseur ne rapporte aucun nom de ce type."
   },
   "3853ba8cc18e1f94": {
     "at": "2026-11-03T20:25:36.476Z",
@@ -30818,6 +31063,13 @@
     "status": "machine",
     "text": "signing: unsupported held-key type: held key is `<the key's algorithm>`, want ECDSA P-256 (signing : type de clé détenue non pris en charge : la clé détenue utilise l’algorithme indiqué, ECDSA P-256 attendu)"
   },
+  "3aefcf9b869f228e": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "3aefcf9b869f228e",
+    "status": "machine",
+    "text": "Les chaînes obtenues sont fusionnées dans `.context.inject.env`, `.context.inject.file`, `.context.inject.arg` (et tout mécanisme personnalisé), à côté de ces résolutions de uses-inject. Au moment où le mapping d’inject (`injectMapping`) s’exécute, le pipe contient toutes les valeurs d’inject rédigées par le développeur issues des deux origines."
+  },
   "3afc7edc69ca1967": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -31992,6 +32244,13 @@
     "srcHash": "3d07f5d2cc9412d5",
     "status": "machine",
     "text": "**Comment corriger :** pour les absences dans un template de chemin, corrigez le nom du champ en l’un de ceux de la liste d’autorisation documentée dans [`path-template-variables.md`](../path-template-variables.md). Pour une absence dans une assertion, corrigez la référence — la plupart des signalements sont une clé mal orthographiée — ou, lorsque le champ est réellement facultatif, protégez-la avec `hasKey` ou utilisez le helper `optional` ; envelopper la référence nue dans un `default` ne lèvera pas l’arrêt, car la référence se résout avant que le repli ne s’exécute, et la lire via `index` non plus, car `index` provoque un arrêt sur une clé que la map ne contient pas. Pour les absences dans un template de valeur lorsque le rendu vide n’est pas souhaité, utilisez le helper `optional` ou fournissez la clé manquante sous forme de déclaration `parameters.*` typée sur l’Aggregate avec une valeur de Release, sous forme d’entrée `provides:` d’un Component en amont câblée via `uses[].inject`, ou sous forme d’entrée `locals:` sur la même entité."
+  },
+  "3d09894f500aa8d0": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "3d09894f500aa8d0",
+    "status": "machine",
+    "text": "**Le champ `validate:` de la forme compacte** — des prédicats personnalisés par champ, de portée limitée à un seul champ. Utilisez `validate:` lorsque la règle s’applique à un champ précis ; utilisez `assertions:` lorsque la règle implique plusieurs champs et qu’aucun champ unique n’est « celui qui est validé »."
   },
   "3d0c951878cabd4c": {
     "at": "2026-11-03T23:48:32.946Z",
@@ -33364,6 +33623,13 @@
     "status": "machine",
     "text": "Disponible dans directory: ET subDirectory:. La capacité de rendu que la Recipe du composant contributeur déclare dans spec.capability, sans aucun épinglage de version — par exemple 'helm', 'helm-chart' ou 'compose'. subDirectory: vaut par défaut {{ .capability }}, ce qui place les artefacts de chaque capacité dans leur propre sous-dossier sous le répertoire de la frontière. Dans un modèle directory:, la valeur est résolue par composant, de sorte qu’une frontière dont le sous-arbre apporte plus d’une capacité s’évalue en un répertoire par capacité ; le parcours distinct par frontière qui publie .parent_boundary.directory s’exécute avant qu’un composant ne soit lié et laisse cette valeur vide."
   },
+  "3f985bd5e274d4c5": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "3f985bd5e274d4c5",
+    "status": "machine",
+    "text": "Évaluation des provides"
+  },
   "3f9f8989a8c75d75": {
     "at": "2026-11-03T00:44:41.577Z",
     "job": "session-0027-20261103004441",
@@ -34617,6 +34883,13 @@
     "status": "machine",
     "text": "ImportDiagnostic[] ou null"
   },
+  "42557e5857339322": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "42557e5857339322",
+    "status": "machine",
+    "text": "Le passage des provides d’une Recipe de base ne résout aucun rattachement, de sorte que le nom serait rendu vide. La racine est refusée plutôt que livrée vide."
+  },
   "42567cc79ed236ef": {
     "at": "2026-11-03T06:57:40.949Z",
     "job": "session-0068-20261103065740",
@@ -35386,6 +35659,13 @@
     "srcHash": "43a89cc6c96b4766",
     "status": "machine",
     "text": "Le mécanisme des artefacts"
+  },
+  "43a91572798cb917": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "43a91572798cb917",
+    "status": "machine",
+    "text": "`.locals` — les locals de la Recipe."
   },
   "43aa85f00a66804e": {
     "at": "2026-11-03T08:18:31.909Z",
@@ -40427,6 +40707,13 @@
     "status": "machine",
     "text": "Une entité peut dépendre d’octets situés en dehors de son propre document, et le lock contient un pin pour chacun :"
   },
+  "4cd907e6a9583851": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "4cd907e6a9583851",
+    "status": "machine",
+    "text": "`.values` — le contenu `values` du développeur."
+  },
   "4cdf14e699b9233e": {
     "at": "2026-10-17T19:34:06.759Z",
     "job": "a60071eb72a7",
@@ -40699,6 +40986,13 @@
     "srcHash": "4d8490385b9b4237",
     "status": "machine",
     "text": "La condition que signale la réponse. Les codes négatifs sont l’ensemble réservé propre au protocole ; les codes à quatre chiffres sont des conditions que lève ce daemon, chacune nommant un état sur lequel un client peut agir. L’ensemble est fermé."
+  },
+  "4d922118db3b9f6c": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "4d922118db3b9f6c",
+    "status": "machine",
+    "text": "Pourquoi les assertions de Component et de Recipe sont séparées"
   },
   "4d9492318e5dc61c": {
     "at": "2026-11-04T01:29:35.126Z",
@@ -41088,6 +41382,13 @@
     "srcHash": "4e3aee4da6bf6c68",
     "status": "machine",
     "text": "Une requête du serveur de langage refusée pour un chemin menant vers l’extérieur"
+  },
+  "4e3d18b4215beb54": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "4e3d18b4215beb54",
+    "status": "machine",
+    "text": "**Contexte de template complet :** `.values`, `.infra`, `.context.*` (instance_id, rendered_name, labels, annotations, inject, uses), `.locals`, `.provides`, `.features`, `.metadata`. Une référence `.context.rendered_name` écrite en ligne provoque un arrêt sur un nœud dont le fournisseur ne rapporte aucun nom de ce type, comme en #6 ; une référence à l’intérieur d’un corps chargé par `$import:` n’est pas vérifiée et produit un rendu vide sur un tel nœud."
   },
   "4e40a765e8eeb537": {
     "at": "2026-11-03T03:37:30.908Z",
@@ -42753,6 +43054,13 @@
     "status": "machine",
     "text": "OPA 1.21.1 compile les mêmes octets à partir de la même source, quel que soit le répertoire où se trouve cet espace de travail."
   },
+  "51730f0f1d9b406d": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "51730f0f1d9b406d",
+    "status": "machine",
+    "text": "**Le `.uses` d’une assertion n’est pas le `.context.uses` d’un template de Recipe, et une référence écrite pour l’un ne se transpose pas à l’autre.** Le contexte de rendu porte une projection plus riche des mêmes arêtes : indexée par **alias** seul, avec le nom du socket comme champ de l’entrée, et avec les valeurs publiées de chaque cible imbriquées sous `provides` — de sorte qu’un template de Recipe lit `.context.uses.<alias>.provides.<name>` là où une assertion lit `.uses.<socket>.<alias>.target`. Les faits que portent les deux vues partagent leurs noms mais pas leurs chemins : `.context.uses.<alias>.labels` et `.uses.<socket>.<alias>.labels` sont les labels de la même cible, et `values` et `features` lisent de même la même connexion dans l’une ou l’autre. Les deux phases d’assertion s’évaluent avant le rendu, c’est pourquoi la vue qu’une assertion a d’une arête ne porte rien de ce que sa cible a publié, et pourquoi un rattachement sur celle-ci ne porte aucun `provides`."
+  },
   "5173128309f7b284": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -43896,6 +44204,13 @@
     "status": "machine",
     "text": "**Sémantique des champs.** Les quatre champs sont des entiers (UID/GID numériques, pas des chaînes) ; `runAsUser` et `runAsGroup` définissent l’UID/GID effectif des processus du conteneur ; `fsGroup` définit le groupe propriétaire des volumes montés dans le pod ; `supplementalGroups` ajoute des GID supplémentaires au groupe de processus de chaque conteneur."
   },
+  "537acacb8a858eaa": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "537acacb8a858eaa",
+    "status": "machine",
+    "text": "`aggrega validate` applique la même exactitude avant le rendu sans écrire d’artefacts — pour une Recipe dont la source n’est pas récupérée, il pilote le véritable pipeline de compilation autour d’un Aggregate, d’un Manifest et d’une Release minimaux synthétisés, de sorte qu’un template d’assertion mal formé ou une assertion qui fait référence à un champ inconnu ressort comme une erreur d’exactitude ; les assertions d’une Recipe dont la source est récupérée sont évaluées par un build. Une assertion qui y appelle `fail` est signalée comme un avertissement portant son message, et la vérification réussit : la Release synthétisée contient des espaces réservés et des valeurs par défaut au lieu des valeurs que définit une vraie Release, de sorte que le verdict sur l’assertion est laissé à un build — voir [une assertion échouée est un avertissement](../cli/aggrega-validate.md#a-failed-assertion-is-a-warning). (`aggrega lint` couvre les conventions de publication, pas l’exactitude des assertions.)"
+  },
   "538495f64f8e885a": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -44678,6 +44993,13 @@
     "status": "machine",
     "text": "`E0321` sur un lien dans un dépôt récupéré"
   },
+  "54af17a4389f5b2f": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "54af17a4389f5b2f",
+    "status": "machine",
+    "text": "`.provides` — les valeurs `provides:` résolues du composant en cours d’évaluation, déjà calculées au moment où l’assertion s’exécute. Les valeurs publiées d’une *cible* ne se trouvent pas sur cette surface ; elles parviennent plutôt à un appelant dans le contexte de rendu."
+  },
   "54b08f37915813a2": {
     "at": "2026-10-30T20:32:14.370Z",
     "job": "session-0017-20261030203214",
@@ -44830,6 +45152,13 @@
     "srcHash": "54f4de8d71ec6bf9",
     "status": "machine",
     "text": "Une référence désignant une clé que la Release n’a pas fournie n’est **pas** cet arrêt. Une clé absente se résout ici en une valeur vide et est interceptée, avec son type et son contrat, par les vérifications de paramètres décrites sous « Parameter type mismatch / contract violation (Type de paramètre non concordant / violation de contrat) » plus haut. Ce que signale cet arrêt, c’est un texte que le moteur de templates n’a pas pu traiter du tout — un `{{` non fermé, un nom de fonction mal orthographié, un pipeline dont les étapes ne s’emboîtent pas. Lire un paramètre au moyen d’`index` — `{{ index .parameters \"db_size\" }}` — alors que la Release n’a fourni aucun paramètre de ce nom est un échec pendant l’exécution, et cet arrêt le porte, en désignant la clé : `index` s’arrête sur une clé de map que la map ne contient pas, sur chaque surface de template, comme le décrit « A template indexes a map with a key the map does not hold (Un template indexe une map avec une clé que la map ne contient pas) » plus bas."
+  },
+  "54f6967b3f63fb6d": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "54f6967b3f63fb6d",
+    "status": "machine",
+    "text": "Le contexte de template"
   },
   "54f6a4c530139b72": {
     "at": "2026-11-03T04:04:10.739Z",
@@ -45545,6 +45874,13 @@
     "status": "machine",
     "text": "un `function:` inopérant sur une liaison de fournisseur :"
   },
+  "564449174d32b352": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "564449174d32b352",
+    "status": "machine",
+    "text": "Pour les `assertions:` de Component et de Feature, le contexte de template expose l’état résolu de l’instance :"
+  },
   "5648ebbca7baaa03": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -45961,6 +46297,13 @@
     "srcHash": "57195292eab6ba2a",
     "status": "machine",
     "text": "Les développeurs ne rencontrent pas le snake_case dans le YAML qu’ils écrivent, et les auteurs de templates ne rencontrent pas le camelCase dans leurs templates Go. Les ajouts au schéma suivent ces conventions."
+  },
+  "571a4064fddbdc1d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "571a4064fddbdc1d",
+    "status": "machine",
+    "text": "Chaînes `value:` de `inject` du Component"
   },
   "571b7802a1ca3dff": {
     "at": "2026-11-03T01:59:06.045Z",
@@ -48477,6 +48820,13 @@
     "srcHash": "5b9c3312dc3ac01e",
     "status": "machine",
     "text": "**`release`** nomme l’entrée par arête sous l’entrée propre de la Release pour le nœud (`[\"spec\", \"boundaries\", \"cluster\", \"components\", \"gateway\", \"uses\", \"models\", \"gpt\", \"features\"]`), que la Release écrive déjà ou non cette entrée par arête. Là où elle ne l’écrit pas, `aggrega/insertionPoint` signale dans `missingContainerKeys` les clés qu’il reste à écrire. `file` est alors le document de la Release. Une Release qui n’écrit aucune entrée pour le nœud est refusée : l’emplacement du nœud est à écrire par l’opérateur, et la réponse n’en décide pas."
+  },
+  "5ba02cdc6758efa5": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "5ba02cdc6758efa5",
+    "status": "machine",
+    "text": "Références disponibles"
   },
   "5ba1e80aff775bb0": {
     "at": "2026-11-03T02:39:28.596Z",
@@ -51389,6 +51739,13 @@
     "status": "machine",
     "text": "le build affiche l’avertissement de l’équipe et se termine. Avec en plus le fichier de l’organisation :"
   },
+  "617710af066493b0": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "617710af066493b0",
+    "status": "machine",
+    "text": "`injectMapping` de la FeatureRecipe"
+  },
   "617be2ab8b01435d": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -52876,6 +53233,13 @@
     "status": "machine",
     "text": "Dans une entrée de routage, un composant a pour clé le nom qu’il porte **à l’intérieur de son sous-module** — `consumer`, et non `data.consumer` — car c’est le seul nom qu’il y possède. Le chemin pointé qualifié est la façon dont la map `components:` d’une frontière adresse le même composant ; les deux écritures ne sont pas interchangeables, et une entrée de routage rejette une clé pointée."
   },
+  "643f1da173111cb2": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "643f1da173111cb2",
+    "status": "machine",
+    "text": "Recipe / FeatureRecipe"
+  },
   "64433e87252ebde0": {
     "at": "2026-11-03T14:26:21.542Z",
     "job": "session-0117-20261103142621",
@@ -53706,6 +54070,13 @@
     "status": "machine",
     "text": "**`core/random-password`** effectue le rendu d’une *demande* adressée à la cible de générer un mot de passe dans une ressource de secret, et publie le localisateur de cette ressource exactement comme le fait `core/referenced-secret`. Personne n’écrit les informations d’identification et la sortie rendue n’en porte aucune."
   },
+  "65f2bccd080720e1": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "65f2bccd080720e1",
+    "status": "machine",
+    "text": "`locals` de la Recipe (préambule de #6)"
+  },
   "65f32e543ed933a5": {
     "at": "2026-10-22T17:21:40.169Z",
     "job": "session-0048-20261022172140",
@@ -54525,6 +54896,13 @@
     "srcHash": "67b01d470c916cfe",
     "status": "machine",
     "text": "Une Recipe ciblant helm-chart peut aussi déclarer des **entrées `artifacts:` à contenu en ligne** (entrées dont la valeur est un scalaire de bloc portant le corps du fichier en ligne dans la Recipe plutôt qu’une référence chargée via `$import:`). Une entrée à contenu en ligne est placée à la racine du sous-chart sous sa clé rédigée — pas de préfixe `templates/` ni d’insertion de provenance. Les propres templates d’un chart lisent un tel fichier isolé au moyen de `.Files.Get` / `.Files.Glob` de Helm (le modèle canonique de ConfigMap à partir de fichiers), de sorte qu’un fichier à la racine du chart est une forme légitime et de premier plan plutôt qu’une erreur."
+  },
+  "67b1dcb1c79adc7d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "67b1dcb1c79adc7d",
+    "status": "machine",
+    "text": "Mapping d’inject"
   },
   "67b3797fe32cccb1": {
     "at": "2026-10-30T20:55:02.570Z",
@@ -55547,6 +55925,13 @@
     "status": "machine",
     "text": "**[SchemaLibrary](../language-reference/entities/schemalibrary.md)** — une bibliothèque partagée de formes de schéma récurrentes dans de nombreux Components et Features. Lorsque la même structure (par exemple un bloc de ressources de pod) apparaît dans de nombreuses entités, un architecte la factorise dans une entrée de SchemaLibrary afin qu’elle soit définie et mise à jour une seule fois."
   },
+  "69bfb36a71cea6d1": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "69bfb36a71cea6d1",
+    "status": "machine",
+    "text": "**Suggérer la correction lorsque c’est possible** — « use 'soft' or omit the field » (utilisez 'soft' ou omettez le champ)."
+  },
   "69c1288ca6d2c0e0": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -55785,6 +56170,13 @@
     "srcHash": "6a3e166e26bc4d26",
     "status": "machine",
     "text": "`--listen` et `mcp.listen` prennent l’une de deux formes :"
+  },
+  "6a3f2ce747f40b4f": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6a3f2ce747f40b4f",
+    "status": "machine",
+    "text": "ces assertions la lisent de chaque façon :"
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-11-03T06:57:39.508Z",
@@ -56301,6 +56693,13 @@
     "status": "machine",
     "text": "Les modes d’entrée d’une Recipe se composent par addition : un `source:` à rendre, un `workload:` à synthétiser et une map `artifacts:` contribuent chacun à la sortie, et une Recipe peut en déclarer n’importe quelle combinaison. `inspect` signale chaque mode que la Recipe déclare au lieu d’en choisir un, de sorte que ce que vous voyez est l’ensemble que vous avez rédigé :"
   },
+  "6b46601b9a10cbda": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "6b46601b9a10cbda",
+    "status": "machine",
+    "text": "La résolution de la source s’exécute avant l’hydratation d’inject qui renseigne `.context.inject`. Le pipe n’est pas encore renseigné lorsque l’URI de la source est évaluée."
+  },
   "6b4897f94b0775fa": {
     "at": "2026-11-04T03:09:22.872Z",
     "job": "session-0196-20261104030922",
@@ -56363,6 +56762,13 @@
     "srcHash": "6b6478b5655ede3d",
     "status": "machine",
     "text": "Les documents de configuration qui ont été fusionnés, dans l’ordre dans lequel ils ont été fusionnés."
+  },
+  "6b649cb5cc29e03f": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "6b649cb5cc29e03f",
+    "status": "machine",
+    "text": "Paramètres (partout sauf dans les templates de chemin)"
   },
   "6b7036181b134080": {
     "at": "2026-11-04T02:50:28.781Z",
@@ -57118,12 +57524,26 @@
     "status": "machine",
     "text": "Le `Manifest`"
   },
+  "6cfb203781060398": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6cfb203781060398",
+    "status": "machine",
+    "text": "Nombres sur cette surface"
+  },
   "6cfc4f725c2f8e79": {
     "at": "2026-11-03T23:11:53.486Z",
     "job": "session-0171-20261103231153",
     "srcHash": "6cfc4f725c2f8e79",
     "status": "machine",
     "text": "Trois sortes de noms d’entrée sont assez proches pour se rencontrer en un seul nom de sortie, et aucune n’est exotique. Comme les deux moitiés sont encodées plutôt que compactées, et se rencontrent sur une séquence qu’aucune des deux moitiés ne peut contenir, toutes trois aboutissent à des noms qui leur sont propres :"
+  },
+  "6d01bddc8b2647ff": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6d01bddc8b2647ff",
+    "status": "machine",
+    "text": "**Vacuité.** Un `0` écrit par l’auteur est vide : faux pour `if` et `with`, vrai pour `empty`, et remplacé par `default`. Une règle qui demande si l’auteur a écrit une valeur — un `0` compris — le demande avec les helpers de présence : pour un `0` écrit par l’auteur, `hasKey .values \"replicas\"` est vrai et `optional .values \"replicas\" 1` renvoie `0`. Une règle qui demande si la valeur vaut zéro compare : `eq .values.replicas 0`. [Présence et vacuité](sprig-functions.md#presence-and-emptiness--two-different-questions) met les deux questions côte à côte."
   },
   "6d031af10da7a25e": {
     "at": "2026-11-04T06:30:15.892Z",
@@ -57166,6 +57586,13 @@
     "srcHash": "6d128fe7fbe98d0c",
     "status": "machine",
     "text": "[Invariants architecturaux](05-invariants.md)"
+  },
+  "6d16ae741beb59b2": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "6d16ae741beb59b2",
+    "status": "machine",
+    "text": "**Deux surfaces, déterminées par ce que nomme la source.** *Une coordonnée distante* — les `version`, `chart`, `ref` et `module_subdir` d’un bloc structuré nommant un registre, un dépôt de charts ou un dépôt git — est évaluée lorsque `aggrega pull` résout l’artefact pour l’épingler : `.values`, `.infra`, `.locals` et chaînes statiques uniquement, avec les helpers propres d’Aggrega (`optional`, `capitalizedWords`, `index`) et aucune des fonctions de Sprig, et sans racine `.context`. Les entrées de `.locals` évaluées à cet endroit sont celles que lisent ces champs, directement ou par une autre entrée — toutes les entrées lorsqu’un champ lit `.locals` d’une façon qui ne nomme aucune entrée en particulier —, de sorte qu’une entrée qu’aucun champ ne lit est laissée au rendu. *Une source nommant un chemin dans l’espace de travail* est évaluée pendant le rendu de l’entité : `.context.instance_id`, `.values`, `.infra`, `.locals` (l’ensemble du bloc résolu de l’entité déclarante), chaînes statiques. Là, la source d’une FeatureRecipe lit en outre `.attachment_name` — c’est un rattachement qui est résolu — et son `.context.instance_id` nomme le composant hôte, à côté de `.context.rendered_name`, le nom rapporté du composant hôte (voir #9) ; une FeatureRecipe de portée frontière lit `.boundary.*` et aucun des piliers par composant. **INTERDIT sur les deux :** `.context.inject`, `.context.uses`, `.provides` (invariant d’autonomie — la surface de source de l’espace de travail partage son contexte avec les propres `locals` de l’entité déclarante, de sorte que les deux admettent et refusent les mêmes références, et une coordonnée distante lit un sous-ensemble de ce contexte ; la résolution de la source doit être terminée avant que le pipe de topologie soit hydraté et avant que tout chart, module ou corps d’artefact soit chargé)."
   },
   "6d19271749a18c4d": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -57271,6 +57698,13 @@
     "srcHash": "6d4a01d5c4bcd73f",
     "status": "machine",
     "text": "`plugin.metadata`"
+  },
+  "6d4ca73686ef105b": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6d4ca73686ef105b",
+    "status": "machine",
+    "text": "**Lire les connexions d’un socket.** L’entrée d’un socket a une seule forme, quoi qu’elle contienne : une entrée par connexion, sous son alias. Une assertion lit une connexion par son alias, compte ou parcourt le socket pour voir chacune de ses connexions, et teste la clé propre du socket pour demander s’il est câblé ou non. Étant donné un composant dont l’entrée dans l’Aggregate écrit"
   },
   "6d4d51263eaab508": {
     "at": "2026-11-03T10:00:41.851Z",
@@ -57443,6 +57877,13 @@
     "srcHash": "6da6f628b4cb1b0a",
     "status": "machine",
     "text": "`locals:` et `provides:`, chaque entrée."
+  },
+  "6da9dc7face52691": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6da9dc7face52691",
+    "status": "machine",
+    "text": "Le contrôle des espaces `{{- ... -}}` compte : les templates d’assertions ne produisent pas de sortie, seulement des effets de bord via `{{ fail }}`. La suppression des espaces garde vide le corps du template rendu en cas de succès."
   },
   "6dab0283aae21ed0": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -58282,6 +58723,13 @@
     "status": "machine",
     "text": "**Une dépendance avec deux alias** donne à chaque alias sa propre copie des dépendances de cette dépendance."
   },
+  "6f13f63e74d90482": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "6f13f63e74d90482",
+    "status": "machine",
+    "text": "Assertions de Recipe / FeatureRecipe — invariants d’implémentation"
+  },
   "6f183c1fc142544c": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -58365,6 +58813,13 @@
     "srcHash": "6f43d8fefdf61a5b",
     "status": "machine",
     "text": "Ajouter des garde-fous : masquage des PII avec Presidio + blocage de l’injection de prompt"
+  },
+  "6f46a7bc93976550": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "6f46a7bc93976550",
+    "status": "machine",
+    "text": "4. Le chemin de résolution de self-inject"
   },
   "6f501eebc5368495": {
     "at": "2026-11-03T12:09:20.360Z",
@@ -60638,6 +61093,13 @@
     "status": "machine",
     "text": "[credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — La manière dont une information d’identification atteint un conteneur en cours d’exécution est une propriété de **l’endroit où vous déployez**, et non de l’application."
   },
+  "73b384dcc2b8f51b": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "73b384dcc2b8f51b",
+    "status": "machine",
+    "text": "Chaînes du champ `source` (chaîne de premier niveau OU sous-champs à valeur chaîne d’une map `source:` structurée)"
+  },
   "73b507cc77622be1": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -61877,6 +62339,13 @@
     "srcHash": "75c7bd60050ca392",
     "status": "machine",
     "text": "[ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — Les utilisateurs d’un assistant de support peuvent taper n’importe quoi, et une partie de ce qu’ils tapent tente de faire ignorer au modèle les instructions qu’il a reçues."
+  },
+  "75cfe405deb6cefc": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "75cfe405deb6cefc",
+    "status": "machine",
+    "text": "**Note sur les templates du corps du Workload (#11).** Le corps du Workload est une chaîne templatée unique que le moteur de rendu évalue dans son ensemble, avant d’analyser le résultat comme un document Workload. Les templates au niveau des champs à l’intérieur (un `replicas: {{ .infra.replicas | default 1 }}` ici, un `LOG_LEVEL: \"{{ .values.log_level }}\"` dans `containers.app.variables` là) ne sont pas des emplacements d’évaluation de template distincts — ils participent tous à l’unique évaluation du rendu de base qui produit le Workload. Les auteurs n’ont pas besoin d’une règle de disponibilité distincte pour les champs internes au Workload ; la règle pour le Workload dans son ensemble (#11) couvre chaque template au niveau des champs à l’intérieur."
   },
   "75d2a76df0a8e4d0": {
     "at": "2026-11-03T11:32:05.600Z",
@@ -63481,6 +63950,13 @@
     "srcHash": "78f62946802b7b69",
     "status": "machine",
     "text": "Une référence à une entrée que le bloc définit **plus loin** interrompt le build en nommant l’erreur d’ordre (déplacez la définition au-dessus de son lecteur) ; une référence à une clé que le bloc **ne déclare pas du tout** l’interrompt en nommant la clé (corrigez l’orthographe). **La vérification suit un alias du bloc :** une clé atteinte via le point qu’un corps `with .locals` relie à nouveau, ou via une variable liée à `.locals`, interrompt le build exactement dans les mêmes termes que l’écriture directe, tout comme une clé lue sur le bloc entre parenthèses — `{{ (.locals).nope }}` ou `{{ ($.locals).nope }}`. Une seule écriture y échappe : une clé atteinte via un appel dont le texte du template ne peut pas nommer le résultat — `{{ index .locals \"nope\" }}`, ou `{{ (default dict .locals).nope }}`. Un champ lu sur le résultat d’un tel appel n’interrompt pas le build et rend le texte littéral `<no value>` ; la lecture avec `index` l’interrompt en nommant la clé, car `index` interrompt le build sur chaque surface de template lorsque la map qu’il lit ne contient pas la clé — voir [errors/fatal-halts.md](../errors/fatal-halts.md) « A template indexes a map with a key the map does not hold (Un template indexe une map avec une clé que la map ne contient pas) ». `provides:` lit le bloc entièrement résolu, car les locals de cette FeatureRecipe sont résolus avant ses provides ; un template de `provides:` qui nomme une clé non déclarée interrompt le build. Ce sont les mêmes règles que suit le bloc `locals:` d’une Recipe — voir [entities/recipe.md](recipe.md) « Le bloc `locals:` »."
+  },
+  "78fa0cba95026e95": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "78fa0cba95026e95",
+    "status": "machine",
+    "text": "La convention des messages `fail`"
   },
   "78fd96e8644ba7c2": {
     "at": "2026-11-02T22:45:48.640Z",
@@ -65925,6 +66401,13 @@
     "status": "machine",
     "text": "Une feuille n’apparaît que là où une déclaration la **couvre** — la déclaration nomme cette feuille, ou nomme un objet qui la contient, avec une correspondance segment par segment sur le chemin pointé. Rien n’est lu dans le texte propre du chemin et aucune valeur n’est inspectée. Ainsi, `key`, écrite à côté de `origin` dans le même rattachement, n’apparaît jamais : sa Feature ne déclare rien à son sujet."
   },
+  "7dad869678421979": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "7dad869678421979",
+    "status": "machine",
+    "text": "**Éviter le jargon** — le lecteur est le développeur qui a rédigé l’Aggregate, pas l’architecte qui a écrit l’assertion."
+  },
   "7db3a66bdb9aa3b8": {
     "at": "2026-11-03T23:48:35.245Z",
     "job": "session-0176-20261103234835",
@@ -66341,6 +66824,13 @@
     "srcHash": "7eb3f6d607a49ec1",
     "status": "machine",
     "text": "**`validate` avec un `entity` signale une assertion échouée comme un avertissement, dans les termes d’une Release ou sans.** Une assertion qui appelle `fail` — celle de la Recipe elle-même, ou une que déclare le Component qu’elle implémente — répond `valid: true` sans rien dans `diagnostics`. Le build synthétisé porte des valeurs fictives et les valeurs par défaut du schéma à la place des valeurs que définit une vraie Release, de sorte qu’une assertion portant sur une telle valeur y échoue, que la Recipe soit correcte ou non, et la vérification ne peut pas distinguer une assertion qui attend une Release d’une assertion défectueuse. L’échec suit les autres `notices`, dans le message complet de l’assertion clos par la phrase `A Release must satisfy this assertion before a build of it can pass.`, et le texte le porte sur une ligne ouverte par `warning:`, à côté de la ligne de rapport indiquant où l’exécution s’est arrêtée. Une assertion qui s’arrête sur une clé qu’elle lit mais ne trouve pas est un défaut de son propre texte et non une assertion échouée, et elle est jugée comme tout autre arrêt ; le build d’une Release qui ne satisfait pas une assertion est toujours refusé à cause d’elle. [`aggrega validate`](aggrega-validate.md#a-failed-assertion-is-a-warning) rend le même verdict sur les mêmes entrées."
+  },
+  "7eb434ca99182a13": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "7eb434ca99182a13",
+    "status": "machine",
+    "text": "`value:` de `inject` du Component (#4)"
   },
   "7eb5386ec8b8658d": {
     "at": "2026-11-03T06:41:11.801Z",
@@ -67006,6 +67496,13 @@
     "srcHash": "802277c699f99e14",
     "status": "machine",
     "text": "**Une importation se replie sur les parseurs que le compilateur embarque.** Un importateur lit sa source au moyen du parseur de la syntaxe qu’il nomme, et une importation qui ne nomme aucun format analyse la source dans la syntaxe que nomme chaque signature applicable. Pour chaque syntaxe, l’importation utilise le parseur que sert le catalogue de l’espace de travail et, lorsque le catalogue n’en sert aucun, le parseur que le compilateur embarque lui-même pour elle — parmi eux le parseur JSON au moyen duquel lisent les [importateurs core](../plugins/core-importers.md) du compilateur, de sorte qu’une importation passant par l’un d’eux n’a besoin d’aucun parseur dans le catalogue. Lorsque le catalogue sert un parseur pour une syntaxe, celui du compilateur ne joue aucun rôle, et deux parseurs de noms différents dans le catalogue sont refusés comme le décrit [A parse or import format is advertised by more than one plugin (Un format d’analyse ou d’importation est annoncé par plus d’un plugin)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin). Ainsi, pour une importation, cet arrêt nomme une syntaxe pour laquelle ni le catalogue ni le compilateur ne servent de parseur. Un build ne fait aucun repli de ce genre : il sélectionne un parseur parmi les seules entités Plugin de son catalogue."
+  },
+  "802356a57e0f0414": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "802356a57e0f0414",
+    "status": "machine",
+    "text": "Templates `directory` / `subDirectory`"
   },
   "8025be0277fdad42": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -68881,6 +69378,13 @@
     "status": "machine",
     "text": "À quoi ressemblent les stacks placées"
   },
+  "83eff074c4b510b5": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "83eff074c4b510b5",
+    "status": "machine",
+    "text": "**Contexte de template complet :** `.values`, `.infra`, `.context.*` (y compris `.context.inject` — le pipe en cours d’interception — et `.context.uses`). `.context.used_by` est vide ici : la sortie du mapping aboutit sur le propre pipe de livraison de l’hôte. `.context.render_facts` est absent : le mapping s’exécute avant le rendu de l’hôte. `.context.rendered_name` est le nom rapporté du composant hôte, comme en #9 ; un mapping qui le lit n’est pas vérifié, et le rend vide sur un hôte dont le fournisseur n’en rapporte aucun. Le même contexte quel que soit le `executionScope` de la FeatureRecipe : le mapping d’une FeatureRecipe de portée frontière s’exécute une fois pour chaque composant qu’atteint le rattachement, lit le `.context.*` de ce composant, et lit `.features.<attachment>.provides` et `.locals` comme l’unique évaluation de la frontière. **INTERDIT :** `.boundary`, que le contexte d’aucun composant ne porte — une référence arrête le build."
+  },
   "83f4e031009c5125": {
     "at": "2026-11-03T11:32:02.259Z",
     "job": "session-0098-20261103113202",
@@ -69126,6 +69630,13 @@
     "srcHash": "8485d727eb2bb2cf",
     "status": "machine",
     "text": "Message émis, lorsque les labels du remplissage n’ont pas satisfait la contrainte :"
+  },
+  "84878843fa1a793c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "84878843fa1a793c",
+    "status": "machine",
+    "text": "Rendu de base"
   },
   "84887e22d622cd8b": {
     "at": "2026-11-03T07:17:26.700Z",
@@ -70844,6 +71355,13 @@
     "status": "machine",
     "text": "Les huit Releases"
   },
+  "87ad4b2076c0c272": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "87ad4b2076c0c272",
+    "status": "machine",
+    "text": "**Les assertions de Recipe font partie de l’implémentation.** Lorsque l’architecte choisit le chart Bitnami 20.x comme Recipe, le chart a des particularités spécifiques (l’exigence `serviceMonitor.namespace`, le bogue des nœuds ARM). Celles-ci ne s’appliquent pas à un autre chart."
+  },
   "87b1027bb866090e": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -71555,6 +72073,13 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Synthèse sans chart (Kubernetes).** La cible Kubernetes exécute directement l’image officielle `rabbitmq`. Le compilateur synthétise le StatefulSet, le Service ClusterIP et le Service headless à partir du dimensionnement `infra` du composant — aucun chart externe à récupérer ou à suivre. Le tag d’image est épinglé via `infra.engine_version`, si bien que le rendu ne comporte aucun tag flottant."
+  },
+  "8924fed0e114c63a": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "8924fed0e114c63a",
+    "status": "machine",
+    "text": "**Contexte de template complet** + `.steps` (sorties entre étapes provenant des étapes précédentes du pipeline). `.context.used_by` est vide ici, et aucune connexion sur `.context.uses` ne porte les faits de rendu de sa cible : une étape peut réécrire les propres documents de l’hôte. L’étape d’une FeatureRecipe rattachée lit `.context.render_facts`, les propres faits de rendu de l’hôte, comme le fait #9."
   },
   "892832a19aa85445": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -72546,6 +73071,13 @@
     "srcHash": "8affa7bfd0a454a4",
     "status": "machine",
     "text": "[../schema/other/serve-wire.md](../schema/other/serve-wire.md) — les formes des messages qu’échange ce protocole, générées à partir du schéma publié : l’objet de paramètres de chaque méthode, chaque résultat et chaque charge utile de notification, champ par champ."
+  },
+  "8b0396a5fed2802a": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "8b0396a5fed2802a",
+    "status": "machine",
+    "text": "`.recipe.source` — le pointeur de source de la Recipe."
   },
   "8b04c01c2e8b942c": {
     "at": "2026-11-04T08:19:29.837Z",
@@ -73705,6 +74237,17 @@
     "status": "machine",
     "text": "parse:json"
   },
+  "8d3378298ede297b": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "revision": {
+      "from": "4ebce96f575e9a1e",
+      "reviewed": false
+    },
+    "srcHash": "8d3378298ede297b",
+    "status": "machine",
+    "text": "Le pipeline de plugins"
+  },
   "8d36f803b48d189c": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -74055,6 +74598,13 @@
     "srcHash": "8de332fc1bf92863",
     "status": "machine",
     "text": "Envoyez `connection` à côté de `{graphNode, release}` (avec son `socket`, son `alias` et son `document`) et la réponse nomme le conteneur `features` sur l’entrée propre à cette connexion au lieu de celle du nœud. `document` est ici obligatoire, car l’un comme l’autre document peut contenir un attachment sur une connexion que l’Aggregate a tracée : le développeur en écrit un sur l’entrée de la connexion dans l’Aggregate, l’opérateur sur l’entrée par arête de la Release qui lui correspond."
+  },
+  "8de3b7b0cf3da34a": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "8de3b7b0cf3da34a",
+    "status": "machine",
+    "text": "Minimal — règle architecturale unique"
   },
   "8de8d50b033eb0f5": {
     "at": "2026-11-04T01:07:57.122Z",
@@ -77519,6 +78069,13 @@
     "status": "machine",
     "text": "**Les deux formes vous parviennent partout où cette résolution s’exécute.** [`aggrega build`](../cli/aggrega-build.md), [`aggrega pull`](../cli/aggrega-pull.md), [`aggrega validate --release`](../cli/aggrega-validate.md) et [`aggrega inspect --closure`](../cli/aggrega-inspect.md) les produisent dans un terminal, et un assistant IA connecté via [`aggrega mcp`](../cli/aggrega-mcp.md) reçoit la même explication des outils `build` et `validate`. La surface depuis laquelle vous avez posé la question ne change rien au fichier qu’on vous indique d’ouvrir — un appelant qui atteint [`aggrega mcp`](../cli/aggrega-mcp.md) via HTTP se le voit indiquer relativement à la racine de l’espace de travail, et ne se voit pas indiquer un fichier situé hors de l’espace de travail que ce serveur dessert — et lorsqu’un refus vient en premier, le contrat de rédaction vers lequel pointe la réponse est celui du type que déclare ce document refusé — et non celui du type de la référence qui a échoué."
   },
+  "947777b12485f94c": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "947777b12485f94c",
+    "status": "machine",
+    "text": "`aggrega build` évalue les assertions entre la validation du schéma et le rendu ; une assertion en échec arrête le build avec le message `{{ fail }}` de l’assertion."
+  },
   "947baeb0979bf335": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -79216,6 +79773,13 @@
     "status": "machine",
     "text": "**`positionEncoding` nomme les unités dans lesquelles `character` est mesuré**, et c’est l’encodage négocié lors du handshake. Il est indiqué dans la réponse plutôt que laissé implicite, car une position dont l’appelant doit deviner les unités est une position qu’il ne peut pas appliquer : des décalages mesurés d’une façon et appliqués à un tampon mesuré d’une autre corrompent le document au premier caractère hors ASCII."
   },
+  "97da12643770ed76": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "97da12643770ed76",
+    "status": "machine",
+    "text": "Référence interdite"
+  },
   "97db2eaee384ad1a": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -79559,6 +80123,13 @@
     "srcHash": "987209dcd7a66f06",
     "status": "machine",
     "text": "Quatre choses changent l’apparence d’un bloc sans rien omettre, et aucune d’elles ne reçoit de marque :"
+  },
+  "9876cb7a20e053ad": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "9876cb7a20e053ad",
+    "status": "machine",
+    "text": "Le compilateur présente le message dans le format d’erreur Loud Guardrails avec le nom de l’entité, l’emplacement source de l’assertion et le message d’échec. Le diagnostic est suffisamment précis pour que le développeur identifie et corrige la cause première."
   },
   "987df12f65d594a0": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -81490,6 +82061,13 @@
     "status": "machine",
     "text": "**Aucun outil n’annonce de schéma de sortie.** La description d’un outil porte un schéma pour les arguments qu’il prend et aucun pour son résultat, c’est pourquoi `text_answer` est nommé ici plutôt que dans un schéma."
   },
+  "9c3087de02c4285a": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "9c3087de02c4285a",
+    "status": "machine",
+    "text": "Intégration avec l’outillage"
+  },
   "9c3318723954e51a": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -81778,12 +82356,26 @@
     "status": "machine",
     "text": "**Chaînage de pipelines — séparer les responsabilités entre plugins.** Un pipeline de FeatureRecipe peut enchaîner plusieurs plugins Wasm de manière séquentielle, chacun recevant du compilateur le même contexte de nœud IR. Le schéma standard répartit la responsabilité de sorte qu’un seul plugin ne porte pas à la fois l’intention sémantique d’une fonctionnalité et le mécanisme physique d’interception du trafic d’un environnement cible particulier."
   },
+  "9cbad67cb0921e61": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "9cbad67cb0921e61",
+    "status": "machine",
+    "text": "`.context.instance_id`, `.context.rendered_name` (le nom que le fournisseur du nœud donne à la sortie qu’il rend pour le nœud — à partir d’une source fournie par l’auteur, ou d’un workload qu’il synthétise ; le lire sur un nœud dont le fournisseur ne rapporte aucun nom de ce type provoque un arrêt — voir [Nommer une ressource rendue](rendered-resource-names.md)), `.values`, `.infra`, `.locals` (l’ensemble du bloc résolu du nœud — les locals se résolvent dans le préambule de cette phase, avant les provides), chaînes statiques. **INTERDIT :** toute autre racine — `.context.inject`, `.context.uses` (entre nœuds), `.context.annotations.*`, `.context.labels`, `.context.metadata`, `.metadata.*` (lié au placement/déploiement) et `.attachment_name` (aucun rattachement n’est résolu pendant l’évaluation des provides d’une Recipe de base). La vérification est une allowlist positive : référencer toute racine que le contexte des provides n’expose pas provoque un arrêt (invariant d’autonomie — permet l’évaluation parallèle sans aucun tri topologique). Un `.locals.<key>` nommant une clé que le bloc des locals ne déclare pas provoque aussi un arrêt, puisque le pilier est une map à clés ouverte que la seule vérification des racines ne peut pas contrôler."
+  },
   "9cc471e1a81a0316": {
     "at": "2026-11-03T10:16:20.555Z",
     "job": "session-0090-20261103101620",
     "srcHash": "9cc471e1a81a0316",
     "status": "machine",
     "text": "Un refus lors de la vérification d’une entité au regard des conventions de publication, et non lors d’un build. Un schéma que porte l’entité déclare son propre identifiant, alors que l’identifiant canonique est dérivé de l’identité de l’entité. L’identifiant déclaré supplante l’identifiant dérivé, donc une référence écrite par rapport à l’identifiant canonique cesse de se résoudre."
+  },
+  "9cc86c5b955c1bee": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "9cc86c5b955c1bee",
+    "status": "machine",
+    "text": "`.uses` — les connexions `uses:` résolues, chacune déjà vérifiée par rapport au sélecteur de son socket, dans la forme où l’auteur les écrit : indexées par **nom de socket** et, sous chaque socket, par l’**alias** de chaque connexion qui s’y trouve — le nom que l’auteur a donné à la connexion sous le socket ou, pour une connexion écrite comme entrée de liste, sa cible. L’entrée de chaque connexion décrit la connexion et ne porte rien de ce que sa cible a publié. `target` est l’identifiant d’instance de la cible résolue, `alias` répète le nom sous lequel l’entrée est indexée, et `origin_feature` est présent lorsqu’un rattachement de Feature a tracé la connexion. À côté d’eux se trouvent trois faits, sous les noms par lesquels un template de Recipe les lit dans l’entrée `.context.uses.<alias>` de la même connexion, où [template-context-contract.md](template-context-contract.md#contextuses--join-projection) décrit ce que contient chacun : `labels` — les labels de la **cible**, jamais les labels du composant sur lequel l’assertion s’exécute — `values`, les valeurs écrites sur la connexion, et `features`, les rattachements écrits sur la connexion, indexés par le slot que chacun occupe. Chacun des trois est présent sur chaque connexion, vide là où la connexion n’en porte aucun, et un rattachement sous `features` a la forme que `.features` donne à un rattachement plus bas. Ainsi `.uses.<socket>.<alias>.target` lit la cible résolue d’une connexion, `.uses.<socket>.<alias>.labels` les labels de cette cible, un socket qui contient plusieurs connexions contient une entrée pour chacune, et une référence qui passe par cette map pour atteindre une valeur publiée par la cible arrête le build, car l’entrée ne porte aucun champ de ce type."
   },
   "9ccdb64783abae93": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -82459,6 +83051,13 @@
     "status": "machine",
     "text": "Une Feature rattachée sous le `features:` d’une frontière, dont la FeatureRecipe déclare `executionScope: boundary`, effectue son rendu une seule fois pour toute la frontière, et sa sortie va dans le répertoire auquel le `directory:` et le `subDirectory:` propres à la frontière s’évaluent pour elle. Un fournisseur qui fusionne sa sortie en un seul document — compose, en un seul `docker-compose.yaml` ; cloudformation, en une seule stack — n’écrit la contribution d’une telle Feature que dans le cadre du fichier qu’il y assemble à partir des composants de la frontière. Ce fichier n’existe que là où la sortie d’au moins un composant arrive dans le même répertoire sous le même fournisseur."
   },
+  "9e1dbdb0c904cf6c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "9e1dbdb0c904cf6c",
+    "status": "machine",
+    "text": "Templates `provides` de la Recipe"
+  },
   "9e262f2facec8c05": {
     "at": "2026-11-03T04:59:01.011Z",
     "job": "session-0053-20261103045901",
@@ -82991,6 +83590,13 @@
     "status": "machine",
     "text": "Lire les trois ensemble"
   },
+  "9f792c12432655a3": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "9f792c12432655a3",
+    "status": "machine",
+    "text": "Comprendre quelles références sont disponibles nécessite de comprendre quand chaque donnée est résolue. Les phases ci-dessous sont listées dans l’ordre dans lequel elles s’exécutent, et chacune porte le nom de ce qu’elle fait — c’est sous ce nom que le reste de cette page y fait référence :"
+  },
   "9f7c185b961b03d9": {
     "at": "2026-11-03T13:44:11.193Z",
     "job": "session-0112-20261103134411",
@@ -83309,6 +83915,13 @@
     "srcHash": "a00b30e47851e365",
     "status": "machine",
     "text": "La forme ne porte elle-même aucun type de ressource natif de la plateforme. Chaque fournisseur cible qui synthétise un Workload fait correspondre la forme à sa propre forme native :"
+  },
+  "a00bbd7ea7f4ea1d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "a00bbd7ea7f4ea1d",
+    "status": "machine",
+    "text": "Le câblage entre composants se trouve dans `uses[].inject`. Les templates `value:` de self-inject d’un composant restent fermés sur les propres données du composant."
   },
   "a00e53ebc797ebb0": {
     "at": "2026-10-30T09:01:39.651Z",
@@ -84251,6 +84864,13 @@
     "status": "machine",
     "text": "Les liaisons sont parcourues dans l’ordre où le Manifest les déclare, de sorte que la liaison qu’un message nomme en premier est toujours la plus ancienne dans votre document."
   },
+  "a18e8f6440c5dbda": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "a18e8f6440c5dbda",
+    "status": "machine",
+    "text": "Celles-ci expriment des règles qui valent quelle que soit la Recipe qui lie le Component. La règle est une propriété du *contrat*, non de l’implémentation."
+  },
   "a18eae5a288f3ccb": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -84686,6 +85306,13 @@
     "status": "machine",
     "text": "Notez l’option voisine. `--response-format` définit la part du **propre rapport de cette commande** qui est écrite (`detailed` ou `concise`) ; `--ir-graph` demande un **second document** à côté de ce rapport. L’un concerne le volume, l’autre le sujet, et aucun des deux ne modifie le verdict."
   },
+  "a25aa1625a98ee0f": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "a25aa1625a98ee0f",
+    "status": "machine",
+    "text": "**Les surfaces de template de valeur** (chaînes `values:` de composant / feature / sous-aggregate à l’intérieur de l’Aggregate, ainsi que `valuesMapping` de la Recipe, `injectMapping` et `provides` de la FeatureRecipe, les corps de Workload) consomment les valeurs des paramètres sous forme de **littéraux déjà interpolés**. La passe d’interpolation au sein de la résolution évalue l’ensemble du texte de l’Aggregate comme un template et remplace chaque référence `{{ .parameters.<slot> }}` par la valeur résolue ; les surfaces de template de valeur en aval ne voient jamais `.parameters` directement dans leur contexte de template."
+  },
   "a25b73c41246cc92": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -84906,6 +85533,13 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "Chaque cible dérive ses propres noms de l’identité d’un composant : un installateur de charts dérive un nom de release, un orchestrateur de conteneurs dérive des noms de service. Cet arrêt est cette cible qui indique qu’elle ne peut pas utiliser l’un d’eux."
+  },
+  "a2c2d864a9785942": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "a2c2d864a9785942",
+    "status": "machine",
+    "text": "**Les assertions de Component font partie du contrat.** Lorsque le développeur écrit `architecture: replication` avec `secondary.replicaCount: 1`, le build refuse quelle que soit la Recipe liée. Une future Recipe alternative n’y change rien."
   },
   "a2c3133a3a6a2ed7": {
     "at": "2026-11-04T03:52:13.350Z",
@@ -85685,6 +86319,13 @@
     "srcHash": "a434af2fc7317434",
     "status": "machine",
     "text": "`.values`, `.infra`, `.context.*`, `.locals`, `.provides`, `.features`, `.metadata` — les piliers standard d’Aggrega décrits dans [06-data-taxonomy-and-composition.md](06-data-taxonomy-and-composition.md)."
+  },
+  "a43593eb79b86db9": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "a43593eb79b86db9",
+    "status": "machine",
+    "text": "`.recipe.metadata` — le `name` et la `version` de la Recipe, ainsi que sa `capability`."
   },
   "a4388c0d83742ebf": {
     "at": "2026-11-03T01:42:04.421Z",
@@ -87227,6 +87868,13 @@
     "status": "machine",
     "text": "La première valeur est la Feature dont la liste nomme l’autre — celle que nomme la phrase qui précède — suivie de chaque endroit où elle a été rattachée ; puis la Feature avec laquelle elle est en conflit, et chaque endroit où celle-ci a été rattachée ; et enfin le composant où elles se rencontrent. Chaque endroit est formulé dans les mots du document que vous ouvririez pour le modifier : `attached in the Aggregate on component`, `attached in the Aggregate on subsystem`, `attached in the Release on boundary` (le chemin d’une frontière imbriquée joint ses niveaux par `/`), `attached in the Release on the entry for component` suivi de `in boundary`, ou `attached by annotation-driven expansion of` suivi de l’annotation, puis de `declared at` et de l’endroit où elle a été écrite. Un rattachement écrit sur une connexion est formulé comme l’entrée de cette connexion, puisque c’est cette entrée, et non le propre bloc du composant, qui est l’endroit où il se modifie : `attached in the Aggregate on the connection` suivi de `through socket` et `of component`, ou `attached in the Release on the connection` suivi de `through socket`, `of the entry for component` et `in boundary`. Une Feature rattachée à deux endroits les liste tous les deux. Le constat est positionné sur la propre clé du composant sous `components:`, et une paire qui se rencontre sur plusieurs composants est signalée une fois pour chacun d’eux, dans l’ordre dans lequel l’Aggregate déclare les composants."
   },
+  "a7146d110dd151ad": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "a7146d110dd151ad",
+    "status": "machine",
+    "text": "`{{ .parameters.X }}` dans les chaînes YAML de l’Aggregate"
+  },
   "a714f0ecd5642cc0": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -88622,6 +89270,13 @@
     "status": "machine",
     "text": "La forme qui n’a pas d’emplacement ici est un modèle ou un fragment ne déclarant aucune ressource — un qui ne fournit que `Parameters`, `Mappings`, `Conditions` ou `Rules`. Il ne porte aucune provenance, atteint la pile assemblée avec son propre contenu intact, et le build émet un avertissement « skipped provenance injection (injection de la provenance ignorée) » qui le nomme. Comme pour compose, cet avertissement est attendu pour une contribution de cette forme : les ressources que le même composant fournit ailleurs portent l’ensemble complet, et les octets émis sont les mêmes, que quelque chose soit à l’écoute ou non."
   },
+  "a9ee50605be3314b": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "a9ee50605be3314b",
+    "status": "machine",
+    "text": "Pour la forme plus large du contexte de template et la sémantique de disponibilité par champ, voir [template-context-contract.md](template-context-contract.md)."
+  },
   "a9f0bdde3799993f": {
     "at": "2026-11-04T01:07:58.831Z",
     "job": "session-0184-20261104010758",
@@ -88965,6 +89620,13 @@
     "srcHash": "aa80027d4c4e5cc4",
     "status": "machine",
     "text": "Remplacez le lien par une copie de ce vers quoi il mène, à l’intérieur du répertoire propre de l’entité."
+  },
+  "aa822e1a1fb3e8c6": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "aa822e1a1fb3e8c6",
+    "status": "machine",
+    "text": "`.capability`, `.boundary_name`, `.parameters.X`, `.manifest.recipe_name`, `.parent_boundary.*` et `.component_id` (`subDirectory:` uniquement — un template `directory:` le refuse)."
   },
   "aa8577b27444db8e": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -89466,6 +90128,13 @@
     "srcHash": "ab93aeb0fdfbe3ed",
     "status": "machine",
     "text": "Il extrait les `release_annotations` en cascade de la cible (par ex. `aggrega.ai/namespace`)."
+  },
+  "ab94a69ff163ac24": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "ab94a69ff163ac24",
+    "status": "machine",
+    "text": "**Nommer la contrainte** — « architecture=replication requires secondary.replicaCount >= 2 » (architecture=replication exige secondary.replicaCount >= 2)."
   },
   "ab9d22d601d3b430": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -90613,6 +91282,13 @@
     "status": "machine",
     "text": "une seule règle couvre tous les caractères restants"
   },
+  "adbd97833898cbaa": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "adbd97833898cbaa",
+    "status": "machine",
+    "text": "Chaque connexion que détient un composant a ici sa propre entrée, car deux connexions d’un même composant ne partagent jamais un alias — sur un socket ou sur deux, quel que soit le document ou le rattachement qui a tracé chacune. Le build refuse une telle paire, en nommant les deux connexions et l’endroit où chacune a été écrite, avant qu’aucune assertion ne s’exécute. Une liste qui nomme deux fois la même cible est une telle paire, puisque l’alias d’une entrée de liste est sa cible ; il en va de même de la connexion `local` propre à un composant à côté de la connexion `local` d’un rattachement sur le même composant."
+  },
   "adbda712205c9a74": {
     "at": "2026-11-03T08:33:46.400Z",
     "job": "session-0078-20261103083346",
@@ -91542,6 +92218,13 @@
     "status": "machine",
     "text": "Routage d’injection agnostique. Associe les variables locales aux clés provides de la cible."
   },
+  "af48f686d22a0661": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "af48f686d22a0661",
+    "status": "machine",
+    "text": "`.infra` — le contenu `infra` des Ops (provenant de l’Aggregate ou de la Release)."
+  },
   "af498863ccf57341": {
     "at": "2026-11-03T18:11:00.667Z",
     "job": "session-0139-20261103181100",
@@ -92428,6 +93111,13 @@
     "status": "machine",
     "text": "Message émis, qui nomme le fichier, le chemin du champ et l’objection propre au schéma :"
   },
+  "b0e77fa311fdf60e": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "b0e77fa311fdf60e",
+    "status": "machine",
+    "text": "L’interpolation consomme chaque référence `{{ .parameters.X }}` dans le YAML rédigé et écrit la valeur résolue à sa place, de sorte qu’une surface de template de valeur reçoit le littéral résolu plutôt que le pilier des paramètres. Les templates de chemin rédigés par l’opérateur sont la seule exception et lisent `.parameters.X` directement."
+  },
   "b0e8baf3043a435e": {
     "at": "2026-11-04T04:12:46.400Z",
     "job": "session-0201-20261104041246",
@@ -92834,6 +93524,13 @@
     "srcHash": "b1b38c98655f5361",
     "status": "machine",
     "text": "Un **objet contrôleur** choisi par le `form` du Workload : `stateless` (et la valeur par défaut) émet un **Deployment**, `stateful` un **StatefulSet**, `daemon` un **DaemonSet**, `task` un **Job**, `scheduled` un **CronJob** dont le `spec.schedule` est le champ `schedule` du Workload (une expression cron à 5 champs ou une macro `@`) ; une charge de travail `scheduled` sans planification, ou avec une planification mal formée, arrête le build de manière explicite. Une charge de travail `scheduled` qui déclare [`suspend: true`](../entities/workload.md#suspend) émet son CronJob avec `spec.suspend: true`, de sorte qu’aucune exécution ne démarre à partir de la planification tant qu’elle n’est pas reprise, alors qu’un Job peut toujours être créé à la main à partir du CronJob ; une charge de travail qui ne le déclare pas n’émet aucune clé `suspend`. Le Deployment et le StatefulSet portent le nombre de réplicas ; DaemonSet, Job et CronJob n’en portent aucun. Un Workload `stateful` exige exactement un Service `type: Headless` déclaré dans le Workload pour gouverner le StatefulSet ; le fournisseur relie le `serviceName` du StatefulSet au nom rendu de ce Service, et le build s’arrête si aucun Service headless n’est déclaré (ou s’il y en a plus d’un). Un volume `persistentTemplate` est un complément de `form: stateful` — en déclarer un sur toute autre forme arrête le build avec un message qui nomme la correction."
+  },
+  "b1b63a8074417b78": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "b1b63a8074417b78",
+    "status": "machine",
+    "text": "Aucune. Les chaînes d’une Release sont lues telles qu’elles sont écrites : un `{{ .parameters.X }}` sous `infra:`, dans une annotation ou comme valeur de `parameters:` atteint sa destination sous la forme de ce texte littéral. La Release fournit les valeurs des paramètres (la map `parameters:` en ligne et les valeurs chargées par `$import:` combinées dans la map de paramètres fusionnée) ; les chaînes de l’Aggregate les lisent (#1), tout comme les templates de chemin (#3)."
   },
   "b1b798ff97cfb2a1": {
     "at": "2026-11-04T02:29:26.170Z",
@@ -97056,6 +97753,13 @@
     "status": "machine",
     "text": "Schéma de l’intention du développeur d’Aggrega (Aggregate)"
   },
+  "b9702d18c877f4c4": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "b9702d18c877f4c4",
+    "status": "machine",
+    "text": "**Références `from:` :** le compilateur recherche la clé dans le propre dictionnaire `provides` du nœud, déjà résolu à ce stade. Si la clé n’existe pas, le compilateur arrête le build avec une erreur de clé d’inject invalide."
+  },
   "b972f927349bfbcc": {
     "at": "2026-11-03T12:45:18.099Z",
     "job": "session-0107-20261103124518",
@@ -98622,6 +99326,13 @@
     "status": "machine",
     "text": "Localiser l’emplacement d’une entrée dans un document"
   },
+  "bbf24ee0a52c98cc": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "bbf24ee0a52c98cc",
+    "status": "machine",
+    "text": "Les deux règles expriment des propriétés du contrat MariaDB. Quelle que soit la Recipe liée — un chart Bitnami, une alternative faite maison — les règles s’appliquent."
+  },
   "bbf717122bd155d0": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -100105,6 +100816,13 @@
     "status": "machine",
     "text": "Publier, signer et retirer"
   },
+  "bf122783ef6dbcd6": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "bf122783ef6dbcd6",
+    "status": "machine",
+    "text": "**Chaînes `value:` littérales :** si la valeur contient des expressions de template Go, le compilateur les évalue avec le contexte de la ligne #4 de la matrice (`.values`, `.infra`, `.context.instance_id`, `.metadata.*`, etc.), écrites échappées comme le montre la ligne #4. Les chaînes simples passent inchangées."
+  },
   "bf1445468798aa81": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -100321,6 +101039,13 @@
     "srcHash": "bf72282a2a8a8747",
     "status": "machine",
     "text": "FieldProvenance"
+  },
+  "bf77aae97dc1639c": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "bf77aae97dc1639c",
+    "status": "machine",
+    "text": "Production — Recipe avec règles d’implémentation"
   },
   "bf78d6d8be6794ef": {
     "at": "2026-11-03T03:37:29.359Z",
@@ -100633,6 +101358,13 @@
     "srcHash": "bfecad8c1bced695",
     "status": "machine",
     "text": "AWS Backup"
+  },
+  "bff31fa0a763ca50": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "bff31fa0a763ca50",
+    "status": "machine",
+    "text": "Ce que `assertions:` ne remplace pas"
   },
   "bff52ad25393ac09": {
     "at": "2026-11-04T01:07:58.831Z",
@@ -101980,6 +102712,13 @@
     "status": "machine",
     "text": "le RBAC qui le lie : un `ClusterRole`, un `ClusterRoleBinding`, deux `Role`s et deux `RoleBinding`s,"
   },
+  "c244640863891267": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c244640863891267",
+    "status": "machine",
+    "text": "Sur un rattachement de Feature, la clé porte le nom rapporté du composant hôte, et un hôte qui place seul un ensemble d’artefacts, ou qui effectue son rendu au moyen d’un fournisseur qui ne dérive aucun nom de ce type, n’en a aucun à porter. La référence s’arrête avec le diagnostic de racine inconnue, qui liste `.context.instance_id` parmi ce que `.context` y définit ; lisez plutôt l’identité, qui est ce d’après quoi sont nommées les propres ressources de l’hôte sur un tel hôte."
+  },
   "c245ee5b724d252b": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -102119,6 +102858,13 @@
     "srcHash": "c27b2dedd442e484",
     "status": "machine",
     "text": "Plus d’un fichier de configuration dans un projet"
+  },
+  "c27c41307dcc6efa": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c27c41307dcc6efa",
+    "status": "machine",
+    "text": "Le DSL d’Aggrega prend en charge l’expansion `text/template` de Go (avec la bibliothèque Sprig préenregistrée) à plusieurs emplacements des entités YAML. Chaque emplacement dispose d’un ensemble spécifique de références disponibles, déterminé par le moment où les données deviennent concrètes au fil de la compilation. Cette page est la référence de ce qui peut être référencé et où."
   },
   "c285a28ac66b4929": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -102411,6 +103157,13 @@
     "status": "machine",
     "text": "`HoverParams`"
   },
+  "c329c91e4e563cbc": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "c329c91e4e563cbc",
+    "status": "machine",
+    "text": "Assertions de Component / Feature — invariants architecturaux"
+  },
   "c329f831a446f9e7": {
     "at": "2026-11-04T02:29:26.170Z",
     "job": "session-0192-20261104022926",
@@ -102638,6 +103391,13 @@
     "srcHash": "c373811c3374918a",
     "status": "machine",
     "text": "Le séquencement entre Applications (lorsqu’un opérateur exécute plusieurs Applications ArgoCD sur des sorties assemblées distinctes) relève de la configuration CI au niveau de l’opérateur — Aggrega produit les artefacts ; l’opérateur organise ses Applications ArgoCD autour d’eux via app-of-apps ou Progressive Sync. Le modèle d’annotation par ressource d’Aggrega est la forme d’entrée standard qu’attend chaque consommateur des autres outils."
+  },
+  "c3738fa635121625": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c3738fa635121625",
+    "status": "machine",
+    "text": "Chaque emplacement du DSL où des expressions de template Go sont évaluées, et exactement quelles références sont disponibles :"
   },
   "c3776df5849b8c2c": {
     "at": "2026-11-03T20:25:38.864Z",
@@ -104307,6 +105067,13 @@
     "status": "machine",
     "text": "**Messages émis.** Tous deux signalent la même condition — quelque chose dont le fournisseur a besoin et qu’il n’a pas pu résoudre en exactement une valeur — et la phrase propre au fournisseur dit laquelle :"
   },
+  "c6d4bf4fd3fd1183": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c6d4bf4fd3fd1183",
+    "status": "machine",
+    "text": "Évalué dans"
+  },
   "c6d6aca3dc406221": {
     "at": "2026-11-04T07:36:16.499Z",
     "job": "session-0215-20261104073616",
@@ -104443,6 +105210,13 @@
     "srcHash": "c71de7172d3b699e",
     "status": "machine",
     "text": "**Chaque chemin de brouillon est vérifié par rapport au répertoire de sortie avant que quoi que ce soit soit écrit.** Un chemin qui en sort est refusé en nommant à la fois le chemin et le répertoire, et **rien du tout n’est écrit** — pas même les fichiers du même ensemble dont les chemins propres étaient corrects, car une importation refusée qui laisserait une partie d’elle-même derrière elle serait un résultat que personne n’a demandé. Un chemin de brouillon provient du plugin importateur et non de vous, c’est pourquoi il est vérifié pour la même raison qu’un chemin que vous envoyez."
+  },
+  "c71dfa38edb0374f": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c71dfa38edb0374f",
+    "status": "machine",
+    "text": "La résolution de self-inject est la première moitié de l’hydratation d’inject, et elle s’exécute après l’évaluation des provides de chaque nœud. Lorsqu’un composant déclare un bloc `inject:` au niveau du composant, le compilateur l’évalue à ce moment-là :"
   },
   "c71fae3dda0e770e": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -105167,6 +105941,13 @@
     "status": "machine",
     "text": "map de object"
   },
+  "c84bab3bcacefb1f": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "c84bab3bcacefb1f",
+    "status": "machine",
+    "text": "`valuesMapping` de la Recipe (en ligne, `$import:` de fichier ou `$import:` de bibliothèque)"
+  },
   "c84d527a427e5991": {
     "at": "2026-11-02T19:28:42.678Z",
     "job": "session-0007-20261102192842",
@@ -105222,6 +106003,13 @@
     "srcHash": "c862a65132f71d28",
     "status": "machine",
     "text": "le modèle derrière cet alias, l’API d’OpenAI elle-même, atteint en tant que référence : rien ne s’exécute pour lui dans le cluster"
+  },
+  "c866a03ae8342f25": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "c866a03ae8342f25",
+    "status": "machine",
+    "text": "L’accès aux champs utilise la syntaxe standard des templates Go (`.values.architecture`, `.uses.databases.primary.target`) ; la construction qui arrête le build est `{{ fail \"message\" }}`, conformément au contrat Loud Guardrails — une assertion échouée produit une erreur claire et précise au moment du build, qui nomme l’invariant violé."
   },
   "c8672510e5c01291": {
     "at": "2026-11-03T10:16:20.555Z",
@@ -110321,6 +111109,13 @@
     "status": "machine",
     "text": "Les étiquettes sont la couche d’identité sémantique. Elles pilotent les politiques, la liaison de Feature et les sélecteurs `usesSchema` — le tout sans modification du code."
   },
+  "d1377e8c07c9eb91": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "d1377e8c07c9eb91",
+    "status": "machine",
+    "text": "Le pipe d’inject est en cours de construction à ce stade — un template `value:` de self-inject ne peut pas lire depuis le pipe auquel il contribue."
+  },
   "d137df5f03351b64": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -111891,6 +112686,13 @@
     "status": "machine",
     "text": "**Comment corriger :** aucun des deux côtés n’est fautif, et c’est à vous d’agir sur les deux. Renommez la clé du côté que vous contrôlez — le plus souvent la propre entrée `inject:` du composant, puisque le mapping de la Feature est écrit dans un document de catalogue — ou supprimez l’une des deux livraisons. Lorsque le rattachement est réellement censé fournir la valeur, supprimez la revendication rédigée par le développeur plutôt que celle du rattachement. Notez que l’`injectMapping` de la FeatureRecipe d’une Feature qui écrit une clé est une voie différente et n’est pas signalé ici : réécrire une clé que le propre bloc `inject:` du composant ou l’une de ses connexions a livrée est une interception et n’est pas signalé du tout, et écrire une clé qu’une autre Feature rattachée a livrée est signalé sous l’entrée suivante."
   },
+  "d45d86f2a7e47094": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "d45d86f2a7e47094",
+    "status": "machine",
+    "text": "Regrouper les deux types de règles sur le Component enchevêtrerait le contrat et ses implémentations : le Component devrait faire référence à sa Recipe liée pour savoir quelles règles d’implémentation faire respecter, ce qui romprait la séparation Component-Recipe. Répartir les règles à leur emplacement naturel garde le modèle de responsabilité propre. Le coût d’exécution de cette répartition est négligeable ; les deux phases s’exécutent avant le rendu et s’arrêtent avec le même diagnostic Loud Guardrails, `E0033`, qui nomme l’entité, l’instance et la règle."
+  },
   "d46141c9e3696dee": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -112468,6 +113270,13 @@
     "srcHash": "d5b007966f4eb7a5",
     "status": "machine",
     "text": "pkg/pathscope"
+  },
+  "d5b2db5b9485376d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "d5b2db5b9485376d",
+    "status": "machine",
+    "text": "Non évalué"
   },
   "d5b363da62da4792": {
     "at": "2026-10-30T20:05:00.989Z",
@@ -113095,6 +113904,13 @@
     "srcHash": "d702bfde04b61a6e",
     "status": "machine",
     "text": "`WorkspaceRootSubject`"
+  },
+  "d705987e766dea94": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "d705987e766dea94",
+    "status": "machine",
+    "text": "**Affichage.** Un nombre qu’un message `fail` affiche se lit comme il se lirait dans la sortie d’un template de valeur : un nombre entier en entier, de sorte que `printf \"%d\"` en affiche les chiffres, et tout autre nombre dans sa forme décimale exacte la plus courte, de sorte qu’un `0.0000001` écrit par l’auteur se lit `0.0000001`."
   },
   "d707cb530bc28fc1": {
     "at": "2026-11-03T16:07:28.924Z",
@@ -115199,6 +116015,13 @@
     "status": "machine",
     "text": "Les caractères de commentaire dépendent du langage environnant :"
   },
+  "dafdf96db8f1deee": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "dafdf96db8f1deee",
+    "status": "machine",
+    "text": "Frontière de la Release"
+  },
   "db02242fadfd46d9": {
     "at": "2026-11-03T01:01:59.650Z",
     "job": "session-0029-20261103010159",
@@ -116056,6 +116879,13 @@
     "status": "machine",
     "text": "`<file>` est le fichier de verrouillage de la Release, ou `plugins-trust.yaml` dans le répertoire de la Release. Pour une entrée au sujet de laquelle aucun pull n’interroge de registre, le message s’arrête avant `remediation:`."
   },
+  "dc6398c5c3b27f49": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "dc6398c5c3b27f49",
+    "status": "machine",
+    "text": "Une valeur qu’un auteur a déclarée `sensitive: true` se lit `<redacted>` dans ce message partout où le message la cite, de sorte que nommer la valeur d’un champ déclaré dans le message est sans risque : le diagnostic nomme toujours la règle et le champ, et seule la valeur est retenue. Une assertion dont le résultat dépend de ce que contient une telle valeur — une comparaison avec un littéral, un test de préfixe — signale que son texte d’échec est retenu au lieu de son message. [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) « Ce qu’un refus dit d’une valeur déclarée » contient la règle complète."
+  },
   "dc676b42859915c8": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -116353,6 +117183,13 @@
     "srcHash": "dcd4b87562725e22",
     "status": "machine",
     "text": "**Comment corriger :** écrivez sous forme de liste chaque mécanisme que nomme le message. Une entrée `DB_URL: host` sous `env:` devient `- in: DB_URL` avec `from: host` lorsque `host` nomme une clé `provides:` — celle du composant connecté sur une connexion, celle du composant lui-même sur son propre bloc — ou, sur le propre bloc du composant, avec `value: host` lorsqu’il s’agit d’un littéral que fournit ce côté."
+  },
+  "dcde6dea0f6d6dc1": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "dcde6dea0f6d6dc1",
+    "status": "machine",
+    "text": "Résolution (interpolation)"
   },
   "dce4623a96cff90d": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -118223,6 +119060,13 @@
     "status": "machine",
     "text": "Le type du nœud source tel que la source le nomme."
   },
+  "e0342730ad35196d": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "e0342730ad35196d",
+    "status": "machine",
+    "text": "`locals`, `provides`, `source` (#5) d’une FeatureRecipe et templates de rendu en ligne (#9, #10), sur un hôte dont le fournisseur ne rapporte aucun nom"
+  },
   "e03710d80c1dfb13": {
     "at": "2026-11-04T05:50:39.710Z",
     "job": "session-0205-20261104055039",
@@ -119976,6 +120820,13 @@
     "status": "machine",
     "text": "[`aggrega-lint`](aggrega-lint.md) — vérifie les conventions de publication du catalogue sur les trois mêmes portées."
   },
+  "e35ed2ae183f5232": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "e35ed2ae183f5232",
+    "status": "machine",
+    "text": "Contexte de template des paramètres"
+  },
   "e362c87a4dee1876": {
     "at": "2026-10-22T14:38:40.134Z",
     "job": "session-0042-20261022143840",
@@ -120403,6 +121254,13 @@
     "status": "machine",
     "text": "Comme c’est une union sur tout le chemin, la liste indique qu’une Feature est rattachée quelque part sur un chemin, et jamais où. Une règle qui doit savoir si une Feature se trouve *entre* deux composants particuliers d’un chemin — celui qui détient des données restreintes et celui qu’il atteint — lit les `nodes` du chemin dans l’ordre et les rattachements propres de chaque nœud, à `input.graph.spec.feature_values_mapping[<node>]` ; posée à `attached_features`, la même question laisse passer un chemin sur lequel la Feature se trouve au-delà du second composant. [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/README.md) est écrit de cette façon, pour le moteur Rego, le moteur CEL et OPA."
   },
+  "e459abe951c0c044": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "e459abe951c0c044",
+    "status": "machine",
+    "text": "`provides` de la Recipe (#6)"
+  },
   "e461315e7ff72a1b": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -120563,6 +121421,13 @@
     "srcHash": "e4acd4b74de9962f",
     "status": "machine",
     "text": "Le template de chaque entrée d’artefact est évalué avec le même contexte de template que `valuesMapping:`, quel que soit le mode qui a fourni son corps. Deux sorties portant le même nom de fichier arrêtent le build lors du rendu du nœud. Deux entrées d’une même map `artifacts:` ne peuvent pas nommer une même sortie : une clé de map est unique au sein d’un document et écrit un seul nom de fichier, donc la sortie d’une entrée à fichier unique est sa clé et les fichiers d’une entrée bundle se trouvent sous un répertoire nommé d’après sa clé — le premier segment de chaque chemin qu’une entrée émet est la clé qui l’a produit, de sorte que des clés distinctes restent des noms de sortie distincts, quel que soit le nom des fichiers importés. Ce que couvre l’arrêt, c’est un même nom de fichier fourni par deux types d’entrée différents — un template de chart et une entrée d’artefact produisant tous deux `servicemonitor.yaml` —, signalé pour cette Recipe avec un diagnostic qui nomme chaque origine contributrice."
+  },
+  "e4ae7252b8a6b212": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "e4ae7252b8a6b212",
+    "status": "machine",
+    "text": "Corps `workload:` de la Recipe (chaque champ templaté à l’intérieur, qu’il soit en ligne ou chargé par `$import:`)"
   },
   "e4affd01d84034a3": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -121396,6 +122261,13 @@
     "status": "machine",
     "text": "`attach_egress_allowlist` a rattaché `core/egress-allowlist` à une plateforme produite en brouillon, avec ce que la Release en définit ; une fois pour chaque instance de plateforme."
   },
+  "e6510e11fc6c70f2": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "e6510e11fc6c70f2",
+    "status": "machine",
+    "text": "3. Références interdites & justification"
+  },
   "e6525595a28e12e6": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -121490,6 +122362,13 @@
     "srcHash": "e676394b28971283",
     "status": "machine",
     "text": "`aggrega/attachCandidates` — les Features qui peuvent s’attacher à un nœud : celles dont l’applicabilité déclarée est satisfaite par les labels du nœud. Envoyez exactement une coordonnée. `node` nomme un document du workspace par son `metadata.name` ; `graphNode` nomme un nœud du graphe compilé de `release`, par l’identifiant sous lequel ce graphe l’indexe ; `labels` transmet directement un ensemble de labels et ne nomme rien, pour un client qui en détient déjà un. La réponse répète la coordonnée pour laquelle elle a répondu — vide lorsqu’il n’y en avait aucune à répéter —, contient `nodeLabels`, les paires de labels par rapport auxquelles la correspondance a été évaluée, `labelSource`, qui indique de quel type d’ensemble de labels il s’agit, et chaque candidat sous la forme du `kind`, du `name`, du fichier source et de l’`origin` qui l’adressent. Renvoyer les labels est ce qui rend la réponse vérifiable par elle-même : un client peut expliquer pourquoi une Feature a été proposée sans se forger sa propre idée des labels du nœud, ce qui est la manière dont la réponse d’un client et celle du compilateur divergent. Pour un nœud du graphe, les Features proposées sont celles qu’atteint la Release de ce nœud. À côté de `graphNode`, `connection` nomme une connexion que tire le composant de ce nœud — son `socket` et son `alias` —, et la réponse contient alors aussi `slots`, chaque slot que déclare le socket de cette connexion avec les Features qui peuvent le remplir, ou `noSlotReason` là où aucun ne peut être rempli. Voir [Ce que vous apprend une réponse sur les candidats à l’attachement](#what-an-attach-candidate-response-tells-you)."
+  },
+  "e67753394100a3b9": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "e67753394100a3b9",
+    "status": "machine",
+    "text": "**Nommer la valeur lorsque c’est pertinent** — « total node count must not exceed 9; got 12 » (le nombre total de nœuds ne doit pas dépasser 9 ; obtenu 12)."
   },
   "e6781e61c0dd527d": {
     "at": "2026-11-03T21:51:54.059Z",
@@ -121830,6 +122709,13 @@
     "srcHash": "e745e53b671b4f4e",
     "status": "machine",
     "text": "Vérifie le lockfile existant par rapport à la résolution des dépendances qu’effectuerait un pull maintenant, sans écrire le lockfile, l’enregistrement de confiance des plugins ni aucun entity.lock ; se termine avec un code non nul en cas de dérive ou de lockfile absent. La résolution respecte les épingles qu’enregistre le lockfile exactement comme un pull : une référence dont le registre a publié une version plus récente depuis le pull n’est pas une dérive, car un pull conserverait son épingle, et un registre qui sert désormais des octets différents sous une version épinglée arrête la vérification comme il arrête un pull. Le cache de contenu est lu et rempli comme un pull le lit et le remplit : une entrée que le cache détient sous son épingle y est lue sans interroger de registre, une entrée qu’il ne détient pas est récupérée, et une entrée qui ne correspond plus à son épingle est traitée exactement comme un pull la traite. Confronte aussi l’entity.lock à côté de chaque Recipe et FeatureRecipe de vos répertoires de catalogue qu’atteint la Release à ce à quoi un build la compare, et se termine avec un code non nul sur une épingle qu’un build refuserait : un fichier importé qui ne correspond plus à son digest enregistré, une source locale dont les fichiers ne correspondent plus à leurs digests enregistrés, ou une épingle de source en désaccord avec le lockfile. Compare aussi la signature qu’enregistre le lockfile pour chaque artefact, et l’enregistrement de confiance des plugins pour chaque plugin, avec celle qu’un pull enregistrerait maintenant, et se termine avec un code non nul là où un pull en enregistrerait, en remplacerait ou en effacerait une : une signature exigée par une condition requise qui n’est pas enregistrée, et une signature faite pour un autre artefact, sont signalées sans interroger de registre, car un pull les réécrit quelle que soit sa réponse ; une signature qu’un pull recherche à nouveau et pourrait enregistrer inchangée — l’artefact a été récupéré, ou son bundle de signature en cache a été supprimé ou altéré — est demandée à son registre, ou, en mode hors ligne, laissée non vérifiée avec une ligne l’indiquant ; et chaque plugin que couvre l’enregistrement de confiance des plugins est vérifié auprès de son registre, comme chaque pull le vérifie, sauf en mode hors ligne, où il est lu depuis le cache de contenu comme un build le lit, son identité et ses fonctions hôtes sont tout de même vérifiées, et sa signature est laissée non vérifiée avec une ligne l’indiquant, à moins qu’un build ne le refuse parce qu’aucune signature n’est enregistrée ou que celle enregistrée a été faite pour un autre artefact, ce qui est signalé. Les marqueurs de dépréciation ne sont pas comparés. Signale aussi les versions du compilateur et des plugins de base qu’enregistre le lockfile — signalées à des fins d’audit et jamais comparées à ce binaire, de sorte qu’une différence de chaîne d’outils n’est jamais une dérive. Non accepté avec --pin-sources, quelle que soit la valeur donnée : une vérification n’enregistre pas une épingle manquante dans un entity.lock et ne s’arrête pas non plus sur celle-ci, de sorte que le flag ne changerait rien (mutuellement exclusif avec --upgrade)"
+  },
+  "e74bb7c73eb7d526": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "e74bb7c73eb7d526",
+    "status": "machine",
+    "text": "L’argument de `{{ fail \"...\" }}` est l’erreur de build présentée à l’utilisateur. Conventions :"
   },
   "e752e63b29dc510f": {
     "at": "2026-11-03T00:27:36.365Z",
@@ -123661,6 +124547,13 @@
     "status": "machine",
     "text": "Expiration du jeton d’identité en cours de lot"
   },
+  "ead25241dd36b3d1": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "ead25241dd36b3d1",
+    "status": "machine",
+    "text": "**Contexte de template complet.** Chaque champ à l’intérieur du corps du Workload — `replicas`, `containers.<name>.image`, `containers.<name>.variables.<KEY>`, `containers.<name>.ports.<port>`, `services.<name>.ports.<port>`, `volumes.<name>.*`, `health.*` — fait partie de la même évaluation de template qui consomme toute la chaîne du Workload. Le contenu du Workload est un template Go unique évalué une seule fois par rapport au contexte de template complet ; les templates au niveau des champs à l’intérieur se résolvent dans la même évaluation plutôt que dans une évaluation distincte."
+  },
   "ead3a02c13a1ec93": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -125291,6 +126184,13 @@
     "srcHash": "edd0e75ac935aab3",
     "status": "machine",
     "text": "Les ingénieurs Platform Ops rédigent les templates de traduction et ont besoin de toute la puissance du templating d’infrastructure standard, sans obstacles propriétaires. Aggrega offre une expérience Go `text/template` sans friction :"
+  },
+  "edd3a10a7751202e": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "edd3a10a7751202e",
+    "status": "machine",
+    "text": "Résolution de la source"
   },
   "edd95e12cd1cadda": {
     "at": "2026-11-03T09:26:18.087Z",
@@ -127520,6 +128420,13 @@
     "status": "machine",
     "text": "réservée ; aucun fournisseur ne la lit"
   },
+  "f1f29c02781d53b5": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f1f29c02781d53b5",
+    "status": "machine",
+    "text": "Celles-ci expriment des règles qui valent pour le chart ou le module *précis* dont la Recipe tire sa source. La règle est une propriété de l’implémentation, non du contrat."
+  },
   "f1fb2b394e697933": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -127589,6 +128496,13 @@
     "srcHash": "f220c365dfd49be2",
     "status": "machine",
     "text": "Aggrega injecte ses métadonnées de provenance dans les manifestes rendus par une réécriture YAML post-rendu, ce qui garantit que la sortie avec source porte les mêmes labels que la sortie en mode Workload. Les valeurs compatibles avec le jeu de caractères deviennent des labels (`app.kubernetes.io/name`, `aggrega.ai/component-id`, `aggrega.ai/provider`, `aggrega.ai/provider-version`, `aggrega.ai/environment` et — lorsqu’elles sont définies — `aggrega.ai/aggregate-name`, `aggrega.ai/compiler-version`) ; les valeurs qu’un label Kubernetes ne peut pas représenter deviennent des annotations (`aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path`, et `aggrega.ai/sync-wave` là où la vague n’est pas `0`)."
+  },
+  "f221ffb9523fecb6": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f221ffb9523fecb6",
+    "status": "machine",
+    "text": "**Les contraintes JSON Schema dans `schema:`** — les règles par champ (plage, motif, enum, format, type) relèvent des mots-clés natifs de JSON Schema."
   },
   "f2235f6dc2780fc0": {
     "at": "2026-11-04T07:36:16.499Z",
@@ -127722,6 +128636,13 @@
     "srcHash": "f26b46421c699def",
     "status": "machine",
     "text": "Les outils `describe` et `validate` natifs pour l’IA"
+  },
+  "f2756c6edf9c3529": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "f2756c6edf9c3529",
+    "status": "machine",
+    "text": "`valuesMapping` de la FeatureRecipe (et ses `workload:` et `artifacts:`)"
   },
   "f279ce5725cb34d0": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -128550,6 +129471,13 @@
     "status": "machine",
     "text": "Pourquoi la cible n’accepte pas le nom dérivé, dans les propres termes de la cible, pour un lecteur qui décide de ce qu’il doit écrire à la place. Vide lorsque le verdict est utilisable."
   },
+  "f3e2970152f133d1": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f3e2970152f133d1",
+    "status": "machine",
+    "text": "**Vérifications à l’exécution** — `assertions:` s’exécute uniquement au moment de la compilation. Tout ce qui dépend de l’état du cluster à l’exécution (IP actives, contenu du vault, état des pods à l’exécution) doit être exprimé sous forme de chaînes de pointeurs déterministes (voir le contrat de pureté AOT)."
+  },
   "f3e2b9bacbdd06d0": {
     "at": "2026-11-03T12:45:18.099Z",
     "job": "session-0107-20261103124518",
@@ -129287,6 +130215,13 @@
     "status": "machine",
     "text": "**Un pull qui laisse l’enregistrement exactement tel qu’il était n’en dit rien.** Une ligne sur ce fichier signifie donc que le fichier commité a bougé et que son diff mérite d’être lu — ce qui compte ici davantage que pour le lockfile. Tout ce que le lockfile épingle fait aussi partie de ce qu’un build reproduit octet pour octet, de sorte qu’un changement à cet endroit a un second endroit où apparaître ; l’identité d’un plugin de verdict n’en a aucun. Ce fichier est le seul endroit où une barrière remplacée est consignée."
   },
+  "f540f97682dba753": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "f540f97682dba753",
+    "status": "machine",
+    "text": "Les templates de provides sont évalués dans n’importe quel ordre et ne se ferment que sur les propres données du nœud (`.values`, `.infra`, `.locals`, `.context.instance_id`, `.context.rendered_name`). Le pipe d’inject n’est pas renseigné avant l’hydratation d’inject, qui s’exécute après l’évaluation des provides de chaque nœud."
+  },
   "f541234810fe9fba": {
     "at": "2026-11-03T05:32:01.583Z",
     "job": "session-0058-20261103053201",
@@ -129736,6 +130671,13 @@
     "status": "machine",
     "text": "Remplacez le lien par le fichier lui-même : déplacez un document qui est une entité dans un répertoire qui lui est propre, et placez le `.wasm` compilé à côté de son entité Plugin plutôt qu’un lien vers celui-ci."
   },
+  "f600a8e2fa71a0de": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f600a8e2fa71a0de",
+    "status": "machine",
+    "text": "Les IDE prenant en charge les templates Sprig mettent en évidence les références `.values.X` ; la documentation au survol renvoie à la définition du schéma lorsque l’intégration à l’IDE est configurée."
+  },
   "f6045ebd48b4465f": {
     "at": "2026-11-03T19:48:08.904Z",
     "job": "session-0149-20261103194808",
@@ -129975,6 +130917,13 @@
     "status": "machine",
     "text": "Combien d’entre eux sont informatifs."
   },
+  "f6704b4682c9b71a": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f6704b4682c9b71a",
+    "status": "machine",
+    "text": "Une assertion lit un nombre écrit par l’auteur exactement comme le fait un template de valeur — voir [Nombres dans un template de valeur](sprig-functions.md#numbers-in-a-value-template) :"
+  },
   "f671e77ab96816e4": {
     "at": "2026-11-04T05:50:41.976Z",
     "job": "session-0206-20261104055041",
@@ -129995,6 +130944,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Une fonctionnalité rattachée à un nœud est jugée sur sa propre FeatureRecipe, et non sur la Recipe du nœud.** Un rattachement qui génère ses propres ressources les rend par la cible que nomme sa FeatureRecipe, aux types d’entrée que déclare cette FeatureRecipe — de sorte qu’une annotation que la cible propre du nœud applique peut n’atteindre rien dans les fichiers du rattachement, et l’inverse est vrai aussi. Vous êtes informé de chacun indépendamment, car ce sont des fichiers différents. Il en va de même pour une fonctionnalité rattachée à une frontière plutôt qu’à un composant nommé. Un rattachement dont la FeatureRecipe ne déclare aucun de `source:`, `workload:` et `artifacts:` ne rend aucun fichier propre — il contribue en injectant des valeurs, par l’arête `uses` que porte sa Feature, ou par un pipeline sur des documents qu’autre chose a émis — il n’y a donc aucune sortie propre dont une annotation pourrait être absente, et rien n’est signalé à son sujet."
+  },
+  "f678100175221212": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "f678100175221212",
+    "status": "machine",
+    "text": "Taille moyenne — contrat de Component à plusieurs règles"
   },
   "f67d7794690014ed": {
     "at": "2026-11-04T01:50:23.893Z",
@@ -131076,6 +132032,13 @@
     "status": "machine",
     "text": "**Regroupement logique (le tableau `subsystems`) :** les développeurs peuvent appliquer des métadonnées logiques (propriété d’équipe, labels de conformité) et des features transversales à des dizaines de composants simultanément à l’aide de `subsystems`. Les sous-systèmes agissent comme des dossiers récursifs sur le plan logique/de l’intention, propageant les `annotations` vers le bas dans le compartiment `.context.annotations.aggregate` et **rattachant des features à tous les composants contenus** sans imposer de frontières physiques. Les features de niveau sous-système suivent le même schéma que les features de niveau composant (avec prise en charge de `type`, `values`, `uses`, `inject`), car elles relèvent du domaine 1 (intention du développeur). Lors de la finalisation du graphe, le compilateur aplatit les features du sous-système dans la liste de features de chaque composant contenu, en les plaçant après les features propres du composant et avant toute feature rattachée par la Release dans l’ordre d’exécution."
   },
+  "f86ed67cb685e36c": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "f86ed67cb685e36c",
+    "status": "machine",
+    "text": "2. La matrice d’expansion des templates"
+  },
   "f87185e8ee9f756b": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -131219,6 +132182,13 @@
     "srcHash": "f8bdd78fc364a446",
     "status": "machine",
     "text": "`aggrega/resolveDependencies` — résout les dépendances de catalogue et de source de la Release dans le cache, épingle les entrées externes que consomme son rendu dans le stockage adressé par contenu, et écrit son lockfile. `release` est un chemin relatif à la racine de l’espace de travail, la même valeur que celle que prend `aggrega/irGraph`, refusée sous les mêmes formes. `upgrade` abandonne les épinglages enregistrés et résout de nouveau, en faisant passer chaque dépendance à la version disponible la plus élevée ; `targets` restreint cela aux références d’entités qu’il nomme, en conservant tous les autres épinglages. `verify` compare la résolution enregistrée à celle que cette requête effectuerait sans lui, en respectant de la même manière les épinglages enregistrés, et n’écrit ni lockfile, ni [enregistrement de confiance des plugins](aggrega-pull.md#the-plugin-trust-record), ni `entity.lock` — le cache est lu et rempli comme il le serait sans lui — en répondant `verified: true` et le `toolchain` qu’enregistre le lockfile. `verify` est refusé comme paramètres invalides à côté de `upgrade`, à côté de `targets`, et à côté de `pinSources` quelle que soit sa valeur, avant que quoi que ce soit ne soit résolu ou qu’une progression ne soit signalée : une mise à niveau abandonne les épinglages qu’une vérification a pour raison d’être de respecter, les cibles nommées ne sont résolues de nouveau que par une mise à niveau, et `pinSources` décide si une résolution enregistre les épinglages qui manquent à un `entity.lock` ou refuse à cause d’eux, ce que ne fait en aucun cas une comparaison qui n’écrit aucun `entity.lock`. La ligne de commande et l’outil de l’assistant refusent les mêmes paires. La réponse nomme le `lockfile` qu’elle a écrit ou auquel elle a comparé et chaque référence qu’elle a épinglée, dans `entities`, `libraries` et `plugins`, chaque entrée portant la `version` vers laquelle elle s’est résolue et sa `source` — l’endroit d’où cette exécution a pris la référence, avec le mot qu’affiche [`aggrega pull --detail`](aggrega-pull.md#the-lockfile) pour la même résolution : `fetched-fresh`, `cache-reuse`, `local`, `in-binary` ou `external` — ainsi que `sourceArtifacts`, `trustedPlugins`, `externalInputs` — le nombre d’entrées externes que le lockfile épingle une fois l’exécution terminée, en comptant à la fois celles reportées et celles découvertes par cette exécution — et les éventuelles `notices` levées par la résolution. 🔴 **Une réponse réussie ne signifie pas à elle seule que l’épinglage des entrées externes est complet.** Lorsque l’exécution a épinglé chaque dépendance mais n’a pas pu achever de déterminer quelles entrées externes consomme la Release, elle répond avec `incompleteExternalInputs`, qui indique ce qui a arrêté la découverte, et répond tout de même par un succès — les épinglages des dépendances sont complets et sur disque, et signaler l’ensemble de la requête comme un échec vous dirait de refaire un travail déjà correct. **Lisez ce champ avant de considérer un lockfile comme entièrement épinglé :** il est absent lorsque rien n’est resté non découvert, c’est donc sa présence qui constitue le signal. Il n’existe pas de paramètre de répertoire de catalogue : la pile de recherche est celle que configure l’espace de travail. **C’est l’unique requête d’épinglage de la session pour une Release, et c’est là que les entrées externes sont épinglées aussi** — les URL que consomme un rendu découlent de ce qu’il rend ; cette requête fait donc le rendu de la Release pour le découvrir, et une requête de build est ensuite servie à partir de ce qu’elle a enregistré. Une Recipe ou une FeatureRecipe que construit la Release et dont le `entity.lock` n’enregistre aucun épinglage pour une entrée que lit l’entité fait refuser la requête, en nommant `aggrega pin` et chaque entrée non enregistrée ; `pinSources: true` exécute à la place cette étape d’épinglage sur ces entités, en écrivant le `entity.lock` à côté de chacune — la même étape que celle qu’exécute `aggrega/pin`, qui écrit les mêmes octets. En son absence, `pinSources` suit le `pin_sources_at_pull` de l’espace de travail ; envoyé, il remplace ce paramètre dans les deux sens, de sorte que `false` refuse même dans un espace de travail configuré pour épingler. Cette requête atteint des registres et écrit — voir [Atteindre un registre, et écrire](#reaching-a-registry-and-writing)."
+  },
+  "f8bebcdceafc9b0e": {
+    "at": "2026-11-04T09:43:36.104Z",
+    "job": "session-0228-20261104094336",
+    "srcHash": "f8bebcdceafc9b0e",
+    "status": "machine",
+    "text": "La résolution de la source doit être terminée avant que quoi que ce soit en aval ne charge le chart, le module ou le corps d’artefact de l’entité déclarante. Autoriser des références entre nœuds couplerait la résolution de la source à l’ordre d’itération de la topologie, ce qu’elle évite délibérément."
   },
   "f8c9f13d0c227b2c": {
     "at": "2026-11-03T16:27:42.239Z",
@@ -134065,6 +135035,13 @@
     "srcHash": "fe38a87cbd57eea0",
     "status": "machine",
     "text": "a plugin has no representation for a value it was given (un plugin n’a aucune représentation pour une valeur qui lui a été transmise) compose: node `\"<node>\"` container `\"<container>\"`: compose: the cpu `<request|limit>` at `<path>` is `\"<value>\"`, a quantity compose cannot represent exactly; a compose cpus value is a core count from 0 to 9223372036.854775807 with at most nine decimal places: resources quantity cannot be converted to a compose deploy.resources value (compose : dans le nœud et le conteneur indiqués : compose : la requête ou la limite cpu indiquée, au chemin indiqué, est la valeur indiquée, une quantité que compose ne peut pas représenter exactement ; une valeur cpus de compose est un nombre de cœurs de 0 à 9223372036.854775807 avec au plus neuf décimales : la quantité resources ne peut pas être convertie en valeur deploy.resources de compose)"
+  },
+  "fe3957bb2c68cba4": {
+    "at": "2026-11-04T09:43:30.291Z",
+    "job": "session-0227-20261104094330",
+    "srcHash": "fe3957bb2c68cba4",
+    "status": "machine",
+    "text": "Pour les `assertions:` de Recipe et de FeatureRecipe, le contexte ajoute des champs propres à la Recipe :"
   },
   "fe3ba75db0e33c2b": {
     "at": "2026-11-03T13:20:59.617Z",
