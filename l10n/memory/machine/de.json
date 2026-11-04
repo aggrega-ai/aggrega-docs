@@ -981,6 +981,13 @@
     "status": "machine",
     "text": "Der Block `features.annotations` des Manifest deklariert Bindungen zwischen Annotationsschlüsseln und Feature-Typen sowie die Routing-Pfade, über die jede Bindung den Annotationswert sendet. Die Bindung ist die Authoring-Oberfläche, um sich wiederholende Feature-Anbindungen pro Komponente — das Muster, bei dem Dutzende von Komponenten innerhalb einer Grenze jeweils einen identischen `features:`-Block tragen — zu einzelnen Annotationsdeklarationen an Release-Grenzen oder Aggregate-Subsystemen zu verdichten."
   },
+  "02046b0372da694f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "02046b0372da694f",
+    "status": "machine",
+    "text": "Annotationen auf Component-Ebene im Release überschreiben Annotationen auf Boundary-Ebene (Deep-Merge, die Komponente gewinnt). Wo ein Provider die Ausgabe mehrerer Boundaries zu einem Artefakt zusammensetzt, kann er verlangen, dass eine Annotation über sie hinweg einheitlich aufgelöst wird — der Provider `helm-chart` übernimmt den Namen des Umbrella-Charts aus `aggrega.ai/chart-name`, und wenn mehr als eine Boundary zum selben Chart beiträgt und sie diese Annotation zu unterschiedlichen Werten auflösen, bricht der Build ab und nennt die abweichenden Boundaries, weil ein Chart nicht zwei Namen tragen kann."
+  },
   "021456c7a75312a2": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -3059,6 +3066,13 @@
     "status": "machine",
     "text": "`helm/task`, ein suspendiert gehaltener CronJob"
   },
+  "06801c679647c3ef": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "06801c679647c3ef",
+    "status": "machine",
+    "text": "**Was lokal kopiert wird.** Das gesamte Repository beim festgelegten Commit, abgesehen von seinem Verzeichnis `.git/`, landet Byte für Byte im eigenen Verzeichnis der Komponente unter `modules/` — die eigenen Konfigurationsdateien und Kindmodule des Moduls und auch alles andere, was das Repository enthält: seine Verzeichnisse `examples/` und `wrappers/`, seine Dokumentation, seine CI-Konfiguration und alle Test-Fixtures, binäre eingeschlossen. Die Engine liest nur, was das Modul aufruft: Wenn die Root-Konfiguration das Verzeichnis der Komponente aufruft, lädt die Engine die Konfigurationsdateien, die direkt darin liegen, und die in jedem Verzeichnis, das ein lokales `source` von dort aus erreicht. Ein Beispielverzeichnis, das andere Registry-Module aufruft, wird daher lokal kopiert und nie geladen, und nichts, was es aufruft, wird abgerufen."
+  },
   "06844a1b6615042f": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -3377,6 +3391,13 @@
     "srcHash": "0727c5b2a39310c5",
     "status": "machine",
     "text": "`ErrFetchIntegrity()` ist derselbe Wert wie `pkg/oci.ErrFetchIntegrity()`, daher gelingt ein Abgleich mit jedem der beiden Namen."
+  },
+  "072866abe3253729": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "072866abe3253729",
+    "status": "machine",
+    "text": "**Ein `null` in einem `valuesMapping:` ist ein Argument `null`.** Ein Schlüssel, den das Mapping auf `null` setzt, wird als `<name> = null` in den Modulblock geschrieben, und die Engine gibt der Variable des Moduls den Wert `null` und überschreibt damit ihr `default`, es sei denn, die Variable deklariert `nullable = false`; in diesem Fall gilt ihr `default`. Um einer Eingabe den Standardwert des Moduls zu geben, lassen Sie den Schlüssel im Mapping weg."
   },
   "07296840be82b57b": {
     "at": "2026-11-03T12:27:39.720Z",
@@ -6957,6 +6978,13 @@
     "status": "machine",
     "text": "**Als Entität daneben gilt** jedes andere YAML-Dokument direkt im selben Verzeichnis, dessen `kind:` ein Entitätstyp ist. Die eigenen Dateien eines Charts, ein Compose-Fragment, ein Kubernetes-Manifest oder ein README sind keine Entitäten, und ein Unterverzeichnis — ein lokales Chart, ein Baum `source/` — liegt nicht neben der Entität, gleich was es enthält. Von jedem Nachbarn werden nur Typ und Name gelesen, sodass nichts, was ein Nachbar deklariert, die Antwort ändern kann."
   },
+  "0f716a57b852e0ba": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "0f716a57b852e0ba",
+    "status": "machine",
+    "text": "Der Build liest keinen der Blöcke `variable` oder `output` des Moduls, schreibt nichts in das Modul und fügt ihm keine Provider-Konfiguration hinzu, daher wird ein falsch geschriebener Ausgabename von der Engine erkannt statt vom Build. Siehe [Den veröffentlichten Wert einer anderen Komponente konsumieren](#consuming-another-components-published-value) für die Seite des Konsumenten."
+  },
   "0f7301bd7dba1a3a": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -7264,6 +7292,13 @@
     "srcHash": "102acc10e67a297d",
     "status": "machine",
     "text": "Skript"
+  },
+  "1030d8b4d6cb2f77": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "1030d8b4d6cb2f77",
+    "status": "machine",
+    "text": "**Welche Eingabe markiert wird, ergibt sich aus einer Deklaration, nie aus einem Namen.** Der Provider liest die Markierung, die die Kompilierung berechnet hat, und untersucht selbst nichts: Er erkennt weder `password`, `secret` noch `token`, und er liest nicht den Text des Moduls, um zu raten. Eine Moduleingabe namens `db_password`, deren Wert keine Deklaration trägt, wird unmarkiert ausgegeben, und eine deklarierte Eingabe namens `region` wird markiert."
   },
   "10314d31a161da91": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -7704,6 +7739,13 @@
     "status": "machine",
     "text": "Ops kann das Manifest für lokale Tests austauschen und `core/postgres` stattdessen an ein Docker-Compose-Recipe routen, während der Code des Entwicklers unverändert bleibt."
   },
+  "113fc8be4a6b9783": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "113fc8be4a6b9783",
+    "status": "machine",
+    "text": "Eine Modul-Registry veröffentlicht jede Version eines Moduls als Tag des eigenen Git-Repositorys des Moduls, und was sie antwortet, wenn sie aufgefordert wird, eine Version herunterzuladen, ist eine Git-Quelle, die auf den Commit festgelegt ist, den dieses Tag benennt. Ein Recipe verwendet ein veröffentlichtes Modul daher aus diesem Repository bei diesem Tag als Quelle, mit der Quellart `git-repository`:"
+  },
   "114451f35cedf6ec": {
     "at": "2026-11-03T21:51:52.383Z",
     "job": "session-0163-20261103215152",
@@ -8131,6 +8173,13 @@
     "srcHash": "123989661c95d921",
     "status": "machine",
     "text": "template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts (`<reference>`, written in `<field>`) (das Template liest die Render-Fakten seiner Aufrufer, aber das FeatureRecipe setzt readsCallerRenderFacts nicht (mit dem angegebenen Verweis und dem angegebenen Feld, in dem er geschrieben ist))"
+  },
+  "1239d86609442b0c": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "1239d86609442b0c",
+    "status": "machine",
+    "text": "Kategorie 5 — Paketierung"
   },
   "1241699a9360dcdb": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -9422,6 +9471,13 @@
     "status": "machine",
     "text": "1. Das Gerüst kopieren"
   },
+  "15622a478238fc49": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "15622a478238fc49",
+    "status": "machine",
+    "text": "Terraform ist das einzige Ziel der Standardbibliothek mit einem nativen Sensitivitätsprimitiv pro Wert, sodass ein Datum, das ein Autor als sensibel deklariert hat, in Terraforms eigenen Begriffen gerendert werden kann, statt nur in denen von Aggrega erfasst zu werden."
+  },
   "15680b9ae4c95bc6": {
     "at": "2026-11-02T22:45:48.640Z",
     "job": "session-0015-20261102224548",
@@ -9688,6 +9744,13 @@
     "srcHash": "15fc00676e2a4aab",
     "status": "machine",
     "text": "**Einen dritten Provider hinzufügen.** Fügen Sie einen Map-Eintrag hinzu. Veröffentlicht er den bestehenden Alias, wählt die Strategie fortan zwischen dreien. Veröffentlicht er einen neuen, veröffentlicht die Map zwei Aliase, und `values.model` des Routers nennt den, der dem Agenten übergeben wird; ein Aufrufer, der den anderen möchte, fordert ihn über den Namen an. Ein Modell, das der Katalog modelliert und dessen API die OpenAI-API ist, kann stattdessen mit dem Socket `models` des Routers verdrahtet werden, unter einem eigenen Alias und mit dem Schlüssel, den seine Verbindung trägt; `values.model` nennt dann den Alias, der dem Agenten übergeben wird."
+  },
+  "1600dc9e17d45180": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "1600dc9e17d45180",
+    "status": "machine",
+    "text": "Kubernetes-Namespace (helm); Docker-Netzwerkname (compose)"
   },
   "1604b1844c030115": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -10069,6 +10132,13 @@
     "status": "machine",
     "text": "Überspringt für diesen Build den persistenten Plugin-Kompilierungscache auf der Festplatte und kompiliert Plugin-Guests neu in einem In-Memory-Cache, der am Ende des Builds verworfen wird. Standardmäßig aus, wodurch der gemeinsame Cache auf der Festplatte über Builds hinweg wiederverwendet wird. Ändert die gerenderte Ausgabe nicht"
   },
+  "16de412059b01250": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "16de412059b01250",
+    "status": "machine",
+    "text": "Kategorie 2 — Registry"
+  },
   "16e09d90d57d4c3a": {
     "at": "2026-11-02T23:32:54.656Z",
     "job": "session-0020-20261102233254",
@@ -10401,6 +10471,13 @@
     "srcHash": "17a54cf6e0fe335a",
     "status": "machine",
     "text": "Was jeder Schweregrad bewirkt"
+  },
+  "17aa5154be177219": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "17aa5154be177219",
+    "status": "machine",
+    "text": "Kategorie 1 — Platzierung"
   },
   "17ac0ce735ab41ff": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -13630,6 +13707,13 @@
     "status": "machine",
     "text": "Sowohl diese Regel als auch die obige gelten für eine Komponente, die ein Modul beisteuert, sobald die Komposition aufgebaut ist, die das Modul importiert; der Befund nennt dann das Aggregate des Moduls und den Schlüssel in seinem Dokument."
   },
+  "1ec59082834f30fe": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "1ec59082834f30fe",
+    "status": "machine",
+    "text": "**Angewendet** — der Provider wendet den Schlüssel bei dieser Eingabeart an, und die gerenderte Ausgabe ändert sich dadurch deterministisch."
+  },
   "1ec744084da2982e": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -13742,6 +13826,13 @@
     "status": "machine",
     "text": "Die Ablehnung wird der Governance-Anbindung zugeordnet statt einem Ihrer Dokumente, daher trägt sie keine Dateiposition: Es gibt keinen Schlüssel, der sie hervorgebracht hat, und die Antwort ist, entweder die Policy zu erfüllen oder die Anbindung zu überdenken."
   },
+  "1f04cfa80e28affc": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "1f04cfa80e28affc",
+    "status": "machine",
+    "text": "**Es ist keine Reihenfolge nach Bereitschaft.** Eine Terraform-Konfiguration drückt keinen Begriff davon aus, dass eine Ressource einsatzbereit ist, daher wartet hier nichts darauf, dass eine bereit wird — nur darauf, dass Terraform seine Aktionen an ihr abschließt. Das ist ein echter Unterschied zu derselben Welle bei [compose](compose.md#deployment-wave-ordering), wo auf einen Dienst, der einen `healthcheck` deklariert, gewartet wird, bis er sich als gesund meldet: compose hat ein Bereitschaftsprimitiv, auf das es warten kann, und eine Terraform-Konfiguration hat keines. Die Reihenfolge der Aktionen ist das, was dieses Ziel bietet, und sie klar zu benennen, ist nützlicher als ein Vorbehalt, der an ein Versprechen geknüpft ist, das es nicht halten kann."
+  },
   "1f0521873acdd4cc": {
     "at": "2026-11-03T11:13:56.542Z",
     "job": "session-0097-20261103111356",
@@ -13794,6 +13885,13 @@
     "srcHash": "1f15a70f444f30f4",
     "status": "machine",
     "text": "Oder das Modul nennt einen Typ, der bereits in der durchlaufenen Kette steht. Ihn zu expandieren würde die Kette reproduzieren, die ihn enthält, ohne Ende. Es wird an der Stelle gemeldet, an der die Referenz die Schleife schließt, und nennt sowohl den Typ als auch, wo in der Komposition er sitzt."
+  },
+  "1f1bd55dda777ced": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "1f1bd55dda777ced",
+    "status": "machine",
+    "text": "Die **synthetisierte** Eingabeart wird nicht angeboten. Es gibt keine getreue, gegenüber Fähigkeiten agnostische Abbildung von der Workload-Art der Plattform auf beliebige Terraform-Ressourcen, daher ist ein Recipe, das `workload:` gegenüber dem terraform-Provider deklariert, ein deutlicher Fehler statt einer erfundenen Übersetzung."
   },
   "1f259ee17c0633c7": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -14584,6 +14682,13 @@
     "srcHash": "20e05604e56be840",
     "status": "machine",
     "text": "Jedes Beispiel in diesem Ordner, aufgeführt unter jedem Produkt, das es bereitstellt, und unter jeder Fähigkeit, die es zeigt. Jeder Eintrag nennt die Stufe des Beispiels und den ersten Satz seiner Seite."
+  },
+  "20ed203521f0372a": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "20ed203521f0372a",
+    "status": "machine",
+    "text": "**Knotenbezogen** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret`, `aggrega.ai/service-account` und `aggrega.ai/kubernetes-version` formen die eigene gerenderte Ausgabe einer Komponente, die der Pfad erzeugt, den ihre Eingabeart auswählt. Das sind die Spalten des Rasters."
   },
   "20efd33f888537b8": {
     "at": "2026-11-03T12:09:18.843Z",
@@ -16059,6 +16164,13 @@
     "status": "machine",
     "text": "cyclic extends chain (Component `<name>`, rule extends). `<entity>` extends `<reference>`, which is already in the chain; remove the extends on `<entity>`, or point it at an entity outside the chain (zyklische extends-Kette (angegebene Component, Regel extends). Die Entität erweitert die Referenz, die bereits in der Kette ist; entfernen Sie das extends an der Entität oder lassen Sie es auf eine Entität außerhalb der Kette zeigen)"
   },
+  "2415ce79e6722fc2": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "2415ce79e6722fc2",
+    "status": "machine",
+    "text": "Kategorie 3 — Netzwerk"
+  },
   "2415fddf9c84dbd9": {
     "at": "2026-11-03T10:16:19.100Z",
     "job": "session-0089-20261103101619",
@@ -16310,6 +16422,13 @@
     "srcHash": "24ae7a25f78e1ae6",
     "status": "machine",
     "text": "**Um ohne Fenster zu installieren**, aus einem Skript oder einem Werkzeug heraus, das Software auf vielen Rechnern installiert, führen Sie das Installationsprogramm mit `/S` aus, in Großbuchstaben geschrieben; es installiert dann ohne Fenster und ohne Rückfrage und meldet einen Fehlschlag über seinen Exit-Code, der nicht `0` ist. Das Deinstallationsprogramm akzeptiert denselben Schalter:"
+  },
+  "24b2d5427a9919ea": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "24b2d5427a9919ea",
+    "status": "machine",
+    "text": "Kubernetes-Version des Clusters, in dem die Komponente bereitgestellt wird, die ein aus der Quelle gerendertes Chart als `.Capabilities.KubeVersion` liest"
   },
   "24b448a7c140e3fc": {
     "at": "2026-10-22T04:21:58.340Z",
@@ -19576,6 +19695,13 @@
     "status": "machine",
     "text": "Um herauszufinden, in welchen Container ein Eintrag gehört, bevor Sie einen angeben, und um eine Position zu lesen, ohne etwas anzuwenden, siehe [`aggrega serve`](aggrega-serve.md)."
   },
+  "2c64c5da1c3dae18": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "2c64c5da1c3dae18",
+    "status": "machine",
+    "text": "Annotationen, die das Aggregate deklariert, erreichen dieselben Schlüssel unterhalb derer des Release. Ein Schlüssel, der auf einem Subsystem oder auf einer Komponenteninstanz deklariert ist — im Aggregate selbst oder in einem Modul, das es importiert, wo er die eigenen Komponenten des Moduls erreicht —, gilt für die Komponente überall dort, wo das Release keinen Wert für diesen Schlüssel setzt; wo das Release einen setzt, auf der Boundary oder auf dem Eintrag der Komponente, ist der Wert des Release derjenige, der angewendet wird. Die eigenen Annotationen einer Katalogentität setzen niemals einen. `aggrega.ai/chart-name` ist die Ausnahme von der Reichweite des Aggregate: Es benennt eine Zusammensetzung statt einer Komponente und wird aus den Release-Boundaries gelesen, die dazu beitragen."
+  },
   "2c651908c5854b00": {
     "at": "2026-11-03T23:48:35.245Z",
     "job": "session-0176-20261103234835",
@@ -19929,6 +20055,13 @@
     "srcHash": "2d33d8697080a6a2",
     "status": "machine",
     "text": "`validate_node_input` (optional) — strukturelle Validierung der Eingabe eines Knotens vor dem Rendering; eine Diagnose `halt` hält den Build an, eine `warn` erscheint im Build-Ergebnis."
+  },
+  "2d48fe85cc68490d": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "2d48fe85cc68490d",
+    "status": "machine",
+    "text": "**Modus mit Quelle.** Ein Recipe referenziert ein Terraform-Modul mit `source:`. Die Dateien des Moduls werden unverändert in das Verzeichnis dieser Komponente lokal kopiert (Vendoring), und das `valuesMapping:` des Recipe wird zu den Argumenten des Blocks `module` dieser Komponente in der Root-Konfiguration der Boundary. Der Modulkörper bleibt genau so erhalten, wie er verfasst wurde, und nichts wird in ihn geschrieben; die Werte werden einmal angegeben, in der Root-Konfiguration, wo Terraform sie auswertet. Wo die deklarierten Blätter `values` des Knotens direkt zu den Eingaben des Moduls werden — ein Recipe `source:` ohne `valuesMapping:` —, erhält eine Eingabe, die Material trägt, das ein Autor als sensibel deklariert hat, zusätzlich eine generierte Override-Datei, die Terraforms eigenes Sensitivitätsattribut trägt; ein Template `valuesMapping:` erfindet seine Ausgabenamen, daher trägt dieser Fall keine Markierung, und der Build meldet ihn mit einem beratenden Hinweis. Beides wird unter [Als sensibel deklarierte Moduleingaben](#declared-sensitive-module-inputs) beschrieben."
   },
   "2d5b035f17b7fa9c": {
     "at": "2026-11-03T10:34:01.071Z",
@@ -21486,6 +21619,13 @@
     "srcHash": "3080f98b619cc747",
     "status": "machine",
     "text": "**Konfiguration als Datei geliefert.** Jaeger v2 ist eine Distribution des OpenTelemetry Collector, die über eine YAML-Datei konfiguriert wird. Das Recipe gibt diese Konfiguration als `ConfigMap` aus und hängt sie unter `/etc/jaeger` in den Container ein, und der Container liest sie mit `--config /etc/jaeger/config.yaml`."
+  },
+  "3081e77175b1c4bf": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "3081e77175b1c4bf",
+    "status": "machine",
+    "text": "Wie diese Matrix zu lesen ist"
   },
   "30844f0a033450e8": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -23992,6 +24132,13 @@
     "status": "machine",
     "text": "Der terraform-Provider rendert Recipes von Aggrega in Terraform-Konfiguration. Er gibt Konfiguration aus und **führt Terraform nie aus**: Ein Build von Aggrega ist eine Ahead-of-Time-Kompilierung, daher kann er die Ressourcen-IDs, IP-Adressen und Ausgaben nicht auflösen, die erst nach `terraform apply` existieren. Die Interpolationen `${ ... }` von Terraform werden unverändert als deterministische Zeiger-Strings durchgereicht, die die Terraform-Laufzeit später auflöst. Der Provider ist offline und hermetisch — er greift nie auf das Netzwerk zu und ruft nie `terraform` oder `tofu` auf."
   },
+  "36b2c5dce41f79c5": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "36b2c5dce41f79c5",
+    "status": "machine",
+    "text": "Reserviert für Annotationen zur Sidecar-Injektion eines Mesh"
+  },
   "36b52cd786a08ba7": {
     "at": "2026-11-03T14:05:29.072Z",
     "job": "session-0115-20261103140529",
@@ -25206,6 +25353,13 @@
     "srcHash": "3995ccf3a5dff2be",
     "status": "machine",
     "text": "Was er liest"
+  },
+  "3998fbf2d3a4ec54": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "3998fbf2d3a4ec54",
+    "status": "machine",
+    "text": "Das Präfix `aggrega.ai/` ist der Standardbibliothek vorbehalten. Benutzerdefinierte Unternehmensannotationen verwenden ihr eigenes Präfix."
   },
   "399a4de6d41b9ee2": {
     "at": "2026-11-03T23:11:53.486Z",
@@ -27392,6 +27546,13 @@
     "status": "machine",
     "text": "Er authentifiziert sich nicht bei Cloud-APIs."
   },
+  "3e342b4dba9aacbd": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "3e342b4dba9aacbd",
+    "status": "machine",
+    "text": "`ref:` ist das Versions-Tag, genau so, wie das Repository es benennt. `valuesMapping:` liefert die Eingaben des Moduls, unter den Namen, die seine Blöcke `variable` deklarieren — Terraform verlangt einen Wert für jede Eingabe, die kein `default` deklariert —, und sie werden zu den Argumenten des Blocks `module` dieser Komponente in der Root-Konfiguration, wie bei jedem Modul mit Quelle."
+  },
   "3e497f87acab7441": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -27809,6 +27970,13 @@
     "status": "machine",
     "text": "Die Verantwortung von Aggrega endet genau in dem Moment, in dem es die Verarbeitung der Eingabe abschließt und die konfigurierten statischen Artefakte in das Ausgabeverzeichnis schreibt. Es ist ein reiner Compiler: Es schreibt die Konfiguration, und danach geht die Kontrolle vollständig an das System zurück, das es aufgerufen hat."
   },
+  "3f1f9fa1b6fd071e": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "3f1f9fa1b6fd071e",
+    "status": "machine",
+    "text": "Kategorie 4 — Sicherheit"
+  },
   "3f2314a0f996cb75": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -28181,6 +28349,13 @@
     "status": "machine",
     "text": "Ein Plugin deklariert, welche der eigenen Aufrufe des Hosts es verwendet, und diese Menge wird in seiner Plugin-Entität erfasst, wenn das Plugin veröffentlicht wird — aus der Binärdatei selbst ausgelesen und nicht von Hand verfasst. Wenn das Plugin abgerufen wird, wird die Menge erneut aus den Bytes abgeleitet, deren Inhalt gerade verifiziert wurde, und mit der Aufzeichnung verglichen. Ein Unterschied in einer der beiden Richtungen bricht den Abruf ab."
   },
+  "403abf8844a00f59": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "403abf8844a00f59",
+    "status": "machine",
+    "text": "Die Markierung erschwert es also, eine als sensibel deklarierte Eingabe versehentlich offenzulegen, wenn jemand einen Plan liest. Sie macht das, was bereitgestellt wird, nicht sicher veröffentlichbar. Siehe [Ein Blatt als sensibel deklarieren](../vocabulary/compact-form-authoring.md#declaring-a-leaf-sensitive--sensitive) für das Schlüsselwort und dafür, was eine Deklaration über alle Ziele hinweg bewirkt."
+  },
   "4042a0917d90647f": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -28401,6 +28576,13 @@
     "status": "machine",
     "text": "die Agenten, die in den Agent-Config-Dateien einer auf Google ADK gebauten Anwendung deklariert sind — `root_agent.yaml` und die Konfigurationen, die seine Sub-Agenten nennen — als YAML"
   },
+  "40c85f9f74b0b7eb": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "40c85f9f74b0b7eb",
+    "status": "machine",
+    "text": "Bekannte Annotationen der Provider duplizieren niemals Komponenten-Labels. Component-Labels beschreiben, *was eine Komponente ist*. Boundary-Annotationen beschreiben, *wo eine Komponente bereitgestellt wird*."
+  },
   "40cedb402750a078": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -28534,6 +28716,13 @@
     "status": "machine",
     "text": "Nur die beiden Labels der Rego-Richtlinie ändern sich zwischen den Releases."
   },
+  "4151e6fefa3c6fbf": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "4151e6fefa3c6fbf",
+    "status": "machine",
+    "text": "Der terraform-Provider akzeptiert zwei der drei Recipe-Eingabearten:"
+  },
   "4152d4ca50da56bf": {
     "at": "2026-11-03T22:09:05.579Z",
     "job": "session-0165-20261103220905",
@@ -28659,6 +28848,13 @@
     "srcHash": "41b8c1f68199d003",
     "status": "machine",
     "text": "Die drei Sensibilitätseinheiten"
+  },
+  "41bfdf9b095bf72a": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "41bfdf9b095bf72a",
+    "status": "machine",
+    "text": "**Eine Boundary, deren Komponenten alle dieselbe Welle tragen, gewinnt dadurch nichts.** Ebenso ein Release, das überhaupt keine `syncWave` deklariert: Jeder Beitragende trägt den Standardwert des Feldes, `0`, die Root-Konfiguration enthält eine einzige Welle, und die ausgegebenen Bytes sind genau die, die sie wären, wenn der Provider keine Wellenreihenfolge ausdrückte."
   },
   "41d33f7b54b60636": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -29259,6 +29455,13 @@
     "status": "machine",
     "text": "MariaDB (Bitnami-Chart) — ein einziges Zugangsdaten-Secret mit mehreren Schlüsseln"
   },
+  "430e851516f62a11": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "430e851516f62a11",
+    "status": "machine",
+    "text": "Die vollständige Annotationsmatrix"
+  },
   "43144329dc4d9ec6": {
     "at": "2026-11-03T08:01:06.602Z",
     "job": "session-0074-20261103080106",
@@ -29286,6 +29489,13 @@
     "srcHash": "432055f7b6b1136a",
     "status": "machine",
     "text": "**Es ist ein einzelnes Dokument und wird daher für sich allein angefordert.** `--closure` wählt den Abschluss anstelle der aufgelösten Ansicht und kann nicht mit `--raw`, `--resolved`, `--output` oder `--ir-graph` kombiniert werden — jedes davon fordert ein anderes Dokument zum selben Release an, und ein Befehl, der zwei Anforderungen akzeptierte, müsste stillschweigend nur eine davon beantworten. Eine Kombination wird unter Nennung des Paares abgelehnt."
+  },
+  "432cdc2c984d9205": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "432cdc2c984d9205",
+    "status": "machine",
+    "text": "Reserviert für eine Cloud-Region auf Platzierungsebene"
   },
   "43385c897dba5d76": {
     "at": "2026-11-03T14:05:25.158Z",
@@ -30840,6 +31050,13 @@
     "status": "machine",
     "text": "**Air-gapped Builds.** Das Setzen von `offline: true` (§4) überspringt die Registry-Stufe vollständig. Eine Referenz, die in der Stufe des lokalen Pfads oder in der Stufe Workspace und Cache nicht aufgelöst werden kann, führt zu einem Fehler wegen fehlender Entität, statt stillschweigend einen Netzwerkaufruf zu versuchen, was CI-Pipelines, die das Netzwerk rechtlich nicht erreichen dürfen, einen deterministischen Fail-fast-Vertrag gibt."
   },
+  "467078adfc0a677b": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "467078adfc0a677b",
+    "status": "machine",
+    "text": "Ein Schritt `pipeline` eines FeatureRecipe nach dem Rendern patcht nur Ausgabe, die der Provider in einen **strukturierten Baum** rendert. Für terraform bedeutet das:"
+  },
   "467bb8b5da08b465": {
     "at": "2026-10-17T18:55:04.559Z",
     "job": "e3297de5b56f",
@@ -31270,6 +31487,13 @@
     "srcHash": "47522b28a2c1d4fb",
     "status": "machine",
     "text": "Der Hinweis nennt den Schweregrad, den der Herausgeber erfasst hat – `warning`, `error` oder `retracted` –, zusammen mit der Version, für die der Marker erfasst wurde, dem Grund, dem Ersatz, sofern einer genannt ist, und dem Ausstellungsdatum. Alle drei Schweregrade werden gemeldet. Das ist mehr als die Menge, die ändert, wozu ein Build aufgelöst wird: Eine als `retracted` markierte Version wird von der Versionsauswahl ausgeschlossen, während `warning` und `error` empfehlend sind und weiterhin ausgewählt werden. `inspect` zeigt Ihnen, was ein Herausgeber mitgeteilt hat; es entscheidet nicht, was Sie erhalten."
+  },
+  "47559ddad44b23d6": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "47559ddad44b23d6",
+    "status": "machine",
+    "text": "Wird nicht injiziert, wenn sie fehlt (helm); ein nach dem Pfad der compose-Datei benanntes Netzwerk, das jeder Knoten in dieser Datei ohne die Annotation teilt (compose)"
   },
   "47564d9d8e437bc0": {
     "at": "2026-11-03T01:59:04.506Z",
@@ -31931,6 +32155,13 @@
     "status": "machine",
     "text": "Architekten, die Katalogentitäten schreiben; Wasm-Policy-Plugins, die die Labels konsumieren"
   },
+  "48d269da8b287cc4": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "48d269da8b287cc4",
+    "status": "machine",
+    "text": "**Es begrenzt die Anzeige.** Ein sensibler Wert erscheint in der Plan-Ausgabe als `(sensitive value)` und in der Apply-Ausgabe als `<sensitive>`. Die Markierung pflanzt sich durch Ausdrücke fort, sodass auch ein von einer sensiblen Eingabe abgeleiteter Wert sensibel ist, und Terraform weigert sich, einen solchen aus einem `output` auf Root-Ebene zu exportieren, der nicht selbst als sensibel markiert ist — ein deutlicher Fehler statt einer stillen Offenlegung."
+  },
   "48d70040a7582a0a": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -32323,6 +32554,13 @@
     "srcHash": "49b372516e3622c4",
     "status": "machine",
     "text": "Der Build hält an, statt eines von beiden in die Anbindung der Verbindung einzufalten, denn dann zeigte keines der beiden Dokumente vollständig, was der Build damit tut. Der Slot eines Sockets wird pro Verbindung gefüllt, durch den eigenen Eintrag der Verbindung, und nie durch eine Anbindung, die aus einem weiteren Geltungsbereich auf ihn herabkaskadiert. Ein Schlüssel mit Punkt, den keine Verbindungsanbindung der Komponenten trägt, die er erreicht, ist ein gewöhnlicher Anbindungsname und wird nicht zurückgewiesen."
+  },
+  "49b47eed0fde7451": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "49b47eed0fde7451",
+    "status": "machine",
+    "text": "**Natives HCL ist opak.** Ein Körper in nativem HCL (`main.tf`) ist kein strukturiertes Patch-Ziel. Ein Patch gegen einen opaken Körper bricht den Build mit einer Diagnose ab, statt Text zu verändern, den er nicht strukturell adressieren kann; einen Pipeline-Schritt gegen einen HCL-Körper zu verfassen, ist ein Entwurfsfehler, der als deutlicher Abbruch zutage tritt, nicht als stilles No-op."
   },
   "49bb61e50a9386c4": {
     "at": "2026-11-03T23:48:32.946Z",
@@ -32792,6 +33030,13 @@
     "status": "machine",
     "text": "Die Markierung annotiert; sie ist keine Kontrolle. Ein Blatt oder einen Slot als sensibel zu deklarieren, verschlüsselt nichts, validiert oder verwirft keinen Wert und erzwingt keinen Auslieferungsmechanismus. Kein Build-Ergebnis ändert sich, weil eine Deklaration vorhanden ist."
   },
+  "4ae9a26c5cf022b2": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "4ae9a26c5cf022b2",
+    "status": "machine",
+    "text": "Jede Zelle in diesem Raster trägt eine von drei Stufen:"
+  },
   "4aed365b3c0bf132": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -33082,6 +33327,13 @@
     "srcHash": "4b8ae43a0ee4927f",
     "status": "machine",
     "text": "Die Meldung nennt das Manifest, den Schlüssel und den Abschnitt, in dem er geschrieben ist, die Namen dieser Art, die der Build tatsächlich enthält — eingegrenzt auf den Typ, den das Recipe oder FeatureRecipe des Eintrags implementiert, wo dieser Typ bekannt ist und der Build einen davon enthält — und, wo sie es erkennen kann, den Namen, den Sie wahrscheinlich gemeint haben: für einen Schlüssel `features.name`, der der Name einer Komponente ist, die Anbindungen dieses Typs, die die Komponente trägt; für einen Schlüssel `components.name`, der der Name einer Anbindung ist, die Komponente, die sie trägt; und andernfalls einen Namen, der eine Bearbeitung entfernt ist."
+  },
+  "4b8ebb8a7ba7d977": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "4b8ebb8a7ba7d977",
+    "status": "machine",
+    "text": "Die Welle wird aufgezeichnet und nicht nur umgesetzt: Sie reist mit dem Rest der Build-Provenienz des Knotens mit, als `aggrega.ai/sync-wave` im gestempelten Kommentarblock oder in der Provenienz-Begleitdatei, wo der Körper JSON oder ein lokal kopiertes Modul ist. So hält eine gerenderte Konfiguration fest, welche Welle ihre Boundary deklariert hat, und wird zugleich danach geordnet."
   },
   "4b927f38035523a4": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -33805,6 +34057,13 @@
     "status": "machine",
     "text": "**Ein Store, der die Zählung im Speicher hält, beginnt bei einem Neustart jedes Fenster von vorn.** `core/datastore/redis` hält seine Einträge standardmäßig im Speicher, daher verliert ein neu gestarteter Store die bisher geführte Zählung, und der Rest des Monats wird ab null gezählt."
   },
+  "4d9492318e5dc61c": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "4d9492318e5dc61c",
+    "status": "machine",
+    "text": "FeatureRecipe-Patch-Grenze"
+  },
   "4d9de3c01011b694": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -34466,6 +34725,13 @@
     "srcHash": "4f23cec4fdca6e66",
     "status": "machine",
     "text": "Es gilt für ein Release, die einzige Art, die zu einem Graphen aufgelöst wird. Wird es für eine andere Art oder für eine Katalogentität per Name angefordert, verweigert der Befehl dies und sagt es, statt die eigene Ansicht dieser Entität zu rendern und die Anforderung stillschweigend fallen zu lassen."
+  },
+  "4f2583fb44ddd14d": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "4f2583fb44ddd14d",
+    "status": "machine",
+    "text": "Reserviert für einen Docker-Compose-Projektnamen"
   },
   "4f281c37b2c3486a": {
     "at": "2026-10-30T06:59:34.584Z",
@@ -35560,6 +35826,13 @@
     "srcHash": "51b8747e19f2d7b9",
     "status": "machine",
     "text": "Diese Seite ist die Authoring-Referenz des helm-chart-Providers. Zur Aufteilung zwischen helm und helm-chart siehe den Abschnitt [Providers](../10-status.md#providers) der Statusseite; zum providerübergreifenden Modell der Eingabezusammensetzung siehe [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md)."
+  },
+  "51b8d68f50de122a": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "51b8d68f50de122a",
+    "status": "machine",
+    "text": "Plattform-Annotationen"
   },
   "51bc7d0ca8e21abd": {
     "at": "2026-11-03T05:31:59.590Z",
@@ -37132,6 +37405,13 @@
     "status": "machine",
     "text": "Was ein zusammengeführtes Dokument aus `artifacts:` übernimmt"
   },
+  "54e1d7d7fe863677": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "54e1d7d7fe863677",
+    "status": "machine",
+    "text": "Name des Umbrella-Charts"
+  },
   "54e256e3e0f35412": {
     "at": "2026-11-03T13:44:11.193Z",
     "job": "session-0112-20261103134411",
@@ -38672,6 +38952,13 @@
     "status": "machine",
     "text": "**Genau diese melden:** `aggrega/resolveDependencies`, `aggrega/pin`, `aggrega/publishEntity`, `aggrega/publishArtifact`, `aggrega/signArtifacts`, `aggrega/deprecateArtifact`."
   },
+  "584859b2216bd707": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "584859b2216bd707",
+    "status": "machine",
+    "text": "**Diese Grenze ist bewusst gezogen und nicht etwas, das das Dateiformat erzwingt:** Nichts in einem Override lehnt ein zweites Attribut ab, und das `default` eines Blocks `variable` ist der naheliegendste Platz, zu dem man greifen würde, wollte man einen Wert in ein lokal kopiertes Modul bringen, ohne dessen Bytes zu bearbeiten — aber er käme nicht an. Ein `default` in der JSON-Konfigurationssyntax, in der diese Datei geschrieben ist, ist keine Position, die Terraform auswertet, daher erreicht ein Wert, der einen dort geschriebenen Zeiger `${ ... }` trägt, das Modul als die literalen Zeichen des Zeigers, bei einem Plan, der gelingt und nichts meldet. Derselbe Zeiger, in ein `default` in nativem HCL geschrieben, wird rundweg abgelehnt, was diese Stille in dieser Syntax verortet und nicht in Override-Dateien als solchen. Daher trägt das Override allein `sensitive`: Seine Bedeutung hängt nicht davon ab, ausgewertet zu werden."
+  },
   "585011259e8e479c": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -39036,6 +39323,13 @@
     "srcHash": "58eb36bc017f15c5",
     "status": "machine",
     "text": "Es rendert keine eigene Datei. Seine Realisierung schreibt eine Einstellung in die Routing-Tabelle, die das Recipe des Routers rendert — die letzten beiden Zeilen des Blocks `data` oben:"
+  },
+  "58ee6cef7329af80": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "58ee6cef7329af80",
+    "status": "machine",
+    "text": "Die Version, für die das unveränderte `helm template` desselben helm-Release rendert: die der Kubernetes-Clientbibliothek, mit der der Provider gebaut ist"
   },
   "58f0a7ffdbca2ec2": {
     "at": "2026-11-03T21:51:52.383Z",
@@ -41399,6 +41693,13 @@
     "status": "machine",
     "text": "Abzugleichende Entitätsart (component\\|feature\\|recipe\\|featurerecipe\\|workload\\|plugin). Wiederholbar; ein Datensatz, der einer beliebigen davon entspricht, wird behalten. Groß-/Kleinschreibung wird nicht beachtet."
   },
+  "5e53cd454b0b0343": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "5e53cd454b0b0343",
+    "status": "machine",
+    "text": "Reserviert für ein DNS-Suffix für die namespaceübergreifende Diensterkennung"
+  },
   "5e55bc5466016bb3": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -41545,6 +41846,13 @@
     "srcHash": "5e90a8f46f14d499",
     "status": "machine",
     "text": "**So beheben Sie es:** Lösen Sie das Release erneut auf und committen Sie das neu geschriebene Lockfile. Für alles, was ein Build meldet, ist ein einfaches `aggrega pull --release <release>` — der Befehl, den der Build ausgibt — die ganze Behebung: Es löst das Release so auf, wie es jetzt ist, schreibt die Pins neu, die sich verschoben haben, und hält jeden anderen fest, sodass sich nichts verschiebt, was Sie nicht angefasst haben. Wo das, was sich verschoben hat, eine Datei unter der lokalen Quelle eines Recipe oder FeatureRecipe ist, bricht dieser Pull zunächst ab und nennt `aggrega pin` für die Entität, weil das Erfassen des neuen Pins daneben der Schritt des Autors ist; führen Sie es aus oder übergeben Sie dem Pull `--pin-sources`, und der Pull beseitigt den Drift. Der eine Eintrag, den ein einfacher Pull nicht beseitigt, ist ein Quellverweis, der sich an seinem Remote verschoben hat, denn ihn zu beseitigen bedeutet, den Commit zu übernehmen, den der Verweis jetzt nennt: `aggrega pull --upgrade --release <release>` tut das, und der Eintrag sagt es — wo die `entity.lock` des Recipe diese Quelle erfasst, bricht das Upgrade auf dieselbe Weise ab, bis der neue Commit daneben gepinnt ist. Lesen Sie die Einträge, bevor Sie das tun, denn die dritte Struktur ist diejenige, bei der es sich innezuhalten lohnt: Ein Verweis, den das Release nicht mehr erreicht, ist meist eine Abhängigkeit, die Sie absichtlich entfernt haben, aber wo Sie sie nicht entfernt haben, hat sich etwas anderes geändert, das sie unerreichbar gemacht hat. Ein Paar, das sich bei einem Verweis verschoben hat, den Sie nicht angefasst haben, bedeutet, dass der Inhalt unter dieser Version nicht der Inhalt ist, der geprüft wurde — eine Frage an denjenigen, der ihn liefert, statt etwas, das man ungeprüft übernimmt."
+  },
+  "5e96c69dca96b0b4": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "5e96c69dca96b0b4",
+    "status": "machine",
+    "text": "**Was nicht gelesen wird.** Gelesen wird nur, was ein `source` aussagt. Der Build liest nicht das Modul, das ein Aufruf benennt, beurteilt nicht, was dieses Modul tut, und entscheidet nicht, ob der Aufruf akzeptabel ist. Ein `source`, das die Engine auswertet, statt es wie geschrieben zu lesen — eines mit einer Interpolation oder einer Referenz —, wird nach seinem führenden Text beurteilt: Eines, das mit einer Adresse beginnt, wird wie geschrieben gemeldet, während eines, das mit einem lokalen Präfix oder mit der Interpolation selbst beginnt, weder gemeldet noch verfolgt wird, weil nicht im Text steht, wohin es führt. Ein `source` innerhalb von `required_providers` benennt einen Provider statt eines Moduls und ist kein Modulaufruf."
   },
   "5e998437843ddbdf": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -42031,6 +42339,13 @@
     "status": "machine",
     "text": "Das Umbrella-Chart deklariert die Anbindung außerdem als eine seiner Abhängigkeiten. Beide Hälften sind nötig: Ein Chart, das unter `charts/` vorhanden ist und in `dependencies:` fehlt, ist ein Lint-Fehler, und ein in `dependencies:` deklariertes Chart ohne passendes vorhandenes Kind-Chart führt dazu, dass das Umbrella-Chart das Laden verweigert."
   },
+  "5fca509164f11b90": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "5fca509164f11b90",
+    "status": "machine",
+    "text": "`ServiceAccount` von Kubernetes für synthetisierte Pods; überschreibt `workload.serviceAccount` des Recipe, wenn beide gesetzt sind"
+  },
   "5fd4e32eb59b8212": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -42114,6 +42429,13 @@
     "srcHash": "600652d2c657bd60",
     "status": "machine",
     "text": "**Ein Parameter, der ein Dokument benennt, das Sie bereits haben, kann auf drei Arten geschrieben werden: relativ zum Workspace-Stammverzeichnis, absolut oder als die `file://`-Adresse, die ein Language-Server-Client für ein geöffnetes Dokument sendet.** Das ist die `file` oder `uri` von `aggrega/validate`, `aggrega/diagnostics`, `aggrega/invalidate`, `aggrega/hover`, `aggrega/completion`, `aggrega/resolve`, `aggrega/findReferences`, `aggrega/findImplementations`, `aggrega/insertionPoint` und `aggrega/connectionAtPosition`. Alle drei benennen ein Dokument und werden gleich beantwortet, weil jede an der Anfragegrenze auf eine kanonische Schreibweise reduziert wird, bevor irgendetwas sie liest – so wird ein Dokument, das Sie unter seinem Pfad validiert haben, unter seiner Adresse gefunden und umgekehrt, und welche Schreibweise Sie senden, ändert nichts an der Antwort. Eine Adresse wird als der Pfad gelesen, den sie benennt, mit dekodierten Prozent-Escapes, wenn ihre Authority leer oder `localhost` ist; eine, die einen anderen Rechner benennt, wird als Netzwerkfreigabe dieses Rechners gelesen auf einem System, das ein Dokument dort auf diese Weise öffnet, und benennt anderswo nichts, was der Daemon öffnen kann. Eine Adresse, die außerdem eine Query, ein Fragment, Anmeldedaten oder einen Port enthält, benennt ebenfalls nichts, was der Daemon öffnen kann. Ein Wert, der nicht mit `file://` beginnt, in welcher Groß- und Kleinschreibung auch immer, wird nie als Adresse gelesen, und die Ablehnung „Datei nicht validiert“ nennt den Wert, den Sie gesendet haben, gleich in welcher Schreibweise. Von diesen sind `aggrega/insertionPoint` und `aggrega/connectionAtPosition` die beiden, die das Dokument von der Festplatte lesen, wenn Sie keine Kopie davon haben, und sie antworten nur für ein Dokument innerhalb des Workspace: Eines außerhalb des Stammverzeichnisses – so wie geschrieben oder über einen Link, der hinausführt, zur Datei oder zu einem Verzeichnis auf dem Weg – wird abgelehnt, gleich welche der drei Schreibweisen es benennt, und ein Dokument innerhalb des Stammverzeichnisses wird in allen dreien beantwortet. Die anderen acht lesen nichts von der Festplatte unter dem Pfad, den sie benennen – `aggrega/validate` nimmt die Bytes des Dokuments aus `content`, und die übrigen antworten aus dem, was validiert wurde –, daher antworten sie für ein Dokument, wo auch immer Sie es haben, innerhalb des Workspace oder nicht, und keinem Link, den sie benennen, wird gefolgt, um eine Datei zu lesen. Ein Parameter, der ein Dokument benennt, das Sie *außerhalb* des Workspace ausgewählt haben, ist aus demselben Grund derselbe Fall: Die `source` von `aggrega/import` wird dort gelesen, wo sie tatsächlich liegt, wie ihr eigener Eintrag sagt. Beide sind Ausnahmen von der Workspace-Grenze ihrer Klasse nach – ein Dokument, das der Client geöffnet hält, und eine Datei, die eine Person ausgewählt hat –, und [Die Workspace-Grenze](workspace-boundary.md#the-exceptions-and-why-each-is-one) erklärt, warum jede eine ist."
+  },
+  "600b8fb3281f008e": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "600b8fb3281f008e",
+    "status": "machine",
+    "text": "Die sechs Kategorietabellen unten nennen jede Annotation im reservierten Vokabular `aggrega.ai/`, was sie steuert und was der Provider tut, wenn sie fehlt. Ob ein bestimmter Provider einen bestimmten Schlüssel anwendet, ist eine feinere Frage, weil ein Provider mehr als eine **Eingabeart** rendert — ein lokal kopiertes Artefakt (`sourced`), eine Workload, die der Provider selbst synthetisiert (`synthesized`), oder die `artifacts:` eines Recipe als die ganze Ausgabe eines Knotens (`artifacts-only`) —, und ein Schlüssel kann auf einem dieser Pfade gelesen werden, während er auf einem anderen unerreichbar ist. Welcher Provider welche Eingabeart rendert, steht unter [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); was jeder anwendet, ist [Unterstützung nach Provider und Eingabeart](#support-by-provider-and-input-kind) unten, die maßgebliche Aussage dieser Seite."
   },
   "6011bd5590383ffd": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -43169,6 +43491,13 @@
     "status": "machine",
     "text": "**Wenn der Operator das Secret benennt.** Dasselbe Gateway, wobei die Verbindung `gpt` im Aggregate weggelassen und stattdessen vom Release verdrahtet ist. Ein Release schreibt keine `values`, daher benennt es das Secret in der `infra` der Anbindung — `core/referenced-secret` bezieht sein `origin` aus einer der beiden Säulen, genau einer pro Anbindung:"
   },
+  "62832ff3ced72de2": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "62832ff3ced72de2",
+    "status": "machine",
+    "text": "Terraform führt eine Konfigurationsdatei, deren Name schlicht `override` lautet oder auf `_override` endet, mit der Konfiguration im selben Verzeichnis zusammen, sodass der eigene Block `variable` des Moduls das Attribut erhält, während jedes lokal kopierte Byte genau so bleibt, wie es verfasst wurde. Der deklarierte Typ, der Standardwert und die Beschreibung der Eingabe bleiben unberührt — das Override trägt das Sensitivitätsattribut und sonst nichts. Ein nicht markierter Knoten erhält keine solche Datei."
+  },
   "628d03f53ef53d5b": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -43592,6 +43921,13 @@
     "srcHash": "63a2675e37d38d25",
     "status": "machine",
     "text": "**Findet sie keinen, bietet sie an, einen herunterzuladen** – im Compiler-Schritt der Willkommensseite, wo **Download the compiler** neben **Use the compiler on my PATH** und **Point at a compiler I have** steht, und in der Benachrichtigung, dass der Language Server nicht starten konnte, weil unter dem Pfad nichts liegt. Der Download:"
+  },
+  "63a4695354d2cb88": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "63a4695354d2cb88",
+    "status": "machine",
+    "text": "Recipes behandeln keine bekannten Provider-Annotationen. Der Provider wendet den Platzierungskontext (Namespace, Registry-Präfix, Service-Account) automatisch an, nachdem das Recipe seinen Inhalt erzeugt hat."
   },
   "63ac9c7be8a7ccdc": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -44953,6 +45289,13 @@
     "status": "machine",
     "text": "**Was ein Mapping umschreiben darf.** Jeder `inject:`-Block hat bereits geliefert, wenn die Mappings gerendert werden, sodass die Ausgabe eines Mappings immer über Schlüssel zusammengeführt wird, die bereits etwas anderes geschrieben hat — und wer einen Schlüssel geschrieben hat, entscheidet, was geschieht. Einen Schlüssel, den der eigene `inject:`-Block des Aufrufers oder der `inject:`-Block einer seiner Verbindungen geliefert hat, darf das Mapping umschreiben: Das ist Abfangen, und der Wert des Mappings ersetzt genau diesen einen Eintrag. Einen Schlüssel, den die eigene Anbindung des Mappings über ihren `inject:`-Block geliefert hat, darf es ebenfalls umschreiben. Einen Schlüssel, den ein *anderes* angebundenes Feature bereits geliefert hat — über seinen eigenen `inject:`-Block oder das `injectMapping` seines eigenen FeatureRecipe —, darf es nicht: Der Build bricht ab und benennt beide Anbindungen, statt das zuletzt ausgeführte Mapping entscheiden zu lassen, welchen Wert der Aufrufer liest. Zwei Routing-Features können also jeweils einen eigenen Schlüssel qualifizieren, aber zwei Features können nicht beide denselben Schlüssel liefern — einschließlich zweier Routing-Features, die den Schlüssel derselben Verbindung umschreiben, da das erste Abfangen ist und das zweite auf die Lieferung des ersten trifft; siehe [fatal-halts.md](../errors/fatal-halts.md) „Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping“ (Zwei angebundene Features liefern denselben Schlüssel, das spätere über das injectMapping seines FeatureRecipe)."
   },
+  "66dad8deae980340": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "66dad8deae980340",
+    "status": "machine",
+    "text": "Ein Modul, das eine Registry veröffentlicht, als Quelle verwenden"
+  },
   "66dd8211a8629bfb": {
     "at": "2026-11-03T22:53:36.381Z",
     "job": "session-0170-20261103225336",
@@ -45974,6 +46317,13 @@
     "status": "machine",
     "text": "declared parameter is read by no reference in the Aggregate (der deklarierte Parameter wird von keiner Referenz im Aggregate gelesen)"
   },
+  "6958fd7f023b80b9": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "6958fd7f023b80b9",
+    "status": "machine",
+    "text": "`helm` (mit Quelle)"
+  },
   "695de16aaf66ef8b": {
     "at": "2026-11-03T05:32:01.583Z",
     "job": "session-0058-20261103053201",
@@ -46657,6 +47007,13 @@
     "srcHash": "6ada8a5f126a7682",
     "status": "machine",
     "text": "Den Server über HTTPS erreichen"
+  },
+  "6ae04bb5b2aa4dfe": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "6ae04bb5b2aa4dfe",
+    "status": "machine",
+    "text": "**Bedingt angewendet** — der Compiler gibt einen *additiven* Override neben dem Zielartefakt aus, statt das Artefakt zu bearbeiten, daher hängt es davon ab, ob dieses Artefakt einen eigenen passenden Schlüssel anbietet, ob der Wert wirksam wird. In der Praxis wirksam, niemals eine Garantie. **Kein Provider implementiert eine bedingte Zelle**, und die Deklarationsoberfläche bietet keine Möglichkeit, eine auszudrücken, daher gibt das generierte Raster unten nur die anderen beiden Stufen aus. Die Stufe wird benannt, weil der Weg für ein lokal kopiertes Artefakt tatsächlich existiert, und ein Vokabular mit zwei Stufen würde die Matrix zwingen, entweder eine Garantie zu beanspruchen, die sie nicht geben kann, oder zu bestreiten, dass der Weg überhaupt existiert."
   },
   "6ae590fb947bf8f6": {
     "at": "2026-11-03T03:00:33.649Z",
@@ -48176,6 +48533,13 @@
     "status": "machine",
     "text": "Eine mit `curl` abgerufene Datei trägt keine Quarantänemarkierung, daher bewertet Gatekeeper sie überhaupt nicht: `curl` fügt die Markierung, die ein Browser hinzufügt, nicht hinzu. Das ist auch der Grund, warum die Binärdatei, die der Installationsbefehl ablegt, ohne diese Bewertung läuft."
   },
+  "6e97432daa9fa4fa": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "6e97432daa9fa4fa",
+    "status": "machine",
+    "text": "Bekannte Annotationen"
+  },
   "6e9a9e32e7fcddf2": {
     "at": "2026-11-02T23:06:17.995Z",
     "job": "session-0018-20261102230617",
@@ -48392,6 +48756,13 @@
     "srcHash": "6f07546a64b74269",
     "status": "machine",
     "text": "A tag is already published with different content (Ein Tag ist bereits mit anderem Inhalt veröffentlicht)"
+  },
+  "6f0a3bf8c0fd485d": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "6f0a3bf8c0fd485d",
+    "status": "machine",
+    "text": "Der terraform-Provider validiert die Struktur eines Moduls mit Quelle, **bevor** er rendert. Er parst die Dateien des Moduls in HCL und `.tf.json` und meldet Parse-Fehler, wobei er den Build mit einer klaren Meldung abbricht, die den betroffenen Knoten und den Provider benennt. Die Parse-Prüfung prüft die Form, nicht die Semantik — sie löst keine Provider auf, wertet keine Ausdrücke aus und kontaktiert keine Registry. Die Validierung ist hermetisch: Sie verwendet einen eigenständigen, in den Provider kompilierten HCL-Parser, ohne Binärdatei `terraform` und ohne Netzwerkzugriff. Ein fehlerhaftes Modul wird an der Authoring-Grenze abgefangen, statt bei einem späteren Lauf von `terraform` als verwirrender Fehler aufzutauchen."
   },
   "6f0c5d1506a99bd4": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -49234,6 +49605,13 @@
     "srcHash": "7116fa2884a3e09f",
     "status": "machine",
     "text": "Die Mechanismen, die der Typ zulässt, folgen auf den vorgegebenen, sodass die Meldung sowohl das Geschriebene als auch das vom Typ Erlaubte enthält. Ein Typ, der überhaupt keine Allowlist deklariert, meldet den vorgegebenen Mechanismus ohne etwas danach."
+  },
+  "711e2d9589c1b821": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "711e2d9589c1b821",
+    "status": "machine",
+    "text": "Der Compiler interpretiert oder validiert niemals den Wert einer bekannten Provider-Annotation: Er trägt den Schlüssel und seinen Wert durch die Kaskade und warnt, wo ein Ziel nicht auf den Schlüssel reagiert."
   },
   "711fa67cda4fa503": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -50462,6 +50840,13 @@
     "srcHash": "73ee590063beb0f8",
     "status": "machine",
     "text": "`--auto-pull` füllt die Lockfile jedes Release während des Builds; Lockfiles und die gerenderte Ausgabe werden erzeugt, nicht ausgeliefert."
+  },
+  "73ee9fbdaec02337": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "73ee9fbdaec02337",
+    "status": "machine",
+    "text": "`helm` — nur synthetisiert"
   },
   "73f2a6dda5478486": {
     "at": "2026-10-30T20:55:02.570Z",
@@ -52825,6 +53210,13 @@
     "srcHash": "79344d83cb0138af",
     "status": "machine",
     "text": "`check.sh` — baut alle vier und prüft jedes Ergebnis."
+  },
+  "79390d53a221a98b": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "79390d53a221a98b",
+    "status": "machine",
+    "text": "Was Terraforms `sensitive` garantiert und was nicht"
   },
   "793a2ec74b3ca06b": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -55585,6 +55977,13 @@
     "status": "machine",
     "text": "Ausgegebene Meldung. Zuerst kommt die Zurückweisung, dann der zurückgewiesene Mechanismus, der Socket, was dieser Socket zulässt, und die Entität, deren Deklaration gelesen wurde:"
   },
+  "7fbac5d85b91ac59": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "7fbac5d85b91ac59",
+    "status": "machine",
+    "text": "Name in `imagePullSecrets` von Kubernetes, vereinigt mit den vorhandenen Einträgen des synthetisierten Pods"
+  },
   "7fc4683bae857e21": {
     "at": "2026-10-30T19:08:02.729Z",
     "job": "session-0008-20261030190802",
@@ -56416,6 +56815,13 @@
     "status": "machine",
     "text": "Beide werden für Docker Compose kompiliert, nach `dist/compose/docker-compose.yaml`. Ein Aggregate, ein Manifest und ein Release, `release.yaml`; keines davon nennt eine Richtlinie."
   },
+  "81e3090952b70749": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "81e3090952b70749",
+    "status": "machine",
+    "text": "Reserviert für eine Cloud-Account-Kennung auf Platzierungsebene"
+  },
   "81e468befd8d0643": {
     "at": "2026-11-02T18:47:12.619Z",
     "job": "session-0002-20261102184712",
@@ -56443,6 +56849,13 @@
     "srcHash": "81f06a58901aa4a4",
     "status": "machine",
     "text": "**Kong Gateway Enterprise vor Modellen:** `core/gateway/kong-enterprise`, Kongs kostenpflichtige Edition desselben datenbankgestützten Gateways, stellt die an seinen eigenen Socket `models` angebundenen Modelle über die Routen bereit, die `core/gateway/kong` bereitstellt; sie werden aus derselben Konfiguration geschrieben und durch einen Schritt im eigenen Pod des Gateways in dessen PostgreSQL-Backend importiert, bevor das Gateway startet, und es veröffentlicht sein `endpoint` und sein `model` wie Kong. Seine einzige Realisierung ist ein Chart-Recipe über Kongs offizielles Helm-Chart; eine Compose-Realisierung gibt es nicht. Es führt das Image aus, das das Release in `infra.image` benennt, einschließlich Versions-Tag, weil Kong das Enterprise-Image unter eigenen Bedingungen vertreibt und der Katalog deshalb keines benennt; der Build bricht ab, solange dieser Schlüssel nicht gesetzt ist oder sein Tag keine Version enthält. Die Lizenz erreicht das Gateway per Referenz auf das Secret, das an seinen erforderlichen Slot `license` gebunden ist, niemals als Wert, und der Build bricht ab, solange nichts diesen Slot bindet. Der Compiler validiert keine Lizenz und kontaktiert keinen Anbieter, sodass ein Release, das fehlerfrei baut, nichts über eine Lizenz aussagt: Kong liest die Lizenz beim Start eines Knotens, und ein Knoten ohne gültige Lizenz verhält sich wie mit einer abgelaufenen, wobei seine Entitätskonfiguration schreibgeschützt ist und sein Proxy-Verkehr mit der bereits vorhandenen Konfiguration bedient wird. Kong vertreibt seine AI-Plugins als sein Angebot AI Gateway Enterprise, eine Berechtigung innerhalb der Lizenz, die kein Build sehen kann, und überspringt ein solches Plugin, statt es abzulehnen, wo der Lizenz diese Berechtigung fehlt; daher bricht das Zuordnen von `core/semantic-caching`, `core/period-budget`, `core/data-masking`, `core/fallback-chain`, `core/retry-policy` oder `core/target-selection` den Build ab, bis das Release `infra.ai_gateway_entitled` auf `true` setzt und damit bestätigt, dass die Lizenz diese Berechtigung enthält. Von den folgenden Kontrollen realisiert es das Periodenbudget und die Fallback-Kette, jeweils in die Routen geschrieben, die das Gateway importiert, und es realisiert `core/data-masking` so, wie es „Datenexfiltration und Abfangen von Payloads“ weiter unten beschreibt; seine Realisierungen des semantischen Caches, der Retry-Policy und der Zielauswahl brechen bei jeder Zuordnung ab und nennen jeweils den Grund, und das Nebenläufigkeitslimit, das Audit-Logging, die Prüfung auf Prompt Injection, die Antwortvalidierung und die Prompt-Sperrmuster haben dort keine Realisierung, sodass eine Zuordnung einer dieser Kontrollen den Build abbricht. Eine geänderte Routenmenge löst ein Rollout des Gateways aus, und der Import fügt Routen hinzu und aktualisiert sie, entfernt aber keine, sodass eine Route, deren Verbindung entfernt wird, und ein Plugin, das ein AI-Feature geschrieben hat, sobald das Feature entfernt ist, in der Datenbank bleiben, bis sie über Kongs Admin API gelöscht werden; aus den Gründen, die der vorige Aufzählungspunkt nennt, deklariert es ebenfalls keine Aufrufer, und seine Modellrouten prüfen keinen Schlüssel eines Aufrufers. Dass ein laufendes Gateway eine dieser Kontrollen durchsetzt, wird von keinem Build beobachtet."
+  },
+  "81fe371283a47b36": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "81fe371283a47b36",
+    "status": "machine",
+    "text": "**Was festgelegt wird.** [`aggrega pin`](../cli/aggrega-pin.md) und der Pull lösen das Tag in den Commit auf, den es benennt, und archivieren das Repository bei diesem Commit. Das Lockfile des Release erfasst dann diesen Commit als festgelegte Version der Quelle, das Tag als die Referenz, die Sie geschrieben haben, und den Digest des Archivs. Jeder spätere Build liest das Archiv aus dem Cache und prüft es gegen diesen Digest, bevor irgendetwas lokal kopiert wird, sodass er kein Netzwerk benötigt, und ein zwischengespeichertes Archiv, dessen Bytes nicht mehr übereinstimmen, bricht den Build ab. Ein Tag ist ein Name, den ein Repository auf einen anderen Commit verschieben kann; ein späterer Pull, der Ihr Tag an anderer Stelle aufgelöst findet, bricht ab, statt den neuen Commit zu übernehmen, und `aggrega pull --upgrade` übernimmt ihn bewusst. Das ist eine engere Festlegung als Terraforms eigenes Abhängigkeits-Lockfile, das die Provider erfasst, die eine Konfiguration ausgewählt hat, und überhaupt kein Modul, sodass ein Modul, das als Git-Quelle bei einem Tag in eine Konfiguration geschrieben wird, nur so fest ist wie das Tag. Hier sind der Commit des Moduls und der Digest seiner Bytes im Lockfile festgelegt, die Bytes werden lokal in die Ausgabe kopiert, und die Root-Konfiguration ruft sie über einen lokalen Pfad auf, sodass die Engine nichts abruft, um das Modul selbst zu laden — ein Modul, das das lokal kopierte über eine Registry- oder Remote-Quelle aufruft, wird dennoch abgerufen, und der Build meldet jeden solchen Aufruf, wie [Ein Modulaufruf, den die Engine beim Initialisieren abruft](#a-module-call-the-engine-fetches-when-it-initialises) beschreibt."
   },
   "820086400a239fa3": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -56720,6 +57133,13 @@
     "srcHash": "829e19b7af5b18f7",
     "status": "machine",
     "text": "Wenn ein Import kein Format nennt, werden die Signaturen jedes Importers, den der Katalog des Workspace enthält — jede Version eingeschlossen —, und der [Core-Importer](../plugins/core-importers.md) des Compilers mit der Quelle abgeglichen. Die Quelle wird für jede Syntax, in der eine auf ihren Namen anwendbare Signatur sie liest, einmal geparst, und zwar über den Parser, den der Katalog des Workspace für diese Syntax bereitstellt — oder, für eine Syntax, für die der Katalog keinen Parser bereitstellt, über den, den der Compiler selbst mitbringt —, und eine Quelle, die sich in einer Syntax nicht parsen lässt, passt auf keine Signatur, die diese Syntax nennt. Ein Verzeichnis wird über seine Dateien abgeglichen: Jede Signatur wird gegen die Dateien des Verzeichnisses ausprobiert, die ihre Muster auswählen, in Namensreihenfolge, und eine Signatur, die kein Muster deklariert, gilt für keine von ihnen. Eine Quelle, auf die eine Signatur passt, wird als jedes Format erkannt, das ihr Importer anbietet. Wird genau ein Format erkannt, wird die Quelle in diesem Format gelesen. Eine Quelle, auf die keine Signatur passt, wird abgelehnt, mit der Aufforderung, das Format anzugeben, und unter Nennung der Formate, die die Importer anbieten; eine Quelle, die als mehr als ein Format erkannt wird, wird unter Nennung dieser Formate abgelehnt, mit der Bedingung [More than one importer recognises the source (Mehr als ein Importer erkennt die Quelle)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Bei einem Importer, der mehr als ein Format anbietet, wird also jede Quelle, auf die seine Signaturen passen, als mehrdeutig abgelehnt, und ein Importer, dessen Quellen erkannt werden sollen, bedient ein einziges Format."
+  },
+  "82a97dbffc529723": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "82a97dbffc529723",
+    "status": "machine",
+    "text": "**Die Markierung wandert nur dorthin, wo die Identität der Eingabe aus der Deklaration rekonstruierbar ist.** Ein Recipe, das ein Modul mit `source:` lokal kopiert und die deklarierten Blätter `values` des Knotens direkt zu den Eingaben des Moduls werden lässt, gibt jeder Eingabe denselben Namen, den der Autor deklariert hat, sodass die Verbindung exakt ist — und ebenso das FeatureRecipe eines an eine Komponente angebundenen Feature, das ein Modul auf dieselbe Weise lokal kopiert, über die Blätter, die sein Feature deklariert. Ein Recipe oder ein solches FeatureRecipe, das diese Werte über ein Template `valuesMapping:` umformt, erfindet seine Ausgabenamen, und keine Deklaration benennt sie — daher fehlt die Markierung, statt angenähert zu werden, und der Build meldet das mit einem beratenden Hinweis pro deklariertem Blatt, der das Blatt und die Entität benennt, deren Mapping es ist (ein an eine Boundary angebundenes Feature rendert gegen überhaupt keine `values`, hat also nichts zu markieren und löst keinen aus); siehe [A declared-sensitive value reaches the target through a values mapping (Ein als sensibel deklarierter Wert erreicht das Ziel über ein values-Mapping)](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping). Das Fehlen ist bewusst: Zu raten, welche umgeformte Eingabe das deklarierte Datum trug, würde eine öffentliche Eingabe als geheim markieren, und Terraform würde dann einen Wert aus der Plan-Ausgabe unterdrücken, der nie sensibel war."
   },
   "82aacea9b455a6fe": {
     "at": "2026-10-30T09:03:14.647Z",
@@ -58031,6 +58451,13 @@
     "srcHash": "85d0a516e0ea6775",
     "status": "machine",
     "text": "**Die Signatur wird angehängt, nachdem der Inhalt angekommen ist, sodass ein fehlgeschlagenes Anhängen den Inhalt tatsächlich ohne sie veröffentlicht lässt.** Das Anhängen ist ein Schreibvorgang, der wie unter [Wenn die Registry einen Schreibvorgang nicht ausführt](#when-the-registry-fails-a-write) beschrieben wiederholt wird. Scheitert es weiterhin, endet der Befehl mit einem Exit-Code ungleich null und nennt die Signatur, die er nicht anhängen konnte, und ein Konsument, dessen Registry Signaturen verlangt, lehnt die Version ab, bis eine Signatur angehängt ist. Derselbe Push, erneut ausgeführt, hängt sie an, wie unter [Eine von einem früheren Push unvollständig gelassene Veröffentlichung abschließen](#completing-a-publication-an-earlier-push-left-partial) beschrieben; [`aggrega sign`](aggrega-sign.md) hängt per Referenz eine an die veröffentlichte Version an."
+  },
+  "85d15da9e34b3b2a": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "85d15da9e34b3b2a",
+    "status": "machine",
+    "text": "**Ein Recipe, das `omits:` deklariert, wird abgelehnt.** Der Schlüssel [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) lässt Dokumente, die eine Quelle rendert, aus dem Build heraus, und dieser Provider rendert zur Build-Zeit nichts aus einem Modul mit Quelle: Er kopiert die Dateien des Moduls unverändert lokal, und Terraform wertet sie aus, wenn die Konfiguration geplant und angewendet wird. Wo nichts gerendert wird, gibt es nichts auszulassen, daher deklariert dieser Provider nicht, dass er den Schlüssel beachtet, und ein Recipe oder FeatureRecipe, das ihn deklariert, wird abgelehnt, bevor irgendetwas lokal kopiert wird — siehe [The provider does not support omits (Der Provider unterstützt omits nicht)](../errors/fatal-halts.md#the-provider-does-not-support-omits). Für ein Modul, das Sie neben dem Recipe aufbewahren, lässt eine Zeile in der dortigen `.aggregaignore` stattdessen eine Datei des Moduls aus, ab dem nächsten Pinnen des Recipe."
   },
   "85d59c3effea2c8d": {
     "at": "2026-11-03T06:09:06.251Z",
@@ -59642,6 +60069,13 @@
     "status": "machine",
     "text": "`core/datastore/etcd`"
   },
+  "897af589ee52920e": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "897af589ee52920e",
+    "status": "machine",
+    "text": "**Warum es gemeldet statt abgelehnt wird.** Ein Modul, das ein anderes Modul aufruft, ist eine legitime Eingabe: Terraform ruft das aufgerufene Modul ab, und die Konfiguration funktioniert. Was der Autor aufgibt, ist die Festlegung des aufgerufenen Moduls durch den Build, was eine wissenswerte Tatsache ist und kein zu behebender Fehler, und ob dieser Abruf akzeptabel ist, liegt im Urteil des Autors. Eine Konfiguration, die vollständig festgelegt bleiben muss, kopiert nur Module lokal, die keinen solchen Aufruf machen. Die Warnung, ihr Klassencode und wohin sie sonst noch reicht, sind in [Warnungen und Linter-Ausgabe](../errors/warnings.md#a-terraform-module-call-the-engine-fetches-when-it-initialises) beschrieben."
+  },
   "897bc4caa9229bd7": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -60762,6 +61196,13 @@
     "srcHash": "8bf3b5b8efa4d767",
     "status": "machine",
     "text": "**So beheben Sie es:** Deklarieren Sie die fehlende Zielkomponente, oder korrigieren Sie den Zielnamen im Eintrag `uses:`, sodass er einer existierenden Komponente entspricht."
+  },
+  "8bf476df679c348f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "8bf476df679c348f",
+    "status": "machine",
+    "text": "`helm` (mit Quelle, synthetisiert); `compose` (mit Quelle, synthetisiert)"
   },
   "8bf8d7c419af407e": {
     "at": "2026-11-03T06:57:40.949Z",
@@ -62468,6 +62909,13 @@
     "status": "machine",
     "text": "`compilation_context` — die Release-Identität (`release_name`, `environment`)."
   },
+  "8fbde9c54541b59a": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "8fbde9c54541b59a",
+    "status": "machine",
+    "text": "[FeatureRecipe](../entities/featurerecipe.md) — das Patch-Modell `pipeline` nach dem Rendern und seine Grenze zwischen strukturiert und opak."
+  },
   "8fc269585d4ee752": {
     "at": "2026-11-03T17:29:39.514Z",
     "job": "session-0135-20261103172939",
@@ -62544,6 +62992,13 @@
     "srcHash": "8fe51ed452c410f3",
     "status": "machine",
     "text": "**So beheben Sie es:** Binden Sie nur eines der beiden dort an, wo sie aufeinandertreffen — entfernen Sie eine der Anbindungen, oder verschieben Sie eine in einen Geltungsbereich, der diese Komponente nicht enthält, etwa eine benachbarte Boundary. Wo die Anbindung aus der annotationsgesteuerten Expansion stammt, ist die Annotation zu ändern, nicht der Block, auf den sie expandiert wurde. Dürfen die beiden Features tatsächlich kombiniert werden, ist die Deklaration falsch: Entfernen Sie das andere Feature aus der Liste `conflictsWith` an der Katalogentität des deklarierenden Feature."
+  },
+  "8fe79cb1d6cc4c0f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "8fe79cb1d6cc4c0f",
+    "status": "machine",
+    "text": "`aggrega.ai/namespace` ist bewusst zweifach verwendbar. Es drückt dieselbe Absicht logischer Isolation aus — *„die Ressourcen dieser Boundary leben in ihrem eigenen adressierbaren Bereich“* — in der nativen Form jedes Ziels: ein `metadata.namespace` von Kubernetes für helm, ein Docker-Netzwerkname für compose. Recipe-Autoren setzen eine Annotation; jeder Provider materialisiert sie passend für das Ziel. Im Fall von compose wird der Netzwerkname pro Knoten aus der Annotation auf diesem Knoten aufgelöst, mit dem Pfad der compose-Datei als Rückfall, wo der Knoten keine Annotation trägt — sodass nicht annotierte Boundaries, die sich eine compose-Datei teilen, sich ein Netzwerk teilen, und `aggrega.ai/namespace` ist das, was sie trennt. Welches von beiden auch die Identität liefert, sie wird dann in die Zeichen geschrieben, die ein compose-Netzwerkname akzeptiert — jedes andere Zeichen wird maskiert ausgeschrieben, statt ersetzt zu werden, sodass zwei Identitäten, die sich überhaupt unterscheiden, auf zwei Netzwerken bleiben, und die Groß- und Kleinschreibung der Identität bleibt wie verfasst erhalten. [Die Referenz zum compose-Provider](compose.md) dokumentiert die Ableitung vollständig, einschließlich dessen, wie ein codierter Name zu lesen ist und was eine Umbenennung kostet."
   },
   "8ff131506a23c6d3": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -62723,6 +63178,13 @@
     "srcHash": "906aa11a4299536d",
     "status": "machine",
     "text": "`check.sh` baut jedes Kontroll-Release einmal ohne angebundene Richtlinie, als Referenz, und dann alle acht Releases unter jeder Engine, über den Build-Release-Helfer. Ein Kontroll-Release muss abschließen und Byte für Byte dieselben Dateien schreiben wie seine Referenz; ein Release mit eingeschleustem Verstoß muss mit `E0005` und der für es erwarteten Meldung abbrechen, ohne eine weitere Zurückweisung daneben, und darf kein `dist/` schreiben. Für beide Engines gilt dieselbe Meldung. Es gibt eine Zeile pro Build aus und endet mit 1, wenn ein Ergebnis abweicht, wobei es die Ausgabe dieses Builds ausgibt:"
+  },
+  "906f9a47a3584932": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "906f9a47a3584932",
+    "status": "machine",
+    "text": "**Was die Reihenfolge ist: die Reihenfolge, in der Terraform seine Aktionen ausführt.** Terraform baut einen Abhängigkeitsgraphen auf und arbeitet ihn so weit parallel ab, wie der Graph es zulässt. `depends_on` fügt diesem Graphen eine Kante hinzu, sodass Terraform seine Aktionen an den benannten Modulen abschließt, bevor es mit denen an dem Modul beginnt, das die Abhängigkeit deklariert. Eine Welle gliedert den Lauf daher in Stufen: Auf die Komponenten der früheren Welle wird eingewirkt, bevor mit denen der späteren Welle begonnen wird."
   },
   "906fbf404e526b73": {
     "at": "2026-10-30T21:02:37.548Z",
@@ -64277,6 +64739,13 @@
     "status": "machine",
     "text": "Der Name, unter dem eine Anbindung geschrieben ist, spielt hier keine Rolle: Die Vorgabe fragt, ob überhaupt eine Anbindung des genannten Typs vorhanden ist. Das Binden eines Slots erfüllt sie, und ebenso eine Anbindung unter jedem anderen Namen."
   },
+  "942c8984717d9bfc": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "942c8984717d9bfc",
+    "status": "machine",
+    "text": "Die Unterstützungsmatrix in diesem Kapitel ist **aus diesen Deklarationen generiert**, in der Granularität, die die Deklaration trägt — pro Provider **pro Eingabeart**, weil ein Provider einen Schlüssel lesen kann, wenn er eine Bereitstellungseinheit synthetisiert, und keine Möglichkeit haben kann, ihn zu lesen, wenn er ein lokal kopiertes Artefakt rendert. Verfassen Sie anhand der Matrix hier: Eine Zelle sagt, was dieser Provider auf diesem Pfad liest, weil eine Zelle nichts sagen kann, was der Provider nicht deklariert hat. Eine Deklaration, die eine Eingabeart nennt, die der eigene Render-Verhaltensvertrag des Providers nicht rendert, wird abgelehnt, wenn die Plugin-Entität gelesen wird, sodass die beiden Aussagen nicht voneinander abweichen können."
+  },
   "942cd561870c9899": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -64304,6 +64773,13 @@
     "srcHash": "943762e48c2b0276",
     "status": "machine",
     "text": "`standard` und `strict` werden als Schwellenwert des Wächters umgesetzt: `0.5` und `0.001`. Diese beiden Zahlen sind für den Standardklassifikator des Detektors gemessen, dessen Bewertungen nahe 0 oder nahe 1 liegen. Bei `0.5` weist der Wächter einfache Versuche zurück, die Anweisungen des Modells zu übersteuern. Bei `0.001` weist er auch einen solchen Versuch in Leetspeak-Schreibweise zurück, den der Klassifikator mit etwa `0.008` bewertet, und mit ihm einige gewöhnliche Anfragen, die der Klassifikator niedrig, aber nicht nahe null bewertet."
+  },
+  "943934b2f8e2dfdd": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "943934b2f8e2dfdd",
+    "status": "machine",
+    "text": "Derselbe Lesevorgang meldet, als Warnung, die nichts ablehnt, jeden Block `module`, dessen Quelle Terraform herunterlädt, wenn die Konfiguration initialisiert wird. Commit und Archiv-Digest eines lokal kopierten Moduls sind im Lockfile festgelegt, aber ein Block `module` darin, dessen `source` eine Registry-Adresse, eine Git-, Mercurial- oder HTTP-Archiv-URL, ein S3- oder GCS-Bucket oder ein absoluter Pfad ist, benennt ein Modul, das die Engine bei der Initialisierung abruft, in der Version, die sie dann gerade auswählt — und Terraforms eigenes Abhängigkeits-Lockfile erfasst nur Provider, sodass nichts dieses Modul festlegt. Ein lokales `source`, das aus dem lokal kopierten Modul herausführt, wird ebenfalls gemeldet, weil es Dateien benennt, die der Build nicht lokal kopiert hat. Jeder Befund benennt den Knoten und den Provider, dann den Block, die Datei und die Zeile, in der er steht, und die Quelle wie geschrieben:"
   },
   "9440f07a30e90e84": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -66062,6 +66538,13 @@
     "status": "machine",
     "text": "Die Oberfläche der Pfad-Templates bricht den Build in jeder der folgenden Situationen ab, und [errors/fatal-halts.md](errors/fatal-halts.md) dokumentiert sie unter diesen Namen. Diese Seite zitiert die Meldung, die jeder Abbruch ausgibt; gleichen Sie die Build-Ausgabe mit diesem Text ab."
   },
+  "98553bc784504387": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "98553bc784504387",
+    "status": "machine",
+    "text": "Aggrega verspricht genau das, was Terraforms eigenes Attribut leistet, und nicht mehr."
+  },
   "985adeccf0d036fe": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -67276,6 +67759,13 @@
     "status": "machine",
     "text": "**Path-template references a variable outside the allowlist (Das Pfad-Template verweist auf eine Variable außerhalb der Allowlist)** — zur Parse-Zeit: Ein Pfad-Template verweist auf eine Variable, die nicht in der Allowlist steht."
   },
+  "9b01dc18f9a69f5b": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "9b01dc18f9a69f5b",
+    "status": "machine",
+    "text": "Eine Reihenfolge, die die Wellen nicht ausdrücken, bleibt Terraforms eigene Sache, und die Referenzen zwischen Ressourcen tragen bereits viel davon: Eine Referenz auf ein Attribut einer anderen Ressource weist Terraform an, zuerst auf diese Ressource einzuwirken. Ein Modul, das eine Einschränkung braucht, die weder die Referenzen noch die Wellen implizieren, schreibt sein eigenes `depends_on` innerhalb des Moduls, das der Provider wie jeden anderen Teil des Körpers unverändert ausgibt."
+  },
   "9b10e8d240ad1a6b": {
     "at": "2026-10-22T04:21:58.340Z",
     "job": "session-0012-20261022042158",
@@ -68447,6 +68937,13 @@
     "status": "machine",
     "text": "Die fünf Stufen laufen, bevor die Validator-Engine das Schema sieht. Die Engine erhält ein einziges aufgelöstes JSON-Schema-2020-12-Dokument sowie die Instanzinhalte des Entwicklers; sie erzeugt einen Validierungsbericht. Der Fehlerformatierer zieht die Provenienz-Tags heran, um benutzerseitige Diagnosen auszugeben, die Quellpositionen klar benennen — einschließlich der Ursprungsdatei für eine Einschränkung, die ein Feature von seiner Basis geerbt statt selbst verfasst hat."
   },
+  "9d95c2726a9e6e7e": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "9d95c2726a9e6e7e",
+    "status": "machine",
+    "text": "Als sensibel deklarierte Moduleingaben"
+  },
   "9d98cf45bf6e03e0": {
     "at": "2026-11-03T20:08:39.308Z",
     "job": "session-0152-20261103200839",
@@ -68823,6 +69320,13 @@
     "srcHash": "9eb7c3cf47b41b69",
     "status": "machine",
     "text": "Wenn der Block `artifacts:` eines Recipe zu compose-YAML ausgewertet wird — einem Fragment, das eigene Blöcke `services:`, `volumes:`, `configs:`, `models:` oder `networks:` trägt (jeder Eintrag inline oder pro Eintrag über `$import:` geladen) —, folgt die Zusammenführung in die Zusammensetzung pro `(path, provider)` formspezifischen Regeln:"
+  },
+  "9ebe934412dd9649": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "9ebe934412dd9649",
+    "status": "machine",
+    "text": "Der Wert `syncWave:` einer Release-Boundary ordnet die Blöcke `module` der Root-Konfiguration, zu der diese Boundary zusammengesetzt wird. Jede Komponente in der Boundary erbt die Welle der Boundary, und wo mehrere Boundaries in dasselbe Ausgabeverzeichnis aufgelöst werden — sodass ihre Komponenten in eine einzige Root-Konfiguration komponiert werden —, enthält diese Root-Konfiguration mehr als eine Welle, und der Provider drückt die Reihenfolge zwischen ihnen als `depends_on` auf den Blöcken `module` aus."
   },
   "9ec01dd5f888c6e9": {
     "at": "2026-10-22T13:40:41.722Z",
@@ -69697,6 +70201,13 @@
     "srcHash": "a0ab04e706966d37",
     "status": "machine",
     "text": "sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: `<the message above>` (sourceresolver: mit dem angegebenen Typ, der angegebenen URL und Version: die obige Meldung)"
+  },
+  "a0ab1b6fcc309736": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "a0ab1b6fcc309736",
+    "status": "machine",
+    "text": "Der terraform-Provider liest keine der [Annotationen `aggrega.ai/`](well-known-annotations.md). Ein lokal kopiertes Modul, die Artefaktdateien eines Recipe und die Root-Konfiguration, die der Provider schreibt, haben keinen Platz für einen Namespace, ein Registry-Präfix, ein Pull-Secret oder einen Service-Account, daher ändert ein dafür gesetzter Wert nichts an der gerenderten Konfiguration; ein Modul, das einen solchen Wert benötigt, erhält ihn als eine seiner eigenen Eingaben, über die `values` der Komponente."
   },
   "a0ac5a45148a5a35": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -73091,6 +73602,13 @@
     "status": "machine",
     "text": "Die Exporte, die das Plugin anbietet, jeweils mit ihrer deklarierten Fähigkeit, als geordnete Liste, die die Reihenfolge des Autors beibehält. Ein Export ist ein benannter Einstiegspunkt, an den der Host weiterleitet (zum Beispiel `render_node`, `lint_naming`, `step`); der Fähigkeitsblock pro Export gibt an, was dieser Export tut, wie `aggrega plugin gen-catalog` ihn aus der `describe()`-Selbstauskunft des Plugins erfasst, und der Host gleicht ihn bei der Veröffentlichung und beim Laden mit dieser Selbstauskunft ab. Fehlt die Liste, wird keine verfasste Export-Oberfläche deklariert."
   },
+  "a82936083f65433f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "a82936083f65433f",
+    "status": "machine",
+    "text": "[Provider-Architektur](architecture.md) — wie Provider sich in die Kompilierungspipeline einfügen und wie pro Provider verteilt wird."
+  },
   "a82d7a79c19e9d8f": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -73720,6 +74238,13 @@
     "srcHash": "a998dbbd6119c414",
     "status": "machine",
     "text": "**`workload:` (synthetisiert) — verfügbar.** Das Recipe deklariert `workload:` entweder inline (Block-Skalar mit dem Workload-YAML) oder über `$import:` (Dateipfad). Der Compiler parst die templatisierte Workload, validiert sie gegen das eingebettete Workload-Schema und leitet sie an den Workload-Synthesizer des Ziel-Providers weiter. Verwendet von den Providern helm und compose. Der Provider helm-chart verweist Autoren für synthetisierte K8s-Manifeste ausdrücklich an den Provider helm. Ein Recipe, das `workload:` gegen einen Provider deklariert, der keine Workload-Synthese implementiert, bricht beim Rendern mit einem `CATALOG_ERROR` ab."
+  },
+  "a99913553a71dc9f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "a99913553a71dc9f",
+    "status": "machine",
+    "text": "**In JSON verfasstes Terraform ist patchbar.** Ein Modul `.tf.json` ist ein strukturiertes Dokument, daher bearbeitet das JSONPatch eines Pipeline-Schritts die adressierten Werte an Ort und Stelle und lässt jedes andere Byte — Reihenfolge, Formatierung, umgebende Schlüssel — unverändert."
   },
   "a99e5fded3c20dbc": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -75067,6 +75592,13 @@
     "srcHash": "acbf1bb32edd872e",
     "status": "machine",
     "text": "Die Ökosystem-Philosophie"
+  },
+  "acc10195ebab4e84": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "acc10195ebab4e84",
+    "status": "machine",
+    "text": "`workload.serviceAccount` des Recipe oder nicht gesetzt, wenn das Recipe keines deklariert"
   },
   "acc306311d4fc24c": {
     "at": "2026-11-03T19:48:11.116Z",
@@ -78910,6 +79442,20 @@
     "status": "machine",
     "text": "Ein klassisches Helm-Chart-Repository oder Chart-Archiv (`helm-https-chart`), ein Compose-Fragment (`compose-https-fragment`) und ein über HTTP oder HTTPS erreichtes Git-Repository (`git-repository`) authentifizieren sich mit der **netrc-Datei**, der benutzerspezifischen Anmeldedatendatei, die auch curl und Git lesen. Sie ist der einzige Anmeldedatenspeicher, den diese drei Arten lesen: `~/.config/helm/repositories.yaml` und Git-Credential-Helper werden nicht gelesen. Ein über SSH erreichtes Git-Repository authentifiziert sich über den SSH-Agenten und liest keine netrc-Datei."
   },
+  "b4c88518a9a8a2e4": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "b4c88518a9a8a2e4",
+    "status": "machine",
+    "text": "**Auf Zusammensetzung und Referenz bezogen** — `aggrega.ai/chart-name` wird einmal aufgelöst, wenn ein Umbrella-Chart zusammengesetzt wird, und die drei Schlüssel `aggrega.ai/aws-*` werden aufgelöst, wenn eine Referenz eine Boundary überquert. Die Eingabeart ist für keinen von beiden eine Achse: Der Wert wird bei der Zusammensetzung oder bei der Referenz gelesen, wie auch immer jeder beitragende Knoten gerendert wurde. Sie haben ihre eigene Tabelle unter [Pro Zusammensetzung und pro Referenz aufgelöste Schlüssel](#keys-resolved-per-assembly-and-per-reference)."
+  },
+  "b4c8b4a783e75d53": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "b4c8b4a783e75d53",
+    "status": "machine",
+    "text": "Registry-Präfix für Container-Images, angewendet auf jede synthetisierte Container-Image-Referenz"
+  },
   "b4d650a47d0f1c74": {
     "at": "2026-11-03T19:28:13.588Z",
     "job": "session-0147-20261103192813",
@@ -79180,6 +79726,13 @@
     "status": "machine",
     "text": "**Eine deklarierte Boundary namens `default`.** Die flache Ausgabe ist eine Eigenschaft der *synthetisierten* Standard-Boundary, nicht des Namens. Eine Boundary namens `default`, die ein Release ausdrücklich unter `boundaries:` deklariert, ist eine gewöhnliche benannte Boundary: Ihre Ausgabe folgt ihrem `directory:` (standardmäßig `dist/boundaries/default/`), genau wie bei jeder anderen deklarierten Boundary."
   },
+  "b572aae46e7fad1d": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "b572aae46e7fad1d",
+    "status": "machine",
+    "text": "**Was gelesen wird.** Die Dateien, die die Engine lädt, wenn das Modul aufgerufen wird: die Konfigurationsdateien direkt im eigenen Verzeichnis des Moduls, dann die in jedem Verzeichnis, das ein lokales `source` — eines, das mit `./` oder `../` beginnt, oder deren Schreibweisen mit Backslash — von dort aus erreicht, von Verzeichnis zu Verzeichnis verfolgt und jedes einmal gelesen. Ein Verzeichnis, das von nichts aufgerufen wird, wird nicht gelesen, daher werden die Aufrufe, die die Verzeichnisse `examples/` oder `tests/` eines Moduls machen, nicht gemeldet: Die Engine lädt sie nie, wenn das Modul aufgerufen wird, und nichts, was sie aufrufen, wird abgerufen. Die obige Parse-Prüfung parst dennoch jede lokal kopierte Konfigurationsdatei. Der verfasste Körper eines Recipe wird beim Rendern auf dieselbe Weise gelesen, beginnend bei dem Verzeichnis, in das der Körper geschrieben wird, sodass ein Block `module`, den ein verfasster Körper mit einer Registry-Quelle schreibt, ebenfalls gemeldet wird. Eine Datei unter [`spec.boundary.artifacts`](../entities/recipe.md#the-boundary-block--files-for-the-boundarys-shared-output) wird vom Compiler selbst ausgewertet und geschrieben und keinem Provider übergeben, daher wird ein darin geschriebener Block `module` nicht gelesen und löst keine Warnung aus."
+  },
   "b576b381b6c5278a": {
     "at": "2026-11-03T16:49:01.800Z",
     "job": "session-0131-20261103164901",
@@ -79267,6 +79820,13 @@
     "srcHash": "b5baaaa4e4c13aae",
     "status": "machine",
     "text": "**Die Konfiguration eines Clients.** Die `.mcp.json` von Claude Code, die `claude_desktop_config.json` von Claude Desktop und die `.cursor/mcp.json` von Cursor führen ihre Server nach Namen unter `mcpServers` auf; die `.vscode/mcp.json` von Visual Studio Code führt sie unter `servers` auf, und eine Datei, die Server unter beiden aufführt, wird zuerst unter `mcpServers` gelesen. Ein Server, dessen `type` `stdio` ist oder der keinen `type` nennt und ein `command` trägt, wird über eine Befehlszeile gestartet — sein `command` und seine `args` — mit seinem `env` als Umgebung. Ein Server, dessen `type` `http`, `streamable-http` oder `sse` ist oder der weder einen `type` noch ein `command` nennt und eine `url` trägt, wird unter seiner `url` erreicht und erhält seine `headers`."
+  },
+  "b5c42a19b96d31ce": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "b5c42a19b96d31ce",
+    "status": "machine",
+    "text": "Der terraform-Provider transpiliert Terraform-Körper nicht, formatiert sie nicht neu und schreibt sie nicht um. Ein verfasster Körper in HCL oder `.tf.json` wird genau so ausgegeben, wie sein Template ausgewertet wird, wobei ein HCL-Körper mit den Provenienzkommentaren beginnt, und ein Modul mit Quelle wird Datei für Datei lokal kopiert. Das hält die terraform-Ausgabe deterministisch und reproduzierbar: Bei denselben Eingaben ist die gerenderte Konfiguration über Läufe hinweg bytegleich, und ein lokal kopiertes Modul durchläuft den Hin- und Rückweg unverändert. Da der Provider nie Laufzeitzustand auflöst, bleibt alles Laufzeitabhängige eine Interpolationszeichenkette, die Terraform zum Zeitpunkt des Apply bindet."
   },
   "b5c6b0288117d1d4": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -79952,6 +80512,13 @@
     "status": "machine",
     "text": "declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation. Component `\"<type>:<version>\"`: spec.schema.values declares a schema no validator can be built from, so the values it constrains would go unmeasured: validator/jsonschema: schema resolution failed (at values.`<field>`, keyword `\"format\"`, format `\"<format>\"` is not supported; the supported formats are email, uri, hostname, ipv4, ipv6, uuid, date-time, date) (der deklarierte Schemavertrag konnte nicht zu einem verwendbaren Schema kompiliert werden, daher wurde nichts dagegen validiert: Korrigieren Sie den Vertrag dort, wo er deklariert ist, oder entfernen Sie ihn, wenn die Konfiguration, die er abdeckt, keine Validierung benötigt. Component: spec.schema.values deklariert ein Schema, aus dem sich kein Validator bauen lässt, sodass die Werte, die es einschränkt, ungemessen blieben: validator/jsonschema: Schemaauflösung fehlgeschlagen (im Feld unter values, Schlüsselwort format: das Format wird nicht unterstützt; die unterstützten Formate sind email, uri, hostname, ipv4, ipv6, uuid, date-time, date))"
   },
+  "b74f2392fdb8ad9a": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "b74f2392fdb8ad9a",
+    "status": "machine",
+    "text": "**Es ändert nichts an der Speicherung, und es ist keine Verschlüsselung.** Terraform erfasst einen sensiblen Wert im Klartext im State. `sensitive = true` als Versprechen zu lesen, dass der State gefahrlos committet oder geteilt werden kann, ist das eine Missverständnis, das es zu vermeiden gilt: Den State zu schützen bleibt eine Frage dessen, wie das State-Backend konfiguriert ist, genau wie bei einem Modul, das überhaupt keine Markierung trägt. Das Attribut schränkt auch nicht ein, wer den Wert lesen darf, beeinflusst nicht, was ein Provider überträgt, und ändert die gerenderte Konfiguration auch auf keine andere Weise."
+  },
   "b74f2feca86b47ce": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -80385,6 +80952,13 @@
     "srcHash": "b87467bc038fd1b7",
     "status": "machine",
     "text": "2. Das Polyfill für dynamische Adressierung"
+  },
+  "b8760a3a4a5ff6d7": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "b8760a3a4a5ff6d7",
+    "status": "machine",
+    "text": "**Eingrenzen, was lokal kopiert wird.** Eine abgerufene Quelle ist das Archiv, als das sie abgerufen wurde, daher ist der einzige Weg, sie einzugrenzen, `module_subdir:`, das ein Verzeichnis des Repositorys zum Artefakt macht. Das hilft nur, wenn das gewünschte Modul in einem Unterverzeichnis liegt: Ein Modul im Wurzelverzeichnis des Repositorys, das seine eigenen `./modules/*` aufruft, braucht den ganzen Baum. Weder eine `.terraformignore`, die das Repository enthält, noch eine `.aggregaignore` neben dem Recipe ändert, was eine abgerufene Quelle lokal kopiert — beide formen ein Modul, das neben dem Recipe aufbewahrt wird, und keine von beiden wird für eines gelesen, das aus einem Repository abgerufen wurde."
   },
   "b879ee371c522d71": {
     "at": "2026-11-03T11:51:14.962Z",
@@ -81515,6 +82089,13 @@
     "srcHash": "baa3b74487d39593",
     "status": "machine",
     "text": "Dieser Workspace enthält kein `.aggrega-config.yaml`, daher werden die Entitäten der Standardbibliothek aus der Hub-Registry `hub.aggrega.ai` aufgelöst, und es ist kein Katalog-Flag nötig. Das Recipe ruft ein Chart ab, lösen Sie daher zuerst die Abhängigkeiten in das Lockfile auf:"
+  },
+  "baaa3fd04ea8a59e": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "baaa3fd04ea8a59e",
+    "status": "machine",
+    "text": "**Die Eingaben eines Moduls mit Quelle sind überhaupt kein Patch-Ziel.** Sie sind die Argumente des Blocks `module` der Komponente, der in der Root-Konfiguration steht: natives HCL und daher opak, und ein Artefakt der ganzen Boundary statt eines einzelnen Knotens. Ein Schritt `pipeline` patcht die eigene gerenderte Ausgabe eines Knotens, daher gibt es keine Position, von der aus sie adressiert werden könnten."
   },
   "baad2384484cda4f": {
     "at": "2026-11-03T18:10:58.903Z",
@@ -82826,6 +83407,13 @@
     "status": "machine",
     "text": "Eine Zurückweisung beim Prüfen einer Entität gegen die Veröffentlichungskonventionen, nicht bei einem Build. Ein Schema, das die Entität mitbringt, verwendet ein dynamisches Referenzkonstrukt, dessen Ziel gewählt wird, während ein Dokument validiert wird, statt festgelegt zu werden, wenn das Schema geschrieben wird. Referenzen werden hier vorab expandiert, sodass es keine laufende Validierung gibt, gegen die ein solches Konstrukt aufgelöst werden könnte."
   },
+  "bda46f592d0a114d": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "bda46f592d0a114d",
+    "status": "machine",
+    "text": "Reserviert für eine Stufe der Pod Security Standards"
+  },
   "bda605c1050bae7f": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -83380,6 +83968,13 @@
     "srcHash": "bf04e1b145cb5b48",
     "status": "machine",
     "text": "**Kyverno:** Wertet statische JSON/YAML-Manifeste aus, sodass Teams Policies in nativem YAML schreiben können, statt Rego zu lernen. Mit dem Compiler wird kein Kyverno-Guest ausgeliefert; er führt Policies nur als WebAssembly-Guests aus und ruft nie die Kyverno-CLI auf, daher laufen Kyverno-Regeln hinter einem Guest, der die Engine kapselt."
+  },
+  "bf05a775dcab13a5": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "bf05a775dcab13a5",
+    "status": "machine",
+    "text": "Ein Modulaufruf, den die Engine beim Initialisieren abruft"
   },
   "bf12021816cfd4d2": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -83937,6 +84532,13 @@
     "srcHash": "c01e4f5bef6090d9",
     "status": "machine",
     "text": "**`mcp.authorization.jwks_file` nennt eine Datei mit den Schlüsseln, gegen die Tokens geprüft werden**, statt sie vom Autorisierungsserver zu lesen. Lassen Sie den Schlüssel weg, liest der Server die Metadaten dieses Servers an dessen Well-known-Adresse und folgt der dort veröffentlichten `jwks_uri`; so verfährt ein Workspace mit Netzwerkzugang. Für diese Schlüsseladresse gilt dieselbe Regel wie für den Issuer, ebenso für jede Adresse, auf die einer der beiden Lesevorgänge umgeleitet wird: Eine, die unverschlüsseltes `http` auf einem anderen Host ist, wird nie abgefragt, und ein Token, das diese Schlüssel benötigt, wird mit `503` beantwortet, bis der Autorisierungsserver seine Metadaten und Schlüssel über `https` veröffentlicht. Setzen Sie ihn, wird der Autorisierungsserver nie kontaktiert — das braucht ein Workspace, der `offline: true` deklariert, und ein solcher Workspace wird abgewiesen, bevor sein Listener bindet, sofern dieser Schlüssel keine Datei nennt. Er ist ein Pfad und folgt der obigen Regel: Ein relativer wird gegen das Verzeichnis der Datei aufgelöst, die ihn deklariert hat, sodass ein neben dieser Datei committeter Schlüsselsatz gefunden wird, wo auch immer der Server gestartet wird. Die Datei enthält öffentliche Prüfschlüssel, also das, was ein Autorisierungsserver veröffentlicht — nichts, was signiert, und nichts Geheimes."
+  },
+  "c023b200003d14f6": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "c023b200003d14f6",
+    "status": "machine",
+    "text": "**Nicht angewendet** — kein Provider wendet den Schlüssel auf diesem Pfad an: Das Ziel hat dort keinen Render-Slot dafür, daher trägt der Platzierungsmechanismus nichts zu dem bei, was gerendert wird, und die Spalte **Standard** der Kategorietabelle sagt, was Sie stattdessen erhalten. Der Wert läuft trotzdem als opake Zeichenkette unverändert durch den Build. Die Stufe ist nach dem Mechanismus benannt statt nach dem Schicksal des Werts, weil das verschiedene Fragen sind und nur die erste eine ist, die eine Zelle beantworten kann: Was ein Provider anwendet, ist eine Eigenschaft der Render-Slots dieses Ziels, und genau das gibt die Deklaration hinter jeder Zelle an."
   },
   "c02be1c7846c9468": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -84521,6 +85123,13 @@
     "status": "machine",
     "text": "`description`, die Beschreibung des Graphen, wo die Konfiguration eine angibt;"
   },
+  "c164b4c15f7ef0d7": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "c164b4c15f7ef0d7",
+    "status": "machine",
+    "text": "Der Wert durchläuft den Build dennoch unverändert, und der Build bricht nicht ab: Eine Boundary-Annotation kaskadiert auf jede Komponente darunter, und eine Boundary, deren Komponenten über unterschiedliche Ziele rendern, ist der Normalfall und kein Fehler. Die Warnung gehört zur Klasse `unsupported-field` und wird mit dem Flag dieser Klasse stummgeschaltet."
+  },
   "c16acf8373442e5e": {
     "at": "2026-11-04T01:07:58.831Z",
     "job": "session-0184-20261104010758",
@@ -84653,6 +85262,13 @@
     "srcHash": "c1c50a9cffc9f47e",
     "status": "machine",
     "text": "plugin `\"<plugin>\"` export `\"<export>\"` declares unknown scope `\"<declared>\"` (want `\"own\"`, `\"host\"`, or empty): wasm: plugin rejected by the sandbox (der angegebene Export des angegebenen Plugins deklariert einen unbekannten Geltungsbereich, den angegebenen (erwartet wird einer der angegebenen Werte oder leer): wasm: Plugin von der Sandbox zurückgewiesen)"
+  },
+  "c1c585de4136c859": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "c1c585de4136c859",
+    "status": "machine",
+    "text": "Reserviert für eine an eine Arbeitslast gebundene Cloud-Identitätsrolle"
   },
   "c1caec320fdfa167": {
     "at": "2026-11-03T00:44:41.577Z",
@@ -85705,6 +86321,13 @@
     "srcHash": "c41e7bd77b0c68a8",
     "status": "machine",
     "text": "Ziel über alle Arten hinweg ist, dass die nativen Werkzeuge jeder Art weiterhin für ihre Authentifizierung zuständig bleiben. Aggrega schaltet keinen eigenen Anmeldedatenspeicher und keine eigene Authentifizierungsschicht dazwischen."
+  },
+  "c41f6b00b1a25433": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "c41f6b00b1a25433",
+    "status": "machine",
+    "text": "**Artefakt-Modus.** Ein Recipe verfasst Terraform-Konfiguration als templatebasierten Körper; der Provider wertet das Aggrega-Template aus und gibt das Ergebnis aus, ohne es umzuschreiben. HCL (`main.tf`) ist die ergonomische Standardwahl, und Terraform JSON (`.tf.json`) wird gleichwertig akzeptiert. Die Build-Provenienz wird als Block von Terraform-Kommentaren am Anfang eines HCL-Körpers eingestempelt; bei einem JSON-Körper — der keine Kommentarsyntax hat — wird die Provenienz statt inline in eine Begleitdatei geschrieben, `aggrega.provenance.tf`."
   },
   "c42256ed71e3cf2b": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -86771,6 +87394,13 @@
     "status": "machine",
     "text": "**Es ist eine eigene Klasse, und `--no-unsupported-field-warnings` deckt sie nicht ab.** Dieses Flag schaltet die Treuehinweise eines Ziels stumm, ein anderes Urteil, das aus anderen Gründen getroffen wird; dieser Hinweis erscheint daneben weiterhin. Es gibt kein Flag, das diesen stummschaltet."
   },
+  "c7023e8a9ed110e0": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "c7023e8a9ed110e0",
+    "status": "machine",
+    "text": "Annotation"
+  },
   "c702647f184f69bd": {
     "at": "2026-10-30T18:57:33.045Z",
     "job": "session-0007-20261030185733",
@@ -86809,6 +87439,13 @@
     "srcHash": "c714132c65c48868",
     "status": "machine",
     "text": "Die `type`-Achse trägt nur die operativen Primitive — kognitives Vokabular erscheint dort nie, und das veröffentlichte Component-Schema zählt die Werte auf, die der reservierte Schlüssel annimmt, sodass ein dort geschriebenes kognitives Wort beim Laden des Dokuments abgelehnt wird. Die Aufteilung in drei Achsen: operativer `type` (wie die Infrastruktur die Komponente behandelt), kognitive `category` (was sie ist, gespiegelt durch das Verzeichnis) und rollenspezifische Fähigkeits-Labels (verhaltensbezogene Teilmengen — eine Entität ist `category: datastore` plus der `datastore.aggrega.ai/engine`-Wert, den ihre eigene Produktidentität trägt, sodass `core/datastore/qdrant` `vector` trägt und `core/datastore/redis` `kv`, und beide Achsen abfragbar sind). Eine Fähigkeit, deren Zutreffen davon abhängt, was ein Autor konfiguriert, wird überhaupt nicht im Katalog geführt: Sie wird zur Kompilierzeit von der Rolle `label-transform` des Governance-Sockets injiziert, die die vom Entwickler deklarierten `values` liest. Rein KI-bezogene Kategorien tragen das Präfix `ai-`; Kategorien mit doppeltem Verwendungszweck erscheinen ohne Präfix, wobei die KI-Ausprägung durch Fähigkeits-Labels ausgedrückt wird. Kategorien werden danach gewählt, wie Benutzer navigieren und stöbern, nicht danach, wie der Compiler klassifiziert — das Kategorievokabular und die Fähigkeits-Labels sind Begriffe, mit denen der Compiler Selektoren abgleicht und denen er keine Bedeutung beimisst. Der Name einer Komponente wiederholt ihre Kategorie nicht: Das OpenAI-Modell der Standardbibliothek ist `core/ai-model/openai`, nicht `core/ai-model/openai-model`."
+  },
+  "c717c3918e99641a": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "c717c3918e99641a",
+    "status": "machine",
+    "text": "Reserviert für einen explizit benannten Stack"
   },
   "c71c3c0fdcff891f": {
     "at": "2026-11-03T10:52:18.070Z",
@@ -87156,6 +87793,13 @@
     "srcHash": "c7be1ba405cd24ad",
     "status": "machine",
     "text": "**So beheben Sie es:** Geben Sie den beiden Ressourcen unterschiedliche Identitäten — der Name ist das, was sich meist unterscheidet, und der Dateiname folgt daraus. Die Meldung nennt beide Templates, öffnen Sie sie daher und prüfen Sie, was jedes erzeugt: Zwei Templates, die dieselbe Ressource unter einem Namen rendern, bedeuten oft, dass eines von ihnen eine ältere Kopie ist. Wo beide gewollt sind, sind es zwei Ressourcen, und jede braucht einen eigenen Namen."
+  },
+  "c7c17ac7d2a91155": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "c7c17ac7d2a91155",
+    "status": "machine",
+    "text": "Reserviert für eine Helm-Chart-Version"
   },
   "c7c27531b9bc8fd7": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -88819,6 +89463,13 @@
     "srcHash": "cb353bed08b3425d",
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, `\"<key>\"`, routes to Feature `\"<feature-uri>\"`, at pillar `\"<pillar>\"`, and path `\"<path>\"`, which that Feature does not declare a property for under `\"schema\"`) (Annotationsbindung lässt sich nicht gegen ihr Ziel-Feature auflösen (Manifest: routet an ein Feature, an eine Säule und einen Pfad, für den dieses Feature in seinem Schema keine Eigenschaft deklariert))"
+  },
+  "cb3660fd2337125a": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "cb3660fd2337125a",
+    "status": "machine",
+    "text": "**Lesen, was das Modul veröffentlicht.** Ein Wert, den das Modul veröffentlicht, ist einer seiner Blöcke `output`, und ein Konsument liest ihn als `${module.<name>.<output>}`, wobei `<name>` der Modulblock des Produzenten ist — weshalb der Produzent oben `${module.{{ .context.instance_id }}.<output>}` veröffentlicht. Die Engine löst die Referenz gegen die eigenen Blöcke `output` des Moduls auf, wenn sie die Root-Konfiguration validiert, daher wird ein Ausgabename, den das Modul nicht deklariert, dort abgelehnt und benannt:"
   },
   "cb373ff5b5e71478": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -91963,6 +92614,13 @@
     "status": "machine",
     "text": "**Das Lockfile wird maschinell geschrieben.** Es wird von dem Pull erzeugt, der ein Release auflöst, und es wird committet, damit derselbe Build später auf dieselbe Weise aufgelöst wird. Ein Schemafehler ist daher fast immer eine manuelle Bearbeitung oder ein Merge, der das Dokument halb aufgelöst hinterlassen hat, und nicht etwas bewusst Verfasstes."
   },
+  "d1f2ad8d88568f0c": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "d1f2ad8d88568f0c",
+    "status": "machine",
+    "text": "Providers lesen bestimmte Annotationen, um plattformspezifischen Kontext zu konfigurieren — gesetzt auf der Boundary eines Release oder auf dem Eintrag einer Komponente im Release, oder im Aggregate auf einem Subsystem oder einer Komponenteninstanz deklariert. Der Compiler selbst ist agnostisch gegenüber den *Werten* dieser Annotationen — er reicht sie als opake Zeichenketten durch. Jeder Provider deklariert, welche Annotationen er liest, in welchem Gültigkeitsbereich und welcher Standard gilt, wenn die Annotation fehlt. Diese Deklaration befindet sich in `spec.provider.wellKnownAnnotations` eines Plugin, das als Provider rendert, und sie ist bewusst eng gefasst: Ein Provider führt einen Schlüssel nur dort auf, wo er ihn liest. Ein Provider, der keinen davon liest, deklariert stattdessen `spec.provider.readsNoWellKnownAnnotations: true`."
+  },
   "d1f34be1bc6741bb": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -92464,6 +93122,13 @@
     "status": "machine",
     "text": "Der Abbruch nennt den abgeleiteten Exportnamen zusammen mit den vier Teilen, aus denen er gebildet wurde, sodass Sie sehen können, welche boundary-übergreifende Referenz ihn erzeugt hat, und er nennt den Stack-Output, unter dem Ihre Deklaration steht — gekennzeichnet als ein Name, den der Provider assembliert, statt als einer, den ein Recipe geschrieben hat, weil der Provider diesen Namen bildet, indem er die Komponente und den Eintrag in die Buchstaben und Ziffern codiert, die eine logische ID zulässt, sodass er nicht der String ist, als der einer von beiden geschrieben wurde. **Der Exportname ist der Teil, nach dem Sie suchen.** Ihr Eintrag schreibt ihn genau so wie der Abbruch, was die beiden zu einer Kollision macht, daher ist er der eine String, der sowohl in der Meldung als auch in Ihren eigenen Dateien erscheint."
   },
+  "d317ef9b15c868ef": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "d317ef9b15c868ef",
+    "status": "machine",
+    "text": "Das ausgearbeitete Beispiel [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/README.md) baut dies von Anfang bis Ende und ist klein genug, um es vollständig zu lesen: eine Komponente, die drei Blätter `values` deklariert, von denen zwei öffentliche Bezeichner tragen und eines die Zugangsdaten. Ihre gerenderte Ausgabe zeigt die Argumente des Blocks `module`, die alle drei Moduleingaben tragen, und das Override, das nur die deklarierte benennt, sodass beide Hälften der Regel im selben Build sichtbar sind — einschließlich dessen, dass ein *Bezeichner* der Zugangsdaten, der neben dem Geheimnis steht, unmarkiert bleibt. Wird die eine Deklaration entfernt und neu gebaut, wird überhaupt keine Override-Datei ausgegeben."
+  },
   "d31c6282dee7e277": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -92743,6 +93408,13 @@
     "srcHash": "d3ca34f44e7804ee",
     "status": "machine",
     "text": "**`core/random-password` — vom Ziel erzeugt.** Greifen Sie dazu überall dort, wo Zugangsdaten sonst ein Standardwert wären, den jeder Leser des Katalogs kennt — ein Inline-Entwicklungswert, der Standardwert eines Modulparameters —, und niemand sie aufschreiben müssen sollte. Der Build kann das Passwort nicht erzeugen, weil seine Ausgabe bei identischer Eingabe identisch ist und niemals den Wert eines Secrets enthält; daher rendert das FeatureRecipe eine Generator-Ressource, die die Secret-Ressource nennt, die sie füllt, und das Ziel erzeugt den Wert zum Zeitpunkt der Bereitstellung. Es veröffentlicht den Vertrag aus `name` und `key`, den `core/referenced-secret` veröffentlicht, sodass ein Konsument ihn unverändert liest; seine Werte sind der Datenschlüssel, eine optionale Festlegung des Ressourcennamens und die beiden Generator-Einstellungen, die jede Realisierung beachtet:"
+  },
+  "d3ce9ec0207ce4ca": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "d3ce9ec0207ce4ca",
+    "status": "machine",
+    "text": "Unveränderte Ausgabe und lokales Kopieren (Vendoring)"
   },
   "d3d2f5e2c12264a6": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -93203,6 +93875,13 @@
     "status": "machine",
     "text": "**Dies ist eine Eigenschaft allein von `index`, und keine Richtlinie für fehlende Schlüssel einer Oberfläche ändert sie.** Ein Punkt-Lesezugriff auf einen nicht gesetzten Schlüssel unter einer offenen Säule rendert auf einem Werte-Template weiterhin nichts, wie „Missing template key — asymmetric policy (Fehlender Template-Schlüssel — asymmetrische Richtlinie)“ weiter oben beschreibt, und ein Template, das prüft, ob der Autor einen solchen Schlüssel geliefert hat, ist nicht betroffen. Was abbricht, ist, `index` nach einem Schlüssel zu fragen, den die Map nicht enthält. `index` ist der Weg, auf dem ein Template einen Schlüssel erreicht, dessen Namen es berechnet — etwa eine Zugangsberechtigung, die unter dem Variablennamen gelesen wird, den das konsumierende Recipe gewählt hat —, und ohne den Abbruch würde dieser Lesezugriff den Platzhaltertext der Template-Engine `<no value>` in das Artefakt schreiben, während der Build erfolgreich wäre: ein Server, der mit diesem Text als Schlüssel gestartet wird. Jede andere Antwort, die `index` gibt, ist die eigene der Template-Engine: eine Position in einer Liste oder einer Zeichenkette, eine Position außerhalb des Bereichs, ein Schlüssel, den die Map enthält — einschließlich eines, dessen Wert null ist, was `<no value>` ausgibt."
   },
+  "d5042d12098ba66d": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "d5042d12098ba66d",
+    "status": "machine",
+    "text": "Die Invarianten"
+  },
   "d5050b212f9d411d": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -93426,6 +94105,13 @@
     "srcHash": "d5b363da62da4792",
     "status": "machine",
     "text": "Beide akzeptieren JSON Schema 2020-12 in denselben Inhaltsformen wie das Feld `schema:` — kompakte Inline-Form, Inline-JSON-Schema-YAML oder ein dokumentübergreifendes `$ref:` auf einen Eintrag einer SchemaLibrary. Es sind Verträge **pro Kante**, die unabhängig gegen die Konfiguration jeder Kante validiert werden; sie werden nicht in das eigene `values`-Schema der konsumierenden Component eingefügt. Ein Socket, der für eine Säule kein Schema pro Kante angibt, deklariert dort keinen Vertrag, und jede für diese Säule geschriebene Konfiguration bleibt unvalidiert. Die Konfiguration pro Kante wird geschlossen validiert, und die Validierung berücksichtigt in beiden Säulen Standardwerte: Ein Schlüssel, dem das Schema einen `default:` gibt, gilt als angegeben, auch wenn der Autor ihn weglässt."
+  },
+  "d5bb4e5afee9b05c": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "d5bb4e5afee9b05c",
+    "status": "machine",
+    "text": "Zwei Gültigkeitsbereiche, und nur einer davon macht die Eingabeart zu einer sinnvollen Achse:"
   },
   "d5c0ac2661925232": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -94293,6 +94979,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Wo die beiden an verschiedene Orte schreiben sollten, setzen Sie eine Parameterreferenz in das Verzeichnis und lassen Sie jedes Release sie erfüllen. Wo das Schreiben in einen einzigen Pfad das ist, was Sie meinten, muss nichts geändert werden — der Hinweis hat Ihnen gesagt, was er tun wird, und der Build erzeugt seine Ausgabe so oder so."
   },
+  "d7f0f7f3fe635f77": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "d7f0f7f3fe635f77",
+    "status": "machine",
+    "text": "Ein Autor, der einen Terraform-Körper über die Pipeline patchbar braucht, verfasst ihn daher als `.tf.json`. Siehe [FeatureRecipe](../entities/featurerecipe.md) für die allgemeine Grenze der Patch-Ziele über alle Provider hinweg."
+  },
   "d7f4e2b890c1a81c": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -94639,6 +95332,13 @@
     "srcHash": "d8e507dc13a42b04",
     "status": "machine",
     "text": "**Reproduzierbare Images.** Das Recipe fixiert das Jaeger-Server-Image auf einen auflösbaren Tag, sodass die gerenderte Arbeitslast eine fixierte Version referenziert."
+  },
+  "d8e7df1c4f6e82e6": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "d8e7df1c4f6e82e6",
+    "status": "machine",
+    "text": "Reserviert für eine Kubernetes-IngressClass auf Ingress-Ressourcen"
   },
   "d8e87ec8e8796386": {
     "at": "2026-11-03T16:27:42.239Z",
@@ -95094,6 +95794,13 @@
     "srcHash": "d9fcb54bc3030564",
     "status": "machine",
     "text": "Es zeigt, dass ein lizenziertes kommerzielles Produkt so eingerichtet wird wie ein Open-Source-Produkt: eine Katalog-Component, ein Recipe, eine Kante `uses` und eine Zugangsdaten-Anbindung, mit der Lizenz dort angegeben, wo ein Leser die Komponente auswählt. Es verfasst **keine eigene Katalogentität**; das Aggregate, das Manifest und das Release sind alles, was irgendjemand schreibt."
+  },
+  "da00152092809b26": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "da00152092809b26",
+    "status": "machine",
+    "text": "Wenn die Eingabe eines lokal kopierten Moduls Material trägt, das ein Autor als sensibel deklariert hat, fügt der Provider neben dem Modul eine weitere Datei hinzu, `aggrega_override.tf.json`, die für diese Eingabe `sensitive = true` deklariert:"
   },
   "da010eaed6d5d8b7": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -96328,6 +97035,13 @@
     "status": "machine",
     "text": "aufgelöst"
   },
+  "dc71394010cdc74f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "dc71394010cdc74f",
+    "status": "machine",
+    "text": "Angewendet von"
+  },
   "dc7395ec70318e1b": {
     "at": "2026-11-03T08:33:46.400Z",
     "job": "session-0078-20261103083346",
@@ -96376,6 +97090,13 @@
     "srcHash": "dc92168c52437896",
     "status": "machine",
     "text": "**Anwendungsfall im Compiler:** Es hält fest, wer die zugrunde liegende Ressource der Komponente betreibt, sodass eine von einem Betreiber angebundene Policy das Risiko der Datenexfiltration beurteilen kann; der Compiler liest den Wert als String und beurteilt nichts. Wenn ein Agent, dessen Klassen-Label besagt, dass er `internal`-Daten enthält, sich mit einem als `managed` gekennzeichneten Modell verbindet — einem Dienst, der außerhalb der eigenen Grenze des Release betrieben wird —, kann eine solche Policy erkennen, dass die Daten diese Grenze verlassen, und den Build anhalten, sofern die Verbindung nicht über ein KI-Gateway geroutet wird, das `core/data-masking` trägt, welches den Chat- und Completion-Text maskiert, den das Gateway weiterleitet. Der `model`-Socket eines Agenten nimmt ein solches Gateway anstelle des Modells an, sodass diese Route eine Kante des Graphen ist, den die Policy liest, und ein Modell, das das Gateway aus seinem `models`-Socket bedient, ist eine eigene Kante, vom Gateway zur Modellkomponente, deren Labels die Policy liest — sodass der Pfad von einem Agenten durch das Gateway zu einem `managed`-Modell durchgängig im Graphen liegt. Ein von Hand in die Modell-Map des Gateways eingetragener Upstream ist das nicht: Er ist ein String, den der Compiler nicht auflöst, sodass eine Policy, die den Graphen liest, das Gateway sieht und nichts dahinter. [examples/policy-data-class-route](../language-reference/examples/policy-data-class-route/) ist eine solche Policy: Ihre Einstellungen stufen ein `managed`-Modell als `public` ein, und sie hält einen Build an, in dem ein Assistent mit `restricted`-Daten ein solches Modell ohne maskierendes Gateway auf der Route erreicht. Dies ist ein querschnittliches Merkmal: Dieselben Werte `self-hosted | managed | external` beschreiben eine verwaltete Datenbank oder einen selbst betriebenen Inferenzserver genauso wie ein Modell, daher liegt das Label im gemeinsamen Namensraum `component.aggrega.ai/` statt im modellspezifischen."
+  },
+  "dc937b59892604f5": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "dc937b59892604f5",
+    "status": "machine",
+    "text": "Keiner"
   },
   "dc952c7eafba873a": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -99089,6 +99810,13 @@
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (ein Plugin hat keinen Ausdruck für ein Konstrukt, das dieser Build deklariert) cloudformation-provider: rule `\"<rule>\"` of template `\"<template>\"` reads parameter `\"<parameter>\"` through Fn::ValueOf, which names a declared parameter by its logical ID, and binding the parameter removes its declaration from the source; leave the parameter unbound so the rule can read it at deploy (cloudformation-provider: die angegebene Regel des angegebenen Templates liest den angegebenen Parameter über Fn::ValueOf, das einen deklarierten Parameter über seine logische ID benennt, und das Binden des Parameters entfernt seine Deklaration aus der Quelle; lassen Sie den Parameter ungebunden, damit die Regel ihn bei der Bereitstellung lesen kann)"
   },
+  "e251a792bfa39455": {
+    "at": "2026-11-04T01:29:32.976Z",
+    "job": "session-0185-20261104012932",
+    "srcHash": "e251a792bfa39455",
+    "status": "machine",
+    "text": "Der Provider gibt das in seiner Plugin-Entität an, mit `readsNoWellKnownAnnotations: true` (siehe die [Plugin-Entität](../entities/plugin.md)), und der Build warnt daher bei jeder Annotation `aggrega.ai/`, die über ihn ein Rendering erreicht — einmal pro Schlüssel und pro Rendering, unter Nennung der Eingabearten, die dieses Rendering deklariert:"
+  },
   "e25a219219204059": {
     "at": "2026-10-22T03:15:20.401Z",
     "job": "session-0009-20261022031520",
@@ -100136,6 +100864,13 @@
     "status": "machine",
     "text": "Zwei Orte werden als Ganzes gelesen statt Datei für Datei: ein Katalogverzeichnis, aus jedem Dokument unterhalb dessen eine Suche nach Namen antworten kann, und das Verzeichnis, das ein Release enthält, gegen dessen Aggregates und Manifests ein Release aufgelöst wird, das sie per Identität nennt. Ein symbolischer Link unter diesen Dateien kann überallhin auf dem Rechner führen, daher hat jedes solche Verzeichnis ein Verzeichnis, in dem seine Lesevorgänge bleiben müssen, und ein Link, der daraus hinausführt, wird nicht gelesen. [Die Grenze des Workspace](../cli/workspace-boundary.md) legt die Regel fest, die hier angewendet wird, sowie die anderen Pfade, für die sie gilt."
   },
+  "e4c0e8c7cf0e9ee0": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "e4c0e8c7cf0e9ee0",
+    "status": "machine",
+    "text": "Das **reservierte Vokabular** ist die umfassendere Menge, und es befindet sich stattdessen an zwei Orten — in diesem Kapitel, das jeden reservierten Schlüssel nennt, einschließlich derer, die kein Provider liest, und in der Menge reservierter Präfixe, die der Veröffentlichungs-Lint prüft."
+  },
   "e4c180dd3b68aa56": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -100771,6 +101506,13 @@
     "srcHash": "e639b63dc3f4994e",
     "status": "machine",
     "text": "**die eigenen `values` und das eigene `infra` eines Knotens**, unter `values_mapping` und `infra_mapping`, anhand des eigenen `sensitive_payload_leaves` des Knotens;"
+  },
+  "e63a7797feb807f5": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "e63a7797feb807f5",
+    "status": "machine",
+    "text": "Name des Aggregate und Zusammensetzungspfad des Umbrella-Charts, verbunden — siehe [Auflösung des Chart-Namens](helm-chart.md#chart-name-resolution)"
   },
   "e63a82d0d53632a7": {
     "at": "2026-11-04T01:07:57.122Z",
@@ -101816,6 +102558,13 @@
     "status": "machine",
     "text": "**Ein Namespace und der Pfad einer compose-Datei werden in denselben Raum geschrieben.** Sie sind zwei Arten, dasselbe zu benennen — in welchem Netzwerk ein Knoten liegt —, daher landen ein Knoten, dessen Namespace `app/compose` ist, und ein Knoten ohne Namespace in der compose-Datei unter `app/compose` absichtlich in einem Netzwerk, genau wie zwei Boundaries, die dieselbe Annotation `aggrega.ai/namespace` tragen. Wo Sie zwei Knoten getrennt haben wollen, geben Sie ihnen Identitäten, die sich unterscheiden."
   },
+  "e901b96b4c641c75": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "e901b96b4c641c75",
+    "status": "machine",
+    "text": "**Jedes Modul benennt jedes Modul der unmittelbar vorangehenden Welle, die Komponenten hat, und keine frühere Welle als diese.** Terraform verkettet den Rest: Ein Modul in Welle `2` hängt von Welle `1` ab, die von Welle `0` abhängt, sodass die ganze Abfolge geordnet ist, während die eigene Liste jedes Moduls die Größe einer Welle behält statt der der ganzen Boundary. Wellen müssen nicht lückenlos sein, und negative Werte sind gewöhnlich — `-1` ist eine übliche Wahl für einen Bucket oder eine Rolle, die der Rest der Konfiguration liest. Die niedrigste Welle benennt nichts, weil ihr nichts vorausgeht."
+  },
   "e902620096d88d71": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -102173,6 +102922,13 @@
     "srcHash": "e9ba4e96fee48548",
     "status": "machine",
     "text": "**Schema-Vererbung überprüfen** — `aggrega inspect <ComponentName>` zeigt das zusammengeführte Schema nach Auflösung der `extends:`-Kette; die verfasste Datei allein zeigt nur das lokale Delta."
+  },
+  "e9badb6582049d6f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "e9badb6582049d6f",
+    "status": "machine",
+    "text": "[Recipe-Entität](../entities/recipe.md) — die Authoring-Oberfläche des Recipe und die drei Eingabearten."
   },
   "e9c0c13b52b4182d": {
     "at": "2026-11-03T12:45:16.288Z",
@@ -102609,6 +103365,13 @@
     "status": "machine",
     "text": "Zwei Komponenten eines Aggregate, die einen einzigen Bezeichner erreichen, sind ein **anderer Abbruch**, und gewöhnliches Verfassen erzeugt ihn — siehe [Two subsystems declare a component under one name (Zwei Subsysteme deklarieren eine Komponente unter einem einzigen Namen)](#two-subsystems-declare-a-component-under-one-name) weiter unten."
   },
+  "ea956050634a01e0": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "ea956050634a01e0",
+    "status": "machine",
+    "text": "`helm`, `compose` — nur synthetisiert"
+  },
   "ea978dca5d4b326e": {
     "at": "2026-11-03T13:44:11.193Z",
     "job": "session-0112-20261103134411",
@@ -102997,6 +103760,13 @@
     "srcHash": "eb9568196cca6ce1",
     "status": "machine",
     "text": "**Bedeutung:** Ein expliziter, imperativer Befehl, der die *Absicht* der Bereitstellung vorgibt (z. B. „Compiler, *injiziere* diesen zugeordneten Wert als Umgebungsvariable“). Er legt den abstrakten Vertrag (`env`, `file`, `arg` oder benutzerdefinierte Mechanismen) für eine physische Ausgabe, einen aufgelösten Endpunkt oder eine abgerufene Anmeldeinformation fest, während die physische Mechanik, *wie* genau dieses Mounten ausgeführt wird, vollständig an die zugrunde liegende Ops-Recipe delegiert wird. Unterstützt zwei gleichwertige Syntaxen: eine kompakte Map-Form (`{ API_HOST: \"host\" }`) und eine ausführliche Array-Form (`[{ in: API_HOST, from: \"host\" }]`). Beide werden intern zu `map[string]string` normalisiert."
+  },
+  "eb9f93653dff190f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "eb9f93653dff190f",
+    "status": "machine",
+    "text": "Kein Präfix"
   },
   "eba12558c62ebd07": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -103614,6 +104384,13 @@
     "srcHash": "ececb20f5b88a54c",
     "status": "machine",
     "text": "Jede Boundary wird zu einer eigenen `directory:` ausgewertet, daher erhält jede ihre eigene Assemblierung:"
+  },
+  "ecf1438f7145b328": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "ecf1438f7145b328",
+    "status": "machine",
+    "text": "Jeder Provider dokumentiert, welche Annotationen er liest und welche Standardwerte er anwendet."
   },
   "ecf3942ac1dd4e56": {
     "at": "2026-11-03T19:48:11.116Z",
@@ -104552,6 +105329,13 @@
     "status": "machine",
     "text": "externalinputs: `\"<url>\"`: plain http is allowed for loopback hosts only (allowed schemes: https, http to a loopback host, oci): externalinputs: URL scheme is not allowed (externalinputs: unverschlüsseltes http ist nur für Loopback-Hosts zulässig (zulässige Schemata: https, http zu einem Loopback-Host, oci): externalinputs: das URL-Schema ist nicht zulässig) externalinputs: `\"<url>\"`: scheme `\"<scheme>\"` is not allowed (allowed schemes: https, http to a loopback host, oci): externalinputs: URL scheme is not allowed (externalinputs: das Schema ist nicht zulässig (zulässige Schemata: https, http zu einem Loopback-Host, oci): externalinputs: das URL-Schema ist nicht zulässig)"
   },
+  "ef01ac3e35d0fc0a": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "ef01ac3e35d0fc0a",
+    "status": "machine",
+    "text": "**Eine Reihenfolge über zwei Root-Konfigurationen hinweg ist nicht ausdrückbar, und sie wird nicht angenähert.** Ein Terraform-Abhängigkeitsgraph gilt pro Konfiguration, und `depends_on` benennt ein Modul innerhalb der Konfiguration, die es deklariert, daher ordnet eine Welle jede in diese Root-Konfiguration komponierte Komponente und nichts darüber hinaus. Zwei Konfigurationen in eine Reihenfolge zu bringen, ist Sache des Betreibers, so wie eine Remote-State-Referenz eine Auflösung zum Bereitstellungszeitpunkt ist und nicht zum Build-Zeitpunkt."
+  },
   "ef0416d7956c8b4b": {
     "at": "2026-11-03T05:48:25.701Z",
     "job": "session-0059-20261103054825",
@@ -105155,6 +105939,13 @@
     "srcHash": "f047e5d870c7fd12",
     "status": "machine",
     "text": "**Die Lösung:** Aggrega ersetzt fest codierte Infrastrukturabhängigkeiten durch **echte Kontrollumkehr** (True Control Inversion) über einen expliziten *Injection Contract*. Entwickler deklarieren einfach eine semantische topologische Kante (z. B. „Agent A verwendet Datenbank B“) und legen fest, wie ihr Code die Verbindungsdaten empfangen soll (z. B. als Umgebungsvariable oder als eingebundene Datei). Der Compiler löst die von Ops zugewiesenen deterministischen Zeiger des Ziels dynamisch auf — ob interner Kubernetes-DNS-Name, Terraform-Interpolations-String oder Wasm-formatierter DSN — und leitet sie direkt in die Rendering-Templates. Das abstrahiert physisches Routing und Ports für moderne Workloads vollständig. Der Compiler leitet deterministische Strings durch; eine stabile Verdrahtung von Abhängigkeiten über Umgebungen hinweg ist eine Eigenschaft der Disziplin beim Verfassen eines Recipe (Ops liefert umgebungsgerechte deterministische Zeiger), keine Garantie des Compiler-Kerns."
+  },
+  "f04c41a266855f90": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "f04c41a266855f90",
+    "status": "machine",
+    "text": "Annotationen gelten einheitlich innerhalb einer Boundary. Wenn ein Wert pro Komponente variiert, gehört er in Annotationen auf Komponentenebene (die Boundary-Annotationen überschreiben) oder in das `infra` der Komponente."
   },
   "f0520e1c254f002a": {
     "at": "2026-11-03T10:52:20.646Z",
@@ -105912,6 +106703,13 @@
     "srcHash": "f1ee24531429da19",
     "status": "machine",
     "text": "**Ein Verzeichnis, das Sie importieren, ist an sich selbst gebunden.** `aggrega import` mit einem Verzeichnis, das Import-Werkzeug des Assistenten und die Methode `aggrega/import` der Sitzung übergeben dem Importer die Dateien des Verzeichnisses, die seine Dateimuster auswählen, jede an ihrem Platz im Verzeichnis, sodass das Verzeichnis dasjenige ist, innerhalb dessen diese Lesevorgänge bleiben, wo immer es liegt — innerhalb des Workspace ebenso wie außerhalb. Beurteilt wird jeder Eintrag, aus dem der Import etwas übernehmen würde: ein Link auf eine Datei, die eines der maßgeblichen Muster auswählt — die Muster des Importers, der das genannte Format bedient, oder, wo das Format erkannt wird, die jedes Importers, zwischen denen der Import wählt, die [Core-Importer](../plugins/core-importers.md) des Compilers eingeschlossen — und ein Link auf ein Verzeichnis, das nie betreten wird. Ein Link, der aus dem Verzeichnis hinausführt, an eine andere Stelle im Workspace oder anderswohin, wird nicht gelesen: Der Import bricht ab und nennt den Link, bevor irgendeine Datei des Verzeichnisses geöffnet wird, ohne dass etwas geschrieben wird. Ein ausgewählter Link auf eine Datei an anderer Stelle innerhalb des Verzeichnisses wird dort gelesen, wohin er zeigt, unter dem eigenen Namen des Links, und ein Link auf eine Datei, die kein Muster auswählt, wird weder beurteilt noch gelesen. Das Verzeichnis selbst wird so verwendet, wie Sie es genannt haben — eines, das ein Link ist, wird dort gelesen, wohin es zeigt. Über einen Listener erreicht, nennt das Werkzeug des Assistenten den Link mit seinem Platz im Workspace und sagt nichts darüber, wohin er führt. Die Abhilfe, die diese Meldung nennt, ist die eines importierten Verzeichnisses: Behalten Sie die Datei selbst im Verzeichnis statt eines Links darauf, oder importieren Sie das Verzeichnis, zu dem der Link führt."
+  },
+  "f1ef162aac5304ff": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "f1ef162aac5304ff",
+    "status": "machine",
+    "text": "reserviert; kein Provider liest sie"
   },
   "f1fb2b394e697933": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -106747,6 +107545,13 @@
     "status": "machine",
     "text": "**Microsoft Radius** ist eine Control Plane von der Anwendung zur Infrastruktur, die den Sollzustand von innerhalb eines Clusters abgleicht und deklarative Artefakte der Art konsumiert, die Aggrega erzeugt."
   },
+  "f3e9946c4dc9d90e": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "f3e9946c4dc9d90e",
+    "status": "machine",
+    "text": "`helm-chart` — pro Zusammensetzung"
+  },
   "f3eb48c80bef6277": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -107459,6 +108264,13 @@
     "srcHash": "f58a139be96a5684",
     "status": "machine",
     "text": "**So beheben Sie es:** Korrigieren Sie die Einstellungen unter `with.settings` dieser Anbindung in `plugins.governance`. Das Detail in der Mitte der Meldung nennt den fehlerhaften Schlüssel und das, was das Schema dort erwartet hat; die eigene Referenz des Plugins dokumentiert die Einstellungen, die es deklariert."
+  },
+  "f58ccaa7771b251d": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "f58ccaa7771b251d",
+    "status": "machine",
+    "text": "Reserviert für eine Kennung des Terraform-State-Backends"
   },
   "f58dd6df8ba7ad12": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -110584,6 +111396,13 @@
     "status": "machine",
     "text": "`definition` ist das Entitätsdokument genau so, wie es veröffentlicht wurde. Eine Koordinate, deren Entität mit den von ihr deklarierten Dateien veröffentlicht wurde, enthält ein Archiv, und das Dokument wird daraus entpackt; eine, deren Entität keine Datei deklariert, enthält ihr Dokument unverändert, und die Entität eines Plugin wird aus seinem Manifest gelesen statt aus der mit ihm veröffentlichten ausführbaren Datei. Es wird keine Vererbung angewendet."
   },
+  "fc5e2c1bb872786d": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "fc5e2c1bb872786d",
+    "status": "machine",
+    "text": "**Keine Abbaureihenfolge wird versprochen.** Was `depends_on` aussagt, ist, dass Terraform die Aktionen der Abhängigkeit abschließt, bevor es mit denen des Abhängigen beginnt; die Reihenfolge, in der ein `destroy` sie entfernt, ist nicht Teil dieser Aussage, daher wird hier nichts über die Abbaufolge behauptet. Das ist ein engeres Versprechen als das, das dieselbe Welle bei [cloudformation](cloudformation.md#deployment-ordering) trägt, dessen Attribut beide Richtungen regelt — wissenswert, wenn Sie sich darauf verlassen, dass eine Welle einen Abbau in eine Reihenfolge bringt, denn auf diesem Ziel tut sie das nicht."
+  },
   "fc76eadc13bf7c16": {
     "at": "2026-11-02T20:12:02.178Z",
     "job": "session-0014-20261102201202",
@@ -111113,6 +111932,13 @@
     "srcHash": "fdd1e5c41efa11ea",
     "status": "machine",
     "text": "Jedes Release bindet den Socket `model` der beiden Assistenten an ein Gateway, das das Aggregate deklariert. Das ist Verdrahtung von Kanten innerhalb eines Sockets, den die Component deklariert, was ein Release tun darf; es fügt keine Komponente hinzu und ändert keinen Wert."
+  },
+  "fddcc6db15411e9f": {
+    "at": "2026-11-04T01:29:35.126Z",
+    "job": "session-0186-20261104012935",
+    "srcHash": "fddcc6db15411e9f",
+    "status": "machine",
+    "text": "`aggrega.ai/kubernetes-version` gibt eine Eigenschaft des Clusters an, in dem eine Komponente bereitgestellt wird, statt anzugeben, wo darin die Komponente landet: Chart-Templates wählen eine API-Version, ein Feld oder einen ganzen Mechanismus nach der Version aus, für die sie gerendert werden, und der Build hat keinen Cluster, den er fragen könnte. Der helm-Provider liest den Wert so, wie `helm template --kube-version` sein Flag liest, und bricht den Build bei einem Wert ab, der keine Version ist; wo keine genannt ist, wird ein Chart für die Version gerendert, für die `helm template` desselben helm-Release rendert. [Die Referenz zum helm-Provider](helm.md#the-kubernetes-version-a-chart-is-rendered-for) dokumentiert die akzeptierten Formen und den Standardwert."
   },
   "fddd8f343aafced0": {
     "at": "2026-11-03T10:16:20.555Z",
