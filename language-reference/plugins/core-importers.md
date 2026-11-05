@@ -1215,12 +1215,12 @@ Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the
 the draft carries — the image of a service matched to another Component, its `ports`, `expose`,
 `volumes` and `environment` — for you to carry where the Component takes it, and names what the draft
 leaves for the Release: the image of a service naming none, as one that builds its own does, and a
-port that is not one number. A build places only the instances a Release names, so each instance
-of `core/ai-model/docker-model-runner` has an empty entry, `<key>: {}`, after the services': the
-runtime takes no input on Compose that lacks a default. A model drafted as a Component of its own
-has no entry, since no Recipe realizes it until you write one; add the entry when you add the
-Recipe, or the build halts naming the instance as placed in no boundary.
-A port the Component does not take, such as one below `core/compute/server`'s floor of 1024, is
+port that is not one number. A build places only the instances a Release names, so each model's
+instance has an empty entry, `<key>: {}`, after the services': an instance of
+`core/ai-model/docker-model-runner`, which takes no input on Compose that lacks a default, and a
+model drafted as a Component of its own alike, so the drafted model is already placed and builds once
+you write the Recipe realizing it. A port the Component does not take, such as one below
+`core/compute/server`'s floor of 1024, is
 written as the source states it, and the build halts naming it. The Release's `metadata.environment`
 and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are, unless the
 import is given a target, as [What a target adds](#what-a-target-adds) describes. The Manifest
@@ -1549,9 +1549,10 @@ one.
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
 comment above each agent's entry, its `infra.image` — the image running the crew's program, which no
 declaration names — and the credential it presents to its model, attached under `credential` on its
-`model` connection; the build halts naming the image until it is set. A model declared as an `llm`
-object has an entry too, with the object's other members written in a comment above it, for the
-Release to carry where the model's Component takes them. The Release's `metadata.environment` and
+`model` connection; the build halts naming the image until it is set. Each model has an entry too,
+holding no infrastructure, so the Release places it with the agents; above the entry of a model declared
+as an `llm` object, the object's other members are written in a comment, for the Release to carry where
+the model's Component takes them. The Release's `metadata.environment` and
 `spec.manifest` are left unset, each named in a comment, unless the import is given a target, as
 [What a target adds](#what-a-target-adds) describes.
 
@@ -1721,7 +1722,8 @@ one is wired. The store is reported in a decision that chooses nothing.
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
 comment above each graph's entry, its `infra.image` — the image running the application, which
-`langgraph build` builds from its configuration; the build halts naming the image until it is set. A
+`langgraph build` builds from its configuration; the build halts naming the image until it is set. The
+datastore has an entry too, holding no infrastructure, so the Release places it with the graphs. A
 comment above the application's first graph states the environment its configuration declares, as
 [The environment a configuration states](#the-environment-a-configuration-states) describes. The
 Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
@@ -1780,6 +1782,8 @@ spec:
     triage:
       infra: {}
     ...
+    postgres:
+      infra: {}
 ```
 
 To build it, you add a model to the Aggregate — an instance of a model Component, and each graph's
@@ -1926,7 +1930,8 @@ import does not read; the agent's `model` socket admits the Gemini API alone.
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
 comment above each instance's entry, its `infra.image` — the image running the application built on
 ADK, which holds its configurations — and the credential it presents to its model, attached on its
-`model` connection; the build halts naming the image until it is set. The values the tree's
+`model` connection; the build halts naming the image until it is set. The model has an entry too,
+holding no infrastructure, so the Release places it with the instance. The values the tree's
 configurations hand their tools and their model requests are written in a comment above the entry, as
 [Credential values a configuration holds](#credential-values-a-configuration-holds) describes. The
 Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
@@ -1992,6 +1997,8 @@ spec:
     #   math_tutor_agent generate_content_config.http_options.headers: "..."
     #   math_tutor_agent generate_content_config.http_options.timeout: 30000
     tutor-root:
+      infra: {}
+    gemini-flash-latest:
       infra: {}
 ```
 
@@ -2137,8 +2144,10 @@ Framework, which holds its declarative agent — the credential it presents to i
 attached on that server's `tools` connection; the build halts naming the image until it is set. The
 keys the declarative agent states are written in the same comment, as
 [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) describes.
-The endpoint a wired model's connection states is written as the model's `infra.endpoint`, and one
-written as a reference is named beside its entry, the Component's own address used until it is set. The
+Each wired model has an entry, so the Release places it with the agent. The endpoint its connection
+states is written as the model's `infra.endpoint`, and one written as a reference is named beside its
+entry, the Component's own address used until it is set; a connection stating no endpoint leaves the
+entry holding no infrastructure, the Component's own address standing. The
 Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
 the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 
