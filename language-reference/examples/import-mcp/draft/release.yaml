@@ -1,0 +1,37 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # environment: left for the operator, since no source names the environment this Release deploys to.
+  version: 0.1.0
+  description: Draft Release imported from a source in the mcp format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    # Left for the Release, since the draft does not write it:
+    #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
+    github:
+      infra:
+        stdio_command:
+          - "npx"
+          - "-y"
+          - "@modelcontextprotocol/server-github"
+        stdio_runtime: npm
+      features:
+        server_env:
+          type: core/referenced-secret-set
+          infra:
+            entries:
+              - key: "GITHUB_PERSONAL_ACCESS_TOKEN"
+    fetch:
+      infra:
+        stdio_command:
+          - "uvx"
+          - "mcp-server-fetch"
+        stdio_runtime: pypi
+    # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
+    #   - Authorization: "Bearer ${DOCS_API_KEY}"
+    docs-search:
+      infra:
+        endpoint: "https://mcp.example.com/docs/mcp"

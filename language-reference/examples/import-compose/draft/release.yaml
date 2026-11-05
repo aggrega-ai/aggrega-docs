@@ -1,0 +1,38 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # environment: left for the operator, since no source names the environment this Release deploys to.
+  version: 0.1.0
+  description: Draft Release imported from a source in the compose format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    # The source also states, for the Release to carry where core/compute/server takes it:
+    #   ports:
+    #     - "8080:8080"
+    #   environment:
+    #     DATABASE_HOST: "db"
+    #     DATABASE_USER: "notes"
+    #     DATABASE_NAME: "notes"
+    #     DATABASE_PASSWORD: "${POSTGRES_PASSWORD}"
+    #     CACHE_HOST: "cache"
+    api:
+      infra:
+        image: "ghcr.io/example/notes-api:2.3.0"
+        port: 8080
+    # The source states, for the Release to carry where imported/datastore/postgres takes it:
+    #   image: "postgres:16"
+    #   volumes:
+    #     - "db-data:/var/lib/postgresql/data"
+    #   environment:
+    #     POSTGRES_USER: "notes"
+    #     POSTGRES_DB: "notes"
+    #     POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    db:
+      infra: {}
+    # The source states, for the Release to carry where imported/datastore/redis takes it:
+    #   image: "redis:7"
+    cache:
+      infra: {}

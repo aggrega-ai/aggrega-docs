@@ -2,6 +2,9 @@
 
 Turn a foreign source description into draft Aggrega authoring files
 
+This page is the command's reference. What an import is for, how to review and build what it writes, and
+walkthroughs that take a project from its source to a build are in [Import](../../authoring/import/README.md).
+
 <!-- BEGIN GENERATED: cli-import -->
 **Synopsis**
 

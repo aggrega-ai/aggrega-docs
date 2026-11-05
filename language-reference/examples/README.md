@@ -71,10 +71,24 @@ so you can compare your own output against it — and any lines left out are
 marked. [Reading the output on these pages](reading-the-output.md) states that
 convention and the mark it uses.
 
-One directory here is not a workspace: [policy-in-ci](policy-in-ci/) holds two
-rule scripts that read a build's output directory and refuse it when it breaks a
-rule, with the pipeline step for each. They run over the outputs of the
-workspaces below, and over yours.
+Not every directory here is one workspace. The quickstart examples hold one
+workspace per step, and the import examples one per stage of an import, as the
+next paragraph describes. One directory holds no workspace at all:
+[policy-in-ci](policy-in-ci/) holds two rule scripts that read a build's output
+directory and refuse it when it breaks a rule, with the pipeline step for each.
+They run over the outputs of the workspaces below, and over yours.
+
+Each `import-*` example — listed under the `import` capability in
+[Examples by product and capability](by-product-and-capability.md) — keeps a
+project written in another format as `aggrega import` meets it, in three folders:
+`source/`, the project and the `.aggrega-config.yaml` that makes it a workspace;
+`draft/`, the files the import wrote, unchanged, with what it printed on standard
+output (`stdout.txt`) and standard error (`import.txt`); and `reviewed/`, the same
+files after review, a workspace that builds. Its walkthrough under
+[Import](../../authoring/import/README.md) teaches each stage. Its `check.sh` runs
+the shared `scripts/check-import-example.sh` of this repository, which runs the
+import again and compares what it writes and prints with `draft/`, compares the
+blocks the walkthrough quotes with the example's files, and builds `reviewed/`.
 
 What follows is a **curated list of examples in increasing complexity** —
 from the smallest authoring surface to builds combining several mechanisms — and
@@ -465,6 +479,8 @@ list none.
   services.
 - `external-sources` — a Recipe that fetches what it renders: an upstream chart,
   a git repository or a module.
+- `import` — a project written in another format, drafted into Aggrega files by
+  `aggrega import`, then reviewed and built.
 
 An example lists at least one product or one capability, so the index can place
 it. `scripts/gen-examples-index.sh --check`, run from the root of this

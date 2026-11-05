@@ -105,6 +105,19 @@
 #
 # Usage:
 #   build-release.sh [--example DIR] [RELEASE] [-- EXTRA aggrega build args]
+#   build-release.sh --print-binary [--build-into DIR]
+#
+#   --print-binary  Resolve the binary exactly as a build would, print the
+#                   provenance block on stderr and the binary's path on stdout,
+#                   and build no Release. It is how another script of this
+#                   repository runs the same binary a build here would, without a
+#                   second copy of the resolution.
+#   --build-into DIR
+#                   With --print-binary: where resolution falls to building from
+#                   source, write the binary into DIR, an existing directory the
+#                   caller created and removes. Without it, --print-binary
+#                   refuses rather than build, since nothing would own the
+#                   result. This script never removes DIR.
 #
 #   --example DIR   Example workspace to build (default: current directory).
 #                   The thin per-example wrappers pass their own location here.
@@ -127,14 +140,21 @@ die() { printf 'build-release: %s\n' "$*" >&2; exit 2; }
 # --- parse args -------------------------------------------------------------
 EXAMPLE_DIR="."
 RELEASE_ARG=""
+PRINT_BINARY=0
+BUILD_INTO=""
 declare -a EXTRA=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --print-binary) PRINT_BINARY=1; shift ;;
+    --build-into) [ "$#" -ge 2 ] || die "--build-into needs a directory"; BUILD_INTO="$2"; shift 2 ;;
     --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE_DIR="$2"; shift 2 ;;
     --example=*) EXAMPLE_DIR="${1#*=}"; shift ;;
     --) shift; EXTRA=("$@"); break ;;
     -h|--help)
       printf 'Usage: build-release.sh [--example DIR] [RELEASE] [-- EXTRA aggrega build args]\n'
+      printf '       build-release.sh --print-binary [--build-into DIR]\n'
+      printf '           (resolve the binary as a build would and print its path; a build\n'
+      printf '           from source goes into DIR, which the caller created and removes)\n'
       printf '  RELEASE  a release*.yaml filename or its <P> token (e.g. helm); optional\n'
       printf '           when the example has exactly one release file.\n'
       printf '  One release per run. Catalog source is auto-discovered per release file.\n'
@@ -152,6 +172,11 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+if [ -n "$BUILD_INTO" ]; then
+  [ "$PRINT_BINARY" -eq 1 ] || die "--build-into is read with --print-binary only"
+  [ -d "$BUILD_INTO" ] || die "--build-into names no directory: $BUILD_INTO"
+  BUILD_INTO="$(cd "$BUILD_INTO" && pwd)"
+fi
 [ -d "$EXAMPLE_DIR" ] || die "example dir not found: $EXAMPLE_DIR"
 cd "$EXAMPLE_DIR"
 EXAMPLE_NAME="$(basename "$(pwd)")"
@@ -192,9 +217,15 @@ superseding_input() {
 build_from_source() {
   [ "$MODULE_PRESENT" -eq 1 ] || die "cannot build from source: no Go module at $CLI_DIR (a standalone aggrega-docs clone has no sibling module — install aggrega on PATH, or set AGGREGA_BIN)"
   command -v go >/dev/null 2>&1 || die "cannot build from source: no go toolchain on PATH (install Go, or set AGGREGA_BIN to a prebuilt binary)"
+  if [ "$PRINT_BINARY" -eq 1 ]; then
+    # The binary outlives this run, so it goes only where the caller said it owns.
+    [ -n "$BUILD_INTO" ] || die "no prebuilt binary is current, and --print-binary builds from source only into a directory --build-into names"
+    BUILD_TMP="$BUILD_INTO"
+  else
+    BUILD_TMP="$(mktemp -d)"
+    trap 'rm -rf "$BUILD_TMP"' EXIT
+  fi
   printf 'build-release: building aggrega from source in %s ...\n' "$CLI_DIR" >&2
-  BUILD_TMP="$(mktemp -d)"
-  trap 'rm -rf "$BUILD_TMP"' EXIT
   ( cd "$CLI_DIR" && go build -o "$BUILD_TMP/aggrega" ./cmd/aggrega ) \
     || die "go build of aggrega failed in $CLI_DIR (the error above is the compiler's, surfaced unchanged)"
   AGGREGA="$BUILD_TMP/aggrega"
@@ -263,6 +294,11 @@ fi
 printf 'build-release: binary    = %s\n' "$AGGREGA"    >&2
 printf 'build-release: origin    = %s\n' "$ORIGIN"     >&2
 printf 'build-release: freshness = %s\n' "$FRESHNESS"  >&2
+
+if [ "$PRINT_BINARY" -eq 1 ]; then
+  printf '%s\n' "$AGGREGA"
+  exit 0
+fi
 
 # --- enumerate release files ------------------------------------------------
 declare -a RELEASES=()

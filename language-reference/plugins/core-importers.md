@@ -53,6 +53,10 @@ importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
 
+This page is the reference for what each importer reads and drafts. To import a project of your own
+and build the result, start at [Import](../../authoring/import/README.md), which walks a project from
+its source to a build, one format at a time.
+
 ## How an import obtains one
 
 [`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the

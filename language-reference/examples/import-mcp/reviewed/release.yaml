@@ -1,0 +1,41 @@
+# The draft release.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # Reviewed: the environment this Release deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the mcp format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    github:
+      infra:
+        stdio_command:
+          - "npx"
+          - "-y"
+          - "@modelcontextprotocol/server-github"
+        stdio_runtime: npm
+      # Reviewed: the token is read from a Secret the cluster already holds,
+      # github-mcp-token, whose data key GITHUB_PERSONAL_ACCESS_TOKEN becomes
+      # the server's variable of that name, so no rendered file carries it.
+      features:
+        server_env:
+          type: core/referenced-secret
+          infra:
+            origin: github-mcp-token
+    fetch:
+      infra:
+        stdio_command:
+          - "uvx"
+          - "mcp-server-fetch"
+        stdio_runtime: pypi
+    # Reviewed: the header stays with whoever calls this server. An agent wired
+    # to docs-search presents it on its own connection to the tool.
+    # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
+    #   - Authorization: "Bearer ${DOCS_API_KEY}"
+    docs-search:
+      infra:
+        endpoint: "https://mcp.example.com/docs/mcp"

@@ -239,6 +239,19 @@ export default defineConfig({
             "learn",
           ],
         }),
+        // Bringing a project written in another format: what aggrega import
+        // does, then one walkthrough for each format it reads. The pages live
+        // in the authoring guide's folder and are listed nowhere else in the
+        // sidebar.
+        ...present({
+          label: "Import",
+          items: [
+            "authoring/import",
+            "authoring/import/compose",
+            "authoring/import/mcp",
+            "authoring/import/langflow",
+          ],
+        }),
         {
           label: "Concepts & Architecture",
           items: [

@@ -1,0 +1,26 @@
+# The Release the review wrote: the Langflow import drafts none.
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  environment: development
+  version: 0.1.0
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    langflow:
+      infra:
+        # The image running Langflow, at the version the flow was exported from.
+        image: langflowai/langflow:1.6.0
+      # The OpenAI key the platform presents to the model, read from your shell
+      # when the stack starts, so no file carries it.
+      uses:
+        model:
+          model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  origin: "${OPENAI_API_KEY}"
+    model: {}

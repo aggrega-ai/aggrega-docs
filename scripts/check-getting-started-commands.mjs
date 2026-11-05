@@ -29,6 +29,10 @@
 //   --page PATH      the page to check (default: getting-started.md under the docs root)
 //   --docs-root DIR  the documentation root the sources are read from (default: the
 //                    directory above this script)
+//   --fenced-blocks FILE
+//                    check nothing: print every fenced block FILE holds, as
+//                    "block <line> <info>" and then "| <line as written>" for each
+//                    line, for scripts/check-fenced-block-parity.sh to compare
 //
 // Exit status: 0 every block holds; 1 a block does not; 2 the check could not run
 // (an argument it does not take, or a page or source it cannot read).
@@ -64,6 +68,7 @@ function parseArgs(argv) {
     const value = inline ?? argv[++i];
     if (flag === "--page" && value) opts.page = value;
     else if (flag === "--docs-root" && value) opts.docsRoot = path.resolve(value);
+    else if (flag === "--fenced-blocks" && value) opts.fencedBlocks = path.resolve(value);
     else usage(`unexpected argument: ${arg}`);
   }
   opts.page = path.resolve(opts.page ?? path.join(opts.docsRoot, "getting-started.md"));
@@ -78,9 +83,20 @@ function read(file) {
   }
 }
 
-// commandBlocks returns every fenced command block of a Markdown page, each as the
-// line number of its first line and its lines, blank lines left out.
-function commandBlocks(markdown) {
+// fencedBlocks returns every closed fenced block of a Markdown page, each as the
+// line number of its opening fence, its info word and its lines as written, blank
+// ones included. A fence opens on a run of three or more backticks or tildes
+// indented by at most three spaces, and closes on a line holding nothing but a run
+// of the same character at least as long.
+//
+// 🔴 DELIBERATE NEAR-DUPLICATE: aggrega-docs/scripts/check-import-example.sh reads
+// fenced blocks by the same rules in awk, because it runs in the examples
+// workflow's step that builds the examples, before that workflow sets up Node, so
+// it cannot import this function. scripts/check-fenced-block-parity.sh runs both
+// readers over one fixture, scripts/testdata/fenced-blocks.md, and fails where
+// they read different blocks; change the rules in both, and that fixture with
+// them.
+function fencedBlocks(markdown) {
   const blocks = [];
   let fence = "";
   let current;
@@ -89,21 +105,34 @@ function commandBlocks(markdown) {
     if (fence) {
       const t = line.trim();
       if (t.length >= fence.length && t.split("").every((c) => c === fence[0])) {
-        if (current) blocks.push(current);
+        blocks.push(current);
         fence = "";
         current = undefined;
-      } else if (current && line.trim() !== "") {
-        current.lines.push({ text: line.trimEnd(), line: index + 1 });
+      } else {
+        current.lines.push({ text: line, line: index + 1 });
       }
       return;
     }
     const open = line.length - trimmed.length <= 3 && trimmed.match(/^(`{3,}|~{3,})\s*([^\s`]*)/);
     if (open) {
       fence = open[1];
-      current = COMMAND_INFO.has(open[2]) ? { line: index + 1, lines: [] } : undefined;
+      current = { line: index + 1, info: open[2], lines: [] };
     }
   });
   return blocks;
+}
+
+// commandBlocks returns every fenced command block of a Markdown page, each as the
+// line number of its first line and its lines, blank lines left out.
+function commandBlocks(markdown) {
+  return fencedBlocks(markdown)
+    .filter((block) => COMMAND_INFO.has(block.info))
+    .map((block) => ({
+      line: block.line,
+      lines: block.lines
+        .filter((l) => l.text.trim() !== "")
+        .map((l) => ({ text: l.text.trimEnd(), line: l.line })),
+    }));
 }
 
 // holds reports whether lines appear, in order, as consecutive lines of one of the
@@ -134,6 +163,13 @@ function firstDiffering(lines, sourceBlocks) {
 }
 
 const opts = parseArgs(process.argv.slice(2));
+if (opts.fencedBlocks) {
+  for (const block of fencedBlocks(read(opts.fencedBlocks))) {
+    process.stdout.write(`block ${block.line} ${block.info}\n`);
+    for (const l of block.lines) process.stdout.write(`| ${l.text}\n`);
+  }
+  process.exit(0);
+}
 const fromRoot = path.relative(opts.docsRoot, opts.page);
 const pageName = fromRoot && !fromRoot.startsWith("..") ? fromRoot : opts.page;
 const sources = new Map();
