@@ -22,7 +22,7 @@ A Feature can be attached in either document — the Aggregate attaches one on a
 
 ```text
 [OPS_ERROR E0007] release.yaml at .spec.boundaries.main.components.app.features.metrics
-  selector violation ("component.aggrega.ai/type=server", declared by Feature "core/prometheus-exporter", not satisfied by the labels of "app"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
+  selector violation ("component.aggrega.ai/type in (server, worker)", declared by Feature "core/prometheus-exporter", not satisfied by the labels of "app"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
 ```
 
 Where both documents write one attachment — the Aggregate naming its Feature, the Release sizing it — a finding about the attachment as a whole is positioned where its Feature is named, which is the Aggregate. A finding about one part of its configuration is positioned where that part was written: its `values` are the developer's, in the Aggregate, and its `infra` the operator's, in the Release. An attachment that annotation-driven expansion produced was written by no `features:` entry, so a finding about it is positioned at the component, in the document that declares the component, as `[DEVELOPER_ERROR]`.

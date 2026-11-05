@@ -3847,7 +3847,7 @@ The halt carries the authoring key it is about — the `uses:` socket entry, or 
 
 ```text
 [OPS_ERROR E0007] release.yaml at .spec.boundaries.main.components.app.features.metrics
-  selector violation ("component.aggrega.ai/type=server", declared by Feature "core/prometheus-exporter", not satisfied by the labels of "app"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
+  selector violation ("component.aggrega.ai/type in (server, worker)", declared by Feature "core/prometheus-exporter", not satisfied by the labels of "app"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
 ```
 
 and the same attachment written on the component in the Aggregate reads `[DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.app.features.metrics`. An attachment annotation-driven expansion produced was written by no `features:` entry, so it is positioned at the component's own `features:` key in the document that declares the component, as a developer fault.
