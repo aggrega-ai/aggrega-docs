@@ -8241,6 +8241,17 @@
     "status": "machine",
     "text": "artifact-library import references a bundle not present in the ArtifactLibrary: bundle `\"<entry>\"` in ArtifactLibrary `\"<library>\"` (lệnh import artifact-library tham chiếu tới một bundle không có trong ArtifactLibrary: bundle trong ArtifactLibrary)\n> mapping-library import references an entry not present in the MappingLibrary: entry `\"<entry>\"` in MappingLibrary `\"<library>\"` (lệnh import mapping-library tham chiếu tới một mục không có trong MappingLibrary: mục trong MappingLibrary)\n> workload-library import references an entry not present in the WorkloadLibrary: entry `\"<entry>\"` in WorkloadLibrary `\"<library>\"` (lệnh import workload-library tham chiếu tới một mục không có trong WorkloadLibrary: mục trong WorkloadLibrary)"
   },
+  "0c42d0872a327f8c": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "7bd2727badc4d205",
+      "reviewed": false
+    },
+    "srcHash": "0c42d0872a327f8c",
+    "status": "machine",
+    "text": "**`cloudformation` và `compose` — bạn đã viết các tên, hoặc định danh chính là tên.** Một Recipe cloudformation tự đặt logical id cho các tài nguyên của nó và provider đọc chúng đúng như đã viết; một tệp compose do bạn cung cấp tự đặt tên các service của nó và provider hợp nhất và gắn nhãn tệp đó mà không đổi tên bất cứ thứ gì trong đó. Một workload do `compose` tổng hợp được đặt tên theo định danh của node, vốn được tệp compose chấp nhận đúng như đã viết, nên `{{ .context.instance_id }}` chính là tên đó. Không có sự dẫn xuất nào để báo cáo, và các tên là những tên có trong chính tài liệu của bạn. Tên đó là service chính của workload, service mà một peer kết nối tới; một sidecar hoặc init service mà nó mang được đặt tên từ cùng định danh đó và tên của container, nối bằng `--`, như [Cách một sidecar hoặc init service được đặt tên](../providers/compose.md#how-a-sidecar-or-init-service-is-named) mô tả."
+  },
   "0c456a50108e015e": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -8451,6 +8462,13 @@
     "status": "machine",
     "text": "Nó bị từ chối tại nơi vị trí được tạo ra thay vì tại lúc tải, nên thông báo nêu đúng những gì bạn đã viết thay vì xuất hiện muộn hơn dưới dạng một lỗi tag khó đọc."
   },
+  "0c88d280a5449e2b": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "0c88d280a5449e2b",
+    "status": "machine",
+    "text": "Các khóa của những Service mà workload đã phân giải của node khai báo, theo thứ tự workload khai báo chúng, được mang theo khi danh tính được xác định sau khi workload đó được phân giải và workload có khai báo Service nào đó. Một guest có target đặt tên cho mỗi Service mà nó phát ra cho node từ danh tính component và khóa của Service sẽ đọc chúng để đánh giá từng tên như vậy. Một khóa được viết bởi tác giả của Recipe hoặc FeatureRecipe chứ không phải bởi người đã viết danh tính, nên guest cũng diễn đạt lần từ chối mà một khóa gây ra cho tác giả đó. Vắng mặt nghĩa là host không mang khóa nào cho câu hỏi này: node không khai báo workload nào, workload của nó không khai báo Service nào, hoặc danh tính được xác định trước khi bất kỳ workload nào được phân giải. Khi đó guest không đánh giá tên nào được tạo từ một khóa Service, và trả lời đúng như khi trường này không tồn tại."
+  },
   "0c8932387f1ace9c": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -8653,6 +8671,17 @@
     "srcHash": "0cfbbc374054e156",
     "status": "machine",
     "text": "Một thông báo nêu tên mức độ nghiêm trọng mà nhà phát hành đã ghi nhận. Một artifact đã bị rút lại được báo cáo là `retracted`; hai mức độ nghiêm trọng mang tính khuyến nghị được báo cáo là deprecated, có nêu rõ là mức nào trong hai mức. Vì vậy, những gì bạn đọc lại khớp với giá trị đã được soạn và giá trị mà bạn sẽ dùng để cấu hình ngưỡng dừng."
+  },
+  "0cfc2d57bc63b803": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "801d6ca76bad41e5",
+      "reviewed": false
+    },
+    "srcHash": "0cfc2d57bc63b803",
+    "status": "machine",
+    "text": "Các mục `initContainers` của một Workload trở thành các service riêng, theo cách dùng chạy-đến-khi-hoàn-tất của compose. Mỗi mục thêm một service, được đặt tên từ `<component>` và `name` của mục theo [cùng cách đặt tên mà các sidecar dùng](#how-a-sidecar-or-init-service-is-named) — `<component>--<container-name>` cho một tên thông thường; một mục bỏ qua `name` sẽ nhận tên theo vị trí `init-<index>` mà [tài liệu tham khảo Workload](../entities/workload.md) mô tả, và được đặt tên từ tên đó."
   },
   "0cfdee6d1c0104d7": {
     "at": "2026-10-22T22:51:17.853388+00:00",
@@ -11836,6 +11865,17 @@
     "srcHash": "118d550d653d2fff",
     "status": "machine",
     "text": "Một mục `artifacts:` do chính Recipe của một component viết được quyết định trước khi bất cứ thứ gì được render, nên báo cáo được định vị tại khối `artifacts:` trong Recipe đó và nêu tên tham chiếu, bundle, tệp có phần thân chứa lệnh import lồng nhau, và mục nơi lệnh import được viết. Mọi tệp của bundle có dạng đó đều được báo trong một lần build; khi có nhiều hơn một, các phát hiện được nhóm dưới `artifacts entries whose library import the compiler cannot resolve`:"
+  },
+  "118ec90a78584be9": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "1a28defb0de211d7",
+      "reviewed": false
+    },
+    "srcHash": "118ec90a78584be9",
+    "status": "machine",
+    "text": "Một định danh cho artifact nguồn mà chẩn đoán liên quan, khi bộ phát biết nó (một renderer). Vắng mặt trong trường hợp khác. Nó không bao giờ nêu tên một instance của build; instance mang thông tin đó."
   },
   "118f3a0ea7a911cd": {
     "at": "2026-10-22T21:42:39.864359+00:00",
@@ -35822,6 +35862,13 @@
     "status": "machine",
     "text": "Aggregate (đích triển khai của Release)"
   },
+  "36c16eeac676ca52": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "36c16eeac676ca52",
+    "status": "machine",
+    "text": "Dạng của workload mà Recipe hoặc FeatureRecipe của node phân giải thành, đúng như template workload của nó tạo ra, được mang theo khi danh tính được xác định sau khi workload đó được phân giải và workload nêu một dạng. Nó được mang theo đúng như đã viết; host không diễn giải nó. Một guest có target giới hạn một tên mà nó phát ra chỉ cho một dạng — một job theo lịch, mà target giữ tên ngắn hơn các tên khác vì một hậu tố được nối vào cho mỗi lần chạy — sẽ đọc nó để đánh giá tên đó. Vắng mặt nghĩa là host không mang dạng nào cho câu hỏi này: node không khai báo workload nào, workload của nó không nêu dạng nào, hoặc danh tính được xác định trước khi bất kỳ workload nào được phân giải. Khi đó guest không đánh giá tên nào phụ thuộc vào dạng, và trả lời đúng như khi trường này không tồn tại."
+  },
   "36c19d7b9867cd99": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -36308,6 +36355,17 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "Tài liệu tham khảo liên quan"
+  },
+  "3769f12235dd8877": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "814f19b35ce8bcb8",
+      "reviewed": false
+    },
+    "srcHash": "3769f12235dd8877",
+    "status": "machine",
+    "text": "Ý định bất biến, chưa bị biến đổi của Developer cho khối inject. Mỗi cơ chế mà khối nêu tên — env, file, arg, hoặc một cơ chế tùy chỉnh như ssm_param — nằm dưới tên riêng của nó, chứa các mục đúng như đã viết (in, với from hoặc value), theo thứ tự đã viết, nên .inject_raw.ssm_param đọc một cơ chế tùy chỉnh theo cách .inject_raw.env đọc một cơ chế lõi. Có giá trị null nếu Developer bỏ hoàn toàn khối inject. Được Ops dùng cho các kiểm tra logic (ví dụ: {{ if not .inject_raw }}) để phát hiện việc bỏ sót trước các biến đổi của inject mapping."
   },
   "376a13ff3d131acb": {
     "at": "2026-10-30T18:25:06.762Z",
@@ -44041,6 +44099,17 @@
     "status": "machine",
     "text": "Những gì các chỉ mục registry cục bộ cung cấp cho lần tìm kiếm."
   },
+  "4397f10a9a161e6f": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "3fc08936d7955aa9",
+      "reviewed": false
+    },
+    "srcHash": "4397f10a9a161e6f",
+    "status": "machine",
+    "text": "**Dạng lỗi.** Một lần từ chối do khả năng được quy về miền tạo catalog, nên báo cáo của nó mở đầu bằng phần đầu trong ngoặc vuông mang danh mục đó và instance gây ra lỗi. Thông báo mở đầu bằng câu cố định nêu điều kiện, sau đó nêu tên nút, provider, và các loại mà provider đó có hỗ trợ:"
+  },
   "4399c2f71f828fe4": {
     "at": "2026-10-22T23:34:48.466793+00:00",
     "job": "msgbatch_012aTHHfasvCmeZDPUMZda5D",
@@ -50350,6 +50419,13 @@
     "srcHash": "4d4c3d1c6e6e3cdf",
     "status": "machine",
     "text": "Hai nửa của stack được đặt tên theo các quy tắc khác nhau, và đây là nửa\nkhiến mọi người bất ngờ."
+  },
+  "4d4c4fbd31539794": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "4d4c4fbd31539794",
+    "status": "machine",
+    "text": "Instance của build mà chẩn đoán liên quan, theo định danh mà build gán cho nó: một component theo tên mà Aggregate khai báo nó, một component do một module đóng góp theo đường dẫn phân tách bằng dấu chấm qua module đó, một component do build suy ra theo định danh mà build ghép cho nó, và một module theo đường dẫn riêng của nó. Có mặt khi chẩn đoán nói về một instance; vắng mặt trong trường hợp khác."
   },
   "4d4f6ed0a69c5aaa": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -60001,6 +60077,17 @@
     "srcHash": "5b8283639d27bfd1",
     "status": "machine",
     "text": "Khi hai đầu không khớp nhau"
+  },
+  "5b83c54132128d8a": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "0f96e12665878398",
+      "reviewed": false
+    },
+    "srcHash": "5b83c54132128d8a",
+    "status": "machine",
+    "text": "Payload mà một guest Provider nhận được trên export name_bound tùy chọn của nó: một tên mà host đề xuất dùng làm danh tính component của một node, để guest đánh giá theo mọi tên mà nó sẽ suy ra từ danh tính đó cho target của mình, cùng với các dữ kiện về workload đã phân giải của node mà một số tên đó phụ thuộc vào, khi danh tính được xác định sau khi workload đó được phân giải. Guest trả lời bằng một ràng buộc chứ không phải bằng một tên của riêng nó — một tên suy ra được gửi ngược lại sẽ buộc host phải tự ghép tên cho một target mà nó không biết gì, đó chính là điều mà việc đặt câu hỏi loại bỏ. Một provider có target giới hạn hoặc hạn chế các tên mà nó chấp nhận sẽ quảng bá export này; một provider có target chấp nhận mọi tên thì bỏ qua nó và không bao giờ được hỏi, và việc render của nó không thay đổi."
   },
   "5b84e7c915382c78": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -72675,6 +72762,17 @@
     "status": "machine",
     "text": "A declared schema contract cannot be read as a schema (Một hợp đồng schema đã khai báo không thể được đọc như một schema)"
   },
+  "6f028eaa166bac97": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "02461a892d030707",
+      "reviewed": false
+    },
+    "srcHash": "6f028eaa166bac97",
+    "status": "machine",
+    "text": "Nơi một chẩn đoán trỏ tới. Nó mang một bộ định vị hợp nhất phục vụ cả vị trí chính xác đến từng byte trong văn bản nguồn thô (một trình phân tích cú pháp điền span) lẫn vị trí có cấu trúc trong một tài liệu nguồn (một renderer điền key_path, uri, line và kind), và nêu tên instance của build mà chẩn đoán liên quan, khi có (instance). Mọi trường đều tùy chọn; một socket điền dạng biểu diễn mà nó có thể tạo ra và bỏ qua phần còn lại."
+  },
   "6f07546a64b74269": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -76010,6 +76108,17 @@
     "srcHash": "7434d2b26837949b",
     "status": "machine",
     "text": "`RegistryRemoveParams`"
+  },
+  "743d6c43150c80ac": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "0038fc3b4aa2a8d9",
+      "reviewed": false
+    },
+    "srcHash": "743d6c43150c80ac",
+    "status": "machine",
+    "text": "Các init service và sidecar service dùng chung một không gian tên, vì [một cách đặt tên](#how-a-sidecar-or-init-service-is-named) đặt tên cho cả hai, nên một mục `initContainers` và một mục `containers` không được mang cùng tên. Khi điều đó xảy ra, trình biên dịch dừng với một `TRANSLATION_ERROR` nêu tên node, tên container và tên service mà cả hai muốn dùng, thay vì để một service lặng lẽ thay thế service kia."
   },
   "743faf99798e7983": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -79653,6 +79762,17 @@
     "status": "machine",
     "text": "*Lưu ý về bộ lọc `| default`, quy ước viết hoa chữ V của `.Values`, và chỉ thị `include` trong MappingLibrary này: các đoạn mã hiển thị ở trên được định hình để engine template chart của Helm sử dụng ở phía sau, nơi các quy ước của Helm là cách viết đã được thiết lập — `.Values.X` cho giá trị chart, `default` cho giá trị dự phòng khi trường vắng mặt, `include` để kết hợp các template trợ giúp. Hàm trợ giúp `optional` mà Aggrega bổ sung cho giá trị dự phòng khi trường vắng mặt trên renderer của chính nó (nội dung `valuesMapping:` của Recipe, `injectMapping:` của FeatureRecipe, và tương tự) không được đăng ký trong engine template của Helm. Tương tự, `include` không được đăng ký trong renderer của Aggrega. Thực thể MappingLibrary lưu trữ các đoạn mã nguyên văn; cách viết tuân theo nơi đoạn mã được dự định render. Thư viện theo phong cách Bitnami ở trên render các giá trị chart Helm; cách viết phía Aggrega sử dụng `.values.X` viết thường và hàm trợ giúp `optional` nhận biết sự hiện diện cho giá trị dự phòng — xem [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback) để biết quy ước của Aggrega.*"
   },
+  "79949953145b87bb": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "ee9217698f80d89c",
+      "reviewed": false
+    },
+    "srcHash": "79949953145b87bb",
+    "status": "machine",
+    "text": "**`.source`.** `source:` của Recipe, được phân giải bởi lần đánh giá template phân giải source. `nil` đối với các Recipes không có source; `nil` trước khi phân giải source chạy. Trên các template của một FeatureRecipe, nó là `source:` của chính FeatureRecipe đó, không bao giờ là của component chủ — xem [Bề mặt FeatureRecipe của attachment](#attachment-featurerecipe-surface)."
+  },
   "7996d25bacf907dc": {
     "at": "2026-10-22T23:05:19.615834+00:00",
     "job": "msgbatch_01A9KTDPLLwkd6FLd7MqtM7B",
@@ -82545,6 +82665,13 @@
     "status": "machine",
     "text": "Khối `.context`"
   },
+  "7e4f41f09e789001": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "7e4f41f09e789001",
+    "status": "machine",
+    "text": "**Độ dài tên phụ thuộc vào Workload.** Hai trong số các tên này bị cluster giới hạn theo mức riêng, và build kiểm tra cả hai ngay khi Workload được phân giải thay vì để cluster từ chối vào lúc áp dụng. Tên **CronJob** dài tối đa 52 ký tự, ngắn hơn các tên khác của cluster vì controller đặt tên Job của mỗi lần chạy theo CronJob kèm một hậu tố được nối thêm; tên này chỉ được kiểm tra với một Workload `scheduled`. Mỗi tên **Service**, `<release name>-<service key>`, dài tối đa 63 ký tự. Khi vượt quá một trong hai giới hạn, điều gì xảy ra phụ thuộc vào ai đã viết tên đó, giống hệt như với tên release: một tên component do bạn viết sẽ bị từ chối, build dừng tại khóa `spec.components` mà bạn đã viết, kèm loại tên, độ dài của nó và ngân sách mà tên của bạn có — xem [`../errors/fatal-halts.md`](../errors/fatal-halts.md) “The target will not accept a name derived from an authored identity (Target sẽ không chấp nhận một tên được suy ra từ một định danh do tác giả viết)”; một định danh được ghép, chẳng hạn định danh mà workload của một attachment Feature được đặt tên theo, sẽ được rút ngắn cho đến khi mọi tên đều vừa. Một tên Service được tạo từ tên component của bạn và một khóa mà workload khai báo — trong Recipe, hoặc trong một FeatureRecipe — nên một lần từ chối sẽ nêu khóa đó và nơi workload khai báo nó, `spec.workload.services.<key>`; một khóa không chừa chỗ cho bất kỳ tên component nào thì chính nó phải được rút ngắn. Vì vậy, một component mang một Workload `scheduled` có thể có tên đã mã hóa dài tới 52 ký tự, và một component `web` có thể mang các khóa Service dài tới 59 ký tự. Một Feature được gắn vào toàn bộ một boundary có định danh được xác định trước khi Workload của nó được phân giải, vì nơi đầu ra của nó được lắp ráp có thể phụ thuộc vào định danh đó, nên không giới hạn nào được kiểm tra cho các tài nguyên mà nó tổng hợp."
+  },
   "7e5619d443079041": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -85099,6 +85226,17 @@
     "srcHash": "82519e3d04b3873b",
     "status": "machine",
     "text": "Mẫu module"
+  },
+  "82526f9c91f4312a": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "9cdb6fab93d6099b",
+      "reviewed": false
+    },
+    "srcHash": "82526f9c91f4312a",
+    "status": "machine",
+    "text": "**Trình phân tích cú pháp là trình xác thực.** Trình phân tích cú pháp bộ chọn của trình biên dịch nắm giữ ngữ pháp: một bộ chọn mà nó từ chối — bất kỳ hình dạng nào ở trên — sẽ dừng quá trình build với một chẩn đoán nêu tên bộ chọn, Feature, socket hoặc slot khai báo nó, và yêu cầu mà nó không đọc được. Lỗi phân tích cú pháp được báo rõ ràng và cụ thể, không bao giờ bị bỏ qua âm thầm. Trong một lần build, trình phân tích cú pháp chạy ở nơi một bộ chọn được đánh giá — cho mỗi lần gắn một Feature, mỗi cạnh nối qua một socket, mỗi lần điền một slot. `aggrega validate`, trên toàn bộ catalog hoặc trên một Component hay Feature, cũng đọc mọi bộ chọn socket và slot mà tài liệu của thực thể khai báo, nên một bộ chọn sai trên một socket hay slot không được dùng sẽ bị từ chối ở đó, với cùng mã và cùng lời lẽ mà một lần build dùng. Một `appliesTo` sai trên một Feature không được gắn vào đâu sẽ không bị báo cáo cho đến khi có thứ gì đó gắn nó."
   },
   "825371176c274c5c": {
     "at": "2026-10-22T11:35:28.524347+00:00",
@@ -91413,6 +91551,17 @@
     "status": "machine",
     "text": "URI chuẩn của Recipe hoặc FeatureRecipe (ví dụ `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0`)."
   },
+  "8c20572df1607da9": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "f50d268ac5fd2012",
+      "reviewed": false
+    },
+    "srcHash": "8c20572df1607da9",
+    "status": "machine",
+    "text": "Ý định nguyên vẹn của developer trước mọi sự can thiệp inject-mapping. Mỗi cơ chế mà khối nêu tên — `env`, `file`, `arg`, hoặc một cơ chế tùy chỉnh như `ssm_param` — nằm dưới tên riêng của nó, chứa các mục đúng như đã viết (`in` với `from` hoặc `value`), theo thứ tự đã viết: `.inject_raw.ssm_param` đọc một cơ chế tùy chỉnh theo cách `.inject_raw.env` đọc cơ chế lõi. Dùng cho các kiểm tra logic “developer ban đầu có yêu cầu khóa phân phối này không?”; không bị ảnh hưởng bởi việc FeatureRecipe `injectMapping` viết lại. Là `nil` nếu developer bỏ qua khối `inject:`."
+  },
   "8c2719bff86c9828": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -95369,6 +95518,17 @@
     "srcHash": "923962160fb53083",
     "status": "machine",
     "text": "**Recipe helm tổng hợp** chạy trực tiếp image chính thức `fluent/fluentd`\n  từ upstream trên Kubernetes (không dùng chart bên ngoài)."
+  },
+  "9239f7f524f75cbb": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "384df8e0b397465c",
+      "reviewed": false
+    },
+    "srcHash": "9239f7f524f75cbb",
+    "status": "machine",
+    "text": "**Ngữ cảnh template đầy đủ** + `.attachment_name`, `.inject` (các mục `inject:` của chính attachment, khi attachment viết một khối `inject:`), `.context.render_facts` — những gì provider của host báo cáo về lần kết xuất của host — và `.context.used_by` — các component sử dụng host, mỗi component mang render facts của riêng nó khi FeatureRecipe đặt `readsCallerRenderFacts: true`. Mỗi kết nối trên `.context.uses` mang render facts của đích của nó, tại `.render_facts`, khi FeatureRecipe đặt `readsTargetRenderFacts: true`. `.context.instance_id` và `.context.rendered_name` là danh tính của component chủ và tên mà provider của chính host báo cáo cho nó — cùng giá trị mà Recipe của host đọc, trên cả `locals:` và `provides:` của FeatureRecipe — và một tham chiếu tới `.context.rendered_name` viết inline sẽ dừng trên một host có provider không báo cáo tên như vậy. `.source` là `source:` đã được đánh giá của chính FeatureRecipe, không bao giờ là của component chủ, và không chứa gì khi FeatureRecipe không khai báo."
   },
   "923cb9efed79baef": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -106107,6 +106267,17 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "Mỗi target tự suy ra các tên của riêng nó từ định danh của một component: một trình cài đặt chart suy ra một tên release, một bộ điều phối container suy ra các tên service. Lỗi dừng này là target đó cho biết nó không thể dùng một trong các tên ấy."
+  },
+  "a2c05e455d3f2018": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "d879a51239918f96",
+      "reviewed": false
+    },
+    "srcHash": "a2c05e455d3f2018",
+    "status": "machine",
+    "text": "**Viết các tệp của riêng bạn.** Vòng lặp đưa một tệp từ trống đến đã được xác thực: [Viết tệp Aggrega](authoring/getting-started.md). Những tệp nào do bạn viết: [Persona](authoring/personas.md) và [Thực thể theo vai trò](authoring/entities-by-role.md). Bắt đầu từ một dự án bạn đã có ở định dạng khác: [Nhập](authoring/import/README.md)."
   },
   "a2c2d864a9785942": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -119097,6 +119268,17 @@
     "status": "machine",
     "text": "**`dotenv-secret`** (Compose, dev cục bộ) triển khai `core/secret-value`. Nó chuyển `origin` trên inject pipe đúng như đã viết, và Recipe compose ghi nó vào environment của service trong tệp được xuất ra — một giá trị được inject, không có resource độc lập và không có `provides`. Vì vậy, một origin literal nằm trong tệp như chính credential; một origin viết dưới dạng tham chiếu biến Compose, chẳng hạn `${DB_PASSWORD}`, nằm trong tệp dưới dạng tham chiếu đó, mà Docker Compose thay thế từ environment của shell hoặc một tệp `.env` khi stack khởi động. Trình biên dịch không ghi tệp `.env` nào. Giá trị được ghi qua `toJson`, dưới dạng một chuỗi JSON mà YAML của mapping đọc lại chính xác, nên một dấu nháy hoặc dấu gạch chéo ngược trong đó đến inject pipe đúng như đã viết:"
   },
+  "b5da5434b0bb8224": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "9f8ac808dff9e21c",
+      "reviewed": false
+    },
+    "srcHash": "b5da5434b0bb8224",
+    "status": "machine",
+    "text": "**`services:` từ artifacts được hợp nhất vào tệp compose đã lắp ráp cùng với các service theo từng component.** Một tên service do hai component khác nhau đóng góp tại cùng một đường dẫn lắp ráp sẽ làm dừng build, và chẩn đoán nêu tên mọi bên đóng góp. Một xung đột *bên trong một component duy nhất* — giữa fragment artifact của chính component đó và các service được tổng hợp cho nó — không bị phát hiện, và phần đóng góp sau thay thế phần trước, vì vậy hãy giữ tên service do artifact viết khác với các tên `<component>` và `<component>--<container-name>` mà bộ tổng hợp tạo ra (xem [Cách một sidecar hoặc init service được đặt tên](#how-a-sidecar-or-init-service-is-named))."
+  },
   "b5df446f04c1e30e": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -123479,6 +123661,17 @@
     "status": "machine",
     "text": "[`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — Phân vùng API nghiêm ngặt và cách định hình thiết kế Bộ siêu dữ liệu doanh nghiệp."
   },
+  "bc9d3874aa759b9d": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "5a1537f15c2f68b7",
+      "reviewed": false
+    },
+    "srcHash": "bc9d3874aa759b9d",
+    "status": "machine",
+    "text": "Chart tại đường dẫn nguồn phải chứa một `Chart.yaml` hợp lệ. Các lần render sourced không tải được chart sẽ hiển thị nguyên văn lỗi gốc của Helm SDK. Một `source: \"\"` rỗng không phải là vấn đề của helm: nó không đặt tên cho chế độ sourceless lẫn chế độ sourced, nên sự từ chối mà nó nhận được là như nhau bất kể Recipe nhắm tới provider nào, và nó xảy ra khi Recipe được đọc, trước khi bất kỳ chart nào được tải và trước khi provider này được điều phối. Những lệnh nào báo cáo nó được trình bày trong [`entities/recipe.md`](../entities/recipe.md) “Source field scheme inventory” và [`errors/fatal-halts.md`](../errors/fatal-halts.md) “Recipe `source:` is an empty string (Trường source của Recipe là một chuỗi rỗng)”."
+  },
   "bca1f864be717dce": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -125923,6 +126116,13 @@
     "srcHash": "c041a2c1c668ff6a",
     "status": "machine",
     "text": "Một nền tảng đích phân giải một secret theo tham chiếu bên trong một **phạm vi secret**: ranh giới mà trong đó một tài nguyên có thể gọi tên một tài nguyên khác. Khi cả hai đầu của một kết nối nằm trong cùng một phạm vi, cả hai tham chiếu đến một tài nguyên secret. Khi chúng nằm ở các phạm vi khác nhau, mỗi đầu giữ một tài nguyên secret riêng, được hiện thực từ cùng một mục trong kho. Manifest chọn cách hiện thực cho mỗi đầu — theo kiểu Feature cho mọi attachment thuộc kiểu đó, hoặc cho một attachment theo tên của nó."
+  },
+  "c0441c312ed15c88": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "c0441c312ed15c88",
+    "status": "machine",
+    "text": "CHỈ có sẵn trong subDirectory:. Định danh của bên đóng góp đang được đặt vào vị trí. Với một component, đó là ID instance theo từng component đã được làm phẳng (ví dụ: 'backend' hoặc 'data-layer.main-db'). Với một Feature được gắn tại một boundary có FeatureRecipe chạy một lần cho boundary đó (executionScope: boundary), đó là định danh component được ghép mà mọi tài nguyên do attachment đó phát ra mang trong nhãn aggrega.ai/component-id của nó (ví dụ: 'bfr--app--shared' cho một attachment 'shared' tại boundary 'app'), được rút ngắn ở nơi plugin render của attachment giới hạn tên, để thư mục mà nó đặt tên khớp với nhãn đó. Vô nghĩa ở cấp boundary và bị từ chối bởi bước xác thực lúc phân tích cú pháp trong các template directory:."
   },
   "c044f5c7da4a2471": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -132452,6 +132652,13 @@
     "status": "machine",
     "text": "Một kho dữ liệu được sao lưu trên mọi đích: một phần đính kèm core/backup"
   },
+  "c9e2e3844a233cd8": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "srcHash": "c9e2e3844a233cd8",
+    "status": "machine",
+    "text": "`.source` là của chính attachment. Template `source:` của một FeatureRecipe được đánh giá trước `valuesMapping:` của nó, giống như ở một Recipe, và những gì nó tạo ra là nội dung mà `.source` giữ trên các template tạo ra tài nguyên của attachment — `valuesMapping:`, `omits:`, `workload:` và `artifacts:` của nó — và trên các bước `pipeline:` của nó. Nó không bao giờ là source của component chủ: một FeatureRecipe không khai báo `source:` nào, hoặc có template không tạo ra gì, sẽ không đọc được gì ở đó, ngay cả trên một host có Recipe khai báo source. Một FeatureRecipe có phạm vi boundary đọc source của chính nó trên cùng các template đó. Ngoại lệ duy nhất là `injectMapping:`, vốn chạy trước khi source của attachment được đánh giá và đọc `.source` như chính Recipe của component chủ."
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -132758,6 +132965,17 @@
     "srcHash": "ca3a3c67f3271d20",
     "status": "machine",
     "text": "Một nhóm Ops mang theo hạ tầng dưới dạng mã của riêng mình sẽ giữ nó trong thư mục riêng của Recipe — một thư mục module hoặc template như `./src`, được chỉ định bởi `source:` — hoặc tải nó bằng một `source:` có cấu trúc (một module Terraform từ kho git của nó, với `kind: git-repository`), hoặc viết nó dưới dạng các thân có template dưới [`artifacts:`](#the-artifacts-field--auxiliary-manifests). Lớp ánh xạ (`valuesMapping:` — inline, import tệp hoặc import thư viện) cung cấp ngữ cảnh trừu tượng cho mã đó, và provider xuất kết quả theo định dạng riêng của đích; không ngôn ngữ cấu hình nào bị chuyển thành ngôn ngữ khác:"
+  },
+  "ca463dccd6d161c6": {
+    "at": "2026-11-05T19:30:28.584Z",
+    "job": "session-0016-20261105193028",
+    "revision": {
+      "from": "b48000c94b4eefdb",
+      "reviewed": false
+    },
+    "srcHash": "ca463dccd6d161c6",
+    "status": "machine",
+    "text": "Nội dung trường source đã được phân giải. Trên các template của một Recipe: được điền khi phân giải source từ trường source: của Recipe sau khi đánh giá Go template, có sẵn từ values mapping trở đi (valuesMapping, workload, artifacts), và là null khi Recipe không có source:. Trên các template của một FeatureRecipe: là trường source: của chính FeatureRecipe sau khi đánh giá Go template, được đánh giá trước valuesMapping của nó và được đọc ở đó cũng như trên mọi template được đánh giá sau nó (omits, workload, artifacts, các bước pipeline), không bao giờ là của component chủ; là null khi FeatureRecipe không có source:. injectMapping của một FeatureRecipe được đánh giá trước source của nó và đọc source của component chủ. Dạng string = đường dẫn URI; dạng object = source có cấu trúc (ví dụ: OCI descriptor với phiên bản đã phân giải)."
   },
   "ca47b6e925aafdf5": {
     "at": "2026-10-22T11:48:02.910092+00:00",
