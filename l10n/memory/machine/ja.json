@@ -2273,6 +2273,13 @@
     "status": "machine",
     "text": "Release のビューは最も重要度の高いインスペクションです。完全なパイプラインを実行し、境界ごとに、すべての Component ノード、その uses エッジ、そのノードにアタッチされたすべての Feature（接続上に記述されたものはその接続のエッジの下）を表示します。それぞれに、**埋めるアタッチメントスロット**、**宣言済みの機密**情報を扱うかどうか、**それを実現する FeatureRecipe**、さらにアタッチメントの由来を示す**プロベナンスブラケット**が付きます。"
   },
+  "032ab55f047d5e99": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "032ab55f047d5e99",
+    "status": "machine",
+    "text": "**文法が読み取れないソケットのセレクターは、何かがソケットを配線する前にも拒否されます。** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors) は、カタログ全体に対しても、1 つの Component または Feature に対しても、そのエンティティ自身のドキュメントが宣言するすべてのソケットセレクターを読み取り、ソケットを通じてエッジが配線されているかどうかにかかわらず、文法が読み取れないものをこの同じ条件で拒否します："
+  },
   "032d6a2bdf8307fa": {
     "at": "2026-10-30T04:13:10.969Z",
     "job": "session-0052-20261030041310",
@@ -4011,6 +4018,13 @@
     "srcHash": "05cf32a5d00d40db",
     "status": "machine",
     "text": "`core/observability/thanos-store`"
+  },
+  "05d0dc420ace4c1d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "05d0dc420ace4c1d",
+    "status": "machine",
+    "text": "Feature のスロットでは、対処法は代わりにその Feature のカタログエンティティを示します。まだ何もスロットを埋めていないため、不備はカタログエンティティにあります。`CATALOG_ERROR` として分類され、エンティティのファイルが示されます。"
   },
   "05d15a1c5d2ad323": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -8702,6 +8716,13 @@
     "srcHash": "0d34299a7da49e0b",
     "status": "machine",
     "text": "ノードのコンポーネントインスタンスが Aggregate で宣言する値で、作成者が記述したとおりのキーで、作成者の順に並びます。Aggregate 内のすべてのテンプレートはすでにそのパラメーターに対して評価されているため、パラメーターに引き上げられた値は、Release が提供した値、またはパラメーターのデフォルトとして届きます。ここにあるのはインスタンス自身の値のみです。Component のスキーマが宣言するデフォルトや、Recipe または Feature が提供するものは含まれません。Component が機密と宣言する値は、グラフ全体に対するガバナンス判定が受け取るのとまったく同じように、伏せられた状態で届きます。その位置には、その判定が持つものと同じ単一キーの伏せ字マーカーオブジェクトが置かれ、宣言された理由が示されます。どの宣言も及ばない兄弟の値は記述どおりに届きます。プラグインはこれらを読んで追加するラベルを決めます。パッチはこれらに及びません。インスタンスが値を宣言しない場合は存在しません。"
+  },
+  "0d37a2cc3ac2eb9c": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "0d37a2cc3ac2eb9c",
+    "status": "machine",
+    "text": "**一部の名前は、コンポーネントがレンダリングするワークロードのためだけに存在します。** プロバイダーへの問い合わせはそのコンポーネントの Workload が解決された時点で行われ、問い合わせには Workload の `form` とその Service キーが含まれるため、ターゲットはそれらから組み立てる名前も判断できます。helm ターゲットでは、これにより 2 つが加わります。1 つは `CronJob name` で、最大 52 文字、`scheduled` の Workload に対してのみ判断されます。クラスターが各実行の Job に、CronJob の名前にサフィックスを付けた名前を付けるためです。もう 1 つは各 `Service name`（`<release name>-<service key>`）で、最大 63 文字です。Service の名前は 2 人の作成者の部分、つまりコンポーネント名と、Recipe または FeatureRecipe の中でワークロードが宣言するキーから組み立てられます。そのため理由には、記述したフィールドと並んで、そのキーと、ワークロードがそれを宣言している場所 `spec.workload.services.<key>` が示されます。どのコンポーネント名の入る余地も残さないほど長いキーの場合、選べる長さは示されず、理由には短くする必要があるのはキーであると示されます。境界全体にアタッチされた Feature については、これらの名前は判断されません。その ID は Workload が解決される前に確定されます。出力がどこで組み立てられるかがその ID に依存する場合があるためです。"
   },
   "0d3aa2d12adcc2d2": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -13950,6 +13971,17 @@
     "srcHash": "1515d75cddeb0cd2",
     "status": "machine",
     "text": "このサービスは、新しい Flowise にオーナーアカウントを登録するか、そのアカウントでサインインし、チャットフローを `chatflow_id` に書き込みます。キーとパスワードは変数参照で、スタックの起動時にシェルから値が埋められます。Flowise はマシン上にポートを公開しません。レンダリングされたファイルはポートを割り当てていません。"
+  },
+  "1521e06f2db35cca": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "8e4bed2f065dcfe2",
+      "reviewed": false
+    },
+    "srcHash": "1521e06f2db35cca",
+    "status": "machine",
+    "text": "recipe source is an empty string, which names neither sourceless mode nor sourced mode (Recipe `<name>:<version>`, at `.spec.source`). omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode（recipe の source が空文字列であり、sourceless モードと sourced モードのどちらも指定していません。sourceless モードにするには source フィールドを省略し、sourced モードにするには空でないパスまたは URI を指定してください）"
   },
   "1523b390505bb159": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -19543,6 +19575,17 @@
     "status": "machine",
     "text": "**課題：** 誤った設定（例：`workers: 500` の要求）が財務上の安全策をすり抜け、クラウドの大きな予算超過を引き起こすことがあります。"
   },
+  "1dcf78ee811aa7d1": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "5718c4e47e1c1528",
+      "reviewed": false
+    },
+    "srcHash": "1dcf78ee811aa7d1",
+    "status": "machine",
+    "text": "インポートされたモジュールが提供するコンポーネントは、それをインポートするコンポジションがビルドされた時点でチェックされ、2 つ目の形式で報告されます。この形式は、モジュールの Aggregate と、モジュールのドキュメント内でスロットが宣言していないキー（アタッチメントの `inject:` ブロック配下のメカニズム、または許可リストが空のスロットで何らかのメカニズムを指定している `inject:` ブロックそのもの）を示します："
+  },
   "1dd30ef472399601": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -21616,6 +21659,13 @@
     "srcHash": "20c704481bf5f6c1",
     "status": "machine",
     "text": "`aggrega explain E0209` は、そのコードを、それが示す条件と、記述側での修正手順の解説に変換します。"
+  },
+  "20c817851f348a5f": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "20c817851f348a5f",
+    "status": "machine",
+    "text": "**どのコマンドがリリースをそのロックファイルに従わせるか。** `aggrega build` はレンダリングの前に比較を行い、停止します。`aggrega validate --release` と、リリースを解決するすべての `aggrega inspect` の選択（デフォルトのビュー、`--resolved`、`--ir-graph`、`--closure`）は、リリースの依存関係が解決されるとすぐに同じ比較を実行し、同じメッセージと対処法で停止し、標準出力には何も書き込みません。そのため、どちらもビルドがずれているとして拒否するロックファイルを見逃すことはありません。アシスタントツールの `build`、`release` を指定した `validate`、`release` を指定した `describe` も同じ条件で拒否します。`aggrega pull` はこれから書き込むロックファイルに対して、`aggrega pull --verify` はディスク上のロックファイルに対してこの比較を実行します。ロックファイルを読まないコマンド（引数なし、またはエンティティパスを指定した `aggrega validate`、および `--ir-graph` なしの `aggrega inspect --raw` または `--output yaml`）はロックファイルに従わされず、隣にロックファイルがないリリースも同様です。エディタの言語サーバーはこれによってビルドを停止し、グラフ要求に対してはグラフを描画しつつ、ロックファイル上の警告として報告します。"
   },
   "20c92127ee00ca21": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -24474,6 +24524,17 @@
     "status": "machine",
     "text": "値は、そのアノテーションに自分で書けるもの、つまり文字列またはサブキーのマップで、後者は複数のサブキーを一度にルーティングするバインディングに渡すものです：`\"annotation_value\": {\"interval\": \"30s\", \"port\": \"metrics\", \"path\": \"/metrics\"}`。式言語はマップに順序を定めないため、エンジンはマップのサブキーをソート順で書き出し、値は式が生成したとおりに渡します。JSON モデルが保持できない値（バイト列、タイムスタンプ、期間）は、テキストに変換されるのではなく拒否されます。その後ビルドは、Release に書かれた同じ値を読むのとまったく同じように値を読み取り、`null`、リスト、数値、真偽値、空のマップを、注入を示して拒否します。1 つのコンポーネントとキーに対する、値の異なる 2 つの決定は、値の JSON によって順序付けられます。ターゲットの `annotations` は既存の各値を書かれたとおりに持ちます（文字列、マップ、またはオプトアウトを表す `null`）。そのため `\"feature.aggrega.ai/monitoring\" in t.annotations` を検査すれば、値にかかわらずキーを見つけられます。"
   },
+  "25018df33ad157da": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "947524b906416190",
+      "reviewed": false
+    },
+    "srcHash": "25018df33ad157da",
+    "status": "machine",
+    "text": "**どちらの形式も、その解決が実行される場所であればどこでも届きます。** [`aggrega build`](../cli/aggrega-build.md)、[`aggrega pull`](../cli/aggrega-pull.md)、[`aggrega validate --release`](../cli/aggrega-validate.md)、[`aggrega inspect --closure`](../cli/aggrega-inspect.md) はターミナルでこれらを出力し、`implements` のターゲットが見つからない 1 つの Recipe に対する [`aggrega validate`](../cli/aggrega-validate.md) も同様です。[`aggrega mcp`](../cli/aggrega-mcp.md) を通じて接続された AI アシスタントは `build` ツールと `validate` ツールから同じ内容を受け取り、拒否されたファイルが宣言するエンティティを `catalog://` で読み取った場合には、先頭に来る拒否を 1 行で受け取ります。どのサーフェスから問い合わせても、開くよう案内されるファイルは変わりません。HTTP 経由で [`aggrega mcp`](../cli/aggrega-mcp.md) にアクセスする呼び出し元にはワークスペースルートからの相対パスで伝えられ、そのサーバーが提供するワークスペース外のファイルは伝えられません。また、拒否が先頭に来る場合、回答が示すオーサリング契約は、拒否されたドキュメントが宣言する kind のものであり、失敗した参照の kind のものではありません。"
+  },
   "2501c7b9b708ea4b": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -24747,6 +24808,17 @@
     "srcHash": "258e5461b0899a45",
     "status": "machine",
     "text": "ヘルパーは実行前に、同等の直接コマンドを表示します。この\nワークスペースは `.aggrega-config.yaml` の `catalog_dirs` を通じてエンティティを解決するため、\n`--catalog` フラグは不要です。"
+  },
+  "258ffcff4e2ed010": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "4d24de44b72ed3b3",
+      "reviewed": false
+    },
+    "srcHash": "258ffcff4e2ed010",
+    "status": "machine",
+    "text": "Recipe が `source: \"\"`、つまり空文字列を宣言しています。Recipe の `source:` は 2 つのオーサリングモードのどちらかを選択します。**sourceless** モードでは外部アーティファクトがなく、出力は Recipe の他の種類の入力だけから生成されます。**sourced** モードでは `source:` が、レンダリング元となる外部のチャート、モジュール、またはファイルを指定します。フィールドを省略すると前者が、空でない値を指定すると後者が選択され、空文字列はどちらも選択しません。したがって空文字列は意味を持つ値ではなく、曖昧さです。null と書かれた `source:` は、省略した場合と同じです。"
   },
   "25909af2467741e6": {
     "at": "2026-10-30T01:14:26.544Z",
@@ -27777,6 +27849,17 @@
     "status": "machine",
     "text": "**Manifest のマッピング階層の解決。** Manifest のフラットな `mappings.{components,features}` による解決の仕組み（`name` 階層と `type` 階層、名前が型より優先、バージョン付きの型がバージョンなしの型より優先）は [`entities/manifest.md`](../entities/manifest.md) に記載されています。リゾルバはこれらのマッピングを利用します。Recipe と FeatureRecipe の選択は、マッピングの値をロックファイルとカタログに対して直接参照するものであり、型にマッピングがないコンポーネントやアタッチメントはビルドを停止させます。`spec.implements` は Recipe を選択しません。これは作成者がすでに書いたマッピングに対するロード時の整合性チェックであり、マッピングなしの診断とエディタ補完が提示する候補リストの出典です。その後の機能ディスパッチは、Manifest の構造的な形ではなく、解決された Recipe の `spec.capability` フィールドに基づいて行われます。"
   },
+  "2a5db71a6c7a0ea5": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "1ffbdf0c4a9f83bc",
+      "reviewed": false
+    },
+    "srcHash": "2a5db71a6c7a0ea5",
+    "status": "machine",
+    "text": "アタッチメントが宣言済みのスロットを束縛していますが、そのスロットが宣言する形状に一致しません。よくあるのは配信のケースです。スロットの `inject` 許可リストは、フィルがマテリアルを配信できるメカニズムを列挙します。空の許可リストはブラックボックスを意味し、Recipe がマテリアルを内部で配信するため、フィルは配信を一切指定できません。空の `inject: {}` ブロックは配信を指定しないため、空の許可リストを含むあらゆるスロットの形状に合致し、アタッチメントがどこに書かれていても同じ判定になります。Aggregate が宣言するコンポーネント上でも、インポートされたモジュールが提供するコンポーネント上でも、より広いスコープでも同様です。どのスロットも宣言していない名前のアタッチメントは自由なアタッチメントであり、スロットの制約を受けません。"
+  },
   "2a61b2c337f58438": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -28801,6 +28884,17 @@
     "srcHash": "2c0ac73092ae61e1",
     "status": "machine",
     "text": "**`made no choice` 行**は、タスクが何としても下書きされないことを示します。タスクはクルーのプログラムが実行するロジックです。"
+  },
+  "2c1122dbfb5ad228": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "c8112149e5580442",
+      "reviewed": false
+    },
+    "srcHash": "2c1122dbfb5ad228",
+    "status": "machine",
+    "text": "ここにあるすべてのディレクトリが 1 つのワークスペースであるわけではありません。クイックスタートの例はステップごとに 1 つのワークスペースを持ち、インポートの例は次の段落で説明するように、インポートの段階ごとに 1 つのワークスペースを持ちます。1 つのディレクトリはワークスペースをまったく含みません。[policy-in-ci](policy-in-ci/) には、ビルドの出力ディレクトリを読み取り、ルールに違反する場合はそれを拒否する 2 つのルールスクリプトが、それぞれのパイプラインステップとともに含まれています。これらは以下のワークスペースの出力や、独自の出力に対して実行されます。"
   },
   "2c11232dd222f2f6": {
     "at": "2026-10-29T22:31:34.157Z",
@@ -37949,6 +38043,13 @@
     "status": "machine",
     "text": "署名エンドポイントの取得元"
   },
+  "3a8bfc3c06670482": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "3a8bfc3c06670482",
+    "status": "machine",
+    "text": "attachment slot selector unsatisfied (`\"<selector>\"`, declared on slot `\"<slot>\"`, of socket `\"<socket>\"`, which could not be evaluated: `\"<why it could not be evaluated>\"`). Correct the selector on the slot's declaration in the socket's featuresSchema on the component's catalog entity.（アタッチメントスロットのセレクターが満たされていません。ソケットのスロットで宣言されたセレクターを評価できませんでした。コンポーネントのカタログエンティティ上のソケットの featuresSchema で、スロットの宣言にあるセレクターを修正してください。）"
+  },
   "3a9072704f2cdc68": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -38712,6 +38813,17 @@
     "srcHash": "3bbabc6a3900ba88",
     "status": "machine",
     "text": "この指摘は、後の Feature 自身のエントリの位置に置かれます。コンポーネントの `features:` ブロック内、または接続が持つ Feature の場合は、それを記述したドキュメント内のその接続配下のエントリ（Aggregate 内の `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>` など）です。メッセージは、キー、配信メカニズム、そして両方の Features をコンポーネント上で持つ名前で示します。接続が持つ Feature は、接続のエイリアスと埋めるスロットをドットでつないだ名前で示されます。衝突する各キーは個別に報告されます。"
+  },
+  "3bbb25eaa8c9089d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "52f37cb8e38a01d0",
+      "reviewed": false
+    },
+    "srcHash": "3bbb25eaa8c9089d",
+    "status": "machine",
+    "text": "宣言されたスロットは、アタッチメントブロックの形状を記述する JSON Schema 2020-12 のフラグメントに射影されます。これに対して検証されるフィルは 2 種類あります。インポートされたモジュールが提供するコンポーネントのアタッチメントブロック（それをインポートするコンポジションがビルドされた時点で検証）と、より広いスコープで宣言されたアタッチメント（それが届く各コンポーネント上のスロットに対して検証）です。Aggregate 自身が宣言するコンポーネントのアタッチメントブロックは、代わりに Aggregate のドキュメントスキーマとスロットの `inject` 許可リストによって検査され（後述）、フラグメントは、どのフィルに対しても両者が同じ判定に至るように形作られています。射影がディスクに書き出されることはなく、メモリ上にのみ存在します。Component の `schema:` でアタッチメントの柱を手書きする必要はありません。"
   },
   "3bbcb8fc2a30dc14": {
     "at": "2026-11-01T00:51:57.735Z",
@@ -50219,6 +50331,13 @@
     "status": "machine",
     "text": "応答が報告する条件です。負のコードはプロトコル自体の予約セットです。4 桁のコードはこのデーモンが発生させる条件で、それぞれクライアントが対処できる状態を示します。このセットは閉じています。"
   },
+  "4d8bc5dc212b6b8d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "4d8bc5dc212b6b8d",
+    "status": "machine",
+    "text": "ビルドはこの行を、この条件の短いコード `E0251` を伴う `CATALOG_ERROR` タグの下に、Recipe ファイルを添えて出力します。"
+  },
   "4d8c51ac347d80c7": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -51641,6 +51760,17 @@
     "srcHash": "4f8899d5e9da096e",
     "status": "machine",
     "text": "`core/security/presidio-analyzer`"
+  },
+  "4f8b47185c52caa3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "fb2126d01fd08d81",
+      "reviewed": false
+    },
+    "srcHash": "4f8b47185c52caa3",
+    "status": "machine",
+    "text": "以下の各エントリは、そのエントリが説明する条件に対してビルドが出力する**メッセージ**を引用しています。メッセージは、条件を述べる固定の文と、その発生時に与えられた内容から成ります。ターミナルでは、このメッセージは枠の中に表示されます。枠は、カテゴリと条件の短いコードを含む角括弧付きの見出し、問題のあるファイルとキーへのポインタとそれに続く `(instance <name>)` という形の失敗の対象インスタンス（ファイルが該当しない場合は `instance <name>` という形のインスタンスのみ）、そしてその下の行のメッセージから成ります。そのため、ビルドから貼り付けた行全体はここのエントリと一致しませんが、その中のメッセージは一致します。枠の詳細は [error-translation.md](error-translation.md) で説明しています。"
   },
   "4f8c81a1e856d3bd": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -56011,6 +56141,17 @@
     "srcHash": "561cd4289c271653",
     "status": "machine",
     "text": "Aggrega は、エンタープライズアーキテクチャを定義してレンダリングするためのオープンソースの言語、エコシステム、コンパイラであり、AI アプリケーションに高度に特化した標準ライブラリを備えています。開発者の抽象的な意図(LangGraph や CrewAI などの認知 AI フレームワークを含む)と、安全で物理的なクラウドネイティブの現実とを橋渡しします。"
+  },
+  "561dcc5e53896eda": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "b4b36fd4f8c7ac6e",
+      "reviewed": false
+    },
+    "srcHash": "561dcc5e53896eda",
+    "status": "machine",
+    "text": "コンパイラが 2 つの解釈のどちらかを代わりに選ぶのではなく、Recipe が拒否されます。空の `source:` が書かれる最も一般的な経緯は、URI を削除してキーだけを残すことです。この場合は sourced モードが意図されており、空文字列を sourceless として受け入れると、アーティファクトのないコンポーネントが出荷され、2 つの解釈のどちらを採ったかも示されません。"
   },
   "5620d368b662bd99": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -65500,6 +65641,17 @@
     "status": "machine",
     "text": "signing: a recorded signature is not the one a pull would record (記録された署名が pull の記録するものと一致しません) (`\"<plugin>\"`, `<record-path>` records no entry for it and a signature is required for it, a pull would ask its registry for the signature a requirement asks for and record it). remediation: run `aggrega pull --release <release>` to bring `<record-path>` up to date"
   },
+  "6454c2bc61611df1": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "feee80545eeda2ca",
+      "reviewed": false
+    },
+    "srcHash": "6454c2bc61611df1",
+    "status": "machine",
+    "text": "`remove it`：許可リストが空のスロットでメカニズムを指定している `inject:` ブロックの場合；"
+  },
   "64578e1264073be4": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -67670,6 +67822,13 @@
     "status": "machine",
     "text": "ファイルは自己完結したプラグイン契約です。ソケット型、エクスポートごとのケイパビリティ、ランタイム制約、署名ポインタを含みます。ファイルパス、またはカタログに対する `<pluginType>/<name>` 座標で指定できます。"
   },
+  "67f6dacb770f7af5": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "67f6dacb770f7af5",
+    "status": "machine",
+    "text": "**文法が読み取れないスロットのセレクターは、何かがスロットを埋める前にも拒否されます。** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors) は、カタログ全体に対しても、1 つの Component または Feature に対しても、そのエンティティ自身のドキュメントが宣言するすべてのスロットセレクター（Component 自身のスロット、そのソケットが宣言するスロット、Feature のスロット）を読み取り、何かがスロットを埋めているかどうかにかかわらず、文法が読み取れないものをこの同じ条件で拒否します。メッセージは上記の「評価できなかった」形式で、ソケットが宣言するスロットではソケットが追加されます："
+  },
   "67fdd1cf00e77f32": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -68548,6 +68707,13 @@
     "srcHash": "6965e74d6b660597",
     "status": "machine",
     "text": "**2 番目の `warn` 行**は注意深く読むべきものです。モデルノードは、下書きが配線する接続を通じてではなく、自身が選択する保存済み資格情報を使って OpenAI にアクセスします。プラットフォームは接続を n8n の環境に渡しますが、Aggregate が `values.allow_env_access_in_nodes` を `false` のままにしている間（下書きはそうしています）、n8n はワークフローによる環境の読み取りを拒否します。これを `true` に設定すると、すべてのワークフローと、ワークフローを編集できるすべての人が、渡されたキーを含むプラットフォームのすべての変数を読み取れるようになります。"
+  },
+  "696d984fedcd145a": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "696d984fedcd145a",
+    "status": "machine",
+    "text": "Feature のソケットでは、対処法は代わりにその Feature の `usesSchema` を示します。まだ何もソケットを配線していないため、不備はカタログエンティティにあります。`CATALOG_ERROR` として分類され、エンティティのファイルが示されます。"
   },
   "69757a5e46056ebc": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -70976,6 +71142,13 @@
     "srcHash": "6d43efeb0fded8a7",
     "status": "machine",
     "text": "形と、テンプレートが接続を走査する順序については、[接続のアタッチメント](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures) を参照してください。"
+  },
+  "6d460b3d6e438377": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "6d460b3d6e438377",
+    "status": "machine",
+    "text": "**その後 `.source` が読み取るもの。** source は、Recipe の source がその Recipe 自身のマッピングより前に評価されるのと同様に、`valuesMapping:` より前に評価されます。そしてその結果が、後に実行されるすべてのテンプレートにおける `.source` になります。対象は `valuesMapping:`、`omits:`、`workload:` と `artifacts:` の本体、そして `pipeline:` のステップです。したがって、`.source` を読み取る `valuesMapping:` は、この FeatureRecipe 自身の source を読み取り、アタッチ先のコンポーネントの source を読み取ることはありません。また、この FeatureRecipe が source を宣言していない場合や、そのテンプレートが何も生成しない場合は、何も読み取りません。境界スコープの FeatureRecipe も同じように自身の source を読み取ります。`injectMapping:` はアタッチメントの source が評価される前に実行されるため、そこでの `.source` はホストコンポーネントのものです。"
   },
   "6d4a01d5c4bcd73f": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -79343,6 +79516,13 @@
     "status": "machine",
     "text": "<http://localhost:8080> を開くと、NGINX がリクエストをバックエンドへ転送します。\n停止するには\n`docker compose -f dist/app/compose/docker-compose.yaml down` を実行します。"
   },
+  "79d7e17a015afcc3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "79d7e17a015afcc3",
+    "status": "machine",
+    "text": "この規則は Recipe の読み込み時に、記述されたとおりの値を読み取ってチェックされます。そのため、Recipe を読み込むすべてのコマンドは、何かが空の値を使おうとする前にこの条件を示します。Recipe ファイルに対する [`aggrega validate`](../cli/aggrega-validate.md) はこれを拒否します。`aggrega pull`、ビルド、`aggrega validate --release`、および [`aggrega mcp`](../cli/aggrega-mcp.md) が公開するビルドツールは、その Recipe に到達する Release についてこれを報告し、そのせいで解決できなくなった Recipe への参照よりも先に示します。したがって pull は、空の参照を source の種類が判別できない参照として報告するのではなく、この条件を示します。この条件は source が宣言されているかどうかを読む規則より前にチェックされるため、`source:` が空の Recipe には、重ねる対象のない `valuesMapping` や欠けている入力の種類についてではなく、`source:` について伝えられます。"
+  },
   "79d9be3f593bf79b": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -83835,6 +84015,17 @@
     "srcHash": "8115826e57dcef9b",
     "status": "machine",
     "text": "**修正方法：** どちらもファイル内の何かによって生じるものではなく、解消できる記述上の変更もありません。障害はビルドに求められた内容ではなく、ビルドの接続方法にあります。実行したコマンドと、その実行対象となったワークスペース設定を添えて報告してください。"
+  },
+  "81170bd1743e09a0": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "0c4eea016dde3483",
+      "reviewed": false
+    },
+    "srcHash": "81170bd1743e09a0",
+    "status": "machine",
+    "text": "出力されるメッセージです。位置は、その Recipe をバインドするコンポーネントではなく、空の `source:` が記述された Recipe ファイルと、その中のキー `.spec.source` に置かれます。このエントリは、その Recipe をバインドするすべてのコンポーネントで共有されるためです："
   },
   "8117684f72f26633": {
     "at": "2026-10-30T18:36:11.533Z",
@@ -99467,6 +99658,13 @@
     "srcHash": "998e672c2b6c370d",
     "status": "machine",
     "text": "インデックスがこの参照について保持するすべてのバージョン。"
+  },
+  "998fabfd5bcf7f86": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "998fabfd5bcf7f86",
+    "status": "machine",
+    "text": "各 `import-*` の例（[製品と機能別の例](by-product-and-capability.md)の `import` 機能の下に掲載）は、別の形式で書かれたプロジェクトを `aggrega import` が受け取るままの形で、3 つのフォルダーに保持しています。`source/` はプロジェクトと、それをワークスペースにする `.aggrega-config.yaml` です。`draft/` はインポートが書き出したファイルを変更せずに収めたもので、標準出力（`stdout.txt`）と標準エラー（`import.txt`）に出力された内容も含みます。`reviewed/` はレビュー後の同じファイルで、ビルドできるワークスペースです。[インポート](../../authoring/import/README.md)にあるそのウォークスルーで各段階を説明しています。その `check.sh` はこのリポジトリの共有スクリプト `scripts/check-import-example.sh` を実行します。このスクリプトはインポートを再度実行して、書き出した内容と出力した内容を `draft/` と比較し、ウォークスルーが引用するブロックを例のファイルと比較し、`reviewed/` をビルドします。"
   },
   "998ff06135835913": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -125275,6 +125473,13 @@
     "status": "machine",
     "text": "コンパイラは、アタッチメントのリーフごとの来歴をたどって一様性を確認することで、コンパクト形式とリーフごとの形式のどちらでレンダリングするかを選びます。アタッチメントの来歴が**一様**であるとは、値が設定されたすべてのリーフ（Feature の `values:` と `infra:` の両ピラーにわたる）が同じ起源（明示的かアノテーションか）、アノテーション駆動の場合は同じアノテーションキー、同じソースエンティティを共有し、かつ「overrides annotation」マーカーを持つリーフが 1 つもない場合を指します。来歴が一様な場合、コンパイラはアタッチメントごとに 1 つのブラケットを出力します。"
   },
+  "c06563a0e46a11b3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "c06563a0e46a11b3",
+    "status": "machine",
+    "text": "selector violation (\"<selector-expression>\", declared on socket \"<socket-name>\", which could not be evaluated: \"<why-it-could-not-be-read>\"). Correct the selector on the socket's declaration in the component type's usesSchema.（セレクター違反：ソケットで宣言されたセレクターを評価できませんでした。コンポーネントタイプの usesSchema で、ソケットの宣言にあるセレクターを修正してください。）"
+  },
   "c067d2f0eaa85d4c": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -137310,6 +137515,17 @@
     "status": "machine",
     "text": "signing: signature bundle does not verify: its cryptographic check holds, but it is in a form from which the artifact it was made for cannot be read（signing：署名バンドルが検証に通りません。暗号学的チェックは成立しますが、署名対象のアーティファクトを読み取れない形式です）"
   },
+  "d20f346c63220799": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "ce9522eb8a7b4674",
+      "reviewed": false
+    },
+    "srcHash": "d20f346c63220799",
+    "status": "machine",
+    "text": "**Release の依存関係を読むすべてのコマンドがこのチェックを行います。異なるのは、それぞれが結果をどう扱うかです。** `aggrega build` と `aggrega pull` は停止します。どちらも後で使うもの（レンダリングされた成果物とロックファイル）を生成するからです。`aggrega validate` と `aggrega lint` は、見つけた他のすべての診断とともにこの検出結果を報告し、非ゼロで終了します。これらの役割はワークスペースの問題をすべて伝えることなので、1 つの不具合でレポートが打ち切られることはありません。エディタでは検出結果が他の診断と並んで公開され、そのドキュメントが報告すべき他の内容には影響しません。表示される場所に注意してください。エディタは検出結果を、Aggregate ではなく、マッピングが書かれた Manifest 上の、それが示すマッピングエントリのキーに公開します。`extends` を通じて継承したエントリのように、Manifest の開いているテキストにそのエントリが書かれていない場合は、Manifest の先頭行に公開します。ワークスペースのどのドキュメントも示さない Release の他の依存関係レベルの検出結果は、Aggregate に残ります。`aggrega validate` を実行すれば、どのドキュメントを開いていても報告されます。"
+  },
   "d20f50ca74c4ee54": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -140860,6 +141076,17 @@
     "status": "machine",
     "text": "`core/referenced-secret` はシークレット **リソース** を指定します。これはその FeatureRecipe の出力が\n作成するもの、または既に存在するもののどちらかです。そして、そのリソースのロケーター、つまり\n`name` とその中のデータの `key` を、`provides` 契約を通じて公開します。\n利用側の Recipe はそのロケーターを読み取ります。独自にリソース名を導出することはなく、\nどの FeatureRecipe がそれを生成したかを問うこともありません。"
   },
+  "d7fba6d5ce727548": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "43a73eef6cd5f767",
+      "reviewed": false
+    },
+    "srcHash": "d7fba6d5ce727548",
+    "status": "machine",
+    "text": "`accepted but blocked` — スキーマは空文字列を受け付けますが、Recipe を読み込むすべてのコマンドは、Recipe の読み取り時にそれを拒否します。空文字列はどちらのモードも指定しないためです。この拒否は、曖昧さと、そこから抜け出す 2 つの方法を示します。sourceless モードにするにはフィールドを省略し、sourced モードにするには実際のパスまたは URI を指定します。`aggrega validate <recipe-file>` は Recipe に対してこれを報告し、`aggrega pull`、`aggrega build`、`aggrega validate --release` はその Recipe に到達する Release に対してこれを報告します。[`errors/fatal-halts.md`](../errors/fatal-halts.md) の「Recipe `source:` is an empty string(Recipe の source が空文字列です)」を参照してください。"
+  },
   "d7feda4e4303677e": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -141303,6 +141530,17 @@
     "srcHash": "d8ac0217b6fd51c0",
     "status": "machine",
     "text": "公開済みの 1 つ以上のアーティファクトに署名し、その署名を添付します"
+  },
+  "d8ad140d12ed88c3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "9eb61908ae89d5e4",
+      "reviewed": false
+    },
+    "srcHash": "d8ad140d12ed88c3",
+    "status": "machine",
+    "text": "**対処法:** component を、それを名指しするすべての箇所（それを宣言する Aggregate と、それを配置・設定する Release）で、ターゲットが受け付ける名前に変更します。メッセージに長さが示されている場合は、その範囲内に収めます。示されていない場合は、ターゲットの理由を読みます。通常はターゲットが許容しない文字であり、最も多いのは名前の先頭の大文字です（helm ターゲットでは先頭の数字）。単語間をハイフンでつないだ小文字と数字を推奨します。[命名の章](../02-naming-conventions.md)では、各種類のターゲットで名前が何をもたらすかを説明しています。理由に Service キーが示されている場合は、ワークロードがそれを宣言している場所でそのキーを短くすることでも長さを取り戻せます。理由にそのキーが余地を残していないと示されている場合は、それが唯一の方法です。component の名前を変更すると、そのリソースが持つ名前が変わるため、デプロイ済みのアプリケーションでは他のリソース名の変更と同様に扱ってください。"
   },
   "d8bccbc795bdaa2c": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -144228,6 +144466,17 @@
     "status": "machine",
     "text": "DAG 実行モデル、時間的な順序付けを Aggregate ではなく Release に置く理由、wave の記述単位とデプロイ可能な単位の区別など、アーキテクチャ全体の枠組みについては [`architecture/12-day-two-lifecycles.md` §1](../../architecture/12-day-two-lifecycles.md) を参照してください。"
   },
+  "dcc28f62d00d15a8": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "c663562e5d5250e0",
+      "reviewed": false
+    },
+    "srcHash": "dcc28f62d00d15a8",
+    "status": "machine",
+    "text": "**Aggregate 自身のアタッチメント**に対しては、アタッチメントが解決される時点で、あらゆるレンダリングより前に適用されます。宣言されたスロットにバインドされる充填上の `inject:` ブロックは、そのスロットの許可リストが許すメカニズムのみを指定でき、ブラックボックスのスロットは何も許しません。空の許可リストは「この配信は Recipe が内部で行う。配信を指示しないこと」を意味し、そのスロットに配信を記述するとビルドが停止します。診断はアタッチメントの位置に示され、スロットと問題のメカニズムに加え、スロットが何らかのメカニズムを許す場合はそれらも示します。誤っているのは Aggregate なので、開発者の不備として分類されます。空の `inject: {}` ブロックはメカニズムを何も指定しないため、配信を指示せず、ブラックボックスのスロットを含むすべてのスロットで受け入れられます。これは、Aggregate が宣言するコンポーネント上でも、インポートされたモジュールが提供するコンポーネント上でも、より広いスコープで宣言されたアタッチメント上でも同様です。フリーアタッチメント(どのスロットも宣言していない名前のもの)にはこのような制約はありません。許可リストはブロックではなくスロットに属するためです。"
+  },
   "dcc361ee8f0d54aa": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -145055,6 +145304,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "この章では、基本となる問題領域、プラットフォームの厳格なアンチゴール、より広いエコシステムとの関係、そして Aggrega のエコシステムを律する包括的な理念を定めます。"
+  },
+  "ddd866802ef591a3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "ddd866802ef591a3",
+    "status": "machine",
+    "text": "ビルドの 1 つのインスタンス（コンポーネント、モジュールが提供するコンポーネント、またはモジュールそのもの）に関する失敗は、位置の後に `(instance <name>)` という形でそのインスタンスを示します。したがって `aggregate.yaml (instance shop)` は、モジュール `shop` を宣言している Aggregate を表します。失敗に指し示すドキュメントがない場合、インスタンスは `instance <name>` として単独で表示されます。コンポーネント `adminer` のレンダリング中に失敗したプロバイダーは `[TRANSLATION_ERROR E0082] instance adminer` を出力し、その下の行に、失敗が示すドキュメントを含む失敗の残りの内容が続きます。名前は、Aggregate がそのコンポーネントを宣言するときの名前です。モジュールが提供するコンポーネントは、`shop.cart` のように、モジュールを経由するパスで命名されます。ファイルがあるべき場所にインスタンスが出力されることはないため、ソースポインタの先頭にあるのは常に開くことのできるドキュメントか、上記の論理識別子のいずれかです。"
   },
   "dddd0d08866002ac": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -147299,6 +147555,13 @@
     "srcHash": "e113160d120c9abe",
     "status": "machine",
     "text": "[`providers/architecture.md`](providers/architecture.md) — プロバイダのディスパッチと、`(path, provider)` ごとのアセンブリモデル。"
+  },
+  "e11a9e3d7fda5f6f": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "e11a9e3d7fda5f6f",
+    "status": "machine",
+    "text": "スキップされたファイルは、それが原因で見つからなくなった Component についても説明します。Recipe の `implements` のターゲットが見つからず、その Component を宣言するスキップされたファイルがちょうど 1 つある場合、レポートはそのファイル自身の拒否（そのパス、違反している制約、見出し内の条件の短いコード）から始まります。続いて、そのファイルが読み込み時にスキップされたため、カタログにはそれが宣言する ID の下に何も存在しないことを示す `note:` が続き、さらにそのファイルが必要だった理由として `implements target … not found in catalog` の失敗が続きます。その Component を宣言するスキップされたファイルがない場合、または複数ある場合は、not-found の失敗が先頭に来て、スキップされたすべてのファイルがその下の `note: catalog files skipped at load` に列挙されます。これは [`aggrega build`](./aggrega-build.md) がスキップしたファイルについて示す説明であり、[`aggrega serve`](./aggrega-serve.md) を介したエディタのエンティティチェックと、[`aggrega mcp`](./aggrega-mcp.md) の `validate` ツールも同じ説明を示します。何もスキップされなかったカタログは、通常とまったく同じように報告します。"
   },
   "e11c5b9447be6986": {
     "at": "2026-10-22T02:13:05.447791+00:00",

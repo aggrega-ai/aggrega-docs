@@ -2273,6 +2273,13 @@
     "status": "machine",
     "text": "Release 보기는 가장 중요한 검사입니다. 전체 파이프라인을 실행하고, 경계(boundary)마다 모든 Component 노드와 그 uses-edge, 그리고 해당 노드에 첨부된 모든 Feature(연결에 작성된 것은 그 연결의 edge 아래)를 렌더링하며, 각각에 대해 **채우는 첨부 슬롯**, **선언된 민감** 자료를 다루는지 여부, **그것을 구현하는 FeatureRecipe**와 함께, 첨부가 어디에서 왔는지 보여주는 **출처 괄호**를 표시합니다:"
   },
+  "032ab55f047d5e99": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "032ab55f047d5e99",
+    "status": "machine",
+    "text": "**문법이 읽을 수 없는 소켓 셀렉터는 무언가가 소켓을 연결하기 전에도 거부됩니다.** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors)는 카탈로그 전체에 대해서든 하나의 Component 또는 Feature에 대해서든, 그 엔터티 자체 문서가 선언하는 모든 소켓 셀렉터를 읽고, 소켓을 통해 연결된 엣지가 있는지와 관계없이 문법이 읽을 수 없는 셀렉터를 이 같은 조건으로 거부합니다:"
+  },
   "032d6a2bdf8307fa": {
     "at": "2026-10-30T04:13:10.969Z",
     "job": "session-0052-20261030041310",
@@ -4011,6 +4018,13 @@
     "srcHash": "05cf32a5d00d40db",
     "status": "machine",
     "text": "`core/observability/thanos-store`"
+  },
+  "05d0dc420ace4c1d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "05d0dc420ace4c1d",
+    "status": "machine",
+    "text": "Feature의 슬롯에서는 해결 방법이 대신 그 Feature의 카탈로그 엔터티를 지목합니다. 아직 아무것도 슬롯을 채우지 않았으므로 결함은 카탈로그 엔터티에 있습니다. 이는 `CATALOG_ERROR`로 분류되며 엔터티의 파일을 지목합니다."
   },
   "05d15a1c5d2ad323": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -8702,6 +8716,13 @@
     "srcHash": "0d34299a7da49e0b",
     "status": "machine",
     "text": "노드의 컴포넌트 인스턴스가 Aggregate에서 선언하는 값으로, 작성자가 쓴 키 그대로 작성자의 순서대로 담깁니다. Aggregate의 모든 템플릿은 이미 파라미터에 대해 평가되었으므로, 파라미터로 끌어올린 값은 Release가 제공한 값 또는 파라미터의 기본값으로 도착합니다. 여기에는 인스턴스 자신의 값만 있습니다. Component의 스키마가 선언하는 기본값이나 Recipe 또는 Feature가 기여하는 것은 포함되지 않습니다. Component가 민감하다고 선언한 값은 전체 그래프에 대한 거버넌스 판정이 받는 것과 정확히 같이 가려진 상태로 도착합니다. 그 자리에는 해당 판정이 담는 것과 같은 단일 키의 가림 표시 객체가 놓이며, 선언된 이유를 명시합니다. 어떤 선언도 닿지 않는 형제 값은 쓰인 그대로 도착합니다. 플러그인은 이 값을 읽어 어떤 레이블을 추가할지 결정합니다. 패치는 이 값에 닿을 수 없습니다. 인스턴스가 값을 선언하지 않으면 없습니다."
+  },
+  "0d37a2cc3ac2eb9c": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "0d37a2cc3ac2eb9c",
+    "status": "machine",
+    "text": "**일부 이름은 컴포넌트가 렌더링하는 워크로드를 위해서만 존재합니다.** 프로바이더에 대한 질의는 그 컴포넌트의 Workload가 해석된 뒤에 이루어지며, 질의에는 Workload의 `form`과 Service 키가 담기므로 대상은 이것들로 만드는 이름도 판단할 수 있습니다. helm 대상에서는 이로 인해 두 가지가 추가됩니다. 하나는 `CronJob name`으로, 최대 52자이며 `scheduled` Workload에 대해서만 판단합니다. 클러스터가 각 실행의 Job에 CronJob 이름 뒤에 접미사를 붙인 이름을 주기 때문입니다. 다른 하나는 각 `Service name`, 즉 `<release name>-<service key>`이며 최대 63자입니다. Service 이름은 두 작성자의 부분, 즉 컴포넌트 이름과 워크로드가 Recipe 또는 FeatureRecipe에서 선언하는 키로 만들어지므로, 그 이유에는 작성한 필드와 함께 그 키와 워크로드가 이를 선언한 위치 `spec.workload.services.<key>`가 표시됩니다. 어떤 컴포넌트 이름도 들어갈 자리가 남지 않을 만큼 긴 키라면 선택할 길이가 제시되지 않으며, 이유에는 짧아져야 하는 것이 키라고 표시됩니다. 경계 전체에 첨부된 Feature에 대해서는 이 이름들을 판단하지 않습니다. 그 식별자는 Workload가 해석되기 전에 확정되는데, 그 출력이 어디서 조립되는지가 식별자에 따라 달라질 수 있기 때문입니다."
   },
   "0d3aa2d12adcc2d2": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -13950,6 +13971,17 @@
     "srcHash": "1515d75cddeb0cd2",
     "status": "machine",
     "text": "이 서비스는 새 Flowise에 소유자 계정을 등록하거나 그 계정으로 로그인한 뒤, 챗플로우를 `chatflow_id`에 기록합니다. 키와 비밀번호는 변수 참조이며, 스택이 시작될 때 셸에서 값이 채워집니다. Flowise는 사용자의 머신에 포트를 게시하지 않습니다. 렌더링된 파일이 포트를 지정하지 않기 때문입니다."
+  },
+  "1521e06f2db35cca": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "8e4bed2f065dcfe2",
+      "reviewed": false
+    },
+    "srcHash": "1521e06f2db35cca",
+    "status": "machine",
+    "text": "recipe source is an empty string, which names neither sourceless mode nor sourced mode (Recipe `<name>:<version>`, at `.spec.source`). omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode (recipe source가 빈 문자열이어서 sourceless 모드도 sourced 모드도 지정하지 않습니다. sourceless 모드라면 source 필드를 생략하고, sourced 모드라면 비어 있지 않은 경로나 URI를 지정하십시오)"
   },
   "1523b390505bb159": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -19543,6 +19575,17 @@
     "status": "machine",
     "text": "**문제:** 실수로 인한 잘못된 구성(예: `workers: 500` 요청)은 재무 안전장치를 우회하여 큰 클라우드 비용 초과를 일으킬 수 있습니다."
   },
+  "1dcf78ee811aa7d1": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "5718c4e47e1c1528",
+      "reviewed": false
+    },
+    "srcHash": "1dcf78ee811aa7d1",
+    "status": "machine",
+    "text": "가져온 모듈이 제공하는 컴포넌트는 그 모듈을 가져오는 컴포지션이 빌드된 후에 검사되며, 두 번째 형식으로 보고됩니다. 이 형식은 모듈의 Aggregate와, 모듈 문서 안에서 슬롯이 선언하지 않은 키, 즉 첨부의 `inject:` 블록 아래에 있는 메커니즘 또는 허용 목록이 비어 있는 슬롯에서 어떤 메커니즘이든 지정하는 `inject:` 블록 자체를 지목합니다:"
+  },
   "1dd30ef472399601": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -21616,6 +21659,13 @@
     "srcHash": "20c704481bf5f6c1",
     "status": "machine",
     "text": "`aggrega explain E0209`는 그 코드를 코드가 가리키는 조건과 작성 측 수정 방법의 단계별 안내로 바꿔 줍니다:"
+  },
+  "20c817851f348a5f": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "20c817851f348a5f",
+    "status": "machine",
+    "text": "**어떤 명령이 릴리스를 그 lockfile에 맞추는가.** `aggrega build`는 렌더링하기 전에 비교하고 중단합니다. `aggrega validate --release`와, 릴리스를 해석하는 모든 `aggrega inspect` 선택(기본 보기, `--resolved`, `--ir-graph`, `--closure`)은 릴리스의 의존성이 해석되는 즉시 같은 비교를 실행하고, 같은 메시지와 해결 방법으로 중단하며, 표준 출력에는 아무것도 쓰지 않습니다. 따라서 둘 다 빌드가 어긋났다고 거부하는 lockfile을 그냥 넘기지 않습니다. 어시스턴트 도구의 `build`, `release`를 지정한 `validate`, `release`를 지정한 `describe`도 같은 조건으로 거부합니다. `aggrega pull`은 곧 쓸 lockfile에 대해, `aggrega pull --verify`는 디스크에 있는 lockfile에 대해 이 비교를 실행합니다. lockfile을 읽지 않는 명령, 즉 인수 없이 또는 엔터티 경로와 함께 실행한 `aggrega validate`, 그리고 `--ir-graph` 없이 실행한 `aggrega inspect --raw` 또는 `--output yaml`은 lockfile에 묶이지 않으며, 옆에 lockfile이 없는 릴리스도 마찬가지입니다. 편집기의 언어 서버는 이 때문에 빌드를 중단하며, 그래프 요청에서는 그래프를 그리면서도 이를 lockfile에 대한 경고로 보고합니다."
   },
   "20c92127ee00ca21": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -24474,6 +24524,17 @@
     "status": "machine",
     "text": "값은 그 어노테이션에 직접 작성할 수 있는 값, 즉 문자열이나 하위 키의 맵이며, 후자는 여러 하위 키를 한 번에 라우팅하는 바인딩에 전달되는 값입니다 — `\"annotation_value\": {\"interval\": \"30s\", \"port\": \"metrics\", \"path\": \"/metrics\"}`. 표현식 언어는 맵에 순서를 정하지 않으므로 엔진은 맵의 하위 키를 정렬된 순서로 작성하고, 값은 표현식이 생성한 그대로 전달합니다. JSON 모델이 담을 수 없는 값 — 바이트, 타임스탬프, 기간 — 은 텍스트로 변환되지 않고 거부됩니다. 그런 다음 빌드는 Release에 작성된 같은 값을 읽는 것과 똑같이 값을 읽고, `null`, 목록, 숫자, 불리언 또는 빈 맵을 주입을 지목하며 거부합니다. 하나의 컴포넌트와 키에 대해 값이 다른 두 결정은 값의 JSON에 따라 정렬됩니다. 대상의 `annotations`는 기존의 각 값을 작성된 그대로 — 문자열, 맵, 또는 옵트아웃을 나타내는 `null`로 — 담으므로, `\"feature.aggrega.ai/monitoring\" in t.annotations`를 검사하면 값과 관계없이 키를 찾을 수 있습니다."
   },
+  "25018df33ad157da": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "947524b906416190",
+      "reviewed": false
+    },
+    "srcHash": "25018df33ad157da",
+    "status": "machine",
+    "text": "**두 형태 모두 그 해석이 실행되는 곳이면 어디서든 전달됩니다.** [`aggrega build`](../cli/aggrega-build.md), [`aggrega pull`](../cli/aggrega-pull.md), [`aggrega validate --release`](../cli/aggrega-validate.md), [`aggrega inspect --closure`](../cli/aggrega-inspect.md)는 터미널에서 이를 출력하며, `implements` 대상을 찾을 수 없는 Recipe 하나에 대한 [`aggrega validate`](../cli/aggrega-validate.md)도 마찬가지입니다. [`aggrega mcp`](../cli/aggrega-mcp.md)로 연결된 AI 어시스턴트는 `build`와 `validate` 도구에서 같은 내용을 받고, 거부된 파일이 선언하는 엔터티를 `catalog://`로 읽으면 앞에 오는 거부를 한 줄로 받습니다. 어느 표면에서 요청했든 열어야 할 파일은 달라지지 않습니다. HTTP로 [`aggrega mcp`](../cli/aggrega-mcp.md)에 접근하는 호출자는 워크스페이스 루트 기준 상대 경로로 안내받으며, 그 서버가 제공하는 워크스페이스 밖의 파일은 안내받지 않습니다. 그리고 거부가 앞에 오는 경우, 답이 가리키는 작성 계약은 실패한 참조의 종류가 아니라 그 거부된 문서가 선언한 종류에 대한 것입니다."
+  },
   "2501c7b9b708ea4b": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -24747,6 +24808,17 @@
     "srcHash": "258e5461b0899a45",
     "status": "machine",
     "text": "헬퍼는 실행하기 전에 동일한 직접 명령을 출력합니다. 이\n작업 공간은 `.aggrega-config.yaml`의 `catalog_dirs`를 통해\n엔티티를 해석하므로 `--catalog` 플래그가 필요하지 않습니다."
+  },
+  "258ffcff4e2ed010": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "4d24de44b72ed3b3",
+      "reviewed": false
+    },
+    "srcHash": "258ffcff4e2ed010",
+    "status": "machine",
+    "text": "Recipe가 `source: \"\"`, 즉 빈 문자열을 선언합니다. Recipe의 `source:`는 두 가지 작성 모드 중 하나를 선택합니다. **sourceless** 모드는 외부 아티팩트가 없고 출력 전체가 Recipe의 다른 입력 종류에서 만들어지는 모드이며, **sourced** 모드는 `source:`가 렌더링할 외부 차트, 모듈 또는 파일을 지정하는 모드입니다. 필드를 생략하면 첫 번째가, 비어 있지 않은 값을 쓰면 두 번째가 선택되며, 빈 문자열은 어느 쪽도 선택하지 않습니다. 따라서 이는 의미 있는 값이 아니라 모호성입니다. null로 작성된 `source:`는 생략한 것과 같습니다."
   },
   "25909af2467741e6": {
     "at": "2026-10-30T01:14:26.544Z",
@@ -27777,6 +27849,17 @@
     "status": "machine",
     "text": "**Manifest 매핑 계층 해석.** Manifest의 평탄한 `mappings.{components,features}` 해석 메커니즘(`name` 및 `type` 계층, 이름이 타입보다 우선, 버전이 있는 타입이 버전 없는 타입보다 우선)은 [`entities/manifest.md`](../entities/manifest.md)에 문서화되어 있습니다. 리졸버는 이 매핑을 소비합니다. Recipe와 FeatureRecipe 선택은 매핑 값을 lockfile과 카탈로그에서 직접 조회하는 것이며, 타입에 매핑이 없는 component나 연결은 빌드를 중단시킵니다. `spec.implements`는 Recipe를 선택하지 않습니다. 이는 작성자가 이미 작성한 매핑에 대한 로드 시점 일관성 검사이자, no-mapping 진단과 편집기 자동 완성이 제시하는 후보 목록의 출처입니다. 이후 capability 디스패치는 Manifest의 구조적 형태가 아니라 해석된 Recipe의 `spec.capability` 필드에서 이어집니다."
   },
+  "2a5db71a6c7a0ea5": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "1ffbdf0c4a9f83bc",
+      "reviewed": false
+    },
+    "srcHash": "2a5db71a6c7a0ea5",
+    "status": "machine",
+    "text": "첨부가 선언된 슬롯에 바인딩되지만 그 슬롯이 선언하는 형태와 일치하지 않습니다. 흔한 경우는 전달입니다. 슬롯의 `inject` 허용 목록은 채움이 자료를 전달할 수 있는 메커니즘을 지정하며, 빈 허용 목록은 블랙박스입니다. 즉 Recipe가 자료를 내부적으로 전달하고, 채움은 어떤 전달도 지정할 수 없습니다. 빈 `inject: {}` 블록은 어떤 전달도 지정하지 않으므로 빈 허용 목록을 포함한 모든 슬롯의 형태에 맞으며, 첨부가 어디에 작성되든 같은 판정을 받습니다. Aggregate가 선언하는 컴포넌트, 가져온 모듈이 제공하는 컴포넌트, 더 넓은 범위 모두 마찬가지입니다. 어떤 슬롯도 선언하지 않은 이름으로 작성된 첨부는 자유 첨부이며 슬롯 제약을 받지 않습니다."
+  },
   "2a61b2c337f58438": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -28801,6 +28884,17 @@
     "srcHash": "2c0ac73092ae61e1",
     "status": "machine",
     "text": "**`made no choice` 줄**은 태스크가 아무것으로도 초안 작성되지 않음을 알려 줍니다. 태스크는 크루의 프로그램이 실행하는 로직입니다."
+  },
+  "2c1122dbfb5ad228": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "c8112149e5580442",
+      "reviewed": false
+    },
+    "srcHash": "2c1122dbfb5ad228",
+    "status": "machine",
+    "text": "여기 있는 모든 디렉터리가 하나의 워크스페이스인 것은 아닙니다. 빠른 시작 예제는 단계마다 워크스페이스를 하나씩 두고, 가져오기 예제는 다음 단락에서 설명하듯 가져오기의 단계마다 하나씩 둡니다. 한 디렉터리에는 워크스페이스가 전혀 없습니다. [policy-in-ci](policy-in-ci/)에는 빌드 출력 디렉터리를 읽고 규칙을 위반하면 이를 거부하는 규칙 스크립트 두 개가 각각의 파이프라인 단계와 함께 들어 있습니다. 이 스크립트는 아래 워크스페이스의 출력과 여러분의 출력에 대해 실행됩니다."
   },
   "2c11232dd222f2f6": {
     "at": "2026-10-29T22:31:34.157Z",
@@ -37949,6 +38043,13 @@
     "status": "machine",
     "text": "서명 엔드포인트의 출처"
   },
+  "3a8bfc3c06670482": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "3a8bfc3c06670482",
+    "status": "machine",
+    "text": "attachment slot selector unsatisfied (`\"<selector>\"`, declared on slot `\"<slot>\"`, of socket `\"<socket>\"`, which could not be evaluated: `\"<why it could not be evaluated>\"`). Correct the selector on the slot's declaration in the socket's featuresSchema on the component's catalog entity. (첨부 슬롯 셀렉터가 충족되지 않음: 소켓의 슬롯에 선언된 셀렉터를 평가할 수 없습니다. 컴포넌트의 카탈로그 엔터티에 있는 소켓의 featuresSchema에서 슬롯 선언의 셀렉터를 수정하십시오.)"
+  },
   "3a9072704f2cdc68": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -38712,6 +38813,17 @@
     "srcHash": "3bbabc6a3900ba88",
     "status": "machine",
     "text": "이 결과는 나중 Feature 자체의 항목에 표시됩니다. 컴포넌트의 `features:` 블록 안이거나, 연결이 지닌 Feature의 경우 그것을 작성한 문서에서 해당 연결 아래의 항목, 예를 들어 Aggregate의 `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>`입니다. 메시지는 키, 전달 메커니즘, 그리고 두 Features를 컴포넌트에서 지닌 이름으로 지정합니다. 연결이 지닌 Feature는 연결의 별칭과 채우는 슬롯을 점으로 연결한 이름으로 지정됩니다. 충돌하는 각 키는 개별적으로 보고됩니다."
+  },
+  "3bbb25eaa8c9089d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "52f37cb8e38a01d0",
+      "reviewed": false
+    },
+    "srcHash": "3bbb25eaa8c9089d",
+    "status": "machine",
+    "text": "선언된 슬롯은 첨부 블록의 형태를 기술하는 JSON Schema 2020-12 프래그먼트로 투영됩니다. 이에 대해 검증되는 채움은 두 종류입니다. 가져온 모듈이 제공하는 컴포넌트의 첨부 블록은 그 모듈을 가져오는 컴포지션이 빌드된 후에 검증되고, 더 넓은 범위에서 선언된 첨부는 그것이 도달하는 각 컴포넌트의 슬롯에 대해 검증됩니다. Aggregate 자체가 선언하는 컴포넌트의 첨부 블록은 대신 Aggregate의 문서 스키마와 슬롯의 `inject` 허용 목록으로 판단되며(아래 참조), 프래그먼트는 어떤 채움에 대해서도 둘이 같은 판정에 이르도록 구성되어 있습니다. 투영은 디스크에 기록되지 않고 메모리에만 존재하며, Component의 `schema:`는 첨부 필러를 직접 작성할 필요가 없습니다."
   },
   "3bbcb8fc2a30dc14": {
     "at": "2026-11-01T00:51:57.735Z",
@@ -50219,6 +50331,13 @@
     "status": "machine",
     "text": "응답이 보고하는 조건입니다. 음수 코드는 프로토콜 자체의 예약된 집합이며, 네 자리 코드는 이 데몬이 발생시키는 조건으로, 각각 클라이언트가 대응할 수 있는 상태를 나타냅니다. 이 집합은 닫혀 있습니다."
   },
+  "4d8bc5dc212b6b8d": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "4d8bc5dc212b6b8d",
+    "status": "machine",
+    "text": "빌드는 이 줄을 이 조건의 짧은 코드 `E0251`과 함께 `CATALOG_ERROR` 태그 아래에 출력하며, 그 옆에 Recipe 파일을 표시합니다."
+  },
   "4d8c51ac347d80c7": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -51641,6 +51760,17 @@
     "srcHash": "4f8899d5e9da096e",
     "status": "machine",
     "text": "`core/security/presidio-analyzer`"
+  },
+  "4f8b47185c52caa3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "fb2126d01fd08d81",
+      "reviewed": false
+    },
+    "srcHash": "4f8b47185c52caa3",
+    "status": "machine",
+    "text": "아래 각 항목은 해당 항목이 설명하는 조건에 대해 빌드가 출력하는 **메시지**를 인용합니다. 메시지는 조건을 서술하는 고정된 문장과 그 뒤에 해당 발생 건이 제공한 내용으로 이루어집니다. 터미널에서 이 메시지는 프레임 안에 나타납니다. 프레임은 범주와 조건의 짧은 코드를 담은 대괄호 머리말, 문제가 있는 파일과 키를 가리키는 포인터와 그 뒤에 `(instance <name>)` 형태로 붙는 실패 대상 인스턴스(파일이 해당하지 않으면 `instance <name>` 형태의 인스턴스만), 그리고 그 아래 줄의 메시지로 구성됩니다. 따라서 빌드에서 붙여 넣은 줄 전체는 여기의 항목과 일치하지 않지만, 그 안의 메시지는 일치합니다. 프레임의 전체 내용은 [error-translation.md](error-translation.md)에서 설명합니다."
   },
   "4f8c81a1e856d3bd": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -56011,6 +56141,17 @@
     "srcHash": "561cd4289c271653",
     "status": "machine",
     "text": "Aggrega는 엔터프라이즈 아키텍처를 정의하고 렌더링하기 위한 오픈 소스 언어, 에코시스템, 컴파일러이며, AI 애플리케이션에 고도로 특화된 표준 라이브러리를 갖추고 있습니다. 추상적인 개발자 의도(LangGraph나 CrewAI 같은 인지형 AI 프레임워크 포함)와 안전하고 물리적인 클라우드 네이티브 현실 사이를 잇는 다리 역할을 합니다."
+  },
+  "561dcc5e53896eda": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "b4b36fd4f8c7ac6e",
+      "reviewed": false
+    },
+    "srcHash": "561dcc5e53896eda",
+    "status": "machine",
+    "text": "컴파일러가 두 해석 중 하나를 대신 고르는 대신 Recipe가 거부됩니다. 빈 `source:`가 생기는 가장 흔한 경우는 URI를 지우고 키를 남겨 두는 것입니다. 이때 의도는 sourced 모드였으며, 빈 문자열을 sourceless로 받아들이면 아티팩트 없이 컴포넌트가 나가고 두 해석 중 어느 쪽을 택했는지 알리지도 않게 됩니다."
   },
   "5620d368b662bd99": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -65500,6 +65641,17 @@
     "status": "machine",
     "text": "signing: a recorded signature is not the one a pull would record (`\"<plugin>\"`, `<record-path>` records no entry for it and a signature is required for it, a pull would ask its registry for the signature a requirement asks for and record it). remediation: run `aggrega pull --release <release>` to bring `<record-path>` up to date (signing: 기록된 서명이 pull이 기록할 서명과 다릅니다. 기록 파일에 해당 플러그인의 항목이 없고 서명이 필요하며, pull은 요구 사항이 요구하는 서명을 레지스트리에 요청하여 기록합니다. 해결 방법: 해당 Release에 대해 pull을 실행하여 기록 파일을 최신 상태로 만드십시오)"
   },
+  "6454c2bc61611df1": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "feee80545eeda2ca",
+      "reviewed": false
+    },
+    "srcHash": "6454c2bc61611df1",
+    "status": "machine",
+    "text": "`remove it`: 허용 목록이 비어 있는 슬롯에서 메커니즘을 지정하는 `inject:` 블록인 경우;"
+  },
   "64578e1264073be4": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -67670,6 +67822,13 @@
     "status": "machine",
     "text": "파일은 자체 완결적인 플러그인 계약입니다. 소켓 타입, export별 기능, 런타임 제약, 서명 포인터를 담습니다. 파일 경로로, 또는 카탈로그에 대한 `<pluginType>/<name>` 좌표로 지정할 수 있습니다."
   },
+  "67f6dacb770f7af5": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "67f6dacb770f7af5",
+    "status": "machine",
+    "text": "**문법이 읽을 수 없는 슬롯 셀렉터는 무언가가 슬롯을 채우기 전에도 거부됩니다.** [`aggrega validate`](../cli/aggrega-validate.md#declared-selectors)는 카탈로그 전체에 대해서든 하나의 Component 또는 Feature에 대해서든, 그 엔터티 자체 문서가 선언하는 모든 슬롯 셀렉터, 즉 Component 자체의 슬롯, 그 소켓이 선언하는 슬롯, Feature의 슬롯을 읽고, 무언가가 슬롯을 채우는지와 관계없이 문법이 읽을 수 없는 셀렉터를 이 같은 조건으로 거부합니다. 메시지는 위의 “평가할 수 없음” 형태이며, 소켓이 선언하는 슬롯에서는 소켓이 추가됩니다:"
+  },
   "67fdd1cf00e77f32": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -68548,6 +68707,13 @@
     "srcHash": "6965e74d6b660597",
     "status": "machine",
     "text": "**두 번째 `warn` 줄**은 주의 깊게 읽어야 합니다. 모델 노드는 초안이 배선하는 연결을 통하지 않고, 자신이 선택한 저장된 자격 증명으로 OpenAI에 접근합니다. 플랫폼은 연결을 n8n의 환경으로 전달하는데, Aggregate가 초안처럼 `values.allow_env_access_in_nodes`를 `false`로 두는 동안 n8n은 워크플로가 환경을 읽는 것을 거부합니다. 이를 `true`로 설정하면 모든 워크플로와 워크플로를 편집할 수 있는 모든 사람이, 전달된 키를 포함한 플랫폼의 모든 변수를 읽을 수 있게 됩니다."
+  },
+  "696d984fedcd145a": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "696d984fedcd145a",
+    "status": "machine",
+    "text": "Feature의 소켓에서는 해결 방법이 대신 그 Feature의 `usesSchema`를 지목합니다. 아직 아무것도 소켓을 연결하지 않았으므로 결함은 카탈로그 엔터티에 있습니다. 이는 `CATALOG_ERROR`로 분류되며 엔터티의 파일을 지목합니다."
   },
   "69757a5e46056ebc": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -70976,6 +71142,13 @@
     "srcHash": "6d43efeb0fded8a7",
     "status": "machine",
     "text": "형태와 템플릿이 연결을 순회하는 순서는 [연결의 첨부](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures)를 참조하십시오."
+  },
+  "6d460b3d6e438377": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "6d460b3d6e438377",
+    "status": "machine",
+    "text": "**이후 `.source`가 읽는 것.** 소스는 Recipe의 소스가 그 Recipe 자신의 매핑보다 먼저 평가되는 것처럼 `valuesMapping:`보다 먼저 평가되며, 그 결과는 이후에 실행되는 모든 템플릿에서 `.source`가 됩니다. 즉 `valuesMapping:`, `omits:`, `workload:`와 `artifacts:` 본문, 그리고 `pipeline:` 단계입니다. 따라서 `.source`를 읽는 `valuesMapping:`은 이 FeatureRecipe 자신의 소스를 읽으며, 그것이 첨부된 컴포넌트의 소스는 결코 읽지 않습니다. 또한 이 FeatureRecipe가 소스를 선언하지 않거나 그 템플릿이 아무것도 만들어 내지 않으면 아무것도 읽지 않습니다. 경계 범위의 FeatureRecipe도 같은 방식으로 자신의 소스를 읽습니다. `injectMapping:`은 첨부의 소스가 평가되기 전에 실행되므로, 거기서의 `.source`는 호스트 컴포넌트의 것입니다."
   },
   "6d4a01d5c4bcd73f": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -79343,6 +79516,13 @@
     "status": "machine",
     "text": "<http://localhost:8080>을 열면 NGINX가 요청을 백엔드로 전달합니다.\n종료하려면\n`docker compose -f dist/app/compose/docker-compose.yaml down`을 실행합니다."
   },
+  "79d7e17a015afcc3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "79d7e17a015afcc3",
+    "status": "machine",
+    "text": "이 규칙은 Recipe를 로드할 때 작성된 값을 그대로 읽어 검사되므로, Recipe를 로드하는 모든 명령은 무언가가 빈 값을 사용하려 하기 전에 이 조건을 지목합니다. Recipe 파일에 대한 [`aggrega validate`](../cli/aggrega-validate.md)는 이를 거부하며, `aggrega pull`, 빌드, `aggrega validate --release`, 그리고 [`aggrega mcp`](../cli/aggrega-mcp.md)가 제공하는 빌드 도구는 그 Recipe에 도달하는 Release에 대해 이를 보고하되, 이 때문에 더 이상 해석할 수 없게 된 Recipe 참조보다 먼저 보고합니다. 따라서 pull은 빈 참조를 소스 종류를 알 수 없는 참조로 보고하는 대신 이 조건을 지목합니다. 이 검사는 소스가 선언되었는지를 읽는 규칙보다 먼저 이루어지므로, `source:`가 비어 있는 Recipe는 덧씌울 대상이 없는 `valuesMapping`이나 누락된 입력 종류가 아니라 `source:`에 대해 안내받습니다."
+  },
   "79d9be3f593bf79b": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -83835,6 +84015,17 @@
     "srcHash": "8115826e57dcef9b",
     "status": "machine",
     "text": "**해결 방법:** 사용자의 파일 중 어느 것도 이 오류를 일으키지 않으며, 이를 해소하는 작성상의 변경도 없습니다. 결함은 빌드에 요청된 내용이 아니라 빌드가 연결된 방식에 있습니다. 실행한 명령과 그 명령이 사용한 워크스페이스 구성을 함께 보고하십시오."
+  },
+  "81170bd1743e09a0": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "0c4eea016dde3483",
+      "reviewed": false
+    },
+    "srcHash": "81170bd1743e09a0",
+    "status": "machine",
+    "text": "출력되는 메시지입니다. 위치는 Recipe를 바인딩하는 컴포넌트가 아니라 빈 `source:`가 작성된 Recipe 파일과 그 안의 키 `.spec.source`입니다. 이 항목은 해당 Recipe를 바인딩하는 모든 컴포넌트가 공유하기 때문입니다:"
   },
   "8117684f72f26633": {
     "at": "2026-10-30T18:36:11.533Z",
@@ -99467,6 +99658,13 @@
     "srcHash": "998e672c2b6c370d",
     "status": "machine",
     "text": "인덱스가 이 참조에 대해 보유한 모든 버전입니다."
+  },
+  "998fabfd5bcf7f86": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "998fabfd5bcf7f86",
+    "status": "machine",
+    "text": "각 `import-*` 예제는 [제품 및 기능별 예제](by-product-and-capability.md)의 `import` 기능 아래에 나열되어 있으며, 다른 형식으로 작성된 프로젝트를 `aggrega import`가 받는 그대로 세 폴더에 보관합니다. `source/`는 프로젝트와 이를 워크스페이스로 만드는 `.aggrega-config.yaml`이고, `draft/`는 가져오기가 작성한 파일을 변경 없이 담고 표준 출력(`stdout.txt`)과 표준 오류(`import.txt`)에 출력한 내용도 함께 담으며, `reviewed/`는 검토를 마친 같은 파일로서 빌드되는 워크스페이스입니다. [가져오기](../../authoring/import/README.md) 아래의 연습 안내가 각 단계를 설명합니다. 그 `check.sh`는 이 저장소의 공유 스크립트 `scripts/check-import-example.sh`를 실행하는데, 이 스크립트는 가져오기를 다시 실행해 작성하고 출력한 내용을 `draft/`와 비교하고, 연습 안내가 인용하는 블록을 예제의 파일과 비교하며, `reviewed/`를 빌드합니다."
   },
   "998ff06135835913": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -125275,6 +125473,13 @@
     "status": "machine",
     "text": "컴파일러는 연결의 리프별 출처를 순회하며 균일성을 확인하여 축약 렌더링과 리프별 렌더링 중 하나를 선택합니다. 연결의 출처는 (Feature의 `values:` 및 `infra:` 기둥 전체에서) 값이 채워진 모든 리프가 같은 기원(명시적 또는 어노테이션), 어노테이션 기반인 경우 같은 어노테이션 키, 같은 출처 엔터티를 공유하고, 어떤 리프에도 “overrides annotation” 표시가 없을 때 **균일**합니다. 출처가 균일하면 컴파일러는 연결당 괄호 하나를 출력합니다."
   },
+  "c06563a0e46a11b3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "c06563a0e46a11b3",
+    "status": "machine",
+    "text": "selector violation (\"<selector-expression>\", declared on socket \"<socket-name>\", which could not be evaluated: \"<why-it-could-not-be-read>\"). Correct the selector on the socket's declaration in the component type's usesSchema. (셀렉터 위반: 소켓에 선언된 셀렉터를 평가할 수 없습니다. 컴포넌트 타입의 usesSchema에서 소켓 선언의 셀렉터를 수정하십시오.)"
+  },
   "c067d2f0eaa85d4c": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -137310,6 +137515,17 @@
     "status": "machine",
     "text": "signing: signature bundle does not verify: its cryptographic check holds, but it is in a form from which the artifact it was made for cannot be read (서명: 서명 번들이 검증되지 않음: 암호학적 검사는 통과하지만 서명 대상 아티팩트를 읽어 낼 수 없는 형태임)"
   },
+  "d20f346c63220799": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "ce9522eb8a7b4674",
+      "reviewed": false
+    },
+    "srcHash": "d20f346c63220799",
+    "status": "machine",
+    "text": "**Release의 의존성을 읽는 모든 명령이 이 검사를 수행하며, 다른 점은 각 명령이 결과로 무엇을 하는가입니다.** `aggrega build`와 `aggrega pull`은 중단됩니다. 둘 다 이후에 사용할 결과물, 즉 렌더링된 아티팩트와 lockfile을 생성하기 때문입니다. `aggrega validate`와 `aggrega lint`는 찾아낸 다른 모든 진단과 함께 이 결과를 보고한 뒤 0이 아닌 코드로 종료합니다. 이 명령들의 역할은 워크스페이스의 잘못된 점을 모두 알려 주는 것이므로, 결함 하나로 보고가 중단되지 않습니다. 편집기에서는 이 결과가 다른 진단과 나란히 게시되며, 해당 문서가 보고할 다른 내용에는 영향이 없습니다. 표시 위치에 유의하십시오. 편집기는 이 결과를 Aggregate가 아니라 매핑이 작성된 Manifest에, 결과가 지목하는 매핑 항목의 키 위에 게시합니다. `extends`로 상속한 항목처럼 Manifest의 열린 텍스트에 그 항목이 작성되어 있지 않으면 Manifest의 첫 줄에 게시합니다. 워크스페이스의 어떤 문서도 지목하지 않는 Release의 다른 의존성 수준 결과는 Aggregate에 남습니다. `aggrega validate`를 실행하면 어떤 문서를 열어 두었든 보고됩니다."
+  },
   "d20f50ca74c4ee54": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -140860,6 +141076,17 @@
     "status": "machine",
     "text": "`core/referenced-secret`은 시크릿 **리소스**, 즉 해당 FeatureRecipe의 출력이\n생성하는 리소스나 이미 존재하는 리소스의 이름을 지정하고, 그 리소스의 위치 정보, 즉\n`name`과 그 안의 데이터 `key`를 `provides` 계약을 통해 게시합니다.\n소비하는 Recipe는 그 위치 정보를 읽습니다. 자체적으로 리소스 이름을 도출하지 않으며,\n어떤 FeatureRecipe가 그것을 생성했는지 묻지도 않습니다."
   },
+  "d7fba6d5ce727548": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "43a73eef6cd5f767",
+      "reviewed": false
+    },
+    "srcHash": "d7fba6d5ce727548",
+    "status": "machine",
+    "text": "`accepted but blocked` — 스키마는 빈 문자열을 허용하지만, Recipe를 로드하는 모든 명령은 Recipe를 읽을 때 이를 거부합니다. 빈 문자열은 어느 모드도 지정하지 않기 때문입니다. 거부는 모호함과 함께 이를 벗어나는 두 가지 방법을 알려 줍니다. 소스 없는 모드라면 필드를 생략하고, 소스 모드라면 실제 경로나 URI를 지정하십시오. `aggrega validate <recipe-file>`은 Recipe에 대해 이를 보고하고, `aggrega pull`, `aggrega build`, `aggrega validate --release`는 그 Recipe에 도달하는 Release에 대해 이를 보고합니다. [`errors/fatal-halts.md`](../errors/fatal-halts.md)의 “Recipe `source:` is an empty string(Recipe의 source가 빈 문자열임)”을 참조하십시오."
+  },
   "d7feda4e4303677e": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -141303,6 +141530,17 @@
     "srcHash": "d8ac0217b6fd51c0",
     "status": "machine",
     "text": "이미 게시된 하나 이상의 아티팩트에 서명하고 서명 첨부"
+  },
+  "d8ad140d12ed88c3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "9eb61908ae89d5e4",
+      "reviewed": false
+    },
+    "srcHash": "d8ad140d12ed88c3",
+    "status": "machine",
+    "text": "**해결 방법:** component 이름을 대상이 허용하는 이름으로 바꾸되, 이를 명명하는 모든 곳에서 바꾸십시오. 즉 이를 선언하는 Aggregate와 이를 배치하고 구성하는 Release입니다. 메시지에 길이가 명시되어 있으면 그 안에 맞추십시오. 명시되어 있지 않으면 대상의 이유를 읽으십시오. 대개 대상이 허용하지 않는 문자이며, 가장 흔하게는 이름 시작 부분의 대문자이고, helm 대상에서는 그 위치의 숫자입니다. 소문자와 숫자를 사용하고 단어 사이에 하이픈을 넣는 것이 좋습니다. [이름 지정 장](../02-naming-conventions.md)에서 각 종류의 대상에서 이름이 치르는 비용을 설명합니다. 이유에 Service 키가 지목되어 있으면 워크로드가 그 키를 선언한 곳에서 키를 줄여서도 길이를 확보할 수 있으며, 이유에 그 키가 자리를 남기지 않는다고 되어 있으면 그 방법밖에 없습니다. component 이름을 바꾸면 그 리소스가 가지는 이름이 바뀌므로, 이미 배포된 애플리케이션에서는 다른 리소스 이름 변경과 마찬가지로 다루십시오."
   },
   "d8bccbc795bdaa2c": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -144228,6 +144466,17 @@
     "status": "machine",
     "text": "DAG 실행 모델, 시간적 순서 지정을 Aggregate가 아닌 Release에 두는 이유, 웨이브 작성 단위와 배포 단위의 구분 등 전체 아키텍처적 설명은 [`architecture/12-day-two-lifecycles.md` §1](../../architecture/12-day-two-lifecycles.md)을 참조하십시오."
   },
+  "dcc28f62d00d15a8": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "revision": {
+      "from": "c663562e5d5250e0",
+      "reviewed": false
+    },
+    "srcHash": "dcc28f62d00d15a8",
+    "status": "machine",
+    "text": "첨부가 해석될 때 그리고 렌더링 전에 **Aggregate 자체의 첨부**에 대해: 선언된 슬롯을 바인딩하는 채움의 `inject:` 블록은 슬롯의 허용 목록이 허용하는 메커니즘만 지정할 수 있으며, 블랙박스 슬롯은 아무것도 허용하지 않습니다. 비어 있는 허용 목록은 “Recipe가 이를 내부적으로 전달하므로 전달 방식을 지시하지 마십시오”라는 뜻이며, 이에 대한 전달을 작성하면 빌드가 중단됩니다. 진단 메시지는 첨부 위치에 표시되며 슬롯과 문제가 된 메커니즘, 그리고 슬롯이 허용하는 메커니즘이 있으면 그것도 함께 지정합니다. 잘못한 것은 Aggregate이므로 개발자 결함으로 분류됩니다. 빈 `inject: {}` 블록은 어떤 메커니즘도 지정하지 않으므로 전달을 지시하지 않으며, 블랙박스 슬롯을 포함한 모든 슬롯에서 허용됩니다. 이는 Aggregate가 선언하는 컴포넌트, 가져온 모듈이 제공하는 컴포넌트, 더 넓은 범위에서 선언된 첨부 모두에 똑같이 적용됩니다. 자유 첨부, 즉 어떤 슬롯도 선언하지 않은 이름의 첨부에는 이런 제약이 없습니다. 허용 목록은 블록이 아니라 슬롯에 속하기 때문입니다."
+  },
   "dcc361ee8f0d54aa": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -145055,6 +145304,13 @@
     "srcHash": "ddd73edb063f9fa0",
     "status": "machine",
     "text": "이 장에서는 기본 문제 영역, 플랫폼의 엄격한 반목표, 더 넓은 생태계와의 관계, 그리고 Aggrega 생태계를 이끄는 전반적인 철학을 정립합니다."
+  },
+  "ddd866802ef591a3": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "ddd866802ef591a3",
+    "status": "machine",
+    "text": "빌드의 한 인스턴스, 즉 컴포넌트, 모듈이 제공하는 컴포넌트 또는 모듈 자체에 관한 실패는 위치 뒤에 `(instance <name>)` 형태로 그 인스턴스를 지목합니다. 따라서 `aggregate.yaml (instance shop)`은 모듈 `shop`을 선언하는 Aggregate를 뜻합니다. 실패가 가리킬 문서가 없으면 인스턴스는 `instance <name>`으로 단독으로 나타납니다. 컴포넌트 `adminer`를 렌더링하다 실패한 프로바이더는 `[TRANSLATION_ERROR E0082] instance adminer`를 출력하며, 그 아래 줄들이 실패가 지목하는 문서를 포함한 나머지 내용을 담습니다. 이름은 Aggregate가 컴포넌트를 선언할 때 쓴 이름이며, 모듈이 제공하는 컴포넌트는 `shop.cart`처럼 모듈을 거치는 경로로 이름이 붙습니다. 파일이 와야 할 자리에 인스턴스가 출력되는 일은 없으므로, 소스 포인터의 맨 앞에 오는 것은 언제나 열 수 있는 문서이거나 위에서 설명한 논리 식별자 중 하나입니다."
   },
   "dddd0d08866002ac": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -147299,6 +147555,13 @@
     "srcHash": "e113160d120c9abe",
     "status": "machine",
     "text": "[`providers/architecture.md`](providers/architecture.md) — provider 디스패치와 `(path, provider)`별 어셈블리 모델."
+  },
+  "e11a9e3d7fda5f6f": {
+    "at": "2026-11-05T20:48:59.984Z",
+    "job": "session-0022-20261105204859",
+    "srcHash": "e11a9e3d7fda5f6f",
+    "status": "machine",
+    "text": "건너뛴 파일은 그 때문에 사라진 Component에 대해서도 설명합니다. Recipe의 `implements` 대상을 찾을 수 없고 그 Component를 선언하는 건너뛴 파일이 정확히 하나일 때, 보고는 그 파일 자체의 거부, 즉 그 경로, 위반한 제약, 머리말에 있는 조건의 짧은 코드로 시작합니다. 그다음에는 그 파일이 로드 시 건너뛰어졌으므로 카탈로그가 그 파일이 선언하는 식별자 아래에 아무것도 가지고 있지 않다는 `note:`가 이어지고, 이어서 그 파일이 필요했던 이유로 `implements target … not found in catalog` 실패가 나옵니다. 그 Component를 선언하는 건너뛴 파일이 없거나 둘 이상이면, not-found 실패가 앞에 오고 건너뛴 모든 파일이 그 아래 `note: catalog files skipped at load` 아래에 나열됩니다. 이는 [`aggrega build`](./aggrega-build.md)가 건너뛴 파일에 대해 제공하는 설명이며, [`aggrega serve`](./aggrega-serve.md)를 통한 편집기의 엔터티 검사와 [`aggrega mcp`](./aggrega-mcp.md)의 `validate` 도구도 같은 설명을 제공합니다. 아무것도 건너뛰지 않은 카탈로그는 평소와 똑같이 보고합니다."
   },
   "e11c5b9447be6986": {
     "at": "2026-10-22T02:13:05.447791+00:00",
