@@ -10,7 +10,7 @@ The entity path may be given positionally or with `--entity <path>`. `--release`
 
 ## Whole-catalog conventions (no argument)
 
-`aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at `warn` severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift.
+`aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at `warn` severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift. An Aggregate, a Manifest, a Release or a Workload in a catalog directory is passed over rather than checked: the pass counts each such kind on a `not checked:` line after its summary and points you to the entity mode, which [checks a document of any kind](#which-kinds-the-entity-mode-checks).
 
 A YAML file under a catalog directory is an Aggrega document when one of its lines starts, unindented, with `apiVersion:` and a value beginning `aggrega.ai/`, quoted or not. An Aggrega document that cannot be read, whose YAML does not parse, or whose `kind`, `metadata` or `spec` is not the shape an entity's envelope takes — a `metadata` written as a list, say — halts the run with [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) once the directories have been read, naming every such file with the reason the read or the parser gave; nothing is linted and no `conventions checked` line is printed. One that loads and declares a `kind` no catalog holds — a misspelled `Componnent`, say, or no `kind` at all — halts the same run with [`E0371`](../errors/fatal-halts.md#a-catalog-document-declares-a-kind-a-catalog-does-not-hold), named beside them with the kind it declares; a Manifest, a Release, and a Workload a Recipe imports from its own directory are passed over. Any other YAML — a Helm chart's templates, which do not parse until they are rendered, chart values, workflow definitions — is passed over. `--release` halts on such a document under its catalog directories the same way.
 
@@ -51,6 +51,26 @@ The entity-path mode runs at one of two severities:
 - **`--pre-publish` (publish gate).** Fetches the entity's latest published non-pre-release version from the registry, runs the same rules at **`halt`** severity, and additionally classifies the change as `PATCH` / `MINOR` / `MAJOR` and halts if the proposed `metadata.version` bump is smaller than the change requires. Use it in the publish flow, before `aggrega push`. `--pre-publish` applies to the single-entity shape only.
 
 Over-bumping is always allowed; under-bumping halts. The first publication of an entity (no prior version in the registry) skips the bump check and surfaces a warning noting that no verification was performed.
+
+### Which kinds the entity mode checks
+
+The entity mode lints the document you name whatever its kind, and hands it to every rule that reads one entity. Each rule decides for itself which kinds it describes, and a rule handed a kind it does not describe reports nothing. So naming an Aggregate, a Manifest, a Release or a Workload — kinds the whole-catalog pass passes over and lists on its `not checked:` line — runs the rules over it too, and only the rules that describe that kind can report:
+
+| Rule | Kinds it reports on in the entity mode |
+| --- | --- |
+| Annotation prefix | Any kind: it reads `metadata.annotations` whatever the document's kind. |
+| Direct `x-aggrega-*` extensions | Any kind: it reads `spec.schema` whatever the document's kind. |
+| Name shape | Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, MappingLibrary, WorkloadLibrary and ArtifactLibrary. |
+| Category matches directory | Component. |
+| Secret slot declares sensitive | Component and Feature. |
+| Metrics credential annotation matches provides | Component. |
+| Provides declared by Component | Recipe. |
+| Dynamic refs, Id overrides | SchemaLibrary. |
+| Plugin default limits | Plugin. |
+| The version-bump comparison (`--pre-publish`) | Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, MappingLibrary, Aggregate and Plugin (a plugin built into the compiler is not compared); a change to any other kind is classified `MAJOR`. |
+| Connection credential matches target key | None: it reads a whole Release, so it runs under `--release` only. |
+
+An Aggregate, a Manifest, a Release and a Workload declare neither `metadata.annotations` nor `spec.schema` in their schemas, so a document of one of them that matches its kind's schema draws nothing from the two rules that read any kind; those two report on it only when it carries one of the keys anyway, which its kind's schema refuses as an unexpected property. What naming an Aggregate adds is the version-bump comparison under `--pre-publish`, which compares it with its published version as [the rubric below](#the-version-bump-rubric) describes.
 
 ## The version-bump rubric
 
