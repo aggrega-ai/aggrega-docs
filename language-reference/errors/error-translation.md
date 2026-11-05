@@ -83,6 +83,8 @@ A category absent from the head is absent here too, brackets included, so this l
 
 The source is a structured pointer — typically `<file>:<line>:<column>` when a YAML position is available, or a logical identifier (the catalog entity name, the Release name, the boundary path) when no file position applies. A third shape, `<file> at <key>`, appears when the pointer knows both the document and the authoring key inside it but no byte position: the file is what you open, and the key is what to look at once open. The message is the per-surface diagnostic.
 
+A failure about one instance of your build — a component, a component a module contributes, or a module itself — names that instance after the position, as `(instance <name>)`, so `aggregate.yaml (instance shop)` is the Aggregate declaring the module `shop`. Where the failure has no document to point at, the instance stands alone as `instance <name>`: a provider failing while it renders the component `adminer` prints `[TRANSLATION_ERROR E0082] instance adminer`, and the lines beneath it carry the rest of the failure, including any document it names. The name is the one the Aggregate declares the component under; a component a module contributes is named by its path through the module, such as `shop.cart`. An instance is never printed where a file belongs, so whatever the source opens with is a document you can open, or one of the logical identifiers above.
+
 A rule evaluated over the finished graph reports in that third shape, and the key is what tells two findings apart when the message alone cannot. A rule of this kind names the *declaring* component type rather than the instance, so two components of one type failing the same rule carry the same message about the same file:
 
 ```text
@@ -127,7 +129,7 @@ Reading top-down: the phase that failed, then the entity (with its file path) th
 A chain runs deeper whenever a failure crosses more surfaces on its way out, and the rule holds at every depth. A template refused inside a Recipe's synthesized Workload crosses three — the node being rendered, the Recipe's template surface, and the template itself:
 
 ```text
-[CATALOG_ERROR E0060] db
+[CATALOG_ERROR E0060] instance db
   rendering node "db"
   caused by: [CATALOG_ERROR]
     recipe "mariadb" workload template

@@ -470,7 +470,7 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 A Recipe that declares an input kind its bound provider does not render halts the build when the node renders, and it halts whatever else the Recipe declares alongside that kind — pairing a `workload:` with a `source:` the provider *can* render does not carry the workload through. The halt names the provider, the kind it cannot render, and the kinds it does render:
 
 ```
-[CATALOG_ERROR E0265] unit
+[CATALOG_ERROR E0265] instance unit
   provider does not support the node's input kind (node "unit"). provider "terraform" does not support synthesized recipes (this provider supports: sourced, artifacts-only); declare one of the supported input kinds, or target a provider that supports synthesized
 ```
 
@@ -481,7 +481,7 @@ The artifacts-only decline reads the same way and names that form: `provider "he
 The compose provider produces one fragment per component and names that fragment after the component. Sourced rendering and Workload synthesis each produce that component's fragment under that one name, so a Recipe declaring both produces two files called the same thing, and the build halts on the collision:
 
 ```
-[CATALOG_ERROR E0211] unit
+[CATALOG_ERROR E0211] instance unit
   rendering node "unit"
   caused by: [CATALOG_ERROR] aggregate.yaml at .spec.components.unit
     filename collision across input kinds: two input-kind blocks produced a file under one output name (output name "unit.compose-fragment.yaml", produced by "source, workload")

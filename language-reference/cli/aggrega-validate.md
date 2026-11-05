@@ -315,7 +315,7 @@ Render: not attempted (this Recipe reads values a build of one cannot supply)
   own is not judged here. To render it, build a Release that deploys a
   component this Recipe implements.
   Reads: .context.inject.env.MARIADB_PASSWORD, .context.inject.env.MARIADB_ROOT_PASSWORD
-  The render stopped: rendering: [CATALOG_ERROR] instance: rendering node "instance": [CATALOG_ERROR] catalog-helm-chart/recipe/helm-chart/mariadb-chart/1.0.0/recipe.yaml: recipe "mariadb-chart" valuesMapping: [CATALOG_ERROR] valuesMapping[mariadb-chart]: template "valuesMapping[mariadb-chart]" execute: template: valuesMapping[mariadb-chart]:7:30: executing "valuesMapping[mariadb-chart]" at <.context.inject.env.MARIADB_ROOT_PASSWORD>: nil pointer evaluating interface {}.MARIADB_ROOT_PASSWORD
+  The render stopped: rendering: [CATALOG_ERROR] instance instance: rendering node "instance": [CATALOG_ERROR] catalog-helm-chart/recipe/helm-chart/mariadb-chart/1.0.0/recipe.yaml: recipe "mariadb-chart" valuesMapping: [CATALOG_ERROR] valuesMapping[mariadb-chart]: template "valuesMapping[mariadb-chart]" execute: template: valuesMapping[mariadb-chart]:7:30: executing "valuesMapping[mariadb-chart]" at <.context.inject.env.MARIADB_ROOT_PASSWORD>: nil pointer evaluating interface {}.MARIADB_ROOT_PASSWORD
 ```
 
 A read that finds nothing and stops nothing is not set aside: a `range` over `.context.uses` that renders nothing, in a render that completes, is reported as the render it was.

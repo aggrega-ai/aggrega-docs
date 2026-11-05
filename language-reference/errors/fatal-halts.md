@@ -4,7 +4,7 @@ A fatal halt is a compile-time error that stops the build before any output is p
 
 This catalog is organized by the stage of compilation at which each halt fires.
 
-Each entry below quotes the **message** a build prints for the condition it documents: the fixed sentence stating the condition, then whatever that occurrence supplied. In a terminal that message appears inside a frame — a bracketed head carrying the category and the condition's short code, a pointer to the file and key at fault, and the message on the line beneath — so a whole line pasted from a build will not match an entry here, while the message inside it will; [error-translation.md](error-translation.md) sets out the frame in full.
+Each entry below quotes the **message** a build prints for the condition it documents: the fixed sentence stating the condition, then whatever that occurrence supplied. In a terminal that message appears inside a frame — a bracketed head carrying the category and the condition's short code, a pointer to the file and key at fault followed by the instance the failure concerns as `(instance <name>)` — or that instance alone, as `instance <name>`, where no file applies — and the message on the line beneath — so a whole line pasted from a build will not match an entry here, while the message inside it will; [error-translation.md](error-translation.md) sets out the frame in full.
 
 Arriving from a build with a short code in hand — the letter `E` and four digits, in the diagnostic's bracketed head — start at [Finding a halt from the short code the build printed](#finding-a-halt-from-the-short-code-the-build-printed) at the foot of this page, which lists every condition catalogued here against the short code a build prints for it.
 

@@ -399,7 +399,7 @@ containers:
 **What that gives you, stated exactly.** The reference lands on the container that asked for it and on no other: the host component's rendered Deployment carries no reference to the Secret, because its Recipe's Workload declares no `attachments:` entry naming the slot. Nor could it declare one — the slot belongs to the Feature, so a host Recipe reaching for it halts:
 
 ```text
-[CATALOG_ERROR E0213] finance-agent
+[CATALOG_ERROR E0213] instance finance-agent
   rendering node "finance-agent"
   caused by: workload featuresSchema cross-check failed (Workload in Recipe guarded-worker:1.0.0, featuresSchema stage):
     .containers.main.attachments.GUARD_API_KEY.from: references slot "guard_api_key" which is not declared in the Component's featuresSchema — either declare the slot in the Component (or Feature) featuresSchema, or rename the reference to an existing slot

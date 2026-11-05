@@ -224,7 +224,7 @@ Each of these is a sentence the build prints, naming what to change:
 
   ```text
   [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
-  [CATALOG_ERROR E0010] router
+  [CATALOG_ERROR E0010] instance router
     node "router": pipeline step failed
     [… omitted: the step, the template position and the template's own source]
   error calling fail: core/prompt-injection-shield attachment "shield" on "router" asks for sensitivity strict, which this realization runs as the guard's threshold 0.001, but the guard "guard" runs at 0.5; set values.threshold of "guard" to 0.001

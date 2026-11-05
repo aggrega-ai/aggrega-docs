@@ -268,7 +268,7 @@ Manifest — and the build halts, writing nothing:
 
 ```text
 [… omitted: a line reporting on the gateway configuration step's plugin, what resolving the lockfile prints, the same halt among it, and a notice that core/referenced-secret declares origin in both of its pillars]
-[CATALOG_ERROR E0364] guard
+[CATALOG_ERROR E0364] instance guard
   rendering node "guard"
   caused by: [CATALOG_ERROR] nemo-guardrails-config.configmap.yaml
     artifact "nemo-guardrails-config.configmap.yaml" template eval

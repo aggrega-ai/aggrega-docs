@@ -29,15 +29,16 @@ _Additional properties are not permitted._
 
 ### `Location`
 
-Where a diagnostic points. It carries one unified locator that serves both a byte-precise position in raw source text (a parser fills the span) and a structured position within a source document (a renderer fills key_path, uri, line, and kind). Every field is optional; a socket populates the representation it can produce and omits the rest.
+Where a diagnostic points. It carries one unified locator that serves both a byte-precise position in raw source text (a parser fills the span) and a structured position within a source document (a renderer fills key_path, uri, line, and kind), and names the instance of the build the diagnostic concerns where there is one (instance). Every field is optional; a socket populates the representation it can produce and omits the rest.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `span` | Span | no | The span of raw source bytes the diagnostic locates, when the emitter parses source and can pin the issue to a byte range (a parser). Absent otherwise. |
 | `key_path` | string | no | A dotted path to the offending element within a structured source document, when the emitter locates the issue structurally (a renderer). Absent otherwise. |
-| `uri` | string | no | An identifier for the source artifact the diagnostic concerns, when the emitter knows it (a renderer). Absent otherwise. |
+| `uri` | string | no | An identifier for the source artifact the diagnostic concerns, when the emitter knows it (a renderer). Absent otherwise. It never names an instance of the build; instance carries that. |
 | `line` | integer | no | A line number within the structured source document, distinct from the raw-byte line and column carried by span. Present when the emitter knows a document line (a renderer). Absent otherwise. |
 | `kind` | string | no | An open string naming the source surface the location refers to, when the emitter distinguishes surfaces (a renderer). Absent otherwise. |
+| `instance` | string | no | The instance of the build the diagnostic concerns, by the identity the build gives it: a component by the name the Aggregate declares it under, a component a module contributes by its path dotted through the module, a component the build derives by the identity the build composes for it, and a module by its own path. Present when the diagnostic is about one instance; absent otherwise. |
 
 _Additional properties are not permitted._
 

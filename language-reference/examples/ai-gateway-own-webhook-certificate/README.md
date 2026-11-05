@@ -241,7 +241,7 @@ through `manifest-without-omits.yaml`, which binds the teaching Recipe with no
 
 ```text
 [… omitted: the pull's lines]
-[TRANSLATION_ERROR E0058] ai-controller
+[TRANSLATION_ERROR E0058] instance ai-controller
   rendering node "ai-controller"
   caused by: wasmengine: node "ai-controller" (provider "helm"): two renders of identical input produced different output: provider render is not deterministic
 ```
@@ -299,9 +299,9 @@ Built:
 
 ```text
 [… omitted: the pull's lines]
-[TRANSLATION_ERROR E0334] ai-controller
+[TRANSLATION_ERROR E0334] instance ai-controller
   rendering node "ai-controller"
-  caused by: [CATALOG_ERROR] ai-controller
+  caused by: [CATALOG_ERROR] instance ai-controller
     an omits entry left out nothing the source rendered (node "ai-controller", provider "provider/helm:0.8.8-75-g9e6ef4e0", "envoy-ai-gateway-operator-stale-omits" omits[0], kind "Secret", name "ai-controller-webhook-tls"). correct the entry so it names something the source renders, or remove it; a source upgrade that renamed or removed it is the usual cause
 ```
 

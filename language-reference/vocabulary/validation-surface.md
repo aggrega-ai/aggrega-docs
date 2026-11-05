@@ -39,10 +39,10 @@ A redeclared `usesSchema` or `featuresSchema` entry produces no composition fail
 
 **Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on provider capability.
 
-**Error shape.** A capability decline is attributed to the catalog-authoring domain, so its report opens with a bracketed head carrying that category and a pointer to the node. The message opens with the fixed sentence stating the condition, then names the node, the provider, and the kinds that provider does support:
+**Error shape.** A capability decline is attributed to the catalog-authoring domain, so its report opens with a bracketed head carrying that category and the instance at fault. The message opens with the fixed sentence stating the condition, then names the node, the provider, and the kinds that provider does support:
 
 ```text
-[CATALOG_ERROR] <node-id>: provider does not support the node's input kind (node "<node-id>"). provider "<provider-name>" does not support synthesized recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesized
+[CATALOG_ERROR] instance <node-id>: provider does not support the node's input kind (node "<node-id>"). provider "<provider-name>" does not support synthesized recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesized
 ```
 
 The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the developer's Aggregate. On a terminal the head also carries the condition's short code — `E0265` for this one, which [the table of every condition](../errors/sentinels.md#every-condition-by-short-code) resolves — and the message moves to its own indented line; the one-line form above is what reaches a log. The opening sentence is fixed per condition, so it is the part to match on when you are working from text; everything after it varies with the node at fault.

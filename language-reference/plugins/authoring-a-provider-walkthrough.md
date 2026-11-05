@@ -573,7 +573,7 @@ aggrega build --release release.yaml --auto-pull
 [… omitted: the notice saying the Release could not be rendered to discover its external inputs, carrying the error below beneath its first line]
 Pull complete: release.lock (entities=5, source_artifacts=0, external_inputs=0)
 [… omitted: a line saying again that external inputs were not fully discovered]
-[CATALOG_ERROR E0265] app
+[CATALOG_ERROR E0265] instance app
   provider does not support the node's input kind (node "app"). provider "dotenv" does not support artifacts-only recipes (this provider supports: none); declare one of the supported input kinds, or target a provider that supports artifacts-only
 ```
 
@@ -745,7 +745,7 @@ declares no value:
 
 ```text
 [… omitted: the unverified-plugin warning, and the pull's lines saying the Release could not be rendered to discover its external inputs]
-[CATALOG_ERROR] app
+[CATALOG_ERROR] instance app
   rendering node "app"
   caused by: wasm: plugin "provider/dotenv:0.1.0" call to render_node: dotenv: app.env line 2: "this line declares no value" declares no value; an entry is KEY=value
 ```

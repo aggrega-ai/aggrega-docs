@@ -85,7 +85,7 @@ halts loudly:
 ```bash
 aggrega build --release release-negative.yaml --auto-pull
 # [… omitted: the pull's lines, which carry the same halt, and two lint notices]
-# [CATALOG_ERROR E0212] db
+# [CATALOG_ERROR E0212] instance db
 #   rendering node "db"
 # [… omitted: the cause, "workload attachment slot is not referenceable", naming the Recipe and its path in your catalog, then one line each for the "name" and the "key" the slot's provides does not expose]
 ```
