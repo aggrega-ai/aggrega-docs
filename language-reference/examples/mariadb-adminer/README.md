@@ -19,6 +19,92 @@ layer* loaded at build time change. Every file here compiles with the shipped `a
 rendered output runs: bring the stack up, open Adminer in a browser, and log
 in to the live database.
 
+<!-- The home page at aggrega.ai draws this diagram too, from its own content: a label changed here is changed there. -->
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-flow">
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>aggregate.yaml</code></div>
+
+written once
+
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 3">
+<div class="diagram-lanes">
+<div class="diagram-lane">
+
+On a laptop
+
+<div class="diagram-flow">
+<div class="diagram-flow-part" style="--diagram-weight: 1.2">
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>release-compose.yaml</code></div>
+</div>
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>manifest-compose.yaml</code></div>
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 1.2">
+<div class="diagram-node diagram-node-output-file">
+<div class="diagram-node-label"><code>docker-compose.yaml</code></div>
+</div>
+</div>
+</div>
+</div>
+<div class="diagram-lane">
+
+On a Kubernetes cluster
+
+<div class="diagram-flow">
+<div class="diagram-flow-part" style="--diagram-weight: 1.2">
+<div class="diagram-group">
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>release-helm-synth.yaml</code></div>
+</div>
+<div class="diagram-node diagram-node-file">
+<div class="diagram-node-label"><code>manifest-helm-synth.yaml</code></div>
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 1.2">
+<div class="diagram-node diagram-node-output-file">
+
+Kubernetes manifests
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+Each platform is built from its own Release and Manifest. The Aggregate, which describes your application, stays the same.
+
+</figcaption>
+</figure>
+
 ## What it demonstrates
 
 - **One authoring surface, many targets.** A single `aggregate.yaml` is the

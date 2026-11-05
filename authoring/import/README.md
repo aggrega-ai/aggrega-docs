@@ -7,6 +7,7 @@ for most formats a Release, for you to review, edit and build. It deploys
 nothing and reaches no cluster or cloud account. The drafts are plain files in
 your workspace, and what happens to them next is up to you.
 
+<!-- The home page at aggrega.ai draws this diagram too, from its own content: a label changed here is changed there. -->
 <figure class="diagram not-content">
 <div class="diagram-canvas">
 <div class="diagram-flow">

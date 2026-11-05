@@ -8,6 +8,86 @@ starters for the cloud follow, one for Terraform and one for AWS CloudFormation.
 Every command on this page is one the example's own page gives, or, for installing, the install page, so each
 section links to that page for the full account of what the step writes.
 
+You describe the application, Aggrega writes the files, and the tools you already use deploy them.
+
+<!-- The home page at aggrega.ai draws this diagram too, from its own content: a label changed here is changed there. -->
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-flow">
+<div class="diagram-flow-part" style="--diagram-weight: 1.1">
+<div class="diagram-group diagram-group-spread">
+<div class="diagram-node diagram-node-file">
+
+Aggregate
+
+describes your application
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+Release
+
+one environment's settings
+
+</div>
+<div class="diagram-node diagram-node-file">
+
+Manifest
+
+how each part is built
+
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 0.9">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+
+same input, same files
+
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 1.3">
+<div class="diagram-group">
+<ul class="diagram-chips">
+<li class="diagram-chip">Kubernetes</li>
+<li class="diagram-chip">Helm</li>
+<li class="diagram-chip">Compose</li>
+<li class="diagram-chip">Terraform</li>
+<li class="diagram-chip">CloudFormation</li>
+</ul>
+<div class="diagram-note">
+
+files you review and own
+
+</div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-outside">
+
+Outside Aggrega
+
+<div class="diagram-node diagram-node-tool">
+<div class="diagram-node-label">ArgoCD · Flux · Terraform</div>
+
+deploy what it wrote
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+Aggrega stops at the files. It never reaches a running cluster or a cloud account; your own tools deploy what it wrote.
+
+</figcaption>
+</figure>
+
 ## What you need
 
 - **To install Aggrega and write an example**, a terminal on Linux or macOS and nothing else. The commands on this

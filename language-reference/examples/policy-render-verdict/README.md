@@ -26,6 +26,66 @@ The rule is written twice, once for each policy engine compiled into the CLI —
 Rego and CEL — and the two copies agree on every build here. A script beside the
 Releases builds all sixteen combinations and checks each outcome.
 
+<!-- The home page at aggrega.ai draws this diagram too, from its own content: a label changed here is changed there. -->
+<figure class="diagram not-content">
+<div class="diagram-canvas">
+<div class="diagram-flow">
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-compiler">
+<div class="diagram-node-label"><code>aggrega build</code></div>
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part">
+<div class="diagram-node diagram-node-file">
+
+your policy
+
+plugged into the compiler
+
+</div>
+</div>
+<div class="diagram-arrow" aria-hidden="true"></div>
+<div class="diagram-flow-part" style="--diagram-weight: 1.6">
+<div class="diagram-group">
+<div class="diagram-outcome">
+<div class="diagram-outcome-word">
+
+pass
+
+</div>
+<div class="diagram-node diagram-node-output-file">
+
+files written
+
+ready to review and deploy
+
+</div>
+</div>
+<div class="diagram-outcome">
+<div class="diagram-outcome-word">
+
+fail
+
+</div>
+<div class="diagram-node diagram-node-stop">
+
+build stopped
+
+<div><samp class="diagram-node-printed">policy plugin "rego" rejected the build: terraform/modules/db/main.tf: the RDS instance db stores its data unencrypted</samp></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="diagram-caption">
+
+A policy can stop a build and say what to fix. It never changes your files to make them pass.
+
+</figcaption>
+</figure>
+
 ## What it builds
 
 | instance | catalog Component | what it is here |
