@@ -3273,17 +3273,17 @@ The first value is the Feature whose list names the other — the one the senten
 
 <!-- covers: pkg/resolver.ErrAttachmentSlotShape -->
 
-An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
+An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An empty `inject: {}` block dictates no delivery, so it is in shape for every slot, an empty allowlist included, and draws the same verdict wherever the attachment is written: on a component the Aggregate declares, on a component an imported module contributes, or at a broader scope. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
 
 Emitted message, where the attachment dictates a delivery its slot does not accept — the slot, then the mechanism, then each mechanism the slot's `inject` allowlist accepts, in the order the slot declares them (none follow for an empty allowlist):
 > attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<slot>"`, `"<mechanism>"`, `"<permitted-mechanism>"`)
 
-A component an imported module contributes is checked once the composition that imports it is built, and reports in a second form. It names the module's Aggregate and the key inside the module's document that the slot does not declare — a mechanism under the attachment's `inject:` block, or the `inject:` block itself on a slot whose allowlist is empty:
+A component an imported module contributes is checked once the composition that imports it is built, and reports in a second form. It names the module's Aggregate and the key inside the module's document that the slot does not declare — a mechanism under the attachment's `inject:` block, or the `inject:` block itself when it names any mechanism on a slot whose allowlist is empty:
 > attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.<key>`, attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — `<remedy>`)
 
 where `<remedy>` depends on the key:
 
-- `remove it`, for the `inject:` block on a slot whose allowlist is empty;
+- `remove it`, for an `inject:` block naming a mechanism on a slot whose allowlist is empty;
 - `remove it, or add it to the slot's inject allowlist in the entity's featuresSchema`, for a mechanism a slot's allowlist can name — `env`, `file` or `arg`;
 - `remove it: a slot's inject allowlist in the entity's featuresSchema accepts only env, file and arg`, for any other mechanism, which no slot can declare.
 

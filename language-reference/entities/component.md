@@ -560,7 +560,7 @@ The declaration follows the attachment cascade rather than any one authored bloc
 
 ### Schema projection from `featuresSchema`
 
-Declared slots project into a JSON Schema 2020-12 fragment describing the shape of the attachment block, and an authored block is validated against it when the Aggregate loads. The projection never touches disk; it exists only in memory, and a Component's `schema:` never needs to hand-author the attachment pillar.
+Declared slots project into a JSON Schema 2020-12 fragment describing the shape of the attachment block. Two kinds of fill are validated against it: the attachment block of a component an imported module contributes, once the composition that imports it is built, and an attachment declared at a broader scope, against the slot on each component it reaches. The attachment block of a component the Aggregate itself declares is measured by the Aggregate's document schema and by the slot's `inject` allowlist instead (see below), and the fragment is shaped so that both reach the same verdict on any fill. The projection never touches disk; it exists only in memory, and a Component's `schema:` never needs to hand-author the attachment pillar.
 
 Input `featuresSchema`:
 
@@ -583,7 +583,9 @@ root_password:
   values:
     type: object
     additionalProperties: true
-  # inject is ABSENT — inject: [] means the Recipe controls delivery
+  # inject admits only an empty block — inject: [] means the Recipe controls
+  # delivery, so a fill may name no mechanism
+  inject: {}
 user_password:
   type: { type: string }
   description: { type: string }
@@ -608,7 +610,7 @@ The allowlist binds both sides of the slot, at two different steps.
 
 Against the **Recipe's Workload**, at the render step: a Workload that references a slot through its container attachment entries must name a slot the entity declares, and must select a delivery mechanism the slot's `inject` allowlist permits; a reference to a blackbox slot (`inject: []`), to a mechanism outside the allowlist, or to a slot the entity never declared halts the build. The diagnostic names the Recipe, the container path, and the offending slot, and is classified as a catalog fault — the Recipe is what got it wrong.
 
-Against the **Aggregate's own attachment**, when its attachments are resolved and ahead of any rendering: an `inject:` block on a fill that binds a declared slot may name only mechanisms the slot's allowlist permits, and a blackbox slot permits none — its empty allowlist says "the Recipe delivers this internally; do not dictate delivery," and authoring delivery for it halts the build. The diagnostic is positioned on the attachment and names the slot and the offending mechanism, together with the mechanisms the slot permits where it permits any; it is classified as a developer fault, because the Aggregate is what got it wrong. A free attachment — one under a name no slot declares — carries no such constraint, because the allowlist belongs to the slot and not to the block.
+Against the **Aggregate's own attachment**, when its attachments are resolved and ahead of any rendering: an `inject:` block on a fill that binds a declared slot may name only mechanisms the slot's allowlist permits, and a blackbox slot permits none — its empty allowlist says "the Recipe delivers this internally; do not dictate delivery," and authoring delivery for it halts the build. The diagnostic is positioned on the attachment and names the slot and the offending mechanism, together with the mechanisms the slot permits where it permits any; it is classified as a developer fault, because the Aggregate is what got it wrong. An empty `inject: {}` block names no mechanism, so it dictates no delivery and is accepted on every slot, a blackbox slot included — on a component the Aggregate declares, on one an imported module contributes, and on an attachment declared at a broader scope alike. A free attachment — one under a name no slot declares — carries no such constraint, because the allowlist belongs to the slot and not to the block.
 
 The end-to-end flow through the compilation pipeline — how an Aggregate attachment connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the credential to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
