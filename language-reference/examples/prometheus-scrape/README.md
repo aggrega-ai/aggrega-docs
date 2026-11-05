@@ -74,9 +74,9 @@ discovers its metrics by, a Service or a pod selector, when no single address
 reaches all of them; the Compose realization has no cluster to discover from
 and halts on such a target.
 
-The socket admits servers and stateful servers alike, so a database or a log
-store is wired the same way; whether it can be scraped is decided by what it
-publishes.
+The socket admits servers, stateful servers and workers alike, so a database,
+a log store or an operator is wired the same way; whether it can be scraped is
+decided by what it publishes.
 
 ## What it demonstrates
 
