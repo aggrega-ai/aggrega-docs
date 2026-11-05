@@ -105,7 +105,7 @@ when the record was observed:
 | `aggrega build` | Reports it, and stops if you configured a halt at that severity. |
 | `aggrega validate --release` | Reports it. The verdict is unchanged. |
 | `aggrega lint --release` | Reports it. The verdict is unchanged. |
-| `aggrega serve` | Publishes it to your editor as a warning while the Aggregate is open. |
+| `aggrega serve` | Publishes it to your editor as a warning while the Aggregate is open. A marker names a reference or a plugin rather than a document in your workspace, so it stays on the Aggregate; only a Manifest's own mapping faults are shown on the Manifest. |
 | The AI-native `build` tool | Reports it, and refuses if you configured a halt at that severity. |
 | The AI-native `describe` and `validate` tools | Report it alongside their own output. |
 
