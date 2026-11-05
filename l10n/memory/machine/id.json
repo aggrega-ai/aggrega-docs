@@ -1486,6 +1486,13 @@
     "status": "machine",
     "text": "`aggrega/explainError` mengubah salah satu dari dua pengenal sebuah kondisi menjadi apa yang dideklarasikan compiler tentangnya dan entri terbitan yang mengajarkan perbaikan authoring-nya. Ini adalah ekspansi yang sama dengan yang dilakukan [`aggrega explain`](aggrega-explain.md) di terminal dan yang dilakukan alat `explain-error` untuk asisten, dan ketiganya menjawab dari satu tempat, sehingga kode yang diekspansi di sini dan kode yang sama yang diekspansi di sana adalah satu jawaban, bukan tiga jawaban yang kebetulan sama."
   },
+  "0224e2ef06b8c2c5": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "0224e2ef06b8c2c5",
+    "status": "machine",
+    "text": "`aggregate.yaml` — satu instans platform Flowise dari pustaka standar, `core/ai-agent/flowise`, yang membawa chatflow seperti saat diekspor, sebagian besar dihilangkan di sini, dan model hasil draf yang terhubung ke soket `model` miliknya:"
+  },
   "022f4595a81f78bc": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -1569,6 +1576,13 @@
     "srcHash": "02564de7f200ec81",
     "status": "machine",
     "text": "**Encoding wire.** Setiap export dari socket ini menerima input dan mengembalikan output sebagai **canonical CBOR** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1), di kedua arah. Guest mendekode input dan mengenkode output melalui entry point yang sudah dibawa oleh tipe payload — `DecodeCBOR` dan `EncodeCBOR` di Go, `decode_cbor` dan `encode_cbor` di Rust, dan di TypeScript fungsi `decodeCBOR` dan `encodeCBOR` dari setiap tipe, seperti `decodeCBORRenderNodeInput` dan `encodeCBORRenderNodeOutput` — dengan membaca dan menulis byte (`Vec<u8>` di Rust, `Host.inputBytes()` dan `Host.outputBytes(...)` di TypeScript). Tidak diperlukan pustaka CBOR dan tidak ada yang mem-parse byte secara manual. `content` dari file yang dirender, dan setiap field byte lainnya, dikirim sebagai deretan byte mentah yang diisikan oleh dekoder yang dihasilkan ke dalam tipe field milik kit: byte slice di Go, string base64 di Rust dan TypeScript. Map yang ditandai skema sebagai mempertahankan urutan — di antaranya `values`, `features` dan `uses` milik node, `derived_keys` milik balasan, dan `values` milik kontributor perakitan — dikirim sebagai [daftar entri berurutan](#maps-that-keep-their-order) dalam urutan yang dipegang build, dan guest membacanya melalui kontainer penjaga urutan milik kitnya. Setiap nilai dari `values` milik node dikirim sebagai byte dokumen JSON-nya sendiri, sehingga key di dalam sebuah nilai mempertahankan urutan penulisannya; demikian pula setiap entri attachment dari `features`, konteks render, workload yang di-parse, setiap edge yang diperkaya, setiap unit yang dipotong dan setiap operasi patch, dan guest mem-parse-nya sebagai JSON untuk melihat isinya. Setiap diagnostik dikirim dalam bentuk `Diagnostic` bersama. Jawaban yang bukan bentuk output export-nya dalam encoding ini — yang ditulis sebagai JSON, atau yang membawa field tingkat atas yang tidak dideklarasikan bentuk tersebut — menghentikan build, dengan menyebutkan export yang dipanggil. Contoh payload di halaman ini ditulis sebagai JSON agar mudah dibaca. Jika dipanggil langsung dengan `aggrega plugin run-local --export render_node`, atau dengan export lain dari socket ini, guest diberi payload JSON yang ditulis, yang telah dikonversi ke encoding ini, dan jawabannya dituliskan sebagai byte yang dikembalikannya."
+  },
+  "025bb0ffed58a2ec": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "025bb0ffed58a2ec",
+    "status": "machine",
+    "text": "Setelah komentarnya dihapus, Aggregate mendeklarasikan kata sandi di bawah kunci tersendiri, `OWNER_PASSWORD`, dan Release tetap melampirkannya."
   },
   "025c87a76fb33e57": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -2865,6 +2879,13 @@
     "srcHash": "041facdfbef27718",
     "status": "machine",
     "text": "Resolusi mengunci chart APISIX yang dirender oleh Recipe milik gateway, yang diambil dari repositori chart itu sendiri, sehingga memerlukan jaringan. Workspace ini meresolusi entitas katalog dari registry default yang disebut `.aggrega-config.yaml`."
+  },
+  "041ff19e95397ea0": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "041ff19e95397ea0",
+    "status": "machine",
+    "text": "`manifest.yaml` — satu-satunya Recipe Compose yang ditawarkan katalog untuk setiap tipe:"
   },
   "0422742fd14e2471": {
     "at": "2026-11-02T15:04:53.574Z",
@@ -4944,6 +4965,13 @@
     "srcHash": "074a88db53467b4b",
     "status": "machine",
     "text": "Prasyarat runtime"
+  },
+  "074f1cb37772c053": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "074f1cb37772c053",
+    "status": "machine",
+    "text": "**Sebutkan image** yang menjalankan aplikasi, yang Anda bangun dari proyek dengan konfigurasinya di dalamnya, di sini `ghcr.io/example/support-agent:1.0.0`. Katalog tidak menyimpan image bawaan untuk aplikasi yang dibangun di atas ADK, sehingga Component agen menolak Release yang tidak menyebutkan image, dan menyatakan tempat untuk menetapkannya."
   },
   "074f7fed43520b4a": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -13853,6 +13881,13 @@
     "status": "machine",
     "text": "**[Aggregate](../language-reference/entities/aggregate.md)** — satu-satunya permukaan penulisan developer dan satu-satunya sumber kebenaran untuk topologi aplikasi. Aggregate mendeklarasikan komponen-komponen yang membentuk aplikasi, `values` yang diterima setiap komponen, Features yang perilakunya merupakan intensi aplikasi (beserta `values`-nya), `parameters` yang diekspos untuk variasi per lingkungan, dan sisi `uses` yang merangkai komponen satu sama lain. Aggregate sengaja tetap agnostik terhadap infrastruktur fisik: tidak ada apa pun dalam Aggregate yang menyebut cloud, cluster, atau provider. Keagnostikan terhadap kapabilitas inilah yang memungkinkan satu Aggregate di-deploy di mana saja."
   },
+  "1515d75cddeb0cd2": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "1515d75cddeb0cd2",
+    "status": "machine",
+    "text": "Layanan ini mendaftarkan akun pemilik pada Flowise yang baru, atau masuk sebagai akun itu, lalu menulis chatflow pada `chatflow_id`. Kunci dan kata sandi adalah referensi variabel, yang diisi dari shell Anda saat stack dimulai. Flowise tidak memublikasikan port apa pun di mesin Anda: file yang dirender tidak memberinya port."
+  },
   "1523b390505bb159": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -17276,6 +17311,13 @@
     "status": "machine",
     "text": "**Menghentikan proses mengosongkan listener.** Interupsi, atau permintaan terminasi dari supervisor atau runtime container, membuat listener berhenti menerima dan membiarkan panggilan yang sudah sedang dijawab selesai, dalam batas waktu tertentu, sehingga pemanggil yang meminta sesuatu sebelum penghentian tetap menerima jawabannya. Panggilan yang belum selesai dalam batas waktu itu kehilangan koneksinya. Permintaan penghentian kedua langsung mengakhiri proses."
   },
+  "1a85ff22ed224486": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "1a85ff22ed224486",
+    "status": "machine",
+    "text": "Impor merujuk Components agen ADK dan model Gemini dari katalog, dan `--target` menyusun draf Manifest dari Recipes katalog tersebut, jadi sebutkan salinan kerja katalog pustaka standar, dengan jalur absolutnya:"
+  },
   "1a8de3136536b7c3": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -17592,6 +17634,13 @@
     "srcHash": "1b10b9660d552842",
     "status": "machine",
     "text": "**Cara memperbaiki:** perpendek rantainya. Rantai sedalam ini biasanya mencerminkan susunan organisasi alih-alih susunan deployment, jadi carilah tingkat yang tidak menyumbangkan komponen sendiri dan gabungkan ke induknya. Jika setiap tingkat hanya ada untuk menerbitkan ulang tingkat di bawahnya dengan versi baru, versi-versi itulah rantainya: impor langsung modul yang sebenarnya Anda inginkan, pada versi yang Anda inginkan."
+  },
+  "1b11715de5d50a1d": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "1b11715de5d50a1d",
+    "status": "machine",
+    "text": "Layanan Langflow di `dist/compose/docker-compose.yaml`:"
   },
   "1b1186e0cacb4a4e": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -17919,6 +17968,13 @@
     "srcHash": "1b818e0f5b65c133",
     "status": "machine",
     "text": "Batas ABI menjaga inti Go tetap ringkas, dapat diaudit, dan tidak bergantung pada cloud. Mengganti logika rendering sebuah provider adalah penggantian artefak Wasm, bukan kompilasi ulang Aggrega itu sendiri."
+  },
+  "1b82ef584101a263": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "1b82ef584101a263",
+    "status": "machine",
+    "text": "**Baris `made no choice`** menyatakan bahwa tidak ada node yang menjadi Component tersendiri. Secara bawaan, draf menjalankan seluruh alur pada platform yang menjalankan Langflow, dan memberikan Component tersendiri hanya kepada node yang diterima oleh soket platform itu — model, alat, penyimpanan vektor — bila node tersebut dikenali sebagai salah satunya. Node Language Model pada alur ini tidak dikenali, sehingga tetap berada di dalam alur, dan draf tidak menghubungkan model apa pun ke platform."
   },
   "1b869a549b4cb843": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -21498,6 +21554,13 @@
     "status": "machine",
     "text": "Galat Lapisan 1 (envelope) dan Lapisan 2 (skema pilar) muncul tanpa prefiks pada tahap resolusi — galat tersebut terpicu sebelum disiplin sentinel berprefiks Aggrega berlaku, sehingga galat asli dari pustaka YAML atau validator skema dibungkus dengan prefiks posisional (`unmarshal <kind> \"<path>\": ...`, `<field-path>: <schema rule violated>`)."
   },
+  "20d4155e7965d054": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "20d4155e7965d054",
+    "status": "machine",
+    "text": "`components/imported-ai-model-chatopenai.yaml` — model hasil draf: satu bidang nilai untuk setiap input node kecuali input yang menjadi tempat node lain terhubung, dan satu slot kredensial untuk Connect Credential miliknya:"
+  },
   "20d906190436740c": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -22212,6 +22275,13 @@
     "srcHash": "22257afcee47ad9b",
     "status": "machine",
     "text": "Apa yang akan ditulis oleh build. Tidak ada yang ditulis, sehingga tidak ada direktori output yang disebutkan."
+  },
+  "2225faa266336c00": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "2225faa266336c00",
+    "status": "machine",
+    "text": "**Petakan Manifest.** Model dipetakan ke Recipe Compose miliknya, dan kedua rahasia ke realisasi yang menulis referensi variabelnya ke dalam file Compose apa adanya."
   },
   "2227a99a0fcc02e2": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -25888,6 +25958,13 @@
     "srcHash": "27b0395f357a3964",
     "status": "machine",
     "text": "`.features` — lampiran yang telah di-resolve, dikunci berdasarkan nama instans yang diberikan penulis untuk masing-masing. Setiap entri membawa `type` (URI katalog dari Feature yang dilampirkan), `resolved_version` (versi yang terikat untuk build ini), dan `values` (konten niat developer milik lampiran itu sendiri). Lampiran yang ditulis pada salah satu koneksi komponen tidak termasuk di antaranya, persis seperti ia tidak termasuk dalam `.features` milik templat Recipe: lampiran tersebut dibaca di bawah koneksinya, pada `.uses.<socket>.<alias>.features.<slot>`, dalam bentuk yang sama."
+  },
+  "27b0a81b7e964ff8": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "27b0a81b7e964ff8",
+    "status": "machine",
+    "text": "**Baris `info`** berkaitan dengan Release: impor Langflow tidak menyusun draf Release, jadi Anda yang menulisnya."
   },
   "27b1f37b5bde8bab": {
     "at": "2026-10-29T23:52:11.486Z",
@@ -32698,6 +32775,13 @@
     "status": "machine",
     "text": "Recipes menggunakan kata kunci `implements` untuk mengikat diri pada antarmuka yang dipenuhinya. Kolom `implements` mendukung pencocokan persis, rentang yang kompatibel dengan versi mayor, atau tanpa versi (lihat [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) untuk Pencocokan Versi `implements`)."
   },
+  "326e09700d9bfe24": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "326e09700d9bfe24",
+    "status": "machine",
+    "text": "`support-chat.json`, yang ditulis untuk panduan ini dalam bentuk yang digunakan editor Flowise saat mengekspor chatflow, berisi tiga node dan dua sisi di antaranya: node ChatOpenAI yang memilih `gpt-4o-mini`, node Buffer Memory, dan node Conversation Chain yang menerima keduanya dan menjawab dengan pesan sistem singkat. Node ChatOpenAI tidak memilih kredensial tersimpan apa pun dan membiarkan Base Path-nya kosong, sehingga klien OpenAI tempat Flowise menjalankannya membaca alamat dan kuncinya dari lingkungan Flowise."
+  },
   "326e66bc11770058": {
     "at": "2026-10-23T08:19:00.586906+00:00",
     "job": "msgbatch_01FSCygBneA7ASnptBnc4B4p",
@@ -32810,6 +32894,13 @@
     "srcHash": "3298ed3de76f1c77",
     "status": "machine",
     "text": "`parameters` — nilai yang diangkat menjadi parameter yang dipenuhi oleh sebuah Release."
+  },
+  "329f43c2e0662ad7": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "329f43c2e0662ad7",
+    "status": "machine",
+    "text": "Baris `warning` berkaitan dengan bagian file Compose yang membawa alur, sebuah entri `configs` tingkat atas, yang tidak memiliki layanan untuk menempatkan label build. Baris `notice` bersifat informatif: Feature kata sandi menerima `origin` miliknya dari `values` milik Aggregate atau `infra` milik Release, dan pemberitahuan itu melaporkan bahwa satu daun dideklarasikan di keduanya. Tidak satu pun mengubah putusan."
   },
   "32a281f0691f3d67": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -33026,6 +33117,13 @@
     "srcHash": "32f35668f6f7ad86",
     "status": "machine",
     "text": "`SourceEntry`"
+  },
+  "3300e97edf6ecadc": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "3300e97edf6ecadc",
+    "status": "machine",
+    "text": "Panduan langkah demi langkah ini mengimpor chatflow yang diekspor dari Flowise — rantai percakapan dengan model chat dan memori —, meninjau draf yang dibuat impor, dan membangun Flowise yang membawa chatflow tersebut untuk Docker Compose. Setiap file dan setiap blok keluaran di bawah ini berasal dari eksekusi nyata; chatflow dan setiap tahap panduan ini ada dalam contoh [import-flowise](../../language-reference/examples/import-flowise/README.md), tempat skrip pemeriksa menjalankan impor lagi dan membandingkan apa yang ditulisnya, apa yang dicetaknya, dan blok-blok yang dikutip halaman ini dengan file yang disimpan di sana."
   },
   "3302c19c3ff09471": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -34106,6 +34204,13 @@
     "status": "machine",
     "text": "Empat bentuk dilaporkan dengan kondisi ini. Batasan yang ditulis di tempat `type:` tidak ada atau menyebutkan union, sehingga tidak ada yang menentukan batas mana yang dimaksud. Batasan yang ditulis pada tipe yang tidak menerima batas jenis itu — objek, atau boolean. `type:` yang nilainya bukan nama skalar dan bukan urutan nama. Dan `valuesType:` yang diberi sesuatu selain nama skalar."
   },
+  "349786dcc37ad8ec": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "349786dcc37ad8ec",
+    "status": "machine",
+    "text": "Di samping chatflow, sebuah `.aggrega-config.yaml` menjadikan folder tersebut ruang kerja:"
+  },
   "349906040ecf62da": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -34688,6 +34793,13 @@
     "srcHash": "35ad9d6a31a90d56",
     "status": "machine",
     "text": "Entitas yang di-cache dan artefak sumber yang di-cache masing-masing berada dalam slot yang dinamai cache untuknya, dan slot itu disusun dari nilai-nilai: referensi entitas dan versi yang di-resolve-nya, atau jenis sumber, `url`, `chart`, `module_subdir`, versi, dan digest. Setiap nilai menyebut satu posisi dalam tata letak. Kondisi ini melaporkan nilai yang akan memindahkan apa yang ditulis untuknya ke tempat selain posisi yang disebutnya — di samping slot lain, atau sepenuhnya keluar dari cache — dan menolaknya sebelum apa pun ditulis atau dibaca di sana."
+  },
+  "35ae58e2379f0de8": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "35ae58e2379f0de8",
+    "status": "machine",
+    "text": "**Baris `made no choice`** menyatakan bahwa alat Google Search tidak menjadi apa pun dalam draf: alat itu disertakan ADK dan berjalan di dalam aplikasi."
   },
   "35af56bd28e5643f": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -37461,6 +37573,13 @@
     "status": "machine",
     "text": "The same name is derived more than once inside the output (Nama yang sama diturunkan lebih dari sekali di dalam keluaran)"
   },
+  "3a30074681b91a73": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "3a30074681b91a73",
+    "status": "machine",
+    "text": "**Petakan Manifest.** `core/secret-value` dipetakan ke `compose/dotenv-secret`, yang menulis referensi itu ke dalam file Compose apa adanya, sehingga Docker Compose mengisinya dari shell Anda saat stack dimulai dan tidak ada file yang membawa kunci tersebut."
+  },
   "3a31233189b311b1": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -37947,6 +38066,13 @@
     "status": "machine",
     "text": "String yang dihasilkan digabungkan ke `.context.inject.env`, `.context.inject.file`, `.context.inject.arg` (dan mekanisme kustom apa pun), bersama resolusi uses-inject tersebut. Pada saat pemetaan inject (`injectMapping`) berjalan, pipa berisi semua nilai inject yang ditulis pengembang dari kedua sumber."
   },
+  "3af1c6e72602b1be": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "3af1c6e72602b1be",
+    "status": "machine",
+    "text": "Component hasil draf berada di `components/`, yang tidak dibaca oleh katalog ruang kerja, dan tidak ada Recipe yang merealisasikannya. Komentar di atasnya menyatakan apa yang harus dilakukan sebagai gantinya, dan peninjauan mengubah hal-hal berikut:"
+  },
   "3af27b03077f962b": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -38256,6 +38382,13 @@
     "srcHash": "3b6e7cfbb1c37527",
     "status": "machine",
     "text": "Skema Aggrega Catalog (Feature)"
+  },
+  "3b7030835595e5c2": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "3b7030835595e5c2",
+    "status": "machine",
+    "text": "**Hubungkan model.** Aggregate mendapat instans `model` dari `core/ai-model/openai`, yang menyebut model yang disebut alur, `gpt-4.1`, dan koneksi dari soket `model` milik platform ke instans itu. Platform mengirimkan koneksi itu ke Langflow sebagai `OPENAI_BASE_URL` dan `OPENAI_API_KEY`, dan node Language Model sudah membaca kuncinya dari `OPENAI_API_KEY`, sehingga alur tidak perlu disunting."
   },
   "3b7292412155cbc3": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -40393,6 +40526,13 @@
     "srcHash": "3ea5a82c770315b0",
     "status": "machine",
     "text": "Laporan tersebut diposisikan pada entri koneksi dalam dokumen yang membuat koneksi tersebut — entri `uses:` milik Aggregate, atau entri per-edge milik Release untuk koneksi yang dihubungkan oleh Release. Koneksi yang dibuat oleh Feature yang dilampirkan dihubungkan ke soket yang dideklarasikan Feature tersebut, bukan soket milik komponen, sehingga slot soket komponen bukan miliknya untuk diisi."
+  },
+  "3eac44fc59487221": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "3eac44fc59487221",
+    "status": "machine",
+    "text": "Panduan langkah demi langkah ini mengimpor alur yang diekspor dari Langflow — Basic Prompting, proyek awal yang disertakan Langflow 1.6.0 —, meninjau draf yang dibuat impor, dan membangun Langflow yang membawa alur tersebut untuk Docker Compose. Setiap file dan setiap blok keluaran di bawah ini berasal dari eksekusi nyata; alur dan setiap tahap panduan ini ada dalam contoh [import-langflow](../../language-reference/examples/import-langflow/README.md), tempat skrip pemeriksa menjalankan impor lagi dan membandingkan apa yang ditulisnya, apa yang dicetaknya, dan blok-blok yang dikutip halaman ini dengan file yang disimpan di sana."
   },
   "3eadfc0f3ffa65ec": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -51533,6 +51673,13 @@
     "status": "machine",
     "text": "Menyatakan aturan organisasi dalam bahasa kebijakan"
   },
+  "4ff4b5ab223041bb": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "4ff4b5ab223041bb",
+    "status": "machine",
+    "text": "**Baris `made no choice`** menyatakan bahwa memori dan rantai tetap berada di dalam chatflow: tidak ada soket platform yang menerimanya."
+  },
   "4ff4dd6a86435a90": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -51637,6 +51784,13 @@
     "srcHash": "501c65339bd0b88b",
     "status": "machine",
     "text": "Field divalidasi dengan nilai default ketika developer menghilangkan kunci tersebut. Untuk parameter Aggregate, penggabungan parameter mengisi default yang dideklarasikan sebelum validasi kontrak berjalan (lihat [`templates/parameters-context.md`](../templates/parameters-context.md))."
+  },
+  "5020e691490fefe8": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "5020e691490fefe8",
+    "status": "machine",
+    "text": "**Sajikan kunci OpenAI pada koneksi model.** Release melampirkannya ke koneksi sebagai `core/secret-value` yang membaca `${OPENAI_API_KEY}`."
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -55671,6 +55825,13 @@
     "srcHash": "562aac662a13bb10",
     "status": "machine",
     "text": "Taksonomi status di atas mengklasifikasikan keadaan per permukaan di seluruh bahasa; bagian ini mencatat status arah desain yang lebih luas yang didokumentasikan di bab-bab arsitektur."
+  },
+  "562b0f8cfe59b94b": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "562b0f8cfe59b94b",
+    "status": "machine",
+    "text": "**Baris `warn` kedua dan baris `info`** berkaitan dengan Manifest dan Release: tidak ada Recipe yang merealisasikan Component yang baru saja disusun drafnya oleh impor, dan impor Flowise tidak menyusun draf Release, jadi Anda yang menulisnya."
   },
   "562c6d7c250d6d8a": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -62429,6 +62590,13 @@
     "status": "machine",
     "text": "`artifactlibrary.metadata`"
   },
+  "6084c93827e81059": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "6084c93827e81059",
+    "status": "machine",
+    "text": "ADK menyajikan aplikasi dari agen akarnya, sehingga draf berisi satu instans per pohon agen, yang dinamai sesuai agen akarnya. `instruction` milik agen tidak dibawa: aplikasi membacanya dari konfigurasinya sendiri, yang ada di dalam image."
+  },
   "60871828805e4c8a": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -62680,6 +62848,13 @@
     "srcHash": "60d0e3502e213ac7",
     "status": "machine",
     "text": "Bentuk wire yang dikonsumsi (FRPStepInput) dan dihasilkan (FRPStepOutput) oleh socket plugin langkah feature-recipe-pipeline. Sebuah langkah FRP dijalankan untuk setiap entri pipeline inline yang dideklarasikan dalam Recipe atau FeatureRecipe: host menyerahkan seluruh set dokumen berkunci kepada langkah tersebut, langkah itu memilih dokumen yang menjadi targetnya berdasarkan konten, lalu mengembalikan patch RFC 6902 yang dialamatkan dengan kunci beserta efek samping dan diagnostik. Ini adalah kontrak guest yang berbeda dari peran label-transform, yang dijalankan satu kali atas seluruh graf topologi dan mengembalikan patch label yang buram. Tipe payload Go, Rust, dan TypeScript dihasilkan dari skema ini ke dalam paket plugin-ABI, sehingga ketiga bahasa membaca dan menulis satu wire yang sama; guest mengimpornya dari paket tersebut, atau melalui kit plugin-nya jika kit tersebut mengekspor ulang tipe-tipe itu."
+  },
+  "60d3be997ca82541": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "60d3be997ca82541",
+    "status": "machine",
+    "text": "Panduan langkah demi langkah ini mengimpor Agent Config dari sebuah aplikasi yang dibangun di atas Agent Development Kit (ADK) milik Google — satu agen yang menjawab pertanyaan pelanggan tentang pesanan mereka —, meninjau draf yang dibuat impor, dan membangun aplikasi tersebut untuk Docker Compose. Setiap file dan setiap blok keluaran di bawah ini berasal dari eksekusi nyata; konfigurasi dan setiap tahap panduan ini ada dalam contoh [import-google-adk](../../language-reference/examples/import-google-adk/README.md), tempat skrip pemeriksa menjalankan impor lagi dan membandingkan apa yang ditulisnya, apa yang dicetaknya, dan blok-blok yang dikutip halaman ini dengan file yang disimpan di sana."
   },
   "60d7af391ab3b64a": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -65427,6 +65602,13 @@
     "status": "machine",
     "text": "`EntityDefinitionParams`"
   },
+  "654512b64f3669bb": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "654512b64f3669bb",
+    "status": "machine",
+    "text": "**Rujuk model dari pustaka standar.** `chatopenai-0` menjadi `core/ai-model/openai`, yang menyebut model yang dipilih node, `gpt-4o-mini`, dan `components/` dihapus. Release menempatkan model di samping platform, `chatopenai-0: {}`; tanpa entri itu, validasi menolak model karena tidak ditempatkan di batas mana pun."
+  },
   "6547f70662424ae7": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -67122,6 +67304,13 @@
     "status": "machine",
     "text": "`.context.uses` adalah tampilan yang diperkaya oleh compiler atas setiap edge topologis keluar dari node saat ini. Setiap entri map dikunci oleh alias socket lokal (misalnya, `databases.primary` menjadi `.context.uses.primary` ketika Aggregate menulis `uses: { databases: { primary: { target: ... } } }`) dan membawa proyeksi JOIN dari state target yang telah di-resolve beserta kontrak pengiriman sisi pemanggil:"
   },
+  "67ee617dd27249d3": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "67ee617dd27249d3",
+    "status": "machine",
+    "text": "**Baris `warn`** menyebutkan `api_key` milik node Language Model, sebuah bidang yang ditandai Langflow sebagai kata sandi. Di sini bidang itu berisi nama variabel tempat kunci dibaca, `OPENAI_API_KEY`, bukan kunci; alur yang diekspor dengan kunci yang diketik ke dalam bidang itu akan membawa kunci tersebut ke dalam draf, dan dari baris inilah Anda akan mengetahuinya."
+  },
   "67f4fe67e254481d": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -68641,6 +68830,13 @@
     "status": "machine",
     "text": "input-kind: Recipe `\"<name>:<version>\"`: provider `\"<provider-name>\"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized (input-kind: Recipe: provider tidak mendukung recipe synthesized (provider ini mendukung: jenis-jenis); deklarasikan salah satu jenis input yang didukung, atau targetkan provider yang mendukung synthesized)"
   },
+  "6a62824b5e8bdba6": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "6a62824b5e8bdba6",
+    "status": "machine",
+    "text": "`aggregate.yaml` — satu instans platform Langflow dari pustaka standar, `core/ai-agent/langflow`, yang membawa alur seperti saat diekspor, dengan lebih dari seribu barisnya dihilangkan di sini:"
+  },
   "6a638a37b6ff3d30": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -69670,6 +69866,13 @@
     "srcHash": "6c1a2b52198d5f33",
     "status": "machine",
     "text": "**Tidak ada flag yang mengesampingkan ini.** Konten yang berubah diterbitkan dengan versi baru, yang memberi konsumen versi untuk dituju secara sengaja, alih-alih versi yang berubah tanpa sepengetahuan mereka."
+  },
+  "6c1f63e6b613f3b3": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "6c1f63e6b613f3b3",
+    "status": "machine",
+    "text": "**Baris `mapped`** menyatakan bahwa agen adalah instans dari agen ADK pustaka standar, `core/ai-agent/google-adk`, dan bahwa model yang disebutkannya adalah instans dari `core/ai-model/gemini`. Tingkatnya bertuliskan `NONE`: impor ADK merujuk Components ini berdasarkan apa yang disebutkan konfigurasi, bukan dengan menimbang masing-masing terhadap katalog."
   },
   "6c24122cdc9b0551": {
     "at": "2026-11-01T15:52:41.165Z",
@@ -71023,6 +71226,13 @@
     "srcHash": "6e385ce8361bc134",
     "status": "machine",
     "text": "Kedua gateway terhubung ke `gpt` melalui soket `models` masing-masing, dan masing-masing menyajikan\nkunci model pada koneksi tersebut. Lampiran penyamaran mencantumkan apa yang harus disamarkan: sebuah\npola untuk nomor klaim milik estate, serta tipe entitas `PERSON` dan\n`EMAIL_ADDRESS`. Kedua asisten mendeklarasikan soket `model` yang dideklarasikan oleh Component mereka,\nyang menerima model atau gateway yang melayani API model, dan membiarkannya\ntidak terikat: setiap Release yang menghubungkannya."
+  },
+  "6e3a5f06a040add3": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "6e3a5f06a040add3",
+    "status": "machine",
+    "text": "Image-nya adalah Flowise 3.1.3, versi yang menjadi acuan penulisan Recipe Compose untuk Flowise dari pustaka standar."
   },
   "6e3a94002a5245ce": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -74331,6 +74541,13 @@
     "srcHash": "734c1184cf908fd6",
     "status": "machine",
     "text": "Plugin rendering Provider (helm, helm-chart, compose, terraform)"
+  },
+  "734db48a63eb3f42": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "734db48a63eb3f42",
+    "status": "machine",
+    "text": "Mengimpor agen Google ADK"
   },
   "7355f416d2b54f1b": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -78086,6 +78303,13 @@
     "status": "machine",
     "text": "Pola ini adalah mekanisme kanonis untuk promosi GitOps: satu Aggregate yang tidak dapat diubah berpindah melalui berbagai lingkungan, dengan Release setiap lingkungan menyediakan nilai parameternya sendiri. Setiap nilai per lingkungan yang ingin dibuat bervariasi oleh penulis seharusnya berada dalam rantai parameter, bukan disematkan langsung di dalam Aggregate."
   },
+  "790c038675d264c5": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "790c038675d264c5",
+    "status": "machine",
+    "text": "Tiga hal di dalamnya layak dibaca sebelum peninjauan:"
+  },
   "790ce452991c7492": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -78809,6 +79033,13 @@
     "srcHash": "7a0d0fe1048231ed",
     "status": "machine",
     "text": "parameters: shape must be an inline object or {$import: <local-path>}: line `<line>`: `<shape>` is written where a map is expected (parameters: bentuk harus berupa objek inline atau pemetaan yang hanya berisi $import: bentuk lain ditulis di tempat yang seharusnya berisi map)"
+  },
+  "7a0e37582e204894": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "7a0e37582e204894",
+    "status": "machine",
+    "text": "**Sajikan kunci OpenAI pada koneksi itu.** Release melampirkannya ke koneksi sebagai `core/secret-value` yang membaca `${OPENAI_API_KEY}`, yang diisi Docker Compose dari shell Anda, sehingga tidak ada file yang membawa kunci tersebut."
   },
   "7a112c70e1ce9c8b": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -80872,6 +81103,13 @@
     "status": "machine",
     "text": "**Ditolak secara keseluruhan: jaringan milik fragmen sendiri.** Entri di bawah `networks:` tingkat atas milik fragmen menghentikan build dengan `TRANSLATION_ERROR` apa pun isi body-nya — entri kosong, `driver`, atau apa pun lainnya — dengan menyebut entri tersebut (`networks.back`), fragmen, dan komponennya, karena file hasil perakitan hanya memuat jaringan yang diturunkan provider (lihat [Jaringan per boundary](#per-boundary-networking)). Hapus entri tersebut: layanan bergabung ke jaringan komponennya sendiri tanpa deklarasi apa pun, anotasi `aggrega.ai/namespace` memilih jaringan yang diikuti komponen, layanan menyebut komponen yang jaringannya juga diikutinya di bawah [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of), dan Feature `compose-bridge` merutekan antara layanan di jaringan yang berbeda. `networks: {}` yang kosong tidak mendeklarasikan apa pun dan tidak ditolak, dan daftar `networks:` milik layanan sendiri dibawa seperti di atas."
   },
+  "7d838ae521d70cd8": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "7d838ae521d70cd8",
+    "status": "machine",
+    "text": "**Sajikan kunci API Gemini pada koneksi model**, seperti yang diminta komentar. Gemini adalah layanan yang di-host, sehingga Component agen menolak koneksi ke Gemini yang tidak membawa kredensial: “the model connection gemini-2-5-flash of \"support-agent\" reaches \"gemini-2-5-flash\", whose component.aggrega.ai/hosting label is managed, with no credential” (koneksi model gemini-2-5-flash dari “support-agent” menjangkau “gemini-2-5-flash”, yang labelnya component.aggrega.ai/hosting bernilai managed, tanpa kredensial). Koneksi melampirkan `core/secret-value` dengan `origin` berupa referensi variabel Compose `${GOOGLE_API_KEY}`."
+  },
   "7d86b8289939b36a": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -81904,6 +82142,13 @@
     "status": "machine",
     "text": "Kata kunci kontainer"
   },
+  "7f46b3edbd171015": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "7f46b3edbd171015",
+    "status": "machine",
+    "text": "**Komentar di atas platform** menyebutkan apa yang tidak dapat disediakan chatflow: image, akun pemilik yang menjadi tempat chatflow dimasukkan, kata sandinya, dan kredensial yang disajikan koneksi model."
+  },
   "7f473e1d4d7ad4a8": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -82343,6 +82588,13 @@
     "srcHash": "7ffdd4c25914fbda",
     "status": "machine",
     "text": "`valuesMapping` milik Recipe dasar perlu mereferensikan Secret Kubernetes yang diterbitkan oleh FeatureRecipe kredensial. Untuk slot `core/referenced-secret`, FeatureRecipe memublikasikan lokator sumber daya tersebut melalui kontrak `provides`-nya, dan konsumen membacanya sebagai `.features.<slot>.provides.name`:"
+  },
+  "7fff7f1db22bca5d": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "7fff7f1db22bca5d",
+    "status": "machine",
+    "text": "Aplikasi menerima port tempat servernya mendengarkan sebagai `PORT`, dan kunci sebagai `GOOGLE_API_KEY`, yang dikirim klien Gemini milik ADK ke API Gemini. Model tidak mendapat layanan tersendiri: klien mengirim permintaannya ke alamat API Gemini sendiri, dan tidak membaca alamat lain dari lingkungannya. Kunci adalah referensi variabel, yang diisi dari shell Anda saat stack dimulai. Layanan tidak memublikasikan port apa pun di mesin Anda: file yang dirender tidak memberinya port."
   },
   "80024109f6d0f48a": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -83402,6 +83654,13 @@
     "srcHash": "81939229f80b480c",
     "status": "machine",
     "text": "**Self-inject tingkat Component** (`component.inject`) — mengambil string dari `values` dan `provides` milik komponen itu sendiri."
+  },
+  "81953558c631c151": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "81953558c631c151",
+    "status": "machine",
+    "text": "`dist/compose/docker-compose.yaml` berisi dua layanan. Flowise itu sendiri:"
   },
   "819717ae1675862f": {
     "at": "2026-10-23T06:14:07.765401+00:00",
@@ -86839,6 +87098,13 @@
     "status": "machine",
     "text": "Diagnostik yang dimunculkan impor — misalnya node sumber yang tidak terselesaikan atau pemetaan yang ambigu. Tidak ada jika impor tidak menghasilkan diagnostik."
   },
+  "8754f8c7c05dcd3c": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "8754f8c7c05dcd3c",
+    "status": "machine",
+    "text": "**Baris `warn` pertama** menyatakan bagaimana chatflow menjangkau bagian itu: node membaca alamat dan kunci yang dikirimkan platform untuk koneksi model, sehingga kunci yang Anda lampirkan ke koneksi adalah kunci yang digunakan chatflow."
+  },
   "875659bf01bcdfd0": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -87141,6 +87407,13 @@
     "srcHash": "87b96a899304c701",
     "status": "machine",
     "text": "**Perubahan metadata setelah publikasi memiliki jalur yang jelas.** Menandai versi yang dipublikasikan sebagai deprecated, merotasi kunci penandatanganan, atau mengubah atestasi tidak dapat dilakukan dengan mengubah artefak yang dipublikasikan (aturannya melarang hal itu). Hal tersebut harus dilakukan dengan memublikasikan versi patch baru atau artefak sidecar yang mencatat perubahan metadata secara terpisah. Kedua jalur dapat diaudit — versi baru atau sidecar muncul sebagai entri registry tersendiri — dan tidak satu pun mengubah byte artefak asli."
+  },
+  "87b9bb24c1cf58d2": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "87b9bb24c1cf58d2",
+    "status": "machine",
+    "text": "Sebutkan direktori agen. Impor membaca `root_agent.yaml` miliknya:"
   },
   "87bb922793536cb7": {
     "at": "2026-10-30T02:00:09.600Z",
@@ -88683,6 +88956,13 @@
     "srcHash": "8a3395070e670e6d",
     "status": "machine",
     "text": "Jika templat Workload membaca nilai yang dideklarasikan sensitif oleh penulis, tidak ada pesan yang mengutip nilai yang ditolaknya, dan kedua jumlah tersebut dihilangkan dengan cara yang sama."
+  },
+  "8a3441f128f6af22": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "8a3441f128f6af22",
+    "status": "machine",
+    "text": "`aggregate.yaml` yang telah ditinjau adalah draf dengan tiga tambahan, dengan alur dihilangkan di sini seperti di atas:"
   },
   "8a34a0f2045529c9": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -92014,6 +92294,13 @@
     "status": "machine",
     "text": "Bentuk wire yang dikonsumsi (LinterInput) dan dihasilkan (LinterOutput) oleh socket linter. Linter dijalankan pada saat publikasi terhadap pasangan entitas versi sebelumnya + versi yang diusulkan (aturan evolusi skema) dan pada saat lint workspace terhadap entitas individual (aturan struktural per aturan). Satu plugin Wasm yang dikirimkan menampung banyak aturan; plugin memilih aturan yang dijalankan berdasarkan LinterInput.rule_id. Skema ini adalah satu-satunya sumber kedua bentuk wire: tipe payload Go, Rust, dan TypeScript dihasilkan darinya ke dalam paket plugin-ABI bersama, dan setiap kit plugin mengekspor ulang tipe yang dihasilkan tersebut alih-alih mendeklarasikan salinannya sendiri."
   },
+  "8f420817b73dcf06": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "8f420817b73dcf06",
+    "status": "machine",
+    "text": "**Sebutkan akun pemilik.** Flowise tidak memuat chatflow apa pun dari file saat dimulai, jadi build memasukkannya melalui API Flowise sendiri di bawah akun pemilik yang disebutkan Release: `infra.owner_email`, dan kata sandi yang dilampirkan ke `owner_password`, dibaca dari `${FLOWISE_OWNER_PASSWORD}`, yang diisi Docker Compose dari shell Anda. Tanpa email, validasi berhenti dengan asersi platform yang menyatakan hal itu: “the Flowise platform \"flowise\" is given values.flow_definition to seed but no infra.owner_email” (platform Flowise “flowise” diberi values.flow_definition untuk dimasukkan tetapi tidak diberi infra.owner_email)."
+  },
   "8f43a208b80f8952": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -92234,6 +92521,13 @@
     "srcHash": "8fa22e3d9afe0b12",
     "status": "machine",
     "text": "Untuk aturan ekspansi singkatan URI OCI (domain default, ekspansi entitas kontekstual, prioritas resolusi, penanganan versi), lihat [uri-grammar.md](uri-grammar.md)."
+  },
+  "8fa29f77733a481d": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "8fa29f77733a481d",
+    "status": "machine",
+    "text": "dan layanan yang memasukkan chatflow begitu Flowise melaporkan dirinya sehat, lalu keluar:"
   },
   "8fa5a7da51332288": {
     "at": "2026-10-23T06:14:07.765401+00:00",
@@ -93762,6 +94056,13 @@
     "srcHash": "91edde71433d5870",
     "status": "machine",
     "text": "`cloudformation/mariadb-rds` (AWS RDS)"
+  },
+  "91ef732804c00110": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "91ef732804c00110",
+    "status": "machine",
+    "text": "Impor menimbang setiap node terhadap Components di katalog ruang kerja, dan `--target` menyusun draf Manifest dari Recipes katalog tersebut, jadi sebutkan salinan kerja katalog pustaka standar, dengan jalur absolutnya:"
   },
   "91fabad07bca7b9e": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -96683,6 +96984,13 @@
     "srcHash": "969befdf56b55c6f",
     "status": "machine",
     "text": "**`Unblock-File` menjawab prompt itu lebih dahulu.** File yang diunduh ditandai sebagai berasal dari internet, dan tanda itulah yang ditanggapi oleh pemeriksaan *Windows protected your PC*. `Unblock-File` di PowerShell, seperti pada contoh di atas, menghapus tanda tersebut; begitu pula kotak centang **Unblock** pada tab **General** di **Properties** file tersebut di File Explorer."
+  },
+  "969efda604f1413f": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "969efda604f1413f",
+    "status": "machine",
+    "text": "`aggregate.yaml` — agen, yang terhubung ke model, dan model itu, diawali dengan komentar yang menyatakan apa yang dibaca dan apa yang tidak:"
   },
   "969f057d24ebab4e": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -103429,6 +103737,13 @@
     "status": "machine",
     "text": "Sebuah Feature kredensial membawa label `feature.aggrega.ai/kind: secret`. Label tersebut adalah metadata katalog yang menjelaskan apa yang dihasilkan oleh lampiran; tidak ada cabang compiler yang membacanya, dan Feature kredensial dilampirkan di bawah `features:` seperti Feature lainnya. Seorang penulis mereferensikan Feature kredensial berdasarkan tipe dalam lampiran `features:` — pengembang di Aggregate, atau operator di Release; Manifest memetakannya ke FeatureRecipe khusus provider untuk setiap lingkungan target."
   },
+  "a1354e616abf4661": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "a1354e616abf4661",
+    "status": "machine",
+    "text": "`flow_id` adalah pengenal yang diberikan ekspor kepada alur. Komentar di atas instans menyebutkan apa yang tidak dapat disediakan alur."
+  },
   "a136e44e5051857f": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -105786,6 +106101,13 @@
     "status": "machine",
     "text": "Informasi opsional tentang kepengarangan dan asal-usul build. Informasi ini tidak membawa kontrak perilaku — host tidak memvalidasi maupun bertindak berdasarkannya."
   },
+  "a4952e4d308a5cec": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "a4952e4d308a5cec",
+    "status": "machine",
+    "text": "Saat divalidasi dengan Release itu, Aggregate hasil draf ditolak karena model yang tidak dihubungkannya:"
+  },
   "a499c2e59de8dba6": {
     "at": "2026-11-02T05:52:29.274Z",
     "job": "session-0001-20261102055229",
@@ -106367,6 +106689,13 @@
     "srcHash": "a58edbab93d47cd8",
     "status": "machine",
     "text": "Setiap entri `flags` mendeklarasikan satu flag:"
+  },
+  "a5909aa446352822": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "a5909aa446352822",
+    "status": "machine",
+    "text": "`manifest.yaml` — satu-satunya Recipe Compose milik platform:"
   },
   "a591a6d40bf42040": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -111045,6 +111374,13 @@
     "status": "machine",
     "text": "Byte sumber yang akan di-parse. Setiap kit membawanya dalam jenis field-nya sendiri — mentah jika jenis tersebut adalah jenis byte, dienkode base64 jika berupa string yang didekode parser untuk memulihkannya — dan encoder yang dihasilkan mengonversi antara field tersebut dan bentuk yang digunakan wire untuk membawa byte. Parser membaca byte yang dipulihkan sebagai format yang disebutkan."
   },
+  "acdeff23af4f7ab1": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "acdeff23af4f7ab1",
+    "status": "machine",
+    "text": "Mengimpor alur Langflow"
+  },
   "acdfe4817d3b2787": {
     "at": "2026-11-04T18:55:35.607Z",
     "job": "session-0001-20261104185535",
@@ -111602,6 +111938,13 @@
     "status": "machine",
     "text": "Enam lampiran, dan apa yang dirender masing-masing"
   },
+  "adbab3eece7e6f16": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "adbab3eece7e6f16",
+    "status": "machine",
+    "text": "`aggregate.yaml` yang telah ditinjau, dengan chatflow dihilangkan di sini seperti di atas:"
+  },
   "adbc0893eba33e67": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -111959,6 +112302,13 @@
     "srcHash": "ae41bf849c05783b",
     "status": "machine",
     "text": "Penyusunan draf platform yang membawa chatflow juga membaca darinya: `id` tingkat teratasnya, jika berupa\n  UUID; kredensial yang disimpan sebuah node di `data.credential`; nilai setiap input yang dideklarasikan `inputParams`-nya\n  bertipe `password`; `FLOWISE_CREDENTIAL_ID` di antara input sebuah node, serta `credential` atau\n  `FLOWISE_CREDENTIAL_ID` di dalam objek konfigurasi pada kedalaman berapa pun di dalamnya; konfigurasi\n  server dalam input `mcpServerConfig` sebuah node; setiap input yang ditandai Flowise sebagai bukan kredensial tetapi\n  dapat membawanya, sebagaimana dicantumkan dalam [Nilai kredensial yang disimpan flow](#credential-values-the-flow-holds),\n  dan anggota tempat konfigurasi agentflow menyebut model atau tool yang dipilihnya; input\n  `modelName` sebuah node; dan Base Path node OpenAI, yaitu input `basepath`-nya.\n  [Apa yang mereka susun drafnya](#what-they-draft) menjelaskan apa jadinya masing-masing."
+  },
+  "ae41cbf834d641ec": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "ae41cbf834d641ec",
+    "status": "machine",
+    "text": "Alur sampai ke Langflow sebagai `/app/flows/flow.json`, dari entri `configs` yang berisi alur seperti saat diekspor, dan Langflow memuatnya dari `LANGFLOW_LOAD_FLOWS_PATH` setiap kali dimulai. Kunci dan kata sandi adalah referensi variabel, yang diisi dari shell Anda saat stack dimulai. Layanan tidak memublikasikan port apa pun di mesin Anda: file yang dirender tidak memberinya port."
   },
   "ae43692b2a310b8e": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -114528,6 +114878,13 @@
     "srcHash": "b1cb81afc5eae714",
     "status": "machine",
     "text": "Jumlah byte dokumen yang ditulis penulis, sehingga klien dapat membedakan dokumen yang ditulis penulis dari rendering ter-resolve dokumen tersebut."
+  },
+  "b1cd9ec055a2fbbe": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "b1cd9ec055a2fbbe",
+    "status": "machine",
+    "text": "`release.yaml` — satu entri untuk agen, dengan hal yang tidak dinyatakan oleh konfigurasi mana pun disebutkan dalam komentar di atasnya:"
   },
   "b1cf23c40a45faf0": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -118536,6 +118893,13 @@
     "srcHash": "b7c1adfd4059f819",
     "status": "machine",
     "text": "Pada templat yang menghasilkan sumber daya milik lampiran itu sendiri — `valuesMapping:`, `workload:` dan `artifacts:` miliknya — konteks lampiran juga mencantumkan komponen yang menggunakan host-nya, di [`.context.used_by`](#the-components-that-use-this-one--contextused_by), dan, jika FeatureRecipe-nya menetapkan `readsTargetRenderFacts: true`, memuat apa yang dirender oleh setiap komponen yang terhubung dengan host-nya, di [`.context.uses.<alias>.render_facts`](#contextuses--join-projection-enrichededge). Templat tersebut dan langkah `pipeline:` miliknya juga membaca apa yang dilaporkan provider host tentang render host, di [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts). FeatureRecipe dengan cakupan boundary tidak memiliki komponen host dan tidak memiliki `.context`; sebagai gantinya, ia membaca setiap koneksi ke dalam boundary-nya di bawah `.boundary.internal_uses_edges` dan `.boundary.incoming_cross_boundary_uses_edges`."
+  },
+  "b7cdec4c67e95a9b": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "b7cdec4c67e95a9b",
+    "status": "machine",
+    "text": "Mengimpor chatflow Flowise"
   },
   "b7d366022b7455cf": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -122655,6 +123019,13 @@
     "status": "machine",
     "text": "**Cara memperbaiki:** konfigurasikan setidaknya satu identitas tepercaya untuk registry di `.aggrega-config.yaml`. Sebuah entri menyebutkan identitas — sebagai subjek yang persis atau pola yang cocok dengannya — beserta penerbit yang menjaminnya, dan keduanya wajib ada. Jika registry mengiklankan kebijakan kepercayaannya sendiri, menyematkan kebijakan tersebut saat registry ditambahkan akan mengisi kumpulan itu dari apa yang dipublikasikan registry. Jika Anda sama sekali tidak bermaksud memverifikasi tanda tangan dari registry ini, itu adalah pengaturan yang berbeda dari kumpulan identitas kosong, dan menetapkannya secara eksplisit adalah cara untuk menyatakannya."
   },
+  "be33c878fec8a6b5": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "be33c878fec8a6b5",
+    "status": "machine",
+    "text": "**Baris `features` yang dikomentari** ditujukan untuk build bagi Docker Compose, yang merupakan kasus panduan ini. Peninjauan menghapus komentarnya, dan bagian berikutnya menunjukkan apa yang terjadi bila baris-baris itu tetap dikomentari."
+  },
   "be36f7770bf1e29a": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -126506,6 +126877,13 @@
     "status": "machine",
     "text": "[Sistem pengubah: `appliesTo` dan selektor](vocabulary/modifier-system.md) — selektor attachment Feature, mesin pencocokan label Go asli, tata bahasa selektor bentuk string, dan varian `appliesToAnyOf` yang menyusun secara OR."
   },
+  "c3e5fd3b6b35b40f": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "c3e5fd3b6b35b40f",
+    "status": "machine",
+    "text": "Di samping alur, sebuah `.aggrega-config.yaml` menjadikan folder tersebut ruang kerja:"
+  },
   "c3eb41c0ac8152b0": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -127619,6 +127997,13 @@
     "status": "machine",
     "text": "Anotasi boundary yang nilai terselesaikannya menamai artefak yang dirakit plugin dari sebuah grup dispatch. Plugin yang melebur boundary-boundary kontributor dalam satu grup menjadi satu rakitan bernama mendeklarasikan kunci anotasi yang dibacanya dan apakah setiap boundary kontributor harus sepakat atas nilai terselesaikan anotasi tersebut. Jika tidak ada, plugin menamai rakitannya hanya dari jalur dispatch."
   },
+  "c5c16868ce6c586e": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "c5c16868ce6c586e",
+    "status": "machine",
+    "text": "Peninjauan dimulai dengan menulis Release yang tidak ditulis oleh impor, dengan sebuah lingkungan dan image, lalu memvalidasi:"
+  },
   "c5c30051452b6718": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -128380,6 +128765,13 @@
     "srcHash": "c6fb73ba0f84ccd0",
     "status": "machine",
     "text": "**Ini adalah kelas tersendiri, dan `--no-unsupported-field-warnings` tidak mencakupnya.** Flag tersebut membungkam pemberitahuan fidelitas target, yaitu penilaian berbeda yang dibuat dengan alasan berbeda; advisori ini tetap muncul di sampingnya. Tidak ada flag yang membungkam advisori ini."
+  },
+  "c70103cecb5292fc": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "c70103cecb5292fc",
+    "status": "machine",
+    "text": "Alur"
   },
   "c7023e8a9ed110e0": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -132278,6 +132670,13 @@
     "srcHash": "cc9f269ed21050c0",
     "status": "machine",
     "text": "`ActiveReleaseResult`"
+  },
+  "cca22e1771a71f41": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "cca22e1771a71f41",
+    "status": "machine",
+    "text": "Basic Prompting merangkai empat node: Chat Input, Prompt, Language Model yang memanggil `gpt-4.1` milik OpenAI, dan Chat Output. Saat diekspor dari editor Langflow, alur ini adalah satu file JSON, `basic-prompting.json`, berukuran sekitar 54 KB, yang membawa kode sumber setiap komponen selain alurnya. Node Language Model-nya membaca kunci dari variabel global `OPENAI_API_KEY`, yang dibaca Langflow dari lingkungannya bila tidak ada variabel dengan nama itu yang tersimpan."
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-23T06:14:07.765401+00:00",
@@ -136474,6 +136873,13 @@
     "srcHash": "d2902f9645ca7931",
     "status": "machine",
     "text": "Satu susunan layak dinyatakan secara eksplisit karena tampak seharusnya berhenti padahal tidak: melampirkan sebuah feature dengan **nama yang sama** pada dua komponen sepenuhnya didukung, dan tidak memerlukan penggantian nama. Komponen merupakan bagian dari nilai yang disusun, sehingga `metrics` pada `api` dan `metrics` pada `web` mencapai dua identitas dan sumber daya setiap komponen mendapatkan identitasnya sendiri — yang penting karena cascade yang secara desain mencetak satu nama lampiran di banyak komponen tidak menyisakan nama lain bagi pembuat untuk ditulis. Setiap cara FeatureRecipe mengirimkan sumber daya menempatkan identitasnya pada apa yang dihasilkannya, termasuk cara yang hanya melakukan vendoring sebuah sumber dan merendernya apa adanya, sehingga setiap cara itu dibandingkan; feature yang FeatureRecipe-nya tidak menghasilkan apa pun tidak memiliki apa pun untuk dibandingkan."
+  },
+  "d2906cfb15d4f060": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "d2906cfb15d4f060",
+    "status": "machine",
+    "text": "ADK dapat mendeklarasikan agen-agen sebuah aplikasi dalam file Agent Config, bukan dalam kode: `adk create --type=config` menulis `root_agent.yaml`, konfigurasi agen akar, dan sebuah file lingkungan di sampingnya. Konfigurasi ini, yang ditulis untuk panduan ini, mendeklarasikan satu agen pada `gemini-2.5-flash` milik Gemini, dengan alat Google Search yang disertakan ADK:"
   },
   "d294fcce0cc88587": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -147114,6 +147520,13 @@
     "status": "machine",
     "text": "Di antara cache yang dibagikan oleh setiap proyek di mesin, inilah yang dapat mendominasi penggunaan cache on-disk, karena setiap plugin yang dijalankan mesin dikompilasi ke dalamnya sekali dan disimpan, sehingga ini satu-satunya cache dengan batas ukuran tetap. Setiap pemanggilan yang membuka penyimpanan menerapkan batas sebelum mengompilasi apa pun, menghapus seluruh entri mulai dari yang paling lama dikompilasi hingga sisanya muat. (Build yang dijalankan dengan `--disable-plugin-cache` justru mengompilasi ke memori, sehingga tidak memperbesar maupun memangkas penyimpanan.) Menghapus sebuah entri hanya mengakibatkan kompilasi ulang di kemudian hari dan tidak lebih, dan itulah yang membuat batas aman diturunkan dan aman diterapkan saat build lain sedang berjalan di mesin yang sama. Setel batas di atas apa yang dikompilasi oleh satu build: karena batas diterapkan sebelum kompilasi, batas di bawah working set satu build membuat setiap build membuang dan mengompilasi ulang modul yang sama, dan karena alasan yang sama penyimpanan dapat berada di atas batas di antara build dan dipangkas lagi di awal build berikutnya. `aggrega cache status` melaporkan ukuran penyimpanan, dan `aggrega cache evict --max-size` memangkasnya sesuai permintaan ke batas yang diberikan di baris perintah."
   },
+  "e2b8ffe6f76dc699": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "e2b8ffe6f76dc699",
+    "status": "machine",
+    "text": "Impor tidak pernah membaca file lingkungan, yang biasanya berisi kunci yang dikirim aplikasi ke Gemini, sehingga contoh ini tidak menyertakannya. Di akar proyek, sebuah `.aggrega-config.yaml` menjadikan folder tersebut ruang kerja:"
+  },
   "e2be0997616c2e29": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -147858,6 +148271,13 @@
     "srcHash": "e3d165ea201a07f8",
     "status": "machine",
     "text": "Bernilai true jika Feature yang dilampirkan mendeklarasikan leaf sensitif dalam `values`, `infra`, atau `provides`-nya, atau slot yang diisi attachment tersebut mendeklarasikan bahwa apa pun yang mengikatnya menangani materi rahasia — slot attachment dengan nama yang sama pada Component host, atau, untuk attachment yang membawa `connection`, slot dengan nama tersebut yang dideklarasikan socket koneksi itu. Tidak diset jika tidak ada satu pun deklarasi tersebut."
+  },
+  "e3d2feaed2245634": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "e3d2feaed2245634",
+    "status": "machine",
+    "text": "**Tempatkan model** di samping agen: `gemini-2-5-flash: {}`."
   },
   "e3d3d9401b3df0a2": {
     "at": "2026-10-29T21:33:51.093Z",
@@ -148946,6 +149366,13 @@
     "status": "machine",
     "text": "Membaca `.infra` untuk ukuran fisik (sizing yang ditulis Ops)."
   },
+  "e5aaaff07a26ac7f": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "e5aaaff07a26ac7f",
+    "status": "machine",
+    "text": "**Hapus komentar pada baris `owner_password`.** Dengan kedua rahasia dilampirkan hanya oleh Release dan baris-baris itu dibiarkan dikomentari, build berhenti seperti yang diperingatkan komentar:"
+  },
   "e5abaddf389992de": {
     "at": "2026-11-01T19:11:28.489Z",
     "job": "session-0012-20261101191128",
@@ -149416,6 +149843,13 @@
     "srcHash": "e660d6b76dbdbccc",
     "status": "machine",
     "text": "Penolakan saat penerbitan, bukan saat build. Byte yang diterbitkan bersifat beku: sebelum apa pun diunggah, versi target dicari dan digest yang ditunjuknya dibandingkan dengan digest yang akan dihasilkan oleh konten yang ada. Versi yang sudah menunjuk ke konten berbeda ditolak."
+  },
+  "e6640a2f4ef67f4b": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "e6640a2f4ef67f4b",
+    "status": "machine",
+    "text": "**Baris `mapped`** menyatakan bahwa node ChatOpenAI menjadi bagian dari alur, sebuah Component tersendiri yang terhubung ke soket `model` milik platform. Node itu cocok dengan `core/ai-model/openai` dari pustaka standar pada tingkat tinggi, dengan nilai 0,9, dan tetap disusun sebagai draf, karena secara bawaan impor menyarankan dan Anda yang memilih."
   },
   "e665d06aabdf194f": {
     "at": "2026-10-23T06:14:07.765401+00:00",
@@ -152439,6 +152873,13 @@
     "status": "machine",
     "text": "Recipe yang `source:`-nya harus **diambil** sama sekali tidak dirender, dan Recipe yang rendernya berhenti saat membaca nilai yang hanya disediakan oleh koneksi atau Feature yang terpasang akan dikesampingkan rendernya — lihat [apa yang tidak diperiksa oleh kebenaran entitas tunggal](#what-single-entity-correctness-does-not-check) di bawah."
   },
+  "eb667219f007eb6a": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "eb667219f007eb6a",
+    "status": "machine",
+    "text": "**Lampirkan kata sandi administrator.** Masuk ke editor Langflow diwajibkan secara bawaan, dan build berhenti selama tidak ada kata sandi yang dilampirkan, dengan menyatakan: “the Langflow editor needs an administrator password to sign in with and none is attached” (editor Langflow memerlukan kata sandi administrator untuk masuk dan tidak ada yang dilampirkan). Pada Compose, Recipe platform membaca setiap rahasia yang dilampirkan oleh Release saja di bawah satu kunci, sehingga kata sandi yang dilampirkan di sana di samping kunci koneksi akan tiba dengan nama yang sama dan menghentikan build. Sebagai gantinya, peninjauan mendeklarasikan kata sandi di dalam Aggregate, dengan kunci tersendiri, `LANGFLOW_SUPERUSER_PASSWORD`, yang dibaca dari `${LANGFLOW_ADMIN_PASSWORD}`."
+  },
   "eb68a6746f33c6f6": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -152768,6 +153209,13 @@
     "srcHash": "ebe3cb4da06d1764",
     "status": "machine",
     "text": "*Penyedia compose mencap kunci provenans yang sama sebagai label layanan, penyedia terraform sebagai file provenans di setiap modul yang dirakitnya, dan penyedia cloudformation di bawah `Metadata` setiap sumber daya; catatan provenans dalam memori ada untuk setiap kompilasi.*"
+  },
+  "ebe5d3d9c8199a04": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "ebe5d3d9c8199a04",
+    "status": "machine",
+    "text": "Peninjauan dimulai dengan menulis Release yang tidak ditulis oleh impor: sebuah lingkungan, dan image yang diminta komentar."
   },
   "ebe7700278f85f01": {
     "at": "2026-10-30T04:21:50.177Z",
@@ -153180,6 +153628,13 @@
     "srcHash": "ec6de3549db1cf0d",
     "status": "machine",
     "text": "**2. Domain pengembang: Aggregate** Pengembang memasang Feature gerbang persetujuan pada alat email, bukan pada agen. Compiler menarik edge dari agen ke alat tersebut; FeatureRecipe yang diikat Manifest untuk gerbang itu merender konfigurasi proksi intersepsi pada jalur ingress alat itu."
+  },
+  "ec6ef412a7feed9b": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "ec6ef412a7feed9b",
+    "status": "machine",
+    "text": "Chatflow"
   },
   "ec7a56f72b14c1cf": {
     "at": "2026-11-02T14:36:39.571Z",
@@ -164306,6 +164761,13 @@
     "status": "machine",
     "text": "Deklarasi `schema:` per Component / per Feature adalah tempat bagi **batasan per entitas**: tipe, rentang, pola, dan enum per kolom; aturan antarkolom yang dinyatakan dalam blok khusus `assertions:` (bab 08). Batasan ini bersifat lokal untuk satu entitas dan ikut berpindah bersamanya di seluruh katalog."
   },
+  "fd295ab491bd30de": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "fd295ab491bd30de",
+    "status": "machine",
+    "text": "Baris `warning` berkaitan dengan bagian file Compose yang membawa chatflow, sebuah entri `configs` tingkat atas, yang tidak memiliki layanan untuk menempatkan label build. Baris `notice` bersifat informatif: Feature rahasia menerima `origin` miliknya dari `values` milik Aggregate atau `infra` milik Release, dan pemberitahuan itu melaporkan bahwa satu daun dideklarasikan di keduanya. Tidak satu pun mengubah putusan."
+  },
   "fd33f90d5d2dd652": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -164836,6 +165298,13 @@
     "srcHash": "fe1e499c10bd219e",
     "status": "machine",
     "text": "**Probe yang memeriksa path melalui HTTP, pada container yang tidak memublikasikan port.** Pemeriksaan dibangun sebagai permintaan ke sebuah port pada container, sehingga tanpa port yang dideklarasikan tidak ada alamat untuk membangunnya."
+  },
+  "fe1f71c75acad10f": {
+    "at": "2026-11-05T18:21:44.760Z",
+    "job": "session-0011-20261105182144",
+    "srcHash": "fe1f71c75acad10f",
+    "status": "machine",
+    "text": "**`chatflow_id`** diturunkan dari chatflow, karena ekspor dari editor Flowise tidak membawa pengenal sendiri, sehingga satu chatflow selalu menghasilkan pengenal yang sama. Chatflow Flowise menulis `{{<node id>.data.instance}}` untuk setiap koneksi antara dua node, dan teks Aggregate dibaca sebagai templat, jadi draf menulis setiap `{{` sebagai `{{\"{{\"}}`, yang diubah kembali oleh build menjadi dua kurung kurawal."
   },
   "fe22384a36b015d8": {
     "at": "2026-10-23T08:19:02.010279+00:00",
