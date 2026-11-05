@@ -264,6 +264,16 @@ Several repositories are read at a time. Everything the command records and prin
 comes out in repository order, so the index and the output are the same as reading
 one repository at a time would produce.
 
+While it walks, a terminal shows the walk's progress on standard error, the way
+build and pull show theirs: a row naming each registry, a spinner while that
+registry's repository listing is read, then how many of its repositories the walk
+has finished out of how many it lists, counted in repository order, and a bar for
+the whole walk below the rows. On a terminal that cannot redraw in place, or with
+--plain, each registry gets one plain line instead, written when its walk ends,
+with the count it ended on and the time it took. When standard error is not a
+terminal, no progress is shown. The progress changes nothing the command prints on
+standard output.
+
 Use --upgrade to read every repository in full, comparing nothing with the index
 already written — to rebuild an index from the registry alone. It finds no change a
 refresh without it would miss.
