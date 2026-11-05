@@ -7418,6 +7418,17 @@
     "status": "machine",
     "text": "artifact-library import references a bundle not present in the ArtifactLibrary: bundle `\"<entry>\"` in ArtifactLibrary `\"<library>\"` (une importation de bibliothèque d’artefacts référence un bundle absent de l’ArtifactLibrary : avec le bundle et l’ArtifactLibrary indiqués) mapping-library import references an entry not present in the MappingLibrary: entry `\"<entry>\"` in MappingLibrary `\"<library>\"` (une importation de bibliothèque de mappings référence une entrée absente de la MappingLibrary : avec l’entrée et la MappingLibrary indiquées) workload-library import references an entry not present in the WorkloadLibrary: entry `\"<entry>\"` in WorkloadLibrary `\"<library>\"` (une importation de bibliothèque de workloads référence une entrée absente de la WorkloadLibrary : avec l’entrée et la WorkloadLibrary indiquées)"
   },
+  "0c42d0872a327f8c": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "7bd2727badc4d205",
+      "reviewed": false
+    },
+    "srcHash": "0c42d0872a327f8c",
+    "status": "machine",
+    "text": "**`cloudformation` et `compose` — vous avez écrit les noms, ou l’identité est le nom.** Une Recipe cloudformation rédige les identifiants logiques de ses ressources et le fournisseur les lit exactement tels qu’ils sont écrits ; un fichier compose que vous avez fourni nomme ses propres services et le fournisseur fusionne et étiquette ce fichier sans rien y renommer. Un workload que `compose` synthétise est nommé d’après l’identité du nœud, qu’un fichier compose admet telle qu’elle est écrite, donc `{{ .context.instance_id }}` est ce nom. Il n’y a aucune dérivation à signaler, et les noms sont ceux qui figurent dans vos propres documents. Ce nom est le service principal du workload, celui qu’atteint un pair ; un service sidecar ou d’initialisation qu’il porte est nommé à partir de la même identité et du nom du conteneur, joints par `--`, comme le décrit [Comment un service sidecar ou d’initialisation est nommé](../providers/compose.md#how-a-sidecar-or-init-service-is-named)."
+  },
   "0c456a50108e015e": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
@@ -7628,6 +7639,13 @@
     "status": "machine",
     "text": "Elle est refusée là où l'emplacement est formé plutôt qu'au moment de la récupération, de sorte que le message nomme ce que vous avez écrit au lieu d'apparaître plus tard sous la forme d'une erreur de tag illisible."
   },
+  "0c88d280a5449e2b": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "0c88d280a5449e2b",
+    "status": "machine",
+    "text": "Les clés des Services que déclare le workload résolu du nœud, dans l’ordre où le workload les déclare, transmises lorsque l’identité est fixée après la résolution de ce workload et que le workload en déclare. Un invité dont la cible nomme chaque Service qu’il émet pour le nœud à partir de l’identité du composant et de la clé du Service les lit pour juger chacun de ces noms. Une clé est écrite par l’auteur de la Recipe ou de la FeatureRecipe plutôt que par celui qui a écrit l’identité, de sorte qu’un invité formule aussi pour cet auteur un refus causé par une clé. Absent signifie que l’hôte ne transmet aucune clé pour cette question : le nœud ne déclare aucun workload, son workload ne déclare aucun Service, ou l’identité est fixée avant la résolution de tout workload. Un invité ne juge alors aucun nom construit à partir d’une clé de Service, et répond exactement comme il le ferait si le champ n’existait pas."
+  },
   "0c8d7b18ffee459e": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
@@ -7816,6 +7834,17 @@
     "srcHash": "0cfbbc374054e156",
     "status": "machine",
     "text": "Un avis nomme la sévérité que l’éditeur a enregistrée. Un artefact révoqué est signalé comme `retracted` ; les deux sévérités consultatives sont signalées comme dépréciées, en précisant laquelle des deux. Ainsi, ce que vous relisez correspond à la valeur qui a été rédigée et à la valeur avec laquelle vous configureriez un seuil d’arrêt."
+  },
+  "0cfc2d57bc63b803": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "801d6ca76bad41e5",
+      "reviewed": false
+    },
+    "srcHash": "0cfc2d57bc63b803",
+    "status": "machine",
+    "text": "Les entrées `initContainers` d’un Workload deviennent des services à part entière, selon l’idiome d’exécution jusqu’à complétion de compose. Chaque entrée ajoute un service, nommé à partir de `<component>` et du `name` de l’entrée selon le [même nommage que celui des sidecars](#how-a-sidecar-or-init-service-is-named) — `<component>--<container-name>` pour un nom ordinaire ; une entrée qui omet `name` prend le nom positionnel `init-<index>` que documente la [référence Workload](../entities/workload.md), et est nommée à partir de celui-ci."
   },
   "0cfdee6d1c0104d7": {
     "at": "2026-11-03T12:27:44.093Z",
@@ -10588,6 +10617,17 @@
     "srcHash": "118d550d653d2fff",
     "status": "machine",
     "text": "Une entrée `artifacts:` que la Recipe propre à un composant écrit est décidée avant tout rendu, de sorte que le signalement est positionné sur le bloc `artifacts:` de cette Recipe et nomme la référence, le bundle, le fichier dont le corps porte l’importation imbriquée, et l’entrée à laquelle l’importation a été écrite. Chaque fichier du bundle ayant cette forme est signalé en une seule build ; lorsqu’il y en a plus d’un, les constats sont regroupés sous `artifacts entries whose library import the compiler cannot resolve` :"
+  },
+  "118ec90a78584be9": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "1a28defb0de211d7",
+      "reviewed": false
+    },
+    "srcHash": "118ec90a78584be9",
+    "status": "machine",
+    "text": "Un identifiant de l’artefact source que concerne le diagnostic, lorsque l’émetteur le connaît (un moteur de rendu). Absent sinon. Il ne nomme jamais une instance du build ; c’est instance qui la porte."
   },
   "118f3a0ea7a911cd": {
     "at": "2026-11-03T07:45:15.507Z",
@@ -32062,6 +32102,13 @@
     "status": "machine",
     "text": "Aggregate (la cible de déploiement de la Release)"
   },
+  "36c16eeac676ca52": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "36c16eeac676ca52",
+    "status": "machine",
+    "text": "La forme du workload en lequel se résout la Recipe ou la FeatureRecipe du nœud, telle que l’a produite son template de workload, transmise lorsque l’identité est fixée après la résolution de ce workload et que le workload indique une forme. Elle est transmise telle qu’elle est écrite ; l’hôte ne l’interprète pas. Un invité dont la cible borne un nom qu’il émet pour une seule forme — un job planifié, dont la cible veut le nom plus court que ses autres noms parce qu’un suffixe y est ajouté à chaque exécution — la lit pour juger ce nom. Absent signifie que l’hôte ne transmet aucune forme pour cette question : le nœud ne déclare aucun workload, son workload n’en indique aucune, ou l’identité est fixée avant la résolution de tout workload. Un invité ne juge alors aucun nom qui dépend de la forme, et répond exactement comme il le ferait si le champ n’existait pas."
+  },
   "36c19d7b9867cd99": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -32461,6 +32508,17 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "Références associées"
+  },
+  "3769f12235dd8877": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "814f19b35ce8bcb8",
+      "reviewed": false
+    },
+    "srcHash": "3769f12235dd8877",
+    "status": "machine",
+    "text": "L’intention immuable et non modifiée du développeur pour le bloc inject. Chaque mécanisme que nomme le bloc — env, file, arg ou un mécanisme personnalisé tel que ssm_param — se trouve sous son propre nom et contient les entrées exactement telles qu’elles sont écrites (in, avec from ou value), dans l’ordre d’écriture, de sorte que .inject_raw.ssm_param lit un mécanisme personnalisé comme .inject_raw.env lit un mécanisme de base. Vaut null si le développeur a entièrement omis le bloc inject. Utilisé par Ops pour des vérifications logiques (par ex. {{ if not .inject_raw }}) afin de détecter l’omission avant les mutations du mapping d’inject."
   },
   "376a13ff3d131acb": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -39405,6 +39463,17 @@
     "status": "machine",
     "text": "Ce que les index locaux des registres ont proposé pour la recherche."
   },
+  "4397f10a9a161e6f": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "3fc08936d7955aa9",
+      "reviewed": false
+    },
+    "srcHash": "4397f10a9a161e6f",
+    "status": "machine",
+    "text": "**Forme de l’erreur.** Un refus de capacité est attribué au domaine de rédaction du catalogue, de sorte que son rapport s’ouvre sur un en-tête entre crochets portant cette catégorie et l’instance en faute. Le message s’ouvre sur la phrase fixe qui énonce la condition, puis nomme le nœud, le fournisseur et les types que ce fournisseur prend en charge :"
+  },
   "4399c2f71f828fe4": {
     "at": "2026-11-03T22:09:07.585Z",
     "job": "session-0166-20261103220907",
@@ -45178,6 +45247,13 @@
     "srcHash": "4d4c3d1c6e6e3cdf",
     "status": "machine",
     "text": "Les deux moitiés de la stack sont nommées selon des règles différentes, et c’est cette moitié-ci qui surprend."
+  },
+  "4d4c4fbd31539794": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "4d4c4fbd31539794",
+    "status": "machine",
+    "text": "L’instance du build que concerne le diagnostic, désignée par l’identité que lui donne le build : un composant par le nom sous lequel l’Aggregate le déclare, un composant qu’apporte un module par son chemin pointé à travers le module, un composant que dérive le build par l’identité que le build compose pour lui, et un module par son propre chemin. Présent lorsque le diagnostic porte sur une instance ; absent sinon."
   },
   "4d4f6ed0a69c5aaa": {
     "at": "2026-11-03T17:08:32.496Z",
@@ -53843,6 +53919,17 @@
     "srcHash": "5b8283639d27bfd1",
     "status": "machine",
     "text": "Quand les deux extrémités divergent"
+  },
+  "5b83c54132128d8a": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "0f96e12665878398",
+      "reviewed": false
+    },
+    "srcHash": "5b83c54132128d8a",
+    "status": "machine",
+    "text": "Le payload qu’un invité du Provider reçoit par son export facultatif name_bound : un nom que l’hôte propose d’utiliser comme identité de composant d’un nœud, pour que l’invité le juge par rapport à chaque nom qu’il en dériverait pour sa cible, accompagné des faits du workload résolu du nœud dont dépendent certains de ces noms, lorsque l’identité est fixée après la résolution de ce workload. L’invité répond par une contrainte plutôt que par un nom qui lui soit propre — un nom dérivé renvoyé à l’hôte mettrait celui-ci en position de composer des noms pour une cible dont il ne sait rien, ce qui est exactement ce que le fait de poser la question supprime. Un fournisseur dont la cible borne ou restreint les noms qu’elle accepte annonce l’export ; un fournisseur dont la cible accepte n’importe quel nom l’omet et n’est jamais interrogé, et son rendu reste inchangé."
   },
   "5b84e7c915382c78": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -64987,6 +65074,17 @@
     "status": "machine",
     "text": "A declared schema contract cannot be read as a schema (Un contrat de schéma déclaré ne peut pas être lu comme un schéma)"
   },
+  "6f028eaa166bac97": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "02461a892d030707",
+      "reviewed": false
+    },
+    "srcHash": "6f028eaa166bac97",
+    "status": "machine",
+    "text": "L’endroit où pointe un diagnostic. Il porte un localisateur unifié unique qui sert à la fois une position précise à l’octet dans le texte source brut (un parser renseigne span) et une position structurée dans un document source (un moteur de rendu renseigne key_path, uri, line et kind), et nomme l’instance du build que concerne le diagnostic lorsqu’il y en a une (instance). Chaque champ est facultatif ; un socket renseigne la représentation qu’il peut produire et omet le reste."
+  },
   "6f07546a64b74269": {
     "at": "2026-11-03T10:00:44.083Z",
     "job": "session-0088-20261103100044",
@@ -67998,6 +68096,17 @@
     "srcHash": "7434d2b26837949b",
     "status": "machine",
     "text": "`RegistryRemoveParams`"
+  },
+  "743d6c43150c80ac": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "0038fc3b4aa2a8d9",
+      "reviewed": false
+    },
+    "srcHash": "743d6c43150c80ac",
+    "status": "machine",
+    "text": "Les services d’initialisation et les services sidecar partagent un même espace de noms, parce qu’[un seul nommage](#how-a-sidecar-or-init-service-is-named) nomme les deux, de sorte qu’une entrée `initContainers` et une entrée `containers` ne peuvent pas porter le même nom. Lorsque c’est le cas, le compilateur s’arrête avec un `TRANSLATION_ERROR` qui nomme le nœud, le nom du conteneur et le nom de service que tous deux voulaient, plutôt que de laisser un service remplacer discrètement l’autre."
   },
   "743faf99798e7983": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -71292,6 +71401,17 @@
     "status": "machine",
     "text": "Les API SaaS externes et les bases de données héritées sont des nœuds du graphe à part entière. Elles ne produisent aucun artefact de calcul, mais participent à la topologie, à la validation des politiques et à la résolution des injections."
   },
+  "79949953145b87bb": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "ee9217698f80d89c",
+      "reviewed": false
+    },
+    "srcHash": "79949953145b87bb",
+    "status": "machine",
+    "text": "**`.source`.** Le `source:` de la Recipe, résolu par l’évaluation du template de résolution de la source. `nil` pour les Recipes sans source ; `nil` avant l’exécution de la résolution de la source. Sur les templates d’une FeatureRecipe, c’est le propre `source:` de cette FeatureRecipe, jamais celui du composant hôte — voir [Surface de la FeatureRecipe de rattachement](#attachment-featurerecipe-surface)."
+  },
   "7996d25bacf907dc": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
@@ -73874,6 +73994,13 @@
     "status": "machine",
     "text": "Le bloc `.context`"
   },
+  "7e4f41f09e789001": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "7e4f41f09e789001",
+    "status": "machine",
+    "text": "**Longueurs de noms qui dépendent du Workload.** Deux de ces noms sont soumis par le cluster à des limites qui leur sont propres, et le build vérifie les deux une fois le Workload résolu plutôt que de laisser le refus au cluster au moment de l’application. Le nom d’un **CronJob** compte au plus 52 caractères, moins que les autres noms du cluster parce que le contrôleur nomme le Job de chaque exécution d’après le CronJob en y ajoutant un suffixe ; il n’est vérifié que pour un Workload `scheduled`. Le nom de chaque **Service**, `<release name>-<service key>`, compte au plus 63 caractères. Au-delà de l’une ou l’autre limite, ce qui se passe dépend de qui a écrit le nom, exactement comme pour le nom de release : un nom de composant que vous avez écrit est refusé, le build s’arrêtant à la clé `spec.components` que vous avez écrite, avec le type de nom, sa longueur et le budget dont dispose votre nom — voir [`../errors/fatal-halts.md`](../errors/fatal-halts.md) « The target will not accept a name derived from an authored identity (La cible n’accepte pas un nom dérivé d’une identité rédigée) » ; une identité composée, comme celle d’après laquelle est nommé le workload d’un rattachement de Feature, est raccourcie jusqu’à ce que chaque nom tienne. Un nom de Service est construit à partir de votre nom de composant et d’une clé que le workload déclare — dans la Recipe, ou dans une FeatureRecipe — de sorte qu’un refus nomme cette clé et l’endroit où le workload la déclare, `spec.workload.services.<key>` ; une clé qui ne laisse de place à aucun nom de composant doit elle-même être raccourcie. Ainsi, un composant portant un Workload `scheduled` peut avoir un nom encodé d’au plus 52 caractères, et un composant `web` peut porter des clés de Service d’au plus 59. Une Feature rattachée à une frontière entière voit son identité fixée avant que son Workload soit résolu, car l’endroit où sa sortie est assemblée peut dépendre de cette identité ; aucune des deux limites n’est donc vérifiée pour les ressources qu’elle synthétise."
+  },
   "7e5619d443079041": {
     "at": "2026-10-30T06:38:31.272Z",
     "job": "session-0070-20261030063831",
@@ -76149,6 +76276,17 @@
     "srcHash": "82519e3d04b3873b",
     "status": "machine",
     "text": "Le modèle des modules"
+  },
+  "82526f9c91f4312a": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "9cdb6fab93d6099b",
+      "reviewed": false
+    },
+    "srcHash": "82526f9c91f4312a",
+    "status": "machine",
+    "text": "**L’analyseur est le validateur.** L’analyseur de sélecteurs du compilateur possède la grammaire : un sélecteur qu’il refuse — l’une quelconque des formes ci-dessus — arrête le build avec un diagnostic qui nomme le sélecteur, la Feature, le socket ou le slot qui le déclare, et l’exigence qu’il n’a pas pu lire. Les échecs d’analyse sont bruyants et précis, jamais ignorés silencieusement. Dans un build, l’analyseur s’exécute là où un sélecteur est évalué — pour chaque rattachement d’une Feature, chaque arête câblée à travers un socket, chaque remplissage d’un slot. `aggrega validate`, sur l’ensemble du catalogue ou sur un seul Component ou une seule Feature, lit aussi chaque sélecteur de socket et de slot que déclare le document de l’entité, de sorte qu’un sélecteur malformé sur un socket ou un slot que rien n’utilise y est refusé, sous le code et dans les termes qu’emploie un build. Un `appliesTo` malformé sur une Feature que rien ne rattache n’est pas signalé tant que quelque chose ne le fait pas."
   },
   "825371176c274c5c": {
     "at": "2026-10-30T21:44:40.955Z",
@@ -81905,6 +82043,17 @@
     "status": "machine",
     "text": "URI canonique de la Recipe ou de la FeatureRecipe (par ex. `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0`)."
   },
+  "8c20572df1607da9": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "f50d268ac5fd2012",
+      "reviewed": false
+    },
+    "srcHash": "8c20572df1607da9",
+    "status": "machine",
+    "text": "L’intention non modifiée du développeur, avant toute interception par inject-mapping. Chaque mécanisme que nomme le bloc — `env`, `file`, `arg` ou un mécanisme personnalisé tel que `ssm_param` — se trouve sous son propre nom et contient les entrées exactement telles qu’elles sont écrites (`in` avec `from` ou `value`), dans l’ordre d’écriture : `.inject_raw.ssm_param` lit un mécanisme personnalisé comme `.inject_raw.env` lit le mécanisme de base. À utiliser pour des vérifications logiques du type « le développeur a-t-il initialement demandé cette clé de livraison ? » ; insensible à la réécriture par l’`injectMapping` d’une FeatureRecipe. `nil` si le développeur a omis le bloc `inject:`."
+  },
   "8c2719bff86c9828": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -85476,6 +85625,17 @@
     "srcHash": "923962160fb53083",
     "status": "machine",
     "text": "la **Recipe helm synthétisée** qui exécute l’image upstream officielle `fluent/fluentd` directement sur Kubernetes (aucun chart externe)."
+  },
+  "9239f7f524f75cbb": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "384df8e0b397465c",
+      "reviewed": false
+    },
+    "srcHash": "9239f7f524f75cbb",
+    "status": "machine",
+    "text": "**Contexte de template complet** + `.attachment_name`, `.inject` (les propres entrées `inject:` du rattachement, lorsque le rattachement rédige un bloc `inject:`), `.context.render_facts` — ce que le fournisseur de l’hôte a rapporté au sujet du rendu de l’hôte — et `.context.used_by` — les composants qui utilisent l’hôte, chacun portant ses propres faits de rendu lorsque la FeatureRecipe définit `readsCallerRenderFacts: true`. Chaque connexion sur `.context.uses` porte les faits de rendu de sa cible, à `.render_facts`, lorsque la FeatureRecipe définit `readsTargetRenderFacts: true`. `.context.instance_id` et `.context.rendered_name` sont l’identité du composant hôte et le nom que le propre fournisseur de l’hôte rapporte pour lui — la même valeur que lit la Recipe de l’hôte, sur les `locals:` et `provides:` de la FeatureRecipe aussi — et une référence à `.context.rendered_name` écrite en ligne provoque un arrêt sur un hôte dont le fournisseur ne rapporte aucun nom de ce type. `.source` est le propre `source:` évalué de la FeatureRecipe, jamais celui du composant hôte, et ne contient rien lorsque la FeatureRecipe n’en déclare aucun."
   },
   "923cb9efed79baef": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -95045,6 +95205,17 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "Chaque cible dérive ses propres noms de l’identité d’un composant : un installateur de charts dérive un nom de release, un orchestrateur de conteneurs dérive des noms de service. Cet arrêt est cette cible qui indique qu’elle ne peut pas utiliser l’un d’eux."
+  },
+  "a2c05e455d3f2018": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "d879a51239918f96",
+      "reviewed": false
+    },
+    "srcHash": "a2c05e455d3f2018",
+    "status": "machine",
+    "text": "**Écrire vos propres fichiers.** La boucle qui mène un fichier de vide à validé : [Rédiger des fichiers Aggrega](authoring/getting-started.md). Les fichiers qu’il vous revient d’écrire : [Personas](authoring/personas.md) et [Entités par rôle](authoring/entities-by-role.md). Partir d’un projet que vous avez déjà dans un autre format : [Importation](authoring/import/README.md)."
   },
   "a2c2d864a9785942": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -106726,6 +106897,17 @@
     "status": "machine",
     "text": "**`dotenv-secret`** (Compose, développement local) implémente `core/secret-value`. Elle livre `origin` sur le canal d’injection exactement tel que rédigé, et la Recipe compose l’écrit dans l’environnement du service dans le fichier émis — une valeur injectée, aucune ressource autonome et aucun `provides`. Un origin littéral arrive donc dans le fichier en tant qu’informations d’identification elles-mêmes ; un origin écrit comme référence de variable Compose, tel que `${DB_PASSWORD}`, arrive en tant que cette référence, que Docker Compose substitue à partir de l’environnement du shell ou d’un fichier `.env` au démarrage de la stack. Le compilateur n’écrit aucun fichier `.env`. La valeur est écrite au moyen de `toJson`, sous forme de chaîne JSON que le YAML du mappage relit exactement, de sorte qu’un guillemet ou une barre oblique inverse qu’elle contient atteint le canal d’injection tel que rédigé :"
   },
+  "b5da5434b0bb8224": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "9f8ac808dff9e21c",
+      "reviewed": false
+    },
+    "srcHash": "b5da5434b0bb8224",
+    "status": "machine",
+    "text": "**Les `services:` issus des artefacts fusionnent dans le fichier compose assemblé aux côtés des services par composant.** Un nom de service apporté par deux composants différents au même chemin d’assemblage arrête le build, et le diagnostic nomme chaque contributeur. Une collision *au sein d’un seul composant* — entre le propre fragment d’artefact de ce composant et les services synthétisés pour lui — n’est pas détectée, et la contribution la plus tardive remplace la précédente ; gardez donc le nom d’un service rédigé dans un artefact distinct des noms `<component>` et `<component>--<container-name>` que produit le synthétiseur (voir [Comment un service sidecar ou d’initialisation est nommé](#how-a-sidecar-or-init-service-is-named))."
+  },
   "b5df446f04c1e30e": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -110742,6 +110924,17 @@
     "status": "machine",
     "text": "[`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — le partitionnement strict des API et le cadrage de conception de l’Enterprise Metadata Suite."
   },
+  "bc9d3874aa759b9d": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "5a1537f15c2f68b7",
+      "reviewed": false
+    },
+    "srcHash": "bc9d3874aa759b9d",
+    "status": "machine",
+    "text": "Le chart situé au chemin source doit contenir un `Chart.yaml` valide. Les rendus avec source qui échouent à charger le chart remontent mot pour mot l’erreur sous-jacente du SDK Helm. Un `source: \"\"` vide n’est pas une affaire de helm : il ne nomme ni le mode sans source ni le mode avec source, de sorte que le refus qu’il reçoit est le même quel que soit le fournisseur que cible la Recipe, et il intervient à la lecture de la Recipe, avant le chargement de tout chart et avant la distribution vers ce fournisseur. Les commandes qui le signalent sont exposées dans [`entities/recipe.md`](../entities/recipe.md) « Source field scheme inventory (Inventaire des schémas du champ source) » et [`errors/fatal-halts.md`](../errors/fatal-halts.md) « Recipe `source:` is an empty string (Le champ source de la Recipe est une chaîne vide) »."
+  },
   "bca1f864be717dce": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -112967,6 +113160,13 @@
     "srcHash": "c041a2c1c668ff6a",
     "status": "machine",
     "text": "Une plateforme cible résout un secret par référence à l’intérieur d’une **portée de secret** : la frontière à l’intérieur de laquelle une ressource peut en nommer une autre. Lorsque les deux extrémités d’une connexion se trouvent dans une même portée, elles référencent toutes deux une même ressource de secret. Lorsqu’elles se trouvent dans des portées différentes, chaque extrémité détient sa propre ressource de secret, réalisée à partir de la même entrée du magasin de secrets. Le Manifest choisit la réalisation de chaque extrémité — par type de Feature pour chaque rattachement de ce type, ou pour un seul rattachement par son nom."
+  },
+  "c0441c312ed15c88": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "c0441c312ed15c88",
+    "status": "machine",
+    "text": "Disponible UNIQUEMENT dans subDirectory:. L’identité du contributeur en cours de placement. Pour un composant, son ID d’instance aplati par composant (par ex. 'backend' ou 'data-layer.main-db'). Pour une Feature rattachée à une frontière dont la FeatureRecipe s’exécute une seule fois pour la frontière (executionScope: boundary), l’identité de composant composée que porte, dans son étiquette aggrega.ai/component-id, chaque ressource émise par ce rattachement (par ex. 'bfr--app--shared' pour un rattachement 'shared' à la frontière 'app'), raccourcie là où le plugin de rendu du rattachement borne les noms, de sorte que le répertoire qu’elle nomme corresponde à cette étiquette. Dépourvu de sens au niveau de la frontière et rejeté par la validation à l’analyse dans les templates directory:."
   },
   "c044f5c7da4a2471": {
     "at": "2026-11-03T22:53:36.381Z",
@@ -118696,6 +118896,13 @@
     "status": "machine",
     "text": "Un datastore sauvegardé sur chaque cible : un seul rattachement core/backup"
   },
+  "c9e2e3844a233cd8": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "srcHash": "c9e2e3844a233cd8",
+    "status": "machine",
+    "text": "`.source` appartient au rattachement. Le template `source:` d’une FeatureRecipe est évalué avant son `valuesMapping:`, comme celui d’une Recipe l’est avant le sien, et ce qu’il a produit est ce que contient `.source` sur les templates qui produisent les ressources du rattachement — son `valuesMapping:`, `omits:`, `workload:` et `artifacts:` — et sur ses étapes `pipeline:`. Ce n’est jamais la source du composant hôte : une FeatureRecipe qui ne déclare aucun `source:`, ou dont le template ne produit rien, n’y lit rien, même sur un hôte dont la Recipe en déclare un. Une FeatureRecipe de portée frontière lit sa propre source sur les mêmes templates. La seule exception est l’`injectMapping:`, qui s’exécute avant l’évaluation de la source du rattachement et lit `.source` comme le fait la propre Recipe du composant hôte."
+  },
   "c9e70e553f583077": {
     "at": "2026-11-03T05:17:11.041Z",
     "job": "session-0055-20261103051711",
@@ -118962,6 +119169,17 @@
     "srcHash": "ca3a3c67f3271d20",
     "status": "machine",
     "text": "Une équipe Ops qui apporte son propre infrastructure-as-code le conserve dans le répertoire propre de la Recipe — un répertoire de module ou de template tel que `./src`, désigné par `source:` — ou le récupère avec un `source:` structuré (un module Terraform depuis son dépôt git, avec `kind: git-repository`), ou l’écrit sous forme de corps templatés sous [`artifacts:`](#the-artifacts-field--auxiliary-manifests). La couche de mappage (`valuesMapping:` — inline, import de fichier ou import de bibliothèque) fournit le contexte abstrait à ce code, et le provider émet le résultat dans le format propre à la cible ; aucun langage de configuration n’est converti en un autre :"
+  },
+  "ca463dccd6d161c6": {
+    "at": "2026-11-05T17:39:45.049Z",
+    "job": "session-0008-20261105173945",
+    "revision": {
+      "from": "b48000c94b4eefdb",
+      "reviewed": false
+    },
+    "srcHash": "ca463dccd6d161c6",
+    "status": "machine",
+    "text": "Contenu résolu du champ source. Sur les templates d’une Recipe : renseigné lors de la résolution de la source à partir du champ source: de la Recipe après l’évaluation du template Go, disponible à partir du mapping des valeurs (valuesMapping, workload, artifacts), et null lorsque la Recipe n’a pas de source:. Sur les templates d’une FeatureRecipe : le propre champ source: de la FeatureRecipe après l’évaluation du template Go, évalué avant son valuesMapping et lu là ainsi que sur chaque template évalué après lui (omits, workload, artifacts, étapes du pipeline), jamais celui du composant hôte ; null lorsque la FeatureRecipe n’a pas de source:. L’injectMapping d’une FeatureRecipe est évalué avant sa source et lit celle du composant hôte. Forme chaîne = chemin URI ; forme objet = source structurée (par ex. descripteur OCI avec version résolue)."
   },
   "ca4d22a3e935f26e": {
     "at": "2026-10-23T02:15:21.677Z",
