@@ -1486,6 +1486,13 @@
     "status": "machine",
     "text": "`aggrega/explainError` zamienia dowolny z dwóch identyfikatorów warunku na to, co kompilator o nim deklaruje, oraz na opublikowane wpisy objaśniające poprawkę w dokumentach. To to samo rozwinięcie, które [`aggrega explain`](aggrega-explain.md) wykonuje w terminalu, a narzędzie `explain-error` dla asystenta, i wszystkie trzy odpowiadają z jednego miejsca, więc kod rozwinięty tutaj i ten sam kod rozwinięty gdzie indziej to jedna odpowiedź, a nie trzy, które przypadkiem są zgodne."
   },
+  "0224e2ef06b8c2c5": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "0224e2ef06b8c2c5",
+    "status": "machine",
+    "text": "`aggregate.yaml` — jedna instancja platformy Flowise z biblioteki standardowej, `core/ai-agent/flowise`, niosąca chatflow w takiej postaci, w jakiej został wyeksportowany, tutaj w większości pominięty, oraz szkic modelu podłączony do jej gniazda `model`:"
+  },
   "022f4595a81f78bc": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -1569,6 +1576,13 @@
     "srcHash": "02564de7f200ec81",
     "status": "machine",
     "text": "**Kodowanie przesyłu.** Każdy eksport tego gniazda przyjmuje dane wejściowe i zwraca wynik jako **kanoniczny CBOR** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1), w obu kierunkach. Gość dekoduje dane wejściowe i koduje wynik przez punkty wejścia, które typy ładunku już udostępniają — `DecodeCBOR` i `EncodeCBOR` w Go, `decode_cbor` i `encode_cbor` w Rust, a w TypeScript funkcje `decodeCBOR` i `encodeCBOR` każdego typu, takie jak `decodeCBORRenderNodeInput` i `encodeCBORRenderNodeOutput` — odczytując i zapisując bajty (`Vec<u8>` w Rust, `Host.inputBytes()` i `Host.outputBytes(...)` w TypeScript). Biblioteka CBOR nie jest potrzebna i nic nie parsuje bajtów ręcznie. Pole `content` wyrenderowanego pliku oraz każde inne pole bajtowe przechodzi jako surowy ciąg bajtów, który wygenerowany dekoder wpisuje do własnego typu pola zestawu: wycinka bajtów w Go, ciągu base64 w Rust i TypeScript. Mapy, które schemat oznacza jako zachowujące kolejność — m.in. `values`, `features` i `uses` węzła, `derived_keys` odpowiedzi oraz `values` kontrybutora złożenia — przechodzą jako [uporządkowane listy wpisów](#maps-that-keep-their-order) w kolejności, w jakiej przechowuje je kompilacja, a gość odczytuje je przez kontener zestawu zachowujący kolejność. Każda wartość `values` węzła przechodzi jako bajty własnego dokumentu JSON, dzięki czemu klucze wewnątrz wartości zachowują kolejność, w jakiej je zapisano; tak samo każdy wpis załącznika w `features`, kontekst renderowania, sparsowany workload, każda wzbogacona krawędź, każda wycięta jednostka i każda operacja poprawki, a gość parsuje je jako JSON, aby zajrzeć do środka. Każda diagnostyka przechodzi we wspólnym kształcie `Diagnostic`. Odpowiedź, która nie jest kształtem wyniku danego eksportu w tym kodowaniu — zapisana jako JSON lub zawierająca pole najwyższego poziomu, którego kształt nie deklaruje — zatrzymuje kompilację, wskazując wywołany eksport. Przykłady ładunków na tej stronie zapisano jako JSON dla czytelności. Wywołany bezpośrednio przez `aggrega plugin run-local --export render_node` lub dowolny inny eksport gniazda gość otrzymuje utworzony ładunek JSON przekonwertowany do tego kodowania, a jego odpowiedź jest zapisywana jako zwrócone przez niego bajty."
+  },
+  "025bb0ffed58a2ec": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "025bb0ffed58a2ec",
+    "status": "machine",
+    "text": "Po odkomentowaniu encja Aggregate deklaruje hasło pod własnym kluczem, `OWNER_PASSWORD`, a encja Release nadal je dołącza."
   },
   "025c87a76fb33e57": {
     "at": "2026-10-22T08:52:36.046409+00:00",
@@ -2865,6 +2879,13 @@
     "srcHash": "041facdfbef27718",
     "status": "machine",
     "text": "Rozwiązywanie przypina wersję chartu APISIX renderowanego przez encję Recipe bramy, pobieranego z własnego repozytorium chartu, dlatego wymaga dostępu do sieci. Ten obszar roboczy rozwiązuje encje katalogu z domyślnego rejestru wskazanego w pliku `.aggrega-config.yaml`."
+  },
+  "041ff19e95397ea0": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "041ff19e95397ea0",
+    "status": "machine",
+    "text": "`manifest.yaml` — jedyna encja Recipe dla Compose, którą katalog oferuje dla każdego typu:"
   },
   "0422742fd14e2471": {
     "at": "2026-11-02T15:04:53.574Z",
@@ -4944,6 +4965,13 @@
     "srcHash": "074a88db53467b4b",
     "status": "machine",
     "text": "Wymagania wstępne środowiska uruchomieniowego"
+  },
+  "074f1cb37772c053": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "074f1cb37772c053",
+    "status": "machine",
+    "text": "**Wskazanie obrazu**, który uruchamia aplikację i który buduje się z projektu z jego konfiguracją w środku, tutaj `ghcr.io/example/support-agent:1.0.0`. Katalog nie zawiera żadnego domyślnego obrazu dla aplikacji zbudowanej na ADK, więc encja Component agenta odrzuca encję Release, która żadnego nie wskazuje, i podaje, gdzie go ustawić."
   },
   "074f7fed43520b4a": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -13853,6 +13881,13 @@
     "status": "machine",
     "text": "**[Aggregate](../language-reference/entities/aggregate.md)** — jedyna powierzchnia, którą tworzy programista, i jedyne źródło prawdy o topologii aplikacji. Deklaruje komponenty, z których zbudowana jest aplikacja, wartości `values` przyjmowane przez każdy z nich, encje Features, których działanie jest intencją aplikacji (wraz z ich `values`), parametry `parameters` udostępnione do zmiany w poszczególnych środowiskach oraz krawędzie `uses` łączące komponenty. Celowo pozostaje agnostyczna wobec fizycznej infrastruktury: nic w encji Aggregate nie wskazuje chmury, klastra ani dostawcy. To właśnie ta agnostyczność wobec możliwości pozwala wdrożyć jedną encję Aggregate wszędzie."
   },
+  "1515d75cddeb0cd2": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "1515d75cddeb0cd2",
+    "status": "machine",
+    "text": "Rejestruje ona konto właściciela w świeżej instancji Flowise lub loguje się na nie i zapisuje chatflow pod `chatflow_id`. Klucz i hasło są odwołaniami do zmiennych, wypełnianymi z powłoki przy uruchamianiu stosu. Flowise nie publikuje żadnego portu na maszynie lokalnej: wyrenderowany plik nie przypisuje mu żadnego."
+  },
   "1523b390505bb159": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -17276,6 +17311,13 @@
     "status": "machine",
     "text": "**Zatrzymanie procesu opróżnia nasłuchujący serwer.** Przerwanie lub żądanie zakończenia od nadzorcy albo środowiska uruchomieniowego kontenerów sprawia, że serwer przestaje przyjmować połączenia i pozwala dokończyć wywołanie, na które już odpowiada, w ograniczonym czasie, więc wywołujący, który poprosił o coś przed zatrzymaniem, nadal otrzymuje odpowiedź. Wywołanie, które nie zakończy się w tym czasie, traci połączenie. Drugie żądanie zatrzymania natychmiast kończy proces."
   },
+  "1a85ff22ed224486": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "1a85ff22ed224486",
+    "status": "machine",
+    "text": "Import odwołuje się do encji Components z katalogu dla agenta ADK i modelu Gemini, a `--target` tworzy szkic encji Manifest na podstawie jego encji Recipes, dlatego należy wskazać lokalną kopię katalogu biblioteki standardowej za pomocą jej ścieżki bezwzględnej:"
+  },
   "1a8de3136536b7c3": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -17592,6 +17634,13 @@
     "srcHash": "1b10b9660d552842",
     "status": "machine",
     "text": "**Jak naprawić:** należy skrócić łańcuch. Tak głęboki łańcuch zwykle odzwierciedla strukturę organizacji, a nie wdrożenia, dlatego warto poszukać poziomów, które nie wnoszą własnych komponentów, i scalić je z nadrzędnymi. Jeśli każdy poziom istnieje tylko po to, by ponownie opublikować poziom niższy pod nową wersją, to wersje są łańcuchem: należy zaimportować bezpośrednio moduł, który jest faktycznie potrzebny, w żądanej wersji."
+  },
+  "1b11715de5d50a1d": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "1b11715de5d50a1d",
+    "status": "machine",
+    "text": "Usługa Langflow w `dist/compose/docker-compose.yaml`:"
   },
   "1b1186e0cacb4a4e": {
     "at": "2026-10-22T09:15:22.065068+00:00",
@@ -17919,6 +17968,13 @@
     "srcHash": "1b818e0f5b65c133",
     "status": "machine",
     "text": "Granica ABI utrzymuje rdzeń Go zwartym, audytowalnym i niezależnym od chmury. Zamiana logiki renderowania dostawcy to zamiana artefaktu Wasm, a nie ponowna kompilacja samego Aggrega."
+  },
+  "1b82ef584101a263": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "1b82ef584101a263",
+    "status": "machine",
+    "text": "**Wiersze `made no choice`** mówią, że żaden węzeł nie stał się osobną encją Component. Domyślnie szkic uruchamia cały przepływ na platformie, która uruchamia Langflow, i daje osobną encję Component tylko węzłowi przyjmowanemu przez gniazdo tej platformy — modelowi, narzędziu, magazynowi wektorów — o ile węzeł zostanie jako taki rozpoznany. Węzeł Language Model tego przepływu nie został rozpoznany, więc pozostaje wewnątrz przepływu, a szkic nie podłącza do platformy żadnego modelu."
   },
   "1b869a549b4cb843": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -21498,6 +21554,13 @@
     "status": "machine",
     "text": "Błędy warstwy 1 (koperta) i warstwy 2 (schematy filarów) pojawiają się podczas rozwiązywania bez prefiksu — występują, zanim zacznie obowiązywać jakakolwiek dyscyplina sentineli z prefiksem Aggrega, więc natywny błąd biblioteki YAML lub walidatora schematu jest opakowywany prefiksem pozycyjnym (`unmarshal <kind> \"<path>\": ...`, `<field-path>: <schema rule violated>`)."
   },
+  "20d4155e7965d054": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "20d4155e7965d054",
+    "status": "machine",
+    "text": "`components/imported-ai-model-chatopenai.yaml` — szkic modelu: pole wartości dla każdego z wejść węzła z wyjątkiem tego, do którego podłącza się inny węzeł, oraz miejsce na poświadczenie dla jego Connect Credential:"
+  },
   "20d906190436740c": {
     "at": "2026-10-22T01:47:50.336Z",
     "job": "session-0006-20261022014750",
@@ -22212,6 +22275,13 @@
     "srcHash": "22257afcee47ad9b",
     "status": "machine",
     "text": "Co zapisałaby kompilacja. Niczego nie zapisano, więc nie ma katalogu wyjściowego do wskazania."
+  },
+  "2225faa266336c00": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "2225faa266336c00",
+    "status": "machine",
+    "text": "**Uzupełnienie mapowań w encji Manifest.** Model jest mapowany na swoją encję Recipe dla Compose, a dwa sekrety na realizację, która zapisuje ich odwołanie do zmiennej w pliku Compose dosłownie."
   },
   "2227a99a0fcc02e2": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -25888,6 +25958,13 @@
     "srcHash": "27b0395f357a3964",
     "status": "machine",
     "text": "`.features` — rozwiązane dołączenia, kluczowane nazwą instancji, którą autor nadał każdemu z nich. Każdy wpis zawiera `type` (URI katalogowy dołączonej encji Feature), `resolved_version` (wersję związaną dla tej kompilacji) oraz `values` (własną treść intencji dewelopera dla dołączenia). Dołączenia zapisanego na jednym z połączeń komponentu nie ma wśród nich, dokładnie tak jak nie ma go wśród `.features` szablonu encji Recipe: odczytuje się je pod jego połączeniem, w `.uses.<socket>.<alias>.features.<slot>`, w tym samym kształcie."
+  },
+  "27b0a81b7e964ff8": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "27b0a81b7e964ff8",
+    "status": "machine",
+    "text": "**Wiersz `info`** dotyczy encji Release: import z Langflow nie tworzy jej szkicu, więc należy ją napisać samodzielnie."
   },
   "27b1f37b5bde8bab": {
     "at": "2026-10-29T23:52:11.486Z",
@@ -32698,6 +32775,13 @@
     "status": "machine",
     "text": "Encje Recipes używają słowa kluczowego `implements`, aby powiązać się z interfejsem, który realizują. Pole `implements` obsługuje dopasowanie dokładne, według zakresu zgodnego z wersją główną lub bez wersji (dopasowanie wersji `implements` opisuje [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md))."
   },
+  "326e09700d9bfe24": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "326e09700d9bfe24",
+    "status": "machine",
+    "text": "`support-chat.json`, napisany na potrzeby tego przewodnika w postaci, w jakiej edytor Flowise eksportuje chatflow, zawiera trzy węzły i dwie krawędzie między nimi: węzeł ChatOpenAI wybierający `gpt-4o-mini`, węzeł Buffer Memory oraz węzeł Conversation Chain, który przyjmuje oba i odpowiada krótkim komunikatem systemowym. Węzeł ChatOpenAI nie wybiera żadnego zapisanego poświadczenia i pozostawia pusty Base Path, więc klient OpenAI, na którym Flowise go uruchamia, odczytuje swój adres i klucz ze środowiska Flowise."
+  },
   "326e66bc11770058": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -32810,6 +32894,13 @@
     "srcHash": "3298ed3de76f1c77",
     "status": "machine",
     "text": "`parameters` — wartości wyniesione do parametrów, które wypełnia encja Release."
+  },
+  "329f43c2e0662ad7": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "329f43c2e0662ad7",
+    "status": "machine",
+    "text": "Wiersz `warning` dotyczy części pliku Compose, która niesie przepływ, wpisu `configs` najwyższego poziomu, który nie ma żadnej usługi, na której można by umieścić etykiety kompilacji. Wiersz `notice` ma charakter informacyjny: encja Feature hasła przyjmuje swój `origin` z `values` encji Aggregate lub z `infra` encji Release, a komunikat zgłasza, że jeden liść jest zadeklarowany w obu miejscach. Żaden z nich nie zmienia werdyktu."
   },
   "32a281f0691f3d67": {
     "at": "2026-10-22T22:51:15.481474+00:00",
@@ -33026,6 +33117,13 @@
     "srcHash": "32f35668f6f7ad86",
     "status": "machine",
     "text": "`SourceEntry`"
+  },
+  "3300e97edf6ecadc": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "3300e97edf6ecadc",
+    "status": "machine",
+    "text": "Ten przewodnik krok po kroku importuje chatflow wyeksportowany z Flowise — łańcuch konwersacji z modelem czatu i pamięcią —, przegląda to, co import tworzy jako szkic, i buduje Flowise z tym chatflow dla Docker Compose. Każdy plik i każdy blok wyjścia poniżej pochodzi z rzeczywistego uruchomienia; chatflow i każdy etap przewodnika znajdują się w przykładzie [import-flowise](../../language-reference/examples/import-flowise/README.md), w którym skrypt sprawdzający ponownie uruchamia import i porównuje to, co zapisuje, to, co wypisuje, oraz bloki cytowane na tej stronie z przechowywanymi tam plikami."
   },
   "3302c19c3ff09471": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -34106,6 +34204,13 @@
     "status": "machine",
     "text": "W ramach tego warunku zgłaszane są cztery kształty. Ograniczenie zapisane tam, gdzie brak `type:` lub gdzie wskazuje on unię, więc nic nie rozstrzyga, o którą granicę chodziło. Ograniczenie zapisane przy typie, który nie przyjmuje granicy tego rodzaju — obiekcie lub wartości logicznej. `type:`, którego wartość nie jest ani nazwą skalarną, ani sekwencją nazw. Oraz `valuesType:` z wartością inną niż nazwa skalarna."
   },
+  "349786dcc37ad8ec": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "349786dcc37ad8ec",
+    "status": "machine",
+    "text": "Obok chatflow plik `.aggrega-config.yaml` czyni folder przestrzenią roboczą:"
+  },
   "349906040ecf62da": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -34688,6 +34793,13 @@
     "srcHash": "35ad9d6a31a90d56",
     "status": "machine",
     "text": "Buforowana encja i buforowany artefakt źródłowy znajdują się każde w slocie nazwanym dla nich przez pamięć podręczną, a slot ten jest złożony z wartości: odwołania encji i wersji, do której się rozwiązała, albo rodzaju źródła, `url`, `chart`, `module_subdir`, wersji i skrótu. Każda wartość wskazuje jedną pozycję w układzie. Ten warunek zgłasza wartość, która przeniosłaby to, co jest dla niej zapisywane, gdzie indziej niż na wskazaną pozycję — obok innego slotu albo całkiem poza pamięć podręczną — i odrzuca ją, zanim cokolwiek zostanie tam zapisane lub odczytane."
+  },
+  "35ae58e2379f0de8": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "35ae58e2379f0de8",
+    "status": "machine",
+    "text": "**Wiersz `made no choice`** mówi, że dla narzędzia Google Search nie tworzy się żadnego szkicu: jest to narzędzie dostarczane przez ADK i działa wewnątrz aplikacji."
   },
   "35af56bd28e5643f": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -37461,6 +37573,13 @@
     "status": "machine",
     "text": "The same name is derived more than once inside the output (Ta sama nazwa jest wyprowadzana więcej niż raz wewnątrz wyjścia)"
   },
+  "3a30074681b91a73": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "3a30074681b91a73",
+    "status": "machine",
+    "text": "**Uzupełnienie mapowań w encji Manifest.** `core/secret-value` jest mapowany na `compose/dotenv-secret`, który zapisuje odwołanie w pliku Compose dosłownie, więc Docker Compose wypełnia je z powłoki przy uruchamianiu stosu i żaden plik nie zawiera klucza."
+  },
   "3a31233189b311b1": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -37947,6 +38066,13 @@
     "status": "machine",
     "text": "Wynikowe ciągi są scalane z `.context.inject.env`, `.context.inject.file`, `.context.inject.arg` (oraz dowolnymi niestandardowymi mechanizmami) obok tych rozwiązań uses-inject. Zanim zostanie uruchomione mapowanie inject (`injectMapping`), potok zawiera wszystkie wartości inject napisane przez programistę z obu źródeł."
   },
+  "3af1c6e72602b1be": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "3af1c6e72602b1be",
+    "status": "machine",
+    "text": "Szkic encji Component znajduje się w `components/`, którego katalog przestrzeni roboczej nie odczytuje, i żadna encja Recipe go nie realizuje. Komentarz nad nim mówi, co zrobić zamiast tego, a przegląd wprowadza następujące zmiany:"
+  },
   "3af27b03077f962b": {
     "at": "2026-10-22T23:53:36.766860+00:00",
     "job": "msgbatch_01Wu8raobvwEgmrA6bGpzuKQ",
@@ -38256,6 +38382,13 @@
     "srcHash": "3b6e7cfbb1c37527",
     "status": "machine",
     "text": "Schemat Aggrega Catalog (Feature)"
+  },
+  "3b7030835595e5c2": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "3b7030835595e5c2",
+    "status": "machine",
+    "text": "**Podłączenie modelu.** Encja Aggregate zyskuje instancję `model` typu `core/ai-model/openai`, z nazwą modelu wskazanego przez przepływ, `gpt-4.1`, oraz połączenie z gniazda `model` platformy do tej instancji. Platforma dostarcza to połączenie do Langflow jako `OPENAI_BASE_URL` i `OPENAI_API_KEY`, a węzeł Language Model już odczytuje swój klucz z `OPENAI_API_KEY`, więc przepływ nie wymaga edycji."
   },
   "3b7292412155cbc3": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -40393,6 +40526,13 @@
     "srcHash": "3ea5a82c770315b0",
     "status": "machine",
     "text": "To zgłoszenie jest umieszczane przy wpisie połączenia w dokumencie, który to połączenie poprowadził — we wpisie `uses:` encji Aggregate lub we wpisie per krawędź encji Release dla połączenia poprowadzonego przez Release. Połączenie poprowadzone przez dołączoną encję Feature jest podłączone do gniazda deklarowanego przez tę Feature, a nie do gniazda komponentu, więc nie do niego należy wypełnianie slotów gniazd komponentu."
+  },
+  "3eac44fc59487221": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "3eac44fc59487221",
+    "status": "machine",
+    "text": "Ten przewodnik krok po kroku importuje przepływ wyeksportowany z Langflow — Basic Prompting, projekt startowy dostarczany z Langflow 1.6.0 —, przegląda to, co import tworzy jako szkic, i buduje Langflow z tym przepływem dla Docker Compose. Każdy plik i każdy blok wyjścia poniżej pochodzi z rzeczywistego uruchomienia; przepływ i każdy etap przewodnika znajdują się w przykładzie [import-langflow](../../language-reference/examples/import-langflow/README.md), w którym skrypt sprawdzający ponownie uruchamia import i porównuje to, co zapisuje, to, co wypisuje, oraz bloki cytowane na tej stronie z przechowywanymi tam plikami."
   },
   "3eadfc0f3ffa65ec": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -51533,6 +51673,13 @@
     "status": "machine",
     "text": "Wyrażanie reguł organizacji w języku polityk"
   },
+  "4ff4b5ab223041bb": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "4ff4b5ab223041bb",
+    "status": "machine",
+    "text": "**Wiersze `made no choice`** mówią, że pamięć i łańcuch pozostają wewnątrz chatflow: żadne gniazdo platformy ich nie przyjmuje."
+  },
   "4ff4dd6a86435a90": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -51637,6 +51784,13 @@
     "srcHash": "501c65339bd0b88b",
     "status": "machine",
     "text": "Pole przechodzi walidację z wartością domyślną, gdy deweloper pominie klucz. W przypadku parametrów encji Aggregate scalanie parametrów wypełnia zadeklarowaną wartość domyślną przed uruchomieniem walidacji kontraktu (zob. [`templates/parameters-context.md`](../templates/parameters-context.md))."
+  },
+  "5020e691490fefe8": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "5020e691490fefe8",
+    "status": "machine",
+    "text": "**Przedstawienie klucza OpenAI w połączeniu z modelem.** Encja Release dołącza go do połączenia jako `core/secret-value` odczytujący `${OPENAI_API_KEY}`."
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -55671,6 +55825,13 @@
     "srcHash": "562aac662a13bb10",
     "status": "machine",
     "text": "Powyższa taksonomia statusów klasyfikuje stan poszczególnych powierzchni w całym języku; ta sekcja odnotowuje status szerszych kierunków projektowych opisanych w rozdziałach o architekturze."
+  },
+  "562b0f8cfe59b94b": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "562b0f8cfe59b94b",
+    "status": "machine",
+    "text": "**Drugi wiersz `warn` i wiersz `info`** dotyczą encji Manifest i encji Release: żadna encja Recipe nie realizuje encji Component, którą import właśnie utworzył jako szkic, a import z Flowise nie tworzy szkicu encji Release, więc należy ją napisać samodzielnie."
   },
   "562c6d7c250d6d8a": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -62429,6 +62590,13 @@
     "status": "machine",
     "text": "`artifactlibrary.metadata`"
   },
+  "6084c93827e81059": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "6084c93827e81059",
+    "status": "machine",
+    "text": "ADK udostępnia aplikację od jej agenta głównego, więc szkic zawiera jedną instancję na drzewo agentów, nazwaną od jego agenta głównego. `instruction` agenta nie jest przenoszona: aplikacja odczytuje ją z własnej konfiguracji, którą zawiera obraz."
+  },
   "60871828805e4c8a": {
     "at": "2026-10-22T09:26:23.460774+00:00",
     "job": "msgbatch_01EgxZHKDCKP7uwHS7Qgugr2",
@@ -62680,6 +62848,13 @@
     "srcHash": "60d0e3502e213ac7",
     "status": "machine",
     "text": "Kształty komunikacji, które gniazdo pluginu kroku potoku feature-recipe przyjmuje (FRPStepInput) i emituje (FRPStepOutput). Krok FRP jest uruchamiany dla każdego wpisu potoku inline zadeklarowanego w encji Recipe lub FeatureRecipe: host przekazuje krokowi cały zbiór dokumentów z kluczami, krok wybiera dokumenty, których dotyczy, na podstawie ich treści, i zwraca adresowane kluczami poprawki RFC 6902 wraz z efektami ubocznymi i komunikatami diagnostycznymi. Jest to kontrakt gościa odrębny od roli label-transform, która jest uruchamiana raz na całym grafie topologii i zwraca nieprzejrzyste poprawki etykiet. Typy ładunków dla Go, Rust i TypeScript są generowane z tego schematu do pakietów plugin-ABI, więc trzy języki odczytują i zapisują jeden format komunikacji; gość importuje je z tych pakietów albo przez swój zestaw narzędzi dla pluginów, jeśli zestaw je reeksportuje."
+  },
+  "60d3be997ca82541": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "60d3be997ca82541",
+    "status": "machine",
+    "text": "Ten przewodnik krok po kroku importuje Agent Config aplikacji zbudowanej na Agent Development Kit (ADK) od Google — jednego agenta odpowiadającego na pytania klientów o ich zamówienia —, przegląda to, co import tworzy jako szkic, i buduje aplikację dla Docker Compose. Każdy plik i każdy blok wyjścia poniżej pochodzi z rzeczywistego uruchomienia; konfiguracja i każdy etap przewodnika znajdują się w przykładzie [import-google-adk](../../language-reference/examples/import-google-adk/README.md), w którym skrypt sprawdzający ponownie uruchamia import i porównuje to, co zapisuje, to, co wypisuje, oraz bloki cytowane na tej stronie z przechowywanymi tam plikami."
   },
   "60d7af391ab3b64a": {
     "at": "2026-10-22T23:16:15.323655+00:00",
@@ -65427,6 +65602,13 @@
     "status": "machine",
     "text": "`EntityDefinitionParams`"
   },
+  "654512b64f3669bb": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "654512b64f3669bb",
+    "status": "machine",
+    "text": "**Odwołanie do modelu z biblioteki standardowej.** `chatopenai-0` staje się `core/ai-model/openai`, z nazwą modelu wybranego przez węzeł, `gpt-4o-mini`, a `components/` zostaje usunięty. Encja Release umieszcza model obok platformy, `chatopenai-0: {}`; bez tego wpisu walidacja odrzuca model jako nieumieszczony w żadnej granicy."
+  },
   "6547f70662424ae7": {
     "at": "2026-10-22T12:28:13.070114+00:00",
     "job": "msgbatch_01Y3HuRsDKK1RKid7JwBTRsz",
@@ -67122,6 +67304,13 @@
     "status": "machine",
     "text": "`.context.uses` to wzbogacony przez kompilator widok każdej wychodzącej krawędzi topologicznej bieżącego węzła. Każdy wpis mapy ma jako klucz lokalny alias gniazda (np. `databases.primary` staje się `.context.uses.primary`, gdy encja Aggregate zawiera `uses: { databases: { primary: { target: ... } } }`) i niesie projekcję JOIN rozwiązanego stanu celu oraz kontrakt dostarczania po stronie wywołującego:"
   },
+  "67ee617dd27249d3": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "67ee617dd27249d3",
+    "status": "machine",
+    "text": "**Wiersz `warn`** wymienia pole `api_key` węzła Language Model, które Langflow oznacza jako hasło. Tutaj zawiera ono nazwę zmiennej, z której odczytywany jest klucz, `OPENAI_API_KEY`, a nie klucz; przepływ wyeksportowany z kluczem wpisanym w to pole przeniósłby klucz do szkicu, i to właśnie z tego wiersza można by się o tym dowiedzieć."
+  },
   "67f4fe67e254481d": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -68641,6 +68830,13 @@
     "status": "machine",
     "text": "input-kind: Recipe `\"<name>:<version>\"`: provider `\"<provider-name>\"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized (input-kind: Recipe o podanej nazwie i wersji: wskazany provider nie obsługuje receptur syntetyzowanych (ten provider obsługuje wymienione rodzaje); należy zadeklarować jeden z obsługiwanych rodzajów wejścia lub wskazać providera obsługującego tryb syntetyzowany)"
   },
+  "6a62824b5e8bdba6": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "6a62824b5e8bdba6",
+    "status": "machine",
+    "text": "`aggregate.yaml` — jedna instancja platformy Langflow z biblioteki standardowej, `core/ai-agent/langflow`, niosąca przepływ w takiej postaci, w jakiej został wyeksportowany, z ponad tysiącem jego wierszy pominiętych tutaj:"
+  },
   "6a638a37b6ff3d30": {
     "at": "2026-10-22T09:15:22.065068+00:00",
     "job": "msgbatch_01PZRcL3mvRgpjTW4rDpG9ri",
@@ -69670,6 +69866,13 @@
     "srcHash": "6c1a2b52198d5f33",
     "status": "machine",
     "text": "**Nie ma flagi, która by to nadpisywała.** Zmieniona treść jest publikowana pod nową wersją, dzięki czemu odbiorcy mają wersję, na którą mogą świadomie przejść, a nie wersję, która zmieniła się bez ich wiedzy."
+  },
+  "6c1f63e6b613f3b3": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "6c1f63e6b613f3b3",
+    "status": "machine",
+    "text": "**Wiersze `mapped`** mówią, że agent jest instancją agenta ADK z biblioteki standardowej, `core/ai-agent/google-adk`, a model, który wskazuje, jest instancją `core/ai-model/gemini`. Ich poziom to `NONE`: import ADK odwołuje się do tych encji Components na podstawie tego, co wskazuje konfiguracja, zamiast porównywać każdą z nich z katalogiem."
   },
   "6c24122cdc9b0551": {
     "at": "2026-11-01T15:52:41.165Z",
@@ -71023,6 +71226,13 @@
     "srcHash": "6e385ce8361bc134",
     "status": "machine",
     "text": "Obie bramki są połączone z `gpt` przez swoje gniazdo `models`, a każda przedstawia\nna tym połączeniu klucz modelu. Dołączenie maskowania wymienia, co należy maskować:\nwzorzec numerów roszczeń organizacji oraz typy encji `PERSON` i\n`EMAIL_ADDRESS`. Oba asystenty deklarują gniazdo `model`, które deklaruje ich encja Component\ni które przyjmuje model lub bramkę obsługującą API modelu, i pozostawiają je\nniepowiązane: łączy je każda encja Release."
+  },
+  "6e3a5f06a040add3": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "6e3a5f06a040add3",
+    "status": "machine",
+    "text": "Obraz to Flowise 3.1.3, wersja, dla której napisana jest encja Recipe dla Compose dla Flowise z biblioteki standardowej."
   },
   "6e3a94002a5245ce": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -74331,6 +74541,13 @@
     "srcHash": "734c1184cf908fd6",
     "status": "machine",
     "text": "Plugins renderujące Provider (helm, helm-chart, compose, terraform)"
+  },
+  "734db48a63eb3f42": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "734db48a63eb3f42",
+    "status": "machine",
+    "text": "Importowanie agenta Google ADK"
   },
   "7355f416d2b54f1b": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -78086,6 +78303,13 @@
     "status": "machine",
     "text": "Ten wzorzec jest kanonicznym mechanizmem promocji GitOps: jedna niezmienna encja Aggregate przechodzi przez środowiska, a encja Release każdego środowiska dostarcza własne wartości parametrów. Każda wartość zależna od środowiska, którą autor chce różnicować, należy do łańcucha parametrów, a nie do treści wpisanej bezpośrednio w encję Aggregate."
   },
+  "790c038675d264c5": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "790c038675d264c5",
+    "status": "machine",
+    "text": "Trzy elementy warto w nim przeczytać przed przeglądem:"
+  },
   "790ce452991c7492": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -78809,6 +79033,13 @@
     "srcHash": "7a0d0fe1048231ed",
     "status": "machine",
     "text": "parameters: shape must be an inline object or {$import: <local-path>}: line `<line>`: `<shape>` is written where a map is expected (parameters: kształt musi być obiektem zapisanym w miejscu lub mapowaniem zawierającym tylko $import: w miejscu, gdzie oczekiwano mapy, zapisano coś innego)"
+  },
+  "7a0e37582e204894": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "7a0e37582e204894",
+    "status": "machine",
+    "text": "**Przedstawienie klucza OpenAI w tym połączeniu.** Encja Release dołącza go do połączenia jako `core/secret-value` odczytujący `${OPENAI_API_KEY}`, który Docker Compose wypełnia z powłoki, więc żaden plik nie zawiera klucza."
   },
   "7a112c70e1ce9c8b": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -80872,6 +81103,13 @@
     "status": "machine",
     "text": "**Odrzucane w całości: własna sieć fragmentu.** Wpis pod `networks:` najwyższego poziomu fragmentu zatrzymuje kompilację z `TRANSLATION_ERROR` bez względu na treść — pusty wpis, `driver` czy cokolwiek innego — podając wpis (`networks.back`), fragment i komponent, ponieważ złożony plik zawiera tylko sieci wyprowadzane przez dostawcę (zob. [Sieci per granica](#per-boundary-networking)). Należy usunąć wpis: usługa dołącza do sieci własnego komponentu bez żadnej deklaracji, adnotacja `aggrega.ai/namespace` wybiera, do której sieci dołącza komponent, usługa wymienia komponenty, do których sieci dodatkowo dołącza, pod [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of), a encja Feature `compose-bridge` trasuje ruch między usługami w różnych sieciach. Puste `networks: {}` niczego nie deklaruje i nie jest odrzucane, a własna lista `networks:` usługi jest przenoszona jak wyżej."
   },
+  "7d838ae521d70cd8": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "7d838ae521d70cd8",
+    "status": "machine",
+    "text": "**Przedstawienie klucza API Gemini w połączeniu z modelem**, zgodnie z prośbą komentarza. Gemini jest usługą hostowaną, więc encja Component agenta odrzuca połączenie z nią, które nie niesie żadnego poświadczenia: „the model connection gemini-2-5-flash of \"support-agent\" reaches \"gemini-2-5-flash\", whose component.aggrega.ai/hosting label is managed, with no credential” (połączenie z modelem gemini-2-5-flash agenta „support-agent” dociera do „gemini-2-5-flash”, którego etykieta component.aggrega.ai/hosting ma wartość managed, bez żadnego poświadczenia). Połączenie dołącza `core/secret-value`, którego `origin` jest odwołaniem do zmiennej Compose `${GOOGLE_API_KEY}`."
+  },
   "7d86b8289939b36a": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -81904,6 +82142,13 @@
     "status": "machine",
     "text": "Słowa kluczowe kontenerów"
   },
+  "7f46b3edbd171015": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "7f46b3edbd171015",
+    "status": "machine",
+    "text": "**Komentarze nad platformą** wymieniają to, czego chatflow nie może dostarczyć: obraz, konto właściciela, na którym chatflow jest ładowany, jego hasło oraz poświadczenie, które przedstawia połączenie z modelem."
+  },
   "7f473e1d4d7ad4a8": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -82343,6 +82588,13 @@
     "srcHash": "7ffdd4c25914fbda",
     "status": "machine",
     "text": "`valuesMapping` bazowej encji Recipe musi odwoływać się do sekretu Kubernetes emitowanego przez encję FeatureRecipe poświadczeń. Dla slotu `core/referenced-secret` encja FeatureRecipe publikuje lokalizator zasobu poprzez swój kontrakt `provides`, a konsument odczytuje go jako `.features.<slot>.provides.name`:"
+  },
+  "7fff7f1db22bca5d": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "7fff7f1db22bca5d",
+    "status": "machine",
+    "text": "Aplikacja otrzymuje port, na którym nasłuchuje jej serwer, jako `PORT`, a klucz jako `GOOGLE_API_KEY`, który klient Gemini z ADK wysyła do API Gemini. Model nie dostaje własnej usługi: klient wysyła swoje żądania na własny adres API Gemini i nie odczytuje innego ze swojego środowiska. Klucz jest odwołaniem do zmiennej, wypełnianym z powłoki przy uruchamianiu stosu. Usługa nie publikuje żadnego portu na maszynie lokalnej: wyrenderowany plik nie przypisuje jej żadnego."
   },
   "80024109f6d0f48a": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -83402,6 +83654,13 @@
     "srcHash": "81939229f80b480c",
     "status": "machine",
     "text": "**Samowstrzykiwanie na poziomie encji Component** (`component.inject`) — pobiera ciągi z własnych `values` i własnych `provides` komponentu."
+  },
+  "81953558c631c151": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "81953558c631c151",
+    "status": "machine",
+    "text": "`dist/compose/docker-compose.yaml` zawiera dwie usługi. Sam Flowise:"
   },
   "819717ae1675862f": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -86839,6 +87098,13 @@
     "status": "machine",
     "text": "Diagnostyka zgłoszona przez import — na przykład nierozwiązany węzeł źródłowy lub niejednoznaczne mapowanie. Nieobecna, gdy import nie zgłosił żadnej."
   },
+  "8754f8c7c05dcd3c": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "8754f8c7c05dcd3c",
+    "status": "machine",
+    "text": "**Pierwszy wiersz `warn`** mówi, w jaki sposób chatflow dociera do tej części: węzeł odczytuje adres i klucz, które platforma dostarcza dla połączenia z modelem, więc klucz dołączony do połączenia jest tym, którego używa chatflow."
+  },
   "875659bf01bcdfd0": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -87141,6 +87407,13 @@
     "srcHash": "87b96a899304c701",
     "status": "machine",
     "text": "**Zmiany metadanych po publikacji mają jasną ścieżkę.** Oznaczenia opublikowanej wersji jako przestarzałej, rotacji kluczy podpisujących czy uzupełnienia atestacji nie można dokonać przez modyfikację opublikowanego artefaktu (reguła tego zabrania). Należy to zrobić, publikując nową wersję poprawkową lub artefakt towarzyszący, który osobno zapisuje zmianę metadanych. Obie ścieżki są audytowalne — nowa wersja lub artefakt towarzyszący pojawia się jako odrębny wpis w rejestrze — i żadna nie zmienia bajtów pierwotnego artefaktu."
+  },
+  "87b9bb24c1cf58d2": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "87b9bb24c1cf58d2",
+    "status": "machine",
+    "text": "Należy wskazać katalog agenta. Import odczytuje jego `root_agent.yaml`:"
   },
   "87bb922793536cb7": {
     "at": "2026-10-30T02:00:09.600Z",
@@ -88683,6 +88956,13 @@
     "srcHash": "8a3395070e670e6d",
     "status": "machine",
     "text": "Jeśli szablon encji Workload odczytuje wartość, którą autor zadeklarował jako wrażliwą, żaden komunikat nie cytuje odrzuconej wartości, a obie liczby są pomijane w ten sam sposób."
+  },
+  "8a3441f128f6af22": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "8a3441f128f6af22",
+    "status": "machine",
+    "text": "Przejrzany plik `aggregate.yaml` to szkic z trzema dodatkami, z przepływem pominiętym tutaj jak powyżej:"
   },
   "8a34a0f2045529c9": {
     "at": "2026-10-22T08:52:36.046409+00:00",
@@ -92014,6 +92294,13 @@
     "status": "machine",
     "text": "Kształty komunikatów, które gniazdo lintera przyjmuje (LinterInput) i emituje (LinterOutput). Linter działa w czasie publikacji na parze encji złożonej z poprzedniej i proponowanej wersji (reguła ewolucji schematu) oraz w czasie lintowania przestrzeni roboczej na pojedynczych encjach (reguły strukturalne dla poszczególnych reguł). Jeden dostarczany plugin Wasm obsługuje wiele reguł; plugin wybiera regułę do uruchomienia na podstawie LinterInput.rule_id. Ten schemat jest jedynym źródłem obu kształtów komunikatów: typy ładunków dla Go, Rust i TypeScript są z niego generowane do współdzielonego pakietu plugin-ABI, a każdy zestaw narzędzi dla pluginów reeksportuje te wygenerowane typy zamiast deklarować własną kopię."
   },
+  "8f420817b73dcf06": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "8f420817b73dcf06",
+    "status": "machine",
+    "text": "**Wskazanie konta właściciela.** Flowise nie ładuje przy starcie żadnego chatflow z pliku, więc kompilacja ładuje go przez własne API Flowise na koncie właściciela wskazanym przez encję Release: `infra.owner_email` oraz hasło dołączone do `owner_password`, odczytywane z `${FLOWISE_OWNER_PASSWORD}`, które Docker Compose wypełnia z powłoki. Bez adresu e-mail walidacja zatrzymuje się na asercji platformy, która to zgłasza: „the Flowise platform \"flowise\" is given values.flow_definition to seed but no infra.owner_email” (platforma Flowise „flowise” otrzymuje values.flow_definition do załadowania, ale brak infra.owner_email)."
+  },
   "8f43a208b80f8952": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -92234,6 +92521,13 @@
     "srcHash": "8fa22e3d9afe0b12",
     "status": "machine",
     "text": "Reguły rozwijania skróconych URI OCI (domyślna domena, kontekstowe rozwijanie encji, pierwszeństwo rozstrzygania, obsługa wersji) opisano w [uri-grammar.md](uri-grammar.md)."
+  },
+  "8fa29f77733a481d": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "8fa29f77733a481d",
+    "status": "machine",
+    "text": "oraz usługę, która ładuje chatflow, gdy tylko Flowise zgłosi poprawny stan, a następnie kończy działanie:"
   },
   "8fa5a7da51332288": {
     "at": "2026-10-22T10:02:42.507672+00:00",
@@ -93762,6 +94056,13 @@
     "srcHash": "91edde71433d5870",
     "status": "machine",
     "text": "`cloudformation/mariadb-rds` (AWS RDS)"
+  },
+  "91ef732804c00110": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "91ef732804c00110",
+    "status": "machine",
+    "text": "Import porównuje każdy węzeł z encjami Components z katalogu przestrzeni roboczej, a `--target` tworzy szkic encji Manifest na podstawie jego encji Recipes, dlatego należy wskazać lokalną kopię katalogu biblioteki standardowej za pomocą jej ścieżki bezwzględnej:"
   },
   "91fabad07bca7b9e": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -96683,6 +96984,13 @@
     "srcHash": "969befdf56b55c6f",
     "status": "machine",
     "text": "**`Unblock-File` z góry odpowiada na ten komunikat.** Pobrany plik jest oznaczany jako pochodzący z internetu i właśnie na to oznaczenie reaguje sprawdzenie *System Windows ochronił ten komputer*. `Unblock-File` w PowerShell, jak w powyższym przykładzie, usuwa to oznaczenie; to samo robi pole wyboru **Odblokuj** na karcie **Ogólne** we **Właściwościach** pliku w Eksploratorze plików."
+  },
+  "969efda604f1413f": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "969efda604f1413f",
+    "status": "machine",
+    "text": "`aggregate.yaml` — agent podłączony do modelu oraz model, poprzedzone komentarzami, które mówią, co zostało odczytane, a co nie:"
   },
   "969f057d24ebab4e": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -103429,6 +103737,13 @@
     "status": "machine",
     "text": "Feature poświadczenia nosi etykietę `feature.aggrega.ai/kind: secret`. Etykieta to metadane katalogu opisujące, co tworzy dołączenie; żadna gałąź kompilatora jej nie odczytuje, a Feature poświadczenia dołącza się pod `features:` jak każdą inną encję Feature. Autor odwołuje się do Feature poświadczenia przez typ w dołączeniu `features:` — programista w encji Aggregate albo operator w encji Release; Manifest mapuje go na FeatureRecipe specyficzny dla dostawcy w każdym środowisku docelowym."
   },
+  "a1354e616abf4661": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "a1354e616abf4661",
+    "status": "machine",
+    "text": "`flow_id` to identyfikator, który eksport nadaje przepływowi. Komentarz nad instancją wymienia to, czego przepływ nie może dostarczyć."
+  },
   "a136e44e5051857f": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -105786,6 +106101,13 @@
     "status": "machine",
     "text": "Opcjonalne informacje o autorstwie i pochodzeniu kompilacji. Nie niosą żadnego kontraktu zachowania — host ani ich nie sprawdza, ani nie podejmuje na ich podstawie działań."
   },
+  "a4952e4d308a5cec": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "a4952e4d308a5cec",
+    "status": "machine",
+    "text": "Po walidacji z tą encją Release szkic encji Aggregate zostaje odrzucony z powodu modelu, którego nie podłącza:"
+  },
   "a499c2e59de8dba6": {
     "at": "2026-11-02T05:52:29.274Z",
     "job": "session-0001-20261102055229",
@@ -106367,6 +106689,13 @@
     "srcHash": "a58edbab93d47cd8",
     "status": "machine",
     "text": "Każdy wpis `flags` deklaruje jedną flagę:"
+  },
+  "a5909aa446352822": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "a5909aa446352822",
+    "status": "machine",
+    "text": "`manifest.yaml` — jedyna encja Recipe dla Compose tej platformy:"
   },
   "a591a6d40bf42040": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -111045,6 +111374,13 @@
     "status": "machine",
     "text": "Bajty źródła do sparsowania. Każdy zestaw przenosi je we własnym typie pola — w postaci surowej, gdy ten typ jest typem bajtowym, lub zakodowane w base64, gdy jest to ciąg znaków, który parser dekoduje, aby je odzyskać — a wygenerowany koder dokonuje konwersji między polem a postacią, w jakiej bajty są przesyłane. Parser odczytuje odzyskane bajty jako wskazany format."
   },
+  "acdeff23af4f7ab1": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "acdeff23af4f7ab1",
+    "status": "machine",
+    "text": "Importowanie przepływu z Langflow"
+  },
   "acdfe4817d3b2787": {
     "at": "2026-11-04T18:55:35.607Z",
     "job": "session-0001-20261104185535",
@@ -111602,6 +111938,13 @@
     "status": "machine",
     "text": "Sześć załączników i to, co każdy z nich renderuje"
   },
+  "adbab3eece7e6f16": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "adbab3eece7e6f16",
+    "status": "machine",
+    "text": "Przejrzany plik `aggregate.yaml`, z chatflow pominiętym tutaj jak powyżej:"
+  },
   "adbc0893eba33e67": {
     "at": "2026-10-22T23:34:48.466793+00:00",
     "job": "msgbatch_012aTHHfasvCmeZDPUMZda5D",
@@ -111959,6 +112302,13 @@
     "srcHash": "ae41bf849c05783b",
     "status": "machine",
     "text": "Szkicowanie platformy, która przenosi chatflow, odczytuje z niego również: jego `id` najwyższego poziomu, o ile jest\n  to UUID; poświadczenie, które węzeł przechowuje w `data.credential`; wartość każdego wejścia, które jego `inputParams`\n  deklarują jako typ `password`; `FLOWISE_CREDENTIAL_ID` wśród wejść węzła oraz `credential` lub\n  `FLOWISE_CREDENTIAL_ID` wewnątrz obiektu konfiguracji na dowolnej głębokości tych wejść; konfigurację\n  serwera w wejściu `mcpServerConfig` węzła; każde wejście, które Flowise oznacza jako niebędące poświadczeniem, a które\n  może je zawierać, tak jak wymienia je sekcja [Wartości poświadczeń przechowywane w przepływie](#credential-values-the-flow-holds),\n  oraz element, w którym konfiguracja agentflow wskazuje wybrany model lub narzędzie; wejście\n  `modelName` węzła; a także Base Path węzła OpenAI, czyli jego wejście `basepath`.\n  Sekcja [Co szkicują](#what-they-draft) opisuje, co dzieje się z każdym z nich."
+  },
+  "ae41cbf834d641ec": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "ae41cbf834d641ec",
+    "status": "machine",
+    "text": "Przepływ dociera do Langflow jako `/app/flows/flow.json`, z wpisu `configs` zawierającego przepływ w postaci wyeksportowanej, a Langflow ładuje go z `LANGFLOW_LOAD_FLOWS_PATH` przy każdym starcie. Klucz i hasło są odwołaniami do zmiennych, wypełnianymi z powłoki przy uruchamianiu stosu. Usługa nie publikuje żadnego portu na maszynie lokalnej: wyrenderowany plik nie przypisuje jej żadnego."
   },
   "ae43692b2a310b8e": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -114528,6 +114878,13 @@
     "srcHash": "b1cb81afc5eae714",
     "status": "machine",
     "text": "Ile bajtów zawiera dokument autorski, aby klient mógł odróżnić dokument autorski od jego rozwiązanej postaci."
+  },
+  "b1cd9ec055a2fbbe": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "b1cd9ec055a2fbbe",
+    "status": "machine",
+    "text": "`release.yaml` — wpis dla agenta, z tym, czego nie podaje żadna konfiguracja, wymienionym w komentarzu nad nim:"
   },
   "b1cf23c40a45faf0": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -118536,6 +118893,13 @@
     "srcHash": "b7c1adfd4059f819",
     "status": "machine",
     "text": "W szablonach, które tworzą własne zasoby załącznika — jego `valuesMapping:`, `workload:` i `artifacts:` — kontekst załącznika zawiera też listę komponentów korzystających z jego hosta, w [`.context.used_by`](#the-components-that-use-this-one--contextused_by), a tam, gdzie jego FeatureRecipe ustawia `readsTargetRenderFacts: true`, niesie to, co wyrenderował każdy komponent, z którym połączony jest jego host, w [`.context.uses.<alias>.render_facts`](#contextuses--join-projection-enrichededge). Te szablony oraz jego kroki `pipeline:` odczytują również to, co provider hosta zgłosił o renderowaniu hosta, w [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts). Encja FeatureRecipe o zasięgu granicy nie ma komponentu hosta ani `.context`; zamiast tego odczytuje każde połączenie wchodzące do jej granicy w `.boundary.internal_uses_edges` i `.boundary.incoming_cross_boundary_uses_edges`."
+  },
+  "b7cdec4c67e95a9b": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "b7cdec4c67e95a9b",
+    "status": "machine",
+    "text": "Importowanie chatflow z Flowise"
   },
   "b7d366022b7455cf": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -122655,6 +123019,13 @@
     "status": "machine",
     "text": "**Jak naprawić:** należy skonfigurować co najmniej jedną zaufaną tożsamość dla rejestru w `.aggrega-config.yaml`. Wpis wskazuje tożsamość — jako dokładny podmiot lub pasujący do niego wzorzec — wraz z wystawcą, który za nią poręcza, i oba elementy są wymagane. Jeśli rejestr publikuje własną politykę zaufania, przypięcie tej polityki przy dodawaniu rejestru wypełnia zbiór tym, co publikuje rejestr. Jeśli podpisy z tego rejestru w ogóle nie mają być weryfikowane, jest to inne ustawienie niż pusty zbiór tożsamości i to jego jawne ustawienie wyraża tę intencję."
   },
+  "be33c878fec8a6b5": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "be33c878fec8a6b5",
+    "status": "machine",
+    "text": "**Zakomentowane wiersze `features`** służą do kompilacji dla Docker Compose, a ten przewodnik właśnie taką kompilację wykonuje. Przegląd je odkomentowuje, a następna sekcja pokazuje, co się dzieje, gdy pozostają zakomentowane."
+  },
   "be36f7770bf1e29a": {
     "at": "2026-10-22T09:26:23.460774+00:00",
     "job": "msgbatch_01EgxZHKDCKP7uwHS7Qgugr2",
@@ -126506,6 +126877,13 @@
     "status": "machine",
     "text": "[System modyfikatorów: `appliesTo` i selektory](vocabulary/modifier-system.md) — selektory dołączania encji Feature, natywny silnik dopasowywania etykiet w Go, gramatyka selektorów w formie tekstowej oraz wariant `appliesToAnyOf` łączący warunki przez OR."
   },
+  "c3e5fd3b6b35b40f": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "c3e5fd3b6b35b40f",
+    "status": "machine",
+    "text": "Obok przepływu plik `.aggrega-config.yaml` czyni folder przestrzenią roboczą:"
+  },
   "c3eb41c0ac8152b0": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -127619,6 +127997,13 @@
     "status": "machine",
     "text": "Adnotacja granicy, której rozwiązana wartość określa nazwę artefaktu składanego przez plugin z grupy dyspozycyjnej. Plugin, który scala granice wnoszące wkład do grupy w jeden nazwany zestaw, deklaruje odczytywany klucz adnotacji oraz to, czy wszystkie granice wnoszące wkład muszą mieć zgodną rozwiązaną wartość tej adnotacji. Brak pola oznacza, że plugin nadaje nazwę zestawowi wyłącznie na podstawie ścieżki dyspozycji."
   },
+  "c5c16868ce6c586e": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "c5c16868ce6c586e",
+    "status": "machine",
+    "text": "Przegląd zaczyna się od napisania encji Release, której import nie utworzył, ze środowiskiem i obrazem, oraz od walidacji:"
+  },
   "c5c30051452b6718": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -128380,6 +128765,13 @@
     "srcHash": "c6fb73ba0f84ccd0",
     "status": "machine",
     "text": "**Jest to osobna klasa i `--no-unsupported-field-warnings` jej nie obejmuje.** Ta flaga wycisza powiadomienia o wierności celu, czyli inną ocenę dokonywaną z innych powodów; to ostrzeżenie nadal pojawia się obok niej. Nie ma flagi, która by je wyciszała."
+  },
+  "c70103cecb5292fc": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "c70103cecb5292fc",
+    "status": "machine",
+    "text": "Przepływ"
   },
   "c7023e8a9ed110e0": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -132278,6 +132670,13 @@
     "srcHash": "cc9f269ed21050c0",
     "status": "machine",
     "text": "`ActiveReleaseResult`"
+  },
+  "cca22e1771a71f41": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "cca22e1771a71f41",
+    "status": "machine",
+    "text": "Basic Prompting łączy w łańcuch cztery węzły: Chat Input, Prompt, Language Model wywołujący `gpt-4.1` od OpenAI oraz Chat Output. Wyeksportowany z edytora Langflow jest jednym plikiem JSON, `basic-prompting.json`, o rozmiarze około 54 KB, który oprócz przepływu zawiera kod źródłowy każdego komponentu. Jego węzeł Language Model odczytuje klucz ze zmiennej globalnej `OPENAI_API_KEY`, którą Langflow odczytuje ze swojego środowiska, gdy nie jest zapisana żadna zmienna o tej nazwie."
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-22T10:02:42.507672+00:00",
@@ -136474,6 +136873,13 @@
     "srcHash": "d2902f9645ca7931",
     "status": "machine",
     "text": "Jeden układ warto podać wprost, ponieważ wygląda, jakby powinien powodować zatrzymanie, a nie powoduje: dołączenie funkcji pod **tą samą nazwą** do dwóch komponentów jest w pełni obsługiwane i nie wymaga zmiany nazwy. Komponent jest częścią złożonej wartości, więc `metrics` na `api` i `metrics` na `web` osiągają dwie tożsamości, a zasoby każdego komponentu otrzymują własną tożsamość — co ma znaczenie, ponieważ kaskada, która z założenia nadaje jedną nazwę dołączenia wielu komponentom, nie zostawia autorowi żadnej innej nazwy do zapisania. Każdy sposób, w jaki encja FeatureRecipe dostarcza zasoby, umieszcza jej tożsamość na tym, co emituje, w tym sposób, który jedynie dołącza źródło i renderuje je bez zmian, więc każdy z nich jest porównywany; funkcja, której FeatureRecipe nic nie emituje, nie ma czego porównywać."
+  },
+  "d2906cfb15d4f060": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "d2906cfb15d4f060",
+    "status": "machine",
+    "text": "ADK może deklarować agentów aplikacji w plikach Agent Config zamiast w kodzie: `adk create --type=config` zapisuje `root_agent.yaml`, konfigurację agenta głównego, oraz obok niego plik środowiskowy. Ten plik, napisany na potrzeby tego przewodnika, deklaruje jednego agenta na `gemini-2.5-flash` od Gemini, z narzędziem Google Search dostarczanym przez ADK:"
   },
   "d294fcce0cc88587": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -147114,6 +147520,13 @@
     "status": "machine",
     "text": "Spośród pamięci podręcznych współdzielonych przez wszystkie projekty na maszynie to ona może zacząć dominować w wykorzystaniu pamięci podręcznej na dysku, ponieważ każda wtyczka uruchamiana przez maszynę jest do niej kompilowana raz i przechowywana, dlatego jako jedyna ma stały limit rozmiaru. Każde wywołanie, które otwiera magazyn, stosuje limit przed skompilowaniem czegokolwiek, usuwając całe wpisy, zaczynając od najdawniej skompilowanych, aż reszta się zmieści. (Build uruchomiony z `--disable-plugin-cache` kompiluje zamiast tego do pamięci, więc ani nie powiększa magazynu, ani go nie przycina.) Usunięcie wpisu kosztuje późniejszą ponowną kompilację i nic więcej, i właśnie dzięki temu obniżenie limitu oraz jego stosowanie podczas działania innych buildów na tej samej maszynie jest bezpieczne. Należy ustawić go powyżej tego, co kompiluje pojedynczy build: ponieważ limit jest stosowany przed kompilacją, limit niższy niż zbiór roboczy pojedynczego buildu sprawia, że każdy build odrzuca i ponownie kompiluje te same moduły, a z tego samego powodu magazyn może pozostawać powyżej limitu między buildami i jest ponownie przycinany na początku następnego. `aggrega cache status` raportuje rozmiar magazynu, a `aggrega cache evict --max-size` przycina go na żądanie do limitu podanego w wierszu poleceń."
   },
+  "e2b8ffe6f76dc699": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "e2b8ffe6f76dc699",
+    "status": "machine",
+    "text": "Import nigdy nie odczytuje pliku środowiskowego, który zwykle zawiera klucz wysyłany przez aplikację do Gemini, więc przykład go nie zawiera. W katalogu głównym projektu plik `.aggrega-config.yaml` czyni folder przestrzenią roboczą:"
+  },
   "e2be0997616c2e29": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -147858,6 +148271,13 @@
     "srcHash": "e3d165ea201a07f8",
     "status": "machine",
     "text": "Prawda, gdy dołączona encja Feature deklaruje wrażliwy liść w `values`, `infra` lub `provides` albo gdy slot wypełniany przez dołączenie deklaruje, że wszystko, co go wiąże, obsługuje materiał tajny — slot dołączenia o tej samej nazwie w encji Component będącej hostem lub, dla dołączenia zawierającego `connection`, slot o tej nazwie deklarowany przez gniazdo połączenia. Nieustawione, gdy żadna z tych deklaracji nie występuje."
+  },
+  "e3d2feaed2245634": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "e3d2feaed2245634",
+    "status": "machine",
+    "text": "**Umieszczenie modelu** obok agenta: `gemini-2-5-flash: {}`."
   },
   "e3d3d9401b3df0a2": {
     "at": "2026-10-29T21:33:51.093Z",
@@ -148946,6 +149366,13 @@
     "status": "machine",
     "text": "Odczytywać `.infra` dla wymiarowania fizycznego (wymiarowania zapisanego przez Ops)."
   },
+  "e5aaaff07a26ac7f": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "e5aaaff07a26ac7f",
+    "status": "machine",
+    "text": "**Odkomentowanie wierszy `owner_password`.** Gdy oba sekrety dołącza wyłącznie encja Release, a wiersze pozostają zakomentowane, kompilacja zatrzymuje się, jak ostrzega komentarz:"
+  },
   "e5abaddf389992de": {
     "at": "2026-11-01T19:11:28.489Z",
     "job": "session-0012-20261101191128",
@@ -149416,6 +149843,13 @@
     "srcHash": "e660d6b76dbdbccc",
     "status": "machine",
     "text": "Odmowa przy publikowaniu, nie przy kompilacji. Opublikowane bajty są zamrożone: zanim cokolwiek zostanie wysłane, wyszukiwana jest docelowa wersja, a skrót, na który wskazuje, porównywany jest ze skrótem, który dałaby posiadana treść. Wersja wskazująca już na inną treść jest odrzucana."
+  },
+  "e6640a2f4ef67f4b": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "e6640a2f4ef67f4b",
+    "status": "machine",
+    "text": "**Wiersz `mapped`** mówi, że węzeł ChatOpenAI stał się częścią przepływu, osobną encją Component podłączoną do gniazda `model` platformy. Został dopasowany do `core/ai-model/openai` z biblioteki standardowej na wysokim poziomie, z wynikiem 0.9, a mimo to utworzono go jako szkic, ponieważ domyślnie import sugeruje, a wybór należy do użytkownika."
   },
   "e665d06aabdf194f": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -152439,6 +152873,13 @@
     "status": "machine",
     "text": "Encja Recipe, której `source:` musi zostać **pobrane**, nie jest w ogóle renderowana, a w przypadku encji Recipe, której renderowanie zatrzymuje się przy odczycie wartości dostarczanej wyłącznie przez połączenie lub dołączoną encję Feature, to renderowanie zostaje odłożone na bok — zob. [czego nie sprawdza poprawność pojedynczej encji](#what-single-entity-correctness-does-not-check) poniżej."
   },
+  "eb667219f007eb6a": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "eb667219f007eb6a",
+    "status": "machine",
+    "text": "**Dołączenie hasła administratora.** Logowanie do edytora Langflow jest domyślnie wymagane, a kompilacja zatrzymuje się, dopóki nie zostanie dołączone żadne hasło, i zgłasza to: „the Langflow editor needs an administrator password to sign in with and none is attached” (edytor Langflow wymaga hasła administratora do logowania, a żadne nie jest dołączone). W Compose encja Recipe platformy odczytuje pod jednym kluczem każdy sekret dołączony wyłącznie przez encję Release, więc hasło dołączone tam obok klucza połączenia trafiłoby pod tę samą nazwę i zatrzymałoby kompilację. Przegląd deklaruje zamiast tego hasło w encji Aggregate, z własnym kluczem, `LANGFLOW_SUPERUSER_PASSWORD`, odczytywanym z `${LANGFLOW_ADMIN_PASSWORD}`."
+  },
   "eb68a6746f33c6f6": {
     "at": "2026-10-22T09:26:23.460774+00:00",
     "job": "msgbatch_01EgxZHKDCKP7uwHS7Qgugr2",
@@ -152768,6 +153209,13 @@
     "srcHash": "ebe3cb4da06d1764",
     "status": "machine",
     "text": "*Dostawca compose oznacza te same klucze pochodzenia jako etykiety usług, dostawca terraform jako plik pochodzenia w każdym składanym przez siebie module, a dostawca cloudformation w `Metadata` każdego zasobu; rekord pochodzenia w pamięci istnieje dla każdej kompilacji.*"
+  },
+  "ebe5d3d9c8199a04": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "ebe5d3d9c8199a04",
+    "status": "machine",
+    "text": "Przegląd zaczyna się od napisania encji Release, której import nie utworzył: środowiska oraz obrazu, o który prosi komentarz."
   },
   "ebe7700278f85f01": {
     "at": "2026-10-30T04:21:50.177Z",
@@ -153180,6 +153628,13 @@
     "srcHash": "ec6de3549db1cf0d",
     "status": "machine",
     "text": "**2. Domena deweloperska: encja Aggregate** Deweloper dołącza encję Feature bramki zatwierdzania do narzędzia e-mail, a nie do agenta. Kompilator wyznacza krawędź od agenta do narzędzia; encja FeatureRecipe, którą encja Manifest wiąże dla bramki, renderuje konfigurację proxy przechwytującego na ścieżce ruchu przychodzącego narzędzia."
+  },
+  "ec6ef412a7feed9b": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "ec6ef412a7feed9b",
+    "status": "machine",
+    "text": "Chatflow"
   },
   "ec7a56f72b14c1cf": {
     "at": "2026-11-02T14:36:39.571Z",
@@ -164306,6 +164761,13 @@
     "status": "machine",
     "text": "Deklaracja `schema:` każdej encji Component / każdej encji Feature jest miejscem dla **ograniczeń poszczególnych encji**: typów, zakresów, wzorców i wyliczeń dla poszczególnych pól; reguł międzypolowych wyrażonych w dedykowanym bloku `assertions:` (rozdział 08). Te ograniczenia są lokalne dla jednej encji i podróżują z nią przez katalog."
   },
+  "fd295ab491bd30de": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "fd295ab491bd30de",
+    "status": "machine",
+    "text": "Wiersz `warning` dotyczy części pliku Compose, która niesie chatflow, wpisu `configs` najwyższego poziomu, który nie ma żadnej usługi, na której można by umieścić etykiety kompilacji. Wiersz `notice` ma charakter informacyjny: encja Feature sekretu przyjmuje swój `origin` z `values` encji Aggregate lub z `infra` encji Release, a komunikat zgłasza, że jeden liść jest zadeklarowany w obu miejscach. Żaden z nich nie zmienia werdyktu."
+  },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T23:05:21.167953+00:00",
     "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
@@ -164836,6 +165298,13 @@
     "srcHash": "fe1e499c10bd219e",
     "status": "machine",
     "text": "**Sonda sprawdzająca ścieżkę przez HTTP na kontenerze, który nie publikuje żadnego portu.** Sprawdzenie jest budowane jako żądanie do portu kontenera, więc bez zadeklarowanego portu nie ma adresu, względem którego można je zbudować."
+  },
+  "fe1f71c75acad10f": {
+    "at": "2026-11-05T16:30:43.236Z",
+    "job": "session-0003-20261105163043",
+    "srcHash": "fe1f71c75acad10f",
+    "status": "machine",
+    "text": "**`chatflow_id`** jest wyprowadzany z chatflow, ponieważ eksport z edytora Flowise nie zawiera własnego identyfikatora, więc jeden chatflow zawsze daje ten sam identyfikator. Chatflow z Flowise zapisuje `{{<node id>.data.instance}}` dla każdego połączenia między dwoma węzłami, a tekst encji Aggregate jest odczytywany jako szablon, więc szkic zapisuje każde `{{` jako `{{\"{{\"}}`, które kompilacja zamienia z powrotem na dwa nawiasy klamrowe."
   },
   "fe22384a36b015d8": {
     "at": "2026-10-22T23:34:48.466793+00:00",
