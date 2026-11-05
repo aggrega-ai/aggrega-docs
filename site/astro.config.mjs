@@ -254,6 +254,9 @@ export default defineConfig({
             "authoring/import/n8n",
             "authoring/import/dify",
             "authoring/import/crewai",
+            "authoring/import/langgraph",
+            "authoring/import/google-adk",
+            "authoring/import/agent-framework",
           ],
         }),
         {

@@ -156,7 +156,7 @@ each importer in full, and the settings an importer is given through a
 
 ## The formats
 
-| Format | What it reads | Walkthrough or reference |
+| Format | What it reads | Walkthrough |
 |---|---|---|
 | Compose | a Compose file and its override file, or a directory holding them | [Import a Compose project](compose.md) |
 | MCP client configurations | `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json`, `.cursor/mcp.json`, or an MCP registry `server.json` | [Import an MCP client configuration](mcp.md) |
@@ -165,9 +165,9 @@ each importer in full, and the settings an importer is given through a
 | n8n | a workflow exported from n8n, as JSON | [Import an n8n workflow](n8n.md) |
 | Dify | an application exported from Dify in its DSL, as YAML | [Import a Dify application](dify.md) |
 | CrewAI | a CrewAI project's agent and task declarations | [Import a CrewAI project](crewai.md) |
-| LangGraph | a LangGraph application's `langgraph.json` | [The LangGraph importer](../../language-reference/plugins/core-importers.md#the-langgraph-importer) |
-| Google ADK | the Agent Config files of an application built on Google ADK, from `root_agent.yaml` | [The Google ADK importer](../../language-reference/plugins/core-importers.md#the-google-adk-importer) |
-| Microsoft Agent Framework | a declarative agent, a YAML document of kind `Prompt` | [The Agent Framework importer](../../language-reference/plugins/core-importers.md#the-agent-framework-importer) |
+| LangGraph | a LangGraph application's `langgraph.json` | [Import a LangGraph application](langgraph.md) |
+| Google ADK | the Agent Config files of an application built on Google ADK, from `root_agent.yaml` | [Import a Google ADK agent](google-adk.md) |
+| Microsoft Agent Framework | a declarative agent, a YAML document of kind `Prompt` | [Import a Microsoft Agent Framework declarative agent](agent-framework.md) |
 
 [aggrega import](../../language-reference/cli/aggrega-import.md) is the
 command's full reference: every flag, how a source is recognised, what

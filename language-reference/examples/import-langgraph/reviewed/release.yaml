@@ -1,0 +1,39 @@
+# The draft release.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # Reviewed: the environment this Release deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the langgraph format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    # Left for the Release, since no configuration states it:
+    #   - infra.image, the container image running the application, which langgraph build builds from its configuration
+    support:
+      # Reviewed: the image langgraph build built from the application.
+      infra:
+        image: ghcr.io/example/support-agent:1.0.0
+      # Reviewed: the OpenAI key the graph presents to the model, read from the
+      # Secret openai-api-key, under the data key value, so no file carries it.
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-api-key
+    # Reviewed: the database, its password read from the Secret
+    # postgres-password, under the data key value, so no file carries it.
+    postgres:
+      features:
+        password:
+          type: core/referenced-secret
+          infra:
+            origin: postgres-password
+    # Reviewed: the model the graph reaches, placed with it.
+    gpt-4o-mini: {}

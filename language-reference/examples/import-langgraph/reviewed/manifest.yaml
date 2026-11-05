@@ -1,0 +1,20 @@
+# The draft manifest.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: imported/flow
+  version: 0.1.0
+spec:
+  mappings:
+    components:
+      type:
+        core/ai-agent/langgraph: helm/langgraph
+        # Reviewed: PostgreSQL run in the cluster, with no controller to install.
+        core/datastore/postgres: helm/postgres
+        # Reviewed: the Helm Recipe of the model the review added.
+        core/ai-model/openai: helm/openai
+    # Reviewed: each key is read from a Secret already in the namespace, so it
+    # is written into no rendered file.
+    features:
+      type:
+        core/referenced-secret: helm/k8s-existing-secret

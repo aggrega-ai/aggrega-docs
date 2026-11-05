@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+kind: Prompt
+name: SupportAgent
+displayName: Support Assistant
+description: Answers a customer's question about the product from its documentation.
+instructions: You answer customers' questions about the product, from its documentation only.
+model:
+  id: gpt-4.1-mini
+  provider: OpenAI
+  apiType: Responses
+  options:
+    temperature: 0.2
+  connection:
+    kind: key
+    key: =Env.OPENAI_API_KEY
+tools:
+  - kind: mcp
+    name: microsoft_learn
+    description: Search Microsoft's documentation on Microsoft Learn.
+    url: https://learn.microsoft.com/api/mcp
+    approvalMode:
+      kind: never
+    allowedTools:
+      - microsoft_docs_search
+      - microsoft_docs_fetch

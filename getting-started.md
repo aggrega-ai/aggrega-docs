@@ -250,4 +250,5 @@ each part of the template comes from, and builds the same intent as two stacks.
 
 [Learn Aggrega](learn.md) is the path through the documentation, from the ideas behind Aggrega to authoring your own
 Aggregate, and [the runnable examples](language-reference/examples/README.md) go further, each one a workspace that
-builds as it stands.
+builds as it stands. To start from a project you already have in another format, [Import](authoring/import/README.md)
+drafts the Aggrega files from it, for you to review and build.

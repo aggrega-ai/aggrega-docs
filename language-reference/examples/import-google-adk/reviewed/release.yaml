@@ -1,0 +1,33 @@
+# The draft release.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # Reviewed: the environment this Release deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the google-adk format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    # Left for the Release, since no configuration states it:
+    #   - infra.image, the container image running the application built on ADK, holding its configurations
+    #   - the credential support-agent presents to the model it reaches, attached under credential on its connection uses.model.gemini-2-5-flash
+    support-agent:
+      # Reviewed: the image running the application, which you build from the
+      # project, root_agent.yaml included.
+      infra:
+        image: ghcr.io/example/support-agent:1.0.0
+      # Reviewed: the Gemini API key the application presents to the model,
+      # read from your shell when the stack starts, so no file carries it.
+      uses:
+        model:
+          gemini-2-5-flash:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  origin: "${GOOGLE_API_KEY}"
+    # Reviewed: the model the agent reaches, placed with it.
+    gemini-2-5-flash: {}

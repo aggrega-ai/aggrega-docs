@@ -12,6 +12,8 @@ The guide is written for two audiences at once: a person authoring by hand in an
 4. [Install](../install.md) — install the `aggrega` binary, with the commands first; its connect section points to [Connect the MCP server](../ai-assistants/mcp-server.md).
 5. [Use Aggrega in Visual Studio Code](editor.md) — the Aggrega extension for Visual Studio Code: what it needs, the welcome page, its panels and the topology graph, and every setting and command.
 
+[Import](import/README.md) starts from a project you already have in another format and drafts these files from it, for you to review and build.
+
 [Learn Aggrega](../learn.md) places this guide in a path through the whole documentation.
 
 ## Working with an AI assistant

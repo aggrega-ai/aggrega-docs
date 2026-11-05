@@ -1,0 +1,25 @@
+# LangGraph configurations read:
+#   - langgraph.json
+# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
+# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the langgraph format.
+spec:
+  components:
+    # The model connection is left for the author, since the configuration names no model; the build halts naming the socket until one is wired.
+    support:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: "./src/support_agent/graph.py:graph"
+        description: "Answers a customer's question about their order, and hands it to a person when it cannot."
+      uses:
+        checkpointer_db:
+          postgres:
+            target: postgres
+    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
+    postgres:
+      type: core/datastore/postgres
