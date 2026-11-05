@@ -1486,6 +1486,13 @@
     "status": "machine",
     "text": "`aggrega/explainError` 将条件的任一标识符展开为编译器对该条件的声明，以及讲解编写层面修复方法的已发布条目。它与 [`aggrega explain`](aggrega-explain.md) 在终端中执行的、以及 `explain-error` 工具为助手执行的展开相同，三者都从同一处给出答案，因此在这里展开的代码与在别处展开的同一代码是同一个答案，而不是恰好一致的三个答案。"
   },
+  "0224e2ef06b8c2c5": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "0224e2ef06b8c2c5",
+    "status": "machine",
+    "text": "`aggregate.yaml`——标准库 Flowise 平台 `core/ai-agent/flowise` 的一个实例，按导出时的原样承载聊天流（此处省略了其大部分内容），以及连接到其 `model` 插槽的已起草模型："
+  },
   "022f4595a81f78bc": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -1569,6 +1576,13 @@
     "srcHash": "02564de7f200ec81",
     "status": "machine",
     "text": "**传输编码。** 该插槽的每个导出都以 **canonical CBOR**（[RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1）接收输入并返回输出，双向皆然。guest 通过载荷类型已提供的入口点解码输入并编码输出——Go 中为 `DecodeCBOR` 和 `EncodeCBOR`，Rust 中为 `decode_cbor` 和 `encode_cbor`，TypeScript 中为每个类型的 `decodeCBOR` 和 `encodeCBOR` 函数，例如 `decodeCBORRenderNodeInput` 和 `encodeCBORRenderNodeOutput`——读写的是字节（Rust 中为 `Vec<u8>`，TypeScript 中为 `Host.inputBytes()` 和 `Host.outputBytes(...)`）。无需任何 CBOR 库，也无需手工解析字节。已渲染文件的 `content` 以及其他所有字节字段，都以原始字节序列传输，由生成的解码器填入工具包自身的字段类型：Go 中为字节切片，Rust 和 TypeScript 中为 base64 字符串。schema 标记为保序的映射——其中包括节点的 `values`、`features` 和 `uses`，应答的 `derived_keys`，以及组装贡献者的 `values`——按构建持有它们的顺序以[有序条目列表](#maps-that-keep-their-order)传输，guest 通过其工具包的保序容器读取它们。节点 `values` 的每个值都以其自身 JSON 文档的字节传输，因此值内部的键保持其编写时的顺序；`features` 的每个附件条目、渲染上下文、解析后的 workload、每条增强边、每个切分单元和每个补丁操作也是如此，guest 将它们作为 JSON 解析以查看内容。每条诊断都以共享的 `Diagnostic` 形状传输。若应答不是该导出在此编码下的输出形状——例如以 JSON 编写，或带有该形状未声明的顶层字段——则会中止构建，并指明所调用的导出。本页中的载荷示例为便于阅读以 JSON 编写。使用 `aggrega plugin run-local --export render_node` 或该插槽的任何其他导出直接调用时，guest 会收到转换为此编码的编写好的 JSON 载荷，其应答则按其返回的字节写出。"
+  },
+  "025bb0ffed58a2ec": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "025bb0ffed58a2ec",
+    "status": "machine",
+    "text": "取消注释后，Aggregate 以其自身的键 `OWNER_PASSWORD` 声明该密码，而 Release 仍负责附加它。"
   },
   "025c87a76fb33e57": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -2865,6 +2879,13 @@
     "srcHash": "041facdfbef27718",
     "status": "machine",
     "text": "解析会锁定网关的 Recipe 所渲染的 APISIX chart，该 chart 从其自身的仓库获取，因此需要网络。本工作区从 `.aggrega-config.yaml` 指定的默认注册表解析目录实体。"
+  },
+  "041ff19e95397ea0": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "041ff19e95397ea0",
+    "status": "machine",
+    "text": "`manifest.yaml`——目录为每种类型提供的唯一 Compose Recipe："
   },
   "0422742fd14e2471": {
     "at": "2026-11-02T15:04:53.574Z",
@@ -4944,6 +4965,13 @@
     "srcHash": "074a88db53467b4b",
     "status": "machine",
     "text": "运行时前提条件"
+  },
+  "074f1cb37772c053": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "074f1cb37772c053",
+    "status": "machine",
+    "text": "**指定运行该应用的镜像**，该镜像由你从项目构建并包含其配置，此处为 `ghcr.io/example/support-agent:1.0.0`。目录中没有为基于 ADK 构建的应用提供默认镜像，因此智能体的 Component 会拒绝未指定镜像的 Release，并说明应在何处设置。"
   },
   "074f7fed43520b4a": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -13853,6 +13881,13 @@
     "status": "machine",
     "text": "**[Aggregate](../language-reference/entities/aggregate.md)**——开发者唯一的编写界面，也是应用拓扑的唯一事实来源。它声明应用由哪些组件构成、每个组件接受的 `values`、其行为属于应用意图的 Features（及其 `values`）、为按环境变化而暴露的 `parameters`，以及将组件连接在一起的 `uses` 边。它刻意与物理基础设施无关：Aggregate 中没有任何内容指定云、集群或 provider。正是这种与能力无关的特性，让一个 Aggregate 可以部署到任何地方。"
   },
+  "1515d75cddeb0cd2": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "1515d75cddeb0cd2",
+    "status": "machine",
+    "text": "它会在全新的 Flowise 上注册所有者账户，或以该账户登录，然后将聊天流写入 `chatflow_id` 处。密钥和密码都是变量引用，在栈启动时从你的 shell 中填入。Flowise 不会在你的机器上发布任何端口：渲染出的文件没有为它指定端口。"
+  },
   "1523b390505bb159": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -17276,6 +17311,13 @@
     "status": "machine",
     "text": "**停止进程会排空监听器。** 中断信号，或来自监管程序或容器运行时的终止请求，会使监听器停止接受连接，并让正在应答的调用在有限的时间预算内完成，因此在停止前发出请求的调用方仍能收到应答。在该预算内未完成的调用会失去连接。第二次停止请求会立即结束进程。"
   },
+  "1a85ff22ed224486": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "1a85ff22ed224486",
+    "status": "machine",
+    "text": "导入会引用目录中的 ADK 智能体和 Gemini 模型 Components，而 `--target` 会根据该目录的 Recipes 起草一个 Manifest，因此请通过绝对路径指定标准库目录的一个检出副本："
+  },
   "1a8de3136536b7c3": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -17592,6 +17634,13 @@
     "srcHash": "1b10b9660d552842",
     "status": "machine",
     "text": "**修复方法：**缩短该链。这么深的链通常反映的是组织结构，而不是部署结构，因此请找出本身不贡献任何组件的层级，并将其合并到父级中。如果每一层的存在只是为了以新版本重新发布其下一层，那么这些版本本身就构成了这条链：直接导入你真正需要的模块，并使用你需要的版本。"
+  },
+  "1b11715de5d50a1d": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "1b11715de5d50a1d",
+    "status": "machine",
+    "text": "`dist/compose/docker-compose.yaml` 中的 Langflow 服务："
   },
   "1b1186e0cacb4a4e": {
     "at": "2026-10-22T02:02:14.297198+00:00",
@@ -17919,6 +17968,13 @@
     "srcHash": "1b818e0f5b65c133",
     "status": "machine",
     "text": "ABI 边界使 Go 核心保持紧凑、可审计且与云无关。替换某个提供方的渲染逻辑只是替换一个 Wasm 制品，而不是重新编译 Aggrega 本身。"
+  },
+  "1b82ef584101a263": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "1b82ef584101a263",
+    "status": "machine",
+    "text": "**`made no choice` 行**表示没有任何节点成为独立的 Component。默认情况下，草稿在运行 Langflow 的平台上运行整个流程，只有当某个节点能被该平台的某个插槽接收——模型、工具、向量存储——且该节点被识别为此类节点时，才会为其提供独立的 Component。此流程的 Language Model 节点未被识别，因此它保留在流程内部，草稿也没有为平台连接任何模型。"
   },
   "1b869a549b4cb843": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -21498,6 +21554,13 @@
     "status": "machine",
     "text": "Layer 1（信封）和 Layer 2（支柱 schema）的错误在解析阶段以无前缀形式出现——它们在任何带 Aggrega 前缀的哨兵错误机制生效之前触发，因此 YAML 库或 schema 验证器的原生错误会被包装上一个位置前缀（`unmarshal <kind> \"<path>\": ...`、`<field-path>: <schema rule violated>`）。"
   },
+  "20d4155e7965d054": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "20d4155e7965d054",
+    "status": "machine",
+    "text": "`components/imported-ai-model-chatopenai.yaml`——已起草的模型：节点的每个输入（另一个节点连入的那个输入除外）各对应一个值字段，并为其 Connect Credential 提供一个凭据槽位："
+  },
   "20d906190436740c": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -22212,6 +22275,13 @@
     "srcHash": "22257afcee47ad9b",
     "status": "machine",
     "text": "一次构建本会写入的内容。由于未写入任何内容，因此没有可指明的输出目录。"
+  },
+  "2225faa266336c00": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "2225faa266336c00",
+    "status": "machine",
+    "text": "**映射 Manifest。** 模型映射到其 Compose Recipe，两个机密则映射到将其变量引用原样写入 Compose 文件的实现。"
   },
   "2227a99a0fcc02e2": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -25888,6 +25958,13 @@
     "srcHash": "27b0395f357a3964",
     "status": "machine",
     "text": "`.features` — 已解析的附件，以作者为每个附件起的实例名称为键。每个条目携带 `type`（所附加 Feature 的目录 URI）、`resolved_version`（本次构建绑定的版本）和 `values`（该附件自身的开发者意图内容）。写在该 component 某个连接上的附件不在其中，正如它不在 Recipe 模板的 `.features` 中一样：它在其连接下读取，位于 `.uses.<socket>.<alias>.features.<slot>`，形状相同。"
+  },
+  "27b0a81b7e964ff8": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "27b0a81b7e964ff8",
+    "status": "machine",
+    "text": "**`info` 行**涉及 Release：Langflow 导入不会起草 Release，因此需要你自己编写。"
   },
   "27b1f37b5bde8bab": {
     "at": "2026-10-29T23:52:11.486Z",
@@ -32705,6 +32782,13 @@
     "status": "machine",
     "text": "Recipes 使用 `implements` 关键字绑定到其实现的接口。`implements` 字段支持精确、主版本兼容范围或无版本匹配（关于 `implements` 版本匹配，参见 [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md)）。"
   },
+  "326e09700d9bfe24": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "326e09700d9bfe24",
+    "status": "machine",
+    "text": "`support-chat.json` 是为本演练编写的，采用 Flowise 编辑器导出聊天流的格式，包含三个节点及它们之间的两条边：一个选择 `gpt-4o-mini` 的 ChatOpenAI 节点、一个 Buffer Memory 节点，以及一个接收前两者并以简短系统消息作答的 Conversation Chain 节点。ChatOpenAI 节点未选择任何已存储的凭据，且其 Base Path 留空，因此 Flowise 运行它所用的 OpenAI 客户端会从 Flowise 的环境中读取其地址和密钥。"
+  },
   "326e66bc11770058": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -32817,6 +32901,13 @@
     "srcHash": "3298ed3de76f1c77",
     "status": "machine",
     "text": "`parameters`——提升为参数、由 Release 填充的值。"
+  },
+  "329f43c2e0662ad7": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "329f43c2e0662ad7",
+    "status": "machine",
+    "text": "`warning` 行涉及 Compose 文件中承载流程的部分，即一个顶层 `configs` 条目，它没有可供放置构建标签的服务。`notice` 行仅供参考：密码 Feature 从 Aggregate 的 `values` 或 Release 的 `infra` 接收其 `origin`，该通知报告有一个叶子节点在两处都有声明。两者都不会改变判定结果。"
   },
   "32a281f0691f3d67": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -33033,6 +33124,13 @@
     "srcHash": "32f35668f6f7ad86",
     "status": "machine",
     "text": "`SourceEntry`"
+  },
+  "3300e97edf6ecadc": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "3300e97edf6ecadc",
+    "status": "machine",
+    "text": "本演练导入一个从 Flowise 导出的聊天流——一条带有聊天模型和记忆的对话链——审查导入生成的草稿，并为 Docker Compose 构建承载该聊天流的 Flowise。下文的每个文件和每段输出都来自一次真实运行；聊天流和演练的每个阶段都位于 [import-flowise](../../language-reference/examples/import-flowise/README.md) 示例中，那里的检查脚本会再次运行导入，并将它写入的内容、打印的内容以及本页引用的代码块与保存在那里的文件进行比较。"
   },
   "3302c19c3ff09471": {
     "at": "2026-10-29T17:05:51.577Z",
@@ -34113,6 +34211,13 @@
     "status": "machine",
     "text": "有四种结构会在此条件下报告。约束所在之处缺少 `type:` 或其指定的是联合类型，因而无法确定指的是哪种界限。约束写在不接受此类界限的类型上——对象或布尔值。`type:` 的值既不是标量名称也不是名称序列。以及 `valuesType:` 被赋予标量名称以外的内容。"
   },
+  "349786dcc37ad8ec": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "349786dcc37ad8ec",
+    "status": "machine",
+    "text": "在聊天流旁边，一个 `.aggrega-config.yaml` 使该文件夹成为工作区："
+  },
   "349906040ecf62da": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -34695,6 +34800,13 @@
     "srcHash": "35ad9d6a31a90d56",
     "status": "machine",
     "text": "缓存的实体和缓存的 source 制品各自位于缓存为其命名的槽位中，该槽位由值组成：实体的引用及其解析到的版本，或 source 的类型、`url`、`chart`、`module_subdir`、版本和摘要。每个值指明布局中的一个位置。此条件报告的是会把为其写入的内容移到它所指明位置之外的值——移到另一个槽位旁边，或完全移出缓存——并在该处写入或读取任何内容之前拒绝它。"
+  },
+  "35ae58e2379f0de8": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "35ae58e2379f0de8",
+    "status": "machine",
+    "text": "**`made no choice` 行**表示 Google Search 工具不会被起草为任何内容：它是 ADK 自带的工具，在应用内部运行。"
   },
   "35af56bd28e5643f": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -37468,6 +37580,13 @@
     "status": "machine",
     "text": "The same name is derived more than once inside the output（输出中同一名称被派生了不止一次）"
   },
+  "3a30074681b91a73": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "3a30074681b91a73",
+    "status": "machine",
+    "text": "**映射 Manifest。** `core/secret-value` 映射到 `compose/dotenv-secret`，后者将该引用原样写入 Compose 文件，因此 Docker Compose 会在栈启动时从你的 shell 中填入它，任何文件都不携带该密钥。"
+  },
   "3a31233189b311b1": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -37954,6 +38073,13 @@
     "status": "machine",
     "text": "生成的字符串与这些 uses-inject 解析结果一起，合并到 `.context.inject.env`、`.context.inject.file`、`.context.inject.arg`（以及任何自定义机制）中。到 inject 映射（`injectMapping`）运行时，管道已包含来自两个来源的所有开发者编写的 inject 值。"
   },
+  "3af1c6e72602b1be": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "3af1c6e72602b1be",
+    "status": "machine",
+    "text": "已起草的 Component 位于 `components/` 中，而工作区的目录不会读取该位置，也没有任何 Recipe 实现它。其上方的注释说明了应改为怎么做，审查做出以下更改："
+  },
   "3af27b03077f962b": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -38263,6 +38389,13 @@
     "srcHash": "3b6e7cfbb1c37527",
     "status": "machine",
     "text": "Aggrega 目录（Feature）schema"
+  },
+  "3b7030835595e5c2": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "3b7030835595e5c2",
+    "status": "machine",
+    "text": "**连接模型。** Aggregate 新增一个 `core/ai-model/openai` 的 `model` 实例，指定流程中所指定的模型 `gpt-4.1`，并新增一个从平台 `model` 插槽到该实例的连接。平台以 `OPENAI_BASE_URL` 和 `OPENAI_API_KEY` 的形式将该连接提供给 Langflow，而 Language Model 节点本来就从 `OPENAI_API_KEY` 读取密钥，因此流程无需修改。"
   },
   "3b7292412155cbc3": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -40407,6 +40540,13 @@
     "srcHash": "3ea5a82c770315b0",
     "status": "machine",
     "text": "该报告定位于绘制该连接的文档中该连接的条目——Aggregate 的 `uses:` 条目，或者对于由 Release 连接的连接，是 Release 的逐边条目。由已附加的 Feature 绘制的连接，连接到的是该 Feature 声明的套接字，而不是组件的套接字，因此组件的套接字槽不由它填充。"
+  },
+  "3eac44fc59487221": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "3eac44fc59487221",
+    "status": "machine",
+    "text": "本演练导入一个从 Langflow 导出的流程——Basic Prompting，即 Langflow 1.6.0 自带的入门项目——审查导入生成的草稿，并为 Docker Compose 构建承载该流程的 Langflow。下文的每个文件和每段输出都来自一次真实运行；流程和演练的每个阶段都位于 [import-langflow](../../language-reference/examples/import-langflow/README.md) 示例中，那里的检查脚本会再次运行导入，并将它写入的内容、打印的内容以及本页引用的代码块与保存在那里的文件进行比较。"
   },
   "3eadfc0f3ffa65ec": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -51547,6 +51687,13 @@
     "status": "machine",
     "text": "用策略语言表达整个体系的规则"
   },
+  "4ff4b5ab223041bb": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "4ff4b5ab223041bb",
+    "status": "machine",
+    "text": "**`made no choice` 行**表示记忆和链保留在聊天流内部：平台没有任何插槽接收它们。"
+  },
   "4ff4dd6a86435a90": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -51651,6 +51798,13 @@
     "srcHash": "501c65339bd0b88b",
     "status": "machine",
     "text": "当开发者省略该键时，字段以默认值通过校验。对于 Aggregate 参数，参数合并会在契约校验运行之前填入声明的默认值（参见 [`templates/parameters-context.md`](../templates/parameters-context.md)）。"
+  },
+  "5020e691490fefe8": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "5020e691490fefe8",
+    "status": "machine",
+    "text": "**在模型连接上出示 OpenAI 密钥。** Release 将其作为读取 `${OPENAI_API_KEY}` 的 `core/secret-value` 附加到该连接上。"
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -55685,6 +55839,13 @@
     "srcHash": "562aac662a13bb10",
     "status": "machine",
     "text": "上文的状态分类法按功能面对整个语言的状态进行分类；本节记录架构章节中记载的更广泛设计方向的状态。"
+  },
+  "562b0f8cfe59b94b": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "562b0f8cfe59b94b",
+    "status": "machine",
+    "text": "**第二个 `warn` 行和 `info` 行**涉及 Manifest 和 Release：没有任何 Recipe 实现导入刚刚起草的 Component，而 Flowise 导入不会起草 Release，因此需要你自己编写。"
   },
   "562c6d7c250d6d8a": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -62439,6 +62600,13 @@
     "status": "machine",
     "text": "`artifactlibrary.metadata`"
   },
+  "6084c93827e81059": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "6084c93827e81059",
+    "status": "machine",
+    "text": "ADK 从根智能体提供应用服务，因此草稿为每棵智能体树保留一个实例，并以其根智能体命名。智能体的 `instruction` 不会被带入：应用从其自身的配置中读取它，而该配置位于镜像中。"
+  },
   "60871828805e4c8a": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -62690,6 +62858,13 @@
     "srcHash": "60d0e3502e213ac7",
     "status": "machine",
     "text": "feature-recipe 流水线步骤插件插槽所消费（FRPStepInput）和输出（FRPStepOutput）的线上数据形态。FRP 步骤针对 Recipe 或 FeatureRecipe 中声明的每个内联流水线条目运行一次：宿主将带键的文档集整体交给该步骤，步骤按内容选出其目标文档，并返回按键寻址的 RFC 6902 补丁，以及副作用和诊断信息。这是一份有别于 label-transform 角色的独立 guest 契约；该角色对整个拓扑图只运行一次，并返回不透明的标签补丁。Go、Rust 和 TypeScript 的载荷类型由此 schema 生成到 plugin-ABI 包中，因此三种语言读写同一种线上数据；guest 从这些包中导入它们，或在插件工具包重新导出它们时通过插件工具包导入。"
+  },
+  "60d3be997ca82541": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "60d3be997ca82541",
+    "status": "machine",
+    "text": "本演练导入一个基于 Google 的 Agent Development Kit（ADK）构建的应用的 Agent Config——一个回答客户订单问题的智能体——审查导入生成的草稿，并为 Docker Compose 构建该应用。下文的每个文件和每段输出都来自一次真实运行；配置和演练的每个阶段都位于 [import-google-adk](../../language-reference/examples/import-google-adk/README.md) 示例中，那里的检查脚本会再次运行导入，并将它写入的内容、打印的内容以及本页引用的代码块与保存在那里的文件进行比较。"
   },
   "60d7af391ab3b64a": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -65437,6 +65612,13 @@
     "status": "machine",
     "text": "`EntityDefinitionParams`"
   },
+  "654512b64f3669bb": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "654512b64f3669bb",
+    "status": "machine",
+    "text": "**引用标准库的模型。** `chatopenai-0` 改为 `core/ai-model/openai`，并指定该节点所选的模型 `gpt-4o-mini`，同时删除 `components/`。Release 将模型放置在平台旁边，即 `chatopenai-0: {}`；若没有该条目，验证会以模型未被放入任何边界为由拒绝它。"
+  },
   "6547f70662424ae7": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -67125,6 +67307,13 @@
     "status": "machine",
     "text": "`.context.uses` 是编译器对当前节点每条出站拓扑边的增强视图。每个映射条目以本地 socket 别名为键（例如，当 Aggregate 编写了 `uses: { databases: { primary: { target: ... } } }` 时，`databases.primary` 变为 `.context.uses.primary`），并携带目标已解析状态的 JOIN 投影以及调用方的交付契约："
   },
+  "67ee617dd27249d3": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "67ee617dd27249d3",
+    "status": "machine",
+    "text": "**`warn` 行**指出了 Language Model 节点的 `api_key`，这是 Langflow 标记为密码的字段。此处它保存的是读取密钥所用变量的名称 `OPENAI_API_KEY`，而不是密钥本身；如果导出的流程在该字段中填入了密钥，该密钥就会被带入草稿，而你会通过这一行得知此事。"
+  },
   "67f4fe67e254481d": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -68644,6 +68833,13 @@
     "status": "machine",
     "text": "input-kind: Recipe `\"<name>:<version>\"`: provider `\"<provider-name>\"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized（输入类型：该 provider 不支持合成式 recipe；请声明其支持的输入类型之一，或改用支持合成的 provider）"
   },
+  "6a62824b5e8bdba6": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "6a62824b5e8bdba6",
+    "status": "machine",
+    "text": "`aggregate.yaml`——标准库 Langflow 平台 `core/ai-agent/langflow` 的一个实例，按导出时的原样承载流程，此处省略了其中一千多行："
+  },
   "6a638a37b6ff3d30": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -69673,6 +69869,13 @@
     "srcHash": "6c1a2b52198d5f33",
     "status": "machine",
     "text": "**没有可覆盖此行为的标志。** 变更后的内容以新版本发布，这样使用方得到的是一个可以有意迁移过去的版本，而不是一个在他们不知情时发生了变化的版本。"
+  },
+  "6c1f63e6b613f3b3": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "6c1f63e6b613f3b3",
+    "status": "machine",
+    "text": "**`mapped` 行**表示该智能体是标准库 ADK 智能体 `core/ai-agent/google-adk` 的一个实例，而它所指定的模型是 `core/ai-model/gemini` 的一个实例。它们的档位显示为 `NONE`：ADK 导入根据配置中指定的名称引用这些 Components，而不是将每一个与目录进行比对评估。"
   },
   "6c24122cdc9b0551": {
     "at": "2026-11-01T15:52:41.165Z",
@@ -71030,6 +71233,13 @@
     "srcHash": "6e385ce8361bc134",
     "status": "machine",
     "text": "两个网关都通过各自的 `models` 插槽连接到 `gpt`，并各自在该连接上提供模型的密钥。脱敏附加项列出了需要脱敏的内容：一个匹配该环境理赔编号的模式，以及实体类型 `PERSON` 和\n`EMAIL_ADDRESS`。两个助手声明了其 Component 所声明的 `model` 插槽，该插槽接受一个模型或一个提供模型 API 的网关，并且不绑定它：由各个 Release 进行连接。"
+  },
+  "6e3a5f06a040add3": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "6e3a5f06a040add3",
+    "status": "machine",
+    "text": "镜像为 Flowise 3.1.3，即标准库中 Flowise 的 Compose Recipe 所针对的版本。"
   },
   "6e3a94002a5245ce": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -74338,6 +74548,13 @@
     "srcHash": "734c1184cf908fd6",
     "status": "machine",
     "text": "Provider 渲染插件（helm、helm-chart、compose、terraform）"
+  },
+  "734db48a63eb3f42": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "734db48a63eb3f42",
+    "status": "machine",
+    "text": "导入 Google ADK 智能体"
   },
   "7355f416d2b54f1b": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -78093,6 +78310,13 @@
     "status": "machine",
     "text": "该模式是 GitOps 推进的标准机制：单个不可变的 Aggregate 在各环境间推进，由每个环境的 Release 提供各自的参数值。作者希望按环境变化的每个值都应放在参数链中，而不是直接嵌入 Aggregate。"
   },
+  "790c038675d264c5": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "790c038675d264c5",
+    "status": "machine",
+    "text": "在审查之前，其中有三处值得一读："
+  },
   "790ce452991c7492": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -78816,6 +79040,13 @@
     "srcHash": "7a0d0fe1048231ed",
     "status": "machine",
     "text": "parameters: shape must be an inline object or {$import: <local-path>}: line `<line>`: `<shape>` is written where a map is expected（parameters：形式必须是内联对象或仅含 $import 的映射：在需要映射的位置写入了其他形式）"
+  },
+  "7a0e37582e204894": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "7a0e37582e204894",
+    "status": "machine",
+    "text": "**在该连接上出示 OpenAI 密钥。** Release 将其作为读取 `${OPENAI_API_KEY}` 的 `core/secret-value` 附加到该连接上，Docker Compose 会从你的 shell 中填入该值，因此任何文件都不携带该密钥。"
   },
   "7a112c70e1ce9c8b": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -80879,6 +81110,13 @@
     "status": "machine",
     "text": "**整体拒绝：片段自己的网络。**片段顶层 `networks:` 下的条目无论其主体内容如何——空条目、`driver` 或其他任何内容——都会以 `TRANSLATION_ERROR` 停止构建，并指出该条目（`networks.back`）、该片段和该组件，因为组装后的文件只包含 provider 派生的网络（参见[按边界划分的网络](#per-boundary-networking)）。请移除该条目：服务无需任何声明即可加入其所属组件的网络，`aggrega.ai/namespace` 注解决定组件加入哪个网络，服务在 [`x-aggrega-networks-of`](#joining-the-networks-of-other-components--x-aggrega-networks-of) 下列出它还要加入其网络的组件，而 `compose-bridge` Feature 负责在不同网络上的服务之间路由。空的 `networks: {}` 什么也不声明，不会被拒绝，而服务自身的 `networks:` 列表按上文所述保留。"
   },
+  "7d838ae521d70cd8": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "7d838ae521d70cd8",
+    "status": "machine",
+    "text": "**在模型连接上出示 Gemini API 密钥**，如注释所要求。Gemini 是托管服务，因此智能体的 Component 会拒绝指向它但不携带凭据的连接：“the model connection gemini-2-5-flash of \"support-agent\" reaches \"gemini-2-5-flash\", whose component.aggrega.ai/hosting label is managed, with no credential”（“support-agent”的模型连接 gemini-2-5-flash 在没有凭据的情况下到达“gemini-2-5-flash”，而后者的 component.aggrega.ai/hosting 标签为 managed）。该连接附加了一个 `core/secret-value`，其 `origin` 为 Compose 变量引用 `${GOOGLE_API_KEY}`。"
+  },
   "7d86b8289939b36a": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -81911,6 +82149,13 @@
     "status": "machine",
     "text": "容器关键字"
   },
+  "7f46b3edbd171015": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "7f46b3edbd171015",
+    "status": "machine",
+    "text": "**平台上方的注释**列出了聊天流无法提供的内容：镜像、预置聊天流时所用的所有者账户、该账户的密码，以及模型连接所出示的凭据。"
+  },
   "7f473e1d4d7ad4a8": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -82350,6 +82595,13 @@
     "srcHash": "7ffdd4c25914fbda",
     "status": "machine",
     "text": "基础 Recipe 的 `valuesMapping` 需要引用凭据 FeatureRecipe 生成的 Kubernetes Secret。对于 `core/referenced-secret` 槽位，FeatureRecipe 通过其 `provides` 契约发布该资源的定位符，消费方以 `.features.<slot>.provides.name` 读取它："
+  },
+  "7fff7f1db22bca5d": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "7fff7f1db22bca5d",
+    "status": "machine",
+    "text": "应用以 `PORT` 接收其服务器监听的端口，以 `GOOGLE_API_KEY` 接收密钥，ADK 的 Gemini 客户端会将该密钥发送给 Gemini API。模型没有自己的服务：客户端将请求发送到 Gemini API 自身的地址，并且不会从环境中读取其他地址。密钥是一个变量引用，在栈启动时从你的 shell 中填入。该服务不会在你的机器上发布任何端口：渲染出的文件没有为它指定端口。"
   },
   "80024109f6d0f48a": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -83409,6 +83661,13 @@
     "srcHash": "81939229f80b480c",
     "status": "machine",
     "text": "**Component 级自注入**（`component.inject`）——从组件自身的 `values` 和自身的 `provides` 获取字符串。"
+  },
+  "81953558c631c151": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "81953558c631c151",
+    "status": "machine",
+    "text": "`dist/compose/docker-compose.yaml` 包含两个服务。Flowise 本身："
   },
   "819717ae1675862f": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -86846,6 +87105,13 @@
     "status": "machine",
     "text": "导入引发的诊断信息——例如未解析的源节点或有歧义的映射。导入未产生任何诊断信息时不存在。"
   },
+  "8754f8c7c05dcd3c": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "8754f8c7c05dcd3c",
+    "status": "machine",
+    "text": "**第一个 `warn` 行**说明聊天流如何到达该部分：该节点读取平台为模型连接提供的地址和密钥，因此你附加到该连接上的密钥就是聊天流所使用的密钥。"
+  },
   "875659bf01bcdfd0": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -87148,6 +87414,13 @@
     "srcHash": "87b96a899304c701",
     "status": "machine",
     "text": "**发布后的元数据变更有明确的途径。** 将已发布版本标记为弃用、轮换签名密钥或修订证明，都不能通过修改已发布的制品来完成（该规则禁止这样做）。必须通过发布新的补丁版本，或发布单独记录元数据变更的附属制品来完成。两种途径都可审计——新版本或附属制品会作为独立的注册表条目出现——且都不会改变原始制品的字节。"
+  },
+  "87b9bb24c1cf58d2": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "87b9bb24c1cf58d2",
+    "status": "machine",
+    "text": "指定智能体所在的目录。导入会读取其中的 `root_agent.yaml`："
   },
   "87bb922793536cb7": {
     "at": "2026-10-30T02:00:09.600Z",
@@ -88694,6 +88967,13 @@
     "srcHash": "8a3395070e670e6d",
     "status": "machine",
     "text": "若 Workload 的模板读取了作者声明为敏感的值，任何消息都不会引用它所拒绝的值，两个数量也会以同样方式省略。"
+  },
+  "8a3441f128f6af22": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "8a3441f128f6af22",
+    "status": "machine",
+    "text": "审查后的 `aggregate.yaml` 是在草稿基础上增加了三处内容，此处同上省略了流程："
   },
   "8a34a0f2045529c9": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -92025,6 +92305,13 @@
     "status": "machine",
     "text": "linter socket 所消费（LinterInput）和输出（LinterOutput）的线上数据形态。该 linter 在发布时针对“上一版本 + 提议版本”的实体对运行（schema 演进规则），在工作区 lint 时针对单个实体运行（按规则划分的结构性规则）。一个发布的 Wasm 插件承载多条规则；插件通过 LinterInput.rule_id 选择要运行的规则。本 schema 是这两种线上数据形态的唯一来源：Go、Rust 和 TypeScript 的载荷类型均由它生成到共享的 plugin-ABI 包中，每个插件工具包重新导出这些生成的类型，而不是声明自己的副本。"
   },
+  "8f420817b73dcf06": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "8f420817b73dcf06",
+    "status": "machine",
+    "text": "**指定所有者账户。** Flowise 启动时不会从文件加载聊天流，因此构建会通过 Flowise 自身的 API，以 Release 指定的所有者账户预置聊天流：`infra.owner_email`，以及附加到 `owner_password` 的密码，该密码读取自 `${FLOWISE_OWNER_PASSWORD}`，由 Docker Compose 从你的 shell 中填入。若没有电子邮件地址，验证会停止于平台的一条断言，该断言说明了这一点：“the Flowise platform \"flowise\" is given values.flow_definition to seed but no infra.owner_email”（Flowise 平台“flowise”获得了要预置的 values.flow_definition，但没有获得 infra.owner_email）。"
+  },
   "8f43a208b80f8952": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -92245,6 +92532,13 @@
     "srcHash": "8fa22e3d9afe0b12",
     "status": "machine",
     "text": "关于 OCI URI 简写的展开规则（域名默认值、上下文相关的实体展开、解析优先级、版本处理），参见 [uri-grammar.md](uri-grammar.md)。"
+  },
+  "8fa29f77733a481d": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "8fa29f77733a481d",
+    "status": "machine",
+    "text": "以及在 Flowise 报告健康后预置聊天流、随后退出的服务："
   },
   "8fa5a7da51332288": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -93773,6 +94067,13 @@
     "srcHash": "91edde71433d5870",
     "status": "machine",
     "text": "`cloudformation/mariadb-rds`（AWS RDS）"
+  },
+  "91ef732804c00110": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "91ef732804c00110",
+    "status": "machine",
+    "text": "导入会将每个节点与工作区目录中的 Components 进行比对评估，而 `--target` 会根据该目录的 Recipes 起草一个 Manifest，因此请通过绝对路径指定标准库目录的一个检出副本："
   },
   "91fabad07bca7b9e": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -96698,6 +96999,13 @@
     "srcHash": "969befdf56b55c6f",
     "status": "machine",
     "text": "**`Unblock-File` 可预先处理该提示。** 下载的文件会被标记为来自互联网，而 *Windows 已保护你的电脑* 检查正是依据该标记。在 PowerShell 中运行 `Unblock-File`（如上例所示）即可移除该标记；在文件资源管理器中，文件 **属性** 的 **常规** 选项卡上的 **解除锁定** 复选框也有同样效果。"
+  },
+  "969efda604f1413f": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "969efda604f1413f",
+    "status": "machine",
+    "text": "`aggregate.yaml`——连接到模型的智能体以及该模型，开头的注释说明了哪些内容被读取、哪些没有："
   },
   "969f057d24ebab4e": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -103444,6 +103752,13 @@
     "status": "machine",
     "text": "凭据 Feature 带有 `feature.aggrega.ai/kind: secret` 标签。该标签是描述附加项产出内容的目录元数据；没有任何编译器分支读取它，凭据 Feature 与其他 Feature 一样在 `features:` 下附加。作者在 `features:` 附加项中按类型引用凭据 Feature——开发者在 Aggregate 中引用，或运维人员在 Release 中引用；Manifest 针对每个目标环境将其映射到特定于提供方的 FeatureRecipe。"
   },
+  "a1354e616abf4661": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "a1354e616abf4661",
+    "status": "machine",
+    "text": "`flow_id` 是导出内容为流程赋予的标识符。实例上方的注释列出了流程无法提供的内容。"
+  },
   "a136e44e5051857f": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -105808,6 +106123,13 @@
     "status": "machine",
     "text": "可选的作者和构建来源信息。它不包含任何行为契约，宿主既不验证它，也不据此执行任何操作。"
   },
+  "a4952e4d308a5cec": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "a4952e4d308a5cec",
+    "status": "machine",
+    "text": "使用该 Release 进行验证时，已起草的 Aggregate 会因未连接模型而被拒绝："
+  },
   "a499c2e59de8dba6": {
     "at": "2026-11-02T05:52:29.274Z",
     "job": "session-0001-20261102055229",
@@ -106389,6 +106711,13 @@
     "srcHash": "a58edbab93d47cd8",
     "status": "machine",
     "text": "每个 `flags` 条目声明一个标志："
+  },
+  "a5909aa446352822": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "a5909aa446352822",
+    "status": "machine",
+    "text": "`manifest.yaml`——该平台唯一的 Compose Recipe："
   },
   "a591a6d40bf42040": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -111074,6 +111403,13 @@
     "status": "machine",
     "text": "要解析的源字节。每个工具包以其自身的字段类型承载这些字节——该类型为字节类型时为原始字节，为字符串时则为 base64 编码，由解析器解码以恢复字节——生成的编码器在该字段与线路承载字节的形式之间进行转换。解析器按指定格式读取恢复后的字节。"
   },
+  "acdeff23af4f7ab1": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "acdeff23af4f7ab1",
+    "status": "machine",
+    "text": "导入 Langflow 流程"
+  },
   "acdfe4817d3b2787": {
     "at": "2026-11-04T18:55:35.607Z",
     "job": "session-0001-20261104185535",
@@ -111631,6 +111967,13 @@
     "status": "machine",
     "text": "六个附件，以及每个附件渲染的内容"
   },
+  "adbab3eece7e6f16": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "adbab3eece7e6f16",
+    "status": "machine",
+    "text": "审查后的 `aggregate.yaml`，此处同上省略了聊天流："
+  },
   "adbc0893eba33e67": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -111988,6 +112331,13 @@
     "srcHash": "ae41bf849c05783b",
     "status": "machine",
     "text": "起草承载该 chatflow 的平台时，还会从中读取：其顶层 `id`（当它是\n  UUID 时）；节点保存在 `data.credential` 中的凭据；其 `inputParams`\n  声明为 `password` 类型的每个输入的值；节点输入中的 `FLOWISE_CREDENTIAL_ID`，以及这些输入任意深度的配置对象中的 `credential` 或\n  `FLOWISE_CREDENTIAL_ID`；节点 `mcpServerConfig` 输入中的服务器\n  配置；Flowise 标记为非凭据但可能承载凭据的每个输入（如\n  [流程持有的凭据值](#credential-values-the-flow-holds) 所列），以及 agentflow 配置中指明其所选模型或工具的成员；节点的 `modelName` 输入；以及 OpenAI 节点的 Base Path，即其 `basepath` 输入。\n  [它们起草的内容](#what-they-draft) 说明了每一项的去向。"
+  },
+  "ae41cbf834d641ec": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "ae41cbf834d641ec",
+    "status": "machine",
+    "text": "流程以 `/app/flows/flow.json` 的形式到达 Langflow，来源是一个按导出原样保存流程的 `configs` 条目，Langflow 在每次启动时从 `LANGFLOW_LOAD_FLOWS_PATH` 加载它。密钥和密码都是变量引用，在栈启动时从你的 shell 中填入。该服务不会在你的机器上发布任何端口：渲染出的文件没有为它指定端口。"
   },
   "ae43692b2a310b8e": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -114557,6 +114907,13 @@
     "srcHash": "b1cb81afc5eae714",
     "status": "machine",
     "text": "编写的文档包含多少字节，以便客户端区分编写的文档与其解析后的渲染结果。"
+  },
+  "b1cd9ec055a2fbbe": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "b1cd9ec055a2fbbe",
+    "status": "machine",
+    "text": "`release.yaml`——智能体的一个条目，其上方的注释列出了任何配置都未说明的内容："
   },
   "b1cf23c40a45faf0": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -118565,6 +118922,13 @@
     "srcHash": "b7c1adfd4059f819",
     "status": "machine",
     "text": "在生成附件自身资源的模板上——即其 `valuesMapping:`、`workload:` 和 `artifacts:`——附件的上下文还会在 [`.context.used_by`](#the-components-that-use-this-one--contextused_by) 中列出使用其宿主的组件；并且当其 FeatureRecipe 设置了 `readsTargetRenderFacts: true` 时，会在 [`.context.uses.<alias>.render_facts`](#contextuses--join-projection-enrichededge) 中携带其宿主所连接的每个组件的渲染结果。这些模板及其 `pipeline:` 步骤还会在 [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts) 中读取宿主的 provider 对宿主渲染所报告的内容。边界作用域的 FeatureRecipe 没有宿主组件，也没有 `.context`；它改为在 `.boundary.internal_uses_edges` 和 `.boundary.incoming_cross_boundary_uses_edges` 下读取进入其边界的每个连接。"
+  },
+  "b7cdec4c67e95a9b": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "b7cdec4c67e95a9b",
+    "status": "machine",
+    "text": "导入 Flowise 聊天流"
   },
   "b7d366022b7455cf": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -122684,6 +123048,13 @@
     "status": "machine",
     "text": "**修复方法：**在 `.aggrega-config.yaml` 中为该注册表配置至少一个受信任的身份。一个条目指定身份（精确的主体，或与之匹配的模式），以及为其担保的签发者，两者都是必需的。如果注册表公布了自己的信任策略，在添加注册表时固定该策略，即可用注册表发布的内容填充该集合。如果你根本不打算验证来自该注册表的签名，那是与空身份集合不同的另一项设置，应显式设置它来表明这一点。"
   },
+  "be33c878fec8a6b5": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "be33c878fec8a6b5",
+    "status": "machine",
+    "text": "**被注释掉的 `features` 行**用于面向 Docker Compose 的构建，本演练正是如此。审查会取消对它们的注释，下一节会展示它们保持注释状态时会发生什么。"
+  },
   "be36f7770bf1e29a": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -126535,6 +126906,13 @@
     "status": "machine",
     "text": "[修饰符系统：`appliesTo` 与选择器](vocabulary/modifier-system.md)——Feature 附加选择器、原生 Go 标签匹配引擎、字符串形式的选择器语法，以及以 OR 方式组合的 `appliesToAnyOf` 变体。"
   },
+  "c3e5fd3b6b35b40f": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "c3e5fd3b6b35b40f",
+    "status": "machine",
+    "text": "在流程旁边，一个 `.aggrega-config.yaml` 使该文件夹成为工作区："
+  },
   "c3eb41c0ac8152b0": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -127648,6 +128026,13 @@
     "status": "machine",
     "text": "一个边界注解，其解析后的值为插件从分发组组装出的 artifact 命名。将一个组中参与的各边界合并为一个具名组装结果的插件，声明它读取的注解键，以及是否要求每个参与的边界在该注解的解析值上保持一致。缺省时表示插件仅根据分发路径为其组装结果命名。"
   },
+  "c5c16868ce6c586e": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "c5c16868ce6c586e",
+    "status": "machine",
+    "text": "审查首先编写导入未生成的 Release，填入环境和镜像，然后进行验证："
+  },
   "c5c30051452b6718": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -128409,6 +128794,13 @@
     "srcHash": "c6fb73ba0f84ccd0",
     "status": "machine",
     "text": "**它自成一类，`--no-unsupported-field-warnings` 不覆盖它。**该标志屏蔽的是目标的保真度提示，那是出于不同原因作出的不同判断；本提示仍会与之一同出现。没有任何标志可以屏蔽本提示。"
+  },
+  "c70103cecb5292fc": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "c70103cecb5292fc",
+    "status": "machine",
+    "text": "流程"
   },
   "c7023e8a9ed110e0": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -132307,6 +132699,13 @@
     "srcHash": "cc9f269ed21050c0",
     "status": "machine",
     "text": "`ActiveReleaseResult`"
+  },
+  "cca22e1771a71f41": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "cca22e1771a71f41",
+    "status": "machine",
+    "text": "Basic Prompting 串联了四个节点：一个 Chat Input、一个 Prompt、一个调用 OpenAI `gpt-4.1` 的 Language Model，以及一个 Chat Output。从 Langflow 编辑器导出后，它是一个约 54 KB 的 JSON 文件 `basic-prompting.json`，除流程外还携带了每个组件的源代码。其 Language Model 节点从全局变量 `OPENAI_API_KEY` 读取密钥；在未存储该名称的变量时，Langflow 会从其环境中读取该变量。"
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -136503,6 +136902,13 @@
     "srcHash": "d2902f9645ca7931",
     "status": "machine",
     "text": "有一种情形值得明确说明，因为它看起来应当中止却不会：在两个 component 上以**同一名称**挂载 feature 是完全支持的，无需重命名。component 是组合值的一部分，因此 `api` 上的 `metrics` 与 `web` 上的 `metrics` 会得到两个标识，每个 component 的资源都有各自的标识——这一点很重要，因为按设计在多个 component 间生成同一挂载名称的级联，不会给作者留下可写的其他名称。FeatureRecipe 交付资源的每种方式都会把其标识加在输出内容上，包括仅引入源并按原样渲染的方式，因此每种方式都会被比较；FeatureRecipe 完全不输出任何内容的 feature 则没有可比较的东西。"
+  },
+  "d2906cfb15d4f060": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "d2906cfb15d4f060",
+    "status": "machine",
+    "text": "ADK 可以在 Agent Config 文件而非代码中声明应用的智能体：`adk create --type=config` 会写入根智能体的配置 `root_agent.yaml`，并在其旁边写入一个环境文件。为本演练编写的这个文件声明了一个基于 Gemini 的 `gemini-2.5-flash` 的智能体，并带有 ADK 自带的 Google Search 工具："
   },
   "d294fcce0cc88587": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -147139,6 +147545,13 @@
     "status": "machine",
     "text": "在机器上所有项目共享的缓存中，它是可能占据大部分磁盘缓存用量的那一个，因为机器运行的每个插件都会被编译进其中一次并保留下来，所以它是唯一设有常驻大小上限的缓存。每次打开该存储的调用都会在编译任何内容之前应用上限，按编译时间从旧到新删除整个条目，直到剩余部分符合上限。（使用 `--disable-plugin-cache` 运行的构建改为编译到内存中，因此既不会扩大存储，也不会裁剪它。）删除一个条目的代价只是之后需要重新编译，别无其他，这使得降低上限是安全的，在同一机器上有其他构建运行时应用上限也是安全的。请将上限设置为高于单次构建所编译的量：由于上限在编译之前应用，低于单次构建自身工作集的上限会使每次构建都丢弃并重新编译相同的模块；出于同样的原因，存储在两次构建之间可能高于上限，并在下一次构建开始时再次被裁剪。`aggrega cache status` 报告存储的大小，`aggrega cache evict --max-size` 按需将其裁剪到命令行给出的上限。"
   },
+  "e2b8ffe6f76dc699": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "e2b8ffe6f76dc699",
+    "status": "machine",
+    "text": "导入从不读取环境文件，该文件通常保存应用发送给 Gemini 的密钥，因此示例中不包含环境文件。在项目根目录下，一个 `.aggrega-config.yaml` 使该文件夹成为工作区："
+  },
   "e2be0997616c2e29": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -147883,6 +148296,13 @@
     "srcHash": "e3d165ea201a07f8",
     "status": "machine",
     "text": "当所附加的 Feature 在其 `values`、`infra` 或 `provides` 中声明了敏感叶子，或者附件所填充的槽位声明了绑定到它的任何内容都会处理机密材料时，该值为 true。这里的槽位是指宿主 Component 的同名附件槽位，或者对于携带 `connection` 的附件，是该连接的插槽所声明的同名槽位。两种声明都不存在时，该值不设置。"
+  },
+  "e3d2feaed2245634": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "e3d2feaed2245634",
+    "status": "machine",
+    "text": "**将模型放置**在智能体旁边：`gemini-2-5-flash: {}`。"
   },
   "e3d3d9401b3df0a2": {
     "at": "2026-10-29T21:33:51.093Z",
@@ -148971,6 +149391,13 @@
     "status": "machine",
     "text": "读取 `.infra` 获取物理规格（Ops 编写的规格）。"
   },
+  "e5aaaff07a26ac7f": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "e5aaaff07a26ac7f",
+    "status": "machine",
+    "text": "**取消 `owner_password` 行的注释。** 如果两个机密都只由 Release 附加，且这些行保持注释状态，构建就会如注释所警告的那样停止："
+  },
   "e5abaddf389992de": {
     "at": "2026-11-01T19:11:28.489Z",
     "job": "session-0012-20261101191128",
@@ -149441,6 +149868,13 @@
     "srcHash": "e660d6b76dbdbccc",
     "status": "machine",
     "text": "这是发布时的拒绝，而非构建时的拒绝。已发布的字节是冻结的：在上传任何内容之前，会查找目标版本，并将其指向的摘要与手头内容将产生的摘要进行比较。已指向不同内容的版本会被拒绝。"
+  },
+  "e6640a2f4ef67f4b": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "e6640a2f4ef67f4b",
+    "status": "machine",
+    "text": "**`mapped` 行**表示 ChatOpenAI 节点成为了流程的一个部分，即一个连接到平台 `model` 插槽的独立 Component。它以 0.9 的分数在高档位匹配了标准库的 `core/ai-model/openai`，但仍照常被起草出来，因为默认情况下导入只给出建议，由你来选择。"
   },
   "e665d06aabdf194f": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -152464,6 +152898,13 @@
     "status": "machine",
     "text": "`source:` 需要**获取**的 Recipe 根本不会被渲染；而在读取只有连接或附加的 Feature 才提供的值时渲染停止的 Recipe，其渲染会被搁置——参见下文[单实体正确性不检查的内容](#what-single-entity-correctness-does-not-check)。"
   },
+  "eb667219f007eb6a": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "eb667219f007eb6a",
+    "status": "machine",
+    "text": "**附加管理员密码。** 默认情况下需要登录 Langflow 编辑器，在未附加密码时构建会停止并给出说明：“the Langflow editor needs an administrator password to sign in with and none is attached”（Langflow 编辑器需要一个用于登录的管理员密码，但未附加任何密码）。在 Compose 上，平台的 Recipe 会在同一个键下读取仅由 Release 附加的每个机密，因此若在那里将密码与连接的密钥一并附加，它会以相同的名称到达并使构建停止。因此审查改为在 Aggregate 中声明该密码，使用其自身的键 `LANGFLOW_SUPERUSER_PASSWORD`，读取自 `${LANGFLOW_ADMIN_PASSWORD}`。"
+  },
   "eb68a6746f33c6f6": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -152793,6 +153234,13 @@
     "srcHash": "ebe3cb4da06d1764",
     "status": "machine",
     "text": "*compose provider 将相同的来源键作为服务标签写入，terraform provider 将其作为来源文件写入它组装的每个模块，cloudformation provider 则将其写在每个资源的 `Metadata` 下；每次编译都会产生内存中的来源记录。*"
+  },
+  "ebe5d3d9c8199a04": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "ebe5d3d9c8199a04",
+    "status": "machine",
+    "text": "审查首先编写导入未生成的 Release：一个环境，以及注释所要求的镜像。"
   },
   "ebe7700278f85f01": {
     "at": "2026-10-30T04:21:50.177Z",
@@ -153205,6 +153653,13 @@
     "srcHash": "ec6de3549db1cf0d",
     "status": "machine",
     "text": "**2. 开发域：Aggregate** 开发者将审批关卡 Feature 附加到电子邮件工具上，而不是附加到代理上。编译器绘制从代理到工具的边；Manifest 为该关卡绑定的 FeatureRecipe 在工具的入口路径上渲染拦截代理配置。"
+  },
+  "ec6ef412a7feed9b": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "ec6ef412a7feed9b",
+    "status": "machine",
+    "text": "聊天流"
   },
   "ec7a56f72b14c1cf": {
     "at": "2026-11-02T14:36:39.571Z",
@@ -164335,6 +164790,13 @@
     "status": "machine",
     "text": "各 Component / 各 Feature 的 `schema:` 声明承载**逐实体约束**：逐字段的类型、范围、模式、枚举；以及在专用 `assertions:` 块中表达的跨字段规则（第 08 章）。这些约束局限于单个实体，并随实体在目录中流转。"
   },
+  "fd295ab491bd30de": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "fd295ab491bd30de",
+    "status": "machine",
+    "text": "`warning` 行涉及 Compose 文件中承载聊天流的部分，即一个顶层 `configs` 条目，它没有可供放置构建标签的服务。`notice` 行仅供参考：机密 Feature 从 Aggregate 的 `values` 或 Release 的 `infra` 接收其 `origin`，该通知报告有一个叶子节点在两处都有声明。两者都不会改变判定结果。"
+  },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -164865,6 +165327,13 @@
     "srcHash": "fe1e499c10bd219e",
     "status": "machine",
     "text": "**在未发布任何端口的容器上，通过 HTTP 检查路径的探针。** 该检查被构建为对容器某个端口的请求，因此没有声明端口时，就没有可以构建检查的地址。"
+  },
+  "fe1f71c75acad10f": {
+    "at": "2026-11-05T20:08:38.916Z",
+    "job": "session-0019-20261105200838",
+    "srcHash": "fe1f71c75acad10f",
+    "status": "machine",
+    "text": "**`chatflow_id`** 由聊天流推导而来，因为从 Flowise 编辑器导出的内容不带有自身的标识符，因此同一个聊天流始终产生同一个标识符。Flowise 聊天流会为两个节点之间的每个连接写入 `{{<node id>.data.instance}}`，而 Aggregate 的文本会被当作模板读取，因此草稿将每个 `{{` 写成 `{{\"{{\"}}`，构建时会将其还原为两个花括号。"
   },
   "fe22384a36b015d8": {
     "at": "2026-10-22T04:49:50.527667+00:00",
