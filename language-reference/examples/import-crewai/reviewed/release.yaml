@@ -1,0 +1,53 @@
+# The draft release.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # Reviewed: the environment this Release deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the crewai format.
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    # Left for the Release, since no declaration states it:
+    #   - infra.image, the container image running the crew's program
+    #   - the credential researcher presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
+    researcher:
+      # Reviewed: the image running the crew's program, which you build from
+      # the project.
+      infra:
+        image: ghcr.io/example/support-brief:1.0.0
+      # Reviewed: the OpenAI key this agent presents to the model, read from
+      # the Secret openai-api-key, under the data key value, so no file
+      # carries it.
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-api-key
+    # Left for the Release, since no declaration states it:
+    #   - infra.image, the container image running the crew's program
+    #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
+    writer:
+      # Reviewed: the image running the crew's program, which you build from
+      # the project.
+      infra:
+        image: ghcr.io/example/support-brief:1.0.0
+      # Reviewed: the OpenAI key this agent presents to the model, read from
+      # the Secret openai-api-key, under the data key value, so no file
+      # carries it.
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-api-key
+    # Reviewed: the model both agents reach, placed with them.
+    gpt-4o-mini: {}

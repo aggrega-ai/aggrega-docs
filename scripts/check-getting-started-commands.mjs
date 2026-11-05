@@ -89,13 +89,13 @@ function read(file) {
 // indented by at most three spaces, and closes on a line holding nothing but a run
 // of the same character at least as long.
 //
-// 🔴 DELIBERATE NEAR-DUPLICATE: aggrega-docs/scripts/check-import-example.sh reads
-// fenced blocks by the same rules in awk, because it runs in the examples
-// workflow's step that builds the examples, before that workflow sets up Node, so
-// it cannot import this function. scripts/check-fenced-block-parity.sh runs both
-// readers over one fixture, scripts/testdata/fenced-blocks.md, and fails where
-// they read different blocks; change the rules in both, and that fixture with
-// them.
+// 🔴 DELIBERATE NEAR-DUPLICATE: aggrega-docs/scripts/lib/fenced-blocks.awk reads
+// fenced blocks by the same rules for check-import-example.sh, which runs in the
+// examples workflow's step that builds the examples, before that workflow sets up
+// Node, so it cannot import this function. scripts/check-fenced-block-parity.sh
+// runs both readers over one fixture, scripts/testdata/fenced-blocks.md, and fails
+// where they read different blocks; change the rules in both, and that fixture
+// with them.
 function fencedBlocks(markdown) {
   const blocks = [];
   let fence = "";

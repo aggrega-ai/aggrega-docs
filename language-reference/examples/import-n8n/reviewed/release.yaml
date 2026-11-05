@@ -1,0 +1,26 @@
+# The Release the review wrote: the n8n import drafts none.
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  environment: development
+  version: 0.1.0
+spec:
+  aggregate: imported/flow
+  manifest: imported/flow
+  components:
+    n8n:
+      infra:
+        # The image running n8n.
+        image: n8nio/n8n:1.110.1
+      # The OpenAI key, presented on the model connection and read from your
+      # shell when the stack starts, so no file carries it.
+      uses:
+        model:
+          openai-chat-model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  origin: "${OPENAI_API_KEY}"
+    openai-chat-model: {}

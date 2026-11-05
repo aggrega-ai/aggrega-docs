@@ -57,21 +57,18 @@
 # nothing else is removed. The builds in step 5 are given that same binary as
 # AGGREGA_BIN, so their provenance reads it as an override.
 #
-# The block reader. Step 4 reads a page's fenced blocks in awk (READ_FENCED_BLOCKS
-# below): a fence opens on a run of three or more backticks or tildes indented by
-# at most three spaces, its info word is the first word after the run, and it
-# closes on a line holding nothing but a run of the same character at least as
-# long; a block never closed is not a block. 🔴 That is a DELIBERATE
-# NEAR-DUPLICATE of fencedBlocks() in check-getting-started-commands.mjs: this
-# script runs in the examples workflow's step that builds the examples, before
-# that workflow sets up Node, so it cannot call the Node reader. The two are held
-# together by scripts/check-fenced-block-parity.sh, which runs both over one
-# fixture, scripts/testdata/fenced-blocks.md, against the blocks it should read,
-# scripts/testdata/fenced-blocks.expected, and fails where either differs. Step 4
-# runs that parity check first wherever node is on PATH, and says so where it is
-# not. The matcher beside it, contains(), is no copy of that script's holds(): a
-# quoted file block is matched to a file as runs with gaps, a command block to a
-# page's blocks as one consecutive run.
+# The block reader. Step 4 reads a page's fenced blocks with
+# scripts/lib/fenced-blocks.awk, whose header states the rules it reads them by.
+# 🔴 That reader is a DELIBERATE NEAR-DUPLICATE of fencedBlocks() in
+# check-getting-started-commands.mjs: this script runs in the examples workflow's
+# step that builds the examples, before that workflow sets up Node, so it cannot
+# call the Node reader. The two are held together by
+# scripts/check-fenced-block-parity.sh, which runs both over one fixture and
+# fails where either reads it differently. Step 4 runs that parity check first
+# wherever node is on PATH, and says so where it is not. The matcher beside it,
+# contains(), is no copy of that script's holds(): a quoted file block is matched
+# to a file as runs with gaps, a command block to a page's blocks as one
+# consecutive run.
 #
 # The catalogs. An import weighs the source against the Components of the
 # workspace's own catalog, and drafts a Manifest from its Recipes, so the import
@@ -103,14 +100,8 @@
 #
 # Usage:
 #   check-import-example.sh --example DIR --page PAGE [--update] -- IMPORT ARGS...
-#   check-import-example.sh --fenced-blocks FILE
 #
-#   --fenced-blocks  check nothing: print every fenced block FILE holds, as
-#              "block <line> <info>" and then "| <line as written>" for each line —
-#              the form check-getting-started-commands.mjs --fenced-blocks prints,
-#              which the parity check compares
-#
-#   --page     the walkthrough page quoting the example (step 4)
+#   --page    the walkthrough page quoting the example (step 4)
 #   --update   write draft/, draft/stdout.txt and draft/import.txt from this
 #              run instead of comparing them, then compare the page and build
 #              as usual. A file that changed is replaced from a real run, never
@@ -127,32 +118,9 @@ export NO_COLOR=1
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
 HELPER="$SCRIPT_DIR/build-release.sh"
+BLOCK_READER="$SCRIPT_DIR/lib/fenced-blocks.awk"
 
 die() { printf 'check-import: %s\n' "$*" >&2; exit 2; }
-
-# The block reader (see "The block reader" in the header). Prints each closed
-# fenced block of its input as "block <line> <info>" and "| <line>" lines.
-READ_FENCED_BLOCKS='
-  { sub(/\r$/, "") }
-  fence != "" {
-    t = $0; gsub(/^[ \t]+|[ \t]+$/, "", t)
-    if (length(t) >= length(fence) && t ~ ("^[" substr(fence, 1, 1) "]+$")) {
-      print "block " start " " info
-      for (k = 1; k <= n; k++) print "| " body[k]
-      fence = ""; next
-    }
-    body[++n] = $0; next
-  }
-  {
-    lead = match($0, /[^ \t]/) ? RSTART - 1 : length($0)
-    rest = substr($0, lead + 1)
-    if (lead <= 3 && match(rest, /^(````*|~~~~*)/)) {
-      fence = substr(rest, 1, RLENGTH)
-      info = substr(rest, RLENGTH + 1); sub(/^[ \t]+/, "", info)
-      match(info, /^[^ \t`]*/); info = substr(info, 1, RLENGTH)
-      start = NR; n = 0
-    }
-  }'
 
 EXAMPLE=""
 PAGE=""
@@ -163,9 +131,6 @@ while [ "$#" -gt 0 ]; do
     --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE="$2"; shift 2 ;;
     --page) [ "$#" -ge 2 ] || die "--page needs a file"; PAGE="$2"; shift 2 ;;
     --update) UPDATE=1; shift ;;
-    --fenced-blocks)
-      [ "$#" -ge 2 ] && [ -f "$2" ] || die "--fenced-blocks needs a file"
-      awk "$READ_FENCED_BLOCKS" "$2"; exit $? ;;
     --) shift; IMPORT_ARGS=("$@"); break ;;
     -h|--help) sed -n '2,/^set -uo/p' "${BASH_SOURCE[0]}" | sed -e '/^set -uo/d' -e 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1" ;;
@@ -292,7 +257,7 @@ fi
 # A marker is the page's line directly above a block's opening fence; a marker
 # with no block opening on the next line is reported.
 mkdir -p "$WORK/quotes"
-awk "$READ_FENCED_BLOCKS" "$PAGE" > "$WORK/blocks"
+awk -f "$BLOCK_READER" "$PAGE" > "$WORK/blocks" || die "the block reader failed on $PAGE"
 awk -v out="$WORK/quotes" -v blocks="$WORK/blocks" '
   BEGIN {
     while ((getline l < blocks) > 0) {

@@ -111,7 +111,8 @@
 #                   provenance block on stderr and the binary's path on stdout,
 #                   and build no Release. It is how another script of this
 #                   repository runs the same binary a build here would, without a
-#                   second copy of the resolution.
+#                   second copy of the resolution. It refuses --example, a
+#                   RELEASE and `--`, which only a build reads.
 #   --build-into DIR
 #                   With --print-binary: where resolution falls to building from
 #                   source, write the binary into DIR, an existing directory the
@@ -139,22 +140,25 @@ die() { printf 'build-release: %s\n' "$*" >&2; exit 2; }
 
 # --- parse args -------------------------------------------------------------
 EXAMPLE_DIR="."
+EXAMPLE_GIVEN=0
 RELEASE_ARG=""
 PRINT_BINARY=0
 BUILD_INTO=""
+DASHDASH=0
 declare -a EXTRA=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --print-binary) PRINT_BINARY=1; shift ;;
     --build-into) [ "$#" -ge 2 ] || die "--build-into needs a directory"; BUILD_INTO="$2"; shift 2 ;;
-    --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE_DIR="$2"; shift 2 ;;
-    --example=*) EXAMPLE_DIR="${1#*=}"; shift ;;
-    --) shift; EXTRA=("$@"); break ;;
+    --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE_DIR="$2"; EXAMPLE_GIVEN=1; shift 2 ;;
+    --example=*) EXAMPLE_DIR="${1#*=}"; EXAMPLE_GIVEN=1; shift ;;
+    --) DASHDASH=1; shift; EXTRA=("$@"); break ;;
     -h|--help)
       printf 'Usage: build-release.sh [--example DIR] [RELEASE] [-- EXTRA aggrega build args]\n'
       printf '       build-release.sh --print-binary [--build-into DIR]\n'
       printf '           (resolve the binary as a build would and print its path; a build\n'
-      printf '           from source goes into DIR, which the caller created and removes)\n'
+      printf '           from source goes into DIR, which the caller created and removes;\n'
+      printf '           --example, a RELEASE and -- are refused with it)\n'
       printf '  RELEASE  a release*.yaml filename or its <P> token (e.g. helm); optional\n'
       printf '           when the example has exactly one release file.\n'
       printf '  One release per run. Catalog source is auto-discovered per release file.\n'
@@ -172,6 +176,13 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+# --print-binary builds no Release, so what only a build reads is refused rather
+# than silently ignored.
+if [ "$PRINT_BINARY" -eq 1 ]; then
+  [ "$EXAMPLE_GIVEN" -eq 0 ] || die "--print-binary builds no Release, so it takes no --example"
+  [ -z "$RELEASE_ARG" ] || die "--print-binary builds no Release, so it takes no RELEASE (got '$RELEASE_ARG')"
+  [ "$DASHDASH" -eq 0 ] || die "--print-binary builds no Release, so it takes no -- and no aggrega build arguments"
+fi
 if [ -n "$BUILD_INTO" ]; then
   [ "$PRINT_BINARY" -eq 1 ] || die "--build-into is read with --print-binary only"
   [ -d "$BUILD_INTO" ] || die "--build-into names no directory: $BUILD_INTO"

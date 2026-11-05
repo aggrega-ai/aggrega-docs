@@ -1,0 +1,44 @@
+# CrewAI declarations read:
+#   - config/agents.yaml
+#   - config/tasks.yaml
+# Not read: the crew's program, which runs its agents and its tasks and defines its tools; it runs in the image the Release names for each agent.
+# Tasks the crew's program runs, drafted as no Component:
+#   - research_task, assigned to researcher
+#   - reply_task, assigned to writer
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the crewai format.
+spec:
+  components:
+    researcher:
+      type: core/ai-agent/crewai
+      values:
+        role: "Support plan researcher\u000A"
+        goal: "Find what each support plan of the company covers, and what it costs\u000A"
+        backstory: "You keep the company's support plans at your fingertips and answer from them alone.\u000A"
+        allow_delegation: false
+        log_level: DEBUG
+      uses:
+        model:
+          gpt-4o-mini:
+            target: gpt-4o-mini
+    writer:
+      type: core/ai-agent/crewai
+      values:
+        role: "Support reply writer\u000A"
+        goal: "Turn the researcher's findings into a short, friendly reply to the customer\u000A"
+        backstory: "You write replies customers can act on, in plain words.\u000A"
+        allow_delegation: false
+        log_level: INFO
+      uses:
+        model:
+          gpt-4o-mini:
+            target: gpt-4o-mini
+    # The model openai/gpt-4o-mini.
+    gpt-4o-mini:
+      type: core/ai-model/openai
+      values:
+        model: "gpt-4o-mini"

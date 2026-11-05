@@ -250,6 +250,10 @@ export default defineConfig({
             "authoring/import/compose",
             "authoring/import/mcp",
             "authoring/import/langflow",
+            "authoring/import/flowise",
+            "authoring/import/n8n",
+            "authoring/import/dify",
+            "authoring/import/crewai",
           ],
         }),
         {

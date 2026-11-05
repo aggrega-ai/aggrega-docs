@@ -161,10 +161,10 @@ each importer in full, and the settings an importer is given through a
 | Compose | a Compose file and its override file, or a directory holding them | [Import a Compose project](compose.md) |
 | MCP client configurations | `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json`, `.cursor/mcp.json`, or an MCP registry `server.json` | [Import an MCP client configuration](mcp.md) |
 | Langflow | a flow exported from Langflow, as JSON | [Import a Langflow flow](langflow.md) |
-| Flowise | a chatflow or an agentflow exported from Flowise, as JSON | [The Flowise importer](../../language-reference/plugins/core-importers.md#what-the-flowise-importer-reads) |
-| n8n | a workflow exported from n8n, as JSON | [The n8n importer](../../language-reference/plugins/core-importers.md#what-the-n8n-importer-reads) |
-| Dify | an application exported from Dify in its DSL, as YAML | [The Dify importer](../../language-reference/plugins/core-importers.md#the-dify-importer) |
-| CrewAI | a CrewAI project's agent and task declarations | [The CrewAI importer](../../language-reference/plugins/core-importers.md#the-crewai-importer) |
+| Flowise | a chatflow or an agentflow exported from Flowise, as JSON | [Import a Flowise chatflow](flowise.md) |
+| n8n | a workflow exported from n8n, as JSON | [Import an n8n workflow](n8n.md) |
+| Dify | an application exported from Dify in its DSL, as YAML | [Import a Dify application](dify.md) |
+| CrewAI | a CrewAI project's agent and task declarations | [Import a CrewAI project](crewai.md) |
 | LangGraph | a LangGraph application's `langgraph.json` | [The LangGraph importer](../../language-reference/plugins/core-importers.md#the-langgraph-importer) |
 | Google ADK | the Agent Config files of an application built on Google ADK, from `root_agent.yaml` | [The Google ADK importer](../../language-reference/plugins/core-importers.md#the-google-adk-importer) |
 | Microsoft Agent Framework | a declarative agent, a YAML document of kind `Prompt` | [The Agent Framework importer](../../language-reference/plugins/core-importers.md#the-agent-framework-importer) |

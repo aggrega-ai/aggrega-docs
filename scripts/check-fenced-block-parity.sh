@@ -6,9 +6,10 @@
 # repository's scripts to one reading.
 #
 # check-getting-started-commands.mjs reads a page's fenced blocks in Node
-# (fencedBlocks()); check-import-example.sh reads them in awk, because it runs
-# where Node is not set up. Each has a --fenced-blocks FILE mode printing every
-# block as "block <line> <info>" and "| <line>" lines. This script runs both over
+# (fencedBlocks()); check-import-example.sh reads them with lib/fenced-blocks.awk,
+# because it runs where Node is not set up. Each prints every block as
+# "block <line> <info>" and "| <line>" lines — the Node script through its
+# --fenced-blocks FILE mode, the awk reader as it is. This script runs both over
 # one fixture, testdata/fenced-blocks.md, and compares each with the blocks the
 # fixture should yield, testdata/fenced-blocks.expected; a reader that differs —
 # and so the two readers differing from each other — fails it.
@@ -34,7 +35,7 @@ command -v node >/dev/null 2>&1 || die "node is not on PATH, so the Node reader 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 node "$HERE/check-getting-started-commands.mjs" --fenced-blocks "$FIXTURE" > "$WORK/node" || die "the Node reader failed"
-"$HERE/check-import-example.sh" --fenced-blocks "$FIXTURE" > "$WORK/awk" || die "the awk reader failed"
+awk -f "$HERE/lib/fenced-blocks.awk" "$FIXTURE" > "$WORK/awk" || die "the awk reader failed"
 
 if [ "${1:-}" = --update ]; then
   cp "$WORK/node" "$EXPECTED"

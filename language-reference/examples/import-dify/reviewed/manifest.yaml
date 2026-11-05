@@ -1,0 +1,28 @@
+# The draft manifest.yaml after review. Each change is marked "Reviewed:".
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: imported/flow
+  version: 0.1.0
+spec:
+  mappings:
+    components:
+      # Reviewed: a Helm Recipe for each component the Dify installation
+      # composes. The draft mapped none, since the drafted Aggregate declares
+      # no component of its own.
+      type:
+        core/ai-agent/dify: helm/dify
+        core/ai-agent/dify-worker: helm/dify-worker
+        core/ai-agent/dify-worker-beat: helm/dify-worker-beat
+        core/ai-agent/dify-web: helm/dify-web
+        core/ai-agent/dify-sandbox: helm/dify-sandbox
+        core/ai-agent/dify-plugin-daemon: helm/dify-plugin-daemon
+        core/ai-agent/dify-ssrf-proxy: helm/dify-ssrf-proxy
+        core/datastore/postgres: helm/postgres
+        core/datastore/redis: helm/redis
+        core/datastore/weaviate: helm/weaviate
+    # Reviewed: every credential is read from a Secret already in the
+    # namespace, so none is written into a rendered file.
+    features:
+      type:
+        core/referenced-secret: helm/k8s-existing-secret
