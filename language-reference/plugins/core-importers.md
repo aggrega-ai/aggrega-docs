@@ -264,7 +264,12 @@ Each node is weighed against the Components of the workspace's own catalog and n
 [importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output) describes, and each
 importer carries a short table mapping common node types of its format — chat and embedding models,
 retrieval, HTTP requests and, on Langflow, the MCP Tools node `MCPTools`, which maps to
-`core/ai-tool/mcp` — to standard-library Components. The n8n importer's table maps n8n's chat and
+`core/ai-tool/mcp` — to standard-library Components. Langflow's table also maps its Language Model
+component, `LanguageModelComponent`, the chat model its starter flows call, to `core/ai-model/openai`,
+the model the Langflow platform's model connection serves: the node runs on the model provider its
+`provider` field names, OpenAI by default, and a node naming another provider is never wired to that
+connection, as [Which nodes become parts](#which-nodes-become-parts-and-where-each-is-wired)
+describes. The n8n importer's table maps n8n's chat and
 embedding models, its MCP client tool to `core/ai-tool/mcp`, its HTTP request tools, its SerpApi tool,
 its Qdrant, PGVector, Chroma, Milvus and Weaviate vector stores, and its Postgres and Redis chat
 memories. A node n8n runs within the workflow itself — an agent, a chain, a trigger, a memory the
@@ -377,8 +382,17 @@ references, or, for a part it drafts, those of its best candidate where that can
 medium-tier match. A part whose Component satisfies no socket's selector, or which has no Component
 to read labels off, stays in the flow, and the import reports it.
 
-Three rules narrow that:
+These rules narrow that:
 
+- **A Langflow model naming another provider takes no model connection.** A `LanguageModelComponent`
+  or `EmbeddingModel` node runs on the model provider its `provider` field names, or, where that is
+  empty, the provider of the model its `model` field selects. The platform delivers its model
+  connection for an OpenAI-compatible client, so a node naming any provider other than `OpenAI` —
+  whatever a mapping row or override maps it to — is never wired to the `model` socket: it is wired to
+  the next socket its Component satisfies, or stays in the flow, its decision choosing nothing and no
+  Component drafted for it, and the import reports it naming the provider it runs on. A node selecting
+  no provider, naming it through a global variable, or taking its model from another node is wired as
+  any other part.
 - **A socket drawing a single connection is held by one part.** On every platform the `model` socket
   draws one connection, which the platform's Recipes deliver as one `OPENAI_BASE_URL` and one
   `OPENAI_API_KEY`. Where several parts are placed in it, the first whose Component carries
@@ -444,10 +458,10 @@ connection delivers.
   its `provider` field names, or, where that is empty, the provider of the model its `model` field
   selects — and hands its key to that provider. The platform delivers the model connection for an
   OpenAI-compatible client, so such a node is written with the variables only where it runs on
-  `OpenAI`: one running on another provider, selecting none, naming its provider through a global
-  variable, or taking its model from another node is written with none of them, so the draft never
-  points another provider at the connection's key. Where no field of such a node gives its API's
-  address — a `LanguageModelComponent` node holds none for OpenAI, and an `EmbeddingModel` node's
+  `OpenAI`. One running on another provider is never wired, as above; one selecting none, naming its
+  provider through a global variable, or taking its model from another node is written with none of
+  them, so the draft never points another provider at the connection's key. Where no field of such a
+  node gives its API's address — a `LanguageModelComponent` node holds none for OpenAI, and an `EmbeddingModel` node's
   `api_base` may be missing, or empty where it cannot name a variable — the OpenAI client it runs
   takes `OPENAI_BASE_URL` from the environment, so the node reaches the address the platform delivers
   all the same.
@@ -770,8 +784,9 @@ derived from the identifiers of the flow's nodes.
 With `layout: nodes`, an import drafts every node of the flow as a Component of its own, and writes:
 
 - `aggregate.yaml` — a draft Aggregate named `<target_namespace>/flow`, composing the flow's nodes:
-  an entry for each, and each edge of the flow a `uses` connection of the node it feeds, named after
-  the node feeding it.
+  an entry for each, and each edge of the flow a `uses` connection of the node it feeds, its socket
+  and its alias both named after the key of the node feeding it, so a node fed by several gives each
+  connection an alias of its own.
 - one file under `components/` for each node it drafts — a draft Component named
   `<target_namespace>/<category>/<name>`, the name taken from the node's type, at version `0.1.0`, its
   value fields as string fields of a closed `values` object and its credential fields as required
@@ -1156,8 +1171,11 @@ service's decision is reported as each node's is.
 service, of the Component its decision chose, keyed as the MCP importer keys a server, a comment above
 it naming the service and the file it came from where the key is not the service's name or the import
 read several directories. Each service a service's `depends_on` names is a connection,
-`uses: <key>: link: {target: <key>}`. An environment value naming another service — a word of the
-value, split at every character a host name is not written with, equal to that service's name — that
+`uses: <key>: <key>: {target: <key>}`, written under a socket and an alias both named for the target's
+key. A component reads each of its connections by its alias, whatever socket it is wired into, so
+each connection of a service has an alias of its own. An environment value naming another service —
+a word of the value, split at every character a host name is not written with, equal to that
+service's name — that
 `depends_on` does not name draws no connection: the service's decision records it as a hint, naming
 the variable and the service, never the value. Each model is an instance of
 `core/ai-model/docker-model-runner` where the workspace's catalog holds it, whatever `reuse_mode`
@@ -1170,7 +1188,7 @@ as `<target_namespace>/ai-model/<key>`, a Component of the `ai-model` category w
 model has a decision saying which — `mapped llm (model) to core/ai-model/docker-model-runner as a
 reference, NONE`, or a draft whose decision records that the workspace's catalog holds no
 `core/ai-model/docker-model-runner` — and each service naming the model is connected to it either
-way. A service naming the model in the long form, with
+way, as to a service it depends on. A service naming the model in the long form, with
 `endpoint_var` or `model_var`, names the variables its address and identifier reach the service under.
 No key of the draft holds a variable's name — the connection is written on a socket named after the
 model, which declares no value, and an importer is handed no Component's infrastructure keys — so a
@@ -1183,7 +1201,7 @@ the same sentence:
       uses:
         # The service search reads the address of the model embedder as AI_MODEL_URL and its identifier as AI_MODEL_NAME, the names its models entry gives them; no key of the draft holds either name.
         embedder:
-          link:
+          embedder:
             target: embedder
 ```
 
@@ -1246,7 +1264,7 @@ spec:
       type: core/compute/server
       uses:
         db:
-          link:
+          db:
             target: db
 ```
 
