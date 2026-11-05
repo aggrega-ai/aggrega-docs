@@ -8241,6 +8241,17 @@
     "status": "machine",
     "text": "artifact-library import references a bundle not present in the ArtifactLibrary: bundle `\"<entry>\"` in ArtifactLibrary `\"<library>\"`（artifact-library のインポートが、ArtifactLibrary に存在しないバンドルを参照しています）\n> mapping-library import references an entry not present in the MappingLibrary: entry `\"<entry>\"` in MappingLibrary `\"<library>\"`（mapping-library のインポートが、MappingLibrary に存在しないエントリを参照しています）\n> workload-library import references an entry not present in the WorkloadLibrary: entry `\"<entry>\"` in WorkloadLibrary `\"<library>\"`（workload-library のインポートが、WorkloadLibrary に存在しないエントリを参照しています）"
   },
+  "0c42d0872a327f8c": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "7bd2727badc4d205",
+      "reviewed": false
+    },
+    "srcHash": "0c42d0872a327f8c",
+    "status": "machine",
+    "text": "**`cloudformation` と `compose`：名前は自分で書いたものであるか、アイデンティティがそのまま名前です。** cloudformation の Recipe はそのリソースの論理 ID を記述し、プロバイダはそれを書かれたとおりに読み取ります。自分で用意した compose ファイルはそれ自身のサービスに名前を付け、プロバイダはそのファイル内の何も名前を変えずに、ファイルをマージしてラベルを付けます。`compose` が合成するワークロードはノードのアイデンティティにちなんで命名され、compose ファイルはそれを書かれたとおりに受け入れるため、`{{ .context.instance_id }}` がその名前になります。報告すべき導出は存在せず、名前は自分のドキュメントに記述されているものです。その名前はワークロードのメインサービス、つまりピアが到達するサービスの名前です。ワークロードが持つサイドカーまたは init サービスは、[サイドカーまたは init サービスの命名方法](../providers/compose.md#how-a-sidecar-or-init-service-is-named)で説明しているとおり、同じアイデンティティとコンテナ名を `--` で結合して命名されます。"
+  },
   "0c456a50108e015e": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -8451,6 +8462,13 @@
     "status": "machine",
     "text": "この参照は取得時ではなく場所が形成される時点で拒否されるため、後になって読みにくいタグエラーとして現れるのではなく、記述した内容がメッセージに示されます。"
   },
+  "0c88d280a5449e2b": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "0c88d280a5449e2b",
+    "status": "machine",
+    "text": "ノードの解決済みワークロードが宣言する Service のキーで、ワークロードが宣言した順序で並びます。identity がそのワークロードの解決後に確定し、かつワークロードが Service を宣言している場合に含まれます。ノード向けに出力する各 Service の名前を component identity と Service のキーから付けるターゲットを持つゲストは、そうした各名前を判定するためにこれらを読みます。キーは identity を書いた人ではなく Recipe または FeatureRecipe の作成者が書くものなので、ゲストはキーが原因の拒否をその作成者に向けた文言でも記述します。存在しない場合、ホストはこの問いに対してキーを含めていないことを意味します。ノードがワークロードを宣言していない、ワークロードが Service を宣言していない、または identity がいずれかのワークロードの解決前に確定している場合です。その場合ゲストは Service キーから組み立てられる名前を判定せず、このフィールドが存在しない場合とまったく同じように応答します。"
+  },
   "0c8932387f1ace9c": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -8653,6 +8671,17 @@
     "srcHash": "0cfbbc374054e156",
     "status": "machine",
     "text": "通知には公開者が記録した重大度が示されます。撤回されたアーティファクトは `retracted` として報告され、2 つの勧告的な重大度は deprecated として、そのどちらであるかを示して報告されます。そのため、読み取られる値は、作成された値および停止しきい値の設定に使う値と一致します。"
+  },
+  "0cfc2d57bc63b803": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "801d6ca76bad41e5",
+      "reviewed": false
+    },
+    "srcHash": "0cfc2d57bc63b803",
+    "status": "machine",
+    "text": "Workload の `initContainers` のエントリは、compose の実行完了型のイディオムを用いて、それぞれ独立したサービスになります。各エントリはサービスを 1 つ追加し、その名前は[サイドカーと同じ命名](#how-a-sidecar-or-init-service-is-named)によって `<component>` とエントリの `name` から付けられます。通常の名前では `<component>--<container-name>` です。`name` を省略したエントリには、[Workload リファレンス](../entities/workload.md)に記載されている位置に基づく `init-<index>` という名前が付き、その名前から命名されます。"
   },
   "0cfdee6d1c0104d7": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -11836,6 +11865,17 @@
     "srcHash": "118d550d653d2fff",
     "status": "machine",
     "text": "コンポーネント自身の Recipe が書く `artifacts:` エントリは何かがレンダリングされる前に決定されるため、報告はその Recipe の `artifacts:` ブロックに位置付けられ、参照、バンドル、ネストしたインポートを本体に持つファイル、そしてインポートが書かれたエントリを示します。この形をしたバンドルのファイルはすべて 1 回のビルドで報告されます。複数ある場合、検出結果は `artifacts entries whose library import the compiler cannot resolve` の下にまとめられます："
+  },
+  "118ec90a78584be9": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "1a28defb0de211d7",
+      "reviewed": false
+    },
+    "srcHash": "118ec90a78584be9",
+    "status": "machine",
+    "text": "発行元が把握している場合（レンダラー）に、診断が対象とするソースアーティファクトの識別子です。それ以外の場合は存在しません。ビルドのインスタンスを示すことはなく、それは instance が担います。"
   },
   "118f3a0ea7a911cd": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -35829,6 +35869,13 @@
     "status": "machine",
     "text": "Aggregate（Release のデプロイ対象）"
   },
+  "36c16eeac676ca52": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "36c16eeac676ca52",
+    "status": "machine",
+    "text": "ノードの Recipe または FeatureRecipe が解決されるワークロードの形式で、そのワークロードテンプレートが生成したとおりのものです。identity がそのワークロードの解決後に確定し、かつワークロードが形式を示している場合に含まれます。書かれたとおりに含まれ、ホストはそれを解釈しません。1 つの形式に対して出力する名前にのみターゲットが制限を課すゲストは、その名前を判定するためにこれを読みます。たとえばスケジュールされたジョブでは、実行ごとにサフィックスが付加されるため、ターゲットはその名前を他の名前より短く制限します。存在しない場合、ホストはこの問いに対して形式を含めていないことを意味します。ノードがワークロードを宣言していない、ワークロードが形式を示していない、または identity がいずれかのワークロードの解決前に確定している場合です。その場合ゲストは形式に依存する名前を判定せず、このフィールドが存在しない場合とまったく同じように応答します。"
+  },
   "36c19d7b9867cd99": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -36315,6 +36362,17 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "関連リファレンス"
+  },
+  "3769f12235dd8877": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "814f19b35ce8bcb8",
+      "reviewed": false
+    },
+    "srcHash": "3769f12235dd8877",
+    "status": "machine",
+    "text": "inject ブロックに対する、変更されていない不変の Developer の意図です。ブロックが指定する各メカニズム（env、file、arg、または ssm_param のようなカスタムのもの）はそれぞれ自身の名前の下にあり、書かれたとおりのエントリ（in と、from または value）を書かれた順序で保持します。そのため、.inject_raw.ssm_param は .inject_raw.env がコアのメカニズムを読むのと同じ方法でカスタムのメカニズムを読みます。Developer が inject ブロックを完全に省略した場合は null になります。Ops が inject マッピングによる変更の前に省略を検出する論理チェック（例: {{ if not .inject_raw }}）に使います。"
   },
   "376a13ff3d131acb": {
     "at": "2026-10-30T18:25:06.762Z",
@@ -44055,6 +44113,17 @@
     "status": "machine",
     "text": "検索に対してローカルのレジストリインデックスが提示したものです。"
   },
+  "4397f10a9a161e6f": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "3fc08936d7955aa9",
+      "reviewed": false
+    },
+    "srcHash": "4397f10a9a161e6f",
+    "status": "machine",
+    "text": "**エラーの形状。** 能力による拒否はカタログ作成ドメインに帰属するため、そのレポートは、そのカテゴリと問題のあるインスタンスを含む角括弧付きのヘッドで始まります。メッセージは条件を述べる固定の文で始まり、続いてノード、provider、およびその provider がサポートする種別を示します。"
+  },
   "4399c2f71f828fe4": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -50364,6 +50433,13 @@
     "srcHash": "4d4c3d1c6e6e3cdf",
     "status": "machine",
     "text": "スタックの 2 つの部分は異なる規則で命名され、こちらが驚かれやすい方です。"
+  },
+  "4d4c4fbd31539794": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "4d4c4fbd31539794",
+    "status": "machine",
+    "text": "診断が対象とするビルドのインスタンスで、ビルドがそれに与える識別子で示されます。コンポーネントは Aggregate がそれを宣言している名前で、モジュールが提供するコンポーネントはモジュールを通るドット区切りのパスで、ビルドが導出するコンポーネントはビルドがそれのために合成する識別子で、モジュールはそれ自身のパスで示されます。診断が 1 つのインスタンスに関するものである場合に存在し、それ以外の場合は存在しません。"
   },
   "4d4f6ed0a69c5aaa": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -60004,6 +60080,17 @@
     "srcHash": "5b8283639d27bfd1",
     "status": "machine",
     "text": "両端が一致しない場合"
+  },
+  "5b83c54132128d8a": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "0f96e12665878398",
+      "reviewed": false
+    },
+    "srcHash": "5b83c54132128d8a",
+    "status": "machine",
+    "text": "Provider ゲストがオプションの name_bound エクスポートで受け取るペイロードです。ホストがノードの component identity として使用しようとする名前を 1 つ含み、ゲストはその identity から自身のターゲット向けに導出するすべての名前に照らしてそれを判定します。identity がノードのワークロードの解決後に確定する場合は、それらの名前の一部が依存する、解決済みワークロードの情報も併せて含みます。ゲストは自身の名前ではなく制約で応答します。導出された名前を返すと、ホストが何も知らないターゲットの名前を組み立てる役割を負うことになり、まさにこの問いを発することでそれを避けているからです。ターゲットが受け入れる名前を制限するプロバイダはこのエクスポートを公開します。ターゲットが任意の名前を受け入れるプロバイダはこれを省略し、問い合わせを受けることはなく、そのレンダリングは変わりません。"
   },
   "5b84e7c915382c78": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -72682,6 +72769,17 @@
     "status": "machine",
     "text": "A declared schema contract cannot be read as a schema（宣言されたスキーマ契約をスキーマとして読み取れない）"
   },
+  "6f028eaa166bac97": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "02461a892d030707",
+      "reviewed": false
+    },
+    "srcHash": "6f028eaa166bac97",
+    "status": "machine",
+    "text": "診断が指す位置です。生のソーステキスト内のバイト単位で正確な位置（パーサーがスパンを設定）と、ソースドキュメント内の構造化された位置（レンダラーが key_path、uri、line、kind を設定）の両方に対応する 1 つの統一されたロケーターを持ち、該当するものがある場合は診断が対象とするビルドのインスタンスを示します（instance）。すべてのフィールドは任意です。ソケットは生成できる表現を設定し、残りを省略します。"
+  },
   "6f07546a64b74269": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -76017,6 +76115,17 @@
     "srcHash": "7434d2b26837949b",
     "status": "machine",
     "text": "`RegistryRemoveParams`"
+  },
+  "743d6c43150c80ac": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "0038fc3b4aa2a8d9",
+      "reviewed": false
+    },
+    "srcHash": "743d6c43150c80ac",
+    "status": "machine",
+    "text": "init サービスとサイドカーサービスは、[同一の命名方法](#how-a-sidecar-or-init-service-is-named)によって両方に名前が付けられるため 1 つの名前空間を共有します。そのため、`initContainers` のエントリと `containers` のエントリに同じ名前を付けることはできません。同じ名前の場合、コンパイラは一方のサービスが他方を黙って置き換えることを許さず、ノード、コンテナ名、および両者が求めたサービス名を示す `TRANSLATION_ERROR` で停止します。"
   },
   "743faf99798e7983": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -79660,6 +79769,17 @@
     "status": "machine",
     "text": "*この MappingLibrary における `| default` フィルター、`.Values` の大文字 V の慣例、および `include` ディレクティブについての注記：上に示したフラグメントは、Helm のチャートテンプレートエンジンによる下流での利用に合わせた形になっており、そこでは Helm の慣例が確立されたイディオムです。チャートの値には `.Values.X`、存在しないフィールドのフォールバックには `default`、ヘルパーテンプレートの合成には `include` を使います。Aggrega が独自のレンダラー（Recipe の `valuesMapping:` の内容、FeatureRecipe の `injectMapping:` など）で存在しないフィールドのフォールバック用に追加している `optional` ヘルパーは、Helm のテンプレートエンジンには登録されていません。同様に、`include` は Aggrega のレンダラーには登録されていません。MappingLibrary エンティティはフラグメントをそのまま保存し、記述の形はフラグメントがレンダリングされる先に従います。上の Bitnami 向けライブラリは Helm チャートの値をレンダリングします。Aggrega 側の記述の形では、小文字の `.values.X` と、フォールバック用に存在を考慮する `optional` ヘルパーを使います。Aggrega の慣例については [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback) を参照してください。*"
   },
+  "79949953145b87bb": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "ee9217698f80d89c",
+      "reviewed": false
+    },
+    "srcHash": "79949953145b87bb",
+    "status": "machine",
+    "text": "**`.source`。** Recipe の `source:` で、ソース解決のテンプレート評価によって解決されたものです。ソースを持たない Recipes では `nil`、ソース解決の実行前も `nil` です。FeatureRecipe のテンプレートでは、その FeatureRecipe 自身の `source:` であり、ホストコンポーネントのものになることはありません。[アタッチメント FeatureRecipe のサーフェス](#attachment-featurerecipe-surface)を参照してください。"
+  },
   "7996d25bacf907dc": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -82552,6 +82672,13 @@
     "status": "machine",
     "text": "`.context` ブロック"
   },
+  "7e4f41f09e789001": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "7e4f41f09e789001",
+    "status": "machine",
+    "text": "**Workload に依存する名前の長さ。** これらの名前のうち 2 つには、クラスタがそれぞれ独自の上限を課しており、ビルドは拒否を適用時のクラスタに任せるのではなく、Workload が解決された時点で両方を検査します。**CronJob** の名前は最大 52 文字です。コントローラが各実行の Job に CronJob の名前にサフィックスを付けた名前を付けるため、クラスタの他の名前より短くなっています。これは `scheduled` Workload の場合にのみ検査されます。各 **Service** の名前 `<release name>-<service key>` は最大 63 文字です。どちらかの上限を超えた場合の扱いは、リリース名の場合とまったく同じく、名前を誰が書いたかによって決まります。自分で書いたコンポーネント名は拒否され、ビルドは自分で書いた `spec.components` のキーで停止し、名前の種類、その長さ、および名前に使える文字数を示します。[`../errors/fatal-halts.md`](../errors/fatal-halts.md) の「The target will not accept a name derived from an authored identity（ターゲットは記述された識別子から導出された名前を受け入れません）」を参照してください。Feature のアタッチメントのワークロードの名前の元となる識別子のような合成された識別子は、すべての名前が収まるまで短縮されます。Service の名前は、自分のコンポーネント名と、ワークロードが（Recipe または FeatureRecipe で）宣言するキーから組み立てられるため、拒否ではそのキーと、ワークロードがそれを宣言している場所 `spec.workload.services.<key>` が示されます。どのコンポーネント名の余地も残さないキーは、キー自体を短くする必要があります。したがって、`scheduled` Workload を持つコンポーネントはエンコード後の名前を最大 52 文字まで、コンポーネント `web` は最大 59 文字の Service キーを持つことができます。境界全体にアタッチされた Feature は、その出力がどこでアセンブルされるかがその識別子に依存しうるため、Workload が解決される前に識別子が確定します。そのため、それが合成するリソースについてはどちらの上限も検査されません。"
+  },
   "7e5619d443079041": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -85106,6 +85233,17 @@
     "srcHash": "82519e3d04b3873b",
     "status": "machine",
     "text": "モジュールパターン"
+  },
+  "82526f9c91f4312a": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "9cdb6fab93d6099b",
+      "reviewed": false
+    },
+    "srcHash": "82526f9c91f4312a",
+    "status": "machine",
+    "text": "**パーサーがバリデータです。** コンパイラのセレクタパーサーが文法を担います。パーサーが拒否するセレクタ（上記のいずれかの形）は、セレクタ、それを宣言する Feature、ソケットまたはスロット、および読み取れなかった要件を示す診断とともにビルドを停止します。パースの失敗は明示的かつ具体的に報告され、黙ってスキップされることはありません。ビルドでは、パーサーはセレクタが評価される場所、すなわち Feature の各アタッチ、ソケットを通じて配線される各エッジ、スロットの各充填で実行されます。`aggrega validate` は、カタログ全体に対しても、1 つの Component または Feature に対しても、エンティティのドキュメントが宣言するすべてのソケットとスロットのセレクタも読み取ります。そのため、何も使用しないソケットまたはスロット上の不正なセレクタはそこで、ビルドと同じコードと文言で拒否されます。何もアタッチしない Feature 上の不正な `appliesTo` は、何かがそれをアタッチするまで報告されません。"
   },
   "825371176c274c5c": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -91424,6 +91562,17 @@
     "status": "machine",
     "text": "Recipe または FeatureRecipe の正規 URI です（例: `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0`）。"
   },
+  "8c20572df1607da9": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "f50d268ac5fd2012",
+      "reviewed": false
+    },
+    "srcHash": "8c20572df1607da9",
+    "status": "machine",
+    "text": "inject マッピングによるインターセプトが行われる前の、変更されていない開発者の意図です。ブロックが指定する各メカニズム（`env`、`file`、`arg`、または `ssm_param` のようなカスタムのもの）はそれぞれ自身の名前の下にあり、書かれたとおりのエントリ（`in` と、`from` または `value`）を書かれた順序で保持します。`.inject_raw.ssm_param` は、`.inject_raw.env` がコアのメカニズムを読むのと同じ方法でカスタムのメカニズムを読みます。「開発者は元々このデリバリーキーを要求していたか」というロジックチェックに使用します。FeatureRecipe の `injectMapping` による書き換えの影響を受けません。開発者が `inject:` ブロックを省略した場合は `nil` です。"
+  },
   "8c2719bff86c9828": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -95380,6 +95529,17 @@
     "srcHash": "923962160fb53083",
     "status": "machine",
     "text": "公式のアップストリーム `fluent/fluentd`\n  イメージを Kubernetes 上で直接実行する **合成された helm Recipe**(外部チャートなし)。"
+  },
+  "9239f7f524f75cbb": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "384df8e0b397465c",
+      "reviewed": false
+    },
+    "srcHash": "9239f7f524f75cbb",
+    "status": "machine",
+    "text": "**完全なテンプレートコンテキスト** + `.attachment_name`、`.inject`（アタッチメントが `inject:` ブロックを記述している場合の、アタッチメント自身の `inject:` エントリ）、`.context.render_facts`（ホストの provider がホストのレンダリングについて報告した内容）、および `.context.used_by`（ホストを使用するコンポーネント。FeatureRecipe が `readsCallerRenderFacts: true` を設定している場合、それぞれが自身のレンダリングファクトを持ちます）。FeatureRecipe が `readsTargetRenderFacts: true` を設定している場合、`.context.uses` の各接続はターゲットのレンダリングファクトを `.render_facts` に持ちます。`.context.instance_id` と `.context.rendered_name` は、ホストコンポーネントの識別子と、ホスト自身の provider がそれについて報告する名前です。これはホストの Recipe が読むのと同じ値であり、FeatureRecipe の `locals:` と `provides:` でも同様です。インラインで記述された `.context.rendered_name` の参照は、そのような名前を報告しない provider のホストで停止します。`.source` は FeatureRecipe 自身の評価済みの `source:` であり、ホストコンポーネントのものになることはなく、FeatureRecipe が宣言していない場合は何も保持しません。"
   },
   "923cb9efed79baef": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -106122,6 +106282,17 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "どのターゲットも、component の識別子から独自の名前を派生させます。チャートインストーラーは release 名を、コンテナオーケストレーターはサービス名を派生させます。このハルトは、ターゲットがそのうちの 1 つを使用できないと伝えているものです。"
+  },
+  "a2c05e455d3f2018": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "d879a51239918f96",
+      "reviewed": false
+    },
+    "srcHash": "a2c05e455d3f2018",
+    "status": "machine",
+    "text": "**独自のファイルを書く。** ファイルを空の状態から検証済みの状態まで進めるループ：[Aggrega ファイルのオーサリング](authoring/getting-started.md)。どのファイルを自分で書くか：[ペルソナ](authoring/personas.md)と[ロール別のエンティティ](authoring/entities-by-role.md)。既に別の形式で持っているプロジェクトから始める場合：[インポート](authoring/import/README.md)。"
   },
   "a2c2d864a9785942": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -119126,6 +119297,17 @@
     "status": "machine",
     "text": "**`dotenv-secret`**（Compose、ローカル開発）は `core/secret-value` を実装します。`origin` を記述どおりに inject パイプで渡し、compose の Recipe がそれを出力ファイル内のサービスの環境に書き込みます。これは注入される値であり、単独のリソースも `provides` もありません。そのため、リテラルの origin は認証情報そのものとしてファイルに書き込まれます。`${DB_PASSWORD}` のように Compose の変数参照として書かれた origin はその参照のまま書き込まれ、スタックの起動時に Docker Compose がシェル環境または `.env` ファイルから置換します。コンパイラは `.env` ファイルを書き出しません。値は `toJson` を通して、マッピングの YAML がそのまま読み戻せる JSON 文字列として書き込まれるため、値に含まれる引用符やバックスラッシュは記述どおりに inject パイプに届きます："
   },
+  "b5da5434b0bb8224": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "9f8ac808dff9e21c",
+      "reviewed": false
+    },
+    "srcHash": "b5da5434b0bb8224",
+    "status": "machine",
+    "text": "**artifacts からの `services:` は、コンポーネントごとのサービスと並んでアセンブルされた compose ファイルにマージされます。** 同じアセンブリパスで 2 つの異なるコンポーネントが提供したサービス名はビルドを停止させ、診断はすべての提供元を示します。*単一コンポーネント内*での衝突、つまりそのコンポーネント自身の artifact フラグメントとそのコンポーネント用に合成されたサービスとの衝突は検出されず、後の提供が先の提供を置き換えます。そのため、artifact で記述するサービス名は、シンセサイザーが生成する `<component>` および `<component>--<container-name>` の名前と区別してください（[サイドカーまたは init サービスの命名方法](#how-a-sidecar-or-init-service-is-named)を参照）。"
+  },
   "b5df446f04c1e30e": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -123508,6 +123690,17 @@
     "status": "machine",
     "text": "[`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — 厳格な API 分割（Strict API Partitioning）と Enterprise Metadata Suite の設計上の位置付け。"
   },
+  "bc9d3874aa759b9d": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "5a1537f15c2f68b7",
+      "reviewed": false
+    },
+    "srcHash": "bc9d3874aa759b9d",
+    "status": "machine",
+    "text": "source パスにあるチャートには、有効な `Chart.yaml` が含まれている必要があります。チャートの読み込みに失敗した sourced レンダリングでは、基盤となる Helm SDK のエラーがそのまま表示されます。空の `source: \"\"` は helm に固有の問題ではありません。これは sourceless モードも sourced モードも指定しないため、それが受ける拒否は Recipe がどのプロバイダを対象としていても同じであり、Recipe が読み込まれる時点、つまりチャートが読み込まれる前、かつこのプロバイダがディスパッチされる前に発生します。どのコマンドがそれを報告するかは、[`entities/recipe.md`](../entities/recipe.md) の「Source field scheme inventory」と [`errors/fatal-halts.md`](../errors/fatal-halts.md) の「Recipe `source:` is an empty string（Recipe の source フィールドが空文字列です）」で説明しています。"
+  },
   "bca1f864be717dce": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -125952,6 +126145,13 @@
     "srcHash": "c041a2c1c668ff6a",
     "status": "machine",
     "text": "ターゲットプラットフォームは、**シークレットスコープ**の内側で参照によってシークレットを解決します。シークレットスコープとは、あるリソースが別のリソースを名前で参照できる境界です。接続の両端が 1 つのスコープにある場合、両端は 1 つのシークレットリソースを参照します。異なるスコープにある場合、各端はそれぞれ独自のシークレットリソースを持ち、それらは同じストアエントリから実現されます。各端の実現方法は Manifest が選択します。Feature の型ごとにその型のすべてのアタッチメントに対して選択するか、1 つのアタッチメントに対してその名前で選択します。"
+  },
+  "c0441c312ed15c88": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "c0441c312ed15c88",
+    "status": "machine",
+    "text": "subDirectory: でのみ利用できます。配置されるコントリビューターの識別子です。コンポーネントの場合は、フラット化されたコンポーネントごとのインスタンス ID です（例: 'backend' や 'data-layer.main-db'）。FeatureRecipe が境界に対して 1 回だけ実行される（executionScope: boundary）境界にアタッチされた Feature の場合は、そのアタッチメントが出力するすべてのリソースが aggrega.ai/component-id ラベルに持つ合成されたコンポーネント識別子です（例: 境界 'app' のアタッチメント 'shared' なら 'bfr--app--shared'）。アタッチメントのレンダリングプラグインが名前を制限する場合は短縮され、それが示すディレクトリがそのラベルと一致するようになります。境界レベルでは意味を持たず、directory: テンプレートではパース時の検証で拒否されます。"
   },
   "c044f5c7da4a2471": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -132481,6 +132681,13 @@
     "status": "machine",
     "text": "すべてのターゲットでバックアップされるデータストア: 1 つの core/backup アタッチメント"
   },
+  "c9e2e3844a233cd8": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "c9e2e3844a233cd8",
+    "status": "machine",
+    "text": "`.source` はアタッチメント自身のものです。FeatureRecipe の `source:` テンプレートは、Recipe のものがそれ自身のマッピングより前に評価されるのと同様に、その `valuesMapping:` より前に評価されます。その結果が、アタッチメントのリソースを生成するテンプレート（その `valuesMapping:`、`omits:`、`workload:`、`artifacts:`）およびその `pipeline:` ステップで `.source` が保持する内容です。ホストコンポーネントのソースになることはありません。`source:` を宣言していない、またはテンプレートが何も生成しない FeatureRecipe は、ホストの Recipe がソースを宣言していても、そこでは何も読みません。境界スコープの FeatureRecipe は、同じテンプレートで自身のソースを読みます。唯一の例外は `injectMapping:` で、これはアタッチメントのソースが評価される前に実行され、ホストコンポーネント自身の Recipe と同様に `.source` を読みます。"
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -132787,6 +132994,17 @@
     "srcHash": "ca3a3c67f3271d20",
     "status": "machine",
     "text": "独自の Infrastructure as Code を持ち込む Ops チームは、それを Recipe 自身のディレクトリ（`source:` で指定する `./src` のようなモジュールまたはテンプレートのディレクトリ）に置くか、構造化された `source:` で取得するか（`kind: git-repository` を使って git リポジトリから取得する Terraform モジュールなど）、[`artifacts:`](#the-artifacts-field--auxiliary-manifests) の下にテンプレート化された本体として記述します。マッピング層（`valuesMapping:`。インライン、ファイルインポート、ライブラリインポートのいずれか）がそのコードに抽象的なコンテキストを提供し、プロバイダーはターゲット自身の形式で結果を出力します。ある構成言語が別の構成言語に変換されることはありません。"
+  },
+  "ca463dccd6d161c6": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "b48000c94b4eefdb",
+      "reviewed": false
+    },
+    "srcHash": "ca463dccd6d161c6",
+    "status": "machine",
+    "text": "解決済みの source フィールドの内容です。Recipe のテンプレートでは、ソース解決の段階で Go テンプレート評価後の Recipe の source: フィールドから設定され、values マッピング以降（valuesMapping、workload、artifacts）で利用でき、Recipe に source: がない場合は null になります。FeatureRecipe のテンプレートでは、Go テンプレート評価後の FeatureRecipe 自身の source: フィールドであり、その valuesMapping の前に評価され、valuesMapping とそれ以降に評価されるすべてのテンプレート（omits、workload、artifacts、pipeline ステップ）で読まれます。ホストコンポーネントのものになることはなく、FeatureRecipe に source: がない場合は null です。FeatureRecipe の injectMapping はその source より前に評価され、ホストコンポーネントのものを読みます。文字列形式は URI パス、オブジェクト形式は構造化されたソースです（例: 解決済みバージョンを持つ OCI ディスクリプター）。"
   },
   "ca47b6e925aafdf5": {
     "at": "2026-10-22T02:48:40.419851+00:00",

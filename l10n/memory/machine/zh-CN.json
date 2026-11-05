@@ -8241,6 +8241,17 @@
     "status": "machine",
     "text": "artifact-library import references a bundle not present in the ArtifactLibrary: bundle `\"<entry>\"` in ArtifactLibrary `\"<library>\"`（artifact-library 导入引用了 ArtifactLibrary 中不存在的 bundle）\n> mapping-library import references an entry not present in the MappingLibrary: entry `\"<entry>\"` in MappingLibrary `\"<library>\"`（mapping-library 导入引用了 MappingLibrary 中不存在的条目）\n> workload-library import references an entry not present in the WorkloadLibrary: entry `\"<entry>\"` in WorkloadLibrary `\"<library>\"`（workload-library 导入引用了 WorkloadLibrary 中不存在的条目）"
   },
+  "0c42d0872a327f8c": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "7bd2727badc4d205",
+      "reviewed": false
+    },
+    "srcHash": "0c42d0872a327f8c",
+    "status": "machine",
+    "text": "**`cloudformation` 和 `compose`——名称由你编写，或者标识即名称。** cloudformation Recipe 自行编写其资源的逻辑 id，provider 完全按所写内容读取；你提供的 compose 文件自行命名其服务，provider 合并该文件并为其添加标签，而不重命名其中任何内容。`compose` 合成的 workload 以节点的标识命名，compose 文件按原样接受该标识，因此 `{{ .context.instance_id }}` 就是该名称。没有需要报告的派生，名称就是你自己文档中写明的名称。该名称是 workload 的主服务，即对端访问的那个服务；它携带的 sidecar 或 init 服务由同一标识和容器名称以 `--` 连接而命名，如[sidecar 或 init 服务如何命名](../providers/compose.md#how-a-sidecar-or-init-service-is-named)所述。"
+  },
   "0c456a50108e015e": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -8451,6 +8462,13 @@
     "status": "machine",
     "text": "该引用在构造位置时即被拒绝，而不是在获取时，因此消息会指出你所写的内容，而不是之后以难以理解的标签错误出现。"
   },
+  "0c88d280a5449e2b": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "0c88d280a5449e2b",
+    "status": "machine",
+    "text": "节点已解析 workload 所声明的各 Service 的键，按 workload 声明它们的顺序排列；在标识于该 workload 解析之后才确定、且该 workload 声明了任何 Service 时携带。若 guest 的目标根据组件标识和 Service 的键为它为节点发出的每个 Service 命名，guest 就读取这些键来判定每个这样的名称。键由 Recipe 或 FeatureRecipe 的作者编写，而不是由编写标识的人编写，因此对于由某个键引起的拒绝，guest 也要面向该作者措辞。不存在表示宿主没有为这一问题携带键：节点未声明 workload、其 workload 未声明 Service，或者标识在任何 workload 解析之前就已确定。此时 guest 不判定任何由 Service 键构成的名称，其作答方式与该字段不存在时完全相同。"
+  },
   "0c8932387f1ace9c": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -8653,6 +8671,17 @@
     "srcHash": "0cfbbc374054e156",
     "status": "machine",
     "text": "通知会注明发布者记录的严重级别。已撤销的制品报告为 `retracted`；两种建议性严重级别报告为已弃用，并注明是其中哪一种。因此你读回的值与编写时的值一致，也与你配置中止阈值时所用的值一致。"
+  },
+  "0cfc2d57bc63b803": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "801d6ca76bad41e5",
+      "reviewed": false
+    },
+    "srcHash": "0cfc2d57bc63b803",
+    "status": "machine",
+    "text": "Workload 的 `initContainers` 条目会各自成为独立的服务，采用 compose 的“运行至完成”惯用方式。每个条目添加一个服务，按照[与 sidecar 相同的命名方式](#how-a-sidecar-or-init-service-is-named)由 `<component>` 和该条目的 `name` 命名——普通名称为 `<component>--<container-name>`；省略 `name` 的条目采用 [Workload 参考](../entities/workload.md)中记载的按位置命名的 `init-<index>` 名称，并据此命名。"
   },
   "0cfdee6d1c0104d7": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -11836,6 +11865,17 @@
     "srcHash": "118d550d653d2fff",
     "status": "machine",
     "text": "组件自身 Recipe 书写的 `artifacts:` 条目在任何渲染之前就已确定，因此报告定位在该 Recipe 中的 `artifacts:` 块，并指出该引用、bundle、主体中带有嵌套导入的文件，以及书写该导入的条目。bundle 中所有属于该情形的文件都会在一次构建中报告；如果不止一个，这些结果会归组在 `artifacts entries whose library import the compiler cannot resolve` 之下："
+  },
+  "118ec90a78584be9": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "1a28defb0de211d7",
+      "reviewed": false
+    },
+    "srcHash": "118ec90a78584be9",
+    "status": "machine",
+    "text": "诊断所涉及源制品的标识符，在发出方知道该标识符（渲染器）时提供。其他情况下不存在。它从不指明构建的实例；该实例由 instance 携带。"
   },
   "118f3a0ea7a911cd": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -35829,6 +35869,13 @@
     "status": "machine",
     "text": "Aggregate（该 Release 的部署目标）"
   },
+  "36c16eeac676ca52": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "36c16eeac676ca52",
+    "status": "machine",
+    "text": "节点的 Recipe 或 FeatureRecipe 解析得到的 workload 的形式，即其 workload 模板生成的形式；在标识于该 workload 解析之后才确定、且该 workload 声明了形式时携带。它按原样携带；宿主不对其进行解释。若 guest 的目标仅对它为某一种形式发出的名称施加限制——例如定时任务，目标将其名称限制得比其他名称更短，因为每次运行都会在其后附加一个后缀——guest 就读取它来判定该名称。不存在表示宿主没有为这一问题携带形式：节点未声明 workload、其 workload 未声明形式，或者标识在任何 workload 解析之前就已确定。此时 guest 不判定任何依赖于形式的名称，其作答方式与该字段不存在时完全相同。"
+  },
   "36c19d7b9867cd99": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -36315,6 +36362,17 @@
     "srcHash": "37693118486b56dd",
     "status": "machine",
     "text": "相关参考"
+  },
+  "3769f12235dd8877": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "814f19b35ce8bcb8",
+      "reviewed": false
+    },
+    "srcHash": "3769f12235dd8877",
+    "status": "machine",
+    "text": "inject 块不可变、未经修改的 Developer 意图。该块指明的每种机制——env、file、arg，或诸如 ssm_param 的自定义机制——都位于其自身名称之下，按书写顺序保存完全按原样书写的条目（in，以及 from 或 value），因此 .inject_raw.ssm_param 读取自定义机制的方式与 .inject_raw.env 读取核心机制的方式相同。若 Developer 完全省略了 inject 块，则求值为 null。供 Ops 用于逻辑检查（例如 {{ if not .inject_raw }}），以在 inject 映射的修改之前检测省略。"
   },
   "376a13ff3d131acb": {
     "at": "2026-10-30T18:25:06.762Z",
@@ -44055,6 +44113,17 @@
     "status": "machine",
     "text": "本地注册表索引为该搜索提供了什么。"
   },
+  "4397f10a9a161e6f": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "3fc08936d7955aa9",
+      "reviewed": false
+    },
+    "srcHash": "4397f10a9a161e6f",
+    "status": "machine",
+    "text": "**错误形态。** 能力拒绝归属于目录编写领域，因此其报告以方括号标头开始，标头包含该类别和出错的实例。消息以陈述该条件的固定句子开头，随后指明节点、provider 以及该 provider 支持的类型："
+  },
   "4399c2f71f828fe4": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -50364,6 +50433,13 @@
     "srcHash": "4d4c3d1c6e6e3cdf",
     "status": "machine",
     "text": "栈的两部分按不同规则命名，而这一部分最容易让人意外。"
+  },
+  "4d4c4fbd31539794": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "4d4c4fbd31539794",
+    "status": "machine",
+    "text": "诊断所涉及的构建实例，以构建赋予它的标识表示：组件以 Aggregate 声明它时所用的名称表示，模块贡献的组件以经由该模块的点分路径表示，构建派生的组件以构建为其组合的标识表示，模块则以其自身路径表示。当诊断针对某一个实例时存在；其他情况下不存在。"
   },
   "4d4f6ed0a69c5aaa": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -60004,6 +60080,17 @@
     "srcHash": "5b8283639d27bfd1",
     "status": "machine",
     "text": "两端不一致时"
+  },
+  "5b83c54132128d8a": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "0f96e12665878398",
+      "reviewed": false
+    },
+    "srcHash": "5b83c54132128d8a",
+    "status": "machine",
+    "text": "Provider guest 在其可选的 name_bound 导出上接收的载荷：宿主提议用作某个节点 component 标识的一个名称，由 guest 对照它会从该标识为其目标派生的每个名称进行判定；若该标识在节点的 workload 解析之后才确定，还会附带已解析 workload 中其中某些名称所依赖的事实。guest 以约束而非它自己的名称作答——若回传派生名称，宿主就得为一个它一无所知的目标拼装名称，而提出这个问题恰恰是为了避免这一点。目标会限制或约束所接受名称的 provider 会声明该导出；目标接受任意名称的 provider 会省略它，永远不会被询问，其渲染结果也不变。"
   },
   "5b84e7c915382c78": {
     "at": "2026-10-29T18:53:24.886Z",
@@ -72682,6 +72769,17 @@
     "status": "machine",
     "text": "A declared schema contract cannot be read as a schema（声明的 schema 契约无法作为 schema 读取）"
   },
+  "6f028eaa166bac97": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "02461a892d030707",
+      "reviewed": false
+    },
+    "srcHash": "6f028eaa166bac97",
+    "status": "machine",
+    "text": "诊断所指向的位置。它携带一个统一的定位符，既可表示原始源文本中精确到字节的位置（由解析器填写 span），也可表示源文档中的结构化位置（由渲染器填写 key_path、uri、line 和 kind），并在存在时指明诊断所涉及的构建实例（instance）。所有字段均为可选；插槽填写其能够生成的表示形式并省略其余部分。"
+  },
   "6f07546a64b74269": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -76017,6 +76115,17 @@
     "srcHash": "7434d2b26837949b",
     "status": "machine",
     "text": "`RegistryRemoveParams`"
+  },
+  "743d6c43150c80ac": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "0038fc3b4aa2a8d9",
+      "reviewed": false
+    },
+    "srcHash": "743d6c43150c80ac",
+    "status": "machine",
+    "text": "init 服务和 sidecar 服务共享同一个名称空间，因为两者由[同一种命名方式](#how-a-sidecar-or-init-service-is-named)命名，因此 `initContainers` 条目与 `containers` 条目不能使用相同的名称。若出现这种情况，编译器会以 `TRANSLATION_ERROR` 中止，并指明节点、容器名称以及两者都想要的服务名称，而不会让一个服务悄无声息地替换另一个。"
   },
   "743faf99798e7983": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -79660,6 +79769,17 @@
     "status": "machine",
     "text": "*关于此 MappingLibrary 中的 `| default` 过滤器、`.Values` 首字母大写 V 的约定以及 `include` 指令的说明：上面展示的片段是为供下游 Helm 的 chart 模板引擎使用而编写的，在那里 Helm 的约定是既定惯用写法——`.Values.X` 用于 chart 值，`default` 用于缺失字段的回退，`include` 用于组合辅助模板。Aggrega 在自身渲染器上为缺失字段回退添加的 `optional` 辅助函数（Recipe 的 `valuesMapping:` 内容、FeatureRecipe 的 `injectMapping:` 等）并未在 Helm 的模板引擎中注册。同样，`include` 也未在 Aggrega 的渲染器中注册。MappingLibrary 实体按原样存储片段；编写形式取决于片段要在何处渲染。上面的 Bitnami 风格库渲染的是 Helm chart 值；Aggrega 侧的编写形式使用小写的 `.values.X` 以及感知存在性的 `optional` 辅助函数进行回退——关于 Aggrega 约定，参见 [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback)。*"
   },
+  "79949953145b87bb": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "ee9217698f80d89c",
+      "reviewed": false
+    },
+    "srcHash": "79949953145b87bb",
+    "status": "machine",
+    "text": "**`.source`。** Recipe 的 `source:`，由源解析模板求值解析得到。对于无源的 Recipes 为 `nil`；在源解析运行之前也为 `nil`。在 FeatureRecipe 的模板上，它是该 FeatureRecipe 自身的 `source:`，绝不是宿主组件的——参见[附件 FeatureRecipe 表面](#attachment-featurerecipe-surface)。"
+  },
   "7996d25bacf907dc": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -82552,6 +82672,13 @@
     "status": "machine",
     "text": "`.context` 块"
   },
+  "7e4f41f09e789001": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "7e4f41f09e789001",
+    "status": "machine",
+    "text": "**取决于 Workload 的名称长度。** 其中两个名称受集群各自的限制，构建会在 Workload 解析完成后检查这两者，而不是把拒绝留给集群在应用时进行。**CronJob** 名称最多 52 个字符，比集群的其他名称更短，因为控制器会以 CronJob 的名称加上后缀来命名每次运行的 Job；仅对 `scheduled` Workload 进行检查。每个 **Service** 名称 `<release name>-<service key>` 最多 63 个字符。超出任一限制时，结果取决于名称由谁编写，与 release 名称的情况完全相同：你编写的组件名称会被拒绝，构建在你编写的 `spec.components` 键处中止，并给出名称的种类、其长度以及你的名称可用的长度预算——参见 [`../errors/fatal-halts.md`](../errors/fatal-halts.md) 中的“The target will not accept a name derived from an authored identity（目标不接受从编写的标识派生的名称）”；组合而成的标识（例如 Feature 附件的 workload 据以命名的标识）会被缩短，直到每个名称都符合限制。Service 名称由你的组件名称和 workload 声明的键（在 Recipe 或 FeatureRecipe 中）构成，因此拒绝会指明该键以及 workload 声明它的位置 `spec.workload.services.<key>`；如果某个键没有为任何组件名称留出空间，则必须缩短该键本身。因此，承载 `scheduled` Workload 的组件的编码名称最多可达 52 个字符，而组件 `web` 可以带有最长 59 个字符的 Service 键。附加到整个边界的 Feature 会在其 Workload 解析之前确定其标识，因为其输出在何处组装可能取决于该标识，所以对于它合成的资源，这两个限制都不检查。"
+  },
   "7e5619d443079041": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -85106,6 +85233,17 @@
     "srcHash": "82519e3d04b3873b",
     "status": "machine",
     "text": "模块模式"
+  },
+  "82526f9c91f4312a": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "9cdb6fab93d6099b",
+      "reviewed": false
+    },
+    "srcHash": "82526f9c91f4312a",
+    "status": "machine",
+    "text": "**解析器即校验器。** 编译器的选择器解析器掌管语法：它拒绝的选择器（上述任一形态）会使构建中止，并给出诊断，指明该选择器、声明它的 Feature、socket 或 slot，以及它无法解读的要求。解析失败会明确而具体地报告，绝不会被静默跳过。在构建中，解析器在选择器被求值的地方运行：Feature 的每次附加、经由 socket 连接的每条边、slot 的每次填充。`aggrega validate` 无论针对整个目录，还是针对单个 Component 或 Feature，也会读取该实体文档声明的每个 socket 和 slot 选择器，因此位于没有任何东西使用的 socket 或 slot 上的格式错误选择器会在那里被拒绝，所用的代码和措辞与构建相同。位于没有任何东西附加的 Feature 上的格式错误的 `appliesTo`，直到有东西附加它时才会被报告。"
   },
   "825371176c274c5c": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -91424,6 +91562,17 @@
     "status": "machine",
     "text": "Recipe 或 FeatureRecipe 的规范 URI（例如 `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0`）。"
   },
+  "8c20572df1607da9": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "f50d268ac5fd2012",
+      "reviewed": false
+    },
+    "srcHash": "8c20572df1607da9",
+    "status": "machine",
+    "text": "任何 inject-mapping 拦截之前未经修改的开发者意图。该块指明的每种机制——`env`、`file`、`arg`，或诸如 `ssm_param` 的自定义机制——都位于其自身名称之下，按书写顺序保存完全按原样书写的条目（`in`，以及 `from` 或 `value`）：`.inject_raw.ssm_param` 读取自定义机制的方式与 `.inject_raw.env` 读取核心机制的方式相同。用于“开发者最初是否请求了这个交付键？”之类的逻辑检查；不受 FeatureRecipe `injectMapping` 重写的影响。如果开发者省略了 `inject:` 块，则为 `nil`。"
+  },
   "8c2719bff86c9828": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -95380,6 +95529,17 @@
     "srcHash": "923962160fb53083",
     "status": "machine",
     "text": "**合成的 helm Recipe**，直接在 Kubernetes 上运行官方上游 `fluent/fluentd`\n  镜像（无外部 chart）。"
+  },
+  "9239f7f524f75cbb": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "384df8e0b397465c",
+      "reviewed": false
+    },
+    "srcHash": "9239f7f524f75cbb",
+    "status": "machine",
+    "text": "**完整模板上下文** + `.attachment_name`、`.inject`（附件自身的 `inject:` 条目，在附件编写了 `inject:` 块时）、`.context.render_facts`——宿主的 provider 关于宿主渲染所上报的信息——以及 `.context.used_by`——使用该宿主的组件，在 FeatureRecipe 设置 `readsCallerRenderFacts: true` 时，每个组件都携带其自身的渲染事实。在 FeatureRecipe 设置 `readsTargetRenderFacts: true` 时，`.context.uses` 上的每个连接都在 `.render_facts` 处携带其目标的渲染事实。`.context.instance_id` 和 `.context.rendered_name` 是宿主组件的标识以及宿主自身的 provider 为其上报的名称——与宿主的 Recipe 读取的值相同，在 FeatureRecipe 的 `locals:` 和 `provides:` 上也是如此——内联写入的 `.context.rendered_name` 引用在 provider 不上报此类名称的宿主上会中止。`.source` 是 FeatureRecipe 自身经求值的 `source:`，绝不是宿主组件的；在 FeatureRecipe 未声明时不包含任何内容。"
   },
   "923cb9efed79baef": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -106122,6 +106282,17 @@
     "srcHash": "a2bf6bf292445a98",
     "status": "machine",
     "text": "每个目标都会从组件的标识派生出自己的名称：chart 安装器派生 release 名称，容器编排器派生服务名称。此终止表示该目标无法使用其中某个名称。"
+  },
+  "a2c05e455d3f2018": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "d879a51239918f96",
+      "reviewed": false
+    },
+    "srcHash": "a2c05e455d3f2018",
+    "status": "machine",
+    "text": "**编写你自己的文件。** 让文件从空白到通过验证的循环：[编写 Aggrega 文件](authoring/getting-started.md)。哪些文件由你来编写：[角色画像](authoring/personas.md)和[按角色划分的实体](authoring/entities-by-role.md)。从你已有的其他格式的项目开始：[导入](authoring/import/README.md)。"
   },
   "a2c2d864a9785942": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -119126,6 +119297,17 @@
     "status": "machine",
     "text": "**`dotenv-secret`**（Compose，本地开发）实现 `core/secret-value`。它将 `origin` 按编写的原样通过 inject 管道交付，compose Recipe 将其写入输出文件中该服务的环境——这是一个注入值，没有独立资源，也没有 `provides`。因此，字面量 origin 会作为凭据本身写入文件；写成 Compose 变量引用的 origin（如 `${DB_PASSWORD}`）则以该引用写入，Docker Compose 在栈启动时从 shell 环境或 `.env` 文件中替换它。编译器不会写入 `.env` 文件。该值通过 `toJson` 写入，作为映射的 YAML 能原样读回的 JSON 字符串，因此其中的引号或反斜杠会按编写的原样到达 inject 管道："
   },
+  "b5da5434b0bb8224": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "9f8ac808dff9e21c",
+      "reviewed": false
+    },
+    "srcHash": "b5da5434b0bb8224",
+    "status": "machine",
+    "text": "**来自 artifacts 的 `services:` 与按组件生成的服务一起合并到组装后的 compose 文件中。** 同一组装路径上由两个不同组件贡献的同名服务会使构建中止，诊断信息会列出每个贡献者。*单个组件内部*的冲突——即该组件自身的 artifact 片段与为其合成的服务之间的冲突——不会被检测到，后来的贡献会替换先前的贡献，因此请让 artifact 中编写的服务名与合成器生成的 `<component>` 和 `<component>--<container-name>` 名称保持不同（参见[sidecar 或 init 服务如何命名](#how-a-sidecar-or-init-service-is-named)）。"
+  },
   "b5df446f04c1e30e": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -123508,6 +123690,17 @@
     "status": "machine",
     "text": "[`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — 严格 API 分区（Strict API Partitioning）与企业元数据套件（Enterprise Metadata Suite）的设计框架。"
   },
+  "bc9d3874aa759b9d": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "5a1537f15c2f68b7",
+      "reviewed": false
+    },
+    "srcHash": "bc9d3874aa759b9d",
+    "status": "machine",
+    "text": "源路径下的 chart 必须包含有效的 `Chart.yaml`。加载 chart 失败的 sourced 渲染会原样呈现底层 Helm SDK 的错误。空的 `source: \"\"` 与 helm 无关：它既不表示 sourceless 模式，也不表示 sourced 模式，因此无论 Recipe 面向哪个 provider，它引发的拒绝都相同，并且这一拒绝在读取 Recipe 时发生，即在加载任何 chart 之前，也在分派此 provider 之前。哪些命令会报告它，详见 [`entities/recipe.md`](../entities/recipe.md) 中的“Source field scheme inventory”和 [`errors/fatal-halts.md`](../errors/fatal-halts.md) 中的“Recipe `source:` is an empty string（Recipe 的 source 字段为空字符串）”。"
+  },
   "bca1f864be717dce": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -125952,6 +126145,13 @@
     "srcHash": "c041a2c1c668ff6a",
     "status": "machine",
     "text": "目标平台在**密钥作用域**内按引用解析密钥：密钥作用域是一个资源能够命名另一个资源的边界。若连接两端位于同一作用域，两端引用同一个密钥资源。若位于不同作用域，每一端各自持有一个密钥资源，均从同一个存储条目实现。Manifest 为每一端选择实现方式——按 Feature 类型作用于该类型的每个附件，或按名称作用于某一个附件。"
+  },
+  "c0441c312ed15c88": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "c0441c312ed15c88",
+    "status": "machine",
+    "text": "仅在 subDirectory: 中可用。正在放置的贡献者的标识。对于组件，是其扁平化的按组件实例 ID（例如 'backend' 或 'data-layer.main-db'）。对于附加在边界上、其 FeatureRecipe 针对该边界只运行一次（executionScope: boundary）的 Feature，是该附件发出的每个资源在其 aggrega.ai/component-id 标签中携带的组合组件标识（例如，边界 'app' 上的附件 'shared' 为 'bfr--app--shared'），在附件的渲染插件限制名称时会被缩短，从而使其命名的目录与该标签一致。在边界级别没有意义，并会在 directory: 模板中被解析时校验拒绝。"
   },
   "c044f5c7da4a2471": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -132481,6 +132681,13 @@
     "status": "machine",
     "text": "在每个目标上都备份的数据存储：一个 core/backup 附加"
   },
+  "c9e2e3844a233cd8": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "srcHash": "c9e2e3844a233cd8",
+    "status": "machine",
+    "text": "`.source` 属于附件自身。FeatureRecipe 的 `source:` 模板在其 `valuesMapping:` 之前求值，正如 Recipe 的该模板在它自己的映射之前求值一样；它的求值结果就是 `.source` 在生成附件资源的模板——其 `valuesMapping:`、`omits:`、`workload:` 和 `artifacts:`——以及其 `pipeline:` 步骤上所持有的内容。它绝不是宿主组件的源：未声明 `source:` 或其模板未生成任何内容的 FeatureRecipe 在那里读不到任何内容，即使宿主的 Recipe 声明了源也是如此。边界作用域的 FeatureRecipe 在相同的模板上读取它自己的源。唯一的例外是 `injectMapping:`，它在附件的源求值之前运行，并像宿主组件自身的 Recipe 那样读取 `.source`。"
+  },
   "c9e6ad6422f110a1": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -132787,6 +132994,17 @@
     "srcHash": "ca3a3c67f3271d20",
     "status": "machine",
     "text": "自带基础设施即代码的 Ops 团队可以将其保存在 Recipe 自身的目录中——由 `source:` 指定的模块或模板目录，例如 `./src`——或通过结构化的 `source:` 获取（例如从其 git 仓库获取 Terraform 模块，使用 `kind: git-repository`），或将其编写为 [`artifacts:`](#the-artifacts-field--auxiliary-manifests) 下的模板化主体。映射层（`valuesMapping:`——内联、文件导入或库导入）为这些代码提供抽象上下文，provider 以目标自身的格式输出结果；不会将任何一种配置语言转换为另一种："
+  },
+  "ca463dccd6d161c6": {
+    "at": "2026-11-05T21:14:07.477Z",
+    "job": "session-0024-20261105211407",
+    "revision": {
+      "from": "b48000c94b4eefdb",
+      "reviewed": false
+    },
+    "srcHash": "ca463dccd6d161c6",
+    "status": "machine",
+    "text": "已解析的 source 字段内容。在 Recipe 的模板上：在源解析阶段由 Recipe 的 source: 字段经 Go 模板求值后填充，从值映射阶段起可用（valuesMapping、workload、artifacts），当 Recipe 没有 source: 时为 null。在 FeatureRecipe 的模板上：FeatureRecipe 自身的 source: 字段经 Go 模板求值后的结果，在其 valuesMapping 之前求值，并在 valuesMapping 以及其后求值的每个模板（omits、workload、artifacts、pipeline 步骤）中读取，绝不是宿主组件的；当 FeatureRecipe 没有 source: 时为 null。FeatureRecipe 的 injectMapping 在其 source 之前求值，读取的是宿主组件的 source。字符串形式 = URI 路径；对象形式 = 结构化源（例如带已解析版本的 OCI 描述符）。"
   },
   "ca47b6e925aafdf5": {
     "at": "2026-10-22T02:42:41.008096+00:00",
