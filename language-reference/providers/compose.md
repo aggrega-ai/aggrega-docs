@@ -177,6 +177,20 @@ When multiple services on a single Workload publish the same container port unde
 
 A Workload with multiple containers becomes one main service plus one sidecar service per non-main container. The main container is the one named `main` (when present) or the first container in declaration order. Sidecars share the main service's network namespace via `network_mode: "service:<main>"` — the closest compose primitive to a Kubernetes pod's shared-network model.
 
+### How a sidecar or init service is named
+
+The main service carries the `<component>` name as it is. Every other service the Workload produces — one per sidecar, and one per [init container](#init-containers) — is named from two identities together: the `<component>`, and the container's name, which is its key under `containers:` for a sidecar and its `name` for an init container, or the positional `init-<index>` an unnamed init entry takes. The assembled `services:` block holds one service per name, so the name is built such that two containers differing in either identity always arrive at two names.
+
+Each identity is written out exactly as the two parts of a [volume name](#how-a-volume-name-is-derived) are — a letter, a digit, a dot and an underscore as authored, a hyphen kept where the rules there keep it, and every other character written out — and the two are joined by `--`, which no written-out identity contains. So the component `api` with a sidecar `logger` runs it as `api--logger`, the init container `import-seed` of `platform` runs as `platform--import-seed`, and an unnamed first init entry of `api` runs as `api--init-0`. A container name carrying a character a service name does not admit is written out rather than emitted as authored: an init container named `warm cache/x` of `api` runs as `api--warm-zx000020cache-zsx`.
+
+**The doubled join keeps two components' containers apart.** `api` with a container `warm-cache` and `api-warm` with a container `cache` run as `api--warm-cache` and `api-warm--cache`, two services, where a one-hyphen join would spell both `api-warm-cache`.
+
+**Sidecars and init containers share this one naming**, so a `containers` entry and an `initContainers` entry carrying the same name reach the same service name, and the build halts on the pair rather than run one container in place of the other (see [Init containers](#init-containers)).
+
+**A component's own service does not take one of these names.** The main service is named after the component, and a doubled hyphen written in a component's name is itself written out there — a component named `api--prep` runs as `api-zh-prep` — so it never carries the `--` join. Where services of two different components still meet on a name in one compose file — through a service an artifact names for itself, say — the build halts naming both, as [Per-`(path, provider)` output](#per-path-provider-output) describes.
+
+**Changing the component's name or the container's name renames the service.** Compose treats a service under a new name as a new service, so its container is created afresh under the new name.
+
 ### Pod-level fields
 
 Pod-level Workload fields apply to the main service only — sidecars share the main service's network namespace — and an [init service](#init-containers) follows the same rule. The one exception is the pod's user: a pod runs every one of its containers as `podSecurityContext.runAsUser` and `runAsGroup`, so they reach every service the Workload produces, sidecar and init services included.
@@ -215,7 +229,7 @@ Every warning in this section is advisory and out-of-band: the build succeeds, a
 
 ## Init containers
 
-A Workload's `initContainers` entries become services of their own, using compose's run-to-completion idiom. Each entry adds one service named `<component>-<container-name>`, on the same naming shape sidecars use; an entry that omits `name` takes the positional `init-<index>` name the [Workload reference](../entities/workload.md) documents.
+A Workload's `initContainers` entries become services of their own, using compose's run-to-completion idiom. Each entry adds one service, named from the `<component>` and the entry's `name` by the [same naming sidecars use](#how-a-sidecar-or-init-service-is-named) — `<component>--<container-name>` for an ordinary name; an entry that omits `name` takes the positional `init-<index>` name the [Workload reference](../entities/workload.md) documents, and is named from that.
 
 The ordering the authoring contract promises — the init containers run to completion in the order they are written, and every other container starts only after all of them have finished — is expressed with `depends_on`'s long form:
 
@@ -228,15 +242,15 @@ services:
   platform:
     image: platform:1.0
     depends_on:
-      platform-verify-seed:
+      platform--verify-seed:
         condition: service_completed_successfully
-  platform-import-seed:
+  platform--import-seed:
     image: platform:1.0
     restart: "no"
-  platform-verify-seed:
+  platform--verify-seed:
     image: platform:1.0
     depends_on:
-      platform-import-seed:
+      platform--import-seed:
         condition: service_completed_successfully
     restart: "no"
 ```
@@ -248,7 +262,7 @@ Two differences from the main service follow from an init service being a non-ma
 - **Pod-level Workload fields are not applied**, the same rule sidecars follow — the pod's user excepted, which reaches every service as [Pod-level fields](#pod-level-fields) describes.
 - **An init service joins its boundary's network directly** rather than sharing the main service's network namespace the way a sidecar does. It has to: the main service waits on the init service, and sharing a namespace is itself a dependency on the main service, which would close the wait into a cycle compose refuses to start. An init container therefore reaches other services on the boundary network by service name, but it does not share the main service's `localhost`.
 
-Init services and sidecar services share one name namespace, so an `initContainers` entry and a `containers` entry may not carry the same name. When they do, the compiler halts with a `TRANSLATION_ERROR` naming the node, the container name, and the service name both wanted, rather than letting one service quietly replace the other.
+Init services and sidecar services share one name namespace, because [one naming](#how-a-sidecar-or-init-service-is-named) names both, so an `initContainers` entry and a `containers` entry may not carry the same name. When they do, the compiler halts with a `TRANSLATION_ERROR` naming the node, the container name, and the service name both wanted, rather than letting one service quietly replace the other.
 
 Emitting the completion condition raises no minimum Compose version. `condition` and its values belong to the base Compose Specification — unlike the `restart` and `required` fields alongside them in the same long-form block, which the specification ties to particular Compose releases. Each minimum version the compose provider's output asks for comes with the construct that needs it: **≥ 2.23.1** for inline `configs.content`, **≥ 2.26.0** for a mount's `subPath` (see [Volumes](#volumes)), and 2.38 for [models](#models). The first reaches any compose output carrying a config with inline `content:`, which is how the file behind a `configmap` volume and the config behind a bridged cross-network edge both arrive — not one authoring path.
 
@@ -503,7 +517,7 @@ This is a different mechanism from a Workload's container-level `attachments:` b
 
 When a Recipe's `artifacts:` block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, `configs:`, `models:`, or `networks:` blocks (each entry inline or per-entry `$import:`-loaded) — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
 
-- **`services:` from artifacts merge into the assembled compose file alongside per-component services.** A service name contributed by two different components at the same assembly path halts, and the diagnostic names every contributor. A collision *within a single component* — between that component's own artifact fragment and the services synthesized for it — is not detected, and the later contribution replaces the earlier one, so keep an artifact-authored service name distinct from the `<component>` and `<component>-<container-name>` names the synthesizer produces.
+- **`services:` from artifacts merge into the assembled compose file alongside per-component services.** A service name contributed by two different components at the same assembly path halts, and the diagnostic names every contributor. A collision *within a single component* — between that component's own artifact fragment and the services synthesized for it — is not detected, and the later contribution replaces the earlier one, so keep an artifact-authored service name distinct from the `<component>` and `<component>--<container-name>` names the synthesizer produces (see [How a sidecar or init service is named](#how-a-sidecar-or-init-service-is-named)).
 - **`volumes:` from artifacts merge into the top-level `volumes:` block.** Two entries reaching one name leave a single entry under it where they declare it identically, matching the same rule as per-component volumes; two that declare it differently halt the build, whether they come from two components or from two fragments of one — two of its `artifacts:` entries, or one of them and the component's own compose file. Because an artifact fragment writes its own bodies, this is the path on which two contributors are most likely to disagree. Keep an artifact-authored volume name distinct from the others at its assembly path, including from the `<component>--<volume-name>` shape the derivation produces — unless two contributors are meant to describe one shared volume, in which case their declarations must match.
 - **`configs:` from artifacts merge into the top-level `configs:` block.** This is how the file behind a `configmap` volume reaches the assembly: the volume becomes a service-level `configs:` reference naming the configmap, and the artifact fragment declares an entry of that name with inline `content:`. Once the assembly path's fragments are unioned, every service-level reference must resolve to a declared entry, or the build halts with `TRANSLATION_ERROR` naming each unresolved reference — the service, the config name, and the mount path. The check runs over the completed union rather than per component, so one component may reference a config another component at the same assembly path declares. The union reconciles by name where the contributors agree: two declaring one config name with identical `content:` leave the single entry both of them described. Two declaring one name with **different** `content:` halt the build under `TRANSLATION_ERROR`, naming the config and every contributing `(boundary, node, fragment)` tuple, two fragments of one component included — a config entry always carries content, so keeping either declaration would discard a file an author wrote. Keep a config name distinct across every contributor at its assembly path, or make the declarations identical where two contributors are meant to deliver one shared file.
 - **`models:` from artifacts merge into the top-level `models:` block**, and a service's `models:` reference travels with its service, under the rules in [Models](#models): two contributors declaring one model name must declare it identically, and every reference must name a model some contributor at the assembly path declares.

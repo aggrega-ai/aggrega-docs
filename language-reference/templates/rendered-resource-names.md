@@ -163,7 +163,11 @@ reachable another way.
   written; a compose file you supplied names its own services and the provider merges and labels that
   file without renaming anything in it. A workload `compose` synthesizes is named after the node's
   identity, which a compose file admits as written, so `{{ .context.instance_id }}` is that name.
-  There is no derivation to report, and the names are the ones standing in your own documents.
+  There is no derivation to report, and the names are the ones standing in your own documents. That
+  name is the workload's main service, the one a peer reaches; a sidecar or init service it carries
+  is named from the same identity and the container's name, joined by `--`, as
+  [How a sidecar or init service is named](../providers/compose.md#how-a-sidecar-or-init-service-is-named)
+  describes.
 
 - **`terraform` — the name is a function of where the files were placed.** A contributor's `module`
   block is named from the output directory its configuration was written into, which is settled when
