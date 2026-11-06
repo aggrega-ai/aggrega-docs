@@ -65,7 +65,12 @@ attached, import stops and names the importers it could not choose between. The
 core importers are among them: a workspace whose catalog holds an importer of
 another name for a format a core importer serves attaches the one it wants.
 Within one name the highest version runs, and an importer the catalog holds at
-the name and version of a core importer runs in its place. An attachment's
+the name and version of a core importer, with its module beside it, runs in
+its place. A Plugin entity of a core importer's name with no module beside it
+is no candidate: the core importer runs in its place at its own version, and
+at another version the entity stays a candidate only where an attachment names
+exactly that version, or where no importer of that name that can run
+advertises the format. An attachment's
 with: sources and settings are handed to the importer it attaches and to no
 other, so an importer no attachment names is handed none.
 

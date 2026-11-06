@@ -243,7 +243,13 @@ or entries name two of them — the import is refused, naming the importers it c
 between. An entry naming an importer that advertises the format, at a version no version of it in
 the catalog satisfies — an exact version the catalog does not hold, or a range none of its versions
 falls in — is refused too, naming the version, rather than running another version in its place; a
-version that is not one at all, such as `:latest`, is refused as malformed.
+version that is not one at all, such as `:latest`, is refused as malformed. A Plugin entity of one of
+the compiler's core importers with no module beside it in its catalog folder is no candidate: at the
+compiler's own version the core importer runs in its place, and at any other version the entity
+stays a candidate only where an entry names exactly that version or no importer of its name that can
+run advertises the format, as
+[Which one runs beside your own importers](../plugins/core-importers.md#which-one-runs-beside-your-own-importers)
+describes.
 
 **Each importer is attached by one entry.** Two entries naming one importer — the same identity, at
 one version or at two — are refused when the configuration loads, whichever command reads it,

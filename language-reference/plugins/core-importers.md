@@ -87,7 +87,8 @@ naming the importer and its version, and says what puts its module on the machin
 - **Place its module beside a Plugin entity of that importer at that version in a catalog folder**,
   under the name the message gives — `importer--langflow.wasm` for the Langflow importer. A catalog
   entity at the same name and version as a core importer runs in its place, with its module read from
-  beside it. Where the registry does not hold the module, or the workspace names no default registry,
+  beside it; an entity there with no module beside it does not, and the core importer is obtained as
+  above. Where the registry does not hold the module, or the workspace names no default registry,
   this is the one remedy the message gives.
 
 ## Which one runs beside your own importers
@@ -102,8 +103,22 @@ sets out:
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
-- An importer your catalog holds at the same name and version as a core importer is the one that
-  runs, read from beside its entity.
+- An importer your catalog holds at the same name and version as a core importer, with its module
+  beside its entity, is the one that runs, read from there.
+- A Plugin entity of a core importer's name with no module beside it in its catalog folder — a
+  checkout of a catalog that records the importers a release published, say — is one no import
+  could run, since its module is read from nowhere else, so it is not a candidate to run, though
+  the signatures it records still take part in recognising a source. At the compiler's own version
+  the core importer runs in its place. At any other version, older or newer, it is passed over, and
+  the choice is made among the importers that can run — unless a `plugins.importer` entry names
+  exactly that version, or no importer of that name that can run advertises the format asked for,
+  as when the entity records a format the compiler's own importer does not. Then it stays a
+  candidate under the rules above, and an import that chooses it stops naming the folder its module
+  goes in.
+
+Whichever of your catalog's own importers is chosen, its module is read from beside its own entity,
+at its own version: a module laid beside an entity of the same name at another version belongs to
+that entity.
 
 ## How a source is recognised
 
