@@ -7,8 +7,9 @@ import VersionSwitcher from "./VersionSwitcher.astro";
 //
 // The page is rendered with only its own top-level group open (src/routeData.ts),
 // which is correct with no script at all. The script below keeps open, for the
-// rest of the visit, every top-level group the reader opened, and closes again
-// one the reader collapsed; the group holding the page always shows open. A
+// rest of the visit, every top-level group the reader opened or visited a page
+// of, until the reader collapses it; a group collapsed on one of its own pages
+// opens again on the next page it holds. A
 // group is remembered by its position among the top-level groups, in
 // sessionStorage, so the choice follows the reader across languages; with
 // storage unavailable the page keeps its rendered state. The script runs right
@@ -45,9 +46,11 @@ import VersionSwitcher from "./VersionSwitcher.astro";
       );
       let here = groups.findIndex((group) => group.querySelector('[aria-current="page"]'));
       if (here < 0) here = 0;
-      const opened = read();
+      const opened = read().filter((entry) => entry !== here);
+      opened.push(here);
+      write(opened);
       groups.forEach((group, index) => {
-        group.open = index === here || opened.includes(index);
+        group.open = opened.includes(index);
         const summary = group.querySelector(":scope > summary");
         if (!summary) return;
         summary.addEventListener("click", () => {
