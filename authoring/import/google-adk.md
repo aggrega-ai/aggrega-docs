@@ -336,3 +336,83 @@ model gets no service of its own: the client sends its requests to the Gemini
 API's own address, and reads no other from its environment. The key is a
 variable reference, filled from your shell when the stack starts. The service
 publishes no port on your machine: the rendered file gives it none.
+
+## Run it
+
+Docker Compose runs your image as the rendered service above, `PORT`
+included. The image must listen at that port on every interface, not on
+127.0.0.1, the default address of ADK's API server. ADK's own API server,
+`adk api_server`, serves the configuration directory as it is, so the image
+needs no code of yours. A `Dockerfile` at the project's root, beside
+`support_agent/`:
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install --no-cache-dir google-adk==2.13.0
+COPY support_agent/ /app/agents/support_agent/
+CMD ["sh", "-c", "exec adk api_server --host 0.0.0.0 --port \"$PORT\" /app/agents"]
+```
+
+`adk api_server` serves the agent directories in the folder it names, and the
+command passes `PORT` to it. Build the
+image, put its name in place of `ghcr.io/example/support-agent:1.0.0` as the
+agent's `infra.image` in `release.yaml`, and build again:
+
+```bash
+docker build -t support-agent:local .
+aggrega build --release release.yaml --auto-pull
+```
+
+Then set the key in your shell and start the stack:
+
+```bash
+export GOOGLE_API_KEY='your Gemini API key'
+docker compose -p support-agent -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The service
+publishes no port, so send requests from a container on the stack's network,
+`support-agent_compose`. `--wait` returns once the container runs, since the
+build gives the service no health check, and the server answers a moment
+later, so repeat a request it refuses. Then it lists the application:
+
+```bash
+docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS \
+  http://support-agent:8000/list-apps
+```
+
+```text
+["support_agent"]
+```
+
+and opens a session for a user:
+
+```bash
+docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://support-agent:8000/apps/support_agent/users/u1/sessions/s1 \
+  -H 'Content-Type: application/json' -d '{}'
+```
+
+```text
+{"id":"s1","appName":"support_agent","userId":"u1","state":{},"events":[],"lastUpdateTime":[… omitted: the time the session was created]}
+```
+
+A message to the agent goes to `/run`, in that session:
+
+```bash
+docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://support-agent:8000/run -H 'Content-Type: application/json' \
+  -d '{"app_name": "support_agent", "user_id": "u1", "session_id": "s1", "new_message": {"role": "user", "parts": [{"text": "Where is my order 1234? Answer in one short sentence."}]}}'
+```
+
+The reply, Gemini's, comes back as a list of the events the turn added to the
+session. A model call Gemini refuses, with a wrong key say, returns HTTP 500,
+and the reason is in the service's log:
+`docker compose -p support-agent -f dist/compose/docker-compose.yaml logs support-agent`.
+
+Stop the stack with:
+
+```bash
+docker compose -p support-agent -f dist/compose/docker-compose.yaml down
+```

@@ -483,6 +483,77 @@ the draft listed it in a comment for the Release to carry where the Component
 takes it, this review carried it nowhere, and the rendered database service
 mounts no volume.
 
+## Run it
+
+`ghcr.io/example/notes-api:2.3.0` stands for your own API's image. It is a
+placeholder, and Docker Compose stops on it with `Error Head
+"https://ghcr.io/v2/example/notes-api/manifests/2.3.0": denied`. Name your
+API's image in `infra.image` of `api` in `release.yaml`. Until your API is
+ready, an image that answers HTTP on port 8080 can stand in for it. The run
+below used `mendhak/http-https-echo:39`, which answers every request with a
+description of the request it received:
+
+```yaml
+    api:
+      infra:
+        image: "mendhak/http-https-echo:39"
+        port: 8080
+```
+
+Build again with the change. Docker Compose fills both `${POSTGRES_PASSWORD}`
+references from your shell, so set the password before you start the stack:
+left unset, Compose warns `The "POSTGRES_PASSWORD" variable is not set.
+Defaulting to a blank string.` and writes an empty value in its place.
+
+```bash
+aggrega build --release release.yaml --auto-pull
+export POSTGRES_PASSWORD='a password of your own'
+docker compose -p notes -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once the database and the cache pass the health checks the build gives them
+and the API's container is running: the build gives the API no health check.
+
+Ask the API at the address the rendered service above publishes:
+
+```bash
+curl -sS http://127.0.0.1:8080/notes
+```
+
+```text
+{
+  "path": "/notes",
+  "headers": {
+    "host": "127.0.0.1:8080",
+    [… omitted: the user agent and the media types the client sent]
+  },
+  "method": "GET",
+  [… omitted: the rest of the request as the stand-in received it, the client's address and the container's host name]
+}
+```
+
+What the connections deliver is in the API service's environment, under the
+names your API reads:
+
+```bash
+docker compose -p notes -f dist/compose/docker-compose.yaml exec api printenv DATABASE_HOST DATABASE_USER DATABASE_NAME CACHE_HOST
+```
+
+```text
+db
+notes
+notes
+cache
+```
+
+Stop the stack with:
+
+```bash
+docker compose -p notes -f dist/compose/docker-compose.yaml down
+```
+
 ## When the Compose file changes
 
 Keep `.aggrega-import.json` beside the drafts, and after the Compose file

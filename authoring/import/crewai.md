@@ -410,3 +410,64 @@ The model gets no service of its own: the agents reach the OpenAI API at its
 own address. The key is a variable reference, filled from your shell when the
 stack starts. The services publish no port on your machine: the rendered file
 gives them none.
+
+## Run it
+
+You build the image from the project, with a Dockerfile of your own. Docker
+Compose runs the image's own command as each agent's service, since the Recipe
+sets none, so that command must keep running, and must serve requests if you
+want to reach the crew. Your program decides the address, the route and the
+reply.
+
+The run below used such an image: the crew's program in CrewAI's classic
+layout — a `crew.py` building the crew from the two declaration files, as the
+import read them — and, as the image's command, a small HTTP server of the
+program's own on port 8000, which runs the crew once for each `POST /kickoff`.
+Build your image at the project's root, put its name in place of
+`ghcr.io/example/support-brief:1.0.0` for both agents in `release.yaml`, and
+build again:
+
+```bash
+docker build -t support-brief:local .
+aggrega build --release release.yaml --auto-pull
+```
+
+Then set the key in your shell and start the stack:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+docker compose -p support-brief -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The services
+publish no port, so the run sent its request from a container on the stack's
+network, `support-brief_compose`, to its own program's route:
+
+```bash
+docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://researcher:8000/kickoff -H 'Content-Type: application/json' \
+  -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
+```
+
+```text
+{
+  "answer": "[… omitted: the crew's reply, written by the small local model]",
+  "token_usage": {
+    [… omitted: the token counts]
+    "successful_requests": 2
+  }
+}
+```
+
+The route, the request and the shape of the reply are that program's own.
+Both agents run the same image, so the request could go to either; the crew
+ran its two tasks, one request to the model each. This answer came from a
+small local model in place of OpenAI, set up as the run step of
+[How an import runs](README.md#how-an-import-runs) describes.
+
+Stop the stack with:
+
+```bash
+docker compose -p support-brief -f dist/compose/docker-compose.yaml down
+```

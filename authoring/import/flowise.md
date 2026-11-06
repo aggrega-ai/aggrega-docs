@@ -449,3 +449,52 @@ It registers the owner account on a fresh Flowise, or signs in as it, and
 writes the chatflow at `chatflow_id`. The key and the password are variable
 references, filled from your shell when the stack starts. Flowise publishes no
 port on your machine: the rendered file gives it none.
+
+## Run it
+
+Set the key and the owner's password in your shell, start the stack, and
+follow the seed's log until it ends:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+export FLOWISE_OWNER_PASSWORD='a password of your own'
+docker compose -p support-chat -f dist/compose/docker-compose.yaml up -d
+docker compose -p support-chat -f dist/compose/docker-compose.yaml logs -f flowise-flow-seed
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. `up -d` returns
+once Flowise reports healthy and the seed has started; the seed's log ends when
+it exits:
+
+```text
+flowise-flow-seed-1  | registered the owner account owner@example.com
+flowise-flow-seed-1  | imported chatflow 40d9f5c5-5187-54c1-a9f5-a8dac92f88bb as "40d9f5c5-5187-54c1-a9f5-a8dac92f88bb"
+```
+
+Leave `--wait` off: it counts the seed's exit as a failure, and `up -d --wait`
+exits 1 with `container support-chat-flowise-flow-seed-1 exited (0)` on a
+stack that is running as it should.
+
+Flowise publishes no port, so send the question from inside its own
+container, which carries `curl`, to the chatflow's prediction endpoint:
+
+```bash
+docker compose -p support-chat -f dist/compose/docker-compose.yaml exec flowise \
+  curl -sS -X POST http://localhost:3000/api/v1/prediction/40d9f5c5-5187-54c1-a9f5-a8dac92f88bb \
+  -H 'Content-Type: application/json' -d '{"question": "In one short sentence: what is Docker Compose?"}'
+```
+
+```text
+{"text":"Docker Compose is a tool for defining and running multiple Docker containers in a single file.","question":"In one short sentence: what is Docker Compose?",[… omitted: the identifiers Flowise generates for the chat, the message and the session, and two more fields]}
+```
+
+This answer came from a small local model in place of OpenAI, set up as the
+run step of [How an import runs](README.md#how-an-import-runs) describes.
+
+Stop the stack with the command below. `-v` also removes Flowise's data
+volume, and with it the owner account and the chatflow the seed wrote:
+
+```bash
+docker compose -p support-chat -f dist/compose/docker-compose.yaml down -v
+```
