@@ -3,8 +3,61 @@ import Default from "@astrojs/starlight/components/Sidebar.astro";
 import VersionSwitcher from "./VersionSwitcher.astro";
 
 // Mounts the version selector above the standard navigation sidebar, then
-// renders Starlight's default sidebar unchanged.
+// renders Starlight's default sidebar.
+//
+// The page is rendered with only its own top-level group open (src/routeData.ts),
+// which is correct with no script at all. The script below keeps open, for the
+// rest of the visit, every top-level group the reader opened, and closes again
+// one the reader collapsed; the group holding the page always shows open. A
+// group is remembered by its position among the top-level groups, in
+// sessionStorage, so the choice follows the reader across languages; with
+// storage unavailable the page keeps its rendered state. The script runs right
+// after the sidebar, before it is first painted, and after Starlight's own
+// restore of the sidebar state, so it decides the top-level groups. A group is
+// toggled through its summary, so a click, Enter or Space each reach the
+// listener, and the browser keeps each group's expanded state announced.
+// aria-hidden keeps Safari's VoiceOver from reading the script's text out
+// inside the sidebar's `display: contents` container, as Starlight does for its
+// own.
 ---
 
 <VersionSwitcher />
 <Default />
+<script is:inline aria-hidden="true">
+  (() => {
+    try {
+      const key = "aggrega-docs-sidebar-open";
+      const read = () => {
+        try {
+          const stored = JSON.parse(sessionStorage.getItem(key) || "[]");
+          return Array.isArray(stored) ? stored : [];
+        } catch {
+          return [];
+        }
+      };
+      const write = (opened) => {
+        try {
+          sessionStorage.setItem(key, JSON.stringify(opened));
+        } catch {}
+      };
+      const groups = Array.from(
+        document.querySelectorAll("sl-sidebar-state-persist ul.top-level > li > details"),
+      );
+      let here = groups.findIndex((group) => group.querySelector('[aria-current="page"]'));
+      if (here < 0) here = 0;
+      const opened = read();
+      groups.forEach((group, index) => {
+        group.open = index === here || opened.includes(index);
+        const summary = group.querySelector(":scope > summary");
+        if (!summary) return;
+        summary.addEventListener("click", () => {
+          // The click lands before the group toggles: it is about to open when
+          // it is closed now.
+          const remembered = read().filter((entry) => entry !== index);
+          if (!group.open) remembered.push(index);
+          write(remembered);
+        });
+      });
+    } catch {}
+  })();
+</script>

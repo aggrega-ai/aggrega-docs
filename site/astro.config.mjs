@@ -216,6 +216,9 @@ export default defineConfig({
         "@fontsource/opendyslexic/700.css",
         "./src/styles/a11y.css",
       ],
+      // Each page is rendered with only its own top-level group open, and "Start
+      // here" open on a page no group holds (src/routeData.ts); the groups a
+      // reader opens stay open for the visit (src/components/Sidebar.astro).
       sidebar: [
         // The sidebar opens with the ways in: the home, the pages for working
         // with an AI assistant, the quickstart, installing, and the path
@@ -237,26 +240,6 @@ export default defineConfig({
             "getting-started",
             { label: "Install", slug: "install" },
             "learn",
-          ],
-        }),
-        // Bringing a project written in another format: what aggrega import
-        // does, then one walkthrough for each format it reads. The pages live
-        // in the authoring guide's folder and are listed nowhere else in the
-        // sidebar.
-        ...present({
-          label: "Import",
-          items: [
-            "authoring/import",
-            "authoring/import/compose",
-            "authoring/import/mcp",
-            "authoring/import/langflow",
-            "authoring/import/flowise",
-            "authoring/import/n8n",
-            "authoring/import/dify",
-            "authoring/import/crewai",
-            "authoring/import/langgraph",
-            "authoring/import/google-adk",
-            "authoring/import/agent-framework",
           ],
         }),
         {
@@ -281,6 +264,26 @@ export default defineConfig({
             "architecture/16-recipe-input-composition",
           ],
         },
+        // Bringing a project written in another format: what aggrega import
+        // does, then one walkthrough for each format it reads. The pages live
+        // in the authoring guide's folder and are listed nowhere else in the
+        // sidebar.
+        ...present({
+          label: "Import",
+          items: [
+            "authoring/import",
+            "authoring/import/compose",
+            "authoring/import/mcp",
+            "authoring/import/langflow",
+            "authoring/import/flowise",
+            "authoring/import/n8n",
+            "authoring/import/dify",
+            "authoring/import/crewai",
+            "authoring/import/langgraph",
+            "authoring/import/google-adk",
+            "authoring/import/agent-framework",
+          ],
+        }),
         // The authoring guide's pages other than those Start here lists.
         ...present({
           label: "Authoring",

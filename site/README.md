@@ -20,7 +20,11 @@ served at `aggrega.ai/docs`.
   (`ai-assistants/`), the Getting started quickstart (`getting-started.md`),
   Install (`install.md`), and the Learn Aggrega path (`learn.md`) — each page's
   address matching its place in the menu; the
-  Authoring group lists the pages of `authoring/`. Every version is built with
+  Authoring group lists the pages of `authoring/`. A page is rendered with only
+  its own top-level group open, and "Start here" open on a page no group holds
+  (`src/routeData.ts`); a script in `src/components/Sidebar.astro` keeps every
+  top-level group the reader opens open for the rest of the visit, in
+  `sessionStorage`, and the page's own group always shows open. Every version is built with
   this one site project from its own tag's pages, and an entry naming a page the
   tag lacks would stop the build, so each entry that a published tag may lack
   goes through `present()`, which keeps it only where the corpus holds the page.

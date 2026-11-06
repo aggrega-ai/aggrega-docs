@@ -67,12 +67,32 @@ function localize(entries: Entry[], pages: Map<string, Localized>): Entry[] {
   });
 }
 
+// Every top-level group of the sidebar is rendered collapsed except the one
+// holding the page, and "Start here", the first group, on a page no group
+// holds. A group nested in another keeps its configured state. The groups a
+// reader opens stay open on the next pages of the visit through the script in
+// src/components/Sidebar.astro; without it the page still shows its own group
+// open.
+function collapseTopLevel(entries: Entry[]): Entry[] {
+  const holdsPage = (entry: Entry): boolean =>
+    entry.type === "group" ? entry.entries.some(holdsPage) : entry.isCurrent;
+  const here = Math.max(
+    0,
+    entries.findIndex((entry) => entry.type === "group" && holdsPage(entry)),
+  );
+  return entries.map((entry, index) =>
+    entry.type === "group" ? { ...entry, collapsed: index !== here } : entry,
+  );
+}
+
 export const onRequest = defineRouteMiddleware((context) => {
   const route = context.locals.starlightRoute;
   const { locale } = route;
-  if (!locale) return;
-  if (untranslated.has(route.id)) route.isFallback = true;
-  const english = getSidebar(hrefOf(sourceRouteOf(route.id, locale)), undefined);
-  route.sidebar = localize(english, localizedPages(locale));
-  route.pagination = getPrevNextLinks(route.sidebar, config.pagination, route.entry.data);
+  if (locale) {
+    if (untranslated.has(route.id)) route.isFallback = true;
+    const english = getSidebar(hrefOf(sourceRouteOf(route.id, locale)), undefined);
+    route.sidebar = localize(english, localizedPages(locale));
+    route.pagination = getPrevNextLinks(route.sidebar, config.pagination, route.entry.data);
+  }
+  route.sidebar = collapseTopLevel(route.sidebar);
 });
