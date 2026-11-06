@@ -157,8 +157,9 @@ not supply.
    file, `compose`, so two workspaces started that way share one project. The
    services sit on one network, which Docker Compose names after the project,
    `<name>_compose`. A service the build publishes no port for is reached from
-   inside it, with `docker compose -p <name> -f
-   dist/compose/docker-compose.yaml exec <service> …`, or from a container you
+   inside it, with
+   `docker compose -p <name> -f dist/compose/docker-compose.yaml exec <service> …`,
+   or from a container you
    start on that network with `docker run --network <name>_compose …`. A
    walkthrough's "Run it" section, where it has one, shows the commands for its
    own build.
@@ -175,9 +176,8 @@ not supply.
      its `infra`, set to that server's OpenAI-compatible address,
      `http://local-model:11434/v1`;
    - once the stack runs, the pulled model copied under the model name the
-     build's OpenAI model names, `gpt-4o-mini` in both runs: `docker compose -p <name> -f
-     dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b
-     gpt-4o-mini`.
+     build's OpenAI model names, `gpt-4o-mini` in both runs:
+     `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b gpt-4o-mini`.
 
    `OPENAI_API_KEY` may then hold any non-empty value of your own: the local
    server checks none.

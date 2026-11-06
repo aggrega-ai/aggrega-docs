@@ -486,8 +486,8 @@ mounts no volume.
 ## Run it
 
 `ghcr.io/example/notes-api:2.3.0` stands for your own API's image. It is a
-placeholder, and Docker Compose stops on it with `Error Head
-"https://ghcr.io/v2/example/notes-api/manifests/2.3.0": denied`. Name your
+placeholder, and Docker Compose stops on it with
+`Error Head "https://ghcr.io/v2/example/notes-api/manifests/2.3.0": denied`. Name your
 API's image in `infra.image` of `api` in `release.yaml`. Until your API is
 ready, an image that answers HTTP on port 8080 can stand in for it. The run
 below used `mendhak/http-https-echo:39`, which answers every request with a
@@ -502,8 +502,9 @@ description of the request it received:
 
 Build again with the change. Docker Compose fills both `${POSTGRES_PASSWORD}`
 references from your shell, so set the password before you start the stack:
-left unset, Compose warns `The "POSTGRES_PASSWORD" variable is not set.
-Defaulting to a blank string.` and writes an empty value in its place.
+left unset, Compose warns
+`The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.`
+and writes an empty value in its place.
 
 ```bash
 aggrega build --release release.yaml --auto-pull
