@@ -354,8 +354,8 @@ CEL engine, and `terraform` in the Release's file name for `helm`, `compose` or
 **The standard-library catalog supplies every Component, Recipe, Feature and
 FeatureRecipe here and carries both engines' Plugin entities.** They resolve
 from `hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names. With a
-checkout of the catalog named with `--catalog`, nothing is fetched from a
-registry, so the builds run offline and need no login. `--auto-pull` fills each Release's
+checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`, nothing is fetched from a
+registry, so the builds run offline. `--auto-pull` fills each Release's
 lockfile during the build; lockfiles and the rendered output are generated, not
 shipped.
 

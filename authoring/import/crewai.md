@@ -2,7 +2,7 @@
 
 This walkthrough imports the agent and task declarations of a CrewAI project —
 a crew of two agents answering a customer's question about support plans —
-reviews what the import drafts, and builds the crew for Kubernetes. Every file
+reviews what the import drafts, and builds the crew for Docker Compose. Every file
 and every block of output below comes from a real run; the declarations and
 each stage of the walkthrough are in the
 [import-crewai](../../language-reference/examples/import-crewai/README.md)
@@ -84,7 +84,8 @@ default_registry: hub.aggrega.ai
 
 The import references the catalog's agent and model Components, and `--target`
 drafts a Manifest from its Recipes, so name a checkout of the standard-library
-catalog, by its absolute path:
+catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -97,7 +98,7 @@ else:
 
 <!-- quotes: import-command -->
 ```bash
-aggrega import src/support_brief --target helm
+aggrega import src/support_brief --target compose
 ```
 
 On standard output it lists what it wrote:
@@ -191,7 +192,7 @@ declared `verbose`, and `INFO` for the writer, which is not. An agent that
 declares no `allow_delegation` is drafted with `false`.
 
 `release.yaml` — an entry for each agent, with what no declaration states
-named in a comment above it:
+named in a comment above it, and an entry placing the model beside them:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -216,9 +217,11 @@ spec:
     #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
     writer:
       infra: {}
+    gpt-4o-mini:
+      infra: {}
 ```
 
-`manifest.yaml` — the one Helm Recipe the catalog offers for each type:
+`manifest.yaml` — the one Compose Recipe the catalog offers for each type:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -231,8 +234,8 @@ spec:
   mappings:
     components:
       type:
-        core/ai-agent/crewai: helm/crewai
-        core/ai-model/openai: helm/openai
+        core/ai-agent/crewai: compose/crewai
+        core/ai-model/openai: compose/openai
 ```
 
 `.aggrega-import.json` is the record of what the import wrote, which a later
@@ -251,32 +254,31 @@ aggrega validate --release release.yaml
   document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
 ```
 
-With the environment set, the next refusal is the model, which the drafted
-Release does not place:
+With the environment set, the next refusal is the key each agent presents to
+the model, which no declaration states:
 
 ```text
-  [OPS_ERROR E0260] .spec.components.gpt-4o-mini
-    component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release imported/flow, at .spec.components.gpt-4o-mini, "gpt-4o-mini")
+  [DEVELOPER_ERROR E0033]
+    Component/Feature assertions
+    caused by: Component "core/ai-agent/crewai" instance "researcher" assertion "managed_target_needs_a_credential": assertion "Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential": template: Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential:1:369: executing "Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential" at <fail (printf "the %s connection %s of %q reaches %q, whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values" $socket $alias $.metadata.instance_id $connection.target)>: error calling fail: assertion failed: the model connection gpt-4o-mini of "researcher" reaches "gpt-4o-mini", whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values
 release dependency validation failed: 1 diagnostic(s)
 ```
 
 The review changes the Release, and adds one mapping to the Manifest:
 
 - **Set the environment**, `development`.
-- **Place the model** beside the agents: `gpt-4o-mini: {}`.
 - **Name the image each agent runs.** The crew's program runs in an image you
   build from the project; both agents run the same one here,
   `ghcr.io/example/support-brief:1.0.0`.
 - **Present the OpenAI key on each agent's model connection**, as the comments
   ask. The model is a hosted service, so the agent's Component refuses a
-  connection to it that carries no credential, naming the connection: "the
-  model connection gpt-4o-mini of "researcher" reaches "gpt-4o-mini", whose
-  component.aggrega.ai/hosting label is managed, with no credential". Each
-  connection attaches a `core/referenced-secret` naming the Kubernetes Secret
-  that holds the key, `openai-api-key`, under the data key `value`.
-- **Map the Manifest.** `core/referenced-secret` maps to
-  `helm/k8s-existing-secret`, which reads the key from that Secret, so the key
-  is written into no rendered file.
+  connection to it that carries no credential, naming the connection. Each
+  connection attaches a `core/secret-value` whose `origin` is the Compose
+  variable reference `${OPENAI_API_KEY}`.
+- **Map the Manifest.** `core/secret-value` maps to `compose/dotenv-secret`,
+  which writes the reference into the Compose file as written, so Docker
+  Compose fills it from your shell when the stack starts and no file carries
+  the key.
 
 The Aggregate needs no change. The reviewed `release.yaml`:
 
@@ -304,16 +306,15 @@ spec:
       infra:
         image: ghcr.io/example/support-brief:1.0.0
       # Reviewed: the OpenAI key this agent presents to the model, read from
-      # the Secret openai-api-key, under the data key value, so no file
-      # carries it.
+      # your shell when the stack starts, so no file carries it.
       uses:
         model:
           gpt-4o-mini:
             features:
               credential:
-                type: core/referenced-secret
+                type: core/secret-value
                 infra:
-                  origin: openai-api-key
+                  origin: "${OPENAI_API_KEY}"
     # Left for the Release, since no declaration states it:
     #   - infra.image, the container image running the crew's program
     #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
@@ -323,18 +324,17 @@ spec:
       infra:
         image: ghcr.io/example/support-brief:1.0.0
       # Reviewed: the OpenAI key this agent presents to the model, read from
-      # the Secret openai-api-key, under the data key value, so no file
-      # carries it.
+      # your shell when the stack starts, so no file carries it.
       uses:
         model:
           gpt-4o-mini:
             features:
               credential:
-                type: core/referenced-secret
+                type: core/secret-value
                 infra:
-                  origin: openai-api-key
-    # Reviewed: the model both agents reach, placed with them.
-    gpt-4o-mini: {}
+                  origin: "${OPENAI_API_KEY}"
+    gpt-4o-mini:
+      infra: {}
 ```
 
 The reviewed `manifest.yaml`:
@@ -351,13 +351,13 @@ spec:
   mappings:
     components:
       type:
-        core/ai-agent/crewai: helm/crewai
-        core/ai-model/openai: helm/openai
-    # Reviewed: the key is read from a Secret already in the namespace, so it
-    # is written into no rendered file.
+        core/ai-agent/crewai: compose/crewai
+        core/ai-model/openai: compose/openai
+    # Reviewed: the realization that writes a secret's variable reference into
+    # the Compose file as written.
     features:
       type:
-        core/referenced-secret: helm/k8s-existing-secret
+        core/secret-value: compose/dotenv-secret
 ```
 
 ## Validate and build
@@ -370,7 +370,7 @@ aggrega build --release release.yaml --auto-pull
 The validation prints:
 
 ```text
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
@@ -379,37 +379,34 @@ files:
 
 ```text
 Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
-Build completed: 3 files written to <workspace>/dist
+Build completed: 1 files written to <workspace>/dist
 ```
 
 The `notice` line is advisory: the secret Feature accepts its `origin` from the
 Aggregate's `values` or the Release's `infra`, and the notice reports that one
 leaf is declared in both. It changes no verdict.
 
-The build writes a Deployment for each agent under `dist/helm/`, and a Service
-for the model. The researcher's container, in `researcher-deployment.yaml`:
+The researcher's service in `dist/compose/docker-compose.yaml`; the writer's
+differs only in its name:
 
 ```yaml
-      containers:
-        - name: main
-          image: ghcr.io/example/support-brief:1.0.0
-          env:
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openai-api-key
-                  key: value
-            - name: OPENAI_BASE_URL
-              value: https://api.openai.com/v1
-            - name: MODEL
-              value: gpt-4o-mini
+services:
+  researcher:
+    image: ghcr.io/example/support-brief:1.0.0
+    environment:
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      MODEL: gpt-4o-mini
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
+    networks:
+      - compose
 ```
 
 The agent receives the model's address and its name as `OPENAI_BASE_URL` and
-`MODEL`, the variables CrewAI reads them from, and the key by reference to the
-Secret. `gpt-4o-mini-service.yaml` gives the model an in-cluster name for
-`api.openai.com`. Before applying the manifests, create the Secret
-`openai-api-key`, holding the key under `value`, in the namespace you deploy
-to, and push the image the Release names.
+`MODEL`, the variables CrewAI reads them from, and the key as `OPENAI_API_KEY`.
+The model gets no service of its own: the agents reach the OpenAI API at its
+own address. The key is a variable reference, filled from your shell when the
+stack starts. The services publish no port on your machine: the rendered file
+gives them none.

@@ -52,7 +52,8 @@ default_registry: hub.aggrega.ai
 
 The import references the catalog's ADK agent and Gemini model Components, and
 `--target` drafts a Manifest from its Recipes, so name a checkout of the
-standard-library catalog, by its absolute path:
+standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -138,7 +139,7 @@ carried: the application reads it from its own configuration, which the image
 holds.
 
 `release.yaml` — an entry for the agent, with what no configuration states
-named in a comment above it:
+named in a comment above it, and an entry placing the model beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -157,6 +158,8 @@ spec:
     #   - infra.image, the container image running the application built on ADK, holding its configurations
     #   - the credential support-agent presents to the model it reaches, attached under credential on its connection uses.model.gemini-2-5-flash
     support-agent:
+      infra: {}
+    gemini-2-5-flash:
       infra: {}
 ```
 
@@ -193,19 +196,19 @@ aggrega validate --release release.yaml
   document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
 ```
 
-With the environment set, the next refusal is the model, which the drafted
-Release does not place:
+With the environment set, the next refusal is the image, which no configuration
+states:
 
 ```text
-  [OPS_ERROR E0260] .spec.components.gemini-2-5-flash
-    component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release imported/flow, at .spec.components.gemini-2-5-flash, "gemini-2-5-flash")
+  [DEVELOPER_ERROR E0033]
+    Component/Feature assertions
+    caused by: Component "core/ai-agent/google-adk" instance "support-agent" assertion "image_supplied": assertion "Component/core/ai-agent/google-adk/support-agent/image_supplied": template: Component/core/ai-agent/google-adk/support-agent/image_supplied:1:85: executing "Component/core/ai-agent/google-adk/support-agent/image_supplied" at <fail (printf "%q runs an application built on Google's Agent Development Kit from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application" $.metadata.instance_id)>: error calling fail: assertion failed: "support-agent" runs an application built on Google's Agent Development Kit from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application
 release dependency validation failed: 1 diagnostic(s)
 ```
 
 The review changes the Release, and adds one mapping to the Manifest:
 
 - **Set the environment**, `development`.
-- **Place the model** beside the agent: `gemini-2-5-flash: {}`.
 - **Name the image** running the application, which you build from the project
   with its configuration inside, `ghcr.io/example/support-agent:1.0.0` here. The
   catalog holds no default image for an application built on ADK, so the
@@ -258,8 +261,8 @@ spec:
                 type: core/secret-value
                 infra:
                   origin: "${GOOGLE_API_KEY}"
-    # Reviewed: the model the agent reaches, placed with it.
-    gemini-2-5-flash: {}
+    gemini-2-5-flash:
+      infra: {}
 ```
 
 The reviewed `manifest.yaml`:

@@ -53,7 +53,7 @@ can be compared side by side.
 `.aggrega-config.yaml` lists this workspace's own `catalog/`, which holds the
 agent and its two Recipes; everything else resolves from `hub.aggrega.ai`, the
 default registry it names. With a checkout of the standard-library catalog
-named with `--catalog`, every entity resolves from those two directories, so
+([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`, every entity resolves from those two directories, so
 the build also completes with `--offline`, which refuses every network reach.
 `--auto-pull` writes each Release's lockfile during the build; lockfiles and
 the rendered output are generated, not shipped.

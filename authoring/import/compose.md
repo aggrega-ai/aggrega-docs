@@ -66,7 +66,8 @@ default_registry: hub.aggrega.ai
 
 The import weighs each service against the Components of the workspace's
 catalog, and `--target` drafts a Manifest from its Recipes, so name a checkout
-of the standard-library catalog, by its absolute path:
+of the standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -132,7 +133,8 @@ Three kinds of line are worth reading before the files:
 ## What it wrote
 
 `aggregate.yaml` — one entry per service, and one connection per service a
-service's `depends_on` names:
+service's `depends_on` names, each under an alias of its own, the name of the
+service it reaches:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -149,10 +151,10 @@ spec:
       type: core/compute/server
       uses:
         cache:
-          link:
+          cache:
             target: cache
         db:
-          link:
+          db:
             target: db
     db:
       type: imported/datastore/postgres
@@ -272,23 +274,18 @@ top of each says what to do instead, and that is the review's first change:
    `components/` is deleted. The Compose file's `POSTGRES_USER` and `POSTGRES_DB`
    become the Component's `user` and `database` values.
 
-With that change made, validate reports three refusals at once:
+With that change made, validate reports two refusals at once:
 
 ```text
   [OPS_ERROR E0099] .spec.components.db
     no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.db, "db", of type "core/datastore/postgres", recipes implementing it "cloudformation/postgres-rds:1.0.0, compose/postgres:1.0.0, helm/postgres-cloudnative-pg:1.0.0, helm/postgres-external:1.0.0, helm/postgres:1.0.0, terraform/postgres-cloud-sql:1.0.0, terraform/postgres-flexible-server:1.0.0, terraform/postgres-rds-terraform-aws-modules:1.0.0, terraform/postgres-rds:1.0.0"). pin one of them in the Manifest
   [OPS_ERROR E0099] .spec.components.cache
     no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.cache, "cache", of type "core/datastore/redis", recipes implementing it "cloudformation/redis-elasticache:1.0.0, compose/redis:1.0.0, helm/redis:1.0.0, terraform/redis-azure-managed:1.0.0, terraform/redis-elasticache:1.0.0"). pin one of them in the Manifest
-  [DEVELOPER_ERROR E0319] aggregate.yaml at .spec.components.api.uses.db.link
-    connection alias is already used by another connection of the same component ("link", on component "api", this connection wired into socket "db", with target "db", written in "aggregate.yaml", at ".spec.components.api.uses.db.link", the connection already holding the alias wired into socket "cache", with target "cache", written in "aggregate.yaml", at ".spec.components.api.uses.cache.link"). Give one of the two connections an alias of its own: a component reads each connection by its alias, whatever socket it is wired into. A list entry takes its target's name as its alias, so a target listed twice is listed once, or written as two keyed entries under two aliases.
-release dependency validation failed: 3 diagnostic(s)
+release dependency validation failed: 2 diagnostic(s)
 ```
 
 The rest of the review answers them, and carries what the Compose file stated:
 
-- **Give each connection an alias of its own.** The draft names both of the
-   API's connections `link`, and a component reads each connection by its
-   alias. The review names them `cache` and `db`.
 - **Deliver the environment through the connections.** The API reads
    `DATABASE_HOST`, `DATABASE_USER`, `DATABASE_NAME` and `CACHE_HOST`. Rather
    than copying the values the Compose file wrote, each connection's `inject`
@@ -327,8 +324,6 @@ spec:
           values:
             key: DATABASE_PASSWORD
             origin: "${POSTGRES_PASSWORD}"
-      # Reviewed: each connection has an alias of its own, cache and db, in
-      # place of the alias link the draft gave both.
       uses:
         cache:
           cache:

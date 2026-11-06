@@ -167,9 +167,8 @@ reason a pipeline's build stops.
 
 **The standard-library catalog supplies the Components, the Recipes, the
 Feature and its FeatureRecipe.** They resolve from `hub.aggrega.ai`, the default
-registry `.aggrega-config.yaml` names. With a checkout of the catalog named with
-`--catalog`, nothing is fetched from a registry, so the builds run offline and
-need no login. `--auto-pull` fills the lockfile during the build; the
+registry `.aggrega-config.yaml` names. With a checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`, nothing is fetched from a registry, so the builds run offline.
+`--auto-pull` fills the lockfile during the build; the
 lockfile and the rendered output are generated, not shipped.
 
 With the team's file alone:

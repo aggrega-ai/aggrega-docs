@@ -35,7 +35,8 @@ default_registry: hub.aggrega.ai
 
 The import weighs each node against the Components of the workspace's catalog,
 and `--target` drafts a Manifest from its Recipes, so name a checkout of the
-standard-library catalog, by its absolute path:
+standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog

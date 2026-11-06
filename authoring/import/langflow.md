@@ -35,7 +35,8 @@ default_registry: hub.aggrega.ai
 
 The import weighs each node against the Components of the workspace's catalog,
 and `--target` drafts a Manifest from its Recipes, so name a checkout of the
-standard-library catalog, by its absolute path:
+standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -52,6 +53,7 @@ On standard output it lists what it wrote:
 
 <!-- quotes: draft/stdout.txt -->
 ```text
+wrote components/imported-ai-model-languagemodelcomponent.yaml
 wrote aggregate.yaml
 wrote manifest.yaml
 wrote .aggrega-import.json
@@ -63,33 +65,39 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the langflow format, with drafted paths relative to <workspace>
-warn: the value of api_key of node LanguageModelComponent-kBOja is carried as written in the flow the draft carries: its format marks the field as a credential, and setting empty_credentials to marked or all writes it empty
+warn: node LanguageModelComponent-kBOja reaches languagemodelcomponent-kboja through the model connection languagemodelcomponent-kboja of core/ai-agent/langflow: its field api_key names the variable OPENAI_API_KEY, which the platform delivers for this connection and Langflow reads as a global variable; no field of it gives its API's address, so the OpenAI client it runs takes OPENAI_BASE_URL, the address the platform delivers for this connection, from the environment
+warn: the drafted Manifest leaves the component type "imported/ai-model/languagemodelcomponent" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
 info: the importer drafted no Release, so nothing references the drafted Manifest "manifest.yaml"; name it as a Release's spec.manifest to build against it
 made no choice for ChatInput-SzjnT (ChatInput)
 made no choice for Prompt-tOH5D (Prompt)
 made no choice for ChatOutput-8ZWWB (ChatOutput)
-made no choice for LanguageModelComponent-kBOja (LanguageModelComponent)
+mapped LanguageModelComponent-kBOja (LanguageModelComponent) to imported/ai-model/languagemodelcomponent as a draft, HIGH at 0.9
 ```
 
-- **The `warn` line** names the Language Model node's `api_key`, a field
-  Langflow marks as a password. Here it holds the name of the variable the key
-  is read from, `OPENAI_API_KEY`, not a key; a flow exported with a key typed
-  into that field would carry the key into the draft, and this line is where
-  you would learn it.
+- **The `mapped` line** says what the Language Model node became: a model, a
+  Component of its own, wired to the platform's `model` socket. By default the
+  draft runs the whole flow on the platform that runs Langflow, and gives a
+  Component of its own only to a node a socket of that platform takes — a
+  model, a tool, a vector store — where the node is recognised as one. The
+  node matched the standard library's OpenAI model in the high tier, at 0.9,
+  and was drafted as a new Component, `imported/ai-model/languagemodelcomponent`,
+  rather than a reference to it, because by default an import suggests and you choose.
+- **The first `warn` line** says how the flow reaches that model. The node
+  reads its key from the variable `OPENAI_API_KEY`, and its address from
+  `OPENAI_BASE_URL`, and the platform delivers both for the model connection, so
+  the flow needs no edit.
+- **The second `warn` line** is about the Manifest: no Recipe in the catalog
+  realizes the model Component the import has just drafted.
 - **The `info` line** is about the Release: the Langflow import drafts none, so
   you write it.
-- **The `made no choice` lines** say that no node became a Component of its own.
-  By default the draft runs the whole flow on the platform that runs Langflow,
-  and gives a Component of its own only to a node a socket of that platform
-  takes — a model, a tool, a vector store — where the node is recognised as one.
-  This flow's Language Model node was not, so it stays inside the flow, and the
-  draft wires no model to the platform.
+- **The `made no choice` lines** name the nodes no socket of the platform takes:
+  they stay inside the flow, which Langflow runs as exported.
 
 ## What it wrote
 
 `aggregate.yaml` — one instance of the standard library's Langflow platform,
 `core/ai-agent/langflow`, carrying the flow as it was exported, more than a
-thousand lines of it left out here:
+thousand lines of it left out here, and the model it reaches:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -104,8 +112,15 @@ spec:
     # Left for the Release, since the source cannot supply it:
     #   - infra.image, the container image running Langflow
     #   - the admin_password slot, the administrator's password, while values.require_authentication stays true
+    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     langflow:
       type: core/ai-agent/langflow
+      # For the compose target only, uncomment the lines below, which declare admin_password on langflow: the compose Recipe reads every secret the Release alone attaches under the key value, so the administrator's password and a connection's credential would both arrive under it and halt the build; the Release still attaches admin_password, naming this type or none.
+      # features:
+      #   admin_password:
+      #     type: core/secret-value
+      #     values:
+      #       key: LANGFLOW_SUPERUSER_PASSWORD
       values:
         flow_id: '0dbee653-41ae-4e51-af2e-55757fb24be3'
         flow_definition: |-
@@ -114,10 +129,22 @@ spec:
               "edges": [
           [… omitted: the rest of the flow, as exported]
           }
+      uses:
+        model:
+          languagemodelcomponent-kboja:
+            target: languagemodelcomponent-kboja
+    # resembles core/ai-model/openai (score 0.9000); reference it by setting type: core/ai-model/openai
+    languagemodelcomponent-kboja:
+      type: imported/ai-model/languagemodelcomponent
 ```
 
-`flow_id` is the identifier the export gives the flow. The comment above the
-instance names what the flow cannot supply.
+`flow_id` is the identifier the export gives the flow. The comments above and
+inside the instance name what the flow cannot supply, and the comment above the
+model says which Component of the catalog it resembles.
+
+`components/imported-ai-model-languagemodelcomponent.yaml` is the drafted
+model: a Component no Recipe realizes, declaring the node's fields as the values
+it takes and its key as a credential slot, `api_key`.
 
 `manifest.yaml` — the platform's one Compose Recipe:
 
@@ -141,7 +168,7 @@ spec:
 ## Review
 
 The review starts by writing the Release the import did not: an environment,
-and the image the comment asks for.
+the image the comment asks for, and an entry for each of the two instances.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -157,47 +184,44 @@ spec:
     langflow:
       infra:
         image: langflowai/langflow:1.6.0
+    languagemodelcomponent-kboja: {}
 ```
 
-Validated with that Release, the drafted Aggregate is refused for the model it
-does not wire:
+Validated with that Release, the drafted model Component is the first refusal:
 
 ```bash
 aggrega validate --release release.yaml
 ```
 
 ```text
-  [CATALOG_ERROR E0163] .spec.components.langflow.uses.model
-    required uses socket not populated (Component, at .spec.components.langflow.uses.model, "model", declared required by component type "core/ai-agent/langflow")
-release dependency validation failed: 1 diagnostic(s)
+[E0114]
+  resolve: no entity in the catalog matches this URI: entity "imported/ai-model/languagemodelcomponent" (referenced from aggregate.spec.components.languagemodelcomponent-kboja.type)
+  note: local entities are read from `catalog/` at the workspace root and from every directory .aggrega-config.yaml lists under `workspace.catalog_dirs`. The workspace root itself holds 3 documents declaring an entity kind, and the root is read only while it is listed there. Put the entity under `catalog/`, or list the directory holding it under `workspace.catalog_dirs`.
 ```
 
-The review changes:
+The drafted Component sits in `components/`, which the workspace's catalog does
+not read, and no Recipe realizes it. The comment above the model says what to do
+instead, and the review changes:
 
-- **Wire the model.** The Aggregate gains a `model` instance of
-  `core/ai-model/openai`, naming the model the flow names, `gpt-4.1`, and a
-  connection from the platform's `model` socket to it. The platform delivers
-  that connection to Langflow as `OPENAI_BASE_URL` and `OPENAI_API_KEY`, and the
-  Language Model node already reads its key from `OPENAI_API_KEY`, so the flow
-  needs no edit.
+- **Reference the Component the hint names.** The model becomes
+  `core/ai-model/openai`, naming the model the flow names, `gpt-4.1`, and
+  `components/` is deleted. The connection the draft wired from the platform's
+  `model` socket stays as it is.
 - **Present the OpenAI key on that connection.** The Release attaches it to the
   connection as a `core/secret-value` reading `${OPENAI_API_KEY}`, which Docker
   Compose fills from your shell, so no file carries the key.
 - **Attach the administrator's password.** Signing in to Langflow's editor is
   required by default, and the build halts while no password is attached,
   saying so: "the Langflow editor needs an administrator password to sign in
-  with and none is attached". On Compose, the platform's Recipe reads every
-  secret the Release alone attaches under one key, so a password attached there
-  beside the connection's key would arrive under the same name and halt the
-  build. The
-  review declares the password in the Aggregate instead, with a key of its own,
-  `LANGFLOW_SUPERUSER_PASSWORD`, read from `${LANGFLOW_ADMIN_PASSWORD}`.
+  with and none is attached". The draft's comment inside the instance says how
+  on Compose: the review uncomments the lines declaring the password with a key
+  of its own, `LANGFLOW_SUPERUSER_PASSWORD`, and the Release attaches it,
+  reading `${LANGFLOW_ADMIN_PASSWORD}`.
 - **Map the Manifest.** The model maps to its Compose Recipe, and the two
   secrets to the realization that writes their variable reference into the
   Compose file as written.
 
-The reviewed `aggregate.yaml` is the draft with three additions, the flow left
-out here as above:
+The reviewed `aggregate.yaml`, the flow left out here as above:
 
 <!-- quotes: reviewed/aggregate.yaml -->
 ```yaml
@@ -213,32 +237,30 @@ spec:
     # Left for the Release, since the source cannot supply it:
     #   - infra.image, the container image running Langflow
     #   - the admin_password slot, the administrator's password, while values.require_authentication stays true
+    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     langflow:
       type: core/ai-agent/langflow
-      # Reviewed: the administrator's password, under the variable Langflow
-      # reads it from. Docker Compose fills it from your shell when the stack
-      # starts, so no file carries the password.
+      # Reviewed: the lines the draft left commented for the compose target,
+      # declaring the administrator's password under the variable Langflow
+      # reads it from. The Release attaches it.
       features:
         admin_password:
           type: core/secret-value
           values:
             key: LANGFLOW_SUPERUSER_PASSWORD
-            origin: "${LANGFLOW_ADMIN_PASSWORD}"
       values:
         flow_id: '0dbee653-41ae-4e51-af2e-55757fb24be3'
         flow_definition: |-
           {
           [… omitted: the flow, as exported]
           }
-      # Reviewed: the model the flow's Language Model node calls, wired to the
-      # platform's model socket, which delivers its address and key to Langflow
-      # as OPENAI_BASE_URL and OPENAI_API_KEY.
       uses:
         model:
-          model:
-            target: model
-    # Reviewed: the model the flow names, gpt-4.1, on OpenAI.
-    model:
+          languagemodelcomponent-kboja:
+            target: languagemodelcomponent-kboja
+    # Reviewed: the standard library's OpenAI model, as the hint suggested,
+    # with the model the flow names, gpt-4.1.
+    languagemodelcomponent-kboja:
       type: core/ai-model/openai
       values:
         model: gpt-4.1
@@ -263,17 +285,22 @@ spec:
       infra:
         # The image running Langflow, at the version the flow was exported from.
         image: langflowai/langflow:1.6.0
-      # The OpenAI key the platform presents to the model, read from your shell
-      # when the stack starts, so no file carries it.
+      # The administrator's password, read from your shell when the stack
+      # starts, so no file carries it.
+      features:
+        admin_password:
+          infra:
+            origin: "${LANGFLOW_ADMIN_PASSWORD}"
+      # The OpenAI key the platform presents to the model, read the same way.
       uses:
         model:
-          model:
+          languagemodelcomponent-kboja:
             features:
               credential:
                 type: core/secret-value
                 infra:
                   origin: "${OPENAI_API_KEY}"
-    model: {}
+    languagemodelcomponent-kboja: {}
 ```
 
 The reviewed `manifest.yaml`:
@@ -291,7 +318,7 @@ spec:
     components:
       type:
         core/ai-agent/langflow: compose/langflow
-        # Reviewed: the Compose Recipe of the model the review added.
+        # Reviewed: the Compose Recipe of the model type the review chose.
         core/ai-model/openai: compose/openai
     # Reviewed: the realization that writes a secret's variable reference into
     # the Compose file as written.

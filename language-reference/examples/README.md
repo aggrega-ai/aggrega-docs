@@ -62,6 +62,10 @@ choose the binary. A copy written by `aggrega scaffold --example` carries the
 helper without the shared script it calls, so build such a copy with
 `aggrega build` directly.
 
+Where an example here names a checkout of the standard-library catalog,
+[Import](../../authoring/import/README.md#how-an-import-runs) says where to get
+one.
+
 These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
 inline; the workspaces here are whole stacks you can build, read, and adapt.

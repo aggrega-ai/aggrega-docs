@@ -12,4 +12,4 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec "$HERE/../../../scripts/check-import-example.sh" --example "$HERE" \
-  --page "$HERE/../../../authoring/import/crewai.md" "$@" -- src/support_brief --target helm
+  --page "$HERE/../../../authoring/import/crewai.md" "$@" -- src/support_brief --target compose

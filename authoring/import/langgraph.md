@@ -2,7 +2,7 @@
 
 This walkthrough imports the configuration of a LangGraph application — one
 graph answering customers' questions about their orders — reviews what the
-import drafts, and builds the application for Kubernetes. Every file and every
+import drafts, and builds the application for Docker Compose. Every file and every
 block of output below comes from a real run; the configuration and each stage
 of the walkthrough are in the
 [import-langgraph](../../language-reference/examples/import-langgraph/README.md)
@@ -50,7 +50,8 @@ default_registry: hub.aggrega.ai
 
 The import references the catalog's LangGraph agent and PostgreSQL Components,
 and `--target` drafts a Manifest from its Recipes, so name a checkout of the
-standard-library catalog, by its absolute path:
+standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -63,7 +64,7 @@ other file of it:
 
 <!-- quotes: import-command -->
 ```bash
-aggrega import . --target helm
+aggrega import . --target compose
 ```
 
 On standard output it lists what it wrote:
@@ -82,13 +83,10 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the langgraph format, with drafted paths relative to <workspace>
-warn: the drafted Manifest leaves the component type "core/datastore/postgres" unmapped: the workspace's catalog holds more than one Recipe binding to the target "helm" that implements it ("helm/postgres-cloudnative-pg", "helm/postgres-external", "helm/postgres"), and the import does not choose between them, so a build of the drafts halts naming each instance of it until the one wanted is mapped
 mapped support (graph) to core/ai-agent/langgraph as a reference, NONE
 mapped checkpointer (checkpointer) to core/datastore/postgres as a reference, NONE
 ```
 
-- **The `warn` line** is about the Manifest: the catalog has three ways to run
-  PostgreSQL on Kubernetes, and the import leaves the choice to you.
 - **The `mapped` lines** say that the graph is an instance of the standard
   library's LangGraph agent, `core/ai-agent/langgraph`, and that its
   checkpointer, where LangGraph keeps each graph's state, is an instance of
@@ -137,7 +135,7 @@ is not written, so the Component's default, 25, stands. The model is left to
 you: a LangGraph configuration names none, since the graph's code chooses it.
 
 `release.yaml` — an entry for the graph, with what no configuration states
-named in a comment above it:
+named in a comment above it, and an entry placing the database beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -156,10 +154,11 @@ spec:
     #   - infra.image, the container image running the application, which langgraph build builds from its configuration
     support:
       infra: {}
+    postgres:
+      infra: {}
 ```
 
-`manifest.yaml` — the one Helm Recipe the catalog offers for the agent, and
-none for the database:
+`manifest.yaml` — the one Compose Recipe the catalog offers for each type:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -172,7 +171,8 @@ spec:
   mappings:
     components:
       type:
-        core/ai-agent/langgraph: helm/langgraph
+        core/ai-agent/langgraph: compose/langgraph
+        core/datastore/postgres: compose/postgres
 ```
 
 `.aggrega-import.json` is the record of what the import wrote, which a later
@@ -191,17 +191,8 @@ aggrega validate --release release.yaml
   document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
 ```
 
-With the environment set, the next refusal is the database, which the drafted
-Release does not place:
-
-```text
-  [OPS_ERROR E0260] .spec.components.postgres
-    component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release imported/flow, at .spec.components.postgres, "postgres")
-release dependency validation failed: 1 diagnostic(s)
-```
-
-and, with the database placed, the model the comment above the graph asked
-for:
+With the environment set, the next refusal is the model the comment above the
+graph asked for:
 
 ```text
   [CATALOG_ERROR E0163] .spec.components.support.uses.model
@@ -216,24 +207,20 @@ Manifest:
   `gpt-4o-mini` here, so the Aggregate gains an instance of
   `core/ai-model/openai` serving it, and the graph's `model` connection to it.
 - **Set the environment**, `development`.
-- **Place the database and the model** beside the graph: `postgres` and
-  `gpt-4o-mini`.
+- **Place the model the review added** beside the graph: `gpt-4o-mini`.
 - **Name the image** `langgraph build` built from the application,
   `ghcr.io/example/support-agent:1.0.0` here.
 - **Present the OpenAI key on the graph's model connection**: a
-  `core/referenced-secret` naming the Kubernetes Secret that holds the key,
-  `openai-api-key`, under the data key `value`.
-- **Give the database its password** the same way, from the Secret
-  `postgres-password`. Without it, the PostgreSQL Recipe writes a default
-  password into the rendered StatefulSet.
-- **Map the Manifest.** `core/datastore/postgres` maps to `helm/postgres`,
-  which runs PostgreSQL in the cluster with no controller to install first; of
-  the other two, one hands it to a CloudNativePG control plane already running
-  in the cluster, and one reaches a server that already exists outside it.
-  `core/ai-model/openai` maps to `helm/openai`, and
-  `core/referenced-secret` to `helm/k8s-existing-secret`, which reads each value
-  from its Secret, so neither the key nor the password is written into a
-  rendered file.
+  `core/secret-value` whose `origin` is the Compose variable reference
+  `${OPENAI_API_KEY}`.
+- **Give the database its password** the same way, from `${POSTGRES_PASSWORD}`.
+  Without it, the PostgreSQL Recipe writes a default password into the rendered
+  Compose file.
+- **Map the Manifest.** `core/ai-model/openai`, the model the review added, maps
+  to `compose/openai`, and `core/secret-value` to `compose/dotenv-secret`,
+  which writes each reference into the Compose file as written, so Docker
+  Compose fills it from your shell when the stack starts and neither the key
+  nor the password is written into a file.
 
 The reviewed `aggregate.yaml`:
 
@@ -299,25 +286,25 @@ spec:
       # Reviewed: the image langgraph build built from the application.
       infra:
         image: ghcr.io/example/support-agent:1.0.0
-      # Reviewed: the OpenAI key the graph presents to the model, read from the
-      # Secret openai-api-key, under the data key value, so no file carries it.
+      # Reviewed: the OpenAI key the graph presents to the model, read from
+      # your shell when the stack starts, so no file carries it.
       uses:
         model:
           gpt-4o-mini:
             features:
               credential:
-                type: core/referenced-secret
+                type: core/secret-value
                 infra:
-                  origin: openai-api-key
-    # Reviewed: the database, its password read from the Secret
-    # postgres-password, under the data key value, so no file carries it.
+                  origin: "${OPENAI_API_KEY}"
     postgres:
+      infra: {}
+      # Reviewed: the database's password, read from your shell the same way.
       features:
         password:
-          type: core/referenced-secret
+          type: core/secret-value
           infra:
-            origin: postgres-password
-    # Reviewed: the model the graph reaches, placed with it.
+            origin: "${POSTGRES_PASSWORD}"
+    # Reviewed: the model the review added, placed with the graph.
     gpt-4o-mini: {}
 ```
 
@@ -335,16 +322,15 @@ spec:
   mappings:
     components:
       type:
-        core/ai-agent/langgraph: helm/langgraph
-        # Reviewed: PostgreSQL run in the cluster, with no controller to install.
-        core/datastore/postgres: helm/postgres
-        # Reviewed: the Helm Recipe of the model the review added.
-        core/ai-model/openai: helm/openai
-    # Reviewed: each key is read from a Secret already in the namespace, so it
-    # is written into no rendered file.
+        core/ai-agent/langgraph: compose/langgraph
+        core/datastore/postgres: compose/postgres
+        # Reviewed: the Compose Recipe of the model the review added.
+        core/ai-model/openai: compose/openai
+    # Reviewed: the realization that writes a secret's variable reference into
+    # the Compose file as written.
     features:
       type:
-        core/referenced-secret: helm/k8s-existing-secret
+        core/secret-value: compose/dotenv-secret
 ```
 
 ## Validate and build
@@ -357,7 +343,7 @@ aggrega build --release release.yaml --auto-pull
 The validation prints:
 
 ```text
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
@@ -366,58 +352,49 @@ files:
 
 ```text
 Pull complete: release.lock (entities=9, source_artifacts=0, external_inputs=0)
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+  notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
-Build completed: 5 files written to <workspace>/dist
+Build completed: 1 files written to <workspace>/dist
 ```
 
 The `notice` line is advisory: the secret Feature accepts its `origin` from the
 Aggregate's `values` or the Release's `infra`, and the notice reports that one
 leaf is declared in both. It changes no verdict.
 
-The build writes, under `dist/helm/`, a Deployment for the graph, a StatefulSet
-and two Services for the database, and a Service for the model. The graph's
-container, in `support-deployment.yaml`:
+The build writes `dist/compose/docker-compose.yaml`, with a service for the
+graph and one for the database. The graph's service:
 
 ```yaml
-      containers:
-        - name: main
-          image: ghcr.io/example/support-agent:1.0.0
-          env:
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openai-api-key
-                  key: value
-            - name: OPENAI_BASE_URL
-              value: https://api.openai.com/v1
-            - name: OPENAI_MODEL
-              value: gpt-4o-mini
-            - name: LANGGRAPH_CHECKPOINTER_HOST
-              value: postgres-default
-            - name: LANGGRAPH_CHECKPOINTER_PORT
-              value: "5432"
+  support:
+    image: ghcr.io/example/support-agent:1.0.0
+    environment:
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      OPENAI_MODEL: gpt-4o-mini
+      LANGGRAPH_CHECKPOINTER_HOST: postgres
+      LANGGRAPH_CHECKPOINTER_PORT: "5432"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
+    networks:
+      - compose
+    depends_on:
+      - postgres
 ```
 
 The graph receives the model's address, its name and its key, and the
 database's host and port, under the names the LangGraph Component delivers by
 default; an `inject:` block on a connection delivers them under the names your
-code reads instead. The database's own container, in
-`postgres-statefulset.yaml`, reads its password from the Secret:
+code reads instead. The database's own service reads its password the same
+way:
 
 ```yaml
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-password
-                  key: value
-            - name: POSTGRES_USER
-              value: appuser
-            - name: POSTGRES_DB
-              value: appdb
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: appdb
 ```
 
-Before applying the manifests, create the Secrets `openai-api-key` and
-`postgres-password`, each holding its value under `value`, in the namespace you
-deploy to, and push the image the Release names.
+The key and the password are variable references, filled from your shell when
+the stack starts. The model gets no service of its own: the graph reaches the
+OpenAI API at its own address.

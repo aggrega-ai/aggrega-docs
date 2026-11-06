@@ -20,16 +20,15 @@ spec:
       infra:
         image: ghcr.io/example/support-brief:1.0.0
       # Reviewed: the OpenAI key this agent presents to the model, read from
-      # the Secret openai-api-key, under the data key value, so no file
-      # carries it.
+      # your shell when the stack starts, so no file carries it.
       uses:
         model:
           gpt-4o-mini:
             features:
               credential:
-                type: core/referenced-secret
+                type: core/secret-value
                 infra:
-                  origin: openai-api-key
+                  origin: "${OPENAI_API_KEY}"
     # Left for the Release, since no declaration states it:
     #   - infra.image, the container image running the crew's program
     #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
@@ -39,15 +38,14 @@ spec:
       infra:
         image: ghcr.io/example/support-brief:1.0.0
       # Reviewed: the OpenAI key this agent presents to the model, read from
-      # the Secret openai-api-key, under the data key value, so no file
-      # carries it.
+      # your shell when the stack starts, so no file carries it.
       uses:
         model:
           gpt-4o-mini:
             features:
               credential:
-                type: core/referenced-secret
+                type: core/secret-value
                 infra:
-                  origin: openai-api-key
-    # Reviewed: the model both agents reach, placed with them.
-    gpt-4o-mini: {}
+                  origin: "${OPENAI_API_KEY}"
+    gpt-4o-mini:
+      infra: {}

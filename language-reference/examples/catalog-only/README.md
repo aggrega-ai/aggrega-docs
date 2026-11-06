@@ -72,8 +72,9 @@ aggrega build --release release.yaml
 
 The pull resolves every referenced entity and pins it in `release.lock`
 (identity + content digest; run it again to regenerate a stale lockfile).
-With a checkout of the standard-library catalog, name its `aggrega-catalog`
-directory with `--catalog` on both commands to read the entities from there.
+With a checkout of the standard-library catalog
+([where to get one](../../../authoring/import/README.md#how-an-import-runs)), name its
+`aggrega-catalog` directory with `--catalog` on both commands to read the entities from there.
 The build reads that lockfile — without it, the build halts and names the two ways forward, the pull or `--auto-pull`
 — and renders `dist/compose/docker-compose.yaml`. The Release authors its components
 directly (no `boundaries:` block), so the compiler folds them into the

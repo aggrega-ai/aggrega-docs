@@ -8,7 +8,7 @@ The Aggrega compiler relies on a strictly typed, OAM-inspired registry to resolv
 
 ### 1. Core Directory Structure (The Catalog)
 
-An official `aggrega-catalog` repository (and any compliant third-party catalog) is organized to physically enforce the Separation of Concerns. The structure explicitly separates abstract interfaces from their concrete infrastructure implementations.
+The standard library's `aggrega-catalog` folder (and any compliant third-party catalog) is organized to physically enforce the Separation of Concerns. The structure explicitly separates abstract interfaces from their concrete infrastructure implementations.
 
 For Components and Features, URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{publisher}/{category}/{name}`) where the category segment carries one of a closed set of cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{publisher}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
 

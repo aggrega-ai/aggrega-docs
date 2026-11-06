@@ -10,17 +10,17 @@ spec:
     # Left for the Release, since the source cannot supply it:
     #   - infra.image, the container image running Langflow
     #   - the admin_password slot, the administrator's password, while values.require_authentication stays true
+    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     langflow:
       type: core/ai-agent/langflow
-      # Reviewed: the administrator's password, under the variable Langflow
-      # reads it from. Docker Compose fills it from your shell when the stack
-      # starts, so no file carries the password.
+      # Reviewed: the lines the draft left commented for the compose target,
+      # declaring the administrator's password under the variable Langflow
+      # reads it from. The Release attaches it.
       features:
         admin_password:
           type: core/secret-value
           values:
             key: LANGFLOW_SUPERUSER_PASSWORD
-            origin: "${LANGFLOW_ADMIN_PASSWORD}"
       values:
         flow_id: '0dbee653-41ae-4e51-af2e-55757fb24be3'
         flow_definition: |-
@@ -1075,15 +1075,13 @@ spec:
               "chatbots"
             ]
           }
-      # Reviewed: the model the flow's Language Model node calls, wired to the
-      # platform's model socket, which delivers its address and key to Langflow
-      # as OPENAI_BASE_URL and OPENAI_API_KEY.
       uses:
         model:
-          model:
-            target: model
-    # Reviewed: the model the flow names, gpt-4.1, on OpenAI.
-    model:
+          languagemodelcomponent-kboja:
+            target: languagemodelcomponent-kboja
+    # Reviewed: the standard library's OpenAI model, as the hint suggested,
+    # with the model the flow names, gpt-4.1.
+    languagemodelcomponent-kboja:
       type: core/ai-model/openai
       values:
         model: gpt-4.1

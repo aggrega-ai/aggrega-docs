@@ -117,9 +117,9 @@ aggrega build --release release-negative-stale-omits.yaml --auto-pull           
 `.aggrega-config.yaml` lists the workspace's own `catalog/`, which holds the
 two teaching Recipes; the Component and the standard-library Recipe resolve
 from `hub.aggrega.ai`, the default registry it names. With a checkout of the
-standard-library catalog, name its `aggrega-catalog` directory with `--catalog`
-and every entity resolves from those two directories, with no registry
-credential needed.
+standard-library catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)), name its
+`aggrega-catalog` directory with `--catalog` and every entity resolves from
+those two directories.
 
 `--auto-pull` fills each Release's lockfile during the build; lockfiles and the
 rendered output are generated, not shipped. Resolving a lockfile fetches the

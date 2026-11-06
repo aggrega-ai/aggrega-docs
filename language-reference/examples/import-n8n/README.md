@@ -26,5 +26,7 @@ exports a workflow.
 
 In a checkout of the documentation repository, `check.sh` runs the import
 again, compares what it writes and prints with `draft/`, compares the blocks
-the walkthrough quotes with these files, and builds `reviewed/`. It needs the standard-library catalog checked out beside this
-repository, or its directory named in `AGGREGA_CATALOG_DIRS`.
+the walkthrough quotes with these files, and builds `reviewed/`. It needs the standard-library catalog
+([where to get one](../../../authoring/import/README.md#how-an-import-runs))
+checked out beside this repository, or its directory named in
+`AGGREGA_CATALOG_DIRS`.

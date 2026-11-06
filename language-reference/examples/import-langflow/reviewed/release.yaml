@@ -13,14 +13,19 @@ spec:
       infra:
         # The image running Langflow, at the version the flow was exported from.
         image: langflowai/langflow:1.6.0
-      # The OpenAI key the platform presents to the model, read from your shell
-      # when the stack starts, so no file carries it.
+      # The administrator's password, read from your shell when the stack
+      # starts, so no file carries it.
+      features:
+        admin_password:
+          infra:
+            origin: "${LANGFLOW_ADMIN_PASSWORD}"
+      # The OpenAI key the platform presents to the model, read the same way.
       uses:
         model:
-          model:
+          languagemodelcomponent-kboja:
             features:
               credential:
                 type: core/secret-value
                 infra:
                   origin: "${OPENAI_API_KEY}"
-    model: {}
+    languagemodelcomponent-kboja: {}

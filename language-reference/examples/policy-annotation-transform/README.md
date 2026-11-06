@@ -358,8 +358,8 @@ aggrega build --release release-by-hand.yaml --auto-pull
 **The standard-library catalog supplies every Component, Feature, Recipe and
 FeatureRecipe here, and both engines' Plugin entities.** They resolve from
 `hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names. With a
-checkout of the catalog named with `--catalog`, nothing is fetched from a
-registry, so the builds run offline and need no login. `--auto-pull` fills
+checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`, nothing is fetched from a
+registry, so the builds run offline. `--auto-pull` fills
 each Release's lockfile during the build. Lockfiles and the rendered output are
 generated, not shipped.
 

@@ -58,7 +58,8 @@ default_registry: hub.aggrega.ai
 ```
 
 `--target` drafts a Manifest from the catalog's Recipes, so name a checkout of
-the standard-library catalog, by its absolute path:
+the standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog

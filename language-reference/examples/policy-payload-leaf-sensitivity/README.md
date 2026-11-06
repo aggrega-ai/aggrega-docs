@@ -340,7 +340,7 @@ catch mechanically.
 Every entity this workspace consumes comes from the published standard-library
 catalog: the Component, the two Features, the Recipe, the two FeatureRecipes and
 the governance Plugin entity — read from the hub registry `.aggrega-config.yaml`
-names, or from a checkout of the catalog named with `--catalog`.
+names, or from a checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`.
 
 `uri: governance/rego:0.8.6` names that Plugin entity. It is an identity: a
 `<pluginType>/<name>` coordinate plus a version, and both halves are part of the

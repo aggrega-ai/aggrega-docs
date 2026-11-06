@@ -111,6 +111,16 @@ not supply.
    suggested as `core/datastore/postgres`, and `--target` can draft a Manifest
    from the catalog's Recipes. With no catalog, the import has nothing to
    suggest, and `--target` is refused, since no Recipe binds to the target.
+
+   The standard-library catalog is the `aggrega-catalog` folder of the
+   `aggrega-hub` repository, <https://github.com/aggrega-ai/aggrega-hub>. Clone
+   the repository and name that folder by its absolute path:
+
+   ```bash
+   git clone https://github.com/aggrega-ai/aggrega-hub.git
+   export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
+   ```
+
 3. **Run the import.** Name the file or the directory:
 
    ```bash
@@ -147,10 +157,9 @@ for each format in the table below, are published with every compiler release an
 workspace, with no entry in your catalog. The first import that needs one
 fetches it from the workspace's default registry, at the compiler's own
 version, verifies it and keeps it in the workspace's content cache, so every
-later import reads it from there and reaches no network. Where the registry
-asks for credentials, the import stops and names `aggrega login`. Where the
-module cannot be fetched at all — the workspace is offline, say — the import
-stops and names the two ways to put it on the machine.
+later import reads it from there and reaches no network. Where the module
+cannot be fetched at all — the workspace is offline, say — the import stops and
+names the two ways to put it on the machine.
 [Core importers](../../language-reference/plugins/core-importers.md) describes
 each importer in full, and the settings an importer is given through a
 `plugins.importer` entry.

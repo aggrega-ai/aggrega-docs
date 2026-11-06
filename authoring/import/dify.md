@@ -41,7 +41,8 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
-Name a checkout of the standard-library catalog, by its absolute path, for the
+Name a checkout of the standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path, for the
 import and the build to read:
 
 ```bash

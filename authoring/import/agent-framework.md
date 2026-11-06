@@ -67,7 +67,8 @@ default_registry: hub.aggrega.ai
 
 The import references the catalog's Agent Framework agent, OpenAI model and MCP
 server Components, and `--target` drafts a Manifest from its Recipes, so name a
-checkout of the standard-library catalog, by its absolute path:
+checkout of the standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
+path:
 
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
@@ -167,7 +168,8 @@ approval mode and the tools of it the agent may call stay in the declarative
 agent, which the application reads; the comments name each.
 
 `release.yaml` — an entry for the agent, with what the declarative agent does
-not state named in a comment above it, and the MCP server's address:
+not state named in a comment above it, an entry placing the model beside it,
+and the MCP server's address:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -188,6 +190,8 @@ spec:
     # The declarative agent also states these values for its connections, which the application reads from it, written here for review:
     #   - model.connection.key, read from the environment variable OPENAI_API_KEY
     supportagent:
+      infra: {}
+    gpt-4-1-mini:
       infra: {}
     microsoft-learn:
       infra:
@@ -230,17 +234,8 @@ aggrega validate --release release.yaml
   document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
 ```
 
-With the environment set, the next refusal is the model, which the drafted
-Release does not place:
-
-```text
-  [OPS_ERROR E0260] .spec.components.gpt-4-1-mini
-    component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release imported/flow, at .spec.components.gpt-4-1-mini, "gpt-4-1-mini")
-release dependency validation failed: 1 diagnostic(s)
-```
-
-and, with the model placed, the MCP server, whose Recipe the Manifest does not
-choose, beside the image the Release does not name:
+With the environment set, the next refusals are the MCP server, whose Recipe the
+Manifest does not choose, and the image the Release does not name:
 
 ```text
   [OPS_ERROR E0099] .spec.components.microsoft-learn
@@ -252,7 +247,6 @@ release dependency validation failed: 2 diagnostic(s)
 The review changes the Release, and adds two mappings to the Manifest:
 
 - **Set the environment**, `development`.
-- **Place the model** beside the agent: `gpt-4-1-mini: {}`.
 - **Name the image** running the application, which you build from the project
   with the declarative agent inside, `ghcr.io/example/support-agent:1.0.0` here.
   The catalog holds no default image for an application built on Agent
@@ -310,11 +304,11 @@ spec:
                 type: core/secret-value
                 infra:
                   origin: "${OPENAI_API_KEY}"
+    gpt-4-1-mini:
+      infra: {}
     microsoft-learn:
       infra:
         endpoint: "https://learn.microsoft.com/api/mcp"
-    # Reviewed: the model the agent reaches, placed with it.
-    gpt-4-1-mini: {}
 ```
 
 The reviewed `manifest.yaml`:

@@ -89,14 +89,8 @@
 #     the binary's version;
 #   - otherwise none, and the binary fetches its importer.
 #
-# On the catalog-folder route the import reads a copy of the standard catalog
-# without its importer entities. Such a binary's version is a pre-release, which
-# the importer selection passes over for a released importer entity the catalog
-# records, and the module of a selected catalog entity is looked up by its name
-# alone, so the binary's own importer would not run. The copy is needed until a
-# development build selects, and loads, its own importer over a released
-# importer entity in the catalog; a released binary selects its own version and
-# needs none, so off that route the catalog is read as it is.
+# On the catalog-folder route the import reads that folder ahead of the standard
+# catalog, which is read as it is, its own importer entities included.
 #
 # Usage:
 #   check-import-example.sh --example DIR --page PAGE [--update] -- IMPORT ARGS...
@@ -178,14 +172,7 @@ printf 'check-import: catalog  = %s\n' "$STANDARD" >&2
 printf 'check-import: importer = %s\n' "${IMPORTERS:-fetched by the binary from its default registry}" >&2
 
 IMPORT_DIRS="$STANDARD"
-if [ -n "$IMPORTERS" ]; then
-  # The catalog-folder route: the standard catalog without its importer entities
-  # (see "The importer" above for why, and what retires it).
-  mkdir -p "$WORK/catalog"
-  cp -R "$STANDARD/." "$WORK/catalog/"
-  rm -rf "$WORK/catalog/plugin/importer"
-  IMPORT_DIRS="$IMPORTERS:$WORK/catalog"
-fi
+[ -z "$IMPORTERS" ] || IMPORT_DIRS="$IMPORTERS:$STANDARD"
 
 # --- steps 1 to 3: the import -------------------------------------------------------
 WS="$WORK/workspace"
