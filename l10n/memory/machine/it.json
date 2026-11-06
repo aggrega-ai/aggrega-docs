@@ -22010,6 +22010,13 @@
     "status": "machine",
     "text": "**Chiudere la connessione annulla la chiamata che trasportava.** È il segnale di annullamento di questo trasporto: il server tratta la disconnessione di un chiamante come annullamento di quella richiesta, interrompe il lavoro che stava facendo e non scrive più nulla per essa. Qui non serve né ci si aspetta alcun messaggio di annullamento — l’opposto di standard input e output, dove non c’è uno stream per richiesta da chiudere e un client termina una chiamata indicandone invece l’id. Un messaggio di annullamento che arriva comunque via HTTP viene accettato e non termina nulla."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Un modello Langflow che nomina un altro provider non riceve alcuna connessione del modello.** Un nodo `LanguageModelComponent` o `EmbeddingModel` gira sul provider di modelli che il suo campo `provider` nomina oppure, dove questo è vuoto, sul provider del modello che il suo campo `model` seleziona. La piattaforma fornisce la propria connessione del modello per un client compatibile con OpenAI, quindi un nodo che nomina un provider diverso da `OpenAI` — qualunque cosa vi mappino una riga di mappatura o un override — non viene mai collegato al socket `model`: viene collegato al socket successivo che il suo Component soddisfa, oppure resta nel flusso, con la sua decisione che non sceglie nulla e senza alcun Component generato in bozza per esso, e l’importazione lo segnala indicando il provider su cui gira. Un nodo che non seleziona alcun provider, che lo nomina tramite una variabile globale o che prende il proprio modello da un altro nodo viene collegato come qualsiasi altra parte."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-11-03T12:45:16.288Z",
     "job": "session-0106-20261103124516",
@@ -48466,6 +48473,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Ambito.** Come per la chiave dei chiamanti: si applica a una FeatureRecipe che viene renderizzata una volta per componente. Una FeatureRecipe che dichiara `executionScope: boundary` viene renderizzata dove lo è sempre, che imposti o meno la chiave, e le connessioni che legge sotto `.boundary` non portano fatti di render."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Queste regole lo restringono:"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -133260,6 +133278,17 @@
     "status": "machine",
     "text": "Le famiglie `core/secret-value` e `core/referenced-secret` del catalogo stesso includono forme che accettano direttamente un valore. Esistono perché i deployment reali hanno bisogno di un percorso per lo sviluppo locale, e lo dichiarano apertamente: gli esempi distribuiti usano segnaposto evidenti (`dev-root-pw-change-me`) proprio perché il materiale in un esempio renderizzato non sia visibilmente una credenziale reale. Per un deployment che non deve portare materiale, collega una Feature di credenziale basata su uno store la cui FeatureRecipe emette una risorsa di recupero (un `ExternalSecret`, una risorsa personalizzata di recupero da vault, un riferimento a un secret nativo del provider) anziché una che emette dati."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Ogni nodo viene valutato rispetto ai Components del catalogo del workspace stesso e a nient’altro, come descrive il [socket importatore](plugin-contract.md#the-importer-socket--draft-authoring-output), e ogni importatore porta con sé una breve tabella che mappa i tipi di nodo comuni del suo formato — modelli di chat e di embedding, retrieval, richieste HTTP e, su Langflow, il nodo MCP Tools `MCPTools`, che è mappato su `core/ai-tool/mcp` — su Components della libreria standard. La tabella di Langflow mappa inoltre il suo componente Language Model, `LanguageModelComponent`, il modello di chat che i suoi flussi iniziali chiamano, su `core/ai-model/openai`, il modello servito dalla connessione del modello della piattaforma Langflow: il nodo gira sul provider di modelli che il suo campo `provider` nomina, OpenAI per impostazione predefinita, e un nodo che nomina un altro provider non viene mai collegato a quella connessione, come descrive [Quali nodi diventano parti](#which-nodes-become-parts-and-where-each-is-wired). La tabella dell’importatore n8n mappa i modelli di chat e di embedding di n8n, il suo strumento client MCP su `core/ai-tool/mcp`, i suoi strumenti di richiesta HTTP, il suo strumento SerpApi, i suoi vector store Qdrant, PGVector, Chroma, Milvus e Weaviate, e le sue memorie di chat Postgres e Redis. Un nodo che n8n esegue all’interno del workflow stesso — un agente, una chain, un trigger, una memoria che il workflow conserva nel proprio processo, uno strumento di codice — appartiene al workflow, e nessuna riga lo mappa. Una riga di quella tabella conta ai fini di una corrispondenza solo dove il catalogo del workspace contiene il Component che nomina. Il comando riporta una riga per ogni nodo che ha mappato, indicando che cosa ha scelto, il livello di corrispondenza e il punteggio del candidato migliore, e una riga che recita `made no choice for <node id> (<node type>)` per un nodo a cui non dà alcun Component proprio. Un nodo che fa riferimento a un Component del catalogo, anziché essere generato in bozza, non ha un file proprio: l’Aggregate in bozza nomina il Component."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -140177,6 +140206,17 @@
     "status": "machine",
     "text": "Il campo `directory:` ha come valore predefinito `boundaries/` seguito dal percorso del confine (un identificatore stabile al momento della build, derivato dall’albero dei confini); una Release che elenca i propri componenti senza dichiarare confini li scrive senza alcun segmento di directory. Il campo `subDirectory:` ha come valore predefinito `{{ .capability }}`, così gli artefatti di ogni capacità finiscono in una propria sottocartella sotto la directory del confine — sia che venga omesso sia che venga scritto come `subDirectory: \"\"`, che si legge esattamente come uno omesso. Impostare `subDirectory: \".\"`, o scrivere un template che si valuta in una stringa vuota, appiattisce quel raggruppamento."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Un nodo `LanguageModelComponent` o `EmbeddingModel` gira su uno tra diversi provider di modelli — quello che il suo campo `provider` nomina oppure, dove questo è vuoto, il provider del modello che il suo campo `model` seleziona — e consegna la sua chiave a quel provider. La piattaforma fornisce la connessione del modello per un client compatibile con OpenAI, quindi un nodo di questo tipo viene scritto con le variabili solo dove gira su `OpenAI`. Uno che gira su un altro provider non viene mai collegato, come sopra; uno che non ne seleziona alcuno, che nomina il proprio provider tramite una variabile globale o che prende il proprio modello da un altro nodo viene scritto senza nessuna di esse, così la bozza non indirizza mai un altro provider verso la chiave della connessione. Dove nessun campo di un nodo di questo tipo fornisce l’indirizzo della sua API — un nodo `LanguageModelComponent` non ne contiene alcuno per OpenAI, e il campo `api_base` di un nodo `EmbeddingModel` può mancare, o essere vuoto dove non può nominare una variabile — il client OpenAI su cui gira prende `OPENAI_BASE_URL` dall’ambiente, quindi il nodo raggiunge comunque l’indirizzo che la piattaforma fornisce."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -143600,6 +143640,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — un’applicazione esportata da Dify, messa in bozza come l’installazione Dify assemblata dalla libreria standard che trasporta l’applicazione, con i modelli, gli strumenti e le knowledge base che nomina segnalati come configurati all’interno di Dify."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — un Aggregate in bozza chiamato `<target_namespace>/flow`, che compone i nodi del flusso: una voce per ciascuno, e ogni arco del flusso come connessione `uses` del nodo che alimenta, con il socket e l’alias chiamati entrambi come la chiave del nodo che la alimenta, così un nodo alimentato da più nodi dà a ogni connessione un alias proprio."
   },
   "f1c48acec4205b8e": {
     "at": "2026-11-04T05:31:23.845Z",

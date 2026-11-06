@@ -22012,6 +22012,13 @@
     "status": "machine",
     "text": "**Das Schließen der Verbindung bricht den Aufruf ab, den sie trug.** Das ist das Abbruchsignal dieses Transports: Der Server behandelt die Trennung durch einen Aufrufer als Abbruch dieser Anfrage, beendet die Arbeit, die er gerade erledigte, und schreibt nichts weiter dafür. Hier wird keine Abbruchnachricht benötigt oder erwartet — das Gegenteil von Standardeingabe und -ausgabe, wo es keinen Stream pro Anfrage zum Schließen gibt und ein Client einen Aufruf stattdessen durch Nennung seiner id beendet. Eine Abbruchnachricht, die über HTTP doch eintrifft, wird angenommen und beendet nichts."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Ein Langflow-Modell, das einen anderen Anbieter nennt, erhält keine Modellverbindung.** Ein Knoten vom Typ `LanguageModelComponent` oder `EmbeddingModel` läuft auf dem Modellanbieter, den sein Feld `provider` nennt, oder, wo dieses leer ist, auf dem Anbieter des Modells, das sein Feld `model` auswählt. Die Plattform liefert ihre Modellverbindung für einen OpenAI-kompatiblen Client, daher wird ein Knoten, der einen anderen Anbieter als `OpenAI` nennt — worauf auch immer eine Zuordnungszeile oder ein Override ihn abbildet —, nie an den Socket `model` angebunden: Er wird an den nächsten Socket angebunden, den seine Component erfüllt, oder bleibt im Flow, wobei seine Entscheidung nichts wählt und keine Component für ihn entworfen wird, und der Import meldet ihn unter Nennung des Anbieters, auf dem er läuft. Ein Knoten, der keinen Anbieter auswählt, ihn über eine globale Variable nennt oder sein Modell von einem anderen Knoten übernimmt, wird wie jeder andere Teil angebunden."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-11-03T12:45:16.288Z",
     "job": "session-0106-20261103124516",
@@ -48462,6 +48469,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Geltungsbereich.** Wie beim Schlüssel für die Aufrufer: Er gilt für ein FeatureRecipe, das einmal pro Komponente rendert. Ein FeatureRecipe, das `executionScope: boundary` deklariert, rendert dort, wo es immer rendert, ob es den Schlüssel setzt oder nicht, und die Verbindungen, die es unter `.boundary` liest, tragen keine Render-Fakten."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Diese Regeln schränken das ein:"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -133258,6 +133276,17 @@
     "status": "machine",
     "text": "Die katalogeigenen Familien `core/secret-value` und `core/referenced-secret` enthalten Formen, die einen Wert direkt annehmen. Sie existieren, weil reale Deployments einen Weg für die lokale Entwicklung brauchen, und sie sind darin ehrlich: Die mitgelieferten Beispiele verwenden offensichtliche Platzhalter (`dev-root-pw-change-me`), gerade damit das Material in einem gerenderten Beispiel sichtbar kein echtes Credential ist. Für ein Deployment, das kein Material tragen darf, hängen Sie ein store-gestütztes Credential-Feature an, dessen FeatureRecipe eine Abrufressource ausgibt (ein `ExternalSecret`, eine Vault-Abruf-Custom-Resource, eine provider-native Secret-Referenz) statt einer, die Daten ausgibt."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Jeder Knoten wird gegen die Components des eigenen Katalogs des Workspace bewertet und gegen nichts anderes, wie der [Importer-Socket](plugin-contract.md#the-importer-socket--draft-authoring-output) beschreibt, und jeder Importer bringt eine kurze Tabelle mit, die gängige Knotentypen seines Formats — Chat- und Embedding-Modelle, Retrieval, HTTP-Anfragen und, bei Langflow, den MCP-Tools-Knoten `MCPTools`, der auf `core/ai-tool/mcp` abgebildet wird — auf Components der Standardbibliothek abbildet. Die Tabelle von Langflow bildet außerdem dessen Language-Model-Komponente, `LanguageModelComponent`, das Chat-Modell, das die Starter-Flows von Langflow aufrufen, auf `core/ai-model/openai` ab, das Modell, das die Modellverbindung der Langflow-Plattform bedient: Der Knoten läuft auf dem Modellanbieter, den sein Feld `provider` nennt, standardmäßig OpenAI, und ein Knoten, der einen anderen Anbieter nennt, wird nie an diese Verbindung angebunden, wie [Welche Knoten zu Teilen werden](#which-nodes-become-parts-and-where-each-is-wired) beschreibt. Die Tabelle des n8n-Importers bildet die Chat- und Embedding-Modelle von n8n ab, sein MCP-Client-Werkzeug auf `core/ai-tool/mcp`, seine HTTP-Anfrage-Werkzeuge, sein SerpApi-Werkzeug, seine Vektorspeicher Qdrant, PGVector, Chroma, Milvus und Weaviate sowie seine Chat-Speicher Postgres und Redis. Ein Knoten, den n8n innerhalb des Workflows selbst ausführt — ein Agent, eine Chain, ein Trigger, ein Speicher, den der Workflow in seinem eigenen Prozess hält, ein Code-Werkzeug —, gehört dem Workflow, und keine Zeile bildet ihn ab. Eine Zeile dieser Tabelle zählt nur dann für eine Übereinstimmung, wenn der Katalog des Workspace die Component enthält, die sie nennt. Der Befehl meldet eine Zeile für jeden Knoten, den er abgebildet hat, mit dem, was er gewählt hat, der Trefferebene und der Punktzahl des besten Kandidaten, und eine Zeile mit dem Wortlaut `made no choice for <node id> (<node type>)` für einen Knoten, dem er keine eigene Component gibt. Ein Knoten, der auf eine Component des Katalogs verweist, statt entworfen zu werden, hat keine eigene Datei: Das entworfene Aggregate nennt die Component."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -140175,6 +140204,17 @@
     "status": "machine",
     "text": "Das Feld `directory:` hat als Standardwert `boundaries/`, gefolgt vom Boundary-Pfad (ein stabiler Bezeichner zur Build-Zeit, abgeleitet aus dem Boundary-Baum); ein Release, das seine Komponenten auflistet, ohne Boundaries zu deklarieren, schreibt sie ganz ohne Verzeichnissegment. Das Feld `subDirectory:` hat als Standardwert `{{ .capability }}`, sodass die Artefakte jeder Fähigkeit in einem eigenen Unterordner unter dem Verzeichnis der Boundary landen — ob es weggelassen oder als `subDirectory: \"\"` geschrieben wird, was sich genau wie ein weggelassenes liest. Das Setzen von `subDirectory: \".\"` oder ein Template, das zu einem leeren String ausgewertet wird, hebt diese Gruppierung auf."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Ein Knoten vom Typ `LanguageModelComponent` oder `EmbeddingModel` läuft auf einem von mehreren Modellanbietern — dem, den sein Feld `provider` nennt, oder, wo dieses leer ist, dem Anbieter des Modells, das sein Feld `model` auswählt — und übergibt seinen Schlüssel diesem Anbieter. Die Plattform liefert die Modellverbindung für einen OpenAI-kompatiblen Client, daher wird ein solcher Knoten nur dort mit den Variablen geschrieben, wo er auf `OpenAI` läuft. Einer, der auf einem anderen Anbieter läuft, wird nie angebunden, wie oben beschrieben; einer, der keinen auswählt, seinen Anbieter über eine globale Variable nennt oder sein Modell von einem anderen Knoten übernimmt, wird mit keiner von ihnen geschrieben, sodass der Entwurf niemals einen anderen Anbieter auf den Schlüssel der Verbindung verweist. Wo kein Feld eines solchen Knotens die Adresse seiner API angibt — ein Knoten vom Typ `LanguageModelComponent` enthält für OpenAI keine, und das Feld `api_base` eines Knotens vom Typ `EmbeddingModel` kann fehlen oder leer sein, wo es keine Variable nennen kann —, übernimmt der OpenAI-Client, auf dem er läuft, `OPENAI_BASE_URL` aus der Umgebung, sodass der Knoten die Adresse, die die Plattform liefert, trotzdem erreicht."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -143598,6 +143638,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — eine aus Dify exportierte Anwendung, entworfen als die Dify-Installation, die die Standardbibliothek zusammenstellt und die die Anwendung trägt, wobei die Modelle, Tools und Wissensdatenbanken, die sie nennt, als innerhalb von Dify konfiguriert gemeldet werden."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — ein entworfenes Aggregate namens `<target_namespace>/flow`, das die Knoten des Flows zusammensetzt: ein Eintrag für jeden, und jede Kante des Flows als Verbindung `uses` des Knotens, den sie speist, wobei ihr Socket und ihr Alias beide nach dem Schlüssel des Knotens benannt sind, der sie speist, sodass ein Knoten, der von mehreren gespeist wird, jeder Verbindung einen eigenen Alias gibt."
   },
   "f1c48acec4205b8e": {
     "at": "2026-11-04T05:31:23.845Z",

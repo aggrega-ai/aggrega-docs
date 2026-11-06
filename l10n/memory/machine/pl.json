@@ -24604,6 +24604,13 @@
     "status": "machine",
     "text": "**Zamknięcie połączenia anuluje przenoszone przez nie wywołanie.** To sygnał anulowania w tym transporcie: serwer traktuje rozłączenie wywołującego jako anulowanie tego żądania, kończy wykonywaną pracę i nie zapisuje dla niego nic więcej. Komunikat anulowania nie jest tu potrzebny ani oczekiwany — odwrotnie niż w przypadku standardowego wejścia i wyjścia, gdzie nie ma strumienia na żądanie, który można zamknąć, i klient kończy wywołanie, podając jego id. Komunikat anulowania, który mimo to dotrze przez HTTP, jest przyjmowany i niczego nie kończy."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Model Langflow wskazujący innego dostawcę nie otrzymuje połączenia z modelem.** Węzeł `LanguageModelComponent` lub `EmbeddingModel` działa u dostawcy modeli wskazanego w jego polu `provider` albo, gdy jest ono puste, u dostawcy modelu wybranego w polu `model`. Platforma dostarcza swoje połączenie z modelem dla klienta zgodnego z OpenAI, dlatego węzeł wskazujący dowolnego dostawcę innego niż `OpenAI` — niezależnie od tego, na co mapuje go wiersz mapowania lub nadpisanie — nigdy nie jest podłączany do gniazda `model`: jest podłączany do następnego gniazda, które spełnia jego encja Component, albo pozostaje w przepływie, a jego decyzja niczego nie wybiera i nie powstaje dla niego szkic żadnej encji Component, a import zgłasza go, podając dostawcę, u którego działa. Węzeł niewybierający żadnego dostawcy, wskazujący go przez zmienną globalną albo pobierający model z innego węzła jest podłączany jak każda inna część."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -53990,6 +53997,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Zakres.** Tak jak w przypadku klucza dla wywołujących: dotyczy encji FeatureRecipe, która renderuje się raz na komponent. Encja FeatureRecipe deklarująca `executionScope: boundary` renderuje się tam, gdzie zawsze, niezależnie od tego, czy ustawia klucz, a połączenia, które odczytuje pod `.boundary`, nie niosą żadnych faktów renderowania."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Zawężają to te reguły:"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -148541,6 +148559,17 @@
     "status": "machine",
     "text": "Własne rodziny katalogu `core/secret-value` i `core/referenced-secret` obejmują formy przyjmujące wartość bezpośrednio. Istnieją, ponieważ rzeczywiste wdrożenia potrzebują ścieżki dla lokalnego programowania, i otwarcie to przyznają: dostarczone przykłady używają oczywistych symboli zastępczych (`dev-root-pw-change-me`) właśnie po to, by materiał w wyrenderowanym przykładzie wyraźnie nie był prawdziwym poświadczeniem. Dla wdrożenia, które nie może nieść materiału, należy dołączyć opartą na magazynie encję Feature poświadczenia, której encja FeatureRecipe emituje zasób pobierania (`ExternalSecret`, zasób niestandardowy pobierający z sejfu, natywne dla dostawcy odwołanie do sekretu), a nie taki, który emituje dane."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Każdy węzeł jest porównywany wyłącznie z encjami Components z własnego katalogu przestrzeni roboczej, jak opisuje to [gniazdo importera](plugin-contract.md#the-importer-socket--draft-authoring-output), a każdy importer zawiera krótką tabelę mapującą typowe rodzaje węzłów swojego formatu — modele czatu i osadzeń, wyszukiwanie, żądania HTTP oraz, w Langflow, węzeł MCP Tools `MCPTools`, mapowany na `core/ai-tool/mcp` — na encje Components z biblioteki standardowej. Tabela Langflow mapuje też komponent Language Model, `LanguageModelComponent`, model czatu wywoływany przez przepływy startowe Langflow, na `core/ai-model/openai`, model obsługiwany przez połączenie z modelem platformy Langflow: węzeł działa u dostawcy modeli wskazanego w jego polu `provider`, domyślnie OpenAI, a węzeł wskazujący innego dostawcę nigdy nie jest podłączany do tego połączenia, jak opisuje to [Które węzły stają się częściami](#which-nodes-become-parts-and-where-each-is-wired). Tabela importera n8n mapuje modele czatu i osadzeń n8n, jego narzędzie klienta MCP na `core/ai-tool/mcp`, jego narzędzia żądań HTTP, narzędzie SerpApi, magazyny wektorowe Qdrant, PGVector, Chroma, Milvus i Weaviate oraz pamięci czatu Postgres i Redis. Węzeł, który n8n uruchamia w samym przepływie pracy — agent, łańcuch, wyzwalacz, pamięć przechowywana przez przepływ pracy we własnym procesie, narzędzie kodu — należy do przepływu pracy i żaden wiersz go nie mapuje. Wiersz tej tabeli liczy się do dopasowania tylko wtedy, gdy katalog przestrzeni roboczej zawiera encję Component, którą ten wiersz wskazuje. Polecenie wypisuje po jednym wierszu dla każdego zmapowanego węzła, podając dokonany wybór, poziom dopasowania i wynik najlepszego kandydata, a dla węzła, któremu nie nadaje własnej encji Component, wiersz `made no choice for <node id> (<node type>)`. Węzeł, który odwołuje się do encji Component z katalogu zamiast zostać naszkicowany, nie ma własnego pliku: szkic encji Aggregate wskazuje tę encję Component."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T09:26:23.460774+00:00",
     "job": "msgbatch_01EgxZHKDCKP7uwHS7Qgugr2",
@@ -156241,6 +156270,17 @@
     "status": "machine",
     "text": "Pole `directory:` domyślnie przyjmuje `boundaries/`, po którym następuje ścieżka granicy (stabilny identyfikator czasu kompilacji wyprowadzony z drzewa granic); encja Release, która wymienia swoje komponenty bez deklarowania granic, zapisuje je bez żadnego segmentu katalogu. Pole `subDirectory:` domyślnie przyjmuje `{{ .capability }}`, tak aby artefakty każdej funkcji trafiały do własnego podfolderu w katalogu granicy — niezależnie od tego, czy pole pominięto, czy zapisano jako `subDirectory: \"\"`, co jest odczytywane dokładnie jak pominięcie. Ustawienie `subDirectory: \".\"` lub zapisanie szablonu, który daje pusty ciąg, spłaszcza to grupowanie."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Węzeł `LanguageModelComponent` lub `EmbeddingModel` działa u jednego z kilku dostawców modeli — tego, którego wskazuje jego pole `provider`, albo, gdy jest ono puste, dostawcy modelu wybranego w polu `model` — i przekazuje swój klucz temu dostawcy. Platforma dostarcza połączenie z modelem dla klienta zgodnego z OpenAI, dlatego taki węzeł jest zapisywany ze zmiennymi tylko wtedy, gdy działa u `OpenAI`. Węzeł działający u innego dostawcy nigdy nie jest podłączany, jak opisano wyżej; węzeł niewybierający żadnego, wskazujący dostawcę przez zmienną globalną albo pobierający model z innego węzła jest zapisywany bez żadnej z nich, aby szkic nigdy nie kierował innego dostawcy do klucza połączenia. Tam, gdzie żadne pole takiego węzła nie podaje adresu jego API — węzeł `LanguageModelComponent` nie ma takiego pola dla OpenAI, a pole `api_base` węzła `EmbeddingModel` może nie istnieć lub być puste, gdy nie może wskazać zmiennej — uruchamiany przez niego klient OpenAI pobiera `OPENAI_BASE_URL` ze środowiska, więc węzeł i tak dociera do adresu dostarczanego przez platformę."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T09:15:22.065068+00:00",
     "job": "msgbatch_01PZRcL3mvRgpjTW4rDpG9ri",
@@ -159990,6 +160030,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — aplikacja wyeksportowana z Dify, naszkicowana jako instalacja Dify składana przez bibliotekę standardową, przenosząca tę aplikację; modele, narzędzia i bazy wiedzy, które aplikacja wskazuje, są raportowane jako skonfigurowane wewnątrz Dify."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — szkic encji Aggregate o nazwie `<target_namespace>/flow`, składający węzły przepływu: wpis dla każdego, a każda krawędź przepływu staje się połączeniem `uses` węzła, który zasila, a jej gniazdo i alias są nazwane od klucza węzła, który ją zasila, więc węzeł zasilany przez kilka węzłów nadaje każdemu połączeniu własny alias."
   },
   "f1c48acec4205b8e": {
     "at": "2026-10-22T23:53:36.766860+00:00",

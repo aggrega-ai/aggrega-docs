@@ -24604,6 +24604,13 @@
     "status": "machine",
     "text": "**关闭连接即取消其承载的调用。** 这是此传输方式的取消信号：服务器将调用方断开连接视为取消该请求，结束正在进行的工作，并不再为其写入任何内容。这里不需要也不期望取消消息——这与标准输入输出正好相反，后者没有可关闭的逐请求流，客户端通过指明调用的 id 来结束它。通过 HTTP 确实收到的取消消息会被接受，但不会结束任何调用。"
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**指定其他提供方的 Langflow 模型不获得模型连接。** `LanguageModelComponent` 或 `EmbeddingModel` 节点运行在其 `provider` 字段指定的模型提供方上，若该字段为空，则运行在其 `model` 字段所选模型的提供方上。平台为兼容 OpenAI 的客户端提供其模型连接，因此指定 `OpenAI` 以外任何提供方的节点——无论映射行或覆盖将其映射到什么——都永远不会接入 `model` 插槽：它会接入其 Component 满足的下一个插槽，或者留在流中，其决策不作任何选择，也不为其起草任何 Component，导入会报告该节点并指明它所运行的提供方。未选择提供方、通过全局变量指定提供方，或从另一节点获取模型的节点，与其他任何组成部分一样接入。"
+  },
   "24db24ee76e5e32c": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -54004,6 +54011,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**作用范围。** 与调用方的键相同：它适用于每个组件渲染一次的 FeatureRecipe。声明 `executionScope: boundary` 的 FeatureRecipe 无论是否设置该键，都在原本的位置渲染，并且它在 `.boundary` 下读取的连接不携带任何渲染事实。"
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "这些规则对此加以限定："
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T21:03:25.752Z",
@@ -148566,6 +148584,17 @@
     "status": "machine",
     "text": "目录自带的 `core/secret-value` 和 `core/referenced-secret` 系列包含直接接受值的形式。它们之所以存在，是因为真实部署需要一条本地开发路径，而且它们对此毫不隐瞒：随附的示例使用明显的占位符（`dev-root-pw-change-me`），正是为了让渲染示例中的材料一看便知不是真实凭据。对于不得携带材料的部署，请附加一个由存储支持的凭据 Feature，其 FeatureRecipe 输出获取资源（`ExternalSecret`、vault 获取自定义资源、provider 原生的 secret 引用），而不是输出数据的那种。"
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "每个节点只与工作区自身目录中的 Components 进行比较，不与其他任何内容比较，如[导入器插槽](plugin-contract.md#the-importer-socket--draft-authoring-output)所述；每个导入器都带有一张简短的表，将其格式中常见的节点类型——聊天模型和嵌入模型、检索、HTTP 请求，以及在 Langflow 上映射到 `core/ai-tool/mcp` 的 MCP Tools 节点 `MCPTools`——映射到标准库 Components。Langflow 的表还将其 Language Model 组件 `LanguageModelComponent`，即其入门流程调用的聊天模型，映射到 `core/ai-model/openai`，即 Langflow 平台的模型连接所服务的模型：该节点运行在其 `provider` 字段指定的模型提供方上，默认为 OpenAI，而指定其他提供方的节点永远不会接入该连接，如[哪些节点成为组成部分](#which-nodes-become-parts-and-where-each-is-wired)所述。n8n 导入器的表映射 n8n 的聊天模型和嵌入模型、映射到 `core/ai-tool/mcp` 的 MCP 客户端工具、HTTP 请求工具、SerpApi 工具、Qdrant、PGVector、Chroma、Milvus 和 Weaviate 向量存储，以及 Postgres 和 Redis 聊天记忆。n8n 在工作流内部运行的节点——智能体、链、触发器、工作流在自身进程中保存的记忆、代码工具——属于工作流自身，没有任何行映射它。该表中的一行只有在工作区目录包含其所指的 Component 时才计入匹配。该命令为每个已映射的节点报告一行，说明它选择了什么、匹配层级以及最佳候选的得分；对于未赋予其自身 Component 的节点，报告一行 `made no choice for <node id> (<node type>)`。引用目录 Component 而非起草的节点没有自己的文件：草稿 Aggregate 会指明该 Component。"
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -156266,6 +156295,17 @@
     "status": "machine",
     "text": "`directory:` 字段默认为 `boundaries/` 后接边界路径（由边界树派生的稳定构建期标识符）；只列出组件而未声明边界的 Release 在写出这些组件时完全不带目录段。`subDirectory:` 字段默认为 `{{ .capability }}`，使每种能力的制品落在边界目录下各自的子文件夹中——无论该字段被省略，还是写成 `subDirectory: \"\"`（其含义与省略完全相同）。设置 `subDirectory: \".\"`，或编写求值为空字符串的模板，会取消这一分组。"
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "`LanguageModelComponent` 或 `EmbeddingModel` 节点运行在多个模型提供方之一上——即其 `provider` 字段指定的提供方，若该字段为空，则为其 `model` 字段所选模型的提供方——并将其密钥交给该提供方。平台为兼容 OpenAI 的客户端提供模型连接，因此只有当此类节点运行在 `OpenAI` 上时才会写入这些变量。运行在其他提供方上的节点永远不会接入，如上所述；未选择提供方、通过全局变量指定提供方，或从另一节点获取模型的节点都不会写入任何变量，因此草稿绝不会让其他提供方指向该连接的密钥。当此类节点没有字段给出其 API 地址时——`LanguageModelComponent` 节点对 OpenAI 不保存地址，而 `EmbeddingModel` 节点的 `api_base` 可能缺失，或在无法指定变量时为空——它所运行的 OpenAI 客户端会从环境中读取 `OPENAI_BASE_URL`，因此该节点同样能访问平台提供的地址。"
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -160015,6 +160055,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** —— 从 Dify 导出的应用，起草为标准库组装的、携带该应用的 Dify 安装，其指定的模型、工具和知识库报告为在 Dify 内部配置。"
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — 一个名为 `<target_namespace>/flow` 的草稿 Aggregate，组合流中的节点：每个节点一个条目，流的每条边作为其所馈入节点的一个 `uses` 连接，其插槽和别名都以馈入它的节点的键命名，因此由多个节点馈入的节点会为每个连接赋予各自的别名。"
   },
   "f1c48acec4205b8e": {
     "at": "2026-10-22T05:14:14.914265+00:00",

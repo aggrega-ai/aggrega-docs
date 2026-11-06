@@ -22016,6 +22016,13 @@
     "status": "machine",
     "text": "**Fechar a conexão cancela a chamada que ela transportava.** Esse é o sinal de cancelamento deste transporte: o servidor trata a desconexão de um chamador como cancelamento daquela solicitação, encerra o trabalho que estava fazendo e não grava mais nada para ela. Nenhuma mensagem de cancelamento é necessária ou esperada aqui — o oposto da entrada e saída padrão, onde não há stream por solicitação para fechar e um cliente encerra uma chamada nomeando seu id. Uma mensagem de cancelamento que chega mesmo assim por HTTP é aceita e não encerra nada."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Um modelo do Langflow que nomeia outro provedor não recebe nenhuma conexão de modelo.** Um nó `LanguageModelComponent` ou `EmbeddingModel` é executado no provedor de modelos que seu campo `provider` nomeia ou, onde ele está vazio, no provedor do modelo que seu campo `model` seleciona. A plataforma entrega sua conexão de modelo para um cliente compatível com OpenAI, então um nó que nomeia qualquer provedor diferente de `OpenAI` — seja qual for o destino para o qual uma linha de mapeamento ou uma substituição o mapeie — nunca é ligado ao socket `model`: ele é ligado ao próximo socket que seu Component satisfaz, ou permanece no fluxo, com sua decisão sem escolher nada e nenhum Component gerado como rascunho para ele, e a importação o relata nomeando o provedor em que ele é executado. Um nó que não seleciona nenhum provedor, que o nomeia por meio de uma variável global ou que obtém seu modelo de outro nó é ligado como qualquer outra parte."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-11-03T12:45:16.288Z",
     "job": "session-0106-20261103124516",
@@ -48460,6 +48467,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Escopo.** Como para a chave dos chamadores: ela se aplica a uma FeatureRecipe que é renderizada uma vez por componente. Uma FeatureRecipe que declara `executionScope: boundary` é renderizada onde sempre é, defina ou não a chave, e as conexões que ela lê sob `.boundary` não trazem fatos de renderização."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Estas regras restringem isso:"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T19:19:43.681Z",
@@ -133260,6 +133278,17 @@
     "status": "machine",
     "text": "As famílias `core/secret-value` e `core/referenced-secret` do próprio catálogo incluem formas que aceitam um valor diretamente. Elas existem porque implantações reais precisam de um caminho para desenvolvimento local, e são honestas quanto a isso: os exemplos fornecidos usam marcadores óbvios (`dev-root-pw-change-me`) justamente para que o material em um exemplo renderizado visivelmente não seja uma credencial real. Para uma implantação que não deve carregar material, anexe uma Feature de credencial apoiada em um armazenamento cuja FeatureRecipe emita um recurso de busca (um `ExternalSecret`, um recurso personalizado de busca em cofre, uma referência de segredo nativa do provider) em vez de uma que emita dados."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Cada nó é pontuado em relação aos Components do próprio catálogo do espaço de trabalho e a nada mais, como descreve o [socket importador](plugin-contract.md#the-importer-socket--draft-authoring-output), e cada importador traz uma tabela curta que mapeia tipos de nó comuns do seu formato — modelos de chat e de embeddings, recuperação, requisições HTTP e, no Langflow, o nó MCP Tools `MCPTools`, que é mapeado para `core/ai-tool/mcp` — para Components da biblioteca padrão. A tabela do Langflow também mapeia seu componente Language Model, `LanguageModelComponent`, o modelo de chat que seus fluxos iniciais chamam, para `core/ai-model/openai`, o modelo que a conexão de modelo da plataforma Langflow atende: o nó é executado no provedor de modelos que seu campo `provider` nomeia, OpenAI por padrão, e um nó que nomeia outro provedor nunca é ligado a essa conexão, como descreve [Quais nós se tornam partes](#which-nodes-become-parts-and-where-each-is-wired). A tabela do importador n8n mapeia os modelos de chat e de embeddings do n8n, sua ferramenta cliente MCP para `core/ai-tool/mcp`, suas ferramentas de requisição HTTP, sua ferramenta SerpApi, seus armazenamentos vetoriais Qdrant, PGVector, Chroma, Milvus e Weaviate, e suas memórias de chat Postgres e Redis. Um nó que o n8n executa dentro do próprio workflow — um agente, uma chain, um gatilho, uma memória que o workflow mantém em seu próprio processo, uma ferramenta de código — pertence ao workflow, e nenhuma linha o mapeia. Uma linha dessa tabela conta para uma correspondência apenas onde o catálogo do espaço de trabalho contém o Component que ela nomeia. O comando relata uma linha para cada nó que mapeou, nomeando o que escolheu, o nível de correspondência e a pontuação do melhor candidato, e uma linha com o texto `made no choice for <node id> (<node type>)` para um nó ao qual não dá nenhum Component próprio. Um nó que faz referência a um Component do catálogo, em vez de ser gerado como rascunho, não tem arquivo próprio: o Aggregate do rascunho nomeia o Component."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -140177,6 +140206,17 @@
     "status": "machine",
     "text": "O campo `directory:` tem como padrão `boundaries/` seguido do caminho da fronteira (um identificador estável em tempo de build, derivado da árvore de fronteiras); uma Release que lista os seus componentes sem declarar fronteiras os grava sem nenhum segmento de diretório. O campo `subDirectory:` tem como padrão `{{ .capability }}`, de modo que os artefatos de cada capacidade ficam na sua própria subpasta sob o diretório da fronteira — seja ele omitido ou escrito como `subDirectory: \"\"`, que é lido exatamente como um omitido. Definir `subDirectory: \".\"`, ou escrever um template que avalia para uma string vazia, achata esse agrupamento."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Um nó `LanguageModelComponent` ou `EmbeddingModel` é executado em um entre vários provedores de modelos — o que seu campo `provider` nomeia ou, onde ele está vazio, o provedor do modelo que seu campo `model` seleciona — e entrega sua chave a esse provedor. A plataforma entrega a conexão de modelo para um cliente compatível com OpenAI, então um nó desse tipo é escrito com as variáveis apenas onde é executado em `OpenAI`. Um que é executado em outro provedor nunca é ligado, como descrito acima; um que não seleciona nenhum, que nomeia seu provedor por meio de uma variável global ou que obtém seu modelo de outro nó é escrito sem nenhuma delas, de modo que o rascunho nunca aponta outro provedor para a chave da conexão. Onde nenhum campo de um nó desse tipo fornece o endereço de sua API — um nó `LanguageModelComponent` não contém nenhum para OpenAI, e o campo `api_base` de um nó `EmbeddingModel` pode estar ausente, ou vazio onde não pode nomear uma variável — o cliente OpenAI em que ele é executado obtém `OPENAI_BASE_URL` do ambiente, então o nó alcança mesmo assim o endereço que a plataforma entrega."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -143594,6 +143634,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — uma aplicação exportada do Dify, rascunhada como a instalação do Dify que a biblioteca padrão monta e que carrega a aplicação, com os modelos, ferramentas e bases de conhecimento que ela nomeia relatados como configurados dentro do Dify."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — um Aggregate de rascunho chamado `<target_namespace>/flow`, que compõe os nós do fluxo: uma entrada para cada um, e cada aresta do fluxo como uma conexão `uses` do nó que ela alimenta, com seu socket e seu alias ambos nomeados de acordo com a chave do nó que a alimenta, de modo que um nó alimentado por vários dá a cada conexão um alias próprio."
   },
   "f1c48acec4205b8e": {
     "at": "2026-11-04T05:31:23.845Z",

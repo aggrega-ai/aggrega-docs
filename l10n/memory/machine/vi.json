@@ -24604,6 +24604,13 @@
     "status": "machine",
     "text": "**Đóng kết nối sẽ hủy lần gọi mà kết nối đó mang.** Đó là tín hiệu hủy của phương thức truyền này: máy chủ coi việc bên gọi ngắt kết nối là hủy yêu cầu đó, dừng công việc đang làm và không ghi gì thêm cho nó. Ở đây không cần và không mong đợi thông điệp hủy — điều này ngược với đầu vào và đầu ra chuẩn, nơi không có luồng riêng cho từng yêu cầu để đóng và client kết thúc một lần gọi bằng cách nêu id của nó. Một thông điệp hủy nếu có đến qua HTTP sẽ được chấp nhận nhưng không kết thúc gì cả."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Một mô hình Langflow đặt tên một nhà cung cấp khác không nhận kết nối mô hình nào.** Một nút `LanguageModelComponent` hoặc `EmbeddingModel` chạy trên nhà cung cấp mô hình mà trường `provider` của nút đặt tên, hoặc, ở nơi trường đó trống, nhà cung cấp của mô hình mà trường `model` chọn. Nền tảng cung cấp kết nối mô hình của nó cho một client tương thích OpenAI, nên một nút đặt tên bất kỳ nhà cung cấp nào khác `OpenAI` — bất kể một hàng ánh xạ hay một override ánh xạ nó tới đâu — không bao giờ được nối vào socket `model`: nó được nối vào socket kế tiếp mà Component của nó thỏa mãn, hoặc ở lại trong flow, với quyết định của nó không chọn gì và không có Component nào được soạn thảo cho nó, và quá trình nhập báo cáo nút đó kèm tên nhà cung cấp mà nó chạy trên. Một nút không chọn nhà cung cấp nào, đặt tên nhà cung cấp qua một biến toàn cục, hoặc lấy mô hình từ một nút khác được nối như mọi phần khác."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -53990,6 +53997,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Phạm vi.** Giống như khóa của các caller: nó áp dụng cho một FeatureRecipe kết xuất một lần cho mỗi component. Một FeatureRecipe khai báo `executionScope: boundary` kết xuất ở nơi nó luôn kết xuất, dù có đặt khóa hay không, và các kết nối nó đọc dưới `.boundary` không mang render fact nào."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Những quy tắc này thu hẹp điều đó:"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T19:19:43.681Z",
@@ -148547,6 +148565,17 @@
     "status": "machine",
     "text": "Các họ `core/secret-value` và `core/referenced-secret` của chính danh mục bao gồm các dạng chấp nhận trực tiếp một giá trị. Chúng tồn tại vì các bản triển khai thực cần một con đường cho phát triển cục bộ, và chúng thẳng thắn về điều đó: các ví dụ đi kèm dùng giá trị giữ chỗ hiển nhiên (`dev-root-pw-change-me`) chính để vật liệu trong một ví dụ đã render rõ ràng không phải thông tin xác thực thật. Với một bản triển khai không được mang vật liệu, hãy đính kèm một Feature thông tin xác thực dựa trên kho có FeatureRecipe phát ra một tài nguyên truy xuất (một `ExternalSecret`, một tài nguyên tùy chỉnh truy xuất từ vault, một tham chiếu secret gốc của provider) thay vì một tài nguyên phát ra dữ liệu."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Mỗi nút được đối chiếu với các Components trong danh mục riêng của workspace và không gì khác, như [importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output) mô tả, và mỗi importer mang theo một bảng ngắn ánh xạ các loại nút phổ biến của định dạng của nó — các mô hình chat và embedding, truy xuất, yêu cầu HTTP và, trên Langflow, nút MCP Tools `MCPTools`, được ánh xạ tới `core/ai-tool/mcp` — sang các Components của thư viện chuẩn. Bảng của Langflow cũng ánh xạ thành phần Language Model, `LanguageModelComponent`, mô hình chat mà các flow khởi đầu của Langflow gọi, tới `core/ai-model/openai`, mô hình mà kết nối mô hình của nền tảng Langflow phục vụ: nút chạy trên nhà cung cấp mô hình mà trường `provider` của nó đặt tên, mặc định là OpenAI, và một nút đặt tên một nhà cung cấp khác không bao giờ được nối vào kết nối đó, như [Những nút nào trở thành phần](#which-nodes-become-parts-and-where-each-is-wired) mô tả. Bảng của importer n8n ánh xạ các mô hình chat và embedding của n8n, công cụ MCP client của nó tới `core/ai-tool/mcp`, các công cụ HTTP request, công cụ SerpApi, các vector store Qdrant, PGVector, Chroma, Milvus và Weaviate, cùng các bộ nhớ chat Postgres và Redis. Một nút mà n8n chạy ngay trong workflow — một agent, một chain, một trigger, một bộ nhớ mà workflow giữ trong tiến trình của chính nó, một công cụ code — thuộc về chính workflow, và không hàng nào ánh xạ nó. Một hàng của bảng đó chỉ được tính vào việc khớp khi danh mục của workspace chứa Component mà nó nêu tên. Lệnh báo cáo một dòng cho mỗi nút mà nó đã ánh xạ, nêu tên thứ nó đã chọn, bậc khớp và điểm của ứng viên tốt nhất, và một dòng ghi `made no choice for <node id> (<node type>)` cho một nút mà nó không gán Component riêng nào. Một nút được tham chiếu tới một Component trong danh mục, thay vì được soạn thảo, không có tệp riêng: Aggregate bản nháp nêu tên Component đó."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -156247,6 +156276,17 @@
     "status": "machine",
     "text": "Trường `directory:` mặc định là `boundaries/` theo sau là đường dẫn boundary (một định danh ổn định tại thời điểm dựng, được suy ra từ cây boundary); một Release liệt kê các component mà không khai báo boundary sẽ ghi chúng mà không có đoạn thư mục nào. Trường `subDirectory:` mặc định là `{{ .capability }}` để artifact của mỗi khả năng nằm trong thư mục con riêng dưới thư mục của boundary — dù trường này bị bỏ qua hay được viết là `subDirectory: \"\"`, vốn được đọc giống hệt như khi bỏ qua. Đặt `subDirectory: \".\"`, hoặc viết một template được đánh giá thành chuỗi rỗng, sẽ làm phẳng cách nhóm đó."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Một nút `LanguageModelComponent` hoặc `EmbeddingModel` chạy trên một trong nhiều nhà cung cấp mô hình — nhà cung cấp mà trường `provider` của nút đặt tên, hoặc, ở nơi trường đó trống, nhà cung cấp của mô hình mà trường `model` chọn — và trao khóa của nút cho nhà cung cấp đó. Nền tảng cung cấp kết nối mô hình cho một client tương thích OpenAI, nên một nút như vậy chỉ được ghi với các biến ở nơi nó chạy trên `OpenAI`. Một nút chạy trên nhà cung cấp khác không bao giờ được nối, như đã nói ở trên; một nút không chọn nhà cung cấp nào, đặt tên nhà cung cấp qua một biến toàn cục, hoặc lấy mô hình từ một nút khác sẽ được ghi mà không có biến nào, để bản nháp không bao giờ trỏ một nhà cung cấp khác tới khóa của kết nối. Ở nơi không trường nào của một nút như vậy cho biết địa chỉ API của nó — một nút `LanguageModelComponent` không giữ trường nào cho OpenAI, và `api_base` của một nút `EmbeddingModel` có thể thiếu, hoặc trống ở nơi nó không thể đặt tên một biến — client OpenAI mà nút chạy lấy `OPENAI_BASE_URL` từ môi trường, nên nút vẫn tiếp cận được địa chỉ mà nền tảng cung cấp."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -159996,6 +160036,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — một ứng dụng được xuất từ Dify, soạn nháp thành bản cài đặt Dify mà thư viện chuẩn lắp ráp và mang ứng dụng đó, với các mô hình, công cụ và cơ sở tri thức mà nó nêu tên được báo cáo là đã cấu hình bên trong Dify."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — một Aggregate nháp tên `<target_namespace>/flow`, kết hợp các node của flow: một mục cho mỗi node, và mỗi cạnh của flow là một kết nối `uses` của node mà nó cấp dữ liệu, với socket và alias của kết nối đều được đặt tên theo khóa của node cấp dữ liệu cho nó, nên một node được nhiều node cấp dữ liệu sẽ cho mỗi kết nối một alias riêng."
   },
   "f1c48acec4205b8e": {
     "at": "2026-10-22T23:53:36.766860+00:00",

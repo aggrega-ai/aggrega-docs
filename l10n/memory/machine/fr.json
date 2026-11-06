@@ -22006,6 +22006,13 @@
     "status": "machine",
     "text": "**Fermer la connexion annule l’appel qu’elle portait.** C’est le signal d’annulation de ce transport : le serveur traite la déconnexion d’un appelant comme l’annulation de cette requête, met fin au travail qu’il effectuait et n’écrit plus rien pour elle. Aucun message d’annulation n’est nécessaire ni attendu ici — à l’opposé de l’entrée et de la sortie standard, où il n’y a pas de flux par requête à fermer et où un client met fin à un appel en nommant plutôt son id. Un message d’annulation qui arrive malgré tout en HTTP est accepté et ne met fin à rien."
   },
+  "24dabc93f0edbfdc": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "srcHash": "24dabc93f0edbfdc",
+    "status": "machine",
+    "text": "**Un modèle Langflow qui nomme un autre fournisseur ne reçoit aucune connexion de modèle.** Un nœud `LanguageModelComponent` ou `EmbeddingModel` s’exécute sur le fournisseur de modèles que nomme son champ `provider` ou, là où celui-ci est vide, sur le fournisseur du modèle que sélectionne son champ `model`. La plateforme livre sa connexion de modèle pour un client compatible avec OpenAI, si bien qu’un nœud qui nomme un fournisseur autre que `OpenAI` — quel que soit ce vers quoi une ligne de correspondance ou une surcharge le fait correspondre — n’est jamais raccordé au socket `model` : il est raccordé au socket suivant que satisfait son Component, ou reste dans le flux, sa décision ne choisissant rien et aucun Component n’étant produit en brouillon pour lui, et l’import le signale en nommant le fournisseur sur lequel il s’exécute. Un nœud qui ne sélectionne aucun fournisseur, qui le nomme au moyen d’une variable globale ou qui prend son modèle d’un autre nœud est raccordé comme n’importe quelle autre partie."
+  },
   "24db24ee76e5e32c": {
     "at": "2026-11-03T12:45:16.288Z",
     "job": "session-0106-20261103124516",
@@ -48450,6 +48457,17 @@
     "srcHash": "5247a657610e17b0",
     "status": "machine",
     "text": "**Portée.** Comme pour la clé des appelants : elle s’applique à une FeatureRecipe qui est rendue une fois par composant. Une FeatureRecipe qui déclare `executionScope: boundary` est rendue là où elle l’est toujours, qu’elle définisse ou non la clé, et les connexions qu’elle lit sous `.boundary` ne portent aucun fait de rendu."
+  },
+  "524a9e82afa962b9": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "19aca7fcb5179ce4",
+      "reviewed": false
+    },
+    "srcHash": "524a9e82afa962b9",
+    "status": "machine",
+    "text": "Ces règles restreignent cela :"
   },
   "524ac889bdd878c9": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -133252,6 +133270,17 @@
     "status": "machine",
     "text": "Les familles `core/secret-value` et `core/referenced-secret` du catalogue lui-même comprennent des formes qui acceptent directement une valeur. Elles existent parce que les déploiements réels ont besoin d’un chemin pour le développement local, et elles l’assument : les exemples fournis utilisent des valeurs fictives évidentes (`dev-root-pw-change-me`) précisément pour que le matériel d’un exemple rendu ne soit visiblement pas un véritable identifiant. Pour un déploiement qui ne doit pas porter de matériel, attachez une Feature d’identifiant adossée à un magasin dont la FeatureRecipe émet une ressource de récupération (un `ExternalSecret`, une ressource personnalisée de récupération depuis un coffre, une référence de secret native du provider) plutôt qu’une ressource qui émet des données."
   },
+  "e04fc47319389537": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "9d7940ebff32b9a7",
+      "reviewed": false
+    },
+    "srcHash": "e04fc47319389537",
+    "status": "machine",
+    "text": "Chaque nœud est évalué par rapport aux Components du propre catalogue de l’espace de travail et à rien d’autre, comme le décrit le [socket importateur](plugin-contract.md#the-importer-socket--draft-authoring-output), et chaque importateur embarque une courte table qui met en correspondance des types de nœuds courants de son format — modèles de chat et d’embedding, récupération, requêtes HTTP et, sur Langflow, le nœud MCP Tools `MCPTools`, qui correspond à `core/ai-tool/mcp` — avec des Components de la bibliothèque standard. La table de Langflow met aussi en correspondance son composant Language Model, `LanguageModelComponent`, le modèle de chat qu’appellent ses flux de démarrage, avec `core/ai-model/openai`, le modèle que sert la connexion de modèle de la plateforme Langflow : le nœud s’exécute sur le fournisseur de modèles que nomme son champ `provider`, OpenAI par défaut, et un nœud qui nomme un autre fournisseur n’est jamais raccordé à cette connexion, comme le décrit [Quels nœuds deviennent des parties](#which-nodes-become-parts-and-where-each-is-wired). La table de l’importateur n8n met en correspondance les modèles de chat et d’embedding de n8n, son outil client MCP avec `core/ai-tool/mcp`, ses outils de requête HTTP, son outil SerpApi, ses magasins vectoriels Qdrant, PGVector, Chroma, Milvus et Weaviate, et ses mémoires de chat Postgres et Redis. Un nœud que n8n exécute au sein du workflow lui-même — un agent, une chaîne, un déclencheur, une mémoire que le workflow conserve dans son propre processus, un outil de code — appartient au workflow, et aucune ligne ne le met en correspondance. Une ligne de cette table ne compte pour une correspondance que lorsque le catalogue de l’espace de travail contient le Component qu’elle nomme. La commande rapporte une ligne pour chaque nœud qu’elle a mis en correspondance, indiquant ce qu’elle a choisi, le niveau de correspondance et le score du meilleur candidat, et une ligne indiquant `made no choice for <node id> (<node type>)` pour un nœud auquel elle ne donne aucun Component propre. Un nœud qui référence un Component du catalogue, plutôt que d’être produit en brouillon, n’a pas de fichier propre : l’Aggregate en brouillon nomme le Component."
+  },
   "e0504206bbe3a108": {
     "at": "2026-10-22T16:24:02.036Z",
     "job": "session-0046-20261022162402",
@@ -140175,6 +140204,17 @@
     "status": "machine",
     "text": "Le champ `directory:` vaut par défaut `boundaries/` suivi du chemin de la frontière (un identifiant stable au moment du build, dérivé de l’arbre des frontières) ; une Release qui liste ses composants sans déclarer de frontières les écrit sans aucun segment de répertoire. Le champ `subDirectory:` vaut par défaut `{{ .capability }}`, si bien que les artefacts de chaque capacité arrivent dans leur propre sous-dossier sous le répertoire de la frontière — qu’il soit omis ou écrit `subDirectory: \"\"`, qui se lit exactement comme un champ omis. Définir `subDirectory: \".\"`, ou écrire un modèle qui s’évalue en chaîne vide, aplatit ce regroupement."
   },
+  "ec2df6ffbf0eae87": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "a1f2a8cacb334f95",
+      "reviewed": false
+    },
+    "srcHash": "ec2df6ffbf0eae87",
+    "status": "machine",
+    "text": "Un nœud `LanguageModelComponent` ou `EmbeddingModel` s’exécute sur l’un de plusieurs fournisseurs de modèles — celui que nomme son champ `provider` ou, là où celui-ci est vide, le fournisseur du modèle que sélectionne son champ `model` — et remet sa clé à ce fournisseur. La plateforme livre la connexion de modèle pour un client compatible avec OpenAI, si bien qu’un tel nœud n’est écrit avec les variables que là où il s’exécute sur `OpenAI`. Un nœud qui s’exécute sur un autre fournisseur n’est jamais raccordé, comme ci-dessus ; un nœud qui n’en sélectionne aucun, qui nomme son fournisseur au moyen d’une variable globale ou qui prend son modèle d’un autre nœud est écrit sans aucune d’elles, de sorte que le brouillon ne dirige jamais un autre fournisseur vers la clé de la connexion. Là où aucun champ d’un tel nœud ne donne l’adresse de son API — un nœud `LanguageModelComponent` n’en contient aucune pour OpenAI, et le champ `api_base` d’un nœud `EmbeddingModel` peut être absent, ou vide là où il ne peut pas nommer de variable — le client OpenAI sur lequel il s’exécute prend `OPENAI_BASE_URL` dans l’environnement, si bien que le nœud atteint tout de même l’adresse que livre la plateforme."
+  },
   "ec2ea8bbd4324805": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -143598,6 +143638,17 @@
     "srcHash": "f1bd5907accefc50",
     "status": "machine",
     "text": "**Dify** — une application exportée depuis Dify, ébauchée sous la forme de l’installation Dify qu’assemble la bibliothèque standard et qui porte l’application, les modèles, outils et bases de connaissances qu’elle nomme étant signalés comme configurés dans Dify."
+  },
+  "f1c457aa8a28053e": {
+    "at": "2026-11-06T04:33:04.340Z",
+    "job": "session-0005-20261106043304",
+    "revision": {
+      "from": "611fc50ebe823b35",
+      "reviewed": false
+    },
+    "srcHash": "f1c457aa8a28053e",
+    "status": "machine",
+    "text": "`aggregate.yaml` — un Aggregate en brouillon nommé `<target_namespace>/flow`, composant les nœuds du flux : une entrée pour chacun, et chaque arête du flux comme une connexion `uses` du nœud qu’elle alimente, son socket et son alias étant tous deux nommés d’après la clé du nœud qui l’alimente, si bien qu’un nœud alimenté par plusieurs nœuds donne à chaque connexion un alias propre."
   },
   "f1c48acec4205b8e": {
     "at": "2026-11-04T05:31:23.845Z",
