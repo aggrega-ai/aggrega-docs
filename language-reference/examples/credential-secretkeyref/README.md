@@ -66,8 +66,9 @@ stringData:
 
 `aggregate-compose.yaml` attaches **`core/secret-value`**. Compose has no
 Secret-resource / `secretKeyRef` primitive, so the Manifest maps the credential
-to `dotenv-secret`, which delivers the value on the inject pipe; the postgres
-compose Recipe reads `.context.inject.env.POSTGRES_PASSWORD`.
+to `dotenv-secret`, which delivers the value on the inject pipe under the key the
+attachment names in `values.key`, `POSTGRES_PASSWORD` here, and the postgres
+compose Recipe reads it under that key.
 
 ```bash
 aggrega build --release release-compose.yaml --auto-pull
