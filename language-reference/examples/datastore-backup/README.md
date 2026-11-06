@@ -427,11 +427,12 @@ naming the attachment rather than deploying a database with no backup:
 [OPS_ERROR E0099]
   recipe resolution
   caused by (1):
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe implements this type
+    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe in the catalog implements core/backup:1.0.0 for capability "compose", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [cloudformation/backup-aws-backup:1.0.0 cloudformation/backup-native:1.0.0 helm/backup-cloudnative-pg:1.0.0 helm/backup-k8up:1.0.0 helm/backup-kasten:1.0.0 helm/backup-kubestash:1.0.0 helm/backup-mariadb-operator:1.0.0 helm/backup-velero:1.0.0 terraform/backup-aws-backup:1.0.0 terraform/backup-native:1.0.0]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for "compose", then map the type to it
 ```
 
 The standard-library catalog holds no FeatureRecipe for `core/backup` on this
-target, so there is none to bind. The ways forward are to remove the attachment
-from the Release, deploying the database there with no backup, or to deploy it
-through a Manifest for a target that has a backup product, as the other five
-Releases do.
+target. Each one the message lists binds to another target, so pinned here it
+renders as its own output beside the Compose file, for a target this Release does
+not deploy to. The ways forward are to remove the attachment from the Release,
+deploying the database there with no backup, or to deploy it through a Manifest
+for a target that has a backup product, as the other five Releases do.

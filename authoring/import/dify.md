@@ -179,7 +179,7 @@ The review changes:
       no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.db, "dify.db", of type "core/datastore/postgres", recipes implementing it "cloudformation/postgres-rds:1.0.0, compose/postgres:1.0.0, helm/postgres-cloudnative-pg:1.0.0, helm/postgres-external:1.0.0, helm/postgres:1.0.0, terraform/postgres-cloud-sql:1.0.0, terraform/postgres-flexible-server:1.0.0, terraform/postgres-rds-terraform-aws-modules:1.0.0, terraform/postgres-rds:1.0.0"). pin one of them in the Manifest
     [… omitted: one such line for each of the other nine components]
     [E0099]
-      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "password" (type "core/referenced-secret"); no feature recipe implements this type
+      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "password" (type "core/referenced-secret"); feature recipes implementing it: [helm/k8s-existing-secret:1.0.0 helm/k8s-external-secret:1.0.0 helm/k8s-secret-from-parameter:1.0.0]; pin one in the Manifest
     [… omitted: one such line for each of the other credential attachments]
   release dependency validation failed: 27 diagnostic(s)
   ```
