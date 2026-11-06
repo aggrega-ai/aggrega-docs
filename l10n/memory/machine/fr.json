@@ -16143,6 +16143,17 @@
     "status": "machine",
     "text": "Pointez l’espace de travail vers les deux répertoires de catalogue dans `.aggrega-config.yaml` :"
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml` est un Aggregate en brouillon nommé `<target_namespace>/flow` contenant une instance par service, du Component qu’a choisi sa décision, avec pour clé celle que l’importateur MCP donne à un serveur, et un commentaire au-dessus d’elle qui nomme le service et le fichier dont il provient lorsque la clé n’est pas le nom du service ou que l’importation a lu plusieurs répertoires. Chaque service que nomme le `depends_on` d’un service est une connexion, `uses: <key>: <key>: {target: <key>}`, écrite sous un socket et un alias tous deux nommés d’après la clé de la cible. Un composant lit chacune de ses connexions par son alias, quel que soit le socket auquel elle est reliée, si bien que chaque connexion d’un service a son propre alias. Une valeur d’environnement qui nomme un autre service — un mot de la valeur, découpée à chaque caractère avec lequel un nom d’hôte ne s’écrit pas, égal au nom de ce service — et que `depends_on` ne nomme pas ne donne lieu à aucune connexion : la décision du service l’enregistre comme une suggestion, en nommant la variable et le service, jamais la valeur. Chaque modèle est une instance de `core/ai-model/docker-model-runner` lorsque le catalogue de l’espace de travail le contient, quoi que dise `reuse_mode`, et aucun Component n’est produit en brouillon pour lui : l’instance écrit `model` et `runtime_flags` tels que la source les indique, et le `context_size` de la source comme `context_window`, la valeur que l’environnement d’exécution déclare pour la longueur de contexte d’un modèle, que sa Recipe Compose réécrit comme le `context_size` de Compose. Lorsque le catalogue ne contient aucun `core/ai-model/docker-model-runner`, le modèle est produit en brouillon comme `<target_namespace>/ai-model/<key>`, un Component de la catégorie `ai-model` dont les valeurs déclarent `model`, `context_size` et `runtime_flags`, et son instance écrit chacun de ceux qu’indique la source. Chaque modèle a une décision indiquant lequel — `mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`, ou un brouillon dont la décision enregistre que le catalogue de l’espace de travail ne contient aucun `core/ai-model/docker-model-runner` — et chaque service nommant le modèle lui est relié dans les deux cas, comme à un service dont il dépend. Un service nommant le modèle sous la forme longue, avec `endpoint_var` ou `model_var`, nomme les variables sous lesquelles son adresse et son identifiant parviennent au service. Aucune clé du brouillon ne contient le nom d’une variable — la connexion est écrite sur un socket nommé d’après le modèle, qui ne déclare aucune valeur, et aucune clé d’infrastructure d’un Component n’est remise à un importateur — si bien qu’un commentaire au-dessus de la connexion nomme chacune, telle que l’écrit l’entrée, et que la décision du service enregistre la même phrase :"
+  },
   "1b461785cdc4f627": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -46105,6 +46116,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**La dépréciation n’est pas un champ de la surface de publication.** Une entité est dépréciée en enregistrant un marqueur à son encontre dans le registre *après* la publication — un marqueur signé portant une sévérité (`warning`, `error` ou `retracted`), une raison et un remplacement, vérifié au moment du pull. Toute surface qui lit le lockfile le signale alors ; `build.halt_on_deprecated_severity` décide seulement s’il arrête aussi un build. Le marqueur n’est jamais rédigé dans le YAML propre de l’entité, et la raison est structurelle : un artefact publié est immuable, de sorte qu’un indicateur figé dedans au moment de la publication ne pourrait jamais exprimer une décision prise plus tard. L’avis de dépréciation qu’affiche `aggrega inspect` pour une entité de catalogue provient du marqueur, pour chaque type qu’il résout par son nom."
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. Elle laisse, dans un commentaire au-dessus de l’entrée de chaque agent, son `infra.image` — l’image exécutant le programme de la crew, que ne nomme aucune déclaration — et les identifiants qu’il présente à son modèle, rattachés sous `credential` sur sa connexion `model` ; le build s’arrête en nommant l’image tant qu’elle n’est pas définie. Chaque modèle a lui aussi une entrée, qui ne contient aucune infrastructure, si bien que la Release le place avec les agents ; au-dessus de l’entrée d’un modèle déclaré comme un objet `llm`, les autres membres de l’objet sont écrits dans un commentaire, pour que la Release les reporte là où le Component du modèle les prend. Le `metadata.environment` et le `spec.manifest` de la Release sont laissés non définis, chacun nommé dans un commentaire, à moins que l’importation ne reçoive une cible, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
   },
   "4e5acdedb8fbc422": {
     "at": "2026-11-04T02:29:26.170Z",
@@ -76133,6 +76155,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "Deux cas, délibérément, n’arrêtent pas le build. Un sous-module qui n’apporte aucun composant n’a rien à placer. Un sous-module dont l’interrupteur `active:` se résout en `false` n’a jamais été composé, de sorte qu’aucun de ses composants n’existe pour être placé."
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "À côté, `release.yaml` est une Release en brouillon du même nom, dont le `spec.aggregate` nomme l’Aggregate. Pour une instance de `core/compute/server`, elle écrit `infra.image`, l’image telle qu’écrite, et `infra.port`, le port sur lequel le conteneur écoute dans la première entrée de `ports`, ou de `expose` lorsque `ports` n’en contient aucune. Un commentaire au-dessus de l’entrée de chaque service écrit ce qu’indique la source et que ne porte aucune clé du brouillon — l’image d’un service mis en correspondance avec un autre Component, ses `ports`, `expose`, `volumes` et `environment` — pour que vous le reportiez là où le Component le prend, et nomme ce que le brouillon laisse à la Release : l’image d’un service qui n’en nomme aucune, comme le fait un service qui construit la sienne, et un port qui n’est pas un nombre unique. Un build ne place que les instances que nomme une Release, si bien que l’instance de chaque modèle a une entrée vide, `<key>: {}`, après celles des services : aussi bien une instance de `core/ai-model/docker-model-runner`, qui ne prend sur Compose aucune entrée dépourvue de valeur par défaut, qu’un modèle produit en brouillon comme un Component propre ; le modèle produit en brouillon est donc déjà placé, et le build aboutit dès que vous écrivez la Recipe qui le réalise. Un port que le Component ne prend pas, comme un port inférieur au plancher de 1024 de `core/compute/server`, est écrit tel que l’indique la source, et le build s’arrête en le nommant. Le `metadata.environment` et le `spec.manifest` de la Release sont laissés non définis, chacun nommé dans un commentaire, comme ceux de l’importateur MCP, à moins que l’importation ne reçoive une cible, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds). Le Manifest nomme la Recipe qui réalise chaque Component sur la cible pour laquelle vous effectuez le build ; `core/compute/server` est réalisé sur Kubernetes par `helm/server`, et `core/ai-model/docker-model-runner` par `compose/docker-model-runner` sur Compose et par `helm/docker-model-runner` sur Kubernetes."
   },
   "8165b025c794d338": {
     "at": "2026-11-03T11:32:05.600Z",

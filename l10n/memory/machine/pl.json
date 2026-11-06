@@ -18063,6 +18063,17 @@
     "status": "machine",
     "text": "W pliku `.aggrega-config.yaml` należy wskazać przestrzeni roboczej oba katalogi katalogowe:"
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml` to szkic encji Aggregate o nazwie `<target_namespace>/flow`, zawierający po jednej instancji na usługę, typu Component wybranego przez decyzję dla tej usługi, z kluczem nadawanym tak, jak importer MCP nadaje klucz serwerowi; komentarz nad instancją wskazuje usługę i plik, z którego pochodzi, jeśli klucz nie jest nazwą usługi lub import odczytał kilka katalogów. Każda usługa wskazana w `depends_on` danej usługi jest połączeniem, `uses: <key>: <key>: {target: <key>}`, zapisywanym pod gniazdem i aliasem, obydwoma nazwanymi od klucza celu. Komponent odczytuje każde ze swoich połączeń po jego aliasie, niezależnie od tego, do którego gniazda jest ono podłączone, dlatego każde połączenie usługi ma własny alias. Wartość zmiennej środowiskowej wskazująca inną usługę — słowo wartości, wydzielone przy każdym znaku, którego nie używa się w nazwie hosta, równe nazwie tej usługi — której `depends_on` nie wskazuje, nie tworzy połączenia: decyzja dla usługi zapisuje ją jako wskazówkę, podając zmienną i usługę, nigdy wartość. Każdy model jest instancją `core/ai-model/docker-model-runner`, jeśli katalog obszaru roboczego ją zawiera, niezależnie od wartości `reuse_mode`, i nie jest dla niego tworzony szkic encji Component: instancja zapisuje `model` i `runtime_flags` tak, jak podaje je źródło, a `context_size` ze źródła jako `context_window`, wartość deklarowaną przez środowisko uruchomieniowe dla długości kontekstu modelu, którą jego Recipe dla Compose zapisuje z powrotem jako `context_size` Compose. Jeśli katalog nie zawiera `core/ai-model/docker-model-runner`, model jest szkicowany jako `<target_namespace>/ai-model/<key>`, encja Component kategorii `ai-model`, której wartości deklarują `model`, `context_size` i `runtime_flags`, a jego instancja zapisuje każdą z nich podaną w źródle. Każdy model ma decyzję wskazującą, który wariant zastosowano — `mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE` lub szkic, którego decyzja zapisuje, że katalog obszaru roboczego nie zawiera `core/ai-model/docker-model-runner` — a każda usługa wskazująca model jest z nim połączona w obu przypadkach, tak jak z usługą, od której zależy. Usługa wskazująca model w formie długiej, z `endpoint_var` lub `model_var`, podaje zmienne, pod którymi adres i identyfikator modelu docierają do usługi. Żaden klucz szkicu nie przechowuje nazwy zmiennej — połączenie jest zapisywane na gnieździe nazwanym od modelu, które nie deklaruje żadnej wartości, a importer nie otrzymuje kluczy infrastruktury żadnej encji Component — dlatego komentarz nad połączeniem podaje każdą z nich tak, jak zapisuje ją wpis, a decyzja dla usługi zapisuje to samo zdanie:"
+  },
   "1b461785cdc4f627": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -51396,6 +51407,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**Wycofanie (deprecation) nie jest polem powierzchni publikacji.** Encję oznacza się jako wycofaną, zapisując dla niej znacznik w rejestrze *po* publikacji — podpisany znacznik zawierający poziom ważności (`warning`, `error` lub `retracted`), powód i zamiennik, weryfikowany przy pobieraniu. Każde narzędzie odczytujące plik lockfile zgłasza go wtedy; `build.halt_on_deprecated_severity` decyduje jedynie o tym, czy zatrzymuje on także kompilację. Znacznika nigdy nie umieszcza się w YAML samej encji, a powód jest strukturalny: opublikowany artefakt jest niezmienny, więc flaga zamrożona w nim w chwili publikacji nie mogłaby wyrazić decyzji podjętej później. Informacja o wycofaniu, którą `aggrega inspect` wypisuje dla encji katalogowej, pochodzi ze znacznika, dla każdego rodzaju rozwiązywanego po nazwie."
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "`release.yaml`, obok niego, to szkic encji Release o tej samej nazwie, wskazujący tę encję Aggregate. Pozostawia, w komentarzu nad wpisem każdego agenta, jego `infra.image` — obraz uruchamiający program załogi, którego żadna deklaracja nie wskazuje — oraz poświadczenie, które przedstawia on swojemu modelowi, dołączane w `credential` w jego połączeniu `model`; kompilacja zatrzymuje się, wskazując obraz, dopóki nie zostanie on ustawiony. Każdy model również ma wpis, niezawierający żadnej infrastruktury, dzięki czemu encja Release rozmieszcza go razem z agentami; nad wpisem modelu zadeklarowanego jako obiekt `llm` pozostałe elementy obiektu są zapisywane w komentarzu, aby encja Release mogła je przenieść tam, gdzie encja Component modelu je przyjmuje. `metadata.environment` i `spec.manifest` encji Release pozostają nieustawione, każde wymienione w komentarzu, chyba że import otrzyma cel, jak opisuje [Co dodaje cel](#what-a-target-adds)."
   },
   "4e5acdedb8fbc422": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -85030,6 +85052,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "Dwa przypadki celowo nie przerywają budowania. Podmoduł niewnoszący żadnych komponentów nie ma czego umieszczać. Podmoduł, którego przełącznik `active:` rozwiązuje się do `false`, nigdy nie został złożony, więc nie istnieje żaden jego komponent do umieszczenia."
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "Obok niego `release.yaml` to szkic encji Release o tej samej nazwie, której `spec.aggregate` wskazuje encję Aggregate. Dla instancji `core/compute/server` zapisuje `infra.image`, obraz w zapisanej postaci, oraz `infra.port`, port, na którym nasłuchuje kontener, z pierwszego wpisu `ports` lub `expose`, jeśli `ports` nie zawiera żadnego. Komentarz nad wpisem każdej usługi zapisuje to, co podaje źródło, a czego nie przenosi żaden klucz szkicu — obraz usługi dopasowanej do innej encji Component, jej `ports`, `expose`, `volumes` i `environment` — aby można było przenieść to tam, gdzie Component to przyjmuje, oraz wskazuje, co szkic pozostawia encji Release: obraz usługi, która go nie wskazuje, jak usługa budująca własny obraz, oraz port, który nie jest pojedynczą liczbą. Kompilacja rozmieszcza tylko instancje wskazane przez Release, dlatego instancja każdego modelu ma pusty wpis, `<key>: {}`, po wpisach usług: zarówno instancja `core/ai-model/docker-model-runner`, która nie przyjmuje w Compose żadnego wejścia bez wartości domyślnej, jak i model szkicowany jako osobna encja Component, dzięki czemu szkicowany model jest już rozmieszczony i kompiluje się, gdy tylko zostanie napisany realizujący go Recipe. Port, którego Component nie przyjmuje, na przykład poniżej dolnej granicy 1024 w `core/compute/server`, jest zapisywany tak, jak podaje go źródło, a kompilacja zatrzymuje się, wskazując go. `metadata.environment` i `spec.manifest` encji Release pozostają nieustawione, każde wskazane w komentarzu, tak jak w przypadku importera MCP, chyba że import otrzyma cel, jak opisuje [Co dodaje cel](#what-a-target-adds). Manifest wskazuje Recipe realizujący każdy Component na celu, dla którego odbywa się kompilacja; `core/compute/server` jest realizowany na Kubernetes przez `helm/server`, a `core/ai-model/docker-model-runner` przez `compose/docker-model-runner` w Compose i `helm/docker-model-runner` na Kubernetes."
   },
   "8165b025c794d338": {
     "at": "2026-10-22T22:51:16.626703+00:00",

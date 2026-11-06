@@ -18063,6 +18063,17 @@
     "status": "machine",
     "text": "Trỏ workspace tới cả hai thư mục catalog trong `.aggrega-config.yaml`:"
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml` là một Aggregate nháp tên `<target_namespace>/flow`, chứa một instance cho mỗi dịch vụ, thuộc Component mà quyết định của dịch vụ đó đã chọn, được đặt khóa như cách importer MCP đặt khóa cho một máy chủ, với một chú thích phía trên nêu tên dịch vụ và tệp mà nó đến từ đó, khi khóa không phải là tên của dịch vụ hoặc lần import đã đọc nhiều thư mục. Mỗi dịch vụ mà `depends_on` của một dịch vụ nêu tên là một kết nối, `uses: <key>: <key>: {target: <key>}`, được ghi dưới một socket và một alias đều được đặt tên theo khóa của đích. Một thành phần đọc từng kết nối của nó theo alias của kết nối đó, bất kể kết nối được nối vào socket nào, nên mỗi kết nối của một dịch vụ có alias riêng. Một giá trị môi trường nêu tên một dịch vụ khác — một từ của giá trị, được tách tại mọi ký tự mà tên máy chủ không dùng, bằng với tên của dịch vụ đó — mà `depends_on` không nêu tên thì không tạo kết nối nào: quyết định của dịch vụ ghi nhận nó như một gợi ý, nêu tên biến và dịch vụ, không bao giờ nêu giá trị. Mỗi model là một instance của `core/ai-model/docker-model-runner` khi catalog của workspace có nó, bất kể `reuse_mode` nói gì, và không Component nào được tạo nháp cho nó: instance ghi `model` và `runtime_flags` như nguồn nêu, và `context_size` của nguồn thành `context_window`, giá trị mà runtime khai báo cho độ dài ngữ cảnh của một model, được Compose Recipe của nó ghi ngược lại thành `context_size` của Compose. Khi catalog không có `core/ai-model/docker-model-runner`, model được tạo nháp thành `<target_namespace>/ai-model/<key>`, một Component thuộc danh mục `ai-model` mà values khai báo `model`, `context_size` và `runtime_flags`, và instance của nó ghi từng giá trị mà nguồn nêu. Mọi model đều có một quyết định cho biết trường hợp nào — `mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`, hoặc một bản nháp có quyết định ghi nhận rằng catalog của workspace không có `core/ai-model/docker-model-runner` — và mỗi dịch vụ nêu tên model đều được kết nối với nó trong cả hai trường hợp, như với một dịch vụ mà nó phụ thuộc vào. Một dịch vụ nêu tên model ở dạng dài, với `endpoint_var` hoặc `model_var`, nêu tên các biến mà địa chỉ và định danh của model đến được dịch vụ qua đó. Không khóa nào của bản nháp chứa tên của một biến — kết nối được ghi trên một socket mang tên model, vốn không khai báo giá trị nào, và importer không được cung cấp khóa hạ tầng của Component nào — nên một chú thích phía trên kết nối nêu tên từng biến, như mục đó ghi, và quyết định của dịch vụ ghi nhận cùng câu đó:"
+  },
   "1b461785cdc4f627": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -51396,6 +51407,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**Ngừng hỗ trợ (deprecation) không phải là một trường của bề mặt xuất bản.** Một thực thể bị đánh dấu ngừng hỗ trợ bằng cách ghi một dấu đánh dấu cho nó trong registry *sau* khi xuất bản — một dấu đánh dấu có chữ ký mang mức độ nghiêm trọng (`warning`, `error` hoặc `retracted`), lý do và phương án thay thế, được xác minh khi pull. Mọi bề mặt đọc lockfile khi đó đều báo cáo nó; `build.halt_on_deprecated_severity` chỉ quyết định liệu nó có dừng cả bản build hay không. Dấu đánh dấu không bao giờ được viết trong chính YAML của thực thể, và lý do mang tính cấu trúc: một artifact đã xuất bản là bất biến, nên một cờ được đóng băng vào đó lúc xuất bản không bao giờ có thể thể hiện một quyết định đưa ra sau này. Thông báo ngừng hỗ trợ mà `aggrega inspect` in ra cho một thực thể catalog đến từ dấu đánh dấu, cho mọi loại mà nó phân giải theo tên."
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên chỉ định Aggregate đó. Nó để lại, trong một chú thích phía trên mục của mỗi agent, `infra.image` của agent — image chạy chương trình của crew, mà không khai báo nào nêu tên — và thông tin xác thực agent xuất trình cho model của nó, gắn dưới `credential` trên kết nối `model` của nó; quá trình build dừng lại và nêu tên image cho đến khi image được đặt. Mỗi model cũng có một mục, không chứa hạ tầng nào, nên Release đặt nó cùng với các agent; phía trên mục của một model được khai báo dưới dạng một đối tượng `llm`, các thành phần khác của đối tượng được viết trong một chú thích, để Release mang đi nơi Component của model nhận chúng. `metadata.environment` và `spec.manifest` của Release được để trống, mỗi cái được nêu tên trong một chú thích, trừ khi lần nhập được cho một target, như [Một target bổ sung gì](#what-a-target-adds) mô tả."
   },
   "4e5acdedb8fbc422": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -85028,6 +85050,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "Có hai trường hợp cố ý không dừng. Một sub-module không đóng góp component nào thì không có gì để đặt. Một sub-module có toggle `active:` phân giải thành `false` chưa bao giờ được kết hợp, nên không có component nào của nó tồn tại để được đặt."
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "Bên cạnh đó, `release.yaml` là một Release nháp cùng tên, có `spec.aggregate` nêu tên Aggregate. Với một instance của `core/compute/server`, nó ghi `infra.image`, image như đã viết, và `infra.port`, cổng mà container lắng nghe trong mục đầu tiên của `ports`, hoặc của `expose` khi `ports` không có mục nào. Một chú thích phía trên mục của mỗi dịch vụ ghi những gì nguồn nêu mà không khóa nào của bản nháp mang — image của một dịch vụ được khớp với Component khác, `ports`, `expose`, `volumes` và `environment` của nó — để bạn mang sang nơi Component nhận nó, và nêu tên những gì bản nháp để lại cho Release: image của một dịch vụ không nêu image nào, như dịch vụ tự build image của mình, và một cổng không phải là một số duy nhất. Một bản build chỉ đặt các instance mà Release nêu tên, nên instance của mỗi model có một mục rỗng, `<key>: {}`, sau các mục của dịch vụ: cả một instance của `core/ai-model/docker-model-runner`, vốn không nhận đầu vào nào trên Compose mà thiếu giá trị mặc định, lẫn một model được tạo nháp thành Component riêng, nên model được tạo nháp đã được đặt sẵn và build được ngay khi bạn viết Recipe hiện thực nó. Một cổng mà Component không nhận, chẳng hạn cổng dưới ngưỡng 1024 của `core/compute/server`, được ghi như nguồn nêu, và bản build dừng lại nêu tên nó. `metadata.environment` và `spec.manifest` của Release được để trống, mỗi cái được nêu tên trong một chú thích, như của importer MCP, trừ khi lần import được cung cấp một target, như [Một target bổ sung gì](#what-a-target-adds) mô tả. Manifest nêu tên Recipe hiện thực mỗi Component trên target mà bạn build; `core/compute/server` được hiện thực trên Kubernetes bởi `helm/server`, và `core/ai-model/docker-model-runner` bởi `compose/docker-model-runner` trên Compose và `helm/docker-model-runner` trên Kubernetes."
   },
   "8165b025c794d338": {
     "at": "2026-10-22T22:51:16.626703+00:00",

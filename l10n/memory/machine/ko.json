@@ -18063,6 +18063,17 @@
     "status": "machine",
     "text": "`.aggrega-config.yaml`에서 워크스페이스가 두 카탈로그 디렉터리를 모두 가리키도록 설정합니다:"
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml`은 `<target_namespace>/flow`라는 이름의 초안 Aggregate로, 서비스마다 그 결정이 선택한 Component의 인스턴스를 하나씩 담으며, MCP 임포터가 서버에 키를 붙이는 방식으로 키가 붙습니다. 키가 서비스 이름이 아니거나 임포트가 여러 디렉터리를 읽은 경우에는 인스턴스 위에 서비스와 그 서비스가 나온 파일을 명시하는 주석이 붙습니다. 서비스의 `depends_on`이 명시하는 각 서비스는 연결 `uses: <key>: <key>: {target: <key>}`이 되며, 이 연결은 둘 다 대상의 키를 따라 이름 붙은 소켓과 별칭 아래에 쓰입니다. 컴포넌트는 어떤 소켓에 연결되어 있든 각 연결을 그 별칭으로 읽으므로, 서비스의 각 연결은 저마다 고유한 별칭을 가집니다. 다른 서비스를 명시하는 환경 값, 즉 호스트 이름에 쓰이지 않는 모든 문자에서 값을 나눈 단어 중 그 서비스의 이름과 같은 것이 있는 값을 `depends_on`이 명시하지 않으면 연결이 생기지 않습니다. 서비스의 결정은 이를 힌트로 기록하며, 변수와 서비스를 명시하고 값은 절대 명시하지 않습니다. 각 모델은 워크스페이스의 카탈로그가 `core/ai-model/docker-model-runner`를 보유하는 경우 `reuse_mode`의 값과 관계없이 그 인스턴스가 되며, 모델을 위한 Component는 초안으로 작성되지 않습니다. 인스턴스는 `model`과 `runtime_flags`를 소스가 기술한 그대로 쓰고, 소스의 `context_size`를 `context_window`로 씁니다. 이 값은 런타임이 모델의 컨텍스트 길이로 선언하는 값이며, 런타임의 Compose Recipe가 이를 Compose의 `context_size`로 다시 씁니다. 카탈로그가 `core/ai-model/docker-model-runner`를 보유하지 않는 경우 모델은 `<target_namespace>/ai-model/<key>`로 초안이 작성됩니다. 이는 값이 `model`, `context_size`, `runtime_flags`를 선언하는 `ai-model` 카테고리의 Component이며, 그 인스턴스는 소스가 기술한 각 값을 씁니다. 모든 모델에는 어느 쪽인지를 말하는 결정이 있습니다. `mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`이거나, 워크스페이스의 카탈로그가 `core/ai-model/docker-model-runner`를 보유하지 않는다고 결정에 기록된 초안입니다. 어느 경우든 모델을 명시하는 각 서비스는 의존하는 서비스와 마찬가지로 모델에 연결됩니다. 긴 형식으로 `endpoint_var` 또는 `model_var`를 사용해 모델을 명시하는 서비스는 모델의 주소와 식별자가 서비스에 전달되는 변수를 명시합니다. 초안의 어떤 키도 변수 이름을 담지 않으므로(연결은 값을 선언하지 않는, 모델 이름을 딴 소켓에 쓰이며, 임포터에는 어떤 Component의 인프라 키도 전달되지 않습니다) 연결 위의 주석이 항목이 쓴 그대로 각 변수를 명시하고, 서비스의 결정도 같은 문장을 기록합니다."
+  },
   "1b461785cdc4f627": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -51410,6 +51421,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**지원 중단(deprecation)은 게시 표면 필드가 아닙니다.** 엔터티는 게시 *이후* 레지스트리에 해당 엔터티에 대한 마커를 기록하여 지원 중단됩니다. 이 마커는 심각도(`warning`, `error` 또는 `retracted`), 사유, 대체 항목을 담은 서명된 마커이며 pull 시점에 검증됩니다. 이후 lockfile을 읽는 모든 화면이 이를 보고하며, `build.halt_on_deprecated_severity`는 빌드도 중지할지 여부만 결정합니다. 마커는 엔터티 자체의 YAML에 작성되지 않으며, 그 이유는 구조적입니다. 게시된 아티팩트는 불변이므로, 게시 시점에 아티팩트에 고정된 플래그로는 나중에 내려진 결정을 표현할 수 없습니다. `aggrega inspect`가 카탈로그 엔터티에 대해 출력하는 지원 중단 알림은 이름으로 해석하는 모든 종류에 대해 마커에서 가져옵니다."
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "그 옆의 `release.yaml`은 같은 이름으로 해당 Aggregate를 지정하는 초안 Release입니다. 각 에이전트 항목 위의 주석에 `infra.image` — 어떤 선언도 지정하지 않는, 크루의 프로그램을 실행하는 이미지 — 와 모델에 제시하는 자격 증명을 `model` 연결의 `credential` 아래에 붙이도록 남겨 둡니다. 이미지가 설정될 때까지 빌드는 이미지를 지목하며 중단됩니다. 각 모델에도 인프라를 담지 않는 항목이 있어 Release가 모델을 에이전트와 함께 배치합니다. `llm` 객체로 선언된 모델의 항목 위에는 객체의 다른 멤버가 주석으로 작성되어, 모델의 Component가 이를 받는 경우 Release가 옮길 수 있게 합니다. Release의 `metadata.environment`와 `spec.manifest`는 임포트에 대상이 주어지지 않는 한 설정되지 않은 채 각각 주석에 기재됩니다. 이는 [대상이 추가하는 것](#what-a-target-adds)에서 설명합니다."
   },
   "4e5acdedb8fbc422": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -85043,6 +85065,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "두 가지 경우는 의도적으로 중단되지 않습니다. 컴포넌트를 제공하지 않는 하위 모듈은 배치할 것이 없습니다. `active:` 토글이 `false`로 해석되는 하위 모듈은 애초에 구성되지 않았으므로, 배치할 컴포넌트가 존재하지 않습니다."
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "그 옆의 `release.yaml`은 같은 이름의 초안 Release이며, 그 `spec.aggregate`가 Aggregate를 명시합니다. `core/compute/server`의 인스턴스에 대해서는 작성된 그대로의 이미지인 `infra.image`와, `ports`의 첫 항목에서, 또는 `ports`에 항목이 없으면 `expose`의 첫 항목에서 컨테이너가 수신하는 포트인 `infra.port`를 씁니다. 각 서비스 항목 위의 주석은 소스가 기술하지만 초안의 어떤 키도 담지 않는 것, 즉 다른 Component에 일치된 서비스의 이미지와 그 `ports`, `expose`, `volumes`, `environment`를 써서 Component가 받는 곳에 옮길 수 있게 하고, 초안이 Release에 남기는 것, 즉 자체 이미지를 빌드하는 서비스처럼 이미지를 명시하지 않는 서비스의 이미지와 하나의 숫자가 아닌 포트를 명시합니다. 빌드는 Release가 명시하는 인스턴스만 배치하므로, 각 모델의 인스턴스에는 서비스 항목들 뒤에 빈 항목 `<key>: {}`가 있습니다. Compose에서 기본값이 없는 입력을 받지 않는 `core/ai-model/docker-model-runner`의 인스턴스도, 자체 Component로 초안이 작성된 모델도 마찬가지이므로, 초안으로 작성된 모델은 이미 배치되어 있으며 그것을 실현하는 Recipe를 작성하면 빌드됩니다. `core/compute/server`의 하한인 1024보다 낮은 포트처럼 Component가 받지 않는 포트는 소스가 기술한 그대로 쓰이며, 빌드는 그 포트를 명시하며 중단됩니다. Release의 `metadata.environment`와 `spec.manifest`는 MCP 임포터의 경우와 마찬가지로 설정되지 않은 채 남고 각각 주석에 명시됩니다. 단, [타깃이 추가하는 것](#what-a-target-adds)에서 설명하듯 임포트에 타깃이 주어진 경우는 예외입니다. Manifest는 빌드 대상 타깃에서 각 Component를 실현하는 Recipe를 명시합니다. `core/compute/server`는 Kubernetes에서 `helm/server`로 실현되고, `core/ai-model/docker-model-runner`는 Compose에서 `compose/docker-model-runner`로, Kubernetes에서 `helm/docker-model-runner`로 실현됩니다."
   },
   "8165b025c794d338": {
     "at": "2026-10-22T03:24:54.319294+00:00",

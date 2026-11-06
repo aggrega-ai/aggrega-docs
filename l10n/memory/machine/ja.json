@@ -18063,6 +18063,17 @@
     "status": "machine",
     "text": "`.aggrega-config.yaml` で、ワークスペースが両方のカタログディレクトリを参照するように設定します。"
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml` は `<target_namespace>/flow` という名前のドラフト Aggregate で、サービスごとに、その判定が選んだ Component のインスタンスを 1 つずつ保持します。インスタンスは MCP インポーターがサーバーにキーを付けるのと同じ方法でキーが付けられ、キーがサービス名でない場合やインポートが複数のディレクトリを読んだ場合は、その上のコメントがサービスと読み込み元のファイルを示します。サービスの `depends_on` が示す各サービスは接続 `uses: <key>: <key>: {target: <key>}` になり、どちらもターゲットのキーにちなんで名付けられたソケットとエイリアスの下に書かれます。コンポーネントは、どのソケットに接続されていても各接続をそのエイリアスで読み取るため、サービスの各接続にはそれぞれ固有のエイリアスがあります。別のサービスを示す環境変数の値（ホスト名に使われないすべての文字で値を分割した語のうち、そのサービス名と等しいもの）で、`depends_on` が示さないものは接続を生みません。サービスの判定はそれをヒントとして記録し、変数とサービスを示しますが、値は決して示しません。各モデルは、ワークスペースのカタログが `core/ai-model/docker-model-runner` を保持する場合、`reuse_mode` の指定にかかわらずそのインスタンスになり、そのための Component はドラフトされません。インスタンスは `model` と `runtime_flags` をソースの記述どおりに書き、ソースの `context_size` を `context_window` として書きます。これはランタイムがモデルのコンテキスト長として宣言する値で、その Compose Recipe が Compose の `context_size` として書き戻します。カタログが `core/ai-model/docker-model-runner` を保持しない場合、モデルは `<target_namespace>/ai-model/<key>` としてドラフトされます。これは `ai-model` カテゴリの Component で、その values は `model`、`context_size`、`runtime_flags` を宣言し、そのインスタンスはソースが記述する各値を書きます。すべてのモデルには、どちらであるかを示す判定があり（`mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`、またはワークスペースのカタログが `core/ai-model/docker-model-runner` を保持しないことを判定が記録するドラフト）、どちらの場合も、そのモデルを示す各サービスは、依存するサービスと同様にモデルに接続されます。長い形式で `endpoint_var` または `model_var` を使ってモデルを示すサービスは、モデルのアドレスと識別子がサービスに届く変数を示します。ドラフトのどのキーも変数名を保持しないため（接続はモデルにちなんで名付けられた、値を宣言しないソケットに書かれ、インポーターにはどの Component のインフラキーも渡されません）、接続の上のコメントがエントリの記述どおりに各変数を示し、サービスの判定も同じ文を記録します。"
+  },
   "1b461785cdc4f627": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -51410,6 +51421,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**非推奨は公開サーフェスのフィールドではありません。** エンティティは、公開*後*にレジストリでそのエンティティに対するマーカーを記録することで非推奨になります。これは重大度（`warning`、`error`、`retracted`）、理由、代替を持つ署名付きマーカーで、pull 時に検証されます。ロックファイルを読むすべてのサーフェスがそれを報告し、`build.halt_on_deprecated_severity` はビルドも停止するかどうかだけを決めます。マーカーがエンティティ自身の YAML に記述されることはなく、その理由は構造的なものです。公開されたアーティファクトは不変であるため、公開時にそこへ固定されたフラグでは、後で下された決定を表現できません。`aggrega inspect` がカタログエンティティについて出力する非推奨の通知は、名前で解決するすべての種別について、マーカーから得られます。"
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "その隣の `release.yaml` は、その Aggregate を指定する同名のドラフト Release です。各エージェントのエントリの上のコメントに、`infra.image` — どの宣言も指定しない、クルーのプログラムを実行するイメージ — と、モデルに提示する資格情報（`model` 接続の `credential` の下に付与）を残します。イメージが設定されるまで、ビルドはイメージを示して停止します。各モデルにもインフラを保持しないエントリがあり、それによって Release はモデルをエージェントと一緒に配置します。`llm` オブジェクトとして宣言されたモデルのエントリの上には、オブジェクトのその他のメンバーがコメントに書かれ、モデルの Component がそれらを受け取る場合に Release が引き継げるようになっています。Release の `metadata.environment` と `spec.manifest` は、インポートにターゲットが与えられない限り未設定のままで、それぞれコメントで名前が示されます。詳細は[ターゲットが追加するもの](#what-a-target-adds)を参照してください。"
   },
   "4e5acdedb8fbc422": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -85041,6 +85063,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "2 つのケースは意図的に停止しません。コンポーネントを提供しないサブモジュールには配置するものがありません。`active:` トグルが `false` に解決されるサブモジュールは合成されていないため、配置すべきコンポーネントが存在しません。"
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "その隣の `release.yaml` は同じ名前のドラフト Release で、その `spec.aggregate` が Aggregate を示します。`core/compute/server` のインスタンスについては、記述どおりのイメージである `infra.image` と、`ports` の最初のエントリ（`ports` が何も保持しない場合は `expose` の最初のエントリ）でコンテナが待ち受けるポートである `infra.port` を書きます。各サービスのエントリの上のコメントは、ソースが記述していてドラフトのどのキーも持たないもの（別の Component に一致したサービスのイメージ、その `ports`、`expose`、`volumes`、`environment`）を、Component がそれを受け取る場所へ移せるように書き、ドラフトが Release に委ねるもの（自身のイメージをビルドするサービスのように、イメージを示さないサービスのイメージと、単一の数値でないポート）を示します。ビルドは Release が示すインスタンスだけを配置するため、各モデルのインスタンスには、サービスのエントリの後に空のエントリ `<key>: {}` があります。これは、Compose 上でデフォルトのない入力を受け取らない `core/ai-model/docker-model-runner` のインスタンスでも、独自の Component としてドラフトされたモデルでも同じです。そのため、ドラフトされたモデルはすでに配置されており、それを実現する Recipe を書けばビルドできます。`core/compute/server` の下限 1024 未満のポートのように、Component が受け取らないポートはソースの記述どおりに書かれ、ビルドはそれを示して停止します。Release の `metadata.environment` と `spec.manifest` は、MCP インポーターと同様に未設定のまま残され、それぞれコメントで示されます。ただし、[ターゲットが追加するもの](#what-a-target-adds)で説明するように、インポートにターゲットが与えられた場合は除きます。Manifest は、ビルド対象のターゲット上で各 Component を実現する Recipe を示します。`core/compute/server` は Kubernetes 上で `helm/server` によって実現され、`core/ai-model/docker-model-runner` は Compose 上で `compose/docker-model-runner`、Kubernetes 上で `helm/docker-model-runner` によって実現されます。"
   },
   "8165b025c794d338": {
     "at": "2026-10-22T03:24:54.319294+00:00",

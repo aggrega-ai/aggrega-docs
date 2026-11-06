@@ -18063,6 +18063,17 @@
     "status": "machine",
     "text": "在 `.aggrega-config.yaml` 中让工作区指向这两个目录目录："
   },
+  "1b44e5fd65262b37": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "30c754e93d667f21",
+      "reviewed": false
+    },
+    "srcHash": "1b44e5fd65262b37",
+    "status": "machine",
+    "text": "`aggregate.yaml` 是一个名为 `<target_namespace>/flow` 的草稿 Aggregate，每个服务对应一个实例，实例的类型是该服务的决策所选的 Component，其键的取法与 MCP 导入器为服务器取键的方式相同；当键不是服务名，或导入读取了多个目录时，实例上方有一条注释，指出该服务及其来源文件。服务的 `depends_on` 所列的每个服务都是一条连接，即 `uses: <key>: <key>: {target: <key>}`，写在一个 socket 和一个别名之下，二者都以目标的键命名。组件通过别名读取它的每条连接，无论该连接接入哪个 socket，因此服务的每条连接都有自己的别名。若某个环境变量值指向另一个服务（即该值在每个主机名不会使用的字符处拆分后，有一个词与该服务的名称相同），而 `depends_on` 未列出该服务，则不会生成连接：该服务的决策将其记为一条提示，指出变量和服务，但从不写出值。当工作区的目录包含 `core/ai-model/docker-model-runner` 时，无论 `reuse_mode` 如何设置，每个模型都是它的一个实例，且不为其起草 Component：该实例按源文件所写的形式写出 `model` 和 `runtime_flags`，并将源文件的 `context_size` 写为 `context_window`，即该运行时为模型上下文长度声明的值，其 Compose Recipe 会将其写回为 Compose 的 `context_size`。当目录中没有 `core/ai-model/docker-model-runner` 时，模型被起草为 `<target_namespace>/ai-model/<key>`，这是一个 `ai-model` 类别的 Component，其 values 声明 `model`、`context_size` 和 `runtime_flags`，其实例写出源文件所给的每一项。每个模型都有一条决策说明属于哪种情况——`mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`，或一个草稿，其决策记录工作区的目录中没有 `core/ai-model/docker-model-runner`——无论哪种情况，引用该模型的每个服务都会连接到它，如同连接到它所依赖的服务。以长格式引用模型并带有 `endpoint_var` 或 `model_var` 的服务，会指明模型地址和标识符传给该服务时所用的变量。草稿中没有任何键保存变量名——连接写在以模型命名、不声明任何值的 socket 上，而导入器拿不到任何 Component 的 infrastructure 键——因此连接上方有一条注释，按条目所写的形式列出每个变量，服务的决策也记录同一句话："
+  },
   "1b461785cdc4f627": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -51410,6 +51421,17 @@
     "srcHash": "4e5846977aeaf4e4",
     "status": "machine",
     "text": "**弃用不是发布面字段。** 实体的弃用方式是在发布*之后*于注册表中针对它记录一个标记——一个已签名的标记，携带严重级别（`warning`、`error` 或 `retracted`）、原因和替代项，并在拉取时校验。随后，每个读取 lockfile 的界面都会报告它；`build.halt_on_deprecated_severity` 只决定它是否同时中止构建。该标记从不写在实体自身的 YAML 中，原因在于结构：已发布的制品不可变，因此在发布时固化进去的标志永远无法表达之后做出的决定。`aggrega inspect` 为目录实体打印的弃用通知来自该标记，适用于它按名称解析的每种类型。"
+  },
+  "4e5a5ada6b7fa1da": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "99588b378e0ea332",
+      "reviewed": false
+    },
+    "srcHash": "4e5a5ada6b7fa1da",
+    "status": "machine",
+    "text": "旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。它在每个 agent 条目上方的注释中留下其 `infra.image`——运行 crew 程序的镜像，任何声明都未指定——以及它向其模型出示的凭据，附加在其 `model` 连接的 `credential` 下；在设置镜像之前，构建会停止并指出该镜像。每个模型也有一个条目，其中不含任何基础设施，因此 Release 将模型与各 agent 一起放置；在以 `llm` 对象声明的模型的条目上方，对象的其他成员写在注释中，供 Release 在模型的 Component 接受这些成员时携带。除非为导入指定了目标，否则 Release 的 `metadata.environment` 和 `spec.manifest` 保持未设置，各自在注释中注明，如 [目标会添加什么](#what-a-target-adds) 所述。"
   },
   "4e5acdedb8fbc422": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -85037,6 +85059,17 @@
     "srcHash": "8163833418a2afe8",
     "status": "machine",
     "text": "有两种情况有意不中止。不贡献任何组件的子模块无需放置。`active:` 开关解析为 `false` 的子模块从未被组合，因此它没有任何组件需要放置。"
+  },
+  "816506e3a5888f33": {
+    "at": "2026-11-06T04:43:35.520Z",
+    "job": "session-0006-20261106044335",
+    "revision": {
+      "from": "9bfa1d4246100629",
+      "reviewed": false
+    },
+    "srcHash": "816506e3a5888f33",
+    "status": "machine",
+    "text": "与之并列，`release.yaml` 是一个同名的草稿 Release，其 `spec.aggregate` 指向该 Aggregate。对于 `core/compute/server` 的实例，它写出 `infra.image`（按原样写出的镜像）和 `infra.port`（`ports` 第一个条目中容器监听的端口；若 `ports` 为空，则取 `expose` 的第一个条目）。每个服务条目上方的注释写出源文件中有、但草稿中没有任何键承载的内容——匹配到其他 Component 的服务的镜像，以及它的 `ports`、`expose`、`volumes` 和 `environment`——供你在 Component 接受时自行填入，并指出草稿留给 Release 的内容：未指定镜像的服务的镜像（例如自行构建镜像的服务），以及不是单个数字的端口。构建只放置 Release 所列的实例，因此每个模型的实例在各服务条目之后都有一个空条目 `<key>: {}`：`core/ai-model/docker-model-runner` 的实例如此（它在 Compose 上没有缺少默认值的输入），被起草为独立 Component 的模型也是如此，因此起草的模型已经放置好，一旦你编写了实现它的 Recipe 即可构建。Component 不接受的端口（例如低于 `core/compute/server` 下限 1024 的端口）会按源文件所写写出，构建会因此中止并指出该端口。Release 的 `metadata.environment` 和 `spec.manifest` 不设置，各用一条注释注明，与 MCP 导入器的做法相同，除非导入指定了目标，如[目标带来的内容](#what-a-target-adds)所述。Manifest 指定在你构建的目标上实现每个 Component 的 Recipe；`core/compute/server` 在 Kubernetes 上由 `helm/server` 实现，`core/ai-model/docker-model-runner` 在 Compose 上由 `compose/docker-model-runner` 实现，在 Kubernetes 上由 `helm/docker-model-runner` 实现。"
   },
   "8165b025c794d338": {
     "at": "2026-10-22T03:18:41.939034+00:00",
