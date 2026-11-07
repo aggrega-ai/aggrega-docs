@@ -95,6 +95,10 @@ This release is expected to fail — the halt is the lesson. The build exits `1`
 rather than reporting success, so the guardrail is visible to a reader and to
 any script that runs it.
 
-The fix is to attach a referenceable credential (`core/referenced-secret`), as in
-`aggregate-helm.yaml`. An inject-value credential reaches the container through
-the inject pipe instead, never a `containers.attachments` reference.
+There are two fixes. Attach a referenceable credential (`core/referenced-secret`),
+as in `aggregate-helm.yaml`; or keep the `core/secret-value` attachment and map it
+in the Manifest to `k8s-secret-from-value`, the Helm realization of
+`core/secret-value` that writes the value into a Secret it emits and publishes
+that Secret's name and key, so the reference has a resource to point at. Bound to
+`env-secret`, an inject-value credential reaches the container through the inject
+pipe instead, never a `containers.attachments` reference.
