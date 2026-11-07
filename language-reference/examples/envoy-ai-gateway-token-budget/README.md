@@ -321,10 +321,22 @@ From `assistant-deployment.yaml`, the `env` of the agent's container:
               value: http://envoy-envoy-gateway-system-edge-06431a46.envoy-gateway-system.svc.cluster.local:80/v1
             - name: MODEL
               value: assistant
+            - name: CREWAI_ALLOW_DELEGATION
+              value: "false"
+            - name: CREWAI_BACKSTORY
+              value: a help-desk agent answering customers
+            - name: CREWAI_GOAL
+              value: answer questions about the product
+            - name: CREWAI_LOG_LEVEL
+              value: DEBUG
+            - name: CREWAI_ROLE
+              value: support assistant
 ```
 
 The agent reads the two keys the gateway publishes, which are the two a model
-publishes, so its Recipe reads them as it would read a model's. The address is
+publishes, so its Recipe reads them as it would read a model's. The `CREWAI_`
+variables carry the agent's own values, under the names the CrewAI Component
+gives them by default. The address is
 the Service Envoy Gateway creates for the gateway's data plane, named from the
 gateway's namespace, its name and a hash of the two, and qualified with
 `envoy-gateway-system`, so it resolves from the agent's namespace. The model

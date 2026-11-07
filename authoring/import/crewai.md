@@ -389,7 +389,7 @@ Aggregate's `values` or the Release's `infra`, and the notice reports that one
 leaf is declared in both. It changes no verdict.
 
 The researcher's service in `dist/compose/docker-compose.yaml`; the writer's
-differs only in its name:
+differs only in its name and in the values its own variables carry:
 
 ```yaml
 services:
@@ -398,6 +398,14 @@ services:
     environment:
       OPENAI_BASE_URL: https://api.openai.com/v1
       MODEL: gpt-4o-mini
+      CREWAI_ALLOW_DELEGATION: "false"
+      CREWAI_BACKSTORY: |
+        You keep the company's support plans at your fingertips and answer from them alone.
+      CREWAI_GOAL: |
+        Find what each support plan of the company covers, and what it costs
+      CREWAI_LOG_LEVEL: DEBUG
+      CREWAI_ROLE: |
+        Support plan researcher
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
@@ -406,6 +414,11 @@ services:
 
 The agent receives the model's address and its name as `OPENAI_BASE_URL` and
 `MODEL`, the variables CrewAI reads them from, and the key as `OPENAI_API_KEY`.
+Its role, goal, backstory, delegation switch and log level arrive under the
+names the CrewAI Component gives them by default, for the crew's program to
+read; an `inject:` block on the component itself delivers any of them under the
+name the program reads instead. Each value the import drafted keeps the line
+break its declaration ended with, so the file writes it as a block.
 The model gets no service of its own: the agents reach the OpenAI API at its
 own address. The key is a variable reference, filled from your shell when the
 stack starts. The services publish no port on your machine: the rendered file

@@ -166,17 +166,19 @@ one.
 ```yaml
 # dist/helm/assistant-deployment.yaml, the env of the assistant's container
 env:
+  [… omitted: the recursion limit]
   - name: OPENAI_BASE_URL
     value: http://masking-gateway-default:4000/v1
-  [… omitted: the alias and the checkpointer's address]
+  [… omitted: the alias, the checkpointer's address and the graph's entrypoint]
 ```
 
 ```yaml
 # dist/helm/helpdesk-deployment.yaml, the env of the helpdesk's container
 env:
+  [… omitted: the recursion limit]
   - name: OPENAI_BASE_URL
     value: http://plain-gateway-default:4000/v1
-  [… omitted: the alias and the checkpointer's address]
+  [… omitted: the alias, the checkpointer's address and the graph's entrypoint]
 ```
 
 The masking itself is in the masking gateway's configuration, the `config.yaml`

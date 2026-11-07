@@ -368,10 +368,12 @@ graph and one for the database. The graph's service:
   support:
     image: ghcr.io/example/support-agent:1.0.0
     environment:
+      LANGGRAPH_DEFAULT_RECURSION_LIMIT: "25"
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_MODEL: gpt-4o-mini
       LANGGRAPH_CHECKPOINTER_HOST: postgres
       LANGGRAPH_CHECKPOINTER_PORT: "5432"
+      LANGGRAPH_GRAPH_ENTRYPOINT: ./src/support_agent/graph.py:graph
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
@@ -380,11 +382,15 @@ graph and one for the database. The graph's service:
       - postgres
 ```
 
-The graph receives the model's address, its name and its key, and the
-database's host and port, under the names the LangGraph Component delivers by
-default; an `inject:` block on a connection delivers them under the names your
-code reads instead. The database's own service reads its password the same
-way:
+The graph receives the model's address, its name and its key, the database's
+host and port, and its own graph entrypoint. The model's name, the database's
+host and port and the graph entrypoint arrive under the names the LangGraph
+Component delivers by default, which an `inject:` block on the connection, or
+on the component itself for its own values, replaces with the names your code
+reads. The model's address and its key stay whatever the blocks name, and so
+does `LANGGRAPH_DEFAULT_RECURSION_LIMIT`, which LangGraph reads by itself as
+the step limit of a run whose configuration sets none. The database's own
+service takes its password the way the graph takes its key:
 
 ```yaml
   postgres:

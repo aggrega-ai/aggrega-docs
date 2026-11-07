@@ -1827,8 +1827,9 @@ spec:
 ```
 
 Each graph is then rendered running that image, given its datastore's address as
-`LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, and the model's endpoint and name as
-`OPENAI_BASE_URL` and `OPENAI_MODEL`.
+`LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, the model's endpoint and name as
+`OPENAI_BASE_URL` and `OPENAI_MODEL`, its import path as `LANGGRAPH_GRAPH_ENTRYPOINT` and its step limit
+as `LANGGRAPH_DEFAULT_RECURSION_LIMIT`.
 
 ### The environment a configuration states
 

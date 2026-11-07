@@ -330,8 +330,9 @@ for; set values.model to one of them*. Setting `model: assistant` beside
 
 ## What the agent receives
 
-The agent's Recipe reads both of its edges and turns them into container
-environment. Here is the whole `env` block of `dist/helm/agent-deployment.yaml`:
+The agent's Recipe reads both of its edges and the agent's own values, and turns
+them into container environment. Here is the whole `env` block of
+`dist/helm/agent-deployment.yaml`:
 
 ```yaml
           env:
@@ -340,6 +341,8 @@ environment. Here is the whole `env` block of `dist/helm/agent-deployment.yaml`:
                 secretKeyRef:
                   name: agent-router-model.credential
                   key: api-key
+            - name: LANGGRAPH_DEFAULT_RECURSION_LIMIT
+              value: "25"
             - name: OPENAI_BASE_URL
               value: http://router-default:4000/v1
             - name: OPENAI_MODEL
@@ -348,12 +351,18 @@ environment. Here is the whole `env` block of `dist/helm/agent-deployment.yaml`:
               value: checkpointer-default
             - name: LANGGRAPH_CHECKPOINTER_PORT
               value: "6379"
+            - name: LANGGRAPH_GRAPH_ENTRYPOINT
+              value: app.graph:graph
 ```
 
 The first came from the attachment the `model` edge carries, and the helm
-provider writes such an entry, read from a Secret, ahead of the plain ones; the
-next two came off the `model` edge, and the last two off the `checkpointer_db`
-edge. Note what the Aggregate did **not** have to say: neither edge carries an
+provider writes such an entry, read from a Secret, ahead of the plain ones. The
+recursion limit is the agent's own `recursion_limit`, under the variable
+LangGraph reads by itself; the next two came off the `model` edge, the two after
+them off the `checkpointer_db` edge, and the last is the agent's own
+`graph_entrypoint`, under a default name the application's code reads, which an
+`inject` block on the component itself would replace. Note what the Aggregate
+did **not** have to say: neither edge carries an
 `inject` block, because the consuming Recipe delivers each connection under
 default names, which an `inject` block on the edge would replace. The developer
 declares that the agent uses a model; the variable its endpoint arrives under is
