@@ -1158,12 +1158,15 @@ Emitted message, naming the alias, how many entries claimed it, and which hosts 
 
 A release's lockfile records what the build resolved to: for every entity, library and plugin it reaches, the version selected and the digest of the bytes at that version. It is read and checked against its schema before it is turned into typed pins, so a document that does not fit is refused with the field path it failed at rather than silently producing pins with holes in them.
 
-**The lockfile is machine-written.** It is produced by the pull that resolves a release, and it is committed so the same build resolves the same way later. So a schema failure is nearly always a hand edit or a merge that left the document half-resolved, rather than something authored deliberately.
+**The lockfile is machine-written.** It is produced by the pull that resolves a release, and it is committed so the same build resolves the same way later. So a schema failure is nearly always a hand edit, a merge that left the document half-resolved, or a lockfile written for an earlier shape of the file — one whose `entities` carry no `kind`, say — rather than something authored deliberately.
 
 **A missing lockfile is a different condition and reports differently** — the lockfile is required, so its absence is reported where the build looks for it, with the instruction to run the pull that creates it.
 
 Emitted message, naming the file, the field path and the schema's own objection:
 > lockfile: `<path>`: `<field-path>`: `<the schema's own objection>`: lockfile: file failed schema validation
+
+A build, and `aggrega pull --verify`, add the command that writes the lockfile again:
+> ...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release
 
 A document that is entirely empty reports separately, since there is no field to name:
 > lockfile: `<path>`: document is empty
@@ -2364,9 +2367,10 @@ These shapes of disagreement are reported, and they are worth telling apart beca
 
 The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes. For a release file that includes a comment or a whitespace change, exactly as it does for the Aggregate and the Manifest the release names. For an entity it is the content of what it carries, so the same entity read from a catalog directory and fetched from a registry does not drift, and neither does a checkout whose files differ only in permission bits, the execute bit included, nor a publication whose archive was compressed differently.
 
-Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis:
-> lockfile: out of date; it no longer matches what its Release resolves to: entity `"<uri>"` not in lockfile (referenced from `<site>`)
+Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis — and, for an entity, its kind, because an entity is identified by its kind and its URI together, so a Release whose Aggregate and Manifest share a name has two entries, and an edit to either is reported against the one edited:
+> lockfile: out of date; it no longer matches what its Release resolves to: entity `"<uri>"` (`<kind>`) not in lockfile (referenced from `<site>`)
 > `<axis>` `"<uri>"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
+> entity `"<uri>"` (`<kind>`) changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
 > `<axis>` `"<uri>"` no longer used by the release
 > release document `"<file>"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; re-resolving the Release records the files it reads as they now stand
 

@@ -115,7 +115,7 @@ deterministic: identical cache state produces byte-identical output.
 
 ## What the cache is, and what it is not
 
-The artifact cache under `artifact_cache_dir` (`.aggrega/cache` by default) holds what a fetch put there: catalog entities and source artifacts, each stored under the coordinate and version it was fetched at and vouched for by a digest the lockfile records. It is not a catalog directory, and a catalog scan steps over it — so content sitting in the cache is read as a dependency, through the pin that vouches for it, and never as an entity you authored.
+The artifact cache under `artifact_cache_dir` (`.aggrega/cache` by default) holds what a fetch put there: catalog entities and source artifacts, each stored under its kind and the coordinate and version it was fetched at, and vouched for by a digest the lockfile records. It is not a catalog directory, and a catalog scan steps over it — so content sitting in the cache is read as a dependency, through the pin that vouches for it, and never as an entity you authored.
 
 **The consequence you are most likely to meet.** If the cache holds an entity that no lockfile pins, that entity is invisible to a build, and a build that needs it halts saying it was not found. The halt names the entity, so the missing pin is identifiable from the message.
 

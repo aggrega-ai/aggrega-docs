@@ -55,11 +55,11 @@ them from there. `aggrega build --release release-production.yaml --auto-pull
 ```text
 [… omitted: the line counting what the pull resolved, and the rows for the Components, the Recipes, the Feature and the FeatureRecipes, each found in the local catalog]
   in-binary  Plugin         governance/label-injector         ← governance/label-injector:0.8.6
-  local      Entity         governance/label-injector:0.8.6   ← .aggrega-config.yaml.plugins.governance
+  local      Plugin         governance/label-injector:0.8.6   ← .aggrega-config.yaml.plugins.governance
   in-binary  Plugin         governance/rego                   ← governance/rego:0.8.6
-  local      Entity         governance/rego:0.8.6             ← .aggrega-config.yaml.plugins.governance
+  local      Plugin         governance/rego:0.8.6             ← .aggrega-config.yaml.plugins.governance
   in-binary  Plugin         governance/selector-tagger        ← governance/selector-tagger:0.8.6
-  local      Entity         governance/selector-tagger:0.8.6  ← .aggrega-config.yaml.plugins.governance
+  local      Plugin         governance/selector-tagger:0.8.6  ← .aggrega-config.yaml.plugins.governance
 [… omitted: the rows for this workspace's Aggregate and Manifest, the pull's summary, a lint notice about core/secret-value, and the build's summary]
 ```
 
