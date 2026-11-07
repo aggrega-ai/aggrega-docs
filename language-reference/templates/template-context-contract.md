@@ -66,6 +66,7 @@ Because the labels arrive verbatim, a catalog author's own namespace reaches the
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (map of mechanisms, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
 - **`.context.uses` (map of connections, see below).** The JOIN projection over outbound topological edges.
+- **`.context.self_inject` (map of mechanisms, see below).** For each name the developer wrote in the component's own `inject:` block, the own provides key that entry delivers or the one own value its template reads.
 - **`.context.used_by` (list, see below).** The components whose `uses` entries point at this one. Read by a FeatureRecipe attached to the component, on the templates that produce the attachment's own resources; empty everywhere else.
 - **`.context.render_facts` (map of lists, see below).** What the component's provider reported about the output it rendered, keyed by fact name. Read by a FeatureRecipe attached to the component, on every one of its templates that runs after the component has rendered; absent everywhere else.
 
@@ -94,6 +95,56 @@ A mechanism is in the pipe only when something delivers through it. A template r
 - **Custom mechanisms** (e.g., `ssm_param`) — readable under their own field name, `.context.inject.<mechanism>.<key>`, exactly as the core three are. A custom mechanism's values reach the pipe from component-level self-inject, from a `uses[].inject` edge, from a Feature attachment's `inject:` mapping, and from a FeatureRecipe's `injectMapping` output. For component-level self-inject the Component's `spec.inject` allowlist must name the mechanism, and a mechanism the allowlist does not name halts the build. A custom mechanism's entries also appear in `.context.inject.all` alongside the core three.
 
 The pipe is the post-interception state — FeatureRecipe `injectMapping` blocks have already deep-merged their overrides over this pipe during inject mapping, by the time Recipe templates read it. A mapping may replace a key the component's own `inject:` block, one of its connections' `inject:` blocks or its own attachment's `inject:` block delivered; a key two attached Features both deliver, through their `inject:` blocks or their mappings, halts the build instead of reaching this pipe with one of the two values. A Feature attached to a Release boundary reaches the component the same way, through its FeatureRecipe's `injectMapping`, which runs in the component's own context whatever the FeatureRecipe's `executionScope` — the compose bridge's rewrite of a consumer's host variable is one such mapping, held to the same rule.
+
+### `.context.self_inject` — which own value each of the developer's names delivers
+
+Where a Component declares `spec.inject`, the developer may write an `inject:` block on the component itself and choose the names the component's own values and provides are delivered under. `.context.inject` holds what those entries resolved to and `.inject_raw` holds them as written; `.context.self_inject` says, for each one, the component's own provides key it delivers or the one own value its template reads. It has the shape a connection's [`.context.uses.<alias>.inject`](#contextuses--join-projection) has — mechanism, then the developer's name, then a key — with the key naming one of the component's own provides or values:
+
+- **`provides.<key>`** — an entry written with `from: <key>`, delivering one of the component's own provides.
+- **`values.<key>`** — an entry whose `value:` template reads exactly one of the component's own values and nothing else, `<key>` being that value's top-level key. Text or functions around the read do not matter, and neither does how deeply the template reads into the value: `'{{ .values.role }}'`, `'role={{ .values.role | upper }}'` and `'{{ with .values.role }}{{ . }}{{ end }}'` all map to `values.role`, and `'{{ .values.config.port }}'`, `'{{ index .values.config "port" }}'` and `'{{ (default dict .values.config).port }}'` all map to `values.config`.
+- **an empty string** — every other entry: a literal, a template reading two values, a template reading anything besides the values (`.infra`, `.metadata`, `.context`), and a template whose read of the values the text does not attribute to one top-level key — the values handed to a function by their root (`index .values "role"`), the values read whole (`toJson .values`, or a field read inside `{{ with .values }}` or through a variable bound to `.values`), or the whole context handed on (`toJson .`).
+
+```yaml
+# The developer's block on the component, in the Aggregate
+inject:
+  env:
+    - { in: SERVICE_HOST, from: host }
+    - { in: AGENT_ROLE, value: '{{"{{"}} .values.role }}' }
+    - { in: MODE, value: batch }
+    - { in: ROLE_AND_GOAL, value: '{{"{{"}} .values.role }}-{{"{{"}} .values.goal }}' }
+  ssm_param:
+    - { in: /app/goal, value: '{{"{{"}} .values.goal }}' }
+
+# What the Recipe reads at .context.self_inject
+env:
+  SERVICE_HOST: provides.host
+  AGENT_ROLE: values.role
+  MODE: ""
+  ROLE_AND_GOAL: ""
+ssm_param:
+  /app/goal: values.goal
+```
+
+In the Aggregate, each `value:` template opens with `{{"{{"}}` rather than `{{`, because the Aggregate's whole text is read once as a template, for parameter interpolation, before the block's own templates are evaluated; the templates quoted in the list above are shown as they read after that escape. See [Text that carries its own double braces](parameters-context.md#text-that-carries-its-own-double-braces).
+
+This is what lets a Recipe that runs the developer's own image treat its own variable names for the component's own values as defaults — the standard-library catalog's convention, which an enterprise catalog may choose otherwise. Before delivering an own value under a name of its own, such a Recipe asks whether the developer's block already delivers that value, and skips its default when it does — so a developer who renames one value keeps every other default:
+
+```yaml
+workload: |
+  containers:
+    main:
+      variables:
+        {{- range $name, $value := .context.inject.env }}
+        {{ $name }}: {{ $value | quote }}
+        {{- end }}
+        {{- $named := dict }}
+        {{- with .context.self_inject.env }}{{ range $name, $key := . }}{{ $_ := set $named $key true }}{{ end }}{{ end }}
+        {{- if not (hasKey $named "values.role") }}
+        APP_ROLE: {{ .values.role | quote }}
+        {{- end }}
+```
+
+`.context.self_inject` is present on every render and empty where the developer wrote no block. A mechanism appears only when the block names it, so guard a read of one the block may not name, as the `with` above does. A template meets the names sorted however it reads them, as it meets every map. The map is read from the text the developer wrote; nothing in it is a resolved value, and the compiler attaches no meaning to the names or the keys.
 
 ### `.context.uses` — JOIN projection
 
@@ -246,17 +297,18 @@ assertions:
 
 `hasKey .uses "models"` asks whether the socket is wired, `len` counts its connections, a `range` over it visits each in alphabetical order of their aliases, and `.uses.models.local.target` reads one connection. `.uses.models.target` addresses no connection, and halts under the assertions surface's `missingkey=error`. Each connection has an entry of its own, for the reason the render context's map does: two connections of one component never share an alias, because the build refuses that before any assertion runs. The full assertion context is documented at [assertions-block.md](assertions-block.md#the-template-context).
 
-## Three inject-related surfaces
+## The inject-related surfaces
 
-The template context carries three inject-shaped fields with distinct semantics. Recipe and FeatureRecipe authors should know which surface to read.
+The template context carries these inject-shaped fields, each with its own semantics. Recipe and FeatureRecipe authors should know which surface to read.
 
 | Surface | Type | Populated when | Use |
 | --- | --- | --- | --- |
 | `.context.inject` | map of mechanisms (always present) | Every render | The standard pre-hydrated delivery pipe — read this in `valuesMapping:`/`workload:`/`artifacts:` templates and in any FeatureRecipe template site. |
 | `.inject` (top-level) | map of mechanisms (nullable) | Rendering an attachment's FeatureRecipe, where the attachment authors an `inject:` block | The attachment's own `inject:` entries, each local name mapped to the provides key it names. Absent from a base Recipe's templates and from an attachment that authors no `inject:` block. |
 | `.inject_raw` (top-level) | map of mechanisms (nullable) | Set when the developer authored an `inject:` block on the parent component | The unmutated Developer intent before any inject-mapping interception. Every mechanism the block names — `env`, `file`, `arg`, or a custom one such as `ssm_param` — is under its own name, holding the entries exactly as written (`in` with `from` or `value`), in the order written: `.inject_raw.ssm_param` reads a custom mechanism the way `.inject_raw.env` reads the core one. Use for "did the developer originally request this delivery key?" logic checks; immune to FeatureRecipe `injectMapping` rewriting. `nil` if the developer omitted the `inject:` block. |
+| `.context.self_inject` | map of mechanisms (always present) | Every render; empty where the developer authored no `inject:` block on the component | Each name in the component's own `inject:` block mapped to the own key its entry delivers — `provides.<key>`, `values.<key>`, or empty. Use to skip a default name for an own value the developer already delivers; see [above](#contextself_inject--which-own-value-each-of-the-developers-names-delivers). |
 
-Authors needing the resolved post-interception delivery should read `.context.inject`. Authors needing the immutable original intent (e.g., to detect interception or to emit fallback behaviour when the developer omitted an inject block) should read `.inject_raw`.
+Authors needing the resolved post-interception delivery should read `.context.inject`. Authors needing the immutable original intent (e.g., to detect interception or to emit fallback behaviour when the developer omitted an inject block) should read `.inject_raw`. Authors needing to know which of the component's own values the developer has already named should read `.context.self_inject`.
 
 ## Attachment FeatureRecipe surface
 
