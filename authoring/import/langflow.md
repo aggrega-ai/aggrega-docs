@@ -346,7 +346,7 @@ files:
 
 ```text
   warning: node "langflow" (provider "compose"): artifact "langflow-flow/langflow-flow.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
-Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist
@@ -358,7 +358,8 @@ The `notice` line is advisory: the password Feature accepts its `origin` from
 the Aggregate's `values` or the Release's `infra`, and the notice reports that
 one leaf is declared in both. Neither changes the verdict.
 
-The Langflow service in `dist/compose/docker-compose.yaml`:
+`dist/compose/docker-compose.yaml` holds Langflow and a service that runs once
+before it:
 
 ```yaml
 services:
@@ -380,10 +381,28 @@ services:
         target: /app/langflow
     networks:
       - compose
+    depends_on:
+      langflow--data-owner:
+        condition: service_completed_successfully
     [… omitted: the service's health check]
     configs:
       - source: langflow-flow
         target: /app/flows/flow.json
+  langflow--data-owner:
+    image: langflowai/langflow:1.6.0
+    entrypoint:
+      - chown
+      - "1000:0"
+      - /app/langflow
+    [… omitted: the labels the build writes on every service]
+    volumes:
+      - type: volume
+        source: langflow--data
+        target: /app/langflow
+    networks:
+      - compose
+    restart: "no"
+    user: "0"
 ```
 
 The flow reaches Langflow as `/app/flows/flow.json`, from a `configs` entry
@@ -391,3 +410,73 @@ holding the flow as exported, and Langflow loads it from `LANGFLOW_LOAD_FLOWS_PA
 at each start. The key and the password are variable references, filled from
 your shell when the stack starts. The service publishes no port on your
 machine: the rendered file gives it none.
+
+`langflow--data-owner` runs Langflow's image as root, gives the data volume to
+user 1000, group 0, the identity Langflow's image runs as, and exits. Langflow
+starts once it has completed: Docker creates the volume owned by root, and
+Langflow could not write its data there otherwise.
+
+## Run it
+
+Set the key and the administrator's password in your shell, then start the
+stack:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+export LANGFLOW_ADMIN_PASSWORD='a password of your own'
+docker compose -p basic-prompting -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once `langflow--data-owner` has completed and Langflow reports healthy.
+
+Langflow publishes no port, so the requests run inside its own container, which
+carries `curl`. Sign in as the administrator:
+
+```bash
+docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
+  curl -sS -X POST http://localhost:7860/api/v1/login \
+  -d username=admin --data-urlencode "password=$LANGFLOW_ADMIN_PASSWORD"
+```
+
+```text
+{"access_token":"[… omitted: the access token]","refresh_token":"[… omitted: the refresh token]","token_type":"bearer"}
+```
+
+create an API key with the access token:
+
+```bash
+docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
+  curl -sS -X POST http://localhost:7860/api/v1/api_key/ \
+  -H 'Authorization: Bearer <access_token>' -H 'Content-Type: application/json' -d '{"name": "run-it"}'
+```
+
+```text
+{"name":"run-it",[… omitted: when it was last used, how often, whether it is active, and its identifier],"api_key":"[… omitted: the key]",[… omitted: the owner's identifier]}
+```
+
+and run the flow with the key:
+
+```bash
+docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
+  curl -sS -X POST 'http://localhost:7860/api/v1/run/0dbee653-41ae-4e51-af2e-55757fb24be3?stream=false' \
+  -H 'x-api-key: <api_key>' -H 'Content-Type: application/json' \
+  -d '{"input_value": "In one short sentence: what is Docker Compose?", "input_type": "chat", "output_type": "chat"}'
+```
+
+```text
+{"session_id":"0dbee653-41ae-4e51-af2e-55757fb24be3","outputs":[{"inputs":{"input_value":"In one short sentence: what is Docker Compose?"},"outputs":[{"results":{"message":{"text_key":"text","data":{"timestamp":[… omitted: when the message was sent],"sender":"Machine","sender_name":"AI","session_id":"0dbee653-41ae-4e51-af2e-55757fb24be3","text":"Docker Compose is a tool for managing multiple Docker containers in a single file, allowing developers to define and run applications independently.",[… omitted: the rest of the message and the run's metadata]
+```
+
+The answer is at `outputs[0].outputs[0].results.message.text`. It came from a
+small local model in place of OpenAI, set up as the run step of
+[How an import runs](README.md#how-an-import-runs) describes, with the model
+copied under the name the flow asks for, `gpt-4.1`.
+
+Stop the stack with the command below. `-v` also removes Langflow's data volume,
+and with it the administrator's account, the API key and the flow's run history:
+
+```bash
+docker compose -p basic-prompting -f dist/compose/docker-compose.yaml down -v
+```

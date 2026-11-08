@@ -385,7 +385,7 @@ files:
 
 ```text
   warning: node "flowise" (provider "compose"): artifact "flowise-flow/flowise-flow.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
-Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist

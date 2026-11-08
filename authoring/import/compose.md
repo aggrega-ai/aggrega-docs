@@ -441,7 +441,7 @@ and the build, with `<workspace>` standing for the folder holding the reviewed
 files:
 
 ```text
-Pull complete: release.lock (entities=9, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=10, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist

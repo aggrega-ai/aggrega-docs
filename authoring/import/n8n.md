@@ -14,9 +14,30 @@ prints and the blocks this page quotes with the files kept there.
 `support-agent.json`, written for this walkthrough in the shape n8n exports a
 workflow, holds four nodes: a chat trigger, an AI Agent with a short system message, an OpenAI Chat Model node
 selecting `gpt-4o-mini`, and a Simple Memory node, joined by the connections
-n8n lists by the name of the node each leaves. The model node selects a
-credential n8n stores, by reference — the export carries the credential's
-identifier and name, never the key:
+n8n lists by the name of the node each leaves. The chat trigger is public, so a
+chat message sent to its URL starts the workflow, and it asks the sender for a
+user and password, which it checks against a basic-authentication credential
+n8n stores:
+
+<!-- quotes: source/support-agent.json -->
+```json
+      "parameters": {
+        "public": true,
+        "authentication": "basicAuth",
+        "options": {}
+      },
+      [… omitted: the node's identifier, name, type, version, position and webhook identifier]
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Vx3mQ8rLb2Nk7Tz5",
+          "name": "Chat basic auth"
+        }
+      }
+```
+
+The model node selects its credential the same way, by reference — the export
+carries each credential's identifier and name, never the user, the password or
+the key:
 
 <!-- quotes: source/support-agent.json -->
 ```json
@@ -88,6 +109,7 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the n8n format, with drafted paths relative to <workspace>
+warn: the value of credentials.httpBasicAuth.id of node When chat message received is carried as written in the flow the draft carries: its format marks the field as a credential, and setting empty_credentials to marked or all writes it empty
 warn: the value of credentials.openAiApi.id of node OpenAI Chat Model is carried as written in the flow the draft carries: its format marks the field as a credential, and setting empty_credentials to marked or all writes it empty
 warn: node OpenAI Chat Model reaches openai-chat-model, wired to the model socket of core/ai-agent/n8n as openai-chat-model, other than through that connection: an n8n @n8n/n8n-nodes-langchain.lmChatOpenAi node reaches the part at the address the stored credential it selects, or its own parameters, give; the platform delivers this connection as OPENAI_BASE_URL and OPENAI_API_KEY, but an n8n workflow reads a variable of the platform's environment only through an expression reading $env, which the platform refuses while values.allow_env_access_in_nodes is false, the value the draft leaves it at; setting it true lets every workflow, and every user who can edit one, read every variable of the platform's environment, the delivered credentials included
 warn: the drafted Manifest leaves the component type "imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
@@ -105,17 +127,17 @@ made no choice for Simple Memory (@n8n/n8n-nodes-langchain.memoryBufferWindow)
   and you choose.
 - **The `made no choice` lines** say that the trigger, the agent and the memory
   stay inside the workflow, which n8n runs itself.
-- **The first `warn` line** names the identifier of the stored credential the
-  model node selects, which n8n marks as a credential. It is a reference, not a
-  key, and it is carried as written.
-- **The second `warn` line** is the one to read closely: the model node reaches
+- **The first two `warn` lines** name the identifiers of the stored credentials
+  the trigger and the model node select, which n8n marks as credentials. They
+  are references, not secrets, and they are carried as written.
+- **The third `warn` line** is the one to read closely: the model node reaches
   OpenAI with the stored credential it selects, not through the connection the
   draft wires. The platform delivers the connection to n8n's environment, and
   n8n refuses a workflow's reads of its environment while the Aggregate leaves
   `values.allow_env_access_in_nodes` at `false`, as the draft does. Setting it
   `true` lets every workflow, and everyone who can edit one, read every
   variable of the platform, the delivered key included.
-- **The third `warn` line and the `info` line** are about the Manifest and the
+- **The fourth `warn` line and the `info` line** are about the Manifest and the
   Release: no Recipe realizes the Component the import has just drafted, and
   the n8n import drafts no Release, so you write it.
 
@@ -361,7 +383,7 @@ files:
 
 ```text
   warning: node "n8n" (provider "compose"): artifact "n8n-flow.compose-fragment.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
-Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist
@@ -419,6 +441,109 @@ The workflow reaches n8n through `n8n import:workflow`, run on the same data
 volume each time the stack starts, before n8n itself. `N8N_BLOCK_ENV_ACCESS_IN_NODE`
 is `"true"`, n8n's block on a workflow reading its environment, since the
 Aggregate leaves `allow_env_access_in_nodes` at `false`. So the OpenAI Chat
-Model node reads its key from n8n's own credential store: once n8n runs, create
-an OpenAI credential in its editor holding the key, and select it on that node.
-n8n publishes no port on your machine: the rendered file gives it none.
+Model node reads its key from n8n's own credential store, as the chat trigger
+reads its user and password, and the run below stores both. n8n publishes no
+port on your machine: the rendered file gives it none.
+
+## Run it
+
+n8n reads both credentials the workflow selects from its own store, by their
+identifiers: the OpenAI key under `Rb7nW2xQ9kT4mZ1c`, and the chat's user and
+password under `Vx3mQ8rLb2Nk7Tz5`. The rendered file publishes no port, so
+store them with n8n's own command line rather than its editor. Write them into
+`credentials.json`, with your own values:
+
+```json
+[
+  {"id": "Rb7nW2xQ9kT4mZ1c", "name": "OpenAI account", "type": "openAiApi", "data": {"apiKey": "your OpenAI key"}},
+  {"id": "Vx3mQ8rLb2Nk7Tz5", "name": "Chat basic auth", "type": "httpBasicAuth", "data": {"user": "a user of your own", "password": "a password of your own"}}
+]
+```
+
+Set the key in your shell, as the reviewed Release reads it, and start the
+stack:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+docker compose -p support-agent -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once n8n reports healthy, after the service importing the workflow has run and
+exited. Copy the credentials into n8n's container, import them, and remove the
+copy:
+
+```bash
+docker compose -p support-agent -f dist/compose/docker-compose.yaml exec -T n8n sh -c 'umask 077; cat > /tmp/credentials.json' < credentials.json
+docker compose -p support-agent -f dist/compose/docker-compose.yaml exec n8n n8n import:credentials --input=/tmp/credentials.json
+docker compose -p support-agent -f dist/compose/docker-compose.yaml exec n8n rm /tmp/credentials.json
+```
+
+```text
+[… omitted: n8n's notices about its settings file's permissions, error tracking and deprecated settings]
+Successfully imported 2 credentials.
+```
+
+n8n holds both credentials now, so delete `credentials.json`:
+
+```bash
+rm credentials.json
+```
+
+Then activate the workflow, and restart n8n so the activation takes:
+
+```bash
+docker compose -p support-agent -f dist/compose/docker-compose.yaml exec n8n n8n update:workflow --id=sQ4vT8nKp2LmX7bR --active=true
+docker compose -p support-agent -f dist/compose/docker-compose.yaml restart n8n
+```
+
+Once `docker compose -p support-agent -f dist/compose/docker-compose.yaml ps n8n`
+shows n8n `(healthy)` again,
+`docker compose -p support-agent -f dist/compose/docker-compose.yaml logs n8n`
+reads `Activated workflow "Support agent" (ID: sQ4vT8nKp2LmX7bR)`. Send a chat
+message from a container on the stack's network, `support-agent_compose`.
+Without the user and password, the trigger refuses it:
+
+```bash
+docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -i -X POST \
+  http://n8n:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
+  -d '{"action": "sendMessage", "sessionId": "s1", "chatInput": "In one short sentence: what does a support plan cover?"}'
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+www-authenticate: Basic realm="Webhook"
+[… omitted: the date, connection, keep-alive and transfer-encoding headers]
+
+Authorization is required!
+```
+
+A wrong password gets `HTTP/1.1 403 Forbidden` and `Authorization data is wrong!`.
+With the user and password in `CHAT_USER` and `CHAT_PASSWORD`, curl reads them
+from its standard input, so they appear on no command line:
+
+```bash
+printf 'user = "%s:%s"\n' "$CHAT_USER" "$CHAT_PASSWORD" | docker run --rm -i --network support-agent_compose \
+  curlimages/curl:8.11.1 --config - -sS -i -X POST \
+  http://n8n:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
+  -d '{"action": "sendMessage", "sessionId": "s1", "chatInput": "In one short sentence: what does a support plan cover?"}'
+```
+
+```text
+HTTP/1.1 200 OK
+[… omitted: the response's other headers]
+
+{"output":"It covers both onboarding and ongoing help from technical experts."}
+```
+
+This answer came from a small local model in place of OpenAI, set up as the
+run step of [How an import runs](README.md#how-an-import-runs) describes, the
+OpenAI credential's `url` included.
+
+Stop the stack with the command below. `-v` also removes n8n's data volume, and
+with it the stored credentials and the activation:
+
+```bash
+docker compose -p support-agent -f dist/compose/docker-compose.yaml down -v
+```

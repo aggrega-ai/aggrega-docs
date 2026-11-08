@@ -164,10 +164,10 @@ not supply.
    walkthrough's "Run it" section, where it has one, shows the commands for its
    own build.
 
-   The Flowise and CrewAI runs answered without an OpenAI key: each pointed its
-   `core/ai-model/openai` model at a small model served by Ollama in the same
-   project, with three changes to the reviewed files and one command once the
-   stack ran:
+   The Flowise, CrewAI, Langflow and n8n runs answered without an OpenAI key:
+   each pointed its `core/ai-model/openai` model at a small model served by
+   Ollama in the same project, with three changes to the reviewed files and one
+   command once the stack ran:
 
    - in the Aggregate, one more component, wired to nothing: `local-model`, of
      type `core/ai-model/ollama`, with `model: qwen2.5:0.5b` in its `values`;
@@ -176,11 +176,15 @@ not supply.
      its `infra`, set to that server's OpenAI-compatible address,
      `http://local-model:11434/v1`;
    - once the stack runs, the pulled model copied under the model name the
-     build's OpenAI model names, `gpt-4o-mini` in both runs:
-     `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b gpt-4o-mini`.
+     build's OpenAI model names, `<model>`: `gpt-4o-mini` in the Flowise, CrewAI
+     and n8n runs and `gpt-4.1` in the Langflow run:
+     `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b <model>`.
 
    `OPENAI_API_KEY` may then hold any non-empty value of your own: the local
-   server checks none.
+   server checks none. An n8n workflow reads the model's address and key from
+   the credential its model node selects, not from the address `endpoint`
+   delivers, so the n8n run also gave that credential the server's address, as
+   a `url` beside `apiKey` in its `data`.
 
 Beside its drafts, the import writes `.aggrega-import.json`, the record of what
 it wrote. Keep it for as long as you mean to run `aggrega import --sync`, which
