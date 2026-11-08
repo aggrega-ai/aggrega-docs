@@ -267,6 +267,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAnnotationSidePillarMismatch()` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
 | `ErrAnnotationSubkeyNotBound()` | `annotation-subkey-not-bound` | `annotation subkey is not routed by the annotation's binding` |
 | `ErrAnnotationSubkeyNotConforming()` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
+| `ErrAttachmentInjectValue()` | `attachment-inject-value` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` |
 | `ErrAttachmentSlotNearMiss()` | `attachment-slot-near-miss` | `attachment name is a near miss for a declared slot` |
 | `ErrAttachmentSlotShape()` | `attachment-slot-shape` | `attachment does not conform to its declared slot shape` |
 | `ErrConnectionAttachmentSlotUndeclared()` | `connection-attachment-slot-undeclared` | `a connection carries an attachment under a name its socket declares no slot for` |
@@ -850,6 +851,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0369` | `absent-path-read-and-iterated` | `template reads a path as a value and iterates it, and the data holds nothing at that path` |
 | `E0370` | `duplicate-pipeline-step-id` | `a pipeline declares one step id twice` |
 | `E0371` | `unknown-catalog-document-kind` | `catalog document declares a kind a catalog does not hold` |
+| `E0372` | `attachment-inject-value` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

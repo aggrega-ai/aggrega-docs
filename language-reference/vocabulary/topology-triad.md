@@ -49,10 +49,10 @@ The `inject` schema defines standard enums (`env`, `file`, `arg`) for tooling, b
 **Entry Keywords (`from:` and `value:`):**
 Each entry uses the `in` keyword for the local identifier — an environment variable name, a file path, an argument flag — plus exactly one of `from:` (provides key reference) or `value:` (literal string). A `from:` resolves against the `provides` of the node its placement names: the component's own in `component.inject`, the target's in `uses[target].inject`, and the attachment's own in `features[<name>].inject`:
 
-| Keyword | Meaning | Allowed in `component.inject` | Allowed in `uses[].inject` |
-| :--- | :--- | :--- | :--- |
-| `from:` | Resolve against provides | ✅ Own node's provides | ✅ Target node's provides |
-| `value:` | Literal string (supports Go templates) | ✅ | ❌ (`value:` is not valid in `uses[].inject`; use component-level `inject` for self-inject) |
+| Keyword | Meaning | Allowed in `component.inject` | Allowed in `uses[].inject` | Allowed in `features[<name>].inject` |
+| :--- | :--- | :--- | :--- | :--- |
+| `from:` | Resolve against provides | ✅ Own node's provides | ✅ Target node's provides | ✅ The attachment's own provides |
+| `value:` | Literal string (supports Go templates) | ✅ | ❌ (`value:` is not valid in `uses[].inject`; use component-level `inject` for self-inject) | ❌ (`value:` halts the build in an attachment's `inject`; use component-level `inject` for self-inject) |
 
 **Examples:**
 

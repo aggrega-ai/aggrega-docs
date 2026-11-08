@@ -3421,7 +3421,7 @@ Each delivery mechanism holding an offending entry is reported as its own findin
 Emitted message:
 > inject entry carries both `value:` and `from:`; schema requires exactly one (`"<mechanism>"`, `"<in-1>"`, `"<in-2>"`)
 
-**How to fix:** open each entry the message names and delete whichever of the two it does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies, on a component's own block; on a connection a literal is refused, so keep `from:` there.
+**How to fix:** open each entry the message names and delete whichever of the two it does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies, on a component's own block; on a connection and on an attached Feature's own block a literal is refused, so keep `from:` there.
 
 ### An `inject:` entry on a connection carries a literal
 
@@ -3437,6 +3437,38 @@ Emitted message:
 > inject entry on a connection carries `value:`; a connection delivers the target's published keys, each named with `from:` (`"<mechanism>"`, `"<in>"`)
 
 **How to fix:** where the value is one the target publishes, replace `value:` with `from:` naming that `provides:` key. Where it is a literal the consuming component needs, move the entry to that component's own `inject:` block, whose mechanisms its Component type's `spec.inject` allowlist governs.
+
+### An `inject:` entry on an attached Feature carries a literal
+
+<!-- covers: pkg/resolver.ErrAttachmentInjectValue -->
+
+The `inject:` block written on an attached Feature delivers into the component what that attachment's FeatureRecipe publishes: each entry names one of the keys the FeatureRecipe's `provides:` publishes, under `from:`. A literal written under `value:` names nothing the attachment publishes, so nothing would reach the component under that entry's `in:`; the entry is refused rather than built and dropped. A literal the component needs belongs in the component's own `inject:` block, where `value:` is admitted and delivered.
+
+Every attachment an Aggregate writes an `inject:` block on is checked: one in a component's own `features:` block and one in a subsystem's `features:` block, which reaches every component the subsystem holds — in the Aggregate the Release names and in every module that Aggregate imports under `aggregates:`, at any depth. A connection an attachment draws carries its own `inject:` block, and a literal there is the connection's refusal above. A Release attachment writes no `inject:` block of its own. It is refused before anything renders, so `aggrega validate --release` reports it as well as `aggrega build`.
+
+Each offending entry is reported as its own finding, filed under `DEVELOPER_ERROR` against the Aggregate whose document wrote the block — a module's own document for an attachment written in a module — and positioned at the delivery mechanism inside the attachment's block in that document: `.spec.components.<component>.features.<attachment>.inject.<mechanism>`, or `.spec.subsystems.<subsystem>.features.<attachment>.inject.<mechanism>` for a subsystem's attachment. Every one in a document is reported at once; those in an imported module are reported once the importing Aggregate passes. The finding names the mechanism and the entry's `in:`. An entry carrying both `value:` and `from:` is reported once, under "An `inject:` entry carries both a literal and a source key" above.
+
+Emitted message:
+> inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block (`"<mechanism>"`, `"<in>"`)
+
+**How to fix:** where the value is one the attachment's FeatureRecipe publishes, replace `value:` with `from:` naming that `provides:` key. Where it is a literal the component needs, move the entry to the component's own `inject:` block, whose mechanisms its Component type's `spec.inject` allowlist governs:
+
+```yaml
+components:
+  api:
+    type: core/api
+    inject:
+      env:
+        - in: LITERAL_NAME
+          value: a-literal        # the literal, delivered by the component's own block
+    features:
+      token:
+        type: core/token
+        inject:
+          env:
+            - in: TOKEN_NAME
+              from: name          # a key the attachment's FeatureRecipe publishes
+```
 
 ### An `inject:` delivery is not a list of entries
 
@@ -6694,6 +6726,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0369` | `template reads a path as a value and iterates it, and the data holds nothing at that path` | A template reads and iterates a path that holds nothing |
 | `E0370` | `a pipeline declares one step id twice` | A pipeline declares one step id twice |
 | `E0371` | `catalog document declares a kind a catalog does not hold` | A catalog document declares a kind a catalog does not hold |
+| `E0372` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` | An `inject:` entry on an attached Feature carries a literal |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
