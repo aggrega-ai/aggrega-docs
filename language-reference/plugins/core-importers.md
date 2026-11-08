@@ -1881,7 +1881,8 @@ requests to the Gemini API, and a Release beside it. It reads those configuratio
 application's code.
 
 ADK states that its Agent Config feature is experimental. An agent's model is a Gemini model by
-default, and other providers are reached through a LiteLLM model string. The agent's `model` socket
+default; ADK serves some other providers' models by name through classes of its own, such as
+`claude-sonnet-4-5` and `gpt-4o`, and others through a LiteLLM model string. The agent's `model` socket
 admits the Gemini API alone, so the importer wires a model ADK sends to the Gemini API and leaves any
 other for you, as [What an agent tree becomes](#what-an-agent-tree-becomes) describes.
 
@@ -2002,7 +2003,7 @@ is drafted, with no setting, as:
 #   - code_tutor_agent.yaml
 #   - math_tutor_agent.yaml
 # Not read: the application's code, which defines the tools, callbacks and agents a configuration names by their code, nor the environment file ADK's scaffold writes beside root_agent.yaml; the application runs in the image the Release names for each instance, and loads its configurations itself.
-# ADK states that its Agent Config is experimental. An agent's model is a Gemini model by default; other providers are reached through a LiteLLM model string.
+# ADK states that its Agent Config is experimental. An agent's model is a Gemini model by default; ADK serves some other providers' models by name through classes of its own, such as claude-sonnet-4-5 and gpt-4o, and others through a LiteLLM model string.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:

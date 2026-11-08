@@ -175,7 +175,7 @@ its code or an environment file — whose names it reads only where its attachme
 file — and the Google ADK importer an application's root agent configuration, never its code or its
 environment file, its sub-agents' configurations read where its attachment hands them — a
 configuration ADK states to be experimental, whose agents use a Gemini model by default and reach
-other providers through a LiteLLM model string.
+other providers' models by name through classes of ADK's own, or through a LiteLLM model string.
 
 **Most plugin work is templates, not compiled code.** A large share of features
 only inject a static sidecar, environment variable, or label — a plain JSONPatch
