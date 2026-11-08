@@ -17710,6 +17710,17 @@
     "status": "machine",
     "text": "使用 `--skills`（在 PowerShell 中为 `-Skills`）时，安装命令还会为你机器上的 AI 助手，在你的每个项目中安装 Aggrega 技能——即教 AI 助手安装和使用 Aggrega 的说明。两个选项可以同时给出："
   },
+  "1ac4d63200257cf0": {
+    "at": "2026-11-08T10:33:40.967Z",
+    "job": "session-0001-20261108103340",
+    "revision": {
+      "from": "f66570878628a83c",
+      "reviewed": false
+    },
+    "srcHash": "1ac4d63200257cf0",
+    "status": "machine",
+    "text": "基于某个框架或 SDK 构建、应用程序围绕其编写而非作为独立产品交付的智能体，在标准库中采用同一种形态。Release 指定应用程序镜像，目录不固定该镜像。`model` 套接字把框架所读取的已连接模型信息——框架读取时包括其地址和模型名称，以及以引用方式传递的连接凭据——传递到该框架读取的变量中。若框架未定义自己的服务器，该组件为 `worker`，不开放端口：`core/ai-agent/crewai` 和 `core/ai-agent/langgraph` 采用这种形态，`core/ai-agent/openai-agents-sdk`（其 `model` 套接字只接受带有 `model.aggrega.ai/api: openai` 的模型或网关）、`core/ai-agent/claude-agent-sdk`（其套接字只接受带有 `model.aggrega.ai/api: anthropic` 的模型或网关）以及 `core/ai-agent/agent-framework`（用于基于 Microsoft Agent Framework 构建的应用程序，自身不提供任何服务，其套接字只接受带有 `model.aggrega.ai/api: openai` 的模型或网关，并传递 Agent Framework 的 Python OpenAI 客户端读取的变量）也是如此；在 Release 设置之前，这三者会使构建中止，并指出 `infra.image`。OpenAI Agents SDK 默认将每次运行的追踪上传到 OpenAI，因此除非 Aggregate 将其 `upload_traces_to_openai` 值设为 `true`，`core/ai-agent/openai-agents-sdk` 会关闭该上传。若框架自身提供 HTTP 服务，该组件为 `server`，使用框架自己的端口，并以 `host`、`port`、`endpoint` 和 `protocol` 发布调用方访问的地址；在 Release 设置之前，它同样会使构建中止，并指出 `infra.image`：`core/ai-agent/google-adk` 在 8000 端口提供 ADK 的 REST API，并传递 ADK 的 Gemini 客户端发送给 Gemini API 的密钥，其 `model` 套接字只接受带有 `model.aggrega.ai/api: gemini` 的模型（例如 `core/ai-model/gemini`），绝不接受网关，因为 ADK 的客户端不会读取网关的地址；`core/ai-agent/mastra` 在 4111 端口提供 Mastra 构建的服务器，在 Kubernetes 上于其 `/health` 路由响应后即就绪，接受带有 `model.aggrega.ai/api: openai` 的模型或网关，并且当 Aggregate 在其 `agent_id` 值中指定应用程序的某个智能体时，发布该智能体的 Agent2Agent 卡片地址，使 `core/ai-tool/agent-invocation` 可以委托给它。除非应用程序对这两种服务器的路由进行身份验证，否则这些路由会响应任何调用方，因此在 Release 将其 `infra.routes_authenticated` 设为 `true`、确认应用程序对其路由接收的每个请求都进行身份验证之前，任一服务器上的 `core/public-ingress` 或 `core/http-route` 附加都会使构建中止。SDK 和服务器运行时以及 `core/ai-agent/agent-framework` 还声明了一个可选的 `tools` 套接字，它以按连接别名命名的变量传递每个已连接工具的地址，以及以引用方式传递的连接凭据。由于应用程序是 Release 自身的代码，这些智能体为该代码传递的变量只是默认值：它们的每个套接字都接受一个 `inject:` 块，Aggregate 可以通过它指定应用程序改为读取的变量或文件，而框架自行读取的变量以及连接上的附加所传递的内容保持不变。智能体自身的值也是如此：每个组件都接受在其自身上声明一个由 `env` 和 `file` 条目组成的 `inject:` 块；如果某个条目的模板只读取组件的一个自身值、不读取组件的其他任何内容——既不读取其他值，也不读取其 infra、元数据或身份——该条目就会替换 Recipe 传递该值时所用的默认名称，例如 CrewAI 智能体的 `role` 所对应的 `CREWAI_ROLE`。导入 CrewAI 项目的智能体声明、LangGraph 应用程序的 `langgraph.json`、Google ADK 应用程序的智能体配置或 Agent Framework 声明式智能体，会起草这些智能体——`core/ai-agent/crewai`、`core/ai-agent/langgraph`、`core/ai-agent/google-adk` 和 `core/ai-agent/agent-framework`——并连接到配置所指定的数据存储，以及在智能体的 `model` 套接字接受时连接到配置所指定的模型，同时附带一个草稿 Release，其中程序运行所用的镜像留待操作员指定；导入只读取配置，从不读取程序，如 [Importer Plugins](14-extensibility.md#7-importer-plugins-drafting-authoring-files-from-foreign-sources) 所述。"
+  },
   "1ac6a41a2853f598": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -137073,6 +137084,13 @@
     "srcHash": "cf0dfc584a94475a",
     "status": "machine",
     "text": "编辑写入了什么以及写入位置。写入之后，守护进程对该文档的读取结果会被丢弃，因此关于该文档的下一个应答将基于编辑产生的字节计算。"
+  },
+  "cf0e08947d6fdfa0": {
+    "at": "2026-11-08T10:33:40.967Z",
+    "job": "session-0001-20261108103340",
+    "srcHash": "cf0e08947d6fdfa0",
+    "status": "machine",
+    "text": "**开发者为组件自身的值所取的名称。** 当 Component 声明了 `spec.inject` 时，开发者自己的 `inject:` 块会选择组件自身的值和 provides 进入交付管道时所用的名称。编译器在 `.context.self_inject` 处告诉 Recipe 每个条目的模板所读取的那一个自身值——按机制，每个名称映射到 `provides.<key>`；对于恰好只读取一个自身值、不读取其他任何内容的模板，映射到 `values.<key>`；否则映射到空字符串——其形态与连接的名称在 `.context.uses.<alias>.inject` 处的形态相同。对于运行开发者镜像的 Recipe，标准库目录的约定是：将它原本会为组件自身的值选择的名称视为默认值，仅当尚无任何条目映射到某个自身值时，才以其默认名称传递该值。这是目录的约定，而不是编译器的规则：企业目录可以按自己选择的任何方式传递其组件自身的值。编译器从开发者编写的文本中读取该映射，不赋予这些名称任何含义。"
   },
   "cf0f62e402bc0913": {
     "at": "2026-10-22T05:14:14.914265+00:00",

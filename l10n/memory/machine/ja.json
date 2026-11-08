@@ -17710,6 +17710,17 @@
     "status": "machine",
     "text": "`--skills`（PowerShell では `-Skills`）を指定すると、インストールコマンドはマシン上の AI アシスタント向けに、すべてのプロジェクトで使える Aggrega スキル（AI アシスタントに Aggrega のインストールと使い方を教える指示）もインストールします。両方のオプションを同時に指定できます："
   },
+  "1ac4d63200257cf0": {
+    "at": "2026-11-08T10:33:40.967Z",
+    "job": "session-0001-20261108103340",
+    "revision": {
+      "from": "f66570878628a83c",
+      "reviewed": false
+    },
+    "srcHash": "1ac4d63200257cf0",
+    "status": "machine",
+    "text": "独立した製品として提供されるのではなく、アプリケーションがその上に書かれるフレームワークや SDK で構築されたエージェントは、標準ライブラリでは一つの形をとります。Release はアプリケーションイメージを指定し、カタログはそれを固定しません。`model` ソケットは、接続されたモデルについてフレームワークが読み取るもの（フレームワークが読み取る場合はそのアドレスとモデル名、および接続の認証情報を参照で）を、そのフレームワークが読み取る変数に渡します。フレームワークが独自のサーバーを定義しない場合、コンポーネントは `worker` となりポートを開きません。`core/ai-agent/crewai` と `core/ai-agent/langgraph` がこの形をとり、`core/ai-agent/openai-agents-sdk`（その `model` ソケットは `model.aggrega.ai/api: openai` を持つモデルまたはゲートウェイのみを受け付けます）、`core/ai-agent/claude-agent-sdk`（そのソケットは `model.aggrega.ai/api: anthropic` を持つもののみを受け付けます）、そして `core/ai-agent/agent-framework`（Microsoft Agent Framework で構築された、自身では何も提供しないアプリケーション向けで、そのソケットは `model.aggrega.ai/api: openai` を持つもののみを受け付け、Agent Framework の Python OpenAI クライアントが読み取る変数を渡します）も同様です。これら三つは、Release が `infra.image` を設定するまで、それを名指ししてビルドを停止します。OpenAI Agents SDK はデフォルトで各実行のトレースを OpenAI にアップロードするため、`core/ai-agent/openai-agents-sdk` は、Aggregate がその `upload_traces_to_openai` 値を `true` に設定しない限り、そのアップロードを無効にします。フレームワーク自体が HTTP を提供する場合、コンポーネントはフレームワーク独自のポート上の `server` となり、呼び出し元が到達するアドレスを `host`、`port`、`endpoint`、`protocol` として公開します。これも Release が `infra.image` を設定するまで、それを名指ししてビルドを停止します。`core/ai-agent/google-adk` は ADK の REST API をポート 8000 で提供し、ADK の Gemini クライアントが Gemini API に送るキーを渡します。その `model` ソケットは `core/ai-model/gemini` のような `model.aggrega.ai/api: gemini` を持つモデルのみを受け付け、ADK のクライアントがアドレスを読み取らないゲートウェイは決して受け付けません。`core/ai-agent/mastra` は Mastra が構築するサーバーをポート 4111 で提供し、Kubernetes 上では `/health` ルートが応答した時点で準備完了となり、`model.aggrega.ai/api: openai` を持つモデルまたはゲートウェイを受け付けます。また Aggregate が `agent_id` 値でアプリケーションのエージェントの一つを指定した場合、そのエージェントの Agent2Agent カードのアドレスを公開するため、`core/ai-tool/agent-invocation` がそのエージェントに委任できます。両サーバーのルートは、アプリケーションが認証しない限りどの呼び出し元にも応答するため、いずれかに `core/public-ingress` または `core/http-route` をアタッチすると、Release が `infra.routes_authenticated` を `true` に設定してアプリケーションがルートの受け取るすべてのリクエストを認証することを確認するまで、ビルドは停止します。SDK とサーバーのランタイム、および `core/ai-agent/agent-framework` は、オプションの `tools` ソケットも宣言します。これは接続された各ツールのアドレスと、接続の認証情報を参照で、接続のエイリアスにちなんで名付けられた変数に渡します。アプリケーションは Release 自身のコードであるため、これらのエージェントがそのコードに読ませるために渡す変数はデフォルトにすぎません。各ソケットは `inject:` ブロックを受け付け、Aggregate はそれを通じて、アプリケーションが代わりに読み取る変数やファイルを指定できます。一方、フレームワークが自ら読み取る変数と、接続上のアタッチメントが渡すものはそのまま残ります。エージェント自身の値についても同様です。各コンポーネントは自身に対して `env` と `file` のエントリからなる `inject:` ブロックを受け付け、テンプレートがコンポーネント自身の値の一つだけを読み取り、コンポーネントのそれ以外のもの（他の値も、その infra も、メタデータも、アイデンティティも）を何も読み取らないエントリは、CrewAI エージェントの `role` に対する `CREWAI_ROLE` のように、Recipe がその値を渡す際のデフォルト名を置き換えます。CrewAI プロジェクトのエージェント宣言、LangGraph アプリケーションの `langgraph.json`、Google ADK アプリケーションのエージェント設定、または Agent Framework の宣言的エージェントをインポートすると、これらのエージェント（`core/ai-agent/crewai`、`core/ai-agent/langgraph`、`core/ai-agent/google-adk`、`core/ai-agent/agent-framework`）が、設定が指定するデータストアに接続され、エージェントの `model` ソケットが受け付ける場合は設定が指定するモデルにも接続された状態で、プログラムが実行されるイメージの指定をオペレーターに委ねるドラフトの Release とともに下書きされます。[Importer Plugins](14-extensibility.md#7-importer-plugins-drafting-authoring-files-from-foreign-sources) で説明するとおり、読み取るのは設定のみで、プログラムは決して読み取りません。"
+  },
   "1ac6a41a2853f598": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -137081,6 +137092,13 @@
     "srcHash": "cf0dfc584a94475a",
     "status": "machine",
     "text": "編集が何をどこに書き込んだかです。書き込み後、デーモンが保持していたそのドキュメントの読み取り結果は破棄されるため、そのドキュメントに関する次の回答は編集が生成したバイト列から計算されます。"
+  },
+  "cf0e08947d6fdfa0": {
+    "at": "2026-11-08T10:33:40.967Z",
+    "job": "session-0001-20261108103340",
+    "srcHash": "cf0e08947d6fdfa0",
+    "status": "machine",
+    "text": "**コンポーネント自身の値に開発者が付ける名前。** Component が `spec.inject` を宣言している場合、開発者自身の `inject:` ブロックが、コンポーネント自身の値と provides が配信パイプに届く際の名前を選びます。コンパイラは `.context.self_inject` で、各エントリのテンプレートが読み取る一つの自身の値を Recipe に伝えます。これはメカニズムごとに、各名前を `provides.<key>` に、自身の値をちょうど一つだけ読み取り他に何も読み取らないテンプレートの場合は `values.<key>` に、それ以外は空文字列に対応付けたもので、接続の名前が `.context.uses.<alias>.inject` でとる形と同じ形をとります。開発者のイメージを実行する Recipe に関する標準ライブラリカタログの慣例は、コンポーネント自身の値に対して本来選ぶはずの名前をデフォルトとして扱い、自身の値をデフォルト名で渡すのは、その値に対応付けられたエントリがまだない場合に限るというものです。これはカタログの慣例であり、コンパイラの規則ではありません。エンタープライズカタログは、自らのコンポーネント自身の値を任意の方法で渡すことができます。コンパイラは開発者が書いたテキストから対応表を読み取り、名前に意味を付与しません。"
   },
   "cf0f62e402bc0913": {
     "at": "2026-10-22T05:14:14.914265+00:00",
