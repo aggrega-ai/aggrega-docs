@@ -152,16 +152,22 @@ The PowerShell script never closes the window it runs in, so it leaves the statu
 
 ### Install with the Windows installer
 
-Each release carries a Windows installer, `aggrega-<version>-windows-amd64-setup.exe`, on the release page at [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Download it and run it. It installs the default `aggrega.exe` for you alone, without administrator rights and without asking for them:
+Each release carries a Windows installer, `aggrega-<version>-windows-amd64-setup.exe`, on the release page at [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Download it and run it. It installs the default `aggrega.exe` for you alone, without administrator rights and without asking for them, through a short wizard:
 
-- **It installs into `%LOCALAPPDATA%\Programs\aggrega`**, the folder the install command uses, and adds that folder to your user `PATH` unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with.
-- **It lists Aggrega among your installed apps**, published by Cognitio S.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
-- **Run again, it installs over what is there**, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
+- **A welcome page**, then **the components**: Aggrega itself, always installed, and **Add to PATH**, selected.
+- **The install folder**, `%LOCALAPPDATA%\Programs\aggrega` unless you choose another; it is the folder the install command uses.
+- **The progress**, then **a finish page** naming the folder and saying whether this install added it to your `PATH`, with the next steps: installing the Aggrega skill with `aggrega skills install --global`, and connecting your AI client as [Connect an MCP client](#connect-an-mcp-client) describes.
+
+What it does:
+
+- **With Add to PATH selected, it adds the install folder to your user `PATH`** unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with. With it cleared, nothing is added to your `PATH`, and a terminal runs `aggrega.exe` by its full path; an entry an earlier install added is left as it is.
+- **It lists Aggrega among your installed apps**, published by Cognitio S.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller asks you to confirm, then removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
+- **Run again, it installs over what is there**, offering the folder it installed into last, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
 - **Beside `aggrega.exe`, the folder holds `uninstall.exe`** and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
 
 When `aggrega.exe` is running — started by an editor or an AI client — the installer cannot replace it, and stops with a message saying so; close what started it and run the installer again. The uninstaller stops the same way, before it has removed anything.
 
-**To install with no window**, from a script or a tool that installs software on many machines, run the installer with `/S`, written in capitals; it then installs without a window or a question, and reports a failure through its exit code, which is not `0`. The uninstaller takes the same switch:
+**To install with no window**, from a script or a tool that installs software on many machines, run the installer with `/S`, written in capitals; it then installs without a window or a question, into the folder an earlier install used or else the default one, with **Add to PATH**, and reports a failure through its exit code, which is not `0`. The uninstaller takes the same switch:
 
 ```powershell
 .\aggrega-<version>-windows-amd64-setup.exe /S
@@ -184,9 +190,9 @@ Homebrew and Scoop each install into their own folders rather than into `~/.loca
 
 ### Install with winget
 
-On Windows, `winget install Cognitio.Aggrega` installs it with [winget](https://learn.microsoft.com/windows/package-manager/winget/), the Windows Package Manager. winget downloads the [Windows installer](#install-with-the-windows-installer) of the release from its release page, checks it against the SHA-256 digest the package's manifest gives, and runs it unattended. The result is the installer's own: `aggrega.exe` in `%LOCALAPPDATA%\Programs\aggrega`, that folder on your user `PATH`, and Aggrega in your list of installed apps, all without administrator rights. winget does not change the `PATH` of the terminal it runs in, so open a new terminal before running `aggrega version`.
+On Windows, `winget install Cognitio.Aggrega` installs it with [winget](https://learn.microsoft.com/windows/package-manager/winget/), the Windows Package Manager. winget downloads the [Windows installer](#install-with-the-windows-installer) of the release from its release page, checks it against the SHA-256 digest the package's manifest gives, and runs it unattended. The result is the installer's own: `aggrega.exe` in `%LOCALAPPDATA%\Programs\aggrega`, or in the folder an earlier install used, that folder on your user `PATH`, and Aggrega in your list of installed apps, all without administrator rights. winget does not change the `PATH` of the terminal it runs in, so open a new terminal before running `aggrega version`.
 
-`winget upgrade Cognitio.Aggrega` installs a later release over it, and `winget uninstall Cognitio.Aggrega` runs its uninstaller. winget, the installer and the install command all install into the same folder, so whichever runs last puts the `aggrega.exe` there.
+`winget upgrade Cognitio.Aggrega` installs a later release over it, and `winget uninstall Cognitio.Aggrega` runs its uninstaller. winget, the installer and the install command all install into the same folder unless you choose another one in the installer, so whichever runs last puts the `aggrega.exe` there.
 
 ### Install it by hand
 
