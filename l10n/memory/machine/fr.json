@@ -24307,6 +24307,17 @@
     "status": "machine",
     "text": "**Il n’aboutit qu’au consommateur.** La sortie rendue d’une cible est la même, quoi que portent les connexions qui l’atteignent."
   },
+  "289112c0fbb8061b": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "e97f9f46ddf6342c",
+      "reviewed": false
+    },
+    "srcHash": "289112c0fbb8061b",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. Elle laisse, dans un commentaire au-dessus de l’entrée de chaque instance, son `infra.image` — l’image exécutant l’application construite sur ADK, qui contient ses configurations — et, lorsque son modèle est relié, les identifiants qu’elle présente à ce modèle, rattachés sur sa connexion `model` ; le build s’arrête en nommant l’image tant qu’elle n’est pas définie. Un modèle relié a lui aussi une entrée, qui ne contient aucune infrastructure, de sorte que la Release le place avec l’instance. Les valeurs que les configurations de l’arbre remettent à leurs outils et à leurs requêtes de modèle sont écrites dans un commentaire au-dessus de l’entrée, comme le décrit [Valeurs d’identifiants que contient une configuration](#credential-values-a-configuration-holds). Le `metadata.environment` et le `spec.manifest` de la Release sont laissés non définis, chacun nommé dans un commentaire, à moins que l’importation ne reçoive une cible, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
+  },
   "2891289df2746379": {
     "at": "2026-11-03T00:27:34.341Z",
     "job": "session-0025-20261103002734",
@@ -26583,6 +26594,17 @@
     "srcHash": "2c841c691c02923b",
     "status": "machine",
     "text": "**Qui le consomme ?** L’analyseur statique (via les sélecteurs `usesSchema` JSON Schema 2020-12)."
+  },
+  "2c8770d9dc31a85d": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "47e787ebb7fccfd2",
+      "reviewed": false
+    },
+    "srcHash": "2c8770d9dc31a85d",
+    "status": "machine",
+    "text": "Des commentaires au-dessus d’elle nomment les autres agents de l’arbre, qui ne deviennent pas une instance à part entière ; chaque sous-agent qui n’est pas lu, et pourquoi — construit par le code de l’application, une configuration que l’importation n’a pas reçue, ou une configuration qu’ADK refuse ; les outils que nomment les agents de l’arbre, ceux que fournit ADK et ceux que définit le code de l’application ; les agents dont la classe — `LoopAgent`, `ParallelAgent` ou `SequentialAgent` — est dépréciée par ADK au profit de Workflow ; et, lorsque le modèle de l’arbre est relié, les modèles que demandent d’autres agents de l’arbre, chacun avec la famille par laquelle ADK le sert. Chacun est rapporté dans une décision qui ne choisit rien."
   },
   "2c87756b777ebdd0": {
     "at": "2026-11-04T07:36:16.499Z",
@@ -54618,6 +54640,13 @@
     "status": "machine",
     "text": "L’ensemble des champs du Workload est vaste et ne cesse de croître. Plutôt que de le reproduire ici, où une copie prendrait du retard sur le contrat sans que rien ne le signale, ce chapitre renvoie aux deux surfaces qui le portent dans son intégralité :"
   },
+  "5b6922ee2ad7d5ce": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "srcHash": "5b6922ee2ad7d5ce",
+    "status": "machine",
+    "text": "Les tests de l’importateur importent aussi un agent racine isolé nommant `openai/gpt-4o`, dont l’instance est produite en brouillon ainsi :"
+  },
   "5b6a83d0dd149210": {
     "at": "2026-11-04T12:39:30.717Z",
     "job": "session-0244-20261104123930",
@@ -77256,6 +77285,17 @@
     "status": "machine",
     "text": "object ou null"
   },
+  "8223e9ffcfdddd92": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "8f4f3c9de6789d35",
+      "reviewed": false
+    },
+    "srcHash": "8223e9ffcfdddd92",
+    "status": "machine",
+    "text": "Le premier agent de l’arbre, en commençant par la racine, qui nomme un modèle ou le code qui en construit un décide du modèle de l’instance. Un modèle qu’il nomme et dont ADK envoie les requêtes à la Gemini API — un nom de modèle qu’ADK sert par sa classe Gemini, tel que `gemini-2.5-flash`, autre qu’un nom de ressource Vertex AI, ou un nom qu’il sert par sa classe Gemma — est une instance de `core/ai-model/gemini`, servant ce modèle et ayant celui-ci pour clé, et les arbres nommant un même modèle partagent une instance. Lorsque le catalogue du workspace ne contient aucun `core/ai-model/gemini`, un Component est produit en brouillon, `<target_namespace>/ai-model/gemini`, portant l’étiquette `model.aggrega.ai/api: gemini` que sélectionne le socket `model` de l’agent, et sa décision le dit ; une Recipe publiant son point de terminaison et son modèle vous est laissée, comme le dit un commentaire en tête de celui-ci. Un modèle qu’ADK sert de toute autre manière — une chaîne de modèle LiteLLM telle que `openai/gpt-4o`, un nom de ressource Vertex AI, ou un nom tel que `claude-sonnet-4-5` ou `gpt-4o`, qu’ADK sert par Anthropic ou OpenAI — n’est relié à rien : le socket `model` de l’agent accepte un modèle Gemini, et l’agent ne lit aucun nom de modèle dans son environnement, si bien que c’est à vous d’y relier un modèle Gemini et de nommer ce modèle dans la configuration de l’agent. Le commentaire au-dessus de l’instance et la décision de l’agent racine nomment le modèle et la famille par laquelle ADK le sert. Un modèle que construit le code de l’application, ou un arbre n’en nommant aucun — ADK utilise alors son modèle par défaut — n’est relié à rien non plus, et un commentaire au-dessus de l’instance dit pourquoi. Partout où le modèle n’est relié à rien, le build s’arrête en nommant le socket `model` tant qu’aucun n’est relié. Parmi les modèles que demandent d’autres agents d’un arbre, celui dont ADK envoie les requêtes à la Gemini API n’a besoin d’aucune connexion propre : le client Gemini d’ADK envoie ses requêtes avec la clé que fournit la connexion de l’instance. Que l’application atteigne Gemini par la Gemini API ou par Vertex AI est choisi par son environnement, que l’importation ne lit pas ; le socket `model` de l’agent n’admet que la Gemini API."
+  },
   "8224be97d3d5a28e": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77690,6 +77730,17 @@
     "srcHash": "82da336adc48efde",
     "status": "machine",
     "text": "**Requêtes :**"
+  },
+  "82dc5fd8f3428d2a": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "82dc5fd8f3428d2a",
+    "status": "machine",
+    "text": "sa connexion `model`, reliée au modèle que nomme l’arbre, lorsqu’ADK envoie ses requêtes à la Gemini API."
   },
   "82e0fcf8d0525ee3": {
     "at": "2026-11-04T10:56:32.711Z",

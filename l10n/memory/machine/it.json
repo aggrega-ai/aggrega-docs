@@ -24317,6 +24317,17 @@
     "status": "machine",
     "text": "**Arriva solo al consumatore.** L’output renderizzato di un target è lo stesso qualunque cosa portino le connessioni che lo raggiungono."
   },
+  "289112c0fbb8061b": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "e97f9f46ddf6342c",
+      "reviewed": false
+    },
+    "srcHash": "289112c0fbb8061b",
+    "status": "machine",
+    "text": "`release.yaml`, accanto a esso, è una Release in bozza con lo stesso nome che nomina quell’Aggregate. Lascia, in un commento sopra la voce di ciascuna istanza, il suo `infra.image` — l’immagine che esegue l’applicazione costruita su ADK, che contiene le sue configurazioni — e, dove il suo modello è collegato, la credenziale che presenta a quel modello, associata sulla sua connessione `model`; la build si arresta nominando l’immagine finché non viene impostata. Anche un modello collegato ha una voce, che non contiene alcuna infrastruttura, così la Release lo colloca insieme all’istanza. I valori che le configurazioni dell’albero passano ai loro strumenti e alle loro richieste al modello vengono scritti in un commento sopra la voce, come descrive [Valori di credenziali contenuti in una configurazione](#credential-values-a-configuration-holds). Il `metadata.environment` e lo `spec.manifest` della Release vengono lasciati non impostati, ciascuno nominato in un commento, a meno che all’importazione non venga dato un target, come descrive [Che cosa aggiunge un target](#what-a-target-adds)."
+  },
   "2891289df2746379": {
     "at": "2026-11-03T00:27:34.341Z",
     "job": "session-0025-20261103002734",
@@ -26593,6 +26604,17 @@
     "srcHash": "2c841c691c02923b",
     "status": "machine",
     "text": "**Chi la consuma?** L’analizzatore statico (tramite i selettori `usesSchema` JSON Schema 2020-12)."
+  },
+  "2c8770d9dc31a85d": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "47e787ebb7fccfd2",
+      "reviewed": false
+    },
+    "srcHash": "2c8770d9dc31a85d",
+    "status": "machine",
+    "text": "Commenti sopra di essa nominano gli altri agenti dell’albero, che non diventano un’istanza propria; ciascun sotto-agente che non viene letto, e perché — costruito dal codice dell’applicazione, una configurazione che non è stata passata all’importazione, o una che ADK rifiuta; gli strumenti che gli agenti dell’albero nominano, quelli che ADK fornisce e quelli che il codice dell’applicazione definisce; gli agenti la cui classe — `LoopAgent`, `ParallelAgent` o `SequentialAgent` — ADK depreca in favore di Workflow; e, dove il modello dell’albero è collegato, i modelli che altri agenti dell’albero richiedono, ciascuno con la famiglia tramite cui ADK lo serve. Ciascuno viene riportato in una decisione che non sceglie nulla."
   },
   "2c87756b777ebdd0": {
     "at": "2026-11-04T07:36:16.499Z",
@@ -54628,6 +54650,13 @@
     "status": "machine",
     "text": "L’insieme dei campi del Workload è ampio e cresce. Invece di riportarlo qui, dove una copia resterebbe indietro rispetto al contratto senza che nulla lo segnali, questo capitolo rimanda alle due superfici che lo contengono per intero:"
   },
+  "5b6922ee2ad7d5ce": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "srcHash": "5b6922ee2ad7d5ce",
+    "status": "machine",
+    "text": "I test dell’importatore importano anche un agente radice isolato che nomina `openai/gpt-4o`, la cui istanza viene generata in bozza come:"
+  },
   "5b6a83d0dd149210": {
     "at": "2026-11-04T12:39:30.717Z",
     "job": "session-0244-20261104123930",
@@ -77266,6 +77295,17 @@
     "status": "machine",
     "text": "object o null"
   },
+  "8223e9ffcfdddd92": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "8f4f3c9de6789d35",
+      "reviewed": false
+    },
+    "srcHash": "8223e9ffcfdddd92",
+    "status": "machine",
+    "text": "Il primo agente dell’albero, a partire dalla radice, che nomina un modello o il codice che ne costruisce uno decide il modello dell’istanza. Un modello che nomina e le cui richieste ADK invia alla Gemini API — un nome di modello che ADK serve tramite la sua classe Gemini, come `gemini-2.5-flash`, diverso da un nome di risorsa Vertex AI, o uno che serve tramite la sua classe Gemma — è un’istanza di `core/ai-model/gemini`, che serve quel modello e ha quel modello come chiave, e gli alberi che nominano lo stesso modello condividono un’unica istanza. Dove il catalogo del workspace non contiene alcun `core/ai-model/gemini`, ne viene generato uno in bozza, `<target_namespace>/ai-model/gemini`, che porta l’etichetta `model.aggrega.ai/api: gemini` che il socket `model` dell’agente seleziona, e la sua decisione lo dice; una Recipe che ne pubblichi l’endpoint e il modello viene lasciata a te, come dice un commento che lo apre. Un modello che ADK serve in qualsiasi altro modo — una stringa di modello LiteLLM come `openai/gpt-4o`, un nome di risorsa Vertex AI, o un nome come `claude-sonnet-4-5` o `gpt-4o`, che ADK serve tramite Anthropic o OpenAI — non viene collegato a nulla: il socket `model` dell’agente accetta un modello Gemini, e l’agente non legge alcun nome di modello dal proprio ambiente, quindi sei tu a collegarvi un modello Gemini e a nominare quel modello nella configurazione dell’agente. Il commento sopra l’istanza e la decisione dell’agente radice nominano il modello e la famiglia tramite cui ADK lo serve. Anche un modello che il codice dell’applicazione costruisce, o un albero che non ne nomina alcuno — ADK usa allora il proprio modello predefinito — non viene collegato a nulla, e un commento sopra l’istanza dice perché. Ovunque il modello non sia collegato a nulla, la build si arresta nominando il socket `model` finché non ne viene collegato uno. Tra i modelli che altri agenti di un albero richiedono, uno le cui richieste ADK invia alla Gemini API non ha bisogno di una connessione propria: il client Gemini di ADK ne invia le richieste con la chiave che la connessione dell’istanza fornisce. Se l’applicazione raggiunge Gemini tramite la Gemini API o tramite Vertex AI lo sceglie il suo ambiente, che l’importazione non legge; il socket `model` dell’agente ammette solo la Gemini API."
+  },
   "8224be97d3d5a28e": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77700,6 +77740,17 @@
     "srcHash": "82da336adc48efde",
     "status": "machine",
     "text": "**Richieste:**"
+  },
+  "82dc5fd8f3428d2a": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "82dc5fd8f3428d2a",
+    "status": "machine",
+    "text": "la sua connessione `model`, collegata al modello che l’albero nomina, quando ADK invia le sue richieste alla Gemini API."
   },
   "82e0fcf8d0525ee3": {
     "at": "2026-11-04T10:56:32.711Z",

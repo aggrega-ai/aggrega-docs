@@ -27189,6 +27189,17 @@
     "status": "machine",
     "text": "**它只落在消费方上。**无论到达目标的连接携带什么，目标的渲染输出都相同。"
   },
+  "289112c0fbb8061b": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "e97f9f46ddf6342c",
+      "reviewed": false
+    },
+    "srcHash": "289112c0fbb8061b",
+    "status": "machine",
+    "text": "`release.yaml` 位于其旁边，是一个同名的草稿 Release，指定该 Aggregate。它在每个实例条目上方的注释中留出其 `infra.image`（运行基于 ADK 构建的应用、包含其配置的镜像），以及在其模型已连接时，它向该模型出示、附加在其 `model` 连接上的凭据；在设置镜像之前，构建会停止并指出该镜像。已连接的模型也有一个条目，不包含任何基础设施，因此 Release 会将其与该实例放置在一起。树中各配置传给其工具和模型请求的值会写在条目上方的注释中，如[配置所含的凭据值](#credential-values-a-configuration-holds)所述。除非导入指定了目标，否则 Release 的 `metadata.environment` 和 `spec.manifest` 保持未设置，并各自在注释中标明，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "2891289df2746379": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -29725,6 +29736,17 @@
     "srcHash": "2c841c691c02923b",
     "status": "machine",
     "text": "**谁使用？**静态分析器（通过 JSON Schema 2020-12 `usesSchema` 选择器）。"
+  },
+  "2c8770d9dc31a85d": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "47e787ebb7fccfd2",
+      "reviewed": false
+    },
+    "srcHash": "2c8770d9dc31a85d",
+    "status": "machine",
+    "text": "其上方的注释列出：树中的其他智能体，它们不会成为各自的实例；每个未读取的子智能体及其原因——由应用代码构建、导入未获提供的配置，或 ADK 拒绝的配置；树中智能体指定的工具，包括 ADK 自带的和应用代码定义的；类为 `LoopAgent`、`ParallelAgent` 或 `SequentialAgent`、ADK 已弃用并推荐改用 Workflow 的智能体；以及在树的模型已连接时，树中其他智能体请求的模型，每个模型都附有 ADK 为其提供服务所经由的模型系列。每一项都在一个不做任何选择的决策中报告。"
   },
   "2c87756b777ebdd0": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -60781,6 +60803,13 @@
     "status": "machine",
     "text": "Workload 的字段集很大且在不断增长。本章不在此重述——此处的副本会落后于契约而不会有任何提示——而是指向承载其全部内容的两个文档："
   },
+  "5b6922ee2ad7d5ce": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "srcHash": "5b6922ee2ad7d5ce",
+    "status": "machine",
+    "text": "该导入器的测试还导入了一个单独的、指定 `openai/gpt-4o` 的根智能体，其实例起草如下："
+  },
   "5b6a83d0dd149210": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -86210,6 +86239,17 @@
     "status": "machine",
     "text": "object 或 null"
   },
+  "8223e9ffcfdddd92": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "8f4f3c9de6789d35",
+      "reviewed": false
+    },
+    "srcHash": "8223e9ffcfdddd92",
+    "status": "machine",
+    "text": "树中第一个（从根开始）指定模型或构建模型的代码的智能体决定实例的模型。它指定的模型若由 ADK 将其请求发送到 Gemini API——即 ADK 通过其 Gemini 类提供的模型名称（例如 `gemini-2.5-flash`，Vertex AI 资源名称除外），或通过其 Gemma 类提供的模型名称——则是一个 `core/ai-model/gemini` 实例，提供该模型并以其为键，指定同一模型的树共享一个实例。若工作区的目录中没有 `core/ai-model/gemini`，则起草一个 `<target_namespace>/ai-model/gemini`，带有智能体 `model` 插槽所选择的 `model.aggrega.ai/api: gemini` 标签，其决策会说明这一点；发布其端点和模型的 Recipe 留给你编写，开头的注释会说明这一点。ADK 以其他任何方式提供的模型——例如 `openai/gpt-4o` 这样的 LiteLLM 模型字符串、Vertex AI 资源名称，或 `claude-sonnet-4-5`、`gpt-4o` 这类 ADK 通过 Anthropic 或 OpenAI 提供的名称——不连接任何对象：智能体的 `model` 插槽接受的是 Gemini 模型，而智能体不会从其环境中读取模型名称，因此你需要在那里连接一个 Gemini 模型，并在智能体的配置中指定该模型。实例上方的注释和根智能体的决策会指出该模型以及 ADK 为其提供服务所经由的模型系列。由应用代码构建的模型，或未指定模型的树（此时 ADK 使用其默认模型），同样不连接任何对象，实例上方的注释会说明原因。只要模型未连接任何对象，构建就会停止并指出 `model` 插槽，直到连接了一个模型。在树中其他智能体请求的模型中，ADK 将其请求发送到 Gemini API 的模型不需要各自的连接：ADK 的 Gemini 客户端使用实例连接所提供的密钥发送其请求。应用通过 Gemini API 还是 Vertex AI 访问 Gemini，由其环境决定，而导入不读取环境；智能体的 `model` 插槽只接受 Gemini API。"
+  },
   "8224be97d3d5a28e": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -86684,6 +86724,17 @@
     "srcHash": "82da336adc48efde",
     "status": "machine",
     "text": "**请求：**"
+  },
+  "82dc5fd8f3428d2a": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "82dc5fd8f3428d2a",
+    "status": "machine",
+    "text": "其 `model` 连接，在 ADK 将该模型的请求发送到 Gemini API 时，连接到该树指定的模型。"
   },
   "82e0fcf8d0525ee3": {
     "at": "2026-10-22T08:15:42.630087+00:00",

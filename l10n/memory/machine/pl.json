@@ -27189,6 +27189,17 @@
     "status": "machine",
     "text": "**Trafia wyłącznie do konsumenta.** Wyrenderowany wynik celu jest taki sam niezależnie od tego, co zawierają docierające do niego połączenia."
   },
+  "289112c0fbb8061b": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "e97f9f46ddf6342c",
+      "reviewed": false
+    },
+    "srcHash": "289112c0fbb8061b",
+    "status": "machine",
+    "text": "`release.yaml`, obok niego, to szkic encji Release o tej samej nazwie, wskazującej tę encję Aggregate. W komentarzu nad wpisem każdej instancji pozostawia jej `infra.image` — obraz uruchamiający aplikację zbudowaną na ADK, zawierający jej konfiguracje — oraz, gdy jej model jest podłączony, poświadczenie, które przedstawia ona temu modelowi, dołączane do jej połączenia `model`; kompilacja zatrzymuje się, wskazując obraz, dopóki nie zostanie ustawiony. Podłączony model również ma wpis, niezawierający żadnej infrastruktury, więc encja Release umieszcza go razem z instancją. Wartości, które konfiguracje drzewa przekazują swoim narzędziom i żądaniom do modelu, są zapisywane w komentarzu nad wpisem, jak opisuje [Wartości poświadczeń zawarte w konfiguracji](#credential-values-a-configuration-holds). Pola `metadata.environment` i `spec.manifest` encji Release pozostają nieustawione, każde wymienione w komentarzu, chyba że import otrzyma cel, jak opisuje [Co dodaje cel](#what-a-target-adds)."
+  },
   "2891289df2746379": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -29718,6 +29729,17 @@
     "srcHash": "2c841c691c02923b",
     "status": "machine",
     "text": "**Kto ją konsumuje?** Analizator statyczny (za pomocą selektorów `usesSchema` w JSON Schema 2020-12)."
+  },
+  "2c8770d9dc31a85d": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "47e787ebb7fccfd2",
+      "reviewed": false
+    },
+    "srcHash": "2c8770d9dc31a85d",
+    "status": "machine",
+    "text": "Komentarze nad nią wymieniają pozostałych agentów drzewa, którzy nie stają się osobnymi instancjami; każdego subagenta, który nie został odczytany, wraz z powodem — budowany przez kod aplikacji, konfiguracja nieprzekazana importowi lub odrzucana przez ADK; narzędzia wskazane przez agentów drzewa, zarówno dostarczane przez ADK, jak i definiowane przez kod aplikacji; agentów, których klasę — `LoopAgent`, `ParallelAgent` lub `SequentialAgent` — ADK oznacza jako przestarzałą na rzecz Workflow; oraz, gdy model drzewa jest podłączony, modele, o które proszą inni agenci drzewa, każdy wraz z rodziną, przez którą obsługuje go ADK. Każdy z nich jest zgłaszany w decyzji, która niczego nie wybiera."
   },
   "2c87756b777ebdd0": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -60778,6 +60800,13 @@
     "status": "machine",
     "text": "Zestaw pól Workload jest duży i stale rośnie. Zamiast powtarzać go tutaj, gdzie kopia zostawałaby w tyle za kontraktem, a nic by tego nie zgłaszało, ten rozdział wskazuje dwie powierzchnie, które opisują go w całości:"
   },
+  "5b6922ee2ad7d5ce": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "srcHash": "5b6922ee2ad7d5ce",
+    "status": "machine",
+    "text": "Testy importera importują też pojedynczego agenta głównego wskazującego `openai/gpt-4o`, którego instancja jest przygotowywana w szkicu jako:"
+  },
   "5b6a83d0dd149210": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -86201,6 +86230,17 @@
     "status": "machine",
     "text": "obiekt lub null"
   },
+  "8223e9ffcfdddd92": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "8f4f3c9de6789d35",
+      "reviewed": false
+    },
+    "srcHash": "8223e9ffcfdddd92",
+    "status": "machine",
+    "text": "O modelu instancji decyduje pierwszy agent drzewa, licząc od korzenia, który wskazuje model lub budujący go kod. Wskazany model, którego żądania ADK wysyła do Gemini API — nazwa modelu obsługiwana przez ADK za pomocą klasy Gemini, taka jak `gemini-2.5-flash`, inna niż nazwa zasobu Vertex AI, lub nazwa obsługiwana za pomocą klasy Gemma — jest instancją `core/ai-model/gemini`, obsługującą ten model i mającą go jako klucz, a drzewa wskazujące ten sam model współdzielą jedną instancję. Jeśli katalog obszaru roboczego nie zawiera `core/ai-model/gemini`, przygotowywany jest szkic `<target_namespace>/ai-model/gemini` z etykietą `model.aggrega.ai/api: gemini`, którą wybiera gniazdo `model` agenta, i mówi o tym jego decyzja; encję Recipe publikującą jego punkt końcowy i model należy dodać samodzielnie, jak mówi otwierający ją komentarz. Model obsługiwany przez ADK w jakikolwiek inny sposób — ciąg modelu LiteLLM, taki jak `openai/gpt-4o`, nazwa zasobu Vertex AI lub nazwa taka jak `claude-sonnet-4-5` czy `gpt-4o`, którą ADK obsługuje przez Anthropic lub OpenAI — nie jest podłączany do niczego: gniazdo `model` agenta przyjmuje model Gemini, a agent nie odczytuje nazwy modelu ze swojego środowiska, więc należy podłączyć tam model Gemini i wskazać ten model w konfiguracji agenta. Komentarz nad instancją i decyzja agenta głównego wskazują model oraz rodzinę, przez którą obsługuje go ADK. Model budowany przez kod aplikacji lub drzewo niewskazujące żadnego modelu — ADK używa wtedy swojego modelu domyślnego — również nie jest podłączany do niczego, a komentarz nad instancją wyjaśnia dlaczego. Wszędzie tam, gdzie model nie jest do niczego podłączony, kompilacja zatrzymuje się, wskazując gniazdo `model`, dopóki ktoś go nie podłączy. Spośród modeli, o które proszą inni agenci drzewa, model, którego żądania ADK wysyła do Gemini API, nie potrzebuje własnego połączenia: klient Gemini w ADK wysyła jego żądania z kluczem dostarczanym przez połączenie instancji. To, czy aplikacja łączy się z Gemini przez Gemini API, czy przez Vertex AI, określa jej środowisko, którego import nie odczytuje; gniazdo `model` agenta dopuszcza wyłącznie Gemini API."
+  },
   "8224be97d3d5a28e": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -86675,6 +86715,17 @@
     "srcHash": "82da336adc48efde",
     "status": "machine",
     "text": "**Żądania:**"
+  },
+  "82dc5fd8f3428d2a": {
+    "at": "2026-11-08T12:39:28.880Z",
+    "job": "session-0017-20261108123928",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "82dc5fd8f3428d2a",
+    "status": "machine",
+    "text": "jej połączeniem `model`, podłączonym do modelu wskazanego przez drzewo, gdy ADK wysyła jego żądania do Gemini API."
   },
   "82e0fcf8d0525ee3": {
     "at": "2026-10-23T00:02:44.489841+00:00",
