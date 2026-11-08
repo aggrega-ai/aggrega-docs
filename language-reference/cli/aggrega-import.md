@@ -220,7 +220,9 @@ handed to it, and a declarative agent is imported as a file of its own. A direct
 recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
-formats the importers advertise; if signatures of more than one format match,
+formats the importers advertise — or, for a directory, asks for one of its
+files imported on its own or for a format whose importer declares file
+patterns, naming only those; if signatures of more than one format match,
 it stops and names them. It does not guess. Recognition reads nothing but the
 source — of a directory, only the files a signature's file names match — and
 reaches no network.
