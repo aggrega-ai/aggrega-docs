@@ -4446,6 +4446,17 @@
     "status": "machine",
     "text": "标记为 `required: true` 且没有 `default:` 的槽位，在 Release 省略它时会触发构建时错误（`E0165`）。该错误会指出槽位及其在契约中的位置，供作者修复。既没有 `required: true` 也没有 `default:` 的槽位是可选的：省略时，对它的每个引用都插值为空，随后由 Component 的 `values:` schema 评判结果。"
   },
+  "066c9563f096a396": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "6d51d2b8d96de95e",
+      "reviewed": false
+    },
+    "srcHash": "066c9563f096a396",
+    "status": "machine",
+    "text": "**将外部来源导入为草稿编写文件。** `aggrega import <file or directory>` 读取一个声明式智能体定义来源——Langflow 或 Flowise 流程、n8n 工作流、MCP 客户端的配置或注册表服务器描述——、Compose 应用、Dify 应用、CrewAI 项目声明的智能体、LangGraph 应用配置声明的图、Google ADK 应用的智能体配置声明的智能体，或 Agent Framework 声明式智能体，并生成初稿 `Aggregate` 和 `Component` YAML；对于 MCP、Compose、CrewAI、LangGraph、Google ADK 或 Agent Framework 来源，还会生成一份草稿 `Release`，供作者审阅并完成，使团队能够沿用已有的内容，而不必手工重新编写。对于流程的每个节点以及 Compose 应用的每个服务，它会对工作区自身目录中的 Components 打分——企业目录与标准库同等对待——使用一个确定性的、不依赖模型的置信度模型，并将决策——它权衡过的候选项、它分配的等级以及它做出的选择——记录为可审阅的提示，命令、编辑器和助手都会报告这些提示；当操作者选择启用时，高置信度匹配可以写为目录引用，但始终是一个由作者把关的、显式且可撤销的建议，而不是静默改写。目录新增的每个 Component 都是下一次导入要权衡的候选项。特定于格式的映射智能位于导入器插件中：编译器自带的 Langflow、Flowise、n8n、MCP、Compose、Dify、CrewAI、LangGraph、Google ADK 和 Agent Framework 导入器在每个工作区中服务这些格式，在首次使用时获取并验证；目录通过持有一个声明支持某格式的导入器插件来新增该格式。目录来源通过其导入器声明的文件模式读取；Langflow、Flowise、n8n、Dify 和 Agent Framework 导入器不声明任何模式，各自读取一个导出文件或声明式智能体；而 MCP 导入器读取目录中的客户端配置，Compose 导入器读取其中的 Compose 文件，并按 Compose 的方式合并，CrewAI 导入器读取项目的声明，从不读取其程序，LangGraph 导入器读取应用的配置，从不读取其代码或环境文件——只有当其挂接把该文件交给它时，才会读取其中的名称——Google ADK 导入器读取应用的根智能体配置，从不读取其代码或其环境文件，子智能体的配置在其挂接交给它时读取——ADK 声明这种配置是实验性的，其智能体默认使用 Gemini 模型，并通过 LiteLLM 模型字符串访问其他提供方。"
+  },
   "0672b7731ad373ee": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -28794,6 +28805,17 @@
     "status": "machine",
     "text": "**不能替代内联的 `artifacts:`。** 大多数 Recipes 携带的辅助文件足够专用，适合内联编写，作者可以将其与 Recipe 的其余部分一起阅读。当同一组文件伴随许多 Recipes 时，ArtifactLibrary 才有帮助；对于一次性内容，内联编写才是正确的选择。"
   },
+  "2b5aa75c0fb3e9b6": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "ecd3b918b9775493",
+      "reviewed": false
+    },
+    "srcHash": "2b5aa75c0fb3e9b6",
+    "status": "machine",
+    "text": "堆栈运行后，将拉取的模型复制为构建中 OpenAI 模型所指定的模型名称 `<model>`：在 Flowise、CrewAI、n8n 和 LangGraph 的运行中为 `gpt-4o-mini`，在 Langflow 的运行中为 `gpt-4.1`，在 Agent Framework 的运行中为 `gpt-4.1-mini`：`docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b <model>`。"
+  },
   "2b6020495367c438": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -38339,6 +38361,13 @@
     "srcHash": "3a533afd21a2f672",
     "status": "machine",
     "text": "**访问目录未建模的路由器。** 将智能体的 `model` 边指向一个 `core/ai-model/openai-compatible` 组件，并在 Release 中把该路由器的地址写入其 `infra.endpoint`。该组件背后在集群内不运行任何东西，因此地址由运维人员填写，并由其负责与所指向的服务保持一致。"
+  },
+  "3a574dff8c44b385": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "3a574dff8c44b385",
+    "status": "machine",
+    "text": "面向 Kubernetes 的构建，即 `helm` 目标，写出的是普通清单而不是 chart，如 [helm 提供方](../../language-reference/providers/helm.md)所述：写在 `dist/helm/` 下；对于 Release 放入某个边界的组件，则写在 `dist/boundaries/<boundary>/helm/` 下，其中一些位于其下各自的文件夹中。未指定命名空间的文件（MCP 和 Dify 构建的文件就是如此）会进入你的 `kubectl` 上下文所指定的命名空间，若上下文未指定则进入 `default`；请先在那里创建它们读取的 Secrets，然后应用该文件夹："
   },
   "3a59bee9ef3cdd57": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -82695,6 +82724,17 @@
     "status": "machine",
     "text": "Workload 探针结构"
   },
+  "7d720ba900309145": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "5a86084df9614560",
+      "reviewed": false
+    },
+    "srcHash": "7d720ba900309145",
+    "status": "machine",
+    "text": "翻译完成后，每个输出的文件都会在其元数据中携带 `aggrega.ai/*` 来源信息——无论它是由 source 渲染、由 workload 合成，还是由 artifact 模板输出。每个输出面都通过同一组共享的构建器写入这些信息，因此无论由哪种输入类型产生，同一个文件始终携带相同的来源信息。这组信息按值是否满足 Kubernetes 标签值字符集划分：满足标签要求的键作为 **labels**（可查询）；不满足字符集的键——`recipe-uri`（包含 `:`）、`boundary-path`（嵌套路径包含 `/`）和 `sync-wave`（负数波次带前导 `-`）——作为 **annotations**，其值不受约束。构建不要求其符合标签规则的身份值——聚合名称、环境、提供方名称、编译器和提供方的版本——会以标签所允许的形式写为标签；当该形式与原值不同时，原值也会原样作为同一键下的注解写入（名为 `imported/flow` 的 Aggregate 会带有标签 `imported-flow` 和注解 `imported/flow`）。携带同一 Recipe 输出的所有文件共享相同的来源信息："
+  },
   "7d7508b77e8788c4": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -102662,6 +102702,13 @@
     "status": "machine",
     "text": "模板上下文包含三个形似 inject 的字段，各自语义不同。Recipe 和 FeatureRecipe 的作者应当清楚该读取哪个界面。"
   },
+  "9c450a5efa11463f": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "9c450a5efa11463f",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` 随后可以设为你自己选定的任意非空值：本地服务器不做任何校验。n8n 工作流从其模型节点所选的凭据中读取模型的地址和密钥，而不是从 `endpoint` 提供的地址读取，因此 n8n 的运行还把服务器地址交给了该凭据，即在其 `data` 中 `apiKey` 旁边加上一个 `url`。声明了 `apiType: Responses` 的 Agent Framework 声明式智能体会把请求发送到 Responses API，而 `core/ai-model/ollama` 默认运行的 Ollama 版本不提供该 API，因此 Agent Framework 的运行在 Release 中为 `local-model` 指定了更新的版本，即在其 `infra` 下设置 `engine_version: \"0.15.6\"`，以代替 `local-model: {}`。"
+  },
   "9c451305e046053a": {
     "at": "2026-10-30T18:36:11.533Z",
     "job": "session-0004-20261030183611",
@@ -109878,6 +109925,13 @@
     "srcHash": "a6e26668af7e5d8d",
     "status": "machine",
     "text": "行数对比"
+  },
+  "a6e3626e18976dad": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "a6e3626e18976dad",
+    "status": "machine",
+    "text": "`-R` 会处理这些文件夹中的文件。`ClusterIP` 类型的 Service（MCP 和 Dify 构建为其运行的服务器所设的类型）只能从集群内部访问：要从你的机器访问它，请使用 `kubectl port-forward svc/<service> <local port>:<port>` 将一个本地端口转发给它，该命令会一直运行，直到你将其停止。"
   },
   "a6e4de34151fb189": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -152008,6 +152062,17 @@
     "srcHash": "e4d7026bf073f1d6",
     "status": "machine",
     "text": "如果格式是识别出来的而非指定的，那么通过签名识别出该目录的导入器已匹配了其中一个文件，因此只有当实际运行的导入器不是它时才会遇到此情况——即由 `plugins.importer` 条目选中的同一格式的另一个导入器，或它的另一个版本。"
+  },
+  "e4db4ba15d8de225": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "e1e2be0b580245af",
+      "reviewed": false
+    },
+    "srcHash": "e4db4ba15d8de225",
+    "status": "machine",
+    "text": "Flowise、CrewAI、Langflow、n8n、LangGraph 和 Agent Framework 的运行在没有 OpenAI 密钥的情况下给出了回答：每次运行都把其 `core/ai-model/openai` 模型指向同一项目中由 Ollama 提供的一个小模型，为此对审阅后的文件做了三处修改，并在栈运行起来后执行了一条命令："
   },
   "e4dfe8d793631899": {
     "at": "2026-10-22T04:49:50.527667+00:00",

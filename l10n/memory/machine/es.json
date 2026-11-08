@@ -3973,6 +3973,17 @@
     "status": "machine",
     "text": "Un slot marcado con `required: true` sin `default:` provoca un error en tiempo de compilación cuando la Release lo omite (`E0165`). El error nombra el slot y su ubicación en el contrato para que el autor lo corrija. Un slot sin `required: true` ni `default:` es opcional: si se omite, cada referencia a él se interpola como vacía, y el esquema `values:` del Component juzga después el resultado."
   },
+  "066c9563f096a396": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "6d51d2b8d96de95e",
+      "reviewed": false
+    },
+    "srcHash": "066c9563f096a396",
+    "status": "machine",
+    "text": "**Importar una fuente externa a borradores de archivos de autoría.** `aggrega import <file or directory>` lee una fuente declarativa de definición de agentes —un flow de Langflow o Flowise, un workflow de n8n, o la configuración de un cliente MCP o la descripción de un servidor de un registro MCP—, una aplicación Compose, una aplicación Dify, los agentes que declara un proyecto CrewAI, los grafos que declara la configuración de una aplicación LangGraph, los agentes que declaran las configuraciones de agentes de una aplicación Google ADK, o un agente declarativo de Agent Framework, y genera un primer borrador de YAML `Aggregate` y `Component`, y, a partir de una fuente MCP, Compose, CrewAI, LangGraph, Google ADK o Agent Framework, un borrador de `Release`, para que un autor lo revise y lo termine, de modo que un equipo aproveche lo que ya tiene en lugar de volver a escribirlo a mano. Para cada nodo de un flow, y cada servicio de una aplicación Compose, puntúa los Components del propio catálogo del espacio de trabajo —el de un catálogo empresarial tanto como el de la biblioteca estándar— con un modelo de confianza determinista y sin modelo, y registra la decisión —los candidatos que evaluó, el nivel que asignó y la elección que hizo— como indicaciones revisables, de las que informan el comando, el editor y el asistente; una coincidencia de alta confianza puede escribirse como referencia al catálogo cuando el operador lo habilita, siempre como una sugerencia explícita y reversible que el autor aprueba y no como una reescritura silenciosa. Cada Component que gana un catálogo es un candidato que evalúa la siguiente importación. La inteligencia de mapeo específica de cada formato reside en un plugin importador: los importadores Langflow, Flowise, n8n, MCP, Compose, Dify, CrewAI, LangGraph, Google ADK y Agent Framework del compilador sirven esos formatos en cada espacio de trabajo, descargados y verificados en el primer uso, y un catálogo añade un formato al contener un plugin importador que lo anuncia. Una fuente de tipo directorio se lee a través de los patrones de archivo que declara su importador; los importadores Langflow, Flowise, n8n, Dify y Agent Framework no declaran ninguno, y cada uno lee un único archivo exportado o agente declarativo, mientras que el importador MCP lee las configuraciones de cliente que contiene un directorio, el importador Compose sus archivos Compose, fusionados como los fusiona Compose, el importador CrewAI las declaraciones de un proyecto, nunca su programa, el importador LangGraph la configuración de una aplicación, nunca su código ni un archivo de entorno —cuyos nombres solo lee cuando su vinculación le entrega el archivo—, y el importador Google ADK la configuración del agente raíz de una aplicación, nunca su código ni su archivo de entorno, y lee las configuraciones de sus subagentes cuando su vinculación se las entrega; una configuración que ADK declara experimental, cuyos agentes usan un modelo Gemini de forma predeterminada y llegan a otros proveedores mediante una cadena de modelo LiteLLM."
+  },
   "0672b7731ad373ee": {
     "at": "2026-11-03T12:45:18.099Z",
     "job": "session-0107-20261103124518",
@@ -25751,6 +25762,17 @@
     "status": "machine",
     "text": "**No sustituye a `artifacts:` en línea.** La mayoría de las Recipes llevan archivos auxiliares lo bastante específicos como para estar en línea, donde el autor los lee junto con el resto de la Recipe. Una ArtifactLibrary ayuda cuando el MISMO conjunto de archivos acompaña a muchas Recipes; para contenido puntual, la escritura en línea es la opción adecuada."
   },
+  "2b5aa75c0fb3e9b6": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "ecd3b918b9775493",
+      "reviewed": false
+    },
+    "srcHash": "2b5aa75c0fb3e9b6",
+    "status": "machine",
+    "text": "una vez que la pila está en marcha, el modelo descargado copiado con el nombre de modelo que indica el modelo de OpenAI de la compilación, `<model>`: `gpt-4o-mini` en las ejecuciones de Flowise, CrewAI, n8n y LangGraph, `gpt-4.1` en la de Langflow y `gpt-4.1-mini` en la de Agent Framework: `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b <model>`."
+  },
   "2b6020495367c438": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -34313,6 +34335,13 @@
     "srcHash": "3a533afd21a2f672",
     "status": "machine",
     "text": "**Llegar a un router que el catálogo no modela.** Apunta la arista `model` del agente a un componente `core/ai-model/openai-compatible` y escribe la dirección de ese router en su `infra.endpoint` en la Release. Nada se ejecuta detrás de ese componente dentro del clúster, así que escribir la dirección y mantenerla sincronizada con el servicio que nombra corresponde al operador."
+  },
+  "3a574dff8c44b385": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "3a574dff8c44b385",
+    "status": "machine",
+    "text": "Una compilación para Kubernetes, el destino `helm`, escribe manifiestos simples en lugar de un chart, como describe el [proveedor helm](../../language-reference/providers/helm.md): en `dist/helm/` o, para los componentes que una Release coloca en un límite, en `dist/boundaries/<boundary>/helm/`, algunos de ellos en una carpeta propia debajo. Los archivos que no nombran ningún namespace, como los de las compilaciones de MCP y Dify, van al que nombra tu contexto de `kubectl`, o a `default` si no nombra ninguno; crea allí primero los Secrets que leen y luego aplica la carpeta:"
   },
   "3a59bee9ef3cdd57": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -74044,6 +74073,17 @@
     "status": "machine",
     "text": "Forma de sonda del Workload"
   },
+  "7d720ba900309145": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "5a86084df9614560",
+      "reviewed": false
+    },
+    "srcHash": "7d720ba900309145",
+    "status": "machine",
+    "text": "Tras la traducción, cada archivo emitido lleva la procedencia `aggrega.ai/*` en sus metadatos, tanto si se renderizó desde la fuente como si se sintetizó desde la carga de trabajo o se emitió desde una plantilla de artefacto. Cada superficie de emisión la estampa a partir de un mismo conjunto compartido de builders, de modo que el mismo archivo lleva siempre la misma procedencia, sea cual sea el tipo de entrada que lo produjo. El conjunto se divide según si un valor cumple el juego de caracteres de los valores de etiqueta de Kubernetes: las claves aptas para etiquetas son **etiquetas** (consultables); las claves no aptas para el juego de caracteres —`recipe-uri` (contiene un `:`), `boundary-path` (una ruta anidada contiene `/`) y `sync-wave` (el `-` inicial de una oleada negativa)— son **anotaciones**, cuyos valores no tienen restricciones. Un valor de identidad que la compilación no somete a las reglas de las etiquetas —el nombre del agregado, el entorno, el nombre del proveedor, las versiones del compilador y del proveedor— es una etiqueta escrita en una forma que una etiqueta admite y, donde esa forma difiere del valor, el valor literal es además una anotación bajo la misma clave (un Aggregate llamado `imported/flow` recibe la etiqueta `imported-flow` y la anotación `imported/flow`). Todos los archivos que llevan la salida de una misma Recipe comparten la misma procedencia:"
+  },
   "7d7508b77e8788c4": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -92022,6 +92062,13 @@
     "status": "machine",
     "text": "El contexto de plantilla lleva tres campos con forma de inject y semánticas distintas. Los autores de Recipe y de FeatureRecipe deberían saber qué superficie leer."
   },
+  "9c450a5efa11463f": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "9c450a5efa11463f",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` puede entonces contener cualquier valor no vacío que elijas: el servidor local no comprueba ninguno. Un workflow de n8n lee la dirección y la clave del modelo de la credencial que selecciona su nodo de modelo, no de la dirección que entrega `endpoint`, así que la ejecución de n8n también dio a esa credencial la dirección del servidor, como `url` junto a `apiKey` en sus `data`. Un agente declarativo de Agent Framework que indica `apiType: Responses` envía sus solicitudes a la Responses API, que la versión de Ollama que ejecuta `core/ai-model/ollama` de forma predeterminada no sirve, así que la ejecución de Agent Framework dio a `local-model` una posterior en la Release, `engine_version: \"0.15.6\"` bajo su `infra`, en lugar de `local-model: {}`."
+  },
   "9c451305e046053a": {
     "at": "2026-11-03T17:48:59.915Z",
     "job": "session-0137-20261103174859",
@@ -98437,6 +98484,13 @@
     "srcHash": "a6e26668af7e5d8d",
     "status": "machine",
     "text": "Comparación del número de líneas"
+  },
+  "a6e3626e18976dad": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "srcHash": "a6e3626e18976dad",
+    "status": "machine",
+    "text": "`-R` alcanza los archivos de esas carpetas. Un Service `ClusterIP`, el tipo que las compilaciones de MCP y Dify dan a los servidores que ejecutan, solo es accesible desde dentro del clúster: para acceder a uno desde tu máquina, redirige un puerto local hacia él con `kubectl port-forward svc/<service> <local port>:<port>`, que se ejecuta hasta que lo detengas."
   },
   "a6e4de34151fb189": {
     "at": "2026-10-22T05:26:40.584Z",
@@ -136364,6 +136418,17 @@
     "srcHash": "e4d7026bf073f1d6",
     "status": "machine",
     "text": "Donde el formato se reconoció en lugar de nombrarse, el importer cuya firma reconoció el directorio coincidió con uno de sus archivos, así que esto solo se da donde el importer que se ejecuta no es ese — otro importer del mismo formato que selecciona una entrada `plugins.importer`, u otra versión de él."
+  },
+  "e4db4ba15d8de225": {
+    "at": "2026-11-08T10:34:26.685Z",
+    "job": "session-0004-20261108103426",
+    "revision": {
+      "from": "e1e2be0b580245af",
+      "reviewed": false
+    },
+    "srcHash": "e4db4ba15d8de225",
+    "status": "machine",
+    "text": "Las ejecuciones de Flowise, CrewAI, Langflow, n8n, LangGraph y Agent Framework respondieron sin una clave de OpenAI: cada una apuntó su modelo `core/ai-model/openai` a un modelo pequeño servido por Ollama en el mismo proyecto, con tres cambios en los archivos revisados y un comando una vez iniciado el stack:"
   },
   "e4dfe8d793631899": {
     "at": "2026-11-03T21:51:54.059Z",
