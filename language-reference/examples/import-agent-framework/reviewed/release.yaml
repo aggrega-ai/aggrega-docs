@@ -14,8 +14,9 @@ spec:
     # Left for the Release, since the declarative agent does not state it:
     #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
     #   - the credential supportagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
-    # The declarative agent also states these values for its connections, which the application reads from it, written here for review:
-    #   - model.connection.key, read from the environment variable OPENAI_API_KEY
+    # The declarative agent also states these values for its model and its MCP servers, written here for review:
+    #   - model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads from the environment variable OPENAI_API_KEY only where the application loads the declarative agent with AgentFactory(safe_mode=False), Agent Framework's own security setting, and a .NET runtime is present; otherwise the value is the expression's text as written
+    #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp"
     supportagent:
       # Reviewed: the image running the application, which you build from the
       # project, support-agent.yaml included.
@@ -33,6 +34,3 @@ spec:
                   origin: "${OPENAI_API_KEY}"
     gpt-4-1-mini:
       infra: {}
-    microsoft-learn:
-      infra:
-        endpoint: "https://learn.microsoft.com/api/mcp"

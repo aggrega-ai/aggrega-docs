@@ -46,8 +46,8 @@ importer drafts an instance of the standard library's ADK agent per agent tree a
 configurations declare, wired to the Gemini model the tree names, and shares the rest as the MCP
 importer does, as [The Google ADK importer](#the-google-adk-importer) describes. The Agent Framework
 importer drafts an instance of the standard library's Agent Framework agent per declarative agent,
-wired to the OpenAI model it names and to each MCP server it reaches — each server drafted as the MCP
-importer drafts one someone else runs — and shares the rest as the MCP importer does, as
+wired to the OpenAI model it names — each MCP server it names written in comments, since the model's
+provider reaches it as a hosted tool — and shares the rest as the MCP importer does, as
 [The Agent Framework importer](#the-agent-framework-importer) describes. How the
 importer socket works, and
 what it is handed, is described under
@@ -2082,7 +2082,7 @@ The Google ADK importer reads `target_namespace`, `empty_credentials` and `rende
 `importer/agent-framework` reads a Microsoft Agent Framework declarative agent — the YAML document of
 kind `Prompt` an application built on Agent Framework loads an agent from — and drafts an Aggregate
 holding one instance of the standard library's Agent Framework agent, `core/ai-agent/agent-framework`,
-wired to the OpenAI model it names and to each MCP server it reaches, and a Release beside it. It reads
+wired to the OpenAI model it names, and a Release beside it. It reads
 declarative agents, and never the application's code. Agent Framework publishes its declarative-agent
 packages as prereleases.
 
@@ -2101,8 +2101,10 @@ A declarative agent declares:
   `url`, with the `approvalMode` its calls take, the `allowedTools` of the server the agent may call and
   a `connection` of its own.
 
-A member written as `=Env.NAME` is read by Agent Framework from the environment variable `NAME`, and any
-other member opening with `=` is an expression the application computes. The importer reads neither:
+A member written as `=Env.NAME` is read by Agent Framework from the environment variable `NAME` only
+where the application loads the declarative agent with `AgentFactory(safe_mode=False)`, Agent Framework's
+own security setting, and a .NET runtime is present, and is otherwise taken as the expression's text as
+written; any other member opening with `=` is an expression the application computes. The importer reads neither:
 it names a reference by its variable, and an expression as one.
 
 A file imported on its own is read as one declarative agent, whatever it is called, and each file the
@@ -2134,8 +2136,7 @@ keyed by its name, an instance of `core/ai-agent/agent-framework` with:
 
 - `display_name` and `description`, the agent's `displayName` and `description`, where it states
   them;
-- its `model` connection, wired to the model it names, where that model is wired;
-- a `tools` connection per MCP server, wired to that server's instance.
+- its `model` connection, wired to the model it names, where that model is wired.
 
 Its instructions, the schemas of its input and its output, its template, its metadata and the options
 of its model requests are read by the application from the declarative agent, and are named in a
@@ -2156,21 +2157,19 @@ naming its provider as a reference or none, in which case Agent Framework uses t
 application sets, and one naming no `id` is wired to nothing, and a comment above the instance says
 why; the build halts naming the `model` socket until one is wired.
 
-Each tool of kind `mcp` is drafted as [The MCP importer](#the-mcp-importer) drafts a server someone else
-runs: an instance of `core/ai-tool/mcp`, keyed by the tool's name and carrying its description, whose
-`url` is written as its `infra.endpoint` in the Release without any part that carries a key — its user
-part, its query and its fragment — each part it leaves out written as written in the comment above the
-entry, beside its name, as the MCP importer writes it. A `url` written as a
-reference is left for the Release, named by its variable. Its `approvalMode` and its `allowedTools` are
-applied by the application from the declarative agent, and no key of `core/ai-tool/mcp` takes them, so
-a comment above its instance names them.
+A tool of kind `mcp` is drafted as no Component and no connection: Agent Framework sends the server to
+the model's provider as a hosted tool, and the provider, not the application, reaches it at its `url`,
+which must therefore be reachable from the provider, so nothing the draft deploys reaches it. A comment
+above the agent's instance names the server, says so, and names the description, the `approvalMode` and
+the `allowedTools` the declarative agent states for it; its `url` is written, whole, in the comment above
+the agent's entry in the Release, and its decision chooses nothing.
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
 comment above the agent's entry, its `infra.image` — the image running the application built on Agent
-Framework, which holds its declarative agent — the credential it presents to its model, attached on its
-`model` connection, and the credential it presents to each MCP server whose connection presents a key,
-attached on that server's `tools` connection; the build halts naming the image until it is set. The
-keys the declarative agent states are written in the same comment, as
+Framework, which holds its declarative agent — and the credential it presents to its model, attached on
+its `model` connection; the build halts naming the image until it is set. The values the declarative
+agent states for its model and its MCP servers — the keys, and each server's `url` — are written in the
+same comment, as
 [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) describes.
 Each wired model has an entry, so the Release places it with the agent. The endpoint its connection
 states is written as the model's `infra.endpoint`, and one written as a reference is named beside its
@@ -2198,6 +2197,8 @@ spec:
     # Read by the application from the declarative agent, and taken by no key of core/ai-agent/agent-framework: instructions, outputSchema, the options of its model requests (temperature, topP).
     # Function tools, whose code the application binds, drafted as no Component: GetRelease.
     # Tools the model's provider runs, drafted as no Component: search.
+    # The MCP server microsoft_learn, drafted as no Component and no connection, since Agent Framework sends it to the model's provider as a hosted tool, and the provider, not the application, reaches it at its url, which must therefore be reachable from the provider; its url is written above learnagent's entry in the Release.
+    # Stated by the declarative agent for microsoft_learn: its description, "Get information from Microsoft Learn."; its approval mode, never; the tools of the server it allows, microsoft_docs_search, microsoft_docs_fetch.
     learnagent:
       type: core/ai-agent/agent-framework
       values:
@@ -2207,20 +2208,11 @@ spec:
         model:
           gpt-4-1-mini:
             target: gpt-4-1-mini
-        tools:
-          microsoft-learn:
-            target: microsoft-learn
     # The model gpt-4.1-mini, which LearnAgent names with the OpenAI provider.
     gpt-4-1-mini:
       type: core/ai-model/openai
       values:
         model: "gpt-4.1-mini"
-    # The MCP server microsoft_learn, which LearnAgent reaches.
-    # Applied by the application from the declarative agent, and taken by no key of core/ai-tool/mcp: its approval mode, never; the tools of the server it allows, microsoft_docs_search, microsoft_docs_fetch.
-    microsoft-learn:
-      type: core/ai-tool/mcp
-      values:
-        description: "Get information from Microsoft Learn."
 ```
 
 A text the draft copies from a declarative agent into the Aggregate, in a value or in a comment, writes
@@ -2230,28 +2222,24 @@ each `{{` as ``{{`{{`}}``, so it reads back as written once the Aggregate is eva
 # release.yaml
 spec:
   aggregate: imported/flow
+  # manifest: left for the operator, since the import drafts no Manifest, which names the target the agents are built for.
   components:
     # Left for the Release, since the declarative agent does not state it:
     #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
     #   - the credential learnagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
-    #   - the credential learnagent presents to microsoft-learn, attached under credential on its connection uses.tools.microsoft-learn
-    # The declarative agent also states these values for its connections, which the application reads from it, written here for review:
+    # The declarative agent also states these values for its model and its MCP servers, written here for review:
     #   - model.connection.key: "..."
+    #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp?session=..."
     #   - tools.microsoft_learn.connection.key: "..."
     learnagent:
       infra: {}
     gpt-4-1-mini:
       infra:
         endpoint: "https://llm-gateway.example.com/v1"
-    # The address's query is not written in infra.endpoint, which holds the address without any part that carries a key; a consumer reading its key from the address supplies the whole address on its own connection to the tool:
-    #   - query: "session=..."
-    microsoft-learn:
-      infra:
-        endpoint: "https://learn.microsoft.com/api/mcp"
 ```
 
 A Release building it on Kubernetes keeps those entries, supplies the agent's image and a credential on
-each of its connections, and places them in a boundary:
+its model connection, and places them in a boundary:
 
 ```yaml
 spec:
@@ -2270,28 +2258,15 @@ spec:
                     type: core/referenced-secret
                     infra:
                       origin: <an existing Secret's name>
-            tools:
-              microsoft-learn:
-                features:
-                  credential:
-                    type: core/referenced-secret
-                    infra:
-                      origin: <an existing Secret's name>
         gpt-4-1-mini:
           infra:
             endpoint: "https://llm-gateway.example.com/v1"
-        microsoft-learn:
-          infra:
-            endpoint: "https://learn.microsoft.com/api/mcp"
 ```
 
 The agent is then rendered running that image and given the model's endpoint as `OPENAI_BASE_URL`, its
-id as `OPENAI_MODEL` and its credential as `OPENAI_API_KEY`, and the MCP server's address as
-`AGGREGA_TOOL_MICROSOFT_LEARN_URL` with its credential as `AGGREGA_TOOL_MICROSOFT_LEARN_CREDENTIAL`; the
-model and the server are each rendered as a Service reaching their host. A declarative agent's MCP tool
-reaches the address its `url` states, which Agent Framework reads from the declarative agent; the
-delivered `AGGREGA_TOOL_MICROSOFT_LEARN_URL` is the address the Release wires, for an application that
-hands it to its tool itself.
+id as `OPENAI_MODEL` and its credential as `OPENAI_API_KEY`, and the model is rendered as a Service
+reaching its host. No variable carries the MCP server's address: the model's provider, not the
+application, reaches it.
 
 ### Credential values a declarative agent holds
 
@@ -2300,17 +2275,18 @@ The key a `key` connection presents — written under `key` or `apiKey`, on the 
 what it logs. Each key a declarative agent writes as a literal is written in the comment above the
 agent's entry in the Release, as the declarative agent writes it, and by default carried as written and
 named in a `credential-carried` warning by its agent and its field, such as `model.connection.key`,
-never by its value. An MCP server's address, written as its `infra.endpoint`, and each part of its `url`
-the address leaves out, written in the comment above the server's entry and named by the `url`'s field
-and the part's name — `tools.microsoft_learn.url of node LearnAgent is carried with its query as
-written` — are members of an MCP server's configuration, and a wired model's endpoint is an input Agent
-Framework marks as no credential. With the [`empty_credentials` setting](#settings) at `marked`, the
-keys, the MCP servers' addresses and the parts of their `url` are written with no value — a part left
-out of the comment, which names it alone — and reported with `credential-emptied`, and the model's
-endpoint is carried; at `all`, the model's endpoint is written with no value too. A value written as `=Env.NAME`
-holds none, so it is named by its variable — `model.connection.key, read from the environment variable
-OPENAI_API_KEY` — whatever the setting says, and reported under neither code; a value written as any
-other expression is named as one and never written.
+never by its value. An MCP server's `url`, written whole in the same comment and named by its field —
+`tools.microsoft_learn.url of node LearnAgent is carried as written` — is a member of an MCP server's
+configuration, and a wired model's endpoint is an input Agent Framework marks as no credential. With the
+[`empty_credentials` setting](#settings) at `marked`, the keys and the MCP servers' `url`s are written
+with no value — the comment naming each by its field alone — and reported with `credential-emptied`,
+and the model's endpoint is carried; at `all`, the model's `infra.endpoint` is left out too, named in
+the comment above its entry as left for the Release, and the Component's default address is used until
+it is set. A value written as `=Env.NAME` holds none, so it is named by its variable,
+together with the condition under which Agent Framework reads it from the environment —
+`model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads …` — whatever the
+setting says, and reported under neither code; a value written as any other expression is named as one
+and never written.
 
 ### The settings it reads
 

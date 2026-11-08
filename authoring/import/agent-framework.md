@@ -47,10 +47,13 @@ tools:
       - microsoft_docs_fetch
 ```
 
-The model's key is written as `=Env.OPENAI_API_KEY`: Agent Framework reads it
-from the environment variable `OPENAI_API_KEY`, so the file holds no key. The
-application's code, which loads the declarative agent, is never read by the
-import, and is not part of the example. Beside the file, an
+The model's key is written as `=Env.OPENAI_API_KEY`, so the file holds no key.
+Agent Framework reads that expression from the environment variable
+`OPENAI_API_KEY` only where the application loads the declarative agent with
+`AgentFactory(safe_mode=False)`, Agent Framework's own security setting, and a
+.NET runtime is present; otherwise the key is the expression's text as
+written. The application's code, which loads the declarative agent, is never
+read by the import, and is not part of the example. Beside the file, an
 `.aggrega-config.yaml` makes the folder a workspace:
 
 <!-- quotes: source/.aggrega-config.yaml -->
@@ -65,8 +68,8 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
-The import references the catalog's Agent Framework agent, OpenAI model and MCP
-server Components, and `--target` drafts a Manifest from its Recipes, so name a
+The import references the catalog's Agent Framework agent and OpenAI model
+Components, and `--target` drafts a Manifest from its Recipes, so name a
 checkout of the standard-library catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
 path:
 
@@ -101,29 +104,24 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the agent-framework format, with drafted paths relative to <workspace>
 warn: the value of tools.microsoft_learn.url of node SupportAgent is carried as written in the Release the draft writes: the field belongs to an MCP server's configuration, which can carry a key, and setting empty_credentials to marked or all writes it empty
-warn: the drafted Manifest leaves the component type "core/ai-tool/mcp" unmapped: the workspace's catalog holds more than one Recipe binding to the target "compose" that implements it ("compose/mcp-remote", "compose/mcp-stdio-bridge"), and the import does not choose between them, so a build of the drafts halts naming each instance of it until the one wanted is mapped
 mapped SupportAgent (agent) to core/ai-agent/agent-framework as a reference, NONE
 mapped gpt-4.1-mini (model) to core/ai-model/openai as a reference, NONE
-mapped SupportAgent#microsoft_learn (tool) to core/ai-tool/mcp as a reference, NONE
+made no choice for SupportAgent#microsoft_learn (tool)
 ```
 
-- **The first `warn` line** names a value that can carry a key — an MCP
-  server's address — and says it is carried as written. This address carries
-  none.
-- **The second `warn` line** is about the Manifest: the catalog has two ways to
-  reach an MCP server under Docker Compose, and the import leaves the choice to
-  you.
+- **The `warn` line** names a value that can carry a key — an MCP server's
+  address — and says it is carried as written. This address carries none.
 - **The `mapped` lines** say that the agent is an instance of the standard
-  library's Agent Framework agent, `core/ai-agent/agent-framework`, its model an
-  instance of `core/ai-model/openai`, and its MCP server an instance of
-  `core/ai-tool/mcp`. Their tier reads `NONE`: the Agent Framework import
-  references these Components by what the declarative agent names rather than
-  by weighing each against the catalog.
+  library's Agent Framework agent, `core/ai-agent/agent-framework`, and its
+  model an instance of `core/ai-model/openai`. Their tier reads `NONE`: the
+  Agent Framework import references these Components by what the declarative
+  agent names rather than by weighing each against the catalog.
+- **The `made no choice` line** is the MCP server, which the import drafts as
+  no Component, for the reason the comments in `aggregate.yaml` give.
 
 ## What it wrote
 
-`aggregate.yaml` — the agent, wired to its model and to its MCP server, and
-each of them:
+`aggregate.yaml` — the agent, wired to its model, and the model:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -138,6 +136,8 @@ spec:
   components:
     # The declarative agent SupportAgent.
     # Read by the application from the declarative agent, and taken by no key of core/ai-agent/agent-framework: instructions, the options of its model requests (temperature).
+    # The MCP server microsoft_learn, drafted as no Component and no connection, since Agent Framework sends it to the model's provider as a hosted tool, and the provider, not the application, reaches it at its url, which must therefore be reachable from the provider; its url is written above supportagent's entry in the Release.
+    # Stated by the declarative agent for microsoft_learn: its description, "Search Microsoft's documentation on Microsoft Learn."; its approval mode, never; the tools of the server it allows, microsoft_docs_search, microsoft_docs_fetch.
     supportagent:
       type: core/ai-agent/agent-framework
       values:
@@ -147,29 +147,23 @@ spec:
         model:
           gpt-4-1-mini:
             target: gpt-4-1-mini
-        tools:
-          microsoft-learn:
-            target: microsoft-learn
     # The model gpt-4.1-mini, which SupportAgent names with the OpenAI provider.
     gpt-4-1-mini:
       type: core/ai-model/openai
       values:
         model: "gpt-4.1-mini"
-    # The MCP server microsoft_learn, which SupportAgent reaches.
-    # Applied by the application from the declarative agent, and taken by no key of core/ai-tool/mcp: its approval mode, never; the tools of the server it allows, microsoft_docs_search, microsoft_docs_fetch.
-    microsoft-learn:
-      type: core/ai-tool/mcp
-      values:
-        description: "Search Microsoft's documentation on Microsoft Learn."
 ```
 
-The instructions, the options of the model's requests, the MCP server's
-approval mode and the tools of it the agent may call stay in the declarative
+The MCP server is no Component and no connection of the agent: Agent Framework
+sends it to the model's provider as a hosted tool, and the provider, not the
+application, reaches it at its `url`, which must therefore be reachable from
+the provider. The instructions, the options of the model's requests, and the
+server's description, approval mode and allowed tools stay in the declarative
 agent, which the application reads; the comments name each.
 
-`release.yaml` — an entry for the agent, with what the declarative agent does
-not state named in a comment above it, an entry placing the model beside it,
-and the MCP server's address:
+`release.yaml` — an entry for the agent, with a comment above it naming what
+the declarative agent does not state and the values it states for its model
+and its MCP server, and an entry placing the model beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -187,21 +181,22 @@ spec:
     # Left for the Release, since the declarative agent does not state it:
     #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
     #   - the credential supportagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
-    # The declarative agent also states these values for its connections, which the application reads from it, written here for review:
-    #   - model.connection.key, read from the environment variable OPENAI_API_KEY
+    # The declarative agent also states these values for its model and its MCP servers, written here for review:
+    #   - model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads from the environment variable OPENAI_API_KEY only where the application loads the declarative agent with AgentFactory(safe_mode=False), Agent Framework's own security setting, and a .NET runtime is present; otherwise the value is the expression's text as written
+    #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp"
     supportagent:
       infra: {}
     gpt-4-1-mini:
       infra: {}
-    microsoft-learn:
-      infra:
-        endpoint: "https://learn.microsoft.com/api/mcp"
 ```
 
-The model's key is named by the variable it is read from, never valued.
+The model's key is named by the expression it is written as, never valued.
+The MCP server's address is written as the declarative agent states it, for
+review, and set nowhere else: Agent Framework hands it to the provider in its
+request to the model.
 
 `manifest.yaml` — the one Compose Recipe the catalog offers for the agent and
-for the model, and none for the MCP server:
+for the model:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -234,17 +229,17 @@ aggrega validate --release release.yaml
   document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
 ```
 
-With the environment set, the next refusals are the MCP server, whose Recipe the
-Manifest does not choose, and the image the Release does not name:
+With the environment set, the next refusal is the image the Release does not
+name:
 
 ```text
-  [OPS_ERROR E0099] .spec.components.microsoft-learn
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.microsoft-learn, "microsoft-learn", of type "core/ai-tool/mcp", recipes implementing it "compose/mcp-remote:1.0.0, compose/mcp-stdio-bridge:1.0.0, helm/mcp-remote:1.0.0, helm/mcp-stdio-bridge:1.0.0, helm/mcp:1.0.0"). pin one of them in the Manifest
-  [… omitted: the refusal naming the image, below]
-release dependency validation failed: 2 diagnostic(s)
+  [DEVELOPER_ERROR E0033]
+    Component/Feature assertions
+    caused by: Component "core/ai-agent/agent-framework" instance "supportagent" assertion "image_supplied": assertion "Component/core/ai-agent/agent-framework/supportagent/image_supplied": template: Component/core/ai-agent/agent-framework/supportagent/image_supplied:1:85: executing "Component/core/ai-agent/agent-framework/supportagent/image_supplied" at <fail (printf "%q runs an application built on Microsoft Agent Framework from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application" $.metadata.instance_id)>: error calling fail: assertion failed: "supportagent" runs an application built on Microsoft Agent Framework from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application
+release dependency validation failed: 1 diagnostic(s)
 ```
 
-The review changes the Release, and adds two mappings to the Manifest:
+The review changes the Release, and adds one mapping to the Manifest:
 
 - **Set the environment**, `development`.
 - **Name the image** running the application, which you build from the project
@@ -259,13 +254,10 @@ The review changes the Release, and adds two mappings to the Manifest:
   component.aggrega.ai/hosting label is managed, with no credential". The
   connection attaches a `core/secret-value` whose `origin` is the Compose
   variable reference `${OPENAI_API_KEY}`.
-- **Map the Manifest.** `core/ai-tool/mcp` maps to `compose/mcp-remote`: the
-  server is one Microsoft runs, reached at its address, so nothing runs for it
-  in the stack. The other, `compose/mcp-stdio-bridge`, runs a server published
-  as a package that speaks only stdio. `core/secret-value` maps to
-  `compose/dotenv-secret`, which writes the reference into the Compose file as
-  written, so Docker Compose fills it from your shell when the stack starts and
-  no file carries the key.
+- **Map the Manifest.** `core/secret-value` maps to `compose/dotenv-secret`,
+  which writes the reference into the Compose file as written, so Docker
+  Compose fills it from your shell when the stack starts and no file carries
+  the key.
 
 The Aggregate needs no change. The reviewed `release.yaml`:
 
@@ -287,8 +279,9 @@ spec:
     # Left for the Release, since the declarative agent does not state it:
     #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
     #   - the credential supportagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
-    # The declarative agent also states these values for its connections, which the application reads from it, written here for review:
-    #   - model.connection.key, read from the environment variable OPENAI_API_KEY
+    # The declarative agent also states these values for its model and its MCP servers, written here for review:
+    #   - model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads from the environment variable OPENAI_API_KEY only where the application loads the declarative agent with AgentFactory(safe_mode=False), Agent Framework's own security setting, and a .NET runtime is present; otherwise the value is the expression's text as written
+    #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp"
     supportagent:
       # Reviewed: the image running the application, which you build from the
       # project, support-agent.yaml included.
@@ -306,9 +299,6 @@ spec:
                   origin: "${OPENAI_API_KEY}"
     gpt-4-1-mini:
       infra: {}
-    microsoft-learn:
-      infra:
-        endpoint: "https://learn.microsoft.com/api/mcp"
 ```
 
 The reviewed `manifest.yaml`:
@@ -327,8 +317,6 @@ spec:
       type:
         core/ai-agent/agent-framework: compose/agent-framework
         core/ai-model/openai: compose/openai
-        # Reviewed: an MCP server someone else runs, reached at its address.
-        core/ai-tool/mcp: compose/mcp-remote
     # Reviewed: the realization that writes a secret's variable reference into
     # the Compose file as written.
     features:
@@ -354,7 +342,7 @@ and the build, with `<workspace>` standing for the folder holding the reviewed
 files:
 
 ```text
-Pull complete: release.lock (entities=9, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist
@@ -374,7 +362,6 @@ services:
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_MODEL: gpt-4.1-mini
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      AGGREGA_TOOL_MICROSOFT_LEARN_URL: https://learn.microsoft.com/api/mcp
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose
@@ -382,9 +369,70 @@ services:
 
 The application receives the model's address, its name and its key in the
 variables Agent Framework's OpenAI clients read, so the declarative agent's
-`=Env.OPENAI_API_KEY` reads the key the Release attached. The MCP server's
-address arrives as `AGGREGA_TOOL_MICROSOFT_LEARN_URL`, for an application that
-hands its tool the address itself; the declarative agent's MCP tool reaches the
-address its own `url` states. Neither the model nor the MCP server gets a
-service: both are reached at their own addresses. The key is a variable
-reference, filled from your shell when the stack starts.
+`=Env.OPENAI_API_KEY` reads the key the Release attached where the application
+loads it as [The project](#the-project) describes. No variable carries the MCP
+server's address, which the provider reaches. The model gets no service of its
+own: the agent reaches the OpenAI API at its own address. The key is a variable
+reference, filled from your shell when the stack starts. The service publishes
+no port on your machine: the rendered file gives it none.
+
+## Run it
+
+You build the image from the project, with a Dockerfile of your own: the
+application's code, with Agent Framework installed and the declarative agent
+inside. Docker Compose runs the image's own command as the agent's service,
+since the Recipe sets none, so that command must keep running, and must serve
+requests if you want to reach the agent. Your program decides the address, the
+route and the reply.
+
+The run below used such an image: Python with Agent Framework's
+`agent-framework-core`, `agent-framework-openai` and
+`agent-framework-declarative` packages, a .NET runtime — the image set
+`DOTNET_ROOT` to its directory and `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` —
+`support-agent.yaml`, and, as the image's command, a small HTTP server of the
+program's own on port 8000. The server loads the declarative agent with
+`AgentFactory(safe_mode=False)`, so its `=Env.OPENAI_API_KEY` reads the key the
+build delivers, and runs the agent once for each `POST /ask`. Build your image
+at the project's root, put its name in place of
+`ghcr.io/example/support-agent:1.0.0` in `release.yaml`, and build again:
+
+```bash
+docker build -t docs-assistant:local .
+aggrega build --release release.yaml --auto-pull
+```
+
+Then set the key in your shell and start the stack:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+docker compose -p docs-assistant -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The service
+publishes no port, so the run sent its request from a container on the stack's
+network, `docs-assistant_compose`, to its own program's route:
+
+```bash
+docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://supportagent:8000/ask -H 'Content-Type: application/json' \
+  -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
+```
+
+```text
+{"answer": "[… omitted: the agent's reply, written by the small local model]", "usage": {"input_token_count": 137, "output_token_count": 30, "total_token_count": 167}}
+```
+
+The route, the request and the shape of the reply are that program's own.
+Agent Framework sent the question to the model's Responses API in one request,
+carrying the MCP server as a hosted tool for the provider to call. This answer
+came from a small local model in place of OpenAI, set up as the run step of
+[How an import runs](README.md#how-an-import-runs) describes, whose server
+replied without calling the tool, so the answer draws on nothing from
+Microsoft Learn.
+
+Stop the stack with:
+
+```bash
+docker compose -p docs-assistant -f dist/compose/docker-compose.yaml down
+```

@@ -1,7 +1,7 @@
 ---
 example:
   level: start
-  products: [core/ai-agent/agent-framework, core/ai-model/openai, core/ai-tool/mcp]
+  products: [core/ai-agent/agent-framework, core/ai-model/openai]
   shows: [import, connections, credentials, recipe-selection]
 ---
 

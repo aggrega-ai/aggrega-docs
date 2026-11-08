@@ -121,7 +121,6 @@ described in [The header on each example](README.md#the-header-on-each-example).
 
 ### `core/ai-tool/mcp`
 
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
 - [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 
