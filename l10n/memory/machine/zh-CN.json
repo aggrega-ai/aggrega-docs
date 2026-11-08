@@ -34876,6 +34876,13 @@
     "status": "machine",
     "text": "**声明的默认值会具体化到渲染后的支柱中。**除验证之外，在 `values` 字段（或 `infra` 字段）上声明的 `default:` 会在构建时为作者省略的每个键填入渲染后的支柱——因此读取 `{{ .values.charset }}` 的 Recipe 模板会收到 schema 声明的 `utf8mb4`，而不是空值。作者提供的值始终优先；嵌套对象按每个省略的子项填充。由于具体化使用与验证相同的 schema 解析，通过跨文档 `$ref:` 引用到 SchemaLibrary 中的默认值也会具体化——无论是整个支柱的引用（`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`），还是基础加变体的形式（一个基础 `$ref:` 与同级 `properties` 并列，各自带有自己的默认值）。仅在本地文档内 `#/$defs/` 引用中，或在 `allOf` / `oneOf` / `anyOf` 分支下声明的默认值不会具体化；标准库通过跨文档 `$ref:` 组合支柱，而这种方式会具体化。"
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` 会获取基础实体。** 基础实体是每个触及扩展它的 Component 的 Release 的依赖，无论是否有其他地方提及它。[`aggrega pull`](../cli/aggrega-pull.md) 会沿每个 `extends:` 追溯到链的末端，从 registry 获取任何 catalog 目录中都没有的基础实体，并把每个基础实体记录到该 Release 的锁文件中，由提及它的 Component 的 `spec.extends` 引用；构建会从那里读取基础实体。因此，Manifest 只映射包装实体自身的类型，别无其他——只有当某个 Aggregate 也声明了基础实体的实例时，基础实体才需要自己的映射行。针对整个 catalog 的 [`aggrega validate`](../cli/aggrega-validate.md) 以同样的方式读取基础实体，因此发布到 registry 的基础实体在被 pull 获取之前，会在那里被拒绝，并提示 `aggrega pull`。"
+  },
   "347a82ebf760f4ce": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -65569,6 +65576,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe（导入的制品与其 Recipe 旁记录的摘要不再一致）"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**`extends` 链**——每个声明了 `extends` 的实体都会依据其父实体进行解析，并检查合并后的父实体+子实体结构。catalog 目录中没有的父实体，会从构建读取它的位置读取：即从制品缓存中，按照 Release 的锁文件为其记录的固定版本读取——所用的是该轮检查所针对的各 Releases 的锁文件；若工作区在单轮中整体验证，则为工作区中每个 Release 的锁文件。因此，发布到 registry 的基础实体在 [`aggrega pull`](./aggrega-pull.md) 获取并固定它之后即可通过验证，而两者中都没有的父实体会使运行停止，并提示 `aggrega pull --release <release>`。不会获取任何内容。"
   },
   "62ceda3a371d4b4c": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -102741,6 +102755,17 @@
     "status": "machine",
     "text": "当 `aggrega.exe` 正在运行时（由编辑器或 AI 客户端启动），安装程序无法替换它，会停止并给出相应的消息；请关闭启动它的程序，然后再次运行安装程序。卸载程序也会以同样的方式停止，此时它尚未移除任何内容。"
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**如果 lockfile 已不再与该 Release 解析到的内容匹配，验证会以 `aggrega build` 打印的停止信息被拒绝。** 当 Release 旁边有 lockfile 时，`--release` 会在 Release 的依赖解析完成后、上述任何检查运行之前，立即用构建在渲染前运行的漂移比较，核对该 lockfile 是否与 Release 解析到的内容一致。如果某个固定的实体、库、插件或 Release 文件本身已与 lockfile 发生漂移，验证会以构建的 `E0130` 拒绝停止——列出每个发生漂移的条目，随后给出可清除漂移的 `aggrega pull --release <release>`——并以非零状态退出，因此验证绝不会放过构建因漂移而拒绝的 lockfile。不带参数以及指定实体路径时，validate 不受 lockfile 约束：整个 catalog 的检查只为查找 `extends` 父实体而读取 lockfile 中的固定项，而单个实体的检查不读取任何 lockfile。"
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -108638,6 +108663,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md)（`advanced`）— 一个 Aggregate 包含一个 PostgreSQL 数据库和读取它的服务器。"
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` 会获取基础实体。** 基础 Feature 是每个挂接了扩展它的 Feature 的 Release 的依赖，无论是否有其他地方提及它。[`aggrega pull`](../cli/aggrega-pull.md) 会沿每个 `extends:` 追溯到链的末端，从 registry 获取任何 catalog 目录中都没有的基础实体，并把每个基础实体记录到该 Release 的锁文件中，由提及它的 Feature 的 `spec.extends` 引用；构建会从那里读取基础实体。"
   },
   "a463a7d7bce469db": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -123731,6 +123763,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` 会对 Release 所构建的实体运行该步骤，而不是中止。"
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**不带参数时，以及带实体路径时（无论是否给出 `--release`）**，validate 只从 catalog 目录读取库，绝不通过锁文件条目读取，因此已记录的条目不会改变其结论。该行会说明这一点，并指引你在 catalog 目录下编写该库，或先运行 `aggrega pull --release <release>`，再运行 `aggrega validate --release <release>`，后者会依据 Release 的锁文件所固定的库来检查该 Release。"
   },
   "ba725def2c4fbdab": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -159430,6 +159473,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "命令行参数交付。键是标志前缀，值是已解析的目标字符串。"
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**除非你指定格式，否则格式会从源中识别。** 识别使用各导入器声明的签名（无论是工作区目录中的导入器，还是编译器的核心导入器），这些签名记录在每个导入器的 Plugin 实体中：读取源所用的语法、签名适用的文件名，以及解析后的树必须或不得包含的路径。因此守护进程本身不了解任何格式，新导入器的格式无需其他任何改动即可被识别。检测只读取你发送的源——对于目录，只读取签名的文件模式所选中的文件——不访问网络；它读取的每个文件，都通过工作区目录为相应语法提供的解析器来解析（若目录未为某种语法提供解析器，则使用编译器自带的解析器），对适用于该文件名的签名所采用的每种语法各解析一次；随后导入器通过同一解析器读取源。未声明文件模式的签名适用于你发送的单个文件（无论其名称为何），而不适用于目录中的任何文件；Langflow、Flowise 和 n8n 导入器的签名属于此类，读取 JSON，而 Dify 导入器的签名读取 YAML。因此，识别你单独发送的文件时，会将其分别按 JSON 和 YAML 读取，这无需工作区目录中有解析器：编译器自带 JSON 和 YAML 解析器，目录提供的解析器则会取而代之。没有任何签名匹配的源会被拒绝，并要求提供 `format`，同时列出各导入器声明的格式——对于目录，则改为要求单独发送其中的某个文件，或提供其导入器声明了文件模式的 `format`，且只列出这些格式——所属条件为 [No importer recognises the source（没有导入器能识别该源）](../errors/fatal-halts.md#no-importer-recognises-the-source)；被多种格式的签名匹配的源会被拒绝并列出这些格式，所属条件为 [More than one importer recognises the source（有多个导入器能识别该源）](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source)。每次拒绝的 `data` 都带有其条件的 `code` 和 `shortCode`，因此客户端应依据代码而非文字来请求格式。这两种情况都不会去猜测，因为猜错的格式会解析到错误的导入器，产生看似可信的无意义结果。响应中的 `format` 是实际使用的格式（无论是检测到的还是指定的），因此省略了它的客户端也能得知所用格式。"
   },
   "ef2dd6750b208208": {
     "at": "2026-10-22T03:53:00.119047+00:00",

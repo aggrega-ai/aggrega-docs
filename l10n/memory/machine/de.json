@@ -31283,6 +31283,13 @@
     "status": "machine",
     "text": "**Deklarierte Standardwerte materialisieren sich in den gerenderten Pillars.** Über die Validierung hinaus wird ein `default:`, das auf einem `values`-Feld (oder einem `infra`-Feld) deklariert ist, zur Build-Zeit für jeden Schlüssel, den der Autor weglässt, in den gerenderten Pillar eingetragen — sodass ein Recipe-Template, das `{{ .values.charset }}` liest, das im Schema deklarierte `utf8mb4` statt eines leeren Werts erhält. Vom Autor angegebene Werte haben immer Vorrang; verschachtelte Objekte werden pro ausgelassenem Kind aufgefüllt. Da die Materialisierung dieselbe Schemaauflösung wie die Validierung verwendet, materialisieren sich auch Standardwerte, die über ein dokumentübergreifendes `$ref:` in eine SchemaLibrary erreicht werden — sowohl eine Referenz auf den ganzen Pillar (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`) als auch die Form Basis plus Variante (ein Basis-`$ref:` neben benachbarten `properties`, jede mit eigenen Standardwerten). Standardwerte, die nur innerhalb einer lokalen dokumentinternen `#/$defs/`-Referenz oder unter einem `allOf`- / `oneOf`- / `anyOf`-Zweig deklariert sind, werden nicht materialisiert; die Standardbibliothek setzt Pillars über dokumentübergreifendes `$ref:` zusammen, das materialisiert wird."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` ruft die Basis ab.** Eine Basis ist eine Abhängigkeit jedes Release, das eine Component erreicht, die sie erweitert, unabhängig davon, ob sie sonst irgendwo genannt wird. [`aggrega pull`](../cli/aggrega-pull.md) folgt jedem `extends:` bis zum Ende der Kette, ruft eine Basis, die kein Katalogverzeichnis enthält, aus der Registry ab und verzeichnet jede Basis im Lockfile des Release, referenziert vom `spec.extends` der Component, die sie nennt; ein Build liest die Basis von dort. Ein Manifest bildet daher nur den eigenen Typ eines Wrappers ab und nichts weiter — die Basis braucht nur dann eine eigene Zuordnungszeile, wenn ein Aggregate auch eine Instanz der Basis deklariert. Ein [`aggrega validate`](../cli/aggrega-validate.md) über den gesamten Katalog liest eine Basis auf dieselbe Weise, sodass eine in einer Registry veröffentlichte Basis dort unter Nennung von `aggrega pull` abgelehnt wird, bis ein Pull sie abgerufen hat."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -58769,6 +58776,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (Ein importiertes Artefakt stimmt nicht mehr mit dem neben seinem Recipe erfassten Digest überein)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**`extends`-Ketten** — jede Entität, die `extends` deklariert, wird gegen ihre übergeordnete Entität aufgelöst, und die zusammengeführte Form aus übergeordneter und untergeordneter Entität wird geprüft. Eine übergeordnete Entität, die die Katalogverzeichnisse nicht enthalten, wird dort gelesen, wo ein Build sie liest: aus dem Artefakt-Cache, unter dem Pin, den das Lockfile eines Release für sie verzeichnet — den Lockfiles der Releases, für die der Durchlauf ausgeführt wird, oder dem jedes Release, das der Workspace enthält, wenn er in einem einzigen Durchlauf validiert wird. Eine in einer Registry veröffentlichte Basis wird daher validiert, sobald [`aggrega pull`](./aggrega-pull.md) sie abgerufen und gepinnt hat, und eine übergeordnete Entität, die keiner von beiden enthält, bricht den Lauf ab und nennt `aggrega pull --release <release>`. Es wird nichts abgerufen."
   },
   "62d5ac90b15726c4": {
     "at": "2026-11-03T14:46:30.297Z",
@@ -92158,6 +92172,17 @@
     "status": "machine",
     "text": "Wenn `aggrega.exe` läuft — gestartet von einem Editor oder einem KI-Client —, kann das Installationsprogramm sie nicht ersetzen und bricht mit einer entsprechenden Meldung ab; schließen Sie, was sie gestartet hat, und führen Sie das Installationsprogramm erneut aus. Das Deinstallationsprogramm bricht auf dieselbe Weise ab, bevor es etwas entfernt hat."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Ein Lockfile, das nicht mehr zu dem passt, wozu das Release aufgelöst wird, lässt die Validierung mit dem Abbruch scheitern, den `aggrega build` ausgibt.** Wo ein Lockfile neben dem Release liegt, gleicht `--release` es mit dem ab, wozu das Release aufgelöst wird, mit dem Drift-Vergleich, den ein Build vor dem Rendern ausführt, sobald die Abhängigkeiten des Release aufgelöst sind und bevor eine der obigen Prüfungen läuft. Ein Lockfile, von dem eine gepinnte Entität, eine Bibliothek, ein Plug-in oder die Release-Datei selbst abgewichen ist, stoppt die Validierung mit der `E0130`-Ablehnung des Builds — jeder abgewichene Eintrag, dann das `aggrega pull --release <release>`, das sie behebt — und einem Exit-Code ungleich null, sodass eine Validierung nie ein Lockfile durchgehen lässt, das der Build als abgewichen ablehnt. Ohne Argument und mit einem Entitätspfad ist validate an kein Lockfile gebunden: Die Prüfung des gesamten Katalogs liest Lockfile-Pins nur, um eine übergeordnete `extends`-Entität zu finden, und die Prüfung einer einzelnen Entität liest kein Lockfile."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -97390,6 +97415,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Ein einziges Aggregate enthält eine PostgreSQL-Datenbank und den Server, der sie liest."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` ruft die Basis ab.** Ein Basis-Feature ist eine Abhängigkeit jedes Release, das ein Feature anhängt, das es erweitert, unabhängig davon, ob es sonst irgendwo genannt wird. [`aggrega pull`](../cli/aggrega-pull.md) folgt jedem `extends:` bis zum Ende der Kette, ruft eine Basis, die kein Katalogverzeichnis enthält, aus der Registry ab und verzeichnet jede Basis im Lockfile des Release, referenziert vom `spec.extends` des Feature, das sie nennt; ein Build liest die Basis von dort."
   },
   "a463a7d7bce469db": {
     "at": "2026-11-04T06:11:41.842Z",
@@ -111016,6 +111048,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` führt ihn über die Entitäten aus, die das Release baut, statt anzuhalten."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Ohne Argument sowie mit einem Entitätspfad, ob `--release` angegeben ist oder nicht**, liest validate Bibliotheken nur aus Katalogverzeichnissen, nie über einen Lockfile-Eintrag, sodass ein verzeichneter Eintrag sein Urteil nicht ändern würde. Die Zeile sagt dies und verweist darauf, die Bibliothek unter einem Katalogverzeichnis zu verfassen, oder auf `aggrega pull --release <release>` gefolgt von `aggrega validate --release <release>`, das das Release gegen die Bibliotheken prüft, die seine Lockfile pinnt."
   },
   "ba725def2c4fbdab": {
     "at": "2026-11-03T22:53:34.774Z",
@@ -143083,6 +143126,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Zustellung über Kommandozeilenargumente. Die Schlüssel sind Flag-Präfixe, die Werte sind die aufgelösten Zeichenketten des Ziels."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**Das Format wird an der Quelle erkannt, sofern Sie es nicht nennen.** Die Erkennung verwendet die Signaturen, die die Importer deklarieren — die des Workspace-Katalogs ebenso wie die der Core-Importer des Compilers —, die die Plugin-Entität jedes Importers aufzeichnet — die Syntax, in der eine Quelle gelesen wird, die Dateinamen, für die eine Signatur gilt, und die Pfade, die der geparste Baum enthalten muss oder nicht enthalten darf —, sodass der Daemon selbst kein Format kennt und das Format eines neuen Importers erkannt wird, ohne dass sich sonst etwas ändert. Die Erkennung liest nur die Quelle, die Sie gesendet haben — bei einem Verzeichnis nur die Dateien, die die Dateimuster einer Signatur auswählen — und kein Netzwerk, wobei jede gelesene Datei mit dem Parser geparst wird, den der Katalog des Workspace für eine Syntax bereitstellt — oder, für eine Syntax, für die der Katalog keinen Parser bereitstellt, mit dem, den der Compiler selbst mitbringt —, einmal für jede Syntax, in der eine auf ihren Namen zutreffende Signatur sie liest; der Importer liest die Quelle dann mit demselben Parser. Eine Signatur, die kein Dateimuster deklariert, gilt für die von Ihnen gesendete Datei, wie auch immer sie heißt, und für keine Datei eines Verzeichnisses; die Signaturen der Importer für Langflow, Flowise und n8n sind von dieser Art und lesen JSON, und die des Dify-Importers liest YAML, daher liest das Erkennen einer einzeln gesendeten Datei diese als JSON und als YAML, was keinen Parser im Katalog des Workspace erfordert: Der Compiler bringt einen JSON- und einen YAML-Parser mit, und einer, den der Katalog bereitstellt, wird an seiner Stelle verwendet. Eine Quelle, auf die keine Signatur passt, wird abgelehnt, wobei nach `format` gefragt wird und die Formate genannt werden, die die Importer anbieten — oder, bei einem Verzeichnis, nach einer seiner Dateien, einzeln gesendet, oder nach einem `format`, dessen Importer Dateimuster deklariert, wobei nur diese genannt werden —, unter der Bedingung [No importer recognises the source (Kein Importer erkennt die Quelle)](../errors/fatal-halts.md#no-importer-recognises-the-source); eine Quelle, auf die Signaturen mehr als eines Formats passen, wird abgelehnt, wobei diese genannt werden, unter der Bedingung [More than one importer recognises the source (Mehr als ein Importer erkennt die Quelle)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Das `data` jeder Ablehnung enthält `code` und `shortCode` ihrer Bedingung, sodass ein Client anhand des Codes statt anhand des Wortlauts nach dem Format fragt. Keines von beiden wird erraten, weil ein geratenes Format den falschen Importer auflöst und selbstbewussten Unsinn erzeugt. `format` in der Antwort ist das verwendete, erkannte oder genannte Format, sodass ein Client, der es weggelassen hat, erfährt, was er bekommen hat."
   },
   "ef2dd6750b208208": {
     "at": "2026-11-03T15:26:13.355Z",

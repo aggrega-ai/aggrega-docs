@@ -34869,6 +34869,13 @@
     "status": "machine",
     "text": "**Default yang dideklarasikan diwujudkan ke dalam pilar yang dirender.** Selain validasi, `default:` yang dideklarasikan pada field `values` (atau field `infra`) diisikan ke dalam pilar yang dirender pada waktu build untuk setiap kunci yang dihilangkan oleh penulis — sehingga template Recipe yang membaca `{{ .values.charset }}` menerima `utf8mb4` yang dideklarasikan skema alih-alih nilai kosong. Nilai yang diberikan penulis selalu diutamakan; objek bertingkat diisi per anak yang dihilangkan. Karena perwujudan ini menggunakan resolusi skema yang sama dengan validasi, default yang dicapai melalui `$ref:` lintas dokumen ke SchemaLibrary juga diwujudkan — baik referensi seluruh pilar (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`) maupun bentuk basis-plus-varian (`$ref:` basis berdampingan dengan `properties` saudara, masing-masing membawa default-nya sendiri). Default yang dideklarasikan hanya di dalam referensi lokal dalam dokumen `#/$defs/`, atau di bawah cabang `allOf` / `oneOf` / `anyOf`, tidak diwujudkan; pustaka standar menyusun pilar melalui `$ref:` lintas dokumen, yang diwujudkan."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` mengambil basis.** Basis adalah dependensi dari setiap Release yang menjangkau Component yang memperluasnya, baik ada maupun tidak ada hal lain yang menyebutkannya. [`aggrega pull`](../cli/aggrega-pull.md) mengikuti setiap `extends:` hingga ujung rantai, mengambil dari registry basis yang tidak dimuat oleh direktori katalog mana pun, dan mencatat setiap basis di lockfile Release, dirujuk dari `spec.extends` milik Component yang menyebutkannya; build membaca basis dari sana. Jadi, Manifest hanya memetakan tipe milik wrapper itu sendiri dan tidak lebih — basis memerlukan baris pemetaannya sendiri hanya jika sebuah Aggregate juga mendeklarasikan instans basis tersebut. [`aggrega validate`](../cli/aggrega-validate.md) atas seluruh katalog membaca basis dengan cara yang sama, sehingga basis yang dipublikasikan ke registry ditolak di sana, dengan menyebutkan `aggrega pull`, hingga sebuah pull mengambilnya."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -65561,6 +65568,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (Artefak yang diimpor tidak lagi cocok dengan digest yang dicatat di samping Recipe-nya)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**Rantai `extends`** — setiap entitas yang mendeklarasikan `extends` di-resolve terhadap induknya, dan bentuk gabungan induk+anak diperiksa. Induk yang tidak dimuat oleh direktori katalog dibaca di tempat build membacanya: dari cache artefak, di bawah pin yang dicatat lockfile sebuah Release untuknya — lockfile dari Releases yang menjadi sasaran putaran tersebut, atau dari setiap Release yang dimuat workspace jika workspace divalidasi dalam satu putaran. Jadi, basis yang dipublikasikan ke registry lolos validasi setelah [`aggrega pull`](./aggrega-pull.md) mengambil dan mem-pin-nya, dan induk yang tidak dimuat oleh keduanya menghentikan proses, dengan menyebutkan `aggrega pull --release <release>`. Tidak ada yang diambil."
   },
   "62ceda3a371d4b4c": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -102726,6 +102740,17 @@
     "status": "machine",
     "text": "Ketika `aggrega.exe` sedang berjalan — dijalankan oleh editor atau klien AI — penginstal tidak dapat menggantinya, dan berhenti dengan pesan yang menyatakan hal itu; tutup program yang menjalankannya lalu jalankan penginstal lagi. Pencopot instalasi berhenti dengan cara yang sama, sebelum menghapus apa pun."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Lockfile yang tidak lagi cocok dengan hasil resolusi Release menolak validasi dengan penghentian yang dicetak `aggrega build`.** Jika ada lockfile di samping Release, `--release` mencocokkannya dengan hasil resolusi Release, menggunakan perbandingan drift yang dijalankan build sebelum merender, segera setelah dependensi Release di-resolve dan sebelum pemeriksaan apa pun di atas dijalankan. Lockfile yang telah menyimpang dari entitas, pustaka, atau plugin yang di-pin, atau dari file Release itu sendiri, menghentikan validasi dengan penolakan `E0130` milik build — setiap entri yang menyimpang, lalu `aggrega pull --release <release>` yang mengatasinya — dan kode keluar bukan nol, sehingga validasi tidak pernah meloloskan lockfile yang ditolak build karena drift. Tanpa argumen, dan dengan path entitas, validate tidak terikat pada lockfile: pemeriksaan seluruh katalog membaca pin lockfile hanya untuk menemukan induk `extends`, dan pemeriksaan satu entitas tidak membaca lockfile."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -108616,6 +108641,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Satu Aggregate memuat basis data PostgreSQL dan server yang membacanya."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` mengambil basis.** Feature basis adalah dependensi dari setiap Release yang melampirkan Feature yang memperluasnya, baik ada maupun tidak ada hal lain yang menyebutkannya. [`aggrega pull`](../cli/aggrega-pull.md) mengikuti setiap `extends:` hingga ujung rantai, mengambil dari registry basis yang tidak dimuat oleh direktori katalog mana pun, dan mencatat setiap basis di lockfile Release, dirujuk dari `spec.extends` milik Feature yang menyebutkannya; build membaca basis dari sana."
   },
   "a463a7d7bce469db": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -123690,6 +123722,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` menjalankannya atas entitas yang di-build oleh Release, alih-alih berhenti."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Tanpa argumen, dan dengan path entitas baik `--release` diberikan maupun tidak**, validate membaca pustaka hanya dari direktori katalog, tidak pernah melalui entri lockfile, sehingga entri yang tercatat tidak akan mengubah putusannya. Baris tersebut menyatakan hal itu, dan mengarahkan untuk menulis pustaka di bawah direktori katalog, atau ke `aggrega pull --release <release>` yang diikuti `aggrega validate --release <release>`, yang memeriksa Release terhadap pustaka yang di-pin lockfile-nya."
   },
   "ba725def2c4fbdab": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -159379,6 +159422,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Pengiriman argumen baris perintah. Kunci adalah prefiks flag, nilai adalah string target yang ter-resolve."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**Format dikenali dari sumber kecuali Anda menyebutkannya.** Pengenalan menggunakan signature yang dideklarasikan importer — baik importer katalog workspace maupun importer inti compiler — yang dicatat oleh entitas Plugin setiap importer — sintaks tempat sumber dibaca, nama file yang berlaku untuk suatu signature, serta path yang harus atau tidak boleh dimuat oleh pohon hasil parsing — sehingga daemon sendiri tidak mengenal format apa pun dan format importer baru dikenali tanpa perubahan lain. Deteksi hanya membaca sumber yang Anda kirim — dari sebuah direktori, hanya file yang dipilih oleh pola file suatu signature — dan tidak mengakses jaringan, mem-parsing setiap file yang dibacanya melalui parser yang disediakan katalog workspace untuk suatu sintaks — atau, untuk sintaks yang parsernya tidak disediakan katalog, parser yang dibawa compiler sendiri — satu kali untuk setiap sintaks yang digunakan oleh signature yang berlaku untuk nama file tersebut; importer kemudian membaca sumber melalui parser yang sama. Signature yang tidak mendeklarasikan pola file berlaku untuk file yang Anda kirim apa pun namanya, dan tidak berlaku untuk file mana pun dalam direktori; signature importer Langflow, Flowise, dan n8n termasuk jenis ini dan membaca JSON, sedangkan signature importer Dify membaca YAML, sehingga mengenali file yang Anda kirim secara tersendiri berarti membacanya sebagai JSON dan sebagai YAML, yang tidak memerlukan parser di katalog workspace: compiler membawa parser JSON dan YAML, dan parser yang disediakan katalog digunakan sebagai gantinya. Sumber yang tidak cocok dengan signature mana pun ditolak dengan meminta `format` dan menyebutkan format yang diiklankan importer — atau, untuk direktori, dengan meminta salah satu filenya dikirim secara tersendiri atau `format` yang importernya mendeklarasikan pola file, dengan hanya menyebutkan format-format itu — di bawah kondisi [No importer recognises the source (Tidak ada importer yang mengenali sumber)](../errors/fatal-halts.md#no-importer-recognises-the-source); sumber yang cocok dengan signature dari lebih dari satu format ditolak dengan menyebutkan format-format tersebut, di bawah kondisi [More than one importer recognises the source (Lebih dari satu importer mengenali sumber)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). `data` setiap penolakan memuat `code` dan `shortCode` kondisinya, sehingga klien meminta format berdasarkan kode, bukan berdasarkan kata-kata. Keduanya tidak ditebak, karena format hasil tebakan me-resolve importer yang salah dan menghasilkan omong kosong yang meyakinkan. `format` dalam respons adalah format yang digunakan, baik dideteksi maupun disebutkan, sehingga klien yang tidak menyertakannya mengetahui apa yang diperolehnya."
   },
   "ef2dd6750b208208": {
     "at": "2026-10-23T08:18:59.335953+00:00",

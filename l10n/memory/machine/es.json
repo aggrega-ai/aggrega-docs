@@ -31271,6 +31271,13 @@
     "status": "machine",
     "text": "**Los valores predeterminados declarados se materializan en los pilares renderizados.** Además de la validación, un `default:` declarado en un campo de `values` (o en un campo de `infra`) se rellena en el pilar renderizado en tiempo de build para cada clave que el autor omite — de modo que una plantilla de Recipe que lee `{{ .values.charset }}` recibe el `utf8mb4` declarado en el esquema en lugar de un valor vacío. Los valores proporcionados por el autor siempre prevalecen; los objetos anidados se completan por cada hijo omitido. Como la materialización usa la misma resolución de esquema que la validación, también se materializan los valores predeterminados alcanzados mediante un `$ref:` entre documentos hacia una SchemaLibrary — tanto una referencia al pilar completo (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`) como la forma base más variante (un `$ref:` base junto a `properties` hermanas, cada una con sus propios valores predeterminados). Los valores predeterminados declarados solo dentro de una referencia local en el mismo documento `#/$defs/`, o bajo una rama `allOf` / `oneOf` / `anyOf`, no se materializan; la biblioteca estándar compone los pilares mediante `$ref:` entre documentos, que sí se materializa."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` obtiene la base.** Una base es una dependencia de cada Release que alcanza un Component que la extiende, la nombre o no cualquier otra cosa. [`aggrega pull`](../cli/aggrega-pull.md) sigue cada `extends:` hasta el final de la cadena, obtiene del registro una base que ningún directorio de catálogo contiene y registra cada base en el lockfile de la Release, referenciada desde el `spec.extends` del Component que la nombra; una compilación lee la base desde allí. Así, un Manifest mapea el tipo propio de un envoltorio y nada más — la base necesita una línea de mapeo propia solo donde un Aggregate también declara una instancia de la base. Un [`aggrega validate`](../cli/aggrega-validate.md) de todo el catálogo lee una base de la misma manera, por lo que allí se rechaza una base publicada en un registro, nombrando `aggrega pull`, hasta que un pull la haya obtenido."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -58763,6 +58770,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (Un artefacto importado ya no coincide con el digest registrado junto a su Recipe)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**Cadenas `extends`** — cada entidad que declara `extends` se resuelve frente a su padre, y se comprueba la forma combinada padre+hijo. Un padre que los directorios de catálogo no contienen se lee donde lo lee una compilación: desde la caché de artefactos, según la fijación que el lockfile de una Release registra para él — los lockfiles de las Releases para las que se ejecuta la pasada, o de cada Release que contiene el espacio de trabajo cuando este se valida en una sola pasada. Así, una base publicada en un registro se valida una vez que [`aggrega pull`](./aggrega-pull.md) la ha obtenido y fijado, y un padre que ninguno de los dos contiene detiene la ejecución, nombrando `aggrega pull --release <release>`. No se obtiene nada."
   },
   "62d5ac90b15726c4": {
     "at": "2026-11-03T14:46:30.297Z",
@@ -92158,6 +92172,17 @@
     "status": "machine",
     "text": "Cuando `aggrega.exe` se está ejecutando — iniciado por un editor o un cliente de IA — el instalador no puede sustituirlo y se detiene con un mensaje que lo indica; cierra lo que lo inició y vuelve a ejecutar el instalador. El desinstalador se detiene del mismo modo, antes de haber eliminado nada."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Un lockfile que ya no coincide con aquello a lo que se resuelve la Release hace que se rechace la validación con la detención que imprime `aggrega build`.** Cuando hay un lockfile junto a la Release, `--release` lo contrasta con aquello a lo que se resuelve la Release, con la comparación de deriva que ejecuta una compilación antes de renderizar, en cuanto se resuelven las dependencias de la Release y antes de que se ejecute cualquiera de las comprobaciones anteriores. Un lockfile del que se ha desviado una entidad fijada, una biblioteca, un plugin o el propio archivo de la Release detiene la validación con el rechazo `E0130` de la compilación — cada entrada que se desvió y, después, el `aggrega pull --release <release>` que lo soluciona — y un código de salida distinto de cero, de modo que una validación nunca deja pasar un lockfile que la compilación rechaza por deriva. Sin argumento, y con una ruta de entidad, validate no está sujeto a ningún lockfile: la comprobación de todo el catálogo lee las fijaciones del lockfile solo para encontrar un padre de `extends`, y la comprobación de una sola entidad no lee ningún lockfile."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-11-03T14:46:26.927Z",
     "job": "session-0118-20261103144626",
@@ -97384,6 +97409,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Un único Aggregate contiene una base de datos PostgreSQL y el servidor que la lee."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` obtiene la base.** Una Feature base es una dependencia de cada Release que adjunta una Feature que la extiende, la nombre o no cualquier otra cosa. [`aggrega pull`](../cli/aggrega-pull.md) sigue cada `extends:` hasta el final de la cadena, obtiene del registro una base que ningún directorio de catálogo contiene y registra cada base en el lockfile de la Release, referenciada desde el `spec.extends` de la Feature que la nombra; una compilación lee la base desde allí."
   },
   "a463a7d7bce469db": {
     "at": "2026-11-04T06:11:41.842Z",
@@ -111010,6 +111042,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` lo ejecuta sobre las entidades que construye la Release, en lugar de detenerse."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Sin argumentos, y con una ruta de entidad, se indique o no `--release`**, validate lee las bibliotecas solo de los directorios de catálogo, nunca a través de una entrada de lockfile, por lo que una entrada registrada no cambiaría su veredicto. La línea lo dice y remite a escribir la biblioteca bajo un directorio de catálogo, o a `aggrega pull --release <release>` seguido de `aggrega validate --release <release>`, que comprueba la Release frente a las bibliotecas que fija su lockfile."
   },
   "ba725def2c4fbdab": {
     "at": "2026-11-03T22:53:34.774Z",
@@ -143069,6 +143112,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Entrega mediante argumentos de línea de comandos. Las claves son prefijos de flags, los valores son las cadenas resueltas del destino."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**El formato se reconoce a partir de la fuente, salvo que lo nombres.** El reconocimiento usa las firmas que declaran los importadores — tanto los del catálogo del espacio de trabajo como los importadores básicos del compilador — y que registra la entidad Plugin de cada importador — la sintaxis en la que se lee una fuente, los nombres de archivo a los que se aplica una firma y las rutas que el árbol analizado debe o no debe contener — de modo que el propio daemon no conoce ningún formato y el formato de un importador nuevo se reconoce sin cambiar nada más. La detección lee solo la fuente que enviaste — de un directorio, solo los archivos que seleccionan los patrones de archivo de una firma — y ninguna red, analizando cada archivo que lee con el parser que el catálogo del espacio de trabajo ofrece para una sintaxis — o, para una sintaxis para la que el catálogo no ofrece ningún parser, el que incluye el propio compilador — una vez por cada sintaxis en la que lo lee una firma que se aplica a su nombre; después el importador lee la fuente con el mismo parser. Una firma que no declara ningún patrón de archivo se aplica al archivo que enviaste, se llame como se llame, y a ningún archivo de un directorio; las firmas de los importadores de Langflow, Flowise y n8n son de ese tipo y leen JSON, y la del importador de Dify lee YAML, así que reconocer un archivo enviado por sí solo lo lee como JSON y como YAML, lo cual no necesita ningún parser en el catálogo del espacio de trabajo: el compilador incluye un parser de JSON y uno de YAML, y uno que ofrezca el catálogo se usa en su lugar. Una fuente con la que no coincide ninguna firma se rechaza pidiendo `format` y nombrando los formatos que anuncian los importadores — o, para un directorio, pidiendo uno de sus archivos enviado por sí solo o un `format` cuyo importador declare patrones de archivo, nombrando solo esos — bajo la condición [No importer recognises the source (Ningún importador reconoce la fuente)](../errors/fatal-halts.md#no-importer-recognises-the-source); una fuente con la que coinciden firmas de más de un formato se rechaza nombrándolos, bajo la condición [More than one importer recognises the source (Más de un importador reconoce la fuente)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). El `data` de cada rechazo lleva el `code` y el `shortCode` de su condición, de modo que un cliente pide el formato basándose en el código y no en las palabras. Ninguno de los dos se adivina, porque un formato adivinado resuelve el importador equivocado y produce disparates con aplomo. `format` en la respuesta es el que se usó, detectado o nombrado, de modo que un cliente que lo omitió sabe qué obtuvo."
   },
   "ef2dd6750b208208": {
     "at": "2026-11-03T15:26:13.355Z",

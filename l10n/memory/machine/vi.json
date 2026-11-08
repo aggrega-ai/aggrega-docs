@@ -34869,6 +34869,13 @@
     "status": "machine",
     "text": "**Các giá trị mặc định đã khai báo được hiện thực hóa vào các pillar được render.** Ngoài việc kiểm tra hợp lệ, một `default:` được khai báo trên một trường `values` (hoặc một trường `infra`) sẽ được điền vào pillar được render lúc build cho mọi khóa mà tác giả bỏ qua — vì vậy một template Recipe đọc `{{ .values.charset }}` sẽ nhận `utf8mb4` được khai báo trong schema thay vì một giá trị rỗng. Các giá trị do tác giả cung cấp luôn được ưu tiên; các đối tượng lồng nhau được điền theo từng phần tử con bị bỏ qua. Vì việc hiện thực hóa dùng cùng cơ chế phân giải schema như việc kiểm tra hợp lệ, các giá trị mặc định đạt được qua một `$ref:` xuyên tài liệu vào một SchemaLibrary cũng được hiện thực hóa — cả tham chiếu toàn pillar (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`) lẫn dạng base-cộng-biến-thể (một `$ref:` base đặt cạnh các `properties` anh em, mỗi cái mang các giá trị mặc định riêng). Các giá trị mặc định chỉ được khai báo bên trong một tham chiếu cục bộ trong tài liệu `#/$defs/`, hoặc dưới một nhánh `allOf` / `oneOf` / `anyOf`, sẽ không được hiện thực hóa; thư viện chuẩn kết hợp các pillar qua `$ref:` xuyên tài liệu, vốn được hiện thực hóa."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` tải thực thể cơ sở.** Một thực thể cơ sở là phụ thuộc của mọi Release chạm tới một Component mở rộng nó, dù có thứ gì khác nêu tên nó hay không. [`aggrega pull`](../cli/aggrega-pull.md) đi theo từng `extends:` đến cuối chuỗi, tải từ registry thực thể cơ sở mà không thư mục catalog nào chứa, và ghi mọi thực thể cơ sở vào lockfile của Release, được tham chiếu từ `spec.extends` của Component nêu tên nó; một bản build đọc thực thể cơ sở từ đó. Vì vậy, một Manifest chỉ ánh xạ kiểu riêng của một wrapper và không gì hơn — thực thể cơ sở chỉ cần một dòng ánh xạ riêng ở nơi một Aggregate cũng khai báo một thể hiện của thực thể cơ sở đó. Một lệnh [`aggrega validate`](../cli/aggrega-validate.md) trên toàn bộ catalog đọc thực thể cơ sở theo cùng cách, nên một thực thể cơ sở được xuất bản lên registry sẽ bị từ chối ở đó, kèm tên `aggrega pull`, cho đến khi một lần pull đã tải nó về."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -65561,6 +65568,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (Một artifact được nhập không còn khớp với digest được ghi bên cạnh Recipe của nó)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**Chuỗi `extends`** — mọi thực thể khai báo `extends` đều được phân giải theo thực thể cha của nó, và hình dạng hợp nhất cha+con được kiểm tra. Một thực thể cha mà các thư mục catalog không chứa được đọc ở nơi một bản build đọc nó: từ bộ nhớ đệm artifact, theo bản ghim mà lockfile của một Release ghi lại cho nó — lockfile của các Releases mà lượt kiểm tra được chạy cho, hoặc của mọi Release mà workspace chứa khi workspace được xác thực trong một lượt. Vì vậy, một thực thể cơ sở được xuất bản lên registry sẽ qua xác thực khi [`aggrega pull`](./aggrega-pull.md) đã tải và ghim nó, còn một thực thể cha mà cả hai đều không chứa sẽ dừng lần chạy, nêu tên `aggrega pull --release <release>`. Không có gì được tải về."
   },
   "62ceda3a371d4b4c": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -102732,6 +102746,17 @@
     "status": "machine",
     "text": "Khi `aggrega.exe` đang chạy — được khởi động bởi một trình soạn thảo hoặc một client AI — trình cài đặt không thể thay thế nó và dừng lại với một thông báo cho biết điều đó; hãy đóng thứ đã khởi động nó rồi chạy lại trình cài đặt. Trình gỡ cài đặt cũng dừng theo cùng cách, trước khi nó xóa bất cứ thứ gì."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Một lockfile không còn khớp với những gì Release phân giải thành sẽ từ chối việc xác thực bằng điểm dừng mà `aggrega build` in ra.** Khi có một lockfile nằm cạnh Release, `--release` đối chiếu nó với những gì Release phân giải thành, bằng phép so sánh sai lệch mà một bản build chạy trước khi render, ngay khi các phụ thuộc của Release được phân giải và trước khi bất kỳ phép kiểm tra nào ở trên chạy. Một lockfile mà một entity, thư viện, plugin đã được pin hoặc chính tệp Release đã sai lệch khỏi sẽ dừng việc xác thực bằng lời từ chối `E0130` của bản build — mọi mục đã sai lệch, rồi đến `aggrega pull --release <release>` để khắc phục — và một mã thoát khác không, nên việc xác thực không bao giờ bỏ qua một lockfile mà bản build từ chối vì sai lệch. Khi không có đối số, và khi có đường dẫn thực thể, validate không bị ràng buộc bởi lockfile: phép kiểm tra toàn bộ catalog chỉ đọc các bản ghim trong lockfile để tìm thực thể cha `extends`, và phép kiểm tra một thực thể không đọc lockfile nào."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -108622,6 +108647,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Một Aggregate chứa một cơ sở dữ liệu PostgreSQL và máy chủ đọc nó."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` tải thực thể cơ sở.** Một Feature cơ sở là phụ thuộc của mọi Release gắn một Feature mở rộng nó, dù có thứ gì khác nêu tên nó hay không. [`aggrega pull`](../cli/aggrega-pull.md) đi theo từng `extends:` đến cuối chuỗi, tải từ registry thực thể cơ sở mà không thư mục catalog nào chứa, và ghi mọi thực thể cơ sở vào lockfile của Release, được tham chiếu từ `spec.extends` của Feature nêu tên nó; một bản build đọc thực thể cơ sở từ đó."
   },
   "a463a7d7bce469db": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -123708,6 +123740,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` chạy nó trên các entity mà Release build, thay vì dừng lại."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Khi không có đối số, và khi có đường dẫn thực thể dù có cung cấp `--release` hay không**, validate chỉ đọc các library từ các thư mục catalog, không bao giờ thông qua một mục lockfile, nên một mục đã ghi nhận sẽ không thay đổi phán quyết của nó. Dòng này nói rõ như vậy, và chỉ tới việc viết library dưới một thư mục catalog, hoặc tới `aggrega pull --release <release>` rồi đến `aggrega validate --release <release>`, lệnh kiểm tra Release dựa trên các library mà lockfile của nó ghim."
   },
   "ba725def2c4fbdab": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -159417,6 +159460,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Phân phối qua đối số dòng lệnh. Khóa là tiền tố flag, giá trị là các chuỗi đích đã phân giải."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**Định dạng được nhận diện từ nguồn trừ khi bạn chỉ định nó.** Việc nhận diện dùng các chữ ký mà các importer khai báo — của catalog trong workspace cũng như của các importer lõi của trình biên dịch — được thực thể Plugin của mỗi importer ghi lại — cú pháp dùng để đọc nguồn, các tên tệp mà chữ ký áp dụng, và các đường dẫn mà cây đã phân tích phải hoặc không được chứa — vì vậy bản thân daemon không biết định dạng nào, và định dạng của một importer mới được nhận diện mà không cần thay đổi gì khác. Việc phát hiện chỉ đọc nguồn bạn đã gửi — với một thư mục, chỉ các tệp mà mẫu tệp của chữ ký chọn — và không dùng mạng, phân tích mỗi tệp nó đọc bằng parser mà catalog của workspace cung cấp cho một cú pháp — hoặc, với cú pháp mà catalog không cung cấp parser, parser do chính trình biên dịch mang theo — một lần cho mỗi cú pháp mà một chữ ký áp dụng cho tên tệp đó dùng để đọc; sau đó importer đọc nguồn qua cùng parser ấy. Một chữ ký không khai báo mẫu tệp nào áp dụng cho tệp bạn gửi bất kể tên gì, và không áp dụng cho tệp nào của một thư mục; chữ ký của các importer Langflow, Flowise và n8n thuộc loại đó và đọc JSON, còn chữ ký của importer Dify đọc YAML, nên việc nhận diện một tệp bạn gửi riêng lẻ sẽ đọc nó dưới dạng JSON và YAML, điều không cần parser nào trong catalog của workspace: trình biên dịch mang sẵn một parser JSON và một parser YAML, và parser do catalog cung cấp sẽ được dùng thay thế. Một nguồn không khớp chữ ký nào bị từ chối, yêu cầu `format` và liệt kê các định dạng mà các importer công bố — hoặc, với một thư mục, yêu cầu một trong các tệp của nó được gửi riêng lẻ hoặc một `format` có importer khai báo mẫu tệp, chỉ liệt kê các định dạng đó — theo điều kiện [No importer recognises the source (Không có importer nào nhận diện được nguồn)](../errors/fatal-halts.md#no-importer-recognises-the-source); một nguồn khớp chữ ký của nhiều hơn một định dạng bị từ chối kèm tên các định dạng đó, theo điều kiện [More than one importer recognises the source (Có nhiều hơn một importer nhận diện được nguồn)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). `data` của mỗi lần từ chối mang `code` và `shortCode` của điều kiện tương ứng, để client hỏi định dạng dựa trên mã chứ không dựa trên câu chữ. Không trường hợp nào được đoán, vì một định dạng đoán mò sẽ phân giải sai importer và tạo ra kết quả vô nghĩa đầy tự tin. `format` trong phản hồi là định dạng đã được dùng, dù được phát hiện hay được chỉ định, để một client đã bỏ qua nó biết mình nhận được gì."
   },
   "ef2dd6750b208208": {
     "at": "2026-10-22T23:16:12.871393+00:00",

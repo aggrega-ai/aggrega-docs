@@ -34869,6 +34869,13 @@
     "status": "machine",
     "text": "**Zadeklarowane wartości domyślne materializują się w renderowanych filarach.** Poza walidacją `default:` zadeklarowany w polu `values` (lub w polu `infra`) jest wstawiany do renderowanego filaru w czasie budowania dla każdego klucza pominiętego przez autora — dzięki temu szablon Recipe odczytujący `{{ .values.charset }}` otrzymuje zadeklarowane w schemacie `utf8mb4` zamiast pustej wartości. Wartości podane przez autora zawsze mają pierwszeństwo; zagnieżdżone obiekty są uzupełniane dla każdego pominiętego elementu podrzędnego. Ponieważ materializacja używa tego samego rozwiązywania schematu co walidacja, materializują się także wartości domyślne osiągane przez międzydokumentowe `$ref:` do SchemaLibrary — zarówno odwołanie do całego filaru (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`), jak i kształt baza-plus-wariant (bazowe `$ref:` obok sąsiednich `properties`, z których każde ma własne wartości domyślne). Wartości domyślne zadeklarowane wyłącznie w lokalnym odwołaniu wewnątrzdokumentowym `#/$defs/` lub w gałęzi `allOf` / `oneOf` / `anyOf` nie są materializowane; biblioteka standardowa składa filary przez międzydokumentowe `$ref:`, które jest materializowane."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` pobiera bazę.** Baza jest zależnością każdej encji Release, która dociera do encji Component rozszerzającej tę bazę, niezależnie od tego, czy cokolwiek innego ją wskazuje. [`aggrega pull`](../cli/aggrega-pull.md) podąża za każdym `extends:` do końca łańcucha, pobiera z rejestru bazę, której nie zawiera żaden katalog encji, i zapisuje każdą bazę w pliku blokady encji Release, z odwołaniem ze `spec.extends` encji Component, która ją wskazuje; kompilacja odczytuje bazę stamtąd. Dzięki temu encja Manifest mapuje tylko własny typ wrappera i nic więcej — baza potrzebuje własnego wiersza mapowania tylko tam, gdzie encja Aggregate deklaruje również instancję bazy. Polecenie [`aggrega validate`](../cli/aggrega-validate.md) dla całego katalogu odczytuje bazę w ten sam sposób, więc baza opublikowana w rejestrze jest tam odrzucana, ze wskazaniem `aggrega pull`, dopóki pull jej nie pobierze."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -65559,6 +65566,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (Zaimportowany artefakt nie zgadza się już ze skrótem zapisanym obok jego encji Recipe)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**Łańcuchy `extends`** — każda encja deklarująca `extends` jest rozwiązywana względem swojego rodzica, a scalony kształt rodzic+potomek jest sprawdzany. Rodzic, którego nie zawierają katalogi encji, jest odczytywany tam, gdzie odczytuje go kompilacja: z pamięci podręcznej artefaktów, zgodnie z przypięciem, które zapisuje dla niego plik blokady encji Release — pliki blokady encji Releases, dla których wykonywany jest przebieg, albo każdej encji Release w obszarze roboczym, gdy jest on walidowany w jednym przebiegu. Dzięki temu baza opublikowana w rejestrze przechodzi walidację, gdy tylko [`aggrega pull`](./aggrega-pull.md) ją pobierze i przypnie, a rodzic, którego nie zawiera żadne z nich, zatrzymuje uruchomienie, wskazując `aggrega pull --release <release>`. Nic nie jest pobierane."
   },
   "62ceda3a371d4b4c": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -102718,6 +102732,17 @@
     "status": "machine",
     "text": "Gdy `aggrega.exe` jest uruchomiony — przez edytor lub klienta AI — instalator nie może go zastąpić i kończy działanie z odpowiednim komunikatem; należy zamknąć to, co go uruchomiło, i ponownie uruchomić instalator. Deinstalator kończy działanie w ten sam sposób, zanim cokolwiek usunie."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Plik blokady, który nie odpowiada już temu, do czego rozwiązuje się Release, powoduje odmowę walidacji z zatrzymaniem wypisywanym przez `aggrega build`.** Gdy obok encji Release znajduje się plik blokady, `--release` porównuje go z tym, do czego rozwiązuje się Release, za pomocą porównania rozbieżności, które kompilacja wykonuje przed renderowaniem, gdy tylko zależności encji Release zostaną rozwiązane i zanim zostanie wykonana którakolwiek z powyższych kontroli. Plik blokady, od którego odbiegła przypięta encja, biblioteka, plugin lub sam plik Release, zatrzymuje walidację odmową `E0130` kompilacji — każdy rozbieżny wpis, a następnie `aggrega pull --release <release>`, które ją usuwa — i niezerowym kodem wyjścia, więc walidacja nigdy nie przepuszcza pliku blokady odrzucanego przez kompilację jako rozbieżny. Bez argumentu oraz ze ścieżką encji validate nie podlega plikowi blokady: kontrola całego katalogu odczytuje przypięcia z pliku blokady tylko po to, by znaleźć rodzica `extends`, a kontrola pojedynczej encji nie odczytuje pliku blokady."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -108608,6 +108633,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Jedna encja Aggregate zawiera bazę danych PostgreSQL i serwer, który ją odczytuje."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` pobiera bazę.** Bazowa encja Feature jest zależnością każdej encji Release, która dołącza encję Feature rozszerzającą tę bazę, niezależnie od tego, czy cokolwiek innego ją wskazuje. [`aggrega pull`](../cli/aggrega-pull.md) podąża za każdym `extends:` do końca łańcucha, pobiera z rejestru bazę, której nie zawiera żaden katalog encji, i zapisuje każdą bazę w pliku blokady encji Release, z odwołaniem ze `spec.extends` encji Feature, która ją wskazuje; kompilacja odczytuje bazę stamtąd."
   },
   "a463a7d7bce469db": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -123682,6 +123714,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources` uruchamia go dla encji budowanych przez encję Release, zamiast się zatrzymywać."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Bez argumentu oraz ze ścieżką encji, niezależnie od tego, czy podano `--release`**, validate odczytuje biblioteki wyłącznie z katalogów encji, nigdy przez wpis pliku blokady, więc zarejestrowany wpis nie zmieniłby jego werdyktu. Wiersz to stwierdza i wskazuje na utworzenie biblioteki w katalogu encji albo na `aggrega pull --release <release>`, a następnie `aggrega validate --release <release>`, które sprawdza encję Release względem bibliotek przypiętych w jej pliku blokady."
   },
   "ba725def2c4fbdab": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -159365,6 +159408,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Dostarczanie przez argumenty wiersza poleceń. Klucze to prefiksy flag, wartości to rozwiązane ciągi docelowe."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**Format jest rozpoznawany ze źródła, chyba że zostanie podany.** Rozpoznawanie korzysta z sygnatur deklarowanych przez importery — zarówno z katalogu obszaru roboczego, jak i podstawowych importerów kompilatora — które zapisuje encja Plugin każdego importera: składnię, w jakiej czytane jest źródło, nazwy plików, do których sygnatura się stosuje, oraz ścieżki, które sparsowane drzewo musi lub nie może zawierać. Dzięki temu sam demon nie zna żadnego formatu, a format nowego importera jest rozpoznawany bez żadnych innych zmian. Wykrywanie czyta tylko wysłane źródło — w przypadku katalogu tylko pliki wybrane przez wzorce plików sygnatury — i nie korzysta z sieci; każdy czytany plik jest parsowany parserem, który katalog obszaru roboczego udostępnia dla danej składni — lub, dla składni, dla której katalog nie udostępnia parsera, parserem wbudowanym w kompilator — raz dla każdej składni, w której czyta go sygnatura stosująca się do jego nazwy; importer czyta następnie źródło tym samym parserem. Sygnatura bez wzorca plików stosuje się do wysłanego pliku niezależnie od jego nazwy i do żadnego pliku katalogu; sygnatury importerów Langflow, Flowise i n8n są tego rodzaju i czytają JSON, a sygnatura importera Dify czyta YAML, więc rozpoznanie samodzielnie wysłanego pliku czyta go jako JSON i jako YAML, co nie wymaga parsera w katalogu obszaru roboczego: kompilator zawiera parser JSON i YAML, a parser udostępniony przez katalog jest używany zamiast nich. Źródło, do którego nie pasuje żadna sygnatura, jest odrzucane z prośbą o `format` i z nazwami formatów ogłaszanych przez importery — lub, w przypadku katalogu, z prośbą o jeden z jego plików wysłany osobno albo o `format`, którego importer deklaruje wzorce plików, z nazwami tylko tych formatów — w ramach warunku [No importer recognises the source (Żaden importer nie rozpoznaje źródła)](../errors/fatal-halts.md#no-importer-recognises-the-source); źródło, do którego pasują sygnatury więcej niż jednego formatu, jest odrzucane z ich wymienieniem, w ramach warunku [More than one importer recognises the source (Źródło rozpoznaje więcej niż jeden importer)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). `data` każdej odmowy zawiera `code` i `shortCode` jej warunku, więc klient prosi o format na podstawie kodu, a nie treści komunikatu. Żaden z tych przypadków nie jest zgadywany, ponieważ zgadnięty format wskazuje niewłaściwy importer i daje pewny siebie nonsens. `format` w odpowiedzi to format faktycznie użyty, wykryty lub podany, więc klient, który go pominął, dowiaduje się, co otrzymał."
   },
   "ef2dd6750b208208": {
     "at": "2026-10-22T23:16:12.871393+00:00",

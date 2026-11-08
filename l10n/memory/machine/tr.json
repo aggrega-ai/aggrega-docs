@@ -34869,6 +34869,13 @@
     "status": "machine",
     "text": "**Bildirilen varsayılanlar işlenmiş sütunlarda somutlaşır.** Doğrulamanın ötesinde, bir `values` alanında (veya bir `infra` alanında) bildirilen `default:`, yazarın atladığı her anahtar için derleme zamanında işlenmiş sütuna doldurulur — böylece `{{ .values.charset }}` okuyan bir Recipe şablonu boş bir değer yerine şemada bildirilen `utf8mb4` değerini alır. Yazarın sağladığı değerler her zaman önceliklidir; iç içe nesneler atlanan her alt öğe için doldurulur. Somutlaştırma doğrulamayla aynı şema çözümlemesini kullandığından, bir SchemaLibrary'ye belgeler arası `$ref:` ile ulaşılan varsayılanlar da somutlaşır — hem bütün sütun başvurusu (`values: {$ref: \"BaseComponents#/schemas/BaseModelParameter\"}`) hem de taban artı çeşit biçimi (her biri kendi varsayılanlarını taşıyan kardeş `properties` ile birlikte bir taban `$ref:`). Yalnızca yerel, belge içi bir `#/$defs/` başvurusunda veya bir `allOf` / `oneOf` / `anyOf` dalı altında bildirilen varsayılanlar somutlaştırılmaz; standart kütüphane sütunları, somutlaştırılan belgeler arası `$ref:` ile oluşturur."
   },
+  "347841fe60cf4da8": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "347841fe60cf4da8",
+    "status": "machine",
+    "text": "**`aggrega pull` tabanı getirir.** Bir taban, onu genişleten bir Component'e ulaşan her Release'in bağımlılığıdır; başka bir şeyin onu adlandırıp adlandırmaması fark etmez. [`aggrega pull`](../cli/aggrega-pull.md) her `extends:` öğesini zincirin sonuna kadar izler, hiçbir katalog dizininin içermediği bir tabanı registry'den getirir ve her tabanı, onu adlandıran Component'in `spec.extends` alanından başvurulacak biçimde Release'in lockfile'ına kaydeder; bir build tabanı oradan okur. Böylece bir Manifest yalnızca bir sarmalayıcının kendi türünü eşler, fazlasını değil — taban ancak bir Aggregate tabanın bir örneğini de bildirdiğinde kendine ait bir eşleme satırına ihtiyaç duyar. Tüm katalog üzerinde çalışan bir [`aggrega validate`](../cli/aggrega-validate.md) de tabanı aynı şekilde okur; bu nedenle bir registry'ye yayımlanmış bir taban, bir pull onu getirene kadar orada `aggrega pull` adlandırılarak reddedilir."
+  },
   "347a82ebf760f4ce": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -65559,6 +65566,13 @@
     "srcHash": "62c7d4e1402c0671",
     "status": "machine",
     "text": "An imported artifact no longer matches the digest recorded beside its Recipe (İçe aktarılan bir yapıt, Recipe'inin yanında kaydedilen özetle artık eşleşmiyor)"
+  },
+  "62cab496729e60b7": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "62cab496729e60b7",
+    "status": "machine",
+    "text": "**`extends` zincirleri** — `extends` bildiren her varlık üst öğesine göre çözümlenir ve birleştirilmiş üst+alt biçimi denetlenir. Katalog dizinlerinin içermediği bir üst öğe, bir build'in onu okuduğu yerden okunur: bir Release'in lockfile'ının onun için kaydettiği sabitlemeye göre yapıt önbelleğinden — geçişin çalıştırıldığı Releases'in lockfile'larından ya da çalışma alanı tek bir geçişte doğrulandığında çalışma alanının içerdiği her Release'in lockfile'ından. Böylece bir registry'ye yayımlanmış bir taban, [`aggrega pull`](./aggrega-pull.md) onu getirip sabitledikten sonra doğrulanır; ikisinin de içermediği bir üst öğe ise `aggrega pull --release <release>` komutunu adlandırarak çalıştırmayı durdurur. Hiçbir şey getirilmez."
   },
   "62ceda3a371d4b4c": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -102722,6 +102736,17 @@
     "status": "machine",
     "text": "`aggrega.exe` çalışırken — bir düzenleyici veya bir yapay zekâ istemcisi tarafından başlatılmışsa — yükleyici onu değiştiremez ve bunu belirten bir iletiyle durur; onu başlatanı kapatın ve yükleyiciyi yeniden çalıştırın. Kaldırıcı da hiçbir şeyi kaldırmadan önce aynı şekilde durur."
   },
+  "9bbd20f47453e326": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "e1e69a31e540a110",
+      "reviewed": false
+    },
+    "srcHash": "9bbd20f47453e326",
+    "status": "machine",
+    "text": "**Release'in çözümlendiği şeyle artık eşleşmeyen bir lockfile, doğrulamayı `aggrega build` komutunun yazdırdığı durmayla reddeder.** Release'in yanında bir lockfile bulunduğunda `--release`, Release'in bağımlılıkları çözümlenir çözümlenmez ve yukarıdaki denetimlerden herhangi biri çalışmadan önce, bir build'in render etmeden önce çalıştırdığı sapma karşılaştırmasıyla onu Release'in çözümlendiği şeye göre sınar. Sabitlenmiş bir varlığın, kütüphanenin, eklentinin ya da Release dosyasının kendisinin saptığı bir lockfile, doğrulamayı build'in `E0130` reddiyle — sapan her girdi, ardından onu gideren `aggrega pull --release <release>` — ve sıfırdan farklı bir çıkış koduyla durdurur; böylece bir doğrulama, build'in sapmış olarak reddettiği bir lockfile'ı asla geçerli saymaz. Argümansız ve bir varlık yoluyla çalıştırıldığında validate bir lockfile'a tabi tutulmaz: tüm katalog denetimi lockfile sabitlemelerini yalnızca bir `extends` üst öğesini bulmak için okur ve tek bir varlığın denetimi hiçbir lockfile okumaz."
+  },
   "9bc1e85dbe70408a": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -108612,6 +108637,13 @@
     "srcHash": "a456e946e4bf8319",
     "status": "machine",
     "text": "[aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — Tek bir Aggregate, bir PostgreSQL veritabanını ve onu okuyan sunucuyu içerir."
+  },
+  "a458aa9825735cc0": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "srcHash": "a458aa9825735cc0",
+    "status": "machine",
+    "text": "**`aggrega pull` tabanı getirir.** Bir taban Feature, onu genişleten bir Feature'ı ekleyen her Release'in bağımlılığıdır; başka bir şeyin onu adlandırıp adlandırmaması fark etmez. [`aggrega pull`](../cli/aggrega-pull.md) her `extends:` öğesini zincirin sonuna kadar izler, hiçbir katalog dizininin içermediği bir tabanı registry'den getirir ve her tabanı, onu adlandıran Feature'ın `spec.extends` alanından başvurulacak biçimde Release'in lockfile'ına kaydeder; bir build tabanı oradan okur."
   },
   "a463a7d7bce469db": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -123686,6 +123718,17 @@
     "srcHash": "ba675c5b58247b0a",
     "status": "machine",
     "text": "`aggrega pull --pin-sources`, durmak yerine adımı Release'in derlediği varlıklar üzerinde çalıştırır."
+  },
+  "ba6b5c70dbdb6082": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "cf00ccb643d6a528",
+      "reviewed": false
+    },
+    "srcHash": "ba6b5c70dbdb6082",
+    "status": "machine",
+    "text": "**Argüman olmadan ve `--release` verilsin ya da verilmesin bir varlık yoluyla**, validate kütüphaneleri yalnızca katalog dizinlerinden okur, hiçbir zaman bir lockfile girdisi üzerinden okumaz; bu nedenle kaydedilmiş bir girdi kararını değiştirmez. Satır bunu söyler ve kütüphaneyi bir katalog dizini altında yazmaya ya da `aggrega pull --release <release>` ve ardından `aggrega validate --release <release>` komutlarına yönlendirir; ikincisi Release'i lockfile'ının sabitlediği kütüphanelere karşı denetler."
   },
   "ba725def2c4fbdab": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -159367,6 +159410,17 @@
     "srcHash": "ef2bab8ea5c8254b",
     "status": "machine",
     "text": "Komut satırı argümanı teslimi. Anahtarlar bayrak önekleri, değerler çözümlenmiş hedef string'lerdir."
+  },
+  "ef2dc2856c7a3649": {
+    "at": "2026-11-08T10:59:19.008Z",
+    "job": "session-0011-20261108105919",
+    "revision": {
+      "from": "05bb080eb0712b63",
+      "reviewed": false
+    },
+    "srcHash": "ef2dc2856c7a3649",
+    "status": "machine",
+    "text": "**Biçim, siz adlandırmadıkça kaynaktan tanınır.** Tanıma, içe aktarıcıların bildirdiği imzaları kullanır — çalışma alanı kataloğununkiler de derleyicinin çekirdek içe aktarıcılarınınkiler de — ve bunları her içe aktarıcının Plugin varlığı kaydeder: bir kaynağın okunduğu sözdizimi, bir imzanın uygulandığı dosya adları ve ayrıştırılmış ağacın taşıması ya da taşımaması gereken yollar. Böylece arka plan hizmetinin kendisi hiçbir biçim bilmez ve yeni bir içe aktarıcının biçimi başka hiçbir şey değiştirilmeden tanınır. Algılama yalnızca gönderdiğiniz kaynağı okur — bir dizinde yalnızca bir imzanın dosya kalıplarının seçtiği dosyaları — ve hiçbir ağa erişmez; okuduğu her dosyayı, çalışma alanının kataloğunun bir sözdizimi için sunduğu ayrıştırıcıyla — ya da kataloğun ayrıştırıcı sunmadığı bir sözdizimi için derleyicinin kendi taşıdığıyla — adına uygulanan bir imzanın onu okuduğu her sözdizimi için bir kez ayrıştırır; ardından içe aktarıcı kaynağı aynı ayrıştırıcıyla okur. Hiçbir dosya kalıbı bildirmeyen bir imza, adı ne olursa olsun gönderdiğiniz dosyaya uygulanır ve bir dizinin hiçbir dosyasına uygulanmaz; Langflow, Flowise ve n8n içe aktarıcılarının imzaları bu türdendir ve JSON okur, Dify içe aktarıcısınınki ise YAML okur; bu nedenle tek başına gönderdiğiniz bir dosyayı tanımak onu JSON ve YAML olarak okur ve bu, çalışma alanının kataloğunda bir ayrıştırıcı gerektirmez: derleyici bir JSON ve bir YAML ayrıştırıcısı taşır ve kataloğun sunduğu bir ayrıştırıcı onun yerine kullanılır. Hiçbir imzanın eşleşmediği bir kaynak, `format` istenerek ve içe aktarıcıların duyurduğu biçimler adlandırılarak — ya da bir dizin için, dosyalarından birinin tek başına gönderilmesi veya içe aktarıcısı dosya kalıpları bildiren bir `format` istenerek ve yalnızca bu biçimler adlandırılarak — [No importer recognises the source (Kaynağı tanıyan içe aktarıcı yok)](../errors/fatal-halts.md#no-importer-recognises-the-source) koşulu altında reddedilir; birden fazla biçimin imzalarının eşleştiği bir kaynak, bunlar adlandırılarak [More than one importer recognises the source (Kaynağı birden fazla içe aktarıcı tanıyor)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source) koşulu altında reddedilir. Her reddin `data` alanı, koşulunun `code` ve `shortCode` değerlerini taşır; böylece bir istemci biçimi sözcüklere göre değil koda göre ister. İkisi de tahmin edilmez, çünkü tahmin edilen bir biçim yanlış içe aktarıcıyı çözer ve kendinden emin saçmalık üretir. Yanıttaki `format`, algılanmış ya da adlandırılmış olarak kullanılan biçimdir; böylece onu atlayan bir istemci ne aldığını öğrenir."
   },
   "ef2dd6750b208208": {
     "at": "2026-10-22T23:16:12.871393+00:00",
