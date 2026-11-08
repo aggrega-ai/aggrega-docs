@@ -126,6 +126,12 @@ resolves from `hub.aggrega.ai`, the default registry `.aggrega-config.yaml`
 declares. The build command needs no `--catalog` flag, and neither does
 `aggrega inspect` run from this directory.
 
+The pull fetches `core/gateway/nginx` because the wrapper extends it: a base is a
+dependency of everything that extends it, so the pull follows the wrapper's
+`extends:` and pins the base in the lockfile whether or not the Manifest names
+it. The Manifest here maps the base for another reason — the control release
+below declares an instance of the base itself.
+
 The rendered `dist/compose/docker-compose.yaml` carries the evidence:
 
 ```yaml

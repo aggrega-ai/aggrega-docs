@@ -125,6 +125,8 @@ The merged `core/kafka-queue` inherits `appliesTo` from the parent, inherits the
 
 **Inheritance is schema-merge, not interface-binding.** A Feature `extends:` chain produces one resolved Feature, not a polymorphic family. The base Feature URI from the chain is not what a Manifest binding's `feature:` field references — Manifests bind by the leaf Feature's URI, and the resolved schema includes the inherited properties. The Feature contract a FeatureRecipe `implements:` is similarly the leaf URI; FeatureRecipes do not navigate the inheritance chain.
 
+**`aggrega pull` fetches the base.** A base Feature is a dependency of every Release that attaches a Feature extending it, whether or not anything else names it. [`aggrega pull`](../cli/aggrega-pull.md) follows each `extends:` to the end of the chain, fetches a base no catalog directory holds from the registry, and records every base in the Release's lockfile, referenced from the `spec.extends` of the Feature that names it; a build reads the base from there.
+
 **Error modes.** A cyclic `extends:` chain, and a parent no catalog entity provides, halt the build, naming the Feature the resolution started from, the Feature whose `extends:` line to open, and the reference it declares. The messages are at [Cyclic extends on Components or Features](../errors/fatal-halts.md#cyclic-extends-on-components-or-features) and [An `extends:` chain cannot be assembled](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled).
 
 For the broader inheritance / interface vocabulary across Components, Features, and credential Features, see [vocabulary/inheritance-and-interface.md](../vocabulary/inheritance-and-interface.md).
