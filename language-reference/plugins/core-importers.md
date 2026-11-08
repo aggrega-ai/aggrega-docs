@@ -43,8 +43,8 @@ importer drafts an instance of the standard library's LangGraph agent per graph 
 configuration declares, wired to the datastore its checkpointer keeps state in, and shares the rest as
 the MCP importer does, as [The LangGraph importer](#the-langgraph-importer) describes. The Google ADK
 importer drafts an instance of the standard library's ADK agent per agent tree an application's
-configurations declare, wired to the Gemini model the tree names, and shares the rest as the MCP
-importer does, as [The Google ADK importer](#the-google-adk-importer) describes. The Agent Framework
+configurations declare, wired to the model the tree names where ADK sends its requests to the Gemini
+API, and shares the rest as the MCP importer does, as [The Google ADK importer](#the-google-adk-importer) describes. The Agent Framework
 importer drafts an instance of the standard library's Agent Framework agent per declarative agent,
 wired to the OpenAI model it names — each MCP server it names written in comments, since the model's
 provider reaches it as a hosted tool — and shares the rest as the MCP importer does, as
@@ -1876,12 +1876,14 @@ The LangGraph importer reads `target_namespace`, `empty_credentials` and `render
 `importer/google-adk` reads the agents an application built on Google's Agent Development Kit (ADK)
 declares in its Agent Config files — `root_agent.yaml` and the configurations its sub-agents name — and
 drafts an Aggregate holding one instance of the standard library's ADK agent,
-`core/ai-agent/google-adk`, per agent tree, wired to the Gemini model the tree names, and a Release
-beside it. It reads those configurations, and never the application's code.
+`core/ai-agent/google-adk`, per agent tree, wired to the model the tree names where ADK sends its
+requests to the Gemini API, and a Release beside it. It reads those configurations, and never the
+application's code.
 
-ADK states that its Agent Config feature is experimental and currently supports only Gemini models. The
-importer reads the configuration as ADK documents it, and drafts the model a tree names as a Gemini
-model for that reason.
+ADK states that its Agent Config feature is experimental. An agent's model is a Gemini model by
+default, and other providers are reached through a LiteLLM model string. The agent's `model` socket
+admits the Gemini API alone, so the importer wires a model ADK sends to the Gemini API and leaves any
+other for you, as [What an agent tree becomes](#what-an-agent-tree-becomes) describes.
 
 ### What it reads
 
@@ -1933,34 +1935,58 @@ ADK serves an application from its root agent, every agent its configurations na
 `core/ai-agent/google-adk` with:
 
 - `description`, the root agent's description, where its configuration gives one;
-- its `model` connection, wired to the model the tree names.
+- its `model` connection, wired to the model the tree names where ADK sends its requests to the Gemini
+  API.
 
 Comments above it name the tree's other agents, which become no instance of their own; each sub-agent
 that is not read, and why — built by the application's code, a configuration the import was not handed,
 or one ADK refuses; the tools the tree's agents name, those ADK ships and those the application's code
 defines; the agents whose class — `LoopAgent`, `ParallelAgent` or `SequentialAgent` — ADK deprecates in
-favour of Workflow; and the models other agents of the tree ask for. Each is reported in a decision
-that chooses nothing.
+favour of Workflow; and, where the tree's model is wired, the models other agents of the tree ask for,
+each with the family ADK serves it through. Each is reported in a decision that chooses nothing.
 
 The first agent of the tree, the root first, naming a model or the code building one decides the
-instance's model. A model it names is an instance of `core/ai-model/gemini`, serving that model and
-keyed by it, and trees naming one model share one instance. Where the workspace's catalog holds no
+instance's model. A model it names whose requests ADK sends to the Gemini API — a model name ADK
+serves through its Gemini class, such as `gemini-2.5-flash`, other than a Vertex AI resource name, or
+one it serves through its Gemma class — is an instance of `core/ai-model/gemini`, serving that model
+and keyed by it, and trees naming one model share one instance. Where the workspace's catalog holds no
 `core/ai-model/gemini`, one is drafted, `<target_namespace>/ai-model/gemini`, carrying the
 `model.aggrega.ai/api: gemini` label the agent's `model` socket selects, and its decision says so; a
-Recipe publishing its endpoint and its model is left for you, as a comment opening it says. A model the
-application's code builds, or a tree naming none — ADK then uses its default model — is wired to
-nothing, and a comment above the instance says why; the build halts naming the `model` socket until one
-is wired. The models other agents of a tree ask for need no connection of their own: ADK's Gemini client
-sends every model's requests with the key the instance's connection delivers. Whether the application
-reaches Gemini through the Gemini API or through Vertex AI is chosen by its environment, which the
-import does not read; the agent's `model` socket admits the Gemini API alone.
+Recipe publishing its endpoint and its model is left for you, as a comment opening it says. A model
+ADK serves any other way — a LiteLLM model string such as `openai/gpt-4o`, a Vertex AI resource name,
+or a name such as `claude-sonnet-4-5` or `gpt-4o`, which ADK serves through Anthropic or OpenAI — is
+wired to nothing: the agent's `model` socket takes a Gemini model, and the agent reads no model name
+from its environment, so you wire a Gemini model there and name that model in the agent's
+configuration. The comment above the instance and the root agent's decision name the model and the
+family ADK serves it through. A model the application's code builds, or a tree naming none — ADK then
+uses its default model — is wired to nothing too, and a comment above the instance says why. Wherever
+the model is wired to nothing, the build halts naming the `model` socket until one is wired. Of the
+models other agents of a tree ask for, one whose requests ADK sends to the Gemini API needs no
+connection of its own: ADK's Gemini client sends it with the key the instance's connection delivers.
+Whether the application reaches Gemini through the Gemini API or through Vertex AI is chosen by its
+environment, which the import does not read; the agent's `model` socket admits the Gemini API alone.
+
+The importer's tests also import a lone root agent naming `openai/gpt-4o`, whose instance is drafted
+as:
+
+```yaml
+spec:
+  components:
+    # The agent tree of root_agent.yaml, served from its root agent routed_agent.
+    # The model connection is left for the author, since the model openai/gpt-4o, which routed_agent names, is one ADK serves through LiteLLM, not through the Gemini API, while core/ai-agent/google-adk takes a Gemini model on its model socket and reads no model name from its environment, so the author wires a Gemini model there and names that model in routed_agent's configuration; the build halts naming the socket until one is wired.
+    routed-agent:
+      type: core/ai-agent/google-adk
+      values:
+        description: "Answers questions with a model another provider serves."
+```
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
 comment above each instance's entry, its `infra.image` — the image running the application built on
-ADK, which holds its configurations — and the credential it presents to its model, attached on its
-`model` connection; the build halts naming the image until it is set. The model has an entry too,
-holding no infrastructure, so the Release places it with the instance. The values the tree's
-configurations hand their tools and their model requests are written in a comment above the entry, as
+ADK, which holds its configurations — and, where its model is wired, the credential it presents to
+that model, attached on its `model` connection; the build halts naming the image until it is set. A
+wired model has an entry too, holding no infrastructure, so the Release places it with the instance.
+The values the tree's configurations hand their tools and their model requests are written in a
+comment above the entry, as
 [Credential values a configuration holds](#credential-values-a-configuration-holds) describes. The
 Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
 the import is given a target, as [What a target adds](#what-a-target-adds) describes.
@@ -1976,7 +2002,7 @@ is drafted, with no setting, as:
 #   - code_tutor_agent.yaml
 #   - math_tutor_agent.yaml
 # Not read: the application's code, which defines the tools, callbacks and agents a configuration names by their code, nor the environment file ADK's scaffold writes beside root_agent.yaml; the application runs in the image the Release names for each instance, and loads its configurations itself.
-# ADK states that its Agent Config is experimental and currently supports only Gemini models.
+# ADK states that its Agent Config is experimental. An agent's model is a Gemini model by default; other providers are reached through a LiteLLM model string.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -1990,7 +2016,7 @@ spec:
     # Not read: a sub-agent of tutor_root, which is built by the application's code at tutor_agents.review_agent, which the import does not read.
     # Tools ADK ships, which run inside the application, drafted as no Component: google_search.
     # Tools the application's code defines, drafted as no Component: tutor_tools.make_snippet_runner.
-    # Models other agents of the tree ask for, ...: gemini-pro-latest (math_tutor_agent).
+    # Models other agents of the tree ask for, ...: gemini-pro-latest (math_tutor_agent, served through Gemini).
     tutor-root:
       type: core/ai-agent/google-adk
       values:

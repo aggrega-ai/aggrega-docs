@@ -107,7 +107,7 @@ comments that say what was read and what was not:
 # Google ADK agent configurations read:
 #   - root_agent.yaml
 # Not read: the application's code, which defines the tools, callbacks and agents a configuration names by their code, nor the environment file ADK's scaffold writes beside root_agent.yaml; the application runs in the image the Release names for each instance, and loads its configurations itself.
-# ADK states that its Agent Config is experimental and currently supports only Gemini models.
+# ADK states that its Agent Config is experimental. An agent's model is a Gemini model by default; other providers are reached through a LiteLLM model string.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -137,6 +137,15 @@ ADK serves an application from its root agent, so the draft holds one instance
 per agent tree, named after its root agent. The agent's `instruction` is not
 carried: the application reads it from its own configuration, which the image
 holds.
+
+ADK serves `gemini-2.5-flash` through its Gemini class, which sends its
+requests to the Gemini API, so the draft wires the model to the agent's `model`
+socket, which admits the Gemini API alone. A model the agent names through a
+LiteLLM model string, such as `openai/gpt-4o`, is wired to nothing: a comment
+above the instance names it,
+and the connection is left for you, as
+[What an agent tree becomes](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)
+describes.
 
 `release.yaml` — an entry for the agent, with what no configuration states
 named in a comment above it, and an entry placing the model beside it:
