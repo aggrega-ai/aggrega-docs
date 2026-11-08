@@ -14728,6 +14728,17 @@
     "status": "machine",
     "text": "Jeder Knoten innerhalb des Blocks wird als JSON Schema gelesen, und ein dort geschriebenes Schlüsselwort der kompakten Form behält seine kompakte Bedeutung (`min: 3` an einer Zeichenkette ist weiterhin eine Mindestlänge). Ein `$ref` im Block wird so aufgelöst wie einer außerhalb: `#/$defs/Foo` benennt einen Eintrag des `$defs:` der Säule, daher deklariert das Beispiel `Foo` dort, und eine Referenz, die einen Eintrag benennt, den niemand deklariert hat, wird beim Laden der Entität abgelehnt. `$dynamicRef` wird gegen einen `$dynamicAnchor` aufgelöst, sodass sich eine rekursive Form schreiben lässt; ein Wert, der tief in der Rekursion fehlschlägt, wird an dem Feld gemeldet, das ihn enthält — `tree.children`, für ein fehlerhaftes `name` zwei Ebenen tief in einem Baum, dessen `children`-Elemente `{ $dynamicRef: \"#node\" }` sind."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Lassen Sie `format` weg, wird das Format anhand der Signaturen erkannt, die die Importer deklarieren** — die Ihres Katalogs und die der Core-Importer gleichermaßen. Die Plugin-Entität jedes Importers hält sie fest: die Syntax, in der eine Quelle gelesen wird, die Dateinamen, für die eine Signatur gilt, und die Pfade, die der geparste Baum enthalten muss oder nicht enthalten darf. Die Quelle wird geparst, über den Parser, den der Katalog Ihres Workspace für eine Syntax bereitstellt — oder, für eine Syntax, für die Ihr Katalog keinen Parser bereitstellt, über den, den der Compiler selbst mitbringt —, einmal für jede Syntax, in der eine für ihren Namen geltende Signatur sie liest, und verwendet wird das Format des einen Importers, dessen Signatur passt. Der Importer liest die Quelle dann über denselben Parser. Die Signaturen der Core-Importer lesen eine Datei als JSON oder YAML, und diejenigen, die keine Datei nennen, lesen sie als JSON — die des Dify-Importers als YAML —, sodass das Erkennen einer für sich allein importierten Datei sie in beiden liest und keinen Parser im Katalog Ihres Workspace benötigt: Der Compiler bringt einen JSON- und einen YAML-Parser mit, und einer, den Ihr Katalog bereitstellt, wird an dessen Stelle verwendet. Ein Verzeichnis wird auf dieselbe Weise über seine Dateien erkannt: Jede Signatur wird an denjenigen seiner Dateien erprobt, die ihre Muster auswählen, und eine Signatur, die kein Muster deklariert, gilt für keine davon. Die Erkennung liest die von Ihnen angegebene Datei — oder, bei einem Verzeichnis, nur die Dateien, die die Muster einer Signatur auswählen — und kein Netzwerk. Eine Quelle, auf die keine Signatur passt, wird abgelehnt, mit der Aufforderung, `format` zu senden, und unter Nennung der Formate, die die Importer ankündigen — oder, bei einem Verzeichnis, mit der Aufforderung, eine seiner Dateien für sich allein als `source` zu senden oder ein `format`, dessen Importer Dateimuster deklariert, unter Nennung nur dieser Formate —, unter der Bedingung [No importer recognises the source (Kein Importer erkennt die Quelle)](../errors/fatal-halts.md#no-importer-recognises-the-source); eine Quelle, auf die Signaturen mehr als eines Formats passen, wird unter Nennung dieser Formate abgelehnt, unter der Bedingung [More than one importer recognises the source (Mehr als ein Importer erkennt die Quelle)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); keine von beiden wird einem geratenen Importer übergeben. Senden Sie `format`, um das Format in beiden Fällen ausdrücklich zu nennen — bei einem Verzeichnis eines, dessen Importer Dateimuster deklariert, da ein Verzeichnis nur über diese gelesen wird. Ein leeres `format` wird abgelehnt, statt so gelesen zu werden, als hätten Sie es weggelassen, denn das sind verschiedene Anfragen."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -20056,6 +20067,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Jede Schema-Art auflisten, eine pro Zeile."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Eine Basis, die von einer Component oder einem Feature erweitert wird, ist eine Zeile, unabhängig davon, ob etwas anderes sie nennt.** Der Pull folgt jedem `extends:` bis zum Ende seiner Kette und erfasst jede Basis unter ihrer eigenen Art, wobei das `referenced_from` ihrer Zeile das `spec.extends` der erweiternden Entität nennt — `component(<name>:<version>).spec.extends`. Ein Build liest die Basis aus dieser Zeile, sodass ein Manifest den eigenen Typ eines Wrappers abbildet und keine Zeile für dessen Basis benötigt. Eine Basis, die weder ein Katalogverzeichnis noch ein Cache noch eine Registry enthält, wird dort gemeldet, wo die Kette zusammengeführt wird — siehe [An `extends:` chain cannot be assembled (Eine Kette kann nicht zusammengesetzt werden)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -136797,6 +136815,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (doppelter Zustellungsschlüssel über self-inject und uses-inject hinweg (der angegebene Schlüssel, der angegebene Socket))"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "Abgerufene Inhalte werden unter `.aggrega/cache` gespeichert, aufgeteilt in einen Teilbaum `entities/` für Katalogentitäten, einen Teilbaum `source-artifacts/` für Quellartefakte und einen Teilbaum `inputs/` für die externen Eingaben, die ein Rendering verbraucht. Der Slot einer Katalogentität ist nach ihrer Art, ihrer Koordinate und ihrer Version benannt — sodass eine Component und ein Recipe, die sich eine Koordinate und eine Version teilen, zwei Slots behalten —, der eines Quellartefakts nach seiner Abrufquelle, seiner Version und einem Präfix seines Inhalts-Digests, und der einer externen Eingabe nach ihrem Inhalts-Digest; was ein Build aus jedem davon liest, wird gegen das geprüft, was das Lockfile erfasst. Identische Versions-Pins teilen sich daher über Releases hinweg einen Slot. Jeder Quellartefakt-Slot enthält das maßgebliche Archiv, eine neu erzeugte Extraktion und eine kleine Metadatendatei; die Extraktion wird bei jedem Lesen neu erzeugt, daher hängt die Build-Ausgabe vom Archiv und vom Lockfile ab, nicht vom Zustand der extrahierten Dateien."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -152899,6 +152928,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Einem Link, der innerhalb des Cache-Verzeichnisses bleibt, wird gefolgt.** Wenn eines der eigenen Verzeichnisse des Caches ein Link auf ein anderes Verzeichnis innerhalb des Cache-Verzeichnisses ist, gehört dieses Verzeichnis dem Cache: `status` listet auf, was dort liegt, `prune` entfernt von dort, und `clear` leert es, behält den Link und meldet die Bytes, die es dort entfernt hat."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Jeder Name, den der Cache aus einem Wert ableitet, wird von Windows, Linux und macOS gleichermaßen akzeptiert.** Eine Koordinate, eine Version, ein Registry-Host oder ein Digest enthält Zeichen, die ein Dateiname nicht enthalten kann: den `/` zwischen den Teilen einer Koordinate, den `:` vor einer Version, innerhalb von `sha256:` und vor dem Port einer Registry. Daher wird jeder Wert — eine Art, eine Koordinate, eine Version, ein Registry-Host oder ein Digest — umgeschrieben, bevor er zu einem Verzeichnis- oder Dateinamen wird — ein Kleinbuchstabe, eine Ziffer, `.`, `_` und `-` werden unverändert geschrieben, und jedes andere Zeichen wird als Escape-Sequenz geschrieben, die mit `+` beginnt. Die Component `core/devtool/adminer:1.0.0` in Version `1.0.0` ist der Slot `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, und ein nach einem Inhalts-Digest benannter Slot ist `sha256+zx00003a<hex>`. Auch ein Großbuchstabe wird maskiert, sodass zwei Koordinaten, die sich nur in der Groß-/Kleinschreibung unterscheiden, auf einem Dateisystem, das diese ignoriert, zwei Slots behalten; bei einem Namen, den Windows für ein Gerät reserviert, etwa `con`, wird der erste Buchstabe maskiert; und kein Name endet auf einen Punkt. Zwei verschiedene Werte teilen sich nie einen Namen, und ein Wert hat auf jeder Maschine denselben Namen. `aggrega cache status` listet jeden Eintrag nach den Werten auf, aus denen seine Namen umgeschrieben wurden — eine Katalogentität nach ihrer Koordinate, Version und Art —, statt nach den umgeschriebenen Namen."
   },
   "ff18ebbd0613c8f4": {
     "at": "2026-11-03T01:23:31.413Z",

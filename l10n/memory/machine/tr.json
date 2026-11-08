@@ -16477,6 +16477,17 @@
     "status": "machine",
     "text": "Bloğun içindeki her düğüm JSON Schema olarak okunur ve oraya yazılan bir kompakt biçim anahtar sözcüğü kompakt anlamını korur (bir dize üzerindeki `min: 3` yine en küçük uzunluktur). Bloktaki bir `$ref`, bloğun dışındaki gibi çözümlenir: `#/$defs/Foo`, sütunun `$defs:` girdilerinden birini adlandırır; bu yüzden örnek `Foo`'yu orada bildirir ve kimsenin bildirmediği bir girdiyi adlandıran başvuru, varlık yüklenirken reddedilir. `$dynamicRef` bir `$dynamicAnchor`'a göre çözümlenir; bu sayede özyinelemeli bir yapı yazılabilir. Özyinelemenin derinlerinde doğrulamayı geçemeyen bir değer, onu tutan alanda bildirilir — `children` öğeleri `{ $dynamicRef: \"#node\" }` olan bir ağaçta iki düzey aşağıdaki hatalı bir `name` için `tree.children`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**`format` değerini vermezseniz biçim, içe aktarıcıların bildirdiği imzalarla tanınır**; bu, hem kataloğunuzun hem de çekirdek içe aktarıcıların imzaları için geçerlidir. Her içe aktarıcının Plugin varlığı bunları kaydeder: bir kaynağın okunduğu sözdizimi, bir imzanın uygulandığı dosya adları ve ayrıştırılmış ağacın taşıması veya taşımaması gereken yollar. Kaynak, adına uygulanan bir imzanın onu okuduğu her sözdizimi için bir kez, çalışma alanınızın kataloğunun o sözdizimi için sunduğu ayrıştırıcıyla (veya kataloğunuzun ayrıştırıcı sunmadığı bir sözdizimi için derleyicinin kendisinin taşıdığı ayrıştırıcıyla) ayrıştırılır ve imzası eşleşen tek içe aktarıcının biçimi kullanılır. İçe aktarıcı daha sonra kaynağı aynı ayrıştırıcıyla okur. Çekirdek içe aktarıcıların imzaları bir dosyayı JSON veya YAML olarak okur; hiçbir dosya adlandırmayanlar onu JSON olarak okur (Dify içe aktarıcısınınki ise YAML olarak). Bu nedenle tek başına içe aktarılan bir dosyanın tanınması onu her ikisinde de okur ve çalışma alanınızın kataloğunda bir ayrıştırıcı gerektirmez: derleyici bir JSON ve bir YAML ayrıştırıcısı taşır, kataloğunuzun sunduğu bir ayrıştırıcı ise onun yerine kullanılır. Bir dizin de dosyaları üzerinden aynı şekilde tanınır: her imza, dizinin desenlerinin seçtiği dosyalarına karşı denenir ve hiçbir desen bildirmeyen bir imza bunların hiçbirine uygulanmaz. Tanıma, adlandırdığınız dosyayı (veya bir dizin için yalnızca bir imzanın desenlerinin seçtiği dosyaları) okur ve ağa erişmez. Hiçbir imzanın eşleşmediği bir kaynak, `format` istenerek ve içe aktarıcıların duyurduğu biçimler adlandırılarak (bir dizin için ise dosyalarından birinin tek başına `source` olarak gönderilmesi ya da içe aktarıcısı dosya desenleri bildiren bir `format` istenerek ve yalnızca bu biçimler adlandırılarak) [No importer recognises the source (Hiçbir içe aktarıcı kaynağı tanımıyor)](../errors/fatal-halts.md#no-importer-recognises-the-source) koşulu altında reddedilir; birden fazla biçimin imzalarının eşleştiği bir kaynak ise bu biçimler adlandırılarak [More than one importer recognises the source (Birden fazla içe aktarıcı kaynağı tanıyor)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source) koşulu altında reddedilir; ikisi de tahmin edilen bir içe aktarıcıya verilmez. Her iki durumda da biçimi doğrudan adlandırmak için `format` gönderin; bir dizin için bu, içe aktarıcısı dosya desenleri bildiren bir biçimdir, çünkü bir dizin yalnızca bu desenler aracılığıyla okunur. Boş bir `format`, onu hiç vermemişsiniz gibi okunmak yerine reddedilir, çünkü bunlar farklı isteklerdir."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -22425,6 +22436,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Her şema türünü, her satıra bir tane olacak şekilde listeler."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Bir Component'in veya Feature'ın genişlettiği bir taban, başka bir şey onu adlandırsın ya da adlandırmasın bir satırdır.** Çekme işlemi her `extends:` öğesini zincirinin sonuna kadar izler ve her tabanı kendi türü altında kaydeder; satırının `referenced_from` alanı, genişleten varlığın `spec.extends` alanını adlandırır: `component(<name>:<version>).spec.extends`. Bir derleme tabanı o satırdan okur, bu yüzden bir Manifest bir sarmalayıcının kendi tipini eşler ve tabanı için bir satıra ihtiyaç duymaz. Hiçbir katalog dizininin, önbelleğin veya kayıt defterinin tutmadığı bir taban, zincirin birleştirildiği yerde bildirilir; bkz. [An `extends:` chain cannot be assembled (Bir zincir birleştirilemiyor)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -152341,6 +152359,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (self-inject ile uses-inject arasında yinelenen teslim anahtarı: \"`<key>`\", soket \"`<socket>`\")"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "Çekilen içerik `.aggrega/cache` altında saklanır; katalog varlıkları için bir `entities/` alt ağacına, kaynak yapıtlar için bir `source-artifacts/` alt ağacına ve bir işlemenin tükettiği harici girdiler için bir `inputs/` alt ağacına bölünür. Bir katalog varlığının yuvası türü, koordinatı ve sürümüyle adlandırılır (bu nedenle aynı koordinatı ve sürümü paylaşan bir Component ile bir Recipe iki ayrı yuvada kalır), bir kaynak yapıtınki getirildiği yer, sürümü ve içerik özetinin bir önekiyle, bir harici girdininki ise içerik özetiyle adlandırılır; bir derlemenin bunlardan herhangi birinden okuduğu şey, kilit dosyasının kaydettiğiyle karşılaştırılarak denetlenir. Bu nedenle özdeş sürüm sabitlemeleri Releases arasında tek bir yuvayı paylaşır. Her kaynak yapıt yuvası yetkili arşivi, yeniden oluşturulan bir çıkarımı ve küçük bir meta veri dosyasını tutar; çıkarım her okumada yeniden oluşturulur, dolayısıyla derleme çıktısı çıkarılan dosyaların durumuna değil, arşive ve kilit dosyasına bağlıdır."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -170074,6 +170103,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Önbellek dizininin içinde kalan bir bağlantı izlenir.** Önbelleğin kendi dizinlerinden biri önbellek dizini içindeki başka bir dizine bağlantıysa o dizin önbelleğe aittir: `status` orada bulunanları listeler, `prune` oradan kaldırır, `clear` ise onu boşaltır, bağlantıyı korur ve orada kaldırdığı baytları bildirir."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Önbelleğin bir değerden türettiği her ad Windows, Linux ve macOS'in hepsinin kabul ettiği bir addır.** Bir koordinat, bir sürüm, bir kayıt defteri ana bilgisayarı veya bir özet, bir dosya adının taşıyamayacağı karakterler içerir: bir koordinatın parçaları arasındaki `/`, bir sürümden önceki, `sha256:` içindeki ve bir kayıt defterinin bağlantı noktasından önceki `:`. Bu yüzden her değer (bir tür, bir koordinat, bir sürüm, bir kayıt defteri ana bilgisayarı veya bir özet) bir dizin ya da dosya adı olmadan önce dönüştürülür: küçük harf, rakam, `.`, `_` ve `-` olduğu gibi yazılır, diğer her karakter ise `+` ile başlayan bir kaçış dizisi olarak yazılır. `1.0.0` sürümündeki Component `core/devtool/adminer:1.0.0`, `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/` yuvasıdır ve bir içerik özetiyle adlandırılan yuva `sha256+zx00003a<hex>` olur. Büyük harf de kaçışlanır; böylece yalnızca harf büyüklüğünde farklılaşan iki koordinat, büyük/küçük harfi yok sayan bir dosya sisteminde iki ayrı yuvada kalır; Windows'un bir aygıt için ayırdığı `con` gibi bir adın ilk harfi kaçışlanır; ve hiçbir ad nokta ile bitmez. İki farklı değer hiçbir zaman aynı adı paylaşmaz ve bir değer her makinede aynı ada sahiptir. `aggrega cache status`, her girdiyi dönüştürülmüş adlarla değil, adlarının türetildiği değerlerle listeler; bir katalog varlığını koordinatı, sürümü ve türüyle."
   },
   "ff1681e6665d8454": {
     "at": "2026-10-22T22:51:17.853388+00:00",

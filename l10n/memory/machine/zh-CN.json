@@ -16477,6 +16477,17 @@
     "status": "machine",
     "text": "该块内的每个节点都按 JSON Schema 读取，而写在其中的紧凑形式关键字保留其紧凑含义（字符串上的 `min: 3` 仍是最小长度）。块中的 `$ref` 与块外的解析方式相同：`#/$defs/Foo` 指向该支柱 `$defs:` 中的一个条目，因此示例在那里声明了 `Foo`；而指向无人声明的条目的引用会在实体加载时被拒绝。`$dynamicRef` 依据 `$dynamicAnchor` 解析，因此可以编写递归结构；在递归深处校验失败的值会在持有它的字段处报告——对于一棵 `children` 条目为 `{ $dynamicRef: \"#node\" }` 的树，向下两层处错误的 `name` 会在 `tree.children` 处报告。"
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**省略 `format` 时，格式由导入器声明的签名识别**——你的目录中的导入器和核心导入器都是如此。每个导入器的 Plugin 实体都记录了这些签名：读取源所用的语法、签名适用的文件名，以及解析树必须或不得包含的路径。源会经由你的工作区目录为某种语法提供的解析器（若你的目录未为该语法提供解析器，则使用编译器自带的解析器）进行解析，对于适用于其名称的签名所使用的每种语法各解析一次，签名匹配的那唯一一个导入器的格式即被采用。随后导入器通过同一解析器读取源。核心导入器的签名以 JSON 或 YAML 读取文件，未指定文件名的签名以 JSON 读取（Dify 导入器的以 YAML 读取），因此识别单独导入的文件时会以两种方式读取，且无需你的工作区目录中有解析器：编译器自带 JSON 和 YAML 解析器，你的目录提供的解析器会替代它们使用。目录以同样方式按其文件识别：每个签名都会针对其模式选中的目录文件进行尝试，未声明模式的签名不适用于其中任何文件。识别只读取你指定的文件（对于目录，只读取签名模式选中的文件），且不访问网络。没有任何签名匹配的源会被拒绝，要求提供 `format` 并列出各导入器声明的格式（对于目录，则要求将其中一个文件单独作为 `source` 发送，或提供一个其导入器声明了文件模式的 `format`，并只列出这些格式），对应条件为 [No importer recognises the source（没有导入器能识别该源）](../errors/fatal-halts.md#no-importer-recognises-the-source)；被多个格式的签名匹配的源会被拒绝并列出这些格式，对应条件为 [More than one importer recognises the source（有多个导入器能识别该源）](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source)；两种情况都不会交给猜测出的导入器。在任一情况下，发送 `format` 即可直接指定格式；对于目录，则指定其导入器声明了文件模式的格式，因为目录只通过这些模式读取。空的 `format` 会被拒绝，而不会被当作省略处理，因为这是两种不同的请求。"
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -22425,6 +22436,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "列出所有 schema 种类，每行一个。"
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Component 或 Feature 所扩展的基础实体都有自己的一行，无论是否有其他内容指明它。** 拉取会沿每个 `extends:` 一直追溯到链的末端，并将每个基础实体记录在其自身的种类之下，该行的 `referenced_from` 指明扩展它的实体的 `spec.extends`——`component(<name>:<version>).spec.extends`。构建从该行读取基础实体，因此 Manifest 映射包装实体自身的类型，无需为其基础实体写一行。没有任何目录文件夹、缓存或注册表持有的基础实体，会在合并该链之处报告——参见 [An `extends:` chain cannot be assembled（无法组装一条链）](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)。"
   },
   "21965ab6969e8b0d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -152400,6 +152418,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject（self-inject 与 uses-inject 之间存在重复的交付键） (`\"<key>\"`, socket `\"<socket>\"`)"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "拉取的内容存储在 `.aggrega/cache` 下，分为三个子树：存放目录实体的 `entities/`、存放源制品的 `source-artifacts/`，以及存放渲染所用外部输入的 `inputs/`。目录实体的槽位按其种类、坐标和版本命名（因此坐标和版本相同的一个 Component 与一个 Recipe 仍保留两个槽位），源制品的槽位按其获取来源、版本和内容摘要的前缀命名，外部输入的槽位按其内容摘要命名；构建从其中任何一处读取的内容都会与锁文件记录的内容进行核对。因此，相同的版本固定在多个 Releases 之间共享同一个槽位。每个源制品槽位包含权威归档、重新生成的解压内容和一个小型元数据文件；解压内容在每次读取时都会重新生成，因此构建输出取决于归档和锁文件，而不取决于已解压文件的状态。"
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -170141,6 +170170,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**停留在缓存目录内部的链接会被跟随。**若缓存自身的某个目录是指向缓存目录内另一个目录的链接，则该目录属于缓存：`status` 列出其中的内容，`prune` 从中删除，`clear` 将其清空、保留该链接，并报告在其中删除的字节数。"
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**缓存从值派生的每个名称都能被 Windows、Linux 和 macOS 同时接受。** 坐标、版本、注册表主机或摘要中含有文件名不能包含的字符：坐标各部分之间的 `/`，以及版本之前、`sha256:` 内部和注册表端口之前的 `:`。因此每个值（种类、坐标、版本、注册表主机或摘要）在成为目录名或文件名之前都会先经过拼写转换：小写字母、数字、`.`、`_` 和 `-` 按原样写出，其他所有字符都写成以 `+` 开头的转义序列。版本为 `1.0.0` 的 Component `core/devtool/adminer:1.0.0` 对应槽位 `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`，按内容摘要命名的槽位则是 `sha256+zx00003a<hex>`。大写字母同样会被转义，因此在不区分大小写的文件系统上，仅大小写不同的两个坐标仍保持两个槽位；Windows 为设备保留的名称（如 `con`）首字母会被转义；且任何名称都不以句点结尾。两个不同的值绝不会共享同一名称，而同一个值在每台机器上名称都相同。`aggrega cache status` 按名称拼写所依据的值列出每个条目（目录实体按其坐标、版本和种类列出），而不是按拼写后的名称。"
   },
   "ff1681e6665d8454": {
     "at": "2026-10-22T03:24:54.319294+00:00",

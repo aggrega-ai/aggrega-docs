@@ -16477,6 +16477,17 @@
     "status": "machine",
     "text": "Mọi nút bên trong khối được đọc như JSON Schema, và một từ khóa dạng rút gọn viết ở đó vẫn giữ nghĩa rút gọn của nó (`min: 3` trên một chuỗi vẫn là độ dài tối thiểu). Một `$ref` trong khối được phân giải như khi ở ngoài khối: `#/$defs/Foo` chỉ đến một mục trong `$defs:` của trụ cột, nên ví dụ khai báo `Foo` ở đó, và một tham chiếu chỉ đến một mục không ai khai báo sẽ bị từ chối khi thực thể được nạp. `$dynamicRef` được phân giải theo một `$dynamicAnchor`, nên có thể viết một cấu trúc đệ quy; một giá trị không hợp lệ nằm sâu trong phép đệ quy được báo cáo tại trường chứa nó — `tree.children`, với một `name` sai nằm sâu hai cấp trong một cây có các phần tử `children` là `{ $dynamicRef: \"#node\" }`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Bỏ qua `format` thì định dạng được nhận diện bằng các chữ ký mà các importer khai báo** — của catalog của bạn cũng như của các importer lõi. Thực thể Plugin của mỗi importer ghi lại chúng: cú pháp mà một nguồn được đọc theo, các tên tệp mà một chữ ký áp dụng, và các đường dẫn mà cây đã phân tích phải có hoặc không được có. Nguồn được phân tích, qua trình phân tích mà catalog của workspace bạn phục vụ cho một cú pháp — hoặc, với cú pháp mà catalog của bạn không phục vụ trình phân tích nào, trình phân tích mà chính trình biên dịch mang theo — một lần cho mỗi cú pháp mà một chữ ký áp dụng cho tên của nó dùng để đọc, và định dạng của importer duy nhất có chữ ký khớp là định dạng được dùng. Sau đó importer đọc nguồn qua cùng trình phân tích đó. Các chữ ký của importer lõi đọc tệp dưới dạng JSON hoặc YAML, và những chữ ký không nêu tệp nào đọc nó dưới dạng JSON — của importer Dify thì dưới dạng YAML — nên việc nhận diện một tệp được import riêng lẻ đọc nó theo cả hai và không cần trình phân tích nào trong catalog của workspace bạn: trình biên dịch mang theo một trình phân tích JSON và một trình phân tích YAML, và trình phân tích mà catalog của bạn phục vụ được dùng thay thế. Một thư mục được nhận diện theo cùng cách trên các tệp của nó: mỗi chữ ký được thử với các tệp trong thư mục mà các mẫu của nó chọn, và một chữ ký không khai báo mẫu nào không áp dụng cho tệp nào. Việc nhận diện đọc tệp bạn đã nêu — hoặc, với thư mục, chỉ các tệp mà mẫu của một chữ ký chọn — và không dùng mạng. Một nguồn không khớp chữ ký nào bị từ chối với yêu cầu cung cấp `format` và nêu tên các định dạng mà các importer quảng bá — hoặc, với thư mục, yêu cầu gửi riêng một trong các tệp của nó làm `source` hoặc một `format` có importer khai báo mẫu tệp, chỉ nêu tên các định dạng đó — theo điều kiện [No importer recognises the source (Không importer nào nhận diện được nguồn)](../errors/fatal-halts.md#no-importer-recognises-the-source); một nguồn khớp chữ ký của nhiều hơn một định dạng bị từ chối với thông báo nêu tên chúng, theo điều kiện [More than one importer recognises the source (Nhiều hơn một importer nhận diện được nguồn)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); không trường hợp nào được trao cho một importer đoán chừng. Gửi `format` để nêu thẳng định dạng trong cả hai trường hợp — với thư mục, là một định dạng có importer khai báo mẫu tệp, vì thư mục chỉ được đọc qua các mẫu đó. Một `format` để trống bị từ chối thay vì được hiểu như thể bạn đã bỏ qua nó, vì đó là hai yêu cầu khác nhau."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -22425,6 +22436,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Liệt kê mọi loại schema, mỗi loại một dòng."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Một thực thể cơ sở mà một Component hoặc Feature mở rộng là một hàng, dù có thứ gì khác nêu tên nó hay không.** Lần pull đi theo từng `extends:` đến cuối chuỗi của nó và ghi lại mọi thực thể cơ sở dưới loại riêng của nó, với `referenced_from` của hàng đó nêu tên `spec.extends` của thực thể mở rộng — `component(<name>:<version>).spec.extends`. Một bản build đọc thực thể cơ sở từ hàng đó, nên một Manifest ánh xạ kiểu riêng của một wrapper và không cần dòng nào cho thực thể cơ sở của nó. Một thực thể cơ sở mà không thư mục catalog, bộ nhớ đệm hay registry nào chứa sẽ được báo cáo tại nơi chuỗi được hợp nhất — xem [An `extends:` chain cannot be assembled (Không thể lắp ráp một chuỗi)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -152385,6 +152403,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (khóa phân phối trùng lặp giữa self-inject và uses-inject) (`\"<key>\"`, socket `\"<socket>\"`)"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "Nội dung được kéo về được lưu dưới `.aggrega/cache`, chia thành một cây con `entities/` cho các thực thể catalog, một cây con `source-artifacts/` cho các artifact nguồn, và một cây con `inputs/` cho các đầu vào bên ngoài mà một lần render sử dụng. Ô của một thực thể catalog được đặt tên theo loại, tọa độ và phiên bản của nó — nên một Component và một Recipe có chung tọa độ và phiên bản vẫn giữ hai ô —, ô của một artifact nguồn theo nơi nó được tải về, phiên bản của nó và một tiền tố của digest nội dung, còn ô của một đầu vào bên ngoài theo digest nội dung của nó; những gì một bản build đọc từ bất kỳ ô nào trong số đó đều được đối chiếu với những gì lockfile ghi lại. Do đó, các ghim phiên bản giống nhau dùng chung một ô giữa các Releases. Mỗi ô artifact nguồn chứa bản lưu trữ có thẩm quyền, một bản giải nén được tạo lại và một tệp metadata nhỏ; bản giải nén được tạo lại ở mỗi lần đọc, vì vậy đầu ra của bản build phụ thuộc vào bản lưu trữ và lockfile, không phụ thuộc vào trạng thái của các tệp đã giải nén."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -170126,6 +170155,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Một liên kết nằm gọn bên trong thư mục bộ nhớ đệm sẽ được đi theo.** Khi một trong các thư mục riêng của bộ nhớ đệm là liên kết tới một thư mục khác bên trong thư mục bộ nhớ đệm, thư mục đó thuộc về bộ nhớ đệm: `status` liệt kê những gì nằm ở đó, `prune` xóa từ đó, còn `clear` làm trống nó, giữ lại liên kết và báo cáo số byte đã xóa ở đó."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Mọi tên mà bộ nhớ đệm suy ra từ một giá trị đều là tên mà Windows, Linux và macOS đều chấp nhận.** Một tọa độ, một phiên bản, một host registry hoặc một digest chứa những ký tự mà tên tệp không thể chứa: dấu `/` giữa các phần của tọa độ, dấu `:` trước phiên bản, bên trong `sha256:` và trước cổng của registry. Vì vậy mỗi giá trị — một loại, một tọa độ, một phiên bản, một host registry hoặc một digest — được mã hóa trước khi trở thành tên thư mục hoặc tên tệp — chữ thường, chữ số, `.`, `_` và `-` được viết nguyên như vậy, còn mọi ký tự khác được viết thành một chuỗi thoát bắt đầu bằng `+`. Component `core/devtool/adminer:1.0.0` ở phiên bản `1.0.0` là ô `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, và một ô được đặt tên theo digest nội dung là `sha256+zx00003a<hex>`. Chữ hoa cũng được thoát, nên hai tọa độ chỉ khác nhau về chữ hoa/thường vẫn giữ hai ô trên hệ thống tệp không phân biệt chữ hoa/thường; một tên mà Windows dành riêng cho thiết bị, chẳng hạn `con`, được thoát chữ cái đầu tiên; và không tên nào kết thúc bằng dấu chấm. Hai giá trị khác nhau không bao giờ dùng chung một tên, và một giá trị có cùng một tên trên mọi máy. `aggrega cache status` liệt kê mỗi mục theo các giá trị mà tên của nó được mã hóa từ đó — một thực thể catalog theo tọa độ, phiên bản và loại của nó — chứ không theo các tên đã mã hóa."
   },
   "ff1681e6665d8454": {
     "at": "2026-10-22T22:51:17.853388+00:00",

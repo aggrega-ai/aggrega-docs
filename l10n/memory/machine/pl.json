@@ -16477,6 +16477,17 @@
     "status": "machine",
     "text": "Każdy węzeł wewnątrz bloku jest odczytywany jako JSON Schema, a zapisane tam słowo kluczowe formy zwartej zachowuje swoje zwarte znaczenie (`min: 3` przy łańcuchu nadal oznacza minimalną długość). `$ref` w bloku jest rozwiązywany tak samo jak poza nim: `#/$defs/Foo` wskazuje wpis w `$defs:` filaru, dlatego przykład deklaruje tam `Foo`, a odwołanie do wpisu, którego nikt nie zadeklarował, jest odrzucane podczas ładowania encji. `$dynamicRef` jest rozwiązywany względem `$dynamicAnchor`, więc można zapisać kształt rekurencyjny; wartość, która nie przechodzi walidacji głęboko w rekurencji, jest zgłaszana przy polu, które ją zawiera — `tree.children` w przypadku błędnego `name` dwa poziomy niżej w drzewie, którego elementy `children` to `{ $dynamicRef: \"#node\" }`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Jeśli pominie się `format`, format jest rozpoznawany na podstawie sygnatur deklarowanych przez importery** — zarówno z katalogu, jak i importerów rdzenia. Zapisuje je encja Plugin każdego importera: składnię, w której wczytuje się źródło, nazwy plików, do których sygnatura się stosuje, oraz ścieżki, które przetworzone drzewo musi lub nie może zawierać. Źródło jest parsowane — parserem, który katalog przestrzeni roboczej udostępnia dla danej składni, albo, dla składni, dla której katalog nie udostępnia parsera, parserem wbudowanym w kompilator — raz dla każdej składni, w której wczytuje je sygnatura stosująca się do jego nazwy, a używany jest format tego jednego importera, którego sygnatura pasuje. Importer wczytuje następnie źródło tym samym parserem. Sygnatury importerów rdzenia wczytują plik jako JSON lub YAML, a te, które nie wskazują pliku, wczytują go jako JSON — importera Dify jako YAML — więc rozpoznanie pliku importowanego samodzielnie wczytuje go w obu i nie wymaga parsera w katalogu przestrzeni roboczej: kompilator ma wbudowany parser JSON i YAML, a parser udostępniany przez katalog jest używany zamiast nich. Katalog jest rozpoznawany w ten sam sposób na podstawie swoich plików: każdą sygnaturę sprawdza się względem plików katalogu wybieranych przez jej wzorce, a sygnatura bez wzorca nie stosuje się do żadnego z nich. Rozpoznawanie czyta wskazany plik — lub, w przypadku katalogu, tylko pliki wybierane przez wzorce sygnatury — i nie korzysta z sieci. Źródło, do którego nie pasuje żadna sygnatura, zostaje odrzucone z prośbą o `format` i wskazaniem formatów ogłaszanych przez importery — albo, w przypadku katalogu, z prośbą o przesłanie jednego z jego plików osobno jako `source` lub o `format`, którego importer deklaruje wzorce plików, ze wskazaniem tylko tych formatów — w warunku [No importer recognises the source (Żaden importer nie rozpoznaje źródła)](../errors/fatal-halts.md#no-importer-recognises-the-source); źródło, do którego pasują sygnatury więcej niż jednego formatu, zostaje odrzucone z ich wskazaniem, w warunku [More than one importer recognises the source (Więcej niż jeden importer rozpoznaje źródło)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); w żadnym z tych przypadków źródło nie trafia do zgadniętego importera. W obu przypadkach należy przesłać `format`, aby wskazać format wprost — w przypadku katalogu taki, którego importer deklaruje wzorce plików, ponieważ katalog jest wczytywany wyłącznie za ich pomocą. Pusty `format` jest odrzucany, a nie traktowany tak, jakby go pominięto, ponieważ są to różne żądania."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -22425,6 +22436,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Wyświetla listę wszystkich rodzajów schematów, po jednym w wierszu."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Baza, którą rozszerza encja Component lub Feature, jest wierszem niezależnie od tego, czy wskazuje ją cokolwiek innego.** Operacja pull podąża za każdym `extends:` do końca łańcucha i zapisuje każdą bazę pod jej własnym rodzajem, a `referenced_from` jej wiersza wskazuje `spec.extends` encji rozszerzającej — `component(<name>:<version>).spec.extends`. Kompilacja odczytuje bazę z tego wiersza, więc encja Manifest mapuje własny typ encji opakowującej i nie potrzebuje wiersza dla jej bazy. Baza, której nie zawiera żaden katalog encji katalogowych, pamięć podręczna ani rejestr, jest zgłaszana w miejscu scalania łańcucha — zob. [An `extends:` chain cannot be assembled (Nie można złożyć łańcucha)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -152339,6 +152357,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (zduplikowany klucz dostarczania w self-inject i uses-inject)"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "Pobrana zawartość jest przechowywana w `.aggrega/cache`, podzielona na poddrzewo `entities/` dla encji katalogowych, poddrzewo `source-artifacts/` dla artefaktów źródłowych oraz poddrzewo `inputs/` dla wejść zewnętrznych, które konsumuje renderowanie. Slot encji katalogowej jest nazywany jej rodzajem, współrzędną i wersją (więc encja Component i encja Recipe o wspólnej współrzędnej i wersji zachowują dwa sloty), slot artefaktu źródłowego — miejscem, z którego go pobrano, jego wersją i prefiksem skrótu jego zawartości, a slot wejścia zewnętrznego — skrótem jego zawartości; to, co kompilacja odczytuje z któregokolwiek z nich, jest sprawdzane względem zapisu w pliku blokady. Identyczne przypięcia wersji współdzielą zatem jeden slot między encjami Releases. Każdy slot artefaktu źródłowego zawiera autorytatywne archiwum, regenerowaną wypakowaną kopię i mały plik metadanych; wypakowana kopia jest regenerowana przy każdym odczycie, więc wynik kompilacji zależy od archiwum i pliku blokady, a nie od stanu wypakowanych plików."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -170074,6 +170103,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Dowiązanie, które pozostaje wewnątrz katalogu pamięci podręcznej, jest śledzone.** Jeśli jeden z własnych katalogów pamięci podręcznej jest dowiązaniem do innego katalogu wewnątrz katalogu pamięci podręcznej, ten katalog należy do pamięci podręcznej: `status` wyświetla jego zawartość, `prune` usuwa z niego, a `clear` go opróżnia, zachowuje dowiązanie i podaje liczbę usuniętych tam bajtów."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Każda nazwa, którą pamięć podręczna wyprowadza z wartości, jest akceptowana przez Windows, Linux i macOS.** Współrzędna, wersja, host rejestru lub skrót zawierają znaki niedozwolone w nazwie pliku: `/` między częściami współrzędnej, `:` przed wersją, wewnątrz `sha256:` i przed portem rejestru. Dlatego każda wartość — rodzaj, współrzędna, wersja, host rejestru lub skrót — jest zapisywana w odpowiedniej postaci, zanim stanie się nazwą katalogu lub pliku — mała litera, cyfra, `.`, `_` i `-` są zapisywane bez zmian, a każdy inny znak jest zapisywany jako sekwencja ucieczki zaczynająca się od `+`. Encja Component `core/devtool/adminer:1.0.0` w wersji `1.0.0` to slot `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, a slot nazwany skrótem zawartości to `sha256+zx00003a<hex>`. Wielka litera również jest zastępowana sekwencją ucieczki, więc dwie współrzędne różniące się tylko wielkością liter zachowują dwa sloty w systemie plików ignorującym wielkość liter; nazwa zarezerwowana przez Windows dla urządzenia, taka jak `con`, ma pierwszą literę zastąpioną sekwencją ucieczki; żadna nazwa nie kończy się kropką. Dwie różne wartości nigdy nie mają wspólnej nazwy, a jedna wartość ma tę samą nazwę na każdej maszynie. `aggrega cache status` wymienia każdy wpis według wartości, z których zapisano jego nazwy — encję katalogową według jej współrzędnej, wersji i rodzaju — a nie według zapisanych nazw."
   },
   "ff1681e6665d8454": {
     "at": "2026-10-22T22:51:17.853388+00:00",

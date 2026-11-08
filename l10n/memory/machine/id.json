@@ -16477,6 +16477,17 @@
     "status": "machine",
     "text": "Setiap node di dalam blok dibaca sebagai JSON Schema, dan kata kunci bentuk ringkas yang ditulis di sana mempertahankan makna ringkasnya (`min: 3` pada string tetap berarti panjang minimum). `$ref` di dalam blok di-resolve sama seperti di luarnya: `#/$defs/Foo` menunjuk entri di `$defs:` milik pilar, sehingga contoh mendeklarasikan `Foo` di sana, dan referensi yang menunjuk entri yang tidak dideklarasikan siapa pun ditolak saat entitas dimuat. `$dynamicRef` di-resolve terhadap `$dynamicAnchor`, sehingga bentuk rekursif dapat ditulis; nilai yang gagal jauh di dalam rekursi dilaporkan pada field yang memuatnya — `tree.children`, untuk `name` yang salah dua tingkat di bawah dalam pohon yang item `children`-nya adalah `{ $dynamicRef: \"#node\" }`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Jika `format` dihilangkan, format dikenali dari tanda tangan yang dideklarasikan importer** — baik milik katalog Anda maupun milik importer inti. Entitas Plugin setiap importer mencatatnya: sintaks yang digunakan untuk membaca sumber, nama file yang dikenai tanda tangan, dan jalur yang wajib atau tidak boleh dimuat pohon hasil penguraian. Sumber diurai, melalui parser yang dilayani katalog ruang kerja Anda untuk sebuah sintaks — atau, untuk sintaks yang tidak dilayani parser oleh katalog Anda, parser yang dibawa kompiler itu sendiri — satu kali untuk setiap sintaks yang digunakan tanda tangan yang berlaku untuk namanya, dan format yang digunakan adalah format dari satu-satunya importer yang tanda tangannya cocok. Importer kemudian membaca sumber melalui parser yang sama. Tanda tangan importer inti membaca file sebagai JSON atau YAML, dan tanda tangan yang tidak menyebutkan file membacanya sebagai JSON — milik importer Dify sebagai YAML — sehingga mengenali file yang diimpor secara tersendiri membacanya dalam keduanya dan tidak memerlukan parser di katalog ruang kerja Anda: kompiler membawa parser JSON dan parser YAML, dan parser yang dilayani katalog Anda digunakan sebagai gantinya. Direktori dikenali dengan cara yang sama atas file-filenya: setiap tanda tangan dicoba terhadap file-file di dalamnya yang dipilih polanya, dan tanda tangan yang tidak mendeklarasikan pola tidak berlaku untuk satu pun dari file tersebut. Pengenalan membaca file yang Anda sebutkan — atau, untuk direktori, hanya file yang dipilih pola sebuah tanda tangan — dan tidak mengakses jaringan. Sumber yang tidak cocok dengan tanda tangan mana pun ditolak dengan meminta `format` dan menyebutkan format yang diiklankan importer — atau, untuk direktori, meminta salah satu filenya dikirim tersendiri sebagai `source` atau `format` yang importernya mendeklarasikan pola file, dengan hanya menyebutkan format tersebut — dengan kondisi [No importer recognises the source (Tidak ada importer yang mengenali sumber)](../errors/fatal-halts.md#no-importer-recognises-the-source); sumber yang cocok dengan tanda tangan lebih dari satu format ditolak dengan menyebutkan format-format tersebut, dengan kondisi [More than one importer recognises the source (Lebih dari satu importer mengenali sumber)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); keduanya tidak diserahkan kepada importer hasil tebakan. Kirim `format` untuk menyebutkan format secara langsung dalam kedua kasus — untuk direktori, format yang importernya mendeklarasikan pola file, karena direktori hanya dibaca melalui pola tersebut. `format` yang kosong ditolak alih-alih dibaca seolah-olah Anda menghilangkannya, karena keduanya adalah permintaan yang berbeda."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -22425,6 +22436,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Cantumkan setiap jenis skema, satu per baris."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Basis yang diperluas oleh sebuah Component atau Feature adalah sebuah baris, entah ada hal lain yang menyebutnya atau tidak.** Pull mengikuti setiap `extends:` hingga akhir rantainya dan mencatat setiap basis di bawah jenisnya sendiri, dengan `referenced_from` pada barisnya menyebutkan `spec.extends` milik entitas yang memperluasnya — `component(<name>:<version>).spec.extends`. Build membaca basis dari baris tersebut, sehingga Manifest memetakan tipe milik pembungkus itu sendiri dan tidak memerlukan baris untuk basisnya. Basis yang tidak dimuat oleh direktori katalog, cache, maupun registry mana pun dilaporkan di tempat rantai digabungkan — lihat [An `extends:` chain cannot be assembled (Rantai tidak dapat disusun)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -152347,6 +152365,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (kunci pengiriman duplikat di antara self-inject dan uses-inject)"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "Konten yang diambil disimpan di bawah `.aggrega/cache`, dibagi menjadi subpohon `entities/` untuk entitas katalog, subpohon `source-artifacts/` untuk artefak sumber, dan subpohon `inputs/` untuk input eksternal yang dikonsumsi render. Slot entitas katalog dinamai berdasarkan jenis, koordinat, dan versinya — sehingga Component dan Recipe yang berbagi koordinat dan versi tetap memiliki dua slot —, slot artefak sumber berdasarkan asal pengambilannya, versinya, dan awalan digest kontennya, dan slot input eksternal berdasarkan digest kontennya; apa yang dibaca build dari salah satunya diperiksa terhadap apa yang dicatat lockfile. Karena itu, pin versi yang identik berbagi satu slot lintas Releases. Setiap slot artefak sumber memuat arsip otoritatif, ekstraksi yang dibuat ulang, dan sebuah berkas metadata kecil; ekstraksi dibuat ulang pada setiap pembacaan, sehingga output build bergantung pada arsip dan lockfile, bukan pada keadaan berkas yang diekstrak."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -170088,6 +170117,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Tautan yang tetap berada di dalam direktori cache akan diikuti.** Jika salah satu direktori milik cache adalah tautan ke direktori lain di dalam direktori cache, direktori itu milik cache: `status` mendaftar apa yang ada di sana, `prune` menghapus dari sana, dan `clear` mengosongkannya, mempertahankan tautannya, dan melaporkan byte yang dihapusnya di sana."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Setiap nama yang diturunkan cache dari sebuah nilai diterima oleh Windows, Linux, dan macOS.** Koordinat, versi, host registry, atau digest memuat karakter yang tidak dapat dimuat nama berkas: `/` di antara bagian-bagian koordinat, `:` sebelum versi, di dalam `sha256:`, dan sebelum port registry. Jadi setiap nilai — jenis, koordinat, versi, host registry, atau digest — ditranskripsikan sebelum menjadi nama direktori atau berkas — huruf kecil, angka, `.`, `_`, dan `-` ditulis apa adanya, dan setiap karakter lain ditulis sebagai escape yang diawali `+`. Component `core/devtool/adminer:1.0.0` pada versi `1.0.0` adalah slot `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, dan slot yang dinamai berdasarkan digest konten adalah `sha256+zx00003a<hex>`. Huruf besar juga di-escape, sehingga dua koordinat yang hanya berbeda dalam huruf besar-kecil tetap memiliki dua slot pada sistem berkas yang mengabaikan huruf besar-kecil; nama yang dicadangkan Windows untuk perangkat, seperti `con`, huruf pertamanya di-escape; dan tidak ada nama yang diakhiri titik. Dua nilai berbeda tidak pernah berbagi nama, dan satu nilai memiliki nama yang sama di setiap mesin. `aggrega cache status` mencantumkan setiap entri berdasarkan nilai yang menjadi asal transkripsi namanya — entitas katalog berdasarkan koordinat, versi, dan jenisnya — bukan berdasarkan nama hasil transkripsi."
   },
   "ff1681e6665d8454": {
     "at": "2026-10-23T08:18:59.335953+00:00",

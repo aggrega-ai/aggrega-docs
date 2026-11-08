@@ -14728,6 +14728,17 @@
     "status": "machine",
     "text": "Cada nodo dentro del bloque se lee como JSON Schema, y una palabra clave de la forma compacta escrita allí conserva su significado compacto (`min: 3` en una cadena sigue siendo una longitud mínima). Un `$ref` en el bloque se resuelve como uno de fuera: `#/$defs/Foo` nombra una entrada del `$defs:` del pilar, así que el ejemplo declara `Foo` allí, y una referencia que nombra una entrada que nadie declaró se rechaza cuando se carga la entidad. `$dynamicRef` se resuelve contra un `$dynamicAnchor`, así que se puede escribir una forma recursiva; un valor que falla en lo profundo de la recursión se informa en el campo que lo contiene — `tree.children`, para un `name` incorrecto dos niveles más abajo en un árbol cuyos elementos `children` son `{ $dynamicRef: \"#node\" }`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Si omites `format`, el formato se reconoce por las firmas que declaran los importadores** — tanto las de tu catálogo como las de los importadores básicos. La entidad Plugin de cada importador las registra: la sintaxis en la que se lee una fuente, los nombres de archivo a los que se aplica una firma y las rutas que el árbol analizado debe o no debe contener. La fuente se analiza, mediante el parser que el catálogo de tu espacio de trabajo sirve para una sintaxis — o, para una sintaxis para la que tu catálogo no sirve ningún parser, el que incluye el propio compilador —, una vez por cada sintaxis en la que la lee una firma que se aplica a su nombre, y el formato que se usa es el del único importador cuya firma coincide. El importador lee después la fuente mediante el mismo parser. Las firmas de los importadores básicos leen un archivo como JSON o YAML, y las que no indican ningún archivo lo leen como JSON — la del importador de Dify, como YAML —, así que reconocer un archivo importado por sí solo lo lee en ambos y no necesita ningún parser en el catálogo de tu espacio de trabajo: el compilador incluye un parser de JSON y uno de YAML, y uno que sirva tu catálogo se usa en su lugar. Un directorio se reconoce de la misma forma sobre sus archivos: cada firma se prueba con los archivos de este que seleccionan sus patrones, y una firma que no declara ningún patrón no se aplica a ninguno de ellos. El reconocimiento lee el archivo que indicaste — o, de un directorio, solo los archivos que seleccionan los patrones de una firma — y ninguna red. Una fuente con la que no coincide ninguna firma se rechaza pidiendo `format` e indicando los formatos que anuncian los importadores — o, para un directorio, pidiendo uno de sus archivos enviado por sí solo como `source` o un `format` cuyo importador declare patrones de archivo, indicando solo esos formatos —, bajo la condición [No importer recognises the source (Ningún importador reconoce la fuente)](../errors/fatal-halts.md#no-importer-recognises-the-source); una fuente con la que coinciden firmas de más de un formato se rechaza indicándolos, bajo la condición [More than one importer recognises the source (Más de un importador reconoce la fuente)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); ninguna de las dos se entrega a un importador elegido por suposición. Envía `format` para indicar el formato explícitamente en cualquiera de los dos casos — para un directorio, uno cuyo importador declare patrones de archivo, ya que un directorio solo se lee a través de ellos. Un `format` vacío se rechaza en lugar de leerse como si lo hubieras omitido, porque son solicitudes distintas."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -20056,6 +20067,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Enumerar cada tipo de esquema, uno por línea."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Una base que un Component o una Feature extiende es una fila, tanto si otra cosa la nombra como si no.** El pull sigue cada `extends:` hasta el final de su cadena y registra cada base bajo su propio tipo de entidad, y el `referenced_from` de su fila nombra el `spec.extends` de la entidad que la extiende — `component(<name>:<version>).spec.extends`. Un build lee la base de esa fila, así que un Manifest mapea el tipo propio de un envoltorio y no necesita ninguna línea para su base. Una base que ningún directorio de catálogo, caché ni registry contiene se informa donde se fusiona la cadena — consulta [An `extends:` chain cannot be assembled (No se puede ensamblar una cadena)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -136789,6 +136807,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (clave de entrega duplicada entre self-inject y uses-inject (la clave indicada, el socket indicado))"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "El contenido descargado se almacena bajo `.aggrega/cache`, dividido en un subárbol `entities/` para las entidades de catálogo, un subárbol `source-artifacts/` para los artefactos de origen y un subárbol `inputs/` para las entradas externas que consume un renderizado. La ranura de una entidad de catálogo se nombra por su tipo, su coordenada y su versión —de modo que un Component y una Recipe que comparten coordenada y versión conservan dos ranuras—, la de un artefacto de origen por el lugar del que se descargó, su versión y un prefijo del digest de su contenido, y la de una entrada externa por el digest de su contenido; lo que un build lee de cualquiera de ellas se comprueba con lo que registra el lockfile. Por tanto, pines de versión idénticos comparten una ranura entre varias Releases. Cada ranura de artefacto de origen contiene el archivo comprimido de referencia, una extracción regenerada y un pequeño archivo de metadatos; la extracción se regenera en cada lectura, así que la salida del build depende del archivo comprimido y del lockfile, no del estado de los archivos extraídos."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -152885,6 +152914,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Un enlace que permanece dentro del directorio de la caché se sigue.** Cuando uno de los directorios propios de la caché es un enlace a otro directorio dentro del directorio de la caché, ese directorio es de la caché: `status` lista lo que hay allí, `prune` elimina de allí, y `clear` lo vacía, conserva el enlace e informa de los bytes que eliminó allí."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Todo nombre que la caché deriva de un valor es uno que aceptan Windows, Linux y macOS.** Una coordenada, una versión, un host de registry o un digest contiene caracteres que un nombre de archivo no puede contener: la `/` entre las partes de una coordenada, el `:` antes de una versión, dentro de `sha256:` y antes del puerto de un registry. Así que cada valor —un tipo, una coordenada, una versión, un host de registry o un digest— se transcribe antes de convertirse en un nombre de directorio o de archivo: una letra minúscula, un dígito, `.`, `_` y `-` se escriben tal cual, y cualquier otro carácter se escribe como un escape que empieza por `+`. El Component `core/devtool/adminer:1.0.0` en la versión `1.0.0` es la ranura `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, y una ranura nombrada por un digest de contenido es `sha256+zx00003a<hex>`. También se escapa una letra mayúscula, de modo que dos coordenadas que solo difieren en mayúsculas y minúsculas conservan dos ranuras en un sistema de archivos que no distingue mayúsculas; un nombre que Windows reserva para un dispositivo, como `con`, tiene su primera letra escapada; y ningún nombre termina en punto. Dos valores distintos nunca comparten un nombre, y un valor tiene el mismo nombre en todas las máquinas. `aggrega cache status` enumera cada entrada por los valores a partir de los que se transcribieron sus nombres —una entidad de catálogo por su coordenada, su versión y su tipo— en lugar de por los nombres transcritos."
   },
   "ff18ebbd0613c8f4": {
     "at": "2026-11-03T01:23:31.413Z",

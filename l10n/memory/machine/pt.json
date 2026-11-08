@@ -14960,6 +14960,17 @@
     "status": "machine",
     "text": "Cada nó dentro do bloco é lido como JSON Schema, e uma palavra-chave da forma compacta escrita aí mantém o seu significado compacto (`min: 3` numa cadeia continua a ser um comprimento mínimo). Um `$ref` no bloco resolve-se como um de fora: `#/$defs/Foo` nomeia uma entrada do `$defs:` do pilar, pelo que o exemplo declara `Foo` aí, e uma referência que nomeie uma entrada que ninguém declarou é recusada quando a entidade é carregada. `$dynamicRef` resolve-se contra um `$dynamicAnchor`, pelo que é possível escrever uma forma recursiva; um valor que falha no fundo da recursão é reportado no campo que o contém — `tree.children`, para um `name` inválido dois níveis abaixo numa árvore cujos itens `children` são `{ $dynamicRef: \"#node\" }`."
   },
+  "18cc0e082b6f3e8f": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "f58fb3df452e9369",
+      "reviewed": false
+    },
+    "srcHash": "18cc0e082b6f3e8f",
+    "status": "machine",
+    "text": "**Omita-se `format` e o formato é reconhecido pelas assinaturas que os importadores declaram** — as do catálogo e as dos importadores nucleares por igual. A entidade Plugin de cada importador regista-as: a sintaxe em que uma origem é lida, os nomes de ficheiro a que uma assinatura se aplica e os caminhos que a árvore analisada tem ou não de conter. A origem é analisada, através do parser que o catálogo do espaço de trabalho serve para uma sintaxe — ou, para uma sintaxe para a qual o catálogo não serve parser, o que o próprio compilador traz — uma vez por cada sintaxe em que uma assinatura aplicável ao seu nome a lê, e o formato usado é o do único importador cuja assinatura corresponde. O importador lê então a origem através do mesmo parser. As assinaturas dos importadores nucleares leem um ficheiro como JSON ou YAML, e as que não indicam ficheiro leem-no como JSON — a do importador Dify como YAML — pelo que reconhecer um ficheiro importado por si só lê-o em ambos e não precisa de nenhum parser no catálogo do espaço de trabalho: o compilador traz um parser de JSON e um de YAML, e um que o catálogo sirva é usado no seu lugar. Um diretório é reconhecido da mesma forma sobre os seus ficheiros: cada assinatura é testada contra os ficheiros dele que os seus padrões selecionam, e uma assinatura que não declara padrão não se aplica a nenhum. O reconhecimento lê o ficheiro indicado — ou, de um diretório, apenas os ficheiros que os padrões de uma assinatura selecionam — e não acede à rede. Uma origem a que nenhuma assinatura corresponde é recusada pedindo `format` e indicando os formatos que os importadores anunciam — ou, para um diretório, pedindo um dos seus ficheiros enviado por si só como `source` ou um `format` cujo importador declare padrões de ficheiro, indicando apenas esses formatos —, sob a condição [No importer recognises the source (Nenhum importador reconhece a origem)](../errors/fatal-halts.md#no-importer-recognises-the-source); uma origem a que correspondem assinaturas de mais de um formato é recusada indicando-os, sob a condição [More than one importer recognises the source (Mais de um importador reconhece a origem)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source); nenhuma é entregue a um importador adivinhado. Envie-se `format` para indicar o formato explicitamente em qualquer dos casos — para um diretório, um cujo importador declare padrões de ficheiro, uma vez que um diretório só é lido através deles. Um `format` em branco é recusado em vez de ser lido como se tivesse sido omitido, porque são pedidos diferentes."
+  },
   "18ce66b4435269ca": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -20384,6 +20395,13 @@
     "srcHash": "2190cdc00b0b351c",
     "status": "machine",
     "text": "Listar todos os tipos de esquema, um por linha."
+  },
+  "219652227230b072": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "srcHash": "219652227230b072",
+    "status": "machine",
+    "text": "**Uma base que um Component ou uma Feature estende é uma linha, quer algo mais a nomeie quer não.** O pull segue cada `extends:` até ao fim da sua cadeia e regista cada base sob o seu próprio tipo de entidade, com o `referenced_from` da sua linha a nomear o `spec.extends` da entidade que a estende — `component(<name>:<version>).spec.extends`. Um build lê a base dessa linha, pelo que um Manifest mapeia o tipo próprio de um wrapper e não precisa de nenhuma linha para a sua base. Uma base que nenhum diretório de catálogo, cache ou registo contém é reportada onde a cadeia é fundida — consulte-se [An `extends:` chain cannot be assembled (Não é possível montar uma cadeia)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
   },
   "21965ab6969e8b0d": {
     "at": "2026-11-03T04:27:15.085Z",
@@ -138760,6 +138778,17 @@
     "status": "machine",
     "text": "duplicate delivery key across self-inject and uses-inject (`\"<key>\"`, socket `\"<socket>\"`) (chave de entrega duplicada entre self-inject e uses-inject (a chave indicada, o socket indicado))"
   },
+  "e46cf8c7c3820531": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0c9ec9b6cec1e225",
+      "reviewed": false
+    },
+    "srcHash": "e46cf8c7c3820531",
+    "status": "machine",
+    "text": "O conteúdo obtido por pull é armazenado sob `.aggrega/cache`, dividido numa subárvore `entities/` para as entidades do catálogo, numa subárvore `source-artifacts/` para os artefactos de origem e numa subárvore `inputs/` para as entradas externas que uma renderização consome. A posição de uma entidade do catálogo é nomeada pelo seu tipo, pela sua coordenada e pela sua versão — pelo que um Component e uma Recipe que partilham uma coordenada e uma versão mantêm duas posições —, a de um artefacto de origem pelo local de onde foi obtido, pela sua versão e por um prefixo do seu digest de conteúdo, e a de uma entrada externa pelo seu digest de conteúdo; o que um build lê de qualquer uma delas é verificado em relação ao que o lockfile regista. Fixações de versão idênticas partilham, por isso, uma única posição entre Releases. Cada posição de artefacto de origem contém o arquivo autoritativo, uma extração regenerada e um pequeno ficheiro de metadados; a extração é regenerada em cada leitura, pelo que a saída do build depende do arquivo e do lockfile, e não do estado dos ficheiros extraídos."
+  },
   "e46e9682b52ec624": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -155082,6 +155111,17 @@
     "srcHash": "ff0f5bf999b2c393",
     "status": "machine",
     "text": "**Uma ligação que permanece dentro do diretório da cache é seguida.** Quando um dos próprios diretórios da cache é uma ligação para outro diretório dentro do diretório da cache, esse diretório é da cache: `status` lista o que lá está, `prune` remove a partir daí, e `clear` esvazia-o, mantém a ligação e reporta os bytes que lá removeu."
+  },
+  "ff10997c1e395050": {
+    "at": "2026-11-08T10:49:23.845Z",
+    "job": "session-0010-20261108104923",
+    "revision": {
+      "from": "0360bb629af45d7d",
+      "reviewed": false
+    },
+    "srcHash": "ff10997c1e395050",
+    "status": "machine",
+    "text": "**Todos os nomes que a cache deriva de um valor são aceites por Windows, Linux e macOS.** Uma coordenada, uma versão, um anfitrião de registo ou um digest contêm caracteres que um nome de ficheiro não pode conter: a `/` entre as partes de uma coordenada, os `:` antes de uma versão, dentro de `sha256:` e antes da porta de um registo. Por isso, cada valor — um tipo, uma coordenada, uma versão, um anfitrião de registo ou um digest — é transcrito antes de se tornar um nome de diretório ou de ficheiro — uma letra minúscula, um algarismo, `.`, `_` e `-` são escritos tal como são, e todos os outros caracteres são escritos como um escape iniciado por `+`. O Component `core/devtool/adminer:1.0.0` na versão `1.0.0` é a posição `entities/+zx000043omponent/core+zsdevtool+zsadminer+zx00003a1.0.0/1.0.0/`, e uma posição nomeada por um digest de conteúdo é `sha256+zx00003a<hex>`. Uma letra maiúscula também é escapada, pelo que duas coordenadas que diferem apenas em maiúsculas e minúsculas mantêm duas posições num sistema de ficheiros que ignora essa diferença; um nome que o Windows reserva para um dispositivo, como `con`, tem a primeira letra escapada; e nenhum nome termina num ponto final. Dois valores diferentes nunca partilham um nome, e um valor tem o mesmo nome em todas as máquinas. `aggrega cache status` lista cada entrada pelos valores a partir dos quais os seus nomes foram transcritos — uma entidade do catálogo pela sua coordenada, versão e tipo — e não pelos nomes transcritos."
   },
   "ff18ebbd0613c8f4": {
     "at": "2026-11-03T01:23:31.413Z",
