@@ -25119,6 +25119,17 @@
     "status": "machine",
     "text": "Cada tipo tem uma profundidade de resolução padrão natural (veja a tabela abaixo). `--raw` e `--resolved` são substituições sempre disponíveis, e são mutuamente exclusivas — passar ambas é recusado em vez de resolvido silenciosamente:"
   },
+  "29fec58ba1057287": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "revision": {
+      "from": "58cf50a48895d53f",
+      "reviewed": false
+    },
+    "srcHash": "29fec58ba1057287",
+    "status": "machine",
+    "text": "lockfile: out of date; it no longer matches what its Release resolves to: entity `\"<uri>\"` (`<kind>`) not in lockfile (referenced from `<site>`) (lockfile: desatualizado; não corresponde mais àquilo em que sua Release se resolve: entidade, com seu tipo, ausente do arquivo de bloqueio, com o local de onde ela é referenciada) `<axis>` `\"<uri>\"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`) (a referência indicada mudou no eixo indicado: a versão e o digest do arquivo de bloqueio diferem dos atuais) entity `\"<uri>\"` (`<kind>`) changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`) (a entidade indicada, do tipo indicado, mudou: a versão e o digest do arquivo de bloqueio diferem dos atuais) `<axis>` `\"<uri>\"` no longer used by the release (a referência indicada no eixo indicado não é mais usada pela Release) release document `\"<file>\"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; re-resolving the Release records the files it reads as they now stand (o documento de Release indicado foi editado depois que o arquivo de bloqueio foi escrito: seu conteúdo não corresponde mais ao digest registrado, então as fixações podem não descrever mais o que ele solicita; resolver a Release novamente registra os arquivos que ela lê como estão agora)"
+  },
   "29ff69c6c58613f3": {
     "at": "2026-10-22T06:00:14.240Z",
     "job": "session-0018-20261022060014",
@@ -88435,6 +88446,13 @@
     "status": "machine",
     "text": "Esta página documenta os campos da superfície de publicação, o inventário dos campos de descrição no corpus (descrições do envelope, da instância e no nível do campo), o uso pretendido do campo maintainer e seu consumidor verificado, e as assimetrias de campos obrigatórios por entidade (quais campos cada entidade exige hoje e onde as assimetrias são deliberadas)."
   },
+  "954555984e25e002": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "srcHash": "954555984e25e002",
+    "status": "machine",
+    "text": "Uma instância de funcionalidade relata esses casos em uma forma própria, cada um após a frase da condição. Um tipo de funcionalidade que o Aggregate escreve sem versão é correspondido da mesma forma que um tipo de componente, na versão em que o build o compila — a versão mais alta dessa Feature que o catálogo contém —, e uma mensagem que nomeia `<type>:<version>` nomeia o tipo nessa versão, que é o que foi procurado no catálogo. Quando a Recipe para a qual o componente de uma associação está mapeado é conhecida, as FeatureRecipes são diferenciadas pela capacidade à qual essa Recipe se vincula: as que se vinculam à capacidade do componente são oferecidas primeiro, e uma FeatureRecipe que se vincula a outra capacidade ainda é renderizada, como sua própria saída ao lado da saída do componente em vez de dentro dela; assim, quando nenhuma se vincula à capacidade do componente, essas são oferecidas no lugar. Um mapeamento que não leva a lugar nenhum diz `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`. Quando FeatureRecipes implementam o tipo para a capacidade do componente, apenas essas são listadas: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`. Quando o implementam apenas para outras capacidades: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`. Quando nenhuma implementa o tipo: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`. E quando a capacidade não é conhecida — o próprio mapeamento do componente não se resolve em nenhuma Recipe, o que é relatado separadamente, ou a associação está escrita em uma fronteira, cujos componentes podem ser renderizados por várias capacidades —, cada implementação é listada: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`."
+  },
   "95461e788fb3e16c": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -107810,6 +107828,17 @@
     "status": "machine",
     "text": "Valkey — um Aggregate, dois destinos, autenticação opcional"
   },
+  "b4e7e1f23aa9f86d": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "revision": {
+      "from": "20c817851f348a5f",
+      "reviewed": false
+    },
+    "srcHash": "b4e7e1f23aa9f86d",
+    "status": "machine",
+    "text": "**Quais comandos exigem que uma release corresponda ao seu arquivo de bloqueio.** `aggrega build` compara antes de renderizar e se interrompe. `aggrega validate --release` e toda seleção de `aggrega inspect` que resolve uma release — a visualização padrão, `--resolved`, `--ir-graph` e `--closure` — executam a mesma comparação assim que as dependências da release são resolvidas e se interrompem com a mesma mensagem e a mesma correção, sem escrever nada na saída padrão; assim, nenhum deles deixa passar um arquivo de bloqueio que um build recusa por estar desatualizado. As ferramentas do assistente `build`, `validate` com um `release` e `describe` com um `release` recusam nos mesmos termos. `aggrega pull` executa a comparação em relação ao arquivo de bloqueio que está prestes a escrever, e `aggrega pull --verify` em relação ao que está no disco. Um comando que não resolve nenhuma release — `aggrega validate` sem argumento, que lê as fixações do arquivo de bloqueio apenas para encontrar um pai de `extends`, ou com o caminho de uma entidade, e `aggrega inspect --raw` ou `--output yaml` sem `--ir-graph` — não é submetido a um arquivo de bloqueio, e uma release sem arquivo de bloqueio ao lado também não. O servidor de linguagem do editor interrompe seus builds por causa disso e, em uma solicitação de grafo, relata o problema como um aviso no arquivo de bloqueio, enquanto ainda desenha o grafo."
+  },
   "b4e995f7c0a4ef46": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -109745,6 +109774,13 @@
     "srcHash": "b8549620e373f52d",
     "status": "machine",
     "text": "Intenção do desenvolvedor: um único componente `broker` (`core/messaging/kafka`)."
+  },
+  "b856c1589da62506": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "srcHash": "b856c1589da62506",
+    "status": "machine",
+    "text": "Quando a verificação que o relata lê um pai do cache de artefatos sob a fixação de um arquivo de bloqueio — a verificação extends de um build e de `aggrega validate --release`, `aggrega validate` sobre todo o catálogo e `aggrega inspect`, além das mesmas verificações executadas a partir do editor e da ferramenta validate do assistente —, a orientação continua e nomeia o pull: “a base published to a registry is fetched by `aggrega pull --release <release>`” (uma base publicada em um registro é obtida pelo comando indicado). Validar um único arquivo de entidade não lê nenhum arquivo de bloqueio; portanto, um pull não mudaria nada do que é lido, e a mensagem para no catálogo."
   },
   "b85fb9edabf29ef3": {
     "at": "2026-11-03T20:25:38.864Z",
@@ -120082,6 +120118,13 @@
     "srcHash": "c91bd0619fdc3005",
     "status": "machine",
     "text": "Um Manifest pode declarar uma única referência `extends:` que nomeia um Manifest base cujos `mappings` ele herda. **A referência não é um URI e nunca é resolvida pelo catálogo:** um Manifest pertence ao lado da implantação, escrito ao lado da Release em vez de publicado, então o valor é um caminho relativo para um arquivo de Manifest — `./base-manifest.yaml` — ou o simples `metadata.name` de um Manifest que está no próprio diretório da Release. Um caminho relativo deve levar a um Manifest dentro do workspace — ou, quando a Release foi indicada fora do workspace (na linha de comando ou pela configuração do workspace), dentro do diretório que contém essa Release, e, para um Manifest que você indica sozinho na linha de comando fora do workspace, dentro do diretório que contém o Manifest: um caminho que sai subindo, ou que um link simbólico leva para fora, é recusado antes que o arquivo que ele nomeia seja lido (veja [errors/fatal-halts.md](../errors/fatal-halts.md) §\"A reference to another file leads out of the directory it must stay inside (Uma referência a outro arquivo sai do diretório em que deve permanecer)\"). Os mappings filhos sobrescrevem os da base em caso de colisão de chaves, dando suporte a padrões de sobreposição por ambiente (paridade staging/prod com diferenças cirúrgicas por ambiente) e a padrões de desenvolvimento local sem precisar copiar tudo."
+  },
+  "c91e2146a0c5ab68": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "srcHash": "c91e2146a0c5ab68",
+    "status": "machine",
+    "text": "Mensagem emitida. A própria frase da condição a abre, e cada divergência coletada vem em seguida, cada uma nomeando seu eixo — e, para uma entidade, seu tipo, porque uma entidade é identificada pelo tipo e pelo URI juntos; assim, uma Release cujo Aggregate e cujo Manifest compartilham um nome tem duas entradas, e uma edição em qualquer um deles é relatada para aquele que foi editado:"
   },
   "c91e215313324f1b": {
     "at": "2026-11-03T04:59:02.960Z",
@@ -137992,6 +138035,17 @@
     "srcHash": "e63a82d0d53632a7",
     "status": "machine",
     "text": "[../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) seção Matriz de capacidades por Provider"
+  },
+  "e6409a7b5f17a3af": {
+    "at": "2026-11-08T12:00:29.989Z",
+    "job": "session-0013-20261108120029",
+    "revision": {
+      "from": "42a01527b3dd66e0",
+      "reviewed": false
+    },
+    "srcHash": "e6409a7b5f17a3af",
+    "status": "machine",
+    "text": "**Como corrigir:** para um Component ou uma Feature, confirme que o valor de `extends:` nomeia uma entidade que o catálogo contém, escrita como o próprio `metadata.name` dessa entidade — incluindo maiúsculas e minúsculas. Uma base publicada em um registro é lida do cache de artefatos sob a fixação que o arquivo de bloqueio da Release registra para ela; assim, quando a base está em um registro, execute `aggrega pull --release <release>`: o pull segue a cadeia, obtém a base e a fixa. Para um Manifest, confirme que o arquivo está onde o caminho relativo aponta, ou que um Manifest com esse `metadata.name` está no diretório da Release e é analisado corretamente. Para uma Release, confirme que o valor começa com `./` ou `../` e que o arquivo para o qual aponta existe e é analisado como uma Release."
   },
   "e642712832d19f97": {
     "at": "2026-11-02T23:50:30.937Z",
