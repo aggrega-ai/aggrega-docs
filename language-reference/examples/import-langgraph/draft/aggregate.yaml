@@ -1,7 +1,7 @@
 # LangGraph configurations read:
 #   - langgraph.json
-# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
-# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+# Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
+# Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -15,7 +15,7 @@ spec:
       type: core/ai-agent/langgraph
       values:
         graph_entrypoint: "./src/support_agent/graph.py:graph"
-        description: "Answers a customer's question about their order, and hands it to a person when it cannot."
+        description: "Answers a question from a customer about their order, and hands it to a person when it cannot."
       uses:
         checkpointer_db:
           postgres:

@@ -1684,11 +1684,12 @@ them:
 - `env` — the environment the application runs with: an object of variable names to values, or the path
   of an environment file of `KEY=VALUE` lines.
 
-The members `langgraph build` reads to build the application's image — `dependencies`, `source`,
+The members that configure the server image `langgraph build` builds — `dependencies`, `source`,
 `python_version`, `node_version`, `base_image`, `image_distro`, `dockerfile_lines`, `pip_config_file`,
-`pip_installer`, `keep_pkg_tools`, `api_version` — and every other member, the server's own
-configuration such as `auth`, `http` and `webhooks` among them, are named in a comment and carried
-nowhere, as are the store's `index` and `ttl` and the checkpointer's `ttl` and `serde`.
+`pip_installer`, `keep_pkg_tools`, `api_version` — are named in a comment and carried nowhere, since
+the image the Release names is the application's own; so is every other member, the server's own
+configuration such as `auth`, `http` and `webhooks` among them, and so are the store's `index` and
+`ttl` and the checkpointer's `ttl` and `serde`.
 
 A directory is handed to the importer as `langgraph.json` and no other file, so neither the
 application's code nor an environment file is ever read from it. An environment file reaches the
@@ -1735,9 +1736,13 @@ checkpointer, or a backend the importer maps to no datastore, wires nothing, and
 graph and the checkpointer's decision say why; the build halts naming the `checkpointer_db` socket until
 one is wired. The store is reported in a decision that chooses nothing.
 
-`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
-comment above each graph's entry, its `infra.image` — the image running the application, which
-`langgraph build` builds from its configuration; the build halts naming the image until it is set. The
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. Comments above
+the first graph's entry say what each graph's image is — the application's own, its code with
+LangGraph installed, not the server image `langgraph build` builds — the variables it is handed and
+which `inject:` block replaces which of their names. A comment above each graph's entry leaves its
+`infra.image`, the image running the application: on Kubernetes, until it is set, the build halts
+naming the container image; on Docker Compose the image defaults to the catalog's own
+[quickstart agent](../examples/quickstart-ai/README.md), which reads the default variables. The
 datastore has an entry too, holding no infrastructure, so the Release places it with the graphs. A
 comment above the application's first graph states the environment its configuration declares, as
 [The environment a configuration states](#the-environment-a-configuration-states) describes. The
@@ -1751,8 +1756,8 @@ backend, a store and an `env` written as an object, is drafted, with no setting,
 # aggregate.yaml
 # LangGraph configurations read:
 #   - langgraph.json
-# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
-# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+# Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
+# Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
 # Not carried, since core/ai-agent/langgraph takes no value for them: http.
 # The store configures the memory store, which LangGraph keeps in the PostgreSQL database its server uses; not carried, since core/ai-agent/langgraph takes no value for it: index, ttl.
 # Not carried, since core/ai-agent/langgraph takes no value for them: checkpointer.ttl.
@@ -1787,13 +1792,18 @@ spec:
 # release.yaml
 spec:
   aggregate: imported/flow
+  # manifest: left for the operator, since the import drafts no Manifest, which names the target the graphs are built for.
   components:
+    # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
     # The environment langgraph.json states for its application, for the Release to carry where core/ai-agent/langgraph takes it for each of its graphs:
     #   SUPPORT_QUEUE: "..."
     #   OPENAI_API_KEY: "..."
     #   MAX_TICKETS: "25"
     # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application, which langgraph build builds from its configuration
+    #   - infra.image, the container image running the application
     triage:
       infra: {}
     ...
@@ -1815,7 +1825,7 @@ spec:
         postgres: {}
         triage:
           infra:
-            image: <the image langgraph build built>
+            image: <your application's image>
           uses:
             model:
               gpt-4o:
@@ -1828,8 +1838,10 @@ spec:
 
 Each graph is then rendered running that image, given its datastore's address as
 `LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, the model's endpoint and name as
-`OPENAI_BASE_URL` and `OPENAI_MODEL`, its import path as `LANGGRAPH_GRAPH_ENTRYPOINT` and its step limit
-as `LANGGRAPH_DEFAULT_RECURSION_LIMIT`.
+`OPENAI_BASE_URL` and `OPENAI_MODEL`, the key from the Secret the credential names as `OPENAI_API_KEY`,
+its import path as `LANGGRAPH_GRAPH_ENTRYPOINT` and its step limit as
+`LANGGRAPH_DEFAULT_RECURSION_LIMIT`. A credential attached on a graph's `checkpointer_db` connection
+gives it the datastore's password as `LANGGRAPH_CHECKPOINTER_PASSWORD` too.
 
 ### The environment a configuration states
 

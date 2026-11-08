@@ -12,8 +12,8 @@ prints and the blocks this page quotes with the files kept there.
 ## The project
 
 A LangGraph application keeps its graphs in code and declares them in
-`langgraph.json`, the configuration `langgraph build` reads to build the
-application's image. This one, written for this walkthrough, declares one
+`langgraph.json`, the configuration file of LangGraph's command-line tool.
+This one, written for this walkthrough, declares one
 graph, `support`, by the import path of the graph in the application's code
 and a description:
 
@@ -26,7 +26,7 @@ and a description:
   "graphs": {
     "support": {
       "path": "./src/support_agent/graph.py:graph",
-      "description": "Answers a customer's question about their order, and hands it to a person when it cannot."
+      "description": "Answers a question from a customer about their order, and hands it to a person when it cannot."
     }
   }
 }
@@ -104,8 +104,8 @@ comments that say what was read and what was not:
 ```yaml
 # LangGraph configurations read:
 #   - langgraph.json
-# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
-# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+# Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
+# Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -119,7 +119,7 @@ spec:
       type: core/ai-agent/langgraph
       values:
         graph_entrypoint: "./src/support_agent/graph.py:graph"
-        description: "Answers a customer's question about their order, and hands it to a person when it cannot."
+        description: "Answers a question from a customer about their order, and hands it to a person when it cannot."
       uses:
         checkpointer_db:
           postgres:
@@ -134,8 +134,9 @@ and its `checkpointer_db` connection is wired to the database. `recursion_limit`
 is not written, so the Component's default, 25, stands. The model is left to
 you: a LangGraph configuration names none, since the graph's code chooses it.
 
-`release.yaml` — an entry for the graph, with what no configuration states
-named in a comment above it, and an entry placing the database beside it:
+`release.yaml` — an entry for the graph, with comments above it saying what
+its image is and what it is handed, and what no configuration states, and an
+entry placing the database beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -150,8 +151,12 @@ spec:
   aggregate: imported/flow
   manifest: imported/flow
   components:
+    # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
     # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application, which langgraph build builds from its configuration
+    #   - infra.image, the container image running the application
     support:
       infra: {}
     postgres:
@@ -200,22 +205,31 @@ graph asked for:
 release dependency validation failed: 1 diagnostic(s)
 ```
 
-The review adds the model to the Aggregate, and changes the Release and the
-Manifest:
+The review adds the model, and the credential the graph presents to the
+database, to the Aggregate, and changes the Release and the Manifest:
 
 - **Add the model and wire it.** The graph's code calls OpenAI's
   `gpt-4o-mini` here, so the Aggregate gains an instance of
   `core/ai-model/openai` serving it, and the graph's `model` connection to it.
 - **Set the environment**, `development`.
 - **Place the model the review added** beside the graph: `gpt-4o-mini`.
-- **Name the image** `langgraph build` built from the application,
-  `ghcr.io/example/support-agent:1.0.0` here.
+- **Name the image the graph runs.** As the comment above the graph says, it
+  is the application's own image, not the server image `langgraph build`
+  builds: its code, with LangGraph installed, which you build from the
+  project. `ghcr.io/example/support-agent:1.0.0` here.
 - **Present the OpenAI key on the graph's model connection**: a
   `core/secret-value` whose `origin` is the Compose variable reference
   `${OPENAI_API_KEY}`.
 - **Give the database its password** the same way, from `${POSTGRES_PASSWORD}`.
   Without it, the PostgreSQL Recipe writes a default password into the rendered
   Compose file.
+- **Present the same password on the graph's checkpointer connection**, so
+  the graph's code can open the database. The Aggregate attaches it, a
+  `core/secret-value` naming the key its value arrives under,
+  `checkpointer_password`, and the Release gives its origin,
+  `${POSTGRES_PASSWORD}` again. A secret the Release alone attaches arrives
+  under the key `value`, so two of them on one component collide, and the
+  build refuses the second.
 - **Map the Manifest.** `core/ai-model/openai`, the model the review added, maps
   to `compose/openai`, and `core/secret-value` to `compose/dotenv-secret`,
   which writes each reference into the Compose file as written, so Docker
@@ -229,8 +243,8 @@ The reviewed `aggregate.yaml`:
 # The draft aggregate.yaml after review. Each change is marked "Reviewed:".
 # LangGraph configurations read:
 #   - langgraph.json
-# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
-# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+# Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
+# Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
 metadata:
@@ -243,11 +257,18 @@ spec:
       type: core/ai-agent/langgraph
       values:
         graph_entrypoint: "./src/support_agent/graph.py:graph"
-        description: "Answers a customer's question about their order, and hands it to a person when it cannot."
+        description: "Answers a question from a customer about their order, and hands it to a person when it cannot."
       uses:
         checkpointer_db:
           postgres:
             target: postgres
+            # Reviewed: the password the graph presents to the database, under
+            # a key of its own; the Release gives its origin.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: checkpointer_password
         # Reviewed: the model the graph calls, which the configuration does not
         # name.
         model:
@@ -280,14 +301,21 @@ spec:
   aggregate: imported/flow
   manifest: imported/flow
   components:
+    # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
     # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application, which langgraph build builds from its configuration
+    #   - infra.image, the container image running the application
     support:
-      # Reviewed: the image langgraph build built from the application.
+      # Reviewed: the image running the application's code, which you build
+      # from the project.
       infra:
         image: ghcr.io/example/support-agent:1.0.0
-      # Reviewed: the OpenAI key the graph presents to the model, read from
-      # your shell when the stack starts, so no file carries it.
+      # Reviewed: the OpenAI key the graph presents to the model, and the
+      # origin of the password the Aggregate has it present to the database,
+      # each read from your shell when the stack starts, so no file carries
+      # either.
       uses:
         model:
           gpt-4o-mini:
@@ -296,6 +324,13 @@ spec:
                 type: core/secret-value
                 infra:
                   origin: "${OPENAI_API_KEY}"
+        checkpointer_db:
+          postgres:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  origin: "${POSTGRES_PASSWORD}"
     postgres:
       infra: {}
       # Reviewed: the database's password, read from your shell the same way.
@@ -351,7 +386,7 @@ and the build, with `<workspace>` standing for the folder holding the reviewed
 files:
 
 ```text
-Pull complete: release.lock (entities=9, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=10, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 files written to <workspace>/dist
@@ -375,6 +410,7 @@ graph and one for the database. The graph's service:
       LANGGRAPH_CHECKPOINTER_PORT: "5432"
       LANGGRAPH_GRAPH_ENTRYPOINT: ./src/support_agent/graph.py:graph
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LANGGRAPH_CHECKPOINTER_PASSWORD: ${POSTGRES_PASSWORD}
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose
@@ -383,14 +419,15 @@ graph and one for the database. The graph's service:
 ```
 
 The graph receives the model's address, its name and its key, the database's
-host and port, and its own graph entrypoint. The model's name, the database's
-host and port and the graph entrypoint arrive under the names the LangGraph
-Component delivers by default, which an `inject:` block on the connection, or
-on the component itself for its own values, replaces with the names your code
-reads. The model's address and its key stay whatever the blocks name, and so
-does `LANGGRAPH_DEFAULT_RECURSION_LIMIT`, which LangGraph reads by itself as
-the step limit of a run whose configuration sets none. The database's own
-service takes its password the way the graph takes its key:
+host, port and password, and its own graph entrypoint. The model's name, the
+database's host and port and the graph entrypoint arrive under the names the
+LangGraph Component delivers by default, which an `inject:` block on the
+connection, or on the component itself for its own values, replaces with the
+names your code reads. The model's address, its key and the database's
+password stay whatever the blocks name, and so does
+`LANGGRAPH_DEFAULT_RECURSION_LIMIT`, which LangGraph reads by itself as the
+step limit of a run whose configuration sets none. The database's own service
+takes the same password:
 
 ```yaml
   postgres:
@@ -399,8 +436,94 @@ service takes its password the way the graph takes its key:
       POSTGRES_USER: appuser
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: appdb
+    [… omitted: the labels the build writes on every service, the network, and a health check running PostgreSQL's pg_isready]
 ```
 
 The key and the password are variable references, filled from your shell when
 the stack starts. The model gets no service of its own: the graph reaches the
-OpenAI API at its own address.
+OpenAI API at its own address. The services publish no port on your machine:
+the rendered file gives the graph none, and the database's own port is
+reached on the stack's network.
+
+## Run it
+
+You build the image from the project, with a Dockerfile of your own: the
+graph's code, with LangGraph installed. Docker Compose runs the image's own
+command as the graph's service, since the Recipe sets none, so that command
+must keep running, and must serve requests if you want to reach the graph. It
+finds the graph, the model and the database through the variables above. Your
+program decides the address, the route and the reply.
+
+The run below used such an image: the graph at the path `langgraph.json`
+names, `src/support_agent/graph.py`, one node answering through the model
+`OPENAI_MODEL` names, and, as the image's command, a small HTTP server of the
+program's own on port 8000. The image keeps the project's layout at its
+working directory, so the path `LANGGRAPH_GRAPH_ENTRYPOINT` names, relative to
+it, finds the graph. The server loads that graph, keeps each conversation's
+state in the database through LangGraph's PostgreSQL checkpointer, opened with
+the database's host, port and password, and runs the graph once for each
+`POST /threads/<thread>/runs`. The variables name no database user and no
+database, so it connected as `appuser` to `appdb`, the PostgreSQL Component's
+defaults, which the database's service above is created with. Docker Compose
+starts the graph's service once the database's container has started, not
+once the database reports healthy, so the server opened the checkpointer on
+its first request rather than when it started. Build your image
+at the project's root, put its name in place of
+`ghcr.io/example/support-agent:1.0.0` in `release.yaml`, and build again:
+
+```bash
+docker build -t order-support:local .
+aggrega build --release release.yaml --auto-pull
+```
+
+Then set the key and the database's password in your shell and start the
+stack:
+
+```bash
+export OPENAI_API_KEY='your OpenAI key'
+export POSTGRES_PASSWORD='a password of your own'
+docker compose -p order-support -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+`-p` names the project, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once the database reports healthy and the graph's service runs. The services
+publish no port, so the run sent its request from a container on the stack's
+network, `order-support_compose`, to its own program's route:
+
+```bash
+docker run --rm --network order-support_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://support:8000/threads/order-1234/runs -H 'Content-Type: application/json' \
+  -d '{"message": "Where is my order 1234? It has not arrived yet."}'
+```
+
+```text
+{
+  "thread": "order-1234",
+  "messages_in_thread": 2,
+  "answer": "[… omitted: the graph's reply, written by the small local model]",
+  "model": "gpt-4o-mini",
+  "usage": {
+    "input_tokens": 57,
+    "output_tokens": 31,
+    "total_tokens": 88,
+    "input_token_details": {},
+    "output_token_details": {}
+  }
+}
+```
+
+The route, the request and the shape of the reply are that program's own:
+the graph made one request to the model, and the checkpointer kept the
+thread, `order-1234`, in the database. This answer came from a small local
+model in place of OpenAI, set up as the run step of
+[How an import runs](README.md#how-an-import-runs) describes.
+
+Stop the stack with:
+
+```bash
+docker compose -p order-support -f dist/compose/docker-compose.yaml down -v
+```
+
+`-v` removes the volume the database keeps its data in, and the conversations
+with it.

@@ -164,7 +164,8 @@ not supply.
    walkthrough's "Run it" section, where it has one, shows the commands for its
    own build.
 
-   The Flowise, CrewAI, Langflow and n8n runs answered without an OpenAI key:
+   The Flowise, CrewAI, Langflow, n8n and LangGraph runs answered without an
+   OpenAI key:
    each pointed its `core/ai-model/openai` model at a small model served by
    Ollama in the same project, with three changes to the reviewed files and one
    command once the stack ran:
@@ -176,8 +177,8 @@ not supply.
      its `infra`, set to that server's OpenAI-compatible address,
      `http://local-model:11434/v1`;
    - once the stack runs, the pulled model copied under the model name the
-     build's OpenAI model names, `<model>`: `gpt-4o-mini` in the Flowise, CrewAI
-     and n8n runs and `gpt-4.1` in the Langflow run:
+     build's OpenAI model names, `<model>`: `gpt-4o-mini` in the Flowise,
+     CrewAI, n8n and LangGraph runs and `gpt-4.1` in the Langflow run:
      `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b <model>`.
 
    `OPENAI_API_KEY` may then hold any non-empty value of your own: the local
