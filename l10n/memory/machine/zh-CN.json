@@ -5491,6 +5491,13 @@
     "status": "machine",
     "text": "要移除的挂接。"
   },
+  "07f2ef54569e7248": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "07f2ef54569e7248",
+    "status": "machine",
+    "text": "应用本身位于其旁边的 ConfigMap 中。"
+  },
   "07ff5defc65078d3": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -12875,6 +12882,13 @@
     "status": "machine",
     "text": "[角色画像](personas.md)——本对照图背后的角色。"
   },
+  "130fc56e6f560616": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "130fc56e6f560616",
+    "status": "machine",
+    "text": "ADK 通过其 Gemini 类提供 `gemini-2.5-flash`，该类将请求发送到 Gemini API，因此草稿将模型连接到智能体的 `model` 插槽，该插槽仅接受 Gemini API。智能体通过 LiteLLM 模型字符串指定的模型，例如 `openai/gpt-4o`，不会连接到任何对象：实例上方的注释会指出它，连接则留给你完成，如 [智能体树会变成什么](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes) 所述。"
+  },
   "131816bdc36efd0c": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -15199,6 +15213,13 @@
     "status": "machine",
     "text": "**完整 TemplateContext：**`.values`、`.infra`、`.context.*`（包括 `.context.inject`——被拦截的管道——以及 `.context.uses`）。此处 `.context.used_by` 为空：映射的输出落在宿主自身的交付管道上。`.context.render_facts` 不存在：映射在宿主渲染之前运行。`.context.rendered_name` 是宿主组件上报的名称，与 #9 相同；读取它的映射不受检查，在 provider 不上报名称的宿主上将其渲染为空。"
   },
+  "16abfe9515d5c0da": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "16abfe9515d5c0da",
+    "status": "machine",
+    "text": "停止端口转发，然后删除你应用的内容、这些 Secret 以及会话文件："
+  },
   "16af5cb927c1487f": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -17429,6 +17450,13 @@
     "srcHash": "1a48a3e8fc938062",
     "status": "machine",
     "text": "**缓存目录本身。**写在工作区根目录之内的 `artifact_cache_dir`（包括默认值）本身可以是指向工作区另一个目录的链接，此时缓存保存在链接指向的位置。指向工作区之外的链接会被拒绝：遇到它的任何操作都会在经由它读取或写入任何内容之前以 `E0321` 或 `E0320` 停止，并指出该链接。以向上越出工作区根目录的方式写出的目录，会按其指向的位置使用，即使它本身是一个链接。"
+  },
+  "1a49dd545c317413": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "1a49dd545c317413",
+    "status": "machine",
+    "text": "在应用这些清单之前，先创建它们读取的两个 Secret：`dify-owner`，在 `value` 下保存所有者的密码；以及 `dify-credentials`，在各自的数据键下保存五项凭据。引用不存在的 Secret 的工作负载不会启动。在你的 shell 中将所有者的密码设置为 `DIFY_OWNER_PASSWORD`，因为下文要用它登录。Dify 接受的所有者密码至少有八个字符，且包含一个字母和一个数字：若给出其他密码，导入 Job 会失败，其日志显示 `first-time setup was refused with HTTP 422`，下文的等待会一直持续到超时。编写 `dify-credentials.env`，每个数据键一行：`db-password=`、`secret-key=`、`code-execution-key=`、`plugin-daemon-key=` 和 `inner-api-key=`，每项后面跟上你自己的值。然后创建这两个 Secret。此后这些值由集群保存，因此删除这两个文件："
   },
   "1a4a48f8ba3a0946": {
     "at": "2026-10-22T02:24:43.656154+00:00",
@@ -21816,6 +21844,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**结构形态：根部用映射，载荷中用数组。** 根拓扑块——`components`、`features`、`aggregates`、`subsystems`、`boundaries`——是 YAML 映射，其由用户编写的键作为稳定的实例 ID。这些位置不允许使用数组；映射键是编译器用于交叉引用（`target: my-db`）、图节点构建和 Manifest 解析的标识。在不透明的载荷块（`values`、`infra`、`parameters`）内部，完全允许使用数组——开发者可以在 Component 的 `values` 中写 `tools_allowed: [\"sql\", \"web\"]` 或 `hostnames: [\"stripe.com\", \"twilio.com\"]`。Aggregate 模式把这些载荷块声明为 `additionalProperties: true`，因此它们对 Go 编译器不透明，完全由目录内嵌的 `schema:` 声明校验。这样就把框架的易变性（新的 AI API 形态、新的云原生载荷格式）放在可以独立演进的目录领域内，而 Go 编译器在结构根部只处理可寻址的键。"
+  },
+  "20ab4fff0ad1cf9b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "20ab4fff0ad1cf9b",
+    "status": "machine",
+    "text": "应用响应使用其自身 API 密钥发出的请求。使用导入 Job 日志中的应用标识符创建一个密钥："
   },
   "20ad3b3e6bbee2af": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -26560,6 +26595,13 @@
     "status": "machine",
     "text": "workspaceconfig: the provider socket binding for capability `\"<capability>\"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket（该 capability 的 provider 插槽绑定设置了 with 字段，但 provider 的渲染配置应写在 Recipe 中，而不是工作区的 provider 绑定中；请删除它：provider 插槽绑定设置了一个在该插槽上没有指代对象的字段）"
   },
+  "27d5cc54e50cb39d": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "27d5cc54e50cb39d",
+    "status": "machine",
+    "text": "然后使用该密钥，即回复中的 `token`，向应用发送一条消息："
+  },
   "27d7462615c42076": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -30852,6 +30894,13 @@
     "srcHash": "2eae25f5a51e046a",
     "status": "machine",
     "text": "将 IR 图从编译器传输到前端的预定传输格式，是通过 `stdout` 输出的 JSON Lines（`.jsonl`）：每行一个自包含的 IR 对象，以换行符结尾，没有外层数组或封装信封。每一行都可以独立地按照 `ir-v1alpha1.schema.json` 解析。流式消费端在图对象到达时即增量渲染，而不必等待整个文档结束；生产端在对象构建完成时即输出，无需将整张图保存在内存中。"
+  },
+  "2eae81c38b4097fa": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "2eae81c38b4097fa",
+    "status": "machine",
+    "text": "安装在后台运行。使用回复中给出的 `task_id` 查询其任务，直到其 `status` 为 `success`："
   },
   "2eb0e029a83c12a1": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -35701,6 +35750,17 @@
     "srcHash": "360fa25d6658fd97",
     "status": "machine",
     "text": "审查后的 `aggregate.yaml`，此处与上文一样省略了应用："
+  },
+  "36116907972fd574": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "92c76683339b1144",
+      "reviewed": false
+    },
+    "srcHash": "36116907972fd574",
+    "status": "machine",
+    "text": "智能体以 `OPENAI_BASE_URL` 和 `MODEL`（CrewAI 读取这些信息所用的变量）接收模型的地址和名称，并以 `OPENAI_API_KEY` 接收密钥。它的角色、目标、背景故事、委派开关和日志级别以 CrewAI Component 默认赋予的名称送达，供团队的程序读取；组件本身上的 `inject:` 块则改以程序读取的名称交付其中任意一项。导入所起草的每个值都保留其声明结尾的换行符，因此文件将其写为块。模型没有自己的服务：智能体通过 OpenAI API 自身的地址访问它。密钥是一个变量引用，在栈启动时从你的 shell 中填充。这些服务不会在你的机器上发布任何端口：渲染出的文件没有为它们分配端口。"
   },
   "361695b9f8e8b09a": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -55869,6 +55929,17 @@
     "status": "machine",
     "text": "[nginx-gateway](nginx-gateway/README.md)（`start`）— 本示例将一个小型的真实栈——一个位于 **Web 后端**前面的 **NGINX** 反向代理网关——从一个由开发者编写的 `Aggregate` 编译到两个目标。"
   },
+  "549eef791b7541fd": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "39655ce80868fe14",
+      "reviewed": false
+    },
+    "srcHash": "549eef791b7541fd",
+    "status": "machine",
+    "text": "研究员的服务位于 `dist/compose/docker-compose.yaml` 中；撰稿人的服务仅在名称以及其自身变量所携带的值上不同："
+  },
   "54a21938faa28807": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -66758,6 +66829,13 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "在 `envFrom` 条目上，相同的诊断结果位于 `.containers.<name>.envFrom[<i>].connection` 和 `.containers.<name>.envFrom[<i>].secret`。"
+  },
+  "650a29f570ba59ad": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "650a29f570ba59ad",
+    "status": "machine",
+    "text": "回到已设置 `DIFY_OWNER_PASSWORD` 的第一个终端，以所有者身份登录。控制台 API 接受经 Base64 编码的密码，登录后会话保存在 `cookies.txt` 中。之后的每个控制台请求都会回传该会话，并在 `X-CSRF-Token` 标头中携带同一文件中的 CSRF 令牌；缺少该令牌的请求会被拒绝，并返回 `CSRF token is missing or invalid.`"
   },
   "650bf0ebae6e2072": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -85068,6 +85146,17 @@
     "status": "machine",
     "text": "provider `render_node` 与 `validate_node_input`（`RenderNodeInput`）"
   },
+  "81007a7a183716e1": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "78947347a4d9ecca",
+      "reviewed": false
+    },
+    "srcHash": "81007a7a183716e1",
+    "status": "machine",
+    "text": "**`warn` 行**说明模型保留在 Dify 内部：Dify 自行配置其模型提供方及其密钥，因此草稿不连接任何模型。Dify 运行后，你安装它的 OpenAI 提供方并设置该提供方的密钥，如 [运行](#run-it) 所示。"
+  },
   "8100a6a682697d81": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -90995,6 +91084,13 @@
     "srcHash": "8a4bbe18509220f9",
     "status": "machine",
     "text": "裁决挂接只出现在 `verdict_inputs:` 下，以其文件的 sha256 表示："
+  },
+  "8a4dbc4a1403e022": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "8a4dbc4a1403e022",
+    "status": "machine",
+    "text": "日志中给出了应用的标识符，下文会用到它。后续步骤会调用 Dify API 服务器上的控制台 API，因此请在第二个终端中将一个本地端口转发到该服务器的 Service，并让该命令在那里保持运行："
   },
   "8a4dccb679d73548": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -122057,6 +122153,13 @@
     "status": "machine",
     "text": "当边界的 `syncWave: <integer>` 不为 `0` 时，每个输出的 Kubernetes 资源都会将其作为 `argocd.argoproj.io/sync-wave: \"<N>\"` 注解携带；Helm hook 还会额外携带 `helm.sh/hook-weight: \"<N>\"`。ArgoCD 读取 sync-wave 注解，Helm 读取 hook 的权重，二者各自据此对资源排序；处于默认 wave `0` 的边界两者都不携带，两个工具都将其读作 wave `0`。"
   },
+  "b8ac6357385b0b21": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "b8ac6357385b0b21",
+    "status": "machine",
+    "text": "回答位于 `answer` 中。它来自上文的小型本地模型，名称为 `gpt-4o-mini`。"
+  },
   "b8ad7ede9c834480": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -132090,6 +132193,13 @@
     "srcHash": "c7857a8ddec8e890",
     "status": "machine",
     "text": "`attach_egress_allowlist` 为 `true`，但草稿未写入任何平台，或组合的是 Dify 安装（其条目不接受 Feature），因此未附加任何内容。"
+  },
+  "c78b65f7fc4e2917": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "c78b65f7fc4e2917",
+    "status": "machine",
+    "text": "Dify 的模型提供方是插件，新安装中不包含任何插件。安装 Dify 的 OpenAI 提供方，版本为 1.1.0，即本次运行所安装的版本；插件运行时会从 Dify 的市场获取它，因此集群必须能够访问互联网："
   },
   "c78e6d40e3fefba0": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -148667,6 +148777,13 @@
     "status": "machine",
     "text": "签名采用**先签名后推送**：manifest 摘要在发布前即已确定，因此 `aggrega push` 会**在任何字节到达注册表之前**构造签名器并对摘要签名。如果无法构造签名器或签名失败，推送会在网络调用之前被拒绝——不会发布任何内容，因此签名失败绝不会在注册表上留下未签名的内容。在拒绝之前，暂时性失败的签名调用——即注册表写入会因之重试的任何失败，或无密钥证书颁发机构报告无法处理身份令牌——会再次尝试，最多三次，等待时间相同。"
   },
+  "dfb8ef330918bf1b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "dfb8ef330918bf1b",
+    "status": "machine",
+    "text": "将提供方的密钥写入 `openai.json`，形式为 `{\"credentials\": {\"openai_api_key\": \"your OpenAI key\"}}`，设置它，然后删除该文件："
+  },
   "dfbb09e4b37368af": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -155235,6 +155352,13 @@
     "status": "machine",
     "text": "annotation binding declares one path in both pillar lists（注解绑定在两个支柱列表中声明了同一路径）"
   },
+  "e9b73c2bc81a98ee": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "e9b73c2bc81a98ee",
+    "status": "machine",
+    "text": "按照 [导入如何运行](README.md#how-an-import-runs) 的运行步骤所述应用清单——`-R` 会覆盖 `dify.api/` 和 `dify.proxy/` 中的 Job 和两个 ConfigMap——然后等待导入 Job 并读取其日志，再等待插件运行时："
+  },
   "e9b7f8b5e4a6240d": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -159886,6 +160010,13 @@
     "srcHash": "f07e77f51b0c5f27",
     "status": "machine",
     "text": "`web-server`（通过被渲染的 component 间接引用）—— **kebab-case**。Aggregate 中由用户编写的实例名；开发者选择了连字符形式。同样也可以是 `web_server`（snake_case）；按照实例名模式，两者均有效。"
+  },
+  "f080d1285f0c33f9": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f080d1285f0c33f9",
+    "status": "machine",
+    "text": "Dify 在保存密钥之前，会向提供方发送一个请求来检查该密钥。本次运行没有 OpenAI 密钥：它按照 [导入如何运行](README.md#how-an-import-runs) 的运行步骤所述，使用了一个小型本地模型代替 OpenAI，这里该模型是从其自己的工作区为 `helm/ollama` 构建的，并在集群中通过 Service `local-model-default` 提供服务。本次运行使用 `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini` 以应用所要求的名称复制了该模型，其 `openai.json` 除了一个本地服务器不检查的密钥外，还带有另外三项设置：`\"openai_api_base\": \"http://local-model-default:11434\"`，即该服务器的地址，不带 `/v1`，它由提供方添加；`\"api_protocol\": \"chat\"`，因为提供方默认调用 OpenAI 的 Responses API，而该服务器不提供它；以及 `\"validate_model\": \"gpt-4o-mini\"`，即 Dify 用来检查密钥的模型。使用 OpenAI 密钥时，你只需设置 `openai_api_key`，如上所示。"
   },
   "f083ce36ca62d6c7": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -164860,6 +164991,13 @@
     "srcHash": "f79d81fb4a2e4a7b",
     "status": "machine",
     "text": "**4. 运维域：FeatureRecipe（Wasm 流水线）**\nFeatureRecipe 将抽象的 Feature 映射为具体的 Wasm 插件流水线。该流水线在收尾渲染的插件流水线中按顺序执行：这一个会修补网关自身 Recipe 已渲染的配置，而不是输出自己的文件。插件流水线在 `aggrega build` 期间运行；参见[语言现状](../10-status.md#compilation-pipeline-phases)。"
+  },
+  "f7a2531c7fed56be": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f7a2531c7fed56be",
+    "status": "machine",
+    "text": "删除 StatefulSet 时，Kubernetes 会保留该 StatefulSet 创建的卷声明，因此第三条命令会删除它们，连同数据库、已安装的插件和向量存储一并删除。"
   },
   "f7a34c098afaf3bd": {
     "at": "2026-10-22T04:56:15.693842+00:00",

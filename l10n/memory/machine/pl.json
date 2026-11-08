@@ -5491,6 +5491,13 @@
     "status": "machine",
     "text": "Które dołączenie usunąć."
   },
+  "07f2ef54569e7248": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "07f2ef54569e7248",
+    "status": "machine",
+    "text": "Sama aplikacja znajduje się w obiekcie ConfigMap obok niego."
+  },
   "07ff5defc65078d3": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -12875,6 +12882,13 @@
     "status": "machine",
     "text": "[Persony](personas.md) — role stojące za tą mapą."
   },
+  "130fc56e6f560616": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "130fc56e6f560616",
+    "status": "machine",
+    "text": "ADK obsługuje `gemini-2.5-flash` przez swoją klasę Gemini, która wysyła żądania do API Gemini, dlatego szkic podłącza model do gniazda `model` agenta, które przyjmuje wyłącznie API Gemini. Model, który agent wskazuje za pomocą ciągu modelu LiteLLM, takiego jak `openai/gpt-4o`, nie zostaje do niczego podłączony: komentarz nad instancją go wskazuje, a połączenie pozostawia się użytkownikowi, jak opisuje [Czym staje się drzewo agentów](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)."
+  },
   "131816bdc36efd0c": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -15199,6 +15213,13 @@
     "status": "machine",
     "text": "**Pełny TemplateContext:** `.values`, `.infra`, `.context.*` (w tym `.context.inject` — przechwytywany potok — oraz `.context.uses`). `.context.used_by` jest tu puste: wynik mapowania trafia do własnego potoku dostarczania hosta. `.context.render_facts` nie występuje: mapowanie działa przed renderowaniem hosta. `.context.rendered_name` to zgłoszona nazwa komponentu hosta, jak w #9; mapowanie, które ją odczytuje, nie jest sprawdzane i renderuje ją jako pustą na hoście, którego dostawca żadnej nie zgłasza."
   },
+  "16abfe9515d5c0da": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "16abfe9515d5c0da",
+    "status": "machine",
+    "text": "Należy zatrzymać przekierowanie portu, a następnie usunąć to, co zostało zastosowane, obiekty Secret i plik sesji:"
+  },
   "16af5cb927c1487f": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -17429,6 +17450,13 @@
     "srcHash": "1a48a3e8fc938062",
     "status": "machine",
     "text": "**Sam katalog pamięci podręcznej.** Wartość `artifact_cache_dir` zapisana wewnątrz katalogu głównego obszaru roboczego — łącznie z domyślną — może sama być dowiązaniem do innego katalogu obszaru roboczego i wtedy pamięć podręczna jest przechowywana tam, dokąd prowadzi dowiązanie. Dowiązanie prowadzące poza obszar roboczy jest odrzucane: każda operacja, która na nie natrafi, zatrzymuje się z błędem `E0321` lub `E0320`, podając dowiązanie, zanim cokolwiek zostanie przez nie odczytane lub zapisane. Katalog zapisany jako wychodzący poza katalog główny obszaru roboczego jest respektowany tam, dokąd prowadzi, nawet jeśli sam jest dowiązaniem."
+  },
+  "1a49dd545c317413": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "1a49dd545c317413",
+    "status": "machine",
+    "text": "Przed zastosowaniem manifestów należy utworzyć dwa obiekty Secret, które one odczytują: `dify-owner`, przechowujący hasło właściciela pod kluczem `value`, oraz `dify-credentials`, przechowujący pięć poświadczeń pod ich kluczami danych. Obciążenie robocze wskazujące nieistniejący Secret nie uruchamia się. Hasło właściciela należy ustawić w powłoce jako `DIFY_OWNER_PASSWORD`, ponieważ poniżej służy ono do logowania. Dify przyjmuje hasło właściciela o długości co najmniej ośmiu znaków, zawierające literę i cyfrę: przy każdym innym Job importu kończy się niepowodzeniem, jego log zawiera `first-time setup was refused with HTTP 422`, a oczekiwanie poniżej trwa aż do upływu limitu czasu. Należy zapisać `dify-credentials.env`, po jednym wierszu na każdy klucz danych: `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` i `inner-api-key=`, każdy z własną wartością po nim. Następnie należy utworzyć oba obiekty Secret. Od tej chwili wartości przechowuje klaster, więc należy usunąć oba pliki:"
   },
   "1a4a48f8ba3a0946": {
     "at": "2026-10-22T09:56:04.106489+00:00",
@@ -21816,6 +21844,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Kształty strukturalne: mapy w korzeniu, tablice w ładunkach.** Główne bloki topologii — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — to mapy YAML, których klucze, tworzone przez użytkownika, służą jako stabilne identyfikatory instancji. Tablice nie są w tych miejscach dozwolone; klucz mapy jest tożsamością, której kompilator używa do odwołań krzyżowych (`target: my-db`), budowy węzłów grafu i rozwiązywania encji Manifest. Wewnątrz nieprzezroczystych bloków ładunku (`values`, `infra`, `parameters`) tablice są w pełni dozwolone — deweloperzy mogą pisać `tools_allowed: [\"sql\", \"web\"]` lub `hostnames: [\"stripe.com\", \"twilio.com\"]` w `values` encji Component. Schemat encji Aggregate deklaruje te bloki ładunku jako `additionalProperties: true`, więc są one nieprzezroczyste dla kompilatora Go i walidowane w całości przez osadzoną w katalogu deklarację `schema:`. Dzięki temu zmienność frameworków (nowe kształty API AI, nowe natywne dla chmury formaty ładunków) trafia do domeny katalogu, gdzie może ewoluować niezależnie, a kompilator Go w korzeniu strukturalnym operuje wyłącznie na adresowalnych kluczach."
+  },
+  "20ab4fff0ad1cf9b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "20ab4fff0ad1cf9b",
+    "status": "machine",
+    "text": "Aplikacja odpowiada na żądania wysyłane z jej własnym kluczem API. Należy utworzyć taki klucz, podając identyfikator aplikacji z logu Job importu:"
   },
   "20ad3b3e6bbee2af": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -26560,6 +26595,13 @@
     "status": "machine",
     "text": "workspaceconfig: the provider socket binding for capability `\"<capability>\"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket (workspaceconfig: powiązanie gniazda providera dla capability ustawia with:, ale konfiguracja renderowania providera należy do encji Recipe, a nie do powiązania providera w obszarze roboczym; należy je usunąć: powiązanie gniazda providera ustawia pole bez odniesienia w tym gnieździe)"
   },
+  "27d5cc54e50cb39d": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "27d5cc54e50cb39d",
+    "status": "machine",
+    "text": "i wysłać do aplikacji wiadomość z kluczem, czyli `token` z odpowiedzi:"
+  },
   "27d7462615c42076": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -30845,6 +30887,13 @@
     "srcHash": "2eae25f5a51e046a",
     "status": "machine",
     "text": "Zamierzonym formatem przesyłania grafu IR z kompilatora do frontendów jest JSON Lines (`.jsonl`) przez `stdout`: jeden samodzielny obiekt IR na wiersz, zakończony znakiem nowego wiersza, bez zewnętrznej tablicy ani koperty ramkującej. Każdy wiersz jest niezależnie parsowany względem `ir-v1alpha1.schema.json`. Konsumenci strumienia renderują obiekty grafu przyrostowo, w miarę ich napływania, zamiast czekać na zamknięcie całego dokumentu; producenci emitują obiekty w miarę ich budowania, bez przechowywania całego grafu w pamięci."
+  },
+  "2eae81c38b4097fa": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "2eae81c38b4097fa",
+    "status": "machine",
+    "text": "Instalacja działa w tle. Należy odpytywać o jej zadanie, z `task_id` podanym w odpowiedzi, dopóki jego `status` nie będzie `success`:"
   },
   "2eb0e029a83c12a1": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -35694,6 +35743,17 @@
     "srcHash": "360fa25d6658fd97",
     "status": "machine",
     "text": "Przejrzany plik `aggregate.yaml`, z aplikacją pominiętą tutaj tak jak wyżej:"
+  },
+  "36116907972fd574": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "92c76683339b1144",
+      "reviewed": false
+    },
+    "srcHash": "36116907972fd574",
+    "status": "machine",
+    "text": "Agent otrzymuje adres modelu i jego nazwę jako `OPENAI_BASE_URL` i `MODEL`, zmienne, z których odczytuje je CrewAI, a klucz jako `OPENAI_API_KEY`. Jego rola, cel, historia tła, przełącznik delegowania i poziom logowania docierają pod nazwami, które domyślnie nadaje im encja Component CrewAI, aby program zespołu mógł je odczytać; blok `inject:` na samym komponencie dostarcza zamiast tego dowolną z tych wartości pod nazwą, którą odczytuje program. Każda wartość przygotowana przez import zachowuje znak końca wiersza, którym kończyła się jej deklaracja, więc plik zapisuje ją jako blok. Model nie otrzymuje własnej usługi: agenci docierają do API OpenAI pod jego własnym adresem. Klucz jest odwołaniem do zmiennej, wypełnianym z powłoki podczas uruchamiania stosu. Usługi nie publikują żadnego portu na maszynie: wygenerowany plik nie przydziela im żadnego."
   },
   "361695b9f8e8b09a": {
     "at": "2026-10-22T12:16:26.328227+00:00",
@@ -55855,6 +55915,17 @@
     "status": "machine",
     "text": "[nginx-gateway](nginx-gateway/README.md) (`start`) — Ten przykład kompiluje mały, rzeczywisty stos — bramę reverse proxy **NGINX** przed **backendem webowym** — z jednej encji `Aggregate` napisanej przez dewelopera na dwa cele."
   },
+  "549eef791b7541fd": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "39655ce80868fe14",
+      "reviewed": false
+    },
+    "srcHash": "549eef791b7541fd",
+    "status": "machine",
+    "text": "Usługa badacza w `dist/compose/docker-compose.yaml`; usługa autora różni się tylko nazwą i wartościami, które niosą jej własne zmienne:"
+  },
   "54a21938faa28807": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -66748,6 +66819,13 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "We wpisie `envFrom` te same komunikaty dotyczą ścieżek `.containers.<name>.envFrom[<i>].connection` i `.containers.<name>.envFrom[<i>].secret`."
+  },
+  "650a29f570ba59ad": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "650a29f570ba59ad",
+    "status": "machine",
+    "text": "Po powrocie do pierwszego terminala, w którym ustawiono `DIFY_OWNER_PASSWORD`, należy zalogować się jako właściciel. API konsoli przyjmuje hasło zakodowane w Base64, a logowanie zostawia sesję w `cookies.txt`. Każde późniejsze żądanie do konsoli odsyła sesję wraz z tokenem CSRF z tego samego pliku w nagłówku `X-CSRF-Token`; żądanie bez niego zostaje odrzucone z komunikatem `CSRF token is missing or invalid.`"
   },
   "650bf0ebae6e2072": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -85061,6 +85139,17 @@
     "status": "machine",
     "text": "provider `render_node` i `validate_node_input` (`RenderNodeInput`)"
   },
+  "81007a7a183716e1": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "78947347a4d9ecca",
+      "reviewed": false
+    },
+    "srcHash": "81007a7a183716e1",
+    "status": "machine",
+    "text": "**Wiersz `warn`** mówi, że model pozostaje wewnątrz Dify: Dify samo konfiguruje swoich dostawców modeli i ich klucze, więc szkic nie podłącza żadnego modelu. Gdy Dify już działa, instaluje się jego dostawcę OpenAI i ustawia klucz dostawcy, jak pokazuje [Uruchomienie](#run-it)."
+  },
   "8100a6a682697d81": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -90982,6 +91071,13 @@
     "srcHash": "8a4bbe18509220f9",
     "status": "machine",
     "text": "Dołączenie werdyktu pojawia się tylko w `verdict_inputs:`, przez sha256 swojego pliku:"
+  },
+  "8a4dbc4a1403e022": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "8a4dbc4a1403e022",
+    "status": "machine",
+    "text": "Log podaje identyfikator aplikacji, który będzie potrzebny poniżej. Kolejne kroki wywołują API konsoli Dify na jego serwerze API, dlatego w drugim terminalu należy przekierować port lokalny do obiektu Service serwera i pozostawić tam działające polecenie:"
   },
   "8a4dccb679d73548": {
     "at": "2026-10-22T09:15:22.065068+00:00",
@@ -122008,6 +122104,13 @@
     "status": "machine",
     "text": "Gdy `syncWave: <integer>` granicy jest różne od `0`, każdy emitowany zasób Kubernetes przenosi tę wartość jako adnotację `argocd.argoproj.io/sync-wave: \"<N>\"`; hooki Helm dodatkowo przenoszą `helm.sh/hook-weight: \"<N>\"`. ArgoCD odczytuje adnotację sync-wave, a Helm wagę hooka, i każde z nich porządkuje według niej zasoby; granica z domyślną falą `0` nie przenosi żadnej z nich, co oba narzędzia odczytują jako falę `0`."
   },
+  "b8ac6357385b0b21": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "b8ac6357385b0b21",
+    "status": "machine",
+    "text": "Odpowiedź znajduje się w `answer`. Pochodzi z opisanego wyżej małego modelu lokalnego, działającego pod nazwą `gpt-4o-mini`."
+  },
   "b8ad7ede9c834480": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -132023,6 +132126,13 @@
     "srcHash": "c7857a8ddec8e890",
     "status": "machine",
     "text": "`attach_egress_allowlist` ma wartość `true`, a szkic nie zapisuje żadnej platformy lub komponuje instalację Dify, której wpis nie przyjmuje encji Feature, więc nic nie zostaje dołączone."
+  },
+  "c78b65f7fc4e2917": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "c78b65f7fc4e2917",
+    "status": "machine",
+    "text": "Dostawcy modeli w Dify są wtyczkami, a nowa instalacja nie zawiera żadnego. Należy zainstalować dostawcę OpenAI dla Dify w wersji 1.1.0, tej, którą zainstalowało uruchomienie; środowisko uruchomieniowe wtyczek pobiera go z marketplace Dify, więc klaster musi mieć dostęp do internetu:"
   },
   "c78e6d40e3fefba0": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -148606,6 +148716,13 @@
     "status": "machine",
     "text": "Podpisywanie działa w trybie **podpisz przed wypchnięciem**: digest manifestu jest znany przed publikacją, więc `aggrega push` tworzy podpisującego i podpisuje digest **zanim jakiekolwiek bajty trafią do rejestru**. Jeśli nie można utworzyć podpisującego lub podpisywanie się nie powiedzie, push zostaje odrzucony przed wywołaniem sieciowym — nic nie zostaje opublikowane, więc nieudane podpisywanie nigdy nie pozostawia w rejestrze niepodpisanej treści. Przed odrzuceniem wywołanie podpisujące, które nie powiodło się przejściowo — z powodu dowolnego błędu, przy którym ponawiany jest zapis do rejestru, lub gdy urząd certyfikacji trybu bezkluczowego zgłosi, że nie mógł przetworzyć tokenu tożsamości — jest ponawiane, maksymalnie do trzech prób z tymi samymi odstępami."
   },
+  "dfb8ef330918bf1b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "dfb8ef330918bf1b",
+    "status": "machine",
+    "text": "Należy zapisać klucz dostawcy w `openai.json` jako `{\"credentials\": {\"openai_api_key\": \"your OpenAI key\"}}`, ustawić go i usunąć plik:"
+  },
   "dfbb09e4b37368af": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -155170,6 +155287,13 @@
     "status": "machine",
     "text": "annotation binding declares one path in both pillar lists"
   },
+  "e9b73c2bc81a98ee": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "e9b73c2bc81a98ee",
+    "status": "machine",
+    "text": "Należy zastosować manifesty, jak wyjaśnia krok uruchomienia w [Jak przebiega import](README.md#how-an-import-runs) — `-R` sięga do obiektu Job i dwóch obiektów ConfigMap w `dify.api/` i `dify.proxy/` — a następnie poczekać na Job importu i odczytać jego log oraz poczekać na środowisko uruchomieniowe wtyczek:"
+  },
   "e9b7f8b5e4a6240d": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -159821,6 +159945,13 @@
     "srcHash": "f07e77f51b0c5f27",
     "status": "machine",
     "text": "`web-server` (przywoływana pośrednio przez renderowany komponent) — **kebab-case**. Nazwa instancji nadana przez użytkownika w encji Aggregate; programista wybrał formę z łącznikami. Równie dobrze mogłaby to być `web_server` (snake_case); obie są poprawne według wzorca nazw instancji."
+  },
+  "f080d1285f0c33f9": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f080d1285f0c33f9",
+    "status": "machine",
+    "text": "Dify sprawdza klucz jednym żądaniem do dostawcy, zanim go zachowa. Uruchomienie nie miało klucza OpenAI: użyło małego modelu lokalnego zamiast OpenAI, jak opisuje krok uruchomienia w [Jak przebiega import](README.md#how-an-import-runs), tutaj zbudowanego dla `helm/ollama` z osobnego obszaru roboczego i serwowanego w klastrze za obiektem Service `local-model-default`. Uruchomienie skopiowało model pod nazwą, której żąda aplikacja, za pomocą `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`, a jego `openai.json` zawierał, obok klucza, którego lokalny serwer nie sprawdza, trzy dodatkowe ustawienia: `\"openai_api_base\": \"http://local-model-default:11434\"`, adres tego serwera, bez `/v1`, które dodaje dostawca; `\"api_protocol\": \"chat\"`, ponieważ dostawca domyślnie wywołuje Responses API OpenAI, którego ten serwer nie obsługuje; oraz `\"validate_model\": \"gpt-4o-mini\"`, model, którym Dify sprawdza klucz. Z kluczem OpenAI ustawia się tylko `openai_api_key`, jak powyżej."
   },
   "f083ce36ca62d6c7": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -164791,6 +164922,13 @@
     "srcHash": "f79d81fb4a2e4a7b",
     "status": "machine",
     "text": "**4. Domena operacyjna: encja FeatureRecipe (potok Wasm)**\nEncja FeatureRecipe odwzorowuje abstrakcyjną encję Feature na konkretny potok wtyczek Wasm. Potok wykonuje się sekwencyjnie w potoku wtyczek zamykającym renderowanie: ten modyfikuje konfigurację, którą już renderuje encja Recipe samej bramy, zamiast emitować własny plik. Potok wtyczek działa podczas `aggrega build`; zob. [Stan języka](../10-status.md#compilation-pipeline-phases)."
+  },
+  "f7a2531c7fed56be": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f7a2531c7fed56be",
+    "status": "machine",
+    "text": "Kubernetes zachowuje żądania woluminów utworzone przez StatefulSet, gdy StatefulSet zostaje usunięty, dlatego trzecie polecenie usuwa je, a wraz z nimi bazę danych, zainstalowaną wtyczkę i magazyn wektorów."
   },
   "f7a34c098afaf3bd": {
     "at": "2026-10-22T23:34:49.752518+00:00",

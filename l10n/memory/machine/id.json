@@ -5491,6 +5491,13 @@
     "status": "machine",
     "text": "Pemasangan mana yang akan dihapus."
   },
+  "07f2ef54569e7248": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "07f2ef54569e7248",
+    "status": "machine",
+    "text": "Aplikasinya sendiri ada di ConfigMap di sebelahnya."
+  },
   "07ff5defc65078d3": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -12875,6 +12882,13 @@
     "status": "machine",
     "text": "[Persona](personas.md) — peran di balik peta ini."
   },
+  "130fc56e6f560616": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "130fc56e6f560616",
+    "status": "machine",
+    "text": "ADK menyajikan `gemini-2.5-flash` melalui kelas Gemini-nya, yang mengirim permintaannya ke Gemini API, sehingga draf menghubungkan model ke soket `model` milik agen, yang hanya menerima Gemini API. Model yang disebut agen melalui string model LiteLLM, seperti `openai/gpt-4o`, tidak dihubungkan ke apa pun: sebuah komentar di atas instans menyebutkannya, dan koneksinya diserahkan kepada Anda, seperti yang dijelaskan [Menjadi apa pohon agen](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)."
+  },
   "131816bdc36efd0c": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -15199,6 +15213,13 @@
     "status": "machine",
     "text": "**TemplateContext lengkap:** `.values`, `.infra`, `.context.*` (termasuk `.context.inject` — pipe yang sedang diintersep — dan `.context.uses`). `.context.used_by` kosong di sini: output mapping mendarat di pipe pengiriman milik host sendiri. `.context.render_facts` tidak ada: mapping berjalan sebelum host di-render. `.context.rendered_name` adalah nama yang dilaporkan komponen host, seperti pada #9; mapping yang membacanya tidak diperiksa, dan me-render-nya kosong pada host yang provider-nya tidak melaporkan nama."
   },
+  "16abfe9515d5c0da": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "16abfe9515d5c0da",
+    "status": "machine",
+    "text": "Hentikan penerusan port, lalu hapus apa yang Anda terapkan, Secret tersebut, dan berkas sesi:"
+  },
   "16af5cb927c1487f": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -17429,6 +17450,13 @@
     "srcHash": "1a48a3e8fc938062",
     "status": "machine",
     "text": "**Direktori cache itu sendiri.** `artifact_cache_dir` yang ditulis di dalam root workspace — termasuk default-nya — boleh berupa tautan ke direktori lain di workspace, dan cache kemudian disimpan di tempat tujuan tautan itu. Tautan yang mengarah ke luar workspace ditolak: operasi mana pun yang menemuinya berhenti dengan `E0321` atau `E0320`, dengan menyebut tautannya, sebelum apa pun dibaca atau ditulis melaluinya. Direktori yang ditulis keluar dari root workspace dihormati di tempat tujuannya, bahkan ketika direktori itu sendiri adalah tautan."
+  },
+  "1a49dd545c317413": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "1a49dd545c317413",
+    "status": "machine",
+    "text": "Sebelum menerapkan manifes, buat dua Secret yang dibacanya: `dify-owner`, yang menyimpan kata sandi pemilik di bawah `value`, dan `dify-credentials`, yang menyimpan kelima kredensial di bawah kunci datanya masing-masing. Beban kerja yang menyebut Secret yang tidak ada tidak akan dimulai. Tetapkan kata sandi pemilik di shell Anda, sebagai `DIFY_OWNER_PASSWORD`, karena Anda masuk dengannya di bawah. Dify menerima kata sandi pemilik dengan sedikitnya delapan karakter yang memuat satu huruf dan satu angka: jika diberi kata sandi lain, Job impor gagal, log-nya berbunyi `first-time setup was refused with HTTP 422`, dan penantian di bawah berlangsung hingga batas waktunya. Tulis `dify-credentials.env`, satu baris untuk setiap kunci data: `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=`, dan `inner-api-key=`, masing-masing diikuti nilai Anda sendiri. Lalu buat kedua Secret tersebut. Setelah itu kluster yang menyimpan nilainya, jadi hapus kedua berkas tersebut:"
   },
   "1a4a48f8ba3a0946": {
     "at": "2026-10-23T06:14:07.765401+00:00",
@@ -21816,6 +21844,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Bentuk struktural: map di akar, array di payload.** Blok topologi akar — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — adalah map YAML dengan kunci yang ditulis pengguna yang berfungsi sebagai ID instans yang stabil. Array tidak valid di posisi-posisi ini; kunci map adalah identitas yang digunakan compiler untuk referensi silang (`target: my-db`), konstruksi node graf, dan resolusi Manifest. Di dalam blok payload yang buram (`values`, `infra`, `parameters`), array sepenuhnya diizinkan — pengembang dapat menulis `tools_allowed: [\"sql\", \"web\"]` atau `hostnames: [\"stripe.com\", \"twilio.com\"]` di dalam `values` sebuah Component. Skema Aggregate mendeklarasikan blok payload ini sebagai `additionalProperties: true`, sehingga blok tersebut buram bagi compiler Go dan divalidasi sepenuhnya oleh deklarasi `schema:` yang tertanam di katalog. Hal ini menempatkan volatilitas framework (bentuk API AI baru, format payload cloud-native baru) di dalam domain katalog tempat ia dapat berkembang secara independen, sementara compiler Go tetap hanya menggunakan kunci yang dapat dialamatkan di akar struktural."
+  },
+  "20ab4fff0ad1cf9b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "20ab4fff0ad1cf9b",
+    "status": "machine",
+    "text": "Aplikasi menjawab permintaan yang dibuat dengan kunci API miliknya sendiri. Buat satu, dengan pengenal aplikasi dari log Job impor:"
   },
   "20ad3b3e6bbee2af": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -26560,6 +26595,13 @@
     "status": "machine",
     "text": "workspaceconfig: the provider socket binding for capability `\"<capability>\"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket (binding socket provider untuk kapabilitas menetapkan with:, tetapi konfigurasi render provider berada di Recipe, bukan di binding provider workspace; hapuslah: binding socket provider menetapkan field tanpa rujukan pada socket tersebut)"
   },
+  "27d5cc54e50cb39d": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "27d5cc54e50cb39d",
+    "status": "machine",
+    "text": "dan kirim pesan ke aplikasi dengan kunci tersebut, yaitu `token` dari balasan:"
+  },
   "27d7462615c42076": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -30845,6 +30887,13 @@
     "srcHash": "2eae25f5a51e046a",
     "status": "machine",
     "text": "Format wire yang dimaksudkan untuk mengangkut graf IR dari compiler ke frontend adalah JSON Lines (`.jsonl`) melalui `stdout`: satu objek IR mandiri per baris, diakhiri baris baru, tanpa array luar atau amplop framing. Setiap baris di-parse secara independen terhadap `ir-v1alpha1.schema.json`. Konsumen stream menampilkan objek graf secara bertahap begitu objek tiba, alih-alih menunggu dokumen lengkap ditutup; produsen menghasilkan objek begitu objek dibangun, tanpa menyimpan seluruh graf di memori."
+  },
+  "2eae81c38b4097fa": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "2eae81c38b4097fa",
+    "status": "machine",
+    "text": "Instalasi berjalan di latar belakang. Tanyakan tugasnya, dengan `task_id` yang disebutkan balasan, hingga `status`-nya bernilai `success`:"
   },
   "2eb0e029a83c12a1": {
     "at": "2026-10-23T08:34:05.283963+00:00",
@@ -35694,6 +35743,17 @@
     "srcHash": "360fa25d6658fd97",
     "status": "machine",
     "text": "`aggregate.yaml` yang sudah ditinjau, dengan aplikasi dihilangkan di sini seperti di atas:"
+  },
+  "36116907972fd574": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "92c76683339b1144",
+      "reviewed": false
+    },
+    "srcHash": "36116907972fd574",
+    "status": "machine",
+    "text": "Agen menerima alamat dan nama model sebagai `OPENAI_BASE_URL` dan `MODEL`, variabel tempat CrewAI membacanya, dan kunci sebagai `OPENAI_API_KEY`. Peran, tujuan, latar belakang, sakelar delegasi, dan tingkat log-nya tiba dengan nama yang diberikan Component CrewAI secara default, untuk dibaca oleh program crew; blok `inject:` pada komponen itu sendiri justru mengirimkan salah satu di antaranya dengan nama yang dibaca program. Setiap nilai yang dirancang oleh impor mempertahankan jeda baris yang mengakhiri deklarasinya, sehingga berkas menuliskannya sebagai blok. Model tidak mendapatkan layanan sendiri: para agen menjangkau API OpenAI di alamatnya sendiri. Kunci tersebut adalah referensi variabel, yang diisi dari shell Anda saat stack dimulai. Layanan-layanan tersebut tidak memublikasikan port apa pun di mesin Anda: berkas yang dirender tidak memberi mereka port apa pun."
   },
   "361695b9f8e8b09a": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -55857,6 +55917,17 @@
     "status": "machine",
     "text": "[nginx-gateway](nginx-gateway/README.md) (`start`) — Contoh ini mengompilasi stack kecil yang nyata — gateway reverse proxy **NGINX** di depan **backend web** — dari satu `Aggregate` yang ditulis Developer ke dua target."
   },
+  "549eef791b7541fd": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "39655ce80868fe14",
+      "reviewed": false
+    },
+    "srcHash": "549eef791b7541fd",
+    "status": "machine",
+    "text": "Layanan milik peneliti di `dist/compose/docker-compose.yaml`; layanan milik penulis hanya berbeda pada namanya dan pada nilai yang dibawa oleh variabelnya sendiri:"
+  },
   "54a21938faa28807": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -66750,6 +66821,13 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "Pada entri `envFrom`, temuan yang sama berada di `.containers.<name>.envFrom[<i>].connection` dan `.containers.<name>.envFrom[<i>].secret`."
+  },
+  "650a29f570ba59ad": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "650a29f570ba59ad",
+    "status": "machine",
+    "text": "Kembali di terminal pertama, tempat `DIFY_OWNER_PASSWORD` ditetapkan, masuk sebagai pemilik. API konsol menerima kata sandi dalam enkode Base64, dan proses masuk meninggalkan sesi di `cookies.txt`. Setiap permintaan konsol berikutnya mengirim kembali sesi tersebut, dengan token CSRF dari berkas yang sama di header `X-CSRF-Token`; permintaan tanpanya ditolak dengan `CSRF token is missing or invalid.`"
   },
   "650bf0ebae6e2072": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -85061,6 +85139,17 @@
     "status": "machine",
     "text": "provider `render_node` dan `validate_node_input` (`RenderNodeInput`)"
   },
+  "81007a7a183716e1": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "revision": {
+      "from": "78947347a4d9ecca",
+      "reviewed": false
+    },
+    "srcHash": "81007a7a183716e1",
+    "status": "machine",
+    "text": "**Baris `warn`** menyatakan bahwa model tetap berada di dalam Dify: Dify mengonfigurasi penyedia modelnya, beserta kuncinya, secara mandiri, sehingga draf tidak menghubungkan model apa pun. Setelah Dify berjalan, Anda memasang penyedia OpenAI-nya dan menetapkan kunci penyedia tersebut, seperti yang ditunjukkan [Menjalankannya](#run-it)."
+  },
   "8100a6a682697d81": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -90990,6 +91079,13 @@
     "srcHash": "8a4bbe18509220f9",
     "status": "machine",
     "text": "Lampiran putusan hanya muncul di bawah `verdict_inputs:`, melalui sha256 file-nya:"
+  },
+  "8a4dbc4a1403e022": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "8a4dbc4a1403e022",
+    "status": "machine",
+    "text": "Log menyebutkan pengenal aplikasi, yang Anda perlukan di bawah. Langkah-langkah berikutnya memanggil API konsol Dify di server API-nya, jadi di terminal kedua teruskan port lokal ke Service milik server, dan biarkan perintah itu tetap berjalan di sana:"
   },
   "8a4dccb679d73548": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -122016,6 +122112,13 @@
     "status": "machine",
     "text": "Jika `syncWave: <integer>` milik boundary bukan `0`, setiap resource Kubernetes yang dihasilkan membawanya sebagai anotasi `argocd.argoproj.io/sync-wave: \"<N>\"`; hook Helm juga membawa `helm.sh/hook-weight: \"<N>\"`. ArgoCD membaca anotasi sync-wave, dan Helm membaca bobot hook, masing-masing mengurutkan resource berdasarkan nilai itu; boundary pada wave bawaan `0` tidak membawa keduanya, yang dibaca kedua alat sebagai wave `0`."
   },
+  "b8ac6357385b0b21": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "b8ac6357385b0b21",
+    "status": "machine",
+    "text": "Jawabannya ada di `answer`. Jawaban itu berasal dari model lokal kecil di atas, dengan nama `gpt-4o-mini`."
+  },
   "b8ad7ede9c834480": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -132031,6 +132134,13 @@
     "srcHash": "c7857a8ddec8e890",
     "status": "machine",
     "text": "`attach_egress_allowlist` bernilai `true` dan draft tidak menulis platform, atau menyusun instalasi Dify, yang entrinya tidak menerima Feature, sehingga tidak ada yang dipasang."
+  },
+  "c78b65f7fc4e2917": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "c78b65f7fc4e2917",
+    "status": "machine",
+    "text": "Penyedia model Dify adalah plugin, dan instalasi baru tidak memuat satu pun. Pasang penyedia OpenAI Dify, pada versi 1.1.0, versi yang dipasang oleh proses ini; runtime plugin mengambilnya dari marketplace Dify, sehingga kluster harus dapat menjangkau internet:"
   },
   "c78e6d40e3fefba0": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -148614,6 +148724,13 @@
     "status": "machine",
     "text": "Penandatanganan bersifat **sign-before-push**: digest manifest diketahui sebelum penerbitan, sehingga `aggrega push` membangun penanda tangan dan menandatangani digest **sebelum byte apa pun mencapai registry**. Jika penanda tangan tidak dapat dibangun atau penandatanganan gagal, push ditolak sebelum panggilan jaringan — tidak ada yang diterbitkan, sehingga penandatanganan yang gagal tidak pernah meninggalkan konten tanpa tanda tangan di registry. Sebelum menolak, panggilan penandatanganan yang gagal secara sementara — kegagalan apa pun yang membuat penulisan registry dicoba ulang, atau otoritas sertifikat keyless yang melaporkan bahwa ia tidak dapat memproses token identitas — dicoba lagi, hingga tiga percobaan dengan waktu tunggu yang sama."
   },
+  "dfb8ef330918bf1b": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "dfb8ef330918bf1b",
+    "status": "machine",
+    "text": "Tulis kunci penyedia ke `openai.json`, sebagai `{\"credentials\": {\"openai_api_key\": \"your OpenAI key\"}}`, tetapkan, lalu hapus berkasnya:"
+  },
   "dfbb09e4b37368af": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -155182,6 +155299,13 @@
     "status": "machine",
     "text": "annotation binding declares one path in both pillar lists (binding anotasi mendeklarasikan satu path di kedua daftar pilar)"
   },
+  "e9b73c2bc81a98ee": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "e9b73c2bc81a98ee",
+    "status": "machine",
+    "text": "Terapkan manifes, seperti yang dijelaskan langkah menjalankan di [Cara impor dijalankan](README.md#how-an-import-runs) — `-R` menjangkau Job dan kedua ConfigMap di `dify.api/` dan `dify.proxy/` — lalu tunggu Job impor dan baca log-nya, serta tunggu runtime plugin:"
+  },
   "e9b7f8b5e4a6240d": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -159835,6 +159959,13 @@
     "srcHash": "f07e77f51b0c5f27",
     "status": "machine",
     "text": "`web-server` (direferensikan secara tidak langsung melalui komponen yang dirender) — **kebab-case**. Nama instans yang ditulis pengguna di dalam Aggregate; pengembang memilih bentuk dengan tanda hubung. Bisa juga `web_server` (snake_case); keduanya valid menurut pola nama instans."
+  },
+  "f080d1285f0c33f9": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f080d1285f0c33f9",
+    "status": "machine",
+    "text": "Dify memeriksa kunci dengan satu permintaan ke penyedia sebelum menyimpannya. Proses ini tidak memiliki kunci OpenAI: proses ini menggunakan model lokal kecil sebagai pengganti OpenAI, seperti yang dijelaskan langkah menjalankan di [Cara impor dijalankan](README.md#how-an-import-runs), di sini dibangun untuk `helm/ollama` dari ruang kerjanya sendiri dan dilayani di kluster di balik Service `local-model-default`. Proses ini menyalin model dengan nama yang diminta aplikasi, menggunakan `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`, dan `openai.json`-nya memuat, selain kunci yang tidak diperiksa oleh server lokal, tiga pengaturan lagi: `\"openai_api_base\": \"http://local-model-default:11434\"`, alamat server tersebut, tanpa `/v1`, yang ditambahkan oleh penyedia; `\"api_protocol\": \"chat\"`, karena penyedia secara default memanggil Responses API milik OpenAI, yang tidak dilayani server tersebut; dan `\"validate_model\": \"gpt-4o-mini\"`, model yang digunakan Dify untuk memeriksa kunci. Dengan kunci OpenAI, Anda hanya menetapkan `openai_api_key`, seperti di atas."
   },
   "f083ce36ca62d6c7": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -164805,6 +164936,13 @@
     "srcHash": "f79d81fb4a2e4a7b",
     "status": "machine",
     "text": "**4. Domain operasional: FeatureRecipe (pipeline Wasm)**\nFeatureRecipe memetakan Feature abstrak ke pipeline Plugin Wasm yang konkret. Pipeline dijalankan secara berurutan dalam pipeline plugin yang menutup proses rendering: pipeline ini menambal konfigurasi yang sudah di-render oleh Recipe milik gateway itu sendiri alih-alih menghasilkan berkasnya sendiri. Pipeline plugin berjalan selama `aggrega build`; lihat [Status bahasa](../10-status.md#compilation-pipeline-phases)."
+  },
+  "f7a2531c7fed56be": {
+    "at": "2026-11-08T10:48:22.903Z",
+    "job": "session-0006-20261108104822",
+    "srcHash": "f7a2531c7fed56be",
+    "status": "machine",
+    "text": "Kubernetes mempertahankan klaim volume yang dibuat StatefulSet saat StatefulSet itu dihapus, sehingga perintah ketiga menghapusnya, dan bersamanya basis data, plugin yang terpasang, serta penyimpanan vektor."
   },
   "f7a34c098afaf3bd": {
     "at": "2026-10-23T08:19:02.010279+00:00",
