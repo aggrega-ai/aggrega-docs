@@ -42,7 +42,7 @@ To implement this without tightly coupling Developers to Ops, Aggrega uses the P
 
 All three forms populate the same `.context.inject` pipe. The Recipe reads a single, unified pipe regardless of how many sources contributed to it.
 
-The `inject` schema defines standard enums (`env`, `file`, `arg`) for tooling, but leaves `additionalProperties` open, so a custom mechanism may be named (e.g., `ssm_param` for AWS Systems Manager Parameter Store).
+The `inject` schema defines standard enums (`env`, `file`, `arg`) for tooling, but leaves `additionalProperties` open, so a custom mechanism may be named (e.g., `ssm_param` for AWS Systems Manager Parameter Store). One name is taken: `all` is the merged view of every mechanism a Recipe reads at `.context.inject.all`, so an `inject` block naming a mechanism `all` halts the build at the document envelope, saying so.
 
 **Inject Entry Syntax:** Under an `inject` block, each delivery mechanism — `env`, `file`, `arg`, or a custom one — is a list of entries, and every placement uses the same entry shape. The keyword an entry carries, not the placement it sits in, says what its string is, so an entry reads the same wherever it appears. A mechanism written as a map instead of a list, or an entry carrying both keywords, halts the build at the Aggregate's document envelope, naming the path in the Aggregate where the shape is wrong.
 

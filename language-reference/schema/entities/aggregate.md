@@ -72,7 +72,7 @@ A single delivery mechanism, authored as an array of entries. Each entry carries
 
 ### `inject_block`
 
-Agnostic injection routing. Maps local variables to target provides keys (uses[].inject) or to literal strings / template expressions (component.inject). Each delivery mechanism (env, file, arg, or custom) is authored as an array of {in, from?, value?} entries — explicit 'from' for provides references and 'value' for literals.
+Agnostic injection routing. Maps local variables to target provides keys (uses[].inject) or to literal strings / template expressions (component.inject). Each delivery mechanism (env, file, arg, or custom) is authored as an array of {in, from?, value?} entries — explicit 'from' for provides references and 'value' for literals. A custom mechanism may take any name except all: a template reads every mechanism merged into one view at .context.inject.all, so a mechanism of that name would be hidden by it, and naming one halts the build.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

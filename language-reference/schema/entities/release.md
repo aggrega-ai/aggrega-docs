@@ -138,7 +138,7 @@ _Any other key is not permitted._
 
 ### `inject_block`
 
-Agnostic injection routing on a connection. Maps local variables to the target's provides keys. Each delivery mechanism (env, file, arg, or custom) is authored as an array of {in, from} entries — explicit 'from' for provides references.
+Agnostic injection routing on a connection. Maps local variables to the target's provides keys. Each delivery mechanism (env, file, arg, or custom) is authored as an array of {in, from} entries — explicit 'from' for provides references. A custom mechanism may take any name except all: a template reads every mechanism merged into one view at .context.inject.all, so a mechanism of that name would be hidden by it, and naming one halts the build.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
