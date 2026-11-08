@@ -39,8 +39,8 @@ Output blocks on this page are copied from a real run, per
 - The `aggrega` CLI, for every step.
 - Docker with Compose, for `1/` to `3/`. The model server is given 4 GiB of
   memory, and the model below uses about 2 GiB of it.
-- About 3 GB of downloads the first time `1/` starts: the Ollama image is about
-  1.6 GB of that and the model about 1.3 GB, measured as the registries serve
+- About 5 GB of downloads the first time `1/` starts: the Ollama image is about
+  3.3 GB of that and the model about 1.3 GB, measured as the registries serve
   them. The model is kept in a Docker volume, so later starts reuse it.
 - No API key. `2/` and `3/` add a hosted OpenAI model, and with no key a request
   for it is answered by the local model instead. To use OpenAI, export

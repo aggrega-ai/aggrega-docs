@@ -336,6 +336,13 @@ Release names where that setup has not run, and imports the application:
 
 ```yaml
 spec:
+  podFailurePolicy:
+    rules:
+      - action: FailJob
+        onExitCodes:
+          containerName: import
+          operator: In
+          values: [2]
   template:
     spec:
       restartPolicy: Never
@@ -363,7 +370,13 @@ spec:
             name: dify-zdapi-app
 ```
 
-The application itself is in the ConfigMap beside it.
+The application itself is in the ConfigMap beside it. When Dify refuses what
+the step sends it, with a client-error reply other than a request timeout or a
+rate limit, or by reporting the import failed, the step prints the message
+Dify's reply carries and exits with status 2, as it does when the definition
+names no application under `app.name`; the Job's `podFailurePolicy` fails the Job at
+that attempt, since a retry would be refused the same way; any other failure,
+such as the server not answering within about ten minutes, is retried.
 
 ## Run it
 
@@ -372,9 +385,16 @@ holding the owner's password under `value`, and `dify-credentials`, holding
 the five credentials under their data keys. A workload naming a Secret that
 does not exist does not start. Set the owner's password in your shell, as
 `DIFY_OWNER_PASSWORD`, since you sign in with it below. Dify takes an owner password of at least eight characters holding a
-letter and a digit: given any other, the import Job fails, its log reads
-`first-time setup was refused with HTTP 422`, and the wait below runs to its
-timeout. Write `dify-credentials.env`, one line for each data key:
+letter and a digit: given any other, the import Job fails as soon as Dify refuses the setup,
+and its log reads
+`first-time setup was refused with HTTP 422: Validation error for parameter 'payload'`,
+the reply Dify gives an owner account it refuses. The wait below waits for the
+Job to complete, and a failed Job never completes, so it then runs to its
+timeout; run
+`kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m`
+in a second terminal beside it, and that wait returns as soon as the Job
+fails. Delete the Job and the `dify-owner` Secret, create the Secret again with
+a password Dify takes, and apply again. Write `dify-credentials.env`, one line for each data key:
 `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` and
 `inner-api-key=`, each followed by a value of your own. Then create the two
 Secrets. The cluster holds the values then, so delete the two files:
@@ -493,8 +513,8 @@ name the application asks for, with
 `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`,
 and its `openai.json` carried, beside a key the local server does not check,
 three more settings: `"openai_api_base": "http://local-model-default:11434"`,
-that server's address, with no `/v1`, which the provider adds; `"api_protocol": "chat"`, since the provider calls
-OpenAI's Responses API by default, which that server does not serve; and
+that server's address, with no `/v1`, which the provider adds; `"api_protocol": "chat"`, which has the provider call
+the server's Chat Completions route rather than the Responses API it calls by default; and
 `"validate_model": "gpt-4o-mini"`, the model Dify checks the key with. With an
 OpenAI key, you set only `openai_api_key`, as above.
 

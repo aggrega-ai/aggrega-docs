@@ -186,12 +186,10 @@ not supply.
    server checks none. An n8n workflow reads the model's address and key from
    the credential its model node selects, not from the address `endpoint`
    delivers, so the n8n run also gave that credential the server's address, as
-   a `url` beside `apiKey` in its `data`. An Agent Framework declarative agent
-   that names `apiType: Responses` sends its requests to the Responses API,
-   which the Ollama version `core/ai-model/ollama` runs by default does not
-   serve, so the Agent Framework run gave `local-model` a later one in the
-   Release, `engine_version: "0.15.6"` under its `infra`, in place of
-   `local-model: {}`.
+   a `url` beside `apiKey` in its `data`. The Ollama server
+   `core/ai-model/ollama` runs by default serves OpenAI's Responses API as well
+   as Chat Completions, so an Agent Framework declarative agent that names
+   `apiType: Responses` reaches it as written.
 
    A build for Kubernetes, the `helm` target, writes plain manifests rather
    than a chart, as the [helm provider](../../language-reference/providers/helm.md)

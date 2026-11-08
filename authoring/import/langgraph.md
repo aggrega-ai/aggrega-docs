@@ -398,7 +398,8 @@ Aggregate's `values` or the Release's `infra`, and the notice reports that one
 leaf is declared in both. It changes no verdict.
 
 The build writes `dist/compose/docker-compose.yaml`, with a service for the
-graph and one for the database. The graph's service:
+graph, one for the database, and one that waits for the database. The graph's
+service:
 
 ```yaml
   support:
@@ -416,7 +417,10 @@ graph and one for the database. The graph's service:
     networks:
       - compose
     depends_on:
-      - postgres
+      support--wait-for-store:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
 ```
 
 The graph receives the model's address, its name and its key, the database's
@@ -438,6 +442,24 @@ takes the same password:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: appdb
     [… omitted: the labels the build writes on every service, the network, and a health check running PostgreSQL's pg_isready]
+```
+
+The graph's service starts only once the third service has completed. It runs
+once, in the catalog's quickstart agent image rather than in the graph's own,
+and waits until the database's address accepts a TCP connection, trying every
+2 s for up to 300 s; given no connection by then it exits naming the address,
+and the graph is not started. It is handed the database's host and port and
+nothing else:
+
+```yaml
+  support--wait-for-store:
+    image: hub.aggrega.ai/tools/quickstart-agent:1.0.0@sha256:99816fe5ab1015d2576bd7bffe5a51ca07fec41fe650bda17c5555143367acab
+    [… omitted: the command and the entrypoint, a bash loop that opens a connection to the address]
+    environment:
+      STORE_HOST: postgres
+      STORE_PORT: "5432"
+    [… omitted: the labels the build writes on every service, and the network]
+    restart: "no"
 ```
 
 The key and the password are variable references, filled from your shell when
@@ -465,11 +487,10 @@ state in the database through LangGraph's PostgreSQL checkpointer, opened with
 the database's host, port and password, and runs the graph once for each
 `POST /threads/<thread>/runs`. The variables name no database user and no
 database, so it connected as `appuser` to `appdb`, the PostgreSQL Component's
-defaults, which the database's service above is created with. Docker Compose
-starts the graph's service once the database's container has started, not
-once the database reports healthy, so the server opened the checkpointer on
-its first request rather than when it started. Build your image
-at the project's root, put its name in place of
+defaults, which the database's service above is created with. The graph's
+service starts once the database accepts connections, so a server that opens
+the checkpointer as it starts finds the database accepting connections. Build
+your image at the project's root, put its name in place of
 `ghcr.io/example/support-agent:1.0.0` in `release.yaml`, and build again:
 
 ```bash
@@ -488,7 +509,8 @@ docker compose -p order-support -f dist/compose/docker-compose.yaml up -d --wait
 
 `-p` names the project, as the run step of
 [How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
-once the database reports healthy and the graph's service runs. The services
+once the database reports healthy, the wait for it has completed and the
+graph's service runs. The services
 publish no port, so the run sent its request from a container on the stack's
 network, `order-support_compose`, to its own program's route:
 

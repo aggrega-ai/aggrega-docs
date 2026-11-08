@@ -94,7 +94,7 @@ Aggrega stops at the files. It never reaches a running cluster or a cloud accoun
   page are written for a shell such as bash or zsh; [Install](install.md) gives every other way to install,
   Windows included.
 - **To run the examples on your machine**, Docker with Compose.
-- **For the AI agent track**, room for its first start: it downloads about 3 GB, the Ollama image about 1.6 GB of that
+- **For the AI agent track**, room for its first start: it downloads about 5 GB, the Ollama image about 3.3 GB of that
   and the `llama3.2:1b` model about 1.3 GB, measured as the registries serve them. The model is kept in a Docker
   volume, so later starts reuse it. The model server is given 4 GiB of memory. No API key is needed.
 - **For the starters for the cloud**, nothing more to build them. Planning or deploying what they write needs your
@@ -146,7 +146,7 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
 ```
 
 The build writes one file, `dist/compose/docker-compose.yaml`, and `docker compose` starts it and returns once every
-service is up. **The first start downloads the model runtime and the model**, about 3 GB, before it returns.
+service is up. **The first start downloads the model runtime and the model**, about 5 GB, before it returns.
 
 Tell the agent your name and ask it a question, restart it, and ask it your name on the same conversation:
 
