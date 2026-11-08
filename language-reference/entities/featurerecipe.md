@@ -347,7 +347,7 @@ A FeatureRecipe that does not set the key sees no `.render_facts` on any connect
 
 ## The `locals:` block
 
-`FeatureRecipe.spec.locals:` is an optional **map of named Go template strings** whose rendered output exposes a `.locals.*` map to every other template inside the same FeatureRecipe. It is the FeatureRecipe-private equivalent of Recipe `locals:` — a place to compute derived strings once and reference them from `injectMapping`, `valuesMapping`, `pipeline[].with`, `provides`, and `assertions:` without recomputing. The block is a map, not a single template body; a scalar in this position is schema-rejected.
+`FeatureRecipe.spec.locals:` is an optional **map of named Go template strings** whose rendered output exposes a `.locals.*` map to every other template inside the same FeatureRecipe. It is the FeatureRecipe-private equivalent of Recipe `locals:` — a place to compute derived strings once and reference them from `injectMapping`, `valuesMapping`, `pipeline[].with` and `provides` without recomputing. The FeatureRecipe's `assertions:` do not read them: an assertion's `.locals` are the host component's Recipe's, as [assertions-block.md](../templates/assertions-block.md) states. Each entry's rendered output is stored with its leading and trailing whitespace removed. The block is a map, not a single template body; a scalar in this position is schema-rejected.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

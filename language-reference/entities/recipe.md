@@ -453,7 +453,7 @@ A promoted key lands on exactly the same surface as a literal one — the per-pr
 
 ## The `locals:` block
 
-`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation.
+`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation. Each entry's rendered output is stored with its leading and trailing whitespace removed.
 
 ```yaml
 spec:
