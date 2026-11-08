@@ -246,7 +246,7 @@ written.
   ```text
   [… omitted: what resolving the lockfile prints, the same halt among it, and the notice about core/secret-value]
   [OPS_ERROR E0318] release-compose.yaml at .spec.boundaries.main.components.agent.uses.tools.search.features.credential
-    duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered ("value", mechanism "env", attachment "search.credential", delivered first by attachment "search.endpoint")
+    duplicate delivery key across two attachments: an attachment's FeatureRecipe writes a delivery key another attachment already delivered ("value", mechanism "env", attachment "search.credential", delivered first by attachment "search.endpoint"). Give one of the two attachments a key of its own, or attach one fewer: the key this attachment delivers under is chosen by its FeatureRecipe, which can read the attachment's own values and infra, and the other's is chosen the same way or by its own inject block where it delivered through one. A Release sets an attachment's infra and never its values, so where a key is chosen by a value, attach that attachment in the Aggregate with the value, and keep giving the rest from the Release.
   ```
 
   The key is a `values` leaf, which only the Aggregate writes, so an Aggregate

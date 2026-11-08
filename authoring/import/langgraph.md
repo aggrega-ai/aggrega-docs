@@ -229,7 +229,8 @@ database, to the Aggregate, and changes the Release and the Manifest:
   `checkpointer_password`, and the Release gives its origin,
   `${POSTGRES_PASSWORD}` again. A secret the Release alone attaches arrives
   under the key `value`, so two of them on one component collide, and the
-  build refuses the second.
+  build refuses the second, saying to attach one of them in the Aggregate with
+  the value that chooses its key — the shape written here.
 - **Map the Manifest.** `core/ai-model/openai`, the model the review added, maps
   to `compose/openai`, and `core/secret-value` to `compose/dotenv-secret`,
   which writes each reference into the Compose file as written, so Docker

@@ -797,7 +797,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0315` | `connection-attachment-slot-undeclared` | `a connection carries an attachment under a name its socket declares no slot for` |
 | `E0316` | `connection-attachment-written-off-its-connection` | `a Release attachment takes the name of an attachment one of a component's connections carries` |
 | `E0317` | `release-connection-attachment-untyped` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` |
-| `E0318` | `attachment-inject-mapping-key-collision` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` |
+| `E0318` | `attachment-inject-mapping-key-collision` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe writes a delivery key another attachment already delivered` |
 | `E0319` | `duplicate-connection-alias` | `connection alias is already used by another connection of the same component` |
 | `E0320` | `write-leads-out-of-workspace` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` |
 | `E0321` | `read-leads-out-of-workspace` | `a file this operation reads leads through a link out of the directory it must stay inside` |

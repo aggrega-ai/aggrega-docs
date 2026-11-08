@@ -485,14 +485,15 @@ One thing a declaration may add to a rendered artifact, and it is not redaction:
 
 ### What a refusal says about a declared value
 
-A refusal raised by a template that reads a value an author declared sensitive does not carry that value. When a template stops the build — an assertion calling `fail`, an expression that cannot be evaluated, output that does not read as the document the template must produce — and one of its references reaches a declared-sensitive datum, what is reported comes from evaluating the same template a second time, against a context in which every declared-sensitive datum already reads `<redacted>`:
+A refusal raised by a template that reads a value an author declared sensitive does not carry that value. When a template stops the build — an assertion calling `fail`, an expression that cannot be evaluated, output that does not read as the document the template must produce — and one of its references reaches a declared-sensitive datum, what is reported comes from evaluating the same template a second time, against a context in which every declared-sensitive datum already reads `<redacted>` — unless the template stopped on a sentence it spells out itself, the first case below:
 
 ```text
 assertion failed: the admin password <redacted> must be supplied as a reference
 ```
 
+- **A `fail` whose sentence is written out in the template is reported as written.** Where the call that stopped the build is `fail` given one quoted string — `fail "…"`, with nothing piped into it and nothing composed into its sentence — the refusal carries that sentence whatever the value holds and whichever branch led to the call, because the sentence quotes nothing the template read: an assertion refusing an origin that has the wrong form shows its own explanation of the form. A sentence built any other way — `printf`, a field, a variable, a value piped into `fail` — is reported by the cases that follow.
 - **Where the second evaluation fails at the same expression for the same reason, its failure is the one reported.** The author's own sentence survives with `<redacted>` where the value stood, and a value the template encoded, quoted or otherwise transformed is withheld too, because the replacement happens before the transformation.
-- **Where it does not, the refusal names the failing expression and says its text is withheld.** That is a template whose behaviour depended on what the value holds — it took another branch, or failed elsewhere, against the replacement text — so nothing it composed can be shown. The refusal still stops the build, and it keeps its code.
+- **Where it does not, the refusal names the failing expression and says its text is withheld.** That is a template whose behaviour depended on what the value holds — it took another branch, or failed elsewhere, against the replacement text — so nothing it composed can be shown. To have such a refusal explain itself, write its sentence out in the `fail` call, as the first case describes. The refusal still stops the build, and it keeps its code.
 - **A rendered Workload the Workload schema rejects is worded from the schema.** The document's fields carry no link back to the data its template read, so where that template read a declared-sensitive datum, every finding that could quote a value states the constraint instead, with `<redacted>` in the value's place and a notice saying why. No advice derived from the value is given, and a finding that quotes no value — a missing key, a key the Workload does not admit — reads as it always does:
 
 ```text
