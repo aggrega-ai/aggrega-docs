@@ -152,9 +152,9 @@ spec:
   manifest: imported/flow
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
-    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
     # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
-    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
     # Left for the Release, since no configuration states it:
     #   - infra.image, the container image running the application
     support:
@@ -303,9 +303,9 @@ spec:
   manifest: imported/flow
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
-    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
     # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
-    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
     # Left for the Release, since no configuration states it:
     #   - infra.image, the container image running the application
     support:
@@ -410,6 +410,8 @@ service:
       OPENAI_MODEL: gpt-4o-mini
       LANGGRAPH_CHECKPOINTER_HOST: postgres
       LANGGRAPH_CHECKPOINTER_PORT: "5432"
+      LANGGRAPH_CHECKPOINTER_USER: appuser
+      LANGGRAPH_CHECKPOINTER_DATABASE: appdb
       LANGGRAPH_GRAPH_ENTRYPOINT: ./src/support_agent/graph.py:graph
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LANGGRAPH_CHECKPOINTER_PASSWORD: ${POSTGRES_PASSWORD}
@@ -424,12 +426,16 @@ service:
 ```
 
 The graph receives the model's address, its name and its key, the database's
-host, port and password, and its own graph entrypoint. The model's name, the
-database's host and port and the graph entrypoint arrive under the names the
-LangGraph Component delivers by default, which an `inject:` block on the
-connection, or on the component itself for its own values, replaces with the
-names your code reads. The model's address, its key and the database's
-password stay whatever the blocks name, and so does
+host, port, user, database name and password, and its own graph entrypoint.
+The user and the database name are the PostgreSQL Component's defaults,
+`appuser` and `appdb`, which the database's service below is created with; the
+graph is handed them because the PostgreSQL Recipe publishes both, and a store
+publishing neither, as Valkey does, is handed neither. The model's name, the
+database's host, port, user and database name and the graph entrypoint arrive
+under the names the LangGraph Component delivers by default, which an
+`inject:` block on the connection, or on the component itself for its own
+values, replaces with the names your code reads. The model's address, its key
+and the database's password stay whatever the blocks name, and so does
 `LANGGRAPH_DEFAULT_RECURSION_LIMIT`, which LangGraph reads by itself as the
 step limit of a run whose configuration sets none. The database's own service
 takes the same password:
@@ -484,12 +490,12 @@ program's own on port 8000. The image keeps the project's layout at its
 working directory, so the path `LANGGRAPH_GRAPH_ENTRYPOINT` names, relative to
 it, finds the graph. The server loads that graph, keeps each conversation's
 state in the database through LangGraph's PostgreSQL checkpointer, opened with
-the database's host, port and password, and runs the graph once for each
-`POST /threads/<thread>/runs`. The variables name no database user and no
-database, so it connected as `appuser` to `appdb`, the PostgreSQL Component's
-defaults, which the database's service above is created with. The graph's
-service starts once the database accepts connections, so a server that opens
-the checkpointer as it starts finds the database accepting connections. Build
+the database's host, port, user, database name and password, each read from
+the `LANGGRAPH_CHECKPOINTER_` variable it arrives under, so the program writes
+none of them itself, and runs the graph once for each
+`POST /threads/<thread>/runs`. The graph's service starts once the database
+accepts connections, so a server that opens the checkpointer as it starts
+finds the database accepting connections. Build
 your image at the project's root, put its name in place of
 `ghcr.io/example/support-agent:1.0.0` in `release.yaml`, and build again:
 
@@ -527,9 +533,9 @@ docker run --rm --network order-support_compose curlimages/curl:8.11.1 -sS -X PO
   "answer": "[… omitted: the graph's reply, written by the small local model]",
   "model": "gpt-4o-mini",
   "usage": {
-    "input_tokens": 57,
-    "output_tokens": 31,
-    "total_tokens": 88,
+    "input_tokens": 45,
+    "output_tokens": 17,
+    "total_tokens": 62,
     "input_token_details": {},
     "output_token_details": {}
   }

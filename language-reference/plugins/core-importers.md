@@ -1795,9 +1795,9 @@ spec:
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the graphs are built for.
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
-    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
+    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
     # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
-    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host and port, with the names it writes.
+    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
     # The environment langgraph.json states for its application, for the Release to carry where core/ai-agent/langgraph takes it for each of its graphs:
     #   SUPPORT_QUEUE: "..."
     #   OPENAI_API_KEY: "..."
@@ -1837,7 +1837,9 @@ spec:
 ```
 
 Each graph is then rendered running that image, given its datastore's address as
-`LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, the model's endpoint and name as
+`LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, the user and the database the datastore
+publishes as `LANGGRAPH_CHECKPOINTER_USER` and `LANGGRAPH_CHECKPOINTER_DATABASE` — PostgreSQL publishes
+both, and a datastore publishing neither has neither variable rendered — the model's endpoint and name as
 `OPENAI_BASE_URL` and `OPENAI_MODEL`, the key from the Secret the credential names as `OPENAI_API_KEY`,
 its import path as `LANGGRAPH_GRAPH_ENTRYPOINT` and its step limit as
 `LANGGRAPH_DEFAULT_RECURSION_LIMIT`. A credential attached on a graph's `checkpointer_db` connection
