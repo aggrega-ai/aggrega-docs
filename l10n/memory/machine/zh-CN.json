@@ -24498,6 +24498,17 @@
     "status": "machine",
     "text": "从所有工作区共享的全局配置中移除。"
   },
+  "246acf62d97926c5": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "e772daa85a0f041f",
+      "reviewed": false
+    },
+    "srcHash": "246acf62d97926c5",
+    "status": "machine",
+    "text": "其旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。它在智能体条目上方的注释中留下其 `infra.image`——运行基于 Agent Framework 构建的应用的镜像，其中包含其声明式智能体——以及它向模型出示的凭据（附加在其 `model` 连接上）；在设置镜像之前，构建会停止并指出它。声明式智能体为其模型和 MCP 服务器声明的值——各个密钥以及每个服务器的 `url`——写在同一注释中，如[声明式智能体中包含的凭据值](#credential-values-a-declarative-agent-holds)所述。每个已连接的模型都有一个条目，因此 Release 会将其与智能体放置在一起。其连接所声明的端点写为模型的 `infra.endpoint`，以引用形式写出的端点会在其条目旁列出，在设置之前使用 Component 自身的地址；未声明端点的连接会使该条目不包含任何基础设施，Component 自身的地址保持有效。除非为导入指定了目标（如[目标会添加什么](#what-a-target-adds)所述），Release 的 `metadata.environment` 和 `spec.manifest` 保持未设置，各自在注释中列出。"
+  },
   "246eb202be9af16e": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -27350,6 +27361,17 @@
     "srcHash": "28d4017940b9bf21",
     "status": "machine",
     "text": "**`.steps`（步骤输出 map）。** 在 Wasm 插件运行时由 `pipeline:` 执行填充，通过 `.steps.<id>.outputs` 将已完成步骤返回的输出提供给后续步骤。步骤在自己的 `with` 模板中读取前面步骤的输出；一个步骤的 `outputs` 仅对在其之后声明的步骤可见。当节点未声明 pipeline 时，以及在节点的第一个步骤完成之前，该字段为空。"
+  },
+  "28dd88db63afb3af": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "8f0e8d9656fad169",
+      "reviewed": false
+    },
+    "srcHash": "28dd88db63afb3af",
+    "status": "machine",
+    "text": "其 `model` 连接，连接到它指定的模型（如果该模型已连接）。"
   },
   "28de23128917547d": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -32561,6 +32583,17 @@
     "srcHash": "30aa8e3ac20cd5da",
     "status": "machine",
     "text": "**`provided-secret`** 以同一个名称为 `helm` 和 `compose` 实现 `core/secret-provided`。它将 `origin` 作为 `value` provides 键发布，自身不交付任何内容，因此由透明插槽上该附件自己的 `inject:` 块决定值的去向；没有该块的附件不会将值交付到任何地方。"
+  },
+  "30b5db2826209ae1": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "f220c365dfd49be2",
+      "reviewed": false
+    },
+    "srcHash": "30b5db2826209ae1",
+    "status": "machine",
+    "text": "Aggrega 通过渲染后的 YAML 重写，将其来源元数据注入渲染出的清单，确保 sourced 输出带有与 workload 模式输出相同的标签。身份值成为标签（`app.kubernetes.io/name`、`aggrega.ai/component-id`、`aggrega.ai/provider`、`aggrega.ai/provider-version`、`aggrega.ai/environment`，以及设置时的 `aggrega.ai/aggregate-name`、`aggrega.ai/compiler-version`），每个都以 Kubernetes 接受为标签值的形式写出；Kubernetes 标签无法表示的值成为注解（`aggrega.ai/recipe-uri`、`aggrega.ai/boundary-path`、wave 不为 `0` 时的 `aggrega.ai/sync-wave`，以及任何其值必须被重写的标签的原样值——名为 `imported/flow` 的 Aggregate 会获得标签 `imported-flow`，并在同一键下获得注解 `imported/flow`）。重写规则见 [well-known-annotations.md](well-known-annotations.md) 中的“提供方输出的来源标签”。"
   },
   "30b6e0f1b885ed02": {
     "at": "2026-11-01T19:00:07.009Z",
@@ -38206,6 +38239,17 @@
     "srcHash": "39b36d38d6eb03c8",
     "status": "machine",
     "text": "条件"
+  },
+  "39baf63ee959609b": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "e5a6842fcf34fdeb",
+      "reviewed": false
+    },
+    "srcHash": "39baf63ee959609b",
+    "status": "machine",
+    "text": "`key` 连接所提供的密钥（写在 `key` 或 `apiKey` 下，位于模型或某个 MCP 服务器上）是 Agent Framework 唯一标记为凭据的成员：它是其加载器在日志中唯一脱敏的值。声明式智能体以字面量写出的每个密钥，都会按声明式智能体的写法写入 Release 中该智能体条目上方的注释，并且默认按原样携带，在 `credential-carried` 警告中以其智能体和字段（例如 `model.connection.key`）指明，而绝不以其值指明。MCP 服务器的 `url` 完整写在同一注释中，并以其字段指明（例如 `tools.microsoft_learn.url of node LearnAgent is carried as written`），它是 MCP 服务器配置的成员；而已连接模型的端点是 Agent Framework 标记为非凭据的输入。当 [`empty_credentials` 设置](#settings)为 `marked` 时，密钥和 MCP 服务器的 `url` 都写为无值（注释仅以字段指明每一项），并以 `credential-emptied` 报告，而模型的端点照常携带；为 `all` 时，模型的 `infra.endpoint` 也被省略，在其条目上方的注释中注明留给 Release 设置，在设置之前使用 Component 的默认地址。写作 `=Env.NAME` 的值不持有任何值，因此无论设置如何，都以其变量指明，并附上 Agent Framework 从环境中读取它的条件（例如 `model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads …`），且不以上述任一代码报告；写作其他任何表达式的值则作为表达式指明，绝不写出。"
   },
   "39bd457f9b234654": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -122198,6 +122242,17 @@
     "status": "machine",
     "text": "在生成附件自身资源的模板上——即其 `valuesMapping:`、`workload:` 和 `artifacts:`——附件的上下文还会在 [`.context.used_by`](#the-components-that-use-this-one--contextused_by) 中列出使用其宿主的组件；并且当其 FeatureRecipe 设置了 `readsTargetRenderFacts: true` 时，会在 [`.context.uses.<alias>.render_facts`](#contextuses--join-projection-enrichededge) 中携带其宿主所连接的每个组件的渲染结果。这些模板及其 `pipeline:` 步骤还会在 [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts) 中读取宿主的 provider 对宿主渲染所报告的内容。边界作用域的 FeatureRecipe 没有宿主组件，也没有 `.context`；它改为在 `.boundary.internal_uses_edges` 和 `.boundary.incoming_cross_boundary_uses_edges` 下读取进入其边界的每个连接。"
   },
+  "b7cc81ecc795e8ba": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "21852c95d6cdc357",
+      "reviewed": false
+    },
+    "srcHash": "b7cc81ecc795e8ba",
+    "status": "machine",
+    "text": "然后，智能体被渲染为运行该镜像，并获得以 `OPENAI_BASE_URL` 提供的模型端点、以 `OPENAI_MODEL` 提供的模型 id 以及以 `OPENAI_API_KEY` 提供的凭据，模型则被渲染为访问其主机的 Service。没有任何变量携带 MCP 服务器的地址：访问它的是模型的提供方，而不是应用。"
+  },
   "b7cdec4c67e95a9b": {
     "at": "2026-11-05T20:08:38.916Z",
     "job": "session-0019-20261105200838",
@@ -131094,6 +131149,17 @@
     "srcHash": "c4d356b665a5e0a1",
     "status": "machine",
     "text": "当 guest 已运行但无法解析该链接时设置的失败消息；成功时不存在。宿主会将存在的错误呈现为一次失败的插件调用。无法继续的 resolve（例如目标只能作为完整标量承载的引用出现在更长的字符串内部）会在此处报告，而不只是表现为崩溃，以便能够指明其背后的条件。"
+  },
+  "c4d59174b0044846": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "3e4bc7bf3c9b172c",
+      "reviewed": false
+    },
+    "srcHash": "c4d59174b0044846",
+    "status": "machine",
+    "text": "在 Kubernetes 上构建它的 Release 保留这些条目，提供智能体的镜像并在其模型连接上提供凭据，并将它们放入一个边界中："
   },
   "c4da861117002f66": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -151215,6 +151281,17 @@
     "status": "machine",
     "text": "插件在 describe() 中声明的可选作者信息和构建来源元数据。它仅供参考；宿主不验证它，也不据此执行任何操作。version 和 commit 字段是在构建时写入 guest 的构建来源信息；未写入这些信息的构建会省略它们。"
   },
+  "e2062fc0f121b545": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "cc5d657503c9ff3e",
+      "reviewed": false
+    },
+    "srcHash": "e2062fc0f121b545",
+    "status": "machine",
+    "text": "写为 `=Env.NAME` 的成员，仅当应用以 `AgentFactory(safe_mode=False)`（Agent Framework 自身的安全设置）加载声明式智能体且存在 .NET 运行时时，才由 Agent Framework 从环境变量 `NAME` 中读取，否则按原样被视为该表达式的文本；其他任何以 `=` 开头的成员都是由应用计算的表达式。导入器两者都不读取：它按变量命名引用，并将表达式命名为表达式。"
+  },
   "e209e15c1baca58d": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -157870,6 +157947,17 @@
     "status": "machine",
     "text": "版本升级评判标准"
   },
+  "ec3d049ac52a0729": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "9be87ffe856e575a",
+      "reviewed": false
+    },
+    "srcHash": "ec3d049ac52a0729",
+    "status": "machine",
+    "text": "`importer/agent-framework` 读取 Microsoft Agent Framework 声明式智能体——即基于 Agent Framework 构建的应用从中加载智能体的、kind 为 `Prompt` 的 YAML 文档——并起草一个 Aggregate，其中包含标准库的 Agent Framework 智能体 `core/ai-agent/agent-framework` 的一个实例，连接到它所指定的 OpenAI 模型，并在其旁起草一个 Release。它读取声明式智能体，从不读取应用的代码。Agent Framework 以预发布版本的形式发布其声明式智能体软件包。"
+  },
   "ec3f823251a1a3e4": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -160008,6 +160096,13 @@
     "srcHash": "ef5fddff5a37b96f",
     "status": "machine",
     "text": "**`mcp.announce_tools` 收窄服务器公布的内容，它是与上面那个键不同的边界。** 列出本服务器要公布的工具，按工具列表报告的写法书写，则恰好公布这些工具：被省略的工具不会出现在任何调用方的工具列表中，如果仍按名称调用它，会被拒绝，并指出此设置。省略该键（默认）时，服务器承载的每个工具都会被公布；写一个空列表则一个都不公布，因此这两种写法是不同的声明，不会替你填入默认值。它与 `deny_reach` 的区别在于各自拿走的东西。`deny_reach` 拿走的是能力：被撤除类别的操作在这里根本不被承载，任何凭据都无法恢复。`announce_tools` 只拿走公布——它省略的工具仍是服务器具备的能力——它针对的是限制自己注册工具数量的客户端，这种限制有时跨越它同时连接的所有服务器。两者都设置时以撤除为准，因此被撤除类别的工具无论此键如何指定都不会出现。没有任何工具对应的名称会让服务器在提供任何服务之前停止，并列出它实际拥有的工具，而不是留给你一个比你所要求的更窄的接口。与这里其他配置 `http` 传输所启动监听器的键不同，无论服务器使用哪种传输都会读取它，因为收窄所针对的客户端通常正是通过自身标准输入输出启动该进程的那个客户端；[aggrega-mcp.md](aggrega-mcp.md#narrowing-what-the-server-announces) 说明了其余内容。"
+  },
+  "ef6211b08bb0c3c1": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "srcHash": "ef6211b08bb0c3c1",
+    "status": "machine",
+    "text": "kind 为 `mcp` 的工具既不会被起草为 Component，也不会被起草为连接：Agent Framework 将该服务器作为托管工具发送给模型的提供方，由提供方而非应用通过其 `url` 访问它，因此该地址必须可从提供方访问，草稿部署的任何内容都不会访问它。智能体实例上方的注释会列出该服务器，说明这一点，并列出声明式智能体为其声明的描述、`approvalMode` 和 `allowedTools`；其 `url` 会完整写入 Release 中该智能体条目上方的注释，其决策不做任何选择。"
   },
   "ef63c50a8873fe50": {
     "at": "2026-10-22T08:23:20.000561+00:00",

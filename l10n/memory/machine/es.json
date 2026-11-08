@@ -21909,6 +21909,17 @@
     "status": "machine",
     "text": "Eliminar de la configuración global compartida por todos los workspaces."
   },
+  "246acf62d97926c5": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "e772daa85a0f041f",
+      "reviewed": false
+    },
+    "srcHash": "246acf62d97926c5",
+    "status": "machine",
+    "text": "`release.yaml`, junto a él, es una Release de borrador con el mismo nombre que nombra ese Aggregate. Deja, en un comentario encima de la entrada del agente, su `infra.image` — la imagen que ejecuta la aplicación construida sobre Agent Framework, que contiene su agente declarativo — y la credencial que presenta a su modelo, vinculada en su conexión `model`; la compilación se detiene nombrando la imagen hasta que se define. Los valores que el agente declarativo indica para su modelo y sus servidores MCP — las claves y la `url` de cada servidor — se escriben en el mismo comentario, como describe [Valores de credenciales que contiene un agente declarativo](#credential-values-a-declarative-agent-holds). Cada modelo conectado tiene una entrada, por lo que la Release lo coloca junto con el agente. El endpoint que indica su conexión se escribe como el `infra.endpoint` del modelo, y uno escrito como referencia se nombra junto a su entrada, y se usa la dirección propia del Component hasta que se define; una conexión que no indica ningún endpoint deja la entrada sin infraestructura, y se mantiene la dirección propia del Component. El `metadata.environment` y el `spec.manifest` de la Release se dejan sin definir, cada uno nombrado en un comentario, a menos que a la importación se le dé un destino, como describe [Qué añade un destino](#what-a-target-adds)."
+  },
   "246eb202be9af16e": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -24450,6 +24461,17 @@
     "srcHash": "28d4017940b9bf21",
     "status": "machine",
     "text": "**`.steps` (mapa de salidas de pasos).** Lo rellena la ejecución de `pipeline:` a medida que se ejecutan los plugins de Wasm, y expone las salidas devueltas por un paso completado a los pasos siguientes mediante `.steps.<id>.outputs`. Un paso lee las salidas de un paso anterior desde su propia plantilla `with`; los `outputs` de un paso solo se vuelven visibles para los pasos declarados después de él. Vacío cuando el nodo no declara ningún pipeline, y antes de que se complete el primer paso del nodo."
+  },
+  "28dd88db63afb3af": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "8f0e8d9656fad169",
+      "reviewed": false
+    },
+    "srcHash": "28dd88db63afb3af",
+    "status": "machine",
+    "text": "su conexión `model`, conectada al modelo que nombra, donde ese modelo está conectado."
   },
   "28de23128917547d": {
     "at": "2026-11-03T11:13:56.542Z",
@@ -29217,6 +29239,17 @@
     "srcHash": "30aa8e3ac20cd5da",
     "status": "machine",
     "text": "**`provided-secret`** implementa `core/secret-provided`, para `helm` y para `compose` con el mismo nombre. Publica `origin` como la clave provides `value` y no entrega nada por sí misma, así que el propio bloque `inject:` de la vinculación en un slot transparente decide adónde va el valor; una vinculación sin él no lo entrega en ningún lugar."
+  },
+  "30b5db2826209ae1": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "f220c365dfd49be2",
+      "reviewed": false
+    },
+    "srcHash": "30b5db2826209ae1",
+    "status": "machine",
+    "text": "Aggrega inyecta sus metadatos de procedencia en los manifiestos renderizados mediante una reescritura de YAML posterior al renderizado, lo que garantiza que la salida con fuente lleve el mismo etiquetado que la salida del modo Workload. Los valores de identidad se convierten en etiquetas (`app.kubernetes.io/name`, `aggrega.ai/component-id`, `aggrega.ai/provider`, `aggrega.ai/provider-version`, `aggrega.ai/environment` y — cuando están establecidos — `aggrega.ai/aggregate-name`, `aggrega.ai/compiler-version`), cada una escrita en una forma que Kubernetes acepta como valor de etiqueta; los valores que una etiqueta de Kubernetes no puede representar se convierten en anotaciones (`aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path`, `aggrega.ai/sync-wave` donde la oleada no es `0`, y el valor literal de cualquier etiqueta cuyo valor tuvo que reescribirse — un Aggregate llamado `imported/flow` recibe la etiqueta `imported-flow` y la anotación `imported/flow` bajo la misma clave). La regla de reescritura se enuncia en [well-known-annotations.md](well-known-annotations.md) «Etiquetas de procedencia emitidas por los proveedores»."
   },
   "30b6e0f1b885ed02": {
     "at": "2026-11-03T17:29:39.514Z",
@@ -34205,6 +34238,17 @@
     "srcHash": "39b36d38d6eb03c8",
     "status": "machine",
     "text": "Condición"
+  },
+  "39baf63ee959609b": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "e5a6842fcf34fdeb",
+      "reviewed": false
+    },
+    "srcHash": "39baf63ee959609b",
+    "status": "machine",
+    "text": "La clave que presenta una conexión `key` — escrita bajo `key` o `apiKey`, en el modelo o en un servidor MCP — es el único miembro que Agent Framework marca como credencial: es el único valor que su cargador oculta en lo que registra. Cada clave que un agente declarativo escribe como literal se escribe en el comentario encima de la entrada del agente en la Release, tal como la escribe el agente declarativo, y de forma predeterminada se traslada tal como está escrita y se nombra en una advertencia `credential-carried` por su agente y su campo, como `model.connection.key`, nunca por su valor. La `url` de un servidor MCP, escrita completa en el mismo comentario y nombrada por su campo — `tools.microsoft_learn.url of node LearnAgent is carried as written` —, es un miembro de la configuración de un servidor MCP, y el endpoint de un modelo conectado es una entrada que Agent Framework marca como no credencial. Con el [ajuste `empty_credentials`](#settings) en `marked`, las claves y las `url` de los servidores MCP se escriben sin valor — el comentario nombra cada una solo por su campo — y se informa de ellas con `credential-emptied`, y el endpoint del modelo se traslada; en `all`, también se omite el `infra.endpoint` del modelo, que se nombra en el comentario encima de su entrada como pendiente para la Release, y se usa la dirección predeterminada del Component hasta que se define. Un valor escrito como `=Env.NAME` no contiene ninguno, así que se nombra por su variable, junto con la condición en la que Agent Framework lo lee del entorno — `model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads …` — diga lo que diga el ajuste, y no se informa de él con ninguno de los dos códigos; un valor escrito como cualquier otra expresión se nombra como tal y nunca se escribe."
   },
   "39bd457f9b234654": {
     "at": "2026-11-03T14:26:19.593Z",
@@ -109639,6 +109683,17 @@
     "status": "machine",
     "text": "Los hallazgos. Es null en lugar de una lista vacía cuando no hay ninguno."
   },
+  "b7cc81ecc795e8ba": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "21852c95d6cdc357",
+      "reviewed": false
+    },
+    "srcHash": "b7cc81ecc795e8ba",
+    "status": "machine",
+    "text": "El agente se renderiza entonces ejecutando esa imagen, y recibe el endpoint del modelo como `OPENAI_BASE_URL`, su id como `OPENAI_MODEL` y su credencial como `OPENAI_API_KEY`, y el modelo se renderiza como un Service que alcanza su host. Ninguna variable lleva la dirección del servidor MCP: lo alcanza el proveedor del modelo, no la aplicación."
+  },
   "b7cdec4c67e95a9b": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -117725,6 +117780,17 @@
     "srcHash": "c4d356b665a5e0a1",
     "status": "machine",
     "text": "Un mensaje de fallo que se establece cuando el guest se ejecutó pero no pudo resolver el enlace; ausente en caso de éxito. El host presenta un error presente como una invocación de plugin fallida. Una resolución que no puede continuar — una referencia que el destino solo puede llevar como un escalar completo, encontrada dentro de una cadena más larga — se informa aquí en lugar de solo como una caída, de modo que se pueda nombrar la condición que hay detrás."
+  },
+  "c4d59174b0044846": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "3e4bc7bf3c9b172c",
+      "reviewed": false
+    },
+    "srcHash": "c4d59174b0044846",
+    "status": "machine",
+    "text": "Una Release que lo compila en Kubernetes conserva esas entradas, proporciona la imagen del agente y una credencial en su conexión con el modelo, y las sitúa en un límite:"
   },
   "c4da861117002f66": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -135746,6 +135812,17 @@
     "status": "machine",
     "text": "Metadatos opcionales de autoría y de procedencia del build que un plugin declara en describe(). Son informativos; el host no los valida ni actúa en función de ellos. Los campos version y commit son la procedencia del build estampada en el guest en el momento del build; un build sin estampar los omite."
   },
+  "e2062fc0f121b545": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "cc5d657503c9ff3e",
+      "reviewed": false
+    },
+    "srcHash": "e2062fc0f121b545",
+    "status": "machine",
+    "text": "Un miembro escrito como `=Env.NAME` lo lee Agent Framework de la variable de entorno `NAME` solo donde la aplicación carga el agente declarativo con `AgentFactory(safe_mode=False)`, el propio ajuste de seguridad de Agent Framework, y hay un entorno de ejecución de .NET presente, y en otro caso se toma como el texto de la expresión tal como está escrito; cualquier otro miembro que empiece por `=` es una expresión que calcula la aplicación. El importador no lee ninguno de los dos: nombra una referencia por su variable, y una expresión como tal."
+  },
   "e209e15c1baca58d": {
     "at": "2026-11-03T01:23:33.287Z",
     "job": "session-0032-20261103012333",
@@ -141713,6 +141790,17 @@
     "status": "machine",
     "text": "La rúbrica del incremento de versión"
   },
+  "ec3d049ac52a0729": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "revision": {
+      "from": "9be87ffe856e575a",
+      "reviewed": false
+    },
+    "srcHash": "ec3d049ac52a0729",
+    "status": "machine",
+    "text": "`importer/agent-framework` lee un agente declarativo de Microsoft Agent Framework — el documento YAML de tipo `Prompt` desde el que una aplicación construida sobre Agent Framework carga un agente — y genera como borrador un Aggregate que contiene una instancia del agente Agent Framework de la biblioteca estándar, `core/ai-agent/agent-framework`, conectada al modelo de OpenAI que nombra, y una Release junto a él. Lee agentes declarativos, y nunca el código de la aplicación. Agent Framework publica sus paquetes de agentes declarativos como versiones preliminares."
+  },
   "ec3f823251a1a3e4": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -143632,6 +143720,13 @@
     "srcHash": "ef5fddff5a37b96f",
     "status": "machine",
     "text": "**`mcp.announce_tools` restringe lo que anuncia el servidor, y es un límite distinto de la clave anterior.** Indica las herramientas que anuncia este servidor, escritas como las informa la lista de herramientas, y se anuncian exactamente esas: una omitida no aparece en la lista de herramientas de ningún llamador y, si aun así se llama por su nombre, se rechaza indicando este ajuste. Si omites la clave — el comportamiento predeterminado —, se anuncia cada herramienta que ofrece el servidor; si escribes una lista vacía, no se anuncia ninguna, así que esas dos escrituras son afirmaciones distintas y no se rellena ningún valor predeterminado por ti. Lo que la distingue de `deny_reach` es lo que cada una quita. `deny_reach` quita una capacidad: las operaciones de un tipo retirado no se ofrecen aquí en absoluto y ninguna credencial devuelve ninguna. `announce_tools` solo quita un anuncio — las herramientas que omite son capacidades que el servidor sigue teniendo —, y responde a un cliente que limita cuántas herramientas registrará, a veces entre todos los servidores a los que está conectado a la vez. Donde ambas están establecidas, prevalece la retirada, así que una herramienta de un tipo retirado sigue ausente como sea que esta clave la indique. Un nombre al que no responde ninguna herramienta detiene el servidor antes de que sirva nada, enumerando las herramientas que sí tiene, en lugar de dejarte con una superficie más estrecha que la que pediste. A diferencia de las demás claves de aquí, que configuran el listener que inicia el transporte `http`, se lee sea cual sea el transporte que habla el servidor, porque el cliente para el que existe una restricción suele ser el que inició el proceso a través de su propia entrada y salida estándar; [aggrega-mcp.md](aggrega-mcp.md#narrowing-what-the-server-announces) expone el resto."
+  },
+  "ef6211b08bb0c3c1": {
+    "at": "2026-11-08T12:51:16.665Z",
+    "job": "session-0018-20261108125116",
+    "srcHash": "ef6211b08bb0c3c1",
+    "status": "machine",
+    "text": "Una herramienta de tipo `mcp` no se genera como borrador ni como Component ni como conexión: Agent Framework envía el servidor al proveedor del modelo como herramienta alojada, y es el proveedor, no la aplicación, quien lo alcanza en su `url`, que por tanto debe ser accesible desde el proveedor, de modo que nada de lo que despliega el borrador lo alcanza. Un comentario encima de la instancia del agente nombra el servidor, lo indica, y nombra la descripción, el `approvalMode` y los `allowedTools` que el agente declarativo indica para él; su `url` se escribe, completa, en el comentario encima de la entrada del agente en la Release, y su decisión no elige nada."
   },
   "ef63c50a8873fe50": {
     "at": "2026-11-04T12:39:28.645Z",
