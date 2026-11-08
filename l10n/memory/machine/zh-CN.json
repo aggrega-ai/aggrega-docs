@@ -25648,6 +25648,17 @@
     "status": "machine",
     "text": "该命令解析并运行的、已解析且固定版本的制品引用，例如 `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`，在安装时固定。"
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "这十个导入器都基于 Go 工具包的 importer 包 `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer` 构建。对于 Langflow、Flowise 和 n8n 导入器，导入器无论格式如何都要做的一切——将工作区目录中的 Components 与每个节点进行评分匹配、决定引用已有的还是起草新的、排布草稿、携带其中的凭据值或按设置要求将其写为空值、写出草稿以及读取下文的设置——都由该包完成，只有读取格式以及了解其 flow 所运行的平台是各导入器特有的。MCP 导入器为每个服务器起草一个 Component 的实例，因此不做任何评分；它与该包共享所读设置的读取方式、对凭据值的判断，以及草稿命名和描述所遵循的约定，详见 [MCP 导入器](#the-mcp-importer)。Compose 导入器通过同一个包，以 flow 导入器判断节点的方式判断它匹配的每个服务，以相同方式渲染草稿，并像 MCP 导入器一样共享其余部分，详见 [Compose 导入器](#the-compose-importer)。Dify 导入器通过同一个包的平台草稿（采用适用于整体安装型平台的形式），起草标准库组装的 Dify 安装并携带该应用，详见 [Dify 导入器](#the-dify-importer)。CrewAI 导入器为项目声明的每个 agent 起草一个标准库 CrewAI agent 的实例，连接到其指定的模型，并像 MCP 导入器一样共享其余部分，详见 [CrewAI 导入器](#the-crewai-importer)。LangGraph 导入器为应用配置声明的每个 graph 起草一个标准库 LangGraph agent 的实例，连接到其 checkpointer 保存状态的数据存储，并像 MCP 导入器一样共享其余部分，详见 [LangGraph 导入器](#the-langgraph-importer)。Google ADK 导入器为应用配置声明的每棵 agent 树起草一个标准库 ADK agent 的实例，在 ADK 将请求发送到 Gemini API 的情况下连接到该树指定的模型，并像 MCP 导入器一样共享其余部分，详见 [Google ADK 导入器](#the-google-adk-importer)。Agent Framework 导入器为每个声明式 agent 起草一个标准库 Agent Framework agent 的实例，连接到其指定的 OpenAI 模型——它指定的每个 MCP 服务器都写在注释中，因为模型的提供方以托管工具的形式访问它——并像 MCP 导入器一样共享其余部分，详见 [Agent Framework 导入器](#the-agent-framework-importer)。导入器插槽的工作方式及其接收的内容，见[导入器插槽](plugin-contract.md#the-importer-socket--draft-authoring-output)。"
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -39097,6 +39108,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "该安装由十个相互连接的组件组成——Dify 的 API 服务器、工作进程、调度器、Web 前端、代码沙箱、插件运行时、一个出口代理、PostgreSQL、一个兼容 Redis 的缓存以及 Weaviate——而应用的导入是其 API 服务器的 Recipe 所渲染的一个步骤。条目上方的注释指明了应用无法提供的内容：导入应用时所属的所有者账户及其密码。"
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "agent 读取网关发布的两个键，它们正是模型所发布的那两个键，因此其 Recipe 像读取模型的键一样读取它们。`CREWAI_` 变量携带 agent 自身的值，使用 CrewAI Component 默认赋予它们的名称。地址是 Envoy Gateway 为网关数据平面创建的 Service，以网关的命名空间、名称以及二者的哈希命名，并用 `envoy-gateway-system` 限定，因此可以从 agent 的命名空间解析。模型名称是别名 `assistant`；路由将指定该名称的请求发送到模型的后端，并改为请求 `gpt-4o-mini`。"
   },
   "3b1be835190b4b28": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -67796,6 +67818,17 @@
     "status": "machine",
     "text": "读取 hub 的构建还需要一个编译器，其版本须是发布了挂载所指定插件版本的那个版本——对于 `governance/rego:0.8.6`，即 `aggrega` 的 `0.8.6` 版本。Rego 引擎编译在 CLI 二进制文件中，其版本就是附带它的编译器版本。任何其他版本的编译器，或在两个版本之间从源码构建的编译器，所带的引擎构建都不同：用它进行读取 hub 的构建会以 `E0135`（`oci: content digest\nmismatch`）中止，因为该编译器所带的模块与 hub 为 `governance/rego:0.8.6` 发布的摘要不匹配。这次中止是插件的摘要校验在起作用，并非示例的故障。"
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "标准库目录中没有针对此目标的 `core/backup` FeatureRecipe。消息列出的每一个都绑定到另一个目标，因此若在此处固定，它会作为单独的输出渲染在 Compose 文件旁边，而该输出面向的是此 Release 并不部署到的目标。可行的做法是从 Release 中移除该附加，在那里部署不带备份的数据库；或者像其他五个 Releases 那样，通过面向拥有备份产品的目标的 Manifest 部署它。"
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -70355,6 +70388,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "对于 FR 发出的资源，`aggrega.ai/recipe-uri` 解析为该 FeatureRecipe 自身的 `name:version`，而非使用它的 Recipe 的标识——因此读取 `recipe-uri` 来识别生成方实体的下游工具，无论对组件发出的输出还是 FR 发出的输出，都能获得正确的溯源。"
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "pull 操作会获取 `core/gateway/nginx`，因为包装器扩展了它：基础组件是所有扩展它的内容的依赖，因此无论 Manifest 是否指定它，pull 操作都会沿着包装器的 `extends:` 在锁文件中固定该基础组件。此处 Manifest 映射该基础组件另有原因——下文的对照发布声明了基础组件本身的一个实例。"
   },
   "6a29c3f5dab63cef": {
     "at": "2026-10-22T04:56:15.693842+00:00",

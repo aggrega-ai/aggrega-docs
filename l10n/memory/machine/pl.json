@@ -25648,6 +25648,17 @@
     "status": "machine",
     "text": "Rozwiązana, przypięta do wersji referencja artefaktu, którą polecenie rozwiązuje i uruchamia, np. `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`, przypinana przy instalacji."
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "Wszystkie dziesięć zbudowano na pakiecie importera z zestawu Go, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`. W przypadku importerów Langflow, Flowise i n8n wszystko, co importer robi niezależnie od formatu — ocenianie Components z katalogu obszaru roboczego względem każdego węzła, decyzja, czy odwołać się do jednego z nich, czy utworzyć szkic nowego, rozmieszczenie szkicu, przenoszenie zawartych w nim wartości poświadczeń lub zapisywanie ich jako pustych, gdy wymaga tego ustawienie, zapisywanie szkiców i odczytywanie poniższych ustawień — należy do tego pakietu, a tylko odczyt formatu i znajomość platformy, na której działają jego przepływy, są właściwe dla każdego importera. Importer MCP tworzy szkic instancji jednego Component na serwer, więc niczego nie ocenia; dzieli z pakietem odczyt ustawień, które czyta, decyzję co do wartości poświadczeń oraz konwencje, według których nazywa i opisuje swoje szkice, jak opisano w [Importer MCP](#the-mcp-importer). Importer Compose rozstrzyga o każdej dopasowanej usłudze tak, jak importery przepływów rozstrzygają o węźle, za pomocą tego samego pakietu, renderuje swoje szkice tak jak one, a resztę dzieli tak jak importer MCP, jak opisano w [Importer Compose](#the-compose-importer). Importer Dify tworzy szkic instalacji Dify, składanej przez bibliotekę standardową, zawierającej aplikację, za pomocą szkicu platformy z tego samego pakietu w postaci, jaką przyjmuje on dla platformy będącej całą instalacją, jak opisano w [Importer Dify](#the-dify-importer). Importer CrewAI tworzy szkic instancji agenta CrewAI z biblioteki standardowej dla każdego agenta zadeklarowanego przez projekt, połączonej ze wskazanym przez niego modelem, a resztę dzieli tak jak importer MCP, jak opisano w [Importer CrewAI](#the-crewai-importer). Importer LangGraph tworzy szkic instancji agenta LangGraph z biblioteki standardowej dla każdego grafu zadeklarowanego w konfiguracji aplikacji, połączonej z magazynem danych, w którym jego checkpointer przechowuje stan, a resztę dzieli tak jak importer MCP, jak opisano w [Importer LangGraph](#the-langgraph-importer). Importer Google ADK tworzy szkic instancji agenta ADK z biblioteki standardowej dla każdego drzewa agentów zadeklarowanego w konfiguracjach aplikacji, połączonej z modelem wskazanym przez drzewo, gdy ADK wysyła swoje żądania do API Gemini, a resztę dzieli tak jak importer MCP, jak opisano w [Importer Google ADK](#the-google-adk-importer). Importer Agent Framework tworzy szkic instancji agenta Agent Framework z biblioteki standardowej dla każdego agenta deklaratywnego, połączonej ze wskazanym przez niego modelem OpenAI — przy czym każdy wskazany przez niego serwer MCP jest zapisywany w komentarzach, ponieważ dostawca modelu sięga do niego jako do narzędzia hostowanego — a resztę dzieli tak jak importer MCP, jak opisano w [Importer Agent Framework](#the-agent-framework-importer). Sposób działania gniazda importera oraz to, co ono otrzymuje, opisano w sekcji [Gniazdo importera](plugin-contract.md#the-importer-socket--draft-authoring-output)."
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -39090,6 +39101,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "Instalacja to dziesięć komponentów — serwer API, worker, scheduler, frontend webowy, piaskownica kodu i środowisko uruchomieniowe wtyczek Dify, proxy ruchu wychodzącego, PostgreSQL, pamięć podręczna zgodna z Redis i Weaviate — połączonych ze sobą, a import aplikacji to krok, który generuje encja Recipe serwera API instalacji. Komentarze nad wpisem wskazują to, czego aplikacja nie może dostarczyć: konto właściciela, w ramach którego aplikacja jest importowana, oraz jego hasło."
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "Agent odczytuje dwa klucze publikowane przez bramę, które są tymi samymi dwoma kluczami, jakie publikuje model, więc jego Recipe odczytuje je tak, jak odczytywałby klucze modelu. Zmienne `CREWAI_` przenoszą własne wartości agenta pod nazwami, które domyślnie nadaje im encja Component CrewAI. Adres to Service, który Envoy Gateway tworzy dla płaszczyzny danych bramy, nazwany na podstawie przestrzeni nazw bramy, jej nazwy i skrótu obu tych wartości, i kwalifikowany przez `envoy-gateway-system`, dzięki czemu jest rozwiązywany z przestrzeni nazw agenta. Nazwa modelu to alias `assistant`; trasa kieruje żądanie, które go wskazuje, do backendu modelu, prosząc w zamian o `gpt-4o-mini`."
   },
   "3b1be835190b4b28": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -67786,6 +67808,17 @@
     "status": "machine",
     "text": "Kompilacja odczytująca hub wymaga też kompilatora z wydania, które opublikowało wersję pluginu wskazaną w dołączeniu — dla `governance/rego:0.8.6` jest to wydanie `0.8.6` `aggrega`. Silnik Rego jest wkompilowany w plik binarny CLI, a jego wersją jest wydanie kompilatora, które go dostarcza. Kompilator z dowolnego innego wydania lub zbudowany ze źródeł między wydaniami zawiera inną kompilację silnika: kompilacja odczytująca hub z jego użyciem zatrzymuje się z błędem `E0135` (`oci: content digest\nmismatch`), ponieważ moduł zawarty w tym kompilatorze nie pasuje do skrótu, który hub publikuje dla `governance/rego:0.8.6`. To zatrzymanie oznacza, że weryfikacja skrótu pluginu działa, a nie że przykład zawiera błąd."
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "Katalog biblioteki standardowej nie zawiera encji FeatureRecipe dla `core/backup` na tym celu. Każda z encji wymienionych w komunikacie wiąże się z innym celem, więc przypięta tutaj jest renderowana jako osobne wyjście obok pliku Compose, dla celu, na który ta encja Release nie wdraża. Dalsze możliwości to usunięcie dołączenia z encji Release i wdrożenie tam bazy danych bez kopii zapasowej albo wdrożenie jej przez encję Manifest dla celu, który ma produkt do kopii zapasowych, tak jak robi to pozostałych pięć encji Releases."
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -70352,6 +70385,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "`aggrega.ai/recipe-uri` dla zasobu emitowanego przez FR wskazuje własne `name:version` encji FeatureRecipe, a nie tożsamość konsumującej encji Recipe — dzięki temu narzędzia końcowe odczytujące `recipe-uri` w celu identyfikacji wytwarzającej encji otrzymują poprawne pochodzenie zarówno dla wyniku emitowanego przez komponenty, jak i przez FR."
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "Operacja pull pobiera `core/gateway/nginx`, ponieważ wrapper go rozszerza: baza jest zależnością wszystkiego, co ją rozszerza, więc operacja pull podąża za `extends:` wrappera i przypina bazę w pliku blokady niezależnie od tego, czy encja Manifest ją wymienia. Encja Manifest mapuje tu bazę z innego powodu — kontrolne wydanie poniżej deklaruje instancję samej bazy."
   },
   "6a29c3f5dab63cef": {
     "at": "2026-10-22T23:44:14.843805+00:00",

@@ -22916,6 +22916,17 @@
     "status": "machine",
     "text": "La référence d’artefact résolue et épinglée à une version que la commande résout et exécute, par ex. `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`, épinglée à l’installation."
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "Les dix reposent sur le paquet importer du kit Go, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`. Pour les importateurs Langflow, Flowise et n8n, tout ce que fait un importateur quel que soit son format — évaluer les Components du catalogue de l’espace de travail par rapport à chaque nœud, décider s’il faut référencer l’un d’eux ou en produire un nouveau en brouillon, disposer le brouillon, reporter les valeurs d’identifiants qu’il contient ou les écrire vides comme le demande un paramètre, écrire les brouillons et lire les paramètres décrits ci-dessous — relève de ce paquet, et seules la lecture du format et la connaissance de la plateforme sur laquelle ses flux s’exécutent sont propres à chaque importateur. L’importateur MCP produit en brouillon une instance d’un Component par serveur, il n’évalue donc rien ; il partage avec le paquet la lecture des paramètres qu’il lit, sa décision sur les valeurs d’identifiants et les conventions selon lesquelles ses brouillons sont nommés et décrits, comme le décrit [L’importateur MCP](#the-mcp-importer). L’importateur Compose décide de chaque service qu’il fait correspondre comme les importateurs de flux décident d’un nœud, au moyen du même paquet, rend ses brouillons comme eux et partage le reste comme le fait l’importateur MCP, comme le décrit [L’importateur Compose](#the-compose-importer). L’importateur Dify produit en brouillon l’installation Dify qu’assemble la bibliothèque standard, qui porte l’application, au moyen du brouillon de plateforme du même paquet dans la forme qu’il prend pour une plateforme qui est une installation entière, comme le décrit [L’importateur Dify](#the-dify-importer). L’importateur CrewAI produit en brouillon une instance de l’agent CrewAI de la bibliothèque standard par agent que déclare un projet, reliée au modèle que nomme cet agent, et partage le reste comme le fait l’importateur MCP, comme le décrit [L’importateur CrewAI](#the-crewai-importer). L’importateur LangGraph produit en brouillon une instance de l’agent LangGraph de la bibliothèque standard par graphe que déclare la configuration d’une application, reliée au magasin de données dans lequel son checkpointer conserve l’état, et partage le reste comme le fait l’importateur MCP, comme le décrit [L’importateur LangGraph](#the-langgraph-importer). L’importateur Google ADK produit en brouillon une instance de l’agent ADK de la bibliothèque standard par arbre d’agents que déclarent les configurations d’une application, reliée au modèle que nomme l’arbre lorsqu’ADK envoie ses requêtes à l’API Gemini, et partage le reste comme le fait l’importateur MCP, comme le décrit [L’importateur Google ADK](#the-google-adk-importer). L’importateur Agent Framework produit en brouillon une instance de l’agent Agent Framework de la bibliothèque standard par agent déclaratif, reliée au modèle OpenAI que nomme cet agent — chaque serveur MCP qu’il nomme étant écrit en commentaires, puisque le fournisseur du modèle l’atteint comme un outil hébergé — et partage le reste comme le fait l’importateur MCP, comme le décrit [L’importateur Agent Framework](#the-agent-framework-importer). Le fonctionnement du socket importateur, et ce qui lui est transmis, est décrit sous [Le socket importateur](plugin-contract.md#the-importer-socket--draft-authoring-output)."
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -35030,6 +35041,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "L’installation se compose de dix composants — le serveur d’API de Dify, son worker, son ordonnanceur, son front-end web, son bac à sable de code, son runtime de plugins, un proxy de sortie, PostgreSQL, un cache compatible Redis et Weaviate — reliés entre eux, et l’importation de l’application est une étape que rend la Recipe de son serveur d’API. Les commentaires au-dessus de l’entrée nomment ce que l’application ne peut pas fournir : le compte propriétaire sous lequel l’application est importée, et son mot de passe."
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "L’agent lit les deux clés que publie la passerelle, qui sont les deux que publie un modèle, si bien que sa Recipe les lit comme elle lirait celles d’un modèle. Les variables `CREWAI_` portent les valeurs propres de l’agent, sous les noms que leur donne par défaut le Component CrewAI. L’adresse est le Service qu’Envoy Gateway crée pour le plan de données de la passerelle, nommé à partir du namespace de la passerelle, de son nom et d’un hachage des deux, et qualifié avec `envoy-gateway-system`, si bien qu’elle se résout depuis le namespace de l’agent. Le nom du modèle est l’alias `assistant` ; la route envoie une requête qui le nomme au backend du modèle, en demandant `gpt-4o-mini` à la place."
   },
   "3b1be835190b4b28": {
     "at": "2026-11-03T21:35:42.901Z",
@@ -60727,6 +60749,17 @@
     "status": "machine",
     "text": "Un build qui lit le hub a aussi besoin d’un compilateur de la release qui a publié la version du plugin que nomme le rattachement — pour `governance/rego:0.8.6`, la release `0.8.6` de `aggrega`. Le moteur Rego est compilé dans le binaire de la CLI, et sa version est la release du compilateur qui le livre. Un compilateur de toute autre release, ou un compilateur construit depuis les sources entre deux releases, porte un autre build du moteur : un build qui lit le hub avec lui s’arrête avec `E0135` (`oci: content digest\nmismatch`), car le module que porte ce compilateur ne correspond pas au digest que le hub publie pour `governance/rego:0.8.6`. Cet arrêt est la vérification du digest du plugin qui fait son travail, et non une défaillance de l’exemple."
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "Le catalogue de la bibliothèque standard ne contient aucune FeatureRecipe pour `core/backup` sur cette cible. Chacune de celles que liste le message se lie à une autre cible, si bien qu’épinglée ici, elle est rendue comme une sortie à part entière à côté du fichier Compose, pour une cible sur laquelle cette Release ne déploie pas. Les voies possibles sont de retirer le rattachement de la Release, en déployant la base de données sans sauvegarde sur cette cible, ou de la déployer via un Manifest pour une cible qui dispose d’un produit de sauvegarde, comme le font les cinq autres Releases."
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -63059,6 +63092,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "La valeur `aggrega.ai/recipe-uri` d’une ressource émise par une FR correspond au `name:version` propre de la FeatureRecipe, et non à l’identité de la Recipe consommatrice — ainsi l’outillage en aval qui lit `recipe-uri` pour identifier l’entité productrice obtient la provenance correcte à la fois pour la sortie émise par les composants et pour celle émise par les FR."
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "Le pull récupère `core/gateway/nginx` parce que le wrapper l’étend : une base est une dépendance de tout ce qui l’étend, si bien que le pull suit la clé `extends:` du wrapper et épingle la base dans le fichier de verrouillage, que le Manifest la nomme ou non. Le Manifest mappe ici la base pour une autre raison — le déploiement de contrôle ci-dessous déclare une instance de la base elle-même."
   },
   "6a29c3f5dab63cef": {
     "at": "2026-11-04T01:07:58.831Z",

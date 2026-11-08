@@ -22920,6 +22920,17 @@
     "status": "machine",
     "text": "Il riferimento all’artefatto risolto e fissato a una versione che il comando risolve ed esegue, ad es. `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`, fissato all’installazione."
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "Tutti e dieci sono costruiti sul package importer del kit Go, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`. Per gli importatori Langflow, Flowise e n8n, tutto ciò che un importatore fa qualunque sia il suo formato — valutare i Components del catalogo del workspace rispetto a ciascun nodo, decidere se fare riferimento a uno di essi o generarne uno nuovo in bozza, disporre la bozza, riportare i valori delle credenziali che contiene o scriverli vuoti come chiede un’impostazione, scrivere le bozze e leggere le impostazioni descritte più sotto — spetta a quel package, e solo leggere il formato, e conoscere la piattaforma su cui girano i suoi flussi, è proprio di ciascun importatore. L’importatore MCP genera in bozza un’istanza di un Component per server, quindi non valuta nulla; condivide con il package la lettura delle impostazioni che legge, la decisione sui valori delle credenziali e le convenzioni con cui le sue bozze vengono nominate e descritte, come descrive [L’importatore MCP](#the-mcp-importer). L’importatore Compose decide ogni servizio a cui trova corrispondenza come gli importatori di flussi decidono un nodo, tramite lo stesso package, renderizza le sue bozze come fanno loro e condivide il resto come fa l’importatore MCP, come descrive [L’importatore Compose](#the-compose-importer). L’importatore Dify genera in bozza l’installazione Dify che la libreria standard assembla, che porta l’applicazione, tramite la bozza di piattaforma dello stesso package nella forma che assume per una piattaforma che è un’intera installazione, come descrive [L’importatore Dify](#the-dify-importer). L’importatore CrewAI genera in bozza un’istanza dell’agente CrewAI della libreria standard per ogni agente che un progetto dichiara, collegata al modello che quell’agente nomina, e condivide il resto come fa l’importatore MCP, come descrive [L’importatore CrewAI](#the-crewai-importer). L’importatore LangGraph genera in bozza un’istanza dell’agente LangGraph della libreria standard per ogni grafo che la configurazione di un’applicazione dichiara, collegata al datastore in cui il suo checkpointer conserva lo stato, e condivide il resto come fa l’importatore MCP, come descrive [L’importatore LangGraph](#the-langgraph-importer). L’importatore Google ADK genera in bozza un’istanza dell’agente ADK della libreria standard per ogni albero di agenti che le configurazioni di un’applicazione dichiarano, collegata al modello che l’albero nomina quando ADK invia le sue richieste all’API Gemini, e condivide il resto come fa l’importatore MCP, come descrive [L’importatore Google ADK](#the-google-adk-importer). L’importatore Agent Framework genera in bozza un’istanza dell’agente Agent Framework della libreria standard per ogni agente dichiarativo, collegata al modello OpenAI che l’agente nomina — con ogni server MCP che nomina scritto nei commenti, poiché il fornitore del modello lo raggiunge come strumento ospitato — e condivide il resto come fa l’importatore MCP, come descrive [L’importatore Agent Framework](#the-agent-framework-importer). Come funziona il socket importatore, e che cosa riceve, è descritto in [Il socket importatore](plugin-contract.md#the-importer-socket--draft-authoring-output)."
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -35046,6 +35057,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "L’installazione è composta da dieci componenti — il server API di Dify, il suo worker, lo scheduler, il front end web, la sandbox per il codice, il runtime dei plugin, un proxy di uscita, PostgreSQL, una cache compatibile con Redis e Weaviate — collegati tra loro, e l’importazione dell’applicazione è un passaggio generato dalla Recipe del suo server API. I commenti sopra la voce indicano ciò che l’applicazione non può fornire: l’account proprietario sotto cui l’applicazione viene importata, e la sua password."
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "L’agente legge le due chiavi che il gateway pubblica, che sono le due che pubblica un modello, quindi la sua Recipe le legge come leggerebbe quelle di un modello. Le variabili `CREWAI_` portano i valori propri dell’agente, con i nomi che il Component CrewAI assegna loro per impostazione predefinita. L’indirizzo è il Service che Envoy Gateway crea per il piano dati del gateway, con un nome ricavato dal namespace del gateway, dal suo nome e da un hash dei due, e qualificato con `envoy-gateway-system`, così si risolve dal namespace dell’agente. Il nome del modello è l’alias `assistant`; la route invia una richiesta che lo nomina al backend del modello, chiedendo invece `gpt-4o-mini`."
   },
   "3b1be835190b4b28": {
     "at": "2026-11-03T21:35:42.901Z",
@@ -60743,6 +60765,17 @@
     "status": "machine",
     "text": "Una build che legge dall’hub richiede anche un compilatore della release che ha pubblicato la versione del plugin nominata dall’associazione — per `governance/rego:0.8.6`, la release `0.8.6` di `aggrega`. Il motore Rego è compilato nel binario della CLI, e la sua versione è la release del compilatore che lo distribuisce. Un compilatore di qualsiasi altra release, o uno compilato dai sorgenti tra una release e l’altra, contiene una build diversa del motore: una build che legge dall’hub con esso si arresta con `E0135` (`oci: content digest\nmismatch`), perché il modulo contenuto in quel compilatore non corrisponde al digest che l’hub pubblica per `governance/rego:0.8.6`. Quell’arresto è il controllo del digest del plugin che fa il suo lavoro, non un’anomalia dell’esempio."
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "Il catalogo della libreria standard non contiene alcuna FeatureRecipe per `core/backup` su questa destinazione. Ciascuna di quelle che il messaggio elenca si vincola a un’altra destinazione, quindi, se la si fissa qui, viene renderizzata come un output a sé stante accanto al file Compose, per una destinazione su cui questa Release non distribuisce. Le strade possibili sono rimuovere l’associazione dalla Release, distribuendo lì il database senza backup, oppure distribuirlo tramite un Manifest per una destinazione che dispone di un prodotto di backup, come fanno le altre cinque Releases."
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -63075,6 +63108,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "Il valore `aggrega.ai/recipe-uri` di una risorsa emessa da una FR si risolve nel `name:version` proprio della FeatureRecipe, non nell’identità della Recipe che la consuma — così gli strumenti a valle che leggono `recipe-uri` per identificare l’entità produttrice ottengono la provenienza corretta sia per l’output emesso dai componenti sia per quello emesso dalle FR."
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "Il pull recupera `core/gateway/nginx` perché il wrapper lo estende: una base è una dipendenza di tutto ciò che la estende, quindi il pull segue la chiave `extends:` del wrapper e fissa la base nel lockfile, che il Manifest la nomini o no. Qui il Manifest mappa la base per un altro motivo — il rilascio di controllo più sotto dichiara un’istanza della base stessa."
   },
   "6a29c3f5dab63cef": {
     "at": "2026-11-04T01:07:58.831Z",

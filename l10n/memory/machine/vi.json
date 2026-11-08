@@ -25648,6 +25648,17 @@
     "status": "machine",
     "text": "Tham chiếu artifact đã được phân giải và ghim phiên bản mà lệnh phân giải và chạy, ví dụ `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`, được ghim khi cài đặt."
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "Cả mười đều được xây dựng trên gói importer của bộ Go kit, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`. Đối với các importer Langflow, Flowise và n8n, mọi việc một importer làm bất kể định dạng — chấm điểm các Components trong catalog của workspace so với từng node, quyết định tham chiếu một Component hay soạn nháp một Component mới, bố trí bản nháp, mang theo các giá trị thông tin xác thực mà nó chứa hoặc ghi chúng rỗng theo yêu cầu của một thiết lập, ghi các bản nháp và đọc các thiết lập bên dưới — đều thuộc về gói đó, và chỉ việc đọc định dạng, cùng việc biết nền tảng mà các flow chạy trên đó, là riêng của từng importer. Importer MCP soạn nháp một instance của một Component cho mỗi máy chủ, nên nó không chấm điểm gì; nó dùng chung cách gói đó đọc các thiết lập mà nó đọc, quyết định của gói về các giá trị thông tin xác thực và các quy ước đặt tên và mô tả bản nháp, như [Importer MCP](#the-mcp-importer) mô tả. Importer Compose quyết định mỗi service mà nó khớp giống như các importer flow quyết định một node, thông qua cùng gói đó, kết xuất bản nháp như chúng, và dùng chung phần còn lại như importer MCP, như [Importer Compose](#the-compose-importer) mô tả. Importer Dify soạn nháp bản cài đặt Dify mà thư viện chuẩn lắp ráp, mang theo ứng dụng, thông qua bản nháp nền tảng của cùng gói đó theo dạng nó có cho một nền tảng là cả một bản cài đặt, như [Importer Dify](#the-dify-importer) mô tả. Importer CrewAI soạn nháp một instance của agent CrewAI trong thư viện chuẩn cho mỗi agent mà một dự án khai báo, nối với model mà agent đó nêu tên, và dùng chung phần còn lại như importer MCP, như [Importer CrewAI](#the-crewai-importer) mô tả. Importer LangGraph soạn nháp một instance của agent LangGraph trong thư viện chuẩn cho mỗi graph mà cấu hình của một ứng dụng khai báo, nối với kho dữ liệu nơi checkpointer của nó lưu trạng thái, và dùng chung phần còn lại như importer MCP, như [Importer LangGraph](#the-langgraph-importer) mô tả. Importer Google ADK soạn nháp một instance của agent ADK trong thư viện chuẩn cho mỗi cây agent mà các cấu hình của một ứng dụng khai báo, nối với model mà cây đó nêu tên khi ADK gửi các yêu cầu của nó tới Gemini API, và dùng chung phần còn lại như importer MCP, như [Importer Google ADK](#the-google-adk-importer) mô tả. Importer Agent Framework soạn nháp một instance của agent Agent Framework trong thư viện chuẩn cho mỗi agent khai báo, nối với model OpenAI mà agent đó nêu tên — mỗi máy chủ MCP mà nó nêu tên được ghi trong phần chú thích, vì nhà cung cấp của model kết nối tới máy chủ đó như một công cụ được host — và dùng chung phần còn lại như importer MCP, như [Importer Agent Framework](#the-agent-framework-importer) mô tả. Cách socket importer hoạt động, và những gì nó được trao, được mô tả trong [Socket importer](plugin-contract.md#the-importer-socket--draft-authoring-output)."
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -39090,6 +39101,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "Bản cài đặt gồm mười thành phần — máy chủ API của Dify, worker, bộ lập lịch, giao diện web, sandbox mã và runtime plugin của nó, một proxy egress, PostgreSQL, một bộ nhớ đệm tương thích Redis và Weaviate — được nối với nhau, và việc nhập ứng dụng là một bước mà Recipe của máy chủ API kết xuất. Các chú thích phía trên mục nêu tên những gì ứng dụng không thể cung cấp: tài khoản chủ sở hữu mà ứng dụng được nhập dưới đó, và mật khẩu của nó."
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "Agent đọc hai khóa mà gateway công bố, cũng chính là hai khóa mà một mô hình công bố, nên Recipe của nó đọc chúng như khi đọc khóa của một mô hình. Các biến `CREWAI_` mang các giá trị riêng của agent, dưới những tên mà Component CrewAI gán cho chúng theo mặc định. Địa chỉ là Service mà Envoy Gateway tạo cho data plane của gateway, được đặt tên theo namespace của gateway, tên của nó và một mã băm của hai giá trị đó, và được định danh đầy đủ với `envoy-gateway-system`, nên nó phân giải được từ namespace của agent. Tên mô hình là bí danh `assistant`; route gửi một yêu cầu mang tên đó đến backend của mô hình, và yêu cầu `gpt-4o-mini` thay vào đó."
   },
   "3b1be835190b4b28": {
     "at": "2026-10-22T23:26:44.024289+00:00",
@@ -67788,6 +67810,17 @@
     "status": "machine",
     "text": "Một bản build đọc từ hub cũng cần một trình biên dịch thuộc bản phát hành đã công bố phiên bản plugin mà attachment gọi tên — với `governance/rego:0.8.6`, đó là bản phát hành `0.8.6` của `aggrega`. Engine Rego được biên dịch vào binary CLI, và phiên bản của nó là bản phát hành trình biên dịch đi kèm nó. Một trình biên dịch thuộc bất kỳ bản phát hành nào khác, hoặc được build từ mã nguồn giữa các bản phát hành, mang một bản build khác của engine: một bản build đọc từ hub với nó sẽ dừng với `E0135` (`oci: content digest\nmismatch`), vì module mà trình biên dịch đó mang không khớp với digest mà hub công bố cho `governance/rego:0.8.6`. Lần dừng đó là việc kiểm tra digest của plugin đang hoạt động, không phải lỗi của ví dụ."
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "Catalog thư viện chuẩn không có FeatureRecipe nào cho `core/backup` trên đích này. Mỗi mục mà thông báo liệt kê đều liên kết với một đích khác, nên nếu được ghim ở đây, nó sẽ được kết xuất thành một đầu ra riêng bên cạnh tệp Compose, cho một đích mà Release này không triển khai tới. Các hướng đi tiếp theo là gỡ phần đính kèm khỏi Release, triển khai cơ sở dữ liệu ở đó mà không có bản sao lưu, hoặc triển khai nó qua một Manifest cho một đích có sản phẩm sao lưu, như năm Releases còn lại."
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -70354,6 +70387,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "`aggrega.ai/recipe-uri` của một tài nguyên do FR phát ra phân giải thành `name:version` riêng của FeatureRecipe, không phải định danh của Recipe sử dụng nó — nên công cụ phía sau đọc `recipe-uri` để xác định thực thể tạo ra sẽ nhận được nguồn gốc chính xác cho cả đầu ra do component phát ra lẫn đầu ra do FR phát ra."
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "Thao tác pull tải về `core/gateway/nginx` vì wrapper mở rộng nó: một base là phụ thuộc của mọi thứ mở rộng nó, nên thao tác pull đi theo `extends:` của wrapper và ghim base vào lockfile, dù Manifest có nêu tên nó hay không. Manifest ở đây ánh xạ base vì một lý do khác — bản phát hành đối chứng bên dưới khai báo một instance của chính base đó."
   },
   "6a29c3f5dab63cef": {
     "at": "2026-10-22T23:44:14.843805+00:00",

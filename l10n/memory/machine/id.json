@@ -25648,6 +25648,17 @@
     "status": "machine",
     "text": "Referensi artefak yang telah diresolusi dan disematkan versinya yang diresolusi dan dijalankan oleh perintah, misalnya `oci://hub.aggrega.ai/plugin/cli/<name>:1.2.0`, disematkan saat pemasangan."
   },
+  "262353c43ca0e3d0": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "49e087c8d768be07",
+      "reviewed": false
+    },
+    "srcHash": "262353c43ca0e3d0",
+    "status": "machine",
+    "text": "Kesepuluhnya dibangun di atas paket importer dari Go kit, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`. Untuk importer Langflow, Flowise, dan n8n, segala yang dilakukan importer apa pun formatnya — menilai Components dalam katalog workspace terhadap setiap node, memutuskan apakah akan mereferensikan satu atau membuat draf yang baru, menata draf, membawa nilai kredensial yang dimilikinya atau menuliskannya kosong sebagaimana diminta suatu pengaturan, menulis draf, dan membaca pengaturan di bawah — adalah milik paket tersebut, dan hanya pembacaan format, serta pengetahuan tentang platform tempat flow-nya berjalan, yang khusus bagi setiap importer. Importer MCP membuat draf instans dari satu Component per server, sehingga tidak menilai apa pun; importer ini berbagi pembacaan paket atas pengaturan yang dibacanya, keputusannya atas nilai kredensial, dan konvensi yang menjadi dasar penamaan dan deskripsi drafnya, sebagaimana dijelaskan di [Importer MCP](#the-mcp-importer). Importer Compose memutuskan setiap layanan yang dicocokkannya sebagaimana importer flow memutuskan sebuah node, melalui paket yang sama, merender drafnya sebagaimana mereka melakukannya, dan berbagi sisanya sebagaimana importer MCP, sebagaimana dijelaskan di [Importer Compose](#the-compose-importer). Importer Dify membuat draf instalasi Dify yang dirakit oleh pustaka standar, dengan membawa aplikasi, melalui draf platform dari paket yang sama dalam bentuk yang diambilnya untuk platform yang merupakan instalasi utuh, sebagaimana dijelaskan di [Importer Dify](#the-dify-importer). Importer CrewAI membuat draf instans agen CrewAI dari pustaka standar per agen yang dideklarasikan proyek, terhubung ke model yang disebutkannya, dan berbagi sisanya sebagaimana importer MCP, sebagaimana dijelaskan di [Importer CrewAI](#the-crewai-importer). Importer LangGraph membuat draf instans agen LangGraph dari pustaka standar per graf yang dideklarasikan konfigurasi aplikasi, terhubung ke datastore tempat checkpointer-nya menyimpan state, dan berbagi sisanya sebagaimana importer MCP, sebagaimana dijelaskan di [Importer LangGraph](#the-langgraph-importer). Importer Google ADK membuat draf instans agen ADK dari pustaka standar per pohon agen yang dideklarasikan konfigurasi aplikasi, terhubung ke model yang disebutkan pohon tersebut apabila ADK mengirim permintaannya ke Gemini API, dan berbagi sisanya sebagaimana importer MCP, sebagaimana dijelaskan di [Importer Google ADK](#the-google-adk-importer). Importer Agent Framework membuat draf instans agen Agent Framework dari pustaka standar per agen deklaratif, terhubung ke model OpenAI yang disebutkannya — setiap server MCP yang disebutkannya ditulis dalam komentar, karena penyedia model menjangkaunya sebagai alat yang di-host — dan berbagi sisanya sebagaimana importer MCP, sebagaimana dijelaskan di [Importer Agent Framework](#the-agent-framework-importer). Cara kerja soket importer, dan apa yang diserahkan kepadanya, dijelaskan di bawah [Soket importer](plugin-contract.md#the-importer-socket--draft-authoring-output)."
+  },
   "26327f0ec4d9a3c2": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -39090,6 +39101,17 @@
     "srcHash": "3b1a91d7dcb78797",
     "status": "machine",
     "text": "Instalasi ini terdiri atas sepuluh komponen — server API Dify, worker-nya, penjadwalnya, front end web-nya, sandbox kodenya, runtime plugin-nya, sebuah proxy egress, PostgreSQL, cache yang kompatibel dengan Redis, dan Weaviate — yang saling terhubung, dan impor aplikasi adalah sebuah langkah yang dirender oleh Recipe server API-nya. Komentar di atas entri menyebut apa yang tidak dapat disediakan aplikasi: akun pemilik tempat aplikasi diimpor, dan kata sandinya."
+  },
+  "3b1b6000919d6a11": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "34eafddc4ebf8ed8",
+      "reviewed": false
+    },
+    "srcHash": "3b1b6000919d6a11",
+    "status": "machine",
+    "text": "Agen membaca dua kunci yang diterbitkan gateway, yang sama dengan dua kunci yang diterbitkan sebuah model, sehingga Recipe-nya membacanya seperti membaca kunci sebuah model. Variabel `CREWAI_` membawa nilai milik agen itu sendiri, dengan nama yang diberikan Component CrewAI kepadanya secara default. Alamatnya adalah Service yang dibuat Envoy Gateway untuk data plane gateway, yang dinamai dari namespace gateway, namanya, dan hash keduanya, serta dikualifikasi dengan `envoy-gateway-system`, sehingga alamat itu dapat di-resolve dari namespace agen. Nama modelnya adalah alias `assistant`; route mengirim permintaan yang menyebut nama itu ke backend model, dengan meminta `gpt-4o-mini` sebagai gantinya."
   },
   "3b1be835190b4b28": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -67788,6 +67810,17 @@
     "status": "machine",
     "text": "Build yang membaca hub juga memerlukan compiler dari rilis yang mempublikasikan versi plugin yang dinamai oleh lampiran — untuk `governance/rego:0.8.6`, yaitu rilis `0.8.6` dari `aggrega`. Mesin Rego dikompilasi ke dalam biner CLI, dan versinya adalah rilis compiler yang menyertakannya. Compiler dari rilis lain mana pun, atau yang di-build dari sumber di antara rilis, memuat build mesin yang berbeda: build yang membaca hub dengannya berhenti dengan `E0135` (`oci: content digest\nmismatch`), karena modul yang dimuat compiler tersebut tidak cocok dengan digest yang dipublikasikan hub untuk `governance/rego:0.8.6`. Penghentian itu adalah pemeriksaan digest plugin yang bekerja, bukan kesalahan pada contoh ini."
   },
+  "660b5af40e13f779": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "revision": {
+      "from": "9bc1e85dbe70408a",
+      "reviewed": false
+    },
+    "srcHash": "660b5af40e13f779",
+    "status": "machine",
+    "text": "Katalog pustaka standar tidak memiliki FeatureRecipe untuk `core/backup` pada target ini. Masing-masing yang dicantumkan pesan itu terikat ke target lain, sehingga jika disematkan di sini, ia dirender sebagai output tersendiri di samping file Compose, untuk target yang tidak menjadi tujuan deploy Release ini. Pilihan selanjutnya adalah menghapus lampiran dari Release, sehingga basis data di-deploy di sana tanpa cadangan, atau men-deploy-nya melalui Manifest untuk target yang memiliki produk pencadangan, seperti yang dilakukan lima Releases lainnya."
+  },
   "660cb0e03b3d7249": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -70354,6 +70387,13 @@
     "srcHash": "6a23dbbd21c83bf6",
     "status": "machine",
     "text": "`aggrega.ai/recipe-uri` untuk sumber daya yang dikeluarkan FR mengacu pada `name:version` milik FeatureRecipe itu sendiri, bukan identitas Recipe yang mengonsumsinya — sehingga perkakas hilir yang membaca `recipe-uri` untuk mengidentifikasi entitas penghasil mendapatkan provenans yang benar untuk output yang dikeluarkan komponen maupun yang dikeluarkan FR."
+  },
+  "6a250fe17d220fb6": {
+    "at": "2026-11-08T12:24:26.810Z",
+    "job": "session-0015-20261108122426",
+    "srcHash": "6a250fe17d220fb6",
+    "status": "machine",
+    "text": "Pull mengambil `core/gateway/nginx` karena wrapper memperluasnya: sebuah basis merupakan dependensi dari segala yang memperluasnya, sehingga pull mengikuti `extends:` milik wrapper dan menyematkan basis itu di lockfile, baik Manifest menyebutnya maupun tidak. Manifest di sini memetakan basis karena alasan lain — rilis kontrol di bawah mendeklarasikan instans dari basis itu sendiri."
   },
   "6a29c3f5dab63cef": {
     "at": "2026-10-23T08:19:02.010279+00:00",
