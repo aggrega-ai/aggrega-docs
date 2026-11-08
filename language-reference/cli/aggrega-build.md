@@ -240,7 +240,7 @@ Each slot captures a specific compiler state:
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
 - `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
 
-From `03-inject-hydration.yaml` onward, a slot that shows the node's context carries the `.context.inject` block whenever the pipe it captures delivers at least one key, under any mechanism: `env`, `file`, `arg`, or a mechanism of another name that an `inject` mapping or a FeatureRecipe's `injectMapping` writes into. A node whose only delivery is such a custom mechanism shows the block too, with that mechanism under its own name and its keys in `all`, and a declared-sensitive value reads as `<redacted>` in both places. A slot taken while the pipe delivers nothing has no `.context.inject` block.
+From `03-inject-hydration.yaml` onward, a slot that shows the node's context carries the `.context.inject` block whenever the pipe it captures delivers at least one key, under any mechanism: `env`, `file`, `arg`, or a mechanism of another name that an `inject` mapping, a FeatureRecipe's `injectMapping` or the component's own `inject:` block writes into. A node whose only delivery is such a custom mechanism shows the block too, with that mechanism under its own name and its keys in `all`, and a declared-sensitive value reads as `<redacted>` in both places. A slot taken while the pipe delivers nothing has no `.context.inject` block.
 
 The trace writer is non-blocking: the trace is written to disk alongside the compile rather than in its path. Compile latency is unaffected by trace I/O — the same compile finishes in the same wall-clock time whether `--trace` is on or off.
 
