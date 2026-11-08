@@ -15064,6 +15064,13 @@
     "status": "machine",
     "text": "L’entité générée :"
   },
+  "1959a07c5d3044dc": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "1959a07c5d3044dc",
+    "status": "machine",
+    "text": "`-p` nomme le projet, comme l’explique l’étape d’exécution de [Comment se déroule une importation](README.md#how-an-import-runs). `--wait` rend la main dès que n8n se signale en bonne santé, une fois que le service qui importe le workflow s’est exécuté et s’est terminé. Copiez les informations d’identification dans le conteneur de n8n, importez-les, puis supprimez la copie :"
+  },
   "195c96349b6b9e29": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -18001,6 +18008,13 @@
     "srcHash": "1e358c9e91fb3481",
     "status": "machine",
     "text": "Deux de ces valeurs se lisent facilement de travers. La valeur **component** n’est nommée que lorsque l’entrée qui supplante a un composant : une entrée écrite pour toute une portée n’a pas de composant propre, et en nommer un qu’elle n’a jamais eu enverrait un lecteur vers une clé que personne n’a écrite. Et **annotation declared at** nomme l’endroit où l’annotation *supplantée* a été écrite, c’est-à-dire la portée dont elle a été héritée partout où elle n’a pas été écrite sur le composant qui l’a supplantée — ce n’est donc pas la clé du composant répétée sous une autre légende."
+  },
+  "1e3c84f7d2b1a30d": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "1e3c84f7d2b1a30d",
+    "status": "machine",
+    "text": "Définissez la clé dans votre shell, telle que la Release révisée la lit, et démarrez la pile :"
   },
   "1e3d74290dad0ae3": {
     "at": "2026-11-04T09:20:00.075Z",
@@ -31902,6 +31916,13 @@
     "status": "machine",
     "text": "Le chemin de l’entité peut être donné en argument positionnel ou avec `--entity <path>`. `--release` est mutuellement exclusif avec un argument d’entité — ils sélectionnent des portées différentes ; passer les deux provoque un arrêt."
   },
+  "35ccc05e400a671f": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "35ccc05e400a671f",
+    "status": "machine",
+    "text": "Activez ensuite le workflow, et redémarrez n8n pour que l’activation prenne effet :"
+  },
   "35cd4ff6f40bf1c2": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -38747,6 +38768,13 @@
     "srcHash": "41ae7e6b6c8c9146",
     "status": "machine",
     "text": "`core/datastore/mariadb` déclare `root_password` comme emplacement requis : un build s’arrête tant que rien ne le lie. Un MariaDB auto-hébergé a besoin d’un mot de passe lié au moment de l’écriture ; une instance RDS gérée non — RDS génère et fait tourner lui-même le mot de passe principal, et `manage_master_user_password` dans cette Recipe est ce qui active cela."
+  },
+  "41b0a8a647a7d9f1": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "41b0a8a647a7d9f1",
+    "status": "machine",
+    "text": "Cette réponse provient d’un petit modèle local utilisé à la place d’OpenAI, configuré comme le décrit l’étape d’exécution de [Comment se déroule une importation](README.md#how-an-import-runs), y compris l’`url` de l’information d’identification OpenAI."
   },
   "41b2d1585cec43e3": {
     "at": "2026-11-03T14:26:19.593Z",
@@ -46544,6 +46572,17 @@
     "status": "machine",
     "text": "**Ansible** est un outil impératif de gestion de configuration pour des playbooks séquentiels sur des VM de longue durée et des parcs sur site. Aggrega émet des artefacts de topologie déclaratifs pour des cibles conteneurs et API cloud. Les équipes qui utilisent Ansible pour gérer l’état des serveurs à côté de workloads conteneurisés le conservent généralement pour ce rôle et utilisent Aggrega pour la topologie applicative."
   },
+  "4ea25a576b56d2bb": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "e85af3285ee40d07",
+      "reviewed": false
+    },
+    "srcHash": "4ea25a576b56d2bb",
+    "status": "machine",
+    "text": "La pile de recherche du catalogue est assemblée selon une priorité en couches : les flags `--catalog` (ajoutés en tête, dans l’ordre) viennent d’abord, puis les `catalog_dirs` du workspace issus de `.aggrega-config.yaml` — pour une Release à laquelle la configuration attribue ses propres répertoires sous `workspace.releases`, ceux de cette Release à leur place — puis le répertoire `catalog` à la racine du workspace, qui est lu que quelque chose le nomme ou non. Un workspace dont le `catalog_dirs` est écrit sous forme de liste vide ne lit aucun catalogue local. La pile est first-win — le premier répertoire à déclarer une identité d’entité en est propriétaire ; la copie d’un répertoire ultérieur est masquée. La branche catalogue résout l’identifiant par rapport à cette pile pour tous les types d’entités, selon une priorité fixe, et rend la première correspondance via la vue propre à ce type ; les branches fichier et release y chargent les entités de catalogue référencées lorsqu’un mapping du Manifest ou un parent `extends:` doit être résolu. Un parent `extends:` que la pile ne contient pas est lu là où un build le lit : depuis le cache d’artefacts, sous le pin que le lockfile d’une Release enregistre pour lui — celui de la Release nommée, ou celui de chaque Release que contient le workspace lorsqu’aucune n’est nommée. Une base publiée dans un registre se résout donc ici une fois que [`aggrega pull`](aggrega-pull.md) l’a récupérée et épinglée, et avant cela la commande est refusée en nommant `aggrega pull --release <release>`. Rien n’est récupéré."
+  },
   "4ea332e74d6ff40f": {
     "at": "2026-11-04T06:48:43.008Z",
     "job": "session-0211-20261104064843",
@@ -50938,6 +50977,13 @@
     "srcHash": "558679d105c836dc",
     "status": "machine",
     "text": "Interroger une coordonnée"
+  },
+  "558a493c71067c50": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "558a493c71067c50",
+    "status": "machine",
+    "text": "Un mot de passe erroné reçoit `HTTP/1.1 403 Forbidden` et `Authorization data is wrong!`. Avec l’utilisateur et le mot de passe dans `CHAT_USER` et `CHAT_PASSWORD`, curl les lit depuis son entrée standard, de sorte qu’ils n’apparaissent sur aucune ligne de commande :"
   },
   "558d86294df940c4": {
     "at": "2026-11-03T05:17:11.041Z",
@@ -58847,6 +58893,13 @@
     "srcHash": "631fa020f704ced0",
     "status": "machine",
     "text": "Le compilateur Aggrega est un routeur de texte Ahead-Of-Time (AOT). Il analyse le YAML, parcourt des graphes, évalue des intersections d’étiquettes et achemine des chaînes des sources vers les destinations. Il ne contrôle pas ce que les auteurs placent dans `values`, `parameters`, `infra`, `provides` ou `locals`. Il n’impose ni conventions de nommage, ni conventions de ports, ni les étiquettes sémantiques qu’un Architect invente."
+  },
+  "63211a036d29215a": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "63211a036d29215a",
+    "status": "machine",
+    "text": "Arrêtez la pile avec la commande ci-dessous. `-v` supprime aussi le volume de données de n8n, et avec lui les informations d’identification enregistrées et l’activation :"
   },
   "632155e01d04f638": {
     "at": "2026-11-04T09:19:57.883Z",
@@ -73332,6 +73385,17 @@
     "status": "machine",
     "text": "Le compilateur évalue chaque obligation par rapport à l’ensemble **final** des attachements de l’instance, après que la cascade du 5-Tier Onion Model a replié chaque portée : les blocs `features:` de niveau composant et de niveau sous-système de l’Aggregate, les blocs `features:` de niveau frontière et de niveau composant de la Release, et les attachements produits par l’expansion pilotée par annotations. N’importe lequel d’entre eux satisfait l’obligation — la règle teste ce qui est présent, jamais comment cela y est arrivé. Ainsi, un Component dont l’obligation n’est satisfaite que parce qu’un opérateur a défini une annotation de supervision dans la Release passe exactement comme un Component auquel le développeur a attaché la Feature à la main."
   },
+  "7bac8453d0d34c32": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "c1df25d404f45d90",
+      "reviewed": false
+    },
+    "srcHash": "7bac8453d0d34c32",
+    "status": "machine",
+    "text": "À partir de `03-inject-hydration.yaml`, un emplacement qui montre le contexte du nœud contient le bloc `.context.inject` dès que le pipe qu’il capture livre au moins une clé, par quelque mécanisme que ce soit : `env`, `file`, `arg`, ou un mécanisme d’un autre nom dans lequel écrit un mapping `inject`, l’`injectMapping` d’une FeatureRecipe ou le propre bloc `inject:` du composant. Un nœud dont la seule livraison passe par un tel mécanisme personnalisé montre lui aussi le bloc, avec ce mécanisme sous son propre nom et ses clés dans `all`, et une valeur déclarée sensible se lit comme `<redacted>` aux deux endroits. Un emplacement capturé alors que le pipe ne livre rien n’a pas de bloc `.context.inject`."
+  },
   "7bac89b11ac3ce68": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -74589,6 +74653,13 @@
     "srcHash": "7de2a4675052e99e",
     "status": "machine",
     "text": "`tmpfs: { size }` (en mémoire ; avertissement si la sémantique diffère)"
+  },
+  "7de5653b5e315796": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "7de5653b5e315796",
+    "status": "machine",
+    "text": "n8n détient désormais les deux informations d’identification ; supprimez donc `credentials.json` :"
   },
   "7deadc6e6c0e91ae": {
     "at": "2026-11-04T02:11:10.394Z",
@@ -78249,6 +78320,17 @@
     "srcHash": "845d75e03cd51220",
     "status": "machine",
     "text": "A Release connection attachment names no Feature type (Un rattachement de connexion de la Release ne nomme aucun type de Feature)"
+  },
+  "846117f3a5fb5815": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "c822ef00a4fbc08d",
+      "reviewed": false
+    },
+    "srcHash": "846117f3a5fb5815",
+    "status": "machine",
+    "text": "Le cache d’artefacts sous `artifact_cache_dir` (`.aggrega/cache` par défaut) contient ce qu’une récupération y a placé : des entités de catalogue et des artefacts sources, chacun stocké sous son type ainsi que la coordonnée et la version auxquelles il a été récupéré, et garanti par un digest que le lockfile enregistre. Ce n’est pas un répertoire de catalogue, et une analyse du catalogue le contourne — le contenu présent dans le cache est donc lu comme une dépendance, par le pin qui le garantit, et jamais comme une entité que vous avez écrite."
   },
   "846496f0c08bfe2e": {
     "at": "2026-11-03T00:44:43.262Z",
@@ -85355,6 +85437,13 @@
     "status": "machine",
     "text": "Lorsqu’un rattachement livre un chart fourni par son auteur, les templates de ce chart effectuent leur rendu par rapport au nom de release du composant hôte, délibérément : le dériver plutôt du rattachement renommerait des ressources que l’auteur du chart a déclarées et a peut-être déjà déployées. `.attachment_name` est la valeur qui distingue deux rattachements sur un même hôte — voir [`../providers/helm.md`](../providers/helm.md) « How the release name is derived (Comment le nom de release est dérivé) »."
   },
+  "8ff94e899f4fbe74": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "8ff94e899f4fbe74",
+    "status": "machine",
+    "text": "Une fois que `docker compose -p support-agent -f dist/compose/docker-compose.yaml ps n8n` affiche de nouveau n8n `(healthy)`, `docker compose -p support-agent -f dist/compose/docker-compose.yaml logs n8n` indique `Activated workflow \"Support agent\" (ID: sQ4vT8nKp2LmX7bR)`. Envoyez un message de chat depuis un conteneur situé sur le réseau de la pile, `support-agent_compose`. Sans l’utilisateur et le mot de passe, le déclencheur le refuse :"
+  },
   "8ffb4acc1224b8a5": {
     "at": "2026-11-03T04:43:44.427Z",
     "job": "session-0051-20261103044344",
@@ -86432,6 +86521,13 @@
     "srcHash": "91de23f40e2bf794",
     "status": "machine",
     "text": "La première est la clé du modèle, référencée depuis le Secret que nomme la Release et jamais écrite en clair ; les deux autres sont les adresses des services de reconnaissance. Le nom d’une personne devient `<PERSON>` et une adresse e-mail `<EMAIL_ADDRESS>`."
+  },
+  "91e1fab402aac5f1": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "91e1fab402aac5f1",
+    "status": "machine",
+    "text": "n8n lit depuis son propre magasin les deux informations d’identification que le workflow sélectionne, par leurs identifiants : la clé OpenAI sous `Rb7nW2xQ9kT4mZ1c`, et l’utilisateur et le mot de passe du chat sous `Vx3mQ8rLb2Nk7Tz5`. Le fichier rendu ne publie aucun port, enregistrez-les donc avec la propre ligne de commande de n8n plutôt qu’avec son éditeur. Écrivez-les dans `credentials.json`, avec vos propres valeurs :"
   },
   "91e23bb0e6fddd19": {
     "at": "2026-10-30T19:34:19.728Z",
@@ -111291,6 +111387,17 @@
     "srcHash": "bb0834a8ccff88a0",
     "status": "machine",
     "text": "Le nombre d’octets qu’elle occupe, ou occupait avant d’être supprimée."
+  },
+  "bb08e29b9267870c": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "6dfbbe735dd045a5",
+      "reviewed": false
+    },
+    "srcHash": "bb08e29b9267870c",
+    "status": "machine",
+    "text": "Le workflow parvient à n8n via `n8n import:workflow`, exécuté sur le même volume de données à chaque démarrage de la pile, avant n8n lui-même. `N8N_BLOCK_ENV_ACCESS_IN_NODE` vaut `\"true\"`, le blocage par n8n de la lecture de son environnement par un workflow, puisque l’Aggregate laisse `allow_env_access_in_nodes` à `false`. Le nœud OpenAI Chat Model lit donc sa clé depuis le propre magasin d’informations d’identification de n8n, comme le déclencheur de chat lit son utilisateur et son mot de passe, et l’exécution décrite plus bas enregistre les deux. n8n ne publie aucun port sur votre machine : le fichier rendu ne lui en donne aucun."
   },
   "bb0a97e56d6c754a": {
     "at": "2026-11-03T09:26:18.087Z",

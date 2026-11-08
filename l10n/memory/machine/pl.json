@@ -16869,6 +16869,13 @@
     "status": "machine",
     "text": "Wygenerowana encja:"
   },
+  "1959a07c5d3044dc": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "1959a07c5d3044dc",
+    "status": "machine",
+    "text": "`-p` nadaje nazwę projektowi, jak wyjaśnia krok uruchomienia w [Jak przebiega import](README.md#how-an-import-runs). `--wait` kończy działanie, gdy n8n zgłosi stan zdrowy, po tym jak usługa importująca przepływ pracy zostanie uruchomiona i zakończy działanie. Należy skopiować poświadczenia do kontenera n8n, zaimportować je i usunąć kopię:"
+  },
   "195c96349b6b9e29": {
     "at": "2026-10-22T23:05:21.167953+00:00",
     "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
@@ -20119,6 +20126,13 @@
     "srcHash": "1e358c9e91fb3481",
     "status": "machine",
     "text": "Dwie z tych wartości łatwo źle odczytać. **component** jest podawany tylko wtedy, gdy wypierający wpis go ma: wpis zapisany dla całego zakresu nie ma własnego komponentu, a podanie takiego, którego nigdy nie miał, odesłałoby czytelnika do klucza, którego nikt nie napisał. Natomiast **annotation declared at** wskazuje, gdzie zapisano *wypartą* adnotację, czyli zakres, z którego została odziedziczona, jeśli nie zapisano jej w komponencie, który ją wyparł — nie jest to więc klucz komponentu powtórzony pod inną etykietą."
+  },
+  "1e3c84f7d2b1a30d": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "1e3c84f7d2b1a30d",
+    "status": "machine",
+    "text": "Należy ustawić klucz w powłoce, tak jak odczytuje go przejrzana encja Release, i uruchomić stos:"
   },
   "1e3d74290dad0ae3": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -35621,6 +35635,13 @@
     "status": "machine",
     "text": "Ścieżkę encji można podać jako argument pozycyjny lub za pomocą `--entity <path>`. `--release` wyklucza się z argumentem encji — wybierają one różne zakresy; podanie obu powoduje zatrzymanie."
   },
+  "35ccc05e400a671f": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "35ccc05e400a671f",
+    "status": "machine",
+    "text": "Następnie należy aktywować przepływ pracy i ponownie uruchomić n8n, aby aktywacja zadziałała:"
+  },
   "35cd4ff6f40bf1c2": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -43271,6 +43292,13 @@
     "srcHash": "41ae7e6b6c8c9146",
     "status": "machine",
     "text": "`core/datastore/mariadb` deklaruje `root_password` jako wymagany slot: kompilacja\nzatrzymuje się, dopóki nic go nie wiąże. Samodzielnie hostowana MariaDB wymaga hasła powiązanego\nna etapie definiowania; zarządzana instancja RDS nie — RDS sam generuje i rotuje\nhasło główne, a `manage_master_user_password` w tej encji Recipe jest tym,\nco to włącza."
+  },
+  "41b0a8a647a7d9f1": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "41b0a8a647a7d9f1",
+    "status": "machine",
+    "text": "Ta odpowiedź pochodziła z małego lokalnego modelu użytego zamiast OpenAI, skonfigurowanego tak, jak opisuje krok uruchomienia w [Jak przebiega import](README.md#how-an-import-runs), łącznie z `url` poświadczenia OpenAI."
   },
   "41b2d1585cec43e3": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -51837,6 +51865,17 @@
     "status": "machine",
     "text": "**Ansible** to imperatywne narzędzie do zarządzania konfiguracją, służące do sekwencyjnych playbooków na długo działających maszynach wirtualnych i flotach lokalnych. Aggrega emituje deklaratywne artefakty topologii dla celów kontenerowych i API chmury. Zespoły używające Ansible do zarządzania stanem serwerów obok obciążeń kontenerowych zwykle zachowują je do tej roli, a Aggrega używają do topologii aplikacji."
   },
+  "4ea25a576b56d2bb": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "e85af3285ee40d07",
+      "reviewed": false
+    },
+    "srcHash": "4ea25a576b56d2bb",
+    "status": "machine",
+    "text": "Stos wyszukiwania katalogu jest składany według warstwowego pierwszeństwa: najpierw flagi `--catalog` (dodawane na początku, w podanej kolejności), następnie `catalog_dirs` obszaru roboczego z pliku `.aggrega-config.yaml` — dla encji Release, której konfiguracja podaje własne katalogi w `workspace.releases`, na ich miejscu stoją katalogi tej encji Release — a potem katalog `catalog` w katalogu głównym obszaru roboczego, odczytywany niezależnie od tego, czy cokolwiek go wskazuje. Obszar roboczy, którego `catalog_dirs` zapisano jako pustą listę, nie odczytuje żadnego lokalnego katalogu. Stos działa na zasadzie „pierwszy wygrywa” — tożsamość encji należy do najwcześniejszego katalogu, który ją deklaruje; kopia z późniejszego katalogu zostaje przesłonięta. Gałąź katalogu rozwiązuje identyfikator względem tego stosu we wszystkich rodzajach encji, w ustalonej kolejności pierwszeństwa, i renderuje pierwsze dopasowanie za pomocą widoku właściwego dla danego rodzaju; gałęzie pliku i wydania wczytują z niego przywoływane encje katalogowe, gdy trzeba rozwiązać mapowanie encji Manifest lub rodzica wskazanego przez `extends:`. Rodzic wskazany przez `extends:`, którego stos nie zawiera, jest odczytywany tam, gdzie odczytuje go kompilacja: z pamięci podręcznej artefaktów, pod przypięciem, które plik blokady encji Release rejestruje dla niego — wskazanej encji Release albo, gdy żadna nie jest wskazana, każdej encji Release w obszarze roboczym. Bazę opublikowaną w rejestrze można więc tu rozwiązać, gdy tylko [`aggrega pull`](aggrega-pull.md) ją pobierze i przypnie, a wcześniej polecenie jest odrzucane ze wskazaniem `aggrega pull --release <release>`. Nic nie jest pobierane."
+  },
   "4ea332e74d6ff40f": {
     "at": "2026-11-01T16:34:38.673Z",
     "job": "session-0007-20261101163438",
@@ -56665,6 +56704,13 @@
     "srcHash": "558679d105c836dc",
     "status": "machine",
     "text": "Pytanie o współrzędną"
+  },
+  "558a493c71067c50": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "558a493c71067c50",
+    "status": "machine",
+    "text": "Błędne hasło otrzymuje `HTTP/1.1 403 Forbidden` i `Authorization data is wrong!`. Gdy użytkownik i hasło znajdują się w `CHAT_USER` i `CHAT_PASSWORD`, curl odczytuje je ze swojego standardowego wejścia, dzięki czemu nie pojawiają się w żadnym wierszu poleceń:"
   },
   "558d86294df940c4": {
     "at": "2026-10-29T22:31:34.157Z",
@@ -65707,6 +65753,13 @@
     "srcHash": "631fa020f704ced0",
     "status": "machine",
     "text": "Kompilator Aggrega jest routerem tekstu typu Ahead-Of-Time (AOT). Parsuje YAML, przechodzi grafy, oblicza przecięcia etykiet i przesyła ciągi znaków ze źródeł do ujść. Nie pilnuje, co autorzy umieszczają w `values`, `parameters`, `infra`, `provides` czy `locals`. Nie egzekwuje konwencji nazewnictwa, konwencji portów ani etykiet semantycznych, które wymyśla Architect."
+  },
+  "63211a036d29215a": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "63211a036d29215a",
+    "status": "machine",
+    "text": "Stos należy zatrzymać poniższym poleceniem. `-v` usuwa też wolumen danych n8n, a wraz z nim zapisane poświadczenia i aktywację:"
   },
   "632155e01d04f638": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -81822,6 +81875,17 @@
     "status": "machine",
     "text": "Kompilator ocenia każdy nakaz względem **końcowego** zestawu dołączeń instancji, po tym jak kaskada 5-Tier Onion Model złożyła wszystkie zakresy: bloki `features:` w encji Aggregate na poziomie komponentu i podsystemu, bloki `features:` w encji Release na poziomie granicy i komponentu oraz dołączenia powstałe w wyniku rozwijania sterowanego adnotacjami. Każde z nich spełnia nakaz — reguła sprawdza, co jest obecne, a nigdy, jak się tam znalazło. Dlatego encja Component, której nakaz jest spełniony tylko dlatego, że operator ustawił adnotację monitorowania w encji Release, przechodzi dokładnie tak samo jak taka, do której programista ręcznie dołączył encję Feature."
   },
+  "7bac8453d0d34c32": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "c1df25d404f45d90",
+      "reviewed": false
+    },
+    "srcHash": "7bac8453d0d34c32",
+    "status": "machine",
+    "text": "Począwszy od `03-inject-hydration.yaml`, slot pokazujący kontekst węzła zawiera blok `.context.inject` zawsze wtedy, gdy przechwytywany przez niego potok dostarcza co najmniej jeden klucz, pod dowolnym mechanizmem: `env`, `file`, `arg` lub mechanizmem o innej nazwie, do którego zapisuje mapowanie `inject`, `injectMapping` encji FeatureRecipe albo własny blok `inject:` komponentu. Węzeł, którego jedynym dostarczaniem jest taki niestandardowy mechanizm, również pokazuje ten blok, z tym mechanizmem pod jego własną nazwą i jego kluczami w `all`, a wartość zadeklarowana jako wrażliwa ma w obu miejscach postać `<redacted>`. Slot zapisany w chwili, gdy potok niczego nie dostarcza, nie ma bloku `.context.inject`."
+  },
   "7bac89b11ac3ce68": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -83252,6 +83316,13 @@
     "srcHash": "7de2a4675052e99e",
     "status": "machine",
     "text": "`tmpfs: { size }` (w pamięci; ostrzeżenie, jeśli semantyka się różni)"
+  },
+  "7de5653b5e315796": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "7de5653b5e315796",
+    "status": "machine",
+    "text": "n8n przechowuje teraz oba poświadczenia, więc należy usunąć `credentials.json`:"
   },
   "7deadc6e6c0e91ae": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -87281,6 +87352,17 @@
     "srcHash": "845d75e03cd51220",
     "status": "machine",
     "text": "A Release connection attachment names no Feature type (Załącznik połączenia w encji Release nie wskazuje typu Feature)"
+  },
+  "846117f3a5fb5815": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "c822ef00a4fbc08d",
+      "reviewed": false
+    },
+    "srcHash": "846117f3a5fb5815",
+    "status": "machine",
+    "text": "Pamięć podręczna artefaktów w `artifact_cache_dir` (domyślnie `.aggrega/cache`) przechowuje to, co umieściło w niej pobieranie: encje katalogu i artefakty źródłowe, każdy zapisany pod swoim rodzajem oraz współrzędną i wersją, w której został pobrany, i poświadczony skrótem zapisanym w pliku blokady. Nie jest to katalog z encjami, a skanowanie katalogów ją pomija — dlatego zawartość pamięci podręcznej jest odczytywana jako zależność, poprzez przypięcie, które ją poświadcza, a nigdy jako encja utworzona przez autora."
   },
   "846496f0c08bfe2e": {
     "at": "2026-10-31T18:15:53.331Z",
@@ -95052,6 +95134,13 @@
     "status": "machine",
     "text": "Gdy dołączenie dostarcza chart podany przez jego autora, szablony tego chartu renderują się celowo względem\nnazwy wydania komponentu-hosta: wyprowadzenie jej z dołączenia zmieniłoby nazwy zasobów, które autor chartu\nzadeklarował i mógł już wdrożyć. `.attachment_name` jest wartością, która odróżnia dwa dołączenia na jednym\nhoście — zob. [`../providers/helm.md`](../providers/helm.md), „How the release name is derived”."
   },
+  "8ff94e899f4fbe74": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "8ff94e899f4fbe74",
+    "status": "machine",
+    "text": "Gdy `docker compose -p support-agent -f dist/compose/docker-compose.yaml ps n8n` ponownie pokaże n8n jako `(healthy)`, `docker compose -p support-agent -f dist/compose/docker-compose.yaml logs n8n` wypisze `Activated workflow \"Support agent\" (ID: sQ4vT8nKp2LmX7bR)`. Należy wysłać wiadomość czatu z kontenera w sieci stosu, `support-agent_compose`. Bez użytkownika i hasła wyzwalacz ją odrzuca:"
+  },
   "8ffb4acc1224b8a5": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -96277,6 +96366,13 @@
     "srcHash": "91de23f40e2bf794",
     "status": "machine",
     "text": "Pierwsza to klucz modelu, przywoływany z obiektu Secret wskazanego w encji Release i\nnigdy nie wypisywany; dwie pozostałe to adresy usług rozpoznających. Imię i nazwisko osoby\nstaje się `<PERSON>`, a adres `<EMAIL_ADDRESS>`."
+  },
+  "91e1fab402aac5f1": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "srcHash": "91e1fab402aac5f1",
+    "status": "machine",
+    "text": "n8n odczytuje z własnego magazynu oba poświadczenia wybrane przez przepływ pracy, według ich identyfikatorów: klucz OpenAI pod `Rb7nW2xQ9kT4mZ1c`, a użytkownika i hasło czatu pod `Vx3mQ8rLb2Nk7Tz5`. Wyrenderowany plik nie publikuje żadnego portu, dlatego należy je zapisać za pomocą własnego wiersza poleceń n8n, a nie jego edytora. Należy wpisać je do `credentials.json`, z własnymi wartościami:"
   },
   "91e23bb0e6fddd19": {
     "at": "2026-10-22T10:02:42.507672+00:00",
@@ -123965,6 +124061,17 @@
     "srcHash": "bb0834a8ccff88a0",
     "status": "machine",
     "text": "Liczba bajtów zajmowanych obecnie lub przed usunięciem."
+  },
+  "bb08e29b9267870c": {
+    "at": "2026-11-08T10:49:08.979Z",
+    "job": "session-0009-20261108104908",
+    "revision": {
+      "from": "6dfbbe735dd045a5",
+      "reviewed": false
+    },
+    "srcHash": "bb08e29b9267870c",
+    "status": "machine",
+    "text": "Przepływ pracy trafia do n8n przez `n8n import:workflow`, uruchamiane na tym samym wolumenie danych przy każdym starcie stosu, przed samym n8n. `N8N_BLOCK_ENV_ACCESS_IN_NODE` ma wartość `\"true\"`, czyli blokadę n8n na odczyt środowiska przez przepływ pracy, ponieważ encja Aggregate pozostawia `allow_env_access_in_nodes` na `false`. Dlatego węzeł OpenAI Chat Model odczytuje swój klucz z własnego magazynu poświadczeń n8n, tak jak wyzwalacz czatu odczytuje swojego użytkownika i hasło, a opisane niżej uruchomienie zapisuje jedno i drugie. n8n nie publikuje żadnego portu na komputerze użytkownika: wyrenderowany plik nie nadaje mu żadnego."
   },
   "bb0a97e56d6c754a": {
     "at": "2026-10-22T21:48:24.698354+00:00",
