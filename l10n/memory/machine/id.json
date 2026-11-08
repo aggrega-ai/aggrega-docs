@@ -48503,6 +48503,17 @@
     "status": "machine",
     "text": "**Muncul ketika** [`aggrega push`](../cli/aggrega-push.md) — atau `--dry-run`-nya — menerbitkan arsip yang salah satu entrinya memuat bagian yang tidak dapat ditampung Windows sebagaimana tertulis: nama yang dicadangkan Windows untuk perangkat, seperti `CON`, `PRN`, `AUX`, `NUL`, `COM1` atau `LPT1`, dalam huruf besar atau kecil apa pun dan dengan ekstensi apa pun di belakangnya, atau bagian yang diakhiri titik atau spasi. `aux/x.yaml` memuatnya pada direktorinya; `report.` dan `COM1.yaml` memuatnya pada nama berkasnya. Di Windows, `aggrega` menolak membongkar entri seperti itu, sehingga workspace Windows sama sekali tidak dapat menggunakan versi tersebut. Peringatan ini muncul di setiap platform, karena sebuah publikasi ditujukan bagi siapa pun yang menariknya, dan inilah cara pembuatnya mengetahui hal ini sebelum seseorang di Windows mengetahuinya."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "Lockfile berlaku per Release: menyelesaikan `release.yaml` akan menulis `release.lock` di sebelahnya (nama dasar file Release ditambah `.lock`). `aggrega pull` menyelesaikan dependensi dan menulis lockfile; `aggrega build` membacanya dan menggunakan versi yang dipin terlepas dari status registry pada saat build. Workspace melakukan commit atas lockfile ketika reprodusibilitas build di berbagai mesin penting; setelah sebuah entitas, pustaka, plugin, atau Release itu sendiri berubah di workspace, `aggrega pull --release <release>` memperbaruinya, menyelesaikan ulang apa yang berubah sambil mempertahankan setiap pin lainnya, dan `aggrega pull --upgrade --release <release>` adalah cara mengadopsi versi lebih baru yang kini ditawarkan oleh registry. Lockfile mencatat setiap entitas yang telah diselesaikan beserta jenisnya, URI-nya sebagaimana ditulis, versi yang diselesaikan, digest konten, dan lokasi yang mereferensikannya. Jenis dan URI bersama-sama mengidentifikasi sebuah entri, sehingga Release yang Aggregate dan Manifest-nya memiliki nama yang sama mencatat satu entri untuk masing-masing, dan suntingan pada salah satunya menghentikan build berikutnya hingga sebuah pull mencatatnya:"
+  },
   "499771e9e9996b06": {
     "at": "2026-10-23T08:19:00.586906+00:00",
     "job": "msgbatch_01FSCygBneA7ASnptBnc4B4p",
@@ -71140,6 +71151,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Satu bagian terpublikasi yang mengajarkan perbaikan penulisan untuk sebuah kondisi."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Setiap entri yang dipin membawa jenis + URI + versi yang diselesaikan + digest yang dapat dialamatkan berdasarkan konten. Digest diverifikasi pada setiap pengambilan; byte yang tidak cocok dengan digest yang dipin menghentikan build dengan galat integritas. Digest sebuah entitas diambil atas apa yang dibawa oleh publikasinya — dokumennya dan setiap file yang dideklarasikannya di sebelahnya, masing-masing berdasarkan path dan byte-nya — bukan atas byte yang digunakan untuk mengirimkannya, sehingga entitas yang sama mencatat digest yang sama baik dibaca dari direktori katalog maupun diambil dari registry, bagaimanapun arsipnya dikompresi dan bit izin apa pun, termasuk bit eksekusi, yang diberikan checkout kepada file-filenya. Digest milik registry sendiri atas byte yang dipublikasikan adalah acuan pertama untuk memeriksa sebuah pengambilan, melalui manifest, yang digest-nya dicatat oleh entri hasil resolusi registry di samping digest-nya sendiri."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -139672,6 +139694,17 @@
     "status": "machine",
     "text": "**Validasi dijalankan.** Saat resolusi (resolver / load), per file. Kompiler melakukan unmarshal setiap YAML ke struct Go yang sesuai; key YAML di luar field yang dideklarasikan struct muncul sebagai galat parse sebelum validasi lebih lanjut dijalankan."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega mengompilasi `Aggregate.yaml` ~30 baris menjadi ribuan baris konfigurasi JSON atau YAML fisik. Tanpa cara untuk melacak sumber daya yang sedang berjalan kembali ke sumbernya, men-debug kegagalan di “main.tf.json baris 4.032” memaksa developer merekonstruksi pemetaan secara manual. Untuk mengatasi hal ini, plugin rendering Aggrega menggabungkan pengidentifikasi jejak ke dalam permukaan metadata native milik penyedia — `metadata.labels` dan `metadata.annotations` untuk Kubernetes, komentar provenans untuk Terraform, dan konvensi setara per penyedia — sehingga setiap objek hasil render membawa penunjuk kembali ke sumber asalnya. Label `aggrega.ai/compiler-version` (didokumentasikan di [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)) adalah salah satu kunci jejak dalam kelompok ini; di sampingnya, stempel itu membawa `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri`, dan `aggrega.ai/environment`, dan penyedia helm, helm-chart, compose, terraform, serta cloudformation masing-masing menghasilkannya — penyedia helm-chart pada file templat yang ditambahkan sebuah Recipe ke chart, karena penyedia itu menyalin templat milik chart tanpa perubahan."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -159896,6 +159929,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**Pemeriksaan yang sama dijalankan saat publikasi**, sehingga ketidaksesuaian biasanya muncul sebelum entitas dipublikasikan, bukan saat build memuatnya."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "Root `artifact_cache_dir` membawa tiga subpohon paralel yang diisi secara seragam oleh satu pemanggilan `aggrega pull`, satu per kelas dependensi yang disematkan: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` untuk entitas katalog (Components, Features, Recipes, FeatureRecipes, Aggregates, pustaka, dan Plugins beserta file eksekusi yang dipublikasikannya), dengan jenis berupa jenis yang dipakai entitas saat dipublikasikan, sehingga dua entitas dengan jenis berbeda yang berbagi referensi dan versi yang sama — sebuah Component dan sebuah Recipe dengan nama yang sama — menempati dua slot; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` untuk artefak sumber yang ditarik dari field `spec.source` Recipe / FeatureRecipe (chart Helm, fragmen compose); dan `<artifact_cache_dir>/inputs/sha256/<hex-digest>` untuk input eksternal — dokumen jarak jauh yang diminta provider dari host saat merender, seperti `$ref` di `values.schema.json` sebuah chart yang menunjuk ke URL. Setiap slot cache artefak sumber membawa arsip `.tgz` yang otoritatif, direktori turunan `extracted/` yang dibuat ulang pada setiap pembacaan build, dan file `metadata.yaml` yang mencatat identitas `{kind, url, version, digest, mediatype, pulled_at}` artefak. Setiap slot cache entitas membawa artefak yang dipublikasikan sebagaimana diambil dan manifes OCI yang menjadi acuan verifikasinya. Slot dari setiap jenis yang dokumennya dapat menamai file di sampingnya — Recipe, FeatureRecipe, Component, Feature — juga membawa direktori turunan `extracted/` yang memuat file-file yang dibawa artefak tersebut, dalam direktori yang dinamai berdasarkan digest konten artefak: dokumen dan file yang dideklarasikan entitas jika dipublikasikan sebagai arsip, dan dokumen saja jika dipublikasikan sebagai dokumennya (§6). Direktori entitas disusun di sana dari artefak yang terverifikasi pada setiap pembacaan, dengan cara yang sama seperti file artefak sumber: setiap file diperiksa terhadap artefak, file yang diubah atau ditambahkan secara manual di direktori tersebut dibuang alih-alih dibaca, tidak ada hal lain di bawah `extracted/` yang dibaca, dan artefak yang gagal verifikasi ditolak sebelum apa pun disusun. Pembacaan hanya menulis ulang apa yang berbeda dari artefak, sehingga build yang membaca satu cache pada saat yang sama — permintaan yang ditangani `aggrega serve` secara berdampingan, atau dua perintah atas satu workspace — masing-masing menemukan file yang diserahkan kepadanya dalam keadaan utuh. Segmen `<digest-prefix>` 12 karakter memisahkan `{kind, url, version}` yang sama yang diberi tag ulang pada digest upstream berbeda ke dalam slot yang berbeda. Input eksternal tidak memerlukan slot seperti itu: input disimpan sebagai satu file yang dinamai berdasarkan digest konten tempat lockfile menyematkannya, sehingga apa yang dibaca build berikutnya dialamatkan oleh sematan, bukan oleh URL asal byte tersebut — itulah yang memungkinkan build tersebut menyajikan input dengan jaringan ditolak."
   },
   "f10734020412e338": {
     "at": "2026-10-22T10:50:19.225Z",

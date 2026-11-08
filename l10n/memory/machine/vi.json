@@ -48503,6 +48503,17 @@
     "status": "machine",
     "text": "**Phát sinh khi** [`aggrega push`](../cli/aggrega-push.md) — hoặc `--dry-run` của nó — xuất bản một kho lưu trữ mà một trong các mục của nó chứa một phần Windows không thể chứa như đã viết: một tên Windows dành riêng cho thiết bị, chẳng hạn `CON`, `PRN`, `AUX`, `NUL`, `COM1` hoặc `LPT1`, ở bất kỳ kiểu chữ hoa thường nào và với bất kỳ phần mở rộng nào theo sau, hoặc một phần kết thúc bằng dấu chấm hoặc dấu cách. `aux/x.yaml` chứa một phần như vậy trong thư mục của nó; `report.` và `COM1.yaml` chứa một phần như vậy trong tên tệp. Trên Windows, `aggrega` từ chối giải nén một mục như vậy, nên một workspace trên Windows hoàn toàn không thể dùng phiên bản đó. Cảnh báo phát sinh trên mọi nền tảng, vì một bản xuất bản dành cho bất kỳ ai kéo nó về, và đây là cách tác giả của nó biết điều này trước khi một người dùng Windows gặp phải."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "Lockfile được tạo riêng cho từng Release: việc phân giải `release.yaml` sẽ ghi `release.lock` bên cạnh nó (phần tên gốc của tệp Release cộng với `.lock`). `aggrega pull` phân giải các phụ thuộc và ghi lockfile; `aggrega build` đọc nó và dùng các phiên bản đã ghim bất kể trạng thái của registry tại thời điểm build. Các workspace commit lockfile khi khả năng tái lập build giữa các máy là quan trọng; sau khi một thực thể, một thư viện, một plugin hoặc chính Release thay đổi trong workspace, `aggrega pull --release <release>` làm mới nó, phân giải lại những gì đã thay đổi trong khi giữ nguyên mọi ghim khác, và `aggrega pull --upgrade --release <release>` là cách để chấp nhận một phiên bản mới hơn mà registry hiện cung cấp. Lockfile ghi lại mọi thực thể đã phân giải cùng với loại của nó, URI của nó như đã viết, phiên bản đã phân giải, digest nội dung và các vị trí tham chiếu đến nó. Loại và URI cùng nhau xác định một mục, nên một Release có Aggregate và Manifest trùng tên sẽ ghi một mục cho mỗi thực thể, và một chỉnh sửa ở bất kỳ thực thể nào trong hai sẽ dừng bản build tiếp theo cho đến khi một lần pull ghi lại nó:"
+  },
   "499771e9e9996b06": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -71140,6 +71151,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Một đoạn đã xuất bản hướng dẫn cách sửa khi soạn thảo cho một điều kiện."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Mỗi mục đã ghim mang loại + URI + phiên bản đã phân giải + digest định địa chỉ theo nội dung. Digest được xác minh ở mỗi lần tải; các byte không khớp với digest đã ghim sẽ dừng build với một lỗi toàn vẹn. Digest của một thực thể được tính trên những gì một lần xuất bản của nó mang theo — tài liệu của nó và mọi tệp mà nó khai báo bên cạnh, mỗi tệp theo đường dẫn và byte của nó — chứ không phải trên các byte mà nó được truyền đi, nên cùng một thực thể ghi lại cùng một digest dù được đọc từ một thư mục catalog hay được tải từ một registry, bất kể kho lưu trữ của nó được nén thế nào và bất kể một lần checkout đã gán cho các tệp của nó những bit quyền nào, kể cả bit thực thi. Một lần tải trước hết được kiểm tra đối chiếu với digest mà chính registry tính trên các byte đã xuất bản, thông qua manifest, mà digest của nó được một mục phân giải qua registry ghi lại bên cạnh digest của chính mục đó."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -139708,6 +139730,17 @@
     "status": "machine",
     "text": "**Thời điểm kiểm tra.** Khi phân giải (resolver / load), theo từng tệp. Trình biên dịch unmarshal mỗi tệp YAML vào struct Go tương ứng; các khóa YAML nằm ngoài các trường đã khai báo của struct xuất hiện dưới dạng lỗi phân tích cú pháp trước khi bất kỳ bước kiểm tra nào khác chạy."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega biên dịch một `Aggregate.yaml` khoảng 30 dòng thành hàng nghìn dòng cấu hình JSON hoặc YAML vật lý. Nếu không có cách truy ngược một tài nguyên đang chạy về nguồn của nó, việc gỡ lỗi một sự cố tại “main.tf.json dòng 4.032” buộc nhà phát triển phải tự tái dựng ánh xạ. Các plugin kết xuất của Aggrega giải quyết điều này bằng cách hợp nhất các định danh truy vết vào bề mặt metadata gốc của provider — `metadata.labels` và `metadata.annotations` cho Kubernetes, một chú thích nguồn gốc cho Terraform, và các quy ước tương đương theo từng provider — để mỗi đối tượng được kết xuất mang một con trỏ trở về nguồn mà nó xuất phát. Nhãn `aggrega.ai/compiler-version` (được mô tả trong [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)) là một khóa truy vết trong họ này; bên cạnh nó, dấu nguồn gốc còn mang `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri` và `aggrega.ai/environment`, và các provider helm, helm-chart, compose, terraform và cloudformation đều phát ra nó — provider helm-chart trên các tệp template mà một Recipe thêm vào chart, vì nó sao chép nguyên vẹn các template của chính chart."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -159934,6 +159967,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**Cùng phép kiểm tra này chạy khi publish**, nên một sự không khớp thường lộ ra trước khi thực thể được publish thay vì khi một bản build nạp nó."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "Gốc `artifact_cache_dir` mang ba cây con song song mà một lần gọi `aggrega pull` điền đồng nhất, mỗi cây cho một loại phụ thuộc được ghim: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` cho các thực thể catalog (Components, Features, Recipes, FeatureRecipes, Aggregates, các thư viện, và Plugins cùng các tệp thực thi mà chúng xuất bản), trong đó loại là loại mà thực thể được xuất bản theo, nên hai thực thể thuộc các loại khác nhau có chung một tham chiếu và một phiên bản — một Component và một Recipe cùng tên — là hai slot; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` cho các tạo phẩm nguồn được kéo từ các trường `spec.source` của Recipe / FeatureRecipe (chart Helm, đoạn compose); và `<artifact_cache_dir>/inputs/sha256/<hex-digest>` cho các đầu vào bên ngoài — các tài liệu từ xa mà một provider yêu cầu host cung cấp trong khi render, chẳng hạn một `$ref` trong `values.schema.json` của một chart trỏ tới một URL. Mỗi slot bộ nhớ đệm của tạo phẩm nguồn mang kho lưu trữ `.tgz` có thẩm quyền, một thư mục dẫn xuất `extracted/` được tạo lại ở mỗi lần build đọc, và một tệp `metadata.yaml` ghi lại danh tính `{kind, url, version, digest, mediatype, pulled_at}` của tạo phẩm. Mỗi slot bộ nhớ đệm của thực thể mang tạo phẩm đã xuất bản đúng như khi được tìm nạp và manifest OCI dùng để xác minh nó. Slot của mỗi loại mà tài liệu có thể đặt tên một tệp bên cạnh nó — một Recipe, một FeatureRecipe, một Component, một Feature — còn mang một thư mục dẫn xuất `extracted/` chứa các tệp mà tạo phẩm đó mang theo, trong một thư mục được đặt tên theo digest nội dung của tạo phẩm: tài liệu và các tệp mà thực thể đã khai báo nếu nó được xuất bản dưới dạng kho lưu trữ, và chỉ tài liệu nếu nó được xuất bản dưới dạng tài liệu của nó (§6). Thư mục của thực thể được bày ra ở đó từ tạo phẩm đã xác minh ở mỗi lần đọc, giống như các tệp của một tạo phẩm nguồn: mọi tệp đều được kiểm tra đối chiếu với tạo phẩm, một tệp bị thay đổi hoặc thêm thủ công trong thư mục đó sẽ bị loại bỏ thay vì được đọc, không có gì khác dưới `extracted/` được đọc, và một tạo phẩm không qua được xác minh sẽ bị từ chối trước khi bất cứ thứ gì được bày ra. Một lần đọc chỉ ghi lại những gì khác với tạo phẩm, nên các bản build đọc cùng một bộ nhớ đệm cùng lúc — các yêu cầu mà `aggrega serve` xử lý song song, hoặc hai lệnh trên cùng một workspace — đều tìm thấy nguyên vẹn các tệp đã được giao cho mình. Đoạn `<digest-prefix>` dài 12 ký tự tách cùng một `{kind, url, version}` được gắn thẻ lại ở các digest upstream khác nhau vào các slot riêng biệt. Một đầu vào bên ngoài không cần slot như vậy: nó được lưu dưới dạng một tệp đơn được đặt tên theo digest nội dung mà lockfile ghim nó vào, nên những gì một bản build sau đọc được định địa chỉ bởi phần ghim chứ không phải bởi URL mà các byte đến từ đó — đó là điều cho phép bản build ấy phục vụ đầu vào khi mạng bị chặn."
   },
   "f10734020412e338": {
     "at": "2026-10-22T10:27:55.857345+00:00",

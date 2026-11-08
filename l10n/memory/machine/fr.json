@@ -43533,6 +43533,17 @@
     "status": "machine",
     "text": "**Se déclenche quand** [`aggrega push`](../cli/aggrega-push.md) — ou son `--dry-run` — publie une archive dont l’une des entrées contient une partie que Windows ne peut pas contenir telle qu’elle est écrite : un nom que Windows réserve à un périphérique, comme `CON`, `PRN`, `AUX`, `NUL`, `COM1` ou `LPT1`, quelle que soit la casse et quelle que soit l’extension qui suit, ou une partie se terminant par un point ou une espace. `aux/x.yaml` en contient une dans son répertoire ; `report.` et `COM1.yaml` en contiennent une dans leur nom de fichier. Sous Windows, `aggrega` refuse de décompresser une telle entrée, de sorte qu’un espace de travail Windows ne peut pas utiliser la version du tout. L’avertissement se déclenche sur toutes les plateformes, car une publication est destinée à quiconque en effectue le pull, et c’est ainsi que son auteur l’apprend avant que quelqu’un sous Windows ne le découvre."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "Le lockfile est propre à chaque Release : la résolution de `release.yaml` écrit `release.lock` à côté de celui-ci (le nom de base du fichier de la Release suivi de `.lock`). `aggrega pull` résout les dépendances et écrit le lockfile ; `aggrega build` le lit et utilise les versions épinglées quel que soit l’état du registre au moment du build. Les workspaces versionnent le lockfile lorsque la reproductibilité du build d’une machine à l’autre compte ; après qu’une entité, une bibliothèque, un plugin ou la Release elle-même a changé dans le workspace, `aggrega pull --release <release>` le rafraîchit, en résolvant à nouveau ce qui a changé tout en conservant chaque autre épinglage, et `aggrega pull --upgrade --release <release>` est la manière d’adopter une version plus récente qu’un registre propose désormais. Le lockfile enregistre chaque entité résolue avec son type, son URI tel qu’il a été écrit, la version résolue, le digest du contenu et les emplacements qui la référencent. Le type et l’URI identifient ensemble une entrée, de sorte qu’une Release dont l’Aggregate et le Manifest partagent un nom enregistre une entrée pour chacun, et qu’une modification de l’un ou de l’autre arrête le build suivant jusqu’à ce qu’un pull l’enregistre :"
+  },
   "499771e9e9996b06": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -63698,6 +63709,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Un passage publié qui enseigne la correction d’authoring pour une condition."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Chaque entrée épinglée porte le type + l’URI + la version résolue + le digest adressable par contenu. Le digest est vérifié à chaque récupération ; des octets qui ne correspondent pas au digest épinglé arrêtent le build avec une erreur d’intégrité. Le digest d’une entité est calculé sur ce que porte une publication de celle-ci — son document et chaque fichier qu’elle déclare à côté, chacun par son chemin et ses octets — plutôt que sur les octets sous lesquels elle voyage, de sorte que la même entité enregistre le même digest, qu’elle soit lue depuis un répertoire de catalogue ou récupérée depuis un registre, quelle que soit la façon dont son archive a été compressée et quels que soient les bits de permission, bit d’exécution compris, qu’un checkout a donnés à ses fichiers. C’est d’abord par rapport au digest que le registre calcule lui-même sur les octets publiés qu’une récupération est vérifiée, via le manifest, dont une entrée résolue par le registre enregistre le digest à côté du sien."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -125379,6 +125401,17 @@
     "status": "machine",
     "text": "**Un retour chariot** — d’une paire CR LF, ou isolé — est écrit comme un seul saut de ligne. Un document JSON n’en contient qu’entre ses jetons, où tout espace blanc se lit de la même façon, si bien que la plateforme lit le même flux. L’importation rapporte leur nombre avec `carriage-returns-rewritten`."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega compile un `Aggregate.yaml` d’environ 30 lignes en milliers de lignes de configuration JSON ou YAML physique. Sans moyen de remonter d’une ressource en cours d’exécution à sa source, déboguer une défaillance à « main.tf.json, ligne 4 032 » oblige les développeurs à reconstruire la correspondance à la main. Les plugins de rendu d’Aggrega y remédient en fusionnant des identifiants de traçage dans la surface de métadonnées native du fournisseur — `metadata.labels` et `metadata.annotations` pour Kubernetes, un commentaire de provenance pour Terraform et des conventions équivalentes propres à chaque fournisseur — de sorte que chaque objet rendu porte un pointeur vers la source dont il provient. Le label `aggrega.ai/compiler-version` (documenté dans [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)) est une clé de traçage de cette famille ; à côté de lui, le tampon porte `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri` et `aggrega.ai/environment`, et les fournisseurs helm, helm-chart, compose, terraform et cloudformation l’émettent chacun — le fournisseur helm-chart sur les fichiers de template qu’une Recipe ajoute à un chart, puisqu’il copie sans modification les templates propres au chart."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -143549,6 +143582,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**La même vérification s’exécute à la publication**, de sorte qu’une incohérence apparaît normalement avant que l’entité ne soit publiée plutôt qu’au moment où une build la charge."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "La racine `artifact_cache_dir` porte trois sous-arborescences parallèles qu’une seule invocation de `aggrega pull` remplit de manière uniforme, une par classe de dépendance épinglée : `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` pour les entités de catalogue (Components, Features, Recipes, FeatureRecipes, Aggregates, les bibliothèques, et les Plugins avec les exécutables qu’ils publient), où le type est celui sous lequel l’entité est publiée, de sorte que deux entités de types différents qui partagent une référence et une version — un Component et une Recipe de même nom — occupent deux slots ; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` pour les artefacts source récupérés depuis les champs `spec.source` des Recipe / FeatureRecipe (charts Helm, fragments compose) ; et `<artifact_cache_dir>/inputs/sha256/<hex-digest>` pour les entrées externes — les documents distants qu’un provider demande à l’hôte pendant son rendu, comme un `$ref` dans le `values.schema.json` d’un chart qui pointe vers une URL. Chaque slot de cache d’artefact source porte l’archive `.tgz` faisant autorité, un répertoire dérivé `extracted/` régénéré à chaque lecture par un build, et un fichier `metadata.yaml` qui enregistre l’identité `{kind, url, version, digest, mediatype, pulled_at}` de l’artefact. Chaque slot de cache d’entité porte l’artefact publié tel qu’il a été récupéré et le manifeste OCI par rapport auquel il est vérifié. Le slot de chaque type dont le document peut nommer un fichier à côté de lui — une Recipe, une FeatureRecipe, un Component, une Feature — porte aussi un répertoire dérivé `extracted/` contenant les fichiers que cet artefact transporte, dans un répertoire nommé d’après le digest de contenu de l’artefact : le document et les fichiers que l’entité a déclarés, lorsqu’elle a été publiée sous forme d’archive, et le document seul, lorsqu’elle a été publiée sous forme de document (§6). Le répertoire de l’entité y est disposé à partir de l’artefact vérifié à chaque lecture, de la même manière que les fichiers d’un artefact source : chaque fichier est vérifié par rapport à l’artefact, un fichier modifié ou ajouté à la main dans ce répertoire est écarté au lieu d’être lu, rien d’autre sous `extracted/` n’est lu, et un artefact qui échoue à la vérification est refusé avant que quoi que ce soit ne soit disposé. Une lecture ne réécrit que ce qui diffère de l’artefact, de sorte que des builds lisant un même cache en même temps — des requêtes que `aggrega serve` traite côte à côte, ou deux commandes sur un même espace de travail — trouvent chacun intacts les fichiers qui leur ont été remis. Le segment `<digest-prefix>` de 12 caractères répartit dans des slots distincts un même `{kind, url, version}` re-étiqueté à des digests amont différents. Une entrée externe n’a pas besoin d’un tel slot : elle est stockée comme un fichier unique nommé d’après le digest de contenu auquel le lockfile l’épingle, de sorte que ce qu’un build ultérieur lit est adressé par l’épinglage plutôt que par l’URL d’où sont arrivés les octets — c’est ce qui permet à ce build de servir l’entrée avec le réseau refusé."
   },
   "f10734020412e338": {
     "at": "2026-10-22T10:50:19.225Z",

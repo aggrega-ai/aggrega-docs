@@ -48503,6 +48503,17 @@
     "status": "machine",
     "text": "**Pojawia się, gdy** [`aggrega push`](../cli/aggrega-push.md) — lub jego `--dry-run` — publikuje archiwum, którego jeden z wpisów zawiera część, której Windows nie może przechować w zapisanej postaci: nazwę zarezerwowaną przez Windows dla urządzenia, taką jak `CON`, `PRN`, `AUX`, `NUL`, `COM1` lub `LPT1`, w dowolnej wielkości liter i z dowolnym rozszerzeniem, albo część kończącą się kropką lub spacją. `aux/x.yaml` zawiera taką część w nazwie katalogu; `report.` i `COM1.yaml` — w nazwie pliku. W systemie Windows `aggrega` odmawia rozpakowania takiego wpisu, więc obszar roboczy w Windows w ogóle nie może użyć tej wersji. Ostrzeżenie pojawia się na każdej platformie, ponieważ publikacja jest przeznaczona dla każdego, kto ją pobierze, i to dzięki niemu autor dowiaduje się o tym, zanim dowie się ktoś korzystający z Windows."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "Lockfile jest osobny dla każdej encji Release: rozwiązanie `release.yaml` zapisuje obok niego `release.lock` (rdzeń nazwy pliku Release plus `.lock`). `aggrega pull` rozwiązuje zależności i zapisuje lockfile; `aggrega build` go odczytuje i używa przypiętych wersji niezależnie od stanu rejestru w czasie budowania. Workspace’y commitują lockfile, gdy liczy się powtarzalność budowania na różnych maszynach; gdy w workspace zmieni się encja, biblioteka, plugin lub sama encja Release, `aggrega pull --release <release>` odświeża go, ponownie rozwiązując to, co się zmieniło, i zachowując każde inne przypięcie, a `aggrega pull --upgrade --release <release>` służy do przyjęcia nowszej wersji, którą rejestr teraz oferuje. Lockfile zapisuje każdą rozwiązaną encję wraz z jej rodzajem, jej URI w postaci, w jakiej został napisany, rozwiązaną wersją, digestem zawartości i miejscami, które się do niej odwołują. Rodzaj i URI razem identyfikują wpis, więc encja Release, której encje Aggregate i Manifest mają tę samą nazwę, zapisuje po jednym wpisie dla każdej z nich, a edycja którejkolwiek z nich zatrzymuje następne budowanie, dopóki pull jej nie zapisze:"
+  },
   "499771e9e9996b06": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -71138,6 +71149,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Jeden opublikowany fragment objaśniający poprawkę autorską dla danego warunku."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Każdy przypięty wpis zawiera rodzaj + URI + rozwiązaną wersję + digest adresowany treścią. Digest jest weryfikowany przy każdym pobraniu; bajty niezgodne z przypiętym digestem zatrzymują budowanie z błędem integralności. Digest encji jest liczony z tego, co niesie jej publikacja — jej dokumentu i każdego pliku, który deklaruje obok niego, każdego według ścieżki i bajtów — a nie z bajtów, w jakich podróżuje, więc ta sama encja zapisuje ten sam digest niezależnie od tego, czy została odczytana z katalogu katalogowego, czy pobrana z rejestru, jakkolwiek skompresowano jej archiwum i jakiekolwiek bity uprawnień, łącznie z bitem wykonywania, checkout nadał jej plikom. Pobranie jest najpierw sprawdzane względem digestu, który sam rejestr wylicza z opublikowanych bajtów, za pośrednictwem manifestu, którego digest wpis rozwiązany przez rejestr zapisuje obok własnego."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -139664,6 +139686,17 @@
     "status": "machine",
     "text": "**Kiedy działa walidacja.** Podczas rozwiązywania (resolver / ładowanie), dla każdego pliku osobno. Kompilator deserializuje każdy plik YAML do odpowiedniej struktury Go; klucze YAML spoza zadeklarowanych pól struktury pojawiają się jako błędy parsowania, zanim zostanie uruchomiona jakakolwiek dalsza walidacja."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega kompiluje plik `Aggregate.yaml` liczący ok. 30 wierszy do tysięcy wierszy fizycznej konfiguracji JSON lub YAML. Bez sposobu na prześledzenie działającego zasobu z powrotem do jego źródła debugowanie awarii w „main.tf.json, wiersz 4032” zmusza programistów do ręcznego odtwarzania mapowania. Wtyczki renderujące Aggrega rozwiązują ten problem, scalając identyfikatory śledzenia z natywną powierzchnią metadanych dostawcy — `metadata.labels` i `metadata.annotations` dla Kubernetes, komentarzem o pochodzeniu dla Terraform i odpowiadającymi im konwencjami poszczególnych dostawców — dzięki czemu każdy wyrenderowany obiekt niesie wskaźnik do źródła, z którego powstał. Etykieta `aggrega.ai/compiler-version` (opisana w [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)) jest jednym z kluczy śledzenia w tej rodzinie; obok niej znacznik zawiera `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri` i `aggrega.ai/environment`, a emituje go każdy z dostawców helm, helm-chart, compose, terraform i cloudformation — dostawca helm-chart w plikach szablonów, które encja Recipe dodaje do chartu, ponieważ własne szablony chartu kopiuje bez zmian."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -159882,6 +159915,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**To samo sprawdzenie odbywa się przy publikacji**, więc niezgodność zwykle ujawnia się przed opublikowaniem encji, a nie dopiero wtedy, gdy build ją ładuje."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "Katalog główny `artifact_cache_dir` zawiera trzy równoległe poddrzewa, które jedno wywołanie `aggrega pull` wypełnia jednolicie, po jednym na każdą klasę przypiętych zależności: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` dla encji katalogu (Components, Features, Recipes, FeatureRecipes, Aggregates, biblioteki oraz Plugins wraz z publikowanymi przez nie plikami wykonywalnymi), gdzie rodzaj jest tym, pod którym encja jest publikowana, więc dwie encje różnych rodzajów, które mają wspólne odwołanie i wersję — encja Component i encja Recipe o tej samej nazwie — zajmują dwa sloty; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` dla artefaktów źródłowych pobranych z pól `spec.source` encji Recipe / FeatureRecipe (charty Helm, fragmenty compose); oraz `<artifact_cache_dir>/inputs/sha256/<hex-digest>` dla wejść zewnętrznych — zdalnych dokumentów, o które provider prosi hosta podczas renderowania, takich jak `$ref` w pliku `values.schema.json` chartu, wskazujący na URL. Każdy slot pamięci podręcznej artefaktu źródłowego zawiera wiarygodne archiwum `.tgz`, pochodny katalog `extracted/` generowany od nowa przy każdym odczycie przez build oraz plik `metadata.yaml` zapisujący tożsamość `{kind, url, version, digest, mediatype, pulled_at}` artefaktu. Każdy slot pamięci podręcznej encji zawiera opublikowany artefakt w postaci, w jakiej został pobrany, oraz manifest OCI, względem którego jest weryfikowany. Slot każdego rodzaju, którego dokument może nazwać plik obok siebie — Recipe, FeatureRecipe, Component, Feature — zawiera również pochodny katalog `extracted/` z plikami, które niesie dany artefakt, w katalogu nazwanym od skrótu treści artefaktu: dokument i pliki zadeklarowane przez encję, jeśli została opublikowana jako archiwum, oraz sam dokument, jeśli została opublikowana jako swój dokument (§6). Katalog encji jest tam rozkładany z zweryfikowanego artefaktu przy każdym odczycie, tak samo jak pliki artefaktu źródłowego: każdy plik jest sprawdzany względem artefaktu, plik zmieniony lub dodany ręcznie w tym katalogu jest odrzucany zamiast odczytywany, nic innego pod `extracted/` nie jest odczytywane, a artefakt, który nie przejdzie weryfikacji, jest odrzucany, zanim cokolwiek zostanie rozłożone. Odczyt przepisuje tylko to, co różni się od artefaktu, więc buildy odczytujące jedną pamięć podręczną w tym samym czasie — żądania obsługiwane równolegle przez `aggrega serve` lub dwa polecenia na jednym obszarze roboczym — znajdują każdy w całości pliki, które otrzymały. 12-znakowy segment `<digest-prefix>` rozdziela do odrębnych slotów to samo `{kind, url, version}` ponownie otagowane przy różnych skrótach upstream. Wejście zewnętrzne nie potrzebuje takiego slotu: jest przechowywane jako pojedynczy plik nazwany od skrótu treści, do którego przypina je plik blokady, więc to, co odczytuje późniejszy build, jest adresowane przez przypięcie, a nie przez URL, z którego przyszły bajty — i właśnie to pozwala temu buildowi serwować wejście przy zablokowanej sieci."
   },
   "f10734020412e338": {
     "at": "2026-10-22T08:46:18.120972+00:00",

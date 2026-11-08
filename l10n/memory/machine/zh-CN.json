@@ -48517,6 +48517,17 @@
     "status": "machine",
     "text": "**触发条件：** [`aggrega push`](../cli/aggrega-push.md)（或其 `--dry-run`）发布的归档中，某个条目包含 Windows 无法按原样容纳的部分：Windows 为设备保留的名称，例如 `CON`、`PRN`、`AUX`、`NUL`、`COM1` 或 `LPT1`，不论字母大小写、后跟何种扩展名；或以句点或空格结尾的部分。`aux/x.yaml` 的目录中含有这样的部分；`report.` 和 `COM1.yaml` 的文件名中含有这样的部分。在 Windows 上，`aggrega` 拒绝解包此类条目，因此 Windows 工作区完全无法使用该版本。该警告在所有平台上都会触发，因为发布内容面向任何拉取它的人，作者借此能在 Windows 用户发现之前得知这一问题。"
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "lockfile 按 Release 划分：解析 `release.yaml` 会在其旁边写入 `release.lock`（Release 文件名主干加上 `.lock`）。`aggrega pull` 解析依赖并写入 lockfile；`aggrega build` 读取它，并使用其中固定的版本，而不论构建时 registry 的状态如何。当跨机器的构建可复现性很重要时，工作区会提交 lockfile；当工作区中的某个实体、库、插件或 Release 本身发生变化后，`aggrega pull --release <release>` 会刷新它，重新解析发生变化的部分，同时保留其他所有固定项；而 `aggrega pull --upgrade --release <release>` 则用于采用 registry 现在提供的更新版本。lockfile 记录每个已解析的实体，包括其类型、按编写形式的 URI、解析出的版本、内容摘要以及引用位置。类型与 URI 共同标识一个条目，因此 Aggregate 与 Manifest 同名的 Release 会为二者各记录一个条目，而对其中任一者的修改都会使下一次构建中止，直到某次 pull 将其记录下来："
+  },
   "499771e9e9996b06": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -71141,6 +71152,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "讲解某一情况的编写修复方法的一段已发布文字。"
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "每个固定条目都包含类型 + URI + 解析出的版本 + 内容寻址摘要。每次获取时都会校验摘要；与固定摘要不匹配的字节会以完整性错误中止构建。实体的摘要基于其发布所包含的内容计算——即其文档以及它在旁边声明的每个文件，各按其路径和字节——而不是基于其传输时的字节，因此同一实体无论是从 catalog 目录读取还是从 registry 获取，都会记录相同的摘要，无论其归档如何压缩，也无论检出时为其文件赋予了何种权限位（包括可执行位）。获取时首先校验的是 registry 自身对已发布字节的摘要，这通过 manifest 进行；对于经 registry 解析的条目，manifest 的摘要会记录在条目自身摘要的旁边。"
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -139731,6 +139753,17 @@
     "status": "machine",
     "text": "**验证时机。** 在解析阶段（resolver / load），按文件进行。编译器将每个 YAML 反序列化为对应的 Go 结构体；结构体声明字段之外的 YAML 键会在任何后续验证运行之前作为解析错误报出。"
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega 将约 30 行的 `Aggregate.yaml` 编译为数千行实际的 JSON 或 YAML 配置。如果无法将运行中的资源追溯到其源头，调试“main.tf.json 第 4,032 行”处的故障就迫使开发者手动重建映射。Aggrega 的渲染插件通过将追踪标识符合并到 provider 原生的元数据位置来解决这一问题——Kubernetes 用 `metadata.labels` 和 `metadata.annotations`，Terraform 用来源注释，其他 provider 用各自对应的约定——使每个渲染出的对象都带有指回其来源的指针。`aggrega.ai/compiler-version` 标签（见 [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)）是这一系列中的一个追踪键；除它之外，该标记还携带 `aggrega.ai/aggregate-name`、`aggrega.ai/component-id`、`aggrega.ai/boundary-path`、`aggrega.ai/recipe-uri` 和 `aggrega.ai/environment`，helm、helm-chart、compose、terraform 和 cloudformation provider 都会生成该标记——helm-chart provider 将其写在 Recipe 添加到 chart 的模板文件上，因为它会原样复制 chart 自身的模板。"
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -159947,6 +159980,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**同样的检查也在发布时运行**，因此不匹配通常会在实体发布之前暴露，而不是在构建加载它时。"
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "`artifact_cache_dir` 根目录包含三个并列的子树，由一次 `aggrega pull` 调用统一填充，每类固定依赖各对应一个：`<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` 用于目录实体（Components、Features、Recipes、FeatureRecipes、Aggregates、各类库，以及 Plugins 及其发布的可执行文件），其中的类型是实体发布时所属的类型，因此共享同一引用和版本的两个不同类型的实体——同名的一个 Component 和一个 Recipe——占用两个槽；`<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` 用于从 Recipe / FeatureRecipe 的 `spec.source` 字段拉取的源制品（Helm chart、compose 片段）；`<artifact_cache_dir>/inputs/sha256/<hex-digest>` 用于外部输入，即 provider 在渲染时向宿主请求的远程文档，例如 chart 的 `values.schema.json` 中指向某个 URL 的 `$ref`。每个源制品缓存槽包含权威的 `.tgz` 归档、一个在每次构建读取时重新生成的派生 `extracted/` 目录，以及一个记录制品 `{kind, url, version, digest, mediatype, pulled_at}` 标识的 `metadata.yaml` 文件。每个实体缓存槽包含获取时的已发布制品，以及用于校验它的 OCI manifest。对于文档可以引用其旁边文件的那几类实体（Recipe、FeatureRecipe、Component、Feature），其缓存槽还包含一个派生的 `extracted/` 目录，存放该制品携带的文件，位于以制品内容摘要命名的目录中：若实体以归档形式发布，则为文档及实体声明的文件；若以文档本身发布，则仅为文档（§6）。实体的目录在每次读取时都会从已校验的制品中重新铺设，与源制品的文件相同：每个文件都会与制品比对，手动在该目录中修改或添加的文件会被丢弃而不会被读取，`extracted/` 下的其他内容均不会被读取，未通过校验的制品会在铺设任何内容之前被拒绝。一次读取只重写与制品不同的部分，因此同时读取同一缓存的构建（`aggrega serve` 并行处理的请求，或针对同一工作区的两条命令）各自都能得到完整的文件。12 个字符的 `<digest-prefix>` 段将在不同上游摘要下重新打标签的同一 `{kind, url, version}` 区分到不同的槽中。外部输入不需要这样的槽：它存储为单个文件，以 lockfile 固定的内容摘要命名，因此之后的构建读取的内容由固定值寻址，而不是由字节来源的 URL 寻址，这使得该构建在禁止网络访问时仍能提供该输入。"
   },
   "f10734020412e338": {
     "at": "2026-10-22T01:39:34.791258+00:00",

@@ -44166,6 +44166,17 @@
     "status": "machine",
     "text": "**É acionado quando** [`aggrega push`](../cli/aggrega-push.md) — ou o seu `--dry-run` — publica um arquivo em que uma das entradas contém uma parte que o Windows não consegue conter tal como está escrita: um nome que o Windows reserva para um dispositivo, como `CON`, `PRN`, `AUX`, `NUL`, `COM1` ou `LPT1`, em qualquer combinação de maiúsculas e minúsculas e com qualquer extensão que se siga, ou uma parte que termina num ponto final ou num espaço. `aux/x.yaml` contém uma no seu diretório; `report.` e `COM1.yaml` contêm uma no seu nome de ficheiro. No Windows, `aggrega` recusa-se a extrair uma entrada destas, pelo que um espaço de trabalho no Windows não consegue de todo usar a versão. O aviso é acionado em todas as plataformas, porque uma publicação se destina a quem quer que faça pull dela, e é a forma de o seu autor o saber antes que alguém no Windows o descubra."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "O lockfile é por Release: resolver `release.yaml` escreve `release.lock` ao lado dele (o nome base do ficheiro da Release mais `.lock`). `aggrega pull` resolve as dependências e escreve o lockfile; `aggrega build` lê-o e usa as versões fixadas independentemente do estado do registo no momento da compilação. Os espaços de trabalho fazem commit do lockfile quando a reprodutibilidade das compilações entre máquinas é importante; depois de uma entidade, uma biblioteca, um plugin ou a própria Release mudar no espaço de trabalho, `aggrega pull --release <release>` atualiza-o, voltando a resolver o que mudou e mantendo todas as outras fixações, e `aggrega pull --upgrade --release <release>` é a forma de adotar uma versão mais recente que um registo passe a oferecer. O lockfile regista cada entidade resolvida com o seu tipo, o seu URI tal como foi escrito, a versão resolvida, o digest de conteúdo e os locais que a referenciam. O tipo e o URI identificam em conjunto uma entrada, pelo que uma Release cujo Aggregate e cujo Manifest partilham um nome regista uma entrada para cada um, e uma edição a qualquer um deles interrompe a compilação seguinte até que um pull a registe:"
+  },
   "499771e9e9996b06": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -64611,6 +64622,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Uma passagem publicada que ensina a correção de authoring para uma condição."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Cada entrada fixada contém o tipo + o URI + a versão resolvida + o digest endereçável por conteúdo. O digest é verificado em cada obtenção; bytes que não correspondam ao digest fixado interrompem a compilação com um erro de integridade. O digest de uma entidade é calculado sobre o que uma publicação dela transporta — o seu documento e cada ficheiro que declara ao lado dele, cada um pelo seu caminho e pelos seus bytes — e não sobre os bytes em que viaja, pelo que a mesma entidade regista o mesmo digest quer seja lida de um diretório de catálogo, quer obtida de um registo, seja qual for a compressão do seu arquivo e quaisquer que sejam os bits de permissão, incluindo o bit de execução, que um checkout tenha dado aos seus ficheiros. O próprio digest do registo sobre os bytes publicados é aquilo face ao qual uma obtenção é verificada primeiro, através do manifesto, cujo digest uma entrada resolvida pelo registo regista ao lado do seu."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -127145,6 +127167,17 @@
     "status": "machine",
     "text": "**Um retorno de carro** — de um par CR LF, ou isolado — é escrito como um único avanço de linha. Um documento JSON só contém um entre os seus tokens, onde qualquer espaço em branco é lido da mesma forma, pelo que a plataforma lê o mesmo fluxo. A importação comunica quantos há com `carriage-returns-rewritten`."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "O Aggrega compila um `Aggregate.yaml` de ~30 linhas em milhares de linhas de configuração física em JSON ou YAML. Sem uma forma de rastrear um recurso em execução até à sua origem, depurar uma falha em «main.tf.json linha 4.032» obriga os programadores a reconstruir manualmente o mapeamento. Os plugins de renderização do Aggrega resolvem isto fundindo identificadores de rastreio na superfície de metadados nativa do provider — `metadata.labels` e `metadata.annotations` para o Kubernetes, um comentário de proveniência para o Terraform e convenções equivalentes por provider —, para que cada objeto renderizado transporte um ponteiro para a origem de onde veio. A etiqueta `aggrega.ai/compiler-version` (documentada em [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)) é uma chave de rastreio desta família; ao lado dela, o carimbo transporta `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri` e `aggrega.ai/environment`, e os providers helm, helm-chart, compose, terraform e cloudformation emitem-no cada um — o provider helm-chart nos ficheiros de template que uma Recipe acrescenta a um chart, já que copia sem alterações os templates próprios do chart."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -145600,6 +145633,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**A mesma verificação é executada na publicação**, pelo que uma incompatibilidade surge normalmente antes de a entidade ser publicada, e não quando uma compilação a carrega."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "A raiz `artifact_cache_dir` contém três subárvores paralelas que uma invocação de `aggrega pull` povoa uniformemente, uma por classe de dependência fixada: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` para entidades de catálogo (Components, Features, Recipes, FeatureRecipes, Aggregates, as bibliotecas e os Plugins com os executáveis que publicam), em que o tipo é aquele sob o qual a entidade é publicada, pelo que duas entidades de tipos diferentes que partilham uma referência e uma versão — um Component e uma Recipe com o mesmo nome — ocupam dois slots; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` para artefactos de origem obtidos a partir dos campos `spec.source` de Recipes / FeatureRecipes (charts Helm, fragmentos compose); e `<artifact_cache_dir>/inputs/sha256/<hex-digest>` para inputs externos — os documentos remotos que um provider pede ao anfitrião enquanto renderiza, como um `$ref` no `values.schema.json` de um chart que aponta para um URL. Cada slot de cache de artefacto de origem contém o arquivo `.tgz` de referência, um diretório `extracted/` derivado, regenerado em cada leitura da compilação, e um ficheiro `metadata.yaml` que regista a identidade `{kind, url, version, digest, mediatype, pulled_at}` do artefacto. Cada slot de cache de entidade contém o artefacto publicado tal como foi obtido e o manifesto OCI face ao qual é verificado. O slot de cada tipo cujo documento pode nomear um ficheiro ao lado dele — uma Recipe, uma FeatureRecipe, um Component, uma Feature — contém também um diretório `extracted/` derivado com os ficheiros que esse artefacto transporta, num diretório com o nome do digest de conteúdo do artefacto: o documento e os ficheiros que a entidade declarou, quando foi publicada como arquivo, e apenas o documento, quando foi publicada como o seu documento (§6). O diretório da entidade é aí disposto a partir do artefacto verificado em cada leitura, da mesma forma que os ficheiros de um artefacto de origem: cada ficheiro é verificado face ao artefacto, um ficheiro alterado ou acrescentado à mão nesse diretório é descartado em vez de lido, nada mais sob `extracted/` é lido, e um artefacto que falhe a verificação é recusado antes de qualquer coisa ser disposta. Uma leitura reescreve apenas o que difere do artefacto, pelo que compilações que leem uma mesma cache ao mesmo tempo — pedidos que `aggrega serve` trata lado a lado, ou dois comandos sobre um mesmo espaço de trabalho — encontram cada uma os ficheiros que lhe foram entregues completos. O segmento `<digest-prefix>` de 12 caracteres separa em slots distintos o mesmo `{kind, url, version}` reetiquetado em digests upstream diferentes. Um input externo não precisa de um slot destes: é guardado como um único ficheiro com o nome do digest de conteúdo a que o lockfile o fixa, pelo que o que uma compilação posterior lê é endereçado pela fixação e não pelo URL de onde os bytes chegaram — o que permite a essa compilação servir o input com a rede negada."
   },
   "f10734020412e338": {
     "at": "2026-10-22T17:52:18.428Z",

@@ -48503,6 +48503,17 @@
     "status": "machine",
     "text": "**Şu durumda tetiklenir:** [`aggrega push`](../cli/aggrega-push.md) — ya da onun `--dry-run` biçimi — girdilerinden birinde Windows'un yazıldığı hâliyle tutamayacağı bir parça bulunan bir arşiv yayımladığında: harf büyüklüğü ne olursa olsun ve ardından hangi uzantı gelirse gelsin, Windows'un bir aygıt için ayırdığı `CON`, `PRN`, `AUX`, `NUL`, `COM1` veya `LPT1` gibi bir ad ya da nokta veya boşlukla biten bir parça. `aux/x.yaml` böyle bir parçayı dizininde; `report.` ve `COM1.yaml` ise dosya adında taşır. Windows'ta `aggrega` böyle bir girdiyi açmayı reddeder; bu nedenle bir Windows çalışma alanı o sürümü hiç kullanamaz. Uyarı her platformda tetiklenir, çünkü bir yayın onu kim çekerse onun içindir ve yazarı bunu Windows kullanan biri öğrenmeden önce bu uyarıyla öğrenir."
   },
+  "498e6c00718e9470": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "22d1ffbf160dca84",
+      "reviewed": false
+    },
+    "srcHash": "498e6c00718e9470",
+    "status": "machine",
+    "text": "Lockfile her Release için ayrıdır: `release.yaml` çözümlendiğinde yanına `release.lock` yazılır (Release dosyasının kök adı artı `.lock`). `aggrega pull` bağımlılıkları çözümler ve lockfile'ı yazar; `aggrega build` onu okur ve derleme anındaki registry durumundan bağımsız olarak sabitlenmiş sürümleri kullanır. Derlemenin makineler arasında yeniden üretilebilirliği önemli olduğunda çalışma alanları lockfile'ı commit eder; çalışma alanında bir varlık, bir kütüphane, bir plugin ya da Release'in kendisi değiştikten sonra `aggrega pull --release <release>` onu yeniler, değişeni yeniden çözümlerken diğer tüm sabitlemeleri korur; bir registry'nin artık sunduğu daha yeni bir sürüm ise `aggrega pull --upgrade --release <release>` ile benimsenir. Lockfile, çözümlenen her varlığı türü, yazıldığı haliyle URI'si, çözümlenen sürümü, içerik digest'i ve ona başvuran yerlerle birlikte kaydeder. Tür ve URI birlikte bir girdiyi tanımlar; bu nedenle Aggregate'i ile Manifest'i aynı adı taşıyan bir Release her biri için bir girdi kaydeder ve bunlardan herhangi birinde yapılan bir düzenleme, bir pull onu kaydedene kadar sonraki derlemeyi durdurur:"
+  },
   "499771e9e9996b06": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -71138,6 +71149,17 @@
     "srcHash": "6c1183fe5d6debf9",
     "status": "machine",
     "text": "Bir durum için yazım düzeltmesini öğreten yayımlanmış bir bölüm."
+  },
+  "6c13095b2d62cd63": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "a1f12c3161164db3",
+      "reviewed": false
+    },
+    "srcHash": "6c13095b2d62cd63",
+    "status": "machine",
+    "text": "Sabitlenmiş her girdi tür + URI + çözümlenen sürüm + içerikle adreslenebilir digest taşır. Digest her getirmede doğrulanır; sabitlenmiş digest ile eşleşmeyen baytlar derlemeyi bir bütünlük hatasıyla durdurur. Bir varlığın digest'i, aktarıldığı baytlar üzerinden değil, onun bir yayınının taşıdıkları üzerinden alınır — belgesi ve yanında bildirdiği her dosya, her biri yolu ve baytlarıyla — böylece aynı varlık, ister bir katalog dizininden okunsun ister bir registry'den getirilsin, arşivi nasıl sıkıştırılmış olursa olsun ve bir checkout dosyalarına yürütme biti dahil hangi izin bitlerini vermiş olursa olsun aynı digest'i kaydeder. Bir getirme önce, registry'nin yayınlanan baytlar üzerinden kendi hesapladığı digest'e karşı denetlenir; bu, registry üzerinden çözümlenen bir girdinin kendi digest'inin yanına kaydettiği manifest digest'i aracılığıyla yapılır."
   },
   "6c14641ba7f3cd76": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -139668,6 +139690,17 @@
     "status": "machine",
     "text": "**Doğrulamanın çalıştığı yer.** Çözümleme sırasında (resolver / load), dosya başına. Derleyici her YAML'ı karşılık gelen Go yapısına çözer; yapının bildirilen alanları dışındaki YAML anahtarları, başka herhangi bir doğrulama çalışmadan önce ayrıştırma hatası olarak ortaya çıkar."
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "078f188c630c0435",
+      "reviewed": false
+    },
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega, ~30 satırlık bir `Aggregate.yaml` dosyasını binlerce satırlık fiziksel JSON veya YAML yapılandırmasına derler. Çalışan bir kaynağı kaynağına kadar izlemenin bir yolu olmadan, “main.tf.json satır 4.032” konumundaki bir hatayı ayıklamak geliştiricileri eşlemeyi elle yeniden kurmaya zorlar. Aggrega'nın render eklentileri bunu, izleme tanımlayıcılarını sağlayıcının yerel meta veri yüzeyine — Kubernetes için `metadata.labels` ve `metadata.annotations`, Terraform için bir köken yorumu ve sağlayıcı başına eşdeğer uzlaşımlar — birleştirerek ele alır; böylece render edilen her nesne geldiği kaynağa geri işaret eden bir işaretçi taşır. `aggrega.ai/compiler-version` etiketi ([governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping) içinde belgelenmiştir) bu ailedeki izleme anahtarlarından biridir; damga onun yanında `aggrega.ai/aggregate-name`, `aggrega.ai/component-id`, `aggrega.ai/boundary-path`, `aggrega.ai/recipe-uri` ve `aggrega.ai/environment` anahtarlarını taşır ve helm, helm-chart, compose, terraform ve cloudformation sağlayıcılarının her biri onu üretir — helm-chart sağlayıcısı, chart'ın kendi şablonlarını değiştirmeden kopyaladığı için bir Recipe'nin chart'a eklediği şablon dosyalarında."
+  },
   "d2be15d00ba9b393": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -159884,6 +159917,17 @@
     "srcHash": "f0fb5698aac2c7c3",
     "status": "machine",
     "text": "**Aynı denetim yayımlama sırasında da çalışır**, bu nedenle bir uyuşmazlık normalde bir derleme varlığı yüklediğinde değil, varlık yayımlanmadan önce ortaya çıkar."
+  },
+  "f1066bc9c9e27fb1": {
+    "at": "2026-11-08T10:33:56.203Z",
+    "job": "session-0002-20261108103356",
+    "revision": {
+      "from": "605beb51270251e5",
+      "reviewed": false
+    },
+    "srcHash": "f1066bc9c9e27fb1",
+    "status": "machine",
+    "text": "`artifact_cache_dir` kökü, tek bir `aggrega pull` çağrısının tek tip biçimde doldurduğu, sabitlenmiş bağımlılığın her sınıfı için bir tane olmak üzere üç paralel alt ağaç taşır: katalog varlıkları (Components, Features, Recipes, FeatureRecipes, Aggregates, kütüphaneler ve yayımladıkları yürütülebilir dosyalarla birlikte Plugins) için `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/`, burada tür varlığın yayımlandığı türdür, bu yüzden bir başvuruyu ve bir sürümü paylaşan farklı türlerden iki varlık — aynı adı taşıyan bir Component ile bir Recipe — iki ayrı yuvadır; Recipe / FeatureRecipe `spec.source` alanlarından çekilen kaynak yapıtları (Helm chart'ları, compose parçaları) için `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/`; ve harici girdiler için `<artifact_cache_dir>/inputs/sha256/<hex-digest>` — bir provider'ın işleme sırasında ana bilgisayardan istediği uzak belgeler, örneğin bir chart'ın `values.schema.json` dosyasında bir URL'yi gösteren bir `$ref`. Her kaynak yapıt önbellek yuvası, yetkili `.tgz` arşivini, her derleme okumasında yeniden üretilen türetilmiş bir `extracted/` dizinini ve yapıtın `{kind, url, version, digest, mediatype, pulled_at}` kimliğini kaydeden bir `metadata.yaml` dosyasını taşır. Her varlık önbellek yuvası, yayımlanan yapıtı getirildiği hâliyle ve doğrulandığı OCI manifestini taşır. Belgesi yanında bir dosyayı adlandırabilen her türün yuvası — bir Recipe, bir FeatureRecipe, bir Component, bir Feature — ayrıca o yapıtın taşıdığı dosyaları, yapıtın içerik özetiyle adlandırılmış bir dizinde tutan türetilmiş bir `extracted/` dizini taşır: varlık arşiv olarak yayımlandıysa belge ve varlığın bildirdiği dosyalar, belge olarak yayımlandıysa yalnızca belge (§6). Varlığın dizini, bir kaynak yapıtın dosyalarında olduğu gibi, her okumada doğrulanmış yapıttan oraya yerleştirilir: her dosya yapıta karşı denetlenir, o dizinde elle değiştirilen veya eklenen bir dosya okunmak yerine atılır, `extracted/` altındaki başka hiçbir şey okunmaz ve doğrulamayı geçemeyen bir yapıt, herhangi bir şey yerleştirilmeden önce reddedilir. Bir okuma yalnızca yapıttan farklı olanı yeniden yazar; böylece aynı anda tek bir önbelleği okuyan derlemeler — `aggrega serve`'ün yan yana işlediği istekler ya da tek bir çalışma alanı üzerindeki iki komut — kendilerine verilen dosyaları her biri eksiksiz bulur. 12 karakterlik `<digest-prefix>` kesimi, farklı upstream özetlerinde yeniden etiketlenmiş aynı `{kind, url, version}` değerini ayrı yuvalara ayırır. Harici bir girdinin böyle bir yuvaya ihtiyacı yoktur: kilit dosyasının onu sabitlediği içerik özetiyle adlandırılmış tek bir dosya olarak saklanır; böylece sonraki bir derlemenin okuduğu şey, baytların geldiği URL ile değil, sabitlemeyle adreslenir — o derlemenin girdiyi ağ engellenmişken sunabilmesini sağlayan da budur."
   },
   "f10734020412e338": {
     "at": "2026-10-22T08:46:18.120972+00:00",
