@@ -339,7 +339,7 @@ and the build, with `<workspace>` standing for the folder holding the reviewed
 files:
 
 ```text
-Pull complete: release.lock (entities=6, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 5 files written to <workspace>/dist
@@ -402,5 +402,107 @@ spec:
     - port: 443
 ```
 
-Before you apply the files, create the `github-mcp-token` Secret in the
-namespace they are applied to; nothing in the build writes it.
+## Run it
+
+Nothing in the build writes the `github-mcp-token` Secret, so create it before
+you apply the files. Write your token into
+`github-token.env`, as the one line
+`GITHUB_PERSONAL_ACCESS_TOKEN=<your token>`, and create the Secret from it.
+The cluster holds the token then, so delete the file:
+
+```bash
+kubectl create secret generic github-mcp-token --from-env-file=github-token.env
+rm github-token.env
+```
+
+```text
+secret/github-mcp-token created
+```
+
+Apply the build, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains, and wait for the
+two servers:
+
+```bash
+kubectl apply -R -f dist/helm/
+kubectl wait --for=condition=Available deployment.apps/fetch deployment.apps/github --timeout=5m
+```
+
+```text
+service/docs-search created
+service/fetch-default created
+deployment.apps/fetch created
+service/github-default created
+deployment.apps/github created
+deployment.apps/fetch condition met
+deployment.apps/github condition met
+```
+
+The bridge serves each server over MCP's Streamable HTTP transport, at `/mcp`
+on port 8080 of the server's Service: `fetch-default` for the fetch server.
+Forward a local port to it, and leave the command running:
+
+```bash
+kubectl port-forward svc/fetch-default 8080:8080
+```
+
+From another terminal, open a session with the fetch server:
+
+```bash
+curl -sS -i http://127.0.0.1:8080/mcp \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "run-it", "version": "1.0.0"}}}'
+```
+
+```text
+HTTP/1.1 200 OK
+[… omitted: the x-powered-by, cache-control and connection headers]
+content-type: text/event-stream
+mcp-session-id: f93d7f93-3873-4574-a065-16c76c5ca345
+[… omitted: the x-accel-buffering, date and transfer-encoding headers]
+
+: keepalive
+
+: keepalive
+
+event: message
+data: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{"listChanged":false},"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"mcp-fetch","version":"2026.11.4"}}}
+```
+
+The reply took about half a minute in the run. The bridge starts the server's
+command line, `uvx mcp-server-fetch`, for the session: `uvx` downloaded and
+installed the server's packages in under ten seconds, and the server answered
+about twenty seconds after that. The `: keepalive` lines are comments the
+stream sends meanwhile. The bridge runs `--stateful`, so the reply carries the
+session's identifier in `mcp-session-id`. Send it with every later request:
+first the notice that the client is ready, then the request for the server's
+tools:
+
+```bash
+curl -sS -i http://127.0.0.1:8080/mcp \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -H 'Mcp-Session-Id: <session id>' -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc": "2.0", "method": "notifications/initialized"}'
+curl -sS http://127.0.0.1:8080/mcp \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -H 'Mcp-Session-Id: <session id>' -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/list"}'
+```
+
+```text
+HTTP/1.1 202 Accepted
+[… omitted: the response's other headers]
+
+event: message
+data: {"jsonrpc":"2.0","id":2,"result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":true,"readOnlyHint":true},"description":"Fetches a URL from the internet and optionally extracts its contents as markdown.[… omitted: the rest of the description, and the input schema, whose one required argument is url]","name":"fetch"}]}}
+```
+
+The notice is accepted with no reply of its own, and the second request lists
+the server's one tool, `fetch`.
+
+Stop the port forward, then remove what you applied and the Secret:
+
+```bash
+kubectl delete -R -f dist/helm/
+kubectl delete secret github-mcp-token
+```

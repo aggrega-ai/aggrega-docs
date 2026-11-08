@@ -82,7 +82,8 @@ made no choice for model_config.model (model)
 
 - **The `warn` line** says that the model stays inside Dify: Dify configures
   its model providers, and their keys, for itself, so the draft wires no model.
-  Once Dify runs, you set the OpenAI provider's key in Dify's settings.
+  Once Dify runs, you install its OpenAI provider and set the provider's key,
+  as [Run it](#run-it) shows.
 - **The `info` line** is about the Release: the Dify import drafts none, so
   you write it.
 
@@ -180,7 +181,7 @@ The review changes:
     [… omitted: one such line for each of the other nine components]
     [E0099]
       no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "password" (type "core/referenced-secret"); feature recipes implementing it: [helm/k8s-existing-secret:1.0.0 helm/k8s-external-secret:1.0.0 helm/k8s-secret-from-parameter:1.0.0]; pin one in the Manifest
-    [… omitted: one such line for each of the other credential attachments]
+    [… omitted: one such line for each of the other credential attachments, and the LINT notice the validation below prints as well]
   release dependency validation failed: 27 diagnostic(s)
   ```
 
@@ -317,7 +318,7 @@ and the build, with `<workspace>` standing for the folder holding the reviewed
 files:
 
 ```text
-Pull complete: release.lock (entities=24, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=25, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 24 files written to <workspace>/dist
@@ -362,8 +363,178 @@ spec:
             name: dify-zdapi-app
 ```
 
-The application itself is in the ConfigMap beside it. Before applying the
-manifests, create the two Secrets they read in the namespace you deploy to:
-`dify-owner`, holding the owner's password under `value`, and
-`dify-credentials`, holding the five credentials under their data keys. A
-workload naming a Secret that does not exist does not start.
+The application itself is in the ConfigMap beside it.
+
+## Run it
+
+Before applying the manifests, create the two Secrets they read: `dify-owner`,
+holding the owner's password under `value`, and `dify-credentials`, holding
+the five credentials under their data keys. A workload naming a Secret that
+does not exist does not start. Set the owner's password in your shell, as
+`DIFY_OWNER_PASSWORD`, since you sign in with it below. Dify takes an owner password of at least eight characters holding a
+letter and a digit: given any other, the import Job fails, its log reads
+`first-time setup was refused with HTTP 422`, and the wait below runs to its
+timeout. Write `dify-credentials.env`, one line for each data key:
+`db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` and
+`inner-api-key=`, each followed by a value of your own. Then create the two
+Secrets. The cluster holds the values then, so delete the two files:
+
+```bash
+printf 'value=%s\n' "$DIFY_OWNER_PASSWORD" > dify-owner.env
+kubectl create secret generic dify-owner --from-env-file=dify-owner.env
+kubectl create secret generic dify-credentials --from-env-file=dify-credentials.env
+rm dify-owner.env dify-credentials.env
+```
+
+```text
+secret/dify-owner created
+secret/dify-credentials created
+```
+
+Apply the manifests, as the run step of
+[How an import runs](README.md#how-an-import-runs) explains — `-R` reaches the
+Job and the two ConfigMaps in `dify.api/` and `dify.proxy/` — then wait for the
+import Job and read its log, and wait for the plugin runtime:
+
+```bash
+kubectl apply -R -f dist/boundaries/platform/helm/
+kubectl wait --for=condition=complete job/dify-zdapi-app-import --timeout=15m
+kubectl logs job/dify-zdapi-app-import
+kubectl rollout status statefulset/dify-zdplugins
+```
+
+```text
+service/dify-zdapi-default created
+deployment.apps/dify-zdapi created
+[… omitted: a line for each of the other Services, Deployments and StatefulSets]
+job.batch/dify-zdapi-app-import created
+configmap/dify-zdapi-app created
+configmap/dify-zdproxy-config created
+job.batch/dify-zdapi-app-import condition met
+first-time setup done: owner account owner@example.com
+imported 'Support assistant' as application 7e03e85c-b13f-4ddc-b539-040470a61d4c
+partitioned roll out complete: 1 new pods have been updated...
+```
+
+The log names the application's identifier, which you need below. The steps
+that follow call Dify's console API on its API server, so in a second terminal
+forward a local port to the server's Service, and leave the command running
+there:
+
+```bash
+kubectl port-forward svc/dify-zdapi-default 5001:5001
+```
+
+Back in the first terminal, where `DIFY_OWNER_PASSWORD` is set, sign in as the
+owner. The console API takes the password Base64-encoded, and signing in
+leaves the session in `cookies.txt`. Every later console request sends the
+session back, with the CSRF token from the same file in an `X-CSRF-Token`
+header; a request without it is refused with
+`CSRF token is missing or invalid.`
+
+```bash
+printf '{"email": "owner@example.com", "password": "%s"}' "$(printf %s "$DIFY_OWNER_PASSWORD" | base64 | tr -d '\n')" |
+  curl -sS -c cookies.txt http://127.0.0.1:5001/console/api/login -H 'Content-Type: application/json' -d @-
+CSRF=$(awk '$6 == "csrf_token" {print $7}' cookies.txt)
+```
+
+```text
+{"result":"success"}
+```
+
+Dify's model providers are plugins, and a new installation holds none. Install
+Dify's OpenAI provider, at version 1.1.0, the one the run installed; the plugin
+runtime fetches it from Dify's marketplace, so the cluster must reach the
+internet:
+
+```bash
+curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/json' \
+  http://127.0.0.1:5001/console/api/workspaces/current/plugin/install/marketplace \
+  -d '{"plugin_unique_identifiers": ["langgenius/openai:1.1.0@1ded02acee56efd5788c86fd447d792e4923e959554a4942f440c7859d164340"]}'
+```
+
+```text
+{"all_installed":false,"task_id":"01a1b9ef-8220-73d0-b9be-251a1fbd53d0","task":null}
+```
+
+The installation runs in the background. Ask for its task, with the
+`task_id` the reply names, until its `status` is `success`:
+
+```bash
+curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" \
+  http://127.0.0.1:5001/console/api/workspaces/current/plugin/tasks/<task id>
+```
+
+```text
+{"task":{"id":"01a1b9ef-8220-73d0-b9be-251a1fbd53d0",[… omitted: when it was created and last updated],"status":"success","total_plugins":1,"completed_plugins":1,"plugins":[{"plugin_unique_identifier":"langgenius\/openai:1.1.0@1ded02acee56efd5788c86fd447d792e4923e959554a4942f440c7859d164340","plugin_id":"langgenius\/openai","status":"success","message":"installed",[… omitted: the plugin's icon and its names in four languages],"source":"marketplace"}]}}
+```
+
+Write the provider's key into `openai.json`, as
+`{"credentials": {"openai_api_key": "your OpenAI key"}}`, set it, and delete
+the file:
+
+```bash
+curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/json' \
+  http://127.0.0.1:5001/console/api/workspaces/current/model-providers/langgenius/openai/openai/credentials \
+  -d @openai.json
+rm openai.json
+```
+
+```text
+{"result":"success"}
+```
+
+Dify checks the key with one request to the provider before it keeps it. The
+run had no OpenAI key: it used a small local model in place of OpenAI, as the
+run step of [How an import runs](README.md#how-an-import-runs) describes, here
+built for `helm/ollama` from a workspace of its own and served in the cluster
+behind the Service `local-model-default`. The run copied the model under the
+name the application asks for, with
+`kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`,
+and its `openai.json` carried, beside a key the local server does not check,
+three more settings: `"openai_api_base": "http://local-model-default:11434"`,
+that server's address, with no `/v1`, which the provider adds; `"api_protocol": "chat"`, since the provider calls
+OpenAI's Responses API by default, which that server does not serve; and
+`"validate_model": "gpt-4o-mini"`, the model Dify checks the key with. With an
+OpenAI key, you set only `openai_api_key`, as above.
+
+An application answers requests made with an API key of its own. Create one,
+with the application's identifier from the import Job's log:
+
+```bash
+curl -sS -X POST -b cookies.txt -H "X-CSRF-Token: $CSRF" \
+  http://127.0.0.1:5001/console/api/apps/<application id>/api-keys
+```
+
+```text
+{"id":"bddd5811-8733-495e-835d-21b26d1fc01b","type":"app","token":"[… omitted: the key]","last_used_at":null,"created_at":1794120860}
+```
+
+and send the application a message with the key, the reply's `token`:
+
+```bash
+curl -sS http://127.0.0.1:5001/v1/chat-messages \
+  -H 'Authorization: Bearer <app key>' -H 'Content-Type: application/json' \
+  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "run-it"}'
+```
+
+```text
+{"event": "message", [… omitted: the task's, the message's and the conversation's identifiers], "mode": "chat", "answer": "Support plans cover technical assistance, troubleshooting, maintenance, and other services related to software usage.", "metadata": {[… omitted: the token usage, Dify's list price for it and the latency, and three empty fields]}, "created_at": 1794120860}
+```
+
+The answer is at `answer`. It came from the small local model above, under the
+name `gpt-4o-mini`.
+
+Stop the port forward, then remove what you applied, the Secrets and the
+session file:
+
+```bash
+kubectl delete -R -f dist/boundaries/platform/helm/
+kubectl delete secret dify-owner dify-credentials
+kubectl delete pvc data-dify-zddb-0 storage-dify-zdplugins-0 data-dify-zdvector-0
+rm cookies.txt
+```
+
+Kubernetes keeps the volume claims a StatefulSet made when the StatefulSet is
+deleted, so the third command removes them, and with them the database, the
+installed plugin and the vector store.

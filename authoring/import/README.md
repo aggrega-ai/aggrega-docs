@@ -186,6 +186,26 @@ not supply.
    delivers, so the n8n run also gave that credential the server's address, as
    a `url` beside `apiKey` in its `data`.
 
+   A build for Kubernetes, the `helm` target, writes plain manifests rather
+   than a chart, as the [helm provider](../../language-reference/providers/helm.md)
+   describes: under `dist/helm/`, or, for the components a Release places in a
+   boundary, under `dist/boundaries/<boundary>/helm/`, some of them in a folder
+   of their own beneath. Files that name no namespace, as the MCP and Dify
+   builds' do, go to the one your `kubectl` context names, or to `default`
+   where it names none; create the Secrets they read there first, then apply
+   the folder:
+
+   ```bash
+   kubectl apply -R -f dist/helm/
+   ```
+
+   `-R` reaches the files in those folders. A `ClusterIP` Service, the kind the
+   MCP and Dify builds give the servers they run, is reachable from inside the
+   cluster only: reach one from your machine by forwarding a local port to it,
+   with
+   `kubectl port-forward svc/<service> <local port>:<port>`, which runs until
+   you stop it.
+
 Beside its drafts, the import writes `.aggrega-import.json`, the record of what
 it wrote. Keep it for as long as you mean to run `aggrega import --sync`, which
 reads it to tell your edits from its own.
