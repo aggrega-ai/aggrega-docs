@@ -2023,6 +2023,17 @@
     "status": "machine",
     "text": "Die Säule `parameters:` trägt die vom Release gelieferten, gegen den Vertrag validierten Parameterwerte. Zwei parallele Denkmodelle bestimmen ihre Zugänglichkeit:"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Jeder Metadatenblock eines Release akzeptiert ein Feld `environment:` — einen frei formulierten String, der die Umgebung identifiziert, in die das Release bereitgestellt wird (typische Werte: `production`, `staging`, `dev`). Das Feld ist informativ: Es trägt keine Aufzählung, kein Muster auf Schemaebene und keine entitätsübergreifende Validierung über `type: string` hinaus. Der Compiler gibt seinen Wert als Label `aggrega.ai/environment` auf jedem Kubernetes-Manifest aus, das der helm-Provider rendert, zusammen mit den übrigen Provenienz-Labels von Aggrega — unverändert, wenn er ein gültiger Kubernetes-Labelwert ist, und andernfalls in einen solchen umgeschrieben, wobei der exakte Wert als Annotation `aggrega.ai/environment` mitgeführt wird (so erhält `eu/prod` das Label `eu-prod`); der helm-chart-Provider fügt dieselben Labels jedem über `$import:` geladenen Artefakt hinzu, das er in einem Sub-Chart platziert, während die eigenen Templates des Sub-Charts das tragen, was ihr Autor geschrieben hat. Der compose-Provider trägt denselben Wert als Label `aggrega.ai/environment` auf jedem Service, den er ausgibt."
+  },
   "0322b1dd9482df07": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -23820,6 +23831,17 @@
     "status": "machine",
     "text": "Vier Details dieser Regel lohnt es sich, in Ihre eigenen Richtlinien mitzunehmen: Die ID eines Knotens ist der Schlüssel, unter dem er in `input.graph.spec.nodes` steht, und kein Feld am Knoten; `attached_features` ist die Liste der Feature-Typen, die an irgendeinem Knoten des Pfads angebunden sind, daher wird die Zugehörigkeit mit `in` geprüft; die Regel prüft, dass die Maskierung angebunden ist, nicht, was sie auflistet; und eine unter `deny` gesammelte Entscheidung wird mit dem Schweregrad `halt` gemeldet, und das ist es, was den Build stoppt. Die [Seite zum Governance-Socket](../plugins/policy-socket.md) ist die vollständige Authoring-Oberfläche — die Payload, die jede Rolle bereitstellt, die Entscheidungsschlüssel und wie Sie Ihre eigenen benennen."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Wenn ein Import kein Format nennt, werden die Signaturen jedes Importers, den der Katalog des Workspace enthält — jede Version eingeschlossen —, und der [Core-Importer](../plugins/core-importers.md) des Compilers mit der Quelle abgeglichen. Die Quelle wird für jede Syntax, in der eine auf ihren Namen anwendbare Signatur sie liest, einmal geparst, und zwar über den Parser, den der Katalog des Workspace für diese Syntax bereitstellt — oder, für eine Syntax, für die der Katalog keinen Parser bereitstellt, über den, den der Compiler selbst mitbringt —, und eine Quelle, die sich in einer Syntax nicht parsen lässt, passt auf keine Signatur, die diese Syntax nennt. Ein Verzeichnis wird über seine Dateien abgeglichen: Jede Signatur wird gegen die Dateien des Verzeichnisses ausprobiert, die ihre Muster auswählen, in Namensreihenfolge, und eine Signatur, die kein Muster deklariert, gilt für keine von ihnen. Eine Quelle, auf die eine Signatur passt, wird als jedes Format erkannt, das ihr Importer anbietet. Wird genau ein Format erkannt, wird die Quelle in diesem Format gelesen. Eine Quelle, auf die keine Signatur passt, wird abgelehnt, mit der Aufforderung, das Format anzugeben, und unter Nennung der Formate, die die Importer anbieten — oder, bei einem Verzeichnis, mit der Aufforderung, eine seiner Dateien einzeln oder ein Format anzugeben, dessen Importer Dateimuster deklariert, wobei nur diese genannt werden; eine Quelle, die als mehr als ein Format erkannt wird, wird unter Nennung dieser Formate abgelehnt, mit der Bedingung [More than one importer recognises the source (Mehr als ein Importer erkennt die Quelle)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Bei einem Importer, der mehr als ein Format anbietet, wird also jede Quelle, auf die seine Signaturen passen, als mehrdeutig abgelehnt, und ein Importer, dessen Quellen erkannt werden sollen, bedient ein einziges Format."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-02T19:55:20.081Z",
     "job": "session-0012-20261102195520",
@@ -33318,6 +33340,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` ist eine optionale **Map benannter Go-Template-Strings**, deren gerenderte Ausgabe jedem anderen Template innerhalb desselben FeatureRecipe eine Map `.locals.*` bereitstellt. Sie ist das FeatureRecipe-private Gegenstück zu `locals:` eines Recipe — ein Ort, an dem abgeleitete Strings einmal berechnet und von `injectMapping`, `valuesMapping`, `pipeline[].with` und `provides` aus referenziert werden, ohne sie neu zu berechnen. Die `assertions:` des FeatureRecipe lesen sie nicht: Die `.locals` einer Assertion sind die des Recipe der Host-Komponente, wie [assertions-block.md](../templates/assertions-block.md) festhält. Die gerenderte Ausgabe jedes Eintrags wird ohne führenden und nachgestellten Leerraum gespeichert. Der Block ist eine Map, kein einzelner Template-Body; ein Skalar an dieser Stelle wird vom Schema abgelehnt."
   },
   "386ff3238f353335": {
     "at": "2026-11-03T04:59:02.960Z",
@@ -66251,6 +66284,13 @@
     "status": "machine",
     "text": "Keine der beiden Angaben ist fest in die Seite geschrieben – beide werden gelesen, wenn die Seite gezeichnet wird, sodass sich ein Entwicklungs-Build als solcher zu erkennen gibt, statt nichts anzuzeigen, und ein Neustart mit einem anderen Compiler die Angabe ändert. Wo eine Angabe nicht ermittelt werden kann – die Erweiterung wurde gebaut, ohne festzuhalten, welcher Build sie ist, es läuft nichts, das man fragen könnte, oder was läuft, hat nicht geantwortet –, bleibt die Beschriftung stehen und sagt, dass die Version nicht gemeldet wurde, sodass eine fehlende Angabe nie mit einer verwechselt wird, die Sie übersehen haben."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Ein Build und ebenso `aggrega pull --verify` fügen den Befehl hinzu, der das Lockfile neu schreibt:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -95454,6 +95494,13 @@
     "status": "machine",
     "text": "`flow_id` ist der Bezeichner, den der Export dem Flow gibt. Der Kommentar über der Instanz nennt, was der Flow nicht liefern kann."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: Die Datei hat die Schemavalidierung nicht bestanden; führen Sie den Befehl aus, um sie aus dem Release neu zu schreiben)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -123838,6 +123885,13 @@
     "status": "machine",
     "text": "Die Semantik entspricht genau der von `usesSchema[].inject` und `featuresSchema[].inject` — dasselbe Vokabular, dasselbe Black-Box-Muster bei Weglassen, dieselbe Authoring-Form auf der Seite des Aggregate. Der Unterschied liegt in der Quelle: `usesSchema[].inject` regelt, wie die `provides` einer komponentenübergreifenden Abhängigkeit in die Zustellungspipe des Konsumenten fließen; `featuresSchema[].inject` regelt, wie ein Credential einen Container erreicht; `spec.inject` regelt, wie die eigenen `values` und `provides` der Component deren eigenen Container erreichen."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Die eigenen Werte einer Komponente an das eigene Image des Entwicklers liefern.** Von einem Recipe, das ein vom Entwickler gebautes Image ausführt, wird gemäß der Konvention des Standardbibliothek-Katalogs erwartet, dass es alles liefert, was die `inject:`-Blöcke des Entwicklers aufgelöst haben, aus `.context.inject`, und es kann zusätzlich die eigenen Werte der Komponente unter selbst gewählten Namen liefern. Wo die Component `spec.inject` deklariert, wählt der eigene Block des Entwicklers die Namen, und `.context.self_inject` teilt dem Recipe den einen eigenen Wert mit, den das Template jedes Eintrags liest — `values.<key>` für einen Eintrag, der genau einen eigenen Wert und sonst nichts liest. Die Konvention des Standardbibliothek-Katalogs besteht darin, die Namen, die ein Recipe diesen Werten gibt, als Vorgaben zu behandeln statt als einen Vertrag, den der Code des Entwicklers lesen muss, und einen Wert unter seinem Standardnamen nur dann zu liefern, wenn kein Eintrag auf ihn abbildet; ein Unternehmenskatalog kann anders entscheiden. Der [Vertrag des Template-Kontexts](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) nennt die genauen Regeln der Map und ein ausgearbeitetes Template."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-11-04T11:11:27.846Z",
     "job": "session-0235-20261104111127",
@@ -127189,6 +127243,17 @@
     "srcHash": "d4cb6b42bc5dd679",
     "status": "machine",
     "text": "Für das umfassendere Formatstring-Inventar (Go-Template-Syntax, Sprig-Funktionen, JSON Pointer neben SemVer-Regex und Label-Selektor-Grammatik) siehe [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) „Format-string inventory“. Für die Oberfläche des Wasm-Plugin-Vertrags, die RFC-6902-Patches konsumiert, die über RFC-6901-Pointer adressiert werden, siehe [`plugins/plugin-contract.md`](plugins/plugin-contract.md)."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` ist der **private Ops-Zustand** — eine Map benannter Go-Template-Strings, deren gerenderte Ausgabe den späteren Templates des Recipe eine Map `.locals.*` bereitstellt. Er ist der Arbeitsbereich, um physische Gegebenheiten (Zielcontainer, JSON-Pfade, abgeleitete Hostnamen) einmal zu berechnen und sie in den Payloads von `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:` und `pipeline[].with` ohne Neuberechnung wiederzuverwenden. Die gerenderte Ausgabe jedes Eintrags wird ohne führenden und nachgestellten Leerraum gespeichert."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -150591,6 +150656,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Dieser Workspace enthält keine `.aggrega-config.yaml`, daher werden die Entitäten der Standardbibliothek aus der Hub-Registry `hub.aggrega.ai` aufgelöst, und es ist kein Katalog-Flag nötig:"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**Das Lockfile wird maschinell geschrieben.** Es wird von dem Pull erzeugt, der ein Release auflöst, und es wird committet, damit derselbe Build später auf dieselbe Weise aufgelöst wird. Ein Schemafehler ist daher fast immer eine manuelle Bearbeitung, ein Merge, der das Dokument halb aufgelöst hinterlassen hat, oder ein Lockfile, das für eine frühere Form der Datei geschrieben wurde — etwa eines, dessen `entities` kein `kind` tragen —, und nicht etwas bewusst Verfasstes."
   },
   "fae997f321b49b94": {
     "at": "2026-10-30T19:42:05.833Z",

@@ -2074,6 +2074,17 @@
     "status": "machine",
     "text": "O pilar `parameters:` contém os valores de parâmetros fornecidos pela Release e validados em relação ao contrato. Dois modelos mentais paralelos regem a sua acessibilidade:"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Todos os blocos de metadados de uma Release aceitam um campo `environment:` — uma string livre que identifica o ambiente em que a Release é implementada (valores típicos: `production`, `staging`, `dev`). O campo é informativo: não tem enumeração, nem padrão ao nível do esquema, nem validação entre entidades para além de `type: string`. O compilador emite o seu valor como a etiqueta `aggrega.ai/environment` em todos os manifestos Kubernetes que o fornecedor helm renderiza, a par do resto do conjunto de etiquetas de proveniência da Aggrega — tal como está escrito quando é um valor de etiqueta Kubernetes válido e, caso contrário, reescrito num valor válido, com o valor exato transportado na anotação `aggrega.ai/environment` (assim, `eu/prod` recebe a etiqueta `eu-prod`); o fornecedor helm-chart acrescenta as mesmas etiquetas a cada artefacto carregado através de `$import:` que coloca num sub-chart, enquanto os templates próprios do sub-chart contêm o que o seu autor escreveu. O fornecedor compose aplica o mesmo valor como a etiqueta `aggrega.ai/environment` a cada serviço que emite."
+  },
   "0322b1dd9482df07": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -24182,6 +24193,17 @@
     "status": "machine",
     "text": "Quatro detalhes dessa regra são os que vale a pena levar para as próprias políticas: o id de um nó é a chave sob a qual se encontra em `input.graph.spec.nodes`, e não um campo do nó; `attached_features` é a lista dos tipos de Feature anexados a qualquer nó do caminho, pelo que a pertença se testa com `in`; a regra verifica que o mascaramento está anexado, e não o que enumera; e uma decisão recolhida em `deny` é comunicada com a severidade `halt`, que é o que interrompe a compilação. A [página do socket de governação](../plugins/policy-socket.md) é a superfície de criação completa — o payload que cada papel expõe, as chaves de decisão e como nomear as próprias."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Quando uma importação não indica nenhum formato, as assinaturas de todos os importadores que o catálogo do espaço de trabalho contém — incluindo todas as versões — e dos [importadores centrais](../plugins/core-importers.md) do compilador são comparadas com a origem. A origem é analisada uma vez para cada sintaxe em que uma assinatura aplicável ao seu nome a lê, através do parser que o catálogo do espaço de trabalho serve para essa sintaxe — ou, para uma sintaxe para a qual o catálogo não serve nenhum parser, o que o próprio compilador contém — e uma origem que não seja analisada numa sintaxe não corresponde a nenhuma assinatura que a indique. Um diretório é comparado através dos seus ficheiros: cada assinatura é experimentada contra os ficheiros do diretório que os seus padrões selecionam, por ordem de nome, e uma assinatura que não declare nenhum padrão não se aplica a nenhum deles. Uma origem a que uma assinatura corresponde é reconhecida como todos os formatos que o seu importador anuncia. Exatamente um formato reconhecido é aquele com que a origem é lida. Uma origem a que nenhuma assinatura corresponde é recusada, pedindo o formato e indicando os formatos que os importadores anunciam — ou, para um diretório, pedindo um dos seus ficheiros isoladamente ou um formato cujo importador declare padrões de ficheiro, indicando apenas esses; uma origem reconhecida como mais do que um formato é recusada indicando-os, com a condição [More than one importer recognises the source (Mais do que um importador reconhece a origem)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Assim, um importador que anuncie mais do que um formato vê todas as origens a que as suas assinaturas correspondem serem recusadas por ambiguidade, e um importador cujas origens devam ser reconhecidas serve um único formato."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-02T19:55:20.081Z",
     "job": "session-0012-20261102195520",
@@ -33845,6 +33867,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` é um **mapa opcional de strings de template Go com nome** cuja saída renderizada expõe um mapa `.locals.*` a todos os outros templates dentro da mesma FeatureRecipe. É o equivalente privado da FeatureRecipe dos `locals:` da Recipe — um local para calcular strings derivadas uma única vez e referenciá-las a partir de `injectMapping`, `valuesMapping`, `pipeline[].with` e `provides` sem as recalcular. As `assertions:` da FeatureRecipe não as leem: os `.locals` de uma asserção são os da Recipe do componente anfitrião, como indica [assertions-block.md](../templates/assertions-block.md). A saída renderizada de cada entrada é guardada sem os espaços em branco iniciais e finais. O bloco é um mapa, não um único corpo de template; um escalar nesta posição é rejeitado pelo esquema."
   },
   "386ff3238f353335": {
     "at": "2026-11-03T04:59:02.960Z",
@@ -67184,6 +67217,13 @@
     "status": "machine",
     "text": "Nenhuma das duas leituras está escrita na página — ambas são lidas quando a página é desenhada, pelo que uma compilação de desenvolvimento se identifica como tal em vez de não mostrar nada, e reiniciar com outro compilador altera a leitura. Onde não é possível obter uma leitura — a extensão foi compilada sem registar que compilação é, não há nada em execução a que perguntar, ou o que está em execução não respondeu — a etiqueta mantém-se e indica que a versão não foi reportada, para que uma leitura ausente nunca seja confundida com uma que passou despercebida."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Uma compilação, tal como `aggrega pull --verify`, acrescenta o comando que volta a escrever o ficheiro de bloqueio:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -96764,6 +96804,13 @@
     "status": "machine",
     "text": "`flow_id` é o identificador que a exportação dá ao fluxo. O comentário acima da instância indica o que o fluxo não consegue fornecer."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: o ficheiro falhou a validação de esquema; execute o comando para o voltar a escrever a partir da Release)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -125593,6 +125640,13 @@
     "status": "machine",
     "text": "A semântica espelha exatamente `usesSchema[].inject` e `featuresSchema[].inject` — o mesmo vocabulário, o mesmo padrão Black-Box quando omitido, a mesma forma de criação do lado do Aggregate. A diferença é a origem: `usesSchema[].inject` determina como os `provides` de uma dependência entre componentes fluem para o canal de entrega do consumidor; `featuresSchema[].inject` determina como uma credencial chega a um contentor; `spec.inject` determina como os próprios `values` e `provides` do Component chegam ao próprio contentor do Component."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Entregar os valores próprios de um componente à imagem do próprio programador.** Pela convenção do catálogo da biblioteca padrão, espera-se que uma Recipe que executa uma imagem construída pelo programador entregue tudo o que os blocos `inject:` do programador resolveram, a partir de `.context.inject`, e pode também entregar os valores próprios do componente com nomes da sua escolha. Quando o Component declara `spec.inject`, é o próprio bloco do programador que escolhe os nomes, e `.context.self_inject` indica à Recipe o único valor próprio que o template de cada entrada lê — `values.<key>` para uma entrada que lê exatamente um valor próprio e nada mais. A convenção do catálogo da biblioteca padrão consiste em tratar os nomes que uma Recipe atribui a esses valores como predefinições, e não como um contrato que o código do programador tenha de ler, entregando um valor com o seu nome predefinido apenas quando nenhuma entrada o mapeia; um catálogo empresarial pode optar de outra forma. O [contrato do contexto de templates](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) apresenta as regras exatas do mapa e um template de exemplo completo."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-11-04T11:11:27.846Z",
     "job": "session-0235-20261104111127",
@@ -129036,6 +129090,17 @@
     "srcHash": "d4cb6b42bc5dd679",
     "status": "machine",
     "text": "Para o inventário mais amplo de cadeias de formato (sintaxe de templates Go, funções Sprig, JSON Pointer ao lado da regex SemVer e da gramática de seletores de etiquetas), ver [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) «Format-string inventory». Para a superfície do contrato de plugins Wasm que consome patches RFC 6902 endereçados por ponteiros RFC 6901, ver [`plugins/plugin-contract.md`](plugins/plugin-contract.md)."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` é o **estado privado de Ops** — um mapa de strings de template Go com nome cuja saída renderizada expõe um mapa `.locals.*` aos templates posteriores da Recipe. É o espaço de trabalho para calcular realidades físicas (contentores de destino, caminhos JSON, nomes de host derivados) uma vez e reutilizá-las em `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:` e payloads de `pipeline[].with` sem as recalcular. A saída renderizada de cada entrada é guardada sem os espaços em branco iniciais e finais."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T17:00:43.822Z",
@@ -152763,6 +152828,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Este espaço de trabalho não inclui nenhum `.aggrega-config.yaml`, pelo que as entidades da biblioteca standard são resolvidas a partir do registo do hub, `hub.aggrega.ai`, e não é necessária nenhuma flag de catálogo:"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**O ficheiro de bloqueio é escrito por máquina.** É produzido pelo pull que resolve uma release e é incluído num commit para que a mesma compilação seja resolvida da mesma forma mais tarde. Por isso, uma falha de esquema é quase sempre uma edição manual, um merge que deixou o documento resolvido a meio ou um ficheiro de bloqueio escrito para uma forma anterior do ficheiro — um cujas `entities` não têm `kind`, por exemplo —, e não algo escrito deliberadamente."
   },
   "fae997f321b49b94": {
     "at": "2026-10-23T02:44:41.029Z",

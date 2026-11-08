@@ -2288,6 +2288,17 @@
     "status": "machine",
     "text": "`parameters:` 支柱承载由 Release 填充、经契约校验的参数值。其可访问性由两种并行的心智模型决定："
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "每个 Release 的 metadata 块都接受一个 `environment:` 字段——一个标识该 Release 所部署到的环境的自由格式字符串（典型值：`production`、`staging`、`dev`）。该字段仅供参考：除 `type: string` 之外，它没有枚举、没有 schema 级模式，也没有跨实体校验。编译器会将其值作为 `aggrega.ai/environment` 标签，输出到 helm provider 渲染的每个 Kubernetes 清单上，与 Aggrega 其余的来源标签套件一起——若该值是有效的 Kubernetes 标签值，则按原样写入，否则改写为有效的标签值，并以 `aggrega.ai/environment` 注解携带确切的原值（因此 `eu/prod` 的标签为 `eu-prod`）；helm-chart provider 会为它放入子 chart 的每个通过 `$import:` 加载的制品添加相同的标签，而子 chart 自身的模板则保留其作者所写的内容。compose provider 会在其输出的每个服务上，以 `aggrega.ai/environment` 标签携带同一个值。"
+  },
   "0320efd222c5c441": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -26616,6 +26627,17 @@
     "status": "machine",
     "text": "该规则中有四个细节值得应用到你自己的策略中：节点的\nid 是它在 `input.graph.spec.nodes` 中所在的键，而不是节点上的\n字段；`attached_features` 是附加到路径上任一节点的 Feature 类型列表，\n因此用 `in` 测试成员关系；规则检查的是脱敏是否已\n附加，而不是它列出了什么；在 `deny` 下收集的\n决策以 `halt` 严重级别报告，正是它\n终止构建。[治理插槽页面](../plugins/policy-socket.md)是\n完整的编写接口：每个角色公开的负载、决策键，以及如何\n命名你自己的决策。"
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "当导入未指定格式时，工作区目录所含每个 importer（包括其每个版本）以及编译器[核心 importer](../plugins/core-importers.md) 的签名都会与源进行匹配。对于适用于该源名称的签名所读取的每种语法，源都会被解析一次，使用工作区目录为该语法提供的 parser；若目录未为该语法提供 parser，则使用编译器自带的 parser。无法以某种语法解析的源不匹配任何指定该语法的签名。目录通过其文件进行匹配：每个签名按名称顺序依次尝试其模式所选中的目录文件，未声明模式的签名不适用于其中任何文件。被某个签名匹配的源被识别为其 importer 声明的每种格式。恰好识别出一种格式时，源即按该格式读取。没有签名匹配的源会被拒绝，要求指定格式并列出各 importer 声明的格式——对于目录，则要求单独指定其中某个文件，或指定一种其 importer 声明了文件模式的格式，并只列出这些格式；被识别为多种格式的源会被拒绝并列出这些格式，报告条件为 [More than one importer recognises the source（有多个 importer 识别该源）](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source)。因此，声明多种格式的 importer，其签名匹配的每个源都会因歧义而被拒绝；希望其源能被识别的 importer 应只提供一种格式。"
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-01T00:06:18.869Z",
     "job": "session-0003-20261101000618",
@@ -37237,6 +37259,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` 是一个可选的**具名 Go 模板字符串映射**，其渲染输出会向同一 FeatureRecipe 内的其他所有模板暴露一个 `.locals.*` 映射。它相当于 FeatureRecipe 私有的 Recipe `locals:`：在这里一次性计算派生字符串，然后在 `injectMapping`、`valuesMapping`、`pipeline[].with` 和 `provides` 中引用，无需重复计算。FeatureRecipe 的 `assertions:` 不读取它们：断言的 `.locals` 来自宿主组件的 Recipe，如 [assertions-block.md](../templates/assertions-block.md) 所述。每个条目的渲染输出在存储时会去除首尾空白。该块是一个映射，而不是单个模板主体；在此位置写标量会被 schema 拒绝。"
   },
   "386ff3238f353335": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -73970,6 +74003,13 @@
     "status": "machine",
     "text": "这两个读数都不是写入页面的——它们都在绘制页面时读取，因此开发构建会如实报告自己是开发构建而不是什么都不显示，并且重启到不同的编译器时读数会随之变化。如果无法获取某个读数——扩展构建时没有记录它是哪个构建、没有正在运行的程序可询问，或正在运行的程序没有回应——标签仍会保留并说明未报告版本，因此缺失的读数绝不会被误认为是你没有注意到的读数。"
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "构建以及 `aggrega pull --verify` 会附加重新写入 lockfile 的命令："
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -106422,6 +106462,13 @@
     "status": "machine",
     "text": "`aggregate.yaml` 两种实现的运维记录；它未附加凭据，因此每次构建都会中止。"
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release（lockfile：文件未通过 schema 校验；请运行该命令，根据 Release 重新写入它）"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -137933,6 +137980,13 @@
     "status": "machine",
     "text": "其语义与 `usesSchema[].inject` 和 `featuresSchema[].inject` 完全对应——相同的词汇，省略时采用相同的黑盒模式，在 Aggregate 一侧采用相同的编写形式。区别在于来源：`usesSchema[].inject` 决定跨组件依赖的 `provides` 如何流入使用方的交付管道；`featuresSchema[].inject` 决定凭据如何到达容器；`spec.inject` 决定该 Component 自身的 `values` 和 `provides` 如何到达该 Component 自身的容器。"
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**将组件自身的值交付给开发者自己的镜像**。按照标准库目录的约定，运行开发者所构建镜像的 Recipe 预期会从 `.context.inject` 交付开发者的 `inject:` 块解析出的全部内容，也可以用它自己选定的名称交付组件自身的值。当 Component 声明了 `spec.inject` 时，名称由开发者自己的块来选择，而 `.context.self_inject` 会告诉 Recipe 每个条目的模板所读取的那一个自身值——对于恰好只读取一个自身值、不读取其他任何内容的条目，即为 `values.<key>`。标准库目录的约定是把 Recipe 为这些值所取的名称视为默认名称，而不是开发者代码必须读取的契约：只有在没有任何条目映射到某个值时，才以其默认名称交付该值；企业目录可以另作选择。[模板上下文契约](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers)给出了该映射的确切规则以及一个完整的模板示例。"
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -141750,6 +141804,17 @@
     "srcHash": "d4cdf95d23de723a",
     "status": "machine",
     "text": "此工作区通过\n`.aggrega-config.yaml` 中的 `catalog_dirs` 解析目录实体；不会从 chart 仓库获取任何内容。"
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` 是**私有运维状态（Private Ops State）**——一个由具名 Go 模板字符串组成的映射，其渲染输出向该 Recipe 后续的模板暴露一个 `.locals.*` 映射。它是一个工作区，用于一次性计算物理实际（目标容器、JSON 路径、派生主机名），并在 `provides:`、`source:`、`valuesMapping:`、`workload:`、`artifacts:`、`assertions:` 和 `pipeline[].with` 载荷中复用，无需重复计算。每个条目的渲染输出在存储时会去除首尾空白。"
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -167640,6 +167705,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "此工作区不带 `.aggrega-config.yaml`，因此标准库实体从 hub 注册表 `hub.aggrega.ai` 解析，无需目录标志："
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**lockfile 由机器写入**。它由解析 release 的 pull 生成，并被提交，以便同一构建日后以相同方式解析。因此，schema 校验失败几乎总是由手动编辑、使文档处于半解析状态的合并，或者为该文件的早期形态而写的 lockfile（例如其 `entities` 不带 `kind`）导致，而不是有意编写的结果。"
   },
   "fae997f321b49b94": {
     "at": "2026-10-22T02:30:34.989739+00:00",

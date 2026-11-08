@@ -2288,6 +2288,17 @@
     "status": "machine",
     "text": "`parameters:` ピラーは、Release によって充足され、コントラクトで検証されたパラメータ値を保持します。そのアクセス可能性は、2 つの並行するメンタルモデルによって決まります。"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "すべての Release のメタデータブロックは `environment:` フィールドを受け付けます。これは Release のデプロイ先となる環境を識別する自由形式の文字列です（典型的な値: `production`、`staging`、`dev`）。このフィールドは情報提供用であり、列挙値、スキーマレベルのパターン、`type: string` 以外のエンティティ間検証はいずれも持ちません。コンパイラはその値を、helm プロバイダがレンダリングするすべての Kubernetes マニフェストに、Aggrega の他の来歴ラベル群とともに `aggrega.ai/environment` ラベルとして出力します。その値が有効な Kubernetes ラベル値であれば記述どおりに出力し、そうでなければ有効な値に書き換えて出力したうえで、正確な値を `aggrega.ai/environment` アノテーションとして保持します（たとえば `eu/prod` には `eu-prod` というラベルが付きます）。helm-chart プロバイダは、サブチャートに配置する `$import:` で読み込んだ各アーティファクトに同じラベルを追加しますが、サブチャート自身のテンプレートは作成者が記述した内容をそのまま保持します。compose プロバイダは、出力する各サービスに同じ値を `aggrega.ai/environment` ラベルとして付与します。"
+  },
   "0320efd222c5c441": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -26616,6 +26627,17 @@
     "status": "machine",
     "text": "このルールには、独自のポリシーにも持ち込む価値のある詳細が 4 つあります。ノードの\nid はノード上のフィールドではなく、`input.graph.spec.nodes` の中でそのノードが置かれているキーです。`attached_features` はパス上のいずれかのノードにアタッチされた Feature の型のリストであるため、\n所属は `in` で判定します。ルールはマスキングが\nアタッチされていることを確認し、その内容は確認しません。そして\n`deny` の下に集められた決定は `halt` の重大度で報告され、これがビルドを\n停止させます。[ガバナンスソケットのページ](../plugins/policy-socket.md)が\n作成のための完全な説明です。各ロールが公開するペイロード、決定のキー、そして\n独自の名前の付け方を扱います。"
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "インポートが形式を指定しない場合、ワークスペースのカタログが保持するすべての importer(すべてのバージョンを含む)とコンパイラの[コア importer](../plugins/core-importers.md)のシグネチャがソースと照合されます。ソースは、その名前に適用されるシグネチャが読み取る構文ごとに 1 回、ワークスペースのカタログがその構文に提供する parser を通じて解析されます。カタログが parser を提供しない構文の場合は、コンパイラ自身が持つ parser が使われます。ある構文で解析できないソースは、その構文を指定するどのシグネチャにも一致しません。ディレクトリはそのファイルを通じて照合されます。各シグネチャは、そのパターンが選択するディレクトリ内のファイルに対して名前順に試され、パターンを宣言しないシグネチャはどのファイルにも適用されません。シグネチャが一致したソースは、その importer が公開するすべての形式として認識されます。認識された形式がちょうど 1 つであれば、ソースはその形式として読み込まれます。どのシグネチャにも一致しないソースは拒否され、形式の指定を求めるとともに importer が公開する形式を挙げます。ただし、ディレクトリの場合は、そのファイルのいずれか 1 つを単独で指定するか、ファイルパターンを宣言する importer の形式を指定するよう求め、それらの形式だけを挙げます。複数の形式として認識されたソースは、それらを挙げて [More than one importer recognises the source(複数の importer がソースを認識しています)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source) の条件で拒否されます。したがって、複数の形式を公開する importer は、そのシグネチャが一致するすべてのソースが曖昧として拒否されるため、ソースを認識させたい importer は 1 つの形式を提供します。"
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-01T00:06:18.869Z",
     "job": "session-0003-20261101000618",
@@ -37237,6 +37259,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` は省略可能な**名前付き Go テンプレート文字列のマップ**で、そのレンダリング結果は同じ FeatureRecipe 内の他のすべてのテンプレートに `.locals.*` マップとして公開されます。これは Recipe の `locals:` に相当する FeatureRecipe 専用の仕組みで、派生文字列を一度だけ計算し、再計算せずに `injectMapping`、`valuesMapping`、`pipeline[].with`、`provides` から参照するための場所です。FeatureRecipe の `assertions:` はこれらを読み取りません。[assertions-block.md](../templates/assertions-block.md) に記載のとおり、アサーションの `.locals` はホストコンポーネントの Recipe のものです。各エントリのレンダリング結果は、先頭と末尾の空白を取り除いて格納されます。このブロックはマップであり、単一のテンプレート本体ではありません。この位置にスカラーを書くとスキーマで拒否されます。"
   },
   "386ff3238f353335": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -73976,6 +74009,13 @@
     "status": "machine",
     "text": "どちらの表示もページに書き込まれているわけではなく、ページの描画時に読み取られます。そのため、開発ビルドは何も表示しないのではなく開発ビルドであると報告し、別のコンパイラで再起動すると表示も変わります。表示を取得できない場合（拡張機能がどのビルドかを記録せずにビルドされた、問い合わせる対象が実行されていない、または実行中のものが応答しなかった場合）、ラベルは残り、バージョンが報告されなかったことを示します。そのため、表示がないことが、見落とした表示と取り違えられることはありません。"
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "ビルドと `aggrega pull --verify` は、lockfile を再度書き込むコマンドを追加します："
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -106430,6 +106470,13 @@
     "status": "machine",
     "text": "資格情報を付与しない `aggregate.yaml` の 2 つの実現形態に対するオペレーターのレコード。いずれのビルドも停止します。"
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release（lockfile: ファイルがスキーマ検証に失敗しました。このコマンドを実行して Release から書き直してください）"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -137941,6 +137988,13 @@
     "status": "machine",
     "text": "このセマンティクスは `usesSchema[].inject` および `featuresSchema[].inject` と完全に同じです。語彙も同じで、省略時は同じ Black-Box パターンになり、Aggregate 側での記述形式も同じです。違いはソースにあります。`usesSchema[].inject` はコンポーネント間の依存関係の `provides` がコンシューマの配信パイプへどう流れるかを制御し、`featuresSchema[].inject` は認証情報がコンテナへどう届くかを制御し、`spec.inject` は Component 自身の `values` と `provides` が Component 自身のコンテナへどう届くかを制御します。"
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**コンポーネント自身の値を開発者自身のイメージに渡す**。開発者がビルドするイメージを実行する Recipe は、標準ライブラリカタログの慣例により、開発者の `inject:` ブロックが解決したものをすべて `.context.inject` から渡すことが想定されており、さらにコンポーネント自身の値を独自の名前で渡すこともできます。Component が `spec.inject` を宣言している場合は、開発者自身のブロックが名前を選び、`.context.self_inject` が、各エントリのテンプレートが読み取る自身の値 1 つを Recipe に伝えます。自身の値をちょうど 1 つだけ読み取り、それ以外は何も読み取らないエントリでは、それは `values.<key>` です。標準ライブラリカタログの慣例では、Recipe がこれらの値に付ける名前を、開発者のコードが読み取らなければならない契約ではなくデフォルトとして扱い、どのエントリもその値にマッピングされていない場合にのみ、その値をデフォルト名で渡します。エンタープライズカタログは別の選択をしてもかまいません。[テンプレートコンテキストの契約](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) に、このマップの正確なルールと完全なテンプレート例があります。"
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -141758,6 +141812,17 @@
     "srcHash": "d4cdf95d23de723a",
     "status": "machine",
     "text": "このワークスペースは、`.aggrega-config.yaml` の `catalog_dirs` を通じてカタログのエンティティを解決します。チャートリポジトリからは何も取得しません。"
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` は **Private Ops State** です。名前付きの Go テンプレート文字列のマップで、そのレンダリング結果は `.locals.*` マップとして Recipe の後続のテンプレートに公開されます。物理的な実体（ターゲットコンテナ、JSON パス、派生ホスト名）を一度だけ計算し、`provides:`、`source:`、`valuesMapping:`、`workload:`、`artifacts:`、`assertions:`、`pipeline[].with` のペイロード全体で再計算なしに再利用するための作業領域です。各エントリのレンダリング結果は、先頭と末尾の空白を取り除いて格納されます。"
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -167646,6 +167711,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "このワークスペースには `.aggrega-config.yaml` がないため、標準ライブラリのエンティティはハブレジストリ `hub.aggrega.ai` から解決され、カタログフラグは不要です。"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**lockfile は機械が書き込むものです。** release を解決する pull によって生成され、後で同じビルドが同じように解決されるようコミットされます。そのため、スキーマの失敗はほぼ常に、意図的に書かれたものではなく、手作業での編集、ドキュメントを解決途中のまま残したマージ、またはファイルの以前の形に合わせて書かれた lockfile（たとえば `entities` が `kind` を持たないもの）によるものです。"
   },
   "fae997f321b49b94": {
     "at": "2026-10-22T02:30:34.989739+00:00",

@@ -2288,6 +2288,17 @@
     "status": "machine",
     "text": "Filar `parameters:` przenosi wartości parametrów dostarczone przez encję Release i zwalidowane względem kontraktu. Ich dostępność określają dwa równoległe modele myślowe:"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Każdy blok metadanych encji Release przyjmuje pole `environment:` — dowolny ciąg znaków identyfikujący środowisko, do którego wdrażana jest encja Release (typowe wartości: `production`, `staging`, `dev`). Pole ma charakter informacyjny: nie ma wyliczenia, wzorca na poziomie schematu ani walidacji między encjami poza `type: string`. Kompilator emituje jego wartość jako etykietę `aggrega.ai/environment` na każdym manifeście Kubernetes renderowanym przez provider helm, obok pozostałych etykiet pochodzenia Aggrega — w postaci, w jakiej ją zapisano, gdy jest prawidłową wartością etykiety Kubernetes, a w przeciwnym razie przepisaną na prawidłową wartość, przy czym dokładna wartość jest przenoszona w adnotacji `aggrega.ai/environment` (zatem `eu/prod` otrzymuje etykietę `eu-prod`); provider helm-chart dodaje te same etykiety do każdego artefaktu ładowanego przez `$import:`, który umieszcza w sub-charcie, natomiast własne szablony sub-chartu zawierają to, co napisał ich autor. Provider compose przenosi tę samą wartość jako etykietę `aggrega.ai/environment` na każdej emitowanej przez siebie usłudze."
+  },
   "0320efd222c5c441": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -26616,6 +26627,17 @@
     "status": "machine",
     "text": "Cztery szczegóły tej reguły warto przenieść do własnych polityk: identyfikator węzła to klucz, pod którym węzeł znajduje się w `input.graph.spec.nodes`, a nie pole węzła; `attached_features` to lista typów Feature dołączonych do dowolnego węzła na ścieżce, więc przynależność sprawdza się za pomocą `in`; reguła sprawdza, czy maskowanie jest dołączone, a nie, co ono wymienia; a decyzja zebrana pod `deny` jest zgłaszana z poziomem ważności `halt`, co zatrzymuje kompilację. [Strona gniazda ładu](../plugins/policy-socket.md) opisuje pełną powierzchnię tworzenia — ładunek udostępniany przez każdą rolę, klucze decyzji i sposób nadawania własnych nazw."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Gdy import nie wskazuje formatu, do źródła dopasowywane są sygnatury każdego importera z katalogu obszaru roboczego — wliczając każdą wersję — oraz [importerów wbudowanych](../plugins/core-importers.md) kompilatora. Źródło jest parsowane raz dla każdej składni, w której odczytuje je sygnatura dotycząca jego nazwy, za pomocą parsera udostępnianego dla tej składni przez katalog obszaru roboczego — lub, dla składni, dla której katalog nie udostępnia parsera, tego, który ma sam kompilator — a źródło, które nie parsuje się w danej składni, nie pasuje do żadnej sygnatury ją wskazującej. Katalog jest dopasowywany poprzez swoje pliki: każda sygnatura jest sprawdzana względem plików katalogu wybranych przez jej wzorce, w kolejności nazw, a sygnatura bez wzorca nie dotyczy żadnego z nich. Źródło, do którego pasuje sygnatura, jest rozpoznawane jako każdy format ogłaszany przez jej importer. Jeśli rozpoznano dokładnie jeden format, źródło jest odczytywane w tym formacie. Źródło, do którego nie pasuje żadna sygnatura, jest odrzucane z prośbą o podanie formatu i wymienieniem formatów ogłaszanych przez importery — albo, w przypadku katalogu, z prośbą o podanie jednego z jego plików osobno lub formatu, którego importer deklaruje wzorce plików, z wymienieniem tylko tych formatów; źródło rozpoznane jako więcej niż jeden format jest odrzucane z ich wymienieniem, z warunkiem [More than one importer recognises the source (Więcej niż jeden importer rozpoznaje źródło)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Zatem importer ogłaszający więcej niż jeden format ma każde źródło pasujące do jego sygnatur odrzucane jako niejednoznaczne, a importer, którego źródła mają być rozpoznawane, obsługuje jeden format."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-10-31T17:58:53.880Z",
     "job": "session-0002-20261031175853",
@@ -37230,6 +37252,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` to opcjonalna **mapa nazwanych ciągów szablonów Go**, których wyrenderowany wynik udostępnia mapę `.locals.*` wszystkim pozostałym szablonom w tej samej encji FeatureRecipe. Jest to prywatny dla encji FeatureRecipe odpowiednik bloku `locals:` encji Recipe — miejsce, w którym można raz obliczyć pochodne ciągi i odwoływać się do nich z `injectMapping`, `valuesMapping`, `pipeline[].with` i `provides` bez ponownego obliczania. Wpisy `assertions:` encji FeatureRecipe ich nie odczytują: `.locals` asercji pochodzą z encji Recipe komponentu hosta, jak podaje [assertions-block.md](../templates/assertions-block.md). Wyrenderowany wynik każdego wpisu jest zapisywany bez początkowych i końcowych białych znaków. Blok jest mapą, a nie pojedynczą treścią szablonu; wartość skalarna w tym miejscu jest odrzucana przez schemat."
   },
   "386ff3238f353335": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -73963,6 +73996,13 @@
     "status": "machine",
     "text": "Żaden z odczytów nie jest zapisany w stronie — oba są odczytywane podczas rysowania strony, więc kompilacja deweloperska zgłasza się jako taka, zamiast nic nie pokazywać, a ponowne uruchomienie z innym kompilatorem zmienia odczyt. Jeśli odczytu nie da się uzyskać — rozszerzenie zbudowano bez zapisania, która to kompilacja, nic nie jest uruchomione, by je zapytać, lub uruchomiony program nie odpowiedział — etykieta pozostaje i informuje, że wersja nie została zgłoszona, więc brakujący odczyt nigdy nie zostanie wzięty za taki, którego nie zauważono."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Build, a także `aggrega pull --verify`, dodają polecenie, które ponownie zapisuje lockfile:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -106399,6 +106439,13 @@
     "status": "machine",
     "text": "Rekordy operatora dla dwóch realizacji `aggregate.yaml`, który nie dołącza żadnego poświadczenia, więc każda kompilacja się zatrzymuje."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: plik nie przeszedł walidacji schematu; należy uruchomić polecenie, aby ponownie zapisać go na podstawie encji Release)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -137866,6 +137913,13 @@
     "status": "machine",
     "text": "Semantyka dokładnie odpowiada `usesSchema[].inject` i `featuresSchema[].inject` — to samo słownictwo, ten sam wzorzec czarnej skrzynki przy pominięciu, ten sam kształt zapisu po stronie encji Aggregate. Różnica dotyczy źródła: `usesSchema[].inject` określa, jak `provides` zależności między komponentami trafia do kanału dostarczania konsumenta; `featuresSchema[].inject` określa, jak poświadczenie trafia do kontenera; `spec.inject` określa, jak własne `values` i `provides` encji Component trafiają do jej własnego kontenera."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Dostarczanie własnych wartości komponentu do własnego obrazu programisty.** Zgodnie z konwencją katalogu biblioteki standardowej od encji Recipe uruchamiającej obraz budowany przez programistę oczekuje się dostarczenia wszystkiego, co rozwiązały bloki `inject:` programisty, z `.context.inject`; może ona też dostarczać własne wartości komponentu pod nazwami wybranymi przez siebie. Gdy encja Component deklaruje `spec.inject`, nazwy wybiera własny blok programisty, a `.context.self_inject` wskazuje encji Recipe tę jedną własną wartość, którą odczytuje szablon każdego wpisu — `values.<key>` dla wpisu odczytującego dokładnie jedną własną wartość i nic poza nią. Konwencja katalogu biblioteki standardowej polega na traktowaniu nazw, jakie encja Recipe nadaje tym wartościom, jako domyślnych, a nie jako kontraktu, który kod programisty musi odczytywać, i na dostarczaniu wartości pod jej domyślną nazwą tylko wtedy, gdy żaden wpis się na nią nie mapuje; katalog firmowy może wybrać inaczej. [Kontrakt kontekstu szablonów](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) podaje dokładne reguły tej mapy oraz pełny przykład szablonu."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -141685,6 +141739,17 @@
     "srcHash": "d4cdf95d23de723a",
     "status": "machine",
     "text": "Ten obszar roboczy rozwiązuje encje katalogu za pomocą `catalog_dirs` w\n`.aggrega-config.yaml`; nic nie jest pobierane z repozytorium chartów."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` to **prywatny stan operacyjny** (Private Ops State) — mapa nazwanych łańcuchów szablonów Go, których wyrenderowany wynik udostępnia mapę `.locals.*` późniejszym szablonom encji Recipe. Jest to przestrzeń robocza do jednokrotnego obliczenia fizycznych realiów (docelowych kontenerów, ścieżek JSON, wyprowadzonych nazw hostów) i ponownego ich użycia w `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:` oraz w ładunkach `pipeline[].with` bez ponownego obliczania. Wyrenderowany wynik każdego wpisu jest zapisywany bez początkowych i końcowych białych znaków."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -167573,6 +167638,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Ta przestrzeń robocza nie zawiera pliku `.aggrega-config.yaml`, więc encje biblioteki standardowej są rozwiązywane z rejestru hub, `hub.aggrega.ai`, i flaga katalogu nie jest potrzebna:"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**Lockfile jest zapisywany maszynowo.** Tworzy go operacja pull, która rozwiązuje wydanie, i jest commitowany, aby ten sam build rozwiązywał się później tak samo. Dlatego błąd schematu niemal zawsze wynika z ręcznej edycji, scalenia, które pozostawiło dokument częściowo rozwiązany, lub z pliku lockfile zapisanego dla wcześniejszego kształtu tego pliku — na przykład takiego, którego `entities` nie mają `kind` — a nie z celowego zapisu."
   },
   "fae997f321b49b94": {
     "at": "2026-10-22T11:01:14.074299+00:00",

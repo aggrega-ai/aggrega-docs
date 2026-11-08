@@ -2023,6 +2023,17 @@
     "status": "machine",
     "text": "Il pilastro `parameters:` porta i valori dei parametri forniti dalla Release e validati rispetto al contratto. Due modelli mentali paralleli ne regolano l’accessibilità:"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Ogni blocco di metadati di una Release accetta un campo `environment:` — una stringa libera che identifica l’ambiente in cui la Release viene distribuita (valori tipici: `production`, `staging`, `dev`). Il campo è informativo: non ha alcuna enumerazione, alcun pattern a livello di schema e alcuna validazione tra entità oltre a `type: string`. Il compilatore emette il suo valore come label `aggrega.ai/environment` su ogni manifesto Kubernetes che il provider helm renderizza, insieme al resto della suite di label di provenienza di Aggrega — così come è scritto quando è un valore di label Kubernetes valido, e altrimenti riscritto in un valore valido, con il valore esatto riportato nell’annotazione `aggrega.ai/environment` (così `eu/prod` riceve la label `eu-prod`); il provider helm-chart aggiunge le stesse label a ciascun artefatto caricato tramite `$import:` che colloca in un sub-chart, mentre i template propri del sub-chart portano ciò che il loro autore ha scritto. Il provider compose porta lo stesso valore come label `aggrega.ai/environment` su ciascun servizio che emette."
+  },
   "0322b1dd9482df07": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -23818,6 +23829,17 @@
     "status": "machine",
     "text": "Quattro dettagli di quella regola sono quelli che vale la pena portare nelle tue policy: l’id di un nodo è la chiave sotto cui si trova in `input.graph.spec.nodes` anziché un campo del nodo; `attached_features` è l’elenco dei tipi di Feature associati a qualsiasi nodo del percorso, quindi l’appartenenza si verifica con `in`; la regola controlla che il mascheramento sia associato, non che cosa elenchi; e una decisione raccolta sotto `deny` viene segnalata con la severità `halt`, che è ciò che arresta il build. La [pagina del socket di governance](../plugins/policy-socket.md) è la superficie di scrittura completa — il payload che ogni ruolo espone, le chiavi di decisione e come nominare le tue."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Quando un’importazione non nomina alcun formato, le firme di ogni importer contenuto nel catalogo del workspace — tutte le versioni incluse — e degli [importer di base](../plugins/core-importers.md) del compilatore vengono confrontate con la sorgente. La sorgente viene analizzata una volta per ciascuna sintassi in cui la legge una firma applicabile al suo nome, tramite il parser che il catalogo del workspace fornisce per quella sintassi — oppure, per una sintassi per cui il catalogo non fornisce alcun parser, quello incluso nel compilatore stesso — e una sorgente che non si analizza in una sintassi non corrisponde ad alcuna firma che la nomina. Una directory viene confrontata attraverso i suoi file: ogni firma viene provata sui file della directory selezionati dai suoi pattern, in ordine di nome, e una firma che non dichiara alcun pattern non si applica a nessuno di essi. Una sorgente a cui corrisponde una firma viene riconosciuta come ogni formato annunciato dal suo importer. Se viene riconosciuto esattamente un formato, la sorgente viene letta in quel formato. Una sorgente a cui non corrisponde alcuna firma viene rifiutata, con la richiesta del formato e l’indicazione dei formati annunciati dagli importer — oppure, per una directory, con la richiesta di uno dei suoi file preso da solo o di un formato il cui importer dichiara pattern di file, indicando solo questi; una sorgente riconosciuta come più di un formato viene rifiutata nominandoli, con la condizione [More than one importer recognises the source (Più di un importer riconosce la sorgente)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Quindi un importer che annuncia più di un formato vede rifiutata come ambigua ogni sorgente a cui corrispondono le sue firme, e un importer le cui sorgenti devono essere riconosciute serve un solo formato."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-02T19:55:20.081Z",
     "job": "session-0012-20261102195520",
@@ -33322,6 +33344,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` è una **mappa opzionale di stringhe di template Go con nome** il cui output renderizzato espone una mappa `.locals.*` a ogni altro template all’interno della stessa FeatureRecipe. È l’equivalente, privato della FeatureRecipe, di `locals:` della Recipe — un punto in cui calcolare una sola volta stringhe derivate e farvi riferimento da `injectMapping`, `valuesMapping`, `pipeline[].with` e `provides` senza ricalcolarle. Le `assertions:` della FeatureRecipe non le leggono: i `.locals` di un’asserzione sono quelli della Recipe del componente host, come indica [assertions-block.md](../templates/assertions-block.md). L’output renderizzato di ciascuna voce viene memorizzato senza gli spazi bianchi iniziali e finali. Il blocco è una mappa, non un singolo corpo di template; uno scalare in questa posizione viene rifiutato dallo schema."
   },
   "386ff3238f353335": {
     "at": "2026-11-03T04:59:02.960Z",
@@ -66255,6 +66288,13 @@
     "status": "machine",
     "text": "Nessuna delle due indicazioni è scritta nella pagina — entrambe vengono lette quando la pagina viene disegnata, così una build di sviluppo si presenta come tale anziché non mostrare nulla, e riavviare su un compilatore diverso cambia l’indicazione. Dove non è possibile rilevare un’indicazione — l’estensione è stata compilata senza registrare quale build sia, non c’è nulla in esecuzione da interrogare, o ciò che è in esecuzione non ha risposto — l’etichetta resta e dice che la versione non è stata riportata, così un’indicazione assente non viene mai scambiata per una che non hai notato."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Una build, e `aggrega pull --verify`, aggiungono il comando che riscrive il lockfile:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -95458,6 +95498,13 @@
     "status": "machine",
     "text": "`flow_id` è l’identificatore che l’esportazione assegna al flusso. Il commento sopra l’istanza indica ciò che il flusso non può fornire."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: il file non ha superato la convalida dello schema; esegui il comando per riscriverlo a partire dalla Release)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -123842,6 +123889,13 @@
     "status": "machine",
     "text": "La semantica rispecchia esattamente `usesSchema[].inject` e `featuresSchema[].inject`: stesso vocabolario, stesso pattern Black-Box quando il campo è omesso, stessa forma di authoring sul lato dell’Aggregate. La differenza è la sorgente: `usesSchema[].inject` regola come i `provides` di una dipendenza tra component confluiscono nella pipe di consegna del consumatore; `featuresSchema[].inject` regola come una credenziale raggiunge un container; `spec.inject` regola come i `values` e i `provides` del Component stesso raggiungono il container del Component stesso."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Consegnare i valori propri di un componente all’immagine dello sviluppatore.** Per convenzione del catalogo della libreria standard, ci si aspetta che una Recipe che esegue un’immagine costruita dallo sviluppatore consegni tutto ciò che i blocchi `inject:` dello sviluppatore hanno risolto, da `.context.inject`; la Recipe può anche consegnare i valori propri del componente con nomi scelti da essa. Dove il Component dichiara `spec.inject`, i nomi li sceglie il blocco dello sviluppatore stesso, e `.context.self_inject` indica alla Recipe l’unico valore proprio letto dal template di ciascuna voce — `values.<key>` per una voce che legge esattamente un valore proprio e nient’altro. La convenzione del catalogo della libreria standard è trattare i nomi che una Recipe assegna a quei valori come predefiniti anziché come un contratto che il codice dello sviluppatore deve leggere, consegnando un valore con il suo nome predefinito solo quando nessuna voce lo mappa; un catalogo aziendale può scegliere diversamente. Il [contratto del contesto dei template](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) fornisce le regole esatte della mappa e un template di esempio completo."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-11-04T11:11:27.846Z",
     "job": "session-0235-20261104111127",
@@ -127201,6 +127255,17 @@
     "srcHash": "d4cb6b42bc5dd679",
     "status": "machine",
     "text": "Per il più ampio inventario delle stringhe di formato (sintassi dei template Go, funzioni Sprig, JSON Pointer accanto alle regex SemVer e alla grammatica dei selettori di etichette), vedi [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md), «Format-string inventory». Per la superficie del contratto dei plugin Wasm che consuma patch RFC 6902 indirizzate da puntatori RFC 6901, vedi [`plugins/plugin-contract.md`](plugins/plugin-contract.md)."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` è lo **Stato privato di Ops** — una mappa di stringhe di template Go con nome il cui output renderizzato espone una mappa `.locals.*` ai template successivi della Recipe. È lo spazio di lavoro in cui calcolare una volta sola le realtà fisiche (container di destinazione, percorsi JSON, hostname derivati) e riutilizzarle nei payload di `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:` e `pipeline[].with` senza ricalcolarle. L’output renderizzato di ciascuna voce viene memorizzato senza gli spazi bianchi iniziali e finali."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -150595,6 +150660,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Questo workspace non contiene alcun `.aggrega-config.yaml`, quindi le entità della libreria standard si risolvono dal registry dell’hub, `hub.aggrega.ai`, e non serve alcun flag di catalogo:"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**Il lockfile è scritto dalla macchina.** Viene prodotto dal pull che risolve una release, e viene sottoposto a commit così che la stessa build si risolva allo stesso modo in seguito. Per questo un errore di schema è quasi sempre una modifica a mano, un merge che ha lasciato il documento risolto a metà, o un lockfile scritto per una forma precedente del file — ad esempio uno le cui `entities` non portano alcun `kind` — anziché qualcosa scritto deliberatamente."
   },
   "fae997f321b49b94": {
     "at": "2026-10-30T19:42:05.833Z",

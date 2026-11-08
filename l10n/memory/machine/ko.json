@@ -2288,6 +2288,17 @@
     "status": "machine",
     "text": "`parameters:` 축은 Release가 채우고 계약으로 검증된 파라미터 값을 담습니다. 이 값에 대한 접근성은 두 가지 병렬적인 멘탈 모델이 결정합니다."
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "모든 Release 메타데이터 블록은 `environment:` 필드를 받습니다. 이 필드는 Release가 배포되는 환경을 식별하는 자유 형식 문자열입니다(일반적인 값: `production`, `staging`, `dev`). 이 필드는 정보 제공용입니다. 열거형도, 스키마 수준 패턴도 없으며 `type: string` 외에는 엔터티 간 검증도 없습니다. 컴파일러는 helm 프로바이더가 렌더링하는 모든 Kubernetes 매니페스트에 나머지 Aggrega 출처 레이블 모음과 함께 이 값을 `aggrega.ai/environment` 레이블로 내보냅니다. 값이 유효한 Kubernetes 레이블 값이면 작성된 그대로 내보내고, 그렇지 않으면 유효한 값으로 다시 쓰며 정확한 값은 `aggrega.ai/environment` 어노테이션으로 전달합니다(따라서 `eu/prod`에는 `eu-prod` 레이블이 붙습니다). helm-chart 프로바이더는 하위 차트에 배치하는 `$import:`로 로드된 각 아티팩트에 같은 레이블을 추가하며, 하위 차트 자체의 템플릿은 작성자가 쓴 내용을 그대로 유지합니다. compose 프로바이더는 자신이 내보내는 각 서비스에 같은 값을 `aggrega.ai/environment` 레이블로 붙입니다."
+  },
   "0320efd222c5c441": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -26616,6 +26627,17 @@
     "status": "machine",
     "text": "이 규칙에서 자신의 정책에도 가져갈 만한 세부 사항은 네 가지입니다. 노드의\nid는 노드의 필드가 아니라 `input.graph.spec.nodes`에서 해당 노드가 놓인 키입니다.\n`attached_features`는 경로상의 어느 노드에든 연결된 Feature 유형의 목록이므로,\n포함 여부는 `in`으로 검사합니다. 규칙은 마스킹이 무엇을 나열하는지가 아니라\n연결되어 있는지를 확인합니다. 그리고\n`deny` 아래에 수집된 결정은 `halt` 심각도로 보고되며, 이것이 빌드를\n중단시킵니다. [거버넌스 소켓 페이지](../plugins/policy-socket.md)에서\n각 역할이 노출하는 페이로드, 결정 키, 직접 이름을 붙이는 방법 등 전체 작성\n인터페이스를 확인할 수 있습니다."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "import가 형식을 지정하지 않으면 워크스페이스 카탈로그에 있는 모든 importer(모든 버전 포함)와 컴파일러의 [핵심 importer](../plugins/core-importers.md)의 시그니처를 소스와 대조합니다. 소스는 그 이름에 적용되는 시그니처가 읽는 구문마다 한 번씩 파싱되며, 이때 워크스페이스 카탈로그가 해당 구문에 제공하는 parser를 사용하고, 카탈로그가 parser를 제공하지 않는 구문에는 컴파일러 자체에 포함된 parser를 사용합니다. 어떤 구문으로 파싱되지 않는 소스는 그 구문을 지정한 시그니처와 일치하지 않습니다. 디렉터리는 그 파일을 통해 대조됩니다. 각 시그니처는 그 패턴이 선택하는 디렉터리의 파일과 이름 순서대로 대조되며, 패턴을 선언하지 않은 시그니처는 어떤 파일에도 적용되지 않습니다. 시그니처와 일치하는 소스는 그 importer가 알리는 모든 형식으로 인식됩니다. 인식된 형식이 정확히 하나이면 소스는 그 형식으로 읽힙니다. 어떤 시그니처와도 일치하지 않는 소스는 거부되며, 형식을 요청하고 importer가 알리는 형식을 제시합니다. 다만 디렉터리의 경우에는 그 파일 중 하나를 단독으로 지정하거나 파일 패턴을 선언한 importer의 형식을 지정하도록 요청하며, 그 형식들만 제시합니다. 둘 이상의 형식으로 인식된 소스는 그 형식들을 명시하며 [More than one importer recognises the source (둘 이상의 importer가 소스를 인식함)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source) 조건으로 거부됩니다. 따라서 둘 이상의 형식을 알리는 importer는 시그니처와 일치하는 모든 소스가 모호함으로 거부되므로, 소스가 인식되어야 하는 importer는 형식 하나만 제공합니다."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-01T00:06:18.869Z",
     "job": "session-0003-20261101000618",
@@ -37237,6 +37259,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:`는 선택 사항인 **이름 있는 Go 템플릿 문자열의 맵**으로, 렌더링된 출력이 같은 FeatureRecipe 안의 다른 모든 템플릿에 `.locals.*` 맵을 노출합니다. 이는 Recipe `locals:`에 해당하는 FeatureRecipe 전용 기능으로, 파생 문자열을 한 번 계산해 두고 다시 계산하지 않고 `injectMapping`, `valuesMapping`, `pipeline[].with`, `provides`에서 참조하는 곳입니다. FeatureRecipe의 `assertions:`는 이 값들을 읽지 않습니다. [assertions-block.md](../templates/assertions-block.md)에서 설명하듯이 어서션의 `.locals`는 호스트 컴포넌트의 Recipe에 속한 것입니다. 각 항목의 렌더링된 출력은 앞뒤 공백을 제거한 상태로 저장됩니다. 이 블록은 단일 템플릿 본문이 아니라 맵이며, 이 위치의 스칼라는 스키마에서 거부됩니다."
   },
   "386ff3238f353335": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -73976,6 +74009,13 @@
     "status": "machine",
     "text": "두 표시 모두 페이지에 기록되어 있지 않으며, 페이지가 그려질 때 읽힙니다. 따라서 개발 빌드는 아무것도 표시하지 않는 대신 개발 빌드라고 보고하며, 다른 컴파일러로 다시 시작하면 표시도 바뀝니다. 표시를 얻을 수 없는 경우(확장이 어떤 빌드인지 기록하지 않고 빌드되었거나, 물어볼 대상이 실행 중이 아니거나, 실행 중인 것이 응답하지 않은 경우) 레이블은 남아 버전이 보고되지 않았다고 표시하므로, 표시가 없는 것을 놓친 표시로 착각하는 일은 없습니다."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "빌드와 `aggrega pull --verify`는 락파일을 다시 작성하는 명령을 덧붙입니다:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -106428,6 +106468,13 @@
     "status": "machine",
     "text": "자격 증명을 연결하지 않아 각 빌드가 중단되는 `aggregate.yaml`의 두 가지 구현에 대한 운영자 레코드."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: 파일이 스키마 검증에 실패했습니다. 이 명령을 실행해 Release에서 다시 작성하십시오)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -137915,6 +137962,13 @@
     "status": "machine",
     "text": "의미는 `usesSchema[].inject` 및 `featuresSchema[].inject`와 정확히 같습니다. 어휘가 같고, 생략 시 같은 블랙박스 패턴이 적용되며, Aggregate 측의 작성 형태도 같습니다. 차이는 출처입니다. `usesSchema[].inject`는 컴포넌트 간 의존성의 `provides`가 소비자의 전달 파이프로 흘러드는 방식을, `featuresSchema[].inject`는 자격 증명이 컨테이너에 도달하는 방식을, `spec.inject`는 Component 자신의 `values`와 `provides`가 Component 자신의 컨테이너에 도달하는 방식을 제어합니다."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**컴포넌트 자체의 값을 개발자 자신의 이미지에 전달하기**. 개발자가 빌드하는 이미지를 실행하는 Recipe는 표준 라이브러리 카탈로그의 관례에 따라 개발자의 `inject:` 블록이 해석한 모든 것을 `.context.inject`에서 전달할 것으로 기대되며, 컴포넌트 자체의 값을 자체적으로 정한 이름으로 전달할 수도 있습니다. Component가 `spec.inject`를 선언하는 경우에는 개발자 자신의 블록이 이름을 정하며, `.context.self_inject`는 각 항목의 템플릿이 읽는 하나의 자체 값을 Recipe에 알려 줍니다. 정확히 하나의 자체 값만 읽고 그 밖에는 아무것도 읽지 않는 항목의 경우 그 값은 `values.<key>`입니다. 표준 라이브러리 카탈로그의 관례는 Recipe가 이 값들에 붙인 이름을 개발자의 코드가 반드시 읽어야 하는 계약이 아니라 기본값으로 취급하여, 어떤 항목도 그 값에 매핑되지 않을 때에만 그 값을 기본 이름으로 전달하는 것입니다. 엔터프라이즈 카탈로그는 다르게 선택할 수 있습니다. [템플릿 컨텍스트 계약](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers)에서 이 맵의 정확한 규칙과 완성된 템플릿 예시를 제공합니다."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -141734,6 +141788,17 @@
     "srcHash": "d4cdf95d23de723a",
     "status": "machine",
     "text": "이 워크스페이스는 `.aggrega-config.yaml`의 `catalog_dirs`를 통해 카탈로그 엔터티를 해석하며,\nchart 저장소에서 가져오는 것은 없습니다."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:`는 **Private Ops State**입니다. 이름이 붙은 Go 템플릿 문자열의 맵으로, 렌더링된 출력은 Recipe의 이후 템플릿에 `.locals.*` 맵으로 노출됩니다. 물리적 실체(대상 컨테이너, JSON 경로, 파생 호스트 이름)를 한 번 계산하고, 다시 계산하지 않고 `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, `pipeline[].with` 페이로드 전반에서 재사용하기 위한 작업 공간입니다. 각 항목의 렌더링된 출력은 앞뒤 공백을 제거한 상태로 저장됩니다."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -167624,6 +167689,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "이 워크스페이스에는 `.aggrega-config.yaml`이 없으므로 표준 라이브러리 엔터티는 허브 레지스트리 `hub.aggrega.ai`에서 해석되며 카탈로그 플래그가 필요하지 않습니다."
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**락파일은 기계가 작성합니다.** 락파일은 release를 해석하는 pull이 생성하며, 나중에 같은 빌드가 같은 방식으로 해석되도록 커밋됩니다. 따라서 스키마 실패는 의도적으로 작성된 것이라기보다 거의 항상 수동 편집, 문서를 절반만 해석된 상태로 남긴 병합, 또는 파일의 이전 형태에 맞춰 작성된 락파일(예를 들어 `entities`에 `kind`가 없는 락파일) 때문입니다."
   },
   "fae997f321b49b94": {
     "at": "2026-10-22T02:30:34.989739+00:00",

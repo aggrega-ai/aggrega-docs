@@ -2288,6 +2288,17 @@
     "status": "machine",
     "text": "Pilar `parameters:` membawa nilai parameter yang dipenuhi oleh Release dan divalidasi oleh kontrak. Dua model mental paralel mengatur aksesibilitasnya:"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Setiap blok metadata Release menerima field `environment:` — string bebas yang mengidentifikasi lingkungan tempat Release di-deploy (nilai umum: `production`, `staging`, `dev`). Field ini bersifat informatif: tidak memiliki enumerasi, tidak memiliki pola tingkat skema, dan tidak memiliki validasi lintas entitas selain `type: string`. Compiler mengeluarkan nilainya sebagai label `aggrega.ai/environment` pada setiap manifest Kubernetes yang dirender oleh provider helm, bersama dengan rangkaian label provenans Aggrega lainnya — sebagaimana tertulis jika merupakan nilai label Kubernetes yang valid, dan jika tidak, ditulis ulang menjadi nilai yang valid dengan nilai persisnya dibawa sebagai anotasi `aggrega.ai/environment` (sehingga `eu/prod` diberi label `eu-prod`); provider helm-chart menambahkan label yang sama ke setiap artefak yang dimuat melalui `$import:` yang ditempatkannya di sub-chart, sedangkan templat milik sub-chart itu sendiri membawa apa yang ditulis oleh penulisnya. Provider compose membawa nilai yang sama sebagai label `aggrega.ai/environment` pada setiap service yang dikeluarkannya."
+  },
   "0320efd222c5c441": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -26616,6 +26627,17 @@
     "status": "machine",
     "text": "Empat detail dalam aturan tersebut layak diterapkan pada kebijakan Anda sendiri: id sebuah node\nadalah kunci tempat node itu berada di `input.graph.spec.nodes`, bukan sebuah field pada\nnode; `attached_features` adalah daftar tipe Feature yang terpasang pada node mana pun di\njalur tersebut, sehingga keanggotaan diuji dengan `in`; aturan memeriksa bahwa penyamaran\nterpasang, bukan apa yang dicantumkannya; dan\nkeputusan yang dikumpulkan di bawah `deny` dilaporkan pada tingkat keparahan `halt`, yang\nmenghentikan build. [Halaman soket tata kelola](../plugins/policy-socket.md) adalah\npermukaan penulisan lengkapnya — payload yang diekspos setiap peran, kunci keputusan, dan cara\nmenamai milik Anda sendiri."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Ketika impor tidak menyebutkan format, tanda pengenal dari setiap importer yang ada dalam katalog workspace — termasuk setiap versinya — dan dari [importer inti](../plugins/core-importers.md) compiler dicocokkan dengan sumber. Sumber diurai satu kali untuk setiap sintaksis yang digunakan oleh tanda pengenal yang berlaku untuk namanya, melalui parser yang disediakan katalog workspace untuk sintaksis tersebut — atau, untuk sintaksis yang tidak memiliki parser dalam katalog, parser yang dibawa oleh compiler itu sendiri — dan sumber yang tidak dapat diurai dalam suatu sintaksis tidak cocok dengan tanda pengenal mana pun yang menyebutkan sintaksis tersebut. Direktori dicocokkan melalui berkas-berkasnya: setiap tanda pengenal dicoba terhadap berkas-berkas direktori yang dipilih oleh polanya, dalam urutan nama, dan tanda pengenal yang tidak mendeklarasikan pola tidak berlaku untuk berkas mana pun. Sumber yang cocok dengan suatu tanda pengenal dikenali sebagai setiap format yang diiklankan importernya. Tepat satu format yang dikenali adalah format yang digunakan untuk membaca sumber. Sumber yang tidak cocok dengan tanda pengenal mana pun ditolak, dengan meminta format dan menyebutkan format yang diiklankan para importer — atau, untuk direktori, dengan meminta salah satu berkasnya secara tersendiri atau format yang importer-nya mendeklarasikan pola berkas, dengan hanya menyebutkan format-format tersebut; sumber yang dikenali sebagai lebih dari satu format ditolak dengan menyebutkan format-format tersebut, dengan kondisi [More than one importer recognises the source (Lebih dari satu importer mengenali sumber)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Jadi, importer yang mengiklankan lebih dari satu format membuat setiap sumber yang cocok dengan tanda pengenalnya ditolak sebagai ambigu, dan importer yang sumbernya ingin dikenali menyediakan satu format."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-10-31T17:58:53.880Z",
     "job": "session-0002-20261031175853",
@@ -37230,6 +37252,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` adalah **map string templat Go bernama** yang opsional, yang keluaran hasil rendernya mengekspos map `.locals.*` ke setiap templat lain di dalam FeatureRecipe yang sama. Blok ini setara dengan `locals:` milik Recipe, tetapi bersifat privat bagi FeatureRecipe — tempat untuk menghitung string turunan sekali saja dan mereferensikannya dari `injectMapping`, `valuesMapping`, `pipeline[].with`, dan `provides` tanpa menghitung ulang. `assertions:` milik FeatureRecipe tidak membacanya: `.locals` sebuah asersi adalah milik Recipe dari komponen host, sebagaimana dinyatakan dalam [assertions-block.md](../templates/assertions-block.md). Keluaran hasil render setiap entri disimpan setelah spasi putih di awal dan di akhirnya dihapus. Blok ini berupa map, bukan satu badan templat; nilai skalar pada posisi ini ditolak oleh skema."
   },
   "386ff3238f353335": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -73965,6 +73998,13 @@
     "status": "machine",
     "text": "Tidak satu pun tampilan ditulis ke dalam halaman — keduanya dibaca saat halaman digambar, sehingga build pengembangan melaporkan dirinya sebagai build pengembangan alih-alih tidak menampilkan apa pun, dan memulai ulang dengan kompiler lain akan mengubah tampilannya. Jika suatu tampilan tidak dapat diambil — ekstensi dibangun tanpa mencatat build mana dirinya, tidak ada yang berjalan untuk ditanyai, atau yang berjalan tidak menjawab — labelnya tetap ada dan menyatakan bahwa versinya tidak dilaporkan, sehingga tampilan yang tidak ada tidak pernah disangka sebagai tampilan yang luput dari perhatian Anda."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Build, dan juga `aggrega pull --verify`, menambahkan perintah yang menulis ulang lockfile:"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -106407,6 +106447,13 @@
     "status": "machine",
     "text": "Catatan operator untuk dua realisasi `aggregate.yaml`, yang tidak melampirkan kredensial, sehingga setiap build berhenti."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile: berkas gagal dalam validasi skema; jalankan perintah tersebut untuk menulisnya ulang dari Release)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -137874,6 +137921,13 @@
     "status": "machine",
     "text": "Semantiknya mencerminkan `usesSchema[].inject` dan `featuresSchema[].inject` secara persis — kosakata yang sama, pola Black-Box yang sama jika dihilangkan, bentuk penulisan yang sama di sisi Aggregate. Perbedaannya terletak pada sumbernya: `usesSchema[].inject` mengatur bagaimana `provides` dari dependensi lintas komponen mengalir ke jalur pengiriman konsumen; `featuresSchema[].inject` mengatur bagaimana kredensial mencapai container; `spec.inject` mengatur bagaimana `values` dan `provides` milik Component itu sendiri mencapai container milik Component itu sendiri."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Mengirimkan nilai milik komponen sendiri ke image milik pengembang sendiri.** Sesuai konvensi katalog pustaka standar, Recipe yang menjalankan image yang dibangun oleh pengembang diharapkan mengirimkan apa pun yang telah diresolusi oleh blok `inject:` milik pengembang, dari `.context.inject`, dan juga dapat mengirimkan nilai milik komponen itu sendiri dengan nama-nama pilihannya sendiri. Jika Component mendeklarasikan `spec.inject`, blok milik pengembang sendirilah yang memilih nama-namanya, dan `.context.self_inject` memberi tahu Recipe satu nilai milik sendiri yang dibaca oleh templat setiap entri — `values.<key>` untuk entri yang membaca tepat satu nilai milik sendiri dan tidak membaca yang lain. Konvensi katalog pustaka standar adalah memperlakukan nama-nama yang diberikan Recipe untuk nilai-nilai tersebut sebagai default, bukan sebagai kontrak yang harus dibaca oleh kode pengembang, dengan mengirimkan sebuah nilai dengan nama default-nya hanya jika tidak ada entri yang dipetakan ke nilai tersebut; katalog perusahaan dapat memilih sebaliknya. [Kontrak konteks templat](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) memberikan aturan persis untuk map tersebut beserta contoh templat lengkap."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -141693,6 +141747,17 @@
     "srcHash": "d4cdf95d23de723a",
     "status": "machine",
     "text": "Workspace ini me-resolve entitas katalog melalui `catalog_dirs` di\n`.aggrega-config.yaml`; tidak ada yang diambil dari repositori chart."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` adalah **Private Ops State** — sebuah map berisi string template Go bernama yang keluaran hasil render-nya mengekspos map `.locals.*` ke template-template berikutnya dalam Recipe. Blok ini adalah ruang kerja untuk menghitung realitas fisik (kontainer target, path JSON, nama host turunan) sekali saja lalu menggunakannya kembali di seluruh payload `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, dan `pipeline[].with` tanpa perhitungan ulang. Keluaran hasil render setiap entri disimpan setelah spasi putih di awal dan di akhirnya dihapus."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -167587,6 +167652,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Workspace ini tidak memuat `.aggrega-config.yaml`, sehingga entitas pustaka standar di-resolve dari registry hub, `hub.aggrega.ai`, dan flag katalog tidak diperlukan:"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**Lockfile ditulis oleh mesin.** Lockfile dihasilkan oleh pull yang meresolusi sebuah release, dan di-commit agar build yang sama diresolusi dengan cara yang sama di kemudian hari. Jadi kegagalan skema hampir selalu disebabkan oleh suntingan manual, merge yang meninggalkan dokumen dalam keadaan setengah teresolusi, atau lockfile yang ditulis untuk bentuk berkas yang lebih lama — misalnya lockfile yang `entities`-nya tidak membawa `kind` — bukan sesuatu yang ditulis dengan sengaja."
   },
   "fae997f321b49b94": {
     "at": "2026-10-23T06:14:07.765401+00:00",

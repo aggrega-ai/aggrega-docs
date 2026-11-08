@@ -2023,6 +2023,17 @@
     "status": "machine",
     "text": "Le pilier `parameters:` porte les valeurs de paramètres fournies par la Release et validées par rapport au contrat. Deux modèles mentaux parallèles régissent son accessibilité :"
   },
+  "031ceaaeab72f6cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "f02ed7be8c356bdc",
+      "reviewed": false
+    },
+    "srcHash": "031ceaaeab72f6cf",
+    "status": "machine",
+    "text": "Chaque bloc de métadonnées d’une Release accepte un champ `environment:` — une chaîne libre identifiant l’environnement dans lequel la Release est déployée (valeurs typiques : `production`, `staging`, `dev`). Le champ est informatif : il ne porte aucune énumération, aucun motif au niveau du schéma et aucune validation inter-entités au-delà de `type: string`. Le compilateur émet sa valeur sous forme de label `aggrega.ai/environment` sur chaque manifeste Kubernetes que rend le fournisseur helm, aux côtés du reste de la suite de labels de provenance d’Aggrega — telle qu’elle est écrite lorsqu’il s’agit d’une valeur de label Kubernetes valide, et sinon réécrite en une valeur valide, la valeur exacte étant portée par l’annotation `aggrega.ai/environment` (ainsi `eu/prod` reçoit le label `eu-prod`) ; le fournisseur helm-chart ajoute les mêmes labels à chaque artefact chargé via `$import:` qu’il place dans un sous-chart, tandis que les templates propres du sous-chart portent ce que leur auteur a écrit. Le fournisseur compose porte la même valeur sous forme de label `aggrega.ai/environment` sur chaque service qu’il émet."
+  },
   "0322b1dd9482df07": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -23814,6 +23825,17 @@
     "status": "machine",
     "text": "Quatre détails de cette règle méritent d’être reportés dans vos propres politiques : l’id d’un nœud est la clé sous laquelle il se trouve dans `input.graph.spec.nodes` plutôt qu’un champ du nœud ; `attached_features` est la liste des types de Feature rattachés à n’importe quel nœud du chemin, donc l’appartenance se teste avec `in` ; la règle vérifie que le masquage est rattaché, et non ce qu’il liste ; et une décision collectée sous `deny` est signalée avec la sévérité `halt`, ce qui arrête le build. La [page du socket de gouvernance](../plugins/policy-socket.md) est la surface de rédaction complète — la charge utile que chaque rôle expose, les clés de décision et la façon de nommer les vôtres."
   },
+  "27c616757eeda8e1": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "829e19b7af5b18f7",
+      "reviewed": false
+    },
+    "srcHash": "27c616757eeda8e1",
+    "status": "machine",
+    "text": "Lorsqu’un import ne nomme aucun format, les signatures de chaque importer que contient le catalogue de l’espace de travail — toutes versions comprises — et des [importers de base](../plugins/core-importers.md) du compilateur sont comparées à la source. La source est analysée une fois pour chaque syntaxe dans laquelle une signature applicable à son nom la lit, via le parser que le catalogue de l’espace de travail fournit pour cette syntaxe — ou, pour une syntaxe pour laquelle le catalogue ne fournit aucun parser, celui que le compilateur embarque lui-même — et une source qui ne s’analyse pas dans une syntaxe ne correspond à aucune signature qui la nomme. Un répertoire est comparé à travers ses fichiers : chaque signature est essayée sur les fichiers du répertoire que ses motifs sélectionnent, dans l’ordre des noms, et une signature qui ne déclare aucun motif ne s’applique à aucun d’eux. Une source à laquelle une signature correspond est reconnue comme chaque format que son importer annonce. Lorsqu’exactement un format est reconnu, la source est lue dans ce format. Une source à laquelle aucune signature ne correspond est refusée, avec une demande du format et le nom des formats annoncés par les importers — ou, pour un répertoire, avec la demande de l’un de ses fichiers pris isolément ou d’un format dont l’importer déclare des motifs de fichier, en ne nommant que ceux-ci ; une source reconnue comme plus d’un format est refusée en les nommant, avec la condition [More than one importer recognises the source (Plusieurs importers reconnaissent la source)](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). Ainsi, un importer qui annonce plus d’un format voit chaque source à laquelle ses signatures correspondent refusée comme ambiguë, et un importer dont les sources doivent être reconnues sert un seul format."
+  },
   "27c9aae531d16e6e": {
     "at": "2026-11-02T19:55:20.081Z",
     "job": "session-0012-20261102195520",
@@ -33306,6 +33328,17 @@
     "srcHash": "385f6466d2954459",
     "status": "machine",
     "text": "`PublishEntityParams`"
+  },
+  "3862172364592e00": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e299b5c014983e04",
+      "reviewed": false
+    },
+    "srcHash": "3862172364592e00",
+    "status": "machine",
+    "text": "`FeatureRecipe.spec.locals:` est une **map facultative de chaînes de template Go nommées** dont la sortie rendue expose une map `.locals.*` à tous les autres templates de la même FeatureRecipe. C’est l’équivalent, privé à la FeatureRecipe, du `locals:` de la Recipe — un endroit où calculer une seule fois des chaînes dérivées et les référencer depuis `injectMapping`, `valuesMapping`, `pipeline[].with` et `provides` sans les recalculer. Les `assertions:` de la FeatureRecipe ne les lisent pas : les `.locals` d’une assertion sont ceux de la Recipe du composant hôte, comme l’indique [assertions-block.md](../templates/assertions-block.md). La sortie rendue de chaque entrée est stockée sans ses espaces de début et de fin. Le bloc est une map, et non un corps de template unique ; un scalaire à cette position est rejeté par le schéma."
   },
   "386ff3238f353335": {
     "at": "2026-11-03T04:59:02.960Z",
@@ -66239,6 +66272,13 @@
     "status": "machine",
     "text": "Aucune des deux indications n’est écrite dans la page — les deux sont lues lorsque la page est dessinée, de sorte qu’un build de développement se signale comme tel plutôt que de ne rien afficher, et redémarrer sur un autre compilateur change l’indication. Là où une indication ne peut pas être relevée — l’extension a été compilée sans enregistrer de quel build il s’agit, rien ne s’exécute qu’on puisse interroger, ou ce qui s’exécute n’a pas répondu — le libellé reste et indique que la version n’a pas été signalée, de sorte qu’une indication absente n’est jamais confondue avec une que vous n’auriez pas remarquée."
   },
+  "6f82a14ce7d35a33": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "6f82a14ce7d35a33",
+    "status": "machine",
+    "text": "Un build, ainsi que `aggrega pull --verify`, ajoute la commande qui réécrit le fichier de verrouillage :"
+  },
   "6f8dca08f2b92872": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -95460,6 +95500,13 @@
     "status": "machine",
     "text": "`flow_id` est l’identifiant que l’export donne au flux. Le commentaire au-dessus de l’instance nomme ce que le flux ne peut pas fournir."
   },
+  "a137970a965facfa": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "a137970a965facfa",
+    "status": "machine",
+    "text": "...: lockfile: file failed schema validation; run `aggrega pull --release <release>` to write it again from the Release (lockfile : le fichier n’a pas passé la validation de schéma ; exécutez la commande pour le réécrire à partir de la Release)"
+  },
   "a13843314495ab6a": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -123868,6 +123915,13 @@
     "status": "machine",
     "text": "La sémantique reproduit exactement celle de `usesSchema[].inject` et `featuresSchema[].inject` — même vocabulaire, même modèle Black-Box en cas d’omission, même forme de rédaction côté Aggregate. La différence est la source : `usesSchema[].inject` régit la manière dont les `provides` d’une dépendance entre composants s’écoulent dans le canal de livraison du consommateur ; `featuresSchema[].inject` régit la manière dont un identifiant atteint un conteneur ; `spec.inject` régit la manière dont les `values` et `provides` propres au Component atteignent le propre conteneur du Component."
   },
+  "cf3e394c52c343cf": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "srcHash": "cf3e394c52c343cf",
+    "status": "machine",
+    "text": "**Fournir les valeurs propres d’un composant à l’image du développeur.** Selon la convention du catalogue de la bibliothèque standard, une Recipe qui exécute une image construite par le développeur est censée fournir tout ce que les blocs `inject:` du développeur ont résolu, à partir de `.context.inject`, et peut aussi fournir les valeurs propres du composant sous des noms qu’elle choisit elle-même. Lorsque le Component déclare `spec.inject`, c’est le bloc du développeur lui-même qui choisit les noms, et `.context.self_inject` indique à la Recipe l’unique valeur propre que lit le template de chaque entrée — `values.<key>` pour une entrée qui lit exactement une valeur propre et rien d’autre. La convention du catalogue de la bibliothèque standard consiste à traiter les noms qu’une Recipe donne à ces valeurs comme des valeurs par défaut plutôt que comme un contrat que le code du développeur doit lire, en ne fournissant une valeur sous son nom par défaut que lorsqu’aucune entrée ne la mappe ; un catalogue d’entreprise peut faire un autre choix. Le [contrat du contexte de template](../templates/template-context-contract.md#contextself_inject--which-own-value-each-of-the-developers-names-delivers) donne les règles exactes de la map et un exemple de template complet."
+  },
   "cf3f0b587dec7cae": {
     "at": "2026-11-04T11:11:27.846Z",
     "job": "session-0235-20261104111127",
@@ -127221,6 +127275,17 @@
     "srcHash": "d4cb6b42bc5dd679",
     "status": "machine",
     "text": "Pour l’inventaire plus large des chaînes de format (syntaxe des templates Go, fonctions Sprig, JSON Pointer aux côtés des regex SemVer et de la grammaire des sélecteurs de labels), voir [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) « Format-string inventory ». Pour la surface du contrat des plugins Wasm qui consomme des patchs RFC 6902 adressés par des pointeurs RFC 6901, voir [`plugins/plugin-contract.md`](plugins/plugin-contract.md)."
+  },
+  "d4ce3d6ccbb58c55": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "e5c8f288f6cc70ec",
+      "reviewed": false
+    },
+    "srcHash": "d4ce3d6ccbb58c55",
+    "status": "machine",
+    "text": "`Recipe.spec.locals:` est l’**état privé d’Ops** — une map de chaînes de template Go nommées dont la sortie rendue expose une map `.locals.*` aux templates ultérieurs de la Recipe. C’est l’espace de travail où calculer une seule fois des réalités physiques (conteneurs cibles, chemins JSON, noms d’hôte dérivés) et les réutiliser dans les payloads de `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:` et `pipeline[].with` sans les recalculer. La sortie rendue de chaque entrée est stockée sans ses espaces de début et de fin."
   },
   "d4cffd24c00a35b5": {
     "at": "2026-10-22T06:00:14.240Z",
@@ -150623,6 +150688,17 @@
     "srcHash": "fae6b1d4afea939d",
     "status": "machine",
     "text": "Cet espace de travail ne contient aucun `.aggrega-config.yaml`, si bien que les entités de la bibliothèque standard se résolvent depuis le registre du hub, `hub.aggrega.ai`, et qu’aucun flag de catalogue n’est nécessaire :"
+  },
+  "fae7c1bc263cb8be": {
+    "at": "2026-11-08T11:45:32.538Z",
+    "job": "session-0012-20261108114532",
+    "revision": {
+      "from": "d1eeb15c37a82e92",
+      "reviewed": false
+    },
+    "srcHash": "fae7c1bc263cb8be",
+    "status": "machine",
+    "text": "**Le fichier de verrouillage est écrit par la machine.** Il est produit par le pull qui résout une release, et il est commité afin que le même build se résolve de la même manière plus tard. Un échec de schéma est donc presque toujours une modification manuelle, une fusion qui a laissé le document à moitié résolu, ou un fichier de verrouillage écrit pour une forme antérieure du fichier — dont les `entities` ne portent aucun `kind`, par exemple — plutôt que quelque chose d’écrit délibérément."
   },
   "fae997f321b49b94": {
     "at": "2026-10-30T19:42:05.833Z",
