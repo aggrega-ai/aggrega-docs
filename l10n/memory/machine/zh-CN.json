@@ -21880,6 +21880,17 @@
     "status": "machine",
     "text": "K8s 形态的透传字段——`scheduling`、`serviceAccount`、`podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**Claude Desktop 自身的日志会显示它启动了什么。** 在 Windows 上，即使 Claude Desktop 是通过其官方下载安装的，日志也可能位于本地应用数据目录下的某个包文件夹中，而不是 `%APPDATA%\\Claude\\logs` 下：即 `%LOCALAPPDATA%\\Packages\\` 下名称以 `Claude_` 开头的文件夹中的 `LocalCache\\Local\\Claude\\logs`。其中的文件包括 `mcp.log` 和 `mcp-server-Aggrega.log`，后者记录 Aggrega 服务器写入其标准错误的内容。包含 `Using MCP server command:` 的一行列出了应用启动的命令，该命令取自扩展包的 **Path to the aggrega executable** 设置。若该设置指定的路径上什么都没有，日志会记录 Windows 命令解释器的消息，指出该路径无法识别为命令，随后报告服务器无法启动。若工作区文件夹不存在——被重命名、移动或从未创建——服务器仍会照常启动，并以拒绝应答助手在该工作区中发出的每个请求，因此助手收到的是作为其请求应答的拒绝，而不是应用报告连接失败。该拒绝会指出 `AGGREGA_WORKSPACE_ROOT` 是扩展包 **Workspace folder** 设置所设定的变量，并按应用传入的原样引用该文件夹；`mcp-server-Aggrega.log` 也记录同样的拒绝。**Workspace folder** 留空时也以同样方式应答，返回第 3 步所述指出该设置为空的拒绝，日志同样会记录。请更正该设置，并按第 4 步重启应用。"
+  },
   "209b0818b2411fd2": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -73238,6 +73249,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (`\"<provider>\"`)（管道插件与执行渲染的 provider 不兼容，附 provider）\n> pipeline plugin is not compatible with the rendering provider (`\"<attachment>\"`, `\"<provider>\"`)（管道插件与执行渲染的 provider 不兼容，附挂载与 provider）"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "配置扩展包的设置；两项均非必填。**Path to the aggrega executable** 是扩展包启动的程序，其默认值为命令名 `aggrega`，应用会在其启动时所用的 `PATH` 中查找它。在应用运行期间添加到你的 `PATH` 中的文件夹——Windows 安装程序和 Windows 上的安装命令都会添加各自的文件夹——只有在应用退出并重新启动后才会对其生效，如第 4 步所述；而且从图形环境启动的应用可能看不到与你的终端相同的 `PATH`（参见[关于 `PATH` 的说明](#a-note-on-path)）。当该 `PATH` 上的 `aggrega` 就是你想要的可执行文件时，保留默认值即可。当你想要的可执行文件不在该 `PATH` 上，或者与在那里找到的第一个 `aggrega` 不是同一个时，请改为将该字段设为某个可执行文件的完整路径——在 macOS 和 Linux 上，对于安装位置，是你主文件夹中 `.local/bin` 里的 `aggrega`，例如 `/Users/you/.local/bin/aggrega`；在 Windows 上是以 `aggrega.exe` 结尾的完整路径，例如 `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`。要恢复默认值，请将该字段设为 `aggrega`，而不是将其清空。如果根本没有安装 `aggrega`，请按第 1 步所述进行安装。**Workspace folder** 是助手所工作的 Aggrega 工作区的文件夹：即存放你项目的 `.aggrega-config.yaml` 的文件夹。请设置这一项：在你选择文件夹之前它为空，而在它为空期间，扩展包会把空的 `AGGREGA_WORKSPACE_ROOT` 交给服务器，因此服务器会对助手在该工作区中发出的每个请求返回拒绝，说明 **Workspace folder** 设置为空，并提示你将其设为存放工作区 `.aggrega-config.yaml` 的文件夹，而不会在 Claude Desktop 启动它时所在的文件夹中工作。"
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -118874,6 +118896,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release（Aggregate 与 Release 之间 Feature 类型不匹配）"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "你的助手连接到 Aggrega MCP 服务器后，就会使用你在终端中运行的同一个 `aggrega` 二进制文件工作：它读取 schema 和文档，起草并检查你的文件，构建 Release，并在你允许时进行发布。本页按类别说明这些功能涵盖的范围。服务器自身给出的答案才是完整列表，也是应当信赖的依据：不带参数调用 `describe-capabilities`，或让你的助手调用，它就会列出服务器为你提供的每个工具，每个工具附有一行用途说明、它服务的实体种类以及它是否会写入。[兼容性](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools)说明了版本发布可以对这些工具做出哪些更改。"
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-01T19:00:07.009Z",
     "job": "session-0010-20261101190007",
@@ -161233,6 +161266,17 @@
     "status": "machine",
     "text": "目录实体 URI 不带种类标记（见上一节）。Plugin URI 则是有意设计的对照：插件 URI *确实*直接在路径中写出一个分类段——即其插槽类型。这两类引用有意采用不同的读法，知道某个 URI 属于哪一类，就知道该去哪里查找它的分类。"
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**服务器会报告扩展包启动的是哪个 `aggrega`。** Claude Desktop 的扩展设置列出的是扩展包自身的版本——即它所属的版本发布——而不是它所启动的可执行文件的版本。两者分别安装，因此可能来自不同的版本发布。扩展包通过环境中的 `AGGREGA_BUNDLE_VERSION` 变量把自身版本交给服务器，服务器会同时报告两者：不带参数调用 `describe-capabilities`（助手用来了解服务器提供哪些功能的工具）所得的应答，以一行注明可执行文件版本和扩展包版本的文字开头，并在其结构化部分中以 `version_summary` 携带同一行，因此当助手被问到正在运行的是哪个版本的 Aggrega 时，无论应用交给它应答的哪一部分，都能从中读到两者。若两者来自不同的版本发布，这一行会说明这一点并列出两者，服务器在连接时交给助手的指引也以同一句话开头。版本不同不会导致任何拒绝，服务器照常应答每个请求；报告它是为了让你知道扩展包正在运行哪个可执行文件。要使两者一致，请安装与你的可执行文件同一版本发布的 `aggrega-<version>.mcpb`（在终端运行 `aggrega version` 可打印该版本），或将 **Path to the aggrega executable** 设为扩展包所属版本发布中某个 `aggrega` 的完整路径，然后按第 4 步重启应用。"
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -161840,6 +161884,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "provider 从其 link_resolve 导出返回的载荷：要应用到消费端点已组装输出上的消费方制品连接，用于注入对被消费端点已发布身份的引用。"
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Aggrega 的扩展包本身不含任何程序。它以单个 `mcp` 参数启动你机器上已安装的 `aggrega` 可执行文件，并通过该进程的标准输入和输出使用协议通信——与上文每个条目启动的是同一个服务器。除非你选择其他可执行文件，否则它会像上文每个条目一样，把命令名 `aggrega` 交给 Claude Desktop，因此应用会在其启动时所用的 `PATH` 中查找 `aggrega`；它还会把你选择的工作区交给该服务器。添加步骤如下："
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-29T21:31:42.799Z",

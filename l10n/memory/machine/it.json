@@ -19594,6 +19594,17 @@
     "status": "machine",
     "text": "Campi pass-through in forma K8s — `scheduling`, `serviceAccount`, `podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**I log di Claude Desktop mostrano che cosa ha avviato.** Su Windows possono trovarsi sotto una cartella di pacchetto nella directory dei dati applicativi locali anziché sotto `%APPDATA%\\Claude\\logs`, anche dove Claude Desktop è stato installato dal suo download: sotto `%LOCALAPPDATA%\\Packages\\`, nella cartella il cui nome inizia con `Claude_`, in `LocalCache\\Local\\Claude\\logs`. I file lì includono `mcp.log` e `mcp-server-Aggrega.log`, il secondo con ciò che il server Aggrega scrive sul proprio standard error. Una riga che contiene `Using MCP server command:` indica il comando avviato dall’applicazione, ricavato dall’impostazione **Path to the aggrega executable** del pacchetto. Quando l’impostazione indica un percorso in cui non c’è nulla, il log riporta il messaggio dell’interprete dei comandi di Windows secondo cui il percorso non è riconosciuto come comando, poi segnala che il server non ha potuto avviarsi. Quando la cartella del workspace non c’è — rinominata, spostata o mai creata — il server si avvia comunque e risponde a ogni richiesta che l’assistente fa in quel workspace con il proprio rifiuto, così l’assistente riceve il rifiuto come risposta alla sua richiesta anziché l’applicazione segnalare un errore di connessione. Il rifiuto indica `AGGREGA_WORKSPACE_ROOT` come la variabile impostata dall’impostazione **Workspace folder** del pacchetto, e cita la cartella esattamente come l’applicazione l’ha passata; `mcp-server-Aggrega.log` riporta lo stesso rifiuto. A una **Workspace folder** lasciata vuota si risponde allo stesso modo, con il rifiuto del passaggio 3 che indica l’impostazione vuota, riportato anch’esso nel log. Correggi l’impostazione e riavvia l’applicazione come al passaggio 4."
+  },
   "209c83f111012e3d": {
     "at": "2026-11-04T08:39:26.304Z",
     "job": "session-0221-20261104083926",
@@ -65654,6 +65665,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (`\"<provider>\"`) (il plugin di pipeline non è compatibile con il provider di rendering, quello indicato) pipeline plugin is not compatible with the rendering provider (`\"<attachment>\"`, `\"<provider>\"`) (il plugin di pipeline non è compatibile con il provider di rendering (con l’associazione e il provider indicati))"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "Configura le impostazioni del pacchetto; nessuna delle due è obbligatoria. **Path to the aggrega executable** è il programma che il pacchetto avvia, e il suo valore predefinito è il nome di comando `aggrega`, che l’applicazione cerca nel `PATH` con cui è stata avviata. Una cartella aggiunta al tuo `PATH` mentre l’applicazione è in esecuzione — come fanno con la propria il programma di installazione per Windows e il comando di installazione su Windows — raggiunge l’applicazione solo dopo che questa è stata chiusa e riavviata, come al passaggio 4, e un’applicazione avviata da un ambiente grafico potrebbe non vedere lo stesso `PATH` del tuo terminale (vedi [Una nota su `PATH`](#a-note-on-path)). Lascia il valore predefinito quando l’`aggrega` in quel `PATH` è l’eseguibile che vuoi. Imposta invece il campo sul percorso completo di un eseguibile quando quello che vuoi non è in quel `PATH`, o è un `aggrega` diverso dal primo trovato lì — su macOS e Linux, per la posizione di installazione, l’`aggrega` in `.local/bin` nella tua cartella home, come `/Users/you/.local/bin/aggrega`; su Windows il percorso completo che termina in `aggrega.exe`, come `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`. Per tornare al valore predefinito, imposta il campo su `aggrega` anziché svuotarlo. Dove non è installato alcun `aggrega`, installalo come descrive il passaggio 1. **Workspace folder** è la cartella del workspace Aggrega in cui lavora l’assistente: la cartella che contiene il `.aggrega-config.yaml` del tuo progetto. Imposta questa: è vuota finché non scegli una cartella, e finché è vuota il pacchetto consegna al server un `AGGREGA_WORKSPACE_ROOT` vuoto, così il server risponde a ogni richiesta che l’assistente fa nel workspace con un rifiuto che dice che l’impostazione **Workspace folder** è vuota e ti chiede di impostarla sulla cartella che contiene il `.aggrega-config.yaml` del tuo workspace, anziché lavorare nella cartella in cui Claude Desktop lo ha avviato."
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -106661,6 +106683,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release (Mancata corrispondenza del tipo di Feature tra Aggregate e Release)"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "Una volta che il tuo assistente è collegato al server MCP di Aggrega, lavora con lo stesso binario `aggrega` che eseguiresti in un terminale: legge gli schemi e la documentazione, prepara e verifica i tuoi file, esegue la build di una Release e, quando glielo consenti, pubblica. Questa pagina dice cosa copre, per gruppi. L’elenco completo è la risposta del server stesso, ed è quella di cui fidarsi: chiama `describe-capabilities` senza argomenti, o chiedi al tuo assistente di farlo, e il server elenca ogni strumento che ti offre, ciascuno con il suo scopo in una riga, i tipi di entità che serve e se scrive. [Compatibilità](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools) indica che cosa una release può cambiare negli strumenti."
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-03T17:29:36.700Z",
     "job": "session-0134-20261103172936",
@@ -144851,6 +144884,17 @@
     "status": "machine",
     "text": "Un URI di entità di catalogo non porta alcun sigillo di tipo (la sezione precedente). Gli URI dei Plugin sono il contrappunto voluto: un URI di plugin *riporta* invece un segmento di classificazione — il suo tipo di socket — direttamente nel percorso. Le due famiglie di riferimenti si leggono in modo diverso di proposito, e sapere a quale famiglia appartiene un URI ti dice dove cercarne la classificazione."
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**Il server riporta quale `aggrega` ha avviato il pacchetto.** Le impostazioni delle estensioni di Claude Desktop elencano la versione del pacchetto stesso — la versione della release da cui proviene — e non la versione dell’eseguibile che il pacchetto avvia. I due si installano separatamente, quindi possono provenire da release diverse. Il pacchetto passa al server la propria versione come variabile `AGGREGA_BUNDLE_VERSION` nel suo ambiente, e il server le riporta entrambe: la risposta di `describe-capabilities` chiamato senza argomenti — lo strumento che un assistente chiama per sapere che cosa offre il server — si apre con una riga che indica la versione dell’eseguibile e quella del pacchetto, e porta la stessa riga come `version_summary` nella sua parte strutturata, così un assistente a cui si chiede quale versione di Aggrega è in esecuzione può leggerle entrambe lì, qualunque parte della risposta gli consegni l’applicazione. Dove le due provengono da release diverse, quella riga lo dice, indicandole entrambe, e le indicazioni che il server consegna all’assistente quando si collega si aprono con la stessa frase. Nulla viene rifiutato per una differenza, e il server risponde a ogni richiesta come di consueto; viene riportata perché tu sappia quale eseguibile sta eseguendo il pacchetto. Per allinearli, installa l’`aggrega-<version>.mcpb` della release da cui proviene il tuo eseguibile — `aggrega version` in un terminale stampa quella versione — oppure imposta **Path to the aggrega executable** sul percorso completo di un `aggrega` della release del pacchetto, quindi riavvia l’applicazione come al passaggio 4."
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-11-02T23:06:17.995Z",
     "job": "session-0018-20261102230617",
@@ -145425,6 +145469,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "Il payload che un provider restituisce dalla sua esportazione link_resolve: il cablaggio degli artefatti lato consumatore da applicare all’output assemblato dell’endpoint consumatore, che inietta il riferimento all’identità pubblicata dell’endpoint consumato."
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Il pacchetto di Aggrega non contiene alcun programma proprio. Avvia un eseguibile `aggrega` già installato sulla tua macchina, con il singolo argomento `mcp`, e parla il protocollo sull’input e l’output standard di quel processo — lo stesso server che avvia ogni voce sopra. A meno che tu non scelga un altro eseguibile, consegna a Claude Desktop il nome di comando `aggrega`, come fa ogni voce sopra, così l’applicazione cerca `aggrega` nel `PATH` con cui è stata avviata; e consegna a quel server il workspace che scegli. Per aggiungerlo:"
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-30T06:38:31.272Z",

@@ -21880,6 +21880,17 @@
     "status": "machine",
     "text": "K8s 形式のパススルーフィールド — `scheduling`、`serviceAccount`、`podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**Claude Desktop 自身のログに、起動したものが表示されます。** Windows では、Claude Desktop を独自のダウンロードからインストールした場合でも、ログは `%APPDATA%\\Claude\\logs` ではなく、ローカルのアプリケーションデータディレクトリ内のパッケージフォルダーの下にあることがあります。具体的には `%LOCALAPPDATA%\\Packages\\` の下の、名前が `Claude_` で始まるフォルダー内の `LocalCache\\Local\\Claude\\logs` です。そこにあるファイルには `mcp.log` と `mcp-server-Aggrega.log` が含まれ、後者には Aggrega サーバーが標準エラーに書き込む内容が記録されます。`Using MCP server command:` を含む行は、アプリケーションが起動したコマンドを示します。このコマンドはパッケージの **Path to the aggrega executable** 設定から取得されます。設定が何も存在しないパスを指している場合、ログにはそのパスがコマンドとして認識されないという Windows コマンドインタープリターのメッセージが記録され、続いてサーバーを起動できなかったことが報告されます。ワークスペースフォルダーが存在しない場合（名前の変更、移動、または未作成）、サーバーはそれでも起動し、アシスタントがそのワークスペースで行うすべてのリクエストに拒否を返します。そのため、アプリケーションが接続の失敗を報告するのではなく、アシスタントがリクエストへの応答として拒否を受け取ります。この拒否は、パッケージの **Workspace folder** 設定が設定する変数として `AGGREGA_WORKSPACE_ROOT` を示し、アプリケーションが渡したとおりにフォルダーを引用します。`mcp-server-Aggrega.log` にも同じ拒否が記録されます。**Workspace folder** が空のままの場合も同様に、空の設定を示す手順 3 の拒否が返され、ログにも記録されます。設定を修正し、手順 4 のとおりにアプリケーションを再起動してください。"
+  },
   "209b0818b2411fd2": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -73244,6 +73255,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (`\"<provider>\"`)(パイプラインのプラグインが、レンダリングするプロバイダーと互換性がありません)\n> pipeline plugin is not compatible with the rendering provider (`\"<attachment>\"`, `\"<provider>\"`)(パイプラインのプラグインが、レンダリングするプロバイダーと互換性がありません)"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "パッケージの設定を行います。どちらも必須ではありません。**Path to the aggrega executable** はパッケージが起動するプログラムで、既定値はコマンド名 `aggrega` です。アプリケーションはこれを自身の起動時の `PATH` 上で探します。アプリケーションの実行中に `PATH` に追加されたフォルダー（Windows インストーラーと Windows のインストールコマンドはそれぞれのフォルダーを追加します）は、手順 4 のようにアプリケーションを終了して再起動するまで反映されません。また、グラフィカル環境から起動したアプリケーションには、ターミナルと同じ `PATH` が見えない場合があります（[`PATH` に関する注意](#a-note-on-path)を参照）。その `PATH` 上の `aggrega` が目的の実行ファイルである場合は、既定値のままにします。目的の実行ファイルがその `PATH` 上にない場合や、そこで最初に見つかる `aggrega` とは別のものである場合は、代わりにフィールドに実行ファイルのフルパスを設定します。macOS と Linux では、インストール先としてホームフォルダーの `.local/bin` にある `aggrega`（例: `/Users/you/.local/bin/aggrega`）、Windows では `aggrega.exe` で終わるフルパス（例: `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`）です。既定値に戻すには、フィールドを空にするのではなく `aggrega` に設定します。`aggrega` がまったくインストールされていない場合は、手順 1 の説明に従ってインストールします。**Workspace folder** はアシスタントが作業する Aggrega ワークスペースのフォルダー、つまりプロジェクトの `.aggrega-config.yaml` を含むフォルダーです。こちらは設定してください。フォルダーを選択するまでは空であり、空の間はパッケージがサーバーに空の `AGGREGA_WORKSPACE_ROOT` を渡すため、サーバーは、Claude Desktop が起動したフォルダーで作業するのではなく、アシスタントがワークスペースで行うすべてのリクエストに対して、**Workspace folder** 設定が空であることを伝え、ワークスペースの `.aggrega-config.yaml` を含むフォルダーに設定するよう求める拒否を返します。"
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -118882,6 +118904,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release（Aggregate と Release の間での Feature 型の不一致）"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "アシスタントを Aggrega MCP サーバーに接続すると、ターミナルで実行するのと同じ `aggrega` バイナリを使って作業します。スキーマとドキュメントを読み、ファイルの下書きを作成して検査し、Release をビルドし、許可すれば公開も行います。このページでは、その範囲をグループごとに説明します。完全な一覧はサーバー自身の回答であり、信頼すべきはそちらです。`describe-capabilities` を引数なしで呼び出すか、アシスタントに呼び出しを依頼すると、サーバーが提供するすべてのツールが、1 行の用途説明、対象とするエンティティ種別、書き込みを行うかどうかとともに一覧表示されます。[互換性](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools)では、リリースによってツールの何が変更されうるかを説明しています。"
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-01T19:00:07.009Z",
     "job": "session-0010-20261101190007",
@@ -161239,6 +161272,17 @@
     "status": "machine",
     "text": "カタログエンティティの URI は種別を示す記号を持ちません（前節を参照）。Plugin URI は意図的にその対極にあります。プラグインの URI は、分類のためのセグメント、つまりソケットタイプをパスに直接*記述します*。この 2 つの参照ファミリーは意図的に異なる読み方をするようになっており、URI がどちらのファミリーに属するかがわかれば、その分類をどこで確認すべきかがわかります。"
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**サーバーは、パッケージがどの `aggrega` を起動したかを報告します。** Claude Desktop の拡張機能の設定には、パッケージ自身のバージョン（取得元の release のバージョン）が表示され、パッケージが起動する実行ファイルのバージョンは表示されません。両者は別々にインストールされるため、異なる release のものである場合があります。パッケージは環境内の `AGGREGA_BUNDLE_VERSION` 変数として自身のバージョンをサーバーに渡し、サーバーは両方を報告します。引数なしで呼び出した `describe-capabilities`（サーバーが提供するものを知るためにアシスタントが呼び出すツール）の応答は、実行ファイルのバージョンとパッケージのバージョンを示す行で始まり、構造化部分にも同じ行を `version_summary` として含みます。そのため、どの Aggrega のバージョンが実行中かを尋ねられたアシスタントは、アプリケーションが応答のどの部分を渡しても、そこで両方を読み取れます。両者が異なる release のものである場合、その行はその旨を両方の名前とともに示し、接続時にサーバーがアシスタントに渡すガイダンスも同じ文で始まります。違いがあっても何も拒否されず、サーバーはすべてのリクエストに通常どおり応答します。これは、パッケージがどの実行ファイルを実行しているかを把握できるように報告されるものです。両者を揃えるには、実行ファイルの取得元の release の `aggrega-<version>.mcpb` をインストールするか（そのバージョンはターミナルで `aggrega version` を実行すると表示されます）、**Path to the aggrega executable** にパッケージの release の `aggrega` のフルパスを設定してから、手順 4 のとおりにアプリケーションを再起動します。"
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -161846,6 +161890,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "provider が link_resolve エクスポートから返すペイロードです。消費する側のエンドポイントのアセンブル済み出力に適用するコンシューマー側のアーティファクト配線であり、消費される側のエンドポイントの公開済み ID への参照を注入します。"
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Aggrega のパッケージは、独自のプログラムを含みません。マシンにすでにインストールされている `aggrega` 実行ファイルを単一の `mcp` 引数で起動し、そのプロセスの標準入出力でプロトコルを話します。これは上記の各エントリが起動するのと同じサーバーです。別の実行ファイルを選択しない限り、上記の各エントリと同様にコマンド名 `aggrega` を Claude Desktop に渡すため、アプリケーションは自身の起動時の `PATH` 上で `aggrega` を探します。また、選択したワークスペースをそのサーバーに渡します。追加するには、次の手順に従います。"
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-29T21:31:42.799Z",

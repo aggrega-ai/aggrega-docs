@@ -21886,6 +21886,17 @@
     "status": "machine",
     "text": "K8s 형태의 패스스루 필드 — `scheduling`, `serviceAccount`, `podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**Claude Desktop 자체 로그에 실행한 내용이 표시됩니다.** Windows에서는 Claude Desktop을 자체 다운로드로 설치한 경우에도 로그가 `%APPDATA%\\Claude\\logs`가 아니라 로컬 애플리케이션 데이터 디렉터리의 패키지 폴더 아래, 즉 `%LOCALAPPDATA%\\Packages\\` 아래에서 이름이 `Claude_`로 시작하는 폴더의 `LocalCache\\Local\\Claude\\logs`에 있을 수 있습니다. 그곳의 파일에는 `mcp.log`와 `mcp-server-Aggrega.log`가 있으며, 두 번째 파일에는 Aggrega 서버가 표준 오류에 쓰는 내용이 담깁니다. `Using MCP server command:`가 포함된 줄은 애플리케이션이 시작한 명령을 나타내며, 이 명령은 패키지의 **Path to the aggrega executable** 설정에서 가져온 것입니다. 설정이 아무것도 없는 경로를 지정하면 로그에는 경로가 명령으로 인식되지 않는다는 Windows 명령 인터프리터의 메시지가 기록된 다음, 서버를 시작할 수 없다는 내용이 기록됩니다. 워크스페이스 폴더가 없는 경우(이름이 바뀌었거나, 이동되었거나, 만들어지지 않은 경우) 서버는 그대로 시작되어 어시스턴트가 해당 워크스페이스에서 보내는 모든 요청에 거부 응답을 반환하므로, 애플리케이션이 연결 실패를 보고하는 대신 어시스턴트가 요청에 대한 응답으로 거부를 받습니다. 이 거부는 `AGGREGA_WORKSPACE_ROOT`를 패키지의 **Workspace folder** 설정이 지정하는 변수로 명시하고, 애플리케이션이 전달한 폴더를 그대로 인용합니다. `mcp-server-Aggrega.log`에도 같은 거부가 기록됩니다. **Workspace folder**가 비어 있는 경우에도 같은 방식으로, 비어 있는 설정을 명시하는 3단계의 거부로 응답하며 로그에도 기록됩니다. 설정을 수정하고 4단계와 같이 애플리케이션을 다시 시작합니다."
+  },
   "209b0818b2411fd2": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -73256,6 +73267,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (`\"<provider>\"`) (파이프라인 플러그인이 렌더링하는 provider와 호환되지 않습니다)\n> pipeline plugin is not compatible with the rendering provider (`\"<attachment>\"`, `\"<provider>\"`) (파이프라인 플러그인이 렌더링하는 provider와 호환되지 않습니다)"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "패키지의 설정을 지정합니다. 둘 다 필수는 아닙니다. **Path to the aggrega executable**은 패키지가 실행하는 프로그램이며, 기본값은 명령 이름 `aggrega`입니다. 애플리케이션은 자신이 시작될 때의 `PATH`에서 이를 찾습니다. 애플리케이션이 실행되는 동안 `PATH`에 추가된 폴더는(Windows 설치 프로그램과 Windows의 설치 명령이 각자의 폴더를 추가하는 것처럼) 4단계와 같이 애플리케이션을 종료했다가 다시 시작해야 반영되며, 그래픽 환경에서 시작된 애플리케이션은 터미널과 같은 `PATH`를 보지 못할 수 있습니다([`PATH`에 관한 참고 사항](#a-note-on-path) 참조). 그 `PATH`의 `aggrega`가 원하는 실행 파일이면 기본값을 그대로 둡니다. 원하는 실행 파일이 그 `PATH`에 없거나 그곳에서 처음 발견되는 `aggrega`와 다른 경우에는 대신 필드를 실행 파일의 전체 경로로 설정합니다. macOS와 Linux에서는 설치 위치인 홈 폴더의 `.local/bin`에 있는 `aggrega`(예: `/Users/you/.local/bin/aggrega`), Windows에서는 `aggrega.exe`로 끝나는 전체 경로(예: `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`)입니다. 기본값으로 되돌리려면 필드를 비우는 대신 `aggrega`로 설정합니다. `aggrega`가 전혀 설치되어 있지 않다면 1단계의 설명에 따라 설치합니다. **Workspace folder**는 어시스턴트가 작업하는 Aggrega 워크스페이스의 폴더, 즉 프로젝트의 `.aggrega-config.yaml`이 있는 폴더입니다. 이 설정은 지정해야 합니다. 폴더를 선택하기 전까지는 비어 있으며, 비어 있는 동안 패키지는 서버에 빈 `AGGREGA_WORKSPACE_ROOT`를 전달하므로, 서버는 Claude Desktop이 서버를 시작한 폴더에서 작업하는 대신, 어시스턴트가 워크스페이스에서 보내는 모든 요청에 **Workspace folder** 설정이 비어 있으니 워크스페이스의 `.aggrega-config.yaml`이 있는 폴더로 설정하라는 거부 응답을 반환합니다."
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -118880,6 +118902,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release (Aggregate와 Release 간 Feature 타입 불일치)"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "어시스턴트가 Aggrega MCP 서버에 연결되면 터미널에서 실행하는 것과 같은 `aggrega` 바이너리로 작업합니다. 스키마와 문서를 읽고, 파일 초안을 작성하고 검사하며, Release를 빌드하고, 허용하면 게시도 합니다. 이 페이지에서는 그 범위를 그룹별로 설명합니다. 전체 목록은 서버 자체의 답이며, 신뢰해야 할 것도 그것입니다. 인수 없이 `describe-capabilities`를 호출하거나 어시스턴트에게 호출하도록 요청하면, 서버가 제공하는 모든 도구가 한 줄 용도, 다루는 엔티티 종류, 쓰기 여부와 함께 나열됩니다. [호환성](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools)에는 릴리스가 도구에서 무엇을 변경할 수 있는지가 설명되어 있습니다."
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-01T19:00:07.009Z",
     "job": "session-0010-20261101190007",
@@ -161247,6 +161280,17 @@
     "status": "machine",
     "text": "카탈로그 엔터티 URI에는 종류를 나타내는 기호가 없습니다(이전 섹션). Plugin URI는 의도적으로 이와 대비됩니다. 플러그인 URI는 분류 세그먼트, 즉 소켓 유형을 경로에 직접 *명시합니다*. 두 참조 계열은 의도적으로 다르게 읽히며, URI가 어느 계열에 속하는지 알면 그 분류를 어디에서 찾아야 하는지 알 수 있습니다."
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**서버는 패키지가 실행한 `aggrega`를 보고합니다.** Claude Desktop의 확장 설정에는 패키지가 실행하는 실행 파일의 버전이 아니라 패키지 자체의 버전, 즉 패키지가 나온 release의 버전이 표시됩니다. 둘은 따로 설치되므로 서로 다른 release에서 나올 수 있습니다. 패키지는 자체 버전을 환경의 `AGGREGA_BUNDLE_VERSION` 변수로 서버에 전달하며, 서버는 둘 다 보고합니다. 어시스턴트가 서버가 제공하는 기능을 알아보기 위해 호출하는 도구인 `describe-capabilities`를 인수 없이 호출하면, 그 응답은 실행 파일의 버전과 패키지의 버전을 나타내는 줄로 시작하고 구조화된 부분에도 같은 줄을 `version_summary`로 담습니다. 따라서 실행 중인 Aggrega의 버전을 질문받은 어시스턴트는 애플리케이션이 응답의 어느 부분을 전달하든 거기서 두 버전을 읽을 수 있습니다. 둘이 서로 다른 release에서 나온 경우 그 줄은 두 버전을 모두 명시하며 그 사실을 알리고, 서버가 연결 시 어시스턴트에 전달하는 안내도 같은 문장으로 시작합니다. 차이가 있다고 거부되는 것은 없으며 서버는 모든 요청에 평소대로 응답합니다. 이는 패키지가 어떤 실행 파일을 실행하고 있는지 알 수 있도록 보고되는 것입니다. 둘을 맞추려면 실행 파일이 나온 release의 `aggrega-<version>.mcpb`를 설치하거나(터미널에서 `aggrega version`을 실행하면 해당 버전이 출력됩니다) **Path to the aggrega executable**을 패키지의 release에 해당하는 `aggrega`의 전체 경로로 설정한 다음, 4단계와 같이 애플리케이션을 다시 시작합니다."
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -161854,6 +161898,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "provider가 link_resolve export에서 반환하는 페이로드입니다. 소비하는 엔드포인트의 조립된 출력에 적용할 소비자 측 아티팩트 배선으로, 소비되는 엔드포인트의 게시된 식별자에 대한 참조를 주입합니다."
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Aggrega의 패키지에는 자체 프로그램이 포함되어 있지 않습니다. 패키지는 컴퓨터에 이미 설치된 `aggrega` 실행 파일을 단일 `mcp` 인수로 실행하고, 해당 프로세스의 표준 입력과 출력으로 프로토콜을 주고받습니다. 위의 모든 항목이 시작하는 것과 같은 서버입니다. 다른 실행 파일을 선택하지 않는 한, 패키지는 위의 모든 항목과 마찬가지로 명령 이름 `aggrega`를 Claude Desktop에 전달하므로, 애플리케이션은 자신이 시작될 때의 `PATH`에서 `aggrega`를 찾습니다. 또한 선택한 워크스페이스를 해당 서버에 전달합니다. 추가하는 방법은 다음과 같습니다."
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-29T21:31:42.799Z",

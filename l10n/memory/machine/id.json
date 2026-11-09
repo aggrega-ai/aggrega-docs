@@ -21892,6 +21892,17 @@
     "status": "machine",
     "text": "Field pass-through berbentuk K8s — `scheduling`, `serviceAccount`, `podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**Log Claude Desktop sendiri menunjukkan apa yang dijalankannya.** Di Windows, log dapat berada di bawah folder paket di direktori data aplikasi lokal, bukan di bawah `%APPDATA%\\Claude\\logs`, bahkan jika Claude Desktop diinstal dari unduhannya sendiri: di bawah `%LOCALAPPDATA%\\Packages\\`, di folder yang namanya diawali `Claude_`, di `LocalCache\\Local\\Claude\\logs`. File di sana mencakup `mcp.log` dan `mcp-server-Aggrega.log`, dengan file kedua memuat apa yang ditulis server Aggrega ke standard error-nya. Baris yang memuat `Using MCP server command:` menyebutkan perintah yang dijalankan aplikasi, yang diambil dari pengaturan **Path to the aggrega executable** paket. Jika pengaturan tersebut menyebutkan path yang tidak berisi apa pun, log memuat pesan interpreter perintah Windows bahwa path tersebut tidak dikenali sebagai perintah, lalu melaporkan bahwa server tidak dapat dimulai. Jika folder workspace tidak ada — diganti namanya, dipindahkan, atau tidak pernah dibuat — server tetap dimulai dan menjawab setiap permintaan yang dibuat asisten di workspace itu dengan penolakannya, sehingga asisten menerima penolakan sebagai jawaban atas permintaannya, alih-alih aplikasi melaporkan kegagalan koneksi. Penolakan itu menyebutkan `AGGREGA_WORKSPACE_ROOT` sebagai variabel yang ditetapkan oleh pengaturan **Workspace folder** paket, dan mengutip folder persis seperti yang diteruskan aplikasi; `mcp-server-Aggrega.log` memuat penolakan yang sama. **Workspace folder** yang dibiarkan kosong dijawab dengan cara yang sama, dengan penolakan dari langkah 3 yang menyebutkan pengaturan yang kosong, yang juga dimuat log. Perbaiki pengaturan dan mulai ulang aplikasi seperti pada langkah 4."
+  },
   "209b0818b2411fd2": {
     "at": "2026-10-23T08:19:00.586906+00:00",
     "job": "msgbatch_01FSCygBneA7ASnptBnc4B4p",
@@ -73255,6 +73266,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (plugin pipeline tidak kompatibel dengan provider yang merender) (`\"<provider>\"`)\n> pipeline plugin is not compatible with the rendering provider (plugin pipeline tidak kompatibel dengan provider yang merender) (`\"<attachment>\"`, `\"<provider>\"`)"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "Tetapkan pengaturan paket tersebut; tidak ada yang wajib. **Path to the aggrega executable** adalah program yang dijalankan paket, dan nilai default-nya adalah nama perintah `aggrega`, yang dicari aplikasi di `PATH` yang digunakan saat aplikasi itu dimulai. Folder yang ditambahkan ke `PATH` Anda saat aplikasi berjalan — seperti yang dilakukan installer Windows dan perintah instalasi di Windows dengan folder masing-masing — baru sampai ke aplikasi setelah aplikasi ditutup dan dimulai lagi, seperti pada langkah 4, dan aplikasi yang dimulai dari lingkungan grafis mungkin tidak melihat `PATH` yang sama dengan terminal Anda (lihat [Catatan tentang `PATH`](#a-note-on-path)). Biarkan nilai default jika `aggrega` di `PATH` tersebut adalah executable yang Anda inginkan. Sebaliknya, tetapkan kolom ke path lengkap sebuah executable jika executable yang Anda inginkan tidak ada di `PATH` tersebut, atau merupakan `aggrega` yang berbeda dari yang pertama ditemukan di sana — di macOS dan Linux, untuk lokasi instalasi, `aggrega` di `.local/bin` dalam folder home Anda, misalnya `/Users/you/.local/bin/aggrega`; di Windows, path lengkap yang berakhiran `aggrega.exe`, misalnya `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`. Untuk kembali ke default, tetapkan kolom ke `aggrega` alih-alih mengosongkannya. Jika `aggrega` sama sekali belum terinstal, instal seperti yang dijelaskan langkah 1. **Workspace folder** adalah folder workspace Aggrega tempat asisten bekerja: folder yang berisi `.aggrega-config.yaml` proyek Anda. Tetapkan yang satu ini: pengaturan ini kosong sampai Anda memilih folder, dan selama kosong, paket menyerahkan `AGGREGA_WORKSPACE_ROOT` yang kosong kepada server, sehingga server menjawab setiap permintaan yang dibuat asisten di workspace dengan penolakan yang menyatakan bahwa pengaturan **Workspace folder** kosong dan meminta Anda menetapkannya ke folder yang berisi `.aggrega-config.yaml` workspace Anda, alih-alih bekerja di folder tempat Claude Desktop menjalankannya."
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -118855,6 +118877,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release (Ketidakcocokan tipe feature antara Aggregate dan Release)"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "Setelah asisten Anda terhubung ke server MCP Aggrega, asisten bekerja dengan binary `aggrega` yang sama yang akan Anda jalankan di terminal: membaca skema dan dokumentasi, menyusun draf dan memeriksa file Anda, membangun Release, dan, jika Anda mengizinkannya, menerbitkan. Halaman ini menjelaskan cakupannya, dalam kelompok-kelompok. Jawaban server itu sendiri adalah daftar lengkapnya, dan itulah yang patut dipercaya: panggil `describe-capabilities` tanpa argumen, atau minta asisten Anda melakukannya, dan server akan mencantumkan setiap alat yang ditawarkannya kepada Anda, masing-masing dengan tujuan satu baris, jenis entitas yang dilayaninya, dan apakah alat itu menulis. [Kompatibilitas](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools) menyatakan apa saja yang dapat diubah oleh sebuah rilis pada alat-alat tersebut."
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-01T19:00:07.009Z",
     "job": "session-0010-20261101190007",
@@ -161222,6 +161255,17 @@
     "status": "machine",
     "text": "URI entitas katalog tidak membawa sigil jenis (bagian sebelumnya). URI Plugin adalah kebalikannya yang disengaja: URI plugin *memang* menuliskan segmen pengklasifikasi — jenis soketnya — langsung di dalam path. Kedua keluarga referensi ini sengaja dibaca secara berbeda, dan dengan mengetahui keluarga mana yang memiliki suatu URI, Anda tahu di mana harus mencari klasifikasinya."
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**Server melaporkan `aggrega` mana yang dijalankan paket.** Pengaturan ekstensi Claude Desktop mencantumkan versi paket itu sendiri — versi rilis asalnya — dan bukan versi executable yang dijalankannya. Keduanya diinstal secara terpisah, sehingga dapat berasal dari rilis yang berbeda. Paket menyerahkan versinya sendiri kepada server sebagai variabel `AGGREGA_BUNDLE_VERSION` di lingkungannya, dan server melaporkan keduanya: jawaban `describe-capabilities` yang dipanggil tanpa argumen — tool yang dipanggil asisten untuk mengetahui apa yang ditawarkan server — diawali dengan baris yang menyebutkan versi executable dan versi paket, dan membawa baris yang sama sebagai `version_summary` di bagian terstrukturnya, sehingga asisten yang ditanya versi Aggrega mana yang sedang berjalan dapat membaca keduanya di sana, bagian mana pun dari jawaban yang diserahkan aplikasi kepadanya. Jika keduanya berasal dari rilis yang berbeda, baris itu menyatakannya, dengan menyebutkan keduanya, dan panduan yang diserahkan server kepada asisten saat terhubung diawali dengan kalimat yang sama. Tidak ada penolakan karena perbedaan, dan server menjawab setiap permintaan seperti biasa; hal ini dilaporkan agar Anda tahu executable mana yang dijalankan paket. Untuk menyamakan keduanya, instal `aggrega-<version>.mcpb` dari rilis asal executable Anda — `aggrega version` di terminal mencetak versi itu — atau tetapkan **Path to the aggrega executable** ke path lengkap sebuah `aggrega` dari rilis paket, lalu mulai ulang aplikasi seperti pada langkah 4."
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -161829,6 +161873,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "Payload yang dikembalikan provider dari ekspor link_resolve-nya: pengkabelan artefak sisi konsumen yang diterapkan pada keluaran terakit endpoint pengonsumsi, yang menyuntikkan referensi ke identitas terpublikasi milik endpoint yang dikonsumsi."
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Paket Aggrega tidak membawa program sendiri. Paket ini menjalankan executable `aggrega` yang sudah terinstal di mesin Anda, dengan satu argumen `mcp`, dan berkomunikasi dengan protokol melalui input dan output standar proses tersebut — server yang sama yang dijalankan setiap entri di atas. Kecuali Anda memilih executable lain, paket ini menyerahkan nama perintah `aggrega` kepada Claude Desktop, seperti yang dilakukan setiap entri di atas, sehingga aplikasi mencari `aggrega` di `PATH` yang digunakan saat aplikasi itu dimulai; dan paket ini menyerahkan workspace yang Anda pilih kepada server tersebut. Untuk menambahkannya:"
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-29T21:31:42.799Z",

@@ -21892,6 +21892,17 @@
     "status": "machine",
     "text": "Các trường truyền thẳng theo dạng K8s — `scheduling`, `serviceAccount`, `podSecurityContext`"
   },
+  "209ab9f25b92eeb7": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "14abd257fb583153",
+      "reviewed": false
+    },
+    "srcHash": "209ab9f25b92eeb7",
+    "status": "machine",
+    "text": "**Nhật ký riêng của Claude Desktop cho biết nó đã khởi chạy gì.** Trên Windows, chúng có thể nằm trong một thư mục gói thuộc thư mục dữ liệu ứng dụng cục bộ thay vì trong `%APPDATA%\\Claude\\logs`, ngay cả khi Claude Desktop được cài đặt từ bản tải xuống của chính nó: trong `%LOCALAPPDATA%\\Packages\\`, ở thư mục có tên bắt đầu bằng `Claude_`, tại `LocalCache\\Local\\Claude\\logs`. Các tệp ở đó bao gồm `mcp.log` và `mcp-server-Aggrega.log`, tệp thứ hai chứa những gì máy chủ Aggrega ghi ra luồng lỗi chuẩn của nó. Một dòng chứa `Using MCP server command:` nêu lệnh mà ứng dụng đã khởi chạy, được lấy từ thiết lập **Path to the aggrega executable** của gói. Khi thiết lập nêu một đường dẫn mà tại đó không có gì, nhật ký chứa thông báo của trình thông dịch lệnh Windows rằng đường dẫn không được nhận diện là một lệnh, rồi báo rằng máy chủ không thể khởi động. Khi thư mục workspace không tồn tại — bị đổi tên, bị di chuyển hoặc chưa từng được tạo — máy chủ vẫn khởi động và trả lời mọi yêu cầu mà trợ lý đưa ra trong workspace đó bằng lời từ chối của nó, nên trợ lý nhận lời từ chối làm câu trả lời cho yêu cầu của mình thay vì ứng dụng báo lỗi kết nối. Lời từ chối nêu `AGGREGA_WORKSPACE_ROOT` là biến mà thiết lập **Workspace folder** của gói đặt, và trích dẫn thư mục đúng như ứng dụng đã truyền vào; `mcp-server-Aggrega.log` cũng chứa cùng lời từ chối đó. Một **Workspace folder** để trống cũng được trả lời theo cùng cách, bằng lời từ chối ở bước 3 nêu thiết lập đang trống, và nhật ký cũng chứa lời từ chối này. Hãy sửa thiết lập và khởi động lại ứng dụng như ở bước 4."
+  },
   "209b0818b2411fd2": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -73255,6 +73266,17 @@
     "status": "machine",
     "text": "pipeline plugin is not compatible with the rendering provider (`\"<provider>\"`) (plugin của pipeline không tương thích với provider đang render)\n> pipeline plugin is not compatible with the rendering provider (`\"<attachment>\"`, `\"<provider>\"`) (plugin của pipeline không tương thích với provider đang render)"
   },
+  "6e3dd85a83de0017": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4ff27d8d3352e8b",
+      "reviewed": false
+    },
+    "srcHash": "6e3dd85a83de0017",
+    "status": "machine",
+    "text": "Đặt các thiết lập của gói; không thiết lập nào là bắt buộc. **Path to the aggrega executable** là chương trình mà gói khởi chạy, và giá trị mặc định của nó là tên lệnh `aggrega`, mà ứng dụng tìm trong `PATH` có hiệu lực khi ứng dụng được khởi chạy. Một thư mục được thêm vào `PATH` của bạn trong khi ứng dụng đang chạy — như trình cài đặt Windows và lệnh cài đặt trên Windows thêm thư mục của chúng — chỉ đến được với ứng dụng sau khi ứng dụng đã thoát và khởi động lại, như ở bước 4, và một ứng dụng được khởi chạy từ môi trường đồ họa có thể không thấy cùng `PATH` với terminal của bạn (xem [Ghi chú về `PATH`](#a-note-on-path)). Hãy giữ giá trị mặc định khi `aggrega` trong `PATH` đó là tệp thực thi bạn muốn. Thay vào đó, hãy đặt trường thành đường dẫn đầy đủ của một tệp thực thi khi tệp bạn muốn không nằm trong `PATH` đó, hoặc là một `aggrega` khác với tệp đầu tiên được tìm thấy ở đó — trên macOS và Linux, với vị trí cài đặt, là `aggrega` trong `.local/bin` thuộc thư mục home của bạn, chẳng hạn `/Users/you/.local/bin/aggrega`; trên Windows là đường dẫn đầy đủ kết thúc bằng `aggrega.exe`, chẳng hạn `C:\\Users\\you\\AppData\\Local\\Programs\\aggrega\\aggrega.exe`. Để quay lại giá trị mặc định, hãy đặt trường thành `aggrega` thay vì để trống. Nếu hoàn toàn chưa cài đặt `aggrega` nào, hãy cài đặt nó như bước 1 mô tả. **Workspace folder** là thư mục của workspace Aggrega mà trợ lý làm việc trong đó: thư mục chứa `.aggrega-config.yaml` của dự án bạn. Hãy đặt thiết lập này: nó để trống cho đến khi bạn chọn một thư mục, và trong khi nó trống, gói giao cho máy chủ một `AGGREGA_WORKSPACE_ROOT` trống, nên máy chủ trả lời mọi yêu cầu mà trợ lý đưa ra trong workspace bằng một lời từ chối cho biết thiết lập **Workspace folder** đang trống và yêu cầu bạn đặt nó thành thư mục chứa `.aggrega-config.yaml` của workspace, thay vì làm việc trong thư mục mà Claude Desktop đã khởi động nó."
+  },
   "6e3eaa19f7bd2a7c": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -118875,6 +118897,17 @@
     "status": "machine",
     "text": "Feature type mismatch between Aggregate and Release (Kiểu feature không khớp giữa Aggregate và Release)"
   },
+  "b2ac51e0e00eb31f": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "164738c86b655bea",
+      "reviewed": false
+    },
+    "srcHash": "b2ac51e0e00eb31f",
+    "status": "machine",
+    "text": "Khi trợ lý của bạn đã kết nối với máy chủ MCP của Aggrega, nó làm việc với cùng tệp nhị phân `aggrega` mà bạn sẽ chạy tại terminal: nó đọc các schema và tài liệu, soạn thảo và kiểm tra các tệp của bạn, build một Release, và khi bạn cho phép, xuất bản. Trang này cho biết phạm vi đó bao gồm những gì, theo từng nhóm. Câu trả lời của chính máy chủ mới là danh sách đầy đủ, và đó là thứ nên tin cậy: hãy gọi `describe-capabilities` không kèm đối số, hoặc yêu cầu trợ lý làm việc đó, và nó sẽ liệt kê mọi công cụ máy chủ cung cấp cho bạn, mỗi công cụ kèm mục đích một dòng, các loại thực thể mà nó phục vụ và việc nó có ghi hay không. [Khả năng tương thích](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools) nêu những gì một bản phát hành có thể thay đổi trong các công cụ."
+  },
   "b2aece4a0b564512": {
     "at": "2026-11-01T19:00:07.009Z",
     "job": "session-0010-20261101190007",
@@ -161274,6 +161307,17 @@
     "status": "machine",
     "text": "URI của một thực thể catalog không mang ký hiệu loại nào (phần trước). Các URI Plugin là điểm đối trọng có chủ ý: một URI plugin *thực sự* ghi một đoạn phân loại — loại socket của nó — trực tiếp trong đường dẫn. Hai họ tham chiếu được đọc khác nhau một cách có chủ đích, và việc biết một URI thuộc họ nào cho bạn biết cần tìm phân loại của nó ở đâu."
   },
+  "f0ab36e6f8337833": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "44b48586b73c9dd0",
+      "reviewed": false
+    },
+    "srcHash": "f0ab36e6f8337833",
+    "status": "machine",
+    "text": "**Máy chủ báo cho biết gói đã khởi chạy `aggrega` nào.** Phần cài đặt tiện ích mở rộng của Claude Desktop liệt kê phiên bản của chính gói — phiên bản của bản phát hành mà nó đến từ đó — chứ không phải phiên bản của tệp thực thi mà nó khởi chạy. Hai thứ này được cài đặt riêng, nên có thể đến từ các bản phát hành khác nhau. Gói giao phiên bản của chính nó cho máy chủ dưới dạng biến `AGGREGA_BUNDLE_VERSION` trong môi trường, và máy chủ báo cả hai: câu trả lời của `describe-capabilities` khi được gọi không có đối số — công cụ mà trợ lý gọi để biết máy chủ cung cấp gì — mở đầu bằng một dòng nêu phiên bản của tệp thực thi và của gói, và mang cùng dòng đó dưới dạng `version_summary` trong phần có cấu trúc, để một trợ lý được hỏi phiên bản Aggrega nào đang chạy có thể đọc cả hai ở đó, bất kể ứng dụng giao cho nó phần nào của câu trả lời. Khi hai thứ đến từ các bản phát hành khác nhau, dòng đó nói rõ điều này, nêu cả hai, và phần hướng dẫn mà máy chủ giao cho trợ lý khi kết nối cũng mở đầu bằng cùng câu đó. Không có gì bị từ chối vì sự khác biệt, và máy chủ trả lời mọi yêu cầu như bình thường; điều này được báo để bạn biết gói đang chạy tệp thực thi nào. Để đồng bộ hai thứ, hãy cài đặt `aggrega-<version>.mcpb` của bản phát hành mà tệp thực thi của bạn đến từ đó — `aggrega version` trong terminal sẽ in ra phiên bản đó — hoặc đặt **Path to the aggrega executable** thành đường dẫn đầy đủ của một `aggrega` thuộc bản phát hành của gói, rồi khởi động lại ứng dụng như ở bước 4."
+  },
   "f0b4dfa0e1a25bd3": {
     "at": "2026-10-22T11:48:02.910092+00:00",
     "job": "msgbatch_01Evd5wJaBRMEf4MnbVZuRR2",
@@ -161881,6 +161925,17 @@
     "srcHash": "f1a251d33f669776",
     "status": "machine",
     "text": "Payload mà một provider trả về từ export link_resolve của nó: phần nối artifact phía consumer cần áp dụng vào đầu ra đã lắp ráp của endpoint tiêu thụ, chèn tham chiếu tới danh tính đã công bố của endpoint được tiêu thụ."
+  },
+  "f1a4da7b1cd0f8eb": {
+    "at": "2026-11-09T23:11:42.862Z",
+    "job": "session-0001-20261109231142",
+    "revision": {
+      "from": "b4aba5e092cf552e",
+      "reviewed": false
+    },
+    "srcHash": "f1a4da7b1cd0f8eb",
+    "status": "machine",
+    "text": "Gói của Aggrega không chứa chương trình riêng nào. Nó khởi chạy một tệp thực thi `aggrega` đã được cài đặt sẵn trên máy của bạn, với đối số duy nhất `mcp`, và giao tiếp theo giao thức qua đầu vào và đầu ra chuẩn của tiến trình đó — cùng một máy chủ mà mọi mục ở trên khởi chạy. Trừ khi bạn chọn một tệp thực thi khác, nó giao cho Claude Desktop tên lệnh `aggrega`, như mọi mục ở trên, nên ứng dụng tìm `aggrega` trong `PATH` có hiệu lực khi ứng dụng được khởi chạy; và nó giao cho máy chủ đó workspace mà bạn chọn. Để thêm nó:"
   },
   "f1a67b7e4d498877": {
     "at": "2026-10-29T21:31:42.799Z",
