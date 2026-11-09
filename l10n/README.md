@@ -48,7 +48,7 @@ imported, and one with `l10n-memory` checked out, where the machine layer is
 committed.
 
 ```sh
-git worktree add --detach ../docs-session main
+git worktree add --detach ../docs-session dev
 git fetch origin l10n-memory && git worktree add ../docs-memory l10n-memory
 git -C ../docs-memory pull --ff-only
 cd ../docs-session
