@@ -294,6 +294,34 @@ Emitted message, for a Component. The category and this condition's short code, 
 
 **How to fix:** change the document's `apiVersion` line to `apiVersion: aggrega.ai/v1beta1`. The fields of each kind are unchanged between the two versions, so the line is the whole change.
 
+### A plugin declares a plugin ABI version this compiler no longer speaks
+
+<!-- covers: internal/pluginabi.ErrRetiredABIVersion -->
+
+A plugin declares the plugin ABI `v1alpha1`. This compiler speaks the plugin ABI `v1beta1` and no other, so a plugin built against the earlier one is refused rather than run. A plugin states its ABI in two places, and each is refused under this one condition: the `describe()` report its guest returns when it is loaded, and its Plugin entity's `spec.abiVersion`, refused as the entity is read, before anything else is checked. A plugin declaring an ABI version this compiler never spoke is refused too, by the descriptor check (`E0085`) or by the Plugin schema (`E0215`).
+
+Emitted message, for a guest at load. The category and this condition's short code, `E0374`, reach you in the bracketed head:
+
+> plugin `"<plugin>"` declares abi_version "v1alpha1", and this compiler speaks "v1beta1"; rebuild the plugin against the current plugin kit and publish it again: a plugin declares a plugin ABI version this compiler no longer speaks
+
+Emitted message, for a Plugin entity:
+
+> a plugin declares a plugin ABI version this compiler no longer speaks (Plugin, at `<path>`); `<line>`:`<column>`: spec.abiVersion: the Plugin declares abiVersion v1alpha1, and this compiler speaks v1beta1. rebuild the plugin against the current plugin kit and publish it again; its Plugin entity then declares `abiVersion: v1beta1`
+
+**How to fix:** rebuild the plugin against the current release of its plugin kit, which stamps `v1beta1` into the guest's `describe()` report, and publish it again, so the entity generated beside it declares `abiVersion: v1beta1` too. Editing the entity's line alone is not enough: the guest itself still reports the earlier ABI and is refused when it is loaded.
+
+### An artifact carries a media type this compiler no longer reads
+
+<!-- covers: pkg/oci.ErrRetiredMediaType -->
+
+An artifact fetched from a registry carries a media type an earlier release published under — `application/vnd.aggrega.<kind>.v1alpha1` with its suffix, on the manifest's artifact type, its config or one of its layers. This compiler publishes and reads the `v1beta1` media types, so the artifact is refused by name as its manifest is read, before any of its content is taken: a catalog entity, a plugin and its executable, or a documentation bundle alike. An index of a registry skips such an artifact, naming why. A media type outside Aggrega's own `application/vnd.aggrega.` namespace is never this condition.
+
+Emitted message, for a Component published by an earlier release. The category and this condition's short code, `E0375`, reach you in the bracketed head:
+
+> `"<reference>"` carries media type "application/vnd.aggrega.component.v1alpha1+yaml", and this compiler reads "application/vnd.aggrega.component.v1beta1+yaml"; publish the artifact again with the current release: oci: artifact carries a media type this compiler no longer reads
+
+**How to fix:** publish the artifact again with the current release of `aggrega`, which writes the `v1beta1` media types. An artifact someone else publishes is theirs to publish again; until they do, it cannot be read.
+
 ### A file cannot be read, or its bytes do not parse
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
@@ -6747,6 +6775,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0371` | `catalog document declares a kind a catalog does not hold` | A catalog document declares a kind a catalog does not hold |
 | `E0372` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` | An `inject:` entry on an attached Feature carries a literal |
 | `E0373` | `a document declares an API version this compiler no longer reads` | A document declares an API version this compiler no longer reads |
+| `E0374` | `a plugin declares a plugin ABI version this compiler no longer speaks` | A plugin declares a plugin ABI version this compiler no longer speaks |
+| `E0375` | `oci: artifact carries a media type this compiler no longer reads` | An artifact carries a media type this compiler no longer reads |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

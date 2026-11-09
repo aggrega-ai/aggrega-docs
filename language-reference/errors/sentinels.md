@@ -196,6 +196,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrOCILocationCollision()` | `oci-location-collision` | `oci: distinct catalog identities map to the same OCI repository location` |
 | `ErrPublishedArtifactNotAnEntity()` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `ErrReferrerDiscoveryUnavailable()` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
+| `ErrRetiredMediaType()` | `retired-media-type` | `oci: artifact carries a media type this compiler no longer reads` |
 | `ErrSignatureBundleDigestMismatch()` | `signature-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `ErrSignatureForAnotherArtifact()` | `signature-for-another-artifact` | `signing: the recorded signature was made for a different artifact` |
 | `ErrUnknownEntityKind()` | `unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
@@ -418,6 +419,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrDuplicatePipelineStepID()` | `duplicate-pipeline-step-id` | `a pipeline declares one step id twice` |
 | `ErrEntityEnvelope()` | `entity-envelope-invalid` | `document envelope validation failed` |
+| `ErrRetiredABIVersion()` | `retired-abi-version` | `a plugin declares a plugin ABI version this compiler no longer speaks` |
 | `ErrRetiredAPIVersion()` | `retired-api-version` | `a document declares an API version this compiler no longer reads` |
 
 ### pkg/validator/jsonschema
@@ -854,6 +856,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0371` | `unknown-catalog-document-kind` | `catalog document declares a kind a catalog does not hold` |
 | `E0372` | `attachment-inject-value` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` |
 | `E0373` | `retired-api-version` | `a document declares an API version this compiler no longer reads` |
+| `E0374` | `retired-abi-version` | `a plugin declares a plugin ABI version this compiler no longer speaks` |
+| `E0375` | `retired-media-type` | `oci: artifact carries a media type this compiler no longer reads` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
