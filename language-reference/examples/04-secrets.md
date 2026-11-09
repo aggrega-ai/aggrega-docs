@@ -84,10 +84,10 @@ spec:
           inject:
             env:
               - in: OPENAI_API_KEY   # Local env var
-                from: "api_token"    # Target provides key
+                from: "api_token"    # A key the FeatureRecipe consumes itself
 ```
 
-The `inject:` block is the developer's choice, not a requirement. With it, the credential's FeatureRecipe receives the directive at `.inject.env` — `{"OPENAI_API_KEY":"api_token"}` — and hands it to the Injector below. Without it, the attachment still fills the slot and the build accepts it; the FeatureRecipe receives no directive, so delivery is left to the FeatureRecipe. A block naming a mechanism the slot does not list halts the build: `arg`, for example, because the slot permits only `env` and `file`.
+The `inject:` block is the developer's choice, not a requirement. With it, the credential's FeatureRecipe receives the directive at `.inject.env` — `{"OPENAI_API_KEY":"api_token"}` — and hands it to the Injector below. The FeatureRecipe publishes no `api_token` key: it consumes the directive itself, reading `.inject` in its pipeline, so the entry is delivered by the Injector rather than through the component's `.context.inject`, and the build accepts a `from:` key the FeatureRecipe does not publish. An entry naming a key that the FeatureRecipe neither publishes nor reads at `.inject` halts the build instead, since nothing would deliver it. Without it, the attachment still fills the slot and the build accepts it; the FeatureRecipe receives no directive, so delivery is left to the FeatureRecipe. A block naming a mechanism the slot does not list halts the build: `arg`, for example, because the slot permits only `env` and `file`.
 
 **4. Ops Domain: The FeatureRecipe (Fetcher + Injector Pipeline)**
 The FeatureRecipe implements the credential Feature. The Two-Part Plugin Principle splits the work: the Fetcher generates the cloud-specific CRD, the Injector mounts it. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable.

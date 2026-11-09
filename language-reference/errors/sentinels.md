@@ -279,7 +279,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInjectDeliveryShape()` | `inject-delivery-shape` | `` inject delivery: shape must be a list of entries, each `in:` with exactly one of `from:` or `value:` `` |
 | `ErrInjectEntryAmbiguous()` | `inject-entry-ambiguous` | ``inject entry carries both `value:` and `from:`; schema requires exactly one`` |
 | `ErrInjectKeyCollision()` | `inject-key-collision` | `duplicate delivery key across inject sources` |
-| `ErrInvalidInjectKey()` | `invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
+| `ErrInvalidInjectKey()` | `invalid-inject-key` | `invalid inject key: the from-key must name a provides key its source publishes` |
 | `ErrInvalidParameterRef()` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
@@ -661,7 +661,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0153` | `feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
 | `E0154` | `internal-catalog-view-disagreement` | `the compiler's own views of the catalog disagree` |
 | `E0155` | `inject-key-collision` | `duplicate delivery key across inject sources` |
-| `E0156` | `invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
+| `E0156` | `invalid-inject-key` | `invalid inject key: the from-key must name a provides key its source publishes` |
 | `E0158` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `E0160` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `E0161` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |

@@ -162,8 +162,8 @@ pillar, and nothing else. The build is **expected to fail**:
 aggrega build --release release-negative-undeclared-key.yaml --auto-pull
 # [… omitted: a refused: line carrying the message below]
 # [DEVELOPER_ERROR E0156] .spec.components.web.uses.assistant.model
-#   invalid inject key: the from-key must name a declared provides key of the target
-#   component type (Aggregate adhoc-uses-socket-undeclared-key,
+#   invalid inject key: the from-key must name a provides key its source publishes
+#   (Aggregate adhoc-uses-socket-undeclared-key,
 #   at .spec.components.web.uses.assistant.model, "env", "ASSISTANT_API_KEY", "api_key",
 #   "core/ai-model/anthropic", "endpoint", "model")
 ```

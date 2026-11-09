@@ -172,6 +172,8 @@ spec:
                 from: "password"
 ```
 
+The credential's FeatureRecipe is Example 11's, which publishes no `password` key: it consumes the directive itself, reading `.inject` in its pipeline and handing `file_injections` to the Injector below. That is why the build accepts this `from:` key — a key the FeatureRecipe neither published nor read at `.inject` would halt the build, since nothing would deliver it.
+
 **2. Ops Domain: The Base Recipe**
 Exports physical pointers for downstream plugins.
 

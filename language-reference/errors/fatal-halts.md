@@ -3197,25 +3197,30 @@ The compiler walks every `inject:` block — both self-inject (a Component injec
 
 <!-- covers: pkg/resolver.ErrInvalidInjectKey -->
 
-An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare.
+An `inject:` entry references a `from:` key that the source it reads from does not publish: the target Component's `provides:` schema for a component's own block or a connection, and the attached Feature's FeatureRecipe for an attached Feature's own `inject:` block.
 
 **The check applies wherever the connection was written.** A `uses:` connection reaches the built topology from more than one authoring surface — a Component's own `uses:` block, and the `uses:` block of a Feature attached to it, whether that attachment is written on the component, on a subsystem, on a Release boundary, or on a Release boundary's component entry — and the same misspelled key is refused on every one of them. The diagnostic points at the block whose author wrote it: an attachment's own `uses:` entry, at the site the attachment itself was declared, rather than at the consuming component's `uses:` block, which for a contributed connection holds nothing at all.
 
 Where the reference resolves depends on where it lives. A Component-level self-inject `from:` resolves against that same Component's own `provides:`. A `from:` on a `uses:` connection resolves against the `provides:` of the component that connection points at — and where two surfaces write one socket and one alias, each connection resolves against the target it itself names, in the same build that refuses the pair for sharing an alias. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
+
+**An attached Feature's own `inject:` block.** A `from:` there resolves against the keys the Feature's FeatureRecipe publishes in its `provides:`, as evaluated for the component the Feature is attached to, and it is checked when that component renders. A key the FeatureRecipe does not publish would put nothing into the component's environment, file or argument, so the build halts instead — unless the FeatureRecipe reads the attached Feature's entries itself, at `.inject`, in a template it evaluates against the attached Feature's own render context — the one carrying `.inject`: its values mapping, its workload, its artifacts, its omits or a pipeline step's `with:` or `when:`, written inline or imported. Its `locals:`, `provides:`, `source:` and `assertions:` carry no `.inject`, and its `injectMapping:` is evaluated against the component's context, so a read in any of them does not count. Such a FeatureRecipe receives every entry as written and delivers it its own way, so its entries are not refused, and a key it does not publish delivers nothing through the component's own delivery and is the FeatureRecipe's to use. Whether a FeatureRecipe reads `.inject` is decided from the paths its templates name: a template handing on its whole context (`toJson .`) or reaching the entries through a function such as `index . "inject"` does not count as reading them, and its entries naming an unpublished key are refused. A Feature attached at a boundary whose FeatureRecipe renders once for that boundary is checked against that one evaluation; where no boundary holding the component made one, there is nothing to check its keys against and they are not refused. A `from:` that names a published key delivers as before. The finding is positioned at the attached Feature's own entry, in the document that wrote it — `.spec.components.<component>.features.<attachment>` in the Aggregate, for example — and an entry whose delivery key another inject source already holds as well is reported under "An attachment delivers a key another inject source already claimed" too, since each needs its own fix.
 
 On a component's own `inject:` block a `value:` entry carries a literal and is resolved against nothing, so a literal that happens to read like a provides key is not refused there; on a connection a `value:` entry is refused, as "An `inject:` entry on a connection carries a literal" below describes. Only `from:` names a key.
 
 The Release's own per-edge `uses:` surface carries `target` and `infra` and no `inject:`, so a connection wired there dictates no delivery and has no `from:` key to check.
 
 Emitted message, for a `from:` read on a Component's own `inject:` block. The refusal comes first, then the key at fault, the component type it was resolved against, and that type's declared keys in sorted order — the alternatives to pick from:
-> invalid inject key: the from-key must name a declared provides key of the target component type (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<delivery-key>`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
+> invalid inject key: the from-key must name a provides key its source publishes (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<delivery-key>`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
 
 For a `from:` read on a `uses:` connection, the same refusal leads and the mechanism and delivery key the entry was written under come ahead of the key at fault:
-> invalid inject key: the from-key must name a declared provides key of the target component type (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>`, `"<mechanism>"`, `"<delivery-key>"`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`)
+> invalid inject key: the from-key must name a provides key its source publishes (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>`, `"<mechanism>"`, `"<delivery-key>"`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`)
 
-When the target declares no `provides:` keys at all there are no alternatives to list, so the message ends after the component type.
+For a `from:` read on an attached Feature's own `inject:` block, the key at fault comes first, then the entry's `in:` and mechanism, the FeatureRecipe it was resolved against, and each key that FeatureRecipe publishes, in sorted order:
+> invalid inject key: the from-key must name a provides key its source publishes (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>`, `"<from-key>"`, in `"<in>"`, mechanism `"<mechanism>"`, FeatureRecipe `"<feature-recipe>"`, publishes `"<key-1>"`, publishes `"<key-2>"`)
 
-**How to fix:** either change the `from:` key to match one of the declared keys listed in the message, or extend the target Component's `provides:` schema to declare the key you need.
+When the target declares no `provides:` keys at all there are no alternatives to list, so the message ends after the component type — or, on an attached Feature's block, after the FeatureRecipe.
+
+**How to fix:** either change the `from:` key to match one of the declared keys listed in the message, or extend the target Component's `provides:` schema to declare the key you need. On an attached Feature's block, change the `from:` key to one the FeatureRecipe publishes, or — where the FeatureRecipe is yours — publish the key in its `provides:`, or have it read the entry itself at `.inject` if it delivers the value its own way.
 
 ### Required feature not attached
 
@@ -6536,7 +6541,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | A feature attached by both the Aggregate and the Release cannot be merged |
 | `E0154` | `the compiler's own views of the catalog disagree` | A guard needs a catalog entity the build resolved and cannot see |
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
-| `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
+| `E0156` | `invalid inject key: the from-key must name a provides key its source publishes` | Inject `from` key is not in the target's `provides` |
 | `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |
 | `E0160` | `manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
 | `E0161` | `manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
