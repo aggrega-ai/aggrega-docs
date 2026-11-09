@@ -147,7 +147,7 @@ and the model, opening with comments that say what was read and what was not:
 # Tasks the crew's program runs, drafted as no Component:
 #   - research_task, assigned to researcher
 #   - reply_task, assigned to writer
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -196,7 +196,7 @@ named in a comment above it, and an entry placing the model beside them:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -225,7 +225,7 @@ spec:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -285,7 +285,7 @@ The Aggregate needs no change. The reviewed `release.yaml`:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -342,7 +342,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

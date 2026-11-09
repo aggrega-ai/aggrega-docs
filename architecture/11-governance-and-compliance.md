@@ -18,7 +18,7 @@ For static, developer-provided data (such as team ownership or data classificati
 The enterprise creates a baseline that requires specific tags but provisions no infrastructure.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: SchemaLibrary
 metadata:
   name: CorporateBaseline
@@ -37,7 +37,7 @@ spec:
 Every internal component (e.g., `acme/datastore/postgres`) references the entry from its own `schema:` and adds the values that are its own, so the shared fields and the component's own fields are validated together:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: acme/datastore/postgres

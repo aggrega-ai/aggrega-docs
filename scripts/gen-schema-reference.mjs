@@ -366,7 +366,7 @@ function refNamesAType(ref) {
 
 // Resolves a reference's document part to the absolute schema id it addresses.
 // Relative references resolve against the referring schema's own id, which is
-// how a reference such as `other-v1alpha1.schema.json#/properties/x` finds its
+// how a reference such as `other-v1beta1.schema.json#/properties/x` finds its
 // target regardless of which schema carries it.
 function absoluteDocumentId(ref, baseId) {
   const { doc } = splitRef(ref);

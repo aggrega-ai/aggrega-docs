@@ -10,7 +10,7 @@ Workload content is authored inline or from file, inside a Recipe or a FeatureRe
 # Inline (block scalar)
 spec:
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     # ...
 ```
@@ -26,7 +26,7 @@ spec:
 
 Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. A third form imports a Workload shared across Recipes from a [WorkloadLibrary](workloadlibrary.md) entry, by its bare-name identity: `$import: <Library>#/workloads/<entry>`. Per the unified file-import vocabulary, `$import:` accepts a single source — see [../vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
 
-Workload YAML is not authored as a standalone catalog entity. There is no `catalog/workload/` directory; the Workload grammar exists only as content a Recipe or FeatureRecipe consumes — written inline, in a file beside it, or in a WorkloadLibrary entry. The apiVersion and kind declarations inside the YAML (`apiVersion: aggrega.ai/v1alpha1`, `kind: Workload`) identify the embedded content for schema validation; they do not make the Workload independently addressable.
+Workload YAML is not authored as a standalone catalog entity. There is no `catalog/workload/` directory; the Workload grammar exists only as content a Recipe or FeatureRecipe consumes — written inline, in a file beside it, or in a WorkloadLibrary entry. The apiVersion and kind declarations inside the YAML (`apiVersion: aggrega.ai/v1beta1`, `kind: Workload`) identify the embedded content for schema validation; they do not make the Workload independently addressable.
 
 ## Template evaluation
 
@@ -82,7 +82,7 @@ The terraform and cloudformation providers render sourced and artifacts-only Rec
 When a target provider has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose provider halts on `daemon`, `scheduled`, and `task`. The helm provider emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 form: stateful
 containers:
@@ -108,7 +108,7 @@ services:
 `schedule` is **required** when `form: scheduled` and only meaningful then. A `form: scheduled` workload with no schedule, a schedule that is neither a 5-field expression nor a recognised macro (a 6-field seconds-prefixed expression, an unrecognised `@`-token, or a field with illegal characters), or a `schedule` set on any other form is a build-time halt naming the fix. The helm provider pipes the value verbatim into the emitted CronJob's `spec.schedule`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 form: scheduled
 schedule: "0 2 * * *"        # daily at 02:00
@@ -127,7 +127,7 @@ The helm provider emits the field as the CronJob's `spec.suspend: true`. On Kube
 `suspend: true` on any other form is a build-time halt naming the fix: no other form carries a schedule for it to hold.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 form: scheduled
 schedule: "0 2 * * *"        # documents when it would run; nothing starts it while suspended
@@ -349,7 +349,7 @@ The Workload schema accepts three optional top-level fields that exist primarily
 `scheduling` groups four K8s-native scheduling primitives — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — into one block keyed by purpose. Each sub-field is shaped exactly as the corresponding Kubernetes pod-spec field:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 scheduling:
   nodeSelector:
@@ -383,7 +383,7 @@ containers:
 `serviceAccount` is a plain string carrying the name of the ServiceAccount the workload runs under:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 serviceAccount: "{{ .context.rendered_name }}-runner"
 containers:
@@ -404,7 +404,7 @@ The compose provider ignores `serviceAccount:` with a warning; Compose has no eq
 `podSecurityContext` carries pod-level security primitives — UID, GID, fsGroup, supplementalGroups — that apply to every container in the pod:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 podSecurityContext:
   runAsUser: 1000
@@ -436,7 +436,7 @@ A container's `resources.requests` and `resources.limits` carry the ordinary `cp
 ### Worked example — a GPU inference workload
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 runtimeClassName: nvidia
 containers:
@@ -469,7 +469,7 @@ arrives describing somewhere the peer cannot reach; running on the node's addres
 the two consistent.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 hostNetwork: true
 containers:
@@ -619,7 +619,7 @@ On helm, `MODEL_KEY_GPT` renders as a `secretKeyRef` naming the Secret the `gpt`
 
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
-- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: multiple oneOf branches matched (branches [0, 1] of 3): expected exactly one`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, `reference`), the closed-set service `type` (one of `ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
+- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1beta1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: multiple oneOf branches matched (branches [0, 1] of 3): expected exactly one`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, `reference`), the closed-set service `type` (one of `ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
 - **Cross-reference validation.** Workload attachment references are checked against the Component's `featuresSchema` — and, for an entry naming a connection, against the slots that connection's socket declares — (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
@@ -650,7 +650,7 @@ A pattern several Recipes share can be published once as a WorkloadLibrary entry
 A typical web application that serves application traffic on one port and exposes Prometheus-scraped metrics on a separate port. Two services in the Workload — one for the application, one for metrics — keeps Service-mesh policy and load-balancer configuration cleanly separable.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 replicas: {{ optional .infra `replicas` 2 }}
 containers:
@@ -686,7 +686,7 @@ The metrics service is typically annotated for Prometheus discovery via a Featur
 A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target provider's task shape (a Kubernetes Job on the helm provider; the compose provider has no task shape and halts on `form: task`). The helm provider pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 form: task
 containers:
@@ -714,7 +714,7 @@ The config volume references a ConfigMap the Recipe is expected to emit alongsid
 A two-container pod where the main container handles application logic and the sidecar handles a cross-cutting concern (TLS termination, log shipping, service-mesh proxy, AI guardrail). Author order in `containers:` is load-bearing — the helm provider emits containers in declared order; the first key (here, `main`) is the default-container target for `kubectl logs` and similar tooling.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 replicas: {{ optional .infra `replicas` 2 }}
 containers:

@@ -184,7 +184,7 @@ How the facts read:
 A FeatureRecipe admitting into its host's pods exactly the pods of the components that call it, selecting its host's own pods by the host's controller selector:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: admit-callers
@@ -250,7 +250,7 @@ A `podSelector` in a policy's `from` matches pods in the policy's own namespace,
 **Sourced mode — Recipe pointing at a vendored chart:**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api-server-helm
@@ -272,7 +272,7 @@ spec:
 **Workload mode — Recipe declaring an inline Workload:**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api-server-workload
@@ -281,7 +281,7 @@ spec:
   capability: helm
   implements: core/api-server
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     replicas: {{ optional .infra `replicas` 2 }}
     containers:

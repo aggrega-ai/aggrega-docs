@@ -126,7 +126,7 @@ made no choice for SupportAgent#microsoft_learn (tool)
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
 # Not read: the application's code, which loads each declarative agent and binds the functions of its function tools; the application runs in the image the Release names for each instance, and loads its declarative agents itself.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -167,7 +167,7 @@ and its MCP server, and an entry placing the model beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -200,7 +200,7 @@ for the model:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -264,7 +264,7 @@ The Aggregate needs no change. The reviewed `release.yaml`:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -306,7 +306,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

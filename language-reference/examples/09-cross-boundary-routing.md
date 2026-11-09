@@ -18,7 +18,7 @@ When a component is deployed to a different Kubernetes namespace than its target
 This is purely an Ops concern — no `values`, only `infra`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/k8s-dns-resolver
@@ -35,7 +35,7 @@ spec:
 The `injectMapping` template executes at inject mapping, the pre-render interception stage. It reads the base host from the already pre-hydrated inject pipe, dynamically locates the specific topological edge that owns the variable, resolves the namespace from the target's Release annotations, and emits a precise override dictionary.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: k8s-dns-rewriter
@@ -82,7 +82,7 @@ spec:
 Ops attaches the routing feature via the Release — the developer's Aggregate is never modified. The `namespace_annotation` key instructs the feature where to look up the target boundary's namespace.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: cross-ns-release
@@ -129,7 +129,7 @@ This traces the payload the compiler sends to a WebAssembly plugin and the patch
 The worker is an example Component, `example/compute/data-worker`, whose `db_credentials` slot takes a file delivery:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: example/compute/data-worker
@@ -149,7 +149,7 @@ spec:
 **1. Dev Domain: The Aggregate**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: secret-file-mount
@@ -178,7 +178,7 @@ The credential's FeatureRecipe is Example 11's, which publishes no `password` ke
 Exports physical pointers for downstream plugins.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: python-worker-helm

@@ -98,7 +98,7 @@ Attaching `core/data-masking` to the gateway changes only what the build writes 
 The Feature uses an `appliesTo` label selector to restrict which Components can receive it — here the data-path capability a gateway declares when it can mask the chat and completion payload it routes. The `schema:` block defines the developer-facing configuration surface. Abridged from the standard library's `core/data-masking`, which also carries a description of every value:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/data-masking
@@ -132,7 +132,7 @@ The Feature also carries an assertion that halts the build when an attachment li
 Abridged from `core/gateway/litellm`. The label is what the Feature's selector reads; the `models` socket takes the models the gateway serves, and the other two sockets the pair of services it calls to find and replace entity types.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/gateway/litellm
@@ -155,7 +155,7 @@ spec:
 The developer attaches the Feature to the gateway and says what to mask: a pattern for the company's project codes, and two entity types a recognizer finds. The recognizer is two catalog services wired to the gateway's sockets, and the model the gateway serves is a catalog component wired to its `models` socket, the key the gateway presents to it held on that connection. The developer names no address, no guardrail and no provider setting.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: masked-router
@@ -210,7 +210,7 @@ The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. 
 Abridged from the standard library's `helm/data-masking-litellm`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: data-masking-litellm
@@ -259,7 +259,7 @@ The attachment also has the gateway refuse what its masking does not reach. The 
 **5. Routing Domain: Manifest & Release**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: masked-router-manifest
@@ -278,7 +278,7 @@ spec:
         # origin names a Secret the namespace already holds.
         core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: masked-router-release
@@ -403,7 +403,7 @@ Labels are the semantic identity layer. They drive policy, Feature binding, and 
 **1. Platform Catalog: Richly Labeled Components**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/langgraph-agent
@@ -428,7 +428,7 @@ spec:
 This Feature targets components with the autonomy label present, regardless of its value. It declares `conflictsWith`, so a build in which any component ends up carrying both it and `core/full-auto-mode` — attached on the component itself or on a subsystem or boundary that holds it — halts before rendering.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/autonomy-guardrail
@@ -446,7 +446,7 @@ spec:
 This Feature can be attached to any server or worker, but explicitly excludes components carrying a generative model capability.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/global-pii-masking
@@ -463,7 +463,7 @@ spec:
 The Architect mandates that any instance of this Component must have an audit logger attached. The compiler halts if no attachment of that type is present, at any scope.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/payment-processor
@@ -490,7 +490,7 @@ An AI agent uses a sensitive corporate tool. Aggrega generates the webhook proxy
 **1. Platform Catalog: The Feature Interface**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/human-approval-gate
@@ -506,7 +506,7 @@ spec:
 The developer attaches the approval gate Feature to the email tool, not to the agent. The compiler draws the edge from the agent to the tool; the FeatureRecipe the Manifest binds for the gate renders the interception proxy configuration on the tool's ingress path.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: hitl-email-workflow

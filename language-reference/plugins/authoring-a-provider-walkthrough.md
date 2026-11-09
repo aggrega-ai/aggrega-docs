@@ -348,7 +348,7 @@ only the identity, in a small overlay.
 `overlay.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: dotenv
@@ -369,7 +369,7 @@ The generated entity:
 # Generated from the plugin by `aggrega plugin gen-catalog`. You may narrow its capability lists; edit nothing else here.
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Cognitio S.r.l.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: dotenv
@@ -446,7 +446,7 @@ Release places it.
 `catalog/component/example/compute/checkout/1.0.0/component.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: example/compute/checkout
@@ -480,7 +480,7 @@ spec:
 `catalog/recipe/dotenv/checkout/1.0.0/recipe.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: checkout
@@ -509,7 +509,7 @@ write, and normalising them is the provider's job.
 `aggregate.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: aggregate
@@ -528,7 +528,7 @@ spec:
 `manifest.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: manifest
@@ -544,7 +544,7 @@ spec:
 `release.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: walkthrough

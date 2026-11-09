@@ -47,7 +47,7 @@ A Release fulfills the typed parameter contract the Aggregate declares. `spec.pa
 
 ```yaml
 # Aggregate declares the typed contract
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: my-app
@@ -61,7 +61,7 @@ spec:
 
 ```yaml
 # Release fulfills the contract for this environment
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-release
@@ -134,7 +134,7 @@ Boundary annotations cascade downward to every contained component; `infra` stay
 **Worked example:**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: spatial-release
@@ -267,7 +267,7 @@ When the Aggregate declares nested sub-modules via `spec.aggregates:`, the Relea
 
 ```yaml
 # Aggregate declares two sub-aggregates
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: platform
@@ -283,7 +283,7 @@ spec:
       type: core/ingress
 ---
 # Release routes each sub-aggregate into a specific boundary
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-release
@@ -358,7 +358,7 @@ The sub-aggregate's own components and Features are not redeclared at the Releas
 Each boundary in the Release optionally declares an integer `syncWave:` field, giving the Operator explicit control over deployment order without touching the Developer's Aggregate. The wave number is a property of the boundary itself; every component contained in the boundary's subtree inherits its boundary's wave value when artifacts emit.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-release
@@ -460,7 +460,7 @@ The child may omit `manifest:`, inheriting its base's, or override it for Late B
 
 ```yaml
 # production Release (committed; the source of truth for prod deployments)
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-release
@@ -485,7 +485,7 @@ spec:
 
 ---
 # Local Release (developer-side; inherits everything, swaps the Manifest)
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: local-release

@@ -314,7 +314,7 @@ Each boundary carries its output directory and its provider-consumed annotations
 ```text
 $ aggrega inspect core/server:1.0.0 --output yaml --catalog ./catalog
 
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
     name: core/server

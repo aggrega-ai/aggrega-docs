@@ -7,7 +7,7 @@ Aggregates can import other Aggregates as parameterized modules, enabling team-l
 **1. Dev Domain: The Sub-Aggregate (Database Module)**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: db-module
@@ -32,7 +32,7 @@ spec:
 The root Aggregate imports the database module and connects to its exported component using the dotted path syntax `data-layer.public_db`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: full-app
@@ -70,7 +70,7 @@ spec:
 DevOps routes the sub-aggregate's internal components into specific boundaries. The `aggregates` block inside the boundary mirrors the Aggregate's nesting.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: full-app-release
@@ -107,7 +107,7 @@ External SaaS APIs and legacy databases are first-class graph nodes. They produc
 The Recipe declares a Workload of `form: reference` — an `endpoint` and no containers — so nothing is provisioned for the service, and it publishes the service's `hostname` as `primary_endpoint`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/external-service
@@ -121,7 +121,7 @@ spec:
     provides:
       primary_endpoint: { type: string }
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: external-service-reference
@@ -132,7 +132,7 @@ spec:
   provides:
     primary_endpoint: "{{ .values.hostname }}"
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     form: reference
     endpoint: "{{ .values.hostname }}"
@@ -142,7 +142,7 @@ spec:
 The developer uses **Parameter Hoisting** — the physical IP of the legacy database is unknown to the developer and demanded from Ops via the `parameters` contract.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: payment-processor
@@ -189,7 +189,7 @@ spec:
 The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-service-reference`, binds the `helm` provider with a `form: reference` Workload, so neither external node provisions compute: the build writes one ExternalName Service for each, carrying its `hostname`, and `billing-agent` receives `STRIPE_URL: api.stripe.com` and `ORACLE_DSN: 10.0.4.55` through the inject contract. Kubernetes treats an `externalName` as a DNS name, so the legacy database's Service does not resolve to its IP address; `billing-agent` reaches the database at the address `ORACLE_DSN` carries. The Release fulfills the parameter contract.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: payment-manifest
@@ -201,7 +201,7 @@ spec:
         "core/python-worker": "python-worker-helm:1.0.0"
         "core/external-service": "external-service-reference:1.0.0"
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: payment-release
@@ -230,7 +230,7 @@ Subsystems organize components into logical groups within an Aggregate. Annotati
 **1. Dev Domain: The Aggregate**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: multi-team-app
@@ -306,7 +306,7 @@ A Feature attachment can autonomously declare its own `uses` edges, creating ind
 **1. Dev Domain: The Aggregate**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: autonomous-system

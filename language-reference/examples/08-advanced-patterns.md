@@ -9,7 +9,7 @@ A FeatureRecipe can generate entirely new infrastructure resources (like an Ingr
 The request path a component serves is part of what the application is, so it is `values`. The hostname is the environment's name for the component, so it is `infra`, beside the knobs that describe the cluster. An excerpt, with descriptions and comments left out:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/public-ingress
@@ -42,7 +42,7 @@ spec:
 The FeatureRecipe renders its own Helm chart, from a `chart/` directory beside it, and what that chart renders is written beside the base component's own output. An excerpt, with its prerequisite assertion and the namespace it reads from the Release's annotations left out:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: public-ingress
@@ -103,7 +103,7 @@ A path that differs from one environment to the next is a parameter the Aggregat
 When a single instance requires a non-standard Recipe, the `name` tier overrides the `type` tier. YAML anchors keep the Manifest DRY.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: enterprise-manifest

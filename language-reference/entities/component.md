@@ -102,7 +102,7 @@ The Component schema separates three pillars by ownership: `values` is filled by
 
 ```yaml
 # Component schema declares the values shape:
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/datastore/mariadb
@@ -238,7 +238,7 @@ Fulfillment is enforced as a Loud Guardrail: a bound Recipe must produce every `
 
 ```yaml
 # Component schema declares the provides contract:
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/datastore/mariadb
@@ -257,7 +257,7 @@ spec:
 
 ```yaml
 # Recipe fulfills the contract:
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: mariadb-bitnami
@@ -289,7 +289,7 @@ spec:
 A Component may declare that every instance of it **must** carry an attachment of a given Feature type. This is a **presence mandate**, and it is authored as a repeatable annotation on the Component's own metadata:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/payment-processor
@@ -336,7 +336,7 @@ A Component may declare topological sockets through a `usesSchema:` block — a 
 
 ```yaml
 # Component declares the sockets it accepts:
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/ai-agent/orchestrator
@@ -663,7 +663,7 @@ A Component may declare a top-level `spec.inject:` array that allowlists self-in
 
 ```yaml
 # Component declares its self-inject allowlist:
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/web-server
@@ -758,7 +758,7 @@ See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-
 The Platform Architect defines a foundational enterprise server. This base sets the required operational cloud primitive label and establishes the security constraints in the schema. Because the pillar block is inherited unchanged, every constraint here reaches each extending Component exactly as authored.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/base-enterprise-server
@@ -789,7 +789,7 @@ spec:
 A gateway is specialized from that baseline. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket with an attachment slot on it — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/gateway/kong

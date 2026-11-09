@@ -55,7 +55,7 @@ The `workspace:` block marks the folder as the workspace root, and the `catalog`
 
 ```yaml
 # catalog/schemalibs/aggrega-datastores/library.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: SchemaLibrary
 metadata:
   name: Datastores
@@ -124,7 +124,7 @@ The secondary pool is written out as an object of its own rather than as a `$ref
 
 ```yaml
 # catalog/components/my-org/datastore/mariadb/component.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: my-org/datastore/mariadb
@@ -202,7 +202,7 @@ The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`
 
 ```yaml
 # catalog/mappinglibs/aggrega-bitnami-helpers/library.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: MappingLibrary
 metadata:
   name: BitnamiHelpers
@@ -288,7 +288,7 @@ The entry renders the chart's values. A helper template, `BitnamiNodePool`, writ
 
 ```yaml
 # catalog/recipe/helm/mariadb-bitnami/recipe.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: mariadb-bitnami
@@ -335,7 +335,7 @@ The API server the Aggregate composes with MariaDB is a small Component and Reci
 
 ```yaml
 # catalog/components/my-org/server/checkout-api/component.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: my-org/server/checkout-api
@@ -360,7 +360,7 @@ spec:
 
 ```yaml
 # catalog/recipe/helm/checkout-api/recipe.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: checkout-api
@@ -372,7 +372,7 @@ spec:
   implements: my-org/server/checkout-api:^1.0.0
 
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     replicas: 2
     containers:
@@ -391,7 +391,7 @@ spec:
 
 ```yaml
 # catalog/aggregates/checkout-service.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: my-org/checkout-service
@@ -487,7 +487,7 @@ Deciding *whether* the secondary pool applies is the Component's job rather than
 
 ```yaml
 # catalog/manifests/k8s-prod.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: my-org/k8s-prod-manifest
@@ -511,7 +511,7 @@ The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Reci
 
 ```yaml
 # catalog/releases/prod-release.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: my-org/checkout-service-prod

@@ -126,7 +126,7 @@ An assertion reads an authored number exactly as a value template does — see [
 These express rules that hold regardless of which Recipe binds the Component. The rule is a property of the *contract*, not the implementation.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/datastore/mariadb
@@ -169,7 +169,7 @@ The `{{- ... -}}` whitespace control matters: assertions templates don't produce
 These express rules that hold for the *specific* chart or module the Recipe sources. The rule is a property of the implementation, not the contract.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: bitnami/datastore/mariadb/k8s

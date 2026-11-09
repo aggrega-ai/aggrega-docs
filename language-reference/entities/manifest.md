@@ -48,7 +48,7 @@ The entry is pinned and verified like any other name-tier entry, as the next par
 **A realization bound by name is pinned and verified like one bound by type.** `aggrega pull` acquires every Recipe and FeatureRecipe either tier binds — from a catalog directory, the cache or a registry — and records each in the Release's lockfile with its resolved version and content digest, under the mapping entry that binds it: `manifest.spec.mappings.components.name.<instance>` for a name-tier entry, beside `manifest.spec.mappings.components.type.<type>` for a type-tier one. `aggrega build` holds every one of them to its pin. A lockfile that records no row for a realization the Manifest binds halts the build as out of date, naming the realization and the entry that binds it; a realization whose content changed since the pull halts it the same way, naming both digests. In both cases `aggrega pull --release <release>` records the realization as it now stands. Like a `type` entry, a `name` entry is pinned whether or not the Release declares an instance of that name, so a `name` entry naming a Recipe no catalog or registry holds halts the pull; a `name` entry naming no instance the build holds is pinned too, and halts the build as the paragraph above describes.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: production-manifest
@@ -145,7 +145,7 @@ After all mappings resolve, the compiler verifies that every component and attac
 To avoid YAML bloat across large mapping sets, the Manifest supports an optional `defs:` block for standard YAML anchors (`&` and `*`):
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: global-base-manifest

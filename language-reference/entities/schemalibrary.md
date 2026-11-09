@@ -10,10 +10,10 @@ The split between "library" and "consumer" is intentional. Components declare th
 
 ## Entity Envelope
 
-A SchemaLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: SchemaLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. The library's content sits under `spec`: `spec.schemas` is required (the library must declare at least one entry), and `spec.templates` is optional (present only when the library uses parameterized helpers).
+A SchemaLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1beta1` and `kind: SchemaLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. The library's content sits under `spec`: `spec.schemas` is required (the library must declare at least one entry), and `spec.templates` is optional (present only when the library uses parameterized helpers).
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: SchemaLibrary
 metadata:
   name: WebPrimitives

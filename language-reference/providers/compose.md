@@ -554,7 +554,7 @@ spec:
 
 ```yaml
 # api Recipe
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api
@@ -563,7 +563,7 @@ spec:
   capability: compose
   implements: example/compute/api:1.0.0
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     containers:
       main:
@@ -582,7 +582,7 @@ spec:
 
 ```yaml
 # Aggregate fragment — api uses db, on a socket api's Component declares
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 spec:
   components:

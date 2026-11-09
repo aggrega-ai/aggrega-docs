@@ -56,7 +56,7 @@ OCI URI: `hub.aggrega.ai/aggregate/{module-name}:{version}`, lowercased — so a
 **Child module (`aggregate/child-database-module/1.0.0/aggregate.yaml`, published as `hub.aggrega.ai/aggregate/child-database-module:1.0.0`):**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: child-database-module
@@ -74,7 +74,7 @@ spec:
 **Parent Aggregate:**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: parent-app
@@ -105,7 +105,7 @@ See [architecture/06-data-taxonomy-and-composition.md §6](../../architecture/06
 The Aggregate's `spec.parameters:` block declares the typed contract for the parameters the Release fulfills. Each parameter slot carries a declared `type`, an optional `description`, an optional `default`, optional value-space constraints, and (for object-typed slots) nested structure. The compiler validates each Release-supplied value against the contract during resolution, before parameter interpolation runs.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: web-app
@@ -362,7 +362,7 @@ For the Aggregate-side cascade rule applied to bindings, the side-vs-pillar part
 The Aggregate schema accepts an optional root-level `defs:` block — a list of YAML strings used purely as a host for standard YAML anchors (`&anchor`) and references (`*anchor`). The block's contents are never read by the compiler; it exists so authors can declare anchor definitions in one place and reference them across the rest of the Aggregate, keeping repeated values DRY without losing the flat O(1) dictionary the compiler iterates. The mechanism mirrors the equivalent `defs:` block on the Manifest entity.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: anchored-app

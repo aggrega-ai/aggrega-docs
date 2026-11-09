@@ -209,7 +209,7 @@ Here is the payload the rule below will read, `ir-verdict-payload.json`, complet
 ```json
 {
   "graph": {
-    "apiVersion": "aggrega.ai/v1alpha1",
+    "apiVersion": "aggrega.ai/v1beta1",
     "kind": "IR",
     "metadata": {
       "aggregate_name": "shop"
@@ -230,7 +230,7 @@ Here is the payload the rule below will read, `ir-verdict-payload.json`, complet
       "infra_mapping": {},
       "feature_values_mapping": {},
       "provenance": {
-        "schema_version": "aggrega.ai/v1alpha1",
+        "schema_version": "aggrega.ai/v1beta1",
         "compiler_version": "0.0.0",
         "aggregate_version": "1.0.0",
         "manifest_version": "1.0.0",
@@ -496,7 +496,7 @@ hand, so the entity cannot claim an export the binary does not have. You supply
 the identity in a small overlay, `overlay.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: category-guard
@@ -518,7 +518,7 @@ The generated entity:
 # Generated from the plugin by `aggrega plugin gen-catalog`. You may narrow its capability lists; edit nothing else here.
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Cognitio S.r.l.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: category-guard
@@ -567,7 +567,7 @@ refuse, a Component whose category is `devtool`.
 `catalog/component/example/compute/api/1.0.0/component.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: example/compute/api
@@ -588,7 +588,7 @@ spec:
 `catalog/component/example/devtool/db-console/1.0.0/component.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: example/devtool/db-console
@@ -609,7 +609,7 @@ spec:
 `catalog/recipe/compose/api/1.0.0/recipe.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api
@@ -619,7 +619,7 @@ spec:
   capability: compose
   implements: example/compute/api:1.0.0
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     containers:
       main:
@@ -631,7 +631,7 @@ spec:
 `catalog/recipe/compose/db-console/1.0.0/recipe.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: db-console
@@ -641,7 +641,7 @@ spec:
   capability: compose
   implements: example/devtool/db-console:1.0.0
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     containers:
       main:
@@ -653,7 +653,7 @@ spec:
 `aggregate.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: shop
@@ -668,7 +668,7 @@ spec:
 `manifest.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: shop-manifest
@@ -685,7 +685,7 @@ spec:
 `release.yaml`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: shop-staging

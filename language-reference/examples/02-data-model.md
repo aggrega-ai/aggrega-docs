@@ -8,7 +8,7 @@ The Architect enforces structural separation: the Developer controls cognitive `
 The `schema:` declaration covers both `values` (Developer's domain) and `infra` (Operator's domain) as separate namespaces. The Aggregate schema bans Developers from writing `infra`; the Release schema bans Operators from writing `values`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/postgres
@@ -31,7 +31,7 @@ spec:
 The developer requests the database using `values`. They have zero visibility into `infra` sizing.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: scalable-datastore
@@ -49,7 +49,7 @@ spec:
 The Operator injects physical sizing via the `infra` block on the component inside the boundary. The compiler passes `.values` and `.infra` as two cleanly separated objects to the Recipe.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-datastore
@@ -74,7 +74,7 @@ spec:
 Ops consumes both `.values` and `.infra` without conflict.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: postgres-chart-v2
@@ -115,7 +115,7 @@ Ops defines a global baseline. DevOps inherits it and surgically overrides for p
 **1. Routing Domain: The Global Base Release**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: global-base
@@ -140,7 +140,7 @@ spec:
 The `extends` keyword inherits all boundaries, routing, and parameters from the base. DevOps surgically overrides only the storage size. When a Release uses `extends`, declaring `aggregate` is rejected by the Release schema — the child must map to the exact same Developer Intent. A boundary's `directory:` is inherited like any other scalar, so a child that inherits one written as a literal path renders into the same place its base does; writing the directory against a parameter is what sends each Release's output somewhere of its own. See [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) for that pattern.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-datastore
@@ -164,7 +164,7 @@ spec:
 The base Manifest maps all components to Helm Recipes. The local Manifest inherits everything but swaps the secret implementation for a Docker `.env` injector.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: global-manifest
@@ -179,7 +179,7 @@ spec:
         # Credential Feature — mapped under features, not a separate secrets section
         "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: local-manifest
@@ -197,7 +197,7 @@ spec:
 A flat, single boundary with laptop-sized `infra`. The developer runs `aggrega build --release local-release.yaml`, and `main-db` renders through the Helm Recipe the base Manifest maps it to, into `dist/deploy/local/helm/`. The swapped credential mapping changes nothing in that output: this Aggregate attaches no Feature to `main-db`, so no credential Feature is realized at all.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: local-dev
@@ -225,7 +225,7 @@ Every Component in Aggrega carries one value from the closed set on the reserved
 The value lives on the Component catalog entity, never on the instance — an Aggregate wires instances and cannot label them — so each comment below names the type the referenced catalog entity carries.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: enterprise-backend

@@ -64,7 +64,7 @@ The halt names the Feature whose list names the other, every place each of the t
 **Example:**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/autoscaler
@@ -92,7 +92,7 @@ A Feature may declare `spec.extends: <feature-name>` pointing to a base Feature 
 
 ```yaml
 # Base Feature — generic message queue intent
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/queue
@@ -107,7 +107,7 @@ spec:
 
 ---
 # Child Feature — Kafka-specialized variant
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/kafka-queue

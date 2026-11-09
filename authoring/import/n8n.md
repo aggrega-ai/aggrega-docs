@@ -149,7 +149,7 @@ out here, and the drafted model wired to its `model` socket:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -185,7 +185,7 @@ spec:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -204,7 +204,7 @@ credential slot for the credential type it selects:
 <!-- quotes: draft/components/imported-ai-model-n8n-n8n-nodes-langchain-lmchatopenai.yaml -->
 ```yaml
 # resembles core/ai-model/openai (score 0.9143); reference it by setting type: core/ai-model/openai
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai
@@ -276,7 +276,7 @@ The reviewed `aggregate.yaml`, the workflow left out here as above:
 <!-- quotes: reviewed/aggregate.yaml -->
 ```yaml
 # The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -313,7 +313,7 @@ The Release:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The Release the review wrote: the n8n import drafts none.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -345,7 +345,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

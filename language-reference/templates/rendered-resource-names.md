@@ -134,7 +134,7 @@ wrote.
 spec:
   capability: helm
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     containers:
       main:

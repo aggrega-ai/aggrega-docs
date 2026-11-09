@@ -8,7 +8,7 @@ The absolute minimum to compile. A developer requests a web server. Ops provides
 The Architect defines what a web server *is* — its ontology type and the shape of its configuration.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/web-server
@@ -27,7 +27,7 @@ spec:
 The Developer writes pure intent. No ports, no namespaces, no cloud provider.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: hello-world
@@ -45,7 +45,7 @@ spec:
 Ops maps the abstract Component to a real Helm chart. The `locals` block exports private physical state for downstream plugins. The `valuesMapping` template wires `.values` into the chart's expected format.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: web-server-helm
@@ -65,7 +65,7 @@ spec:
 The Manifest maps abstract component types to concrete Recipe URIs. Every instance of `core/web-server` resolves to the named Recipe; the Recipe URI's path segment carries the provider.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: hello-world-manifest
@@ -81,7 +81,7 @@ spec:
 The Release binds the Aggregate to the Manifest and routes Components into physical boundaries. This is the single entry point for the compiler: `aggrega build --release release.yaml`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: hello-world-release
@@ -109,7 +109,7 @@ A web application connects to a Postgres database. The developer declares *what*
 The Architect defines the database interface. The `provides` block in the schema declares the Public API keys downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/postgres
@@ -129,7 +129,7 @@ spec:
 The web server now declares a `usesSchema` — a topology socket allowing it to connect to databases. The `selector` enforces Cross-Node Type Safety: the developer cannot accidentally plug a messaging queue into the `databases` socket.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/web-server
@@ -150,7 +150,7 @@ spec:
 The developer declares two components and an explicit topological edge. Each `inject` mechanism is a list of entries: `in:` names the local environment variable, and `from:` names the target's `provides` key it receives.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: web-app
@@ -191,7 +191,7 @@ spec:
 Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, the Recipe's own `.locals`, and static strings — and, in a Recipe naming a chart in `source:`, `.context.rendered_name`). This invariant enables cyclic dependency safety. The host is built from `.context.rendered_name`, the name the helm provider gives the chart, and the chart's `fullnameOverride` is pinned to the same key, so the address `provides` publishes is the Service the chart emits — see [Naming a Rendered Resource](../templates/rendered-resource-names.md).
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: postgres-chart
@@ -222,7 +222,7 @@ spec:
 The web server's Recipe consumes the pre-hydrated `.context.inject.env` pipe. By the time this template renders, the compiler has already filled it: `DB_HOST` → `"app-db"` and `DB_PORT` → `"5432"`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: web-server-helm
@@ -245,7 +245,7 @@ spec:
 **6. Routing Domain: Manifest & Release**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: web-app-manifest
@@ -257,7 +257,7 @@ spec:
         "core/web-server": "web-server-helm:1.0.0"
         "core/postgres": "postgres-chart:1.0.0"
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: web-app-release
@@ -290,7 +290,7 @@ A single Aggregate serves dev and production by hoisting environment-specific va
 The developer uses `parameters` to declare an environment contract. Each parameter slot is typed; the compiler validates each Release-supplied value against the typed contract, then Go template interpolation (`{{ .parameters.X }}`) executes *before* the surrounding `values:` schema validation.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: configurable-app
@@ -330,7 +330,7 @@ spec:
 Each environment fulfills the parameter contract with its own values. The Aggregate is never modified.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: dev-release
@@ -349,7 +349,7 @@ spec:
         app-db: {}
         web-server: {}
 ---
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: prod-release

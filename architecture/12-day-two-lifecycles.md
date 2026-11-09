@@ -14,7 +14,7 @@ Aggrega structurally bridges these gaps through specific architectural polyfills
 The Developer's `Aggregate` is left untouched. Because sequencing is a physical operational reality, it is strictly managed in Domain 4 (the `Release`). Each boundary in the Release carries an optional `syncWave: <integer>` field, allowing the Platform Operator to explicitly stage rollout order at the boundary level.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: sequenced-release

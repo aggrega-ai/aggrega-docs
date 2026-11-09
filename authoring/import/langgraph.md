@@ -106,7 +106,7 @@ comments that say what was read and what was not:
 #   - langgraph.json
 # Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
 # Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -140,7 +140,7 @@ entry placing the database beside it:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -167,7 +167,7 @@ spec:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -246,7 +246,7 @@ The reviewed `aggregate.yaml`:
 #   - langgraph.json
 # Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
 # Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -290,7 +290,7 @@ The reviewed `release.yaml`:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -349,7 +349,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

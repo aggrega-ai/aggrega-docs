@@ -124,7 +124,7 @@ subsystems:
 
 ```yaml
 # child-database-module.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: child-database-module
@@ -141,7 +141,7 @@ spec:
 
 ```yaml
 # parent-app.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: parent-app
@@ -292,7 +292,7 @@ spec:
 The Ops engineer writes the Recipe. It builds the `primary_endpoint` connection string from the Developer's `values` in its `locals` block, publishes it under `provides`, and declares a reference Workload pointing at the database's host.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: oracle-dsn-formatter
@@ -311,7 +311,7 @@ spec:
 
   # No compute: an endpoint the build does not provision
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     form: reference
     endpoint: "{{ .values.host }}"

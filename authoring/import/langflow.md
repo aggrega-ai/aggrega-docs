@@ -101,7 +101,7 @@ thousand lines of it left out here, and the model it reaches:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -150,7 +150,7 @@ it takes and its key as a credential slot, `api_key`.
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -171,7 +171,7 @@ The review starts by writing the Release the import did not: an environment,
 the image the comment asks for, and an entry for each of the two instances.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -226,7 +226,7 @@ The reviewed `aggregate.yaml`, the flow left out here as above:
 <!-- quotes: reviewed/aggregate.yaml -->
 ```yaml
 # The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -271,7 +271,7 @@ The Release:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The Release the review wrote: the Langflow import drafts none.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -308,7 +308,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

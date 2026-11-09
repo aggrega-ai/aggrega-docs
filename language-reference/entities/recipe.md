@@ -108,7 +108,7 @@ A value that exists only once the infrastructure is applied stays a pointer the 
 **Example A: The Remote Helm Chart (Inline Mapping & Locals Contract)**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: mariadb-chart
@@ -157,7 +157,7 @@ spec:
 **Example B: The Local Terraform Module (File Mapping)**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: aws-s3-tf
@@ -182,7 +182,7 @@ spec:
 Ops maps the generic interface to physical reality. (This is where the L4 network details are bound — either hardcoded, or, as with the proxy port below, taken from the `infra` block the Release fills in.)
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: kong-gateway
@@ -280,14 +280,14 @@ The same bound holds for a FeatureRecipe, and for every schema a Component or a 
 
 The field accepts three authoring modes — inline block scalar, file `$import:`, or library `$import:`. The compiler dispatches on the field's content shape; no `$mode:` annotation is needed.
 
-**Mode 1: Inline (Go template string scalar).** The value is a YAML block scalar whose output parses as `aggrega.ai/v1alpha1 Workload`:
+**Mode 1: Inline (Go template string scalar).** The value is a YAML block scalar whose output parses as `aggrega.ai/v1beta1 Workload`:
 
 ```yaml
 spec:
   capability: helm
   implements: core/web-server:1.0.0
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     replicas: {{ optional .infra "replicas" 1 }}
     containers:

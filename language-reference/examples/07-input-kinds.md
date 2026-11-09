@@ -9,7 +9,7 @@ Pattern: **synthesized mode** — no `source:`, no `artifacts:`; the Workload al
 The Recipes of Examples 19, 20 and 22 implement one example Component, `example/compute/api-server`, which declares the `values` and `infra` they read and the `provides` they publish:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: example/compute/api-server
@@ -35,7 +35,7 @@ spec:
 ```
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api-server-helm
@@ -56,7 +56,7 @@ spec:
     protocol: http
 
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     replicas: {{ optional .infra `replicas` 1 }}
 
@@ -103,7 +103,7 @@ Synthesized output for `instance_id: api`, `values.port: 8080`, `infra.replicas:
 Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, a PersistentVolumeClaim for the `cache` volume, and two ConfigMap YAML files.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api-with-envoy-helm
@@ -123,7 +123,7 @@ spec:
     protocol: http
 
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     replicas: {{ optional .infra `replicas` 2 }}
 
@@ -213,7 +213,7 @@ Each ConfigMap is named after `.context.rendered_name` — the release name the 
 Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.context.rendered_name`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: mariadb-bitnami-enhanced
@@ -283,7 +283,7 @@ spec:
 
 ```yaml
 # workload/workload.yaml (relative to recipe.yaml)
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Workload
 replicas: {{ optional .infra `replicas` 1 }}
 containers:

@@ -18,7 +18,7 @@ Two consequences follow, and they pull in opposite directions:
 * **Tightening moves to `assertions:`.** A specialization that must admit less than the inherited pillars do says so as a predicate on itself, not as a narrowed schema leaf. If a base `core/base-server` declares `tls_enabled: { type: boolean, default: true }`, a specialization that requires TLS unconditionally writes:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/tls-only-server
@@ -116,7 +116,7 @@ The Component exposes the specific infrastructure dial inside the developer's `v
 
 ```yaml
 # Domain 2: The Platform Catalog (the schema-bridge Component)
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/high-perf-postgres
@@ -136,7 +136,7 @@ spec:
 
 ```yaml
 # Domain 2: The Platform Catalog (the Recipe pipes the dial into provider infra)
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: aws-rds-high-perf-postgres

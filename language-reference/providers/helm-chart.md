@@ -220,7 +220,7 @@ A two-node boundary, each node bound to a helm-chart Recipe pointing at the same
 
 ```yaml
 # Recipe — used by both `api-east` and `api-west` instances
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: api-server-helmchart

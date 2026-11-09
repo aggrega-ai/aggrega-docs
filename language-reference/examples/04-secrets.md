@@ -24,7 +24,7 @@ When deploying custom code, the developer may tell the system how their applicat
 **1. Platform Catalog: The Component (White-Box Enforcement)**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/python-worker
@@ -46,7 +46,7 @@ spec:
 A Feature labeled as a credential feature. The label is metadata describing what the attachment produces; it is attached under `features:` like any other Feature.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: core/aws-secrets-manager
@@ -64,7 +64,7 @@ spec:
 The developer tells the system exactly how their Python code reads the OpenAI key — as an environment variable named `OPENAI_API_KEY`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: credentialed-worker
@@ -95,7 +95,7 @@ The FeatureRecipe implements the credential Feature. The Two-Part Plugin Princip
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: eso-aws-fetcher
@@ -128,7 +128,7 @@ spec:
 Credential Features are mapped under the `features` tier — the same tier as operational Features. There is no separate `secrets` section.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: credentialed-manifest
@@ -154,7 +154,7 @@ When deploying packaged infrastructure (e.g., Bitnami Redis), the developer prov
 The `featuresSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates the schema rules that validate the developer's attachment — no separate pillar needed inside `schema:`.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/datastore/redis
@@ -177,7 +177,7 @@ spec:
 The developer provides the vault query but omits `inject`. If they attempt to add it, the slot's auto-generated schema rule fails the build.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: cached-app
@@ -200,7 +200,7 @@ spec:
 Ops dictates the exact physical secret name. The chart's native `existingSecret` mechanism handles injection internally. The name is the component's rendered name — the name the helm provider gives the component's resources, spelled in the characters a Kubernetes name allows — followed by a suffix the Recipe chooses. A `locals:` entry cannot read `.context.rendered_name`, so the local carries the suffix alone, and each template that writes the full name joins the two.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: redis-chart
@@ -237,7 +237,7 @@ The Fetcher step's `with:` block indexes the Base Recipe's exported key using th
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: eso-aws-blackbox
@@ -269,7 +269,7 @@ The guard Feature below, and the Component the Aggregate names, are entities thi
 **1. Platform Catalog: The Feature declares its own slot**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Feature
 metadata:
   name: local/guard
@@ -292,7 +292,7 @@ spec:
 The FeatureRecipe carries a `workload:`, so the attachment renders a workload of its own. Its container references the slot by name: `from:` names the slot, not the Secret the credential produces.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: FeatureRecipe
 metadata:
   name: guard-proxy
@@ -301,7 +301,7 @@ spec:
   capability: helm
   implements: local/guard:1.0.0
   workload: |
-    apiVersion: aggrega.ai/v1alpha1
+    apiVersion: aggrega.ai/v1beta1
     kind: Workload
     form: stateless
     replicas: 1
@@ -323,7 +323,7 @@ spec:
 Two attachments on one component: the Feature, and the credential that fills the Feature's slot. The component itself declares no credential slot.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: guarded-fleet
@@ -350,7 +350,7 @@ spec:
 **4. Routing Domain: Manifest**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: guarded-fleet-manifest
@@ -429,7 +429,7 @@ The gateway Component below, and its Recipe, are entities this example's own cat
 **1. Platform Catalog: the socket declares the slot**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: local/gateway/model-router
@@ -451,7 +451,7 @@ spec:
 **2. Dev Domain: the Aggregate attaches on the connection**
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: edgecred

@@ -139,7 +139,7 @@ service it reaches:
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
 # Not carried, since the draft reads the services and the models alone: volumes.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -167,7 +167,7 @@ key takes it and as comments where none does:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -211,7 +211,7 @@ spec:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow
@@ -229,7 +229,7 @@ only in its names:
 <!-- quotes: draft/components/imported-datastore-postgres.yaml -->
 ```yaml
 # resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: imported/datastore/postgres
@@ -305,7 +305,7 @@ The reviewed `aggregate.yaml`:
 ```yaml
 # The draft aggregate.yaml after review. Each change is marked "Reviewed:".
 # Not carried, since the draft reads the services and the models alone: volumes.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -369,7 +369,7 @@ The reviewed `release.yaml`:
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
 # The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -403,7 +403,7 @@ The reviewed `manifest.yaml`:
 <!-- quotes: reviewed/manifest.yaml -->
 ```yaml
 # The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
   name: imported/flow

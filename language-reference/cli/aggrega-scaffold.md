@@ -66,7 +66,7 @@ aggrega scaffold component my-service
 ```
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: my-service

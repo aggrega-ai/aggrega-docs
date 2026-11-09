@@ -10,10 +10,10 @@ The split between "library" and "consumer" is intentional. Recipes encode build 
 
 ## Entity Envelope
 
-A MappingLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: MappingLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. The library's content sits under `spec.mappings`, a required map that must declare at least one entry.
+A MappingLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1beta1` and `kind: MappingLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. The library's content sits under `spec.mappings`, a required map that must declare at least one entry.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: MappingLibrary
 metadata:
   name: BaseMappings

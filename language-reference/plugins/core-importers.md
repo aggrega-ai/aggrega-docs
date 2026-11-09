@@ -326,7 +326,7 @@ over a catalog holding the standard library's Flowise platform and its model and
 Components, is drafted as this Aggregate, most of the flow left out here and marked `...`:
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -954,7 +954,7 @@ is drafted as:
 
 ```yaml
 # aggregate.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -970,7 +970,7 @@ spec:
 
 ```yaml
 # release.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -1265,7 +1265,7 @@ is drafted, with no setting, over a catalog holding the standard library's `core
 
 ```yaml
 # aggregate.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -1285,7 +1285,7 @@ spec:
 
 ```yaml
 # release.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/flow
@@ -1395,7 +1395,7 @@ The authored workflow application this importer's tests import is drafted, with 
 
 ```yaml
 # aggregate.yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -1601,7 +1601,7 @@ drafted, with no setting, as:
 # Tasks the crew's program runs, drafted as no Component:
 #   - research_task, assigned to researcher
 #   - brief_task, assigned to brief_writer
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -1779,7 +1779,7 @@ backend, a store and an `env` written as an object, is drafted, with no setting,
 # Not carried, since core/ai-agent/langgraph takes no value for them: http.
 # The store configures the memory store, which LangGraph keeps in the PostgreSQL database its server uses; not carried, since core/ai-agent/langgraph takes no value for it: index, ttl.
 # Not carried, since core/ai-agent/langgraph takes no value for them: checkpointer.ttl.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -2024,7 +2024,7 @@ is drafted, with no setting, as:
 #   - math_tutor_agent.yaml
 # Not read: the application's code, which defines the tools, callbacks and agents a configuration names by their code, nor the environment file ADK's scaffold writes beside root_agent.yaml; the application runs in the image the Release names for each instance, and loads its configurations itself.
 # ADK states that its Agent Config is experimental. An agent's model is a Gemini model by default; ADK serves some other providers' models by name through classes of its own, such as claude-sonnet-4-5 and gpt-4o, and others through a LiteLLM model string.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow
@@ -2232,7 +2232,7 @@ is drafted, with no setting, as:
 ```yaml
 # aggregate.yaml
 # Not read: the application's code, which loads each declarative agent and binds the functions of its function tools; the application runs in the image the Release names for each instance, and loads its declarative agents itself.
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
   name: imported/flow

@@ -53,7 +53,7 @@ This scenario traces how the selector on a declared socket detects that an AI Ag
 The Platform Architect defines the schema structure, separating cognitive logic from topological targets natively.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Component
 metadata:
   name: core/enterprise-agent
@@ -148,7 +148,7 @@ components:
 The Go Compiler normalizes the polymorphism. Ops receives a flat, predictable `.context.uses` dictionary. They simply loop through the `.context.inject` pipe in the relevant sections of their template.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Recipe
 metadata:
   name: generic-worker

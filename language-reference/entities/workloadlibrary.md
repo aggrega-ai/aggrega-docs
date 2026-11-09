@@ -10,12 +10,12 @@ The split between "library" and "consumer" is intentional. Recipes encode build 
 
 ## Entity Envelope
 
-A WorkloadLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: WorkloadLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata, carried for whatever reads the library to match on, and the compiler does not interpret their values. The library's content sits under `spec.workloads`, a required map that must declare at least one entry.
+A WorkloadLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1beta1` and `kind: WorkloadLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata, carried for whatever reads the library to match on, and the compiler does not interpret their values. The library's content sits under `spec.workloads`, a required map that must declare at least one entry.
 
 The envelope is closed at all three levels — the document root, `metadata`, and `spec` each reject keys the schema does not declare.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: WorkloadLibrary
 metadata:
   name: BaseWorkloads
@@ -23,7 +23,7 @@ metadata:
 spec:
   workloads:
     SimpleServer: |
-      apiVersion: aggrega.ai/v1alpha1
+      apiVersion: aggrega.ai/v1beta1
       kind: Workload
       replicas: {{ optional .infra `replicas` 2 }}
       containers:
@@ -40,7 +40,7 @@ spec:
 
 ## Authoring Workload Entries
 
-Each entry is a Go template fragment authored as a YAML string. The entry's rendered output is a **whole Workload document** — it carries its own `apiVersion: aggrega.ai/v1alpha1` and `kind: Workload` — because a Recipe's `workload:` field takes one complete Workload, not a fragment spliced into a surrounding one, and the import replaces the whole field. A MappingLibrary entry is whole in the same way: importing one replaces the Recipe's entire `valuesMapping:`.
+Each entry is a Go template fragment authored as a YAML string. The entry's rendered output is a **whole Workload document** — it carries its own `apiVersion: aggrega.ai/v1beta1` and `kind: Workload` — because a Recipe's `workload:` field takes one complete Workload, not a fragment spliced into a surrounding one, and the import replaces the whole field. A MappingLibrary entry is whole in the same way: importing one replaces the Recipe's entire `valuesMapping:`.
 
 The body is opaque to the entity envelope. The compiler stores the string verbatim at WorkloadLibrary load and does not parse the template there; the template parser runs at consumption time, when a Recipe or FeatureRecipe imports the entry. Storing the fragment verbatim preserves authoring fidelity for re-emission, and it means a template error surfaces where the entry is consumed and its pillar context is known, rather than at the library.
 
@@ -50,7 +50,7 @@ Because a Workload document is multi-line, entries use YAML's literal-style scal
 spec:
   workloads:
     BatchJob: |
-      apiVersion: aggrega.ai/v1alpha1
+      apiVersion: aggrega.ai/v1beta1
       kind: Workload
       form: task
       containers:

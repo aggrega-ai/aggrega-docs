@@ -15,7 +15,7 @@ A Plugin's declarations are grouped by socket type, and that grouping is where r
 - **A cross-cutting socket declares no capabilities** — a `linter`, `governance`, or `cli` plugin carries none of the four blocks, because it serves no render dimension and no source format.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: aws-secrets-manager
@@ -88,7 +88,7 @@ A consumer resolves against exactly what is listed.
 
 ## `spec.provider`
 
-The provider-socket block for a `pluginType: provider` plugin: the capabilities it serves, how it translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, which platform-native annotations it reads, and its render-behavior contract. The block is present on every provider-rendering plugin and absent on every other plugin type. A provider that renders only sourced or artifact content with no Workload synthesis still carries the block — it declares its capabilities and its contract there, and simply omits `workloadSchema`.
+The provider-socket block for a `pluginType: provider` plugin: the capabilities it serves, how it translates the platform-owned `aggrega.ai/v1beta1` Workload kind, which platform-native annotations it reads, and its render-behavior contract. The block is present on every provider-rendering plugin and absent on every other plugin type. A provider that renders only sourced or artifact content with no Workload synthesis still carries the block — it declares its capabilities and its contract there, and simply omits `workloadSchema`.
 
 ### `spec.provider.capabilities`
 
@@ -100,7 +100,7 @@ A capability name here carries no colon. A Recipe's `spec.capability` is read as
 
 ### `spec.provider.workloadSchema`
 
-A JSON Schema 2020-12 declaration documenting how this provider translates the `aggrega.ai/v1alpha1` Workload kind into provider-native manifests. It is declared by convention on a provider that synthesizes: such a provider declares `workloadSchema` as the documented translation contract, describing what Workload fields the provider consumes, what closed sets each enum-shape field accepts, and what range constraints apply.
+A JSON Schema 2020-12 declaration documenting how this provider translates the `aggrega.ai/v1beta1` Workload kind into provider-native manifests. It is declared by convention on a provider that synthesizes: such a provider declares `workloadSchema` as the documented translation contract, describing what Workload fields the provider consumes, what closed sets each enum-shape field accepts, and what range constraints apply.
 
 The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structural guardrail that rejects a malformed schema at load rather than at render. Whether a `workload:` Recipe is supported is determined by the bound provider's synthesis capability, not by this field's presence: a synthesized-mode Recipe bound to a provider that cannot synthesize halts loudly at render time. The standard-library catalog keeps `workloadSchema` in sync with provider capability. The field is the documented contract; nothing else reads it. Workload bodies themselves are validated against the platform-owned embedded Workload schema, not against this per-provider field.
 

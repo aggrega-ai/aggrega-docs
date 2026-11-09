@@ -6,7 +6,7 @@ This page documents the runtime view the compiler injects into Recipe and Featur
 
 The compiler assembles a template context per node during rendering and injects it into every Go template the renderer evaluates for that node. The context is in-memory only — it never persists to disk and never crosses the Wasm ABI as a single payload. Each template site receives a view of the same context object; some fields are populated late (`.workload` arrives at workload synthesis; `.source` at source resolution; `.steps` is populated by `pipeline:` execution as each step completes, see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)).
 
-The schema for the runtime shape is `template-context-v1alpha1.schema.json` (shipped with the Aggrega schema distribution).
+The schema for the runtime shape is `template-context-v1beta1.schema.json` (shipped with the Aggrega schema distribution).
 
 ## Top-level fields
 

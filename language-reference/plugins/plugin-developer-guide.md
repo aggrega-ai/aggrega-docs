@@ -81,7 +81,7 @@ There is no host-allowlist field for outbound network access. A plugin never rea
 A plugin enters the catalog as a `Plugin` entity — the authoring and metadata surface for the plugin. The entity declares what the plugin is and points at the `.wasm` artifact; the compiler does not interpret the plugin's behaviour and routes the pinned reference, while the Wasm runtime executes the bytes.
 
 ```yaml
-apiVersion: aggrega.ai/v1alpha1
+apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
   name: aws-secrets-manager
