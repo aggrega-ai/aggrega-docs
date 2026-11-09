@@ -91,7 +91,9 @@ made no choice for model_config.model (model)
 
 `aggregate.yaml` — the standard library's Dify installation, `core/dify`, an
 Aggregate the draft composes under `aggregates`, with the application carried
-as written in its `app_definition` parameter, most of it left out here:
+as written in its `app_definition` parameter, most of it left out here, and
+the installation's `secret_key` passed down from a parameter the draft
+declares:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -102,14 +104,22 @@ metadata:
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
+  parameters:
+    secret_key:
+      type: string
+      required: true
+      minLength: 1
+      description: "Passed down to core/dify's secret_key parameter, which has no default; that parameter's description in core/dify says what the value is."
   aggregates:
     # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
     # Left for the Release, since the source cannot supply it:
+    #   - the secret_key parameter declared above, which this entry passes down to core/dify
     #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
     #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
     dify:
       type: core/dify
       parameters:
+        secret_key: "{{ .parameters.secret_key }}"
         app_definition: |
           app:
             description: Answers questions about the support plans of a small software company.
@@ -121,8 +131,12 @@ The installation is ten components — Dify's API server, its worker, its
 scheduler, its web front end, its code sandbox, its plugin runtime, an egress
 proxy, PostgreSQL, a Redis-compatible cache and Weaviate — wired to each
 other, and the import of the application is a step its API server's Recipe
-renders. The comments above the entry name what the application cannot supply:
-the owner account the application is imported under, and its password.
+renders. Its application secret, the key Dify signs sessions with and encrypts
+the model-provider keys it stores under, has no default in `core/dify`, so the
+draft declares `secret_key` as a parameter of its own, with no default, and
+passes it down for the Release to fulfill. The comments above the entry name
+what the application cannot supply: that parameter, the owner account the
+application is imported under, and its password.
 
 `manifest.yaml` — empty:
 
@@ -156,12 +170,22 @@ aggrega validate --release release.yaml
 ```
 
 ```text
-  [OPS_ERROR E0076] .spec.aggregates.dify
-    sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release imported/flow, at .spec.aggregates.dify, "dify")
+  [DEVELOPER_ERROR E0165] .spec.parameters.secret_key
+    required parameter not supplied (Aggregate, at .spec.parameters.secret_key, parameter "secret_key" is required but not supplied by Release)
 release dependency validation failed: 1 diagnostic(s)
 ```
 
 The review changes:
+
+- **Fulfill the application secret.** The Release supplies `secret_key` under
+  its `parameters`; what the value is follows the Manifest, as the last change
+  below says. With it supplied, validation names the next thing to settle:
+
+  ```text
+    [OPS_ERROR E0076] .spec.aggregates.dify
+      sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release imported/flow, at .spec.aggregates.dify, "dify")
+  release dependency validation failed: 1 diagnostic(s)
+  ```
 
 - **Place the installation in a boundary, and name its owner there.** The
   Release routes `dify` into a boundary, `platform`, and in that routing entry
@@ -193,12 +217,15 @@ The review changes:
   rendered file.
 - **Pass the installation's own credentials.** The installation takes five
   credentials as parameters — its database password, its application secret
-  and three keys its components present to each other — and each defaults to a
+  and three keys its components present to each other. The application secret
+  has no default: the draft passes it down from its own `secret_key`
+  parameter, and the Release fulfills that. The other four each default to a
   development value every reader of the catalog holds. With
   `helm/k8s-existing-secret`, each is the name of a Secret, so the review
-  passes the same Secret, `dify-credentials`, for all five; it holds each
-  under its own data key, `db-password`, `secret-key`, `code-execution-key`,
-  `plugin-daemon-key` and `inner-api-key`.
+  passes the same Secret, `dify-credentials`, for those four, and the Release
+  names it for `secret_key`; it holds each under its own data key,
+  `db-password`, `secret-key`, `code-execution-key`, `plugin-daemon-key` and
+  `inner-api-key`.
 
 The reviewed `aggregate.yaml`, the application left out here as above:
 
@@ -212,19 +239,26 @@ metadata:
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
+  parameters:
+    secret_key:
+      type: string
+      required: true
+      minLength: 1
+      [… omitted: its description, as drafted]
   aggregates:
     # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
     # Left for the Release, since the source cannot supply it:
+    #   - the secret_key parameter declared above, which this entry passes down to core/dify
     #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
     #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
     dify:
       type: core/dify
       parameters:
-        # Reviewed: the installation's own credentials, each the name of the
-        # Secret holding it, under the data key the module names, in place of
-        # the evaluation defaults every reader of the catalog knows.
+        secret_key: "{{ .parameters.secret_key }}"
+        # Reviewed: the installation's other four credentials, each the name of
+        # the Secret holding it, under the data key the module names, in place
+        # of the evaluation defaults every reader of the catalog knows.
         db_password: dify-credentials
-        secret_key: dify-credentials
         code_execution_key: dify-credentials
         plugin_daemon_key: dify-credentials
         inner_api_key: dify-credentials
@@ -248,6 +282,11 @@ metadata:
 spec:
   aggregate: imported/flow
   manifest: imported/flow
+  # The installation's application secret, which the Aggregate passes down to
+  # core/dify: with the Manifest binding the credential to an existing Secret,
+  # the name of the Secret holding it under the data key secret-key.
+  parameters:
+    secret_key: dify-credentials
   boundaries:
     platform:
       aggregates:

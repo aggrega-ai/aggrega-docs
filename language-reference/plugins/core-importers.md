@@ -1379,6 +1379,13 @@ check that the catalog holds `core/dify`, and a comment above the entry says so.
 holds no `core/ai-agent/dify`, the API server `core/dify` runs, the import warns with
 `platform-not-in-catalog` and drafts the entry all the same.
 
+The installation's application secret, the key Dify signs its session cookies with and encrypts the
+model-provider credentials it stores under, is the `secret_key` parameter of `core/dify`, which has no
+default. So the draft declares a `secret_key` parameter of its own — a string, required, at least one
+character long and with no default — and passes it down to every `core/dify` entry it writes, for the
+Release to fulfill under its `parameters`; a build whose Release leaves it unset halts naming it. The
+comment above each entry names it first among what the Release supplies.
+
 The application is imported under the installation's owner account, which the Release names: the
 comment above the entry leaves for it `infra.owner_email` on the installation's `api` component and the
 `owner_password` slot on that component, both set in the Release's routing entry for the installation,
@@ -1395,25 +1402,36 @@ metadata:
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
+  parameters:
+    secret_key:
+      type: string
+      required: true
+      minLength: 1
+      description: "Passed down to core/dify's secret_key parameter, which has no default; that parameter's description in core/dify says what the value is."
   aggregates:
     # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
     # Left for the Release, since the source cannot supply it:
+    #   - the secret_key parameter declared above, which this entry passes down to core/dify
     #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
     #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
     dify:
       type: core/dify
       parameters:
+        secret_key: "{{ .parameters.secret_key }}"
         app_definition: |
           app:
             description: Answers a support question from a knowledge base and files it.
             ...
 ```
 
-and a Release building it names the owner in the routing entry placing the installation:
+and a Release building it fulfills `secret_key` and names the owner in the routing entry placing the
+installation:
 
 ```yaml
 spec:
   aggregate: imported/flow
+  parameters:
+    secret_key: <the secret, or an existing Secret's name>
   boundaries:
     platform:
       aggregates:
