@@ -418,9 +418,9 @@ a pipeline can run it in place of building each Release on its own.
 adapter guest from the plugin kit, `rust/examples/policy-opa-wasm` in the
 `aggrega-pdk` repository, with the module OPA compiles from
 `policies/data-class-paths-opa.rego` in place of the adapter's own. It was built
-from `aggrega-pdk` at `a1621a97e761fc4635e75c39d5460bdd3d10c9a5` and `aggrega-abi`,
+from `aggrega-pdk` at `afd9ac6c6800c34c6c47a2030f580c9681387047` and `aggrega-abi`,
 the ABI crate the adapter builds against, at
-`8114d1afb1c2aa4db846013f696d98dee8fea48b`, with rustc 1.97.1, around the module
+`2ececa8d3b598243f023a2a6c80b351c8d1411a1`, with rustc 1.97.1, around the module
 OPA 1.21.1 compiles.
 
 First the module, from this directory. Naming the rule by its path relative to
@@ -444,8 +444,8 @@ home and the toolchain's own sources out of the guest:
 
 ```bash
 mkdir -p "$BUILD/aggrega-pdk" "$BUILD/aggrega-abi"
-git -C <aggrega-pdk checkout> archive a1621a97e761fc4635e75c39d5460bdd3d10c9a5 | tar -x -C "$BUILD/aggrega-pdk"
-git -C <aggrega-abi checkout> archive 8114d1afb1c2aa4db846013f696d98dee8fea48b | tar -x -C "$BUILD/aggrega-abi"
+git -C <aggrega-pdk checkout> archive afd9ac6c6800c34c6c47a2030f580c9681387047 | tar -x -C "$BUILD/aggrega-pdk"
+git -C <aggrega-abi checkout> archive 2ececa8d3b598243f023a2a6c80b351c8d1411a1 | tar -x -C "$BUILD/aggrega-abi"
 cp policy.wasm "$BUILD/aggrega-pdk/rust/examples/policy-opa-wasm/policy.wasm"
 cd "$BUILD/aggrega-pdk/rust/examples/policy-opa-wasm"
 SRC="$(rustc +stable --print sysroot)/lib/rustlib/src/rust"
@@ -472,7 +472,7 @@ python3 -c 'import sys; print(open(sys.argv[1], "rb").read() in open(sys.argv[2]
 The guest's own bytes also depend on the directory its crates were built in, and
 on the toolchain, so a rebuild elsewhere is an equivalent guest with another
 sha256. The one shipped here is
-`2ad18d3804be37d1830bb482e66a1011722e22e3ecc45b5ad42d35a866416949`.
+`eb53965efd7e812ecc933c7b681936c87aa0d242b28628a957f44a6a8072ec93`.
 
 ## Where the compiler does not interpret
 
