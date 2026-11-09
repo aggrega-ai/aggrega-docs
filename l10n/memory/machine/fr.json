@@ -2158,6 +2158,17 @@
     "status": "machine",
     "text": "**Signification :** l’état cognitif central, la logique métier et la configuration opérationnelle. Mathématiquement opaques pour le compilateur Go, mais strictement validées par la déclaration `schema:` unifiée du catalogue (forme compacte ou JSON Schema 2020-12)."
   },
+  "034dba70e67c894f": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "1178eca90bdaa41f",
+      "reviewed": false
+    },
+    "srcHash": "034dba70e67c894f",
+    "status": "machine",
+    "text": "Pour installer d’abord le binaire `aggrega`, suivez [Installer le binaire](../install.md#install-the-binary) ; pour qu’un assistant d’IA l’installe et le configure pour vous, collez le prompt de [Configurer Aggrega avec votre assistant d’IA](../ai-assistants/set-up.md). Avant de bâtir des scripts ou un catalogue sur Aggrega, lisez [Compatibilité](compatibility.md) pour savoir ce qu’une mise à niveau peut changer et ce qu’elle ne peut pas changer."
+  },
   "03513b13b3c09123": {
     "at": "2026-11-03T20:41:36.264Z",
     "job": "session-0156-20261103204136",
@@ -9149,6 +9160,17 @@
     "srcHash": "0ee8dce5a4f9bc0b",
     "status": "machine",
     "text": "le `DependsOn` d’une ressource, sous forme d’un ID logique ou d’une liste d’ID logiques ;"
+  },
+  "0eec71e8182d1f05": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "26b00e3ce6765141",
+      "reviewed": false
+    },
+    "srcHash": "0eec71e8182d1f05",
+    "status": "machine",
+    "text": "Avant de lire la suite des chapitres, consultez [État du langage](10-status.md) pour l’état actuel de maturité — quelles surfaces du langage sont disponibles aujourd’hui, lesquelles sont acceptées mais pas encore prises en compte par le compilateur, et lesquelles sont prévues pour des itérations futures. [Compatibilité](compatibility.md) indique ce qu’une release promet pour les schémas, la ligne de commande, les outils de l’assistant, les codes d’erreur et les kits de plugin."
   },
   "0ef07d1b5f223c47": {
     "at": "2026-11-03T22:29:54.265Z",
@@ -38316,6 +38338,17 @@
     "status": "machine",
     "text": "une `ConfigMap` — la configuration de Jaeger v2 (les récepteurs OTLP, le processeur batch et le magasin clé-valeur embarqué écrivant dans `/badger/key` et `/badger/data`),"
   },
+  "402dac90825c3b5f": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "04e6d90c06769e87",
+      "reviewed": false
+    },
+    "srcHash": "402dac90825c3b5f",
+    "status": "machine",
+    "text": "**Là où le bundle de bureau a lancé le serveur, la même réponse nomme à côté la version du bundle.** Le bundle ne contient aucun programme : il lance l’exécutable `aggrega` que nomme son paramètre **Path to the aggrega executable** — par défaut le nom de commande `aggrega`, que l’application recherche dans son `PATH` —, de sorte que le bundle et l’exécutable sont installés séparément et peuvent provenir de versions différentes, et l’application qui liste le bundle n’affiche que la version propre du bundle. Le bundle transmet sa version au serveur sous la forme `AGGREGA_BUNDLE_VERSION` dans son environnement ; le serveur la lit une fois, au démarrage, et la réponse la porte sous la forme `bundle_version`. Les deux sont comparées exactement telles qu’elles sont écrites, ce qui est une comparaison juste, car le bundle et l’exécutable d’une même version sont estampillés de la version de celle-ci sous la même forme, tandis qu’un build de développement se lit différemment de toute version publiée. Lorsqu’elles sont égales, la ligne nomme les deux et n’en dit pas plus. Lorsqu’elles diffèrent, la ligne indique, en nommant les deux, que l’exécutable et le bundle proviennent de versions différentes, et les indications que le serveur donne à un modèle lorsqu’il se connecte s’ouvrent sur cette même phrase, de sorte que la différence est sous les yeux du modèle avant qu’il ne pose la question."
+  },
   "402f2d7b473faae6": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -40853,6 +40886,13 @@
     "srcHash": "44897dc2ca77e4c0",
     "status": "machine",
     "text": "Le `source:` du fournisseur helm nomme un chart, et il accepte les deux formes que prend le champ `source:` : une **simple chaîne de chemin du système de fichiers**, et un **objet structuré** dont le `url:` porte l’emplacement. Partout où cet emplacement est un chemin du système de fichiers, il est ancré au répertoire contenant le `recipe.yaml` qui le déclare, et non au répertoire depuis lequel le build est lancé, et il doit rester à l’intérieur de ce répertoire : un chemin qui en sort, ou un chemin absolu, est refusé, car chaque fichier que porte une publication de la Recipe est pris dans son répertoire — voir [`entities/recipe.md`](../entities/recipe.md) « Content paths stay inside the Recipe's own directory (Les chemins de contenu restent dans le répertoire propre de la Recipe) ». Un chart nommé de cette façon est publié avec la Recipe, avec chaque fichier qu’il contient que conservent les règles d’exclusion enregistrées lorsque la Recipe a été épinglée — le fournisseur helm écarte les répertoires de contrôle de version et les fichiers cachés sous le `templates/` du chart, respecte le propre `.helmignore` du chart, et le `.aggregaignore` de l’auteur a le dernier mot, comme le décrit [Quels fichiers sont livrés avec une entité](../cli/aggrega-pin.md#which-files-ship-with-an-entity) — tandis qu’un fichier à côté de la Recipe que rien de ce qu’elle déclare ne nomme ne l’est pas. Le rendu lit les mêmes fichiers que porte la publication, de sorte qu’un chart est rendu de la même façon depuis votre répertoire et depuis un registre. La forme dans laquelle vous l’avez écrit n’y change rien : un `source:` structuré dont le `url:` est `./charts/api-server` est ancré exactement comme la simple chaîne `./charts/api-server`."
+  },
+  "448f62e7cee824b7": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "448f62e7cee824b7",
+    "status": "machine",
+    "text": "**La progression**, puis **une page de fin** qui nomme le dossier et indique si cette installation l’a ajouté à votre `PATH`, avec les étapes suivantes : installer le skill Aggrega avec `aggrega skills install --global`, et connecter votre client d’IA comme le décrit [Connecter un client MCP](#connect-an-mcp-client)."
   },
   "44930b7cdcebf2ab": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -48360,6 +48400,13 @@
     "srcHash": "5102317ff664c561",
     "status": "machine",
     "text": "Compose n’a pas de référence de secret, donc la Release compose remplit le même slot avec `core/secret-value`, dont l’origine est une référence de variable Compose. Extrait de `release-compose.yaml` :"
+  },
+  "51023cf4e74faabc": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "51023cf4e74faabc",
+    "status": "machine",
+    "text": "Ce qu’il fait :"
   },
   "51033328f4cfed6f": {
     "at": "2026-11-03T19:06:07.164Z",
@@ -75734,6 +75781,17 @@
     "status": "machine",
     "text": "Déclarer les noms qu’un guest dérive"
   },
+  "7efd99e422a69348": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "75fb04b0724c8006",
+      "reviewed": false
+    },
+    "srcHash": "7efd99e422a69348",
+    "status": "machine",
+    "text": "**Relancé, il installe par-dessus ce qui s’y trouve**, en proposant le dossier dans lequel il a installé la dernière fois, de sorte que le programme d’installation d’une release ultérieure met à jour la copie que vous avez, en conservant une seule entrée dans votre `PATH`."
+  },
   "7f00b6ca3958df32": {
     "at": "2026-11-03T01:59:04.506Z",
     "job": "session-0035-20261103015904",
@@ -76725,6 +76783,13 @@
     "srcHash": "80b11f40cc3be90b",
     "status": "machine",
     "text": "Dans la forme fusionnée, `side_effects` reflète le contrat plus étroit du consommateur (`enum: [read]`, avec un `default`) ; le `enum: [read, write, delete]` plus large de l’entrée de bibliothèque a disparu. La propriété est rédigée par le consommateur."
+  },
+  "80b4c1cba064cebe": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "80b4c1cba064cebe",
+    "status": "machine",
+    "text": "**Le dossier d’installation**, `%LOCALAPPDATA%\\Programs\\aggrega` sauf si vous en choisissez un autre ; c’est le dossier qu’utilise la commande d’installation."
   },
   "80b7356cd5d8b524": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -79421,6 +79486,13 @@
     "srcHash": "854018678043c824",
     "status": "machine",
     "text": "La déclaration suit la cascade de rattachements plutôt qu’un bloc écrit particulier. L’exigence d’un slot s’applique au remplissage qui finit par l’occuper une fois toutes les portées repliées, de sorte qu’un remplissage au niveau du composant qui en supplante un plus large hérite de l’exigence sans changement."
+  },
+  "8540338f03043dee": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "8540338f03043dee",
+    "status": "machine",
+    "text": "Ce qu’une release peut changer dans les commandes, les options et les outils de l’assistant — et ce qu’une release de correctif ne change jamais — est indiqué dans [Compatibilité](compatibility.md#the-command-line-and-the-assistant-tools)."
   },
   "8540b814ccb06f0d": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -87556,6 +87628,17 @@
     "srcHash": "92c239a1427e50f5",
     "status": "machine",
     "text": "**Tout port autre que 11434.**"
+  },
+  "92c41da8682c205e": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "51179903bc575129",
+      "reviewed": false
+    },
+    "srcHash": "92c41da8682c205e",
+    "status": "machine",
+    "text": "Sous Windows, `winget install Cognitio.Aggrega` l’installe avec [winget](https://learn.microsoft.com/windows/package-manager/winget/), le gestionnaire de paquets Windows. winget télécharge le [programme d’installation Windows](#install-with-the-windows-installer) de la release depuis la page de la release, le vérifie par rapport au digest SHA-256 que donne le manifeste du paquet, et l’exécute sans intervention. Le résultat est celui du programme d’installation lui-même : `aggrega.exe` dans `%LOCALAPPDATA%\\Programs\\aggrega`, ou dans le dossier qu’a utilisé une installation antérieure, ce dossier dans le `PATH` de votre utilisateur, et Aggrega dans votre liste d’applications installées, le tout sans droits d’administrateur. winget ne modifie pas le `PATH` du terminal dans lequel il s’exécute, ouvrez donc un nouveau terminal avant de lancer `aggrega version`."
   },
   "92c76683339b1144": {
     "at": "2026-11-06T03:52:39.580Z",
@@ -108056,6 +108139,17 @@
     "status": "machine",
     "text": "**Les clés requises dépendent de l’entrée**, et le constat indique lesquelles il attendait. Une entrée qui nomme sa propre `key:` fournit elle-même le champ, donc seul le `name` de la ressource doit être publié — c’est ce qui lui permet de faire référence à une ressource à plusieurs clés. Une entrée qui ne nomme aucune `key:` lit l’unique champ publié de l’emplacement, donc `name` et `key` doivent tous deux être présents."
   },
+  "b456276cb6e455c2": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "028a25296fc57d59",
+      "reviewed": false
+    },
+    "srcHash": "b456276cb6e455c2",
+    "status": "machine",
+    "text": "**`value:` uniquement dans l’`inject` propre à un composant.** Un littéral a sa place dans l’`inject` propre au composant, qui le délivre. Sur une connexion `uses`, un `value:` arrête le build, comme le décrit [An `inject:` entry on a connection carries a literal (Une entrée sur une connexion porte un littéral)](errors/fatal-halts.md#an-inject-entry-on-a-connection-carries-a-literal), et dans l’`inject` propre à un attachement, il arrête aussi le build, comme le décrit [An `inject:` entry on an attached Feature carries a literal (Une entrée sur une Feature attachée porte un littéral)](errors/fatal-halts.md#an-inject-entry-on-an-attached-feature-carries-a-literal) : tous deux ne délivrent que des clés qu’une autre entité publie, nommées avec `from:`."
+  },
   "b459c3c5ef51cb7a": {
     "at": "2026-11-04T08:57:20.450Z",
     "job": "session-0224-20261104085720",
@@ -116268,6 +116362,17 @@
     "status": "machine",
     "text": "**Données personnelles masquées dans les journaux de la passerelle.** Le `values.log_masking` de la passerelle liste les types d’entités `EMAIL_ADDRESS`, `PERSON` et `PHONE_NUMBER`, que Microsoft Presidio trouve et remplace : l’Aggregate ajoute `analyzer` et `anonymizer`, de types `core/security/presidio-analyzer` et `core/security/presidio-anonymizer`, sur les sockets `pii_analyzer` et `pii_anonymizer` de la passerelle. Le masquage s’applique aux copies de chaque appel que la passerelle transmet à ses journaux ; le modèle reçoit la requête telle qu’elle a été envoyée."
   },
+  "c17b125e8809c32b": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "6117b2a957a8a21b",
+      "reviewed": false
+    },
+    "srcHash": "c17b125e8809c32b",
+    "status": "machine",
+    "text": "**Il liste Aggrega parmi vos applications installées**, avec Cognitio S.r.l. comme éditeur, de sorte qu’il se désinstalle depuis **Settings → Apps** comme n’importe quelle autre application. Le programme de désinstallation vous demande de confirmer, puis supprime les fichiers que le programme d’installation a placés dans le dossier, l’entrée du `PATH` et l’entrée dans cette liste, et supprime le dossier lorsqu’il n’y reste plus rien d’autre."
+  },
   "c1809813238a607c": {
     "at": "2026-11-06T19:47:52.290Z",
     "job": "session-0001-20261106194752",
@@ -117533,6 +117638,17 @@
     "status": "machine",
     "text": "`core/ai-agent/n8n`"
   },
+  "c3a8b04305ee432d": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "c2f79daf2a62d89d",
+      "reviewed": false
+    },
+    "srcHash": "c3a8b04305ee432d",
+    "status": "machine",
+    "text": "`winget upgrade Cognitio.Aggrega` installe une release ultérieure par-dessus, et `winget uninstall Cognitio.Aggrega` exécute son programme de désinstallation. winget, le programme d’installation et la commande d’installation installent tous dans le même dossier, sauf si vous en choisissez un autre dans le programme d’installation, de sorte que celui qui s’exécute en dernier y place son `aggrega.exe`."
+  },
   "c3aa85d5081e044f": {
     "at": "2026-11-04T10:33:35.877Z",
     "job": "session-0231-20261104103335",
@@ -117883,6 +117999,13 @@
     "srcHash": "c4276ebf94fd922a",
     "status": "machine",
     "text": "Comme l’hôte et le segment de type d’entité sont dérivés plutôt qu’écrits, écrire l’un ou l’autre dans la référence ne désigne pas l’entité publiée — cela produit une identité qu’aucune entrée de catalogue ne porte. Une référence à un Component ou à une Feature est son `metadata.name` tel quel, plus un `:version` facultatif, que l’entité se résolve depuis le catalogue local, depuis le cache ou depuis un registre. Un espace de travail qui consomme un registre privé nomme cet hôte dans sa propre configuration plutôt que dans chaque référence."
+  },
+  "c428210ed8a440fe": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "c428210ed8a440fe",
+    "status": "machine",
+    "text": "[Compatibilité](compatibility.md#error-codes) — ce que les codes courts promettent d’une release à l’autre : un code n’est jamais renuméroté ni attribué à une autre condition."
   },
   "c428fbe945d766cd": {
     "at": "2026-11-03T20:08:39.308Z",
@@ -119850,6 +119973,13 @@
     "srcHash": "c7be1ba405cd24ad",
     "status": "machine",
     "text": "**Comment corriger :** donnez aux deux ressources des identités distinctes — le nom est ce qui diffère habituellement, et le nom de fichier en découle. Le message nomme les deux templates, ouvrez-les donc et vérifiez ce que chacun produit : deux templates qui rendent la même ressource sous un même nom signifient souvent que l’un d’eux est une copie plus ancienne. Lorsque les deux sont voulues, ce sont deux ressources et chacune a besoin de son propre nom."
+  },
+  "c7bed922cfcf9dd4": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "c7bed922cfcf9dd4",
+    "status": "machine",
+    "text": "**Une page d’accueil**, puis **les composants** : Aggrega lui-même, toujours installé, et **Add to PATH**, sélectionné."
   },
   "c7bffe14647d94a4": {
     "at": "2026-11-04T07:59:45.803Z",
@@ -122543,6 +122673,13 @@
     "srcHash": "cc0bc29eedd7fadf",
     "status": "machine",
     "text": "**`.labels` (map à valeurs de chaîne).** Les labels de catalogue de la Feature rattachée, transmis tels quels dans l’ordre où la Feature les déclare — rien n’est filtré, renommé ni dépouillé de son préfixe, de sorte qu’un template lit exactement ce que l’auteur de la Feature a écrit. Reflète `.context.uses.<alias>.labels`. Absent lorsque la Feature ne déclare aucun label, et lorsque le `type` du rattachement ne se résout en aucune entité de catalogue."
+  },
+  "cc0caf868583cbda": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "srcHash": "cc0caf868583cbda",
+    "status": "machine",
+    "text": "[compatibility](compatibility.md#plugin-kits) — comment les kits de plugin sont versionnés : ce qu’une release de correctif et une release mineure d’un kit peuvent changer, et ce qui permet à un plugin déjà construit de continuer à se charger."
   },
   "cc0d5bca2990b154": {
     "at": "2026-11-02T20:12:02.178Z",
@@ -126305,6 +126442,17 @@
     "status": "machine",
     "text": "Ce dernier refus est une règle qu’un parc informatique choisit, et non un défaut de la Release. Remplir un emplacement d’identifiant par valeur est une forme prise en charge : un auteur fournit l’élément et la cible le rend là où la charge de travail peut le lire, et le compilateur n’a aucune opinion à ce sujet. À proximité, et séparément, il avertit bien lorsqu’une valeur qu’un auteur a déclarée sensible parvient à une clé de livraison sous forme littérale — et cet avertissement conseille plutôt qu’il n’arrête, car la famille des identifiants par valeur est délibérée. Dans un cas comme dans l’autre, c’est le parc informatique qui interdit la forme qui le dit : ici, ou au socket de gouvernance. Les deux voies et le choix entre elles se trouvent sur [la page du socket de gouvernance](../../plugins/policy-socket.md#running-policy-in-ci-over-the-build-output)."
   },
+  "d1c52d901357af24": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "a54213fc2c4429bb",
+      "reviewed": false
+    },
+    "srcHash": "d1c52d901357af24",
+    "status": "machine",
+    "text": "Un bundle de documentation est un artefact de données autonome — une archive tar compressée avec gzip de documentation rendue — plutôt qu’une entité de catalogue. Il porte le type de média `application/vnd.aggrega.docs.v1beta1+tar+gz`, qui est le type d’artefact qu’un consommateur voit lorsqu’il récupère le bundle depuis le registre."
+  },
   "d1ce57a18201e323": {
     "at": "2026-11-04T01:50:23.893Z",
     "job": "session-0188-20261104015023",
@@ -128474,6 +128622,17 @@
     "srcHash": "d5b363da62da4792",
     "status": "machine",
     "text": "Tous deux acceptent JSON Schema 2020-12 sous les mêmes formes de contenu que le champ `schema:` — forme compacte en ligne, JSON Schema YAML en ligne, ou un `$ref:` inter-documents vers une entrée d’une SchemaLibrary. Ce sont des contrats **par arête**, validés indépendamment par rapport à la configuration de chaque arête ; ils ne sont pas composés dans le schéma `values` propre au Component consommateur. Un socket qui omet un schéma par arête pour un pilier n’y déclare aucun contrat, et toute configuration écrite pour ce pilier n’est pas validée. La configuration par arête est validée de manière fermée, et la validation tient compte des valeurs par défaut dans les deux piliers : une clé à laquelle le schéma donne un `default:` compte comme fournie même lorsque l’auteur l’omet."
+  },
+  "d5b822cebcba24cd": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "24ae7a25f78e1ae6",
+      "reviewed": false
+    },
+    "srcHash": "d5b822cebcba24cd",
+    "status": "machine",
+    "text": "**Pour installer sans fenêtre**, depuis un script ou un outil qui installe des logiciels sur de nombreuses machines, lancez le programme d’installation avec `/S`, écrit en majuscule ; il installe alors sans fenêtre ni question, dans le dossier qu’a utilisé une installation antérieure ou sinon dans le dossier par défaut, avec **Add to PATH**, et signale un échec par son code de sortie, qui n’est pas `0`. Le programme de désinstallation accepte la même option :"
   },
   "d5b8a1ff00273d2f": {
     "at": "2026-11-04T11:53:51.221Z",
@@ -134610,6 +134769,17 @@
     "srcHash": "df7671bfadf207bd",
     "status": "machine",
     "text": "aggrega plugin"
+  },
+  "df77399c5954e9b2": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "8922a6b634cb2845",
+      "reviewed": false
+    },
+    "srcHash": "df77399c5954e9b2",
+    "status": "machine",
+    "text": "**Avec Add to PATH sélectionné, il ajoute le dossier d’installation au `PATH` de votre utilisateur**, sauf s’il y figure déjà. Un terminal ouvert après l’installation trouve `aggrega` ; un terminal déjà ouvert conserve le `PATH` avec lequel il a démarré. Avec l’option désélectionnée, rien n’est ajouté à votre `PATH`, et un terminal exécute `aggrega.exe` par son chemin complet ; une entrée ajoutée par une installation antérieure est laissée telle quelle."
   },
   "df7a8fc1318e9b57": {
     "at": "2026-10-22T03:40:32.071Z",
@@ -141446,6 +141616,17 @@
     "srcHash": "eada0370425262e7",
     "status": "machine",
     "text": "Une injection qui nomme une paire frontière-composant hors de cet ensemble arrête la build. Un plugin qui atteindrait un composant que vos documents n’ont jamais exposé configurerait une infrastructure que personne n’a déclarée, et les annotations qu’il ajoute sont développées en rattachements de Feature exactement comme celles qui sont écrites par l’auteur, de sorte que l’effet serait l’apparition de ressources à partir d’un composant que l’opérateur ne lui a pas présenté."
+  },
+  "eadd200794370cb4": {
+    "at": "2026-11-09T23:54:34.603Z",
+    "job": "session-0004-20261109235434",
+    "revision": {
+      "from": "ccf082b28180305f",
+      "reviewed": false
+    },
+    "srcHash": "eadd200794370cb4",
+    "status": "machine",
+    "text": "Chaque release fournit un programme d’installation Windows, `aggrega-<version>-windows-amd64-setup.exe`, sur la page de la release à [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Téléchargez-le et exécutez-le. Il installe le `aggrega.exe` par défaut pour vous seul, sans droits d’administrateur et sans les demander, au moyen d’un court assistant :"
   },
   "eadf567771630ec8": {
     "at": "2026-11-03T04:04:12.316Z",
