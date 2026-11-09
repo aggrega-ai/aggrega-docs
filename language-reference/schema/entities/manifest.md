@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/manifest-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/manifest-v1beta1.schema.json`
 
 A single, global lockfile that maps abstract component and Feature types to concrete Recipe and FeatureRecipe implementations, by type, with a per-instance override by name.
 
@@ -14,7 +14,7 @@ See the [Manifest authoring reference](../../entities/manifest.md) for prose gui
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "Manifest" | yes | Constant: `"Manifest"` |
 | `metadata` | object | yes |  |
 | `defs` | string[] | no | Optional block for standard YAML anchors (& and *) to keep the Manifest DRY while maintaining a flat O(1) dictionary for the compiler. |

@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/cache-metadata-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/cache-metadata-v1beta1.schema.json`
 
 The metadata.yaml file written into every source-artifact cache slot alongside blob.tgz. Records the {kind, url, version, digest, mediatype, pulled_at} identity tuple so cache inspection and build-time integrity verification have a single canonical record. The wire shape is closed (additionalProperties: false) and all six fields are required. Schema evolution discipline: adding a new optional field is SemVer-MINOR (additive); removing a field or tightening a constraint is SemVer-MAJOR.
 

@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/feature-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/feature-v1beta1.schema.json`
 
 A modular operational feature that binds dynamically to components.
 
@@ -14,7 +14,7 @@ See the [Feature authoring reference](../../entities/feature.md) for prose guida
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "Feature" | yes | Constant: `"Feature"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | The validation, targeting, and interoperability contract for a catalog Feature: the free-form pillars (values, infra, provides) authored via schema, the fixed-shape pillars (usesSchema dependency sockets, featuresSchema attachment slots), component targeting (appliesTo and appliesToAnyOf), and interoperability controls. |

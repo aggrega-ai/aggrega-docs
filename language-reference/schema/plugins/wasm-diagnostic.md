@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-diagnostic-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-diagnostic-v1beta1.schema.json`
 
 The single diagnostic shape every Wasm socket shares. A plugin reports one entry per issue it raises; the host surfaces it. The shape is a superset: every socket populates the subset it uses and omits the rest, so a diagnostic from any socket is one uniform structure. severity is one of three values every socket shares — halt, warn, or info — so a diagnostic carries the same meaning whichever socket raised it.
 

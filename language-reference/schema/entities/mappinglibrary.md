@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/mappinglibrary-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/mappinglibrary-v1beta1.schema.json`
 
 A reusable collection of Go template fragments that Recipes and FeatureRecipes consume at render time via `valuesMapping: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe mapping reuse. Single authoring mode: Go templates only.
 
@@ -14,7 +14,7 @@ See the [MappingLibrary authoring reference](../../entities/mappinglibrary.md) f
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "MappingLibrary" | yes | Constant: `"MappingLibrary"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | The MappingLibrary's content. spec.mappings is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments. |

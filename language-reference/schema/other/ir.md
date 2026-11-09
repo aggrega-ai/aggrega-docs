@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/ir-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/ir-v1beta1.schema.json`
 
 The flattened, fully resolved 1-dimensional graph emitted by the Topology Builder.
 
@@ -12,7 +12,7 @@ The flattened, fully resolved 1-dimensional graph emitted by the Topology Builde
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "IR" | yes | Constant: `"IR"` |
 | `metadata` | IRMetadata | yes | Identity of the graph: the Aggregate it was built from. |
 | `spec` | IRSpec | yes | The graph itself: its nodes, its edges and the payloads keyed by node. |
@@ -187,7 +187,7 @@ Traceability metadata for diagnostics and auditing.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `schema_version` | string | yes | The version of the IR schema the graph conforms to — aggrega.ai/v1alpha1, the same value the graph's apiVersion carries. |
+| `schema_version` | string | yes | The version of the IR schema the graph conforms to — aggrega.ai/v1beta1, the same value the graph's apiVersion carries. |
 | `compiler_version` | string | yes | Mandatory compliance stamp. Identifies, by its version, the aggrega binary that built this graph. |
 | `aggregate_version` | string | yes | The exact semantic version of the root Aggregate intent used during compilation. |
 | `manifest_version` | string | yes | The exact semantic version of the Manifest lockfile used during compilation. |
@@ -215,7 +215,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "IR" | yes | Constant: `"IR"` |
 | `metadata` | IRMetadata | yes | Identity of the graph: the Aggregate it was built from. |
 | `spec` | IRSpec | yes | The graph itself: its nodes, its edges and the payloads keyed by node. |

@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-describe-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-describe-v1beta1.schema.json`
 
 The wire shape every Wasm plugin returns from its describe() export (PluginDescriptor). describe() is the plugin's self-declaration, read once by the host when it loads the plugin: the ABI version the guest binds against, the plugin type, the exports it offers with each export's capability declaration, a plugin-level capability self-report, an optional provider render-behavior contract, an optional importer recognition contract, optional CLI commands, an optional settings schema, and optional authorship metadata. One shape covers every plugin type — provider, linter, feature-recipe-pipeline step, governance, CLI, parser, and importer. The host reads describe() before dispatching any other export and refuses a descriptor it cannot admit rather than mis-invoking the plugin at dispatch.
 

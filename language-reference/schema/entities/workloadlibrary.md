@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/workloadlibrary-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/workloadlibrary-v1beta1.schema.json`
 
 A reusable collection of Workload template fragments that Recipes consume at render time via `workload: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe workload reuse. Single authoring mode: Go templates only.
 
@@ -14,7 +14,7 @@ See the [WorkloadLibrary authoring reference](../../entities/workloadlibrary.md)
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "WorkloadLibrary" | yes | Constant: `"WorkloadLibrary"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | The WorkloadLibrary's content. spec.workloads is required and must declare at least one entry. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps Recipe rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported fragments. |

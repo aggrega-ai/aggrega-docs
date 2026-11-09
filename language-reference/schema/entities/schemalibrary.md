@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/schemalibrary-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/schemalibrary-v1beta1.schema.json`
 
 A reusable collection of JSON Schema 2020-12 definitions that catalog content (Components, Features, etc.) can $ref into via the bare-name identity reference <Library>#/schemas/<name> (the version is supplied by the per-Release lockfile; no registry host appears in the reference). Tier 3 — opt-in for catalogs that need cross-Component schema reuse.
 
@@ -14,7 +14,7 @@ See the [SchemaLibrary authoring reference](../../entities/schemalibrary.md) for
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "SchemaLibrary" | yes | Constant: `"SchemaLibrary"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | The SchemaLibrary's content. spec.schemas is required and must declare at least one entry; spec.templates is optional and only present when the library uses parameterized helpers. |

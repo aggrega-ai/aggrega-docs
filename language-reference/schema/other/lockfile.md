@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/lockfile-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/lockfile-v1beta1.schema.json`
 
 Machine-generated lockfile pinning every URI resolved from a Release for deterministic future builds. Lives at `<release-stem>.lock` next to `<release-stem>.yaml`; produced by `aggrega pull --release <release>`; consumed by `aggrega build --release <release>`. Two provenance shapes record two distinct relationships in the dependency graph: `referenced_from` (list of strings) appears on `entities`, as dotted authoring-site paths recording where in the Release / Aggregate / Manifest / `.aggrega-config.yaml` each URI was pulled in from, and on `plugins`, as the reference of each Plugin entity an artifact was reached through; `consumers` (list of `{consumer_uri, fragments}` records) appears on `schema_libraries`, `mapping_libraries`, `workload_libraries`, and `artifact_libraries` to record which catalog entity references which `<entry-name>` fragments of a library — the structured shape makes consumer-affected-by-library-bump diffs traceable without resolving the Release again. Schema evolution discipline: adding a new top-level section is SemVer-MINOR (additive); adding a new field inside an existing section is SemVer-MINOR; removing a key or tightening a constraint is SemVer-MAJOR.
 

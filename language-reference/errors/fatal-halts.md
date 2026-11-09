@@ -280,6 +280,20 @@ Emitted message, for a FeatureRecipe whose second step repeats the first step's 
 
 **How to fix:** rename one of the two steps, so each id is declared once. Then read every later step's `with:` and `when:` templates for `.steps.<id>` references to the id you kept, and point each at the step whose outputs it means — the rename is what makes the two steps' outputs separately reachable.
 
+### A document declares an API version this compiler no longer reads
+
+<!-- covers: pkg/validator/envelope.ErrRetiredAPIVersion -->
+
+A document's `apiVersion` line declares `aggrega.ai/v1alpha1`. Every document kind that carries an `apiVersion` line declares `aggrega.ai/v1beta1`, the only version this compiler reads, and no conversion from the earlier version takes place: the document is refused as it is read, before anything else is checked, because every other finding would be about a version of the document the compiler does not read.
+
+Every surface that reads a document reports it: [`aggrega validate`](../cli/aggrega-validate.md), a build, a pull admitting a fetched entity, the editor's diagnostics, and a document edit. A document declaring a version the compiler has never read is refused by its kind's schema instead, under `E0215`.
+
+Emitted message, for a Component. The category and this condition's short code, `E0373`, reach you in the bracketed head:
+
+> a document declares an API version this compiler no longer reads (Component, at `<path>`); 1:1: apiVersion: the document declares aggrega.ai/v1alpha1, and this compiler reads aggrega.ai/v1beta1. change the apiVersion line to `apiVersion: aggrega.ai/v1beta1`
+
+**How to fix:** change the document's `apiVersion` line to `apiVersion: aggrega.ai/v1beta1`. The fields of each kind are unchanged between the two versions, so the line is the whole change.
+
 ### A file cannot be read, or its bytes do not parse
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
@@ -6732,6 +6746,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0370` | `a pipeline declares one step id twice` | A pipeline declares one step id twice |
 | `E0371` | `catalog document declares a kind a catalog does not hold` | A catalog document declares a kind a catalog does not hold |
 | `E0372` | ``inject entry on an attachment carries `value:`; an attachment delivers the keys its FeatureRecipe publishes, each named with `from:`, and a literal belongs in the component's own inject block`` | An `inject:` entry on an attached Feature carries a literal |
+| `E0373` | `a document declares an API version this compiler no longer reads` | A document declares an API version this compiler no longer reads |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

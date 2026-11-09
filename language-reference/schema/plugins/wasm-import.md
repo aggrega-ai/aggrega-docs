@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-import-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-import-v1beta1.schema.json`
 
 The wire shapes an importer plugin socket consumes (ImportInput) and emits (ImportOutput). An importer turns a foreign infrastructure description into Aggrega entities: it reads the source bytes for a named format, maps each source node to a catalog entity, and returns the entities it emitted, the mapping decisions it made, any diagnostics it raised, and any scaffold files it produced. An importer declares the formats it handles as import:<format> capabilities in its descriptor. The importer maps meaning from the source to entities; the compiler pipes the emitted entities through opaquely.
 

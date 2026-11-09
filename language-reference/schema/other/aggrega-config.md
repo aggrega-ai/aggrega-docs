@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/aggrega-config-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/aggrega-config-v1beta1.schema.json`
 
 Per-workspace configuration file consumed by the aggrega CLI. Lives at `.aggrega-config.yaml`. The `workspace` block is the root marker: its presence marks the workspace root, and it holds only catalog directories. Every other key is a setting and lives at the top level, in these classes — where content is fetched from, pinned and cached (registry selection, offline, auto-pull and pinning behaviour, artifact and compiled-module cache locations and size caps), how content is trusted (signing, and signature-verification behaviour), how strictly authoring is judged (per-rule lint dials, deprecation strictness, and the authoring-release hint), which Wasm plugins are attached workspace-wide (governance, linter, importer, and per-target provider-rendering bindings), and how the CLI runs (concurrency, serving, and daemon parse-cache eviction caps). The properties below are the complete and authoritative list; this summary names the classes rather than the keys, so adding a key cannot falsify it. Flat top-level shape, no apiVersion/kind envelope, distinct from catalog content. Schema evolution discipline: adding a new top-level key is a SemVer-MINOR bump (additive); removing or relocating a key, or tightening a constraint, is a SemVer-MAJOR break.
 

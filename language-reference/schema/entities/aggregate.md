@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/aggregate-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/aggregate-v1beta1.schema.json`
 
 The recursive, parameterized AI architecture. Acts as both the root of a build and a reusable module.
 
@@ -14,7 +14,7 @@ See the [Aggregate authoring reference](../../entities/aggregate.md) for prose g
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "Aggregate" | yes | Constant: `"Aggregate"` |
 | `metadata` | object | yes |  |
 | `defs` | string[] | no | Optional block for standard YAML anchors (& and *) to keep the Aggregate DRY while maintaining a flat O(1) dictionary for the compiler. Mirrors the equivalent block on Manifest. |

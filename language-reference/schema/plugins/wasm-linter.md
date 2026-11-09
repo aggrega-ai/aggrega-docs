@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-linter-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-linter-v1beta1.schema.json`
 
 The wire shapes the linter socket consumes (LinterInput) and emits (LinterOutput). The linter runs at publish time over a previous-version + proposed-version entity pair (the schema-evolution rule) and at workspace lint time over individual entities (per-rule structural rules). One shipping Wasm plugin hosts many rules; the plugin selects which rule to run by LinterInput.rule_id. This schema is the single source of both wire shapes: the Go, Rust and TypeScript payload types are generated from it into the shared plugin-ABI package, and each plugin kit re-exports those generated types rather than declaring its own copy.
 

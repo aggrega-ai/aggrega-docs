@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/artifactlibrary-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/artifactlibrary-v1beta1.schema.json`
 
 A reusable collection of named artifact bundles that Recipes and FeatureRecipes consume at render time via `artifacts.<name>: { $import: ... }`. Each bundle is a set of output files imported as one unit. Tier 3 — opt-in for catalogs that need cross-Recipe artifact reuse. Single authoring mode: Go templates only.
 
@@ -14,7 +14,7 @@ See the [ArtifactLibrary authoring reference](../../entities/artifactlibrary.md)
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "ArtifactLibrary" | yes | Constant: `"ArtifactLibrary"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | The ArtifactLibrary's content. spec.artifacts is required and must declare at least one bundle. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported bundles. |

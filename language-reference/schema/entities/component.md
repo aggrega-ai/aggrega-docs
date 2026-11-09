@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/component-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/component-v1beta1.schema.json`
 
 The abstract definition of an atomic building block.
 
@@ -14,7 +14,7 @@ See the [Component authoring reference](../../entities/component.md) for prose g
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "Component" | yes | Constant: `"Component"` |
 | `metadata` | object | yes |  |
 | `spec` | object | yes | Validation and schema definitions governing the developer's opaque values payload. |

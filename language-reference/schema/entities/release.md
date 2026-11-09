@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/release-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/release-v1beta1.schema.json`
 
 See the [Release authoring reference](../../entities/release.md) for prose guidance on authoring Release entities; this page documents the structural schema that reference describes.
 
@@ -12,10 +12,10 @@ See the [Release authoring reference](../../entities/release.md) for prose guida
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `apiVersion` | const "aggrega.ai/v1beta1" | yes | Constant: `"aggrega.ai/v1beta1"` |
 | `kind` | const "Release" | yes | Constant: `"Release"` |
 | `metadata` | object | yes |  |
-| `spec` | object | yes | The deployment binding and routing: the Aggregate and Manifest this release deploys (or an extends base), the environment-specific parameter fulfillment, and the boundaries that route components into deployment targets. |
+| `spec` | object | yes | What the Release binds and routes: the Aggregate and Manifest it deploys (or an extends base), the environment-specific parameter fulfillment, and the boundaries its components are routed into. |
 
 _Additional properties are not permitted._
 
@@ -47,7 +47,7 @@ _Additional properties are not permitted._
 
 #### `release.spec`
 
-The deployment binding and routing: the Aggregate and Manifest this release deploys (or an extends base), the environment-specific parameter fulfillment, and the boundaries that route components into deployment targets.
+What the Release binds and routes: the Aggregate and Manifest it deploys (or an extends base), the environment-specific parameter fulfillment, and the boundaries its components are routed into.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ A component instance routed into a boundary, with optional physical sizing and f
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `description` | string | no | Optional documentation describing this component's deployment context in this boundary. |
+| `description` | string | no | Optional documentation describing this component's role in this boundary of the Release. |
 | `subDirectory` | string | no | Component-level sub-path override appended to the parent boundary's directory. If omitted or empty on both boundary and component, defaults to '{{ .capability }}'; an empty string written here reads as omitted. Set to '.', or to a template that evaluates to an empty string, to disable sub-directory generation. |
 | `annotations` | map of string or object or null | no | Component-specific Operator annotations that override boundary-level annotations for this component. Deep-merged over boundary annotations (component wins on key collision; structured values per-subkey-merge with structured parents). Values are strings, structured objects, or null. Used for per-component provider well-known annotation overrides (e.g., aggrega.ai/namespace on the helm provider). Explicit null on a key inherited from the parent boundary removes the inherited binding from this component (annotation-driven Feature opt-out); sibling components retain the inherited binding. |
 | `infra` | object | no | Physical sizing strictly local to this component (e.g., replicas, disk IOPS). |

@@ -2,9 +2,9 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-policy-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-policy-v1beta1.schema.json`
 
-The wire shapes a governance plugin attached at a verdict role consumes — PolicyInput at the ir-verdict role, RenderPolicyInput at the render-verdict role — and emits (PolicyOutput). A verdict of halt severity stops the build with a build-time diagnostic; a warn or info verdict is reported and the build continues. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1alpha1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
+The wire shapes a governance plugin attached at a verdict role consumes — PolicyInput at the ir-verdict role, RenderPolicyInput at the render-verdict role — and emits (PolicyOutput). A verdict of halt severity stops the build with a build-time diagnostic; a warn or info verdict is reported and the build continues. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1beta1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
 
 ## One of the following shapes
 
@@ -20,7 +20,7 @@ The payload static analysis hands to the policy socket: the full IR graph (the s
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `graph` | IRGraph | yes | The full capability-agnostic IR graph, single-sourced from ir-v1alpha1.schema.json. The policy plugin reasons over the complete node/edge/attachment detail rather than a narrow projection. |
+| `graph` | IRGraph | yes | The full capability-agnostic IR graph, single-sourced from ir-v1beta1.schema.json. The policy plugin reasons over the complete node/edge/attachment detail rather than a narrow projection. |
 | `precalculated_paths` | PrecalculatedPath[] | yes | Routing paths the analyzer pre-enumerated so policies can reason about reachability without re-walking the graph. |
 | `sources` | PolicySource[] | no | Definition files the host reads at compile time and hands to the plugin verbatim, as an ordered list sorted by path. The host reads the bytes as opaque content and does not parse them. Absent when the attachment declares no sources. |
 | `settings` | object | no | A free-form settings object the host hands to the plugin verbatim. The host does not parse or act on its content. Absent when the attachment declares no settings. |

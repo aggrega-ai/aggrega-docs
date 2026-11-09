@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-cli-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-cli-v1beta1.schema.json`
 
 The wire shape a CLI plugin consumes (CLIRunInput). A CLI plugin extends the aggrega command-line tool's command surface: the host resolves a subcommand to a Wasm guest and hands it the invocation's argument vector; the guest executes and returns a process exit code as its integer return value. Standard output and standard error flow through host functions rather than a wire payload, so this socket declares an input shape only. The Go, Rust and TypeScript payload type is generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports it from those packages, or through its plugin kit, which re-exports it.
 

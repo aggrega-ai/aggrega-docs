@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-parse-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-parse-v1beta1.schema.json`
 
 The wire shapes a parser plugin socket consumes (ParseInput) and emits (ParseOutput). A parser is a stateless, side-effect-free transformer that turns a foreign text representation into a canonical structured JSON tree, so any consumer in any language can read the tree without carrying its own language parser. A parser declares the formats it handles as parse:<format> capabilities in its descriptor; the host hands it the bytes to parse and the format name, and it returns the tree plus optional diagnostics and source spans. The parser attaches no meaning to the tree beyond its syntax — the compiler pipes the tree through opaquely.
 

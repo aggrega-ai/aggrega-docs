@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-mutator-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-mutator-v1beta1.schema.json`
 
 The wire shapes a governance plugin attached at the label-transform role consumes (MutatorInput) and emits (MutatorOutput). The role runs at topology construction, after the graph is built and before it is judged: the plugin returns JSON Patch documents, and the host applies them to node labels and to nothing else, halting the build on a patch that reaches any other part of the graph. The Go, Rust and TypeScript payload types are generated from this schema into the plugin-ABI packages, so the three languages read and write one wire; a guest imports them from those packages, or through its plugin kit where the kit re-exports them.
 
