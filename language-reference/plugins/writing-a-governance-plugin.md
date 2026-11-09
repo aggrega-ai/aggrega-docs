@@ -526,7 +526,7 @@ metadata:
   pluginType: governance
   description: Refuse a build that carries a component of a category the attachment forbids.
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   exports:
     - name: transform_annotations
     - name: mutate

@@ -238,7 +238,7 @@ metadata:
   version: 1.0.0
   pluginType: provider
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   provider:
     workloadSchema: |   # how Workload translates to K8s manifests
       // Each Workload produces: 1 controller object chosen by workload.form

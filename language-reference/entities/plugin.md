@@ -22,7 +22,7 @@ metadata:
   version: 1.2.0
   pluginType: pipeline-step
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   pipelineStep:
     # capabilities is recorded by `aggrega plugin gen-catalog` from the plugin's describe(); an author may narrow it.
     capabilities:
@@ -63,7 +63,7 @@ Required.
 
 ## `spec.abiVersion`
 
-The host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a new ABI revision adds one. Required.
+The host/guest ABI version the plugin targets. `v1beta1` is the accepted value; a new ABI revision adds one. Required.
 
 ## Declaring capabilities: one block per socket type
 
@@ -114,7 +114,7 @@ The field is the provider's support claim, and the compiler reads it in two ways
 metadata:
   pluginType: provider
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   provider:
     capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - helm
@@ -187,7 +187,7 @@ The block is the catalog-readable record of that claim: `aggrega plugin gen-cata
 metadata:
   pluginType: pipeline-step
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   pipelineStep:
     capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - helm
@@ -204,7 +204,7 @@ A requested format resolves to the parser whose list contains the matching entry
 metadata:
   pluginType: parser
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   parser:
     capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - parse:hcl
@@ -231,7 +231,7 @@ Where the entity records `detect`, it must equal what the plugin's `describe()` 
 metadata:
   pluginType: importer
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   importer:
     capabilities:            # recorded by `aggrega plugin gen-catalog` from describe()
       - import:langflow
@@ -310,7 +310,7 @@ The single-character shape of `shorthand` and the three values of `type` are als
 metadata:
   pluginType: cli
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   # commands is recorded by `aggrega plugin sync` from the plugin's describe() — do not author it.
   commands:
     - name: greet

@@ -16,7 +16,7 @@ and the surrounding layout is not.
   "version": "1.2.3",
   "committed": "2026-07-09T18:07:57Z",
   "commit": "a1b2c3d",
-  "abiVersion": "v1alpha1",
+  "abiVersion": "v1beta1",
   "goVersion": "go1.23.0",
   "platform": "linux/amd64"
 }

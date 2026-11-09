@@ -377,7 +377,7 @@ metadata:
   pluginType: provider
   description: Render artifact bodies into environment files, quoting and escaping each value as the format requires.
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   exports:
     - name: render_node
   provider:
@@ -650,7 +650,7 @@ The regenerated entity now carries the contract, read from the binary:
 ```yaml
 [… omitted: the header comments and the metadata block, unchanged from the first generation]
 spec:
-  abiVersion: v1alpha1
+  abiVersion: v1beta1
   exports:
     - name: render_node
   provider:

@@ -20,7 +20,7 @@ Publish a standalone data artifact — a documentation bundle or any other non-e
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--dry-run` | `false` | Compute the reference and print the proposed <reference>:<tag>; skip the network call |
-| `--media-type` | `application/vnd.aggrega.docs.v1alpha1+tar+gz` | OCI artifact media type; defaults to the documentation-bundle media type |
+| `--media-type` | `application/vnd.aggrega.docs.v1beta1+tar+gz` | OCI artifact media type; defaults to the documentation-bundle media type |
 | `--name` | — | Artifact name within the reserved docs/ namespace (e.g. "aggrega-docs" publishes at docs/aggrega-docs) |
 | `--registry` | — | Destination registry host (overrides the workspace's default_registry) |
 | `--tag` | — | Version tag to publish the artifact under (required) |
@@ -30,7 +30,7 @@ Publish a standalone data artifact — a documentation bundle or any other non-e
 
 A documentation bundle is a standalone data artifact — a gzipped tar of rendered
 documentation — rather than a catalog entity. It carries the media type
-`application/vnd.aggrega.docs.v1alpha1+tar+gz`, which is the artifact type a
+`application/vnd.aggrega.docs.v1beta1+tar+gz`, which is the artifact type a
 consumer sees when pulling the bundle from the registry.
 
 Bundles publish under the `docs/` repository segment: `--name aggrega-docs` places

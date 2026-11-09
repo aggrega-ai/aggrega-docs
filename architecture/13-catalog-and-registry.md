@@ -387,16 +387,16 @@ The publishable kinds span the catalog authoring kinds together with the Aggrega
 
 | Entity kind | Published as its document | Published with the files it declares |
 | --- | --- | --- |
-| Component | `application/vnd.aggrega.component.v1alpha1+yaml` | `application/vnd.aggrega.component.v1alpha1+tar+gz` |
-| Feature | `application/vnd.aggrega.feature.v1alpha1+yaml` | `application/vnd.aggrega.feature.v1alpha1+tar+gz` |
-| Recipe | `application/vnd.aggrega.recipe.v1alpha1+yaml` | `application/vnd.aggrega.recipe.v1alpha1+tar+gz` |
-| FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1alpha1+yaml` | `application/vnd.aggrega.featurerecipe.v1alpha1+tar+gz` |
-| Aggregate | `application/vnd.aggrega.aggregate.v1alpha1+yaml` | — declares no file |
-| SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1alpha1+yaml` | — declares no file |
-| MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1alpha1+yaml` | — declares no file |
-| WorkloadLibrary | `application/vnd.aggrega.workloadlibrary.v1alpha1+yaml` | — declares no file |
-| ArtifactLibrary | `application/vnd.aggrega.artifactlibrary.v1alpha1+yaml` | — declares no file |
-| Plugin | `application/vnd.aggrega.wasmplugin.v1alpha1+yaml` | — publishes through its own manifest |
+| Component | `application/vnd.aggrega.component.v1beta1+yaml` | `application/vnd.aggrega.component.v1beta1+tar+gz` |
+| Feature | `application/vnd.aggrega.feature.v1beta1+yaml` | `application/vnd.aggrega.feature.v1beta1+tar+gz` |
+| Recipe | `application/vnd.aggrega.recipe.v1beta1+yaml` | `application/vnd.aggrega.recipe.v1beta1+tar+gz` |
+| FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1beta1+yaml` | `application/vnd.aggrega.featurerecipe.v1beta1+tar+gz` |
+| Aggregate | `application/vnd.aggrega.aggregate.v1beta1+yaml` | — declares no file |
+| SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1beta1+yaml` | — declares no file |
+| MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1beta1+yaml` | — declares no file |
+| WorkloadLibrary | `application/vnd.aggrega.workloadlibrary.v1beta1+yaml` | — declares no file |
+| ArtifactLibrary | `application/vnd.aggrega.artifactlibrary.v1beta1+yaml` | — declares no file |
+| Plugin | `application/vnd.aggrega.wasmplugin.v1beta1+yaml` | — publishes through its own manifest |
 
 **What a publication carries, and so its shape, follows from what the entity declares — not from its kind, and not from what sits in its directory.** A publication carries the entity document and the files the entity itself names beside it: a Recipe's or FeatureRecipe's local `source:` — a directory travels with every file under it that the ignore rules recorded in its `entity.lock` keep — each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:`, and the `entity.lock` its pin step wrote; and each schema file a Component or Feature imports, every file of an import chain included. Nothing else in the directory travels: a note, a README or a build's output beside the entity is no part of what it publishes, whatever it is called, and does not change the shape it publishes in. An entity that names nothing publishes as its authored document, byte for byte, under its kind's `+yaml` mediatype; one that names a file publishes as a gzipped tar of the document and those files, under its kind's `+tar+gz` mediatype. An Aggregate, a Plugin and the library kinds declare no file beside their document, so they always publish as the document — an Aggregate at a workspace root included, since every path it declares names another entity rather than a file it carries; a Recipe whose content is all inline does too. A remote source is a reference rather than a file, so it carries nothing, though the `entity.lock` recording its pin makes such a Recipe an archive. The version segment of each mediatype is common to every publishable kind, and the encoding segment says which of the two shapes the bytes are. Downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
 
