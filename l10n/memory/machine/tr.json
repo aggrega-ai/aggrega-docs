@@ -2250,6 +2250,17 @@
     "status": "machine",
     "text": "`E0237` kullanımdan kaldırılmıştır: artık hiçbir şey onu raporlamaz ve bu numara hiçbir zaman başka bir koşula verilmez. Bu numaranın adlandırdığı koşul geri çekilmiştir ve hiçbir derleme onu raporlamaz."
   },
+  "0312a9852ba5465a": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "bb2cb6c921fd35be",
+      "reviewed": false
+    },
+    "srcHash": "0312a9852ba5465a",
+    "status": "machine",
+    "text": "**Aynı parolayı grafın checkpointer bağlantısında da sunun**, böylece grafın kodu veritabanını açabilir. Aggregate onu ekler: değerinin ulaştığı anahtarı, `checkpointer_password`, adlandıran bir `core/secret-value`; Release ise kaynağını yine `${POSTGRES_PASSWORD}` olarak verir. Yalnızca Release'in eklediği bir gizli bilgi `value` anahtarı altında ulaşır, bu yüzden tek bir bileşen üzerindeki iki tanesi çakışır ve derleme ikincisini reddeder; bunlardan birini, anahtarını seçen değerle birlikte Aggregate'te eklemenizi söyler — burada yazılan biçim budur."
+  },
   "03133e4f2390e672": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -3953,6 +3964,17 @@
     "srcHash": "05a6ee5e661973b7",
     "status": "machine",
     "text": "Eklenti tanımlayıcısı: bir Plugin varlığının yalın kimliği (`<pluginType>/<name>` yolu, ör. `governance/redact` veya `provider/helm`), yerel bir dosya sistemi yolu ya da bir kayıt defteri takma adı. İsteğe bağlıdır: bir girdi eklentiyi bunun yerine `capability` ile seçebilir. İsteğe bağlı sondaki `:version`, sürümü her sürüm sabitlemesiyle aynı üç biçimde sabitler (yalın, tam `:1.0.0` veya ana sürümle uyumlu aralık `:^1.0.0`)."
+  },
+  "05a85502e9d765c4": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f080d1285f0c33f9",
+      "reviewed": false
+    },
+    "srcHash": "05a85502e9d765c4",
+    "status": "machine",
+    "text": "Dify, anahtarı saklamadan önce sağlayıcıya tek bir istek göndererek denetler. Çalıştırmanın bir OpenAI anahtarı yoktu: [Bir içe aktarma nasıl çalışır](README.md#how-an-import-runs) bölümünün çalıştırma adımının açıkladığı gibi OpenAI yerine küçük bir yerel model kullandı; bu model burada kendine ait bir çalışma alanından `helm/ollama` için derlendi ve kümede `local-model-default` Service'inin arkasında sunuldu. Çalıştırma, modeli uygulamanın istediği adla `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini` ile kopyaladı ve `openai.json` dosyası, yerel sunucunun denetlemediği bir anahtarın yanında üç ayar daha taşıyordu: o sunucunun adresi olan ve sağlayıcının eklediği `/v1` kısmını içermeyen `\"openai_api_base\": \"http://local-model-default:11434\"`; sağlayıcının, varsayılan olarak çağırdığı Responses API yerine sunucunun Chat Completions rotasını çağırmasını sağlayan `\"api_protocol\": \"chat\"`; ve Dify'ın anahtarı denetlediği model olan `\"validate_model\": \"gpt-4o-mini\"`. Bir OpenAI anahtarıyla yalnızca `openai_api_key` değerini, yukarıdaki gibi ayarlarsınız."
   },
   "05a91185ab72d58b": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -16413,6 +16435,17 @@
     "status": "machine",
     "text": "**Varsayılan doldurma** — `default:` tanımlı olan ve Release tarafından değer sağlanmamış slotlar varsayılan değerlerini alır. `.parameters` haritası bu noktada kapsamdadır."
   },
+  "1892c024eae52e1b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "73acd09245d828a2",
+      "reviewed": false
+    },
+    "srcHash": "1892c024eae52e1b",
+    "status": "machine",
+    "text": "Derleme tek bir dosya, `dist/compose/docker-compose.yaml` yazar; `docker compose` onu başlatır ve tüm hizmetler ayağa kalktığında döner. **İlk başlatma, model çalışma zamanını ve modeli indirir**; dönmeden önce yaklaşık 5 GB."
+  },
   "1896df33f3eddd3c": {
     "at": "2026-11-01T16:34:38.673Z",
     "job": "session-0007-20261101163438",
@@ -21538,6 +21571,17 @@
     "srcHash": "2008b1902d5b44db",
     "status": "machine",
     "text": "**Çözümleme — Çözümleyici & sözdizimi doğrulayıcı**"
+  },
+  "200a9722d2be1e42": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "130fc56e6f560616",
+      "reviewed": false
+    },
+    "srcHash": "200a9722d2be1e42",
+    "status": "machine",
+    "text": "ADK, `gemini-2.5-flash` modelini isteklerini Gemini API'sine gönderen Gemini sınıfı üzerinden sunar; bu yüzden taslak modeli, ajanın yalnızca Gemini API'sini kabul eden `model` soketine bağlar. ADK'nın başka herhangi bir yolla sunduğu bir model — ADK'nın kendine ait bir sınıf üzerinden sunduğu `gpt-4o` gibi bir ad ya da `openai/gpt-4o` gibi bir LiteLLM model dizesi — hiçbir şeye bağlanmaz: örnek nesnenin üstündeki bir yorum onu adlandırır ve bağlantı, [Bir ajan ağacı neye dönüşür](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes) bölümünün açıkladığı gibi size bırakılır."
   },
   "200fb04453e6598d": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -53488,6 +53532,17 @@
     "srcHash": "50a040676b51a297",
     "status": "machine",
     "text": "`mappinglibrary.metadata`"
+  },
+  "50a2456a84edd97b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "ada77f877b332f32",
+      "reviewed": false
+    },
+    "srcHash": "50a2456a84edd97b",
+    "status": "machine",
+    "text": "Aşağıdaki çalıştırma böyle bir imaj kullandı: `langgraph.json` dosyasının belirttiği yoldaki graf, `src/support_agent/graph.py`, `OPENAI_MODEL` değişkeninin belirttiği model aracılığıyla yanıt veren bir düğüm ve imajın komutu olarak programın 8000 numaralı portta çalışan kendi küçük HTTP sunucusu. İmaj, projenin düzenini çalışma dizininde korur; bu yüzden `LANGGRAPH_GRAPH_ENTRYPOINT` değişkeninin belirttiği, bu dizine göreli yol grafı bulur. Sunucu bu grafı yükler, her konuşmanın durumunu LangGraph'ın PostgreSQL checkpointer'ı aracılığıyla veritabanında tutar ve her `POST /threads/<thread>/runs` için grafı bir kez çalıştırır. Checkpointer, veritabanının ana makinesi, portu, kullanıcısı, adı ve parolasıyla açılır; bunların her biri ulaştığı `LANGGRAPH_CHECKPOINTER_` değişkeninden okunur, bu yüzden program hiçbirini kendisi yazmaz. Grafın servisi, veritabanı bağlantı kabul eder etmez başlar; bu yüzden checkpointer'ı başlarken açan bir sunucu, veritabanını bağlantı kabul eder durumda bulur. İmajınızı projenin kök dizininde derleyin, `release.yaml` içinde `ghcr.io/example/support-agent:1.0.0` yerine imajın adını yazın ve yeniden derleyin:"
   },
   "50a3f315032983ff": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -93408,6 +93463,17 @@
     "status": "machine",
     "text": "Bir bileşen adının maliyeti ve büyük harflerin bazı hedeflerde neden daha pahalı olduğu"
   },
+  "8cd40ae40957dea6": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f5fb6fe566a2aaba",
+      "reviewed": false
+    },
+    "srcHash": "8cd40ae40957dea6",
+    "status": "machine",
+    "text": "Derleme; biri graf, biri veritabanı, biri de veritabanını bekleyen olmak üzere üç hizmetle `dist/compose/docker-compose.yaml` dosyasını yazar. Grafın hizmeti:"
+  },
   "8cd66b0569a7c2ca": {
     "at": "2026-10-22T11:13:32.031992+00:00",
     "job": "msgbatch_01DH3Lu1cujibr3yj6LABYJQ",
@@ -109042,6 +109108,17 @@
     "status": "machine",
     "text": "**Her hatalı yerleştirme raporlanır.** Birkaç bileşeni iki kez yerleştiren bir Release, tek bir derlemede hatalı her girdi için bunlardan biriyle, her biri itiraz ettiği girdinin anahtarında olmak üzere durur; dolayısıyla birkaçı bir arada, birden fazla kez yazılmış tek bir hata değil, bulduğu her şeyi adlandıran tek bir derlemedir."
   },
+  "a43962551822dedc": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "1a49dd545c317413",
+      "reviewed": false
+    },
+    "srcHash": "a43962551822dedc",
+    "status": "machine",
+    "text": "Manifestleri uygulamadan önce, okudukları iki Secret'ı oluşturun: sahibin parolasını `value` altında tutan `dify-owner` ve beş kimlik bilgisini kendi veri anahtarları altında tutan `dify-credentials`. Var olmayan bir Secret'ı adlandıran bir iş yükü başlamaz. Aşağıda onunla oturum açacağınız için sahibin parolasını kabuğunuzda `DIFY_OWNER_PASSWORD` olarak ayarlayın. Dify, bir harf ve bir rakam içeren en az sekiz karakterlik bir sahip parolası kabul eder: başka bir parola verilirse içe aktarma Job'ı, Dify ilk kurulumu reddettiği anda başarısız olur ve günlüğünde `first-time setup was refused with HTTP 422: Validation error for parameter 'payload'` yazar; bu, Dify'ın reddettiği bir sahip hesabına verdiği yanıttır. Aşağıdaki bekleme Job'ın tamamlanmasını bekler ve başarısız olan bir Job hiçbir zaman tamamlanmaz, bu yüzden bekleme o durumda zaman aşımına kadar sürer; yanında ikinci bir terminalde `kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m` komutunu çalıştırın; bu bekleme, Job başarısız olur olmaz geri döner. Job'ı ve `dify-owner` Secret'ını silin, Secret'ı Dify'ın kabul ettiği bir parolayla yeniden oluşturun ve yeniden uygulayın. Her veri anahtarı için bir satır olmak üzere `dify-credentials.env` dosyasını yazın: `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` ve `inner-api-key=`, her birinin ardından kendi belirlediğiniz bir değer gelir. Ardından iki Secret'ı oluşturun. Artık değerleri küme tutar, bu yüzden iki dosyayı silin:"
+  },
   "a43b03dc5829a603": {
     "at": "2026-10-30T04:10:32.182Z",
     "job": "session-0054-20261030041032",
@@ -112693,6 +112770,17 @@
     "srcHash": "a9b25749b697e612",
     "status": "machine",
     "text": "[`helm-chart`](helm-chart.md), kaynaklı modu (şemsiye chart birleşimi: sınır başına bir chart, bileşen başına bir alt chart) ve her iki yazım biçiminde de onunla birlikte gelen `artifacts:` girdisini destekler. `$import:` ile yüklenen bir `artifacts:` girdisi önce Aggrega tarafından Go şablonuyla işlenir, ardından render öncesinde chart'ın `templates/` dizinine enjekte edilir; satır içi içerikli bir `artifacts:` girdisi ise aynı şekilde değerlendirilir ve hiçbir köken bilgisi eklenmeden alt chart köküne yerleştirilir; chart'ın kendi şablonları onu Helm'in `.Files.Get` / `.Files.Glob` işlevleriyle okur. Bağımsız, yalnızca artifacts içeren bir Recipe, bildirdiği türlerden biri değildir; sentezlenmiş tür de değildir: şemsiye chart alt chart'ları düzenler, Workload türü ise her alt chart'ın içine ait bir yaprak kavramdır (`helm` sağlayıcısının alanı)."
+  },
+  "a9b46ebe55641180": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "26183c751381c700",
+      "reviewed": false
+    },
+    "srcHash": "a9b46ebe55641180",
+    "status": "machine",
+    "text": "**Yapay zekâ ajanı yolu için** ilk başlatmaya yer gerekir: yaklaşık 5 GB indirir; bunun yaklaşık 3,3 GB'ı Ollama imajı, yaklaşık 1,3 GB'ı `llama3.2:1b` modelidir (kayıt defterlerinin sunduğu boyutlarla ölçülmüştür). Model bir Docker biriminde tutulur, bu nedenle sonraki başlatmalar onu yeniden kullanır. Model sunucusuna 4 GiB bellek verilir. API anahtarı gerekmez."
   },
   "a9b6844dfec38aa2": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -154439,6 +154527,17 @@
     "status": "machine",
     "text": "**Paylaşılan.** Hiçbir örnek yuvayı doldurmaz; bunun yerine tek bir kimlik bilgisi daha geniş bir kapsamda (bir alt sistem veya bir Release sınırı) bir kez eklenir ve altındaki her bileşene basamaklanır; böylece her tüketici bu tek bildirimden doldurulur. Neyin işlendiği gerçekleştirmeye bağlıdır: bir Secret işleyen gerçekleştirmede tüketici başına, her biri aynı materyali taşıyan bir Secret; her tüketiciyi zaten var olan bir Secret'a yönlendiren gerçekleştirmede hiçbiri."
   },
+  "e669359d765f1e55": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "106d75d05d291135",
+      "reviewed": false
+    },
+    "srcHash": "e669359d765f1e55",
+    "status": "machine",
+    "text": "Graf, modelin adresini, adını ve anahtarını, veritabanının ana makinesini, bağlantı noktasını, kullanıcısını, adını ve parolasını ve kendi graf giriş noktasını alır. Kullanıcı ve veritabanı adı, PostgreSQL Component'inin varsayılanlarıdır: `appuser` ve `appdb`; aşağıdaki veritabanı hizmeti bunlarla oluşturulur. Graf bunları, PostgreSQL Recipe'si ikisini de yayımladığı için alır; Valkey gibi ikisinden hiçbirini yayımlamayan bir depoyla ise ikisinden hiçbirini almaz. Modelin adı, veritabanının ana makinesi, bağlantı noktası, kullanıcısı ve adı ve graf giriş noktası, LangGraph Component'inin varsayılan olarak teslim ettiği adlarla ulaşır; bağlantı üzerindeki ya da kendi değerleri için bileşenin kendisi üzerindeki bir `inject:` bloğu bu adları kodunuzun okuduğu adlarla değiştirir. Modelin adresi, anahtarı ve veritabanının parolası blokların verdiği adlarla kalır; `LANGGRAPH_DEFAULT_RECURSION_LIMIT` de öyle kalır; LangGraph bunu, yapılandırması hiçbir adım sınırı belirlemeyen bir çalıştırmanın adım sınırı olarak kendiliğinden okur. Veritabanının kendi hizmeti de aynı parolayı alır:"
+  },
   "e66ab4bf3d25ac95": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -154653,6 +154752,17 @@
     "srcHash": "e6c9fa10cd7f8b7b",
     "status": "machine",
     "text": "Compose'da ağ geçidi servisi, NGINX'i arka ucun compose servis adını ve\nportunu gösteren bir server bloğuyla çalıştırır:"
+  },
+  "e6cb6041d932bdf3": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "283e166cd4cc7530",
+      "reviewed": false
+    },
+    "srcHash": "e6cb6041d932bdf3",
+    "status": "machine",
+    "text": "`-p`, [Bir içe aktarma nasıl çalışır](README.md#how-an-import-runs) bölümünün çalıştırma adımında açıklandığı gibi projeyi adlandırır. `--wait`, veritabanı sağlıklı olduğunu bildirdiğinde, veritabanı için yapılan bekleme tamamlandığında ve grafın servisi çalıştığında geri döner. Servisler hiçbir port yayımlamaz; bu yüzden çalıştırma, isteğini yığının ağı `order-support_compose` üzerindeki bir konteynerden kendi programının rotasına gönderdi:"
   },
   "e6cca0d9051b467f": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -160886,6 +160996,13 @@
     "srcHash": "f026e648705ac357",
     "status": "machine",
     "text": "Derleme tek bir dosya yazar, `dist/compose/docker-compose.yaml`; `docker compose` onu `quickstart-ai` proje adıyla başlatır ve model indirilip tüm servisler ayağa kalktığında geri döner. Aşağıdaki her bölüm bir adım daha ilerler."
+  },
+  "f026e7ab83445115": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "srcHash": "f026e7ab83445115",
+    "status": "machine",
+    "text": "Grafın hizmeti ancak üçüncü hizmet tamamlandıktan sonra başlar. Üçüncü hizmet, grafın kendi imajında değil, kataloğun quickstart ajan imajında yalnızca bir kez çalışır ve veritabanının adresi bir TCP bağlantısını kabul edene kadar, 2 saniyede bir ve en fazla 300 saniye boyunca deneyerek bekler; o zamana kadar bağlantı kurulamazsa adresi belirterek çıkar ve graf başlatılmaz. Bu hizmete veritabanının ana makinesi ve bağlantı noktası verilir, başka hiçbir şey verilmez:"
   },
   "f028780f3330bb65": {
     "at": "2026-10-22T23:44:16.479857+00:00",

@@ -2250,6 +2250,17 @@
     "status": "machine",
     "text": "`E0237` 已停用：现在没有任何内容报告它，且该编号永远不会分配给其他条件。此编号所指的条件已被撤销，没有任何构建会报告它。"
   },
+  "0312a9852ba5465a": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "bb2cb6c921fd35be",
+      "reviewed": false
+    },
+    "srcHash": "0312a9852ba5465a",
+    "status": "machine",
+    "text": "**在图的 checkpointer 连接上出示同一个密码**，以便图的代码能够打开数据库。Aggregate 附加它，即一个 `core/secret-value`，指明其值到达时所用的键 `checkpointer_password`；Release 给出它的来源，同样是 `${POSTGRES_PASSWORD}`。仅由 Release 附加的机密会以键 `value` 到达，因此同一组件上的两个这样的机密会发生冲突，构建会拒绝第二个，并提示在 Aggregate 中附加其中一个，同时给出决定其键的值——也就是这里写出的形式。"
+  },
   "03133e4f2390e672": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -3953,6 +3964,17 @@
     "srcHash": "05a6ee5e661973b7",
     "status": "machine",
     "text": "插件标识符：Plugin 实体的裸标识（即 `<pluginType>/<name>` 路径，例如 `governance/redact` 或 `provider/helm`）、本地文件系统路径或注册表别名。可选：条目也可以改为通过 `capability` 选择插件。可选的尾部 `:version` 用于固定版本，其形式与任何版本固定相同，共三种（裸版本、精确版本 `:1.0.0` 或主版本兼容范围 `:^1.0.0`）。"
+  },
+  "05a85502e9d765c4": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f080d1285f0c33f9",
+      "reviewed": false
+    },
+    "srcHash": "05a85502e9d765c4",
+    "status": "machine",
+    "text": "Dify 在保存密钥之前，会向提供方发送一个请求来检查该密钥。本次运行没有 OpenAI 密钥：它按照 [导入如何运行](README.md#how-an-import-runs) 的运行步骤所述，使用了一个小型本地模型代替 OpenAI，这里该模型是从其自己的工作区为 `helm/ollama` 构建的，并在集群中通过 Service `local-model-default` 提供服务。本次运行使用 `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini` 以应用所要求的名称复制了该模型，其 `openai.json` 除了一个本地服务器不检查的密钥外，还带有另外三项设置：`\"openai_api_base\": \"http://local-model-default:11434\"`，即该服务器的地址，不带 `/v1`，它由提供方添加；`\"api_protocol\": \"chat\"`，它让提供方调用该服务器的 Chat Completions 路由，而不是其默认调用的 Responses API；以及 `\"validate_model\": \"gpt-4o-mini\"`，即 Dify 用来检查密钥的模型。使用 OpenAI 密钥时，你只需设置 `openai_api_key`，如上所示。"
   },
   "05a91185ab72d58b": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -16413,6 +16435,17 @@
     "status": "machine",
     "text": "**默认值填充**——定义了 `default:` 且没有 Release 提供值的槽位会获得其默认值。此时 `.parameters` 映射处于作用域内。"
   },
+  "1892c024eae52e1b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "73acd09245d828a2",
+      "reviewed": false
+    },
+    "srcHash": "1892c024eae52e1b",
+    "status": "machine",
+    "text": "构建会写出一个文件 `dist/compose/docker-compose.yaml`，`docker compose` 启动它，并在每个服务都运行起来后返回。**首次启动会下载模型运行时和模型**，约 5 GB，然后才返回。"
+  },
   "1896df33f3eddd3c": {
     "at": "2026-11-01T16:34:38.673Z",
     "job": "session-0007-20261101163438",
@@ -21538,6 +21571,17 @@
     "srcHash": "2008b1902d5b44db",
     "status": "machine",
     "text": "**解析：解析器与语法验证器**"
+  },
+  "200a9722d2be1e42": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "130fc56e6f560616",
+      "reviewed": false
+    },
+    "srcHash": "200a9722d2be1e42",
+    "status": "machine",
+    "text": "ADK 通过其 Gemini 类提供 `gemini-2.5-flash`，该类将请求发送到 Gemini API，因此草稿将模型连接到智能体的 `model` 插槽，该插槽仅接受 Gemini API。ADK 以任何其他方式提供的模型——例如 ADK 通过其专属类提供的 `gpt-4o` 这样的名称，或 `openai/gpt-4o` 这样的 LiteLLM 模型字符串——不会连接到任何对象：实例上方的注释会指出它，连接则留给你完成，如 [智能体树会变成什么](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes) 所述。"
   },
   "200fb04453e6598d": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -53502,6 +53546,17 @@
     "srcHash": "50a040676b51a297",
     "status": "machine",
     "text": "`mappinglibrary.metadata`"
+  },
+  "50a2456a84edd97b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "ada77f877b332f32",
+      "reviewed": false
+    },
+    "srcHash": "50a2456a84edd97b",
+    "status": "machine",
+    "text": "下面的运行使用了这样一个镜像：图位于 `langgraph.json` 指定的路径 `src/support_agent/graph.py`，一个节点通过 `OPENAI_MODEL` 指定的模型作答，镜像的命令则是程序自带的一个小型 HTTP 服务器，监听 8000 端口。镜像在其工作目录中保留项目的目录结构，因此 `LANGGRAPH_GRAPH_ENTRYPOINT` 指定的、相对于该目录的路径能够找到图。服务器加载该图，通过 LangGraph 的 PostgreSQL checkpointer 将每个对话的状态保存在数据库中（该 checkpointer 使用数据库的主机、端口、用户、数据库名称和密码打开，每一项都从其到达时所在的 `LANGGRAPH_CHECKPOINTER_` 变量中读取，因此程序自身不写入其中任何一项），并针对每个 `POST /threads/<thread>/runs` 运行一次图。图的服务会在数据库开始接受连接后启动，因此在启动时打开 checkpointer 的服务器会发现数据库已在接受连接。在项目根目录构建你的镜像，在 `release.yaml` 中用它的名称替换 `ghcr.io/example/support-agent:1.0.0`，然后再次构建："
   },
   "50a3f315032983ff": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -93425,6 +93480,17 @@
     "status": "machine",
     "text": "component 名称的代价，以及为什么大写字母在某些目标下代价更高"
   },
+  "8cd40ae40957dea6": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f5fb6fe566a2aaba",
+      "reviewed": false
+    },
+    "srcHash": "8cd40ae40957dea6",
+    "status": "machine",
+    "text": "构建会写出 `dist/compose/docker-compose.yaml`，其中包含图的一个服务、数据库的一个服务，以及一个等待数据库的服务。图的服务："
+  },
   "8cd66b0569a7c2ca": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -109070,6 +109136,17 @@
     "status": "machine",
     "text": "**每一处违规放置都会被报告。** 如果一个 Release 把多个组件各放置了两次，它会在一次构建中针对每个违规条目各中止一次，每条都指向它所针对的条目的键——因此多条这样的消息合起来是一次构建列出它发现的全部问题，而不是同一个错误被写了多遍。"
   },
+  "a43962551822dedc": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "1a49dd545c317413",
+      "reviewed": false
+    },
+    "srcHash": "a43962551822dedc",
+    "status": "machine",
+    "text": "在应用这些清单之前，先创建它们读取的两个 Secret：`dify-owner`，在 `value` 下保存所有者的密码；以及 `dify-credentials`，在各自的数据键下保存五项凭据。引用不存在的 Secret 的工作负载不会启动。在你的 shell 中将所有者的密码设置为 `DIFY_OWNER_PASSWORD`，因为下文要用它登录。Dify 接受的所有者密码至少有八个字符，且包含一个字母和一个数字：若给出其他密码，导入 Job 会在 Dify 拒绝初始设置时立即失败，其日志显示 `first-time setup was refused with HTTP 422: Validation error for parameter 'payload'`，这是 Dify 对其拒绝的所有者账户给出的回复。下文的等待会等待 Job 完成，而失败的 Job 永远不会完成，因此这时它会一直持续到超时；在旁边的第二个终端中运行 `kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m`，该等待会在 Job 失败时立即返回。删除该 Job 和 `dify-owner` Secret，用 Dify 接受的密码重新创建该 Secret，然后再次应用。编写 `dify-credentials.env`，每个数据键一行：`db-password=`、`secret-key=`、`code-execution-key=`、`plugin-daemon-key=` 和 `inner-api-key=`，每项后面跟上你自己的值。然后创建这两个 Secret。此后这些值由集群保存，因此删除这两个文件："
+  },
   "a43b03dc5829a603": {
     "at": "2026-10-30T04:10:32.182Z",
     "job": "session-0054-20261030041032",
@@ -112734,6 +112811,17 @@
     "srcHash": "a9b25749b697e612",
     "status": "machine",
     "text": "[`helm-chart`](helm-chart.md) 支持 sourced 模式（umbrella chart 组合：每个边界一个 chart，每个 component 一个 sub-chart），以及与之并存的 `artifacts:`，两种编写形式均支持。通过 `$import:` 加载的 `artifacts:` 条目先由 Aggrega 进行 Go 模板渲染，然后在渲染前注入 chart 的 `templates/` 目录；内联内容的 `artifacts:` 条目以同样方式求值，并放置在 sub-chart 根目录下，不合并任何来源信息，由 chart 自身的模板通过 Helm 的 `.Files.Get` / `.Files.Glob` 读取。独立的仅含 artifacts 的 Recipe 不在它声明的类型之列，synthesized 类型也不在其中：umbrella 负责编排 sub-chart，而 Workload 类型是一个叶子概念，属于每个 sub-chart 内部（即 `helm` provider 的领域）。"
+  },
+  "a9b46ebe55641180": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "26183c751381c700",
+      "reviewed": false
+    },
+    "srcHash": "a9b46ebe55641180",
+    "status": "machine",
+    "text": "**AI 智能体路线**，需要为首次启动留出空间：它会下载约 5 GB，其中 Ollama 镜像约 3.3 GB，`llama3.2:1b` 模型约 1.3 GB，按镜像仓库提供的大小测得。模型保存在一个 Docker 卷中，因此之后的启动会复用它。模型服务器分配了 4 GiB 内存。不需要 API 密钥。"
   },
   "a9b6844dfec38aa2": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -154500,6 +154588,17 @@
     "status": "machine",
     "text": "**共享。** 没有实例填充该槽；而是在更宽的作用域（一个子系统，或一个 Release 边界）上附着一次凭据，并级联到其下的每个 component，因此每个消费者都由这一个声明填充。渲染结果取决于实现方式：在渲染 Secret 的实现下，每个消费者一个 Secret，各自携带相同的材料；在让每个消费者指向已存在 Secret 的实现下，则不渲染任何 Secret。"
   },
+  "e669359d765f1e55": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "106d75d05d291135",
+      "reviewed": false
+    },
+    "srcHash": "e669359d765f1e55",
+    "status": "machine",
+    "text": "图接收模型的地址、名称和密钥，数据库的主机、端口、用户、数据库名称和密码，以及它自己的图入口点。用户和数据库名称是 PostgreSQL Component 的默认值 `appuser` 和 `appdb`，下文的数据库服务正是用它们创建的；图之所以收到它们，是因为 PostgreSQL Recipe 发布了这两项，而对于两项都不发布的存储（例如 Valkey），图两项都不会收到。模型的名称、数据库的主机、端口、用户和数据库名称以及图入口点会以 LangGraph Component 默认提供的名称到达；在连接上添加 `inject:` 块，或针对组件自身的值在组件自身上添加该块，可将这些名称替换为你的代码读取的名称。模型的地址、密钥和数据库的密码保持这些块中所写的名称，`LANGGRAPH_DEFAULT_RECURSION_LIMIT` 也是如此，LangGraph 会自行读取它，作为配置中未设置步数限制的运行的步数限制。数据库自身的服务使用同一个密码："
+  },
   "e66ab4bf3d25ac95": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -154714,6 +154813,17 @@
     "srcHash": "e6c9fa10cd7f8b7b",
     "status": "machine",
     "text": "在 Compose 上，网关服务运行 NGINX，其 server 块指向\n后端的 compose 服务名和端口："
+  },
+  "e6cb6041d932bdf3": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "283e166cd4cc7530",
+      "reviewed": false
+    },
+    "srcHash": "e6cb6041d932bdf3",
+    "status": "machine",
+    "text": "`-p` 为项目命名，正如 [导入如何运行](README.md#how-an-import-runs) 中的运行步骤所解释的。`--wait` 会在数据库报告健康、对数据库的等待已完成且图的服务运行后返回。这些服务不发布任何端口，因此本次运行从堆栈网络 `order-support_compose` 上的一个容器向其自身程序的路由发送请求："
   },
   "e6cca0d9051b467f": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -160951,6 +161061,13 @@
     "srcHash": "f026e648705ac357",
     "status": "machine",
     "text": "构建写出一个文件 `dist/compose/docker-compose.yaml`，`docker compose` 以项目名 `quickstart-ai` 启动它，并在模型下载完成、所有服务都启动后返回。下面的每一节都会再前进一步。"
+  },
+  "f026e7ab83445115": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "srcHash": "f026e7ab83445115",
+    "status": "machine",
+    "text": "图的服务只有在第三个服务完成后才会启动。第三个服务只运行一次，使用目录中 quickstart 智能体的镜像，而不是图自己的镜像，它会等待数据库的地址接受 TCP 连接，每 2 秒尝试一次，最长 300 秒；如果届时仍未建立连接，它会退出并指出该地址，图也不会启动。它只接收数据库的主机和端口，别无其他："
   },
   "f028780f3330bb65": {
     "at": "2026-10-22T05:07:43.448651+00:00",

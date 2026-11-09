@@ -1985,6 +1985,17 @@
     "status": "machine",
     "text": "`E0237` est retiré : plus rien ne le signale, et le numéro n’est jamais attribué à une autre condition. La condition que ce numéro nommait a été supprimée, et aucun build ne la signale."
   },
+  "0312a9852ba5465a": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "bb2cb6c921fd35be",
+      "reviewed": false
+    },
+    "srcHash": "0312a9852ba5465a",
+    "status": "machine",
+    "text": "**Présentez le même mot de passe sur la connexion checkpointer du graphe**, afin que le code du graphe puisse ouvrir la base de données. L’Aggregate l’attache, un `core/secret-value` nommant la clé sous laquelle sa valeur arrive, `checkpointer_password`, et la Release donne son origine, de nouveau `${POSTGRES_PASSWORD}`. Un secret que la Release attache seule arrive sous la clé `value`, si bien que deux d’entre eux sur un même composant entrent en collision, et le build refuse le second, en indiquant d’attacher l’un d’eux dans l’Aggregate avec la valeur qui choisit sa clé — la forme écrite ici."
+  },
   "03133e4f2390e672": {
     "at": "2026-11-03T21:17:49.829Z",
     "job": "session-0160-20261103211749",
@@ -3531,6 +3542,17 @@
     "srcHash": "05a6ee5e661973b7",
     "status": "machine",
     "text": "Identifiant du Plugin : l’identité nue d’une entité Plugin — le chemin `<pluginType>/<name>`, par ex. `governance/redact` ou `provider/helm` — un chemin de système de fichiers local, ou un alias de registre. Facultatif : une entrée peut à la place sélectionner le plugin par `capability`. Un `:version` final facultatif épingle la version sous les trois mêmes formes que tout épinglage de version (nu, exact `:1.0.0`, ou plage compatible avec la version majeure `:^1.0.0`)."
+  },
+  "05a85502e9d765c4": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f080d1285f0c33f9",
+      "reviewed": false
+    },
+    "srcHash": "05a85502e9d765c4",
+    "status": "machine",
+    "text": "Dify vérifie la clé par une requête au fournisseur avant de la conserver. L’exécution n’avait pas de clé OpenAI : elle a utilisé un petit modèle local à la place d’OpenAI, comme le décrit l’étape d’exécution de [Déroulement d’une importation](README.md#how-an-import-runs), ici construit pour `helm/ollama` à partir d’un espace de travail qui lui est propre et servi dans le cluster derrière le Service `local-model-default`. L’exécution a copié le modèle sous le nom que demande l’application, avec `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`, et son `openai.json` portait, à côté d’une clé que le serveur local ne vérifie pas, trois autres paramètres : `\"openai_api_base\": \"http://local-model-default:11434\"`, l’adresse de ce serveur, sans `/v1`, que le fournisseur ajoute ; `\"api_protocol\": \"chat\"`, qui fait appeler par le fournisseur la route Chat Completions du serveur plutôt que la Responses API qu’il appelle par défaut ; et `\"validate_model\": \"gpt-4o-mini\"`, le modèle avec lequel Dify vérifie la clé. Avec une clé OpenAI, vous ne définissez que `openai_api_key`, comme ci-dessus."
   },
   "05a91185ab72d58b": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -14681,6 +14703,17 @@
     "status": "machine",
     "text": "**Remplissage des valeurs par défaut** — les slots ayant un `default:` défini et aucune valeur fournie par la Release reçoivent leur valeur par défaut. La map `.parameters` est dans la portée à ce stade."
   },
+  "1892c024eae52e1b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "73acd09245d828a2",
+      "reviewed": false
+    },
+    "srcHash": "1892c024eae52e1b",
+    "status": "machine",
+    "text": "La construction écrit un seul fichier, `dist/compose/docker-compose.yaml`, et `docker compose` le démarre et rend la main dès que chaque service est en marche. **Le premier démarrage télécharge l’environnement d’exécution du modèle et le modèle**, environ 5 Go, avant de rendre la main."
+  },
   "1896df33f3eddd3c": {
     "at": "2026-11-03T16:07:30.748Z",
     "job": "session-0127-20261103160730",
@@ -19287,6 +19320,17 @@
     "srcHash": "2008b1902d5b44db",
     "status": "machine",
     "text": "**Résolution — le résolveur et le validateur de syntaxe**"
+  },
+  "200a9722d2be1e42": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "130fc56e6f560616",
+      "reviewed": false
+    },
+    "srcHash": "200a9722d2be1e42",
+    "status": "machine",
+    "text": "ADK sert `gemini-2.5-flash` au moyen de sa classe Gemini, qui envoie ses requêtes à l’API Gemini, si bien que l’ébauche relie le modèle au socket `model` de l’agent, qui n’admet que l’API Gemini. Un modèle qu’ADK sert de toute autre manière — un nom comme `gpt-4o` qu’ADK sert au moyen d’une classe qui lui est propre, ou une chaîne de modèle LiteLLM comme `openai/gpt-4o` — n’est relié à rien : un commentaire au-dessus de l’instance le nomme, et la connexion vous est laissée, comme le décrit [Ce que devient une arborescence d’agents](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)."
   },
   "200fb04453e6598d": {
     "at": "2026-11-04T10:56:34.629Z",
@@ -48084,6 +48128,17 @@
     "srcHash": "50a040676b51a297",
     "status": "machine",
     "text": "`mappinglibrary.metadata`"
+  },
+  "50a2456a84edd97b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "ada77f877b332f32",
+      "reviewed": false
+    },
+    "srcHash": "50a2456a84edd97b",
+    "status": "machine",
+    "text": "L’exécution ci-dessous a utilisé une telle image : le graphe au chemin que nomme `langgraph.json`, `src/support_agent/graph.py`, un nœud qui répond par l’intermédiaire du modèle que nomme `OPENAI_MODEL`, et, comme commande de l’image, un petit serveur HTTP propre au programme sur le port 8000. L’image conserve l’arborescence du projet dans son répertoire de travail, de sorte que le chemin que nomme `LANGGRAPH_GRAPH_ENTRYPOINT`, relatif à celui-ci, trouve le graphe. Le serveur charge ce graphe, conserve l’état de chaque conversation dans la base de données grâce au checkpointer PostgreSQL de LangGraph, ouvert avec l’hôte, le port, l’utilisateur, le nom et le mot de passe de la base de données, chacun lu dans la variable `LANGGRAPH_CHECKPOINTER_` sous laquelle il arrive, de sorte que le programme n’en écrit lui-même aucun, et exécute le graphe une fois pour chaque `POST /threads/<thread>/runs`. Le service du graphe démarre dès que la base de données accepte les connexions ; un serveur qui ouvre le checkpointer à son démarrage trouve donc la base de données prête à accepter des connexions. Construisez votre image à la racine du projet, mettez son nom à la place de `ghcr.io/example/support-agent:1.0.0` dans `release.yaml`, puis relancez le build :"
   },
   "50a3f315032983ff": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -83913,6 +83968,17 @@
     "status": "machine",
     "text": "Ce que coûte un nom de composant, et pourquoi les majuscules coûtent plus cher sous certaines cibles"
   },
+  "8cd40ae40957dea6": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f5fb6fe566a2aaba",
+      "reviewed": false
+    },
+    "srcHash": "8cd40ae40957dea6",
+    "status": "machine",
+    "text": "Le build écrit `dist/compose/docker-compose.yaml`, avec un service pour le graphe, un pour la base de données et un qui attend la base de données. Le service du graphe :"
+  },
   "8cd66b0569a7c2ca": {
     "at": "2026-10-30T20:20:36.751Z",
     "job": "session-0016-20261030202036",
@@ -97856,6 +97922,17 @@
     "status": "machine",
     "text": "**Chaque placement fautif est signalé.** Une Release qui place plusieurs composants deux fois s’arrête avec l’un de ces messages par entrée fautive dans un seul build, chacun à la clé de l’entrée qu’il conteste — de sorte que plusieurs d’entre eux ensemble forment un seul build nommant tout ce qu’il a trouvé, plutôt qu’une seule erreur écrite plusieurs fois."
   },
+  "a43962551822dedc": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "1a49dd545c317413",
+      "reviewed": false
+    },
+    "srcHash": "a43962551822dedc",
+    "status": "machine",
+    "text": "Avant d’appliquer les manifestes, créez les deux Secrets qu’ils lisent : `dify-owner`, qui contient le mot de passe du propriétaire sous `value`, et `dify-credentials`, qui contient les cinq identifiants sous leurs clés de données. Une charge de travail qui nomme un Secret inexistant ne démarre pas. Définissez le mot de passe du propriétaire dans votre shell, sous la forme `DIFY_OWNER_PASSWORD`, car vous vous connectez avec lui plus bas. Dify accepte un mot de passe de propriétaire d’au moins huit caractères contenant une lettre et un chiffre : avec tout autre, le Job d’import échoue dès que Dify refuse la configuration initiale, et son journal indique `first-time setup was refused with HTTP 422: Validation error for parameter 'payload'`, la réponse que Dify donne à un compte propriétaire qu’il refuse. L’attente ci-dessous attend que le Job s’achève, et un Job en échec ne s’achève jamais, si bien qu’elle court alors jusqu’à son délai d’expiration ; exécutez `kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m` dans un second terminal à côté, et cette attente rend la main dès que le Job échoue. Supprimez le Job et le Secret `dify-owner`, recréez le Secret avec un mot de passe que Dify accepte, puis appliquez de nouveau les manifestes. Écrivez `dify-credentials.env`, une ligne par clé de données : `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` et `inner-api-key=`, chacune suivie d’une valeur de votre choix. Créez ensuite les deux Secrets. Le cluster détient alors les valeurs, supprimez donc les deux fichiers :"
+  },
   "a43b03dc5829a603": {
     "at": "2026-11-04T13:01:12.157Z",
     "job": "session-0246-20261104130112",
@@ -101174,6 +101251,17 @@
     "srcHash": "a9b25749b697e612",
     "status": "machine",
     "text": "[`helm-chart`](helm-chart.md) prend en charge le mode issu d’une source (composition en chart parapluie : un chart par frontière, un sous-chart par composant) et des `artifacts:` qui l’accompagnent, dans les deux formes de rédaction. Une entrée `artifacts:` chargée par `$import:` est d’abord traitée par Aggrega comme template Go, puis injectée dans le répertoire `templates/` du chart avant le rendu ; une entrée `artifacts:` à contenu en ligne est évaluée de la même façon et placée à la racine du sous-chart, sans provenance fusionnée, où les propres templates du chart la lisent via `.Files.Get` / `.Files.Glob` de Helm. Une Recipe autonome composée uniquement d’artefacts ne fait pas partie des types qu’il déclare, pas plus que le type synthétisé : le chart parapluie orchestre des sous-charts, tandis que le type Workload est un concept feuille qui appartient à chaque sous-chart (le domaine du fournisseur `helm`)."
+  },
+  "a9b46ebe55641180": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "26183c751381c700",
+      "reviewed": false
+    },
+    "srcHash": "a9b46ebe55641180",
+    "status": "machine",
+    "text": "**Pour le parcours de l’agent d’IA**, de la place pour son premier démarrage : il télécharge environ 5 Go, dont environ 3,3 Go pour l’image Ollama et environ 1,3 Go pour le modèle `llama3.2:1b`, mesurés tels que les registres les servent. Le modèle est conservé dans un volume Docker, de sorte que les démarrages suivants le réutilisent. Le serveur de modèle dispose de 4 Gio de mémoire. Aucune clé d’API n’est nécessaire."
   },
   "a9b6844dfec38aa2": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -138827,6 +138915,17 @@
     "status": "machine",
     "text": "**Partagé.** Aucune instance ne remplit le slot ; un identifiant est plutôt rattaché une seule fois à une portée plus large (un sous-système, ou une frontière de Release) et se propage en cascade à chaque composant situé en dessous, de sorte que chaque consommateur est rempli à partir de cette unique déclaration. Ce qui est rendu suit la réalisation : un Secret par consommateur, chacun portant le même matériau, avec une réalisation qui rend un Secret ; aucun avec une réalisation qui fait pointer chaque consommateur vers un Secret qui existe déjà."
   },
+  "e669359d765f1e55": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "106d75d05d291135",
+      "reviewed": false
+    },
+    "srcHash": "e669359d765f1e55",
+    "status": "machine",
+    "text": "Le graphe reçoit l’adresse du modèle, son nom et sa clé, l’hôte, le port, l’utilisateur, le nom et le mot de passe de la base de données, ainsi que son propre point d’entrée de graphe. L’utilisateur et le nom de la base de données sont les valeurs par défaut du Component PostgreSQL, `appuser` et `appdb`, avec lesquelles le service de la base de données ci-dessous est créé ; le graphe les reçoit parce que la Recipe PostgreSQL publie les deux, et avec un stockage qui ne publie ni l’un ni l’autre, comme Valkey, il ne reçoit ni l’un ni l’autre. Le nom du modèle, l’hôte, le port, l’utilisateur et le nom de la base de données et le point d’entrée du graphe arrivent sous les noms que le Component LangGraph fournit par défaut, qu’un bloc `inject:` sur la connexion, ou sur le composant lui-même pour ses propres valeurs, remplace par les noms que lit votre code. L’adresse du modèle, sa clé et le mot de passe de la base de données restent tels que les blocs les nomment, de même que `LANGGRAPH_DEFAULT_RECURSION_LIMIT`, que LangGraph lit de lui-même comme limite d’étapes d’une exécution dont la configuration n’en fixe aucune. Le service propre à la base de données reçoit le même mot de passe :"
+  },
   "e66ab4bf3d25ac95": {
     "at": "2026-11-03T11:13:56.542Z",
     "job": "session-0097-20261103111356",
@@ -139008,6 +139107,17 @@
     "srcHash": "e6c9fa10cd7f8b7b",
     "status": "machine",
     "text": "Sur Compose, le service de la passerelle exécute NGINX avec un bloc server qui pointe vers le nom de service compose et le port du backend :"
+  },
+  "e6cb6041d932bdf3": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "283e166cd4cc7530",
+      "reviewed": false
+    },
+    "srcHash": "e6cb6041d932bdf3",
+    "status": "machine",
+    "text": "`-p` nomme le projet, comme l’explique l’étape d’exécution de [Déroulement d’une importation](README.md#how-an-import-runs). `--wait` rend la main dès que la base de données se déclare saine, que l’attente de celle-ci est terminée et que le service du graphe s’exécute. Les services ne publient aucun port ; l’exécution a donc envoyé sa requête depuis un conteneur sur le réseau de la stack, `order-support_compose`, à la route de son propre programme :"
   },
   "e6d1e8b940f106ce": {
     "at": "2026-11-03T18:49:46.349Z",
@@ -144634,6 +144744,13 @@
     "srcHash": "f026e648705ac357",
     "status": "machine",
     "text": "Le build écrit un seul fichier, `dist/compose/docker-compose.yaml`, et `docker compose` le démarre sous le nom de projet `quickstart-ai` et rend la main une fois le modèle téléchargé et chaque service démarré. Chaque section ci-dessous fait avancer d’une étape."
+  },
+  "f026e7ab83445115": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "srcHash": "f026e7ab83445115",
+    "status": "machine",
+    "text": "Le service du graphe ne démarre qu’une fois le troisième service terminé. Celui-ci s’exécute une seule fois, dans l’image de l’agent quickstart du catalogue plutôt que dans celle du graphe, et attend que l’adresse de la base de données accepte une connexion TCP, en réessayant toutes les 2 s pendant 300 s au plus ; faute de connexion d’ici là, il se termine en nommant l’adresse, et le graphe n’est pas démarré. Il reçoit l’hôte et le port de la base de données, et rien d’autre :"
   },
   "f028780f3330bb65": {
     "at": "2026-11-04T01:50:23.893Z",

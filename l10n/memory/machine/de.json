@@ -1985,6 +1985,17 @@
     "status": "machine",
     "text": "`E0237` ist ausgemustert: Nichts meldet ihn mehr, und die Nummer wird nie an eine andere Bedingung vergeben. Die Bedingung, die diese Nummer nannte, wurde zurückgezogen, und kein Build meldet sie."
   },
+  "0312a9852ba5465a": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "bb2cb6c921fd35be",
+      "reviewed": false
+    },
+    "srcHash": "0312a9852ba5465a",
+    "status": "machine",
+    "text": "**Legen Sie dasselbe Passwort auf der Checkpointer-Verbindung des Graphen vor**, damit der Code des Graphen die Datenbank öffnen kann. Das Aggregate hängt es an, ein `core/secret-value`, das den Schlüssel nennt, unter dem sein Wert ankommt, `checkpointer_password`, und das Release gibt seinen Ursprung an, wieder `${POSTGRES_PASSWORD}`. Ein Secret, das nur das Release anhängt, kommt unter dem Schlüssel `value` an, sodass zwei davon auf einer Komponente kollidieren, und der Build weist das zweite zurück und fordert dazu auf, eines davon im Aggregate mit dem Wert anzuhängen, der seinen Schlüssel wählt — die hier geschriebene Form."
+  },
   "03133e4f2390e672": {
     "at": "2026-11-03T21:17:49.829Z",
     "job": "session-0160-20261103211749",
@@ -3531,6 +3542,17 @@
     "srcHash": "05a6ee5e661973b7",
     "status": "machine",
     "text": "Plugin-Bezeichner: die bloße Identität einer Plugin-Entität — der Pfad `<pluginType>/<name>`, z. B. `governance/redact` oder `provider/helm` —, ein lokaler Dateisystempfad oder ein Registry-Alias. Optional: Ein Eintrag kann das Plugin stattdessen über `capability` wählen. Ein optionales nachgestelltes `:version` pinnt die Version in denselben drei Formen wie jeder Versions-Pin (bloß, exakt `:1.0.0` oder mit der Hauptversion kompatibler Bereich `:^1.0.0`)."
+  },
+  "05a85502e9d765c4": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f080d1285f0c33f9",
+      "reviewed": false
+    },
+    "srcHash": "05a85502e9d765c4",
+    "status": "machine",
+    "text": "Dify prüft den Schlüssel mit einer Anfrage an den Anbieter, bevor es ihn behält. Der Lauf hatte keinen OpenAI-Schlüssel: Er verwendete anstelle von OpenAI ein kleines lokales Modell, wie es der Ausführungsschritt von [Wie ein Import abläuft](README.md#how-an-import-runs) beschreibt, hier für `helm/ollama` aus einem eigenen Arbeitsbereich gebaut und im Cluster hinter dem Service `local-model-default` bereitgestellt. Der Lauf kopierte das Modell unter den Namen, den die Anwendung anfordert, mit `kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`, und seine `openai.json` enthielt neben einem Schlüssel, den der lokale Server nicht prüft, drei weitere Einstellungen: `\"openai_api_base\": \"http://local-model-default:11434\"`, die Adresse dieses Servers, ohne `/v1`, das der Anbieter anhängt; `\"api_protocol\": \"chat\"`, wodurch der Anbieter die Chat-Completions-Route des Servers aufruft statt der Responses API, die er standardmäßig aufruft; und `\"validate_model\": \"gpt-4o-mini\"`, das Modell, mit dem Dify den Schlüssel prüft. Mit einem OpenAI-Schlüssel setzen Sie nur `openai_api_key`, wie oben."
   },
   "05a91185ab72d58b": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -14675,6 +14697,17 @@
     "status": "machine",
     "text": "**Standardbefüllung** — Slots mit definiertem `default:` und ohne vom Release gelieferten Wert erhalten ihren Standardwert. Die Map `.parameters` ist an dieser Stelle im Gültigkeitsbereich."
   },
+  "1892c024eae52e1b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "73acd09245d828a2",
+      "reviewed": false
+    },
+    "srcHash": "1892c024eae52e1b",
+    "status": "machine",
+    "text": "Der Build schreibt eine Datei, `dist/compose/docker-compose.yaml`, und `docker compose` startet sie und kehrt zurück, sobald jeder Dienst läuft. **Der erste Start lädt die Modell-Laufzeitumgebung und das Modell herunter**, etwa 5 GB, bevor er zurückkehrt."
+  },
   "1896df33f3eddd3c": {
     "at": "2026-11-03T16:07:30.748Z",
     "job": "session-0127-20261103160730",
@@ -19275,6 +19308,17 @@
     "srcHash": "2008b1902d5b44db",
     "status": "machine",
     "text": "**Auflösung — Der Resolver & Syntax-Validator**"
+  },
+  "200a9722d2be1e42": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "130fc56e6f560616",
+      "reviewed": false
+    },
+    "srcHash": "200a9722d2be1e42",
+    "status": "machine",
+    "text": "ADK stellt `gemini-2.5-flash` über seine Gemini-Klasse bereit, die ihre Anfragen an die Gemini-API sendet, daher verbindet der Entwurf das Modell mit dem `model`-Socket des Agenten, der allein die Gemini-API zulässt. Ein Modell, das ADK auf andere Weise bereitstellt — ein Name wie `gpt-4o`, den ADK über eine eigene Klasse bereitstellt, oder ein LiteLLM-Modellstring wie `openai/gpt-4o` —, wird mit nichts verbunden: Ein Kommentar über der Instanz nennt es, und die Verbindung bleibt Ihnen überlassen, wie [Was aus einem Agentenbaum wird](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes) beschreibt."
   },
   "200fb04453e6598d": {
     "at": "2026-11-04T10:56:34.629Z",
@@ -48072,6 +48116,17 @@
     "srcHash": "50a040676b51a297",
     "status": "machine",
     "text": "`mappinglibrary.metadata`"
+  },
+  "50a2456a84edd97b": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "ada77f877b332f32",
+      "reviewed": false
+    },
+    "srcHash": "50a2456a84edd97b",
+    "status": "machine",
+    "text": "Der unten gezeigte Lauf verwendete ein solches Image: den Graphen unter dem Pfad, den `langgraph.json` nennt, `src/support_agent/graph.py`, einen Knoten, der über das Modell antwortet, das `OPENAI_MODEL` nennt, und als Befehl des Images einen kleinen, programmeigenen HTTP-Server auf Port 8000. Das Image behält die Struktur des Projekts in seinem Arbeitsverzeichnis bei, sodass der Pfad, den `LANGGRAPH_GRAPH_ENTRYPOINT` relativ dazu nennt, den Graphen findet. Der Server lädt diesen Graphen, hält den Zustand jeder Unterhaltung über den PostgreSQL-Checkpointer von LangGraph in der Datenbank, geöffnet mit Host, Port, Benutzer, Name und Passwort der Datenbank, die jeweils aus der Variable `LANGGRAPH_CHECKPOINTER_` gelesen werden, unter der sie ankommen, sodass das Programm keinen davon selbst festschreibt, und führt den Graphen einmal für jedes `POST /threads/<thread>/runs` aus. Der Service des Graphen startet, sobald die Datenbank Verbindungen annimmt, sodass ein Server, der den Checkpointer beim Start öffnet, eine Datenbank vorfindet, die Verbindungen annimmt. Bauen Sie Ihr Image im Stammverzeichnis des Projekts, setzen Sie seinen Namen anstelle von `ghcr.io/example/support-agent:1.0.0` in `release.yaml` ein und bauen Sie erneut:"
   },
   "50a3f315032983ff": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -83899,6 +83954,17 @@
     "status": "machine",
     "text": "Was ein Komponentenname kostet und warum Großbuchstaben unter manchen Zielen mehr kosten"
   },
+  "8cd40ae40957dea6": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "f5fb6fe566a2aaba",
+      "reviewed": false
+    },
+    "srcHash": "8cd40ae40957dea6",
+    "status": "machine",
+    "text": "Der Build schreibt `dist/compose/docker-compose.yaml` mit einem Service für den Graphen, einem für die Datenbank und einem, der auf die Datenbank wartet. Der Service des Graphen:"
+  },
   "8cd66b0569a7c2ca": {
     "at": "2026-10-30T20:20:36.751Z",
     "job": "session-0016-20261030202036",
@@ -97830,6 +97896,17 @@
     "status": "machine",
     "text": "**Jede fehlerhafte Platzierung wird gemeldet.** Ein Release, das mehrere Komponenten doppelt platziert, bricht in einem einzigen Build mit einer solchen Meldung pro fehlerhaftem Eintrag ab, jede am Schlüssel des Eintrags, den sie beanstandet — mehrere davon zusammen sind also ein Build, der alles nennt, was er gefunden hat, und nicht ein Fehler, der mehrfach ausgegeben wird."
   },
+  "a43962551822dedc": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "1a49dd545c317413",
+      "reviewed": false
+    },
+    "srcHash": "a43962551822dedc",
+    "status": "machine",
+    "text": "Bevor Sie die Manifeste anwenden, erstellen Sie die beiden Secrets, die sie lesen: `dify-owner`, das das Passwort des Eigentümers unter `value` enthält, und `dify-credentials`, das die fünf Zugangsdaten unter ihren Datenschlüsseln enthält. Eine Arbeitslast, die ein nicht vorhandenes Secret nennt, startet nicht. Setzen Sie das Passwort des Eigentümers in Ihrer Shell als `DIFY_OWNER_PASSWORD`, da Sie sich weiter unten damit anmelden. Dify akzeptiert ein Eigentümerpasswort mit mindestens acht Zeichen, das einen Buchstaben und eine Ziffer enthält: Bei jedem anderen schlägt der Import-Job fehl, sobald Dify die Ersteinrichtung ablehnt, und sein Log lautet `first-time setup was refused with HTTP 422: Validation error for parameter 'payload'`, die Antwort, die Dify für ein Eigentümerkonto gibt, das es ablehnt. Das Warten weiter unten wartet darauf, dass der Job abgeschlossen wird, und ein fehlgeschlagener Job wird nie abgeschlossen, sodass es dann bis zu seinem Timeout läuft; führen Sie `kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m` daneben in einem zweiten Terminal aus, und dieses Warten kehrt zurück, sobald der Job fehlschlägt. Löschen Sie den Job und das Secret `dify-owner`, erstellen Sie das Secret erneut mit einem Passwort, das Dify akzeptiert, und wenden Sie die Manifeste erneut an. Schreiben Sie `dify-credentials.env`, eine Zeile pro Datenschlüssel: `db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` und `inner-api-key=`, jeweils gefolgt von einem eigenen Wert. Erstellen Sie dann die beiden Secrets. Danach hält der Cluster die Werte, also löschen Sie die beiden Dateien:"
+  },
   "a43b03dc5829a603": {
     "at": "2026-11-04T13:01:12.157Z",
     "job": "session-0246-20261104130112",
@@ -101142,6 +101219,17 @@
     "srcHash": "a9b25749b697e612",
     "status": "machine",
     "text": "[`helm-chart`](helm-chart.md) unterstützt den quellbasierten Modus (Umbrella-Chart-Komposition: ein Chart pro Boundary, ein Sub-Chart pro Komponente) und `artifacts:`, die ihn begleiten, in beiden Authoring-Formen. Ein per `$import:` geladener Eintrag in `artifacts:` wird zuerst von Aggrega als Go-Template ausgewertet und dann vor dem Rendern in das Verzeichnis `templates/` des Charts eingefügt; ein Eintrag in `artifacts:` mit Inline-Inhalt wird auf dieselbe Weise ausgewertet und im Root des Sub-Charts abgelegt, ohne eingemischte Herkunftsangaben, wo die eigenen Templates des Charts ihn über Helms `.Files.Get` / `.Files.Glob` lesen. Ein eigenständiges Recipe nur aus Artefakten gehört nicht zu den Arten, die er deklariert, und ebenso wenig die synthetisierte Art: Das Umbrella-Chart orchestriert Sub-Charts, während die Workload-Art ein Blattkonzept ist, das in jedes Sub-Chart gehört (die Domäne des Providers `helm`)."
+  },
+  "a9b46ebe55641180": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "26183c751381c700",
+      "reviewed": false
+    },
+    "srcHash": "a9b46ebe55641180",
+    "status": "machine",
+    "text": "**Für den KI-Agenten-Pfad**, Platz für seinen ersten Start: Er lädt etwa 5 GB herunter, davon etwa 3,3 GB das Ollama-Image und etwa 1,3 GB das Modell `llama3.2:1b`, gemessen so, wie die Registries sie ausliefern. Das Modell wird in einem Docker-Volume aufbewahrt, sodass spätere Starts es wiederverwenden. Der Modellserver erhält 4 GiB Arbeitsspeicher. Es ist kein API-Schlüssel nötig."
   },
   "a9b6844dfec38aa2": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -138757,6 +138845,17 @@
     "status": "machine",
     "text": "**Gemeinsam.** Keine Instanz füllt den Slot; stattdessen wird eine Credential einmal in einem breiteren Geltungsbereich angebunden (einem Subsystem oder einer Release-Grenze) und kaskadiert auf jede Komponente darunter, sodass jeder Konsument aus dieser einen Deklaration gefüllt wird. Was gerendert wird, folgt der Realisierung: ein Secret pro Konsument, jedes mit demselben Material, bei einer Realisierung, die ein Secret rendert; keines bei einer, die jeden Konsumenten auf ein bereits existierendes Secret verweist."
   },
+  "e669359d765f1e55": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "106d75d05d291135",
+      "reviewed": false
+    },
+    "srcHash": "e669359d765f1e55",
+    "status": "machine",
+    "text": "Der Graph erhält die Adresse des Modells, seinen Namen und seinen Schlüssel, Host, Port, Benutzer, Namen und Passwort der Datenbank sowie seinen eigenen Graph-Einstiegspunkt. Benutzer und Datenbankname sind die Standardwerte der PostgreSQL-Component, `appuser` und `appdb`, mit denen der unten gezeigte Service der Datenbank erstellt wird; der Graph erhält sie, weil das PostgreSQL-Recipe beide veröffentlicht, und bei einem Speicher, der keinen von beiden veröffentlicht, wie Valkey, erhält er keinen von beiden. Der Name des Modells, Host, Port, Benutzer und Name der Datenbank und der Graph-Einstiegspunkt kommen unter den Namen an, die die LangGraph-Component standardmäßig liefert und die ein Block `inject:` auf der Verbindung, oder auf der Komponente selbst für ihre eigenen Werte, durch die Namen ersetzt, die Ihr Code liest. Die Adresse des Modells, sein Schlüssel und das Passwort der Datenbank bleiben so, wie die Blöcke sie nennen, ebenso `LANGGRAPH_DEFAULT_RECURSION_LIMIT`, das LangGraph von sich aus als Schrittlimit eines Laufs liest, dessen Konfiguration keines festlegt. Der eigene Service der Datenbank erhält dasselbe Passwort:"
+  },
   "e66ab4bf3d25ac95": {
     "at": "2026-11-03T11:13:56.542Z",
     "job": "session-0097-20261103111356",
@@ -138938,6 +139037,17 @@
     "srcHash": "e6c9fa10cd7f8b7b",
     "status": "machine",
     "text": "Auf Compose führt der Gateway-Service NGINX mit einem Serverblock aus, der auf den Compose-Servicenamen und den Port des Backends zielt:"
+  },
+  "e6cb6041d932bdf3": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "revision": {
+      "from": "283e166cd4cc7530",
+      "reviewed": false
+    },
+    "srcHash": "e6cb6041d932bdf3",
+    "status": "machine",
+    "text": "`-p` benennt das Projekt, wie der Ausführungsschritt von [Wie ein Import abläuft](README.md#how-an-import-runs) erklärt. `--wait` kehrt zurück, sobald die Datenbank sich als gesund meldet, das Warten auf sie abgeschlossen ist und der Service des Graphen läuft. Die Services veröffentlichen keinen Port, daher schickte der Lauf seine Anfrage aus einem Container im Netzwerk des Stacks, `order-support_compose`, an die Route seines eigenen Programms:"
   },
   "e6d1e8b940f106ce": {
     "at": "2026-11-03T18:49:46.349Z",
@@ -144552,6 +144662,13 @@
     "srcHash": "f026e648705ac357",
     "status": "machine",
     "text": "Der Build schreibt eine einzige Datei, `dist/compose/docker-compose.yaml`, und `docker compose` startet sie unter dem Projektnamen `quickstart-ai` und kehrt zurück, sobald das Modell heruntergeladen ist und jeder Service läuft. Jeder folgende Abschnitt geht einen Schritt weiter."
+  },
+  "f026e7ab83445115": {
+    "at": "2026-11-09T23:38:32.827Z",
+    "job": "session-0003-20261109233832",
+    "srcHash": "f026e7ab83445115",
+    "status": "machine",
+    "text": "Der Service des Graphen startet erst, wenn der dritte Service abgeschlossen ist. Dieser läuft einmal, im Quickstart-Agent-Image des Katalogs statt im eigenen Image des Graphen, und wartet, bis die Adresse der Datenbank eine TCP-Verbindung annimmt, wobei er es alle 2 s bis zu 300 s lang versucht; kommt bis dahin keine Verbindung zustande, beendet er sich unter Nennung der Adresse, und der Graph wird nicht gestartet. Er erhält Host und Port der Datenbank und sonst nichts:"
   },
   "f028780f3330bb65": {
     "at": "2026-11-04T01:50:23.893Z",
