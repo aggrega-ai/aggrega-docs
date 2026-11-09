@@ -2,7 +2,7 @@
 
 The Language Reference specifies the authoring surface of Aggrega — the YAML schemas, the shared keyword vocabulary, the Go template system, the provider contracts, the CLI commands, the compiler's error catalog, and end-to-end worked examples. Read the chapters below in order for first-time orientation, or jump directly into a subdirectory when looking up a specific entity, keyword, provider, CLI command, or error.
 
-To install the `aggrega` binary first, follow [Install the binary](../install.md#install-the-binary); to have an AI assistant install and set it up for you, paste the prompt in [Set up Aggrega with your AI assistant](../ai-assistants/set-up.md).
+To install the `aggrega` binary first, follow [Install the binary](../install.md#install-the-binary); to have an AI assistant install and set it up for you, paste the prompt in [Set up Aggrega with your AI assistant](../ai-assistants/set-up.md). Before you build scripts or a catalog on Aggrega, read [Compatibility](compatibility.md) for what an upgrade may and may not change.
 
 Before reading the Reference, ground yourself in the mental model the architecture chapters establish. The [Four Domains and Team Topologies](../architecture/03-team-topologies-and-domains.md) chapter explains how Aggrega separates Developer Intent, Platform Catalog, Platform Ops, and Platform Operator concerns into distinct authoring surfaces; the [Entity Taxonomy](../architecture/04-entity-taxonomy.md) chapter names the entities (Aggregate, Component, Feature, Recipe, FeatureRecipe, Plugin, Manifest, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) and their roles across those domains. Every Reference chapter after this one assumes the reader has that shape.
 

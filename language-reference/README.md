@@ -4,7 +4,7 @@ The "what" and "how to use" of Aggrega. Syntax, CLI invocation, error catalog, w
 
 Read the chapters below in order for first-time understanding. Reference subdirectories are listed under their chapter — jump directly when looking up a specific entity, keyword, provider, CLI command, or error.
 
-Before reading the chapter sequence, consult [Status of the Language](10-status.md) for the current state of readiness — which language surfaces are available today, which are accepted but not yet acted on by the compiler, and which are planned for future iterations.
+Before reading the chapter sequence, consult [Status of the Language](10-status.md) for the current state of readiness — which language surfaces are available today, which are accepted but not yet acted on by the compiler, and which are planned for future iterations. [Compatibility](compatibility.md) states what a release promises for the schemas, the command line, the assistant tools, the error codes and the plugin kits.
 
 ## Entity tier model
 
@@ -58,3 +58,4 @@ The Wasm plugin surface sits alongside the chapter sequence rather than inside i
 - [core-importers](plugins/core-importers.md) — the compiler's Langflow, Flowise and n8n importers: what each reads, their settings, and their publication with each compiler release.
 - [authoring-a-provider-walkthrough](plugins/authoring-a-provider-walkthrough.md) — a worked walkthrough of authoring a provider guest, from an empty directory to a build that writes the files the provider rendered.
 - [writing-a-governance-plugin](plugins/writing-a-governance-plugin.md) — writing a governance plugin of your own from the plugin kit's adapter skeleton: one rule, each role's export run by hand, a `Plugin` entity in the workspace's catalog, and a build it refuses.
+- [compatibility](compatibility.md#plugin-kits) — how the plugin kits version: what a patch and a minor release of a kit may change, and what keeps a built plugin loading.

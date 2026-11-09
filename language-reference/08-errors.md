@@ -10,3 +10,4 @@ Fatal halts cover schema violations, schema composition failures (per-pillar JSO
 - [Warnings](errors/warnings.md) — non-halting warnings emitted during compilation and the external linter-domain checks that enforce policy-style rules outside the core compiler.
 - [Error translation](errors/error-translation.md) — the category prefixes (`DEVELOPER_ERROR`, `OPS_ERROR`, `CATALOG_ERROR`, `TRANSLATION_ERROR`, `FETCH_ERROR`, `POLICY_ERROR`, `TRUST_ERROR`) and the single-line and multi-line output shapes.
 - [Error sentinels](errors/sentinels.md) — the three identifiers every condition carries (the Go sentinel a program matches with `errors.Is`, the code it is registered under, and the short code a diagnostic prints) and the table that resolves every short code.
+- [Compatibility](compatibility.md#error-codes) — what the short codes promise across releases: a code is never renumbered and never given to a different condition.

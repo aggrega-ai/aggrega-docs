@@ -1,6 +1,6 @@
 # What your assistant can do with Aggrega
 
-Once your assistant is connected to the Aggrega MCP server, it works with the same `aggrega` binary you would run at a terminal: it reads the schemas and the documentation, drafts and checks your files, builds a Release, and, when you let it, publishes. This page says what that covers, in groups. The server's own answer is the full list, and it is the one to trust: call `describe-capabilities` with no arguments, or ask your assistant to, and it lists every tool the server offers you, each with a one-line purpose, the entity kinds it serves and whether it writes.
+Once your assistant is connected to the Aggrega MCP server, it works with the same `aggrega` binary you would run at a terminal: it reads the schemas and the documentation, drafts and checks your files, builds a Release, and, when you let it, publishes. This page says what that covers, in groups. The server's own answer is the full list, and it is the one to trust: call `describe-capabilities` with no arguments, or ask your assistant to, and it lists every tool the server offers you, each with a one-line purpose, the entity kinds it serves and whether it writes. [Compatibility](../language-reference/compatibility.md#the-command-line-and-the-assistant-tools) states what a release may change in the tools.
 
 ## Read the schemas and the documentation
 
