@@ -7382,6 +7382,17 @@
     "status": "machine",
     "text": "Le compilateur infère la structure des objets à partir de la hiérarchie YAML. Les nœuds intermédiaires (ici : `primary`, `resources`, `requests`, `limits`, `auth`) sont des types objet contenant les enfants imbriqués. Le compilateur émet des blocs `type: object` et `properties:` explicites dans le JSON Schema résolu ; l’auteur ne les écrit pas."
   },
+  "0bff57dedc7ce784": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1152f499b2bd29ac",
+      "reviewed": false
+    },
+    "srcHash": "0bff57dedc7ce784",
+    "status": "machine",
+    "text": "La forme du graphe est publiée sous forme de JSON Schema, `https://aggrega.ai/schemas/ir-v1beta1.schema.json`, et la [référence du schéma IR](../language-reference/schema/other/ir.md) décrit chaque champ. Un frontend lit le graphe d’après ce schéma, et non d’après les mécanismes internes du compilateur ; le schéma est donc le seul endroit où la forme évolue, et un frontend écrit dans n’importe quel langage la suit de la même manière."
+  },
   "0c0291031e265df4": {
     "at": "2026-11-03T01:23:31.413Z",
     "job": "session-0031-20261103012331",
@@ -37934,6 +37945,13 @@
     "status": "machine",
     "text": "Les noms de bibliothèque et les clés des entrées de charge de travail suivent le PascalCase. Le JSON Schema de l’enveloppe de l’entité impose la convention à deux endroits au moyen de contraintes de motif :"
   },
+  "3fa9ccf968431e0a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "3fa9ccf968431e0a",
+    "status": "machine",
+    "text": "L’application elle-même se trouve dans la ConfigMap à côté. Lorsque Dify refuse ce que l’étape lui envoie, par une réponse d’erreur client autre qu’un dépassement du délai de la requête ou une limitation de débit, ou en signalant que l’importation a échoué, l’étape affiche le message que porte la réponse de Dify et se termine avec le statut 2, comme elle le fait lorsque la définition ne nomme aucune application sous `app.name` ; la `podFailurePolicy` du Job fait échouer le Job à cette tentative, puisqu’une nouvelle tentative serait refusée de la même manière ; tout autre échec, comme un serveur qui ne répond pas dans un délai d’environ dix minutes, donne lieu à une nouvelle tentative."
+  },
   "3faa5e4c7b9ac34a": {
     "at": "2026-11-04T07:36:16.499Z",
     "job": "session-0215-20261104073616",
@@ -47587,6 +47605,17 @@
     "status": "machine",
     "text": "**6. `tool.aggrega.ai/impact`**"
   },
+  "4fa8d83ea737a07b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "3b1a91d7dcb78797",
+      "reviewed": false
+    },
+    "srcHash": "4fa8d83ea737a07b",
+    "status": "machine",
+    "text": "L’installation se compose de dix composants — le serveur d’API de Dify, son worker, son ordonnanceur, son front-end web, son bac à sable de code, son runtime de plugins, un proxy de sortie, PostgreSQL, un cache compatible Redis et Weaviate — reliés entre eux, et l’importation de l’application est une étape que rend la Recipe de son serveur d’API. Son secret d’application, la clé avec laquelle Dify signe les sessions et sous laquelle il chiffre les clés des fournisseurs de modèles qu’il stocke, n’a pas de valeur par défaut dans `core/dify` ; l’ébauche déclare donc `secret_key` comme paramètre propre, sans valeur par défaut, et le transmet pour que la Release le renseigne. Les commentaires au-dessus de l’entrée nomment ce que l’application ne peut pas fournir : ce paramètre, le compte propriétaire sous lequel l’application est importée, et son mot de passe."
+  },
   "4fad266eb2cf5a57": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -51267,6 +51296,17 @@
     "status": "machine",
     "text": "Un fichier qui n’existe pas ne relève pas de cette condition : il ne contient aucun identifiant, et une requête qui en a besoin reçoit pour réponse le refus du serveur. Un fichier que d’autres utilisateurs de la machine peuvent lire n’en relève pas non plus : sous Linux et macOS, il donne lieu à un avertissement nommant le fichier, et il est tout de même lu."
   },
+  "558eecf77902914b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "066c9563f096a396",
+      "reviewed": false
+    },
+    "srcHash": "558eecf77902914b",
+    "status": "machine",
+    "text": "**Importer une source externe en brouillons de fichiers d’authoring.** `aggrega import <file or directory>` lit une source déclarative de définition d’agents — un flow Langflow ou Flowise, un workflow n8n, ou la configuration d’un client MCP ou la description d’un serveur d’un registre MCP —, une application Compose, une application Dify, les agents que déclare un projet CrewAI, les graphes que déclare la configuration d’une application LangGraph, les agents que déclarent les configurations d’agents d’une application Google ADK, ou un agent déclaratif Agent Framework, et génère un premier brouillon de YAML `Aggregate` et `Component`, et, à partir d’une source MCP, Compose, CrewAI, LangGraph, Google ADK ou Agent Framework, une `Release` en brouillon, qu’un auteur relit et termine, afin qu’une équipe reprenne ce qu’elle possède déjà au lieu de le réécrire à la main. Pour chaque nœud d’un flow, et chaque service d’une application Compose, il attribue un score aux Components du catalogue propre à l’espace de travail — celui d’un catalogue d’entreprise autant que celui de la bibliothèque standard — à l’aide d’un modèle de confiance déterministe et sans modèle, et consigne la décision — les candidats évalués, le niveau attribué et le choix effectué — sous forme d’indications vérifiables, que la commande, l’éditeur et l’assistant rapportent tous ; une correspondance de confiance élevée peut être écrite comme référence au catalogue lorsque l’opérateur l’active, toujours comme une suggestion explicite et réversible que l’auteur valide plutôt que comme une réécriture silencieuse. Chaque Component qu’un catalogue gagne est un candidat que la prochaine importation évalue. L’intelligence de correspondance propre à chaque format réside dans un plugin importateur : les importateurs Langflow, Flowise, n8n, MCP, Compose, Dify, CrewAI, LangGraph, Google ADK et Agent Framework du compilateur servent ces formats dans chaque espace de travail, récupérés et vérifiés à la première utilisation, et un catalogue ajoute un format en contenant un plugin importateur qui l’annonce. Une source de type répertoire est lue à travers les motifs de fichiers que déclare son importateur ; les importateurs Langflow, Flowise, n8n, Dify et Agent Framework n’en déclarent aucun, et chacun lit un seul fichier exporté ou agent déclaratif, tandis que l’importateur MCP lit les configurations client que contient un répertoire, l’importateur Compose ses fichiers Compose, fusionnés comme Compose les fusionne, l’importateur CrewAI les déclarations d’un projet, jamais son programme, l’importateur LangGraph la configuration d’une application, jamais son code ni un fichier d’environnement — dont il ne lit les noms que lorsque son rattachement lui remet le fichier —, et l’importateur Google ADK la configuration de l’agent racine d’une application, jamais son code ni son fichier d’environnement, les configurations de ses sous-agents étant lues lorsque son rattachement les lui remet — une configuration qu’ADK déclare expérimentale, dont les agents utilisent par défaut un modèle Gemini et atteignent par leur nom les modèles d’autres fournisseurs au moyen de classes propres à ADK, ou au moyen d’une chaîne de modèle LiteLLM."
+  },
   "558fc0d5f1be562a": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -52894,6 +52934,17 @@
     "srcHash": "586f3b5b33fec066",
     "status": "machine",
     "text": "Le compilateur évalue la Recipe de `legacy-oracle`. Pour une Release qui fournit `legacy_oracle_ip: \"10.0.4.55\"`, son `primary_endpoint` vaut `oracle://10.0.4.55:1521/PROD_DB`."
+  },
+  "58738422376414de": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "93563d0198629047",
+      "reviewed": false
+    },
+    "srcHash": "58738422376414de",
+    "status": "machine",
+    "text": "Chaque corps de message est publié sous forme de schéma, `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`, décrit dans la [référence du format des messages](../language-reference/schema/other/serve-wire.md) ; l’extension Visual Studio Code en tire ses types de messages. Un autre éditeur s’intègre en parlant le même protocole. La [référence de `aggrega serve`](../language-reference/cli/aggrega-serve.md) décrit chaque méthode, ce qu’elle lit et écrit, et les erreurs qu’elle lève."
   },
   "587fc0695a373081": {
     "at": "2026-10-30T19:26:00.927Z",
@@ -93386,6 +93437,17 @@
     "status": "machine",
     "text": "Source rattachée"
   },
+  "9cefd924e9edc735": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1543783f33d52ab0",
+      "reviewed": false
+    },
+    "srcHash": "9cefd924e9edc735",
+    "status": "machine",
+    "text": "**Transmettez les identifiants propres à l’installation.** L’installation accepte cinq identifiants comme paramètres — le mot de passe de sa base de données, le secret de son application et trois clés que ses composants se présentent mutuellement. Le secret d’application n’a pas de valeur par défaut : l’ébauche le transmet depuis son propre paramètre `secret_key`, et la Release renseigne celui-ci. Les quatre autres ont chacun pour valeur par défaut une valeur de développement que connaît tout lecteur du catalogue. Avec `helm/k8s-existing-secret`, chacun est le nom d’un Secret ; la revue transmet donc le même Secret, `dify-credentials`, pour ces quatre, et la Release le nomme pour `secret_key` ; celui-ci les contient chacun sous sa propre clé de données, `db-password`, `secret-key`, `code-execution-key`, `plugin-daemon-key` et `inner-api-key`."
+  },
   "9cf05451382b964c": {
     "at": "2026-11-04T13:01:09.618Z",
     "job": "session-0245-20261104130109",
@@ -96424,6 +96486,13 @@
     "srcHash": "a1fec6d6b65037f2",
     "status": "machine",
     "text": "`.boundary.incoming_cross_boundary_uses_edges` — les arêtes dont la cible est dans le sous-arbre et la source à l’extérieur (utilisées par les agrégateurs de type ingress)."
+  },
+  "a2005247e2e7b084": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "a2005247e2e7b084",
+    "status": "machine",
+    "text": "**Renseignez le secret d’application.** La Release fournit `secret_key` sous ses `parameters` ; la nature de la valeur dépend du Manifest, comme l’indique la dernière modification ci-dessous. Une fois celui-ci fourni, la validation nomme le point suivant à régler :"
   },
   "a20322400f4be672": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -112126,6 +112195,17 @@
     "srcHash": "bb2dd3ac3389df02",
     "status": "machine",
     "text": "Routage de la réponse aux incidents. Garantit que l’infrastructure est associée à une équipe humaine."
+  },
+  "bb2e8955d9082e5d": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "9c450a5efa11463f",
+      "reviewed": false
+    },
+    "srcHash": "bb2e8955d9082e5d",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` peut alors contenir n’importe quelle valeur non vide de votre choix : le serveur local n’en vérifie aucune. Un workflow n8n lit l’adresse et la clé du modèle dans les identifiants que sélectionne son nœud de modèle, et non dans l’adresse que fournit `endpoint`, si bien que l’exécution n8n a aussi donné à ces identifiants l’adresse du serveur, sous la forme d’un `url` à côté de `apiKey` dans leurs `data`. Le serveur Ollama qu’exécute par défaut `core/ai-model/ollama` sert la Responses API d’OpenAI ainsi que Chat Completions, si bien qu’un agent déclaratif Agent Framework qui indique `apiType: Responses` l’atteint tel qu’il est écrit."
   },
   "bb35d79d558a12e9": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -129547,6 +129627,17 @@
     "srcHash": "d7e62728ba35f462",
     "status": "machine",
     "text": "Règle de cascade"
+  },
+  "d7e650ea1259b3c6": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "bfdcdd07ab150a22",
+      "reviewed": false
+    },
+    "srcHash": "d7e650ea1259b3c6",
+    "status": "machine",
+    "text": "`aggregate.yaml` — l’installation Dify de la bibliothèque standard, `core/dify`, un Aggregate que l’ébauche compose sous `aggregates`, avec l’application reprise telle qu’écrite dans son paramètre `app_definition`, en grande partie omise ici, et le `secret_key` de l’installation transmis depuis un paramètre que déclare l’ébauche :"
   },
   "d7e79994e0171190": {
     "at": "2026-11-04T02:11:12.148Z",
@@ -147842,6 +147933,17 @@
     "srcHash": "f54d84cbf201e858",
     "status": "machine",
     "text": "Une capacité du fournisseur, telle que compose ou helm — le mot auquel se lie le spec.capability d’une Recipe — pour laquelle rédiger un Manifest à côté des brouillons, sous la forme de manifest.yaml : chaque type de composant que déclare l’Aggregate rédigé est associé à l’unique Recipe de cette capacité que propose pour lui le catalogue de l’espace de travail, un type qui n’en a aucune ou qui a des Recipes de plus d’un nom reste non associé avec un constat d’avertissement qui le nomme, et le spec.manifest de la Release rédigée est défini sur le Manifest. Une capacité à laquelle aucune Recipe du catalogue ne se lie est refusée avant l’exécution de la conversion, et rien n’est écrit. En son absence, aucun Manifest n’est rédigé, sauf sous sync, qui rédige pour la cible que nomme l’enregistrement de l’import précédent ; une synchronisation qui nomme une cible rédige pour celle-ci, et l’enregistrement la nomme alors."
+  },
+  "f54dcd1ebbdecb3a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "d145f50e7273df5b",
+      "reviewed": false
+    },
+    "srcHash": "f54dcd1ebbdecb3a",
+    "status": "machine",
+    "text": "`Workload` est un type appartenant à la plateforme sous `apiVersion: aggrega.ai/v1beta1`. Sa déclaration JSON Schema 2020-12 est intégrée au binaire du compilateur lors du build ; les auteurs de catalogue ne modifient pas le schéma du Workload et n’écrivent pas non plus de fichiers YAML `Workload` autonomes en tant qu’entités de catalogue. La grammaire du Workload est consommée à l’intérieur du champ `workload:` d’une Recipe ou d’une FeatureRecipe (inline, ou via `$import:` vers un seul fichier ou une entrée de WorkloadLibrary) et nulle part ailleurs."
   },
   "f551b6b924e5d8f2": {
     "at": "2026-11-03T00:27:36.365Z",

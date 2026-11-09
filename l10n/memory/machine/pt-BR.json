@@ -7382,6 +7382,17 @@
     "status": "machine",
     "text": "O compilador infere a estrutura dos objetos a partir da hierarquia YAML. Os nós intermediários (aqui: `primary`, `resources`, `requests`, `limits`, `auth`) são tipos de objeto que contêm os filhos aninhados. O compilador emite blocos `type: object` e `properties:` explícitos no JSON Schema resolvido; o autor não os escreve."
   },
+  "0bff57dedc7ce784": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1152f499b2bd29ac",
+      "reviewed": false
+    },
+    "srcHash": "0bff57dedc7ce784",
+    "status": "machine",
+    "text": "A forma do grafo é publicada como um JSON Schema, `https://aggrega.ai/schemas/ir-v1beta1.schema.json`, e a [referência do esquema IR](../language-reference/schema/other/ir.md) descreve cada campo. Um frontend lê o grafo de acordo com esse esquema, não com os detalhes internos do compilador, então o esquema é o único lugar onde a forma evolui, e um frontend escrito em qualquer linguagem a acompanha da mesma maneira."
+  },
   "0c0291031e265df4": {
     "at": "2026-11-03T01:23:31.413Z",
     "job": "session-0031-20261103012331",
@@ -37926,6 +37937,13 @@
     "status": "machine",
     "text": "Nomes de biblioteca e chaves de entradas de carga de trabalho seguem PascalCase. O JSON Schema do envelope da entidade impõe a convenção em duas posições por meio de restrições de padrão:"
   },
+  "3fa9ccf968431e0a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "3fa9ccf968431e0a",
+    "status": "machine",
+    "text": "O aplicativo em si está no ConfigMap ao lado. Quando o Dify recusa o que a etapa lhe envia, com uma resposta de erro do cliente que não seja um tempo limite da solicitação nem um limite de taxa, ou informando que a importação falhou, a etapa imprime a mensagem que a resposta do Dify traz e sai com status 2, como faz quando a definição não nomeia nenhum aplicativo em `app.name`; a `podFailurePolicy` do Job faz o Job falhar nessa tentativa, já que uma nova tentativa seria recusada da mesma forma; qualquer outra falha, como o servidor não responder em cerca de dez minutos, é tentada novamente."
+  },
   "3faa5e4c7b9ac34a": {
     "at": "2026-11-04T07:36:16.499Z",
     "job": "session-0215-20261104073616",
@@ -47573,6 +47591,17 @@
     "status": "machine",
     "text": "**6. `tool.aggrega.ai/impact`**"
   },
+  "4fa8d83ea737a07b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "3b1a91d7dcb78797",
+      "reviewed": false
+    },
+    "srcHash": "4fa8d83ea737a07b",
+    "status": "machine",
+    "text": "A instalação tem dez componentes — o servidor de API do Dify, seu worker, seu agendador, seu front-end web, seu sandbox de código, seu runtime de plugins, um proxy de saída, PostgreSQL, um cache compatível com Redis e Weaviate —, ligados entre si, e a importação do aplicativo é uma etapa que a Recipe do servidor de API renderiza. O segredo do aplicativo, a chave com que o Dify assina as sessões e sob a qual criptografa as chaves de provedores de modelos que armazena, não tem padrão em `core/dify`, então o rascunho declara `secret_key` como um parâmetro próprio, sem padrão, e o repassa para que a Release o preencha. Os comentários acima da entrada citam o que o aplicativo não pode fornecer: esse parâmetro, a conta de proprietário sob a qual o aplicativo é importado e a senha dela."
+  },
   "4fad266eb2cf5a57": {
     "at": "2026-11-03T04:04:10.739Z",
     "job": "session-0047-20261103040410",
@@ -51247,6 +51276,17 @@
     "status": "machine",
     "text": "Um arquivo que não existe não é esta condição: ele não contém credenciais, e uma requisição que precisa de uma é respondida pela recusa do servidor. Um arquivo que outros usuários da máquina podem ler também não é esta condição: no Linux e no macOS ele gera um aviso que nomeia o arquivo, e é lido mesmo assim."
   },
+  "558eecf77902914b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "066c9563f096a396",
+      "reviewed": false
+    },
+    "srcHash": "558eecf77902914b",
+    "status": "machine",
+    "text": "**Importar uma fonte externa para rascunhos de arquivos de autoria.** `aggrega import <file or directory>` lê uma fonte declarativa de definição de agentes — um flow do Langflow ou do Flowise, um workflow do n8n, ou a configuração de um cliente MCP ou a descrição de um servidor de um registro MCP —, uma aplicação Compose, uma aplicação Dify, os agentes que um projeto CrewAI declara, os grafos que a configuração de uma aplicação LangGraph declara, os agentes que as configurações de agentes de uma aplicação Google ADK declaram, ou um agente declarativo do Agent Framework, e gera um primeiro rascunho de YAML `Aggregate` e `Component` e, a partir de uma fonte MCP, Compose, CrewAI, LangGraph, Google ADK ou Agent Framework, um rascunho de `Release`, para um autor revisar e concluir, de modo que uma equipe leve adiante o que já tem em vez de reescrevê-lo à mão. Para cada nó de um flow, e cada serviço de uma aplicação Compose, ele pontua os Components do próprio catálogo do workspace — o de um catálogo corporativo tanto quanto o da biblioteca padrão — com um modelo de confiança determinístico e sem modelo, e registra a decisão — os candidatos que avaliou, o nível que atribuiu e a escolha que fez — como dicas revisáveis, que o comando, o editor e o assistente relatam; uma correspondência de alta confiança pode ser gravada como referência ao catálogo quando o operador habilita essa opção, sempre como uma sugestão explícita e reversível que o autor aprova, e não como uma reescrita silenciosa. Cada Component que um catálogo ganha é um candidato que a próxima importação avalia. A inteligência de mapeamento específica de cada formato fica em um plugin importador: os importadores Langflow, Flowise, n8n, MCP, Compose, Dify, CrewAI, LangGraph, Google ADK e Agent Framework do compilador atendem esses formatos em todo workspace, baixados e verificados no primeiro uso, e um catálogo adiciona um formato ao conter um plugin importador que o anuncia. Uma fonte de diretório é lida pelos padrões de arquivo que seu importador declara; os importadores Langflow, Flowise, n8n, Dify e Agent Framework não declaram nenhum, e cada um lê um único arquivo exportado ou agente declarativo, enquanto o importador MCP lê as configurações de cliente que um diretório contém, o importador Compose seus arquivos Compose, mesclados como o Compose os mescla, o importador CrewAI as declarações de um projeto, nunca seu programa, o importador LangGraph a configuração de uma aplicação, nunca seu código nem um arquivo de ambiente — cujos nomes ele lê apenas quando seu vínculo lhe entrega o arquivo —, e o importador Google ADK a configuração do agente raiz de uma aplicação, nunca seu código nem seu arquivo de ambiente, com as configurações de seus subagentes lidas quando seu vínculo as entrega — uma configuração que o ADK declara experimental, cujos agentes usam um modelo Gemini por padrão e alcançam pelo nome os modelos de outros provedores por meio de classes do próprio ADK, ou por meio de uma string de modelo LiteLLM."
+  },
   "558fc0d5f1be562a": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -52874,6 +52914,17 @@
     "srcHash": "586f3b5b33fec066",
     "status": "machine",
     "text": "O compilador avalia a Recipe de `legacy-oracle`. Para uma Release que fornece `legacy_oracle_ip: \"10.0.4.55\"`, seu `primary_endpoint` é `oracle://10.0.4.55:1521/PROD_DB`."
+  },
+  "58738422376414de": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "93563d0198629047",
+      "reviewed": false
+    },
+    "srcHash": "58738422376414de",
+    "status": "machine",
+    "text": "Cada corpo de mensagem é publicado como um esquema, `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`, descrito na [referência do formato das mensagens](../language-reference/schema/other/serve-wire.md); a extensão do Visual Studio Code obtém dele os seus tipos de mensagem. Outro editor se integra falando o mesmo protocolo. A [referência do `aggrega serve`](../language-reference/cli/aggrega-serve.md) descreve cada método, o que ele lê e grava, e os erros que ele gera."
   },
   "587fc0695a373081": {
     "at": "2026-10-30T19:26:00.927Z",
@@ -93366,6 +93417,17 @@
     "status": "machine",
     "text": "Fonte vinculada"
   },
+  "9cefd924e9edc735": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1543783f33d52ab0",
+      "reviewed": false
+    },
+    "srcHash": "9cefd924e9edc735",
+    "status": "machine",
+    "text": "**Passe as credenciais da própria instalação.** A instalação recebe cinco credenciais como parâmetros — a senha do banco de dados, o segredo do aplicativo e três chaves que seus componentes apresentam uns aos outros. O segredo do aplicativo não tem padrão: o rascunho o repassa a partir de seu próprio parâmetro `secret_key`, e a Release preenche esse parâmetro. As outras quatro têm cada uma como padrão um valor de desenvolvimento que todo leitor do catálogo conhece. Com `helm/k8s-existing-secret`, cada uma é o nome de um Secret, então a revisão passa o mesmo Secret, `dify-credentials`, para essas quatro, e a Release o indica para `secret_key`; ele contém cada uma sob sua própria chave de dados, `db-password`, `secret-key`, `code-execution-key`, `plugin-daemon-key` e `inner-api-key`."
+  },
   "9cf05451382b964c": {
     "at": "2026-11-04T13:01:09.618Z",
     "job": "session-0245-20261104130109",
@@ -96404,6 +96466,13 @@
     "srcHash": "a1fec6d6b65037f2",
     "status": "machine",
     "text": "`.boundary.incoming_cross_boundary_uses_edges` — arestas com o destino dentro da subárvore e a origem fora (usadas por agregadores no estilo ingress)."
+  },
+  "a2005247e2e7b084": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "a2005247e2e7b084",
+    "status": "machine",
+    "text": "**Forneça o segredo do aplicativo.** A Release informa `secret_key` em seus `parameters`; qual é o valor depende do Manifest, como diz a última mudança abaixo. Com ele fornecido, a validação aponta a próxima coisa a resolver:"
   },
   "a20322400f4be672": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -112082,6 +112151,17 @@
     "srcHash": "bb2dd3ac3389df02",
     "status": "machine",
     "text": "Roteamento da resposta a incidentes. Garante que a infraestrutura esteja associada a uma equipe humana."
+  },
+  "bb2e8955d9082e5d": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "9c450a5efa11463f",
+      "reviewed": false
+    },
+    "srcHash": "bb2e8955d9082e5d",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` pode então conter qualquer valor não vazio que você escolher: o servidor local não verifica nenhum. Um workflow do n8n lê o endereço e a chave do modelo na credencial que seu nó de modelo seleciona, não no endereço que `endpoint` entrega, então a execução do n8n também deu a essa credencial o endereço do servidor, como um `url` ao lado de `apiKey` em seus `data`. O servidor Ollama que `core/ai-model/ollama` executa por padrão atende a Responses API da OpenAI, além de Chat Completions, então um agente declarativo do Agent Framework que indica `apiType: Responses` o alcança tal como está escrito."
   },
   "bb35d79d558a12e9": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -129489,6 +129569,17 @@
     "srcHash": "d7e62728ba35f462",
     "status": "machine",
     "text": "Regra de cascata"
+  },
+  "d7e650ea1259b3c6": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "bfdcdd07ab150a22",
+      "reviewed": false
+    },
+    "srcHash": "d7e650ea1259b3c6",
+    "status": "machine",
+    "text": "`aggregate.yaml` — a instalação do Dify da biblioteca padrão, `core/dify`, um Aggregate que o rascunho compõe em `aggregates`, com o aplicativo levado tal como escrito em seu parâmetro `app_definition`, em grande parte omitido aqui, e o `secret_key` da instalação repassado a partir de um parâmetro que o rascunho declara:"
   },
   "d7e79994e0171190": {
     "at": "2026-11-04T02:11:12.148Z",
@@ -147746,6 +147837,17 @@
     "srcHash": "f54d84cbf201e858",
     "status": "machine",
     "text": "Uma capacidade do provedor, como compose ou helm — a palavra à qual o spec.capability de uma Recipe se associa —, para a qual redigir um Manifest ao lado dos rascunhos, como manifest.yaml: cada tipo de componente que o Aggregate redigido declara é mapeado para a única Recipe dessa capacidade que o catálogo do espaço de trabalho oferece para ele, um tipo sem nenhuma ou com Recipes de mais de um nome fica sem mapeamento com um achado de aviso que o nomeia, e o spec.manifest da Release redigida é definido como o Manifest. Uma capacidade à qual nenhuma Recipe do catálogo se associa é recusada antes de a conversão ser executada, e nada é escrito. Se ausente, nenhum Manifest é redigido, exceto sob sync, que redige para o destino que o registro da importação anterior nomeia; uma sincronização que nomeia um destino redige para ele, e o registro passa então a nomeá-lo."
+  },
+  "f54dcd1ebbdecb3a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "d145f50e7273df5b",
+      "reviewed": false
+    },
+    "srcHash": "f54dcd1ebbdecb3a",
+    "status": "machine",
+    "text": "`Workload` é um tipo pertencente à plataforma em `apiVersion: aggrega.ai/v1beta1`. Sua declaração em JSON Schema 2020-12 é embutida no binário do compilador no momento do build; os autores de catálogo não editam o schema do Workload nem escrevem arquivos YAML `Workload` independentes como entidades de catálogo. A gramática do Workload é consumida dentro do campo `workload:` de uma Recipe ou de uma FeatureRecipe (inline, ou via `$import:` para um único arquivo ou uma entrada de WorkloadLibrary) e em nenhum outro lugar."
   },
   "f551b6b924e5d8f2": {
     "at": "2026-11-03T00:27:36.365Z",

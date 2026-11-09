@@ -8178,6 +8178,17 @@
     "status": "machine",
     "text": "编译器根据 YAML 层级推断对象结构。中间节点（此处为 `primary`、`resources`、`requests`、`limits`、`auth`）是包含嵌套子节点的对象类型。编译器会在解析后的 JSON Schema 中生成显式的 `type: object` 和 `properties:` 块；作者无需编写它们。"
   },
+  "0bff57dedc7ce784": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1152f499b2bd29ac",
+      "reviewed": false
+    },
+    "srcHash": "0bff57dedc7ce784",
+    "status": "machine",
+    "text": "该图的结构以 JSON Schema 的形式发布，即 `https://aggrega.ai/schemas/ir-v1beta1.schema.json`，[IR schema 参考](../language-reference/schema/other/ir.md)描述了其中的每个字段。前端依据该 schema 读取图，而不是依据编译器的内部实现，因此 schema 是该结构唯一的演进之处，用任何语言编写的前端都以相同方式跟进它。"
+  },
   "0c0291031e265df4": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -42259,6 +42270,13 @@
     "status": "machine",
     "text": "库名称和 workload 条目键采用 PascalCase。实体信封的 JSON Schema 通过模式约束在两个位置强制执行该约定："
   },
+  "3fa9ccf968431e0a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "3fa9ccf968431e0a",
+    "status": "machine",
+    "text": "应用本身位于旁边的 ConfigMap 中。当 Dify 拒绝该步骤发送的内容时——无论是返回请求超时或速率限制以外的客户端错误响应，还是报告导入失败——该步骤会打印 Dify 响应中携带的消息并以状态 2 退出，与定义在 `app.name` 下未指明任何应用时的做法相同；Job 的 `podFailurePolicy` 会让 Job 在该次尝试时失败，因为重试也会以同样方式被拒绝；其他任何失败，例如服务器在大约十分钟内没有响应，都会重试。"
+  },
   "3faa5e4c7b9ac34a": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -52953,6 +52971,17 @@
     "status": "machine",
     "text": "缺少必填字段和类型不匹配也以相同形态报出；具体文本因底层 YAML 库而异。"
   },
+  "4fa8d83ea737a07b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "3b1a91d7dcb78797",
+      "reviewed": false
+    },
+    "srcHash": "4fa8d83ea737a07b",
+    "status": "machine",
+    "text": "该安装由十个相互连接的组件组成——Dify 的 API 服务器、工作进程、调度器、Web 前端、代码沙箱、插件运行时、一个出口代理、PostgreSQL、一个兼容 Redis 的缓存以及 Weaviate——而应用的导入是其 API 服务器的 Recipe 所渲染的一个步骤。其应用密钥，即 Dify 用来签名会话、并用来加密其所存储的模型提供方密钥的密钥，在 `core/dify` 中没有默认值，因此草稿将 `secret_key` 声明为自己的参数，不设默认值，并将其向下传递，由 Release 来满足。条目上方的注释指明了应用无法提供的内容：该参数、导入应用时所属的所有者账户及其密码。"
+  },
   "4fabac0725bd6d3b": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -56984,6 +57013,17 @@
     "status": "machine",
     "text": "不存在的文件不属于此条件：它不持有任何凭据，需要凭据的请求会由服务器的拒绝来回应。本机其他用户可以读取的文件也不属于此条件：在 Linux 和 macOS 上，它会引发一条指出该文件的警告，但仍会被读取。"
   },
+  "558eecf77902914b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "066c9563f096a396",
+      "reviewed": false
+    },
+    "srcHash": "558eecf77902914b",
+    "status": "machine",
+    "text": "**将外部来源导入为草稿编写文件。** `aggrega import <file or directory>` 读取一个声明式智能体定义来源——Langflow 或 Flowise 流程、n8n 工作流、MCP 客户端的配置或注册表服务器描述——、Compose 应用、Dify 应用、CrewAI 项目声明的智能体、LangGraph 应用配置声明的图、Google ADK 应用的智能体配置声明的智能体，或 Agent Framework 声明式智能体，并生成初稿 `Aggregate` 和 `Component` YAML；对于 MCP、Compose、CrewAI、LangGraph、Google ADK 或 Agent Framework 来源，还会生成一份草稿 `Release`，供作者审阅并完成，使团队能够沿用已有的内容，而不必手工重新编写。对于流程的每个节点以及 Compose 应用的每个服务，它会对工作区自身目录中的 Components 打分——企业目录与标准库同等对待——使用一个确定性的、不依赖模型的置信度模型，并将决策——它权衡过的候选项、它分配的等级以及它做出的选择——记录为可审阅的提示，命令、编辑器和助手都会报告这些提示；当操作者选择启用时，高置信度匹配可以写为目录引用，但始终是一个由作者把关的、显式且可撤销的建议，而不是静默改写。目录新增的每个 Component 都是下一次导入要权衡的候选项。特定于格式的映射智能位于导入器插件中：编译器自带的 Langflow、Flowise、n8n、MCP、Compose、Dify、CrewAI、LangGraph、Google ADK 和 Agent Framework 导入器在每个工作区中服务这些格式，在首次使用时获取并验证；目录通过持有一个声明支持某格式的导入器插件来新增该格式。目录来源通过其导入器声明的文件模式读取；Langflow、Flowise、n8n、Dify 和 Agent Framework 导入器不声明任何模式，各自读取一个导出文件或声明式智能体；而 MCP 导入器读取目录中的客户端配置，Compose 导入器读取其中的 Compose 文件，并按 Compose 的方式合并，CrewAI 导入器读取项目的声明，从不读取其程序，LangGraph 导入器读取应用的配置，从不读取其代码或环境文件——只有当其挂接把该文件交给它时，才会读取其中的名称——Google ADK 导入器读取应用的根智能体配置，从不读取其代码或其环境文件，子智能体的配置在其挂接交给它时读取——ADK 声明这种配置是实验性的，其智能体默认使用 Gemini 模型，并通过 ADK 自有的类按名称访问其他提供方的模型，或通过 LiteLLM 模型字符串访问。"
+  },
   "558fc0d5f1be562a": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -58831,6 +58871,17 @@
     "srcHash": "586f3b5b33fec066",
     "status": "machine",
     "text": "编译器对 `legacy-oracle` 的 Recipe 求值。对于提供 `legacy_oracle_ip: \"10.0.4.55\"` 的 Release，其 `primary_endpoint` 为 `oracle://10.0.4.55:1521/PROD_DB`。"
+  },
+  "58738422376414de": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "93563d0198629047",
+      "reviewed": false
+    },
+    "srcHash": "58738422376414de",
+    "status": "machine",
+    "text": "每个消息体都以 schema 的形式发布，即 `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`，在[线路格式参考](../language-reference/schema/other/serve-wire.md)中有说明；Visual Studio Code 扩展的消息类型即取自于此。其他编辑器只要使用相同的协议即可集成。[`aggrega serve` 参考](../language-reference/cli/aggrega-serve.md)描述了每个方法、它读取和写入的内容以及它引发的错误。"
   },
   "587fc0695a373081": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -104069,6 +104120,17 @@
     "status": "machine",
     "text": "附加的源"
   },
+  "9cefd924e9edc735": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1543783f33d52ab0",
+      "reviewed": false
+    },
+    "srcHash": "9cefd924e9edc735",
+    "status": "machine",
+    "text": "**传入安装自身的凭据**。该安装以参数形式接受五个凭据——其数据库密码、其应用密钥，以及其组件之间相互出示的三个密钥。应用密钥没有默认值：草稿从自己的 `secret_key` 参数将其向下传递，由 Release 来满足该参数。其余四个凭据的默认值都是一个开发用值，目录的每位读者都持有该值。使用 `helm/k8s-existing-secret` 时，每个凭据都是一个 Secret 的名称，因此审查为这四个凭据传入同一个 Secret `dify-credentials`，Release 也为 `secret_key` 指定该 Secret；它将每个凭据保存在各自的数据键下：`db-password`、`secret-key`、`code-execution-key`、`plugin-daemon-key` 和 `inner-api-key`。"
+  },
   "9cf05451382b964c": {
     "at": "2026-10-30T04:10:32.182Z",
     "job": "session-0054-20261030041032",
@@ -107418,6 +107480,13 @@
     "srcHash": "a1fec6d6b65037f2",
     "status": "machine",
     "text": "`.boundary.incoming_cross_boundary_uses_edges` — 目标在子树内、源在子树外的边（供 ingress 类聚合器使用）。"
+  },
+  "a2005247e2e7b084": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "a2005247e2e7b084",
+    "status": "machine",
+    "text": "**提供应用密钥。** Release 在其 `parameters` 下提供 `secret_key`；该值是什么取决于 Manifest，如下文最后一项更改所述。提供之后，验证会指出下一个需要解决的事项："
   },
   "a20322400f4be672": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -124817,6 +124886,17 @@
     "srcHash": "bb2dd3ac3389df02",
     "status": "machine",
     "text": "事件响应路由。保证基础设施映射到一个人员团队。"
+  },
+  "bb2e8955d9082e5d": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "9c450a5efa11463f",
+      "reviewed": false
+    },
+    "srcHash": "bb2e8955d9082e5d",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` 随后可以设为你自己选定的任意非空值：本地服务器不做任何校验。n8n 工作流从其模型节点所选的凭据中读取模型的地址和密钥，而不是从 `endpoint` 提供的地址读取，因此 n8n 的运行还把服务器地址交给了该凭据，即在其 `data` 中 `apiKey` 旁边加上一个 `url`。`core/ai-model/ollama` 默认运行的 Ollama 服务器除了 Chat Completions 之外还提供 OpenAI 的 Responses API，因此声明了 `apiType: Responses` 的 Agent Framework 声明式智能体按原样即可访问它。"
   },
   "bb32d048e48148ee": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -144187,6 +144267,17 @@
     "srcHash": "d7e62728ba35f462",
     "status": "machine",
     "text": "级联规则"
+  },
+  "d7e650ea1259b3c6": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "bfdcdd07ab150a22",
+      "reviewed": false
+    },
+    "srcHash": "d7e650ea1259b3c6",
+    "status": "machine",
+    "text": "`aggregate.yaml`——标准库的 Dify 安装 `core/dify`，这是草稿在 `aggregates` 下组合的一个 Aggregate，应用按原样承载在其 `app_definition` 参数中，此处省略了其中的大部分内容，安装的 `secret_key` 则从草稿声明的一个参数向下传入："
   },
   "d7e79994e0171190": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -164420,6 +164511,17 @@
     "srcHash": "f54d84cbf201e858",
     "status": "machine",
     "text": "一种 provider 能力，例如 compose 或 helm——即 Recipe 的 spec.capability 所绑定的词——用于在草稿旁起草一个 Manifest，即 manifest.yaml：草稿 Aggregate 声明的每个组件类型，都会映射到工作区目录为其提供的该能力的唯一 Recipe；没有对应 Recipe 或有多个不同名称 Recipes 的类型保持未映射，并产生一条指出该类型的警告发现项；草稿 Release 的 spec.manifest 会设置为该 Manifest。目录中没有任何 Recipe 绑定的能力会在转换运行前被拒绝，且不写入任何内容。未提供时不起草 Manifest，但同步模式除外：同步会为先前导入记录中指定的目标起草；指定了目标的同步会为该目标起草，之后记录中即为该目标。"
+  },
+  "f54dcd1ebbdecb3a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "d145f50e7273df5b",
+      "reviewed": false
+    },
+    "srcHash": "f54dcd1ebbdecb3a",
+    "status": "machine",
+    "text": "`Workload` 是位于 `apiVersion: aggrega.ai/v1beta1` 的平台自有类型。其 JSON Schema 2020-12 声明在构建时嵌入编译器二进制文件；catalog 作者不编辑 Workload schema，也不将独立的 `Workload` YAML 文件作为 catalog 实体编写。Workload 语法只在 Recipe 或 FeatureRecipe 的 `workload:` 字段中使用（内联，或通过 `$import:` 导入单个文件或某个 WorkloadLibrary 条目），别无他处。"
   },
   "f551b6b924e5d8f2": {
     "at": "2026-10-29T22:30:55.845Z",

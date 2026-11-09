@@ -8178,6 +8178,17 @@
     "status": "machine",
     "text": "Kompilator wnioskuje strukturę obiektów z hierarchii YAML. Węzły pośrednie (tutaj: `primary`, `resources`, `requests`, `limits`, `auth`) są typami obiektowymi zawierającymi zagnieżdżone elementy potomne. Kompilator emituje jawne bloki `type: object` i `properties:` w rozwiązanym JSON Schema; autor ich nie pisze."
   },
+  "0bff57dedc7ce784": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1152f499b2bd29ac",
+      "reviewed": false
+    },
+    "srcHash": "0bff57dedc7ce784",
+    "status": "machine",
+    "text": "Kształt grafu jest publikowany jako JSON Schema, `https://aggrega.ai/schemas/ir-v1beta1.schema.json`, a [dokumentacja referencyjna schematu IR](../language-reference/schema/other/ir.md) opisuje każde pole. Frontend odczytuje graf na podstawie tego schematu, a nie wewnętrznych mechanizmów kompilatora, więc schemat jest jedynym miejscem, w którym kształt ewoluuje, a frontend napisany w dowolnym języku śledzi go w ten sam sposób."
+  },
   "0c0291031e265df4": {
     "at": "2026-10-22T12:28:13.070114+00:00",
     "job": "msgbatch_01Y3HuRsDKK1RKid7JwBTRsz",
@@ -42245,6 +42256,13 @@
     "status": "machine",
     "text": "Nazwy bibliotek i klucze wpisów workload są zapisywane w notacji PascalCase. JSON Schema koperty encji wymusza tę konwencję w dwóch miejscach za pomocą ograniczeń wzorca:"
   },
+  "3fa9ccf968431e0a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "3fa9ccf968431e0a",
+    "status": "machine",
+    "text": "Sama aplikacja znajduje się w obiekcie ConfigMap obok. Gdy Dify odrzuca to, co wysyła mu krok, odpowiedzią z błędem klienta innym niż przekroczenie czasu żądania lub limit częstotliwości albo zgłaszając, że import się nie powiódł, krok wypisuje komunikat zawarty w odpowiedzi Dify i kończy działanie ze statusem 2, tak jak wtedy, gdy definicja nie wskazuje żadnej aplikacji w `app.name`; `podFailurePolicy` obiektu Job powoduje niepowodzenie tego obiektu przy tej próbie, ponieważ ponowna próba zostałaby odrzucona w ten sam sposób; każde inne niepowodzenie, na przykład gdy serwer nie odpowiada w ciągu około dziesięciu minut, jest ponawiane."
+  },
   "3faa5e4c7b9ac34a": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -52939,6 +52957,17 @@
     "status": "machine",
     "text": "Brakujące pola wymagane i niezgodności typów pojawiają się w tej samej postaci; dokładna treść zależy od używanej biblioteki YAML."
   },
+  "4fa8d83ea737a07b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "3b1a91d7dcb78797",
+      "reviewed": false
+    },
+    "srcHash": "4fa8d83ea737a07b",
+    "status": "machine",
+    "text": "Instalacja to dziesięć komponentów — serwer API, worker, scheduler, frontend webowy, piaskownica kodu i środowisko uruchomieniowe wtyczek Dify, proxy ruchu wychodzącego, PostgreSQL, pamięć podręczna zgodna z Redis i Weaviate — połączonych ze sobą, a import aplikacji to krok, który generuje encja Recipe serwera API instalacji. Jej sekret aplikacji, klucz, którym Dify podpisuje sesje i którym szyfruje przechowywane klucze dostawców modeli, nie ma wartości domyślnej w `core/dify`, dlatego szkic deklaruje `secret_key` jako własny parametr, bez wartości domyślnej, i przekazuje go dalej, aby encja Release go wypełniła. Komentarze nad wpisem wskazują to, czego aplikacja nie może dostarczyć: ten parametr, konto właściciela, w ramach którego aplikacja jest importowana, oraz jego hasło."
+  },
   "4fabac0725bd6d3b": {
     "at": "2026-10-22T23:34:48.466793+00:00",
     "job": "msgbatch_012aTHHfasvCmeZDPUMZda5D",
@@ -56970,6 +56999,17 @@
     "status": "machine",
     "text": "Plik, który nie istnieje, nie podlega temu warunkowi: nie zawiera poświadczeń, a na żądanie, które ich wymaga, odpowiada odmowa serwera. Plik, który mogą odczytać inni użytkownicy maszyny, również nie podlega temu warunkowi: w systemach Linux i macOS powoduje jedno ostrzeżenie wskazujące plik i nadal jest odczytywany."
   },
+  "558eecf77902914b": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "066c9563f096a396",
+      "reviewed": false
+    },
+    "srcHash": "558eecf77902914b",
+    "status": "machine",
+    "text": "**Importowanie obcego źródła do roboczych plików autorskich.** `aggrega import <file or directory>` odczytuje deklaratywne źródło definicji agentów — przepływ Langflow lub Flowise, przepływ pracy n8n albo konfigurację klienta MCP lub opis serwera z rejestru MCP — aplikację Compose, aplikację Dify, agentów deklarowanych przez projekt CrewAI, grafy deklarowane przez konfigurację aplikacji LangGraph, agentów deklarowanych przez konfiguracje agentów aplikacji Google ADK lub deklaratywnego agenta Agent Framework, i generuje pierwsze wersje robocze YAML `Aggregate` i `Component`, a ze źródła MCP, Compose, CrewAI, LangGraph, Google ADK lub Agent Framework również roboczą encję `Release`, którą autor przegląda i kończy, dzięki czemu zespół przenosi dalej to, co już ma, zamiast pisać to od nowa ręcznie. Dla każdego węzła przepływu i każdej usługi aplikacji Compose ocenia encje Components własnego katalogu obszaru roboczego — w równym stopniu katalogu firmowego, co biblioteki standardowej — za pomocą deterministycznego modelu ufności, niekorzystającego z modelu AI, i zapisuje decyzję — rozważonych kandydatów, przypisany poziom i dokonany wybór — jako wskazówki do przeglądu, które zgłaszają polecenie, edytor i asystent; dopasowanie o wysokiej ufności może zostać zapisane jako odwołanie do katalogu, gdy operator wyrazi na to zgodę, zawsze jako jawna, odwracalna sugestia zatwierdzana przez autora, a nie jako niejawne przepisanie. Każda encja Component, którą zyskuje katalog, staje się kandydatem rozważanym przy następnym imporcie. Logika mapowania specyficzna dla formatu znajduje się w pluginie importera: własne importery kompilatora Langflow, Flowise, n8n, MCP, Compose, Dify, CrewAI, LangGraph, Google ADK i Agent Framework obsługują te formaty w każdym obszarze roboczym, pobierane i weryfikowane przy pierwszym użyciu, a katalog dodaje format, przechowując plugin importera, który go deklaruje. Źródło będące katalogiem jest odczytywane według wzorców plików deklarowanych przez jego importer; importery Langflow, Flowise, n8n, Dify i Agent Framework nie deklarują żadnych i każdy odczytuje jeden wyeksportowany plik lub deklaratywnego agenta, natomiast importer MCP odczytuje konfiguracje klientów znajdujące się w katalogu, importer Compose jego pliki Compose, scalone tak, jak scala je Compose, importer CrewAI deklaracje projektu, nigdy jego programu, importer LangGraph konfigurację aplikacji, nigdy jej kodu ani pliku środowiskowego — którego nazwy odczytuje tylko wtedy, gdy jego podpięcie przekazuje mu ten plik — a importer Google ADK główną konfigurację agenta aplikacji, nigdy jej kodu ani pliku środowiskowego, przy czym konfiguracje jej podagentów są odczytywane, gdy podpięcie mu je przekazuje — konfigurację, którą ADK określa jako eksperymentalną, której agenci domyślnie używają modelu Gemini, a do modeli innych dostawców docierają po nazwie przez własne klasy ADK albo przez ciąg modelu LiteLLM."
+  },
   "558fc0d5f1be562a": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -58817,6 +58857,17 @@
     "srcHash": "586f3b5b33fec066",
     "status": "machine",
     "text": "Kompilator ewaluuje encję Recipe dla `legacy-oracle`. Dla encji Release dostarczającej `legacy_oracle_ip: \"10.0.4.55\"` jej `primary_endpoint` to `oracle://10.0.4.55:1521/PROD_DB`."
+  },
+  "58738422376414de": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "93563d0198629047",
+      "reviewed": false
+    },
+    "srcHash": "58738422376414de",
+    "status": "machine",
+    "text": "Każda treść wiadomości jest publikowana jako schemat, `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`, opisany w [dokumentacji referencyjnej formatu wymiany](../language-reference/schema/other/serve-wire.md); rozszerzenie Visual Studio Code pobiera z niego swoje typy wiadomości. Inny edytor integruje się, posługując się tym samym protokołem. [Dokumentacja referencyjna `aggrega serve`](../language-reference/cli/aggrega-serve.md) opisuje każdą metodę, co odczytuje i zapisuje oraz jakie błędy zgłasza."
   },
   "587fc0695a373081": {
     "at": "2026-10-22T10:02:42.507672+00:00",
@@ -104044,6 +104095,17 @@
     "status": "machine",
     "text": "Dołączane źródło"
   },
+  "9cefd924e9edc735": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "1543783f33d52ab0",
+      "reviewed": false
+    },
+    "srcHash": "9cefd924e9edc735",
+    "status": "machine",
+    "text": "**Przekazanie własnych poświadczeń instalacji.** Instalacja przyjmuje pięć poświadczeń jako parametry — hasło do swojej bazy danych, sekret swojej aplikacji i trzy klucze, które jej komponenty przedstawiają sobie nawzajem. Sekret aplikacji nie ma wartości domyślnej: szkic przekazuje go dalej z własnego parametru `secret_key`, a encja Release ten parametr wypełnia. Pozostałe cztery mają domyślnie wartość deweloperską, którą zna każdy czytelnik katalogu. Przy `helm/k8s-existing-secret` każde z nich jest nazwą obiektu Secret, więc przegląd przekazuje ten sam Secret, `dify-credentials`, dla tych czterech, a encja Release wskazuje go dla `secret_key`; przechowuje on każde z nich pod osobnym kluczem danych, `db-password`, `secret-key`, `code-execution-key`, `plugin-daemon-key` i `inner-api-key`."
+  },
   "9cf05451382b964c": {
     "at": "2026-10-30T04:10:32.182Z",
     "job": "session-0054-20261030041032",
@@ -107393,6 +107455,13 @@
     "srcHash": "a1fec6d6b65037f2",
     "status": "machine",
     "text": "`.boundary.incoming_cross_boundary_uses_edges` — krawędzie z celem wewnątrz poddrzewa i źródłem poza nim (używane przez agregatory w stylu ingress)."
+  },
+  "a2005247e2e7b084": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "srcHash": "a2005247e2e7b084",
+    "status": "machine",
+    "text": "**Wypełnienie sekretu aplikacji.** Encja Release dostarcza `secret_key` w swoich `parameters`; to, jaka jest wartość, zależy od encji Manifest, jak mówi ostatnia zmiana poniżej. Po jego dostarczeniu walidacja wskazuje kolejną rzecz do ustalenia:"
   },
   "a20322400f4be672": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -124766,6 +124835,17 @@
     "srcHash": "bb2dd3ac3389df02",
     "status": "machine",
     "text": "Kierowanie reagowania na incydenty. Gwarantuje, że infrastruktura jest przypisana do zespołu ludzi."
+  },
+  "bb2e8955d9082e5d": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "9c450a5efa11463f",
+      "reviewed": false
+    },
+    "srcHash": "bb2e8955d9082e5d",
+    "status": "machine",
+    "text": "`OPENAI_API_KEY` może wtedy zawierać dowolną własną niepustą wartość: lokalny serwer żadnej nie sprawdza. Przepływ pracy n8n odczytuje adres i klucz modelu z poświadczenia wybranego przez jego węzeł modelu, a nie z adresu dostarczanego przez `endpoint`, dlatego uruchomienie n8n przekazało temu poświadczeniu również adres serwera, jako `url` obok `apiKey` w jego `data`. Serwer Ollama uruchamiany domyślnie przez `core/ai-model/ollama` obsługuje oprócz Chat Completions również Responses API OpenAI, dlatego deklaratywny agent Agent Framework, który wskazuje `apiType: Responses`, dociera do niego w postaci, w jakiej został napisany."
   },
   "bb32d048e48148ee": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -144120,6 +144200,17 @@
     "srcHash": "d7e62728ba35f462",
     "status": "machine",
     "text": "Reguła kaskadowania"
+  },
+  "d7e650ea1259b3c6": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "bfdcdd07ab150a22",
+      "reviewed": false
+    },
+    "srcHash": "d7e650ea1259b3c6",
+    "status": "machine",
+    "text": "`aggregate.yaml` — instalacja Dify z biblioteki standardowej, `core/dify`, encja Aggregate, którą szkic składa w `aggregates`, z aplikacją przeniesioną dosłownie do jej parametru `app_definition`, tutaj w większości pominiętą, oraz z `secret_key` instalacji przekazywanym z parametru, który deklaruje szkic:"
   },
   "d7e79994e0171190": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -164353,6 +164444,17 @@
     "srcHash": "f54d84cbf201e858",
     "status": "machine",
     "text": "Możliwość dostawcy, taka jak compose lub helm — słowo, z którym wiąże się spec.capability encji Recipe — dla której obok wersji roboczych zostanie wygenerowana encja Manifest jako manifest.yaml: każdy typ komponentu deklarowany przez wygenerowaną encję Aggregate zostaje przypisany do jedynej encji Recipe o tej możliwości, jaką katalog obszaru roboczego dla niego oferuje; typ bez żadnej lub z encjami Recipes o więcej niż jednej nazwie pozostaje nieprzypisany z wynikiem ostrzegawczym, który go wskazuje, a spec.manifest wygenerowanej encji Release zostaje ustawione na tę encję Manifest. Możliwość, z którą nie wiąże się żadna encja Recipe w katalogu, jest odrzucana przed uruchomieniem przekształcenia i nic nie zostaje zapisane. Brak wartości oznacza, że żadna encja Manifest nie jest generowana, z wyjątkiem trybu sync, który generuje ją dla celu wskazanego w zapisie wcześniejszego importu; synchronizacja wskazująca cel generuje ją dla niego, a zapis wskazuje go odtąd."
+  },
+  "f54dcd1ebbdecb3a": {
+    "at": "2026-11-09T23:23:54.162Z",
+    "job": "session-0002-20261109232354",
+    "revision": {
+      "from": "d145f50e7273df5b",
+      "reviewed": false
+    },
+    "srcHash": "f54dcd1ebbdecb3a",
+    "status": "machine",
+    "text": "`Workload` to rodzaj należący do platformy, dostępny pod `apiVersion: aggrega.ai/v1beta1`. Jego deklaracja w JSON Schema 2020-12 jest osadzana w pliku binarnym kompilatora podczas budowania; autorzy katalogów nie edytują schematu Workload ani nie tworzą samodzielnych plików YAML `Workload` jako encji katalogu. Gramatyka Workload jest używana wewnątrz pola `workload:` encji Recipe lub FeatureRecipe (inline albo przez `$import:` do pojedynczego pliku lub wpisu WorkloadLibrary) i nigdzie indziej."
   },
   "f551b6b924e5d8f2": {
     "at": "2026-10-29T22:30:55.845Z",
