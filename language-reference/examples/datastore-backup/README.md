@@ -427,12 +427,23 @@ naming the attachment rather than deploying a database with no backup:
 [OPS_ERROR E0099]
   recipe resolution
   caused by (1):
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe in the catalog implements core/backup:1.0.0 for capability "compose", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [cloudformation/backup-aws-backup:1.0.0 cloudformation/backup-native:1.0.0 helm/backup-cloudnative-pg:1.0.0 helm/backup-k8up:1.0.0 helm/backup-kasten:1.0.0 helm/backup-kubestash:1.0.0 helm/backup-mariadb-operator:1.0.0 helm/backup-velero:1.0.0 terraform/backup-aws-backup:1.0.0 terraform/backup-native:1.0.0]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for "compose", then map the type to it
+    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe the lockfile pins implements core/backup:1.0.0 for capability "compose", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for "compose", then map the type to it
 ```
 
+The workspace names no catalog directory, so the build has only the
+FeatureRecipes its lockfile pins to search, and a Manifest that binds none for
+`core/backup` pins none; the message says so rather than claiming the hub holds
+none. With a checkout of the standard-library catalog named as a catalog
+directory, the same halt says that no FeatureRecipe in the catalog implements
+`core/backup:1.0.0` for `compose`, and lists the ten that implement it for other
+targets: `cloudformation/backup-aws-backup`, `cloudformation/backup-native`,
+`helm/backup-cloudnative-pg`, `helm/backup-k8up`, `helm/backup-kasten`,
+`helm/backup-kubestash`, `helm/backup-mariadb-operator`, `helm/backup-velero`,
+`terraform/backup-aws-backup` and `terraform/backup-native`.
+
 The standard-library catalog holds no FeatureRecipe for `core/backup` on this
-target. Each one the message lists binds to another target, so pinned here it
-renders as its own output beside the Compose file, for a target this Release does
-not deploy to. The ways forward are to remove the attachment from the Release,
-deploying the database there with no backup, or to deploy it through a Manifest
-for a target that has a backup product, as the other five Releases do.
+target. Each of those binds to another target, so pinned here it renders as its
+own output beside the Compose file, for a target this Release does not deploy to.
+The ways forward are to remove the attachment from the Release, deploying the
+database there with no backup, or to deploy it through a Manifest for a target
+that has a backup product, as the other five Releases do.

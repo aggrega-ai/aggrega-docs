@@ -15,7 +15,8 @@
 #     what belongs to another target: the other controller, or, on AWS, the
 #     bucket.
 #   - A Release that halts must exit non-zero with the refusal written below for
-#     it, and write no dist/.
+#     it, and write no dist/. The refusal is written as the parts every wording
+#     of it carries, and each must appear, in order, on one line of the output.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
 # that helper resolves — AGGREGA_BIN, when it is set. Each build passes
@@ -59,10 +60,38 @@ expectation() {
     *) printf 'complete' ;;
   esac
 }
+
+# refusal <release>: the refusal a Release that halts prints, one part per line.
+# Its wording of what was searched depends on where the build reads the catalog
+# from: from the hub alone, as a copy of this workspace does, it searched only
+# what the lockfile pins and says so; with a checkout of the standard-library
+# catalog as a catalog directory, it searched that catalog and also lists the
+# FeatureRecipes implementing core/backup for other targets. Both name the
+# attachment and its type, and say that nothing implements it for Compose, which
+# is what is checked.
 refusal() {
   case "$1" in
-    compose) printf '%s' 'no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe in the catalog implements core/backup:1.0.0 for capability "compose", the capability its component'"'"'s Recipe binds to; feature recipes implementing it for other capabilities: [cloudformation/backup-aws-backup:1.0.0 cloudformation/backup-native:1.0.0 helm/backup-cloudnative-pg:1.0.0 helm/backup-k8up:1.0.0 helm/backup-kasten:1.0.0 helm/backup-kubestash:1.0.0 helm/backup-mariadb-operator:1.0.0 helm/backup-velero:1.0.0 terraform/backup-aws-backup:1.0.0 terraform/backup-native:1.0.0]; pin one of those in the Manifest, and it renders as its own output beside the component'"'"'s, or write one for "compose", then map the type to it' ;;
+    compose)
+      printf '%s\n' 'no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "backup" (type "core/backup"); no feature recipe '
+      printf '%s\n' ' implements core/backup:1.0.0 for capability "compose", the capability its component'"'"'s Recipe binds to; ' ;;
   esac
+}
+
+# carries <text> <parts>: succeeds when one line of text holds every line of
+# parts, in order.
+carries() {
+  local line rest part found
+  while IFS= read -r line; do
+    rest="$line"; found=1
+    while IFS= read -r part; do
+      case "$rest" in
+        *"$part"*) rest="${rest#*"$part"}" ;;
+        *) found=0; break ;;
+      esac
+    done <<< "$2"
+    [ "$found" -eq 1 ] && return 0
+  done <<< "$1"
+  return 1
 }
 
 [ -e "$HERE/dist" ] && die "$HERE/dist exists; remove it first — the builds write dist/ and this script reads each tree it gets"
@@ -183,11 +212,12 @@ for rel in $RELEASES; do
       verdict="MISMATCH: completed"
     elif [ -d "$WORK/$rel.dist" ]; then
       verdict="MISMATCH: halted, but wrote dist/"
+    elif carries "$(cat "$WORK/$rel.log")" "$want"; then
+      verdict="OK: halted with the expected refusal"
     else
-      case "$(cat "$WORK/$rel.log")" in
-        *"$want"*) verdict="OK: halted with the expected refusal" ;;
-        *) verdict="MISMATCH: exited $ec without the refusal \"$want\"" ;;
-      esac
+      shown=""
+      while IFS= read -r part; do shown="${shown:+$shown … }\"$part\""; done <<< "$want"
+      verdict="MISMATCH: exited $ec without a line carrying, in order: $shown"
     fi
   fi
   case "$verdict" in OK*) ;; *) rc=1; FAILED="$FAILED $rel" ;; esac
