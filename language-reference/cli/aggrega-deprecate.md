@@ -189,7 +189,7 @@ is the record the version exclusion reads.
 | `aggrega search` | Reports the version a resolution would take rather than a retracted one, and names the retracted versions in a `NOTES` column. `--include-retracted` reports the highest published version instead. |
 | `aggrega inspect` | Prints the recorded severity beneath the entity, with the version it was recorded on, the reason, the replacement where one is named, and the date it was issued — for every kind it resolves by name. |
 | `aggrega pull` | Names each version it skipped, the reason recorded against it, and the version it took instead. A version you named explicitly still resolves, and the withdrawal is announced rather than acted on. |
-| `aggrega plugin add` | The same, on either route it resolves an unpinned plugin reference by. Where the markers could not be read, it says so and states that the published versions were not screened. |
+| `aggrega plugin add` | The same: a version it chooses is screened on either route it resolves one by, and a version you name as `<name>:<version>` still resolves, with the withdrawal announced. Where the markers could not be read, it says so and states that the published versions were not screened. |
 | `aggrega build` | Nothing from this record. It reads your lockfile alone and never the index, so what it reports is the marker recorded against the version you pinned. |
 | `aggrega serve` | Nothing from this record. Its own resolution does not consult the withdrawal records, so a retracted version can still be selected there; it publishes the lockfile's marker to your editor. |
 
