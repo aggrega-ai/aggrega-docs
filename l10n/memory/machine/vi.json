@@ -3762,6 +3762,17 @@
     "status": "machine",
     "text": "**Chế độ có nguồn.** Một Recipe với `source: <chart-path>` trỏ đến một thư mục Helm chart trên đĩa. Chart được sao chép vào cấu trúc umbrella dưới dạng một sub-chart, giữ nguyên trừ `name` của chính chart đó — xem [“Tên chart mà umbrella sở hữu”](#the-chart-name-the-umbrella-owns); không có việc render hay xử lý template nào được thực hiện ở cấp từng node. Vai trò của Aggrega là kết hợp (lắp ráp umbrella trên các node của boundary), không phải đánh giá template."
   },
+  "053d2b05f4991939": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "e551339acbd7860b",
+      "reviewed": false
+    },
+    "srcHash": "053d2b05f4991939",
+    "status": "machine",
+    "text": "**Các cơ chế tùy chỉnh** (ví dụ: `ssm_param`) — đọc được dưới tên trường của riêng chúng, `.context.inject.<mechanism>.<key>`, đúng như ba cơ chế cốt lõi. Giá trị của một cơ chế tùy chỉnh đến đường ống từ self-inject ở cấp component, từ một cạnh `uses[].inject`, từ ánh xạ `inject:` của một attachment Feature, và từ đầu ra `injectMapping` của một FeatureRecipe. Với self-inject ở cấp component, allowlist `spec.inject` của Component phải nêu tên cơ chế đó, và một cơ chế mà allowlist không nêu tên sẽ dừng bản build. Các mục của một cơ chế tùy chỉnh cũng xuất hiện trong `.context.inject.all` cùng với ba cơ chế cốt lõi. Một cơ chế tùy chỉnh có thể mang bất kỳ tên nào ngoại trừ `all`: tên đó chính là khung nhìn đã gộp, nên một cơ chế mang tên đó sẽ không bao giờ đọc riêng được. Một khối inject đặt tên một cơ chế là `all`, và một allowlist của Component hoặc Feature (`spec.inject`, `inject` của một socket) liệt kê nó, sẽ dừng bản build khi tài liệu được tải, và thông báo từ chối giải thích rằng tên đó thuộc về khung nhìn đã gộp này. Tên phân biệt chữ hoa chữ thường, nên `ALL` là một cơ chế tùy chỉnh bình thường."
+  },
   "053d683f636c3cd8": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -9365,6 +9376,17 @@
     "status": "machine",
     "text": "Bản build một stack lắp ráp **bốn** tài nguyên từ **bốn** bên đóng góp\nkhác nhau:"
   },
+  "0da22ac80aa101a5": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "19b90f7bc6de001c",
+      "reviewed": false
+    },
+    "srcHash": "0da22ac80aa101a5",
+    "status": "machine",
+    "text": "Những gì Release liên kết và định tuyến: Aggregate và Manifest mà nó triển khai (hoặc một base extends), việc đáp ứng tham số theo từng môi trường, và các boundary mà các component của nó được định tuyến vào."
+  },
   "0da67adbb33e64eb": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -12954,6 +12976,17 @@
     "status": "machine",
     "text": "Annotation binding does not resolve against its target Feature (Liên kết annotation không phân giải được với Feature đích của nó)"
   },
+  "12cbe00b932c6945": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "6843f9d71d18a661",
+      "reviewed": false
+    },
+    "srcHash": "12cbe00b932c6945",
+    "status": "machine",
+    "text": "Định tuyến injection không phụ thuộc cơ chế trên một kết nối. Ánh xạ các biến cục bộ sang các khóa provides của đích. Mỗi cơ chế phân phối (env, file, arg hoặc custom) được viết dưới dạng một mảng các mục {in, from} — với 'from' tường minh cho các tham chiếu provides. Một cơ chế tùy chỉnh có thể mang bất kỳ tên nào ngoại trừ all: một template đọc mọi cơ chế được gộp thành một khung nhìn tại .context.inject.all, nên một cơ chế mang tên đó sẽ bị khung nhìn này che khuất, và việc đặt tên như vậy sẽ dừng bản build."
+  },
   "12cdfac3641548c0": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -16287,6 +16320,17 @@
     "srcHash": "17edd320808caea8",
     "status": "machine",
     "text": "Yêu cầu được thỏa mãn bởi một attachment ở bất kỳ phạm vi nào — một khối `features:` cấp component hoặc cấp subsystem, một khối cấp boundary hoặc cấp component của Release, hoặc phần mở rộng dựa trên annotation — vì nó kiểm tra tập attachment cuối cùng của thể hiện chứ không xét mỗi attachment đến từ đâu. Một yêu cầu không được đáp ứng sẽ dừng bản dựng, nêu tên nhãn và kiểu được yêu cầu; một giá trị không phải URI kiểu Feature, hoặc một khóa không có nhãn sau tiền tố, sẽ dừng với một thông báo chẩn đoán riêng về khai báo sai định dạng. Hướng dẫn viết đầy đủ, và cách một yêu cầu hiện diện khác với một slot `featuresSchema`, có tại [`entities/component.md`](../entities/component.md) “Presence mandates”."
+  },
+  "17fbd2bd9bc5f3b5": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "639de4fcab7a8286",
+      "reviewed": false
+    },
+    "srcHash": "17fbd2bd9bc5f3b5",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-policy-v1beta1.schema.json`"
   },
   "18056721922dd6f6": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -24662,6 +24706,17 @@
     "status": "machine",
     "text": "Với đầu vào giống hệt nhau, một bản dựng tạo ra đầu ra giống hệt nhau — đó là hợp đồng mà các công cụ review và công cụ triển khai dựa vào khi đọc kết quả của một bản dựng. Một chế độ dựng tùy chọn kiểm tra trực tiếp điều này: mỗi component được kết xuất hai lần từ cùng một đầu vào và các byte được phát ra được so sánh với nhau. Một provider có hai lần kết xuất không khớp nhau là provider mang trạng thái qua hai lần đó, hoặc vì lý do khác không phải là một hàm của đầu vào, và bản dựng dừng lại."
   },
+  "243150e71f584d4d": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2cceab8d5dfa7050",
+      "reviewed": false
+    },
+    "srcHash": "243150e71f584d4d",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/workload-v1beta1.schema.json`"
+  },
   "2434c6560853f0c8": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -27262,6 +27317,17 @@
     "srcHash": "281ef64ffc8884ea",
     "status": "machine",
     "text": "Pipeline nội tuyến kích hoạt khi giá trị “rỗng” (phép kiểm tra rỗng của Sprig — zero, chuỗi rỗng, false, nil). Nó gộp chung trường hợp vắng mặt trong map với trường hợp có mặt nhưng là zero/rỗng/false. Phù hợp với ngữ nghĩa ghi đè theo từng vị trí gọi (giá trị dự phòng của binding khác với giá trị mặc định ở cấp schema của trường) khi việc gộp chung này chấp nhận được. Không phù hợp cho dự phòng trường vắng mặt khi zero / rỗng / false do tác giả viết là một ý định hợp lệ — hãy dùng `optional` (cơ chế 2) cho trường hợp đó."
+  },
+  "281f8649308a9882": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "17b1b10a64216a75",
+      "reviewed": false
+    },
+    "srcHash": "281f8649308a9882",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/schemalibrary-v1beta1.schema.json`"
   },
   "2825950cc7583a24": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -31208,6 +31274,17 @@
     "srcHash": "2e448faf9929e9e6",
     "status": "machine",
     "text": "Một vị trí trong trình soạn thảo nằm ngoài tài liệu"
+  },
+  "2e4ec733eca7432f": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "6e6e6d998c3840d4",
+      "reviewed": false
+    },
+    "srcHash": "2e4ec733eca7432f",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/release-v1beta1.schema.json`"
   },
   "2e51e09b957559bf": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -39964,6 +40041,17 @@
     "status": "machine",
     "text": "**Ví dụ 1: Tạo đầu ra (Terraform RDS)** Recipe Ops cho cơ sở dữ liệu tạo phiên bản AWS RDS. Điều then chốt là Recipe được viết để xuất trực tiếp URL động vừa được tạo đó vào AWS Systems Manager (SSM) Parameter Store tại một đường dẫn được đặt tên tất định (ví dụ: `/aggrega/prod/db-url`)."
   },
+  "3badab013962646a": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "ac985c5f6de53dda",
+      "reviewed": false
+    },
+    "srcHash": "3badab013962646a",
+    "status": "machine",
+    "text": "Id của lược đồ: `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`"
+  },
   "3bafd897a7bd5004": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -47109,6 +47197,17 @@
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](../entities/featurerecipe.md) — bề mặt soạn thảo `pipeline:` của FeatureRecipe."
   },
+  "463b3cd190b31911": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4eaa6c2ebc35be67",
+      "reviewed": false
+    },
+    "srcHash": "463b3cd190b31911",
+    "status": "machine",
+    "text": "Schema id: `https://aggrega.ai/schemas/path-template-context-v1beta1.schema.json`"
+  },
   "463fee79984d1997": {
     "at": "2026-10-22T23:05:21.167953+00:00",
     "job": "msgbatch_01QARKgDN6UE6a836HboFjBV",
@@ -47948,6 +48047,17 @@
     "srcHash": "47564d9d8e437bc0",
     "status": "machine",
     "text": "Một schema khai báo một trong hai từ khóa mở rộng có giá trị là template và template đó không thể sử dụng được: nó không phải là chuỗi, không phân tích được thành template, bị lỗi khi chạy, hoặc kết xuất ra thứ gì đó khác `true` hoặc `false`."
+  },
+  "4756d1bd3577fc55": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "59b44f0d1d282c12",
+      "reviewed": false
+    },
+    "srcHash": "4756d1bd3577fc55",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/lockfile-v1beta1.schema.json`"
   },
   "47576a1187d28853": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -49356,6 +49466,17 @@
     "status": "machine",
     "text": "[chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — Một Helm chart không nhất thiết phải đến từ một chart registry."
   },
+  "497d3c2a4227b019": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f2b865c4f1f97e7f",
+      "reviewed": false
+    },
+    "srcHash": "497d3c2a4227b019",
+    "status": "machine",
+    "text": "ABI plugin mà guest liên kết theo. Host chỉ chấp nhận đúng phiên bản này; một guest được build theo bất kỳ ABI nào khác sẽ bị từ chối khi tải thay vì bị gọi sai khi điều phối. Hằng số: `\"v1beta1\"`"
+  },
   "497e4129170dc97a": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -49426,6 +49547,17 @@
     "srcHash": "499771e9e9996b06",
     "status": "machine",
     "text": "Mỗi bản phát hành của trình biên dịch xây dựng mười importer từ mã nguồn đã được gắn thẻ và sinh các thực thể Plugin\ncủa chúng từ chính các importer, nên khả năng, các chữ ký nhận diện, các hàm host\nvà phần mô tả của một thực thể là những gì importer của nó báo cáo. Bản phát hành ký và công bố cả mười,\n`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk` và `importer/agent-framework` ở phiên bản của bản phát hành, bên cạnh các\nplugin lõi khác, và ghi lại các thực thể của chúng cùng với các thực thể của các plugin lõi khác cho catalog\ntiêu chuẩn."
+  },
+  "499e7d696c4860a4": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "43b401388f878b9c",
+      "reviewed": false
+    },
+    "srcHash": "499e7d696c4860a4",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-frp-step-v1beta1.schema.json`"
   },
   "49a0d5886b5805d5": {
     "at": "2026-11-10T01:26:17.731Z",
@@ -53530,6 +53662,17 @@
     "srcHash": "4fcacdfb8e977628",
     "status": "machine",
     "text": "Các giá trị mà tác giả khai báo là nhạy cảm được giữ lại khỏi đồ thị, theo dạng có cấu trúc được mô tả tại [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). `--unredacted` bên cạnh `--ir-graph` sẽ in chúng ra, theo các điều kiện mà `aggrega inspect --unredacted` nêu: nó chỉ tác động tới đồ thị và không gì khác mà lệnh này ghi, và bất cứ nơi nào đầu ra tới khi đó sẽ mang các giá trị đó ở dạng rõ. Nếu truyền mà không có `--ir-graph` thì nó bị từ chối, vì sẽ không có gì để nó tiết lộ."
+  },
+  "4fcbbaf78fd254e7": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "8f91f8247ab807d9",
+      "reviewed": false
+    },
+    "srcHash": "4fcbbaf78fd254e7",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/plugins-trust-v1beta1.schema.json`"
   },
   "4fcd7c68fa56ad06": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -62449,6 +62592,17 @@
     "status": "machine",
     "text": "Mỗi giá trị annotation mang một trong ba dạng, phân biệt “tôi không nói gì” với “tôi khai báo một giá trị” với “tôi từ chối tham gia”:"
   },
+  "5d0838cca552dda9": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "14ba8cd62a21207c",
+      "reviewed": false
+    },
+    "srcHash": "5d0838cca552dda9",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/entity-lock-v1beta1.schema.json`"
+  },
   "5d0e6db483b664e6": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -63123,6 +63277,17 @@
     "srcHash": "5e05249ff1aff8d9",
     "status": "machine",
     "text": "Trên Windows, với [Scoop](https://scoop.sh), hãy thêm bucket Aggrega một lần bằng `scoop bucket add aggrega https://github.com/aggrega-ai/scoop-bucket`, rồi cài đặt từ đó bằng `scoop install aggrega`. Scoop cài đặt tệp nhị phân Windows dưới dạng `aggrega.exe` và giúp nó có thể được gọi là `aggrega` thông qua thư mục shim mà nó giữ trong `PATH` của bạn. Sau một bản phát hành mới, `scoop update` làm mới các bucket và `scoop update aggrega` cập nhật nó."
+  },
+  "5e0de7a1c38a356f": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f6941b8967991a92",
+      "reviewed": false
+    },
+    "srcHash": "5e0de7a1c38a356f",
+    "status": "machine",
+    "text": "Bộ tạo YAML Workload với ba chế độ soạn thảo thông qua phân phối theo hình dạng nội dung. Chế độ 1 (nội tuyến): một scalar chuỗi Go template có đầu ra được phân tích thành 'aggrega.ai/v1beta1 Workload'. Chế độ 2 (nhập tệp): một map YAML có đúng một khóa, `$import: ./relative/path.yaml`, trỏ tới một tệp Go-template cục bộ. Chế độ 3 (nhập thư viện): một map YAML có đúng một khóa, `$import: <Library>#/workloads/<entry>`, tham chiếu một mục WorkloadLibrary theo định danh tên trần (phiên bản do lockfile của từng Release cung cấp; không có registry host nào xuất hiện trong tham chiếu). Provider đích phải hỗ trợ tổng hợp workload; catalog thư viện chuẩn khai báo workloadSchema trên các provider như vậy làm hợp đồng được tài liệu hóa. Một Recipe workload: được gắn với một provider không thể tổng hợp sẽ dừng một cách rõ ràng tại thời điểm render. Ở dạng object, `$import` không được khớp với `^oci://`; giá trị nào khớp sẽ bị từ chối."
   },
   "5e0e90d88bdf1a67": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -70932,6 +71097,17 @@
     "status": "machine",
     "text": "**[SchemaLibrary](../language-reference/entities/schemalibrary.md)** — một thư viện dùng chung gồm các hình dạng schema lặp lại trong nhiều Components và Features. Khi cùng một cấu trúc (chẳng hạn một khối tài nguyên pod) xuất hiện trong nhiều thực thể, kiến trúc sư tách nó thành một mục SchemaLibrary để nó được định nghĩa và cập nhật một lần."
   },
+  "69bdef8859b5a1eb": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "39435253af118d37",
+      "reviewed": false
+    },
+    "srcHash": "69bdef8859b5a1eb",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/aggrega-config-v1beta1.schema.json`"
+  },
   "69bfb36a71cea6d1": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -76560,6 +76736,17 @@
     "status": "machine",
     "text": "Dạng ở quy mô module của quy tắc ở trên: một module mà thành phần hợp nhất đưa vào đã đóng góp các component, và không ranh giới nào chứa bất kỳ component nào trong số đó. Lỗi được báo một lần cho module thay vì một lần cho mỗi component, vì một module không được đặt ở đâu là một lỗi soạn thảo với một cách khắc phục tại một khóa — và báo lỗi theo từng component sẽ nêu tên những component mà khai báo của chính chúng hoàn toàn đúng."
   },
+  "72612ba06ee219e4": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "35af56bd28e5643f",
+      "reviewed": false
+    },
+    "srcHash": "72612ba06ee219e4",
+    "status": "machine",
+    "text": "Schema id: `https://aggrega.ai/schemas/wasm-describe-v1beta1.schema.json`"
+  },
   "72636aa95f4e65ee": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -77070,6 +77257,17 @@
     "srcHash": "730cbe2b510f5883",
     "status": "machine",
     "text": "Daemon thường được một tiện ích mở rộng của trình soạn thảo khởi chạy như một tiến trình con, chứ không được chạy thủ công. Một tiện ích mở rộng VS Code là client tham chiếu; các trình soạn thảo khác có thể tích hợp bằng cách dùng cùng giao thức này."
+  },
+  "730e22bdd09557e6": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "23d9d6aaebf95198",
+      "reviewed": false
+    },
+    "srcHash": "730e22bdd09557e6",
+    "status": "machine",
+    "text": "Các dạng dữ liệu truyền mà một plugin quản trị gắn ở một vai trò phán quyết tiếp nhận — PolicyInput ở vai trò ir-verdict, RenderPolicyInput ở vai trò render-verdict — và phát ra (PolicyOutput). Một phán quyết có mức độ nghiêm trọng halt dừng bản dựng với một chẩn đoán tại thời điểm dựng; một phán quyết warn hoặc info được báo cáo và bản dựng tiếp tục. Đồ thị đầu vào của giai đoạn IR là toàn bộ đồ thị IR không phụ thuộc vào capability, được tham chiếu từ ir-v1beta1.schema.json thay vì khai báo lại ở đây, để plugin policy thấy cùng chi tiết về nút, cạnh và phần gắn như trình biên dịch; tác giả plugin theo dõi phiên bản của schema IR. Đầu vào của giai đoạn render mang các tệp đầu ra đã render thay cho đồ thị. Các kiểu payload Go, Rust và TypeScript được sinh từ schema này vào các gói plugin-ABI, nên ba ngôn ngữ đọc và ghi cùng một dạng dữ liệu truyền; một guest nhập chúng từ các gói đó, hoặc thông qua bộ kit plugin của nó nếu bộ kit tái xuất chúng."
   },
   "730e88fe81ad0f3d": {
     "at": "2026-10-22T23:16:15.323655+00:00",
@@ -79774,6 +79972,17 @@
     "srcHash": "76d488abdf811435",
     "status": "machine",
     "text": "được mang theo cho một stack chỉ có một component. Khi đứng cạnh bất kỳ component nào khác, nó dừng bản build, vì bản build không biết nó làm gì với phần còn lại của template."
+  },
+  "76d58afa272d0c67": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "35837025eef32feb",
+      "reviewed": false
+    },
+    "srcHash": "76d58afa272d0c67",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/cache-metadata-v1beta1.schema.json`"
   },
   "76da6746733b5064": {
     "at": "2026-10-29T23:52:11.486Z",
@@ -83856,6 +84065,17 @@
     "status": "machine",
     "text": "Bản build compose in ra cùng các dòng đó cho `release-compose.yaml`, với thông báo\nnêu tên `core/secret-value`, và ghi ra một tệp. Dòng `notice:` nói về\nFeature thông tin xác thực mà Release gắn vào: nó nhận bộ định vị của secret,\n`origin`, từ `values` của nhà phát triển hoặc `infra` của người vận hành, và\nthông báo tư vấn này báo rằng một nút lá được khai báo ở cả hai trụ cột. Nó không thay đổi kết luận nào\nvà không thay đổi byte kết xuất nào."
   },
+  "7d27629b8d621769": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4820b302651fba6b",
+      "reviewed": false
+    },
+    "srcHash": "7d27629b8d621769",
+    "status": "machine",
+    "text": "Phiên bản của schema IR mà đồ thị tuân theo — aggrega.ai/v1beta1, cùng giá trị mà apiVersion của đồ thị mang."
+  },
   "7d29cbbb10ba0b7e": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -86941,6 +87161,17 @@
     "srcHash": "81db47b1f3b05266",
     "status": "machine",
     "text": "`available` — dạng chính xác, dạng khoảng caret (`^MAJOR.MINOR.PATCH`) và dạng không phiên bản ở cả hai (xem [Phân giải phiên bản](../version-resolution.md) và [Trạng thái → Đối chiếu phiên bản](../10-status.md#version-matching))"
+  },
+  "81de7aeeb7506050": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "71ac75f118df6643",
+      "reviewed": false
+    },
+    "srcHash": "81de7aeeb7506050",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-parse-v1beta1.schema.json`"
   },
   "81e3090952b70749": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -100444,6 +100675,13 @@
     "status": "machine",
     "text": "`release-helm-synth.yaml` dừng lại theo cùng cách đó. Cách khắc phục là bước mà hai\nAggregates còn lại thực hiện: gắn một thông tin xác thực dưới `features.root_password` trên\ncomponent `store`."
   },
+  "963fbc3139762982": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "srcHash": "963fbc3139762982",
+    "status": "machine",
+    "text": "Các mục `inject:` riêng của attachment, nằm dưới mỗi cơ chế mà khối của nó nêu tên — `env`, `file`, `arg`, hoặc một cơ chế tùy chỉnh như `vault_ref` — với mỗi tên cục bộ được ánh xạ tới khóa mà `from:` của nó nêu tên. Khóa đó hoặc là khóa mà FeatureRecipe công bố trong `provides:` của nó, vốn cũng được trình biên dịch chuyển vào `.context.inject` của component, hoặc là khóa mà chính một FeatureRecipe đọc `.inject` tiêu thụ: một mục nêu tên một khóa mà FeatureRecipe không công bố sẽ dừng bản build, trừ khi một template mà FeatureRecipe đánh giá theo ngữ cảnh này — `valuesMapping:`, `workload:`, `artifacts:`, `omits:` của nó, hoặc `with:` hay `when:` của một bước pipeline — đọc `.inject` qua một đường dẫn mà template nêu tên: `.inject`, `.inject.env`, `{{ with .inject }}` và tương tự, chứ không phải chuyển giao toàn bộ ngữ cảnh như `toJson .`. `injectMapping:` của nó không được tính, vì nó được đánh giá theo ngữ cảnh của component, nơi không có `.inject`. Khối của một attachment không mang literal: một mục `value:` ở đó sẽ dừng bản build, và một literal mà component cần được viết trong khối `inject:` riêng của component. Một cơ chế tùy chỉnh được đọc tại `.inject.<mechanism>` đúng như `.inject.env`, và các mục của nó xuất hiện trong `.inject.all` cùng với ba cơ chế cốt lõi. Một lần đọc theo dấu chấm vào một cơ chế mà attachment không viết sẽ dừng như một khóa không xác định, ngay cả bên trong một `if` hoặc một `with`, nơi `.context.inject.<mechanism>` được đọc là rỗng; hãy đọc một cơ chế mà attachment có thể không viết thông qua `{{ with .inject }}{{ if hasKey . \"<mechanism>\" }}{{ index . \"<mechanism>\" \"<key>\" }}{{ end }}{{ end }}`, cách này build được dù attachment có viết cơ chế đó hay bất kỳ khối `inject:` nào hay không. Không có trong các template của một Recipe cơ sở và trong một attachment không viết khối `inject:` nào."
+  },
   "964002761de8326a": {
     "at": "2026-10-29T17:05:51.577Z",
     "job": "session-0001-20261029170551",
@@ -103856,6 +104094,17 @@
     "status": "machine",
     "text": "Các kho dùng chung toàn máy được lưu ở nơi mỗi nền tảng lưu bộ nhớ đệm của người dùng: trên Windows là dưới `aggrega\\cache` bên trong thư mục mà biến môi trường `LOCALAPPDATA` chỉ định, trên macOS là dưới `~/Library/Caches/aggrega`, và trên Linux cùng các hệ thống Unix khác là dưới một thư mục `aggrega` bên trong thư mục mà `XDG_CACHE_HOME` chỉ định — `~/.cache/aggrega` khi `XDG_CACHE_HOME` không được đặt. `aggrega config init` in ra thư mục đó trên máy mà nó chạy. Khi không biến nào trong số đó được đặt, các plugin đã biên dịch chỉ được lưu trong lần chạy, và không gói tài liệu nào được lưu cả: khi đó phần giải thích sẽ cho biết vì sao thiếu phần hướng dẫn chi tiết, và tài nguyên tài liệu của trợ lý trả về not-found."
   },
+  "9b85c1a153707925": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "86faebc9bad79b00",
+      "reviewed": false
+    },
+    "srcHash": "9b85c1a153707925",
+    "status": "machine",
+    "text": "Schema id: `https://aggrega.ai/schemas/wasm-mutator-v1beta1.schema.json`"
+  },
   "9b87eadc8320cd59": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -106093,6 +106342,17 @@
     "status": "machine",
     "text": "Ba giới hạn nữa đến từ cách network policy hoạt động chứ không phải từ Feature này:"
   },
+  "9ef217f4fe59c628": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "5a377482997b5764",
+      "reviewed": false
+    },
+    "srcHash": "9ef217f4fe59c628",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-hostfunc-error-v1beta1.schema.json`"
+  },
   "9ef2ac841d0503ab": {
     "at": "2026-10-22T11:13:32.031992+00:00",
     "job": "msgbatch_01DH3Lu1cujibr3yj6LABYJQ",
@@ -107851,6 +108111,17 @@
     "status": "machine",
     "text": "**Cách khắc phục:** cả ba đều thuộc về tác giả của bước chứ không phải của bạn. Với một đích không tồn tại, hãy patch một tài liệu mà node thực sự phát ra, hoặc phát ra tài liệu bạn muốn ở một bước trước và patch nó ở một bước sau — một bước có thể đọc những khóa nào nó được giao. Với host bị thiếu, hãy chuyển bước tới một vị trí đứng đối diện một component host, thay vào đó trỏ tới các tài liệu của chính vị trí đó, hoặc bỏ bước đi. Với một đơn vị không có cây, hãy thay patch bằng một lệnh emit toàn bộ đơn vị: một phần thân không trong suốt được thay thế chứ không được chỉnh sửa."
   },
+  "a16f807e67699117": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f5b890527693c6d0",
+      "reviewed": false
+    },
+    "srcHash": "a16f807e67699117",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/template-context-v1beta1.schema.json`"
+  },
   "a16fb5c29cabb46c": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -108846,6 +109117,17 @@
     "srcHash": "a2c80ff19ab1f577",
     "status": "machine",
     "text": "Điều tương tự áp dụng cho `aggrega sign` và `aggrega deprecate`. Để cố định một định danh cụ thể thay vì định danh được tạo tự động, hãy xuất `AGGREGA_IDENTITY_TOKEN` một cách tường minh; một token tường minh (hoặc `--identity-token`) luôn được ưu tiên hơn endpoint sẵn có:"
+  },
+  "a2c9867aa20e3146": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "b421f8679fe9bd0a",
+      "reviewed": false
+    },
+    "srcHash": "a2c9867aa20e3146",
+    "status": "machine",
+    "text": "Tài liệu tùy chọn mô tả vai trò của component này trong boundary này của Release."
   },
   "a2ca36986901c38e": {
     "at": "2026-10-30T01:37:02.922Z",
@@ -113525,6 +113807,17 @@
     "srcHash": "a9a96e99c2ff1091",
     "status": "machine",
     "text": "Các từ khóa mượn từ JSON Schema (`$ref`, `allOf`, `format`, v.v.) dùng cú pháp giống hệt JSON Schema, nên tác giả đã biết JSON Schema sẽ nhận ra chúng ngay."
+  },
+  "a9aa1ca64afa6560": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2b886664d671397f",
+      "reviewed": false
+    },
+    "srcHash": "a9aa1ca64afa6560",
+    "status": "machine",
+    "text": "Schema cho cấu trúc lúc chạy là `template-context-v1beta1.schema.json` (được phân phối kèm bản phân phối schema của Aggrega)."
   },
   "a9aac8e708e96dd4": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -119517,6 +119810,17 @@
     "srcHash": "b2361d3f69ddfb7b",
     "status": "machine",
     "text": "Gắn một plugin vào một socket mà workspace cấu hình. Thao tác này truy cập một registry để phân giải truy vấn thành một plugin và ghim một phiên bản. Quyết định duy nhất mà một terminal sẽ hỏi — chấp nhận các capability mà một plugin mở rộng lệnh khai báo — được truyền đến dưới dạng một trường ở đây, nên client hỏi bất kỳ ai đang điều khiển nó và giao diện này không bao giờ chờ một lời nhắc."
+  },
+  "b236fbdbc7d738d3": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "8f477f8a9bd79843",
+      "reviewed": false
+    },
+    "srcHash": "b236fbdbc7d738d3",
+    "status": "machine",
+    "text": "workload-v1beta1.schema.json hoặc null"
   },
   "b2384e1f6a7b306f": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -129802,6 +130106,17 @@
     "status": "machine",
     "text": "sẽ dừng build ngay cả ở mức `warn`. Nó thoát với `1`, và dòng cuối cùng nêu tên tệp policy và khóa:"
   },
+  "c0e643f6fd261c8e": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "c6f975673e31703e",
+      "reviewed": false
+    },
+    "srcHash": "c0e643f6fd261c8e",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/wasm-diagnostic-v1beta1.schema.json`"
+  },
   "c0e71e1fab617df8": {
     "at": "2026-10-22T14:48:33.335041+00:00",
     "job": "msgbatch_01WywkyBWQ72dRwWQG8Gy8Jr",
@@ -133703,6 +134018,17 @@
     "srcHash": "c6e3d2e8671215ae",
     "status": "machine",
     "text": "Giới hạn số lượng kết quả phân tích được lưu trong cache. Mặc định là 1000. `0` vô hiệu hóa trục số lượng mục (không có việc loại bỏ nào được kích hoạt bởi số lượng mục). Mặc định: `1000`"
+  },
+  "c6e3d84f2c9cf018": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f9a5211a9456b285",
+      "reviewed": false
+    },
+    "srcHash": "c6e3d84f2c9cf018",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/wasm-import-v1beta1.schema.json`"
   },
   "c6e771e3226a72fd": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -139899,6 +140225,17 @@
     "status": "machine",
     "text": "**3. Đầu vào Wasm (Trình biên dịch → Plugin)** Trong pipeline plugin, trình biên dịch cung cấp cho plugin Injector đầu vào bước của nó, với template `with:` đã được đánh giá. JSON dưới đây minh họa nội dung của payload; đường truyền mang nó ở dạng mã hóa nhị phân chuẩn, và hợp đồng chính xác là cấu trúc đầu vào bước được mô tả trong [hợp đồng plugin Wasm](../plugins/plugin-contract.md). Pipeline plugin chạy trong `aggrega build`; xem [Trạng thái của ngôn ngữ](../10-status.md#compilation-pipeline-phases)."
   },
+  "cf8f907dbb9c37a2": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "a83f952bd719aa2d",
+      "reviewed": false
+    },
+    "srcHash": "cf8f907dbb9c37a2",
+    "status": "machine",
+    "text": "Đặc tả Workload đã được phân tích cú pháp cho nút này. Được điền khi tổng hợp workload từ trường workload: của Recipe sau khi đánh giá Go template + xác thực JSON-schema của Workload (theo workload-v1beta1.schema.json). Có sẵn từ bước đánh giá artifact trở đi (artifacts) để các artifact có thể tham chiếu các trường của workload mà không cần lặp lại (ví dụ: một ServiceMonitor đọc .workload.services.metrics.ports.prom). Có giá trị null khi Recipe không có khối workload:. Các template cố gắng truy cập .workload.* trên một giá trị null sẽ thất bại với một lỗi rõ ràng tại thời điểm đánh giá template."
+  },
   "cf9301febbee39dc": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -142726,6 +143063,17 @@
     "status": "machine",
     "text": "Giới hạn số lượng kết quả phân tích được lưu trong cache. Mặc định là 1000. `0` vô hiệu hóa trục số lượng mục (không có việc loại bỏ nào được kích hoạt bởi số lượng mục). Tối thiểu: `0`. Mặc định: `1000`"
   },
+  "d35618bb77095236": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "07d6810b78927090",
+      "reviewed": false
+    },
+    "srcHash": "d35618bb77095236",
+    "status": "machine",
+    "text": "Id lược đồ: `https://aggrega.ai/schemas/workloadlibrary-v1beta1.schema.json`"
+  },
   "d3576afb5f581643": {
     "at": "2026-10-22T23:05:19.615834+00:00",
     "job": "msgbatch_01A9KTDPLLwkd6FLd7MqtM7B",
@@ -143427,6 +143775,17 @@
     "srcHash": "d4a45d861bff43b9",
     "status": "machine",
     "text": "Khi một cạnh `uses` kết nối hai component nằm trong **cùng** một boundary — cùng một stack — giá trị được tiêu thụ sẽ được nối dưới dạng một `Fn::GetAtt` trỏ đến logical ID của tài nguyên producer bên trong một template duy nhất. Giá trị `provides` của producer đi vào đầu vào đã render của consumer dưới dạng một tham chiếu gốc trong cùng stack; không cần export hay import. Fragment của consumer có thể viết một giá trị như vậy trần — `Value: {{ .context.inject.env.DB_HOST }}` — hoặc trong dấu ngoặc kép — `Value: \"{{ .context.inject.env.DB_HOST }}\"`: dù theo cách nào, template cũng đọc `!GetAtt Db.Endpoint.Address` là intrinsic, vì một chuỗi đúng bằng một dạng rút gọn sẽ đến stack dưới dạng intrinsic đó trong fragment cũng như trong một `valuesMapping`. Ví dụ [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) minh họa điều này với một task definition của Amazon ECS đọc địa chỉ của một RDS instance trong cùng một stack."
+  },
+  "d4a46d9645736b40": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "84ba1292d0db8530",
+      "reviewed": false
+    },
+    "srcHash": "d4a46d9645736b40",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-linter-v1beta1.schema.json`"
   },
   "d4a472616d107aff": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -149628,6 +149987,17 @@
     "status": "machine",
     "text": "workspaceconfig: `<path>`: plugins.linter[`<n>`] names the entry function `\"<function>\"` but no plugin `uri`; an attachment on this list selects its plugin by `uri`, so this one attaches no plugin and `\"<function>\"` is never called — add the `uri` of the plugin that exports it: workspace configuration is invalid (mục plugins.linter nêu hàm điểm vào nhưng không có URI của plugin; một mục gắn trong danh sách này chọn plugin của nó theo URI, nên mục này không gắn plugin nào và hàm đó không bao giờ được gọi — hãy thêm URI của plugin xuất ra hàm đó: cấu hình workspace không hợp lệ)"
   },
+  "dd993bc5f05d7809": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "070c623d683de978",
+      "reviewed": false
+    },
+    "srcHash": "dd993bc5f05d7809",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-provider-v1beta1.schema.json`"
+  },
   "dd9f669018574919": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -154179,6 +154549,17 @@
     "status": "machine",
     "text": "`Aggregate.yaml` của nhà phát triển vẫn không phụ thuộc năng lực, hoàn toàn mù trước việc nó sẽ chạy trên AWS hay trên một máy tính xách tay cục bộ."
   },
+  "e3f756649bddeb5b": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "dab2faaf18fe7d59",
+      "reviewed": false
+    },
+    "srcHash": "e3f756649bddeb5b",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-cli-v1beta1.schema.json`"
+  },
   "e400ec1827703185": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -157966,6 +158347,17 @@
     "srcHash": "e9f12daccc1f8c85",
     "status": "machine",
     "text": "**Nó chỉ báo cáo và không bao giờ tạo.** Phương thức này không thay đổi gì, không ghi gì, và không tạo attachment nào. Việc soạn và áp dụng bất kỳ chỉnh sửa nào là việc của trình soạn thảo, nơi có buffer và lịch sử hoàn tác."
+  },
+  "e9f95b12b636c2b8": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "aad761bbe42c5f19",
+      "reviewed": false
+    },
+    "srcHash": "e9f95b12b636c2b8",
+    "status": "machine",
+    "text": "Toàn bộ đồ thị IR không phụ thuộc vào capability, có một nguồn duy nhất từ ir-v1beta1.schema.json. Plugin policy suy luận trên đầy đủ chi tiết nút/cạnh/phần gắn thay vì một phép chiếu hẹp."
   },
   "e9fa696590d35f9b": {
     "at": "2026-10-22T23:16:15.323655+00:00",
@@ -161841,6 +162233,17 @@
     "status": "machine",
     "text": "Việc phân giải ghim ba chart mà các Recipes kết xuất — chart của Envoy Gateway và Envoy AI Gateway từ Docker Hub, chart của cert-manager từ quay.io — nên nó cần kết nối mạng. Workspace này phân giải các thực thể catalog từ registry mặc định mà `.aggrega-config.yaml` chỉ định."
   },
+  "ef7e26adcf3c78f6": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "78c8419e38778167",
+      "reviewed": false
+    },
+    "srcHash": "ef7e26adcf3c78f6",
+    "status": "machine",
+    "text": "const \"v1beta1\""
+  },
   "ef8049f1712eeddd": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -161959,6 +162362,17 @@
     "srcHash": "efbc33d1e6db395a",
     "status": "machine",
     "text": "mỗi cổng được publish trên mọi giao diện của host, dưới dạng `<port>:<port>`"
+  },
+  "efbc4de91b9a7906": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4f5afb14d3b37c2a",
+      "reviewed": false
+    },
+    "srcHash": "efbc4de91b9a7906",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/ir-v1beta1.schema.json`"
   },
   "efbd92c6cdf11b7a": {
     "at": "2026-10-29T21:31:42.799Z",
@@ -171947,6 +172361,17 @@
     "srcHash": "fe3c4a96cd460c45",
     "status": "machine",
     "text": "**Aggrega: Push… / Sign… / Deprecate…** — các thao tác thay đổi những gì người khác phân giải. Push hỏi thực thể nào trong số các thực thể mà bảng Catalog liệt kê cần xuất bản — một menu bên cạnh nút trên bảng Commands, một danh sách để bạn chọn khi chạy từ đây — rồi đóng gói và xuất bản nó lên một registry đã cấu hình. Sign và deprecate hỏi một tham chiếu đến một artifact đã được xuất bản, vì cả hai đều sửa đổi các byte đã xuất bản chứ không phải không gian làm việc: sign đính kèm một chữ ký, deprecate đính kèm một dấu ngừng hỗ trợ đã ký và hỏi mức độ nghiêm trọng — `warning`, `error` hoặc `retracted` — cùng lý do mà nó ghi lại. Cả ba đều đi đến máy chủ ngôn ngữ, cả ba đều hiển thị tiến trình kèm nút Cancel, nút này kết thúc việc xuất bản chứ không chỉ kết thúc việc chờ, và mỗi thao tác kết thúc bằng việc nêu những gì trình biên dịch thực sự đã làm: tham chiếu và phiên bản mà thực thể được phân giải đến cùng digest mà phiên bản đó hiện trỏ đến, digest mà mỗi chữ ký cam kết, hoặc digest riêng của dấu. Một lần xuất bản phát hiện các byte giống hệt đã được xuất bản sẽ nói rõ điều đó thay vì báo cáo như thể đã xuất bản được gì đó. Các phát hiện của chúng và toàn bộ báo cáo được đưa đến kênh đầu ra Aggrega."
+  },
+  "fe417f2141f5e86a": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2a66c39826f7f5ef",
+      "reviewed": false
+    },
+    "srcHash": "fe417f2141f5e86a",
+    "status": "machine",
+    "text": "Id của schema: `https://aggrega.ai/schemas/wasm-annotation-transform-v1beta1.schema.json`"
   },
   "fe450faa5a9eada1": {
     "at": "2026-10-22T12:16:26.328227+00:00",

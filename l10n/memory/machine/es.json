@@ -3372,6 +3372,17 @@
     "status": "machine",
     "text": "**Modo procedente de una fuente.** Una Recipe con `source: <chart-path>` apunta a un directorio de chart de Helm en disco. El chart se copia en la estructura paraguas como subchart, tal cual salvo el propio `name` del chart — consulta [«El nombre del chart que corresponde al chart paraguas»](#the-chart-name-the-umbrella-owns); no se realiza ningún renderizado ni procesamiento de plantillas a nivel de cada nodo. El papel de Aggrega es la composición (el ensamblado del paraguas a través de los nodos del límite), no la evaluación de plantillas."
   },
+  "053d2b05f4991939": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "e551339acbd7860b",
+      "reviewed": false
+    },
+    "srcHash": "053d2b05f4991939",
+    "status": "machine",
+    "text": "**Mecanismos personalizados** (p. ej., `ssm_param`) — legibles bajo su propio nombre de campo, `.context.inject.<mechanism>.<key>`, exactamente como los tres principales. Los valores de un mecanismo personalizado llegan a la tubería desde el self-inject a nivel de componente, desde una arista `uses[].inject`, desde el mapeo `inject:` de una vinculación de Feature y desde la salida `injectMapping` de una FeatureRecipe. Para el self-inject a nivel de componente, la allowlist `spec.inject` del Component debe nombrar el mecanismo, y un mecanismo que la allowlist no nombra detiene la compilación. Las entradas de un mecanismo personalizado también aparecen en `.context.inject.all` junto a los tres principales. Un mecanismo personalizado puede tener cualquier nombre excepto `all`: ese nombre es la propia vista fusionada, por lo que un mecanismo con ese nombre nunca podría leerse por sí solo. Un bloque inject que nombra un mecanismo `all`, y una allowlist de un Component o de una Feature (`spec.inject`, el `inject` de un socket) que lo enumera, detienen la compilación al cargarse el documento, y el rechazo explica que el nombre pertenece a esta vista fusionada. Los nombres distinguen entre mayúsculas y minúsculas, así que `ALL` es un mecanismo personalizado corriente."
+  },
   "053d683f636c3cd8": {
     "at": "2026-11-02T19:03:21.213Z",
     "job": "session-0003-20261102190321",
@@ -8470,6 +8481,17 @@
     "status": "machine",
     "text": "La compilación de un solo stack ensambla **cuatro** recursos de **cuatro** contribuidores distintos:"
   },
+  "0da22ac80aa101a5": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "19b90f7bc6de001c",
+      "reviewed": false
+    },
+    "srcHash": "0da22ac80aa101a5",
+    "status": "machine",
+    "text": "Lo que la Release enlaza y enruta: el Aggregate y el Manifest que despliega (o una base extends), el cumplimiento de parámetros específico del entorno y los límites hacia los que se enrutan sus componentes."
+  },
   "0da67adbb33e64eb": {
     "at": "2026-11-03T10:00:41.851Z",
     "job": "session-0087-20261103100041",
@@ -11627,6 +11649,17 @@
     "status": "machine",
     "text": "Annotation binding does not resolve against its target Feature (El enlace de la anotación no se resuelve contra su Feature de destino)"
   },
+  "12cbe00b932c6945": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "6843f9d71d18a661",
+      "reviewed": false
+    },
+    "srcHash": "12cbe00b932c6945",
+    "status": "machine",
+    "text": "Enrutamiento agnóstico de la inyección en una conexión. Asigna variables locales a las claves provides del destino. Cada mecanismo de entrega (env, file, arg o personalizado) se escribe como un array de entradas {in, from} — 'from' explícito para referencias a provides. Un mecanismo personalizado puede tener cualquier nombre excepto all: una plantilla lee todos los mecanismos fusionados en una sola vista en .context.inject.all, por lo que un mecanismo con ese nombre quedaría oculto por ella, y nombrar uno detiene el build."
+  },
   "12cdfac3641548c0": {
     "at": "2026-10-30T19:42:05.833Z",
     "job": "session-0012-20261030194205",
@@ -14587,6 +14620,17 @@
     "srcHash": "17edd320808caea8",
     "status": "machine",
     "text": "El mandato se satisface con una vinculación en cualquier ámbito — un bloque `features:` a nivel de componente o de subsistema, un bloque de la Release a nivel de límite o de componente, o una expansión dirigida por anotaciones — porque comprueba el conjunto final de vinculaciones de la instancia y no de dónde procede cada vinculación. Un mandato no satisfecho detiene la compilación nombrando la etiqueta y el tipo requerido; un valor que no es un URI de tipo de Feature, o una clave sin etiqueta después del prefijo, se detiene con un diagnóstico distinto de declaración mal formada. El tratamiento completo de la escritura, y en qué se diferencia un mandato de una ranura `featuresSchema`, está en [`entities/component.md`](../entities/component.md) «Obligaciones de presencia»."
+  },
+  "17fbd2bd9bc5f3b5": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "639de4fcab7a8286",
+      "reviewed": false
+    },
+    "srcHash": "17fbd2bd9bc5f3b5",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-policy-v1beta1.schema.json`"
   },
   "18056721922dd6f6": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -22076,6 +22120,17 @@
     "status": "machine",
     "text": "Con una entrada idéntica, una compilación produce una salida idéntica — ese es el contrato con el que las herramientas de revisión y las herramientas de despliegue leen el resultado de una compilación. Un modo de compilación opcional lo comprueba directamente: cada componente se renderiza dos veces a partir de la misma entrada y se comparan los bytes emitidos. Un proveedor cuyos dos renderizados no coinciden arrastra estado de uno a otro, o de algún otro modo no es una función de su entrada, y la compilación se detiene."
   },
+  "243150e71f584d4d": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2cceab8d5dfa7050",
+      "reviewed": false
+    },
+    "srcHash": "243150e71f584d4d",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/workload-v1beta1.schema.json`"
+  },
   "2434c6560853f0c8": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -24404,6 +24459,17 @@
     "srcHash": "281ef64ffc8884ea",
     "status": "machine",
     "text": "Pipeline en línea que se activa ante lo «vacío» (la comprobación de vacuidad de Sprig — cero, cadena vacía, false, nil). Confunde la ausencia en el mapa con la presencia de un valor cero/vacío/false. Adecuada para una semántica de sobrescritura por punto de llamada (el respaldo del binding difiere del valor predeterminado del campo a nivel de esquema) cuando la confusión es aceptable. No es adecuada como respaldo para campos ausentes cuando un cero / vacío / false escrito es una intención legítima — en ese caso usa `optional` (mecanismo 2)."
+  },
+  "281f8649308a9882": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "17b1b10a64216a75",
+      "reviewed": false
+    },
+    "srcHash": "281f8649308a9882",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/schemalibrary-v1beta1.schema.json`"
   },
   "2825950cc7583a24": {
     "at": "2026-11-04T13:45:27.002Z",
@@ -27981,6 +28047,17 @@
     "srcHash": "2e448faf9929e9e6",
     "status": "machine",
     "text": "An editor position falls outside the document (Una posición del editor queda fuera del documento)"
+  },
+  "2e4ec733eca7432f": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "6e6e6d998c3840d4",
+      "reviewed": false
+    },
+    "srcHash": "2e4ec733eca7432f",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/release-v1beta1.schema.json`"
   },
   "2e51e09b957559bf": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -35842,6 +35919,17 @@
     "status": "machine",
     "text": "**Ejemplo 1: la generación de la salida (Terraform RDS)** La Recipe de Ops de la base de datos crea la instancia de AWS RDS. Lo fundamental es que la Recipe está escrita para enviar de forma nativa esa URL dinámica recién generada a AWS Systems Manager (SSM) Parameter Store, en una ruta con nombre determinista (p. ej., `/aggrega/prod/db-url`)."
   },
+  "3badab013962646a": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "ac985c5f6de53dda",
+      "reviewed": false
+    },
+    "srcHash": "3badab013962646a",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/serve-wire-v1beta1.schema.json`"
+  },
   "3bafd897a7bd5004": {
     "at": "2026-11-03T15:26:13.355Z",
     "job": "session-0122-20261103152613",
@@ -42279,6 +42367,17 @@
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](../entities/featurerecipe.md) — la superficie de creación `pipeline:` de la FeatureRecipe."
   },
+  "463b3cd190b31911": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4eaa6c2ebc35be67",
+      "reviewed": false
+    },
+    "srcHash": "463b3cd190b31911",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/path-template-context-v1beta1.schema.json`"
+  },
   "463fee79984d1997": {
     "at": "2026-11-03T14:05:25.158Z",
     "job": "session-0114-20261103140525",
@@ -43074,6 +43173,17 @@
     "srcHash": "47564d9d8e437bc0",
     "status": "machine",
     "text": "Un esquema declara una de las dos palabras clave de extensión cuyo valor es una plantilla, y la plantilla no se pudo usar: no es una cadena, no se analiza como plantilla, falló durante la ejecución o produjo algo distinto de `true` o `false`."
+  },
+  "4756d1bd3577fc55": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "59b44f0d1d282c12",
+      "reviewed": false
+    },
+    "srcHash": "4756d1bd3577fc55",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/lockfile-v1beta1.schema.json`"
   },
   "47576a1187d28853": {
     "at": "2026-11-04T13:45:24.314Z",
@@ -44362,6 +44472,17 @@
     "status": "machine",
     "text": "[chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — Un chart de Helm no tiene por qué venir de un registro de charts."
   },
+  "497d3c2a4227b019": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f2b865c4f1f97e7f",
+      "reviewed": false
+    },
+    "srcHash": "497d3c2a4227b019",
+    "status": "machine",
+    "text": "La ABI de plugins con la que se enlaza el guest. El host acepta exactamente esta versión; un guest compilado para cualquier otra ABI se rechaza al cargar en lugar de invocarse de forma errónea en el despacho. Constante: `\"v1beta1\"`"
+  },
   "497e4129170dc97a": {
     "at": "2026-11-04T02:50:28.781Z",
     "job": "session-0193-20261104025028",
@@ -44432,6 +44553,17 @@
     "srcHash": "499771e9e9996b06",
     "status": "machine",
     "text": "Cada release del compilador compila los diez importadores a partir de las fuentes con tag y genera sus entidades Plugin a partir de los propios importadores, de modo que la capacidad, las firmas de reconocimiento, las funciones del host y la descripción de una entidad son lo que informa su importador. La release firma y publica los diez, `importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk` e `importer/agent-framework`, en la versión de la release, junto a los demás plugins core, y registra sus entidades con las entidades de los demás plugins core para el catálogo estándar."
+  },
+  "499e7d696c4860a4": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "43b401388f878b9c",
+      "reviewed": false
+    },
+    "srcHash": "499e7d696c4860a4",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-frp-step-v1beta1.schema.json`"
   },
   "49a0d5886b5805d5": {
     "at": "2026-11-10T01:26:17.731Z",
@@ -48106,6 +48238,17 @@
     "srcHash": "4fcacdfb8e977628",
     "status": "machine",
     "text": "Los valores que un autor declaró sensibles se retienen del grafo, en la forma estructurada descrita en [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). `--unredacted` junto a `--ir-graph` los imprime en su lugar, en los términos que establece `aggrega inspect --unredacted`: alcanza el grafo y nada más de lo que escribe este comando, y cualquier destino al que llegue la salida contiene entonces esos valores en claro. Pasado sin `--ir-graph` se rechaza, porque no habría nada que revelar."
+  },
+  "4fcbbaf78fd254e7": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "8f91f8247ab807d9",
+      "reviewed": false
+    },
+    "srcHash": "4fcbbaf78fd254e7",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/plugins-trust-v1beta1.schema.json`"
   },
   "4fcd7c68fa56ad06": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -56141,6 +56284,17 @@
     "status": "machine",
     "text": "Una vinculación en un componente"
   },
+  "5d0838cca552dda9": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "14ba8cd62a21207c",
+      "reviewed": false
+    },
+    "srcHash": "5d0838cca552dda9",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/entity-lock-v1beta1.schema.json`"
+  },
   "5d0e6db483b664e6": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -56750,6 +56904,17 @@
     "srcHash": "5e05249ff1aff8d9",
     "status": "machine",
     "text": "En Windows, con [Scoop](https://scoop.sh), añade una vez el bucket de Aggrega, con `scoop bucket add aggrega https://github.com/aggrega-ai/scoop-bucket`, e instala desde él con `scoop install aggrega`. Scoop instala el binario de Windows como `aggrega.exe` y lo hace accesible como `aggrega` mediante la carpeta de shims que mantiene en tu `PATH`. Tras una nueva release, `scoop update` actualiza los buckets y `scoop update aggrega` lo actualiza."
+  },
+  "5e0de7a1c38a356f": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f6941b8967991a92",
+      "reviewed": false
+    },
+    "srcHash": "5e0de7a1c38a356f",
+    "status": "machine",
+    "text": "Productor de YAML de Workload con tres modos de autoría mediante despacho según la forma del contenido. Modo 1 (inline): un escalar de cadena de plantilla Go cuya salida se analiza como 'aggrega.ai/v1beta1 Workload'. Modo 2 (importación de archivo): un mapa YAML de exactamente una clave, `$import: ./relative/path.yaml`, que apunta a un archivo de plantilla Go local. Modo 3 (importación de biblioteca): un mapa YAML de exactamente una clave, `$import: <Library>#/workloads/<entry>`, que hace referencia a una entrada de una WorkloadLibrary por identidad de nombre simple (la versión la suministra el archivo de bloqueo de cada Release; ningún host de registro aparece en la referencia). El Provider de destino debe admitir la síntesis de cargas de trabajo; el catálogo de la biblioteca estándar declara workloadSchema en esos proveedores como el contrato documentado. Una Recipe con workload: enlazada a un proveedor que no puede sintetizar se detiene de forma explícita en tiempo de renderizado. En la forma de objeto, `$import` no debe coincidir con `^oci://`; un valor que coincide se rechaza."
   },
   "5e0e90d88bdf1a67": {
     "at": "2026-10-22T15:28:11.412Z",
@@ -63632,6 +63797,17 @@
     "status": "machine",
     "text": "**[SchemaLibrary](../language-reference/entities/schemalibrary.md)** — una biblioteca compartida de formas de esquema que se repiten en muchos Components y Features. Cuando la misma estructura (por ejemplo, un bloque de recursos de pod) aparece en muchas entidades, un arquitecto la factoriza en una entrada de SchemaLibrary para que se defina y actualice una sola vez."
   },
+  "69bdef8859b5a1eb": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "39435253af118d37",
+      "reviewed": false
+    },
+    "srcHash": "69bdef8859b5a1eb",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/aggrega-config-v1beta1.schema.json`"
+  },
   "69bfb36a71cea6d1": {
     "at": "2026-11-04T09:43:30.291Z",
     "job": "session-0227-20261104094330",
@@ -68654,6 +68830,17 @@
     "status": "machine",
     "text": "La forma a escala de módulo de la regla anterior: un módulo que la composición incorporó ha aportado componentes, y ningún límite contiene ninguno de ellos. Se informa una sola vez para el módulo en lugar de una vez por componente, porque un módulo no colocado en ninguna parte es un único fallo de autoría con un único remedio en una única clave — e informarlo por componente nombraría componentes cuyas propias declaraciones son perfectamente correctas."
   },
+  "72612ba06ee219e4": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "35af56bd28e5643f",
+      "reviewed": false
+    },
+    "srcHash": "72612ba06ee219e4",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-describe-v1beta1.schema.json`"
+  },
   "72636aa95f4e65ee": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -69092,6 +69279,17 @@
     "srcHash": "730cbe2b510f5883",
     "status": "machine",
     "text": "El daemon normalmente lo inicia como subproceso una extensión del editor, no se ejecuta a mano. Una extensión de VS Code es el cliente de referencia; otros editores pueden integrarse hablando el mismo protocolo."
+  },
+  "730e22bdd09557e6": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "23d9d6aaebf95198",
+      "reviewed": false
+    },
+    "srcHash": "730e22bdd09557e6",
+    "status": "machine",
+    "text": "Las formas de transmisión que un plugin de gobernanza vinculado en un rol de veredicto consume — PolicyInput en el rol ir-verdict, RenderPolicyInput en el rol render-verdict — y emite (PolicyOutput). Un veredicto de severidad halt detiene el build con un diagnóstico en tiempo de build; un veredicto warn o info se informa y el build continúa. El grafo de entrada de la fase IR es el grafo IR completo, agnóstico respecto a las capacidades, referenciado desde ir-v1beta1.schema.json en lugar de volver a declararse aquí, de modo que el plugin de política ve el mismo detalle de nodos, aristas y vinculaciones que el compilador; los autores de plugins siguen la versión del esquema IR. La entrada de la fase de renderizado lleva los archivos de salida renderizados en lugar del grafo. Los tipos de payload de Go, Rust y TypeScript se generan a partir de este esquema en los paquetes de la ABI de plugins, de modo que los tres lenguajes leen y escriben el mismo formato de transmisión; un guest los importa desde esos paquetes, o a través de su kit de plugins cuando el kit los reexporta."
   },
   "730e88fe81ad0f3d": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -71543,6 +71741,17 @@
     "srcHash": "76d488abdf811435",
     "status": "machine",
     "text": "llevada en un stack con un solo componente. Junto a cualquier otro detiene la compilación, porque lo que hace al resto de la plantilla es desconocido para la compilación."
+  },
+  "76d58afa272d0c67": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "35837025eef32feb",
+      "reviewed": false
+    },
+    "srcHash": "76d58afa272d0c67",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/cache-metadata-v1beta1.schema.json`"
   },
   "76da6746733b5064": {
     "at": "2026-11-03T16:27:42.239Z",
@@ -75218,6 +75427,17 @@
     "status": "machine",
     "text": "La compilación para compose imprime las mismas líneas para `release-compose.yaml`, con su aviso nombrando `core/secret-value`, y escribe un archivo. La línea `notice:` trata sobre la Feature de credencial que vincula la Release: acepta el localizador del secreto, `origin`, de los `values` del desarrollador o de la `infra` del operador, y el aviso informa de que una hoja está declarada en ambos pilares. No cambia ningún veredicto ni ningún byte renderizado."
   },
+  "7d27629b8d621769": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4820b302651fba6b",
+      "reviewed": false
+    },
+    "srcHash": "7d27629b8d621769",
+    "status": "machine",
+    "text": "La versión del esquema IR a la que se ajusta el grafo — aggrega.ai/v1beta1, el mismo valor que lleva la apiVersion del grafo."
+  },
   "7d29cbbb10ba0b7e": {
     "at": "2026-11-03T04:43:45.832Z",
     "job": "session-0052-20261103044345",
@@ -77988,6 +78208,17 @@
     "srcHash": "81db47b1f3b05266",
     "status": "machine",
     "text": "`available` — formas exacta, de rango caret (`^MAJOR.MINOR.PATCH`) y sin versión en ambos casos (consulta [Resolución de versiones](../version-resolution.md) y [Estado del lenguaje → Coincidencia de versiones](../10-status.md#version-matching))"
+  },
+  "81de7aeeb7506050": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "71ac75f118df6643",
+      "reviewed": false
+    },
+    "srcHash": "81de7aeeb7506050",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-parse-v1beta1.schema.json`"
   },
   "81e3090952b70749": {
     "at": "2026-11-04T01:29:35.126Z",
@@ -90191,6 +90422,13 @@
     "status": "machine",
     "text": "`E0321` en el archivo de bloqueo de una Release"
   },
+  "963fbc3139762982": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "srcHash": "963fbc3139762982",
+    "status": "machine",
+    "text": "Las entradas `inject:` propias de la vinculación, bajo cada mecanismo que su bloque nombra — `env`, `file`, `arg` o uno personalizado como `vault_ref` —, con cada nombre local asignado a la clave que nombra su `from:`. Esa clave es una que la FeatureRecipe publica en sus `provides:`, que el compilador también entrega en el `.context.inject` del componente, o una clave que una FeatureRecipe que lee `.inject` consume ella misma: una entrada que nombra una clave que la FeatureRecipe no publica detiene el build, a menos que una plantilla que la FeatureRecipe evalúa contra este contexto — su `valuesMapping:`, `workload:`, `artifacts:`, `omits:` o el `with:` o el `when:` de un paso del pipeline — lea `.inject` mediante una ruta que la plantilla nombra: `.inject`, `.inject.env`, `{{ with .inject }}` y similares, no un traspaso del contexto completo como `toJson .`. Su `injectMapping:` no cuenta, porque se evalúa contra el contexto del componente, donde `.inject` está ausente. El bloque de una vinculación no lleva literales: una entrada `value:` allí detiene el build, y un literal que el componente necesita se escribe en el propio bloque `inject:` del componente. Un mecanismo personalizado se lee en `.inject.<mechanism>` exactamente como `.inject.env`, y sus entradas aparecen en `.inject.all` junto a los tres principales. Una lectura con puntos de un mecanismo que la vinculación no escribe se detiene como clave desconocida, incluso dentro de un `if` o un `with`, donde `.context.inject.<mechanism>` se lee como vacío; lee un mecanismo que la vinculación podría no escribir mediante `{{ with .inject }}{{ if hasKey . \"<mechanism>\" }}{{ index . \"<mechanism>\" \"<key>\" }}{{ end }}{{ end }}`, que compila tanto si la vinculación escribe el mecanismo o algún bloque `inject:` como si no. Ausente de las plantillas de una Recipe base y de una vinculación que no escribe ningún bloque `inject:`."
+  },
   "964002761de8326a": {
     "at": "2026-10-30T04:51:07.986Z",
     "job": "session-0056-20261030045107",
@@ -93256,6 +93494,17 @@
     "status": "machine",
     "text": "Los almacenes de toda la máquina se guardan donde cada plataforma guarda las cachés de un usuario: en Windows en `aggrega\\cache` dentro del directorio que nombra la variable de entorno `LOCALAPPDATA`, en `~/Library/Caches/aggrega` en macOS, y en un directorio `aggrega` dentro del que nombra `XDG_CACHE_HOME` — `~/.cache/aggrega` cuando `XDG_CACHE_HOME` no está definida — en Linux y los demás sistemas Unix. `aggrega config init` imprime el directorio en la máquina en la que se ejecuta. Cuando ninguna de esas variables está definida, los plugins compilados se conservan solo durante la ejecución y no se conserva ningún paquete de documentación: una explicación indica entonces por qué falta su guía paso a paso, y los recursos de documentación de un asistente responden «no encontrado»."
   },
+  "9b85c1a153707925": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "86faebc9bad79b00",
+      "reviewed": false
+    },
+    "srcHash": "9b85c1a153707925",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-mutator-v1beta1.schema.json`"
+  },
   "9b87eadc8320cd59": {
     "at": "2026-11-03T18:10:58.903Z",
     "job": "session-0138-20261103181058",
@@ -95247,6 +95496,17 @@
     "status": "machine",
     "text": "Otras tres limitaciones vienen de cómo funciona la política de red y no de esta Feature:"
   },
+  "9ef217f4fe59c628": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "5a377482997b5764",
+      "reviewed": false
+    },
+    "srcHash": "9ef217f4fe59c628",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-hostfunc-error-v1beta1.schema.json`"
+  },
   "9ef2ac841d0503ab": {
     "at": "2026-10-30T21:12:20.081Z",
     "job": "session-0021-20261030211220",
@@ -96841,6 +97101,17 @@
     "status": "machine",
     "text": "**Cómo corregirlo:** las tres corresponden al autor del paso y no a ti. Para un destino ausente, aplica el parche a un documento que el nodo sí emita, o emite el que querías en un paso anterior y aplícale el parche en uno posterior — un paso puede leer qué claves recibió. Para un anfitrión que falta, mueve el paso a un lugar donde haya un componente anfitrión, direcciona en su lugar los documentos propios del lugar, o elimínalo. Para una unidad sin árbol, sustituye el parche por una emisión de la unidad entera: un cuerpo opaco se sustituye en lugar de editarse."
   },
+  "a16f807e67699117": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f5b890527693c6d0",
+      "reviewed": false
+    },
+    "srcHash": "a16f807e67699117",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/template-context-v1beta1.schema.json`"
+  },
   "a16fb5c29cabb46c": {
     "at": "2026-11-03T18:10:58.903Z",
     "job": "session-0138-20261103181058",
@@ -97732,6 +98003,17 @@
     "srcHash": "a2c80ff19ab1f577",
     "status": "machine",
     "text": "Lo mismo vale para `aggrega sign` y `aggrega deprecate`. Para fijar una identidad concreta en lugar de la emitida automáticamente, exporta `AGGREGA_IDENTITY_TOKEN` explícitamente; un token explícito (o `--identity-token`) siempre prevalece sobre el endpoint del entorno:"
+  },
+  "a2c9867aa20e3146": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "b421f8679fe9bd0a",
+      "reviewed": false
+    },
+    "srcHash": "a2c9867aa20e3146",
+    "status": "machine",
+    "text": "Documentación opcional que describe el rol de este componente en este límite de la Release."
   },
   "a2ca36986901c38e": {
     "at": "2026-11-04T05:31:21.594Z",
@@ -101928,6 +102210,17 @@
     "srcHash": "a9a96e99c2ff1091",
     "status": "machine",
     "text": "Las palabras clave tomadas de JSON Schema (`$ref`, `allOf`, `format`, etc.) reutilizan una sintaxis idéntica a la de JSON Schema, por lo que los autores que ya conocen JSON Schema las reconocen de inmediato."
+  },
+  "a9aa1ca64afa6560": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2b886664d671397f",
+      "reviewed": false
+    },
+    "srcHash": "a9aa1ca64afa6560",
+    "status": "machine",
+    "text": "El esquema de la forma de ejecución es `template-context-v1beta1.schema.json` (se distribuye con la distribución de esquemas de Aggrega)."
   },
   "a9aac8e708e96dd4": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -107296,6 +107589,17 @@
     "srcHash": "b2361d3f69ddfb7b",
     "status": "machine",
     "text": "Vincula un plugin a un socket que configura el espacio de trabajo. Llega a un registro para resolver la consulta en un único plugin y fijar una versión. La única decisión que obtendría un terminal — aceptar las capacidades declaradas de un plugin de extensión de comandos — llega aquí como un campo, así que el cliente pregunta a quien lo esté manejando y esta superficie nunca espera una pregunta interactiva."
+  },
+  "b236fbdbc7d738d3": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "8f477f8a9bd79843",
+      "reviewed": false
+    },
+    "srcHash": "b236fbdbc7d738d3",
+    "status": "machine",
+    "text": "workload-v1beta1.schema.json o null"
   },
   "b2384e1f6a7b306f": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -116729,6 +117033,17 @@
     "status": "machine",
     "text": "detiene la compilación incluso en `warn`. El comando termina con `1`, y su última línea nombra el archivo de la política y la clave:"
   },
+  "c0e643f6fd261c8e": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "c6f975673e31703e",
+      "reviewed": false
+    },
+    "srcHash": "c0e643f6fd261c8e",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-diagnostic-v1beta1.schema.json`"
+  },
   "c0e71e1fab617df8": {
     "at": "2026-11-03T07:17:26.700Z",
     "job": "session-0069-20261103071726",
@@ -120102,6 +120417,17 @@
     "srcHash": "c6e2595746e2fdb0",
     "status": "machine",
     "text": "una expresión crontab estándar de 5 campos — minuto, hora, día del mes, mes, día de la semana (por ejemplo, `0 0 * * *` para cada día a medianoche, `*/15 * * * *` para cada quince minutos), o"
+  },
+  "c6e3d84f2c9cf018": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "f9a5211a9456b285",
+      "reviewed": false
+    },
+    "srcHash": "c6e3d84f2c9cf018",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-import-v1beta1.schema.json`"
   },
   "c6e771e3226a72fd": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -125758,6 +126084,17 @@
     "status": "machine",
     "text": "**3. La entrada Wasm (compilador → Plugin)** Durante el pipeline de plugins, el compilador entrega al plugin Injector su entrada del paso, con la plantilla `with:` ya evaluada. El JSON siguiente ilustra el contenido de la carga útil; en la transmisión viaja en la codificación binaria canónica, y el contrato exacto es la forma de la entrada del paso documentada en el [contrato de plugins Wasm](../plugins/plugin-contract.md). El pipeline de plugins se ejecuta durante `aggrega build`; consulta [Estado del lenguaje](../10-status.md#compilation-pipeline-phases)."
   },
+  "cf8f907dbb9c37a2": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "a83f952bd719aa2d",
+      "reviewed": false
+    },
+    "srcHash": "cf8f907dbb9c37a2",
+    "status": "machine",
+    "text": "Especificación del Workload analizada para este nodo. Se rellena en la síntesis del workload a partir del campo workload: de la Recipe tras la evaluación de la plantilla Go + la validación JSON Schema del Workload (con respecto a workload-v1beta1.schema.json). Disponible desde la evaluación de artefactos en adelante (artifacts), para que los artefactos puedan hacer referencia a campos del workload sin duplicación (p. ej., un ServiceMonitor que lee .workload.services.metrics.ports.prom). Se evalúa como null cuando la Recipe no tiene un bloque workload:. Los intentos de una plantilla de desreferenciar .workload.* sobre un valor null fallan con un error claro en el momento de la evaluación de la plantilla."
+  },
   "cf9301febbee39dc": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -128265,6 +128602,17 @@
     "status": "machine",
     "text": "Tope del número de análisis en caché. De forma predeterminada es 1000. `0` desactiva el eje del número de entradas (ninguna expulsión provocada por el número de entradas). Mínimo: `0`. Valor predeterminado: `1000`"
   },
+  "d35618bb77095236": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "07d6810b78927090",
+      "reviewed": false
+    },
+    "srcHash": "d35618bb77095236",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/workloadlibrary-v1beta1.schema.json`"
+  },
   "d3576afb5f581643": {
     "at": "2026-11-03T13:03:35.411Z",
     "job": "session-0109-20261103130335",
@@ -128852,6 +129200,17 @@
     "srcHash": "d4a45d861bff43b9",
     "status": "machine",
     "text": "Cuando una arista `uses` conecta dos componentes que caen en el **mismo** límite — el mismo stack — el valor consumido se conecta como un `Fn::GetAtt` contra el ID lógico del recurso del productor dentro de la única plantilla. El valor `provides` del productor fluye a la entrada renderizada del consumidor como una referencia nativa dentro del stack; no se necesita ningún export ni import. El fragmento del consumidor puede escribir ese valor sin comillas — `Value: {{ .context.inject.env.DB_HOST }}` — o entre comillas — `Value: \"{{ .context.inject.env.DB_HOST }}\"`: en ambos casos la plantilla lee `!GetAtt Db.Endpoint.Address` como la función intrínseca, porque una cadena que es exactamente una forma corta llega al stack como esa función intrínseca en un fragmento igual que en un `valuesMapping`. El ejemplo [aws-rds-and-ecs-service](../examples/aws-rds-and-ecs-service/README.md) lo muestra en una definición de tarea de Amazon ECS que lee la dirección de una instancia de RDS en un solo stack."
+  },
+  "d4a46d9645736b40": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "84ba1292d0db8530",
+      "reviewed": false
+    },
+    "srcHash": "d4a46d9645736b40",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-linter-v1beta1.schema.json`"
   },
   "d4a472616d107aff": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -134439,6 +134798,17 @@
     "status": "machine",
     "text": "Los contenedores de Go y Rust ofrecen las operaciones de un mapa — buscar una clave, establecerla, eliminarla, leer las claves, recorrer las entradas en orden, contarlas. Establecer una clave que el contenedor ya contiene sustituye su valor y conserva su posición; una clave nueva va después de todas las existentes."
   },
+  "dd993bc5f05d7809": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "070c623d683de978",
+      "reviewed": false
+    },
+    "srcHash": "dd993bc5f05d7809",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-provider-v1beta1.schema.json`"
+  },
   "dd9f669018574919": {
     "at": "2026-11-03T17:48:57.741Z",
     "job": "session-0136-20261103174857",
@@ -138572,6 +138942,17 @@
     "status": "machine",
     "text": "El `Aggregate.yaml` del desarrollador sigue siendo independiente de las capacidades, completamente ciego a si se ejecutará en AWS o en un portátil local."
   },
+  "e3f756649bddeb5b": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "dab2faaf18fe7d59",
+      "reviewed": false
+    },
+    "srcHash": "e3f756649bddeb5b",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-cli-v1beta1.schema.json`"
+  },
   "e403351dc815466d": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
@@ -141928,6 +142309,17 @@
     "srcHash": "e9f12daccc1f8c85",
     "status": "machine",
     "text": "**Informa y nunca crea.** El método no modifica nada, no escribe nada y no crea ningún attachment. Componer y aplicar cualquier edición corresponde al editor, que es donde están el búfer y el historial de deshacer."
+  },
+  "e9f95b12b636c2b8": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "aad761bbe42c5f19",
+      "reviewed": false
+    },
+    "srcHash": "e9f95b12b636c2b8",
+    "status": "machine",
+    "text": "El grafo IR completo, agnóstico respecto a las capacidades, con fuente única en ir-v1beta1.schema.json. El plugin de política razona sobre el detalle completo de nodos, aristas y vinculaciones en lugar de sobre una proyección estrecha."
   },
   "e9fa696590d35f9b": {
     "at": "2026-11-03T17:08:32.496Z",
@@ -145424,6 +145816,17 @@
     "status": "machine",
     "text": "La resolución fija los tres charts que renderizan las Recipes — el de Envoy Gateway y el de Envoy AI Gateway desde Docker Hub, el de cert-manager desde quay.io —, así que necesita la red. Este espacio de trabajo resuelve las entidades del catálogo desde el registro predeterminado que nombra `.aggrega-config.yaml`."
   },
+  "ef7e26adcf3c78f6": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "78c8419e38778167",
+      "reviewed": false
+    },
+    "srcHash": "ef7e26adcf3c78f6",
+    "status": "machine",
+    "text": "const \"v1beta1\""
+  },
   "ef8049f1712eeddd": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -145535,6 +145938,17 @@
     "srcHash": "efb9055ccfa968b9",
     "status": "machine",
     "text": "La misma aplicación, en Kubernetes — `4/`"
+  },
+  "efbc4de91b9a7906": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "4f5afb14d3b37c2a",
+      "reviewed": false
+    },
+    "srcHash": "efbc4de91b9a7906",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/ir-v1beta1.schema.json`"
   },
   "efbd92c6cdf11b7a": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -154663,6 +155077,17 @@
     "srcHash": "fe3c4a96cd460c45",
     "status": "machine",
     "text": "**Aggrega: Push… / Sign… / Deprecate…** — las operaciones que cambian lo que otras personas resuelven. Push pregunta cuál de las entidades que enumera el panel Catalog publicar — un menú junto al botón en el panel Commands, una lista en la que eliges si se ejecuta desde aquí — y luego la empaqueta y la publica en un registro configurado. Sign y deprecate piden una referencia a un artefacto ya publicado, porque ambas modifican bytes publicados en lugar del espacio de trabajo: sign adjunta una firma, deprecate adjunta un marcador de obsolescencia firmado y pide la gravedad — `warning`, `error` o `retracted` — y el motivo que registra. Las tres pasan por el servidor de lenguaje, las tres muestran el progreso con un botón Cancel que termina la publicación y no solo la espera, y cada una termina nombrando lo que el compilador hizo realmente: la referencia y la versión a las que se resolvió la entidad y el digest al que apunta ahora esa versión, el digest con el que se compromete cada firma, o el digest propio del marcador. Una publicación que encontró los mismos bytes ya publicados lo dice, en lugar de presentarse como una que depositó algo. Sus hallazgos y el informe completo van al canal de salida de Aggrega."
+  },
+  "fe417f2141f5e86a": {
+    "at": "2026-11-10T01:41:59.922Z",
+    "job": "session-0011-20261110014159",
+    "revision": {
+      "from": "2a66c39826f7f5ef",
+      "reviewed": false
+    },
+    "srcHash": "fe417f2141f5e86a",
+    "status": "machine",
+    "text": "ID del esquema: `https://aggrega.ai/schemas/wasm-annotation-transform-v1beta1.schema.json`"
   },
   "fe450faa5a9eada1": {
     "at": "2026-11-03T01:01:59.650Z",
