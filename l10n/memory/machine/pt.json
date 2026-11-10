@@ -768,6 +768,24 @@
     "status": "machine",
     "text": "`core/gateway/contour`"
   },
+  "0122ee3980a45cb7": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "7e5989f76c6c1b5d",
+      "reviewed": false
+    },
+    "srcHash": "0122ee3980a45cb7",
+    "status": "machine",
+    "text": "O bloco `inject:` é uma escolha do programador, não um requisito. Com ele, a FeatureRecipe da credencial recebe a diretiva em `.inject.env` — `{\"OPENAI_API_KEY\":\"api_token\"}` — e passa-a ao Injector abaixo. A FeatureRecipe não publica nenhuma chave `api_token`: consome ela própria a diretiva, lendo `.inject` no seu pipeline, pelo que a entrada é entregue pelo Injector em vez de através do `.context.inject` do componente, e a compilação aceita uma chave `from:` que a FeatureRecipe não publica. Já uma entrada que nomeie uma chave que a FeatureRecipe não publica nem lê em `.inject` interrompe a compilação, uma vez que nada a entregaria. Sem o bloco, o anexo preenche na mesma o slot e a compilação aceita-o; a FeatureRecipe não recebe nenhuma diretiva, pelo que a entrega fica a cargo da FeatureRecipe. Um bloco que nomeie um mecanismo que o slot não enumera interrompe a compilação: `arg`, por exemplo, porque o slot permite apenas `env` e `file`."
+  },
+  "01252f2d02c35055": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "01252f2d02c35055",
+    "status": "machine",
+    "text": "A FeatureRecipe da credencial é a do Exemplo 11, que não publica nenhuma chave `password`: consome ela própria a diretiva, lendo `.inject` no seu pipeline e passando `file_injections` ao Injector abaixo. É por isso que a compilação aceita esta chave `from:` — uma chave que a FeatureRecipe não tivesse publicado nem lido em `.inject` interromperia a compilação, uma vez que nada a entregaria."
+  },
   "012587bbe38767a3": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -16762,6 +16780,17 @@
     "status": "machine",
     "text": "**Um emparelhamento vale num único sentido.** Uma carga de trabalho `form: stateful` sem template de claim por réplica é comum e não provoca nada — a regra é que um template de claim precisa da identidade estável por réplica que só essa forma fornece, e não que a forma precise de um template de claim. Os outros dois emparelhamentos valem nos dois sentidos, porque um endpoint e um agendamento têm cada um exatamente uma forma em que significam alguma coisa."
   },
+  "1b46ecddd560fd5d": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "45d896ddb57fe50f",
+      "reviewed": false
+    },
+    "srcHash": "1b46ecddd560fd5d",
+    "status": "machine",
+    "text": "Cerca de 5 GB de transferências na primeira vez que `1/` arranca: a imagem do Ollama representa cerca de 3,3 GB disso e o modelo cerca de 1,3 GB, medidos tal como os registos os servem. O modelo é mantido num volume do Docker, pelo que os arranques seguintes o reutilizam."
+  },
   "1b4762c11c03dbb2": {
     "at": "2026-11-04T12:17:46.464Z",
     "job": "session-0241-20261104121746",
@@ -18798,6 +18827,17 @@
     "status": "machine",
     "text": "**Execução da validação.** A subfase de expansão de anotações da resolução, depois da validação dos alvos de associação do Manifest (a verificação no carregamento do catálogo que confirma que cada caminho declarado existe no esquema da Feature referenciada) e a par da validação de esquemas da camada 2 sobre anexos explícitos. Para cada anotação efetiva por componente: analisar o valor como um escalar, um mapa estruturado ou um `null` explícito; encaminhar por subchave através da declaração `maps` da associação, agrupada por pilar, com a imposição lado-versus-pilar (o lado do Aggregate aciona `maps.values`; o lado da Release aciona `maps.infra`); validar o valor de execução por folha face ao tipo declarado pelo esquema da Feature no pilar encaminhado. Vários erros de subchave são recolhidos e todos emitidos antes da interrupção."
   },
+  "1e86063eb9220142": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "740902f3ee505f86",
+      "reviewed": false
+    },
+    "srcHash": "1e86063eb9220142",
+    "status": "machine",
+    "text": "e uma Release que a compila preenche `secret_key` e indica o proprietário na entrada de encaminhamento que coloca a instalação:"
+  },
   "1e86b0f16f76895b": {
     "at": "2026-11-04T10:56:34.629Z",
     "job": "session-0234-20261104105634",
@@ -19263,6 +19303,17 @@
     "srcHash": "1f347db310792ce0",
     "status": "machine",
     "text": "O valor `syncWave:` da fronteira de uma Release é lido por todos os fornecedores da biblioteca padrão, e o que ordena — e em que termos — difere consoante o fornecedor; no `helm-chart` ordena apenas os recursos que contêm a sua anotação:"
+  },
+  "1f38d55b58bf5461": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "fd091d1c866c5f0d",
+      "reviewed": false
+    },
+    "srcHash": "1f38d55b58bf5461",
+    "status": "machine",
+    "text": "**A mesma interrupção abrange uma chave mal escrita um nível abaixo, sob um pilar cuja forma é declarada.** Alguns pilares têm um conjunto de chaves que o compilador define: `.context`, `.metadata`, `.inject`, `.workload` e `.boundary` no contexto de renderização de Recipe e FeatureRecipe, e `.manifest` num template de caminho. Uma referência a uma chave que um desses pilares não define — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — provoca uma interrupção exatamente como uma raiz errada, e o diagnóstico lista as chaves que esse pilar define. Nos templates próprios do anexo de uma Feature, `.inject` define uma chave adicional para cada mecanismo de entrega que o bloco `inject:` do próprio anexo nomeia, além de `env`, `file`, `arg` e `all`: um anexo que escreve um mecanismo `vault_ref:` é lido em `{{ .inject.vault_ref.VAULT_PATH }}`, e o diagnóstico lista `.inject.vault_ref` entre as chaves que `.inject` define. Um mecanismo que o anexo não nomeia provoca uma interrupção mesmo dentro de um `if` ou de um `with`, porque a referência é verificada antes de o template ser executado. Para ler um mecanismo que o anexo possa não nomear, é necessário protegê-lo: `{{ with .inject }}{{ if hasKey . \"vault_ref\" }}{{ index . \"vault_ref\" \"VAULT_PATH\" }}{{ end }}{{ end }}`. Com o par protegido, a compilação conclui-se quer o anexo nomeie o mecanismo quer não, e quer escreva um bloco `inject:` quer não escreva nenhum — nesse caso `.inject` não contém nada, pelo que o `with` salta o seu corpo, enquanto `hasKey` aplicado diretamente a `.inject` provocaria uma interrupção num valor que não é um mapa. Dentro da proteção, `index` continua a provocar uma interrupção numa chave que o mecanismo nomeado não contém. Outros pilares são **abertos**, porque aquilo que contêm são dados com chaves e não um conjunto que o compilador declara — entre eles `.values`, `.infra`, `.locals`, `.provides`, `.features` e `.steps` no contexto de renderização, e `.parameters` e `.parent_boundary` num template de caminho. Um pilar aberto aceita qualquer chave. Uma chave ausente sob um pilar aberto não é esta interrupção — segue a política de chaves em falta da superfície descrita em «Missing template key — asymmetric policy (Chave de template em falta — política assimétrica)» mais abaixo, pelo que `{{ .values.optional_field | default \"fallback\" }}` e qualquer outra expressão idiomática de chave opcional continuam a funcionar."
   },
   "1f40fd4bd6f11b61": {
     "at": "2026-10-23T02:44:41.029Z",
@@ -26953,6 +27004,17 @@
     "srcHash": "2bf0d808baf9d2a8",
     "status": "machine",
     "text": "**Verificação de colisões:** antes de fundir no pipe `.context.inject`, o compilador verifica que nenhuma chave colide com as chaves de uses-inject que a segunda metade da hidratação de inject resolve. As colisões interrompem a compilação com um erro de chave de entrega duplicada."
+  },
+  "2bf6112318d74308": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "42b9a8c99b907fbe",
+      "reviewed": false
+    },
+    "srcHash": "2bf6112318d74308",
+    "status": "machine",
+    "text": "Os próprios bytes do guest também dependem do diretório em que os seus crates foram compilados, e da toolchain, pelo que uma reconstrução noutro local é um guest equivalente com outro sha256. O distribuído aqui é `eb53965efd7e812ecc933c7b681936c87aa0d242b28628a957f44a6a8072ec93`."
   },
   "2bf7be79ebbad506": {
     "at": "2026-11-04T06:48:44.911Z",
@@ -65169,6 +65231,13 @@
     "status": "machine",
     "text": "Uma única base de dados MariaDB renderizada no Kubernetes pela síntese de Workload do fornecedor helm — sem chart externo. O Component `core/datastore/mariadb` associa-se à Recipe `helm/mariadb`, que declara um Workload `form: stateful`; o fornecedor helm tradu-lo num **StatefulSet**, num **Service ClusterIP**, num **Service headless** (a identidade de rede estável do StatefulSet) e num **volumeClaimTemplate** para o diretório de dados."
   },
+  "6b10d171dac04245": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "6b10d171dac04245",
+    "status": "machine",
+    "text": "duplicate delivery key across two attachments: an attachment's FeatureRecipe writes a delivery key another attachment already delivered (`\"<key>\"`, mechanism `\"<mechanism>\"`, attachment `\"<attachment>\"`, delivered first by attachment `\"<other-attachment>\"`). Give one of the two attachments a key of its own, or attach one fewer: the key this attachment delivers under is chosen by its FeatureRecipe, which can read the attachment's own values and infra, and the other's is chosen the same way or by its own inject block where it delivered through one. A Release sets an attachment's infra and never its values, so where a key is chosen by a value, attach that attachment in the Aggregate with the value, and keep giving the rest from the Release. (chave de entrega duplicada entre dois anexos: a FeatureRecipe de um anexo escreve uma chave de entrega que outro anexo já entregou. Dar a um dos dois anexos uma chave própria, ou anexar um a menos: a chave sob a qual este anexo entrega é escolhida pela sua FeatureRecipe, que pode ler os values e a infra do próprio anexo, e a do outro é escolhida da mesma forma ou pelo seu próprio bloco inject, quando entregou através de um. Uma Release define a infra de um anexo e nunca os seus values, pelo que, quando uma chave é escolhida por um valor, deve fazer-se esse anexo no Aggregate com o valor e continuar a fornecer o resto a partir da Release.)"
+  },
   "6b135666194ca36d": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -93020,6 +93089,17 @@
     "status": "machine",
     "text": "A pesquisa lê sempre o **índice local** — o instantâneo offline que `aggrega registry update` constrói e atualiza. Não contacta nenhuma rede nem obtém nada a pedido. Quando o índice não existe, o comando falha e indica que se execute primeiro `aggrega registry update`. Cada execução imprime no erro padrão uma linha de atualidade «last updated» por registo, para que a saída `json` e `names` na saída padrão se mantenha limpa para scripts."
   },
+  "9941776d9b787ae7": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "a59ac16580594c30",
+      "reviewed": false
+    },
+    "srcHash": "9941776d9b787ae7",
+    "status": "machine",
+    "text": "Cada grafo é então renderizado a executar essa imagem, recebendo o endereço do seu armazenamento de dados como `LANGGRAPH_CHECKPOINTER_HOST` e `LANGGRAPH_CHECKPOINTER_PORT`, o utilizador e a base de dados que o armazenamento de dados publica como `LANGGRAPH_CHECKPOINTER_USER` e `LANGGRAPH_CHECKPOINTER_DATABASE` — o PostgreSQL publica ambos, e um armazenamento de dados que não publique nenhum dos dois não tem nenhuma das duas variáveis renderizada —, o endpoint e o nome do modelo como `OPENAI_BASE_URL` e `OPENAI_MODEL`, a chave do Secret que a credencial indica como `OPENAI_API_KEY`, o seu caminho de importação como `LANGGRAPH_GRAPH_ENTRYPOINT` e o seu limite de passos como `LANGGRAPH_DEFAULT_RECURSION_LIMIT`. Uma credencial associada à ligação `checkpointer_db` de um grafo também lhe fornece a palavra-passe do armazenamento de dados como `LANGGRAPH_CHECKPOINTER_PASSWORD`."
+  },
   "99462823b93e1c8d": {
     "at": "2026-10-23T00:02:45.677Z",
     "job": "session-0055-20261023000245",
@@ -115960,6 +116040,17 @@
     "status": "machine",
     "text": "A configuração `mcp_server` de um nó MCP Tools do Langflow, e o `mcpServerConfig` de um nó do Flowise, escritos como texto JSON ou como objeto: cada valor de cabeçalho, sejam os cabeçalhos um objeto, linhas de uma chave e um valor ou objetos fundidos por inteiro, sendo um item de qualquer outro tipo localizado por inteiro; cada valor de ambiente; o endereço do servidor; o comando; e cada argumento. Nenhum dos dois formatos marca um endereço, um comando ou um argumento como credencial, e cada um pode conter uma chave — um endereço na sua parte de utilizador, no seu caminho ou na sua consulta —, pelo que os três também são localizados, em ambos os formatos. Escritos vazios, o comando e cada argumento mantêm os seus membros, pelo que uma configuração que inicia um servidor próprio continua a ser lida como tal. Onde um nó MCP Tools do Langflow está ligado a uma ligação tools, o seu endereço é cablagem, como acima, e nunca é comunicado como valor de credencial. Uma configuração do Flowise escrita como texto que não se lê como um objeto JSON é localizada por inteiro, uma vez que nada no seu interior pode ser localizado."
   },
+  "bdba2fa9d857d7ec": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "7c512c8fcd853d62",
+      "reviewed": false
+    },
+    "srcHash": "bdba2fa9d857d7ec",
+    "status": "machine",
+    "text": "**Um valor declarado sensível não aparece na mensagem.** Onde a asserção lê um valor destes e chama `fail` com a sua frase escrita por extenso como uma única cadeia entre aspas — `fail \"…\"`, sem nada encaminhado para ela e sem nada composto —, a mensagem contém essa frase tal como foi escrita, seja qual for o conteúdo do valor, porque a frase não cita nada daquilo que a asserção leu. Onde a sua mensagem cita o valor, a mensagem mostra `<redacted>` no lugar do valor. Onde a mensagem é composta de qualquer outra forma e aquilo que a asserção fez dependia daquilo que o valor contém, a mensagem a seguir à expressão com falha é substituída por `failure text withheld: this template reads a value declared sensitive, and the failure depends on what that value holds`; a interrupção e o seu código mantêm-se inalterados. O que conta como declarado, e que recusas ficam fora disto, está em [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) «O que uma recusa diz sobre um valor declarado»."
+  },
   "bdbfd7cfa4bec3de": {
     "at": "2026-11-04T08:19:27.953Z",
     "job": "session-0219-20261104081927",
@@ -128309,6 +128400,13 @@
     "srcHash": "d115f2dc7ae2f060",
     "status": "machine",
     "text": "**A string universal (rápida e limpa):** ideal para caminhos locais, artefactos OCI e repositórios Git. O compilador deduz o método de obtenção pelo prefixo (`./src`, `git::https://...`, `oci://...`)."
+  },
+  "d1196ad8aa26151e": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "d1196ad8aa26151e",
+    "status": "machine",
+    "text": "O segredo de aplicação da instalação, a chave com que o Dify assina os seus cookies de sessão e sob a qual cifra as credenciais dos fornecedores de modelos que armazena, é o parâmetro `secret_key` de `core/dify`, que não tem valor predefinido. Por isso, o rascunho declara um parâmetro `secret_key` próprio — uma cadeia de caracteres, obrigatória, com pelo menos um carácter e sem valor predefinido — e passa-o a cada entrada de `core/dify` que escreve, para que a Release o preencha nos seus `parameters`; uma compilação cuja Release o deixe por definir é interrompida, indicando-o. O comentário acima de cada entrada indica-o em primeiro lugar entre aquilo que a Release fornece."
   },
   "d11b3e6cd959f12f": {
     "at": "2026-10-22T17:52:18.428Z",
@@ -144741,6 +144839,17 @@
     "status": "machine",
     "text": "Sensibilidade"
   },
+  "ebb8fd8497e169d1": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "27b1f37b5bde8bab",
+      "reviewed": false
+    },
+    "srcHash": "ebb8fd8497e169d1",
+    "status": "machine",
+    "text": "`catalog/plugin/governance/opa/1.0.0/governance--opa.wasm` é o guest adaptador de OPA de referência do kit de plugins, `rust/examples/policy-opa-wasm` no repositório `aggrega-pdk`, com o módulo que o OPA compila a partir de `policies/data-class-paths-opa.rego` em vez do módulo próprio do adaptador. Foi compilado a partir de `aggrega-pdk` em `afd9ac6c6800c34c6c47a2030f580c9681387047` e de `aggrega-abi`, o crate de ABI sobre o qual o adaptador é compilado, em `2ececa8d3b598243f023a2a6c80b351c8d1411a1`, com rustc 1.97.1, em torno do módulo que o OPA 1.21.1 compila."
+  },
   "ebc40f1dd228eae3": {
     "at": "2026-10-23T01:53:07.004Z",
     "job": "session-0059-20261023015307",
@@ -156958,6 +157067,17 @@
     "srcHash": "feef61c908bdde15",
     "status": "machine",
     "text": "Valores de credenciais que uma declaração contém"
+  },
+  "fef3f0edd09844c8": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "af9f515e17493d80",
+      "reviewed": false
+    },
+    "srcHash": "fef3f0edd09844c8",
+    "status": "machine",
+    "text": "**Como corrigir:** dar a uma das duas Features uma chave própria — para uma Feature de credencial, essa é normalmente a chave que os seus valores nomeiam — ou remover um dos dois anexos. Onde ambas devam fornecer uma mesma variável, decidir qual delas o componente deve ler e anexar apenas essa. Duas credenciais que uma Release anexa por si só chegam ambas sob a chave que a sua Feature nomeia por predefinição, porque uma Release não pode escrever os `values` de um anexo: anexar uma delas no Aggregate com o valor que nomeia a sua chave e indicar a sua origem a partir da Release na mesma entrada."
   },
   "fef549c964a7acec": {
     "at": "2026-10-22T15:57:26.084Z",

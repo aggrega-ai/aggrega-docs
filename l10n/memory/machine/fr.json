@@ -749,6 +749,24 @@
     "status": "machine",
     "text": "`core/gateway/contour`"
   },
+  "0122ee3980a45cb7": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "7e5989f76c6c1b5d",
+      "reviewed": false
+    },
+    "srcHash": "0122ee3980a45cb7",
+    "status": "machine",
+    "text": "Le bloc `inject:` est le choix du développeur, pas une exigence. Avec lui, la FeatureRecipe des informations d’identification reçoit la directive sous `.inject.env` — `{\"OPENAI_API_KEY\":\"api_token\"}` — et la transmet à l’Injector ci-dessous. La FeatureRecipe ne publie aucune clé `api_token` : elle consomme elle-même la directive, en lisant `.inject` dans son pipeline, si bien que l’entrée est livrée par l’Injector plutôt que par le `.context.inject` du composant, et le build accepte une clé `from:` que la FeatureRecipe ne publie pas. Une entrée nommant une clé que la FeatureRecipe ne publie pas et ne lit pas sous `.inject` arrête au contraire le build, puisque rien ne la livrerait. Sans ce bloc, le rattachement remplit quand même l’emplacement et le build l’accepte ; la FeatureRecipe ne reçoit aucune directive, la livraison est donc laissée à la FeatureRecipe. Un bloc nommant un mécanisme que l’emplacement ne liste pas arrête le build : `arg`, par exemple, car l’emplacement n’autorise que `env` et `file`."
+  },
+  "01252f2d02c35055": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "01252f2d02c35055",
+    "status": "machine",
+    "text": "La FeatureRecipe des informations d’identification est celle de l’exemple 11, qui ne publie aucune clé `password` : elle consomme elle-même la directive, en lisant `.inject` dans son pipeline et en transmettant `file_injections` à l’Injector ci-dessous. C’est pourquoi le build accepte cette clé `from:` — une clé que la FeatureRecipe n’aurait ni publiée ni lue sous `.inject` arrêterait le build, puisque rien ne la livrerait."
+  },
   "012587bbe38767a3": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -16518,6 +16536,17 @@
     "status": "machine",
     "text": "**Un appariement ne fonctionne que dans un sens.** Une charge de travail `form: stateful` sans template de claim par réplique est ordinaire et ne déclenche rien — la règle est qu’un template de claim a besoin de l’identité stable par réplique que seule cette forme fournit, et non que la forme ait besoin d’un template de claim. Les deux autres appariements fonctionnent dans les deux sens, car un endpoint et une planification ont chacun exactement une forme sur laquelle ils ont un sens."
   },
+  "1b46ecddd560fd5d": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "45d896ddb57fe50f",
+      "reviewed": false
+    },
+    "srcHash": "1b46ecddd560fd5d",
+    "status": "machine",
+    "text": "Environ 5 GB de téléchargements la première fois que `1/` démarre : l’image Ollama en représente environ 3,3 GB et le modèle environ 1,3 GB, mesurés tels que les registres les servent. Le modèle est conservé dans un volume Docker, si bien que les démarrages suivants le réutilisent."
+  },
   "1b4762c11c03dbb2": {
     "at": "2026-11-04T12:17:46.464Z",
     "job": "session-0241-20261104121746",
@@ -18522,6 +18551,17 @@
     "status": "machine",
     "text": "**Exécution de la validation.** La sous-phase d’expansion des annotations de la résolution, après la validation des cibles de liaison du Manifest (le contrôle au chargement du catalogue qui confirme que chaque chemin déclaré existe dans le schéma de la Feature référencée) et parallèlement à la validation de schéma de la couche 2 sur les rattachements explicites. Pour chaque annotation effective par composant : analyser la valeur comme un scalaire, une map structurée ou un `null` explicite ; la router par sous-clé à travers la déclaration `maps` de la liaison, groupée par pilier, avec l’application côté-contre-pilier (le côté Aggregate déclenche `maps.values` ; le côté Release déclenche `maps.infra`) ; valider la valeur d’exécution par feuille par rapport au type déclaré par le schéma de la Feature au pilier routé. Plusieurs erreurs de sous-clé sont collectées et toutes émises avant l’arrêt."
   },
+  "1e86063eb9220142": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "740902f3ee505f86",
+      "reviewed": false
+    },
+    "srcHash": "1e86063eb9220142",
+    "status": "machine",
+    "text": "et une Release qui la construit renseigne `secret_key` et nomme le propriétaire dans l’entrée de routage plaçant l’installation :"
+  },
   "1e86b0f16f76895b": {
     "at": "2026-11-04T10:56:34.629Z",
     "job": "session-0234-20261104105634",
@@ -18987,6 +19027,17 @@
     "srcHash": "1f347db310792ce0",
     "status": "machine",
     "text": "La valeur `syncWave:` de la frontière d’une Release est lue par chaque fournisseur de la bibliothèque standard, et ce qu’elle ordonne — et en quels termes — diffère selon le fournisseur ; sur `helm-chart`, elle n’ordonne que les ressources qui portent son annotation :"
+  },
+  "1f38d55b58bf5461": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "fd091d1c866c5f0d",
+      "reviewed": false
+    },
+    "srcHash": "1f38d55b58bf5461",
+    "status": "machine",
+    "text": "**Le même arrêt couvre une clé mal saisie un niveau plus bas, sous un pilier dont la forme est déclarée.** Certains piliers ont un ensemble de clés que le compilateur définit : `.context`, `.metadata`, `.inject`, `.workload` et `.boundary` dans le contexte de rendu des Recipe et FeatureRecipe, et `.manifest` dans un template de chemin. Une référence à une clé que l’un de ces piliers ne définit pas — `{{ .context.nmae }}`, `{{ .metadata.typo }}`, `{{ .workload.containres }}`, `{{ .boundary.nmae }}` — provoque un arrêt exactement comme une racine erronée, et le diagnostic liste les clés que ce pilier définit. Dans les templates propres au rattachement d’une Feature, `.inject` définit une clé supplémentaire pour chaque mécanisme de livraison que nomme le bloc `inject:` propre au rattachement, à côté de `env`, `file`, `arg` et `all` : un rattachement qui écrit un mécanisme `vault_ref:` se lit à `{{ .inject.vault_ref.VAULT_PATH }}`, et le diagnostic liste `.inject.vault_ref` parmi les clés que définit `.inject`. Un mécanisme que le rattachement ne nomme pas provoque un arrêt même à l’intérieur d’un `if` ou d’un `with`, car la référence est vérifiée avant l’exécution du template. Pour lire un mécanisme que le rattachement pourrait ne pas nommer, protégez-le : `{{ with .inject }}{{ if hasKey . \"vault_ref\" }}{{ index . \"vault_ref\" \"VAULT_PATH\" }}{{ end }}{{ end }}`. Avec la paire protégée, le build aboutit que le rattachement nomme ou non le mécanisme, et qu’il écrive ou non un bloc `inject:` — `.inject` ne contient alors rien, de sorte que le `with` saute son corps, là où `hasKey` appliqué directement à `.inject` provoquerait un arrêt sur une valeur qui n’est pas une map. À l’intérieur de la protection, `index` provoque toujours un arrêt sur une clé que le mécanisme nommé ne contient pas. D’autres piliers sont **ouverts**, car ce qu’ils contiennent sont des données à clés plutôt qu’un ensemble que le compilateur déclare — parmi eux `.values`, `.infra`, `.locals`, `.provides`, `.features` et `.steps` dans le contexte de rendu, et `.parameters` et `.parent_boundary` dans un template de chemin. Un pilier ouvert accepte n’importe quelle clé. Une clé absente sous un pilier ouvert ne relève pas de cet arrêt — elle suit la politique des clés manquantes de la surface décrite dans « Missing template key — asymmetric policy (Clé de template manquante — politique asymétrique) » ci-dessous, de sorte que `{{ .values.optional_field | default \"fallback\" }}` et tout autre idiome de clé facultative continuent de fonctionner."
   },
   "1f41f842f2bac04f": {
     "at": "2026-10-17T19:34:06.759Z",
@@ -26537,6 +26588,17 @@
     "srcHash": "2bf0d808baf9d2a8",
     "status": "machine",
     "text": "**Vérification des collisions :** avant la fusion dans le pipe `.context.inject`, le compilateur vérifie qu’aucune clé n’entre en collision avec les clés de uses-inject que résout la seconde moitié de l’hydratation d’inject. Les collisions arrêtent le build avec une erreur de clé de livraison en double."
+  },
+  "2bf6112318d74308": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "42b9a8c99b907fbe",
+      "reviewed": false
+    },
+    "srcHash": "2bf6112318d74308",
+    "status": "machine",
+    "text": "Les octets propres du guest dépendent aussi du répertoire dans lequel ses crates ont été construits, et de la chaîne d’outils, donc une reconstruction ailleurs donne un guest équivalent avec un autre sha256. Celui livré ici est `eb53965efd7e812ecc933c7b681936c87aa0d242b28628a957f44a6a8072ec93`."
   },
   "2bf7be79ebbad506": {
     "at": "2026-11-04T06:48:44.911Z",
@@ -64269,6 +64331,13 @@
     "status": "machine",
     "text": "Une base de données MariaDB unique rendue sur Kubernetes par la synthèse de Workload du fournisseur helm — aucun chart externe. Le Component `core/datastore/mariadb` se lie à la Recipe `helm/mariadb`, qui déclare un Workload `form: stateful` ; le fournisseur helm le traduit en un **StatefulSet**, un **Service ClusterIP**, un **Service headless** (l’identité réseau stable du StatefulSet) et un **volumeClaimTemplate** pour le répertoire de données."
   },
+  "6b10d171dac04245": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "6b10d171dac04245",
+    "status": "machine",
+    "text": "duplicate delivery key across two attachments: an attachment's FeatureRecipe writes a delivery key another attachment already delivered (`\"<key>\"`, mechanism `\"<mechanism>\"`, attachment `\"<attachment>\"`, delivered first by attachment `\"<other-attachment>\"`). Give one of the two attachments a key of its own, or attach one fewer: the key this attachment delivers under is chosen by its FeatureRecipe, which can read the attachment's own values and infra, and the other's is chosen the same way or by its own inject block where it delivered through one. A Release sets an attachment's infra and never its values, so where a key is chosen by a value, attach that attachment in the Aggregate with the value, and keep giving the rest from the Release. (clé de livraison en double entre deux rattachements : la FeatureRecipe d’un rattachement écrit une clé de livraison qu’un autre rattachement a déjà livrée. Donnez à l’un des deux rattachements une clé qui lui soit propre, ou rattachez-en un de moins : la clé sous laquelle ce rattachement livre est choisie par sa FeatureRecipe, qui peut lire les values et l’infra propres au rattachement, et celle de l’autre est choisie de la même façon, ou par son propre bloc inject lorsqu’il a livré par ce biais. Une Release définit l’infra d’un rattachement et jamais ses values ; lorsqu’une clé est choisie par une valeur, effectuez donc ce rattachement dans l’Aggregate avec la valeur, et continuez à fournir le reste depuis la Release.)"
+  },
   "6b135666194ca36d": {
     "at": "2026-10-30T19:53:23.628Z",
     "job": "session-0013-20261030195323",
@@ -91778,6 +91847,17 @@
     "status": "machine",
     "text": "La recherche lit toujours l’**index local** — l’instantané hors ligne que `aggrega registry update` construit et actualise. Elle ne contacte aucun réseau et ne récupère rien à la demande. Lorsque l’index est absent, la commande échoue et vous indique d’exécuter d’abord `aggrega registry update`. Chaque exécution affiche sur la sortie d’erreur standard, pour chaque registre, une ligne de fraîcheur « last updated », de sorte que la sortie `json` et `names` sur la sortie standard reste propre pour les scripts."
   },
+  "9941776d9b787ae7": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "a59ac16580594c30",
+      "reviewed": false
+    },
+    "srcHash": "9941776d9b787ae7",
+    "status": "machine",
+    "text": "Chaque graphe est ensuite rendu exécutant cette image, recevant l’adresse de son magasin de données comme `LANGGRAPH_CHECKPOINTER_HOST` et `LANGGRAPH_CHECKPOINTER_PORT`, l’utilisateur et la base de données que publie le magasin de données comme `LANGGRAPH_CHECKPOINTER_USER` et `LANGGRAPH_CHECKPOINTER_DATABASE` — PostgreSQL publie les deux, et pour un magasin de données qui ne publie ni l’un ni l’autre, aucune des deux variables n’est rendue —, le point de terminaison et le nom du modèle comme `OPENAI_BASE_URL` et `OPENAI_MODEL`, la clé issue du Secret que nomment les informations d’identification comme `OPENAI_API_KEY`, son chemin d’importation comme `LANGGRAPH_GRAPH_ENTRYPOINT` et sa limite d’étapes comme `LANGGRAPH_DEFAULT_RECURSION_LIMIT`. Des informations d’identification attachées à la connexion `checkpointer_db` d’un graphe lui donnent aussi le mot de passe du magasin de données comme `LANGGRAPH_CHECKPOINTER_PASSWORD`."
+  },
   "99462823b93e1c8d": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -114405,6 +114485,17 @@
     "status": "machine",
     "text": "La configuration `mcp_server` d’un nœud MCP Tools de Langflow, et le `mcpServerConfig` d’un nœud Flowise, écrits en texte JSON ou comme un objet : chaque valeur d’en-tête, que les en-têtes soient un objet, des lignes d’une clé et d’une valeur ou des objets fusionnés en entier, un élément de toute autre sorte étant repéré en entier ; chaque valeur d’environnement ; l’adresse du serveur ; la commande ; et chaque argument. Aucun des deux formats ne marque une adresse, une commande ou un argument comme identifiants, et chacun peut porter une clé — une adresse dans sa partie utilisateur, son chemin ou sa requête —, si bien que tous trois sont repérés aussi, sur les deux formats. Écrits vides, la commande et chaque argument conservent leurs membres, de sorte qu’une configuration qui démarre son propre serveur se lit toujours comme telle. Là où un nœud MCP Tools de Langflow est relié à une connexion tools, son adresse relève du câblage, comme ci-dessus, et n’est jamais rapportée comme une valeur d’identifiants. Une configuration Flowise écrite en texte qui ne se lit pas comme un objet JSON est repérée en entier, puisque rien à l’intérieur ne peut être repéré."
   },
+  "bdba2fa9d857d7ec": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "7c512c8fcd853d62",
+      "reviewed": false
+    },
+    "srcHash": "bdba2fa9d857d7ec",
+    "status": "machine",
+    "text": "**Une valeur déclarée sensible n’apparaît pas dans le message.** Lorsque l’assertion lit une telle valeur et appelle `fail` avec sa phrase écrite en toutes lettres sous la forme d’une seule chaîne entre guillemets — `fail \"…\"`, sans rien qui y soit transmis par un pipe et sans rien de composé —, le message porte cette phrase telle qu’elle est écrite, quoi que contienne la valeur, car la phrase ne cite rien de ce que l’assertion a lu. Lorsque son message cite la valeur, le message affiche `<redacted>` à la place de la valeur. Lorsque le message est composé de toute autre manière et que ce qu’a fait l’assertion dépendait de ce que contient la valeur, le message qui suit l’expression en échec est remplacé par `failure text withheld: this template reads a value declared sensitive, and the failure depends on what that value holds` ; l’arrêt et son code restent inchangés. Ce qui compte comme déclaré, et quels refus sortent de ce cadre, est décrit dans [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) « Ce qu’un refus dit d’une valeur déclarée »."
+  },
   "bdbfd7cfa4bec3de": {
     "at": "2026-11-04T08:19:27.953Z",
     "job": "session-0219-20261104081927",
@@ -126561,6 +126652,13 @@
     "srcHash": "d114078146e4155d",
     "status": "machine",
     "text": "**Pas multi-provider au sein d’une même Recipe.** Une Recipe déclare exactement une `capability:` en tête de sa `spec`. Tout ce que la Recipe produit — sortie rendue depuis la source, sortie synthétisée depuis le workload et émissions d’artefacts — est dans le format natif de ce provider. Les artefacts d’une Recipe helm contiennent du YAML Kubernetes. Les artefacts d’une Recipe compose contiennent des fragments compose. Une Recipe cible un seul provider ; chaque sortie est dans le format natif de ce provider."
+  },
+  "d1196ad8aa26151e": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "srcHash": "d1196ad8aa26151e",
+    "status": "machine",
+    "text": "Le secret applicatif de l’installation, la clé avec laquelle Dify signe ses cookies de session et sous laquelle il chiffre les informations d’identification des fournisseurs de modèles qu’il stocke, est le paramètre `secret_key` de `core/dify`, qui n’a pas de valeur par défaut. Le brouillon déclare donc son propre paramètre `secret_key` — une chaîne, obligatoire, d’au moins un caractère et sans valeur par défaut — et le transmet à chaque entrée `core/dify` qu’il écrit, pour que la Release le renseigne sous ses `parameters` ; un build dont la Release le laisse non défini s’arrête en le nommant. Le commentaire au-dessus de chaque entrée le nomme en premier parmi ce que fournit la Release."
   },
   "d11b3e6cd959f12f": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -142749,6 +142847,17 @@
     "status": "machine",
     "text": "Sensibilité"
   },
+  "ebb8fd8497e169d1": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "27b1f37b5bde8bab",
+      "reviewed": false
+    },
+    "srcHash": "ebb8fd8497e169d1",
+    "status": "machine",
+    "text": "`catalog/plugin/governance/opa/1.0.0/governance--opa.wasm` est le guest adaptateur OPA de référence du kit de plugin, `rust/examples/policy-opa-wasm` dans le dépôt `aggrega-pdk`, avec le module qu’OPA compile à partir de `policies/data-class-paths-opa.rego` à la place de celui de l’adaptateur. Il a été construit à partir de `aggrega-pdk` à `afd9ac6c6800c34c6c47a2030f580c9681387047` et de `aggrega-abi`, le crate ABI sur lequel l’adaptateur se construit, à `2ececa8d3b598243f023a2a6c80b351c8d1411a1`, avec rustc 1.97.1, autour du module que compile OPA 1.21.1."
+  },
   "ebc40f1dd228eae3": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -154825,6 +154934,17 @@
     "srcHash": "feef61c908bdde15",
     "status": "machine",
     "text": "Valeurs d’identifiants que contient une déclaration"
+  },
+  "fef3f0edd09844c8": {
+    "at": "2026-11-10T01:09:44.201Z",
+    "job": "session-0009-20261110010944",
+    "revision": {
+      "from": "af9f515e17493d80",
+      "reviewed": false
+    },
+    "srcHash": "fef3f0edd09844c8",
+    "status": "machine",
+    "text": "**Comment corriger :** donnez à l’une des deux Features une clé qui lui soit propre — pour une Feature de justificatif d’identité, c’est généralement la clé que nomment ses valeurs — ou supprimez l’un des deux rattachements. Lorsque les deux sont censées fournir une même variable, décidez laquelle le composant doit lire et ne rattachez que celle-là. Deux justificatifs d’identité qu’une Release rattache d’elle-même arrivent tous deux sous la clé que leur Feature nomme par défaut, car une Release ne peut pas écrire les `values` d’un rattachement : rattachez l’un d’eux dans l’Aggregate avec la valeur qui nomme sa clé, et donnez son origine depuis la Release sur la même entrée."
   },
   "fef549c964a7acec": {
     "at": "2026-10-22T01:47:50.336Z",
