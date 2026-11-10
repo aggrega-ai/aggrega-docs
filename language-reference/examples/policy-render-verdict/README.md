@@ -136,8 +136,8 @@ the rule judges them and lets them pass in every Release.
 
 ## Attaching the rule
 
-`.aggrega-config.yaml` declares the catalog directories and no governance
-attachment. The rule is attached by the file a build names with `--config`:
+`.aggrega-config.yaml` names the hub as its registry and no catalog directory,
+and no governance attachment. The rule is attached by the file a build names with `--config`:
 `governance-rego.yaml` for the Rego engine, `governance-cel.yaml` for the CEL
 engine. The Rego one reads:
 
