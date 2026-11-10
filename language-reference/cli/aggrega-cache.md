@@ -34,10 +34,12 @@ clear   wipes every cache, including the compiled-module store.
 ```
 Wipe every cache: the workspace artifact cache (entities, source artifacts,
 external inputs) and the caches every project on the machine shares (compiled
-modules, plugin descriptors and documentation bundles). This is the total-wipe
-verb; unlike prune it reclaims the compiled-module cache and the documentation
-bundles as well. Cleared caches repopulate on the next build, and the
-documentation bundle on the next read of the documentation.
+modules, plugin descriptors, documentation bundles, and the cli plugins added
+where no workspace was found). This is the total-wipe verb; unlike prune it
+reclaims the compiled-module cache and the documentation bundles as well.
+Cleared caches repopulate on the next build, and the documentation bundle on
+the next read of the documentation; a cli plugin cleared from the cache is
+fetched again by adding it again.
 
 Because the wipe is irreversible, clear asks for confirmation before removing
 anything. Pass --yes to skip the prompt for non-interactive use; without --yes
@@ -90,11 +92,14 @@ no-op and removes nothing.
 ```
 Remove cache entries whose content digest no workspace lockfile references,
 retaining every referenced entry. The reference set is the union of the
-digests pinned across every lockfile (*.lock) in the workspace.
+digests pinned across every lockfile (*.lock) in the workspace, together with
+the digests the configuration's plugins.cli list pins, so a cli plugin you
+added keeps the bytes it runs from.
 
 Prune acts on the caches whose entries carry a content digest — the workspace
-artifact cache (entities, source artifacts, external inputs) and the
-plugin-describe cache — and on the compiled-module cache by reference: a compiled
+artifact cache (entities, source artifacts, external inputs), the
+plugin-describe cache and the cli-plugin cache, which holds the cli plugins
+added where no workspace was found — and on the compiled-module cache by reference: a compiled
 plugin module is reclaimed when no lockfile still references the plugin it
 belongs to, and the shared runtime module every plugin depends on is reclaimed
 once the last plugin referring to it is pruned. A compiled module that cannot be
@@ -137,11 +142,13 @@ Not every cache these commands act on is scoped to the project you are standing 
 
 **Yours alone.** The artifact cache under `artifact_cache_dir` — the entities, source artifacts and pinned external inputs this project has resolved. Reclaiming from it affects this project and nothing else.
 
-**Shared by every Aggrega project on this machine.** The compiled-module store, the plugin-describe store and the documentation-bundle store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. The documentation bundle — the published pages [`aggrega explain`](aggrega-explain.md), an editor's explanations and an assistant's documentation resources are read from, and the runnable examples [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) writes out — is kept once per registry and version, because its contents depend on nothing else: whichever of them fetches it first fetches it for every project, and each project is still served it only once its own signature check admits the copy. Nothing is lost permanently — a removed module is rebuilt on demand, and a removed bundle is fetched again by the next explanation or example, or by an assistant server when it next starts — but the cost lands on whoever builds next, which may not be you.
+**Shared by every Aggrega project on this machine.** The compiled-module store, the plugin-describe store, the documentation-bundle store and the cli-plugin store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. The documentation bundle — the published pages [`aggrega explain`](aggrega-explain.md), an editor's explanations and an assistant's documentation resources are read from, and the runnable examples [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) writes out — is kept once per registry and version, because its contents depend on nothing else: whichever of them fetches it first fetches it for every project, and each project is still served it only once its own signature check admits the copy. Nothing is lost permanently — a removed module is rebuilt on demand, and a removed bundle is fetched again by the next explanation or example, or by an assistant server when it next starts — but the cost lands on whoever builds next, which may not be you.
 
-The machine-wide stores are kept where each platform keeps a user's caches: on Windows under `aggrega\cache` inside the directory the `LOCALAPPDATA` environment variable names, under `~/Library/Caches/aggrega` on macOS, and under an `aggrega` directory inside the one `XDG_CACHE_HOME` names — `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset — on Linux and the other Unix systems. `aggrega config init` prints the directory on the machine it runs on. Where none of those variables is set, compiled plugins are kept only for the run, and no documentation bundle is kept at all: an explanation then says why its walk-through is missing, an assistant's documentation resources answer not-found, and `aggrega scaffold --example` refuses, saying no cache directory resolves.
+The cli-plugin store holds the bytes of each cli plugin added with [`aggrega plugin add cli`](aggrega-plugin.md) in a folder that is no workspace, so its command runs from any folder; a cli plugin added inside a workspace keeps its bytes in that workspace's artifact cache instead. Unlike a compiled module or a bundle, a cli plugin whose bytes are removed is not fetched again on its own: until `aggrega plugin add cli <name>` adds it again, its command is missing and every command warns that it could not be added, naming the `aggrega plugin add cli` command that adds it again at the version your configuration pins.
 
-`aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `prune` never removes a documentation bundle, since no lockfile references one, and reports the store as not prune-eligible; `clear` acts on everything, which is why it asks before it starts.
+The machine-wide stores are kept where each platform keeps a user's caches: on Windows under `aggrega\cache` inside the directory the `LOCALAPPDATA` environment variable names, under `~/Library/Caches/aggrega` on macOS, and under an `aggrega` directory inside the one `XDG_CACHE_HOME` names — `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset — on Linux and the other Unix systems. `aggrega config init` prints the directory on the machine it runs on. Where none of those variables is set, compiled plugins are kept only for the run, and no documentation bundle is kept at all: an explanation then says why its walk-through is missing, an assistant's documentation resources answer not-found, and `aggrega scaffold --example` refuses, saying no cache directory resolves; `aggrega plugin add cli` run in a folder that is no workspace refuses as well, saying no machine-wide cache location resolves.
+
+`aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `prune` never removes a documentation bundle, since no lockfile references one, and reports the store as not prune-eligible; `prune` keeps the bytes of every cli plugin the `plugins.cli` list of your configuration pins — in the cli-plugin store and in the workspace's artifact cache alike, with its plugin-describe entry — and removes the ones no pin names; `clear` acts on everything, which is why it asks before it starts.
 
 **A workspace root that cannot be used.** Where the workspace root the command is given is a file or a path that does not exist, `status`, `evict` and `clear` act on the machine-wide stores alone, exit as they otherwise would, and say so on standard error, in the words every other command refuses that root with:
 
