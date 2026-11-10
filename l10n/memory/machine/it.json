@@ -11185,6 +11185,17 @@
     "status": "machine",
     "text": "Referenziare un server non equivale a prenderne il controllo. Questa Recipe raggiunge un server che resta di proprietà esterna; nulla qui lo porta sotto la gestione della Release, e nulla qui lo modificherà."
   },
+  "11ded0ddb947a49b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "bacb92c99f517951",
+      "reviewed": false
+    },
+    "srcHash": "11ded0ddb947a49b",
+    "status": "machine",
+    "text": "**Dove non lo fa, il rifiuto nomina l’espressione che fallisce e dice che il suo testo è oscurato.** Si tratta di un template il cui comportamento dipendeva da ciò che il valore contiene — ha preso un altro ramo, o è fallito altrove, rispetto al testo sostitutivo — quindi nulla di ciò che ha composto può essere mostrato. Perché un rifiuto del genere si spieghi da sé, scrivi la sua frase per esteso nella chiamata `fail`, come descrive il primo caso. Il rifiuto ferma comunque la build, e mantiene il suo codice."
+  },
   "11e6be061a8111c8": {
     "at": "2026-11-04T07:36:16.499Z",
     "job": "session-0215-20261104073616",
@@ -50695,6 +50706,13 @@
     "status": "machine",
     "text": "**Terraform** in HCL nativo annida un blocco sotto il suo tipo e poi sotto ciascuna delle sue etichette, e l’ultima etichetta contiene un elenco di blocchi, perché i blocchi che condividono tipo ed etichette si raccolgono in un unico elenco. Così gli attributi di un’istanza si trovano un indice sotto il suo nome, e la clausola scorre l’elenco:"
   },
+  "53cd0b373e930937": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "53cd0b373e930937",
+    "status": "machine",
+    "text": "**Un `fail` la cui frase è scritta per esteso nel template viene riportato così come è scritto.** Dove la chiamata che ha fermato la build è `fail` con una sola stringa tra virgolette — `fail \"…\"`, senza nulla passato in pipe e nulla composto nella sua frase — il rifiuto porta quella frase qualunque cosa contenga il valore e qualunque ramo abbia portato alla chiamata, perché la frase non cita nulla di ciò che il template ha letto: un’asserzione che rifiuta un’origine nella forma sbagliata mostra la propria spiegazione della forma. Una frase costruita in qualsiasi altro modo — `printf`, un campo, una variabile, un valore passato in pipe a `fail` — viene riportata secondo i casi che seguono."
+  },
   "53cd90c9a96cc57a": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -79321,6 +79339,17 @@
     "status": "machine",
     "text": "Le asserzioni della FeatureRecipe vengono valutate dopo il binding della FeatureRecipe e prima della generazione delle risorse. Il contesto di template per le FR con ambito di componente rispecchia il contesto delle asserzioni della Recipe (campi dell’istanza dell’entità più `.provides`, `.locals`, `.recipe.metadata`, `.recipe.source`); per le FR con ambito di confine (`executionScope: boundary`), le asserzioni vengono valutate rispetto alla vista con ambito di confine (campi `.boundary.*` disponibili; campi per componente no). Per la grammatica di authoring completa ed esempi svolti, vedi [templates/assertions-block.md](../templates/assertions-block.md)."
   },
+  "83ac8c294682c73b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "26af0a6a3b8f5775",
+      "reviewed": false
+    },
+    "srcHash": "83ac8c294682c73b",
+    "status": "machine",
+    "text": "Un rifiuto sollevato da un template che legge un valore che un autore ha dichiarato sensibile non porta quel valore. Quando un template ferma la build — un’asserzione che chiama `fail`, un’espressione che non può essere valutata, un output che non si legge come il documento che il template deve produrre — e uno dei suoi riferimenti raggiunge un dato dichiarato sensibile, ciò che viene riportato deriva dal valutare lo stesso template una seconda volta, rispetto a un contesto in cui ogni dato dichiarato sensibile si legge già `<redacted>` — a meno che il template non si sia fermato su una frase che scrive esso stesso per esteso, il primo caso qui sotto:"
+  },
   "83ad65df70ba510a": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -93043,6 +93072,17 @@
     "status": "machine",
     "text": "Impostare una chiave già presente ne sostituisce il valore. Una decisione può invece chiedere che una chiave venga rimossa:"
   },
+  "9ab00912747f1dff": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "9f5ce998ff7c7e05",
+      "reviewed": false
+    },
+    "srcHash": "9ab00912747f1dff",
+    "status": "machine",
+    "text": "Lo schema di `inject` definisce enum standard (`env`, `file`, `arg`) per gli strumenti, ma lascia aperto `additionalProperties`, quindi è possibile indicare un meccanismo personalizzato (ad es. `ssm_param` per AWS Systems Manager Parameter Store). Un nome è riservato: `all` è la vista unificata di tutti i meccanismi che una Recipe legge in `.context.inject.all`, quindi un blocco `inject` che chiama un meccanismo `all` ferma la build all’involucro del documento, segnalandolo."
+  },
   "9ab186f131ca7c07": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -94922,6 +94962,13 @@
     "srcHash": "9dab449305472e6d",
     "status": "machine",
     "text": "**Che sia deterministico.** Cattura l’output, ricompila e confronta:"
+  },
+  "9dae428fda35202a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "9dae428fda35202a",
+    "status": "machine",
+    "text": "✅ provides propri dell’allegato"
   },
   "9db4b369085133ec": {
     "at": "2026-11-03T16:07:30.748Z",
@@ -110350,6 +110397,13 @@
     "srcHash": "b631af80d05c3127",
     "status": "machine",
     "text": "Lo slot `root_password` qui non ha alcun blocco `inject:`. Il `featuresSchema` del Component dichiara `inject: []` per questo slot (blackbox), quindi la regola di schema generata automaticamente per lo slot rifiuta qualsiasi `inject:` scritto dallo sviluppatore — la consegna è competenza della Recipe."
+  },
+  "b6321e1f617812c3": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "b6321e1f617812c3",
+    "status": "machine",
+    "text": "Consentito in `features[<name>].inject`"
   },
   "b6368058aac8a79f": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -139583,6 +139637,13 @@
     "status": "machine",
     "text": "**3. Dominio Ops: la Recipe** Ops mappa il Component astratto su un vero chart Helm. Il blocco `locals` esporta lo stato fisico privato per i plugin a valle. Il template `valuesMapping` cabla `.values` nel formato atteso dal chart."
   },
+  "e505cff03c58259a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "e505cff03c58259a",
+    "status": "machine",
+    "text": "Un ramo `not:` può avere una `description:` che spiega perché la forma che esclude viene rifiutata. Un valore che corrisponde a quel ramo viene allora rifiutato con la descrizione come motivo, stampata su una sola riga, al posto della dicitura generica «not allowed here (non consentito qui)» — quindi scrivila come la frase che l’autore del valore rifiutato dovrebbe leggere. Viene usata solo una descrizione scritta sul ramo `not:` stesso; non una su una voce di `$defs` a cui il ramo fa solo riferimento."
+  },
   "e509c92468e98822": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -143730,6 +143791,13 @@
     "srcHash": "ec1f2182c193da9f",
     "status": "machine",
     "text": "8. Output deterministico"
+  },
+  "ec1f3df907a6cdbd": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "ec1f3df907a6cdbd",
+    "status": "machine",
+    "text": "❌ (`value:` ferma la build nell’`inject` di un allegato; usa `inject` a livello di componente per il self-inject)"
   },
   "ec207d7bfb450f5b": {
     "at": "2026-11-03T15:47:42.282Z",

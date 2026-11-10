@@ -11185,6 +11185,17 @@
     "status": "machine",
     "text": "Référencer un serveur n’est pas la même chose que d’en prendre le contrôle. Cette Recipe atteint un serveur qui reste détenu en externe ; rien ici ne le place sous la gestion de la Release, et rien ici ne le modifiera."
   },
+  "11ded0ddb947a49b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "bacb92c99f517951",
+      "reviewed": false
+    },
+    "srcHash": "11ded0ddb947a49b",
+    "status": "machine",
+    "text": "**Lorsque ce n’est pas le cas, le refus nomme l’expression en échec et indique que son texte est masqué.** Il s’agit d’un template dont le comportement dépendait de ce que contient la valeur — il a pris une autre branche, ou a échoué ailleurs, avec le texte de remplacement — si bien que rien de ce qu’il a composé ne peut être montré. Pour qu’un tel refus s’explique de lui-même, écrivez sa phrase en toutes lettres dans l’appel à `fail`, comme le décrit le premier cas. Le refus arrête tout de même le build, et il conserve son code."
+  },
   "11e6be061a8111c8": {
     "at": "2026-11-04T07:36:16.499Z",
     "job": "session-0215-20261104073616",
@@ -50691,6 +50702,13 @@
     "status": "machine",
     "text": "**Terraform** en HCL natif imbrique un bloc sous son type puis sous chacun de ses labels, et le dernier label contient une liste de blocs, car les blocs partageant un type et des labels sont regroupés en une seule liste. Les attributs d’une instance se trouvent donc un index sous son nom, et la clause parcourt la liste :"
   },
+  "53cd0b373e930937": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "53cd0b373e930937",
+    "status": "machine",
+    "text": "**Un `fail` dont la phrase est écrite en toutes lettres dans le template est signalé tel qu’il est écrit.** Lorsque l’appel qui a arrêté le build est `fail` avec une seule chaîne entre guillemets — `fail \"…\"`, sans rien qui lui soit transmis par pipe ni rien de composé dans sa phrase —, le refus porte cette phrase quelle que soit la valeur et quelle que soit la branche qui a mené à l’appel, car la phrase ne cite rien de ce que le template a lu : une assertion qui refuse une origine de forme incorrecte affiche sa propre explication de la forme. Une phrase construite de toute autre manière — `printf`, un champ, une variable, une valeur transmise par pipe à `fail` — est signalée selon les cas qui suivent."
+  },
   "53cd90c9a96cc57a": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -79323,6 +79341,17 @@
     "status": "machine",
     "text": "Les assertions de FeatureRecipe sont évaluées après la liaison de la FeatureRecipe et avant la génération des ressources. Le contexte de template des FR de portée composant reprend le contexte des assertions de Recipe (champs de l’instance d’entité, plus `.provides`, `.locals`, `.recipe.metadata`, `.recipe.source`) ; pour les FR de portée frontière (`executionScope: boundary`), les assertions sont évaluées par rapport à la vue de portée frontière (champs `.boundary.*` disponibles ; champs par composant non disponibles). Pour la grammaire de rédaction complète et des exemples détaillés, voir [templates/assertions-block.md](../templates/assertions-block.md)."
   },
+  "83ac8c294682c73b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "26af0a6a3b8f5775",
+      "reviewed": false
+    },
+    "srcHash": "83ac8c294682c73b",
+    "status": "machine",
+    "text": "Un refus levé par un template qui lit une valeur qu’un auteur a déclarée sensible ne porte pas cette valeur. Lorsqu’un template arrête le build — une assertion qui appelle `fail`, une expression qui ne peut pas être évaluée, une sortie qui ne se lit pas comme le document que le template doit produire — et que l’une de ses références atteint une donnée déclarée sensible, ce qui est signalé provient d’une seconde évaluation du même template, sur un contexte dans lequel chaque donnée déclarée sensible se lit déjà `<redacted>` — sauf si le template s’est arrêté sur une phrase qu’il formule lui-même en toutes lettres, le premier cas ci-dessous :"
+  },
   "83ad65df70ba510a": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -93051,6 +93080,17 @@
     "status": "machine",
     "text": "Définir une clé déjà présente remplace sa valeur. Une décision peut au contraire demander qu’une clé soit supprimée :"
   },
+  "9ab00912747f1dff": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "9f5ce998ff7c7e05",
+      "reviewed": false
+    },
+    "srcHash": "9ab00912747f1dff",
+    "status": "machine",
+    "text": "Le schéma de `inject` définit des énumérations standard (`env`, `file`, `arg`) pour l’outillage, mais laisse `additionalProperties` ouvert, de sorte qu’un mécanisme personnalisé peut être nommé (par ex. `ssm_param` pour AWS Systems Manager Parameter Store). Un nom est réservé : `all` est la vue fusionnée de tous les mécanismes qu’une Recipe lit dans `.context.inject.all`, de sorte qu’un bloc `inject` qui nomme un mécanisme `all` arrête le build au niveau de l’enveloppe du document, en l’indiquant."
+  },
   "9ab186f131ca7c07": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -94930,6 +94970,13 @@
     "srcHash": "9dab449305472e6d",
     "status": "machine",
     "text": "**Qu’il est déterministe.** Capturez la sortie, recompilez et comparez :"
+  },
+  "9dae428fda35202a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "9dae428fda35202a",
+    "status": "machine",
+    "text": "✅ provides propres au rattachement"
   },
   "9db4b369085133ec": {
     "at": "2026-11-03T16:07:30.748Z",
@@ -110370,6 +110417,13 @@
     "srcHash": "b631af80d05c3127",
     "status": "machine",
     "text": "L’emplacement `root_password` n’a ici aucun bloc `inject:`. Le `featuresSchema` du Component déclare `inject: []` pour cet emplacement (blackbox), donc la règle de schéma générée automatiquement pour l’emplacement rejette tout `inject:` rédigé par le développeur — la livraison relève de la Recipe."
+  },
+  "b6321e1f617812c3": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "b6321e1f617812c3",
+    "status": "machine",
+    "text": "Autorisé dans `features[<name>].inject`"
   },
   "b6368058aac8a79f": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -139611,6 +139665,13 @@
     "status": "machine",
     "text": "**3. Domaine Ops : la Recipe** Ops associe le Component abstrait à un véritable chart Helm. Le bloc `locals` exporte un état physique privé pour les plugins en aval. Le template `valuesMapping` câble `.values` dans le format attendu par le chart."
   },
+  "e505cff03c58259a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "e505cff03c58259a",
+    "status": "machine",
+    "text": "Une branche `not:` peut porter une `description:` indiquant pourquoi la forme qu’elle exclut est refusée. Une valeur qui correspond à cette branche est alors refusée avec la description comme motif, affichée sur une seule ligne, à la place de la formulation générique « not allowed here (non autorisé ici) » — écrivez-la donc comme la phrase que l’auteur de la valeur refusée doit lire. Seule une description écrite sur la branche `not:` elle-même est utilisée ; une description placée sur une entrée `$defs` que la branche ne fait que référencer ne l’est pas."
+  },
   "e509c92468e98822": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -143764,6 +143825,13 @@
     "srcHash": "ec1f2182c193da9f",
     "status": "machine",
     "text": "8. Sortie déterministe"
+  },
+  "ec1f3df907a6cdbd": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "ec1f3df907a6cdbd",
+    "status": "machine",
+    "text": "❌ (`value:` arrête le build dans l’`inject` d’un rattachement ; utilisez `inject` au niveau du composant pour le self-inject)"
   },
   "ec207d7bfb450f5b": {
     "at": "2026-11-03T15:47:42.282Z",

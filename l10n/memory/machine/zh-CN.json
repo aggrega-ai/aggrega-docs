@@ -12443,6 +12443,17 @@
     "status": "machine",
     "text": "引用一个服务器并不等于接管它。此 Recipe 访问的服务器\n仍归外部所有；这里没有任何内容把它纳入部署的管理，也没有任何内容会更改它。"
   },
+  "11ded0ddb947a49b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "bacb92c99f517951",
+      "reviewed": false
+    },
+    "srcHash": "11ded0ddb947a49b",
+    "status": "machine",
+    "text": "**如果不是，拒绝信息会指出失败的表达式，并说明其文本已被隐去。** 这说明该模板的行为取决于值的内容：面对替换文本时，它走了另一个分支，或在别处失败，因此它组合出的任何内容都不能显示。若要让此类拒绝说明自身原因，请按第一种情况所述，在 `fail` 调用中完整写出其句子。该拒绝仍会中止构建，并保留其代码。"
+  },
   "11e587160c58abb5": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -56325,6 +56336,13 @@
     "status": "machine",
     "text": "原生 HCL 中的 **Terraform** 将一个块嵌套在其类型之下，然后嵌套在其每个标签之下，最后一个标签持有一个块列表，因为共享类型和标签的块会汇集到一个列表中。因此实例的属性位于其名称下一个索引处，子句会遍历该列表："
   },
+  "53cd0b373e930937": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "53cd0b373e930937",
+    "status": "machine",
+    "text": "**在模板中完整写出句子的 `fail` 会按原文报告。** 如果中止构建的调用是只带一个带引号字符串的 `fail`（即 `fail \"…\"`，没有任何内容通过管道传入，其句子中也没有拼接任何内容），则无论值的内容是什么、无论哪个分支导致了该调用，拒绝信息都会携带这句话，因为这句话没有引用模板读取的任何内容：一个拒绝格式错误的来源的断言会显示它自己对该格式的说明。以其他任何方式构建的句子（`printf`、字段、变量、通过管道传入 `fail` 的值）按后面的情况报告。"
+  },
   "53cd90c9a96cc57a": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -88322,6 +88340,17 @@
     "status": "machine",
     "text": "FeatureRecipe 断言在 FeatureRecipe 绑定之后、资源生成（Resource Generation）之前求值。组件作用域 FR 的模板上下文与 Recipe 断言的上下文一致（实体实例字段，加上 `.provides`、`.locals`、`.recipe.metadata`、`.recipe.source`）；对于边界作用域 FR（`executionScope: boundary`），断言针对边界作用域视图求值（可使用 `.boundary.*` 字段，不可使用逐组件字段）。完整的编写语法和实际示例，请参阅 [templates/assertions-block.md](../templates/assertions-block.md)。"
   },
+  "83ac8c294682c73b": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "26af0a6a3b8f5775",
+      "reviewed": false
+    },
+    "srcHash": "83ac8c294682c73b",
+    "status": "machine",
+    "text": "如果一个模板读取了作者声明为敏感的值，由该模板引发的拒绝不会携带该值。当模板中止构建时（调用 `fail` 的断言、无法求值的表达式、读取结果不是模板必须生成的文档的输出），且其某个引用触及已声明为敏感的数据，所报告的内容来自对同一模板的第二次求值，该次求值所用的上下文中每个已声明为敏感的数据都已读作 `<redacted>`；除非模板是在它自己完整写出的一句话上中止的，即下面的第一种情况："
+  },
   "83ad65df70ba510a": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -103553,6 +103582,17 @@
     "status": "machine",
     "text": "设置一个已存在的键会替换其值。决策也可以改为要求删除某个键："
   },
+  "9ab00912747f1dff": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "9f5ce998ff7c7e05",
+      "reviewed": false
+    },
+    "srcHash": "9ab00912747f1dff",
+    "status": "machine",
+    "text": "`inject` schema 为工具定义了标准枚举（`env`、`file`、`arg`），但将 `additionalProperties` 保持开放，因此可以命名自定义机制（例如用于 AWS Systems Manager Parameter Store 的 `ssm_param`）。有一个名称已被占用：`all` 是 Recipe 在 `.context.inject.all` 读取的所有机制的合并视图，因此将某个机制命名为 `all` 的 `inject` 块会在文档信封处中止构建，并说明这一点。"
+  },
   "9ab186f131ca7c07": {
     "at": "2026-10-30T00:21:58.288Z",
     "job": "session-0037-20261030002158",
@@ -105672,6 +105712,17 @@
     "srcHash": "9dab449305472e6d",
     "status": "machine",
     "text": "**它是确定性的。** 捕获输出，重新构建，然后比较："
+  },
+  "9dae428fda35202a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "revision": {
+      "from": "1e5b8dfed13784ad",
+      "reviewed": false
+    },
+    "srcHash": "9dae428fda35202a",
+    "status": "machine",
+    "text": "✅ 附件自身的 provides"
   },
   "9db4b369085133ec": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -122770,6 +122821,13 @@
     "srcHash": "b631af80d05c3127",
     "status": "machine",
     "text": "这里的 `root_password` 槽位没有 `inject:` 块。该 Component 的 `featuresSchema` 为此槽位声明了 `inject: []`（黑盒），因此该槽位自动生成的 schema 规则会拒绝任何由开发者编写的 `inject:`——交付由 Recipe 负责。"
+  },
+  "b6321e1f617812c3": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "b6321e1f617812c3",
+    "status": "machine",
+    "text": "在 `features[<name>].inject` 中允许"
   },
   "b6368058aac8a79f": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -155185,6 +155243,13 @@
     "status": "machine",
     "text": "**3. 运维域：Recipe**\n运维将抽象的 Component 映射到真实的 Helm chart。`locals` 块为下游插件导出私有的物理状态。`valuesMapping` 模板将 `.values` 接入 chart 所期望的格式。"
   },
+  "e505cff03c58259a": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "e505cff03c58259a",
+    "status": "machine",
+    "text": "`not:` 分支可以带有一个 `description:`，说明它所排除的形状为何被拒绝。这样，与该分支匹配的值被拒绝时，会以该描述作为原因，打印在一行上，取代通用的“not allowed here（此处不允许）”措辞——因此应将其写成被拒绝值的作者应当读到的那句话。只有写在 `not:` 分支本身上的描述才会被使用；写在该分支仅引用的 `$defs` 条目上的描述不会被使用。"
+  },
   "e509c92468e98822": {
     "at": "2026-10-30T04:13:10.969Z",
     "job": "session-0052-20261030041310",
@@ -159811,6 +159876,13 @@
     "srcHash": "ec1f2182c193da9f",
     "status": "machine",
     "text": "8. 确定性输出"
+  },
+  "ec1f3df907a6cdbd": {
+    "at": "2026-11-10T01:48:42.892Z",
+    "job": "session-0012-20261110014842",
+    "srcHash": "ec1f3df907a6cdbd",
+    "status": "machine",
+    "text": "❌ (`value:` 在附件的 `inject` 中会中止构建；自注入请使用组件级 `inject`)"
   },
   "ec1fdbc468716024": {
     "at": "2026-10-22T08:03:58.541373+00:00",
