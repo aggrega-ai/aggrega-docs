@@ -801,9 +801,14 @@ and the kinds of anchor rank against each other rather than by nearness:
   rank in this order: an `.aggrega/` directory, then an `aggregate*.yaml`, then a `release*.yaml`,
   then a `manifest*.yaml`.
 - **Failing everything, the working directory is used** — commands run rather than refusing to
-  start, and a command that reads its workspace says so in one line on standard error, naming the
-  folder it used and how to name your workspace instead. Commands that need no workspace, such as
-  `aggrega version`, `aggrega login` and `aggrega logout`, say nothing.
+  start. A command whose result depends on the workspace — one that reads or writes the workspace's
+  documents, reads or fills its artifact cache, or serves it — warns once on standard error:
+  `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`.
+  A command whose result does not depend on which folder is the root says nothing, even where it
+  reads the configuration: `aggrega version`, `aggrega config show`, `aggrega plugin list`,
+  `aggrega registry list`, `aggrega explain` and `aggrega login` among them. `aggrega config capture`,
+  whose work is writing the workspace's own configuration file, writes nothing in such a folder and
+  exits with an error saying so.
 
 Nothing is written into an artifact cache in such a folder. An `.aggrega/` directory is itself one of
 the markers above, so a cache written there would make the folder a workspace because something was

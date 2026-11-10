@@ -138,16 +138,13 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-note: no Aggrega workspace was found from <guest>, so it is used as the workspace root; pass --workspace-root naming your workspace, or run the command inside it
 {
   "injections": []
 }
 ```
 
-The note says the command found no workspace around the directory it ran in.
 `run-local` reads its guest and its payload from the paths you give it and needs
-no workspace, so the note changes nothing here; it is left out of the blocks
-below.
+no workspace, so it can be run from any directory.
 
 ```sh
 aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
@@ -155,7 +152,6 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 {
   "patches": []
 }
@@ -167,7 +163,6 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 {
   "results": [
     {
@@ -184,7 +179,6 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 {
   "results": [
     {
@@ -403,19 +397,15 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 {
   "injections": []
 }
-[… omitted: the note naming the directory used as the workspace root]
 {
   "patches": []
 }
-[… omitted: the note naming the directory used as the workspace root]
 {
   "results": []
 }
-[… omitted: the note naming the directory used as the workspace root]
 {
   "results": []
 }
@@ -443,7 +433,6 @@ aggrega plugin run-local --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 {
   "results": [
     {
@@ -508,7 +497,6 @@ aggrega plugin gen-catalog --plugin dist/governance-adapter-skeleton-go.wasm \
 ```
 
 ```text
-[… omitted: the note naming the directory used as the workspace root]
 generated ../shop/catalog/plugin/governance/category-guard/0.1.0/plugin.yaml
 ```
 

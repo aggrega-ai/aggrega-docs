@@ -113,7 +113,9 @@ materialized into the workspace and travels with the project.
 Machine-wide tooling settings, such as a registry's trust policy, are not
 captured: they stay in the global config by their nature. Capture always writes
 this project's workspace config file. Running it again on an unchanged
-configuration rewrites the same file byte-for-byte.
+configuration rewrites the same file byte-for-byte. Run in a folder that is not
+inside a workspace, with no --workspace-root naming one, it writes nothing and
+exits with an error saying so.
 ```
 
 **`aggrega config capture` flags**
@@ -279,6 +281,8 @@ The captured subset is a set of plugin socket attachments and the catalog direct
 - `--all-plugins` widens the captured sockets to include the verdict-role governance, linter, and importer sockets as well. Without it those three stay free to vary by environment.
 
 Capture always writes, and offers no way to be handed the content instead. What it produces is a record of what the configuration resolved to, not a document anyone composes, so there is nothing for an author to review and amend — reporting it would invite editing a snapshot of a resolution.
+
+Capture writes only into a workspace. Run in a folder that is not inside one, with no `--workspace-root` or `AGGREGA_WORKSPACE_ROOT` naming one, it writes nothing — a configuration file written there would turn the folder into a workspace — and exits with an error saying so. `aggrega config init --workspace` makes the folder a workspace first.
 
 ## See also
 

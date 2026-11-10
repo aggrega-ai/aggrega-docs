@@ -82,8 +82,9 @@ discovered again from the Release's own folder, so the catalog searched and the
 paths recorded in the output are those of the project the Release belongs to,
 wherever you run the command from. See
 [configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised).)
-Where no workspace is found that way either and nothing names one, the build says on
-standard error which folder it used as the root, and a build asked to resolve its
+Where no workspace is found that way either and nothing names one, the build warns on
+standard error that the folder it used as the root is not inside a workspace, and names
+the command that makes it one; a build asked to resolve its
 dependencies first is refused before anything is fetched, because the cache that
 resolution fills would be written in that folder and make it a workspace. A build that
 resolves nothing first still renders, but for the same reason an external input the
