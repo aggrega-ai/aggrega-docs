@@ -154,7 +154,7 @@ The PowerShell script never closes the window it runs in, so it leaves the statu
 
 Each release carries a Windows installer, `aggrega-<version>-windows-amd64-setup.exe`, on the release page at [https://github.com/aggrega-ai/aggrega-cli/releases](https://github.com/aggrega-ai/aggrega-cli/releases). Download it and run it. It installs the default `aggrega.exe` for you alone, without administrator rights and without asking for them, through a short wizard:
 
-- **A welcome page**, then **the components**: Aggrega itself, always installed, and **Add to PATH**, selected.
+- **A welcome page**, then **the license**, Aggrega's Apache License 2.0: nothing is installed until you press **I Agree**. Then **the components**: Aggrega itself, always installed, and **Add to PATH**, selected.
 - **The install folder**, `%LOCALAPPDATA%\Programs\aggrega` unless you choose another; it is the folder the install command uses.
 - **The progress**, then **a finish page** naming the folder and saying whether this install added it to your `PATH`, with the next steps: installing the Aggrega skill with `aggrega skills install --global`, and connecting your AI client as [Connect an MCP client](#connect-an-mcp-client) describes.
 
@@ -163,7 +163,7 @@ What it does:
 - **With Add to PATH selected, it adds the install folder to your user `PATH`** unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with. With it cleared, nothing is added to your `PATH`, and a terminal runs `aggrega.exe` by its full path; an entry an earlier install added is left as it is.
 - **It lists Aggrega among your installed apps**, published by Cognitio S.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller asks you to confirm, then removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
 - **Run again, it installs over what is there**, offering the folder it installed into last, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
-- **Beside `aggrega.exe`, the folder holds `uninstall.exe`** and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
+- **Beside `aggrega.exe`, the folder holds `uninstall.exe`**, `LICENSE` with the license text, and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
 
 When `aggrega.exe` is running — started by an editor or an AI client — the installer cannot replace it, and stops with a message saying so; close what started it and run the installer again. The uninstaller stops the same way, before it has removed anything.
 
