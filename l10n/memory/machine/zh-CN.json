@@ -11706,6 +11706,13 @@
     "status": "machine",
     "text": "**之所以列出这三个位置，是因为作者会以为它们接受 URI，而实际上并非如此。** Manifest 和 Release 是彼此并列编写的部署侧文档，而不是由目录索引的实体，因此二者的 `extends:` 以及任何 Release 的 `manifest:` 都不会针对目录或注册表进行解析。Release 的 `manifest:` 指向一个文件，或位于 Release 旁边的 Manifest 的裸 `metadata.name`。在这两个 `extends:` 位置上，该值指向一个**文件**，在任一位置写入注册表坐标都会被拒绝，诊断信息中会给出可接受的形式。这两个 `extends:` 位置的写法也不相同——Manifest 还接受位于 Release 旁边的 Manifest 的裸 `metadata.name`，而 Release 只接受相对路径。Release 的形式参见 [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance)，各项拒绝的具体说明参见 [`errors/fatal-halts.md`](../errors/fatal-halts.md)。"
   },
+  "10cda6d1ccf6b171": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "10cda6d1ccf6b171",
+    "status": "machine",
+    "text": "remediation: add an entry for `<host>` (machine `<host>` login `<user>` password `<secret>`) to the netrc file `<path>`, then run the command again（补救措施：在 netrc 文件中为该主机添加一个条目（包含 machine、login 和 password），然后重新运行该命令）"
+  },
   "10cece8800f39455": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -36132,6 +36139,17 @@
     "srcHash": "359022936eecbec9",
     "status": "machine",
     "text": "紧凑形式的对象作用域有两种编写方式："
+  },
+  "3592a56ada8d53db": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6d0809ff32cb51d4",
+      "reviewed": false
+    },
+    "srcHash": "3592a56ada8d53db",
+    "status": "machine",
+    "text": "**如何修复：** 这是运维人员的问题，而非实体作者的问题——Aggregate、Component 或 Recipe 中的任何内容都不会导致它。官方 hub `hub.aggrega.ai` 向任何人提供其发布的内容，因此从中读取无需凭据，而向其发布则需要；其他 registry 可能在读取时也要求凭据。登录消息中指明的主机——或者，对于通过 http 或 https 获取的源，添加补救措施中指明的 netrc 条目——然后重新执行获取。如果你已经登录，说明凭据存储中的凭据不被该主机接受用于该仓库：重新登录以刷新凭据，并检查该账户是否对引用解析到的仓库具有读取权限，因为私有仓库对无权查看它的账户的答复正是如此。如果引用解析到了你未预期的主机，说明 `.aggrega-config.yaml` 中的 registry 别名或默认 registry 指向了别处。"
   },
   "359ae10ab4d26bcb": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -107131,6 +107149,13 @@
     "status": "machine",
     "text": "entity-lock schema 版本：1。schema 的 SemVer-MAJOR 变更会递增此值。常量：`1`"
   },
+  "a016b657baa7a033": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "a016b657baa7a033",
+    "status": "machine",
+    "text": "该工作区未指定任何目录文件夹，因此构建只能在其 lockfile 固定的 FeatureRecipes 中搜索，而未为 `core/backup` 绑定任何条目的 Manifest 也不会固定任何条目；消息会如实说明这一点，而不是声称 hub 中没有任何条目。若将标准库目录的检出副本指定为目录文件夹，同一中止会说明目录中没有任何 FeatureRecipe 为 `compose` 实现 `core/backup:1.0.0`，并列出为其他目标实现它的十个：`cloudformation/backup-aws-backup`、`cloudformation/backup-native`、`helm/backup-cloudnative-pg`、`helm/backup-k8up`、`helm/backup-kasten`、`helm/backup-kubestash`、`helm/backup-mariadb-operator`、`helm/backup-velero`、`terraform/backup-aws-backup` 和 `terraform/backup-native`。"
+  },
   "a017baf5fc13051c": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -137744,6 +137769,17 @@
     "status": "machine",
     "text": "[./aggrega-mcp.md](./aggrega-mcp.md) — 以 `deprecate-artifact` 工具提供的同一能力，\n  助手可以调用它。在允许之前，请先阅读该页关于允许它的说明：一次撤回\n  会改变该 registry 的每个使用方解析到的结果。"
   },
+  "cbd7eda89ef37974": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "954555984e25e002",
+      "reviewed": false
+    },
+    "srcHash": "cbd7eda89ef37974",
+    "status": "machine",
+    "text": "功能实例以自己的形式报告这些情况，每种情况都位于该条件的句子之后。Aggregate 中未写版本的功能类型会像组件类型一样，按构建编译它时所用的版本进行匹配——即目录中该 Feature 的最高版本——而指明 `<type>:<version>` 的消息指的是该版本的类型，也就是在目录中搜索的对象。当某个附加项的组件所映射到的 Recipe 已知时，FeatureRecipes 按该 Recipe 所绑定的能力加以区分：绑定到该组件能力的会优先提供，而绑定到其他能力的 FeatureRecipe 仍会渲染，作为组件输出旁边的独立输出，而不是渲染到组件输出之中；因此，当没有任何一个绑定到该组件的能力时，就改为提供那些。指向空处的映射显示为 `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`。当有 FeatureRecipes 为该组件的能力实现该类型时，只列出这些：`feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`。当它们只为其他能力实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`。当根本没有任何一个实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`。而当能力未知时——组件自身的映射未解析到任何 Recipe（这一点会单独报告），或者附加项写在某个边界上，而该边界中的组件可能通过多种能力渲染——则列出每个实现者：`feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`。在未指定任何目录文件夹的工作区中，搜索的 FeatureRecipes 仅限于 lockfile 固定的那些：registry 中的那些不会被列出，而未为该类型映射任何条目的 Manifest 也不会固定任何条目。在这种情况下，关于缺失的说法针对的是已固定的内容而非目录，并且消息会明确说明这一点。当没有任何一个实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`——而当能力未知时，消息不指明任何能力，并以 `pin one a registry publishes in the Manifest, or write one, then map the type to it` 结尾。当已固定的 FeatureRecipes 只为其他能力实现该类型时，该情况的消息会以 `no feature recipe the lockfile pins implements` 代替 `no feature recipe in the catalog implements`，能力之后的从句相同。"
+  },
   "cbd83bc8b274ad71": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -148505,6 +148541,13 @@
     "srcHash": "db77cc514eca3aa2",
     "status": "machine",
     "text": "以长格式编写的连接后面会跟着它所承载的附件，每个附件位于它在消费方 component 上所取的名称之下（即连接的别名与插槽以点连接），并附有它所指定的 Feature 类型，以及一个子句，说明它填充的插槽及其是否处理已声明为敏感的内容："
+  },
+  "db78a7ff6b30ead5": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "db78a7ff6b30ead5",
+    "status": "machine",
+    "text": "通过 http 或 https 获取的经典 Helm chart 仓库或 chart 归档、compose 片段以及 Git 仓库，在服务器以未授权为由拒绝请求时也会报告此情况，而它们的补救措施指明的是要添加的 netrc 条目而非登录，因为这些获取正是从该文件读取凭据的："
   },
   "db7bf814f85b33e1": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -160182,6 +160225,17 @@
     "status": "machine",
     "text": "container[]"
   },
+  "ec36f8e6da32fbb0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "d6ced66f9e3caa35",
+      "reviewed": false
+    },
+    "srcHash": "ec36f8e6da32fbb0",
+    "status": "machine",
+    "text": "**修复方法：** 在 Manifest 的 `spec.mappings.components.type` 下添加消息要求的映射，以组件类型为键、以 Recipe 为值。当消息列出候选时，从中选择一个：该列表正是声明在构建所解析的版本上实现该类型的那些 Recipes。当消息指出某个 Recipe 不在目录中时，要么更正该值，要么将该 Recipe 添加到构建读取的目录中；值中的版本必须与目录中已有的版本匹配。当没有任何内容实现该类型时，缺少的就是 Recipe 本身。当消息说明搜索的配方或功能配方仅限于 lockfile 固定的那些时，说明工作区未读取任何目录文件夹，因此 registry 仍可能发布实现该类型的 Recipe 或 FeatureRecipe：在 Manifest 中将该类型映射到它，才会让 pull 获取并固定它。"
+  },
   "ec379268e30f8041": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -163743,6 +163797,17 @@
     "srcHash": "f16b8f1ab03c67b2",
     "status": "machine",
     "text": "一个典型的有路标的例外：Component 的 `schema:` 可以声明一个面向开发者的 `values:` 调节项，由 Recipe 的 `valuesMapping:` 模板将其传入渲染后的 `infra:` 形态输出。开发者通过一个有类型的 `values:` 字段表达意图；Recipe 模板将得到的值传入 provider 的基础设施层，开发者无需编写基础设施代码。示例如下："
+  },
+  "f171cf9f241e8ce0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "660b5af40e13f779",
+      "reviewed": false
+    },
+    "srcHash": "f171cf9f241e8ce0",
+    "status": "machine",
+    "text": "标准库目录中没有针对此目标的 `core/backup` FeatureRecipe。其中每一个都绑定到另一个目标，因此若在此处固定，它会作为单独的输出渲染在 Compose 文件旁边，而该输出面向的是此 Release 并不部署到的目标。可行的做法是从 Release 中移除该附加，在那里部署不带备份的数据库；或者像其他五个 Releases 那样，通过面向拥有备份产品的目标的 Manifest 部署它。"
   },
   "f172a44e05a8bdd6": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -167325,6 +167390,17 @@
     "status": "machine",
     "text": "**键空间被指明。** `output-logical-ids` 告诉你到达的是该栈\n  两个名称空间中的哪一个，并且——由于此次中止中没有出现资源名称空间——\n  说明资源名称没有问题。"
   },
+  "f66a9a0abb92cd29": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6a47d41152f62577",
+      "reviewed": false
+    },
+    "srcHash": "f66a9a0abb92cd29",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`). no recipe the lockfile pins implements this type; with no catalog directory, the recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, or write one, then map the type to it（没有为组件/功能实例解析出任何配方：请在 Manifest 中为其类型添加显式映射（Manifest，位于所示位置，针对所示实例和类型）。lockfile 固定的配方中没有任何一个实现此类型；由于没有目录文件夹，搜索的配方仅限于 lockfile 固定的那些，而非 registry 中的；请在 Manifest 中固定一个 registry 发布的配方，或者编写一个，然后将该类型映射到它）"
+  },
   "f66b87cee1f45638": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -170281,6 +170357,13 @@
     "srcHash": "fab4089a7ac9b242",
     "status": "machine",
     "text": "面向用户的 Aggrega 语言与编译器文档。英文是主要来源；翻译覆盖层将在未来的 i18n 阶段加入，且不会改变下列路径。"
+  },
+  "fab789e8e00bba99": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "fab789e8e00bba99",
+    "status": "machine",
+    "text": "在未指定任何目录文件夹的工作区中，搜索的 Recipes 仅限于 lockfile 固定的那些：registry 中的那些不会被列出，而未为该类型映射任何条目的 Manifest 也不会固定任何条目。在这种情况下，当没有任何已固定的 Recipe 实现该类型时，关于缺失的说法针对的是已固定的内容而非目录，并且消息会明确说明这一点："
   },
   "faba51931b30f1f1": {
     "at": "2026-10-22T04:56:15.693842+00:00",

@@ -11706,6 +11706,13 @@
     "status": "machine",
     "text": "**세 위치는 작성자가 URI를 기대하고 사용하지만 실제로는 URI가 아니기 때문에 표에 포함되어 있습니다.** Manifest와 Release는 카탈로그에 색인되는 엔터티가 아니라 서로 나란히 작성되는 배포 측 문서이므로, 어느 쪽의 `extends:`도, 어떤 Release의 `manifest:`도 카탈로그나 레지스트리를 기준으로 해석되지 않습니다. Release의 `manifest:`는 파일 또는 Release 옆에 있는 Manifest의 순수 `metadata.name`을 가리킵니다. 두 `extends:` 위치에서 값은 **파일**을 가리키며, 두 위치 중 어디에든 레지스트리 좌표를 쓰면 허용되는 형식을 진단 메시지에 명시하며 거부됩니다. 두 `extends:` 위치의 표기도 같지 않습니다. Manifest는 Release 옆에 있는 Manifest의 순수 `metadata.name`도 허용하지만, Release는 상대 경로만 허용합니다. Release 형식은 [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance)를, 각 거부 메시지의 내용은 [`errors/fatal-halts.md`](../errors/fatal-halts.md)를 참조하십시오."
   },
+  "10cda6d1ccf6b171": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "10cda6d1ccf6b171",
+    "status": "machine",
+    "text": "remediation: add an entry for `<host>` (machine `<host>` login `<user>` password `<secret>`) to the netrc file `<path>`, then run the command again (해결 방안: netrc 파일에 해당 호스트에 대한 항목(machine, login, password 포함)을 추가한 다음 명령을 다시 실행하십시오)"
+  },
   "10cece8800f39455": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -36138,6 +36145,17 @@
     "srcHash": "359022936eecbec9",
     "status": "machine",
     "text": "compact form 객체 스코프는 두 가지 방식으로 작성할 수 있습니다."
+  },
+  "3592a56ada8d53db": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6d0809ff32cb51d4",
+      "reviewed": false
+    },
+    "srcHash": "3592a56ada8d53db",
+    "status": "machine",
+    "text": "**해결 방법:** 이는 엔티티 작성자가 아닌 운영자의 몫입니다. Aggregate, Component, Recipe의 어떤 내용도 이를 일으키지 않습니다. 공식 허브인 `hub.aggrega.ai`는 게시하는 것을 누구에게나 제공하므로 여기서 읽을 때는 자격 증명이 필요 없지만, 여기에 게시할 때는 필요합니다. 다른 레지스트리는 읽기에도 자격 증명을 요구할 수 있습니다. 메시지가 지정한 호스트에 로그인하고(http 또는 https로 가져오는 소스의 경우 해결 방안이 지정한 netrc 항목을 추가하고) 획득을 다시 실행합니다. 이미 로그인되어 있다면 저장소의 자격 증명은 그 호스트가 해당 저장소에 대해 수락하는 것이 아닙니다. 다시 로그인하여 갱신하고, 계정이 참조가 해석되는 저장소에 읽기 권한이 있는지 확인합니다. 비공개 저장소는 볼 수 없는 계정에 정확히 이렇게 응답하기 때문입니다. 참조가 예상하지 않은 호스트로 해석된다면 `.aggrega-config.yaml`의 레지스트리 별칭이나 기본 레지스트리가 다른 곳을 가리키고 있는 것입니다."
   },
   "359ae10ab4d26bcb": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -107149,6 +107167,13 @@
     "status": "machine",
     "text": "엔티티 잠금 스키마 버전: 1. 스키마의 SemVer-MAJOR 변경이 이 값을 증가시킵니다. 상수: `1`"
   },
+  "a016b657baa7a033": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "a016b657baa7a033",
+    "status": "machine",
+    "text": "이 워크스페이스는 카탈로그 디렉터리를 지정하지 않으므로 빌드가 검색할 수 있는 것은 잠금 파일이 고정한 FeatureRecipes뿐이며, `core/backup`에 대해 아무것도 바인딩하지 않는 Manifest는 아무것도 고정하지 않습니다. 메시지는 허브에 아무것도 없다고 주장하는 대신 이 사실을 밝힙니다. 표준 라이브러리 카탈로그의 체크아웃을 카탈로그 디렉터리로 지정하면, 같은 중단은 카탈로그의 어떤 FeatureRecipe도 `compose`에 대해 `core/backup:1.0.0`을 구현하지 않는다고 알리고, 다른 대상에 대해 이를 구현하는 열 개를 나열합니다: `cloudformation/backup-aws-backup`, `cloudformation/backup-native`, `helm/backup-cloudnative-pg`, `helm/backup-k8up`, `helm/backup-kasten`, `helm/backup-kubestash`, `helm/backup-mariadb-operator`, `helm/backup-velero`, `terraform/backup-aws-backup`, `terraform/backup-native`."
+  },
   "a017baf5fc13051c": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -137744,6 +137769,17 @@
     "status": "machine",
     "text": "[./aggrega-mcp.md](./aggrega-mcp.md) — 어시스턴트가 호출할 수 있는 `deprecate-artifact` 도구로 제공되는 같은\n  기능입니다. 이를 허용하기 전에 해당 문서에서 허용에 관해 설명하는 내용을 읽어 보십시오. 철회는\n  해당 레지스트리의 모든 소비자가 해석하는 결과를 바꿉니다."
   },
+  "cbd7eda89ef37974": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "954555984e25e002",
+      "reviewed": false
+    },
+    "srcHash": "cbd7eda89ef37974",
+    "status": "machine",
+    "text": "기능 인스턴스는 이러한 경우를 고유한 형태로, 각각 조건의 문장 뒤에 보고합니다. Aggregate가 버전 없이 작성한 기능 유형은 컴포넌트 유형과 같은 방식으로, 빌드가 그것을 컴파일하는 버전, 즉 카탈로그가 보유한 해당 Feature의 가장 높은 버전에서 매칭되며, `<type>:<version>`을 명시하는 메시지는 그 버전의 유형, 즉 카탈로그에서 검색된 대상을 가리킵니다. 연결의 컴포넌트가 매핑된 Recipe를 알고 있는 경우, FeatureRecipes는 그 Recipe가 바인딩하는 역량에 따라 구분됩니다. 컴포넌트의 역량에 바인딩하는 것이 먼저 제시되고, 다른 역량에 바인딩하는 FeatureRecipe도 컴포넌트의 출력 안이 아니라 그 옆에 자체 출력으로 렌더링되므로, 컴포넌트의 역량에 바인딩하는 것이 하나도 없으면 대신 그것들이 제시됩니다. 아무 곳으로도 이어지지 않는 매핑은 `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`로 표시됩니다. 컴포넌트의 역량에 대해 해당 유형을 구현하는 FeatureRecipes가 있으면 그것들만 나열됩니다: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`. 다른 역량에 대해서만 구현하는 경우: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`. 해당 유형을 구현하는 것이 전혀 없는 경우: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`. 그리고 역량을 알 수 없는 경우, 즉 컴포넌트 자체의 매핑이 어떤 Recipe로도 해석되지 않아 그것이 별도로 보고되거나, 연결이 경계에 작성되어 그 컴포넌트들이 여러 역량을 통해 렌더링될 수 있는 경우에는 모든 구현체가 나열됩니다: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`. 카탈로그 디렉터리를 지정하지 않는 워크스페이스에서는 잠금 파일이 고정한 FeatureRecipes만 검색됩니다. 레지스트리의 것은 나열되지 않으며, 해당 유형에 대해 아무것도 매핑하지 않는 Manifest는 아무것도 고정하지 않습니다. 이 경우 부재에 대한 주장은 카탈로그가 아니라 고정된 항목에 대해 이루어지며, 메시지도 그렇게 밝힙니다. 해당 유형을 구현하는 것이 없는 경우: `feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it` — 그리고 역량을 알 수 없는 경우에는 메시지가 역량을 명시하지 않고 `pin one a registry publishes in the Manifest, or write one, then map the type to it`로 끝납니다. 고정된 FeatureRecipes가 다른 역량에 대해서만 구현하는 경우, 그 경우의 메시지는 `no feature recipe in the catalog implements` 대신 `no feature recipe the lockfile pins implements`로 표시되며, 역량 뒤에는 같은 절이 이어집니다."
+  },
   "cbd83bc8b274ad71": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -148509,6 +148545,13 @@
     "srcHash": "db77cc514eca3aa2",
     "status": "machine",
     "text": "긴 형식으로 작성된 연결 뒤에는 그 연결이 전달하는 첨부가 이어지며, 각 첨부는 소비하는 component에서 갖는 이름(연결의 별칭과 슬롯을 점으로 이은 것) 아래에, 그것이 지정하는 Feature 타입과, 채우는 슬롯 및 선언된 민감 자료를 다루는지 여부를 나타내는 절과 함께 표시됩니다:"
+  },
+  "db78a7ff6b30ead5": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "db78a7ff6b30ead5",
+    "status": "machine",
+    "text": "http 또는 https로 가져오는 기존 Helm 차트 저장소나 차트 아카이브, compose 조각, Git 저장소도 서버가 요청을 권한 없음으로 거부하면 이 조건을 보고하며, 이들의 해결 방안은 로그인 대신 추가할 netrc 항목을 지정합니다. 이러한 가져오기는 그 파일에서 자격 증명을 읽기 때문입니다:"
   },
   "db7bf814f85b33e1": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -160190,6 +160233,17 @@
     "status": "machine",
     "text": "container[]"
   },
+  "ec36f8e6da32fbb0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "d6ced66f9e3caa35",
+      "reviewed": false
+    },
+    "srcHash": "ec36f8e6da32fbb0",
+    "status": "machine",
+    "text": "**해결 방법:** 메시지가 요구하는 매핑을 Manifest의 `spec.mappings.components.type` 아래에 컴포넌트 타입을 키로, Recipe를 값으로 하여 추가합니다. 메시지가 후보를 나열하면 그중 하나를 고릅니다. 그 목록은 빌드가 해석한 버전의 타입을 구현한다고 선언한 Recipes와 정확히 일치합니다. 카탈로그에 없는 Recipe를 가리키면 값을 수정하거나, 빌드가 읽는 카탈로그 디렉터리에 그 Recipe를 추가합니다. 값에 버전이 있으면 카탈로그가 보유한 버전과 일치해야 합니다. 타입을 구현하는 것이 없으면 빠진 것은 Recipe 자체입니다. 검색된 레시피나 기능 레시피가 잠금 파일이 고정한 것뿐이라고 메시지가 말하는 경우, 워크스페이스는 카탈로그 디렉터리를 읽지 않으므로 레지스트리가 해당 타입을 구현하는 Recipe 또는 FeatureRecipe를 게시하고 있을 수 있습니다. Manifest에서 타입을 그것에 매핑해야 pull이 그것을 가져와 고정합니다."
+  },
   "ec379268e30f8041": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -163757,6 +163811,17 @@
     "srcHash": "f16b8f1ab03c67b2",
     "status": "machine",
     "text": "이정표로 안내되는 대표적인 예외는 다음과 같습니다. Component의 `schema:`는 개발자용 `values:` 다이얼을 선언할 수 있으며, Recipe의 `valuesMapping:` 템플릿이 이를 렌더링된 `infra:` 형태의 출력으로 전달합니다. 개발자는 타입이 지정된 `values:` 필드를 통해 의도를 지시하고, Recipe 템플릿은 개발자가 인프라 코드를 작성하지 않아도 결과 값을 provider의 인프라 계층으로 전달합니다. 작동 예시는 다음과 같습니다."
+  },
+  "f171cf9f241e8ce0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "660b5af40e13f779",
+      "reviewed": false
+    },
+    "srcHash": "f171cf9f241e8ce0",
+    "status": "machine",
+    "text": "표준 라이브러리 카탈로그에는 이 대상에 대한 `core/backup`의 FeatureRecipe가 없습니다. 그 각각은 다른 대상에 바인딩되므로, 여기에 고정하면 이 Release가 배포하지 않는 대상을 위해 Compose 파일 옆에 별도의 출력으로 렌더링됩니다. 해결 방법은 Release에서 첨부를 제거하여 그곳에 백업 없이 데이터베이스를 배포하거나, 다른 다섯 Releases처럼 백업 제품이 있는 대상을 위한 Manifest를 통해 배포하는 것입니다."
   },
   "f172a44e05a8bdd6": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -167339,6 +167404,17 @@
     "status": "machine",
     "text": "**키 공간의 이름이 표시됩니다.** `output-logical-ids`는 스택의 두 이름 공간 중 어느 쪽에서 충돌이 발생했는지 알려 주며, 리소스 이름 공간이 이 중단에 나타나지 않으므로 리소스 이름에는 문제가 없었다는 것도 알려 줍니다."
   },
+  "f66a9a0abb92cd29": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6a47d41152f62577",
+      "reviewed": false
+    },
+    "srcHash": "f66a9a0abb92cd29",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`). no recipe the lockfile pins implements this type; with no catalog directory, the recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, or write one, then map the type to it (컴포넌트/기능 인스턴스에 대해 해석된 레시피가 없습니다: Manifest에 해당 타입에 대한 명시적 매핑을 추가하십시오(Manifest, 표시된 위치, 표시된 인스턴스와 타입). 잠금 파일이 고정한 레시피 중 이 타입을 구현하는 것이 없습니다. 카탈로그 디렉터리가 없으므로 검색되는 레시피는 레지스트리의 것이 아니라 잠금 파일이 고정한 것뿐입니다. 레지스트리가 게시한 것을 Manifest에 고정하거나, 하나를 작성한 다음 타입을 그것에 매핑하십시오)"
+  },
   "f66b87cee1f45638": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -170295,6 +170371,13 @@
     "srcHash": "fab4089a7ac9b242",
     "status": "machine",
     "text": "Aggrega 언어와 컴파일러의 사용자용 문서입니다. 영어가 기본 원본이며, 번역 오버레이는 향후 i18n 작업에서 아래 경로를 변경하지 않고 추가됩니다."
+  },
+  "fab789e8e00bba99": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "fab789e8e00bba99",
+    "status": "machine",
+    "text": "카탈로그 디렉터리를 지정하지 않는 워크스페이스에서는 잠금 파일이 고정한 Recipes만 검색됩니다. 레지스트리의 것은 나열되지 않으며, 해당 타입에 대해 아무것도 매핑하지 않는 Manifest는 아무것도 고정하지 않습니다. 이 경우 고정된 Recipe 중 해당 타입을 구현하는 것이 없으면, 부재에 대한 주장은 카탈로그가 아니라 고정된 항목에 대해 이루어지며 메시지도 그렇게 밝힙니다:"
   },
   "faba51931b30f1f1": {
     "at": "2026-10-22T04:56:15.693842+00:00",

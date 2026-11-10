@@ -10522,6 +10522,13 @@
     "status": "machine",
     "text": "**Tre posizioni sono elencate perché gli autori vi ricorrono aspettandosi un URI, e non lo sono.** Un Manifest e una Release sono documenti del lato della distribuzione scritti l’uno accanto all’altro anziché entità indicizzate nel catalogo, quindi né l’`extends:` dell’uno né quello dell’altra, e nessun `manifest:` di una Release, viene risolto rispetto al catalogo o a un registry. Il `manifest:` di una Release indica un file, o il semplice `metadata.name` di un Manifest che si trova accanto alla Release. Nelle due posizioni `extends:` il valore indica un **file**, e una coordinata di registry scritta in una delle due viene rifiutata con la forma accettata indicata nella diagnostica. Le due posizioni `extends:` non si scrivono nemmeno allo stesso modo — un Manifest accetta anche il semplice `metadata.name` di un Manifest che si trova accanto alla Release, mentre una Release accetta il percorso relativo e nient’altro. Vedi [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) per la forma della Release e [`errors/fatal-halts.md`](../errors/fatal-halts.md) per ciò che dice ciascun rifiuto."
   },
+  "10cda6d1ccf6b171": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "10cda6d1ccf6b171",
+    "status": "machine",
+    "text": "remediation: add an entry for `<host>` (machine `<host>` login `<user>` password `<secret>`) to the netrc file `<path>`, then run the command again (rimedio: aggiungi al file netrc una voce per l’host (con machine, login e password), poi esegui di nuovo il comando)"
+  },
   "10cece8800f39455": {
     "at": "2026-11-04T06:48:43.008Z",
     "job": "session-0211-20261104064843",
@@ -32441,6 +32448,17 @@
     "srcHash": "359022936eecbec9",
     "status": "machine",
     "text": "Un ambito oggetto in forma compatta può essere scritto in due modi:"
+  },
+  "3592a56ada8d53db": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6d0809ff32cb51d4",
+      "reviewed": false
+    },
+    "srcHash": "3592a56ada8d53db",
+    "status": "machine",
+    "text": "**Come risolvere:** questo spetta all’operatore anziché all’autore dell’entità — nulla in un Aggregate, Component o Recipe lo causa. L’hub ufficiale, `hub.aggrega.ai`, serve a chiunque ciò che pubblica, quindi leggere da esso non richiede alcuna credenziale, mentre pubblicarvi sì; un altro registry può richiedere una credenziale anche per la lettura. Accedi all’host che il messaggio nomina — oppure, per una sorgente scaricata tramite http o https, aggiungi la voce netrc che il rimedio nomina — ed esegui di nuovo l’acquisizione. Dove hai già effettuato l’accesso, la credenziale nell’archivio non è una che quell’host accetta per quel repository: accedi di nuovo per aggiornarla, e verifica che l’account abbia accesso in lettura al repository in cui il riferimento si risolve, poiché un repository privato risponde esattamente così a un account che non può vederlo. Dove il riferimento si risolve in un host che non ti aspettavi, l’alias del registry o il registry predefinito in `.aggrega-config.yaml` punta altrove."
   },
   "359ae10ab4d26bcb": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -96263,6 +96281,13 @@
     "status": "machine",
     "text": "Versione dello schema del lock dell’entità: 1. Una modifica SemVer-MAJOR allo schema la incrementa. Costante: `1`"
   },
+  "a016b657baa7a033": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "a016b657baa7a033",
+    "status": "machine",
+    "text": "Il workspace non nomina alcuna directory di catalogo, quindi la build può cercare solo tra le FeatureRecipes fissate dal suo lockfile, e un Manifest che non ne vincola nessuna per `core/backup` non ne fissa nessuna; il messaggio lo dice anziché affermare che l’hub non ne contiene nessuna. Con un checkout del catalogo della libreria standard indicato come directory di catalogo, lo stesso arresto dice che nessuna FeatureRecipe nel catalogo implementa `core/backup:1.0.0` per `compose`, ed elenca le dieci che lo implementano per altre destinazioni: `cloudformation/backup-aws-backup`, `cloudformation/backup-native`, `helm/backup-cloudnative-pg`, `helm/backup-k8up`, `helm/backup-kasten`, `helm/backup-kubestash`, `helm/backup-mariadb-operator`, `helm/backup-velero`, `terraform/backup-aws-backup` e `terraform/backup-native`."
+  },
   "a017baf5fc13051c": {
     "at": "2026-11-03T20:08:31.409Z",
     "job": "session-0151-20261103200831",
@@ -123801,6 +123826,17 @@
     "status": "machine",
     "text": "[./aggrega-mcp.md](./aggrega-mcp.md) — la stessa funzionalità come strumento `deprecate-artifact`, che un assistente può chiamare. Leggi cosa dice quella pagina sul consentirlo prima di farlo: un ritiro cambia ciò che risolve ogni consumatore di quel registry."
   },
+  "cbd7eda89ef37974": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "954555984e25e002",
+      "reviewed": false
+    },
+    "srcHash": "cbd7eda89ef37974",
+    "status": "machine",
+    "text": "Un’istanza di feature segnala questi casi in una forma propria, ciascuno dopo la frase della condizione. Un tipo di feature che l’Aggregate scrive senza versione viene abbinato come un tipo di componente, alla versione a cui la build lo compila — la versione più alta di quella Feature presente nel catalogo — e un messaggio che nomina `<type>:<version>` nomina il tipo a quella versione, che è ciò che è stato cercato nel catalogo. Quando la Recipe a cui è mappato il componente di un’associazione è nota, le FeatureRecipes si distinguono in base alla capacità a cui quella Recipe si lega: quelle che si legano alla capacità del componente vengono proposte per prime, e una FeatureRecipe che si lega a un’altra capacità viene comunque renderizzata, come output proprio accanto a quello del componente anziché al suo interno, quindi, quando nessuna si lega alla capacità del componente, vengono proposte invece quelle. Una mappatura che non porta da nessuna parte si legge `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`. Quando delle FeatureRecipes implementano il tipo per la capacità del componente, vengono elencate solo quelle: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`. Quando lo implementano solo per altre capacità: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`. Quando nessuna implementa affatto il tipo: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`. E quando la capacità non è nota — la mappatura del componente stesso non si risolve in alcuna Recipe, cosa che viene segnalata a parte, oppure l’associazione è scritta su un confine, i cui componenti possono essere renderizzati tramite diverse capacità — viene elencato ogni implementatore: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`. In un workspace che non nomina alcuna directory di catalogo, le FeatureRecipes cercate sono solo quelle fissate dal lockfile: quelle di un registry non vengono elencate, e un Manifest che non ne mappa nessuna per il tipo non ne fissa nessuna. In quel caso le affermazioni di assenza riguardano ciò che è fissato anziché il catalogo, e lo dicono. Quando nessuna implementa il tipo: `feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it` — e quando la capacità non è nota, il messaggio non ne nomina nessuna e termina con `pin one a registry publishes in the Manifest, or write one, then map the type to it`. Quando delle FeatureRecipes fissate lo implementano solo per altre capacità, il messaggio per quel caso riporta `no feature recipe the lockfile pins implements` al posto di `no feature recipe in the catalog implements`, con la stessa proposizione dopo la capacità."
+  },
   "cbd83bc8b274ad71": {
     "at": "2026-11-03T09:26:16.050Z",
     "job": "session-0083-20261103092616",
@@ -133543,6 +133579,13 @@
     "srcHash": "db77cc514eca3aa2",
     "status": "machine",
     "text": "Una connessione scritta nella forma estesa è seguita dagli agganci che trasporta, ciascuno sotto il nome che assume sul componente consumatore — l’alias della connessione e lo slot uniti da un punto — con il tipo di Feature che nomina e una clausola che indica lo slot che riempie e se gestisce materiale dichiarato sensibile:"
+  },
+  "db78a7ff6b30ead5": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "db78a7ff6b30ead5",
+    "status": "machine",
+    "text": "Anche un repository classico di chart Helm o un archivio di chart, un frammento compose e un repository Git scaricati tramite http o https segnalano questa condizione quando il server rifiuta la richiesta come non autorizzata, e il loro rimedio nomina la voce netrc da aggiungere anziché un login, poiché è da quel file che questi download leggono la loro credenziale:"
   },
   "db85359f06dab791": {
     "at": "2026-11-04T12:17:46.464Z",
@@ -144079,6 +144122,17 @@
     "status": "machine",
     "text": "container[]"
   },
+  "ec36f8e6da32fbb0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "d6ced66f9e3caa35",
+      "reviewed": false
+    },
+    "srcHash": "ec36f8e6da32fbb0",
+    "status": "machine",
+    "text": "**Come risolvere:** aggiungi la mappatura richiesta dal messaggio, sotto `spec.mappings.components.type` nel Manifest, con il tipo di componente come chiave e la Recipe come valore. Dove il messaggio elenca dei candidati, scegline uno — quell’elenco è esattamente l’insieme delle Recipes che dichiarano di implementare il tipo alla versione in cui la build lo risolve. Dove nomina una Recipe non presente nel catalogo, correggi il valore oppure aggiungi la Recipe a una directory di catalogo letta dalla build; una versione nel valore deve corrispondere a una versione presente nel catalogo. Dove nulla implementa il tipo, il pezzo mancante è la Recipe stessa. Dove il messaggio dice che le ricette o le ricette di funzionalità cercate sono solo quelle fissate dal lockfile, il workspace non legge alcuna directory di catalogo, quindi un registry potrebbe comunque pubblicare una Recipe o una FeatureRecipe che implementa il tipo: mappare il tipo su di essa nel Manifest è ciò che fa sì che il pull la scarichi e la fissi."
+  },
   "ec379268e30f8041": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -147347,6 +147401,17 @@
     "status": "machine",
     "text": "Un’eccezione segnalata canonica: lo `schema:` di un Component può dichiarare una manopola `values:` rivolta allo sviluppatore che il template `valuesMapping:` della Recipe convoglia nell’output renderizzato con la forma di `infra:`. Lo sviluppatore detta l’intento tramite un campo `values:` tipizzato; il template della Recipe convoglia il valore risultante nel livello infrastrutturale del provider senza che lo sviluppatore scriva codice infrastrutturale. Un esempio svolto:"
   },
+  "f171cf9f241e8ce0": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "660b5af40e13f779",
+      "reviewed": false
+    },
+    "srcHash": "f171cf9f241e8ce0",
+    "status": "machine",
+    "text": "Il catalogo della libreria standard non contiene alcuna FeatureRecipe per `core/backup` su questa destinazione. Ciascuna di esse si vincola a un’altra destinazione, quindi, se la si fissa qui, viene renderizzata come un output a sé stante accanto al file Compose, per una destinazione su cui questa Release non distribuisce. Le strade possibili sono rimuovere l’associazione dalla Release, distribuendo lì il database senza backup, oppure distribuirlo tramite un Manifest per una destinazione che dispone di un prodotto di backup, come fanno le altre cinque Releases."
+  },
   "f172a44e05a8bdd6": {
     "at": "2026-11-03T18:29:45.694Z",
     "job": "session-0140-20261103182945",
@@ -150614,6 +150679,17 @@
     "status": "machine",
     "text": "**Viene nominato lo spazio delle chiavi.** `output-logical-ids` ti dice quale dei due spazi dei nomi dello stack è stato raggiunto e — poiché lo spazio dei nomi delle risorse è assente da questo arresto — che i nomi delle risorse andavano bene."
   },
+  "f66a9a0abb92cd29": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "revision": {
+      "from": "6a47d41152f62577",
+      "reviewed": false
+    },
+    "srcHash": "f66a9a0abb92cd29",
+    "status": "machine",
+    "text": "no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `\"<instance>\"`, of type `\"<type>\"`). no recipe the lockfile pins implements this type; with no catalog directory, the recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, or write one, then map the type to it (nessuna ricetta risolta per l’istanza di componente/funzionalità: aggiungi nel Manifest una mappatura esplicita per il suo tipo (Manifest, nella posizione, per l’istanza e del tipo indicati). nessuna ricetta fissata dal lockfile implementa questo tipo; senza una directory di catalogo, le ricette cercate sono solo quelle fissate dal lockfile, non quelle di un registry; fissa nel Manifest una ricetta pubblicata da un registry, oppure scrivine una, poi mappa il tipo su di essa)"
+  },
   "f66b87cee1f45638": {
     "at": "2026-11-03T00:27:36.365Z",
     "job": "session-0026-20261103002736",
@@ -153307,6 +153383,13 @@
     "srcHash": "fab4089a7ac9b242",
     "status": "machine",
     "text": "Documentazione rivolta agli utenti del linguaggio e del compilatore Aggrega. L’inglese è la fonte principale; le sovrapposizioni di traduzione arriveranno in un futuro passaggio di i18n senza modificare i percorsi riportati sotto."
+  },
+  "fab789e8e00bba99": {
+    "at": "2026-11-10T20:41:31.578Z",
+    "job": "session-0001-20261110204131",
+    "srcHash": "fab789e8e00bba99",
+    "status": "machine",
+    "text": "In un workspace che non nomina alcuna directory di catalogo, le Recipes cercate sono solo quelle fissate dal lockfile: quelle di un registry non vengono elencate, e un Manifest che non ne mappa nessuna per il tipo non ne fissa nessuna. In quel caso, quando nessuna Recipe fissata implementa il tipo, l’assenza viene affermata riguardo a ciò che è fissato anziché riguardo al catalogo, e il messaggio lo dice:"
   },
   "fabb0e6fa859ebd7": {
     "at": "2026-10-22T12:20:05.813Z",
