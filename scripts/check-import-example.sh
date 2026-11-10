@@ -22,12 +22,15 @@
 #      with the arguments given after `--`;
 #   2. compares every file the import wrote with draft/, byte for byte: a file
 #      written and not in draft/, a file in draft/ not written, and a file whose
-#      bytes differ each fail the check;
+#      bytes differ each fail the check — on the fetch route below, the files
+#      the binary writes into the workspace's artifact cache left out;
 #   3. compares what the import printed on standard output with draft/stdout.txt,
 #      and on standard error with draft/import.txt — the temporary directory's
-#      path written as <workspace>, and, on the catalog-folder route below, the
-#      warning that an importer read from a catalog folder runs unverified left
-#      out, since an importer the binary fetches prints none;
+#      path written as <workspace>, and the one line saying where the importer
+#      came from left out: on the fetch route, the line confirming the fetched
+#      importer's host functions match the published module; on the
+#      catalog-folder route, the warning that an importer read from a catalog
+#      folder runs unverified;
 #   4. compares the walkthrough page --page names with the example: each fenced
 #      block — read by the rules check-getting-started-commands.mjs reads blocks
 #      by, see "The block reader" below — that the page marks, on the line
@@ -91,6 +94,23 @@
 #
 # On the catalog-folder route the import reads that folder ahead of the standard
 # catalog, which is read as it is, its own importer entities included.
+#
+# What each route adds to a run, and the only thing steps 2 and 3 leave out:
+#
+#   - The fetch route. Every check imports into a fresh copy of source/, so the
+#     binary fetches its importer on every run: it prints, first on standard
+#     error, "  verify: plugin importer/<name> host functions match the
+#     published .wasm", and stores the importer and its manifest under the
+#     workspace's artifact cache, the artifact_cache_dir that `aggrega config
+#     show` reports in the workspace (.aggrega/cache unless a configuration
+#     sets it). Both are left out. Any other line the fetch prints, a
+#     signature-check notice included, is compared like the rest.
+#   - The catalog-folder route. The binary writes no cache entry and prints the
+#     unverified-importer warning, which is left out; every written file is
+#     compared.
+#
+# draft/ therefore holds what the import itself drafts and prints, on either
+# route, and --update writes it so.
 #
 # Usage:
 #   check-import-example.sh --example DIR --page PAGE [--update] -- IMPORT ARGS...
@@ -189,10 +209,42 @@ if [ "$status" -ne 0 ]; then
 fi
 awk -v ws="$WS" -v route="$IMPORTERS" '
   route != "" && /^warning: plugin "importer\/[a-z0-9-]+" resolved from local with no recorded digest/ { next }
+  route == "" && /^  verify: plugin importer\/[a-z0-9-]+ host functions match the published \.wasm$/ { next }
   { n = index($0, ws); while (n > 0) { $0 = substr($0, 1, n - 1) "<workspace>" substr($0, n + length(ws)); n = index($0, ws) } print }
 ' "$WORK/stderr" > "$WORK/import.txt"
 
-( cd "$WS" && find . -type f | sort ) | comm -13 "$WORK/source-files" - > "$WORK/written"
+# On the fetch route, the workspace's artifact cache, as the binary resolves it
+# in this workspace, written as a path relative to it; empty where the cache
+# lies outside the workspace, so nothing is left out.
+CACHE_REL=""
+if [ -z "$IMPORTERS" ]; then
+  ( cd "$WS" && AGGREGA_CATALOG_DIRS="$IMPORT_DIRS" "$AGG" config show ) > "$WORK/config" 2> "$WORK/config.err" \
+    || { cat "$WORK/config.err" >&2; die "aggrega config show failed in the import's workspace"; }
+  CACHE_DIR="$(awk '
+    sub(/^artifact_cache_dir: /, "") {
+      if ($0 ~ /^".*"$/ || $0 ~ /^'\''.*'\''$/) $0 = substr($0, 2, length($0) - 2)
+      print; exit
+    }' "$WORK/config")"
+  [ -n "$CACHE_DIR" ] || die "aggrega config show reports no artifact_cache_dir for the import's workspace"
+  case "$CACHE_DIR" in
+    "$WS"/*) CACHE_REL="./${CACHE_DIR#"$WS"/}" ;;
+    /*) CACHE_REL="" ;;
+    *) CACHE_REL="./${CACHE_DIR#./}" ;;
+  esac
+  CACHE_REL="${CACHE_REL%/}"
+  case "$CACHE_REL" in
+    .|./|./.) die "the workspace's artifact cache is the workspace itself, so the files the import wrote cannot be told from it" ;;
+  esac
+fi
+
+( cd "$WS" && find . -type f | sort ) | comm -13 "$WORK/source-files" - > "$WORK/written-all"
+if [ -n "$CACHE_REL" ]; then
+  awk -v c="$CACHE_REL/" 'index($0, c) != 1' "$WORK/written-all" > "$WORK/written"
+  printf 'check-import: left out %d files the binary wrote into the artifact cache %s on fetching its importer\n' \
+    "$(( $(wc -l < "$WORK/written-all") - $(wc -l < "$WORK/written") ))" "${CACHE_REL#./}"
+else
+  cp "$WORK/written-all" "$WORK/written"
+fi
 
 if [ "$UPDATE" -eq 1 ]; then
   rm -rf "$EXAMPLE/draft"
