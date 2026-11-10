@@ -36,8 +36,8 @@ policy.
 | the organization | `org/config.yaml` | as the global configuration file, named for one build with `--config org/config.yaml` | `plugins.governance_append` |
 | the pipeline | `pipeline/.aggrega-config-append-ci.yaml` | once copied into this directory, as the pipeline's overlay | `plugins.governance_append` |
 
-All three attachments are the Rego engine, `governance/rego:0.8.6`, at the
-`ir-verdict` role, which judges the build graph before anything is rendered. `0.8.6` is the version of its Plugin entity in the
+All three attachments are the Rego engine, `governance/rego:0.9.0-rc.2`, at the
+`ir-verdict` role, which judges the build graph before anything is rendered. `0.9.0-rc.2` is the version of its Plugin entity in the
 standard-library catalog. The engine itself is compiled into the CLI —
 `aggrega plugin list` lists `governance/rego` among the embedded built-ins — so
 no build here fetches a plugin.

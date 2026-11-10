@@ -42,24 +42,24 @@ They are attached in this workspace's `.aggrega-config.yaml`, under
 
 | | plugin | role | what it writes |
 |---|---|---|---|
-| 1 | `governance/rego:0.8.6`, with `policies/support-tier.rego` | `label-transform` | `ops.example.com/environment` on every node; `ops.example.com/support-tier` on every node whose category its settings list |
-| 2 | `governance/label-injector:0.8.6` | `label-transform` | `ops.example.com/owner` on every node; `backup.example.com/schedule` on every node in the `datastore` category |
-| 3 | `governance/selector-tagger:0.8.6` | `label-transform` | `tag`, from the map in `policies/tags.yaml` |
-| 4 | `governance/rego:0.8.6`, with `policies/production-support.rego` | `ir-verdict` | nothing: it halts the build, or lets it complete |
+| 1 | `governance/rego:0.9.0-rc.2`, with `policies/support-tier.rego` | `label-transform` | `ops.example.com/environment` on every node; `ops.example.com/support-tier` on every node whose category its settings list |
+| 2 | `governance/label-injector:0.9.0-rc.2` | `label-transform` | `ops.example.com/owner` on every node; `backup.example.com/schedule` on every node in the `datastore` category |
+| 3 | `governance/selector-tagger:0.9.0-rc.2` | `label-transform` | `tag`, from the map in `policies/tags.yaml` |
+| 4 | `governance/rego:0.9.0-rc.2`, with `policies/production-support.rego` | `ir-verdict` | nothing: it halts the build, or lets it complete |
 
-`0.8.6` is the version of the three Plugin entities in the standard-library
+`0.9.0-rc.2` is the version of the three Plugin entities in the standard-library
 catalog; the plugins themselves are compiled into the CLI, and a build serves
 them from there. `aggrega build --release release-production.yaml --auto-pull
 --detail` lists both, for each of the three:
 
 ```text
 [… omitted: the line counting what the pull resolved, and the rows for the Components, the Recipes, the Feature and the FeatureRecipes, each found in the local catalog]
-  in-binary  Plugin         governance/label-injector         ← governance/label-injector:0.8.6
-  local      Plugin         governance/label-injector:0.8.6   ← .aggrega-config.yaml.plugins.governance
-  in-binary  Plugin         governance/rego                   ← governance/rego:0.8.6
-  local      Plugin         governance/rego:0.8.6             ← .aggrega-config.yaml.plugins.governance
-  in-binary  Plugin         governance/selector-tagger        ← governance/selector-tagger:0.8.6
-  local      Plugin         governance/selector-tagger:0.8.6  ← .aggrega-config.yaml.plugins.governance
+  in-binary  Plugin         governance/label-injector              ← governance/label-injector:0.9.0-rc.2
+  local      Plugin         governance/label-injector:0.9.0-rc.2   ← .aggrega-config.yaml.plugins.governance
+  in-binary  Plugin         governance/rego                        ← governance/rego:0.9.0-rc.2
+  local      Plugin         governance/rego:0.9.0-rc.2             ← .aggrega-config.yaml.plugins.governance
+  in-binary  Plugin         governance/selector-tagger             ← governance/selector-tagger:0.9.0-rc.2
+  local      Plugin         governance/selector-tagger:0.9.0-rc.2  ← .aggrega-config.yaml.plugins.governance
 [… omitted: the rows for this workspace's Aggregate and Manifest, the pull's summary, a lint notice about core/secret-value, and the build's summary]
 ```
 
@@ -168,7 +168,7 @@ before it runs; `selector-tagger` attached there halts the build with:
 
 ```text
 [E0085]
-  ir-verdict: plugin "governance/selector-tagger:0.8.6": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
+  ir-verdict: plugin "governance/selector-tagger:0.9.0-rc.2": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
 ```
 
 ## Building
@@ -319,15 +319,15 @@ plugins:
     - uri: governance/label-injector
       [… omitted: the artifact digest, which depends on the aggrega binary that built it, recorded twice]
       referenced_from:
-        - governance/label-injector:0.8.6
+        - governance/label-injector:0.9.0-rc.2
     - uri: governance/rego
       [… omitted: the artifact digest, recorded twice]
       referenced_from:
-        - governance/rego:0.8.6
+        - governance/rego:0.9.0-rc.2
     - uri: governance/selector-tagger
       [… omitted: the artifact digest, recorded twice]
       referenced_from:
-        - governance/selector-tagger:0.8.6
+        - governance/selector-tagger:0.9.0-rc.2
 ```
 
 The verdict attachment appears only under `verdict_inputs:`, by the sha256 of
@@ -335,7 +335,7 @@ its file:
 
 ```yaml
 verdict_inputs:
-    - plugin: governance/rego:0.8.6
+    - plugin: governance/rego:0.9.0-rc.2
       role: ir-verdict
       sources:
         - digest: sha256:09f774d5d03ed288d21c157bcf7066ac903a341c8177e2701975ad32d9be5278

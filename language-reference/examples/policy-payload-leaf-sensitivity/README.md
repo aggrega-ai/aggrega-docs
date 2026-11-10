@@ -151,7 +151,7 @@ the role that receives the build graph:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.8.6
+    - uri: governance/rego:0.9.0-rc.2
       role: ir-verdict
       with:
         sources:
@@ -342,11 +342,11 @@ catalog: the Component, the two Features, the Recipe, the two FeatureRecipes and
 the governance Plugin entity — read from the hub registry `.aggrega-config.yaml`
 names, or from a checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`.
 
-`uri: governance/rego:0.8.6` names that Plugin entity. It is an identity: a
+`uri: governance/rego:0.9.0-rc.2` names that Plugin entity. It is an identity: a
 `<pluginType>/<name>` coordinate plus a version, and both halves are part of the
 form. **The version is the one the plugin is published at** — the catalog
-carries the entity under `plugin/governance/rego/0.8.6/`, and the hub publishes
-it as `oci://hub.aggrega.ai/plugin/governance/rego:0.8.6`. The version takes part
+carries the entity under `plugin/governance/rego/0.9.0-rc.2/`, and the hub publishes
+it as `oci://hub.aggrega.ai/plugin/governance/rego:0.9.0-rc.2`. The version takes part
 in resolution: an attachment naming a version that no catalog directory, no
 registry and not the `aggrega` binary itself carries stops the build. The binary
 carries the engine's entity at its own release's version only.
@@ -357,13 +357,13 @@ engine that runs is the one compiled into the `aggrega` binary. Without it the
 entities are read from `hub.aggrega.ai`.
 
 A build reading the hub also needs a compiler of the release that published the
-plugin version the attachment names — for `governance/rego:0.8.6`, the `0.8.6`
+plugin version the attachment names — for `governance/rego:0.9.0-rc.2`, the `0.9.0-rc.2`
 release of `aggrega`. The Rego engine is compiled into the CLI binary, and its
 version is the compiler release that ships it. A compiler of any other release,
 or one built from source between releases, carries a different build of the
 engine: a build reading the hub with it halts with `E0135` (`oci: content digest
 mismatch`), because the module that compiler carries does not match the digest
-the hub publishes for `governance/rego:0.8.6`. That halt is the plugin's digest
+the hub publishes for `governance/rego:0.9.0-rc.2`. That halt is the plugin's digest
 check working, not a fault in the example.
 
 ## Files

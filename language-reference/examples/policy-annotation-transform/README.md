@@ -73,7 +73,7 @@ engine. The Rego one reads:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.8.6
+    - uri: governance/rego:0.9.0-rc.2
       role: annotation-transform
       with:
         sources:
@@ -84,7 +84,7 @@ plugins:
 one the machine would otherwise read, and this workspace's
 `.aggrega-config.yaml` still layers on top of it.
 
-`0.8.6` is a version at which the standard-library catalog carries each engine's
+`0.9.0-rc.2` is a version at which the standard-library catalog carries each engine's
 Plugin entity, so the attachment resolves from the catalog the workspace reads.
 The engine that runs is the one compiled into the `aggrega` binary running the
 build, whatever version the attachment names. The object the monitoring
@@ -341,7 +341,7 @@ plugins:
     - uri: governance/rego
       [… omitted: the artifact digest, which depends on the aggrega binary that built it, recorded twice]
       referenced_from:
-        - governance/rego:0.8.6
+        - governance/rego:0.9.0-rc.2
 ```
 
 The attachment names a version that catalog carries, so the pin resolves

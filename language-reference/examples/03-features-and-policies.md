@@ -593,19 +593,19 @@ The operator attaches the Rego engine twice, once per role, each attachment with
 # .aggrega-config.yaml
 plugins:
   governance:
-    - uri: governance/rego:0.8.6
+    - uri: governance/rego:0.9.0-rc.2
       role: label-transform
       with:
         sources:
           - policies/egress-tagging.rego
-    - uri: governance/rego:0.8.6
+    - uri: governance/rego:0.9.0-rc.2
       role: ir-verdict
       with:
         sources:
           - policies/model-egress.rego
 ```
 
-`0.8.6` is the version of the `governance/rego` Plugin entity in the standard-library catalog; the engine itself is compiled into the CLI, and a build serves it from there. [`policy-label-transform/`](policy-label-transform/README.md) attaches a label-shaping policy beside the two built-in tagging plugins, with a verdict that reads the labels they write, and builds it.
+`0.9.0-rc.2` is the version of the `governance/rego` Plugin entity in the standard-library catalog; the engine itself is compiled into the CLI, and a build serves it from there. [`policy-label-transform/`](policy-label-transform/README.md) attaches a label-shaping policy beside the two built-in tagging plugins, with a verdict that reads the labels they write, and builds it.
 
 **4. Practical Trigger**
 Using the `masked-router` Aggregate from Example 7: the label-transform policy tags the gateway `router` as a model-provider egress, and the gateway's edges to the model, the analyzer and the anonymizer are paths through it. If the developer removes the `pii-filter` Feature from `router`, the verdict halts compilation with the message the rule composed. With the masking Feature attached, the same verdict reaches no decision and the build proceeds. A rule over paths sees a node only where an edge reaches or leaves it — a path has at least two nodes — so a gateway wired to nothing appears on no path; a policy that must cover that case also reads the nodes themselves at `input.graph.spec.nodes`.

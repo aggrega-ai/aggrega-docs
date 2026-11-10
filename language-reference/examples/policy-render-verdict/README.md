@@ -144,7 +144,7 @@ engine. The Rego one reads:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.8.6
+    - uri: governance/rego:0.9.0-rc.2
       role: render-verdict
       with:
         sources:
@@ -155,7 +155,7 @@ plugins:
 the machine would otherwise read, and this workspace's `.aggrega-config.yaml`
 still layers on top of it. A `plugins.governance` list in the workspace file
 would replace the one the named file carries, which is why the workspace file
-declares none. `0.8.6` is the version of each engine's Plugin entity in the
+declares none. `0.9.0-rc.2` is the version of each engine's Plugin entity in the
 standard-library catalog. Both engines are compiled into the CLI —
 `aggrega plugin list` lists `governance/rego` and `governance/cel` among the
 embedded built-ins — so no build here fetches a plugin.
@@ -308,7 +308,7 @@ run, exits `1` and writes no `dist/`, and the line that reports the fault names
 the policy file and the key:
 
 ```text
-render-verdict: plugin "governance/cel:0.8.6": call "verdict_render": wasm: plugin "cel" call to verdict_render: policy source "house-rule.cel" could not be evaluated: No such key: services
+render-verdict: plugin "governance/cel:0.9.0-rc.2": call "verdict_render": wasm: plugin "cel" call to verdict_render: policy source "house-rule.cel" could not be evaluated: No such key: services
 ```
 
 **It reports one offender per file.** A decision key collects messages, and a

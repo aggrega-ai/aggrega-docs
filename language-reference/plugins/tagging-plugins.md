@@ -13,7 +13,7 @@ with no policy language to write:
 Both are attached like any governance plugin, through `plugins.governance` in the
 workspace configuration (see [Attaching a policy](policy-socket.md#attaching-a-policy)),
 and both are listed among the [embedded plugins](embedded-plugins.md). The attachments on
-this page name `0.8.6`, the version of each plugin's Plugin entity in the standard-library
+this page name `0.9.0-rc.2`, the version of each plugin's Plugin entity in the standard-library
 catalog; the build serves the plugin compiled into the CLI.
 
 ## What the two share
@@ -26,12 +26,12 @@ export for that role. At `ir-verdict` the build halts with:
 
 ```text
 [E0085]
-  ir-verdict: plugin "governance/label-injector:0.8.6": call "verdict_ir": wasm: plugin "label-injector" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
+  ir-verdict: plugin "governance/label-injector:0.9.0-rc.2": call "verdict_ir": wasm: plugin "label-injector" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
 ```
 
 ```text
 [E0085]
-  ir-verdict: plugin "governance/selector-tagger:0.8.6": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
+  ir-verdict: plugin "governance/selector-tagger:0.9.0-rc.2": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
 ```
 
 At `render-verdict` and `annotation-transform` the refusal is the same `E0085`, naming
@@ -124,7 +124,7 @@ owner on the nodes in the `datastore` category:
 ```yaml
 plugins:
   governance:
-    - uri: governance/label-injector:0.8.6
+    - uri: governance/label-injector:0.9.0-rc.2
       role: label-transform
       with:
         settings:
@@ -218,7 +218,7 @@ every other node `untagged`:
 ```yaml
 plugins:
   governance:
-    - uri: governance/selector-tagger:0.8.6
+    - uri: governance/selector-tagger:0.9.0-rc.2
       role: label-transform
       with:
         sources:

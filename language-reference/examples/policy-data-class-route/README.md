@@ -358,8 +358,8 @@ They differ where the engines do:
   changes no build until the guest is rebuilt, below.
 
 The Rego and CEL attachments name the Plugin entities the standard-library
-catalog carries for the two engines compiled into the CLI, `governance/rego:0.8.6`
-and `governance/cel:0.8.6`, and the engine that runs is the one compiled into the
+catalog carries for the two engines compiled into the CLI, `governance/rego:0.9.0-rc.2`
+and `governance/cel:0.9.0-rc.2`, and the engine that runs is the one compiled into the
 binary running the build. OPA's Plugin entity, in `catalog/plugin/governance/`, is
 this workspace's own declaration at version `1.0.0`, so its attachment names
 `governance/opa:1.0.0`. A refusal is headed with the last segment of the
