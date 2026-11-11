@@ -2574,6 +2574,7 @@ What attaching a plugin wrote, where, and which version it pinned.
 | `written` | boolean | yes | Whether the configuration document was written, as against handed back for the caller to place. |
 | `content` | string | no | The configuration document's text, for a request that asked to be shown it rather than have it written. |
 | `retraction` | PluginRetraction | no | How a deprecation marker shaped which plugin version was pinned. |
+| `withdrawn` | boolean | no | True when the query named the version that was pinned and a retraction this workspace trusts has withdrawn that version. A named version is pinned all the same, because naming it is the override. Absent otherwise, and absence does not mean the version is not withdrawn: where the withdrawal markers of a named version could not be read, retraction.unscreened says why, and with no version named, the latest published version is chosen and retraction reports what the withdrawal check concluded about that choice. |
 
 _Additional properties are not permitted._
 
