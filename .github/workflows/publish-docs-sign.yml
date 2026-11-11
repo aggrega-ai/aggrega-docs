@@ -38,8 +38,10 @@ name: Publish and sign documentation
 # Settings, by name:
 #   variables  DOCS_PUBLISH_REGISTRY  the registry to publish to, as its host
 #              REGISTRY_USERNAME      the registry username
-#              TOOLING_IMAGE_TAG      the tag of the tooling image the publish
-#                                     job runs inside, such as stable
+#              TOOLING_IMAGE_TAG      the tag of the tooling image a manual
+#                                     run's publish job runs inside, such as
+#                                     stable; a tag push runs inside the image
+#                                     of the tag's own version instead
 #              AGGREGA_RUNNER         the runner label for the publish job
 #                                     (optional, a hosted runner by default)
 #   secrets    REGISTRY_PASSWORD      the registry password
@@ -135,22 +137,38 @@ jobs:
 
       - name: Wait for the tooling image
         # The publish job runs inside hub.aggrega.ai/tools/aggrega, which only
-        # the CLI's release publisher creates. Release tags pushed together
-        # start the publishers within seconds of each other, so on an empty
-        # registry this waits for the image: a check every 30 seconds for at
-        # most 30 minutes, long enough for a CLI publish started at the same
-        # moment, or queued behind one other job on the runner, to reach the
-        # step that pushes the image. A refused credential is not retried. On a
-        # timeout the failure names the missing image and the re-run that
-        # finishes the job once the CLI is published.
+        # the CLI's release publisher creates, tagging each release's image with
+        # that release's v-less version. On a tag push the image is the tag's
+        # own version, the pushed tag without its leading v, the same version
+        # the bundle publishes under: a push of v0.9.0-rc.3 runs inside
+        # tools/aggrega:0.9.0-rc.3, so every bundle a tag publishes is packed
+        # and published by the CLI of its own release. On a manual dispatch the
+        # image is the one the TOOLING_IMAGE_TAG variable names.
+        #
+        # A tag pushed before its release's CLI is published waits for that
+        # image: a check every 30 seconds for at most 30 minutes, long enough
+        # for a CLI publish started at the same moment, or queued behind one
+        # other job on the runner, to reach the step that pushes the image. A
+        # refused credential is not retried. On a timeout the failure names the
+        # missing image and the re-run that finishes the job once that
+        # version's CLI is published; re-running the failed run keeps the pushed
+        # tag, and with it the image it waits for.
         id: image
         env:
+          # Read from the environment, never interpolated into the script.
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
           TOOLING_IMAGE_TAG: ${{ vars.TOOLING_IMAGE_TAG }}
         run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            image_tag="$TOOLING_IMAGE_TAG"
+          else
+            image_tag="${REF_NAME#v}"
+          fi
           .github/scripts/registry-gate.sh image \
             --registry-url https://hub.aggrega.ai \
             --repository tools/aggrega \
-            --tag "$TOOLING_IMAGE_TAG" \
+            --tag "$image_tag" \
             --tag-setting TOOLING_IMAGE_TAG \
             --username-setting REGISTRY_USERNAME \
             --password-setting REGISTRY_PASSWORD \
@@ -185,18 +203,23 @@ jobs:
     # curl, which the OIDC-token step uses to mint the keyless signing identity
     # from the Actions runtime.
     #
-    # PIN SEAM — the tooling-image tag comes from the TOOLING_IMAGE_TAG
-    # repository variable, which the operator sets once (for example, to
-    # `stable`, the moving tag the publisher points at the most recently
-    # published image). The registry job composes the execution image from the
-    # fixed registry-and-name prefix hub.aggrega.ai/tools/aggrega and that tag,
-    # and hands it to this job once the image exists; only the tag is
-    # operator-set. An unset variable fails the registry job, which names the
-    # variable.
+    # PIN SEAM — the registry job composes the execution image from the fixed
+    # registry-and-name prefix hub.aggrega.ai/tools/aggrega and a tag, and hands
+    # it to this job once the image exists. On a tag push the tag is the
+    # release's own version, the pushed tag without its leading v, which is the
+    # tag the CLI's release publisher gives that release's image: the bundle of
+    # a release, a release candidate's included, is published by the CLI of the
+    # same release. A documentation tag pushed before that CLI is published
+    # waits for its image, and never runs inside another release's CLI.
     #
-    # Tracking the moving `stable` tag means a newly published tooling image is
-    # adopted on the next run without editing this file. To pin a fixed version
-    # instead, set the variable to that version tag.
+    # On a manual dispatch the tag comes from the TOOLING_IMAGE_TAG repository
+    # variable, which the operator sets once (for example, to `stable`, the
+    # moving tag the publisher points at the most recently published image); an
+    # unset variable fails a manual run's registry job, which names the
+    # variable. Tracking the moving `stable` tag means a manual run adopts a
+    # newly published tooling image without editing this file. To publish a
+    # release's bundle by hand with that release's own CLI, set the variable to
+    # the release's v-less version, such as 0.9.0-rc.3, before the run.
     #
     # The registry is authenticated even on pull, so the image is pulled with the
     # same registry credentials used to push.
