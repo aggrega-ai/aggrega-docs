@@ -9101,6 +9101,17 @@
     "status": "machine",
     "text": "`SubChart`"
   },
+  "0ea22565364ffd14": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ac383ab3eca168c0",
+      "reviewed": false
+    },
+    "srcHash": "0ea22565364ffd14",
+    "status": "machine",
+    "text": "Somente as escritas são tentadas novamente nessas falhas. A leitura do que o registry já contém na versão, antes de qualquer envio, não, embora, como toda requisição, aguarde o tempo indicado por um registry que pede para desacelerar."
+  },
   "0ea3ea29385482cb": {
     "at": "2026-11-03T03:00:33.649Z",
     "job": "session-0042-20261103030033",
@@ -25711,6 +25722,13 @@
     "srcHash": "2a1bc7cc77b578d8",
     "status": "machine",
     "text": "`ClosureEntity`"
+  },
+  "2a1d3e1dc1909cf8": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "2a1d3e1dc1909cf8",
+    "status": "machine",
+    "text": "e para uma requisição cujo próprio limite de tempo encerrou a espera:"
   },
   "2a1e82132147aded": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -56182,6 +56200,13 @@
     "status": "machine",
     "text": "`aggrega registry list` e `aggrega registry update` respondem à mesma situação de forma diferente, e isso é proposital. Listar registries quando não há nenhum é uma listagem completa de um conjunto vazio, e a construção de um índice sem nada a percorrer não tem mais nada a fazer: ambas são operações concluídas, então ambas informam na saída padrão e terminam com zero. Somente a pesquisa está informando que não pôde fazer o que lhe foi pedido."
   },
+  "5c6bcfaf29ac5302": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "5c6bcfaf29ac5302",
+    "status": "machine",
+    "text": "A registry kept asking to slow down (Um registry continuou pedindo para desacelerar)"
+  },
   "5c6e39998690494a": {
     "at": "2026-11-02T19:28:42.678Z",
     "job": "session-0007-20261102192842",
@@ -63169,6 +63194,17 @@
     "status": "machine",
     "text": "Roteamento agnóstico da injeção em uma conexão. Mapeia variáveis locais para as chaves provides do destino. Cada mecanismo de entrega (env, file, arg ou personalizado) é escrito como um array de entradas {in, from} — 'from' explícito para referências a provides."
   },
+  "6846951c8cf87f1d": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "aa5859a23fe6707b",
+      "reviewed": false
+    },
+    "srcHash": "6846951c8cf87f1d",
+    "status": "machine",
+    "text": "Os três limites são fixos; não há configuração que os altere."
+  },
   "685830a62c7e0c36": {
     "at": "2026-11-04T06:48:43.008Z",
     "job": "session-0211-20261104064843",
@@ -65595,6 +65631,17 @@
     "status": "machine",
     "text": "para uma biblioteca:"
   },
+  "6c5e1029f7a4f233": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "dba5eb09b09ad5ab",
+      "reviewed": false
+    },
+    "srcHash": "6c5e1029f7a4f233",
+    "status": "machine",
+    "text": "Uma varredura lê muitos objetos pequenos de um registry, e algumas leituras falham ocasionalmente: o registry responde que falhou ou está indisponível (um status 5xx, exceto um 503 que diz quanto tempo esperar) ou que a requisição expirou (um 408), a conexão é redefinida ou expira, ou uma resposta é interrompida antes de estar completa. Cada uma dessas leituras é solicitada novamente algumas vezes, com uma espera crescente entre as tentativas. Um registry que pede à varredura para desacelerar não está fazendo uma leitura falhar: a leitura aguarda e é solicitada novamente como descreve [Um registry que pede para desacelerar](#a-registry-that-asks-to-slow-down), e um registry que continua pedindo isso por cinco minutos encerra a varredura desse registry, e não a de um único repositório."
+  },
   "6c688ee8ef9c8ef6": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -67296,6 +67343,13 @@
     "srcHash": "6f13f63e74d90482",
     "status": "machine",
     "text": "Asserções de Recipe / FeatureRecipe — invariantes de implementação"
+  },
+  "6f168921900cc1fc": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "6f168921900cc1fc",
+    "status": "machine",
+    "text": "**Um registry que pede para desacelerar é aguardado, e isso não consome nenhuma dessas tentativas.** Diante de um `429 Too Many Requests`, ou de um `503` que traga `Retry-After`, toda requisição a esse registry — tanto uma leitura quanto uma escrita — aguarda o tempo que o registry pediu e então é enviada de novo, e uma etapa cujo conteúdo foi recusado recomeça como um novo envio, sem um número fixo de tentativas, até que o registry não tenha respondido nada além de “desacelere” por cinco minutos. [Um registry que pede para desacelerar](aggrega-registry.md#a-registry-that-asks-to-slow-down) descreve a espera e a recusa que a encerra."
   },
   "6f183c1fc142544c": {
     "at": "2026-11-03T00:44:43.262Z",
@@ -73316,6 +73370,13 @@
     "srcHash": "7909991691ab3f09",
     "status": "machine",
     "text": "O padrão é o mecanismo canônico da promoção GitOps: um único Aggregate imutável passa pelos ambientes, com a Release de cada ambiente fornecendo os seus próprios valores de parâmetros. Todo valor por ambiente que um autor queira variar pertence à cadeia de parâmetros, em vez de ficar embutido diretamente no Aggregate."
+  },
+  "7909d3411c43c164": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "7909d3411c43c164",
+    "status": "machine",
+    "text": "O hub oficial, `hub.aggrega.ai`, limita quantas requisições podem vir de um mesmo endereço em um curto intervalo, de modo que máquinas que compartilham um endereço compartilham essa cota, e qualquer registry pode limitar seus clientes da mesma forma. Um registry que passou do seu limite responde `429 Too Many Requests`, ou `503 Service Unavailable` com um cabeçalho `Retry-After` dizendo quanto tempo esperar. Toda requisição que a linha de comando faz a um registry, qualquer que seja o comando, reage a essa resposta da mesma forma: aguarda o tempo que o registry pediu, ou dez segundos quando a resposta não diz, mais até um segundo extra aleatório, e então pede de novo, sem um número fixo de tentativas. Toda requisição a esse registry aguarda junto, não apenas a recusada, e menos requisições são enviadas a ele ao mesmo tempo — metade a cada vez que ele pede, até chegar a uma —, número que volta a subir de um em um após cada série de requisições que ele atende sem falhar, até o número habitual do comando. A espera é mostrada nos mesmos termos que o restante do progresso do comando, como uma linha do tipo `hub.aggrega.ai asked to slow down; waiting 11 s`: `aggrega build`, `aggrega pull` e `aggrega registry update` a mostram ao lado da etapa em andamento, os demais comandos que mostram o que estão aguardando a mostram como uma etapa própria — exceto `aggrega sign --jobs` assinando várias referências ao mesmo tempo, que mostra essas esperas como uma única etapa — e nada é mostrado quando a saída de erro padrão não é um terminal, a menos que o `--progress` do comando peça. Um registry que por cinco minutos não responde nada além de “desacelere” é recusado com [`E0378`](../errors/fatal-halts.md#a-registry-kept-asking-to-slow-down), indicando o registry, sua última resposta e há quanto tempo não respondia outra coisa; os cinco minutos são fixos, e nenhuma configuração os altera. `aggrega registry update` então nomeia esse registry em `Not indexed:` no resumo final, e o registry mantém o índice que tinha antes da execução."
   },
   "790c038675d264c5": {
     "at": "2026-11-05T18:21:44.760Z",
@@ -86500,6 +86561,13 @@
     "status": "machine",
     "text": "**Um pull em que nenhum workspace foi encontrado e nenhum foi nomeado é recusado antes que qualquer coisa seja baixada.** Quando nada nomeia uma raiz e a descoberta não ancora nada — a partir da pasta em que você o executa ou, para uma Release nomeada por um caminho absoluto, a partir da própria pasta dessa Release —, a pasta seria a raiz, e um cache gravado sob ela a tornaria um workspace. Então o pull para, não grava nenhum lockfile nem cache, e nomeia a pasta e as duas maneiras de resolver isso: nomeie seu workspace com `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT`, ou dê a essa pasta um `.aggrega-config.yaml` com um bloco `workspace:`. A ferramenta de pull de [`aggrega mcp`](aggrega-mcp.md), chamada sem `workspace_root` em um servidor iniciado sem raiz, é recusada da mesma forma; [Configuração](configuration.md#the-other-ways-a-project-root-is-recognised) lista os outros comandos para os quais isso vale."
   },
+  "8f072b5eaf0a556a": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "8f072b5eaf0a556a",
+    "status": "machine",
+    "text": "Um registry ocupado demais responde 429 Too Many Requests, ou 503 Service Unavailable com um cabeçalho `Retry-After` dizendo quanto tempo esperar. Toda requisição que um comando faz a um registry aguarda o tempo que o registry pede — dez segundos quando ele não diz — e é feita de novo; toda requisição a esse registry aguarda junto, e menos requisições são enviadas a ele ao mesmo tempo até que ele volte a responder. Um registry que por cinco minutos não responde nada além de “desacelere” é recusado com esta condição, indicando o registry, sua última resposta e há quanto tempo não respondia outra coisa, e o mesmo vale para uma requisição cujo próprio limite de tempo termina enquanto ela aguarda. `aggrega registry update` então informa esse registry como não indexado, e ele mantém o índice que tinha antes da execução."
+  },
   "8f0a047ec74c7d84": {
     "at": "2026-11-05T18:37:21.162Z",
     "job": "session-0012-20261105183721",
@@ -87881,6 +87949,13 @@
     "srcHash": "916d9d81261a9887",
     "status": "machine",
     "text": "ID do esquema: `https://aggrega.ai/schemas/aggregate-v1beta1.schema.json`"
+  },
+  "916f8b7348be2262": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "916f8b7348be2262",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for `<how long>` when the request's own time ran out: oci: the registry kept asking to slow down (continuou pedindo para desacelerar: sua última resposta foi 429 Too Many Requests, e não tinha respondido outra coisa quando o próprio tempo da requisição se esgotou: oci: o registry continuou pedindo para desacelerar)"
   },
   "9173ab2e89819cf9": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -95278,6 +95353,13 @@
     "srcHash": "9da5c568a41de386",
     "status": "machine",
     "text": "[Importar uma aplicação LangGraph](langgraph.md)"
+  },
+  "9da5dbcc577549c4": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "9da5dbcc577549c4",
+    "status": "machine",
+    "text": "**Como corrigir:** a causa é o limite de taxa do registry, não algo que você escreveu. Um registry que limita a frequência com que um cliente pode fazer pedidos geralmente limita tudo o que vem do mesmo endereço, então verifique se outros comandos ou máquinas por trás desse endereço estão fazendo pedidos a ele ao mesmo tempo, e execute o comando novamente quando eles terminarem. Se o registry for operado por você, verifique o limite de taxa dele. O limite de cinco minutos é fixo; não há configuração que o aumente."
   },
   "9dab449305472e6d": {
     "at": "2026-11-03T18:29:45.694Z",
@@ -112453,6 +112535,13 @@
     "status": "machine",
     "text": "Onde a cópia de uma entrada fixada no armazenamento desapareceu, apenas essa entrada é baixada novamente pelo digest que o lockfile já registra e conferida com ele antes que qualquer coisa seja gravada ou retornada. Isso não pode mudar o que a renderização vê — o digest foi definido quando a entrada foi fixada —, então repara o armazenamento em vez de ampliar o fechamento, e o lockfile permanece inalterado byte a byte. No modo offline não há transporte nem para isso, e a cópia ausente causa uma interrupção, que nomeia o modo."
   },
+  "b93ce6f1f90b02dd": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "b93ce6f1f90b02dd",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for 5m0s: oci: the registry kept asking to slow down (continuou pedindo para desacelerar: sua última resposta foi 429 Too Many Requests, e não tinha respondido outra coisa por 5m0s: oci: o registry continuou pedindo para desacelerar)"
+  },
   "b940f69e5e4a8205": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -114816,6 +114905,13 @@
     "srcHash": "bccb73f9bdb6e431",
     "status": "machine",
     "text": "`aggrega config show --origin` informa qual dessas camadas decidiu cada configuração, e uma flag que você digitou é informada como a flag — então, quando uma recusa nomeia uma camada que você não esperava, é com esse comando que você confirma."
+  },
+  "bccf1aab04ff7384": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "bccf1aab04ff7384",
+    "status": "machine",
+    "text": "Um registry que pede para desacelerar"
   },
   "bcd3aaefa515d998": {
     "at": "2026-11-03T09:26:18.087Z",
@@ -123820,6 +123916,17 @@
     "status": "machine",
     "text": "**Como isso difere do aviso de quase correspondência.** O aviso descrito em “An attachment name is one edit from a declared slot (Um nome de vinculação está a uma edição de distância de um slot declarado)” trata de como um nome é escrito: um nome a uma edição de distância de um slot cujo `selector:` a Feature da vinculação não satisfaz, o que não interrompe a build e relata uma advertência. Esta interrupção trata daquilo em que a Feature se encaixa, qualquer que seja o nome: o nome pode ser qualquer um, e o slot em que ela se encaixa precisa ter sido deixado vazio. Onde um nome está a uma edição de distância de um slot e sua Feature de fato se encaixa nesse slot, nenhum aviso é gerado, e se o slot for deixado vazio esta interrupção é o único achado relatado."
   },
+  "cb4f8a2f95463f19": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ee8cb85c4617dbb4",
+      "reviewed": false
+    },
+    "srcHash": "cb4f8a2f95463f19",
+    "status": "machine",
+    "text": "Um push escreve no registry em etapas: o conteúdo — para um Plugin, a entidade e seu `.wasm` —, depois o manifest que o nomeia, depois a tag de versão, depois a assinatura e a data de publicação ao lado dele. **Cada etapa que escreve é tentada novamente quando falha de uma forma em que uma tentativa posterior pode ter sucesso:** o registry responde com um erro de servidor (qualquer status `5xx`, exceto um `503` que traga `Retry-After`) ou `408 Request Timeout`, ou a conexão expira, é redefinida ou termina no meio de uma resposta. Uma etapa é tentada no máximo três vezes, aguardando meio segundo antes da segunda tentativa e um segundo antes da terceira."
+  },
   "cb501db9b148a3bf": {
     "at": "2026-11-03T20:41:36.264Z",
     "job": "session-0156-20261103204136",
@@ -124640,6 +124747,13 @@
     "srcHash": "cca22e1771a71f41",
     "status": "machine",
     "text": "O Basic Prompting encadeia quatro nós: um Chat Input, um Prompt, um Language Model que chama o `gpt-4.1` da OpenAI e um Chat Output. Exportado do editor do Langflow, ele é um único arquivo JSON, `basic-prompting.json`, de cerca de 54 KB, que traz o código-fonte de cada componente além do fluxo. Seu nó Language Model lê a chave da variável global `OPENAI_API_KEY`, que o Langflow lê do seu ambiente quando nenhuma variável com esse nome está armazenada."
+  },
+  "cca2b86b6a5192f2": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "cca2b86b6a5192f2",
+    "status": "machine",
+    "text": "**Um registry que pede para desacelerar é aguardado, até que tenha pedido isso por cinco minutos sem interrupção.** Um comando aguarda o tempo que esse registry pedir, envia a ele menos requisições ao mesmo tempo e mostra a espera junto com o restante do seu progresso; um registry que por cinco minutos não responde nada além de “desacelere” é recusado com [`E0378`](errors/fatal-halts.md#a-registry-kept-asking-to-slow-down). [Um registry que pede para desacelerar](cli/aggrega-registry.md#a-registry-that-asks-to-slow-down) descreve como."
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-30T19:26:00.927Z",
@@ -132782,6 +132896,13 @@
     "srcHash": "d9b6caddbbd5dc83",
     "status": "machine",
     "text": "Proveniência do grafo IR (`release_version`) + metadados de template (`.metadata.release_version`)"
+  },
+  "d9b7131086318ece": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "d9b7131086318ece",
+    "status": "machine",
+    "text": "Mensagem emitida, para um registry que pediu para desacelerar por cinco minutos:"
   },
   "d9bc90809c3a8c0f": {
     "at": "2026-11-10T14:01:12.681Z",
@@ -149179,6 +149300,17 @@
     "srcHash": "f399726025c1a364",
     "status": "machine",
     "text": "**Por que ao lado, e não dentro.** O Terraform mescla todo arquivo de nível superior de um diretório de módulo em um único namespace — `output`, `variable`, `resource` e `locals` igualmente — então dois contribuidores que compartilham um diretório colidem em qualquer nome que ambos declarem, seja qual for o nome de seus arquivos. Um diretório para cada um é o que os mantém separados. Ao lado, e não dentro, é também o que a própria orientação do Terraform para módulos aninhados pede: que eles possam ser compostos pelo chamador em vez de chamarem uns aos outros diretamente, criando uma árvore de módulos profundamente aninhada."
+  },
+  "f399b5639acbdd61": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "3f3c046c050670be",
+      "reviewed": false
+    },
+    "srcHash": "f399b5639acbdd61",
+    "status": "machine",
+    "text": "Cada uma é tentada no máximo três vezes, com meio segundo e depois um segundo de intervalo. A resolução do digest é uma leitura e não é tentada novamente. Um registry que pede para desacelerar é um caso diferente: toda requisição a ele, incluindo a resolução do digest e o anexo da assinatura, aguarda o tempo que ele pedir, como descreve [Um registry que pede para desacelerar](aggrega-registry.md#a-registry-that-asks-to-slow-down)."
   },
   "f39a5b46a0c66c71": {
     "at": "2026-11-03T04:43:45.832Z",

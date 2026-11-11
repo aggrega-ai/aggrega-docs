@@ -9101,6 +9101,17 @@
     "status": "machine",
     "text": "`SubChart`"
   },
+  "0ea22565364ffd14": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ac383ab3eca168c0",
+      "reviewed": false
+    },
+    "srcHash": "0ea22565364ffd14",
+    "status": "machine",
+    "text": "Seules les écritures sont retentées pour ces échecs. La lecture de ce que le registry contient déjà à la version, avant tout envoi, ne l’est pas, même si elle attend, comme toute requête, le temps qu’exige un registry qui demande de ralentir."
+  },
   "0ea3ea29385482cb": {
     "at": "2026-11-03T03:00:33.649Z",
     "job": "session-0042-20261103030033",
@@ -25719,6 +25730,13 @@
     "srcHash": "2a1bc7cc77b578d8",
     "status": "machine",
     "text": "`ClosureEntity`"
+  },
+  "2a1d3e1dc1909cf8": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "2a1d3e1dc1909cf8",
+    "status": "machine",
+    "text": "et pour une requête dont le propre délai a mis fin à l’attente :"
   },
   "2a1e82132147aded": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -56202,6 +56220,13 @@
     "status": "machine",
     "text": "`aggrega registry list` et `aggrega registry update` répondent différemment à la même situation, et c’est délibéré. Lister les registres lorsqu’il n’y en a aucun est une liste complète d’un ensemble vide, et une construction d’index sans rien à parcourir n’a plus rien à faire : ce sont deux opérations terminées, donc toutes deux répondent sur la sortie standard et se terminent avec zéro. Seule la recherche signale qu’elle n’a pas pu faire ce qui lui était demandé."
   },
+  "5c6bcfaf29ac5302": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "5c6bcfaf29ac5302",
+    "status": "machine",
+    "text": "A registry kept asking to slow down (Un registre a continué de demander de ralentir)"
+  },
   "5c6e39998690494a": {
     "at": "2026-11-02T19:28:42.678Z",
     "job": "session-0007-20261102192842",
@@ -63177,6 +63202,17 @@
     "status": "machine",
     "text": "Routage agnostique de l’injection sur une connexion. Associe des variables locales aux clés provides de la cible. Chaque mécanisme de livraison (env, file, arg ou personnalisé) s’écrit sous forme de tableau d’entrées {in, from} — 'from' explicite pour les références à provides."
   },
+  "6846951c8cf87f1d": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "aa5859a23fe6707b",
+      "reviewed": false
+    },
+    "srcHash": "6846951c8cf87f1d",
+    "status": "machine",
+    "text": "Les trois limites sont fixes ; aucun paramètre ne les modifie."
+  },
   "685830a62c7e0c36": {
     "at": "2026-11-04T06:48:43.008Z",
     "job": "session-0211-20261104064843",
@@ -65603,6 +65639,17 @@
     "status": "machine",
     "text": "pour une bibliothèque :"
   },
+  "6c5e1029f7a4f233": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "dba5eb09b09ad5ab",
+      "reviewed": false
+    },
+    "srcHash": "6c5e1029f7a4f233",
+    "status": "machine",
+    "text": "Un parcours lit de nombreux petits objets dans un registre, et certaines lectures échouent en passant : le registre répond qu’il a échoué ou qu’il est indisponible (un statut 5xx, hormis un 503 qui indique combien de temps attendre) ou que la requête a expiré (un 408), la connexion est réinitialisée ou expire, ou une réponse s’interrompt avant d’être complète. Chacune de ces lectures est redemandée quelques fois, avec une attente croissante entre les tentatives. Un registre qui demande au parcours de ralentir ne fait pas échouer une lecture : la lecture attend et est redemandée comme le décrit [Un registre qui demande de ralentir](#a-registry-that-asks-to-slow-down), et un registre qui continue de le demander pendant cinq minutes met fin au parcours de ce registre plutôt qu’à celui d’un seul dépôt."
+  },
   "6c688ee8ef9c8ef6": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -67304,6 +67351,13 @@
     "srcHash": "6f13f63e74d90482",
     "status": "machine",
     "text": "Assertions de Recipe / FeatureRecipe — invariants d’implémentation"
+  },
+  "6f168921900cc1fc": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "6f168921900cc1fc",
+    "status": "machine",
+    "text": "**Un registry qui demande de ralentir est attendu, et ne consomme aucune de ces tentatives.** Sur un `429 Too Many Requests`, ou un `503` accompagné de `Retry-After`, chaque requête vers ce registry — une lecture autant qu’une écriture — attend aussi longtemps que le registry l’a demandé puis repart, une étape dont le contenu a été refusé recommençant comme un nouvel envoi, sans nombre fixe de tentatives, jusqu’à ce que le registry n’ait rien répondu d’autre que « ralentissez » pendant cinq minutes. [Un registre qui demande de ralentir](aggrega-registry.md#a-registry-that-asks-to-slow-down) décrit l’attente et le refus qui y met fin."
   },
   "6f183c1fc142544c": {
     "at": "2026-11-03T00:44:43.262Z",
@@ -73324,6 +73378,13 @@
     "srcHash": "7909991691ab3f09",
     "status": "machine",
     "text": "Le motif est le mécanisme canonique de la promotion GitOps : un unique Aggregate immuable traverse les environnements, la Release de chaque environnement fournissant ses propres valeurs de paramètres. Toute valeur par environnement qu’un auteur veut faire varier a sa place dans la chaîne des paramètres plutôt qu’intégrée directement dans l’Aggregate."
+  },
+  "7909d3411c43c164": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "7909d3411c43c164",
+    "status": "machine",
+    "text": "Le hub officiel, `hub.aggrega.ai`, limite le nombre de requêtes pouvant provenir d’une même adresse sur une courte période, si bien que les machines qui partagent une adresse partagent ce quota, et tout registre peut limiter ses clients de la même manière. Un registre ayant dépassé sa limite répond `429 Too Many Requests`, ou `503 Service Unavailable` avec un en-tête `Retry-After` indiquant combien de temps attendre. Chaque requête que la ligne de commande adresse à un registre, quelle que soit la commande, réagit à cette réponse de la même manière : elle attend aussi longtemps que le registre l’a demandé, ou dix secondes lorsque la réponse ne le précise pas, plus jusqu’à une seconde supplémentaire tirée au hasard, puis redemande, sans nombre fixe de tentatives. Chaque requête vers ce registre attend avec elle, pas seulement celle qui a été refusée, et moins de requêtes lui sont envoyées à la fois — moitié moins chaque fois qu’il le demande, jusqu’à une seule —, ce nombre remontant d’une unité après chaque série de requêtes qu’il sert sans échec, jusqu’au nombre habituel de la commande. L’attente est affichée dans les mêmes conditions que le reste de la progression de la commande, sous forme d’une ligne telle que `hub.aggrega.ai asked to slow down; waiting 11 s` : `aggrega build`, `aggrega pull` et `aggrega registry update` l’affichent à côté de l’étape en cours, les autres commandes qui affichent ce qu’elles attendent l’affichent comme une étape à part entière — sauf `aggrega sign --jobs` signant plusieurs références à la fois, qui affiche ces attentes comme une seule étape — et rien n’est affiché lorsque la sortie d’erreur standard n’est pas un terminal, à moins que le `--progress` de la commande ne le demande. Un registre qui ne répond rien d’autre que « ralentissez » pendant cinq minutes est refusé avec [`E0378`](../errors/fatal-halts.md#a-registry-kept-asking-to-slow-down), en nommant le registre, sa dernière réponse et depuis combien de temps il ne répondait rien d’autre ; les cinq minutes sont fixes, et aucun paramètre ne les modifie. `aggrega registry update` nomme alors ce registre sous `Not indexed:` dans son récapitulatif final, et le registre conserve l’index qu’il avait avant l’exécution."
   },
   "790c038675d264c5": {
     "at": "2026-11-05T16:30:43.236Z",
@@ -86514,6 +86575,13 @@
     "status": "machine",
     "text": "**Un pull pour lequel aucun workspace n’a été trouvé ni nommé est refusé avant que quoi que ce soit ne soit récupéré.** Lorsque rien ne nomme de racine et que la découverte n’ancre rien — depuis le dossier dans lequel vous l’exécutez ou, pour une Release nommée par un chemin absolu, depuis le dossier propre à cette Release — le dossier serait la racine, et un cache écrit sous celui-ci en ferait un workspace. Le pull s’arrête donc, n’écrit ni lockfile ni cache, et nomme le dossier ainsi que les deux manières d’en sortir : nommez votre workspace avec `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT`, ou donnez à ce dossier un `.aggrega-config.yaml` contenant un bloc `workspace:`. L’outil de pull d’[`aggrega mcp`](aggrega-mcp.md), appelé sans `workspace_root` sur un serveur lancé sans racine, est refusé de la même manière ; [Configuration](configuration.md#the-other-ways-a-project-root-is-recognised) liste les autres commandes pour lesquelles cela vaut."
   },
+  "8f072b5eaf0a556a": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "8f072b5eaf0a556a",
+    "status": "machine",
+    "text": "Un registre trop occupé répond 429 Too Many Requests, ou 503 Service Unavailable avec un en-tête `Retry-After` indiquant combien de temps attendre. Chaque requête qu’une commande adresse à un registre attend aussi longtemps que le registre le demande — dix secondes lorsqu’il ne le précise pas — puis est redemandée ; chaque requête vers ce registre attend avec elle, et moins de requêtes lui sont envoyées à la fois jusqu’à ce qu’il réponde de nouveau. Un registre qui ne répond rien d’autre que « ralentissez » pendant cinq minutes est refusé sous cette condition, en nommant le registre, sa dernière réponse et depuis combien de temps il ne répondait rien d’autre, de même qu’une requête dont le propre délai expire pendant qu’elle attend. `aggrega registry update` signale alors ce registre comme non indexé, et celui-ci conserve l’index qu’il avait avant l’exécution."
+  },
   "8f0a047ec74c7d84": {
     "at": "2026-11-05T16:44:55.584Z",
     "job": "session-0004-20261105164455",
@@ -87901,6 +87969,13 @@
     "srcHash": "916d9d81261a9887",
     "status": "machine",
     "text": "Identifiant du schéma : `https://aggrega.ai/schemas/aggregate-v1beta1.schema.json`"
+  },
+  "916f8b7348be2262": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "916f8b7348be2262",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for `<how long>` when the request's own time ran out: oci: the registry kept asking to slow down (a continué de demander de ralentir : sa dernière réponse était 429 Too Many Requests, et il n’avait rien répondu d’autre lorsque le propre délai de la requête a expiré : oci: le registre a continué de demander de ralentir)"
   },
   "9173ab2e89819cf9": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -95298,6 +95373,13 @@
     "srcHash": "9da5c568a41de386",
     "status": "machine",
     "text": "[Importer une application LangGraph](langgraph.md)"
+  },
+  "9da5dbcc577549c4": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "9da5dbcc577549c4",
+    "status": "machine",
+    "text": "**Comment corriger :** la cause est la limite de débit du registre, et non quelque chose que vous avez écrit. Un registre qui limite la fréquence à laquelle un client peut l’interroger limite généralement tout ce qui provient de la même adresse ; vérifiez donc si d’autres commandes ou d’autres machines derrière cette adresse l’interrogent au même moment, et exécutez de nouveau la commande une fois qu’elles ont terminé. Si vous exploitez vous-même le registre, vérifiez sa limite de débit. La limite de cinq minutes est fixe ; aucun paramètre ne la prolonge."
   },
   "9dab449305472e6d": {
     "at": "2026-11-03T18:29:45.694Z",
@@ -112497,6 +112579,13 @@
     "status": "machine",
     "text": "Lorsque la copie d’une entrée épinglée dans le stockage a disparu, cette seule entrée est téléchargée à nouveau par le digest que le lockfile enregistre déjà, et vérifiée par rapport à celui-ci avant que quoi que ce soit ne soit écrit ou renvoyé. Cela ne peut pas changer ce que voit le rendu — le digest a été fixé lorsque l’entrée a été épinglée — donc cela répare le stockage plutôt que d’étendre la fermeture, et le lockfile reste inchangé à l’octet près. En mode hors ligne, il n’existe aucun transport même pour cela, et la copie manquante provoque plutôt un arrêt, qui nomme le mode."
   },
+  "b93ce6f1f90b02dd": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "b93ce6f1f90b02dd",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for 5m0s: oci: the registry kept asking to slow down (a continué de demander de ralentir : sa dernière réponse était 429 Too Many Requests, et il n’avait rien répondu d’autre pendant 5m0s : oci: le registre a continué de demander de ralentir)"
+  },
   "b940f69e5e4a8205": {
     "at": "2026-10-22T13:40:41.722Z",
     "job": "session-0039-20261022134041",
@@ -114860,6 +114949,13 @@
     "srcHash": "bccb73f9bdb6e431",
     "status": "machine",
     "text": "`aggrega config show --origin` indique laquelle de ces couches a décidé chaque paramètre, et un flag que vous avez saisi est signalé comme flag — ainsi, lorsqu’un refus nomme une couche à laquelle vous ne vous attendiez pas, c’est avec cette commande que vous le confirmez."
+  },
+  "bccf1aab04ff7384": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "bccf1aab04ff7384",
+    "status": "machine",
+    "text": "Un registre qui demande de ralentir"
   },
   "bcd3aaefa515d998": {
     "at": "2026-11-03T09:26:18.087Z",
@@ -123882,6 +123978,17 @@
     "status": "machine",
     "text": "**En quoi cela diffère de l’avertissement de quasi-correspondance.** L’avertissement décrit sous « An attachment name is one edit from a declared slot (Un nom de rattachement est à une modification près d’un emplacement déclaré) » porte sur la façon dont un nom est orthographié : un nom à une modification près d’un emplacement dont la Feature du rattachement ne satisfait pas le `selector:`, ce qui n’arrête pas la build et signale un avertissement. Cet arrêt porte sur ce à quoi la Feature correspond, quel que soit le nom : le nom peut être n’importe lequel, et l’emplacement auquel elle correspond doit avoir été laissé vide. Lorsqu’un nom est à une modification près d’un emplacement et que sa Feature correspond bien à cet emplacement, aucun avertissement n’est levé, et si l’emplacement est laissé vide, cet arrêt est le seul constat signalé."
   },
+  "cb4f8a2f95463f19": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ee8cb85c4617dbb4",
+      "reviewed": false
+    },
+    "srcHash": "cb4f8a2f95463f19",
+    "status": "machine",
+    "text": "Un push écrit dans le registry par étapes : le contenu — pour un Plugin, l’entité et son `.wasm` —, puis le manifest qui le nomme, puis le tag de version, puis la signature et la date de publication à côté. **Chaque étape d’écriture est retentée lorsqu’elle échoue d’une manière dont une tentative ultérieure peut triompher :** le registry répond par une erreur serveur (tout statut `5xx`, hormis un `503` accompagné de `Retry-After`) ou `408 Request Timeout`, ou la connexion expire, est réinitialisée ou se termine au milieu d’une réponse. Une étape est tentée au plus trois fois, avec une attente d’une demi-seconde avant la deuxième tentative et d’une seconde avant la troisième."
+  },
   "cb501db9b148a3bf": {
     "at": "2026-11-03T20:41:36.264Z",
     "job": "session-0156-20261103204136",
@@ -124702,6 +124809,13 @@
     "srcHash": "cca22e1771a71f41",
     "status": "machine",
     "text": "Basic Prompting enchaîne quatre nœuds : un Chat Input, un Prompt, un Language Model qui appelle `gpt-4.1` d’OpenAI, et un Chat Output. Exporté depuis l’éditeur de Langflow, c’est un seul fichier JSON, `basic-prompting.json`, d’environ 54 Ko, qui contient le code source de chaque composant en plus du flux. Son nœud Language Model lit sa clé dans la variable globale `OPENAI_API_KEY`, que Langflow lit dans son environnement lorsqu’aucune variable de ce nom n’est enregistrée."
+  },
+  "cca2b86b6a5192f2": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "cca2b86b6a5192f2",
+    "status": "machine",
+    "text": "**Un registre qui demande de ralentir est attendu, jusqu’à ce qu’il l’ait demandé pendant cinq minutes sans interruption.** Une commande attend aussi longtemps qu’un tel registre le demande, lui envoie moins de requêtes à la fois et affiche l’attente avec le reste de sa progression ; un registre qui ne répond rien d’autre que « ralentissez » pendant cinq minutes est refusé avec [`E0378`](errors/fatal-halts.md#a-registry-kept-asking-to-slow-down). [Un registre qui demande de ralentir](cli/aggrega-registry.md#a-registry-that-asks-to-slow-down) décrit comment."
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-30T19:26:00.927Z",
@@ -132846,6 +132960,13 @@
     "srcHash": "d9b6caddbbd5dc83",
     "status": "machine",
     "text": "Provenance du graphe IR (`release_version`) + métadonnées de template (`.metadata.release_version`)"
+  },
+  "d9b7131086318ece": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "d9b7131086318ece",
+    "status": "machine",
+    "text": "Message émis, pour un registre qui a demandé de ralentir pendant cinq minutes :"
   },
   "d9bc90809c3a8c0f": {
     "at": "2026-11-10T14:01:12.681Z",
@@ -149275,6 +149396,17 @@
     "srcHash": "f399726025c1a364",
     "status": "machine",
     "text": "**Pourquoi à côté plutôt qu’à l’intérieur.** Terraform fusionne chaque fichier de premier niveau d’un répertoire de module dans un seul espace de noms — `output`, `variable`, `resource` et `locals` de la même manière — de sorte que deux contributeurs qui partagent un répertoire entrent en collision sur tout nom qu’ils déclarent tous les deux, quel que soit le nom de leurs fichiers. Un répertoire chacun, c’est ce qui les tient séparés. À côté plutôt qu’à l’intérieur, c’est aussi ce que demandent les recommandations de Terraform lui-même pour les modules imbriqués : qu’ils puissent être composés par l’appelant plutôt que de s’appeler directement les uns les autres en créant une arborescence de modules profondément imbriquée."
+  },
+  "f399b5639acbdd61": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "3f3c046c050670be",
+      "reviewed": false
+    },
+    "srcHash": "f399b5639acbdd61",
+    "status": "machine",
+    "text": "Chacune est tentée au plus trois fois, à une demi-seconde puis à une seconde d’intervalle. La résolution du digest est une lecture et n’est pas réessayée. Un registre qui demande de ralentir est un cas différent : chaque requête qui lui est adressée, y compris la résolution du digest et l’attachement, attend aussi longtemps qu’il le demande, comme le décrit [Un registre qui demande de ralentir](aggrega-registry.md#a-registry-that-asks-to-slow-down)."
   },
   "f39a5b46a0c66c71": {
     "at": "2026-11-03T04:43:45.832Z",

@@ -10041,6 +10041,17 @@
     "status": "machine",
     "text": "`SubChart`"
   },
+  "0ea22565364ffd14": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ac383ab3eca168c0",
+      "reviewed": false
+    },
+    "srcHash": "0ea22565364ffd14",
+    "status": "machine",
+    "text": "对于这些失败，只有写入会重试。在上传任何内容之前读取注册表在该版本上已持有的内容，不会重试，不过它会像每个请求一样，按要求放慢速度的注册表所要求的时间等待。"
+  },
   "0ea3ea29385482cb": {
     "at": "2026-10-29T22:29:47.440Z",
     "job": "session-0029-20261029222947",
@@ -28679,6 +28690,13 @@
     "srcHash": "2a1bc7cc77b578d8",
     "status": "machine",
     "text": "`ClosureEntity`"
+  },
+  "2a1d3e1dc1909cf8": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "2a1d3e1dc1909cf8",
+    "status": "machine",
+    "text": "以及针对自身时间限制结束了等待的请求："
   },
   "2a1e82132147aded": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -62399,6 +62417,13 @@
     "status": "machine",
     "text": "`aggrega registry list` 和 `aggrega registry update` 对同一情况的回应不同，\n这是有意为之。在没有注册表时列出注册表，是对空集的完整列举；\n没有可遍历内容的索引构建也就没有剩余工作：两者都是已完成的操作，因此\n都在标准输出上报告并以零状态退出。只有搜索是在报告它无法完成\n所要求的操作。"
   },
+  "5c6bcfaf29ac5302": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "5c6bcfaf29ac5302",
+    "status": "machine",
+    "text": "A registry kept asking to slow down (注册表持续要求放慢速度)"
+  },
   "5c6e39998690494a": {
     "at": "2026-10-31T23:56:26.063Z",
     "job": "session-0002-20261031235626",
@@ -70344,6 +70369,17 @@
     "status": "machine",
     "text": "连接上的不可知注入路由。将本地变量映射到目标的 provides 键。每种交付机制（env、file、arg 或 custom）都编写为 {in, from} 条目的数组——provides 引用使用显式的 'from'。"
   },
+  "6846951c8cf87f1d": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "aa5859a23fe6707b",
+      "reviewed": false
+    },
+    "srcHash": "6846951c8cf87f1d",
+    "status": "machine",
+    "text": "这三个限制是固定的；没有任何设置可以更改它们。"
+  },
   "684bc3383f81f8a0": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -73061,6 +73097,17 @@
     "status": "machine",
     "text": "针对库："
   },
+  "6c5e1029f7a4f233": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "dba5eb09b09ad5ab",
+      "reviewed": false
+    },
+    "srcHash": "6c5e1029f7a4f233",
+    "status": "machine",
+    "text": "遍历会从注册表读取许多小对象，其中一些读取会临时失败：注册表回答其出错或不可用（5xx 状态，但说明需要等待多久的 503 除外），或回答请求超时（408），连接被重置或超时，或者应答在完整之前中断。每个这样的读取都会重试几次，两次尝试之间的等待时间逐渐增加。要求遍历放慢速度的注册表并不是让读取失败：读取会按[要求放慢速度的注册表](#a-registry-that-asks-to-slow-down)所述等待并重试，而持续要求五分钟的注册表会结束该注册表的遍历，而不是某一个仓库的遍历。"
+  },
   "6c688ee8ef9c8ef6": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -74987,6 +75034,13 @@
     "srcHash": "6f13f63e74d90482",
     "status": "machine",
     "text": "Recipe / FeatureRecipe 断言——实现不变量"
+  },
+  "6f168921900cc1fc": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "6f168921900cc1fc",
+    "status": "machine",
+    "text": "**对于要求放慢速度的注册表，推送会等待，且不消耗上述任何一次尝试**。收到 `429 Too Many Requests`，或带有 `Retry-After` 的 `503` 时，发往该注册表的每个请求（读取和写入都一样）都会按注册表要求的时间等待，然后再次发送；内容被拒绝的步骤会作为新的上传重新开始，没有固定的尝试次数，直到注册表连续五分钟只回答“放慢速度”为止。[要求放慢速度的注册表](aggrega-registry.md#a-registry-that-asks-to-slow-down)介绍了这种等待以及结束等待的拒绝。"
   },
   "6f183c1fc142544c": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -81639,6 +81693,13 @@
     "srcHash": "7909991691ab3f09",
     "status": "machine",
     "text": "该模式是 GitOps 推进的标准机制：单个不可变的 Aggregate 在各环境间推进，由每个环境的 Release 提供各自的参数值。作者希望按环境变化的每个值都应放在参数链中，而不是直接嵌入 Aggregate。"
+  },
+  "7909d3411c43c164": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "7909d3411c43c164",
+    "status": "machine",
+    "text": "官方 hub `hub.aggrega.ai` 会限制短时间内来自同一地址的请求数量，因此共享同一地址的机器共享这一配额，任何注册表也都可以用同样的方式限制其客户端。超出限制的注册表会回答 `429 Too Many Requests`，或带有说明需等待多久的 `Retry-After` 标头的 `503 Service Unavailable`。命令行向注册表发出的每个请求，无论是哪个命令，都以相同方式应对这一回答：按注册表要求的时间等待，回答中未说明时等待十秒，再随机加上最多一秒，然后再次请求，没有固定的尝试次数。发往该注册表的每个请求都会随之等待，而不仅是被拒绝的那个，同时向其并发发送的请求会减少：每次它提出要求时减半，最少到一个；它每无故障地处理完一批请求后再加一个，直到恢复命令的常规数量。等待的显示方式与命令其余进度相同，显示为类似 `hub.aggrega.ai asked to slow down; waiting 11 s` 的一行：`aggrega build`、`aggrega pull` 和 `aggrega registry update` 将其显示在正在进行的步骤旁边，其他会显示所等待内容的命令将其显示为单独的步骤（但同时签名多个引用的 `aggrega sign --jobs` 除外，它将这些等待显示为一个步骤）；当标准错误不是终端时，除非命令的 `--progress` 要求显示，否则不显示任何内容。如果注册表在五分钟内只回答“放慢速度”，则以 [`E0378`](../errors/fatal-halts.md#a-registry-kept-asking-to-slow-down) 拒绝，并指出该注册表、其最后一次回答以及它只给出这一回答的时长；这五分钟是固定的，没有任何设置可以更改。随后 `aggrega registry update` 会在结束摘要的 `Not indexed:` 下列出该注册表，而该注册表保留运行前的索引。"
   },
   "790c038675d264c5": {
     "at": "2026-11-05T20:08:38.916Z",
@@ -96168,6 +96229,13 @@
     "status": "machine",
     "text": "**未找到工作区且未指定工作区时，拉取会在获取任何内容之前被拒绝。** 当没有任何设置指定根目录、发现机制也未锚定任何位置时（无论从你运行命令的文件夹开始，还是对于以绝对路径指定的 Release，从该 Release 所在的文件夹开始），该文件夹就会成为根目录，而在其下写入缓存会使它变成一个工作区。因此拉取会停止，不写入锁文件和缓存，并指明该文件夹及两种解决办法：使用 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指定工作区，或者为该文件夹提供一个包含 `workspace:` 块的 `.aggrega-config.yaml`。[`aggrega mcp`](aggrega-mcp.md) 的拉取工具在未设置根目录启动的服务器上不带 `workspace_root` 调用时，也会以同样方式被拒绝；[配置](configuration.md#the-other-ways-a-project-root-is-recognised)列出了适用此规则的其他命令。"
   },
+  "8f072b5eaf0a556a": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "8f072b5eaf0a556a",
+    "status": "machine",
+    "text": "过于繁忙的注册表会回答 429 Too Many Requests，或带有说明需等待多久的 `Retry-After` 标头的 503 Service Unavailable。命令向注册表发出的每个请求都会按注册表要求的时间等待（未说明时为十秒），然后再次发送；发往该注册表的每个请求都会随之等待，向其并发发送的请求也会减少，直到它再次正常回答。如果注册表在五分钟内只回答“放慢速度”，则以此条件拒绝，并指出该注册表、其最后一次回答以及它只给出这一回答的时长；在等待期间自身时间限制到期的请求也同样如此。随后 `aggrega registry update` 会将该注册表报告为未编入索引，而它保留运行前的索引。"
+  },
   "8f0a047ec74c7d84": {
     "at": "2026-11-05T20:22:43.828Z",
     "job": "session-0020-20261105202243",
@@ -97708,6 +97776,13 @@
     "srcHash": "916d9d81261a9887",
     "status": "machine",
     "text": "Schema id：`https://aggrega.ai/schemas/aggregate-v1beta1.schema.json`"
+  },
+  "916f8b7348be2262": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "916f8b7348be2262",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for `<how long>` when the request's own time ran out: oci: the registry kept asking to slow down (持续要求放慢速度：其最后一次回答是 429 Too Many Requests，且直到请求自身时间用尽时仍未回答其他内容：oci: 注册表持续要求放慢速度)"
   },
   "9173ab2e89819cf9": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -106040,6 +106115,13 @@
     "srcHash": "9da5c568a41de386",
     "status": "machine",
     "text": "[导入 LangGraph 应用](langgraph.md)"
+  },
+  "9da5dbcc577549c4": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "9da5dbcc577549c4",
+    "status": "machine",
+    "text": "**如何修复**：原因在于注册表的速率限制，而不是你编写的任何内容。限制客户端请求频率的注册表通常会限制来自同一地址的所有请求，因此请检查该地址背后是否有其他命令或机器在同时向它发出请求，并在它们完成后再次运行命令。如果注册表由你运营，请检查其速率限制。五分钟的上限是固定的；没有任何设置可以延长它。"
   },
   "9dab449305472e6d": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -125127,6 +125209,13 @@
     "status": "machine",
     "text": "如果存储中某个已固定输入的副本丢失，则仅按 lockfile 已记录的摘要重新获取该输入，并在写入或返回任何内容之前根据该摘要进行校验。这不会改变渲染所见的内容（摘要在固定该输入时就已确定），因此它是修复存储，而不是扩大闭包，lockfile 保持逐字节不变。在离线模式下，连这一步也没有传输途径，丢失的副本会导致停止，并指出该模式。"
   },
+  "b93ce6f1f90b02dd": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "b93ce6f1f90b02dd",
+    "status": "machine",
+    "text": "`<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for 5m0s: oci: the registry kept asking to slow down (持续要求放慢速度：其最后一次回答是 429 Too Many Requests，且在 5m0s 内未回答其他内容：oci: 注册表持续要求放慢速度)"
+  },
   "b940f69e5e4a8205": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -127606,6 +127695,13 @@
     "srcHash": "bccb73f9bdb6e431",
     "status": "machine",
     "text": "`aggrega config show --origin` 会报告每项设置由上述哪一层决定，你输入的标志会被报告为标志——因此，当某次拒绝指出的层出乎你的意料时，可以用该命令加以确认。"
+  },
+  "bccf1aab04ff7384": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "bccf1aab04ff7384",
+    "status": "machine",
+    "text": "要求放慢速度的注册表"
   },
   "bcd3aaefa515d998": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -137771,6 +137867,17 @@
     "status": "machine",
     "text": "**与近似匹配提示的区别。**“An attachment name is one edit from a declared slot（挂载名称与已声明的槽仅差一次编辑）”下的提示关注名称的拼写：名称与某个槽仅差一次编辑，而挂载的 Feature 不满足该槽的 `selector:`，此时构建通过并报告警告。本中止条件关注 Feature 适合什么，与名称无关：名称可以是任何内容，而它适合的槽必须为空。如果名称与某个槽仅差一次编辑，且其 Feature 确实适合该槽，则不会发出提示；若该槽为空，本中止条件就是唯一报告的结果。"
   },
+  "cb4f8a2f95463f19": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "ee8cb85c4617dbb4",
+      "reviewed": false
+    },
+    "srcHash": "cb4f8a2f95463f19",
+    "status": "machine",
+    "text": "推送分步骤写入注册表：先写入内容（对于 Plugin，即实体及其 `.wasm`），然后写入引用该内容的 manifest，再写入版本标签，最后在旁边写入签名和发布日期。**每个写入步骤在以后续尝试可能成功的方式失败时都会重试**：注册表返回服务器错误（任何 `5xx` 状态，但带有 `Retry-After` 的 `503` 除外）或 `408 Request Timeout`，或者连接超时、被重置、或在响应中途中断。每个步骤最多尝试三次，第二次尝试前等待半秒，第三次尝试前等待一秒。"
+  },
   "cb501db9b148a3bf": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -138640,6 +138747,13 @@
     "srcHash": "cca22e1771a71f41",
     "status": "machine",
     "text": "Basic Prompting 串联了四个节点：一个 Chat Input、一个 Prompt、一个调用 OpenAI `gpt-4.1` 的 Language Model，以及一个 Chat Output。从 Langflow 编辑器导出后，它是一个约 54 KB 的 JSON 文件 `basic-prompting.json`，除流程外还携带了每个组件的源代码。其 Language Model 节点从全局变量 `OPENAI_API_KEY` 读取密钥；在未存储该名称的变量时，Langflow 会从其环境中读取该变量。"
+  },
+  "cca2b86b6a5192f2": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "cca2b86b6a5192f2",
+    "status": "machine",
+    "text": "**对于要求放慢速度的注册表，命令会一直等待，直到它不间断地要求了五分钟为止**。命令会按照此类注册表要求的时间等待，同时减少向其并发发送的请求数，并将等待与其他进度一起显示；如果注册表在五分钟内只回答“放慢速度”，则以 [`E0378`](errors/fatal-halts.md#a-registry-kept-asking-to-slow-down) 拒绝。[要求放慢速度的注册表](cli/aggrega-registry.md#a-registry-that-asks-to-slow-down)说明了具体方式。"
   },
   "cca33c5c5706aee4": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -147632,6 +147746,13 @@
     "srcHash": "d9b6caddbbd5dc83",
     "status": "machine",
     "text": "IR 图来源信息（`release_version`）+ 模板元数据（`.metadata.release_version`）"
+  },
+  "d9b7131086318ece": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "srcHash": "d9b7131086318ece",
+    "status": "machine",
+    "text": "发出的消息，针对要求放慢速度达五分钟的注册表："
   },
   "d9bc90809c3a8c0f": {
     "at": "2026-11-10T14:01:12.681Z",
@@ -165748,6 +165869,17 @@
     "srcHash": "f399726025c1a364",
     "status": "machine",
     "text": "**为什么放在旁边而不是内部。** Terraform 会将模块目录中的所有顶层文件合并到一个命名空间中——`output`、`variable`、`resource` 和 `locals` 都是如此——因此共享同一目录的两个贡献者，无论文件名是什么，都会在双方都声明的任何名称上冲突。每个贡献者各用一个目录，才能将它们隔开。放在旁边而非内部，也正是 Terraform 自身对嵌套模块的指导所要求的：嵌套模块应由调用方组合，而不是彼此直接调用，形成层层嵌套的模块树。"
+  },
+  "f399b5639acbdd61": {
+    "at": "2026-11-11T09:27:08.162Z",
+    "job": "session-0001-20261111092708",
+    "revision": {
+      "from": "3f3c046c050670be",
+      "reviewed": false
+    },
+    "srcHash": "f399b5639acbdd61",
+    "status": "machine",
+    "text": "每个步骤最多尝试三次，间隔依次为半秒和一秒。解析摘要是读取操作，不会重试。要求放慢速度的注册表是另一种情况：发往它的每个请求，包括摘要解析和附加操作，都会按它要求的时间等待，如[要求放慢速度的注册表](aggrega-registry.md#a-registry-that-asks-to-slow-down)所述。"
   },
   "f39a5b46a0c66c71": {
     "at": "2026-10-22T02:54:42.494843+00:00",
