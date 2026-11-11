@@ -95,7 +95,9 @@ The commands that show their steps this way, besides the command of every instal
 
 **A walk of a registry's whole repository listing ends within five minutes.** Some registries gather every repository they hold before answering a listing request at all, so each page of the listing is waited on for as long as the walk may run rather than for 30 seconds; a listing that has not ended after five minutes is stopped and refused under [`E0377`](errors/fatal-halts.md#a-registrys-repository-listing-did-not-end-in-time). `aggrega plugin add` walks the listing only when no plugin carries exactly the name it was given, to find one whose name contains it, so naming the plugin exactly never waits on the walk.
 
-The two bounds are fixed; there is no setting that changes them.
+**A registry that asks to slow down is waited out, until it has asked for five minutes without a break.** A command waits as long as such a registry asks, sends it fewer requests at once, and shows the wait with its other progress; a registry that answers nothing but "slow down" for five minutes is refused under [`E0378`](errors/fatal-halts.md#a-registry-kept-asking-to-slow-down). [A registry that asks to slow down](cli/aggrega-registry.md#a-registry-that-asks-to-slow-down) describes how.
+
+The three bounds are fixed; there is no setting that changes them.
 
 ## Paths you type, and the workspace boundary
 

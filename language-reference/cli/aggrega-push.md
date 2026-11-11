@@ -116,13 +116,15 @@ A publication that is already complete gets nothing attached, however many times
 
 ## When the registry fails a write
 
-A push writes to the registry in steps: the content — for a Plugin, the entity and its `.wasm` — then the manifest that names it, then the version tag, then the signature and the publication date beside it. **Each step that writes is retried when it fails in a way a later attempt can succeed:** the registry answers with a server error (any `5xx` status), `408 Request Timeout` or `429 Too Many Requests`, or the connection times out, is reset, or ends in the middle of a response. A step is tried at most three times, waiting half a second before the second attempt and a second before the third.
+A push writes to the registry in steps: the content — for a Plugin, the entity and its `.wasm` — then the manifest that names it, then the version tag, then the signature and the publication date beside it. **Each step that writes is retried when it fails in a way a later attempt can succeed:** the registry answers with a server error (any `5xx` status, other than a `503` carrying `Retry-After`) or `408 Request Timeout`, or the connection times out, is reset, or ends in the middle of a response. A step is tried at most three times, waiting half a second before the second attempt and a second before the third.
+
+**A registry that asks to slow down is waited out, and spends none of those attempts.** On a `429 Too Many Requests`, or a `503` carrying `Retry-After`, every request to that registry — a read as much as a write — waits as long as the registry asked and then goes again, a step whose content was refused starting again as a new upload, with no fixed number of attempts, until the registry has answered nothing but "slow down" for five minutes. [A registry that asks to slow down](aggrega-registry.md#a-registry-that-asks-to-slow-down) describes the wait and the refusal that ends it.
 
 **Each attempt is a new upload of the same bytes, never a resend of the request that failed.** A registry that has already taken in an upload's body can refuse the same request a second time, and a new upload is what it accepts. Content the registry already holds counts as uploaded, and a retried step writes what the first attempt would have, so an attempt that landed but whose answer was lost lands nothing twice: the manifest keeps its digest, and the version carries one signature and one publication date.
 
 Every other failure ends the step at once: a refused credential (`401`, `403`, or no stored credential for the registry), any other answer the registry gives, a registry that cannot be reached at all, or a push you interrupt. **A step still failing after its last attempt fails the command, and the error names the step** — the content, the manifest, the tag, the signature or the publication date. What earlier steps published stays published; [Signing](#signing) and [The publication date](#the-publication-date) say what that means for the version.
 
-Only writes are retried. Reading what the registry already holds at the version, before anything is uploaded, is not.
+Only writes are retried for those failures. Reading what the registry already holds at the version, before anything is uploaded, is not, though it waits out a registry that asks to slow down as every request does.
 
 ## Signing
 

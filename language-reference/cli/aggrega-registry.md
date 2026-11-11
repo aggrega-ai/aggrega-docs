@@ -393,13 +393,39 @@ re-read.
 written. Use it to rebuild an index from the registry alone; it picks up nothing a refresh
 misses.
 
+## A registry that asks to slow down
+
+The official hub, `hub.aggrega.ai`, limits how many requests may come from one address in a
+short span, so machines sharing an address share that allowance, and any registry may limit
+its clients the same way. A registry past its limit answers `429 Too Many Requests`, or
+`503 Service Unavailable` with a `Retry-After` header saying how long to wait. Every request
+the command line makes to a registry, whatever the command, meets that answer the same way:
+it waits as long as the registry asked, or ten seconds where the answer does not say, plus up
+to a second more at random, and then asks again, with no fixed number of attempts. Every
+request to that registry waits with it, not only the one refused, and fewer are sent to it at
+once — half as many each time it asks, down to one — rising again by one after each run of
+requests it serves without failing, back to the command's usual number. The wait is shown on the same terms as the rest of the
+command's progress, as a line such as `hub.aggrega.ai asked to slow down; waiting 11 s`:
+`aggrega build`, `aggrega pull` and `aggrega registry update` show it beside the step in
+flight, the other commands that show what they wait on show it as a step of its own — except
+`aggrega sign --jobs` signing several references at once, which shows them as one step — and
+nothing is shown where standard error is not a terminal unless the command's `--progress`
+asks for it. A registry that answers nothing but "slow down" for five minutes is refused under
+[`E0378`](../errors/fatal-halts.md#a-registry-kept-asking-to-slow-down), naming the registry,
+its last answer and how long it had answered nothing else; the five minutes are fixed, and no
+setting changes them. `aggrega registry update` then names that registry under `Not indexed:`
+in its closing summary, and the registry keeps the index it had before the run.
+
 ## A read that fails
 
 A walk reads many small objects from a registry, and some reads fail in passing: the
-registry answers that it is overloaded or unavailable (a 429 or 5xx status), the connection
-is reset or times out, or an answer stops before it is complete. Each such read is asked
-again a few times, with a growing wait between attempts; where the registry says how long to
-wait, with a `Retry-After` header, the walk waits that long.
+registry answers that it failed or is unavailable (a 5xx status, other than a 503 that says
+how long to wait) or that the request timed out (a 408), the connection is reset or times
+out, or an answer stops before it is complete. Each such read is asked again a few times,
+with a growing wait between attempts. A registry asking the walk to slow down is not failing
+a read: the read waits and is asked again as [A registry that asks to slow
+down](#a-registry-that-asks-to-slow-down) describes, and a registry that keeps asking for five
+minutes ends that registry's walk rather than one repository's.
 
 A read that still fails is never taken as an answer. A signature that could not be read is
 not a version without a signature, and a deprecation marker that could not be read is not a
