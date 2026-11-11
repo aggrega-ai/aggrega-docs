@@ -2515,6 +2515,36 @@ Emitted message, naming the source being acquired and quoting the underlying tra
 
 **How to fix:** the fix is the operator's and it is outside your catalog. Check that the host in the message is reachable from where the command is running. Where the environment reaches the network through a proxy, the proxy has to be exported to the environment, which the remediation names — a proxy configured only for a browser or a package manager will not be picked up. Where the host is reachable by hand but not from here, the difference is usually credentials at a proxy or an interception certificate the handshake did not accept. Once the artifacts are cached, later builds read the cache and do not need the network at all.
 
+### A server did not answer in time
+
+<!-- covers: pkg/egress.ErrNoAnswerInTime -->
+
+A request kept waiting on the server it addressed — a registry, or any other server a command reaches, such as the transparency log a signature is recorded in — and was withdrawn. A request waits at most 30 seconds for the server to begin its answer once the request has been sent in full, and at most 30 seconds for the next part of an answer already arriving; past either, it is refused under this condition, naming the server and the wait. It is what a server that accepts a connection and never answers produces, and what an address that never accepts one produces too, rather than a command that waits without end. A walk of a registry's whole repository listing waits on each page for as long as the walk may run instead, and is bounded by its own condition, `E0377`.
+
+Only waiting is bounded. A download or an upload that keeps moving takes as long as it takes, because the wait is measured only while nothing arrives. A Helm chart a Recipe's `source:` fetches over HTTPS is held to the wait for its answer to begin only, and that expiry is reported in the network library's own words rather than under this condition. A request a command already asks again when it times out — a read during `aggrega registry update`, a write during a publication — is asked again first, so the refusal is what remains after its last attempt.
+
+Emitted message, for a version listing the registry did not answer:
+
+> aggrega plugin add: 127.0.0.1:18471: list versions for plugin/cli/mo: oci: list tags: Get "http://127.0.0.1:18471/v2/plugin/cli/mo/tags/list": 127.0.0.1:18471 did not answer within 30s: egress: the server did not answer in time
+
+and for an answer that stopped part way:
+
+> `<host>` stopped answering: nothing more of its answer arrived for 30s: egress: the server did not answer in time
+
+**How to fix:** the fix is the operator's and it is outside your catalog. Check that the server the message names is up and reachable from where the command runs; a registry under load or in maintenance answers again later, and the command can simply be run again. Where the environment reaches the network through a proxy, check that the proxy passes the request on rather than holding it. The wait is fixed; there is no setting that lengthens it.
+
+### A registry's repository listing did not end in time
+
+<!-- covers: internal/registryops.ErrRepositoryListingTooLong -->
+
+A walk of a registry's whole repository listing ran for five minutes without reaching the listing's end, and was stopped. Two commands walk the listing: `aggrega plugin add`, only when no plugin carries exactly the name it was given and it looks for one whose name contains it, and `aggrega registry update`, which lists a registry's repositories before it reads each one. A listing that keeps naming new repositories without end, and one a registry serves too slowly to finish, both end here rather than holding the command; the walk yields no repositories at all, so nothing is chosen from, or indexed out of, a listing that was cut short. The message says how many repositories the listing had named when it was stopped.
+
+Emitted message, for a plugin addition whose query is part of a name:
+
+> aggrega plugin add: 127.0.0.1:18472: no cli plugin is named "mo", and searching every repository for a name containing it did not finish; name the plugin exactly, as aggrega plugin add cli \<name\>: the walk was stopped after 5m0s, before the listing ended (repositories named so far: 146): registry: the repository listing did not end in time
+
+**How to fix:** for `aggrega plugin add`, name the plugin exactly — `aggrega plugin add cli moo` rather than `aggrega plugin add cli mo` — which looks the plugin up by that name with one request and never walks the listing. For `aggrega registry update`, the registry's listing is the cause: check with whoever runs the registry that its listing ends, and run the update again once it does. The five-minute bound is fixed; there is no setting that lengthens it.
+
 ### Fetched or cached bytes do not match the digest committed for them
 
 <!-- covers: pkg/oci.ErrFetchIntegrity -->
@@ -6783,6 +6813,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0373` | `a document declares an API version this compiler no longer reads` | A document declares an API version this compiler no longer reads |
 | `E0374` | `a plugin declares a plugin ABI version this compiler no longer speaks` | A plugin declares a plugin ABI version this compiler no longer speaks |
 | `E0375` | `oci: artifact carries a media type this compiler no longer reads` | An artifact carries a media type this compiler no longer reads |
+| `E0376` | `egress: the server did not answer in time` | A server did not answer in time |
+| `E0377` | `registry: the repository listing did not end in time` | A registry's repository listing did not end in time |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

@@ -894,6 +894,8 @@ Most requests here answer from what is already on disk and answer at once. A few
 
 **A `report` carries the compiler's own text.** The message is one line the operation wrote as it worked, passed through with its surrounding whitespace removed and nothing else changed — not re-worded, not summarised, not re-composed — and a line the operation wrote blank is dropped rather than reported as an empty message. So a client shows what it is given as it stands. It is the same property the response's own diagnostics have: one condition keeps one wording however many surfaces report it.
 
+**A step the operation waits on is a `report` too.** As the operation enters a step it waits on — reading a registry, fetching an artifact, compiling a plugin — a `report` carries the step's name, in the words the command line shows beside its spinner for the same step. Only steps entered between the `begin` and the `end` are reported.
+
 **One line of output is one `report`.** An operation that writes several lines at once produces one notification per line, and a line the operation writes in pieces is reported once it is complete — so a message is never half a sentence.
 
 **There is no fraction and no percentage, and that is not an omission awaiting work.** The operations that report here work through a set whose size is not known when the work starts — how many references a resolution walks, how many layers a publication uploads — so any fraction would be invented. Draw an indeterminate indicator and show the latest `message`.

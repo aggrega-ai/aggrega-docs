@@ -158,6 +158,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
+| `ErrNoAnswerInTime()` | `no-answer-in-time` | `egress: the server did not answer in time` |
 | `ErrOfflineEgress()` | `offline-egress` | ``egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache`` |
 
 ### pkg/externalinputs
@@ -858,6 +859,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0373` | `retired-api-version` | `a document declares an API version this compiler no longer reads` |
 | `E0374` | `retired-abi-version` | `a plugin declares a plugin ABI version this compiler no longer speaks` |
 | `E0375` | `retired-media-type` | `oci: artifact carries a media type this compiler no longer reads` |
+| `E0376` | `no-answer-in-time` | `egress: the server did not answer in time` |
+| `E0377` | `repository-listing-too-long` | `registry: the repository listing did not end in time` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
