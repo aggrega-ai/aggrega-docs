@@ -22615,6 +22615,17 @@
     "status": "machine",
     "text": "Release 将密钥作为读取 `${OPENAI_API_KEY}` 的 `core/secret-value` 附加到连接上，Docker Compose 会从你的 shell 中填入该值。它以 `OPENAI_API_KEY` 的形式进入 n8n 的环境，只要 `allow_env_access_in_nodes` 保持为 `false`（审阅正是这样保留的），工作流就不会读取它。"
   },
+  "212408ed081a9896": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "925b56800cb518ca",
+      "reviewed": false
+    },
+    "srcHash": "212408ed081a9896",
+    "status": "machine",
+    "text": "`aggrega cache status` 按类别说明这一点，而不是让人从名称去推断：每个类别都会报告其覆盖范围是工作区还是本机，`prune`、`evict` 和 `clear` 删除的每个元素也会报告相同的范围。`evict` 只作用于共享的已编译模块存储；`prune` 从不删除文档包，因为没有任何锁文件引用它，并会将该存储报告为不可 prune；`prune` 会保留你的配置中 `plugins.cli` 列表所固定的每个 cli 插件的字节——无论是在 cli 插件存储中还是在工作区的产物缓存中，连同其插件描述条目——并删除没有任何固定项指名的那些；`clear` 作用于所有内容，因此它在开始前会进行确认。"
+  },
   "2130e3aa0161b430": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -45064,6 +45075,17 @@
     "status": "machine",
     "text": "**它是一份独立的文档，因此要单独请求。**`--closure` 选择闭包来代替解析视图，且不能与 `--raw`、`--resolved`、`--output` 或 `--ir-graph` 组合使用——这些选项各自请求关于同一 Release 的另一份文档，而一个接受两个请求的命令将不得不默默只回答其中一个。组合使用会被拒绝，并指出冲突的那对选项。"
   },
+  "4324150225834432": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "4eae4bf509b54ca5",
+      "reviewed": false
+    },
+    "srcHash": "4324150225834432",
+    "status": "machine",
+    "text": "工作区根目录是最近的、带有 `workspace:` 块的祖先 `.aggrega-config.yaml` 所在的目录，或 `--workspace-root` 指定的目录。当根目录以这种方式固定时，构建**与调用位置无关**：从项目根目录和从子目录运行 `aggrega build` 会生成逐字节相同的 IR 和渲染产物，因为所搜索的目录以及输出中记录的源路径不会随工作目录而改变。（如果既没有 `workspace:` 标记也没有 `--workspace-root`，则工作目录即为根目录，输出因此锚定在那里——除非工作目录不锚定任何内容，且 `--release` 以绝对路径指定 Release：此时会从 Release 自身所在的文件夹重新发现根目录，因此所搜索的目录和输出中记录的路径都属于该 Release 所在的项目，无论你从哪里运行该命令。参见 [configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised)。）如果这样也找不到工作区，且没有任何东西指定工作区，构建会在标准错误中警告它用作根目录的文件夹不在任何工作区内，并给出使其成为工作区的命令；而要求先解析其依赖项的构建会在获取任何内容之前被拒绝，因为该解析所填充的缓存会写入那个文件夹，并使其成为一个工作区。不先解析任何内容的构建仍会渲染，但出于同样的原因，锁文件固定而缓存中已不再保存的外部输入不会被重新获取：请求它的插件会收到拒绝的说明语句来代替该输入，就像它会收到离线模式的说明语句一样，构建会报告该插件对此的处理结果。`--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指定了不存在的文件夹时，构建会在执行其他任何操作之前拒绝，并指出是两者中的哪一个提供了该值。"
+  },
   "432cdc2c984d9205": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -66803,6 +66825,13 @@
     "srcHash": "62ec39f9da8d50f0",
     "status": "machine",
     "text": "打包的 Redis 服务器采用 **AGPL-3.0** 许可；`valkey-cache` 示例封装了 Valkey，它使用相同的线路协议。"
+  },
+  "62eca9f82151d060": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "62eca9f82151d060",
+    "status": "machine",
+    "text": "捕获只会写入工作区。在不属于任何工作区的文件夹中运行，且没有 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指定工作区时，它不写入任何内容——写在那里的配置文件会把该文件夹变成工作区——并以说明这一点的错误退出。`aggrega config init --workspace` 会先将该文件夹变为工作区。"
   },
   "62f0a671e4f87778": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -105201,6 +105230,13 @@
     "status": "machine",
     "text": "一条跨文档引用链回到了它已经到达过的文档，因此展开永远不会结束。有两种编写方式会导致这种情况，两者都是库实体之间的链，而不是单个文件内部的问题：从 schema 支柱指向某个 SchemaLibrary 条目的 `$ref:`，而该条目又辗转引用回来；以及指向某个 MappingLibrary 或 WorkloadLibrary 条目的 `$import:`，情况相同。"
   },
+  "9cd48ddaa7225313": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "9cd48ddaa7225313",
+    "status": "machine",
+    "text": "cli 插件存储保存在非工作区文件夹中通过 [`aggrega plugin add cli`](aggrega-plugin.md) 添加的每个 cli 插件的字节，因此其命令可以从任何文件夹运行；在工作区内添加的 cli 插件则将其字节保存在该工作区的产物缓存中。与已编译模块或文档包不同，字节被删除的 cli 插件不会自行重新获取：在 `aggrega plugin add cli <name>` 再次添加它之前，其命令会缺失，并且每个命令都会警告无法添加它，同时给出按你的配置所固定的版本再次添加它的 `aggrega plugin add cli` 命令。"
+  },
   "9cd5a7c31e242cbb": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -142242,6 +142278,17 @@
     "status": "machine",
     "text": "闭包所达到的插件。"
   },
+  "d1de8b6dad8233ae": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "1cb04963eff6d70b",
+      "reviewed": false
+    },
+    "srcHash": "d1de8b6dad8233ae",
+    "status": "machine",
+    "text": "同上：它所选择的版本在它解析版本的任一途径上都会经过筛查，而你以 `<name>:<version>` 指定的版本仍会被解析，并公告其撤回。若无法读取标记，它会说明这一点，并声明已发布的版本未经筛查。"
+  },
   "d1e294de6207afbf": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -143960,6 +144007,17 @@
     "srcHash": "d478c187bee57fe6",
     "status": "machine",
     "text": "凭据如何到达容器"
+  },
+  "d47d75fc580f3122": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "05882a66eba21513",
+      "reviewed": false
+    },
+    "srcHash": "d47d75fc580f3122",
+    "status": "machine",
+    "text": "**由本机上所有 Aggrega 项目共享。** 已编译模块存储、插件描述存储、文档包存储和 cli 插件存储。provider guest 只编译一次并由所有项目复用，正是这一点让任何内容的第二次构建变快，因此删除一个条目意味着本机上*任何*项目的下一次构建都会重新编译它。文档包——[`aggrega explain`](aggrega-explain.md)、编辑器的解释以及助手的文档资源所读取的已发布页面，以及 [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) 写出的可运行示例——按注册表和版本各保存一份，因为其内容不依赖其他任何东西：它们之中谁先获取它，就为所有项目获取了它，而每个项目仍只有在自身的签名检查接受该副本后才会得到它。不会有任何内容永久丢失——被删除的模块会按需重新构建，被删除的文档包会由下一次解释或示例重新获取，或由助手服务器在下次启动时重新获取——但代价由下一个构建者承担，而那未必是你。"
   },
   "d47ef26afa555d48": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -158732,6 +158790,17 @@
     "srcHash": "ea137cb3f9feb8c5",
     "status": "machine",
     "text": "某个 `uses:` 块命名了一个插槽，而拥有该声明面的实体并未在其 `usesSchema` 中声明它；这只发生在仅允许命名已声明插槽的两个声明面之一：**Feature 附件的** `uses:`，其插槽必须在所附加的 Feature 上声明；以及 **Release 的**逐边 `uses:`，其插槽必须在消费方 Component 上声明。Release 只能在 Component 的 `usesSchema` 已声明的插槽内连接或配置边。"
+  },
+  "ea15cd8916eb9a50": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "a3f18b7e3ed2a168",
+      "reviewed": false
+    },
+    "srcHash": "ea15cd8916eb9a50",
+    "status": "machine",
+    "text": "本机范围的存储保存在各平台存放用户缓存的位置：在 Windows 上位于 `LOCALAPPDATA` 环境变量所指目录内的 `aggrega\\cache` 下，在 macOS 上位于 `~/Library/Caches/aggrega` 下，在 Linux 及其他 Unix 系统上位于 `XDG_CACHE_HOME` 所指目录内的 `aggrega` 目录下（未设置 `XDG_CACHE_HOME` 时为 `~/.cache/aggrega`）。`aggrega config init` 会打印其运行所在机器上的该目录。若这些变量均未设置，已编译插件只在本次运行期间保留，且完全不保留文档包：此时解释会说明其详细讲解缺失的原因，助手的文档资源返回未找到，而 `aggrega scaffold --example` 会拒绝执行，并说明无法解析出任何缓存目录；在非工作区文件夹中运行的 `aggrega plugin add cli` 同样会拒绝执行，并说明无法解析出任何本机范围的缓存位置。"
   },
   "ea171ece584cda36": {
     "at": "2026-10-22T04:31:59.273856+00:00",

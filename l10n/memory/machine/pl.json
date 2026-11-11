@@ -22615,6 +22615,17 @@
     "status": "machine",
     "text": "Encja Release dołącza klucz do połączenia jako `core/secret-value` odczytujący `${OPENAI_API_KEY}`, który Docker Compose uzupełnia z powłoki. Trafia on do środowiska n8n jako `OPENAI_API_KEY`, gdzie przepływ pracy go nie odczytuje, dopóki `allow_env_access_in_nodes` pozostaje `false`, tak jak pozostawia to przegląd."
   },
+  "212408ed081a9896": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "925b56800cb518ca",
+      "reviewed": false
+    },
+    "srcHash": "212408ed081a9896",
+    "status": "machine",
+    "text": "`aggrega cache status` podaje to dla każdej klasy, zamiast pozostawiać wnioskowanie z nazwy: każda klasa jest raportowana jako obejmująca obszar roboczy lub maszynę, a ten sam zasięg jest raportowany dla każdego elementu usuwanego przez `prune`, `evict` i `clear`. `evict` działa tylko na wspólnym magazynie skompilowanych modułów; `prune` nigdy nie usuwa pakietu dokumentacji, ponieważ żaden plik blokady się do niego nie odwołuje, i raportuje ten magazyn jako niekwalifikujący się do przycinania; `prune` zachowuje bajty każdego pluginu cli przypiętego na liście `plugins.cli` w konfiguracji — zarówno w magazynie pluginów cli, jak i w pamięci podręcznej artefaktów obszaru roboczego, wraz z jego wpisem w magazynie opisów pluginów — i usuwa te, których nie wskazuje żadne przypięcie; `clear` działa na wszystkim, dlatego przed rozpoczęciem prosi o potwierdzenie."
+  },
   "2130e3aa0161b430": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -45050,6 +45061,17 @@
     "status": "machine",
     "text": "**To jeden dokument, więc żąda się go osobno.** `--closure` wybiera domknięcie zamiast widoku rozwiązanego i nie można go łączyć z `--raw`, `--resolved`, `--output` ani `--ir-graph` — każda z tych flag żąda innego dokumentu o tej samej encji Release, a polecenie przyjmujące dwa żądania musiałoby po cichu odpowiedzieć tylko na jedno z nich. Połączenie ich jest odrzucane z podaniem tej pary."
   },
+  "4324150225834432": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "4eae4bf509b54ca5",
+      "reviewed": false
+    },
+    "srcHash": "4324150225834432",
+    "status": "machine",
+    "text": "Katalogiem głównym obszaru roboczego jest katalog najbliższego nadrzędnego pliku `.aggrega-config.yaml` zawierającego blok `workspace:` albo katalog wskazany przez `--workspace-root`. Gdy katalog główny jest w ten sposób ustalony, kompilacja jest **niezależna od miejsca wywołania**: uruchomienie `aggrega build` z katalogu głównego projektu i z podkatalogu daje identyczne co do bajtu IR i wyrenderowane artefakty, ponieważ przeszukiwany katalog i ścieżki źródłowe zapisane w wyniku nie zmieniają się wraz z katalogiem roboczym. (Bez znacznika `workspace:` i bez `--workspace-root` katalogiem głównym jest katalog roboczy, więc wynik jest zakotwiczony tam — chyba że katalog roboczy niczego nie zakotwicza, a `--release` wskazuje encję Release ścieżką bezwzględną: katalog główny jest wtedy wykrywany ponownie od folderu samej encji Release, więc przeszukiwany katalog i ścieżki zapisane w wyniku należą do projektu, do którego należy encja Release, niezależnie od tego, skąd uruchamia się polecenie. Zob. [configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised).) Jeśli i w ten sposób nie zostanie znaleziony żaden obszar roboczy, a nic go nie wskazuje, kompilacja ostrzega na standardowym wyjściu błędów, że folder użyty jako katalog główny nie leży w żadnym obszarze roboczym, i podaje polecenie, które czyni go obszarem roboczym; kompilacja, od której zażądano wcześniejszego rozwiązania zależności, jest odrzucana, zanim cokolwiek zostanie pobrane, ponieważ pamięć podręczna wypełniana przez to rozwiązywanie zostałaby zapisana w tym folderze i uczyniłaby go obszarem roboczym. Kompilacja, która niczego wcześniej nie rozwiązuje, nadal renderuje, ale z tego samego powodu zewnętrzne wejście przypięte w pliku blokady, którego pamięć podręczna już nie przechowuje, nie jest pobierane ponownie: wtyczka, która o nie prosi, otrzymuje w jego miejsce zdanie z odmową, tak jak otrzymuje zdanie trybu offline, a kompilacja zgłasza, co ta wtyczka z nim zrobi. `--workspace-root` lub `AGGREGA_WORKSPACE_ROOT` wskazujące nieistniejący folder jest odrzucane, zanim kompilacja zrobi cokolwiek innego, z podaniem, które z nich go dostarczyło."
+  },
   "432cdc2c984d9205": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -66793,6 +66815,13 @@
     "srcHash": "62ec39f9da8d50f0",
     "status": "machine",
     "text": "Dostarczany serwer Redis jest objęty licencją **AGPL-3.0**; przykład `valkey-cache` opakowuje Valkey, który posługuje się tym samym protokołem."
+  },
+  "62eca9f82151d060": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "62eca9f82151d060",
+    "status": "machine",
+    "text": "Przechwytywanie zapisuje wyłącznie w obszarze roboczym. Uruchomione w folderze, który nie leży w żadnym obszarze roboczym, gdy żadnego nie wskazuje `--workspace-root` ani `AGGREGA_WORKSPACE_ROOT`, niczego nie zapisuje — zapisany tam plik konfiguracyjny zamieniłby folder w obszar roboczy — i kończy działanie z błędem, który o tym informuje. `aggrega config init --workspace` najpierw czyni folder obszarem roboczym."
   },
   "62f0a671e4f87778": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -105176,6 +105205,13 @@
     "status": "machine",
     "text": "Łańcuch odwołań między dokumentami wraca do dokumentu, do którego już dotarł, więc jego rozwijanie nigdy by się nie zakończyło. Do tego samego stanu prowadzą dwie powierzchnie tworzenia i obie są łańcuchami między encjami bibliotek, a nie czymś wewnątrz jednego pliku: `$ref:` z filaru schematu do wpisu SchemaLibrary, który odwołaniami wraca z powrotem, oraz `$import:` do wpisu MappingLibrary lub WorkloadLibrary, który robi to samo."
   },
+  "9cd48ddaa7225313": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "9cd48ddaa7225313",
+    "status": "machine",
+    "text": "Magazyn pluginów cli przechowuje bajty każdego pluginu cli dodanego za pomocą [`aggrega plugin add cli`](aggrega-plugin.md) w folderze, który nie jest obszarem roboczym, dzięki czemu jego polecenie działa z dowolnego folderu; plugin cli dodany wewnątrz obszaru roboczego przechowuje natomiast swoje bajty w pamięci podręcznej artefaktów tego obszaru roboczego. W odróżnieniu od skompilowanego modułu czy pakietu plugin cli, którego bajty zostały usunięte, nie jest samoczynnie pobierany ponownie: dopóki `aggrega plugin add cli <name>` nie doda go ponownie, jego polecenia brakuje, a każde polecenie ostrzega, że nie można go było dodać, i podaje polecenie `aggrega plugin add cli`, które dodaje go ponownie w wersji przypiętej w konfiguracji."
+  },
   "9cd5a7c31e242cbb": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -142173,6 +142209,17 @@
     "status": "machine",
     "text": "Wtyczki osiągane przez domknięcie."
   },
+  "d1de8b6dad8233ae": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "1cb04963eff6d70b",
+      "reviewed": false
+    },
+    "srcHash": "d1de8b6dad8233ae",
+    "status": "machine",
+    "text": "To samo: wersja, którą wybiera, jest sprawdzana na każdej ze ścieżek, którymi rozwiązuje wersję, a wersja wskazana jako `<name>:<version>` nadal jest rozwiązywana, z ogłoszeniem wycofania. Jeśli znaczników nie udało się odczytać, informuje o tym i stwierdza, że opublikowane wersje nie zostały sprawdzone."
+  },
   "d1e294de6207afbf": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -143891,6 +143938,17 @@
     "srcHash": "d478c187bee57fe6",
     "status": "machine",
     "text": "Jak poświadczenie trafia do kontenera"
+  },
+  "d47d75fc580f3122": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "05882a66eba21513",
+      "reviewed": false
+    },
+    "srcHash": "d47d75fc580f3122",
+    "status": "machine",
+    "text": "**Wspólne dla wszystkich projektów Aggrega na tej maszynie.** Magazyn skompilowanych modułów, magazyn opisów pluginów, magazyn pakietów dokumentacji i magazyn pluginów cli. Gość dostawcy jest kompilowany raz i ponownie używany przez każdy projekt, dzięki czemu druga kompilacja czegokolwiek jest szybka, więc usunięcie wpisu oznacza, że następna kompilacja *dowolnego* projektu na tej maszynie skompiluje go ponownie. Pakiet dokumentacji — opublikowane strony, z których odczytywane są [`aggrega explain`](aggrega-explain.md), objaśnienia edytora i zasoby dokumentacji asystenta, oraz uruchamialne przykłady, które zapisuje [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) — jest przechowywany raz na rejestr i wersję, ponieważ jego zawartość nie zależy od niczego innego: którekolwiek z nich pobierze go pierwsze, pobiera go dla każdego projektu, a każdy projekt otrzymuje go dopiero wtedy, gdy jego własna weryfikacja podpisu dopuści tę kopię. Nic nie ginie bezpowrotnie — usunięty moduł jest odbudowywany na żądanie, a usunięty pakiet jest pobierany ponownie przy następnym objaśnieniu lub przykładzie albo przez serwer asystenta przy jego następnym uruchomieniu — ale koszt ponosi ten, kto kompiluje jako następny, a to nie musi być ta sama osoba."
   },
   "d47ef26afa555d48": {
     "at": "2026-10-22T11:48:02.910092+00:00",
@@ -158665,6 +158723,17 @@
     "srcHash": "ea137cb3f9feb8c5",
     "status": "machine",
     "text": "Blok `uses:` wskazuje socket, którego encja będąca właścicielem danej powierzchni nie deklaruje w swoim `usesSchema`, na jednej z dwóch powierzchni, na których można wskazać wyłącznie zadeklarowany socket: w bloku `uses:` **załącznika Feature**, gdzie socket musi być zadeklarowany w dołączonej encji Feature, oraz w bloku `uses:` **encji Release** dla poszczególnych krawędzi, gdzie musi być zadeklarowany w konsumującej encji Component. Encja Release może podłączać lub konfigurować krawędzie wyłącznie w obrębie socketów, które `usesSchema` encji Component już deklaruje."
+  },
+  "ea15cd8916eb9a50": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "a3f18b7e3ed2a168",
+      "reviewed": false
+    },
+    "srcHash": "ea15cd8916eb9a50",
+    "status": "machine",
+    "text": "Magazyny ogólnomaszynowe są przechowywane tam, gdzie każda platforma przechowuje pamięci podręczne użytkownika: w systemie Windows w `aggrega\\cache` wewnątrz katalogu wskazanego przez zmienną środowiskową `LOCALAPPDATA`, w `~/Library/Caches/aggrega` w systemie macOS, a w katalogu `aggrega` wewnątrz katalogu wskazanego przez `XDG_CACHE_HOME` — `~/.cache/aggrega`, gdy `XDG_CACHE_HOME` nie jest ustawiona — w systemie Linux i innych systemach Unix. `aggrega config init` wypisuje ten katalog na maszynie, na której zostało uruchomione. Gdy żadna z tych zmiennych nie jest ustawiona, skompilowane pluginy są przechowywane tylko na czas uruchomienia, a żaden pakiet dokumentacji nie jest przechowywany: objaśnienie podaje wtedy, dlaczego brakuje jego omówienia, zasoby dokumentacji asystenta odpowiadają „nie znaleziono”, a `aggrega scaffold --example` odmawia, informując, że nie można ustalić żadnego katalogu pamięci podręcznej; `aggrega plugin add cli` uruchomione w folderze, który nie jest obszarem roboczym, również odmawia, informując, że nie można ustalić żadnej ogólnomaszynowej lokalizacji pamięci podręcznej."
   },
   "ea171ece584cda36": {
     "at": "2026-10-22T23:26:41.069265+00:00",

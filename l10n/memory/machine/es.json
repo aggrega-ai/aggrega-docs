@@ -20268,6 +20268,17 @@
     "status": "machine",
     "text": "La Release adjunta la clave a la conexión como un `core/secret-value` que lee `${OPENAI_API_KEY}`, que Docker Compose rellena desde tu shell. Llega al entorno de n8n como `OPENAI_API_KEY`, donde el workflow no la lee mientras `allow_env_access_in_nodes` siga en `false`, como lo deja la revisión."
   },
+  "212408ed081a9896": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "925b56800cb518ca",
+      "reviewed": false
+    },
+    "srcHash": "212408ed081a9896",
+    "status": "machine",
+    "text": "`aggrega cache status` lo indica por clase en lugar de dejar que se deduzca del nombre: cada clase se notifica como de alcance del workspace o de la máquina, y el mismo alcance se notifica para cada elemento que eliminan `prune`, `evict` y `clear`. `evict` actúa solo sobre el almacén compartido de módulos compilados; `prune` nunca elimina un paquete de documentación, ya que ningún lockfile hace referencia a uno, y notifica el almacén como no apto para prune; `prune` conserva los bytes de cada plugin cli que fija la lista `plugins.cli` de tu configuración — tanto en el almacén de plugins cli como en la caché de artefactos del workspace, junto con su entrada de descripción de plugin — y elimina los que ninguna fijación nombra; `clear` actúa sobre todo, por lo que pregunta antes de empezar."
+  },
   "2130e3aa0161b430": {
     "at": "2026-11-03T10:52:20.646Z",
     "job": "session-0094-20261103105220",
@@ -40420,6 +40431,17 @@
     "status": "machine",
     "text": "**Es un solo documento, así que se pide por sí solo.** `--closure` selecciona el cierre en lugar de la vista resuelta, y no puede combinarse con `--raw`, `--resolved`, `--output` ni `--ir-graph` — cada uno de ellos pide un documento distinto sobre la misma Release, y un comando que aceptara dos solicitudes tendría que responder silenciosamente solo a una. La combinación se rechaza, nombrando el par."
   },
+  "4324150225834432": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "4eae4bf509b54ca5",
+      "reviewed": false
+    },
+    "srcHash": "4324150225834432",
+    "status": "machine",
+    "text": "La raíz del workspace es el directorio del `.aggrega-config.yaml` antecesor más cercano que contiene un bloque `workspace:`, o el directorio que nombra `--workspace-root`. Cuando la raíz se fija de esta manera, un build es **independiente del lugar de invocación**: ejecutar `aggrega build` desde la raíz del proyecto y desde un subdirectorio produce IR y artefactos renderizados idénticos byte a byte, porque el catálogo en el que se busca y las rutas de origen registradas en la salida no cambian con el directorio de trabajo. (Sin el marcador `workspace:` y sin `--workspace-root`, el directorio de trabajo es la raíz, así que la salida se ancla allí en su lugar, salvo que el directorio de trabajo no ancle nada y `--release` nombre la Release mediante una ruta absoluta: la raíz se descubre entonces de nuevo a partir de la propia carpeta de la Release, de modo que el catálogo en el que se busca y las rutas registradas en la salida son las del proyecto al que pertenece la Release, desde dondequiera que ejecutes el comando. Consulta [configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised).) Donde tampoco así se encuentra un workspace y nada nombra uno, el build advierte en el error estándar que la carpeta que usó como raíz no está dentro de ningún workspace, y nombra el comando que la convierte en uno; un build al que se le pide resolver primero sus dependencias se rechaza antes de descargar nada, porque la caché que esa resolución llena se escribiría en esa carpeta y la convertiría en un workspace. Un build que no resuelve nada antes sigue renderizando, pero por la misma razón una entrada externa que el lockfile fija y que la caché ya no contiene no se descarga de nuevo: al plugin que la solicita se le comunica en su lugar la frase del rechazo, igual que se le comunica la del modo sin conexión, y el build informa de lo que ese plugin hace con ello. Un `--workspace-root` o `AGGREGA_WORKSPACE_ROOT` que nombra una carpeta inexistente se rechaza antes de que el build haga nada más, indicando cuál de los dos la proporcionó."
+  },
   "432cdc2c984d9205": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -59953,6 +59975,13 @@
     "srcHash": "62e7786f81efee9e",
     "status": "machine",
     "text": "Validación entre campos en tiempo de compilación. Cada entrada es una aserción con nombre: la clave es un identificador de regla estable que aparece en los mensajes de error; el valor es una cadena de plantilla Go con semántica de detención `{{ fail \"message\" }}`. Varias aserciones con nombre por entidad se evalúan por instancia en el orden declarado por el autor; la primera aserción que falla detiene la compilación. Las aserciones de FeatureRecipe se evalúan después del enlace de la receta y después de evaluar los provides, antes del renderizado, y expresan invariantes de implementación del chart o módulo concreto que la FeatureRecipe usa como fuente. Contexto de la plantilla: .values / .infra / .uses / .features / .metadata más .provides / .locals / .recipe. El evaluador usa missingkey=error: las referencias a claves no definidas provocan una detención con un diagnóstico no-such-key. Como la referencia simple provoca la detención antes de que pueda ejecutarse cualquier valor alternativo, un `default` simple no proporciona un valor alternativo para un campo opcional en esta superficie — protege la referencia con `hasKey`, o usa la función auxiliar `optional`, que realiza directamente la comprobación de presencia. Leer la clave mediante `index` tampoco proporciona uno: `index` provoca una detención ante una clave de mapa que el mapa no contiene, nombrando la clave."
+  },
+  "62eca9f82151d060": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "62eca9f82151d060",
+    "status": "machine",
+    "text": "La captura solo escribe dentro de un workspace. Ejecutada en una carpeta que no está dentro de ninguno, sin `--workspace-root` ni `AGGREGA_WORKSPACE_ROOT` que nombre uno, no escribe nada — un archivo de configuración escrito allí convertiría la carpeta en un workspace — y termina con un error que lo indica. `aggrega config init --workspace` convierte primero la carpeta en un workspace."
   },
   "62f0a671e4f87778": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -94497,6 +94526,13 @@
     "status": "machine",
     "text": "Una cadena de referencias entre documentos vuelve a un documento que ya ha alcanzado, así que expandirla nunca terminaría. Dos superficies de autoría llegan a la misma condición, y ambas son cadenas entre entidades de biblioteca, no algo dentro de un solo archivo: un `$ref:` desde un pilar de esquema hacia una entrada de una SchemaLibrary que, referencia tras referencia, vuelve atrás, y un `$import:` hacia una entrada de una MappingLibrary o una WorkloadLibrary que hace lo mismo."
   },
+  "9cd48ddaa7225313": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "srcHash": "9cd48ddaa7225313",
+    "status": "machine",
+    "text": "El almacén de plugins cli guarda los bytes de cada plugin cli añadido con [`aggrega plugin add cli`](aggrega-plugin.md) en una carpeta que no es un workspace, de modo que su comando se ejecuta desde cualquier carpeta; un plugin cli añadido dentro de un workspace guarda en cambio sus bytes en la caché de artefactos de ese workspace. A diferencia de un módulo compilado o de un paquete, un plugin cli cuyos bytes se eliminan no se vuelve a obtener por sí solo: hasta que `aggrega plugin add cli <name>` lo añada de nuevo, su comando falta y cada comando advierte que no se pudo añadir, indicando el comando `aggrega plugin add cli` que lo añade de nuevo en la versión que fija tu configuración."
+  },
   "9cd5a7c31e242cbb": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -127894,6 +127930,17 @@
     "status": "machine",
     "text": "Los plugins que alcanza el cierre."
   },
+  "d1de8b6dad8233ae": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "1cb04963eff6d70b",
+      "reviewed": false
+    },
+    "srcHash": "d1de8b6dad8233ae",
+    "status": "machine",
+    "text": "Lo mismo: una versión que elige se filtra en cualquiera de las dos vías por las que resuelve una, y una versión que nombras como `<name>:<version>` sigue resolviéndose, con la retirada anunciada. Cuando no se pudieron leer los marcadores, lo indica y declara que las versiones publicadas no se filtraron."
+  },
   "d1e294de6207afbf": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -129412,6 +129459,17 @@
     "srcHash": "d478c187bee57fe6",
     "status": "machine",
     "text": "Cómo llega una credencial a un contenedor"
+  },
+  "d47d75fc580f3122": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "05882a66eba21513",
+      "reviewed": false
+    },
+    "srcHash": "d47d75fc580f3122",
+    "status": "machine",
+    "text": "**Compartidas por todos los proyectos de Aggrega en esta máquina.** El almacén de módulos compilados, el almacén de descripciones de plugins, el almacén de paquetes de documentación y el almacén de plugins cli. El guest de un provider se compila una vez y lo reutilizan todos los proyectos, que es lo que hace rápida la segunda compilación de cualquier cosa, así que eliminar una entrada significa que la siguiente compilación de *cualquier* proyecto de la máquina lo vuelve a compilar. El paquete de documentación — las páginas publicadas de las que leen [`aggrega explain`](aggrega-explain.md), las explicaciones de un editor y los recursos de documentación de un asistente, y los ejemplos ejecutables que escribe [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) — se conserva una sola vez por registro y versión, porque su contenido no depende de nada más: el primero de ellos que lo obtiene lo obtiene para todos los proyectos, y aun así cada proyecto solo lo recibe una vez que su propia comprobación de firma admite la copia. Nada se pierde de forma permanente — un módulo eliminado se reconstruye bajo demanda, y un paquete eliminado se vuelve a obtener con la siguiente explicación o el siguiente ejemplo, o por un servidor de asistente la próxima vez que se inicie —, pero el coste recae en quien compile a continuación, que puede no ser tú."
   },
   "d47ef26afa555d48": {
     "at": "2026-11-02T22:45:50.112Z",
@@ -142715,6 +142773,17 @@
     "srcHash": "ea137cb3f9feb8c5",
     "status": "machine",
     "text": "Un bloque `uses:` nombra un socket que la entidad propietaria de la superficie no declara en su `usesSchema`, en una de las dos superficies donde solo puede nombrarse un socket declarado: el `uses:` **de una vinculación de Feature**, donde el socket debe declararse en la Feature vinculada, y el `uses:` por arista **de una Release**, donde debe declararse en el Component consumidor. Una Release solo puede cablear o configurar aristas dentro de los sockets que el `usesSchema` del Component ya declara."
+  },
+  "ea15cd8916eb9a50": {
+    "at": "2026-11-11T02:35:48.230Z",
+    "job": "session-0002-20261111023548",
+    "revision": {
+      "from": "a3f18b7e3ed2a168",
+      "reviewed": false
+    },
+    "srcHash": "ea15cd8916eb9a50",
+    "status": "machine",
+    "text": "Los almacenes de toda la máquina se guardan donde cada plataforma guarda las cachés de un usuario: en Windows en `aggrega\\cache` dentro del directorio que nombra la variable de entorno `LOCALAPPDATA`, en `~/Library/Caches/aggrega` en macOS, y en un directorio `aggrega` dentro del que nombra `XDG_CACHE_HOME` — `~/.cache/aggrega` cuando `XDG_CACHE_HOME` no está definida — en Linux y los demás sistemas Unix. `aggrega config init` imprime el directorio en la máquina en la que se ejecuta. Cuando ninguna de esas variables está definida, los plugins compilados se conservan solo durante la ejecución y no se conserva ningún paquete de documentación: una explicación indica entonces por qué falta su guía paso a paso, los recursos de documentación de un asistente responden «no encontrado», y `aggrega scaffold --example` se niega, indicando que no se resuelve ningún directorio de caché; `aggrega plugin add cli` ejecutado en una carpeta que no es un workspace también se niega, indicando que no se resuelve ninguna ubicación de caché de toda la máquina."
   },
   "ea171ece584cda36": {
     "at": "2026-11-03T18:29:45.694Z",
