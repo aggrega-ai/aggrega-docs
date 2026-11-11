@@ -100,9 +100,10 @@ mapped checkpointer (checkpointer) to core/datastore/postgres as a reference, NO
 The Aggregate, the Release and the Manifest are named `imported/support`, after
 the one graph `langgraph.json` serves, `support`, since a configuration carries
 no name of its own — one serving several graphs is named after its file, or
-`flow` where, as here, the import is given its directory — under the namespace
-the importer's `target_namespace` setting sets, `imported` unless you set
-another ([Settings](../../language-reference/plugins/core-importers.md#settings)).
+after its directory where, as here, the import is given its directory — under
+the namespace the importer's `target_namespace` setting sets, `imported` unless
+you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — the graph and the database it keeps state in, opening with
 comments that say what was read and what was not:

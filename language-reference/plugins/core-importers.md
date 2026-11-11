@@ -228,7 +228,10 @@ unless you set another. `<name>` is the first of these that is not empty:
   | `importer/google-adk` | the root agent's `name` |
   | `importer/agent-framework` | the agent's `name`; its `displayName` is not read |
 
-- the name of the file the import was handed, without its extension — a directory hands none;
+- the name of the directory the import was handed, whole — `my.project` keeps its full stop, written
+  `my-project` — as Compose names a project after the directory holding it; `aggrega import .` names
+  the directory it runs in;
+- the name of the file the import was handed on its own, without its extension;
 - `flow`.
 
 A draft made from several sources — several Compose projects, configurations, agent trees or
@@ -1300,7 +1303,7 @@ services:
 ```
 
 is drafted, with no setting, over a catalog holding the standard library's `core/datastore/postgres`,
-named after the file since the project carries no `name`, as:
+imported on its own and named after the file since the project carries no `name`, as:
 
 ```yaml
 # aggregate.yaml
@@ -1632,8 +1635,9 @@ the model's Component takes them. The Release's `metadata.environment` and
 [What a target adds](#what-a-target-adds) describes.
 
 The classic project this importer's tests import, whose two agents both name `openai/gpt-4o`, is
-drafted, with no setting, as below; imported as its directory, whose declarations name no crew, it is
-named `flow`:
+drafted, with no setting, as below; imported as its project directory, `market_brief` — the directory
+`crewai create crew market_brief` lays such a project out in — whose declarations name no crew, it is
+named after that directory:
 
 ```yaml
 # aggregate.yaml
@@ -1647,7 +1651,7 @@ named `flow`:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/market-brief
   version: 0.1.0
   description: Draft Aggregate imported from a source in the crewai format.
 spec:
@@ -1682,7 +1686,7 @@ connection:
 
 ```yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/market-brief
   boundaries:
     main:
       components:
@@ -1813,7 +1817,8 @@ the import is given a target, as [What a target adds](#what-a-target-adds) descr
 
 The Python application this importer's tests import, declaring two graphs, a checkpointer naming no
 backend, a store and an `env` written as an object, is drafted, with no setting, as below; imported as
-its directory, with two graphs whose ids differ, it is named `flow`:
+its directory, `support_desk` — named, as here, after the package its graphs are defined in — with two
+graphs whose ids differ, it is named after that directory:
 
 ```yaml
 # aggregate.yaml
@@ -1827,7 +1832,7 @@ its directory, with two graphs whose ids differ, it is named `flow`:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-desk
   version: 0.1.0
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
@@ -1854,7 +1859,7 @@ spec:
 ```yaml
 # release.yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/support-desk
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the graphs are built for.
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
@@ -1880,7 +1885,7 @@ credential on its `model` connection, and places the datastore and the model in 
 
 ```yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/support-desk
   boundaries:
     main:
       components:
@@ -2419,7 +2424,7 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, and `<target_namespace>/<name>` for the Aggregate and the Release, `<name>` the source's own name, else its file's name without the extension, else `flow`, written in lowercase with each run of other characters than ASCII letters and digits as one hyphen, as [How a draft is named](#how-a-draft-is-named) describes. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, and `<target_namespace>/<name>` for the Aggregate and the Release, `<name>` the source's own name, else its directory's name, or its file's name without the extension, else `flow`, written in lowercase with each run of other characters than ASCII letters and digits as one hyphen, as [How a draft is named](#how-a-draft-is-named) describes. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |

@@ -135,11 +135,12 @@ made no choice for reply_task (task)
 
 ## What it wrote
 
-The Aggregate, the Release and the Manifest are named `imported/flow`: a
-project's `config/agents.yaml` and `config/tasks.yaml` name no crew — its name
+The Aggregate, the Release and the Manifest are named `imported/support-brief`:
+a project's `config/agents.yaml` and `config/tasks.yaml` name no crew — its name
 lives in the program, which the import does not read — so a directory import of
-them is named `flow`, under the namespace the importer's `target_namespace`
-setting sets, `imported` unless you set another
+them is named after the directory, `support_brief`, written as a name segment,
+under the namespace the importer's `target_namespace` setting sets, `imported`
+unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — one instance per agent, each wired to the model it names,
@@ -157,7 +158,7 @@ and the model, opening with comments that say what was read and what was not:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-brief
   version: 0.1.0
   description: Draft Aggregate imported from a source in the crewai format.
 spec:
@@ -206,13 +207,13 @@ named in a comment above it, and an entry placing the model beside them:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-brief
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the crewai format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-brief
+  manifest: imported/support-brief
   components:
     # Left for the Release, since no declaration states it:
     #   - infra.image, the container image running the crew's program
@@ -235,7 +236,7 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-brief
   version: 0.1.0
 spec:
   mappings:
@@ -295,14 +296,14 @@ The Aggregate needs no change. The reviewed `release.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-brief
   # Reviewed: the environment this Release deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the crewai format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-brief
+  manifest: imported/support-brief
   components:
     # Left for the Release, since no declaration states it:
     #   - infra.image, the container image running the crew's program
@@ -352,7 +353,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-brief
   version: 0.1.0
 spec:
   mappings:

@@ -136,8 +136,9 @@ Three kinds of line are worth reading before the files:
 
 The Aggregate, the Release and the Manifest are named `imported/notes`, after the
 Compose project's `name:` — a Compose file with no `name:` is named after its
-file, `compose` — under the namespace the importer's `target_namespace` setting
-sets, `imported` unless you set another
+file, `compose`, and the directory holding it, imported as a directory, after
+that directory, as Compose names a project — under the namespace the importer's
+`target_namespace` setting sets, `imported` unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — one entry per service, and one connection per service a
