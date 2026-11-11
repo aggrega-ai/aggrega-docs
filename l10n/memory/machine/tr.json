@@ -48391,6 +48391,13 @@
     "status": "machine",
     "text": "Bir CloudFormation parametresine bağlanan gizli değer şablona yazılacaktı"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Sorgu sabitlenen sürümü adlandırdığında ve bu çalışma alanının güvendiği bir geri çekme bildirimi o sürümü geri çektiğinde true olur. Adlandırılmış bir sürüm yine de sabitlenir, çünkü onu adlandırmak geçersiz kılmanın kendisidir. Aksi hâlde yoktur ve yokluğu sürümün geri çekilmediği anlamına gelmez: adlandırılmış bir sürümün geri çekme işaretleri okunamadığında retraction.unscreened nedenini belirtir; hiçbir sürüm adlandırılmadığında ise yayımlanmış en son sürüm seçilir ve retraction, geri çekme denetiminin bu seçim hakkında vardığı sonucu bildirir."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -65002,6 +65009,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[Örneğin sayfası](language-reference/examples/quickstart-web/README.md), her adımın neler yazdığını ve gerçek bir çalıştırmanın yanıtlarını gösterir."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Sorgunun adlandırdığı bir sürüm, geri çekilmiş olsa bile sabitlenir ve `withdrawn` bunu belirtir.** `<name>:<version>` olarak yazılan bir `query`, en son sürüm yerine o sürümü sabitler — yalnızca adla bağlanan ve sürümü reddeden `provider` dışındaki her türde — ve bir sürümü adlandırmak geçersiz kılmanın kendisidir: bu çalışma alanının güvendiği bir geri çekme bildirimi onu geri çekmiş olsa bile yine de sabitlenir ve yanıt `withdrawn: true` taşır — bu, [`aggrega plugin add`](aggrega-plugin.md) komutunun terminalde bir `retraction:` satırı olarak belirttiği olgudur. `withdrawn` diğer tüm yanıtlarda yoktur, bu nedenle varlığı sinyalin tamamıdır — ve yokluğu, sürümün geri çekilmediğine dair bir ifade değildir. Adlandırılmış bir sürümün geri çekme işaretleri okunamadığında `withdrawn` yoktur ve `retraction`, sürüm adlandırmayan bir ekleme aynı hatayla karşılaştığında olduğu gibi, nedenini belirterek `unscreened` taşır; sürüm adlandırmayan bir ekleme ise bunun yerine, seçtiği sürüm hakkında geri çekme denetiminin vardığı sonucu `retraction` içinde bildirir."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T09:44:21.400057+00:00",
@@ -153892,6 +153906,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — yapılandırılmış kayıt defterinde adı verilen türden bir plugin arar ve onu yapılandırmaya ekler. `type` ve `query` ikisi de zorunludur: `type`, `provider`, `governance`, `linter`, `importer` ve `cli` değerlerinden biridir; `query` o türün plugin adlarıyla eşleştirilir ve tam olarak bir tanesine çözümlenmelidir, bu nedenle birden çoğuyla eşleşen bir sorgu keyfî olarak çözümlenmek yerine adaylarla birlikte reddedilir. `capability`, bir `provider` bağlamasının hizmet ettiği yeteneği adlandırır ve orada zorunludur; `role`, bir `governance` ekinin rolünü — `label-transform`, `ir-verdict` ya da `render-verdict` — adlandırır ve orada zorunludur; her biri yalnızca kendi türü için okunur ve diğer türlerde reddedilir, çünkü sessizce hiçbir şey yapmayan bir alan çalışmış gibi görünürdü. `acceptCapabilities`, `cli` için zorunludur ve o plugin'in bildirdiği yetenekleri onaylar: terminal komutu bu kararı sorarak alır, bu yüzeyde ise sorulacak kimse yoktur, bu nedenle çağıran bu kararı alır ve gönderir. `global` ve `workspace` yazma hedefi geçersiz kılmalarıdır ve ikisini birlikte göndermek reddedilir. `dryRun`, yazma dışında düz isteğin yaptığı her şeyi yapar ve ortaya çıkan yapılandırmayı `content` olarak döndürür; hiçbir şey oluşturulmaz ya da değiştirilmez ve `written` false olur. Kayıt defterinde yine de arama yapılır ve sürüm yine de çözümlenir, çünkü o içerikteki kimlik, bir yazmanın sabitleyeceği kimliktir. **`dryRun`, `cli` türünde yok sayılmak yerine reddedilir**: bir komut uzantısı eklemesinin kaydettiği, doğruladığı baytların içerik özetidir; bu, kimsenin düzenlediği bir içerik değil, derleyicinin sürdürdüğü bir kayıttır ve ekleme bu baytları ilerlerken önbelleğe alır — bu nedenle geri verilmek yerine yazılır. Sürüm sizin için sabitlenir — sorgu tek bir plugin'e çözümlenir ve girdiye, sorgunun `<name>:<version>` olarak adlandırdığı sürüm ya da aksi hâlde plugin'in yayımlanmış en yüksek sürümü yazılır; bu çalışma alanının güvendiği bir geri çekme bildiriminin geri çektiği adlandırılmış bir sürüm yine de sabitlenir ve yanıt `withdrawn: true` taşır. **Bu bir kayıt defterine erişir ve hiçbir kapsamı adlandırmayan `cli` türünde bir ekleme genel yapılandırmayı yazar** — bkz. [Bir kayıt defterine erişmek ve yazmak](#reaching-a-registry-and-writing). Bkz. [Bir plugin değişikliği size ne söyler](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-22T09:56:04.106489+00:00",

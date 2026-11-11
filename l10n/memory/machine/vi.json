@@ -48415,6 +48415,13 @@
     "status": "machine",
     "text": "A secret bound to a CloudFormation parameter would be written into the template (Một bí mật ràng buộc với một tham số CloudFormation sẽ bị ghi vào template)"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Là true khi truy vấn đã nêu tên phiên bản được ghim và một tuyên bố thu hồi được workspace này tin cậy đã thu hồi phiên bản đó. Một phiên bản được nêu tên vẫn được ghim như thường, vì việc nêu tên nó chính là sự ghi đè. Vắng mặt trong các trường hợp khác, và sự vắng mặt không có nghĩa là phiên bản không bị thu hồi: khi không thể đọc được các dấu thu hồi của một phiên bản được nêu tên, retraction.unscreened cho biết lý do, và khi không nêu phiên bản nào, phiên bản được phát hành mới nhất sẽ được chọn và retraction báo cáo kết luận của việc kiểm tra thu hồi về lựa chọn đó."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -65028,6 +65035,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[Trang của ví dụ](language-reference/examples/quickstart-web/README.md) cho thấy những gì mỗi bước ghi ra và các câu trả lời từ một lần chạy thực tế."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Một phiên bản mà truy vấn nêu tên vẫn được ghim ngay cả khi đã bị thu hồi, và `withdrawn` cho biết điều đó.** Một `query` viết dưới dạng `<name>:<version>` sẽ ghim phiên bản đó thay vì phiên bản mới nhất — với mọi loại trừ `provider`, loại chỉ được gắn theo tên và từ chối phiên bản — và việc nêu tên một phiên bản chính là sự ghi đè: khi một tuyên bố thu hồi được workspace này tin cậy đã thu hồi phiên bản đó, nó vẫn được ghim như thường, và câu trả lời mang `withdrawn: true` — sự việc mà [`aggrega plugin add`](aggrega-plugin.md) nêu bằng một dòng `retraction:` trên terminal. `withdrawn` vắng mặt trong mọi câu trả lời khác, nên sự hiện diện của nó là toàn bộ tín hiệu — và sự vắng mặt của nó không phải là một khẳng định rằng phiên bản không bị thu hồi. Khi không thể đọc được các dấu thu hồi của một phiên bản được nêu tên, `withdrawn` vắng mặt và `retraction` mang `unscreened`, cho biết lý do, giống như với một lần thêm không nêu phiên bản nào gặp cùng lỗi đó; một lần thêm không nêu phiên bản nào thì thay vào đó báo cáo trong `retraction` kết luận của việc kiểm tra thu hồi về phiên bản nó đã chọn."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -153980,6 +153994,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — tìm trong registry đã cấu hình một plugin thuộc loại được nêu và thêm nó vào cấu hình. `type` và `query` đều bắt buộc: `type` là một trong `provider`, `governance`, `linter`, `importer` và `cli`, còn `query` được so khớp với tên các plugin thuộc loại đó và phải phân giải ra đúng một, nên một truy vấn khớp nhiều plugin sẽ bị từ chối kèm danh sách ứng viên thay vì được phân giải tùy ý. `capability` nêu capability mà một binding `provider` phục vụ và là bắt buộc ở đó; `role` nêu vai trò của một gắn kết `governance` — `label-transform`, `ir-verdict` hoặc `render-verdict` — và là bắt buộc ở đó; mỗi trường chỉ được đọc cho loại của riêng nó và bị từ chối ở mọi loại khác, vì một trường lặng lẽ không làm gì sẽ trông như đã có tác dụng. `acceptCapabilities` là bắt buộc với `cli` và xác nhận các capability mà plugin đó khai báo: lệnh terminal có được quyết định đó bằng cách hỏi, còn giao diện này không có ai để hỏi, nên bên gọi tự có quyết định đó và gửi đi. `global` và `workspace` là các tùy chọn ghi đè đích ghi, và gửi cả hai sẽ bị từ chối. `dryRun` làm mọi việc mà yêu cầu thông thường làm trừ việc ghi, trả lời bằng cấu hình kết quả dưới dạng `content`; không có gì được tạo hay sửa đổi và `written` là false. Registry vẫn được tìm kiếm và phiên bản vẫn được phân giải, vì danh tính trong nội dung đó chính là danh tính mà một lần ghi sẽ ghim. **`dryRun` bị từ chối với loại `cli`**, thay vì bị bỏ qua: thứ mà một lần thêm phần mở rộng lệnh ghi lại là digest nội dung của các byte nó đã xác minh, một bản ghi do trình biên dịch duy trì chứ không phải nội dung để ai đó chỉnh sửa, và việc thêm sẽ cache các byte đó trong quá trình thực hiện — nên nó được ghi thay vì trả lại. Phiên bản được ghim giúp bạn — truy vấn phân giải ra một plugin, và phiên bản mà truy vấn nêu dưới dạng `<name>:<version>`, hoặc nếu không có thì phiên bản được phát hành cao nhất của plugin, được ghi vào mục; một phiên bản được nêu tên đã bị một tuyên bố thu hồi được workspace này tin cậy thu hồi vẫn được ghim như thường và câu trả lời mang `withdrawn: true`. **Yêu cầu này truy cập registry, và một lần thêm loại `cli` không nêu phạm vi nào sẽ ghi vào cấu hình toàn cục** — xem [Truy cập registry và ghi](#reaching-a-registry-and-writing). Xem [Một thay đổi plugin cho bạn biết gì](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-22T10:44:41.513626+00:00",

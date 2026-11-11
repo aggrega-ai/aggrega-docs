@@ -43531,6 +43531,13 @@
     "status": "machine",
     "text": "A secret bound to a CloudFormation parameter would be written into the template (Ein an einen CloudFormation-Parameter gebundenes Geheimnis würde in das Template geschrieben)"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Ist true, wenn die Abfrage die festgelegte Version genannt hat und eine Rücknahme, der dieser Workspace vertraut, diese Version zurückgezogen hat. Eine genannte Version wird trotzdem festgelegt, weil das Nennen die Überschreibung ist. Andernfalls nicht vorhanden, und das Fehlen bedeutet nicht, dass die Version nicht zurückgezogen ist: Wo die Rückzugsmarkierungen einer genannten Version nicht gelesen werden konnten, nennt retraction.unscreened den Grund, und ohne genannte Version wird die neueste veröffentlichte Version gewählt, und retraction meldet, zu welchem Ergebnis die Rückzugsprüfung für diese Wahl gekommen ist."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -58453,6 +58460,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[Die Seite des Beispiels](language-reference/examples/quickstart-web/README.md) zeigt, was jeder Schritt schreibt, und die Antworten aus einem echten Lauf."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Eine Version, die die Abfrage nennt, wird auch dann festgelegt, wenn sie zurückgezogen wurde, und `withdrawn` zeigt das an.** Eine als `<name>:<version>` geschriebene `query` legt diese Version statt der neuesten fest – bei jedem Typ außer `provider`, der allein über den Namen gebunden wird und eine Version ablehnt –, und das Nennen einer Version ist die Überschreibung: Wo eine Rücknahme, der dieser Workspace vertraut, sie zurückgezogen hat, wird sie trotzdem festgelegt, und die Antwort enthält `withdrawn: true` – die Tatsache, die [`aggrega plugin add`](aggrega-plugin.md) im Terminal als `retraction:`-Zeile ausgibt. `withdrawn` fehlt in jeder anderen Antwort, sodass sein Vorhandensein das ganze Signal ist – und sein Fehlen keine Aussage darüber, dass die Version nicht zurückgezogen ist. Wo die Rückzugsmarkierungen einer genannten Version nicht gelesen werden konnten, fehlt `withdrawn`, und `retraction` enthält `unscreened` mit der Begründung, wie bei einem Hinzufügen ohne genannte Version, das auf denselben Fehler stößt; ein Hinzufügen ohne genannte Version meldet stattdessen in `retraction`, zu welchem Ergebnis die Rückzugsprüfung für die von ihm gewählte Version gekommen ist."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -138484,6 +138498,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — durchsucht die konfigurierte Registry nach einem Plugin eines benannten Typs und fügt es der Konfiguration hinzu. `type` und `query` sind beide erforderlich: `type` ist einer von `provider`, `governance`, `linter`, `importer` und `cli`, und `query` wird mit den Plugin-Namen dieses Typs abgeglichen und muss auf genau einen aufgelöst werden, sodass eine Abfrage, die auf mehrere passt, unter Angabe der Kandidaten abgelehnt wird, statt willkürlich aufgelöst zu werden. `capability` nennt die Capability, die eine `provider`-Bindung bedient, und ist dort erforderlich; `role` nennt die Rolle eines `governance`-Anhangs – `label-transform`, `ir-verdict` oder `render-verdict` – und ist dort erforderlich; jedes wird nur für seinen eigenen Typ gelesen und bei jedem anderen abgelehnt, denn ein Feld, das stillschweigend nichts täte, sähe so aus, als hätte es funktioniert. `acceptCapabilities` ist für `cli` erforderlich und bestätigt die deklarierten Capabilities dieses Plugins: Der Terminalbefehl erhält diese Entscheidung durch Nachfragen, und diese Oberfläche hat niemanden, den sie fragen könnte, also holt der Aufrufer sie ein und sendet sie. `global` und `workspace` sind die Überschreibungen des Schreibziels, und das Senden beider wird abgelehnt. `dryRun` tut alles, was die einfache Anfrage tut, außer zu schreiben, und antwortet mit der resultierenden Konfiguration als `content`; es wird nichts erstellt oder geändert, und `written` ist false. Die Registry wird trotzdem durchsucht und die Version trotzdem aufgelöst, denn die Identität in diesem Inhalt ist die Identität, die ein Schreiben festgelegt hätte. **`dryRun` wird beim Typ `cli` abgelehnt**, statt ignoriert zu werden: Was das Hinzufügen einer Befehlserweiterung verzeichnet, ist der Inhalts-Digest der Bytes, die es verifiziert hat, ein Eintrag, den der Compiler pflegt, statt eines Inhalts, den jemand bearbeitet, und das Hinzufügen legt diese Bytes dabei im Cache ab – daher wird es geschrieben statt zurückgegeben. Die Version wird für Sie festgelegt – die Abfrage wird auf ein Plugin aufgelöst, und in den Eintrag wird die Version geschrieben, die sie als `<name>:<version>` nennt, oder andernfalls die höchste veröffentlichte Version des Plugins; eine genannte Version, die eine Rücknahme, der dieser Workspace vertraut, zurückgezogen hat, wird trotzdem festgelegt, und die Antwort enthält `withdrawn: true`. **Dies erreicht eine Registry, und ein Hinzufügen vom Typ `cli`, das keinen der beiden Geltungsbereiche nennt, schreibt die globale Konfiguration** – siehe [Eine Registry erreichen und schreiben](#reaching-a-registry-and-writing). Siehe [Was Ihnen eine Plugin-Änderung sagt](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-30T09:01:39.651Z",

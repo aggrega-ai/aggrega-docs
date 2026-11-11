@@ -43543,6 +43543,13 @@
     "status": "machine",
     "text": "A secret bound to a CloudFormation parameter would be written into the template (Un secret lié à un paramètre CloudFormation serait écrit dans le template)"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Vaut true lorsque la requête a nommé la version épinglée et qu’une rétractation à laquelle cet espace de travail fait confiance a retiré cette version. Une version nommée est épinglée malgré tout, car la nommer constitue la surcharge. Absent sinon, et l’absence ne signifie pas que la version n’est pas retirée : là où les marqueurs de retrait d’une version nommée n’ont pas pu être lus, retraction.unscreened indique pourquoi, et sans version nommée, la dernière version publiée est choisie et retraction indique ce que la vérification de retrait a conclu au sujet de ce choix."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -58465,6 +58472,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[La page de l’exemple](language-reference/examples/quickstart-web/README.md) montre ce que chaque étape écrit et les réponses d’une exécution réelle."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Une version que nomme la requête est épinglée même lorsqu’elle a été retirée, et `withdrawn` l’indique.** Une `query` écrite sous la forme `<name>:<version>` épingle cette version plutôt que la plus récente — pour tous les types sauf `provider`, qui est lié par son seul nom et refuse une version — et nommer une version constitue la surcharge : là où une rétractation à laquelle cet espace de travail fait confiance l’a retirée, elle est épinglée malgré tout, et la réponse porte `withdrawn: true` — le fait que [`aggrega plugin add`](aggrega-plugin.md) signale par une ligne `retraction:` dans le terminal. `withdrawn` est absent de toute autre réponse, de sorte que sa présence constitue à elle seule tout le signal — et son absence n’affirme pas que la version n’est pas retirée. Là où les marqueurs de retrait d’une version nommée n’ont pas pu être lus, `withdrawn` est absent et `retraction` porte `unscreened`, en indiquant pourquoi, comme pour un ajout qui ne nomme aucune version et rencontre le même échec ; un ajout qui ne nomme aucune version indique plutôt dans `retraction` ce que la vérification de retrait a conclu au sujet de la version qu’il a choisie."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -138554,6 +138568,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — recherche dans le registre configuré un plugin d’un type nommé et l’ajoute à la configuration. `type` et `query` sont tous deux obligatoires : `type` est l’un de `provider`, `governance`, `linter`, `importer` et `cli`, et `query` est comparé aux noms des plugins de ce type et doit se résoudre en exactement un, de sorte qu’une requête correspondant à plusieurs est refusée avec les candidats plutôt que résolue arbitrairement. `capability` nomme la capacité que sert une liaison `provider` et y est obligatoire ; `role` nomme le rôle d’un attachement `governance` — `label-transform`, `ir-verdict` ou `render-verdict` — et y est obligatoire ; chacun n’est lu que pour son propre type et refusé pour tout autre, car un champ qui ne ferait rien en silence donnerait l’impression d’avoir fonctionné. `acceptCapabilities` est obligatoire pour `cli` et confirme les capacités déclarées de ce plugin : la commande en terminal obtient cette décision en la demandant, et cette surface n’a personne à qui demander, c’est donc l’appelant qui l’obtient et l’envoie. `global` et `workspace` sont les surcharges de la cible d’écriture, et envoyer les deux est refusé. `dryRun` fait tout ce que fait la requête simple sauf écrire, en répondant avec la configuration résultante sous forme de `content` ; rien n’est créé ni modifié et `written` vaut false. Le registre est tout de même interrogé et la version tout de même résolue, car l’identité dans ce contenu est l’identité qu’une écriture aurait épinglée. **`dryRun` est refusé pour le type `cli`**, plutôt qu’ignoré : ce qu’enregistre l’ajout d’une extension de commande est le digest du contenu des octets qu’il a vérifiés, un enregistrement que le compilateur maintient plutôt qu’un contenu que quelqu’un modifie, et l’ajout met ces octets en cache au fur et à mesure — il est donc écrit plutôt que renvoyé. La version est épinglée pour vous — la requête se résout en un plugin, et la version qu’elle nomme sous la forme `<name>:<version>`, ou à défaut la version publiée la plus élevée du plugin, est écrite dans l’entrée ; une version nommée qu’une rétractation à laquelle cet espace de travail fait confiance a retirée est épinglée malgré tout, et la réponse porte `withdrawn: true`. **Ceci atteint un registre, et un ajout de type `cli` qui ne nomme aucune des deux portées écrit la configuration globale** — voir [Atteindre un registre et écrire](#reaching-a-registry-and-writing). Voir [Ce que vous apprend une modification de plugin](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-30T09:01:39.651Z",

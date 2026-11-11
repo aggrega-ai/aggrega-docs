@@ -48405,6 +48405,13 @@
     "status": "machine",
     "text": "绑定到 CloudFormation 参数的机密会被写入模板"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "当查询指明了被固定的版本，且本工作区信任的撤回声明已撤回该版本时为 true。指明的版本照样会被固定，因为指明它本身就是覆盖。否则不出现，而不出现并不表示该版本未被撤回：若无法读取指明版本的撤回标记，retraction.unscreened 会说明原因；未指明版本时，会选择已发布的最新版本，并由 retraction 报告撤回检查对这一选择得出的结论。"
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -65012,6 +65019,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[示例的页面](language-reference/examples/quickstart-web/README.md)展示了每一步写出的内容，以及一次真实运行的回答。"
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**查询指明的版本即使已被撤回也会被固定，并由 `withdrawn` 说明这一点。** 写作 `<name>:<version>` 的 `query` 会固定该版本而非最新版本——适用于除 `provider` 之外的所有类型，后者仅按名称绑定并拒绝指定版本——而指明版本本身就是覆盖：若本工作区信任的撤回声明已撤回该版本，它照样会被固定，且应答带有 `withdrawn: true`——即 [`aggrega plugin add`](aggrega-plugin.md) 在终端上以一行 `retraction:` 陈述的事实。`withdrawn` 在其他所有应答中都不出现，因此它的出现就是全部信号——而它的缺失并不表示该版本未被撤回。若无法读取指明版本的撤回标记，`withdrawn` 不出现，`retraction` 带有 `unscreened` 并说明原因，与未指明版本的添加遇到同样故障时的情形相同；未指明版本的添加则改为在 `retraction` 中报告撤回检查对其所选版本得出的结论。"
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T02:18:58.122887+00:00",
@@ -153953,6 +153967,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — 在已配置的 registry 中搜索指定类型的插件并将其加入配置。`type` 和 `query` 均为必填：`type` 是 `provider`、`governance`、`linter`、`importer` 和 `cli` 之一，`query` 与该类型的插件名称匹配，且必须恰好解析为一个，因此匹配多个的查询会连同候选项一起被拒绝，而不是被任意解析。`capability` 指明 `provider` 绑定所服务的能力，在该类型下必填；`role` 指明 `governance` 挂载的角色——`label-transform`、`ir-verdict` 或 `render-verdict`——在该类型下必填；两者都只在各自的类型下读取，在其他类型下会被拒绝，因为一个悄无声息地不起作用的字段会让人误以为它已生效。`acceptCapabilities` 对 `cli` 必填，用于确认该插件声明的能力：终端命令通过询问获得这一决定，而此接口无人可问，因此由调用方获得并发送。`global` 和 `workspace` 是写入目标的覆盖项，同时发送两者会被拒绝。`dryRun` 执行普通请求的全部操作但不写入，以 `content` 返回结果配置；不会创建或修改任何内容，`written` 为 false。registry 仍会被搜索，版本仍会被解析，因为该内容中的标识就是写入时会固定的标识。**`dryRun` 在 `cli` 类型上会被拒绝**，而不是被忽略：命令扩展的添加所记录的是它已验证字节的内容摘要，这是由编译器维护的记录，而不是任何人编辑的内容，且添加过程中会缓存这些字节——因此它会被写入，而不是返回。版本会为你固定——查询解析为一个插件，写入条目的是查询以 `<name>:<version>` 形式指明的版本，未指明时则是该插件已发布的最高版本；即使指明的版本已被本工作区信任的撤回声明撤回，它也照样会被固定，且应答带有 `withdrawn: true`。**该请求会访问 registry，且未指明任何作用域的 `cli` 类型添加会写入全局配置**——参见[访问 registry 与写入](#reaching-a-registry-and-writing)。参见[插件变更告诉你什么](#what-a-plugin-change-tells-you)。"
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-22T02:24:43.656154+00:00",

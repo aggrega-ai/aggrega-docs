@@ -43547,6 +43547,13 @@
     "status": "machine",
     "text": "A secret bound to a CloudFormation parameter would be written into the template (Un segreto legato a un parametro CloudFormation verrebbe scritto nel template)"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Vale true quando la query ha nominato la versione fissata e una ritrattazione ritenuta attendibile da questo workspace ha ritirato quella versione. Una versione nominata viene fissata comunque, perché nominarla è l’override. Assente altrimenti, e l’assenza non significa che la versione non sia ritirata: dove non è stato possibile leggere i marcatori di ritiro di una versione nominata, retraction.unscreened ne indica il motivo, e senza alcuna versione nominata viene scelta l’ultima versione pubblicata e retraction riporta ciò che il controllo dei ritiri ha concluso su quella scelta."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -58463,6 +58470,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[La pagina dell’esempio](language-reference/examples/quickstart-web/README.md) mostra cosa scrive ogni passo e le risposte di un’esecuzione reale."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Una versione nominata dalla query viene fissata anche quando è stata ritirata, e `withdrawn` lo segnala.** Una `query` scritta come `<name>:<version>` fissa quella versione anziché la più recente — su ogni tipo tranne `provider`, che viene associato solo per nome e rifiuta una versione — e nominare una versione è l’override: dove una ritrattazione ritenuta attendibile da questo workspace l’ha ritirata, viene fissata comunque e la risposta riporta `withdrawn: true` — il fatto che [`aggrega plugin add`](aggrega-plugin.md) segnala con una riga `retraction:` sul terminale. `withdrawn` è assente in ogni altra risposta, per cui la sua presenza è l’intero segnale — e la sua assenza non afferma che la versione non sia ritirata. Dove non è stato possibile leggere i marcatori di ritiro di una versione nominata, `withdrawn` è assente e `retraction` riporta `unscreened`, indicandone il motivo, come avviene per un’aggiunta che non nomina alcuna versione e incontra lo stesso errore; un’aggiunta che non nomina alcuna versione riporta invece in `retraction` ciò che il controllo dei ritiri ha concluso sulla versione scelta."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T23:28:05.653Z",
@@ -138526,6 +138540,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — cerca nel registro configurato un plugin di un tipo nominato e lo aggiunge alla configurazione. `type` e `query` sono entrambi obbligatori: `type` è uno tra `provider`, `governance`, `linter`, `importer` e `cli`, e `query` viene confrontato con i nomi dei plugin di quel tipo e deve risolversi esattamente in uno, per cui una query che corrisponde a più plugin viene rifiutata indicando i candidati anziché essere risolta arbitrariamente. `capability` nomina la capability servita da un binding `provider` ed è obbligatorio in quel caso; `role` nomina il ruolo di un collegamento `governance` (`label-transform`, `ir-verdict` o `render-verdict`) ed è obbligatorio in quel caso; ciascuno viene letto solo per il proprio tipo e rifiutato su qualsiasi altro, perché un campo che silenziosamente non facesse nulla sembrerebbe aver funzionato. `acceptCapabilities` è obbligatorio per `cli` e conferma le capability dichiarate da quel plugin: il comando da terminale ottiene questa decisione chiedendola, mentre questa superficie non ha nessuno a cui chiedere, quindi è il chiamante a ottenerla e inviarla. `global` e `workspace` sono gli override della destinazione di scrittura, e inviarli entrambi viene rifiutato. `dryRun` fa tutto ciò che fa la richiesta semplice tranne scrivere, rispondendo con la configurazione risultante come `content`; non viene creato né modificato nulla e `written` è false. Il registro viene comunque interrogato e la versione comunque risolta, perché l’identità in quel contenuto è l’identità che una scrittura avrebbe fissato. **`dryRun` viene rifiutato sul tipo `cli`**, anziché ignorato: ciò che registra l’aggiunta di un’estensione di comando è il digest del contenuto dei byte che ha verificato, un record che il compilatore mantiene anziché un contenuto che qualcuno modifica, e l’aggiunta mette in cache quei byte man mano, quindi viene scritta anziché restituita. La versione viene fissata per te: la query si risolve in un plugin, e nella voce viene scritta la versione che la query nomina come `<name>:<version>` oppure, in mancanza, la versione pubblicata più alta del plugin; una versione nominata che una ritrattazione ritenuta attendibile da questo workspace ha ritirato viene fissata comunque, e la risposta riporta `withdrawn: true`. **Questo raggiunge un registro, e un’aggiunta di tipo `cli` che non nomina nessuno dei due ambiti scrive la configurazione globale**: vedi [Raggiungere un registro e scrivere](#reaching-a-registry-and-writing). Vedi [Cosa ti dice una modifica di plugin](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-30T09:01:39.651Z",

@@ -48391,6 +48391,13 @@
     "status": "machine",
     "text": "A secret bound to a CloudFormation parameter would be written into the template (Sekret powiązany z parametrem CloudFormation zostałby zapisany w szablonie)"
   },
+  "47b27cd0ec0aa761": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "47b27cd0ec0aa761",
+    "status": "machine",
+    "text": "Ma wartość true, gdy zapytanie wskazało przypiętą wersję, a deklaracja wycofania, której ufa ten obszar roboczy, wycofała tę wersję. Wskazana wersja jest przypinana mimo to, ponieważ jej wskazanie jest nadpisaniem. W przeciwnym razie nieobecne, a brak nie oznacza, że wersja nie została wycofana: jeśli nie udało się odczytać znaczników wycofania wskazanej wersji, retraction.unscreened podaje przyczynę, a gdy nie wskazano wersji, wybierana jest najnowsza opublikowana wersja, a retraction podaje, do jakiego wniosku doszło sprawdzenie wycofania w odniesieniu do tego wyboru."
+  },
   "47b4d63848b3024e": {
     "at": "2026-11-11T03:22:50.210Z",
     "job": "session-0005-20261111032250",
@@ -65002,6 +65009,13 @@
     "srcHash": "6046ec85d9c0ee5e",
     "status": "machine",
     "text": "[Strona przykładu](language-reference/examples/quickstart-web/README.md) pokazuje, co zapisuje każdy krok, oraz odpowiedzi z rzeczywistego uruchomienia."
+  },
+  "604845097c8402a5": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "srcHash": "604845097c8402a5",
+    "status": "machine",
+    "text": "**Wersja wskazana w zapytaniu jest przypinana nawet wtedy, gdy została wycofana, i `withdrawn` to sygnalizuje.** `query` zapisane jako `<name>:<version>` przypina tę wersję zamiast najnowszej — dla każdego typu oprócz `provider`, który jest wiązany wyłącznie po nazwie i odrzuca wersję — a wskazanie wersji jest nadpisaniem: jeśli deklaracja wycofania, której ufa ten obszar roboczy, ją wycofała, jest ona przypinana mimo to, a odpowiedź zawiera `withdrawn: true` — fakt, który [`aggrega plugin add`](aggrega-plugin.md) podaje w terminalu jako wiersz `retraction:`. `withdrawn` nie występuje w żadnej innej odpowiedzi, więc jego obecność stanowi cały sygnał — a jego brak nie jest stwierdzeniem, że wersja nie została wycofana. Jeśli nie udało się odczytać znaczników wycofania wskazanej wersji, `withdrawn` nie występuje, a `retraction` zawiera `unscreened` z podaniem przyczyny, tak jak w przypadku dodania niewskazującego wersji, które napotka ten sam błąd; dodanie niewskazujące wersji podaje natomiast w `retraction`, do jakiego wniosku doszło sprawdzenie wycofania w odniesieniu do wybranej przez nie wersji."
   },
   "6048f28d67baffe6": {
     "at": "2026-10-22T09:44:21.400057+00:00",
@@ -153890,6 +153904,17 @@
     "srcHash": "e236ca93686fcfa1",
     "status": "machine",
     "text": "CompletionContext"
+  },
+  "e237e338f4a95117": {
+    "at": "2026-11-11T06:36:21.616Z",
+    "job": "session-0001-20261111063621",
+    "revision": {
+      "from": "80ba42d1ed0c0f81",
+      "reviewed": false
+    },
+    "srcHash": "e237e338f4a95117",
+    "status": "machine",
+    "text": "`aggrega/pluginAdd` — przeszukuje skonfigurowany rejestr w poszukiwaniu pluginu wskazanego typu i dodaje go do konfiguracji. `type` i `query` są wymagane: `type` to jedna z wartości `provider`, `governance`, `linter`, `importer` i `cli`, a `query` jest dopasowywane do nazw pluginów tego typu i musi wskazywać dokładnie jeden, więc zapytanie pasujące do kilku jest odrzucane wraz z kandydatami, a nie rozstrzygane arbitralnie. `capability` wskazuje możliwość obsługiwaną przez powiązanie `provider` i jest tam wymagane; `role` wskazuje rolę dołączenia `governance` — `label-transform`, `ir-verdict` lub `render-verdict` — i jest tam wymagane; każde z nich jest odczytywane tylko dla własnego typu i odrzucane przy każdym innym, ponieważ pole, które po cichu nic nie robi, sprawiałoby wrażenie, że zadziałało. `acceptCapabilities` jest wymagane dla `cli` i potwierdza zadeklarowane możliwości tego pluginu: polecenie terminalowe uzyskuje tę decyzję, pytając, a ten interfejs nie ma kogo zapytać, więc wywołujący uzyskuje ją i przesyła. `global` i `workspace` to nadpisania celu zapisu, a wysłanie obu jest odrzucane. `dryRun` wykonuje wszystko to, co zwykłe żądanie, z wyjątkiem zapisu, i odpowiada wynikową konfiguracją jako `content`; nic nie jest tworzone ani modyfikowane, a `written` ma wartość false. Rejestr jest mimo to przeszukiwany, a wersja rozstrzygana, ponieważ tożsamość w tej zawartości to tożsamość, którą przypiąłby zapis. **`dryRun` jest odrzucane dla typu `cli`**, a nie ignorowane: dodanie rozszerzenia poleceń zapisuje skrót zawartości zweryfikowanych bajtów, czyli zapis utrzymywany przez kompilator, a nie treść edytowaną przez kogokolwiek, a dodanie na bieżąco umieszcza te bajty w pamięci podręcznej — dlatego jest zapisywane, a nie zwracane. Wersja jest przypinana automatycznie — zapytanie wskazuje jeden plugin, a we wpisie zapisywana jest wersja, którą zapytanie wskazuje jako `<name>:<version>`, albo w przeciwnym razie najwyższa opublikowana wersja pluginu; wskazana wersja wycofana przez deklarację wycofania, której ufa ten obszar roboczy, jest przypinana mimo to, a odpowiedź zawiera `withdrawn: true`. **To żądanie łączy się z rejestrem, a dodanie typu `cli` bez wskazania zakresu zapisuje konfigurację globalną** — zob. [Dostęp do rejestru i zapis](#reaching-a-registry-and-writing). Zob. [Co mówi zmiana pluginu](#what-a-plugin-change-tells-you)."
   },
   "e239d5bab1e1a8d1": {
     "at": "2026-10-22T09:56:04.106489+00:00",
