@@ -155,7 +155,14 @@ The list is the documentation's own list of examples, the one published beside t
 note: no documentation is published for 0.9.1; the examples are read from the documentation published for 0.9.0, the newest before it
 ```
 
-A build of `aggrega` made from some commits after a release — one whose `aggrega version` reads like `0.9.0-12-g1a2b3c4d` — reads the documentation of the release it was built after, `0.9.0` here, or an earlier one where that is not published. A build stamped with no release number reads the documentation of its own version or none.
+A build of `aggrega` made from some commits after a release — one whose `aggrega version` reads like `0.9.0-12-g1a2b3c4d` — reads the documentation of the release it was built after, `0.9.0` here, or an earlier one where that is not published. A build stamped with no release number reads the documentation of its own version or none. [`aggrega explain`](aggrega-explain.md) chooses the bundle it reads its walk-throughs from the same way.
+
+Where none is published for your version and the newest earlier one is in a format this version of `aggrega` no longer reads — a release candidate run before its own documentation is published, say — the command refuses, saying both in one sentence, and nothing is written:
+
+```
+[E0137]
+  hub.aggrega.ai/docs/aggrega-docs publishes no documentation bundle for 0.9.1-rc.1, and the newest earlier one, 0.8.11, is in a format this version of aggrega no longer reads, so the examples cannot be read
+```
 
 **It is verified before it is used.** The bundle is fetched through the same network settings as every other registry read, and its signature is checked against your workspace's signature policy for that registry before it is kept — and again before a copy already on the machine is read, so a copy another project's looser policy let in is not used under yours. A bundle your policy does not accept is refused, and nothing is written.
 
