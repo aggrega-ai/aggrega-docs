@@ -42184,6 +42184,17 @@
     "status": "machine",
     "text": "As URLs keyless e o caminho da chave também podem vir do bloco `signing:` de `.aggrega-config.yaml` (global e por registry); uma flag sobrescreve a configuração, e a configuração sobrescreve o padrão público. Nesse arquivo, cada URL é escrita como uma URL `https` absoluta — `https://`, um host e, opcionalmente, uma porta e um caminho, como `https://fulcio.sigstore.dev` — e um valor em qualquer outra forma, sem esquema ou começando com `http://`, é recusado quando o arquivo é carregado, nomeando o arquivo e a chave. O token de identidade OIDC nunca é um campo de configuração, e a chave privada nunca fica inline — apenas um caminho para ela."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**O workspace pelo qual um processo em serviço responde é fixado quando ele inicia.** `--workspace-root` o nomeia; a variável `AGGREGA_WORKSPACE_ROOT` o fornece quando o flag está ausente. A pasta nomeada é a própria raiz do workspace, sem busca acima dela, e uma pasta que não existe é recusada, nomeando qual dos dois a forneceu e citando o valor como foi dado — por um listener antes do bind, e por um servidor por entrada e saída padrão na resposta a cada chamada que atua nesse workspace, como [Em qual workspace uma chamada é respondida](#which-workspace-a-call-is-answered-in) expõe — de modo que uma inicialização composta por um cliente em vez de digitada ainda diz o que recebeu. Sem nenhum dos dois, um servidor por entrada e saída padrão resolve o workspace a partir do diretório em que foi iniciado — onde nada ancora ali um workspace, cada resposta sobre o workspace diz qual pasta usou, e a inicialização do pacote de desktop com a configuração **Workspace folder** vazia recusa em vez disso uma chamada que não nomeia um workspace próprio, como [Em qual workspace uma chamada é respondida](#which-workspace-a-call-is-answered-in) expõe — e um listener é recusado antes do bind a menos que um workspace seja resolvido ali — um processo acessado por HTTP responde a chamadores que não podem ver a máquina, então serve um workspace que um operador escolheu, e não o diretório em que por acaso foi iniciado. Para servir vários projetos, execute um processo por raiz de projeto."
+  },
   "45ca56d179d4788c": {
     "at": "2026-11-04T10:10:47.161Z",
     "job": "session-0230-20261104101047",
@@ -65834,6 +65845,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Onde nenhum workspace foi encontrado e nenhum foi nomeado, uma resposta sobre o workspace diz qual pasta usou.** Sem raiz de inicialização, sem `workspace_root` na chamada e sem nada que ancore um workspace a partir da pasta em que a chamada foi respondida, a chamada é respondida nessa pasta. Quando o resultado da ferramenta depende do workspace — as mesmas ferramentas cujos comandos emitem um aviso na linha de comando —, seu texto termina com o aviso da linha de comando, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, e uma linha que pede que você envie `workspace_root` nomeando a pasta que contém o `.aggrega-config.yaml` do seu workspace; uma resposta que o workspace não determina, como a leitura da configuração ou a listagem de plugins, não diz nada sobre workspaces. A frase não adiciona nenhum campo próprio ao resultado estruturado; o resultado estruturado a traz em `text_answer`, que contém o texto, como [As duas partes de uma resposta](#the-two-parts-of-an-answer) expõe. Uma ferramenta que executa um comando em um processo separado traz a própria linha do comando dizendo o mesmo, tal como o comando a imprimiu. Nada é escrito em um cache de artefatos em uma pasta assim: um pull, ou um build ao qual se pede que resolva primeiro suas dependências, é recusado ali antes que qualquer coisa seja buscada, nomeando a pasta e as duas alternativas — enviar `workspace_root`, ou dar à pasta um `.aggrega-config.yaml` com um bloco `workspace:`. Um pin, ou uma publicação de uma Recipe ou FeatureRecipe, é recusado da mesma forma onde buscaria uma fonte remota que a entidade escreve por completo — para fixá-la, ou para comparar seu pin — antes que essa fonte seja buscada; onde não busca nenhuma, porque a entidade não tem fonte, tem uma local ou uma cujas coordenadas cada Release preenche, é respondido como em qualquer outro lugar. Um build ali que não resolve nada antes ainda renderiza, mas uma entrada externa que seu lockfile fixa e que o cache não contém mais não é buscada novamente: o render recebe essa mesma frase no lugar da entrada, como recebe a de um modo offline. Nenhuma resposta por HTTP traz a frase: um listener sempre serve um workspace que lhe foi dado ou que ele encontrou. Tampouco a traz a inicialização do bundle desktop com uma configuração **Workspace folder** vazia, que recusa uma chamada que não nomeia um workspace próprio em vez de respondê-la na pasta em que foi iniciado."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-11-03T05:17:11.041Z",
     "job": "session-0055-20261103051711",
@@ -75698,6 +75720,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Uma resposta sem resultado estruturado é apenas seu texto.** A recusa dos argumentos de uma chamada, e qualquer outra falha para a qual a operação não tinha nada estruturado a informar, volta como seu texto e nada mais, e o texto é então a única parte que um cliente pode mostrar ao seu modelo."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**O passo a passo também é documentação publicada**, lido de [fatal-halts.md](../errors/fatal-halts.md). Ambas as páginas vêm do pacote de documentação, que é mantido uma vez por máquina no cache compartilhado por todos os projetos Aggrega, uma cópia para cada registry e versão — consulte [`aggrega cache`](aggrega-cache.md). O pacote lido é o publicado para a versão do `aggrega` que você está executando; quando nenhum é publicado para essa versão, é o mais recente publicado para uma versão anterior — a mesma escolha que [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) faz, de modo que os dois nunca leem documentação diferente. Um código que a referência de uma versão anterior não contém pode nomear uma condição declarada depois, então ele é recusado como indeterminado, e não como um código que não nomeia nada, e a recusa diz de qual versão a referência foi lida. Seu workspace decide de qual registry o pacote vem, o seu registry padrão, e se uma cópia já presente na máquina pode ser lida: antes que uma página seja servida, as assinaturas mantidas ao lado da cópia são verificadas novamente pela verificação de assinaturas do seu workspace para esse registry, a mesma verificação à qual um download do pacote está sujeito. Essa verificação também é executada offline. Quando ela fixa uma chave ou uma raiz de confiança, lê apenas essas; quando não fixa nenhuma das duas, como faz a verificação integrada do hub oficial, ela verifica em relação à raiz de confiança pública do Sigstore, que um workspace offline não consegue baixar — então, offline, ela verifica em relação à raiz de confiança que um download online anterior nesta máquina deixou em `.sigstore` no seu diretório pessoal, e não baixa nada. Quando a máquina não tem nenhuma cópia, ou nenhuma que sua verificação admita, o comando obtém uma sob essa verificação, uma única vez, e depois lê do cache. A mesma cópia serve a documentação que um assistente lê por meio de [`aggrega mcp`](aggrega-mcp.md) e as explicações que um editor mostra por meio de [`aggrega serve`](aggrega-serve.md)."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -120702,6 +120735,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Separação de responsabilidades (divisão em quatro domínios) — orientação, não prisão"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Nenhuma documentação disponível.** Para uma condição que o compilador declara, os códigos e a frase ainda são informados, e uma nota nomeia o pacote e a versão que não puderam ser lidos. Para um código que este binário não declara, não resta nada com que responder, então o código é recusado — e a recusa diz que a referência não pôde ser lida, porque sem ela um código de outra versão não pode ser distinguido de um erro de digitação, e deixa abertos os dois reparos: corrigir o código ou obter a documentação. A causa habitual é um workspace fixado como offline, ou um que nunca alcançou seu registry. Quando a máquina contém uma cópia que a verificação de assinaturas do seu workspace não admite — uma que outro projeto baixou com uma configuração mais permissiva, ou uma que um workspace offline não consegue verificar porque esta máquina nunca baixou a raiz de confiança pública em relação à qual sua verificação valida —, a nota diz que a cópia foi recusada, e não que está ausente, e por quê. Quando nenhum pacote é publicado para a sua versão e o mais recente anterior está em um formato que esta versão do `aggrega` não lê mais — uma versão candidata executada antes de sua própria documentação ser publicada, por exemplo —, a nota diz as duas coisas em uma única frase:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-11-02T23:50:32.426Z",

@@ -42202,6 +42202,17 @@
     "status": "machine",
     "text": "Gli URL keyless e il percorso della chiave possono anche provenire dal blocco `signing:` di `.aggrega-config.yaml` (globale e per registry); un flag sovrascrive la configurazione, e la configurazione sovrascrive il valore pubblico predefinito. In quel file ogni URL è scritto come URL `https` assoluto — `https://`, un host e facoltativamente una porta e un percorso, come `https://fulcio.sigstore.dev` — e un valore di qualsiasi altra forma, senza schema o che inizia con `http://`, viene rifiutato al caricamento del file, con il nome del file e della chiave. Il token di identità OIDC non è mai un campo di configurazione, e la chiave privata non è mai inline — solo un percorso che vi punta."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**Il workspace per cui risponde un processo in servizio è fissato al suo avvio.** `--workspace-root` lo indica; la variabile `AGGREGA_WORKSPACE_ROOT` lo fornisce in assenza del flag. La cartella indicata è la radice stessa del workspace, senza ricerche al di sopra, e una cartella che non esiste viene rifiutata, citando quale dei due l’ha fornita e riportando il valore così come è stato dato — da un listener prima del bind, e da un server su standard input e output nella risposta a ogni chiamata che agisce in quel workspace, come spiega [In quale workspace riceve risposta una chiamata](#which-workspace-a-call-is-answered-in) — così un avvio composto da un client anziché digitato dice comunque cosa ha ricevuto. In assenza di entrambi, un server su standard input e output risolve il workspace dalla directory in cui è stato avviato — dove nulla vi ancora un workspace, ogni risposta che riguarda il workspace dice quale cartella ha usato, e l’avvio del bundle desktop con l’impostazione **Workspace folder** vuota rifiuta invece una chiamata che non indica un workspace proprio, come spiega [In quale workspace riceve risposta una chiamata](#which-workspace-a-call-is-answered-in) — e un listener viene rifiutato prima del bind a meno che lì non si risolva un workspace — un processo raggiunto via HTTP risponde a chiamanti che non vedono la macchina, quindi serve un workspace scelto da un operatore anziché la directory in cui si è trovato ad essere avviato. Per servire più progetti, esegui un processo per ogni radice di progetto."
+  },
   "45ca56d179d4788c": {
     "at": "2026-11-04T10:10:47.161Z",
     "job": "session-0230-20261104101047",
@@ -65852,6 +65863,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Dove nessun workspace è stato trovato e nessuno è stato nominato, una risposta che riguarda il workspace dice quale cartella ha usato.** Senza radice di avvio, senza `workspace_root` nella chiamata e senza nulla che ancori un workspace a partire dalla cartella in cui la chiamata ha ricevuto risposta, la chiamata riceve risposta in quella cartella. Dove il risultato dello strumento dipende dal workspace — gli stessi strumenti i cui comandi emettono un avviso sulla riga di comando — il suo testo termina con l’avviso della riga di comando, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, e con una riga che ti dice di inviare `workspace_root` indicando la cartella che contiene il `.aggrega-config.yaml` del tuo workspace; una risposta che il workspace non determina, come la lettura della configurazione o l’elenco dei plugin, non dice nulla sui workspace. La frase non aggiunge alcun campo proprio al risultato strutturato; il risultato strutturato la riporta in `text_answer`, che contiene il testo, come descritto in [Le due parti di una risposta](#the-two-parts-of-an-answer). Uno strumento che esegue un comando in un processo separato riporta la riga del comando stesso che dice la stessa cosa, così come il comando l’ha stampata. Nulla viene scritto in una cache di artefatti in una tale cartella: un pull, o una build a cui si chiede di risolvere prima le proprie dipendenze, viene lì rifiutato prima che si scarichi qualsiasi cosa, nominando la cartella e le due soluzioni — inviare `workspace_root`, oppure dare alla cartella un `.aggrega-config.yaml` con un blocco `workspace:`. Un pin, o una pubblicazione di una Recipe o di una FeatureRecipe, viene rifiutato allo stesso modo dove scaricherebbe una sorgente remota che l’entità scrive per intero — per fissarla, o per confrontarne il pin — prima che quella sorgente venga scaricata; dove non ne scarica alcuna, perché l’entità non ha sorgente, ne ha una locale o una le cui coordinate vengono fornite da ogni Release, riceve risposta come altrove. Una build lì che non risolve nulla prima viene comunque renderizzata, ma un input esterno che il suo lockfile fissa e che la cache non contiene più non viene scaricato di nuovo: al render viene comunicata quella stessa frase al posto dell’input, come gli viene comunicata quella di una modalità offline. Nessuna risposta su HTTP porta la frase: un listener serve sempre un workspace che gli è stato dato o che ha trovato. Né la porta l’avvio del bundle desktop con l’impostazione **Workspace folder** vuota, che rifiuta una chiamata che non nomina un proprio workspace anziché risponderle nella cartella in cui è stato avviato."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-11-03T05:17:11.041Z",
     "job": "session-0055-20261103051711",
@@ -75710,6 +75732,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Una risposta senza risultato strutturato è il solo testo.** Il rifiuto degli argomenti di una chiamata, e qualsiasi altro fallimento per cui l’operazione non aveva nulla di strutturato da riportare, torna come testo e nient’altro, e il testo è allora l’unica parte che un client può mostrare al suo modello."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**Anche la spiegazione passo passo è documentazione pubblicata**, letta da [fatal-halts.md](../errors/fatal-halts.md). Entrambe le pagine provengono dal bundle della documentazione, che viene conservato una sola volta per macchina nella cache condivisa da ogni progetto Aggrega, una copia per ogni registry e versione — vedi [`aggrega cache`](aggrega-cache.md). Il bundle letto è quello pubblicato per la versione di `aggrega` che stai eseguendo; dove per quella versione non ne è pubblicato nessuno, è il più recente pubblicato per un rilascio precedente — la stessa scelta che fa [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example), così i due non leggono mai documentazione diversa. Un codice che il riferimento di un rilascio precedente non contiene può nominare una condizione dichiarata in seguito, quindi viene rifiutato come non determinabile anziché come un codice che non nomina nulla, e il rifiuto dice di quale versione è stato letto il riferimento. Il tuo workspace decide da quale registry proviene il bundle, il suo registry predefinito, e se una copia già presente sulla macchina possa essere letta: prima che una pagina venga servita, le firme conservate accanto alla copia vengono verificate di nuovo con il controllo delle firme del tuo workspace per quel registry, lo stesso controllo a cui è soggetto un fetch del bundle. Quel controllo viene eseguito anche offline. Dove fissa una chiave o una trust root legge solo quelle; dove non fissa né l’una né l’altra, come fa il controllo integrato dell’hub ufficiale, verifica rispetto alla trust root pubblica di Sigstore, che un workspace offline non può scaricare — quindi offline verifica rispetto alla trust root lasciata in `.sigstore` nella tua home directory da un precedente fetch online su questa macchina, e non scarica nulla. Quando la macchina non ha alcuna copia, o nessuna ammessa dal tuo controllo, il comando ne acquisisce una con quel controllo, una volta sola, e in seguito legge dalla cache. La stessa copia serve la documentazione che un assistente legge tramite [`aggrega mcp`](aggrega-mcp.md) e le spiegazioni che un editor mostra tramite [`aggrega serve`](aggrega-serve.md)."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -120732,6 +120765,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Separazione delle responsabilità (suddivisione in quattro domini): una guida, non una prigione"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Nessuna documentazione disponibile.** Per una condizione dichiarata dal compilatore, i codici e la frase vengono comunque riportati e una nota indica il bundle e la versione che non è stato possibile leggere. Per un codice che questo binario non dichiara non resta nulla con cui rispondere, quindi il codice viene rifiutato — e il rifiuto dice che non è stato possibile leggere il riferimento, perché senza di esso un codice di una versione diversa non può essere distinto da un refuso, e lascia aperte entrambe le correzioni: correggere il codice o procurarsi la documentazione. La causa abituale è un workspace fissato offline, o uno che non ha mai raggiunto il suo registry. Dove la macchina contiene una copia che il controllo delle firme del tuo workspace non ammette — una scaricata da un altro progetto con un’impostazione più permissiva, o una che un workspace offline non può verificare perché questa macchina non ha mai scaricato la trust root pubblica rispetto a cui verifica il suo controllo — la nota dice che la copia è stata rifiutata anziché essere mancante, e perché. Dove per la tua versione non è pubblicato alcun bundle e il più recente tra i precedenti è in un formato che questa versione di `aggrega` non legge più — per esempio una release candidate eseguita prima che sia pubblicata la sua documentazione — la nota dice entrambe le cose in una sola frase:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-11-02T23:50:32.426Z",

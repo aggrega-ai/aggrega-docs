@@ -46996,6 +46996,17 @@
     "status": "machine",
     "text": "Các URL keyless và đường dẫn khóa keyed cũng có thể lấy từ khối `signing:` của `.aggrega-config.yaml` (toàn cục và theo từng registry); cờ ghi đè cấu hình, và cấu hình ghi đè giá trị mặc định công cộng. Trong tệp đó, mỗi URL được viết dưới dạng một URL `https` tuyệt đối — `https://`, một host, và tùy chọn một cổng và một đường dẫn, chẳng hạn `https://fulcio.sigstore.dev` — và một giá trị có dạng khác, không có scheme hoặc bắt đầu bằng `http://`, sẽ bị từ chối khi tệp được nạp, kèm tên tệp và tên khóa. Token danh tính OIDC không bao giờ là một trường cấu hình, và khóa riêng không bao giờ được viết trực tiếp — chỉ có đường dẫn tới nó."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**Workspace mà một tiến trình phục vụ trả lời được cố định khi nó khởi động.** `--workspace-root` chỉ định nó; biến `AGGREGA_WORKSPACE_ROOT` cung cấp nó khi không có cờ. Thư mục được chỉ định chính là gốc workspace, không tìm kiếm gì phía trên nó, và một thư mục không tồn tại sẽ bị từ chối, kèm tên của nguồn nào trong hai nguồn đã cung cấp nó và trích dẫn giá trị như đã nhận — bởi listener trước khi nó bind, và bởi server trên đầu vào và đầu ra chuẩn trong câu trả lời cho mọi lời gọi hoạt động trong workspace đó, như [Which workspace a call is answered in](#which-workspace-a-call-is-answered-in) trình bày — nhờ vậy một lần khởi chạy do client soạn thay vì gõ tay vẫn cho biết nó đã được trao gì. Khi không có cả hai, server trên đầu vào và đầu ra chuẩn xác định workspace từ thư mục nó được khởi động — nơi không có gì neo một workspace ở đó, mỗi câu trả lời liên quan đến workspace cho biết nó đã dùng thư mục nào, còn lần khởi chạy của gói desktop với thiết lập **Workspace folder** để trống thì thay vào đó từ chối lời gọi không tự chỉ định workspace, như [Which workspace a call is answered in](#which-workspace-a-call-is-answered-in) trình bày — và listener bị từ chối trước khi bind trừ khi một workspace được xác định ở đó — một tiến trình được truy cập qua HTTP trả lời những bên gọi không nhìn thấy máy, nên nó phục vụ workspace do người vận hành chọn thay vì bất kỳ thư mục nào nó tình cờ được khởi động. Để phục vụ nhiều dự án, hãy chạy một tiến trình cho mỗi gốc dự án."
+  },
   "45ca56d179d4788c": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -73374,6 +73385,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Khi không tìm thấy workspace nào và không có workspace nào được chỉ định, một câu trả lời liên quan đến workspace cho biết nó đã dùng thư mục nào.** Khi không có thư mục gốc khởi chạy, không có `workspace_root` trong lời gọi, và không có gì neo một workspace từ thư mục mà lời gọi được trả lời trong đó, lời gọi được trả lời trong thư mục đó. Khi kết quả của công cụ phụ thuộc vào workspace — chính là những công cụ có lệnh đưa ra cảnh báo trên dòng lệnh — văn bản của nó kết thúc bằng cảnh báo của dòng lệnh, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, và một dòng yêu cầu bạn gửi `workspace_root` chỉ định thư mục chứa `.aggrega-config.yaml` của workspace; một câu trả lời không do workspace quyết định, chẳng hạn việc đọc cấu hình hoặc danh sách plugin, không nói gì về workspace. Câu đó không thêm trường riêng nào vào kết quả có cấu trúc; kết quả có cấu trúc mang nó trong `text_answer`, trường chứa văn bản, như [The two parts of an answer](#the-two-parts-of-an-answer) trình bày. Một công cụ chạy lệnh trong một tiến trình riêng mang dòng riêng của lệnh nói cùng điều đó, đúng như lệnh đã in ra. Không có gì được ghi vào bộ nhớ đệm artifact trong thư mục như vậy: một lần pull, hoặc một lần build được yêu cầu giải quyết các phụ thuộc trước, ở đó sẽ bị từ chối trước khi bất cứ thứ gì được tải về, với thông báo nêu tên thư mục và hai lối ra — gửi `workspace_root`, hoặc cho thư mục một `.aggrega-config.yaml` mang khối `workspace:`. Một lần pin, hoặc một lần xuất bản Recipe hoặc FeatureRecipe, bị từ chối theo cùng cách khi nó sẽ tải về một nguồn từ xa mà thực thể ghi đầy đủ — để pin nó, hoặc để so sánh pin của nó — trước khi nguồn đó được tải về; khi nó không tải về nguồn nào, vì thực thể không có nguồn, có nguồn cục bộ hoặc nguồn có tọa độ do mỗi Release điền vào, nó được trả lời như ở bất kỳ nơi nào khác. Một lần build ở đó không giải quyết gì trước vẫn render, nhưng một đầu vào bên ngoài mà lockfile của nó pin và bộ nhớ đệm không còn giữ sẽ không được tải lại: quá trình render được báo chính câu đó thay cho đầu vào, như khi nó được báo về chế độ offline. Không câu trả lời nào qua HTTP mang câu đó: một listener luôn phục vụ một workspace mà nó được cung cấp hoặc đã tìm thấy. Lần khởi chạy của gói desktop với thiết lập **Workspace folder** trống cũng vậy, vì nó từ chối lời gọi không chỉ định workspace riêng thay vì trả lời trong thư mục mà nó được khởi động."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -84350,6 +84372,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Một câu trả lời không có kết quả có cấu trúc thì chỉ là văn bản của nó.** Việc từ chối các đối số của một lời gọi, và bất kỳ lỗi nào khác mà thao tác không có gì có cấu trúc để báo cáo, sẽ trả về dưới dạng văn bản và không gì khác, và khi đó văn bản là phần duy nhất mà client có để đưa cho mô hình của nó."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**Phần hướng dẫn từng bước cũng là tài liệu đã công bố**, được đọc từ [fatal-halts.md](../errors/fatal-halts.md). Cả hai trang đều đến từ gói tài liệu, được lưu một lần trên mỗi máy trong bộ nhớ đệm mà mọi dự án Aggrega dùng chung, mỗi registry và phiên bản một bản — xem [`aggrega cache`](aggrega-cache.md). Gói được đọc là gói đã công bố cho phiên bản `aggrega` bạn đang chạy; nếu không có gói nào được công bố cho phiên bản đó, thì đó là gói mới nhất được công bố cho một bản phát hành trước — cùng lựa chọn mà [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) đưa ra, nên hai lệnh này không bao giờ đọc tài liệu khác nhau. Một mã không có trong tài liệu tham khảo của một bản phát hành trước có thể chỉ một điều kiện được khai báo sau đó, nên nó bị từ chối như một mã không xác định được chứ không phải như một mã không chỉ điều kiện nào, và lời từ chối cho biết tài liệu tham khảo của phiên bản nào đã được đọc. Workspace của bạn quyết định gói đến từ registry nào, tức registry mặc định của nó, và liệu một bản đã có trên máy có được phép đọc hay không: trước khi một trang được phục vụ, các chữ ký lưu bên cạnh bản sao được xác minh lại theo cơ chế kiểm tra chữ ký riêng của workspace cho registry đó, chính là cơ chế kiểm tra mà một lần tải gói phải tuân theo. Việc kiểm tra này cũng chạy khi ngoại tuyến. Nếu nó ghim một khóa hoặc một gốc tin cậy, nó chỉ đọc những thứ đó; nếu nó không ghim cái nào, như cơ chế kiểm tra tích hợp sẵn của hub chính thức, nó xác minh dựa trên gốc tin cậy công khai của Sigstore, thứ mà một workspace ngoại tuyến không thể tải về — nên khi ngoại tuyến, nó xác minh dựa trên gốc tin cậy mà một lần tải trực tuyến trước đó trên máy này đã để lại trong `.sigstore` ở thư mục home của bạn, và không tải gì cả. Khi máy không có bản sao nào, hoặc không có bản nào được cơ chế kiểm tra của bạn chấp nhận, lệnh sẽ lấy một bản theo cơ chế kiểm tra đó, một lần, và sau đó đọc từ bộ nhớ đệm. Cùng bản sao đó phục vụ tài liệu mà trợ lý đọc qua [`aggrega mcp`](aggrega-mcp.md) và các giải thích mà trình soạn thảo hiển thị qua [`aggrega serve`](aggrega-serve.md)."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -134290,6 +134323,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Tách biệt mối quan tâm (phân chia bốn miền) — định hướng, không phải nhà tù"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Không có tài liệu.** Với một điều kiện mà trình biên dịch khai báo, các mã và câu vẫn được báo cáo, kèm một ghi chú nêu tên gói và phiên bản không đọc được. Với một mã mà tệp nhị phân này không khai báo thì không còn gì để trả lời, nên mã bị từ chối — và lời từ chối cho biết không đọc được tài liệu tham khảo, vì thiếu nó thì một mã từ phiên bản khác không thể phân biệt được với lỗi gõ, và để ngỏ cả hai cách khắc phục: sửa mã, hoặc lấy tài liệu. Nguyên nhân thường gặp là một workspace được ghim ở chế độ ngoại tuyến, hoặc một workspace chưa từng kết nối tới registry của nó. Khi máy có một bản sao mà cơ chế kiểm tra chữ ký của workspace không chấp nhận — một bản mà dự án khác đã tải theo thiết lập lỏng hơn, hoặc một bản mà workspace ngoại tuyến không thể kiểm tra vì máy này chưa từng tải gốc tin cậy công khai mà cơ chế kiểm tra của nó dựa vào — ghi chú sẽ cho biết bản sao đã bị từ chối chứ không phải bị thiếu, và lý do. Khi không có gói nào được công bố cho phiên bản của bạn và gói mới nhất trước đó ở định dạng mà phiên bản `aggrega` này không còn đọc được — chẳng hạn một bản ứng viên phát hành được chạy trước khi tài liệu của chính nó được công bố — ghi chú nêu cả hai điều trong một câu:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-10-22T11:59:38.351715+00:00",

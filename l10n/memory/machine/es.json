@@ -42174,6 +42174,17 @@
     "status": "machine",
     "text": "Las URL keyless y la ruta de la clave también pueden venir del bloque `signing:` de `.aggrega-config.yaml` (global y por registro); un flag sobrescribe la configuración, y la configuración sobrescribe el valor público predeterminado. En ese archivo, cada URL se escribe como una URL `https` absoluta — `https://`, un host y, opcionalmente, un puerto y una ruta, como `https://fulcio.sigstore.dev` — y un valor con cualquier otra forma, sin esquema o que empiece por `http://`, se rechaza al cargar el archivo, con el nombre del archivo y de la clave. El token de identidad OIDC nunca es un campo de configuración, y la clave privada nunca va en línea — solo una ruta a ella."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**El workspace por el que responde un proceso de servicio se fija cuando arranca.** `--workspace-root` lo nombra; la variable `AGGREGA_WORKSPACE_ROOT` lo proporciona cuando falta el flag. La carpeta nombrada es la propia raíz del workspace, sin buscar nada por encima, y una carpeta que no existe se rechaza, nombrando cuál de los dos la proporcionó y citando el valor tal como se dio — por un listener antes de enlazarse, y por un servidor por entrada y salida estándar en su respuesta a cada llamada que actúa en ese workspace, como expone [En qué workspace se responde una llamada](#which-workspace-a-call-is-answered-in) — de modo que un inicio compuesto por un cliente en lugar de escrito sigue diciendo qué recibió. Sin ninguno de los dos, un servidor por entrada y salida estándar resuelve el workspace a partir del directorio en el que se inició — donde nada ancla allí un workspace, cada respuesta sobre el workspace dice qué carpeta usó, y el inicio del paquete de escritorio con un ajuste **Workspace folder** vacío rechaza en su lugar una llamada que no nombra un workspace propio, como expone [En qué workspace se responde una llamada](#which-workspace-a-call-is-answered-in) — y un listener se rechaza antes de enlazarse a menos que allí se resuelva un workspace — un proceso al que se llega por HTTP responde a llamantes que no pueden ver la máquina, así que sirve un workspace que eligió un operador en lugar del directorio en el que le tocó iniciarse. Para servir varios proyectos, ejecuta un proceso por cada raíz de proyecto."
+  },
   "45ca56d179d4788c": {
     "at": "2026-11-04T10:10:47.161Z",
     "job": "session-0230-20261104101047",
@@ -65830,6 +65841,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Donde no se encontró ningún workspace y no se nombró ninguno, una respuesta sobre el workspace dice qué carpeta usó.** Sin raíz de lanzamiento, sin `workspace_root` en la llamada y sin nada que ancle un workspace a partir de la carpeta en la que se respondió la llamada, la llamada se responde en esa carpeta. Cuando el resultado de la herramienta depende del workspace — las mismas herramientas cuyos comandos advierten en la línea de comandos —, su texto termina con la advertencia de la línea de comandos, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, y una línea que te indica que envíes `workspace_root` nombrando la carpeta que contiene el `.aggrega-config.yaml` de tu workspace; una respuesta que el workspace no determina, como la lectura de la configuración o el listado de plugins, no dice nada sobre workspaces. La frase no añade ningún campo propio al resultado estructurado; el resultado estructurado la lleva en `text_answer`, que contiene el texto, como expone [Las dos partes de una respuesta](#the-two-parts-of-an-answer). Una herramienta que ejecuta un comando en un proceso aparte lleva la propia línea del comando que dice lo mismo, tal como la imprimió el comando. En una carpeta así no se escribe nada en una caché de artefactos: un pull, o una build a la que se pide que resuelva primero sus dependencias, se rechaza allí antes de que se descargue nada, nombrando la carpeta y las dos alternativas — enviar `workspace_root`, o dar a la carpeta un `.aggrega-config.yaml` que lleve un bloque `workspace:`. Un pin, o una publicación de una Recipe o una FeatureRecipe, se rechaza de la misma manera donde descargaría una fuente remota que la entidad escribe completa — para fijarla, o para comparar su pin — antes de que esa fuente se descargue; donde no descarga ninguna, porque la entidad no tiene fuente, tiene una local o una cuyas coordenadas rellena cada Release, se responde como en cualquier otro lugar. Una build allí que no resuelve nada antes sigue renderizando, pero una entrada externa que su lockfile fija y que la caché ya no contiene no se vuelve a descargar: al render se le comunica esa misma frase en lugar de la entrada, igual que se le comunica la de un modo sin conexión. Ninguna respuesta por HTTP lleva la frase: un listener siempre sirve un workspace que se le dio o que encontró. Tampoco la lleva el lanzamiento del bundle de escritorio con un ajuste **Workspace folder** vacío, que rechaza una llamada que no nombra un workspace propio en lugar de responderla en la carpeta en la que se inició."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-11-03T05:17:11.041Z",
     "job": "session-0055-20261103051711",
@@ -75694,6 +75716,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Una respuesta sin resultado estructurado es solo su texto.** El rechazo de los argumentos de una llamada, y cualquier otro fallo para el que la operación no tenía nada estructurado que informar, vuelve como su texto y nada más, y el texto es entonces la única parte que un cliente puede mostrar a su modelo."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**La guía paso a paso también es documentación publicada**, leída de [fatal-halts.md](../errors/fatal-halts.md). Ambas páginas provienen del paquete de documentación, que se guarda una vez por máquina en la caché que comparten todos los proyectos de Aggrega, una copia por cada registro y versión — consulta [`aggrega cache`](aggrega-cache.md). El paquete que se lee es el publicado para la versión de `aggrega` que estás ejecutando; cuando no hay ninguno publicado para esa versión, es el más reciente publicado para una versión anterior — la misma elección que hace [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example), de modo que ambos nunca leen documentación distinta. Un código que no figura en la referencia de una versión anterior puede nombrar una condición declarada después, así que se rechaza como indeterminado en lugar de como un código que no nombra nada, y el rechazo indica de qué versión se leyó la referencia. Tu workspace decide de qué registro procede el paquete, su registro predeterminado, y si puede leerse una copia que ya está en la máquina: antes de servir una página, las firmas guardadas junto a la copia se verifican de nuevo con la comprobación de firmas de tu workspace para ese registro, la misma comprobación a la que se somete una descarga del paquete. Esa comprobación también se ejecuta sin conexión. Cuando fija una clave o una raíz de confianza, lee solo esas; cuando no fija ninguna de las dos, como hace la comprobación integrada del hub oficial, verifica frente a la raíz de confianza pública de Sigstore, que un workspace sin conexión no puede descargar — así que, sin conexión, verifica frente a la raíz de confianza que una descarga anterior con conexión en esta máquina dejó en `.sigstore` en tu directorio personal, y no descarga nada. Cuando la máquina no tiene ninguna copia, o ninguna que tu comprobación admita, el comando obtiene una con esa comprobación, una sola vez, y después lee de la caché. La misma copia sirve la documentación que lee un asistente a través de [`aggrega mcp`](aggrega-mcp.md) y las explicaciones que muestra un editor a través de [`aggrega serve`](aggrega-serve.md)."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -120692,6 +120725,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Separación de responsabilidades (división en cuatro dominios): una guía, no una prisión"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**No hay documentación disponible.** Para una condición que declara el compilador, se siguen informando los códigos y la frase, y una nota nombra el paquete y la versión que no se pudieron leer. Para un código que este binario no declara no queda nada con lo que responder, así que el código se rechaza — y el rechazo indica que no se pudo leer la referencia, porque sin ella un código de otra versión no puede distinguirse de una errata, y deja abiertas ambas soluciones: corregir el código u obtener la documentación. La causa habitual es un workspace fijado sin conexión, o uno que nunca ha llegado a su registro. Cuando la máquina contiene una copia que la comprobación de firmas de tu workspace no admite — una que otro proyecto descargó con una configuración más permisiva, o una que un workspace sin conexión no puede comprobar porque esta máquina nunca ha descargado la raíz de confianza pública frente a la que verifica su comprobación —, la nota indica que la copia se rechazó en lugar de faltar, y por qué. Cuando no hay ningún paquete publicado para tu versión y el más reciente anterior está en un formato que esta versión de `aggrega` ya no lee — por ejemplo, una versión candidata ejecutada antes de que se publique su propia documentación —, la nota indica ambas cosas en una sola frase:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-11-02T23:50:32.426Z",

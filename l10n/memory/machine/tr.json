@@ -46972,6 +46972,17 @@
     "status": "machine",
     "text": "Anahtarsız URL'ler ve anahtarlı imzalamanın anahtar yolu, `.aggrega-config.yaml` dosyasındaki `signing:` bloğundan da (genel ve kayıt defteri başına) gelebilir; bir bayrak yapılandırmayı, yapılandırma da kamu yararına işletilen varsayılanı geçersiz kılar. Bu dosyada her URL mutlak bir `https` URL'si olarak yazılır — `https://`, bir ana makine ve isteğe bağlı olarak bir bağlantı noktası ile bir yol; örneğin `https://fulcio.sigstore.dev` — ve başka biçimdeki bir değer, yani şeması olmayan ya da `http://` ile başlayan bir değer, dosya yüklenirken dosya ve anahtar adı belirtilerek reddedilir. OIDC kimlik belirteci hiçbir zaman bir yapılandırma alanı değildir ve özel anahtar hiçbir zaman satır içinde yazılmaz — yalnızca ona giden bir yol verilir."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**Hizmet veren bir sürecin yanıt verdiği çalışma alanı, süreç başladığında sabitlenir.** `--workspace-root` onu adlandırır; bayrak yoksa `AGGREGA_WORKSPACE_ROOT` değişkeni onu sağlar. Adlandırılan klasör çalışma alanı kökünün kendisidir, üstünde hiçbir şey aranmaz ve var olmayan bir klasör reddedilir; ret, ikisinden hangisi sağladıysa onu adlandırır ve değeri verildiği gibi aktarır — bir dinleyicide bağlanmadan önce, standart giriş ve çıkış üzerindeki bir sunucuda ise o çalışma alanında işlem yapan her çağrıya verdiği yanıtta, [Bir çağrının hangi çalışma alanında yanıtlandığı](#which-workspace-a-call-is-answered-in) bölümünde açıklandığı gibi — böylece elle yazılmak yerine bir istemci tarafından oluşturulan bir başlatma da kendisine ne verildiğini yine söyler. İkisi de yoksa standart giriş ve çıkış üzerindeki bir sunucu, çalışma alanını başlatıldığı dizinden çözer — orada bir çalışma alanını sabitleyen hiçbir şey yoksa çalışma alanıyla ilgili her yanıt hangi klasörü kullandığını söyler ve masaüstü paketinin **Workspace folder** ayarı boş olan başlatması bunun yerine kendine ait bir çalışma alanı adlandırmayan çağrıyı reddeder, [Bir çağrının hangi çalışma alanında yanıtlandığı](#which-workspace-a-call-is-answered-in) bölümünde açıklandığı gibi — ve bir dinleyici, orada bir çalışma alanı çözülmedikçe bağlanmadan önce reddedilir — HTTP üzerinden erişilen bir süreç makineyi göremeyen çağıranlara yanıt verir, bu yüzden rastgele başlatıldığı dizine değil, bir operatörün seçtiği çalışma alanına hizmet eder. Birden çok projeye hizmet vermek için her proje kökü başına bir süreç çalıştırın."
+  },
   "45ca56d179d4788c": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -73348,6 +73359,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Hiçbir çalışma alanı bulunmadığında ve hiçbiri belirtilmediğinde, çalışma alanıyla ilgili bir yanıt hangi klasörü kullandığını söyler.** Başlatma kökü yoksa, çağrıda `workspace_root` yoksa ve çağrının yanıtlandığı klasörden bir çalışma alanını sabitleyen hiçbir şey yoksa çağrı o klasörde yanıtlanır. Aracın sonucu çalışma alanına bağlıysa — komutları komut satırında uyarı veren araçların aynısı — metni, komut satırının uyarısı olan `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace` ile ve çalışma alanınızın `.aggrega-config.yaml` dosyasını barındıran klasörü belirten `workspace_root` göndermenizi isteyen bir satırla biter; yapılandırmanın okunması ya da eklenti listesi gibi çalışma alanının belirlemediği bir yanıt, çalışma alanları hakkında hiçbir şey söylemez. Bu cümle yapılandırılmış sonuca kendine ait bir alan eklemez; yapılandırılmış sonuç onu, [The two parts of an answer](#the-two-parts-of-an-answer) bölümünde açıklandığı gibi, metni tutan `text_answer` içinde taşır. Bir komutu ayrı bir süreçte çalıştıran bir araç, aynı şeyi söyleyen komutun kendi satırını, komutun yazdırdığı haliyle taşır. Böyle bir klasördeki bir yapıt önbelleğine hiçbir şey yazılmaz: orada bir çekme ya da önce bağımlılıklarını çözmesi istenen bir derleme, herhangi bir şey getirilmeden önce reddedilir; ret klasörü ve iki çıkış yolunu adlandırır — `workspace_root` göndermek ya da klasöre bir `workspace:` bloğu taşıyan bir `.aggrega-config.yaml` vermek. Bir sabitleme ya da bir Recipe veya FeatureRecipe yayımlaması, varlığın tam olarak yazdığı uzak bir kaynağı getireceği yerde — onu sabitlemek ya da sabitlemesini karşılaştırmak için — o kaynak getirilmeden önce aynı şekilde reddedilir; hiçbir şey getirmediği yerde, çünkü varlığın kaynağı yoktur, yereldir ya da koordinatlarını her Release doldurur, başka her yerdeki gibi yanıtlanır. Orada önce hiçbir şeyi çözmeyen bir derleme yine de işler, ancak kilit dosyasının sabitlediği ve önbelleğin artık tutmadığı bir dış girdi yeniden getirilmez: işleme, girdinin yerine, çevrimdışı bir duruşunkinin söylendiği gibi aynı cümle söylenir. HTTP üzerinden hiçbir yanıt bu cümleyi taşımaz: bir dinleyici her zaman kendisine verilen ya da bulduğu bir çalışma alanına hizmet eder. **Workspace folder** ayarı boş olan masaüstü paketi başlatması da taşımaz; bu başlatma, kendi çalışma alanını belirtmeyen bir çağrıyı başlatıldığı klasörde yanıtlamak yerine reddeder."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -84324,6 +84346,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Yapılandırılmış sonucu olmayan bir yanıt yalnızca metninden oluşur.** Bir çağrının argümanlarının reddi ve işlemin bildirecek yapılandırılmış hiçbir şeyi olmadığı diğer her başarısızlık, yalnızca metni olarak geri döner; bu durumda metin, bir istemcinin modeline gösterebileceği tek parçadır."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**Adım adım açıklama da yayımlanmış belgelerdir** ve [fatal-halts.md](../errors/fatal-halts.md) sayfasından okunur. Her iki sayfa da belge paketinden gelir; bu paket, her Aggrega projesinin paylaştığı önbellekte makine başına bir kez, her kayıt defteri ve sürüm için bir kopya olarak tutulur; bkz. [`aggrega cache`](aggrega-cache.md). Okunan paket, çalıştırdığınız `aggrega` sürümü için yayımlanmış olandır; o sürüm için hiçbiri yayımlanmamışsa, daha önceki bir sürüm için yayımlanmış en yeni pakettir — [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) komutunun yaptığı seçimin aynısı; böylece ikisi hiçbir zaman farklı belgeler okumaz. Daha önceki bir sürümün başvuru kaynağında bulunmayan bir kod, o zamandan beri bildirilmiş bir koşulu adlandırıyor olabilir; bu nedenle hiçbir şeyi adlandırmayan bir kod olarak değil, belirlenemeyen bir kod olarak reddedilir ve ret, hangi sürümün başvuru kaynağının okunduğunu belirtir. Paketin hangi kayıt defterinden, yani varsayılan kayıt defterinden geleceğine çalışma alanınız karar verir; makinede zaten bulunan bir kopyanın okunup okunamayacağına da o karar verir: bir sayfa sunulmadan önce, kopyanın yanında tutulan imzalar, çalışma alanınızın o kayıt defteri için kendi imza denetimiyle, yani paketin getirilmesinin de tabi olduğu denetimle yeniden doğrulanır. Bu denetim çevrimdışı da çalışır. Denetim bir anahtar veya güven kökü sabitliyorsa yalnızca bunları okur; resmî hub'ın yerleşik denetiminde olduğu gibi ikisini de sabitlemiyorsa, çevrimdışı bir çalışma alanının getiremeyeceği genel Sigstore güven köküne karşı doğrular. Bu nedenle çevrimdışıyken, bu makinede daha önce yapılmış çevrimiçi bir getirmenin ana dizininizdeki `.sigstore` altına bıraktığı güven köküne karşı doğrular ve hiçbir şey getirmez. Makinede kopya yoksa ya da denetiminizin kabul ettiği bir kopya yoksa, komut bu denetim altında bir kez bir kopya edinir ve sonrasında önbellekten okur. Aynı kopya, bir asistanın [`aggrega mcp`](aggrega-mcp.md) üzerinden okuduğu belgeleri ve bir düzenleyicinin [`aggrega serve`](aggrega-serve.md) üzerinden gösterdiği açıklamaları da sunar."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -134212,6 +134245,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Sorumlulukların ayrılması (dört alanlı ayrım) — hapishane değil, rehberlik"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Kullanılabilir belge yok.** Derleyicinin bildirdiği bir koşul için kodlar ve cümle yine bildirilir; bir not da okunamayan paketi ve sürümü adlandırır. Bu ikili dosyanın bildirmediği bir kod için yanıt verecek bir şey kalmaz, bu nedenle kod reddedilir; ret, başvuru kaynağının okunamadığını belirtir, çünkü o olmadan farklı bir sürümden gelen bir kod bir yazım hatasından ayırt edilemez, ve her iki onarımı da açık bırakır: kodu düzeltmek ya da belgeleri edinmek. Bunun olağan nedeni, çevrimdışına sabitlenmiş ya da kayıt defterine hiç ulaşmamış bir çalışma alanıdır. Makinede çalışma alanınızın imza denetiminin kabul etmediği bir kopya varsa (başka bir projenin daha gevşek bir ayarla getirdiği bir kopya ya da bu makine denetimin doğruladığı genel güven kökünü hiç getirmediği için çevrimdışı bir çalışma alanının denetleyemediği bir kopya), not kopyanın eksik olmadığını, reddedildiğini ve nedenini belirtir. Sürümünüz için hiçbir paket yayımlanmamışsa ve daha önceki en yeni paket, `aggrega`'nın bu sürümünün artık okumadığı bir biçimdeyse — örneğin kendi belgeleri yayımlanmadan önce çalıştırılan bir sürüm adayı — not bu ikisini tek bir cümlede belirtir:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-10-22T11:59:38.351715+00:00",

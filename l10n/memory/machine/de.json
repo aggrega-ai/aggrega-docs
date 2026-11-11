@@ -42186,6 +42186,17 @@
     "status": "machine",
     "text": "Die Keyless-URLs und der Schlüsselpfad können auch aus dem Block `signing:` von `.aggrega-config.yaml` stammen (global und pro Registry); ein Flag überschreibt die Konfiguration, und die Konfiguration überschreibt den öffentlichen Standard. In dieser Datei wird jede URL als absolute `https`-URL geschrieben — `https://`, ein Host und optional ein Port und ein Pfad, etwa `https://fulcio.sigstore.dev` —, und ein Wert in jeder anderen Form, einer ohne Schema oder einer, der mit `http://` beginnt, wird beim Laden der Datei unter Nennung der Datei und des Schlüssels abgelehnt. Das OIDC-Identitätstoken ist nie ein Konfigurationsfeld, und der private Schlüssel steht nie inline — nur ein Pfad dorthin."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**Der Workspace, für den ein bereitstellender Prozess antwortet, wird beim Start festgelegt.** `--workspace-root` benennt ihn; die Variable `AGGREGA_WORKSPACE_ROOT` liefert ihn, wenn das Flag fehlt. Der genannte Ordner ist das Workspace-Stammverzeichnis selbst, ohne dass darüber gesucht wird, und ein Ordner, der nicht existiert, wird abgewiesen, unter Nennung derjenigen der beiden Quellen, die ihn geliefert hat, und unter Zitierung des Werts wie angegeben — von einem Listener, bevor er sich bindet, und von einem Server über Standardeingabe und -ausgabe in seiner Antwort auf jeden Aufruf, der in diesem Workspace handelt, wie [In welchem Workspace ein Aufruf beantwortet wird](#which-workspace-a-call-is-answered-in) darlegt —, sodass ein Start, den ein Client zusammengesetzt statt jemand eingetippt hat, dennoch sagt, was ihm übergeben wurde. Ohne beides löst ein Server über Standardeingabe und -ausgabe den Workspace aus dem Verzeichnis auf, in dem er gestartet wurde — wo dort nichts einen Workspace verankert, sagt jede Antwort, die den Workspace betrifft, welchen Ordner sie verwendet hat, und der Start des Desktop-Bundles mit leerer Einstellung **Workspace folder** weist stattdessen einen Aufruf ab, der keinen eigenen Workspace nennt, wie [In welchem Workspace ein Aufruf beantwortet wird](#which-workspace-a-call-is-answered-in) darlegt —, und ein Listener wird abgewiesen, bevor er sich bindet, sofern dort kein Workspace aufgelöst wird — ein über HTTP erreichter Prozess beantwortet Aufrufer, die den Rechner nicht sehen können, daher bedient er einen Workspace, den ein Betreiber gewählt hat, statt des Verzeichnisses, in dem er zufällig gestartet wurde. Um mehrere Projekte bereitzustellen, führen Sie einen Prozess pro Projekt-Stammverzeichnis aus."
+  },
   "45ca56d179d4788c": {
     "at": "2026-11-04T10:10:47.161Z",
     "job": "session-0230-20261104101047",
@@ -65836,6 +65847,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Wo kein Workspace gefunden und keiner genannt wurde, sagt eine Antwort, die den Workspace betrifft, welchen Ordner sie verwendet hat.** Ohne Startstamm, ohne `workspace_root` beim Aufruf und ohne etwas, das einen Workspace vom Ordner aus verankert, in dem der Aufruf beantwortet wurde, wird der Aufruf in diesem Ordner beantwortet. Wo das Ergebnis des Tools vom Workspace abhängt — bei denselben Tools, deren Befehle auf der Kommandozeile warnen —, endet sein Text mit der Warnung der Kommandozeile, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, und einer Zeile, die Sie auffordert, `workspace_root` mit dem Ordner zu senden, der die `.aggrega-config.yaml` Ihres Workspaces enthält; eine Antwort, die nicht vom Workspace abhängt, etwa das Auslesen der Konfiguration oder die Auflistung der Plugins, sagt nichts über Workspaces. Der Satz fügt dem strukturierten Ergebnis kein eigenes Feld hinzu; das strukturierte Ergebnis trägt ihn in `text_answer`, das den Text enthält, wie [Die zwei Teile einer Antwort](#the-two-parts-of-an-answer) es darlegt. Ein Tool, das einen Befehl in einem separaten Prozess ausführt, trägt die eigene Zeile des Befehls, die dasselbe besagt, so wie der Befehl sie ausgegeben hat. In einem solchen Ordner wird nichts in einen Artefakt-Cache geschrieben: Ein Pull oder ein Build, der seine Abhängigkeiten zuerst auflösen soll, wird dort abgelehnt, bevor irgendetwas abgerufen wird, wobei der Ordner und die zwei Möglichkeiten genannt werden — `workspace_root` senden oder dem Ordner eine `.aggrega-config.yaml` mit einem `workspace:`-Block geben. Ein Pin oder eine Veröffentlichung eines Recipe oder FeatureRecipe wird auf dieselbe Weise abgelehnt, wo er eine entfernte Quelle abrufen würde, die die Entität vollständig ausschreibt — um sie zu pinnen oder ihren Pin zu vergleichen —, bevor diese Quelle abgerufen wird; wo er keine abruft, weil die Entität keine Quelle hat, eine lokale oder eine, deren Koordinaten jedes Release ausfüllt, wird er wie überall sonst beantwortet. Ein Build dort, der zuvor nichts auflöst, rendert trotzdem, aber eine externe Eingabe, die seine Lockfile pinnt und die der Cache nicht mehr enthält, wird nicht erneut abgerufen: Dem Rendern wird anstelle der Eingabe derselbe Satz mitgeteilt, so wie ihm der eines Offline-Modus mitgeteilt wird. Keine Antwort über HTTP trägt den Satz: Ein Listener bedient immer einen Workspace, der ihm gegeben wurde oder den er gefunden hat. Ebenso wenig der Start des Desktop-Bundles mit leerer Einstellung **Workspace folder**, der einen Aufruf, der keinen eigenen Workspace nennt, ablehnt, statt ihn in dem Ordner zu beantworten, in dem er gestartet wurde."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-11-03T05:17:11.041Z",
     "job": "session-0055-20261103051711",
@@ -75706,6 +75728,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Eine Antwort ohne strukturiertes Ergebnis ist allein ihr Text.** Die Ablehnung der Argumente eines Aufrufs und jeder andere Fehlschlag, für den die Operation nichts Strukturiertes zu melden hatte, kommt als Text und nichts anderes zurück, und der Text ist dann der einzige Teil, den ein Client seinem Modell zeigen kann."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**Auch die Schritt-für-Schritt-Anleitung ist veröffentlichte Dokumentation**, gelesen aus [fatal-halts.md](../errors/fatal-halts.md). Beide Seiten stammen aus dem Dokumentationspaket, das einmal pro Rechner in dem Cache abgelegt wird, den alle Aggrega-Projekte teilen, eine Kopie für jede Registry und Version – siehe [`aggrega cache`](aggrega-cache.md). Gelesen wird das Paket, das für die Version von `aggrega` veröffentlicht wurde, die Sie ausführen; wo für diese Version keines veröffentlicht ist, ist es das neueste, das für eine frühere Version veröffentlicht wurde – dieselbe Wahl, die [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) trifft, sodass die beiden nie unterschiedliche Dokumentation lesen. Ein Code, den die Referenz einer früheren Version nicht enthält, kann eine seither deklarierte Bedingung benennen; daher wird er als unbestimmt abgelehnt statt als Code, der nichts benennt, und die Ablehnung nennt die Version, deren Referenz gelesen wurde. Ihr Workspace entscheidet, aus welcher Registry das Paket stammt, nämlich aus seiner Standard-Registry, und ob eine bereits auf dem Rechner vorhandene Kopie gelesen werden darf: Bevor eine Seite ausgeliefert wird, werden die neben der Kopie abgelegten Signaturen erneut mit der Signaturprüfung Ihres Workspace für diese Registry verifiziert, derselben Prüfung, der auch ein Abruf des Pakets unterliegt. Diese Prüfung läuft auch offline. Wo sie einen Schlüssel oder eine Trust Root festlegt, liest sie nur diese; wo sie keines von beiden festlegt, wie die eingebaute Prüfung des offiziellen Hubs, verifiziert sie gegen die öffentliche Sigstore-Trust-Root, die ein Offline-Workspace nicht abrufen kann – offline verifiziert sie daher gegen die Trust Root, die ein früherer Online-Abruf auf diesem Rechner unter `.sigstore` in Ihrem Home-Verzeichnis hinterlassen hat, und ruft nichts ab. Wenn der Rechner keine Kopie hat oder keine, die Ihre Prüfung zulässt, beschafft der Befehl einmalig eine unter dieser Prüfung und liest danach aus dem Cache. Dieselbe Kopie liefert die Dokumentation, die ein Assistent über [`aggrega mcp`](aggrega-mcp.md) liest, und die Erklärungen, die ein Editor über [`aggrega serve`](aggrega-serve.md) anzeigt."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-11-03T09:08:47.733Z",
@@ -120696,6 +120729,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Trennung der Zuständigkeiten (Vier-Domänen-Aufteilung) — Orientierung, kein Gefängnis"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Keine Dokumentation verfügbar.** Für eine Bedingung, die der Compiler deklariert, werden die Codes und der Satz weiterhin gemeldet, und ein Hinweis nennt das Paket und die Version, die nicht gelesen werden konnten. Für einen Code, den dieses Binary nicht deklariert, bleibt nichts, womit geantwortet werden könnte, daher wird der Code abgelehnt – und die Ablehnung besagt, dass die Referenz nicht gelesen werden konnte, weil ohne sie ein Code aus einer anderen Version nicht von einem Tippfehler zu unterscheiden ist, und lässt beide Abhilfen offen: den Code korrigieren oder die Dokumentation beschaffen. Die übliche Ursache ist ein offline festgelegter Workspace oder einer, der seine Registry nie erreicht hat. Wo der Rechner eine Kopie enthält, die die Signaturprüfung Ihres Workspace nicht zulässt – eine, die ein anderes Projekt unter einer lockereren Einstellung abgerufen hat, oder eine, die ein Offline-Workspace nicht prüfen kann, weil dieser Rechner die öffentliche Trust Root, gegen die seine Prüfung verifiziert, nie abgerufen hat –, besagt der Hinweis, dass die Kopie abgelehnt wurde, statt zu fehlen, und warum. Wo für Ihre Version kein Paket veröffentlicht ist und das neueste frühere in einem Format vorliegt, das diese Version von `aggrega` nicht mehr liest – etwa bei einer Vorabversion, die ausgeführt wird, bevor ihre eigene Dokumentation veröffentlicht ist –, nennt der Hinweis beides in einem Satz:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-11-02T23:50:32.426Z",

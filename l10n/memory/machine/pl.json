@@ -46972,6 +46972,17 @@
     "status": "machine",
     "text": "Adresy URL trybu bezkluczowego i ścieżka klucza w trybie z kluczem mogą również pochodzić z bloku `signing:` pliku `.aggrega-config.yaml` (globalnie i dla poszczególnych rejestrów); flaga zastępuje konfigurację, a konfiguracja zastępuje publiczne wartości domyślne. W tym pliku każdy adres URL zapisuje się jako bezwzględny adres `https` — `https://`, host oraz opcjonalnie port i ścieżka, np. `https://fulcio.sigstore.dev` — a wartość w innej postaci, bez schematu lub zaczynająca się od `http://`, zostaje odrzucona podczas wczytywania pliku, z podaniem nazwy pliku i klucza. Token tożsamości OIDC nigdy nie jest polem konfiguracji, a klucz prywatny nigdy nie jest podawany bezpośrednio — tylko ścieżka do niego."
   },
+  "45ca36aa98ce3bd6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "adc6020807852f07",
+      "reviewed": false
+    },
+    "srcHash": "45ca36aa98ce3bd6",
+    "status": "machine",
+    "text": "**Obszar roboczy, w imieniu którego odpowiada proces obsługujący, jest ustalany przy jego uruchomieniu.** Wskazuje go `--workspace-root`; gdy flagi brak, dostarcza go zmienna `AGGREGA_WORKSPACE_ROOT`. Wskazany folder jest samym katalogiem głównym obszaru roboczego, bez przeszukiwania niczego powyżej, a folder, który nie istnieje, jest odrzucany z podaniem, które z tych dwóch źródeł go dostarczyło, i z przytoczeniem wartości w podanej postaci — przez listener przed powiązaniem z adresem, a przez serwer na standardowym wejściu i wyjściu w odpowiedzi na każde wywołanie działające w tym obszarze roboczym, jak opisuje [Which workspace a call is answered in](#which-workspace-a-call-is-answered-in) — dzięki czemu uruchomienie złożone przez klienta, a nie wpisane ręcznie, nadal mówi, co otrzymało. Gdy nie ma żadnego z nich, serwer na standardowym wejściu i wyjściu ustala obszar roboczy na podstawie katalogu, w którym go uruchomiono — tam, gdzie nic go w nim nie zakotwicza, każda odpowiedź dotycząca obszaru roboczego podaje, którego folderu użyto, a uruchomienie z pakietu desktopowego z pustym ustawieniem **Workspace folder** zamiast tego odrzuca wywołanie niewskazujące własnego obszaru roboczego, jak opisuje [Which workspace a call is answered in](#which-workspace-a-call-is-answered-in) — a listener jest odrzucany przed powiązaniem z adresem, chyba że obszar roboczy zostanie tam ustalony — proces osiągany przez HTTP odpowiada wywołującym, którzy nie widzą maszyny, więc obsługuje obszar roboczy wybrany przez operatora, a nie dowolny katalog, w którym akurat go uruchomiono. Aby obsługiwać kilka projektów, należy uruchomić jeden proces na każdy katalog główny projektu."
+  },
   "45ca56d179d4788c": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -73348,6 +73359,17 @@
     "status": "machine",
     "text": "Position"
   },
+  "6d060c93762ee7e6": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "ed22ae205bf171a8",
+      "reviewed": false
+    },
+    "srcHash": "6d060c93762ee7e6",
+    "status": "machine",
+    "text": "**Jeśli nie znaleziono ani nie wskazano obszaru roboczego, odpowiedź dotycząca obszaru roboczego podaje, którego folderu użyto.** Gdy nie ma katalogu głównego uruchomienia, wywołanie nie zawiera `workspace_root` i nic nie zakotwicza obszaru roboczego od folderu, w którym udzielono odpowiedzi, odpowiedź jest udzielana w tym folderze. Jeśli wynik narzędzia zależy od obszaru roboczego — chodzi o te same narzędzia, których polecenia wyświetlają ostrzeżenie w wierszu poleceń — jego tekst kończy się ostrzeżeniem z wiersza poleceń, `<folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`, oraz wierszem nakazującym wysłać `workspace_root` wskazujące folder zawierający plik `.aggrega-config.yaml` obszaru roboczego; odpowiedź, o której obszar roboczy nie decyduje, taka jak odczyt konfiguracji czy lista wtyczek, nie mówi nic o obszarach roboczych. To zdanie nie dodaje własnego pola do wyniku strukturalnego; wynik strukturalny zawiera je w `text_answer`, które przechowuje tekst, jak opisano w sekcji [The two parts of an answer](#the-two-parts-of-an-answer). Narzędzie uruchamiające polecenie w osobnym procesie zawiera własny wiersz polecenia mówiący to samo, w postaci, w jakiej polecenie go wypisało. W takim folderze nic nie jest zapisywane do pamięci podręcznej artefaktów: pobranie albo budowanie, które ma najpierw rozwiązać zależności, jest tam odrzucane, zanim cokolwiek zostanie pobrane, z podaniem folderu i dwóch wyjść — wysłania `workspace_root` lub umieszczenia w folderze pliku `.aggrega-config.yaml` z blokiem `workspace:`. Przypięcie lub publikacja encji Recipe albo FeatureRecipe jest odrzucana w ten sam sposób, jeśli pobierałaby zdalne źródło, które encja zapisuje w całości — aby je przypiąć lub porównać jego przypięcie — zanim to źródło zostanie pobrane; jeśli nie pobiera żadnego, ponieważ encja nie ma źródła, ma źródło lokalne lub takie, którego współrzędne uzupełnia każda encja Release, odpowiedź jest udzielana jak w każdym innym miejscu. Budowanie, które niczego wcześniej nie rozwiązuje, nadal renderuje, ale zewnętrzne wejście przypięte w pliku blokady, którego pamięć podręczna już nie zawiera, nie jest pobierane ponownie: renderowanie otrzymuje to samo zdanie zamiast wejścia, tak jak otrzymuje komunikat trybu offline. Żadna odpowiedź przez HTTP nie zawiera tego zdania: nasłuchujący serwer zawsze obsługuje obszar roboczy, który mu wskazano lub który znalazł. Nie zawiera go też uruchomienie z pakietu desktopowego z pustym ustawieniem **Workspace folder**, które odrzuca wywołanie niewskazujące własnego obszaru roboczego, zamiast odpowiadać na nie w folderze, w którym je uruchomiono."
+  },
   "6d0809ff32cb51d4": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -84326,6 +84348,17 @@
     "srcHash": "7d4222259f2ce3d7",
     "status": "machine",
     "text": "**Odpowiedź bez wyniku ustrukturyzowanego to sam jej tekst.** Odrzucenie argumentów wywołania oraz każdy inny błąd, dla którego operacja nie miała nic ustrukturyzowanego do zgłoszenia, wraca jako sam tekst, a tekst jest wtedy jedyną częścią, którą klient może pokazać swojemu modelowi."
+  },
+  "7d4a5e3421fdd09a": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "d326f9891dd58c36",
+      "reviewed": false
+    },
+    "srcHash": "7d4a5e3421fdd09a",
+    "status": "machine",
+    "text": "**Omówienie również jest opublikowaną dokumentacją**, odczytywaną z [fatal-halts.md](../errors/fatal-halts.md). Obie strony pochodzą z pakietu dokumentacji, przechowywanego raz na maszynę w pamięci podręcznej współdzielonej przez wszystkie projekty Aggrega, po jednej kopii dla każdego rejestru i wersji — zob. [`aggrega cache`](aggrega-cache.md). Odczytywany jest pakiet opublikowany dla uruchomionej wersji `aggrega`; jeśli dla tej wersji żaden nie został opublikowany, jest to najnowszy pakiet opublikowany dla wcześniejszego wydania — ten sam wybór, którego dokonuje [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example), dzięki czemu oba polecenia nigdy nie odczytują różnej dokumentacji. Kod, którego nie zawiera dokumentacja referencyjna wcześniejszego wydania, może wskazywać warunek zadeklarowany później, dlatego jest odrzucany jako nierozstrzygnięty, a nie jako kod, który niczego nie wskazuje, a odrzucenie informuje, dokumentację referencyjną której wersji odczytano. Obszar roboczy określa, z którego rejestru pochodzi pakiet, czyli ze swojego domyślnego rejestru, oraz to, czy kopię już obecną na maszynie można odczytać: przed udostępnieniem strony podpisy przechowywane obok kopii są ponownie weryfikowane w ramach własnego sprawdzania podpisów obszaru roboczego dla tego rejestru, tego samego, któremu podlega pobranie pakietu. To sprawdzanie działa również offline. Jeśli przypina klucz lub korzeń zaufania, odczytuje tylko je; jeśli nie przypina żadnego z nich, jak wbudowane sprawdzanie oficjalnego huba, weryfikuje względem publicznego korzenia zaufania Sigstore, którego obszar roboczy offline nie może pobrać — dlatego offline weryfikuje względem korzenia zaufania pozostawionego w `.sigstore` w katalogu domowym przez wcześniejsze pobranie online na tej maszynie i niczego nie pobiera. Gdy na maszynie nie ma kopii lub nie ma takiej, którą dopuszcza sprawdzanie, polecenie raz pozyskuje kopię w ramach tego sprawdzania, a potem odczytuje ją z pamięci podręcznej. Ta sama kopia obsługuje dokumentację, którą asystent odczytuje przez [`aggrega mcp`](aggrega-mcp.md), oraz wyjaśnienia, które edytor pokazuje przez [`aggrega serve`](aggrega-serve.md)."
   },
   "7d4b798f6e63b1a7": {
     "at": "2026-10-22T21:48:24.698354+00:00",
@@ -134208,6 +134241,17 @@
     "srcHash": "c6e050ca8bb728aa",
     "status": "machine",
     "text": "7. Rozdzielenie odpowiedzialności (podział na cztery domeny) — wskazówka, nie więzienie"
+  },
+  "c6e10cd617dc4887": {
+    "at": "2026-11-11T02:55:35.326Z",
+    "job": "session-0003-20261111025535",
+    "revision": {
+      "from": "43ee7affe68615bc",
+      "reviewed": false
+    },
+    "srcHash": "c6e10cd617dc4887",
+    "status": "machine",
+    "text": "**Dokumentacja niedostępna.** W przypadku warunku deklarowanego przez kompilator kody i zdanie są nadal zgłaszane, a uwaga podaje pakiet i wersję, których nie udało się odczytać. W przypadku kodu, którego ten plik binarny nie deklaruje, nie ma już nic, czym można by odpowiedzieć, więc kod zostaje odrzucony — a odrzucenie informuje, że nie udało się odczytać dokumentacji referencyjnej, ponieważ bez niej kodu z innej wersji nie da się odróżnić od literówki, i pozostawia otwarte obie naprawy: poprawienie kodu lub pobranie dokumentacji. Zwykle przyczyną jest obszar roboczy przypięty do trybu offline lub taki, który nigdy nie połączył się ze swoim rejestrem. Jeśli na maszynie jest kopia, której sprawdzanie podpisów obszaru roboczego nie dopuszcza — pobrana przez inny projekt przy luźniejszym ustawieniu lub taka, której obszar roboczy offline nie może sprawdzić, bo ta maszyna nigdy nie pobrała publicznego korzenia zaufania, względem którego weryfikuje jego sprawdzanie — uwaga informuje, że kopię odrzucono, a nie że jej brakuje, oraz dlaczego. Jeśli dla używanej wersji nie opublikowano żadnego pakietu, a najnowszy wcześniejszy ma format, którego ta wersja `aggrega` już nie odczytuje — na przykład w przypadku wersji kandydującej uruchomionej przed opublikowaniem jej własnej dokumentacji — uwaga podaje obie te informacje w jednym zdaniu:"
   },
   "c6e2595746e2fdb0": {
     "at": "2026-10-22T11:59:38.351715+00:00",
