@@ -19343,6 +19343,17 @@
     "status": "machine",
     "text": "**thư mục riêng của một component** hoàn toàn không khai báo lời gọi module nào, nên `module.<name>.<output>` không chỉ tới thứ gì ở đó — **bất kể `<name>` là gì**. Thay bằng tên đúng cũng không thay đổi gì, vì thứ bị thiếu là khai báo, không phải cách viết."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "Không gian định dạng là mở và hoàn toàn thuộc về các plugin. Không socket nào giữ danh sách các định dạng mà trình biên dịch biết: một plugin khai báo các định dạng nó xử lý dưới dạng capability, và một định dạng mới được phát hành dưới dạng một plugin mới mà không cần thay đổi trình biên dịch. Vì vậy lần dừng này báo tập được quảng bá như hiện trạng thay vì một danh sách cố định, và mọi lần không khớp đều được báo rõ: yêu cầu hoặc có bên quảng bá hoặc không thể đáp ứng. Không có gì thay thế cho một plugin bị thiếu, ngoại trừ một trường hợp duy nhất là các parser mà trình biên dịch mang theo, được mô tả bên dưới."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -36662,6 +36673,13 @@
     "status": "machine",
     "text": "**`.render_facts` (map các danh sách)** — những gì các lần render của đích báo cáo về đầu ra chúng đã phát ra, được đánh khóa theo tên fact, có cùng dạng với [`.render_facts`](#the-components-that-use-this-one--contextused_by) của một bên gọi trên `.context.used_by`: mọi fact là một danh sách, các lời gọi provider của chính đích đứng trước rồi đến từng Features của nó theo thứ tự chúng đã render, các danh sách mà một tên nhận được từ mỗi bên được nối thành một. Chỉ có mặt đối với một FeatureRecipe đặt [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) — các phần gắn của nó render sau khi mọi component đã render, nên lần render của mọi đích đều đã hoàn tất — và khi đó có mặt trên mọi kết nối, rỗng đối với một đích mà các provider không báo cáo gì. Chỉ được đọc trong `valuesMapping:`, `workload:` và `artifacts:` của FeatureRecipe đó; vắng mặt trong các template Recipe của chính component, trong một `injectMapping:`, trong `with:` và `when:` của một bước `pipeline:`, và trong mọi FeatureRecipe không đặt khóa này — một template của FeatureRecipe như vậy mà đọc nó sẽ dừng bản build trước khi bất cứ thứ gì được render."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**Một bước mà thao tác phải chờ cũng là một `report`.** Khi thao tác bước vào một bước mà nó phải chờ — đọc một registry, tải một artifact, biên dịch một plugin — một `report` mang tên của bước đó, bằng chính những từ mà dòng lệnh hiển thị bên cạnh biểu tượng chờ của nó cho cùng bước ấy. Chỉ những bước được bước vào giữa `begin` và `end` mới được báo cáo."
+  },
   "3651894143e2287c": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -48062,6 +48080,17 @@
     "status": "machine",
     "text": "Cùng bước kiểm tra đó trên bản phát hành khớp nhau không báo gì:"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "Ngoại lệ duy nhất trong số các lần đọc tham chiếu đó là việc thu nhận chính gói tài liệu, và việc này diễn ra tách biệt khỏi mọi lần đọc. Gói được lưu một lần cho mỗi máy, trong bộ nhớ đệm mà mọi dự án Aggrega dùng chung, một bản sao cho mỗi registry và phiên bản — nên một máy chủ được khởi động trong thư mục không thể tạo bộ nhớ đệm workspace vẫn giữ được nó (xem [`aggrega cache`](aggrega-cache.md)). Khi máy chủ khởi động, trước khi trả lời bất cứ điều gì bạn gửi, nó tìm ở đó một bản sao mà phép kiểm tra chữ ký của chính workspace bạn chấp nhận — cùng phép kiểm tra mà một lần pull gói phải tuân theo — và chỉ pull gói, thông qua cùng các thiết lập egress mà phần còn lại của CLI dùng, khi không có bản nào. Gói mà nó tìm là gói được phát hành cho phiên bản `aggrega` mà máy chủ đang chạy, hoặc, khi không có gói nào được phát hành cho phiên bản đó, là gói mới nhất được phát hành cho một phiên bản trước đó — cùng lựa chọn mà [`aggrega explain`](aggrega-explain.md) và [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) đưa ra — và mọi trang nó phục vụ, cũng như mọi phần giải thích, đều được đọc từ gói mà nó đã thu nhận. Vì vậy các trang đã có sẵn khi có bất cứ thứ gì yêu cầu, bất kể client của bạn gửi gì trước, và một máy chủ khác, hoặc [`aggrega explain`](aggrega-explain.md) trong một dự án khác, tìm thấy cùng bản sao đó thay vì tải lại."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -57798,6 +57827,13 @@
     "status": "machine",
     "text": "Dùng `<path>` làm thư mục gốc của workspace, bỏ qua hoàn toàn bước dò tìm. Khi không có cờ này, `aggrega` dò tìm thư mục gốc bằng cách đi ngược lên từ thư mục hiện tại — hoặc, khi lần đi đó không tìm thấy gì và lệnh chỉ định Release hay tài liệu của nó bằng một đường dẫn tuyệt đối, thì đi ngược lên từ thư mục chứa tệp đó; xem [Cấu hình](configuration.md#the-other-ways-a-project-root-is-recognised) để biết điều gì neo một thư mục gốc, theo thứ tự nào, và những lệnh nào chỉ định một tệp như vậy."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "Khi không có gói nào được phát hành cho phiên bản của bạn và gói mới nhất trước đó ở định dạng mà phiên bản `aggrega` này không còn đọc được — chẳng hạn một bản ứng viên phát hành được chạy trước khi tài liệu của chính nó được phát hành — lệnh sẽ từ chối, nêu cả hai điều trong một câu, và không có gì được ghi:"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T17:54:21.977Z",
     "job": "session-0009-20261105175421",
@@ -65779,6 +65815,17 @@
     "status": "machine",
     "text": "*Các ô được đánh dấu `✅` được render; `❌` là một sự từ chối về năng lực của provider do cổng đưa ra. Các phân đoạn compose theo từng node được hợp nhất theo từng đường dẫn lắp ráp, nên các boundary dùng chung một `directory:` sẽ dùng chung một tệp.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` ghi danh tính của plugin và phiên bản mới nhất được phát hành cho nó, hoặc phiên bản bạn chỉ định dưới dạng `<name>:<version>` — `importer/<name>:<version>` — vào danh sách `plugins.importer`. Mục đó gắn importer mà nó nêu tên: một lần import yêu cầu một định dạng mà importer quảng bá sẽ chạy importer đó, ở phiên bản đó, ngay cả khi các importer khác trong catalog của bạn cũng quảng bá định dạng ấy, và chỉ importer đó được trao những gì mục mang dưới `with`. [Importer nào biến một nguồn thành bản nháp](configuration.md#which-importer-turns-a-source-into-drafts) mô tả đầy đủ về mục này."
+  },
   "615b291bad169457": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -71594,6 +71641,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "các assertion sau đọc nó theo từng cách:"
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**Một lần parse dự phòng về các parser mà trình biên dịch mang theo.** Một bản build parse từng tệp nó giao cho một chính sách `render-verdict` ở định dạng mà chính sách đó không đọc được một cách gốc, một importer đọc nguồn của nó qua parser cho cú pháp mà nó nêu, và một lần import không nêu định dạng nào sẽ parse nguồn theo cú pháp mà mỗi chữ ký áp dụng nêu. Với mỗi cú pháp, parser mà danh mục của workspace phục vụ sẽ được dùng, và khi danh mục không phục vụ parser nào, parser mà chính trình biên dịch mang theo cho cú pháp đó sẽ được dùng — trong đó có parser HCL mà một bản build dùng để đọc đầu ra Terraform và parser JSON mà các [core importer](../plugins/core-importers.md) của trình biên dịch đọc qua, nên cả một chính sách trên đầu ra Terraform lẫn một lần import qua một core importer đều không cần parser nào trong danh mục. Khi danh mục có phục vụ parser cho một cú pháp, parser riêng của trình biên dịch không tham gia, và hai parser khác tên trong danh mục bị từ chối như [A parse or import format is advertised by more than one plugin (Một định dạng parse hoặc import được quảng bá bởi nhiều hơn một plugin)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin) mô tả. Vì vậy lần dừng này nêu một cú pháp mà cả danh mục lẫn trình biên dịch đều không phục vụ parser."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -112099,6 +112157,13 @@
     "status": "machine",
     "text": "Đổi tên tệp thành `aggrega`, đánh dấu nó là có thể thực thi, và di chuyển nó vào một thư mục có trong `PATH` của bạn. Ví dụ, từ Terminal, trong thư mục chứa tệp tải xuống, với `<version>` được thay bằng phiên bản bạn đã tải xuống, và `arm64` được thay bằng `amd64` trên máy Mac Intel:"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**Khi mọi cách đều không được, thư mục làm việc được dùng** — các lệnh vẫn chạy thay vì từ chối khởi động. Một lệnh có kết quả phụ thuộc vào workspace — lệnh đọc hoặc ghi các tài liệu của workspace, đọc hoặc lấp đầy bộ nhớ đệm artifact của nó, hoặc phục vụ nó — cảnh báo một lần trên standard error: `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. Một lệnh có kết quả không phụ thuộc vào việc thư mục nào là gốc thì không nói gì, kể cả khi nó đọc cấu hình: trong số đó có `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain` và `aggrega login`. `aggrega config capture`, với công việc là ghi chính tệp cấu hình của workspace, không ghi gì trong một thư mục như vậy và thoát với một lỗi nói rõ điều đó."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -140337,6 +140402,17 @@
     "status": "machine",
     "text": "Hub chính thức là ngoại lệ: nó mang một baseline tích hợp sẵn, nên khi nó không công bố tài liệu thì baseline đó được ghim thay thế, và thông báo cho biết hub đã trả lời gì và baseline được dùng thay vào đó, thay vì yêu cầu bạn ghim danh tính."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "Một bản build của `aggrega` được tạo từ một số commit sau một bản phát hành — bản có `aggrega version` hiển thị dạng `0.9.0-12-g1a2b3c4d` — đọc tài liệu của bản phát hành mà nó được build sau đó, ở đây là `0.9.0`, hoặc một bản trước đó nếu tài liệu đó không được xuất bản. Một bản build không được đóng dấu số phát hành sẽ đọc tài liệu của chính phiên bản của nó hoặc không đọc gì. [`aggrega explain`](aggrega-explain.md) chọn gói mà nó đọc các phần hướng dẫn từng bước theo cùng cách đó."
+  },
   "cf372023c6784151": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -159265,6 +159341,17 @@
     "status": "machine",
     "text": "Mở một phiên trên một workspace và nêu những gì client có thể xử lý. Đây là phương thức duy nhất mà trên đó `workspaceRoot` là một khai báo chứ không phải một chủ thể: vắng mặt, rỗng và một đường dẫn là ba điều khác nhau, và một phiên được mở mà không có đường dẫn là phiên mà client chưa trỏ tới một workspace nào."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**Việc phân giải các phụ thuộc của một Release là thứ báo cáo ở đây.** `pull` báo cáo mỗi khi quá trình phân giải bước vào một giai đoạn. `build` chỉ báo cáo khi nó phân giải trước — vì bạn đã gửi `auto_pull`, hoặc vì thiết lập riêng của workspace yêu cầu mọi bản build trong đó phân giải — bởi việc báo cáo thuộc về bước đó: một bản build render từ các pin nó đã có thì không chạm tới gì và không báo cáo gì, nên một token trên lệnh gọi đó không thay đổi gì về cách nó được trả lời. Mọi lệnh gọi cũng báo cáo từng bước mà công việc của nó bước vào và phải chờ — đọc một registry, tải một artifact hoặc một gói tài liệu, biên dịch một plugin lần đầu — tức là các bước mà dòng lệnh hiển thị cho người dùng bên cạnh biểu tượng chờ của nó. Một lệnh gọi mà công việc không phải chờ bước nào trong số đó thì không báo cáo gì, điều này vô hại chứ không phải lỗi: câu trả lời chính là câu bạn sẽ nhận được khi không có token."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -160465,6 +160552,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` đọc một declarative agent của Microsoft Agent Framework — tài liệu YAML thuộc kind `Prompt` mà một ứng dụng xây dựng trên Agent Framework dùng để nạp một agent — và tạo bản nháp một Aggregate chứa một instance của agent Agent Framework trong thư viện chuẩn, `core/ai-agent/agent-framework`, được nối tới mô hình OpenAI mà nó nêu tên, cùng một Release bên cạnh. Importer đọc các declarative agent, và không bao giờ đọc mã của ứng dụng. Agent Framework phát hành các gói declarative-agent của mình dưới dạng bản phát hành trước (prerelease)."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "Tìm một plugin thuộc loại được chỉ định trong registry và thêm nó"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-10-22T23:16:14.159554+00:00",

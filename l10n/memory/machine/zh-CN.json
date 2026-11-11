@@ -19331,6 +19331,17 @@
     "status": "machine",
     "text": "**component 自己的目录**完全不声明模块调用，因此 `module.<name>.<output>` 在那里不指向任何东西，**无论 `<name>` 是什么**。换成正确的名称也无济于事，因为缺少的是声明，而不是拼写。"
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "格式空间是开放的，完全属于插件。两个插槽都不持有编译器已知的格式列表：插件将其处理的格式声明为 capability，新格式以新插件的形式发布，无需修改编译器。因此，此停止报告的是当前已声明的集合，而不是固定的枚举，并且每次未命中都会明确报出：请求要么有声明者，要么无法满足。缺失的插件不会被任何东西替代，唯一的例外是编译器自带的 parser，见下文。"
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -36651,6 +36662,13 @@
     "status": "machine",
     "text": "**`.render_facts`（列表映射）** — 目标的渲染对其输出所报告的内容，以事实名为键，形状与 `.context.used_by` 上调用方的 [`.render_facts`](#the-components-that-use-this-one--contextused_by) 相同：每个事实都是一个列表，先是目标自身 provider 的调用，然后是其各个 Features 按渲染顺序排列，同一名称从各处得到的列表合并为一个。仅对设置了 [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) 的 FeatureRecipe 存在——其附件在所有组件渲染完成后才渲染，因此每个目标的渲染都已完成——此时存在于每个连接上，对 provider 未报告任何内容的目标为空。仅可在该 FeatureRecipe 的 `valuesMapping:`、`workload:` 和 `artifacts:` 中读取；在组件自身的 Recipe 模板、`injectMapping:`、`pipeline:` 步骤的 `with:` 和 `when:` 中，以及在所有未设置该键的 FeatureRecipe 中均不存在——此类 FeatureRecipe 的模板若读取它，会在任何渲染之前中止构建。"
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**操作所等待的步骤也是一个 `report`。** 当操作进入它要等待的步骤时——读取 registry、获取制品、编译插件——一个 `report` 会携带该步骤的名称，用词与命令行针对同一步骤在其进度指示器旁显示的相同。只有在 `begin` 与 `end` 之间进入的步骤才会被报告。"
+  },
   "3651894143e2287c": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -48052,6 +48070,17 @@
     "status": "machine",
     "text": "对匹配的 release 执行同样的检查，不会报告任何问题："
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "这些参考读取中唯一的例外是获取文档包本身，而它发生在所有读取之外。文档包在每台机器上只保留一份，位于每个 Aggrega 项目共享的缓存中，每个 registry 和版本各一份副本——因此即使服务器在无法创建工作区缓存的文件夹中启动，也照样保留它（参见 [`aggrega cache`](aggrega-cache.md)）。服务器启动时，在回答你发送的任何内容之前，会在那里查找一份能通过你工作区自身签名检查的副本——与拉取文档包时所遵循的检查相同——只有在没有这样的副本时，才会通过 CLI 其余部分所用的同一出站设置拉取文档包。它查找的文档包是为服务器所运行的 `aggrega` 版本发布的那个；若没有为该版本发布的文档包，则是为更早版本发布的最新文档包——与 [`aggrega explain`](aggrega-explain.md) 和 [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) 的选择相同——而它提供的每个页面和每条解释，都读取自它所获得的那一份。因此，无论你的客户端先发送什么，在任何请求要求页面时页面都已就位，而另一个服务器或另一个项目中的 [`aggrega explain`](aggrega-explain.md) 会找到同一份副本，而不是再次下载。"
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -57786,6 +57815,13 @@
     "status": "machine",
     "text": "将 `<path>` 用作工作区根目录，完全跳过发现过程。省略该标志时，`aggrega` 会从当前目录向上逐级查找来发现根目录；如果这一查找没有找到任何结果，而命令又以绝对路径指定了其 Release 或文档，则改为从该文件所在的文件夹向上查找。关于什么能锚定根目录、按什么顺序锚定，以及哪些命令会指定这样的文件，请参阅[配置](configuration.md#the-other-ways-a-project-root-is-recognised)。"
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "如果没有为你的版本发布的文档包，而更早版本中最新的那个采用了此版本 `aggrega` 不再读取的格式——例如在其自身文档发布之前运行的候选发布版本——命令会拒绝，用一句话同时说明这两点，并且不写入任何内容："
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T19:43:13.706Z",
     "job": "session-0017-20261105194313",
@@ -65763,6 +65799,17 @@
     "status": "machine",
     "text": "*标记为 `✅` 的单元格表示会被渲染；`❌` 表示由关卡报告的 provider 能力拒绝。每个节点的 compose 片段按组装路径合并，因此共享同一 `directory:` 的 boundary 共享一个文件。*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` 将插件的标识及其已发布的最新版本，或你以 `<name>:<version>` 形式指定的版本（`importer/<name>:<version>`）写入 `plugins.importer` 列表。该条目挂接它所指定的 importer：请求该 importer 所声明格式的导入会运行这个 importer 的该版本，即使你的目录中还有其他 importer 也声明了该格式；并且只有这个 importer 会收到该条目在 `with` 下携带的内容。[哪个 importer 将源转换为草稿](configuration.md#which-importer-turns-a-source-into-drafts)完整描述了该条目。"
+  },
   "615b291bad169457": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -71573,6 +71620,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "以下断言分别以各种方式读取它："
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**解析会回退到编译器自带的 parser。**构建会解析它交给 `render-verdict` 策略、且格式并非该策略原生可读的每个文件，importer 通过其指定语法的 parser 读取源，未指定格式的导入则按每个适用签名指定的语法解析源。对于每种语法，使用工作区目录提供的 parser；如果目录没有提供，则使用编译器自身为该语法自带的 parser——其中包括构建读取 Terraform 输出所用的 HCL parser，以及编译器的 [core importers](../plugins/core-importers.md) 所使用的 JSON parser，因此无论是针对 Terraform 输出的策略，还是通过 core importer 进行的导入，都不需要目录中有 parser。如果目录确实为某种语法提供了 parser，编译器自带的就不起作用，而目录中两个不同名称的 parser 会按照 [A parse or import format is advertised by more than one plugin（某种解析或导入格式由多个插件声明）](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin) 所述被拒绝。因此，此停止指出的是目录和编译器都未提供 parser 的语法。"
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -112091,6 +112149,13 @@
     "status": "machine",
     "text": "将文件重命名为 `aggrega`，标记为可执行，并移动到 `PATH` 所列的某个目录中。例如，在终端中进入下载文件所在的目录，将 `<version>` 替换为你下载的版本，在 Intel Mac 上将 `arm64` 替换为 `amd64`："
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**如果都不满足，则使用工作目录**——命令会运行，而不是拒绝启动。结果取决于工作区的命令——读取或写入工作区文档、读取或填充其制品缓存，或为其提供服务的命令——会在标准错误上警告一次：`warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`。结果不取决于哪个文件夹是根目录的命令则不输出任何内容，即使它读取配置也是如此：其中包括 `aggrega version`、`aggrega config show`、`aggrega plugin list`、`aggrega registry list`、`aggrega explain` 和 `aggrega login`。`aggrega config capture` 的工作是写入工作区自身的配置文件，它在这样的文件夹中不写入任何内容，并以一条说明这一点的错误退出。"
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -140324,6 +140389,17 @@
     "status": "machine",
     "text": "官方 hub 是例外：它带有内置基线，因此在它不发布文档时会改为固定该基线，通知会说明 hub 的响应以及改用基线，而不会要求你固定身份。"
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "由某个发布版本之后的若干提交构建的 `aggrega`——其 `aggrega version` 显示类似 `0.9.0-12-g1a2b3c4d`——读取它所基于的那个发布版本的文档，此处为 `0.9.0`，若该版本的文档未发布，则读取更早的版本。未标记发布版本号的构建只读取其自身版本的文档，若没有则不读取。[`aggrega explain`](aggrega-explain.md) 也以同样的方式选择其读取分步讲解所用的文档包。"
+  },
   "cf372023c6784151": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -159232,6 +159308,17 @@
     "status": "machine",
     "text": "在某个工作区上打开会话，并声明客户端能够处理的内容。这是唯一一个 `workspaceRoot` 作为声明而非请求对象的方法：缺省、空值和路径是三种不同的情况，未提供路径而打开的会话，是客户端尚未指向任何工作区的会话。"
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**此处会报告进度的是解析 Release 的依赖。** `pull` 在解析每次进入一个阶段时报告。`build` 仅在先进行解析时报告——因为你发送了 `auto_pull`，或因为工作区自身的设置要求其中每次构建都先解析——因为报告属于该步骤：基于已持有的固定版本进行渲染的构建不会到达任何报告点，也不报告任何内容，因此该调用上的令牌不会改变其应答方式。任何调用还会报告其工作进入并等待的每个步骤——读取 registry、获取制品或文档包、首次编译插件——也就是命令行在其进度指示器旁向用户显示的那些步骤。工作不等待其中任何步骤的调用不报告任何内容，这是无害的，而不是错误：应答与没有令牌时你会收到的相同。"
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -160430,6 +160517,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` 读取 Microsoft Agent Framework 声明式智能体——即基于 Agent Framework 构建的应用从中加载智能体的、kind 为 `Prompt` 的 YAML 文档——并起草一个 Aggregate，其中包含标准库的 Agent Framework 智能体 `core/ai-agent/agent-framework` 的一个实例，连接到它所指定的 OpenAI 模型，并在其旁起草一个 Release。它读取声明式智能体，从不读取应用的代码。Agent Framework 以预发布版本的形式发布其声明式智能体软件包。"
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "在注册表中查找指定类型的插件并添加"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-10-22T04:05:10.557953+00:00",

@@ -19343,6 +19343,17 @@
     "status": "machine",
     "text": "**direktori milik sebuah komponen** sama sekali tidak mendeklarasikan pemanggilan modul, sehingga `module.<name>.<output>` tidak menamai apa pun di sana — **apa pun `<name>`-nya**. Mengganti dengan nama yang benar tidak mengubah apa pun, karena yang hilang adalah deklarasinya, bukan ejaannya."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "Ruang format bersifat terbuka dan sepenuhnya milik plugin. Tidak satu pun soket menyimpan daftar format yang dikenal compiler: plugin mendeklarasikan format yang ditanganinya sebagai kapabilitas, dan format baru dirilis sebagai plugin baru tanpa perubahan pada compiler. Karena itu, penghentian ini melaporkan himpunan yang diiklankan sebagaimana adanya, bukan enumerasi tetap, dan setiap kegagalan pencocokan dilaporkan dengan jelas: permintaan tersebut memiliki pengiklan atau tidak dapat dipenuhi. Tidak ada yang menggantikan plugin yang hilang, dengan satu pengecualian berupa parser yang dibawa compiler, yang dijelaskan di bawah."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -36662,6 +36673,13 @@
     "status": "machine",
     "text": "**`.render_facts` (map berisi list)** — apa yang dilaporkan render target tentang output yang dihasilkannya, dikunci oleh nama fakta, dalam bentuk yang sama dengan [`.render_facts`](#the-components-that-use-this-one--contextused_by) milik pemanggil pada `.context.used_by`: setiap fakta berupa list, dengan panggilan provider milik target sendiri lebih dulu lalu setiap Features-nya sesuai urutan render, dan list yang didapat satu nama dari masing-masing digabung menjadi satu. Hanya ada untuk FeatureRecipe yang menetapkan [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) — attachment-nya dirender setelah setiap komponen selesai dirender, sehingga render setiap target sudah lengkap — lalu ada pada setiap koneksi, kosong untuk target yang provider-nya tidak melaporkan apa pun. Hanya dibaca di `valuesMapping:`, `workload:` dan `artifacts:` milik FeatureRecipe tersebut; tidak ada di template Recipe milik komponen itu sendiri, di `injectMapping:`, di `with:` dan `when:` pada langkah `pipeline:`, dan di setiap FeatureRecipe yang tidak menetapkan kunci tersebut — template milik FeatureRecipe semacam itu yang membacanya menghentikan build sebelum apa pun dirender."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**Langkah yang ditunggu operasi juga merupakan `report`.** Saat operasi memasuki langkah yang ditunggunya — membaca registry, mengambil artefak, mengompilasi plugin — sebuah `report` membawa nama langkah tersebut, dengan kata-kata yang ditampilkan baris perintah di samping indikator putarnya untuk langkah yang sama. Hanya langkah yang dimasuki antara `begin` dan `end` yang dilaporkan."
+  },
   "3651894143e2287c": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -48062,6 +48080,17 @@
     "status": "machine",
     "text": "Pemeriksaan yang sama atas release yang cocok tidak melaporkan apa pun:"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "Satu-satunya pengecualian di antara pembacaan rujukan tersebut adalah akuisisi bundel dokumentasi itu sendiri, dan hal itu terjadi terpisah dari setiap pembacaan. Bundel disimpan sekali per mesin, dalam cache yang digunakan bersama oleh setiap proyek Aggrega, satu salinan untuk setiap registry dan versi — sehingga server yang dimulai di folder tempat cache workspace tidak dapat dibuat tetap menyimpannya (lihat [`aggrega cache`](aggrega-cache.md)). Saat server dimulai, sebelum menjawab apa pun yang Anda kirim, server mencari di sana salinan yang diterima oleh pemeriksaan tanda tangan workspace Anda sendiri — pemeriksaan yang sama yang berlaku untuk pull bundel — dan mengambil bundel tersebut, melalui pengaturan egress yang sama dengan yang digunakan bagian lain CLI, hanya jika tidak ada salinan semacam itu. Bundel yang dicarinya adalah bundel yang dipublikasikan untuk versi `aggrega` yang dijalankan server, atau, jika tidak ada yang dipublikasikan untuk versi itu, bundel terbaru yang dipublikasikan untuk versi sebelumnya — pilihan yang sama dengan yang dibuat [`aggrega explain`](aggrega-explain.md) dan [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) — dan setiap halaman yang dilayaninya, serta setiap penjelasan, dibaca dari bundel yang diperolehnya. Dengan demikian halaman-halaman sudah tersedia saat ada yang memintanya, apa pun yang kebetulan dikirim klien Anda terlebih dahulu, dan server lain, atau [`aggrega explain`](aggrega-explain.md) di proyek lain, menemukan salinan yang sama alih-alih mengunduhnya lagi."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -57798,6 +57827,13 @@
     "status": "machine",
     "text": "Gunakan `<path>` sebagai root workspace, tanpa melakukan penemuan sama sekali. Jika flag ini tidak diberikan, `aggrega` menemukan root dengan menelusuri ke atas dari direktori saat ini — atau, jika penelusuran itu tidak menemukan apa pun dan perintah menyebut Release atau dokumennya dengan path absolut, dengan menelusuri ke atas dari folder file tersebut; lihat [Konfigurasi](configuration.md#the-other-ways-a-project-root-is-recognised) untuk mengetahui apa yang menjadi penanda sebuah root, dalam urutan apa, dan perintah mana yang menyebut file seperti itu."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "Jika tidak ada yang dipublikasikan untuk versi Anda dan bundel terbaru sebelumnya menggunakan format yang tidak lagi dibaca oleh versi `aggrega` ini — misalnya kandidat rilis yang dijalankan sebelum dokumentasinya sendiri dipublikasikan — perintah menolak, menyebutkan keduanya dalam satu kalimat, dan tidak ada yang ditulis:"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T17:54:21.977Z",
     "job": "session-0009-20261105175421",
@@ -65779,6 +65815,17 @@
     "status": "machine",
     "text": "*Sel yang ditandai `✅` di-render; `❌` adalah penolakan kapabilitas provider yang dimunculkan oleh gate. Fragmen compose per node digabungkan per jalur perakitan, sehingga boundary yang berbagi `directory:` berbagi satu file.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` menulis identitas plugin dan versi terbaru yang dipublikasikan untuknya, atau versi yang Anda sebutkan sebagai `<name>:<version>` — `importer/<name>:<version>` — ke dalam daftar `plugins.importer`. Entri tersebut melampirkan importer yang disebutkannya: impor yang meminta format yang diiklankan importer menjalankan importer tersebut, pada versi tersebut, bahkan ketika importer lain di katalog Anda juga mengiklankan format itu, dan hanya importer tersebut yang menerima apa yang dibawa entri di bawah `with`. [Importer mana yang mengubah sumber menjadi draf](configuration.md#which-importer-turns-a-source-into-drafts) menjelaskan entri ini secara lengkap."
+  },
   "615b291bad169457": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -71594,6 +71641,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "asersi berikut membacanya dengan masing-masing cara:"
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**Parse beralih ke parser yang dibawa compiler.** Build mem-parse setiap berkas yang diserahkannya ke kebijakan `render-verdict` dalam format yang tidak dibaca secara native oleh kebijakan tersebut, importer membaca sumbernya melalui parser untuk sintaks yang disebutnya, dan impor yang tidak menyebut format mem-parse sumber dalam sintaks yang disebut setiap signature yang berlaku. Untuk setiap sintaks, digunakan parser yang dilayani katalog workspace, dan, jika katalog tidak melayani satu pun, parser yang dibawa compiler sendiri untuk sintaks tersebut — termasuk parser HCL yang dipakai build untuk membaca keluaran Terraform dan parser JSON yang dipakai [importer inti](../plugins/core-importers.md) compiler untuk membaca, sehingga baik kebijakan atas keluaran Terraform maupun impor melalui importer inti tidak memerlukan parser di katalog. Jika katalog memang melayani parser untuk suatu sintaks, parser milik compiler tidak berperan, dan dua parser dengan nama berbeda di katalog ditolak sebagaimana dijelaskan dalam [A parse or import format is advertised by more than one plugin (Format parse atau impor diiklankan oleh lebih dari satu plugin)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin). Jadi, penghentian ini menyebut sintaks yang parsernya tidak dilayani baik oleh katalog maupun compiler."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -112091,6 +112149,13 @@
     "status": "machine",
     "text": "Ganti nama file menjadi `aggrega`, tandai sebagai dapat dieksekusi, dan pindahkan ke direktori yang tercantum di `PATH` Anda. Dari Terminal, misalnya, di direktori tempat hasil unduhan berada, dengan `<version>` diganti versi yang Anda unduh, dan `arm64` dengan `amd64` pada Mac Intel:"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**Jika semuanya gagal, direktori kerja yang digunakan** — perintah tetap berjalan alih-alih menolak untuk dimulai. Perintah yang hasilnya bergantung pada workspace — perintah yang membaca atau menulis dokumen workspace, membaca atau mengisi cache artefaknya, atau melayaninya — memberi peringatan sekali di standard error: `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. Perintah yang hasilnya tidak bergantung pada folder mana yang menjadi root tidak mengatakan apa pun, bahkan ketika membaca konfigurasi: di antaranya `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain` dan `aggrega login`. `aggrega config capture`, yang tugasnya menulis berkas konfigurasi milik workspace itu sendiri, tidak menulis apa pun di folder seperti itu dan keluar dengan kesalahan yang menyatakan hal tersebut."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -140293,6 +140358,17 @@
     "status": "machine",
     "text": "Hub resmi adalah pengecualian: hub tersebut membawa baseline bawaan, sehingga ketika hub tidak memublikasikan dokumen, baseline itulah yang di-pin, dan pemberitahuan menyebutkan apa jawaban hub serta bahwa baseline digunakan sebagai gantinya, alih-alih meminta Anda mem-pin identitas."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "Build `aggrega` yang dibuat dari beberapa commit setelah suatu rilis — yang `aggrega version`-nya terbaca seperti `0.9.0-12-g1a2b3c4d` — membaca dokumentasi rilis yang menjadi dasar build tersebut, di sini `0.9.0`, atau rilis sebelumnya jika dokumentasi itu tidak dipublikasikan. Build yang tidak dicap dengan nomor rilis membaca dokumentasi versinya sendiri atau tidak membaca dokumentasi sama sekali. [`aggrega explain`](aggrega-explain.md) memilih bundel tempat ia membaca panduan langkah demi langkahnya dengan cara yang sama."
+  },
   "cf372023c6784151": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -159213,6 +159289,17 @@
     "status": "machine",
     "text": "Membuka sesi atas sebuah workspace dan menyatakan apa yang dapat ditangani klien. Ini adalah satu-satunya metode di mana `workspaceRoot` merupakan deklarasi, bukan subjek: tidak ada, kosong, dan sebuah path adalah tiga hal yang berbeda, dan sesi yang dibuka tanpa path adalah sesi yang belum diarahkan klien ke sebuah workspace."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**Me-resolve dependensi sebuah Release adalah hal yang melapor di sini.** `pull` melapor setiap kali resolusi memasuki sebuah fase. `build` melapor hanya ketika melakukan resolusi terlebih dahulu — karena Anda mengirim `auto_pull`, atau karena pengaturan milik ruang kerja itu sendiri meminta setiap build di dalamnya melakukan resolusi — sebab pelaporan merupakan bagian dari langkah itu: build yang merender dari sematan yang sudah dimilikinya tidak menjangkau apa pun dan tidak melaporkan apa pun, sehingga token pada panggilan itu tidak mengubah apa pun tentang cara panggilan dijawab. Setiap panggilan juga melaporkan setiap langkah yang dimasuki dan ditunggu oleh pekerjaannya — membaca registry, mengambil artefak atau bundel dokumentasi, mengompilasi plugin untuk pertama kalinya — yaitu langkah-langkah yang ditampilkan baris perintah kepada seseorang di samping indikator putarnya. Panggilan yang pekerjaannya tidak menunggu satu pun dari langkah itu tidak melaporkan apa pun, yang tidak berbahaya dan bukan kesalahan: jawabannya adalah jawaban yang akan Anda terima tanpa token."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -160413,6 +160500,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` membaca agen deklaratif Microsoft Agent Framework — dokumen YAML berjenis `Prompt` yang digunakan aplikasi yang dibangun di atas Agent Framework untuk memuat agen — dan menyusun draf sebuah Aggregate yang memuat satu instans agen Agent Framework dari pustaka standar, `core/ai-agent/agent-framework`, yang dihubungkan ke model OpenAI yang disebutnya, beserta sebuah Release di sampingnya. Importer ini membaca agen deklaratif, dan tidak pernah membaca kode aplikasi. Agent Framework menerbitkan paket agen deklaratifnya sebagai prarilis."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "Menemukan plugin dengan tipe yang disebutkan di registry dan menambahkannya"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-10-23T08:19:00.586906+00:00",

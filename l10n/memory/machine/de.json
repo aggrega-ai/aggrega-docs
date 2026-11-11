@@ -17357,6 +17357,17 @@
     "status": "machine",
     "text": "das **eigene Verzeichnis einer Komponente** deklariert überhaupt keine Modulaufrufe, sodass `module.<name>.<output>` dort nichts benennt — **was auch immer `<name>` ist**. Den richtigen Namen einzusetzen ändert nichts, denn was fehlt, ist die Deklaration, nicht die Schreibweise."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "Der Formatraum ist offen und gehört vollständig den Plugins. Keiner der beiden Sockets hält eine Liste von Formaten, die der Compiler kennt: Ein Plugin deklariert die Formate, die es verarbeitet, als Fähigkeiten, und ein neues Format wird als neues Plugin ausgeliefert, ohne Änderung am Compiler. Daher meldet dieser Abbruch die ausgewiesene Menge, wie sie ist, statt einer festen Aufzählung, und jedes Fehlen wird deutlich gemeldet: Die Anforderung hat entweder ein Plugin, das sie ausweist, oder sie kann nicht erfüllt werden. Nichts tritt an die Stelle eines fehlenden Plugins, mit der einen Ausnahme der Parser, die der Compiler mitbringt, wie unten beschrieben."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-11-03T12:09:20.360Z",
     "job": "session-0103-20261103120920",
@@ -32915,6 +32926,13 @@
     "status": "machine",
     "text": "**`.render_facts` (Map von Listen)** — was die Renderings des Ziels über die von ihnen emittierte Ausgabe gemeldet haben, nach Faktname geschlüsselt, in derselben Form wie das [`.render_facts`](#the-components-that-use-this-one--contextused_by) eines Aufrufers in `.context.used_by`: jeder Fakt eine Liste, zuerst die Aufrufe des eigenen Providers des Ziels und dann jedes seiner Features in der Reihenfolge, in der sie gerendert haben, wobei die Listen, die ein Name von jedem erhält, zu einer zusammengeführt werden. Nur vorhanden für ein FeatureRecipe, das [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) setzt — seine Anbindungen rendern, sobald jede Komponente gerendert hat, sodass das Rendering jedes Ziels vollständig ist — und dann auf jeder Verbindung, leer für ein Ziel, dessen Provider nichts melden. Nur in `valuesMapping:`, `workload:` und `artifacts:` dieses FeatureRecipe gelesen; fehlt in den eigenen Recipe-Templates der Komponente, in einem `injectMapping:`, in `with:` und `when:` eines `pipeline:`-Schritts und in jedem FeatureRecipe, das den Schlüssel nicht setzt — ein Template eines solchen, das es liest, bricht den Build ab, bevor etwas gerendert wird."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**Auch ein Schritt, auf den die Operation wartet, ist ein `report`.** Wenn die Operation in einen Schritt eintritt, auf den sie wartet – das Lesen einer Registry, das Abrufen eines Artefakts, das Kompilieren eines Plugins –, trägt ein `report` den Namen des Schritts, in den Worten, die die Befehlszeile für denselben Schritt neben ihrer Fortschrittsanzeige zeigt. Nur Schritte, in die zwischen `begin` und `end` eingetreten wird, werden gemeldet."
+  },
   "3651894143e2287c": {
     "at": "2026-11-04T06:11:41.842Z",
     "job": "session-0208-20261104061141",
@@ -43207,6 +43225,17 @@
     "status": "machine",
     "text": "Dieselbe Prüfung über das übereinstimmende Release meldet nichts:"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "Die eine Ausnahme unter diesen Nachschlage-Lesevorgängen ist das Beschaffen des Dokumentationspakets selbst, und es geschieht abseits jedes Lesevorgangs. Das Paket wird einmal pro Rechner vorgehalten, im Cache, den jedes Aggrega-Projekt teilt, eine Kopie für jede Registry und Version – sodass ein Server, der in einem Ordner gestartet wird, in dem kein Workspace-Cache angelegt werden kann, es trotzdem vorhält (siehe [`aggrega cache`](aggrega-cache.md)). Beim Start des Servers, bevor er auf irgendetwas antwortet, das Sie senden, sucht er dort nach einer Kopie, die die Signaturprüfung Ihres eigenen Workspace zulässt – dieselbe Prüfung, der ein Pull des Pakets unterliegt –, und ruft das Paket über dieselben Egress-Einstellungen ab, die der Rest der CLI verwendet, nur wenn es keine gibt. Das Paket, nach dem er sucht, ist das für die Version von `aggrega` veröffentlichte, die der Server ausführt, oder, wo für sie keines veröffentlicht ist, das neueste für eine frühere Version veröffentlichte – dieselbe Wahl, die [`aggrega explain`](aggrega-explain.md) und [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) treffen –, und jede Seite, die er bereitstellt, und jede Erklärung wird aus dem Paket gelesen, das er bezogen hat. So sind die Seiten bereits vorhanden, wenn etwas eine anfordert, gleich, was Ihr Client zuerst sendet, und ein anderer Server oder [`aggrega explain`](aggrega-explain.md) in einem anderen Projekt findet dieselbe Kopie, statt sie erneut herunterzuladen."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -52053,6 +52082,13 @@
     "status": "machine",
     "text": "Verwendet `<path>` als Workspace-Stamm und überspringt die Erkennung vollständig. Wird das Flag weggelassen, ermittelt `aggrega` den Stamm, indem es vom aktuellen Verzeichnis aufwärts wandert — oder, wo diese Suche nichts findet und der Befehl sein Release oder Dokument mit einem absoluten Pfad nennt, indem es stattdessen vom Ordner dieser Datei aufwärts wandert; siehe [Konfiguration](configuration.md#the-other-ways-a-project-root-is-recognised) dazu, was einen Stamm verankert, in welcher Reihenfolge und welche Befehle eine solche Datei nennen."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "Wo für Ihre Version keines veröffentlicht ist und das neueste frühere in einem Format vorliegt, das diese Version von `aggrega` nicht mehr liest – etwa bei einer Vorabversion, die ausgeführt wird, bevor ihre eigene Dokumentation veröffentlicht ist –, verweigert der Befehl den Vorgang, nennt beides in einem Satz, und nichts wird geschrieben:"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -59084,6 +59120,17 @@
     "status": "machine",
     "text": "*Mit `✅` markierte Zellen werden gerendert; `❌` ist eine vom Gate gemeldete Ablehnung aufgrund der Provider-Fähigkeit. Die Compose-Fragmente pro Knoten werden pro Assemblierungspfad zusammengeführt, sodass Boundaries, die sich ein `directory:` teilen, sich eine Datei teilen.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` schreibt die Identität des Plugins und die neueste dafür veröffentlichte Version oder die Version, die Sie als `<name>:<version>` angeben — `importer/<name>:<version>` — in die Liste `plugins.importer`. Dieser Eintrag bindet den Importer an, den er benennt: Ein Import, der ein Format anfordert, das der Importer ankündigt, führt diesen Importer in dieser Version aus, auch wenn andere Importer in Ihrem Katalog das Format ebenfalls ankündigen, und nur diesem Importer wird übergeben, was der Eintrag unter `with` enthält. [Welcher Importer eine Quelle in Entwürfe verwandelt](configuration.md#which-importer-turns-a-source-into-drafts) beschreibt den Eintrag vollständig."
+  },
   "615b291bad169457": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -64285,6 +64332,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "lesen diese Assertions ihn auf jede Art:"
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**Das Parsen fällt auf die Parser zurück, die der Compiler mitbringt.** Ein Build parst jede Datei, die er einer `render-verdict`-Policy übergibt und deren Format die Policy nicht nativ liest, ein Importer liest seine Quelle über den Parser für die Syntax, die er benennt, und ein Import, der kein Format benennt, parst die Quelle in der Syntax, die jede zutreffende Signatur benennt. Für jede Syntax wird der Parser verwendet, den der Katalog des Workspace bereitstellt, und, wo der Katalog keinen bereitstellt, der Parser, den der Compiler selbst dafür mitbringt — darunter der HCL-Parser, über den ein Build Terraform-Ausgaben liest, und der JSON-Parser, über den die [Core-Importer](../plugins/core-importers.md) des Compilers lesen, sodass weder eine Policy über Terraform-Ausgaben noch ein Import über einen Core-Importer einen Parser im Katalog benötigt. Wo der Katalog einen Parser für eine Syntax bereitstellt, spielt der des Compilers keine Rolle, und zwei mit unterschiedlichen Namen im Katalog werden zurückgewiesen, wie [A parse or import format is advertised by more than one plugin (Ein Parse- oder Importformat wird von mehr als einem Plugin ausgewiesen)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin) beschreibt. Dieser Abbruch nennt also eine Syntax, für die weder der Katalog noch der Compiler einen Parser bereitstellt."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-11-03T06:57:39.508Z",
@@ -100667,6 +100725,13 @@
     "status": "machine",
     "text": "Benennen Sie die Datei in `aggrega` um, markieren Sie sie als ausführbar und verschieben Sie sie in ein Verzeichnis, das in Ihrem `PATH` aufgeführt ist. Im Terminal zum Beispiel, in dem Verzeichnis, in dem der Download liegt, mit `<version>` ersetzt durch die heruntergeladene Version und `arm64` durch `amd64` auf einem Intel-Mac:"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**Schlägt alles fehl, wird das Arbeitsverzeichnis verwendet** – Befehle laufen, statt den Start zu verweigern. Ein Befehl, dessen Ergebnis vom Workspace abhängt – einer, der die Dokumente des Workspace liest oder schreibt, seinen Artefakt-Cache liest oder füllt oder ihn bereitstellt –, warnt einmal auf der Standardfehlerausgabe: `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. Ein Befehl, dessen Ergebnis nicht davon abhängt, welcher Ordner die Wurzel ist, gibt nichts aus, auch wenn er die Konfiguration liest: darunter `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain` und `aggrega login`. `aggrega config capture`, dessen Aufgabe es ist, die eigene Konfigurationsdatei des Workspace zu schreiben, schreibt in einem solchen Ordner nichts und endet mit einem Fehler, der das besagt."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -126221,6 +126286,17 @@
     "status": "machine",
     "text": "Der offizielle Hub ist die Ausnahme: Er bringt eine integrierte Baseline mit, sodass dort, wo er kein Dokument veröffentlicht, stattdessen diese Baseline gepinnt wird, und die Mitteilung sagt, was der Hub geantwortet hat und dass die Baseline an seiner Stelle verwendet wird, statt Sie aufzufordern, Identitäten zu pinnen."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "Ein Build von `aggrega`, der aus einigen Commits nach einer Version erstellt wurde — einer, dessen `aggrega version` etwa `0.9.0-12-g1a2b3c4d` lautet —, liest die Dokumentation der Version, nach der er gebaut wurde, hier `0.9.0`, oder die einer früheren, wo diese nicht veröffentlicht ist. Ein Build, der keine Versionsnummer trägt, liest die Dokumentation seiner eigenen Version oder keine. [`aggrega explain`](aggrega-explain.md) wählt das Paket, aus dem es seine Schritt-für-Schritt-Erläuterungen liest, auf dieselbe Weise."
+  },
   "cf372023c6784151": {
     "at": "2026-10-30T20:20:36.751Z",
     "job": "session-0016-20261030202036",
@@ -143177,6 +143253,17 @@
     "status": "machine",
     "text": "Öffnet eine Sitzung über einem Workspace und gibt an, was der Client verarbeiten kann. Dies ist die einzige Methode, bei der `workspaceRoot` eine Deklaration und kein Gegenstand ist: fehlend, leer und ein Pfad sind drei verschiedene Dinge, und eine ohne Pfad geöffnete Sitzung ist eine, die der Client noch nicht auf einen Workspace ausgerichtet hat."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**Das Auflösen der Abhängigkeiten eines Release ist das, was hier meldet.** `pull` meldet jedes Mal, wenn die Auflösung in eine Phase eintritt. `build` meldet nur, wenn es zuerst auflöst – weil Sie `auto_pull` gesendet haben oder weil die eigene Einstellung des Workspace jeden Build darin zum Auflösen auffordert –, da das Melden zu diesem Schritt gehört: Ein Build, der aus den bereits vorhandenen Pins rendert, erreicht nichts und meldet nichts, sodass ein Token bei diesem Aufruf nichts daran ändert, wie er beantwortet wird. Jeder Aufruf meldet außerdem jeden Schritt, in den seine Arbeit eintritt und auf den sie wartet – das Lesen einer Registry, das Abrufen eines Artefakts oder eines Dokumentationspakets, das erstmalige Kompilieren eines Plugins –, also die Schritte, die die Befehlszeile einer Person neben ihrer Fortschrittsanzeige zeigt. Ein Aufruf, dessen Arbeit auf keinen dieser Schritte wartet, meldet nichts, was harmlos und kein Fehler ist: Die Antwort ist diejenige, die Sie auch ohne erhalten hätten."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-30T20:11:56.421Z",
     "job": "session-0015-20261030201156",
@@ -144279,6 +144366,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` liest einen deklarativen Agenten von Microsoft Agent Framework — das YAML-Dokument vom Typ `Prompt`, aus dem eine auf Agent Framework gebaute Anwendung einen Agenten lädt — und entwirft ein Aggregate, das eine Instanz des Agent-Framework-Agenten der Standardbibliothek, `core/ai-agent/agent-framework`, enthält, verbunden mit dem OpenAI-Modell, das der Agent nennt, sowie ein Release daneben. Er liest deklarative Agenten und niemals den Code der Anwendung. Agent Framework veröffentlicht seine Pakete für deklarative Agenten als Vorabversionen."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "Ein Plugin des genannten Typs in der Registry finden und hinzufügen"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-11-03T16:27:44.181Z",

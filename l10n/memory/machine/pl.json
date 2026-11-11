@@ -19331,6 +19331,17 @@
     "status": "machine",
     "text": "**własny katalog komponentu** nie deklaruje żadnych wywołań modułów, więc `module.<name>.<output>` nic tam nie wskazuje — **niezależnie od tego, czym jest `<name>`**. Podstawienie poprawnej nazwy niczego nie zmienia, ponieważ brakuje deklaracji, a nie pisowni."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "Przestrzeń formatów jest otwarta i należy w całości do wtyczek. Żadne gniazdo nie przechowuje listy formatów znanych kompilatorowi: wtyczka deklaruje obsługiwane formaty jako możliwości, a nowy format jest dostarczany jako nowa wtyczka bez zmian w kompilatorze. Dlatego to zatrzymanie zgłasza bieżący zestaw zadeklarowanych formatów, a nie stałe wyliczenie, i każde chybienie jest głośne: żądanie albo ma deklarującego, albo nie może zostać spełnione. Nic nie zastępuje brakującej wtyczki, z jednym wyjątkiem parserów wbudowanych w kompilator, opisanym poniżej."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -36644,6 +36655,13 @@
     "status": "machine",
     "text": "**`.render_facts` (mapa list)** — to, co renderowania celu zgłosiły o wyemitowanym wyjściu, z kluczem w postaci nazwy faktu, w tym samym kształcie co [`.render_facts`](#the-components-that-use-this-one--contextused_by) wywołującego w `.context.used_by`: każdy fakt jest listą, najpierw wywołania własnego dostawcy celu, a następnie każdego z jego Features w kolejności renderowania, przy czym listy otrzymane dla jednej nazwy z każdego źródła są łączone w jedną. Obecne tylko dla encji FeatureRecipe ustawiającej [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) — jej dołączenia renderują się, gdy wszystkie komponenty zostały już wyrenderowane, więc renderowanie każdego celu jest kompletne — i wtedy na każdym połączeniu, puste dla celu, którego dostawcy nic nie zgłaszają. Odczytywane tylko w `valuesMapping:`, `workload:` i `artifacts:` tej encji FeatureRecipe; nieobecne we własnych szablonach Recipe komponentu, w `injectMapping:`, w `with:` i `when:` kroku `pipeline:` oraz w każdej encji FeatureRecipe, która nie ustawia tego klucza — szablon takiej encji, który je odczytuje, zatrzymuje kompilację, zanim cokolwiek zostanie wyrenderowane."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**Krok, na który czeka operacja, to również `report`.** Gdy operacja wchodzi w krok, na który czeka — odczyt rejestru, pobranie artefaktu, kompilację wtyczki — `report` niesie nazwę kroku, tymi samymi słowami, które wiersz poleceń pokazuje dla tego kroku obok wskaźnika postępu. Raportowane są tylko kroki, w które operacja weszła między `begin` a `end`."
+  },
   "3651894143e2287c": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -48038,6 +48056,17 @@
     "status": "machine",
     "text": "To samo sprawdzenie dla dopasowanego wydania nie zgłasza niczego:"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "Jedynym wyjątkiem wśród tych odczytów referencyjnych jest pozyskanie samego pakietu dokumentacji, które odbywa się niezależnie od wszystkich odczytów. Pakiet jest przechowywany raz na maszynę, w pamięci podręcznej współdzielonej przez wszystkie projekty Aggrega, po jednej kopii dla każdego rejestru i wersji — więc serwer uruchomiony w folderze, w którym nie można utworzyć pamięci podręcznej przestrzeni roboczej, i tak go zachowuje (zob. [`aggrega cache`](aggrega-cache.md)). Przy starcie, zanim odpowie na cokolwiek, serwer szuka tam kopii, którą dopuszcza sprawdzenie podpisu skonfigurowane w przestrzeni roboczej — to samo, któremu podlega pobranie pakietu — i pobiera pakiet, z użyciem tych samych ustawień ruchu wychodzącego co reszta CLI, tylko wtedy, gdy takiej kopii nie ma. Szukany pakiet to ten opublikowany dla wersji `aggrega`, którą uruchamia serwer, lub, jeśli dla niej żaden nie został opublikowany, najnowszy opublikowany dla wcześniejszej wersji — ten sam wybór, którego dokonują [`aggrega explain`](aggrega-explain.md) i [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) — a każda strona, którą serwer udostępnia, i każde wyjaśnienie są odczytywane z pakietu, który uzyskał. Strony są więc już dostępne, zanim cokolwiek o nie poprosi, niezależnie od tego, co klient wyśle jako pierwsze, a inny serwer lub [`aggrega explain`](aggrega-explain.md) w innym projekcie znajduje tę samą kopię zamiast pobierać ją ponownie."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -57772,6 +57801,13 @@
     "status": "machine",
     "text": "Używa `<path>` jako katalogu głównego obszaru roboczego, całkowicie pomijając wykrywanie. Gdy flaga zostanie pominięta, `aggrega` wykrywa katalog główny, przechodząc w górę od bieżącego katalogu — albo, jeśli to przejście niczego nie znajdzie, a polecenie wskazuje swoją encję Release lub dokument ścieżką bezwzględną, przechodząc zamiast tego w górę od folderu tego pliku; w sekcji [Konfiguracja](configuration.md#the-other-ways-a-project-root-is-recognised) opisano, co wyznacza katalog główny, w jakiej kolejności i które polecenia wskazują taki plik."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "Jeśli dla używanej wersji żaden pakiet nie został opublikowany, a najnowszy wcześniejszy ma format, którego ta wersja `aggrega` już nie odczytuje — na przykład w przypadku kandydata do wydania uruchomionego przed opublikowaniem jego własnej dokumentacji — polecenie odmawia, podając obie te informacje w jednym zdaniu, i niczego nie zapisuje:"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -65753,6 +65789,17 @@
     "status": "machine",
     "text": "*Komórki oznaczone `✅` są renderowane; `❌` oznacza odmowę wynikającą z możliwości dostawcy, zgłaszaną przez bramkę. Fragmenty compose poszczególnych węzłów są scalane według ścieżki składania, więc granice współdzielące `directory:` współdzielą jeden plik.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` zapisuje tożsamość wtyczki i najnowszą opublikowaną dla niej wersję albo wersję podaną jako `<name>:<version>` — `importer/<name>:<version>` — na liście `plugins.importer`. Ten wpis dołącza wskazany w nim importer: import żądający formatu, który importer deklaruje, uruchamia ten importer w tej wersji, nawet jeśli inne importery w katalogu również deklarują ten format, i tylko ten importer otrzymuje to, co wpis zawiera pod `with`. Pełny opis wpisu zawiera sekcja [Który importer przekształca źródło w szkice](configuration.md#which-importer-turns-a-source-into-drafts)."
+  },
   "615b291bad169457": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -71568,6 +71615,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "poniższe asercje odczytują go na każdy z tych sposobów:"
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**Parsowanie przechodzi na parsery wbudowane w kompilator.** Kompilacja parsuje każdy plik przekazywany polityce `render-verdict`, którego format nie jest przez tę politykę odczytywany natywnie, importer odczytuje źródło przez parser dla wskazanej przez siebie składni, a import niewskazujący formatu parsuje źródło w składni, którą wskazuje każda mająca zastosowanie sygnatura. Dla każdej składni używany jest parser obsługiwany przez katalog obszaru roboczego, a jeśli katalog żadnego nie obsługuje — parser, który kompilator ma dla niej wbudowany, w tym parser HCL, przez który kompilacja odczytuje dane wyjściowe Terraform, i parser JSON, przez który odczytują dane [importery podstawowe](../plugins/core-importers.md) kompilatora, więc ani polityka dotycząca danych wyjściowych Terraform, ani import przez importer podstawowy nie wymaga parsera w katalogu. Jeśli katalog obsługuje parser dla danej składni, parser kompilatora nie odgrywa żadnej roli, a dwa parsery o różnych nazwach w katalogu są odrzucane, jak opisuje [A parse or import format is advertised by more than one plugin (Format parsowania lub importu jest deklarowany przez więcej niż jedną wtyczkę)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin). Zatem to zatrzymanie wskazuje składnię, dla której ani katalog, ani kompilator nie obsługuje parsera."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -112059,6 +112117,13 @@
     "status": "machine",
     "text": "Należy zmienić nazwę pliku na `aggrega`, oznaczyć go jako wykonywalny i przenieść do katalogu wymienionego w `PATH`. Na przykład w Terminalu, w katalogu, w którym znajduje się pobrany plik, z `<version>` zastąpionym pobraną wersją, a `arm64` przez `amd64` na Macu z Intelem:"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**Gdy wszystko zawiedzie, używany jest katalog roboczy** — polecenia działają zamiast odmawiać uruchomienia. Polecenie, którego wynik zależy od przestrzeni roboczej — takie, które odczytuje lub zapisuje dokumenty przestrzeni roboczej, odczytuje lub wypełnia jej pamięć podręczną artefaktów albo ją udostępnia — wyświetla jednokrotnie ostrzeżenie na standardowym wyjściu błędów: `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. Polecenie, którego wynik nie zależy od tego, który folder jest katalogiem głównym, nic nie wyświetla, nawet jeśli odczytuje konfigurację: należą do nich między innymi `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain` i `aggrega login`. `aggrega config capture`, którego zadaniem jest zapisanie własnego pliku konfiguracyjnego przestrzeni roboczej, w takim folderze niczego nie zapisuje i kończy działanie błędem, który to komunikuje."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -140255,6 +140320,17 @@
     "status": "machine",
     "text": "Wyjątkiem jest oficjalny hub: ma wbudowaną konfigurację bazową, więc gdy nie publikuje dokumentu, przypinana jest ta konfiguracja, a powiadomienie podaje odpowiedź huba i informuje, że zamiast tego używana jest konfiguracja bazowa, zamiast prosić o przypięcie tożsamości."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "Kompilacja `aggrega` zbudowana z kilku commitów po wydaniu — taka, której `aggrega version` wygląda jak `0.9.0-12-g1a2b3c4d` — odczytuje dokumentację wydania, po którym została zbudowana, tutaj `0.9.0`, lub wcześniejszego, jeśli tamta nie została opublikowana. Kompilacja bez numeru wydania odczytuje dokumentację własnej wersji albo żadną. [`aggrega explain`](aggrega-explain.md) w ten sam sposób wybiera pakiet, z którego odczytuje swoje omówienia krok po kroku."
+  },
   "cf372023c6784151": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -159165,6 +159241,17 @@
     "status": "machine",
     "text": "Otwiera sesję nad obszarem roboczym i określa, co klient potrafi obsłużyć. To jedyna metoda, w której `workspaceRoot` jest deklaracją, a nie podmiotem: brak wartości, pusty ciąg i ścieżka to trzy różne rzeczy, a sesja otwarta bez ścieżki to sesja, której klient nie wskazał jeszcze obszaru roboczego."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**Raportuje tu rozwiązywanie zależności encji Release.** `pull` raportuje za każdym razem, gdy rozwiązywanie wchodzi w fazę. `build` raportuje tylko wtedy, gdy najpierw rozwiązuje — ponieważ wysłano `auto_pull` albo ponieważ własne ustawienie przestrzeni roboczej wymaga rozwiązywania przy każdej kompilacji — gdyż raportowanie należy do tego kroku: kompilacja renderująca z już posiadanych przypięć do niczego nie dociera i niczego nie raportuje, więc token w tym wywołaniu nie zmienia sposobu odpowiedzi. Każde wywołanie raportuje też każdy krok, w który wchodzi jego praca i na który czeka — odczyt rejestru, pobranie artefaktu lub pakietu dokumentacji, pierwszą kompilację wtyczki — czyli kroki, które wiersz poleceń pokazuje osobie obok wskaźnika postępu. Wywołanie, którego praca nie czeka na żaden z nich, niczego nie raportuje, co jest nieszkodliwe, a nie jest błędem: odpowiedź jest taka sama jak bez niego."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -160363,6 +160450,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` odczytuje deklaratywnego agenta Microsoft Agent Framework — dokument YAML rodzaju `Prompt`, z którego aplikacja zbudowana na Agent Framework ładuje agenta — i tworzy szkic encji Aggregate zawierającej jedną instancję agenta Agent Framework z biblioteki standardowej, `core/ai-agent/agent-framework`, podłączoną do wskazanego przez niego modelu OpenAI, a obok niej encję Release. Odczytuje deklaratywnych agentów, nigdy kodu aplikacji. Agent Framework publikuje swoje pakiety deklaratywnych agentów jako wersje przedpremierowe."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "Znajduje w rejestrze wtyczkę podanego typu i dodaje ją"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-10-22T23:16:14.159554+00:00",

@@ -17369,6 +17369,17 @@
     "status": "machine",
     "text": "le **répertoire propre d’un composant** ne déclare aucun appel de module, donc `module.<name>.<output>` n’y nomme rien — **quel que soit `<name>`**. Substituer le nom correct ne change rien, car ce qui manque, c’est la déclaration, pas l’orthographe."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "L’espace des formats est ouvert et appartient entièrement aux plugins. Aucun des deux sockets ne contient de liste de formats connus du compilateur : un plugin déclare les formats qu’il gère comme des capacités, et un nouveau format est livré comme un nouveau plugin sans aucune modification du compilateur. Cet arrêt signale donc l’ensemble annoncé tel qu’il est plutôt qu’une énumération fixe, et chaque absence est signalée explicitement : soit la demande a un plugin qui l’annonce, soit elle ne peut pas être honorée. Rien ne remplace un plugin manquant, à l’unique exception des parseurs que le compilateur embarque, décrite ci-dessous."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-11-03T12:09:20.360Z",
     "job": "session-0103-20261103120920",
@@ -32921,6 +32932,13 @@
     "status": "machine",
     "text": "**`.render_facts` (map de listes)** — ce que les rendus de la cible ont signalé sur la sortie qu’ils ont émise, indexé par nom de fait, sous la même forme que le [`.render_facts`](#the-components-that-use-this-one--contextused_by) d’un appelant sur `.context.used_by` : chaque fait est une liste, d’abord les appels du propre fournisseur de la cible, puis chacune de ses Features dans l’ordre de leur rendu, les listes qu’un nom reçoit de chacun étant jointes en une seule. Présent uniquement pour une FeatureRecipe qui définit [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) — ses rattachements sont rendus une fois que chaque composant a été rendu, de sorte que le rendu de chaque cible est complet — et alors sur chaque connexion, vide pour une cible dont les fournisseurs ne signalent rien. Lu uniquement dans les `valuesMapping:`, `workload:` et `artifacts:` de cette FeatureRecipe ; absent des propres templates de Recipe du composant, d’un `injectMapping:`, des `with:` et `when:` d’une étape `pipeline:`, et de toute FeatureRecipe qui ne définit pas la clé — un template de l’une d’elles qui le lit arrête le build avant que quoi que ce soit ne soit rendu."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**Une étape que l’opération attend est aussi un `report`.** Lorsque l’opération entre dans une étape qu’elle attend — la lecture d’un registre, la récupération d’un artefact, la compilation d’un plugin —, un `report` porte le nom de l’étape, dans les mots que la ligne de commande affiche à côté de son indicateur d’activité pour la même étape. Seules les étapes commencées entre le `begin` et le `end` sont signalées."
+  },
   "3651894143e2287c": {
     "at": "2026-11-04T06:11:41.842Z",
     "job": "session-0208-20261104061141",
@@ -43219,6 +43237,17 @@
     "status": "machine",
     "text": "La même vérification sur la release concordante ne signale rien :"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "La seule exception parmi ces lectures de référence est l’acquisition du paquet de documentation lui-même, et elle a lieu à l’écart de toute lecture. Le paquet est conservé une fois par machine, dans le cache que partagent tous les projets Aggrega, une copie par registre et par version — de sorte qu’un serveur démarré dans un dossier où aucun cache d’espace de travail ne peut être créé le conserve tout de même (voir [`aggrega cache`](aggrega-cache.md)). Au démarrage du serveur, avant qu’il ne réponde à quoi que ce soit que vous envoyez, il y cherche une copie qu’admet la vérification de signature de votre espace de travail — la même vérification à laquelle répond un pull du paquet — et ne récupère le paquet, via les mêmes paramètres de sortie réseau que le reste de la CLI, que lorsqu’il n’y en a aucune. Le paquet qu’il cherche est celui publié pour la version d’`aggrega` qu’exécute le serveur ou, lorsqu’aucun n’est publié pour elle, le plus récent publié pour une version antérieure — le même choix que font [`aggrega explain`](aggrega-explain.md) et [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) — et chaque page qu’il sert, ainsi que chaque explication, est lue à partir de celui qu’il a obtenu. Ainsi, les pages sont déjà là au moment où quelque chose en demande une, quoi que votre client envoie en premier, et un autre serveur, ou [`aggrega explain`](aggrega-explain.md) dans un autre projet, trouve la même copie au lieu de la télécharger à nouveau."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -52065,6 +52094,13 @@
     "status": "machine",
     "text": "Utilise `<path>` comme racine du workspace, en ignorant entièrement la découverte. Lorsque le flag est omis, `aggrega` découvre la racine en remontant depuis le répertoire courant — ou, lorsque cette remontée ne trouve rien et que la commande désigne sa Release ou son document par un chemin absolu, en remontant plutôt depuis le dossier de ce fichier ; voir [Configuration](configuration.md#the-other-ways-a-project-root-is-recognised) pour savoir ce qui ancre une racine, dans quel ordre, et quelles commandes désignent un tel fichier."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "Lorsqu’aucun n’est publié pour votre version et que le plus récent des antérieurs est dans un format que cette version d’`aggrega` ne lit plus — une version candidate exécutée avant la publication de sa propre documentation, par exemple —, la commande refuse, en indiquant les deux en une seule phrase, et rien n’est écrit :"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -59096,6 +59132,17 @@
     "status": "machine",
     "text": "*Les cellules marquées `✅` sont rendues ; `❌` est un refus de capacité du provider signalé par le gate. Les fragments compose par nœud sont fusionnés par chemin d’assemblage, de sorte que les boundaries partageant un `directory:` partagent un même fichier.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer` écrit l’identité du plugin et la dernière version publiée pour lui, ou la version que vous indiquez sous la forme `<name>:<version>` — `importer/<name>:<version>` — dans la liste `plugins.importer`. Cette entrée attache l’importer qu’elle nomme : un import qui demande un format qu’annonce l’importer exécute cet importer, à cette version, même lorsque d’autres importers de votre catalogue annoncent aussi ce format, et seul cet importer reçoit ce que l’entrée porte sous `with`. [Quel importer transforme une source en brouillons](configuration.md#which-importer-turns-a-source-into-drafts) décrit l’entrée en entier."
+  },
   "615b291bad169457": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -64291,6 +64338,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "ces assertions la lisent de chaque façon :"
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**Une analyse se replie sur les parseurs que le compilateur embarque.** Un build analyse chaque fichier qu’il remet à une politique `render-verdict` dans un format que cette politique ne lit pas nativement, un importateur lit sa source au moyen du parseur de la syntaxe qu’il nomme, et une importation qui ne nomme aucun format analyse la source dans la syntaxe que nomme chaque signature applicable. Pour chaque syntaxe, c’est le parseur que sert le catalogue de l’espace de travail qui est utilisé et, lorsque le catalogue n’en sert aucun, le parseur que le compilateur embarque lui-même pour elle — parmi eux le parseur HCL au moyen duquel un build lit la sortie Terraform et le parseur JSON au moyen duquel lisent les [importateurs core](../plugins/core-importers.md) du compilateur, de sorte que ni une politique portant sur une sortie Terraform ni une importation passant par un importateur core n’a besoin d’un parseur dans le catalogue. Lorsque le catalogue sert un parseur pour une syntaxe, celui du compilateur ne joue aucun rôle, et deux parseurs de noms différents dans le catalogue sont refusés comme le décrit [A parse or import format is advertised by more than one plugin (Un format d’analyse ou d’importation est annoncé par plus d’un plugin)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin). Ainsi, cet arrêt nomme une syntaxe pour laquelle ni le catalogue ni le compilateur ne servent de parseur."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-11-03T06:57:39.508Z",
@@ -100693,6 +100751,13 @@
     "status": "machine",
     "text": "Renommez le fichier en `aggrega`, rendez-le exécutable et déplacez-le dans un répertoire listé dans votre `PATH`. Depuis Terminal, par exemple, dans le répertoire où se trouve le téléchargement, avec `<version>` remplacé par la version que vous avez téléchargée, et `arm64` par `amd64` sur un Mac Intel :"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**À défaut de tout le reste, le répertoire de travail est utilisé** — les commandes s’exécutent au lieu de refuser de démarrer. Une commande dont le résultat dépend de l’espace de travail — une commande qui lit ou écrit les documents de l’espace de travail, lit ou remplit son cache d’artefacts, ou le sert — avertit une fois sur la sortie d’erreur standard : `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. Une commande dont le résultat ne dépend pas du dossier qui est la racine ne dit rien, même lorsqu’elle lit la configuration : parmi elles `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain` et `aggrega login`. `aggrega config capture`, dont le travail consiste à écrire le fichier de configuration propre à l’espace de travail, n’écrit rien dans un tel dossier et se termine avec une erreur qui le signale."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -126283,6 +126348,17 @@
     "status": "machine",
     "text": "Le hub officiel est l’exception : il embarque une base de référence intégrée, donc lorsqu’il ne publie aucun document, c’est cette base de référence qui est épinglée à la place, et l’avis indique ce que le hub a répondu et que la base de référence est utilisée à sa place plutôt que de vous demander d’épingler des identités."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "Une build d’`aggrega` faite à partir de quelques commits postérieurs à une version publiée — une build dont `aggrega version` se lit comme `0.9.0-12-g1a2b3c4d` — lit la documentation de la version après laquelle elle a été construite, ici `0.9.0`, ou d’une version antérieure si celle-ci n’est pas publiée. Une build qui ne porte aucun numéro de version lit la documentation de sa propre version, ou aucune. [`aggrega explain`](aggrega-explain.md) choisit de la même manière le paquet dans lequel il lit ses explications pas à pas."
+  },
   "cf372023c6784151": {
     "at": "2026-10-30T20:20:36.751Z",
     "job": "session-0016-20261030202036",
@@ -143253,6 +143329,17 @@
     "status": "machine",
     "text": "Ouvre une session sur un espace de travail et indique ce que le client sait traiter. C’est la seule méthode pour laquelle `workspaceRoot` est une déclaration plutôt qu’un sujet : absent, vide et un chemin sont trois choses différentes, et une session ouverte sans chemin est une session que le client n’a pas encore dirigée vers un espace de travail."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**La résolution des dépendances d’une Release est ce qui signale ici.** `pull` signale chaque fois que la résolution entre dans une phase. `build` ne signale que lorsqu’il résout d’abord — parce que vous avez envoyé `auto_pull`, ou parce que le paramètre propre à l’espace de travail demande à chaque build qui s’y trouve de résoudre —, puisque le signalement appartient à cette étape : un build qui effectue le rendu à partir des épinglages qu’il détient déjà n’atteint rien et ne signale rien, de sorte qu’un jeton sur cet appel ne change rien à la façon dont il reçoit sa réponse. Tout appel signale aussi chaque étape dans laquelle entre son travail et qu’il attend — la lecture d’un registre, la récupération d’un artefact ou d’un paquet de documentation, la première compilation d’un plugin —, les étapes que la ligne de commande affiche à une personne à côté de son indicateur d’activité. Un appel dont le travail n’attend aucune de ces étapes ne signale rien, ce qui est inoffensif et non une erreur : la réponse est celle que vous auriez reçue sans jeton."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-30T20:11:56.421Z",
     "job": "session-0015-20261030201156",
@@ -144361,6 +144448,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework` lit un agent déclaratif de Microsoft Agent Framework — le document YAML de type `Prompt` à partir duquel une application construite sur Agent Framework charge un agent — et produit en brouillon un Aggregate contenant une instance de l’agent Agent Framework de la bibliothèque standard, `core/ai-agent/agent-framework`, reliée au modèle OpenAI qu’il nomme, ainsi qu’une Release à côté. Il lit des agents déclaratifs, et jamais le code de l’application. Agent Framework publie ses paquets d’agents déclaratifs en préversion."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "Trouver un plugin du type indiqué dans le registry et l’ajouter"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-11-03T16:27:44.181Z",

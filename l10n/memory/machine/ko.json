@@ -19337,6 +19337,17 @@
     "status": "machine",
     "text": "**component 고유의 디렉터리**는 모듈 호출을 전혀 선언하지 않으므로, 그곳에서 `module.<name>.<output>`은 아무것도 가리키지 않습니다. **`<name>`이 무엇이든** 마찬가지입니다. 올바른 이름으로 바꾸어도 달라지는 것은 없습니다. 빠진 것은 철자가 아니라 선언이기 때문입니다."
   },
+  "1c6d18f1e83a7815": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "bfc3ff865bb4053a",
+      "reviewed": false
+    },
+    "srcHash": "1c6d18f1e83a7815",
+    "status": "machine",
+    "text": "형식 공간은 열려 있으며 전적으로 플러그인에 속합니다. 어느 소켓도 컴파일러가 아는 형식 목록을 갖고 있지 않습니다. 플러그인은 자신이 처리하는 형식을 capability로 선언하고, 새 형식은 컴파일러를 변경하지 않고 새 플러그인으로 제공됩니다. 따라서 이 중단은 고정된 열거가 아니라 현재 알려진 집합을 그대로 보고하며, 모든 불일치는 명시적으로 드러납니다. 요청에 알리는 플러그인이 있거나, 아니면 요청을 이행할 수 없습니다. 아래에서 설명하는, 컴파일러가 내장한 parser라는 단 하나의 예외를 제외하면, 없는 플러그인을 대신하는 것은 없습니다."
+  },
   "1c6e7197ee004fdf": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -36657,6 +36668,13 @@
     "status": "machine",
     "text": "**`.render_facts` (map of lists)** — 대상의 렌더가 내보낸 출력에 대해 보고한 내용으로, fact 이름을 키로 하며 `.context.used_by`의 호출자 [`.render_facts`](#the-components-that-use-this-one--contextused_by)와 같은 형태입니다. 모든 fact는 리스트이며, 대상 자신의 provider 호출이 먼저 오고 그다음 대상의 각 Features가 렌더된 순서대로 오며, 한 이름이 각각에서 받은 리스트는 하나로 합쳐집니다. [`readsTargetRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts)를 설정한 FeatureRecipe에서만 존재하며(그 attachment는 모든 component가 렌더된 뒤에 렌더되므로 모든 대상의 렌더가 완료된 상태입니다), 그 경우 모든 connection에 존재하고, provider가 아무것도 보고하지 않는 대상에서는 비어 있습니다. 해당 FeatureRecipe의 `valuesMapping:`, `workload:`, `artifacts:`에서만 읽을 수 있으며, component 자신의 Recipe 템플릿, `injectMapping:`, `pipeline:` 단계의 `with:`와 `when:`, 그리고 이 키를 설정하지 않은 모든 FeatureRecipe에는 없습니다. 그러한 FeatureRecipe의 템플릿이 이를 읽으면 아무것도 렌더되기 전에 빌드가 중단됩니다."
   },
+  "364fe320769eb47b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "364fe320769eb47b",
+    "status": "machine",
+    "text": "**작업이 기다리는 단계도 `report`입니다.** 작업이 기다리는 단계 — 레지스트리 읽기, 아티팩트 가져오기, 플러그인 컴파일 — 에 들어서면, `report`가 그 단계의 이름을 명령줄이 같은 단계에 대해 스피너 옆에 표시하는 것과 같은 표현으로 전달합니다. `begin`과 `end` 사이에 들어선 단계만 보고됩니다."
+  },
   "3651894143e2287c": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -48064,6 +48082,17 @@
     "status": "machine",
     "text": "일치하는 release에 대한 같은 검사는 아무것도 보고하지 않습니다:"
   },
+  "474306a6dc2b92f7": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "d1d319d3736e7962",
+      "reviewed": false
+    },
+    "srcHash": "474306a6dc2b92f7",
+    "status": "machine",
+    "text": "이러한 참조 읽기 중 유일한 예외는 문서 번들 자체를 획득하는 것이며, 이는 모든 읽기와 별개로 이루어집니다. 번들은 머신당 한 번, 모든 Aggrega 프로젝트가 공유하는 캐시에 레지스트리와 버전별로 하나씩 보관됩니다. 따라서 워크스페이스 캐시를 만들 수 없는 폴더에서 시작된 서버도 번들을 그대로 보관합니다([`aggrega cache`](aggrega-cache.md) 참조). 서버는 시작할 때, 보내는 어떤 요청에도 답하기 전에, 워크스페이스 자체의 서명 검사가 허용하는 사본이 그곳에 있는지 확인합니다. 이는 번들 pull이 따르는 것과 같은 검사이며, 사본이 없을 때만 CLI의 나머지 부분이 사용하는 것과 같은 송신 설정을 통해 번들을 pull합니다. 서버가 찾는 번들은 서버가 실행하는 `aggrega` 버전용으로 게시된 번들이며, 그 버전용으로 게시된 것이 없으면 이전 버전용으로 게시된 번들 중 최신 번들입니다. 이는 [`aggrega explain`](aggrega-explain.md)과 [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example)이 하는 것과 같은 선택이며, 서버가 제공하는 모든 페이지와 모든 설명은 서버가 얻은 그 번들에서 읽습니다. 따라서 클라이언트가 무엇을 먼저 보내든 무언가가 페이지를 요청할 때쯤이면 페이지는 이미 있으며, 다른 서버나 다른 프로젝트의 [`aggrega explain`](aggrega-explain.md)은 다시 다운로드하지 않고 같은 사본을 찾습니다."
+  },
   "47451a1fe0f6d9a5": {
     "at": "2026-10-29T20:59:44.128Z",
     "job": "session-0021-20261029205944",
@@ -57804,6 +57833,13 @@
     "status": "machine",
     "text": "탐색을 완전히 건너뛰고 `<path>`를 워크스페이스 루트로 사용합니다. 이 플래그를 생략하면 `aggrega`는 현재 디렉터리에서 위쪽으로 올라가며 루트를 찾습니다. 이 탐색에서 아무것도 찾지 못하고 명령이 자신의 Release나 문서를 절대 경로로 지정하는 경우에는, 대신 그 파일의 폴더에서 위쪽으로 올라가며 찾습니다. 무엇이 루트의 기준이 되는지, 어떤 순서로 적용되는지, 어떤 명령이 그러한 파일을 지정하는지는 [구성](configuration.md#the-other-ways-a-project-root-is-recognised)을 참고하십시오."
   },
+  "55938dfb0db8a706": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "55938dfb0db8a706",
+    "status": "machine",
+    "text": "사용 중인 버전용으로 게시된 것이 없고 이전 것 중 최신 것이 이 버전의 `aggrega`가 더 이상 읽지 않는 형식인 경우 — 예를 들어 자체 문서가 게시되기 전에 실행한 릴리스 후보 — 명령은 두 가지를 한 문장으로 알리며 거부하고 아무것도 기록하지 않습니다:"
+  },
   "5595402fe7a883ec": {
     "at": "2026-11-05T19:43:13.706Z",
     "job": "session-0017-20261105194313",
@@ -65781,6 +65817,17 @@
     "status": "machine",
     "text": "*`✅`로 표시된 칸은 렌더링되며, `❌`는 게이트가 드러내는 provider 기능상의 거부입니다. 노드별 compose 조각은 조립 경로 단위로 병합되므로, `directory:`를 공유하는 경계들은 하나의 파일을 공유합니다.*"
   },
+  "6152b93bc45e4c5b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "51190ad037a284a1",
+      "reviewed": false
+    },
+    "srcHash": "6152b93bc45e4c5b",
+    "status": "machine",
+    "text": "`aggrega plugin add importer`는 플러그인의 식별자와 그에 대해 게시된 최신 버전 또는 `<name>:<version>`으로 지정한 버전(`importer/<name>:<version>`)을 `plugins.importer` 목록에 기록합니다. 이 항목은 자신이 지정하는 importer를 연결합니다. importer가 알리는 형식을 요청하는 가져오기는 카탈로그의 다른 importer들도 그 형식을 알리는 경우에도 해당 버전의 그 importer를 실행하며, 항목이 `with` 아래에 담은 내용은 그 importer에만 전달됩니다. [어떤 importer가 소스를 초안으로 변환하는가](configuration.md#which-importer-turns-a-source-into-drafts)에서 이 항목을 자세히 설명합니다."
+  },
   "615b291bad169457": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -71591,6 +71638,17 @@
     "srcHash": "6a3f2ce747f40b4f",
     "status": "machine",
     "text": "다음 어서션들은 이를 각각의 방식으로 읽습니다."
+  },
+  "6a3fd54124258280": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "802277c699f99e14",
+      "reviewed": false
+    },
+    "srcHash": "6a3fd54124258280",
+    "status": "machine",
+    "text": "**파싱은 컴파일러가 내장한 parser로 대체합니다.** 빌드는 `render-verdict` 정책에 넘기는 각 파일 중 정책이 기본적으로 읽지 못하는 형식의 파일을 파싱하고, importer는 자신이 지정하는 구문의 parser를 통해 소스를 읽으며, 형식을 지정하지 않은 import는 적용 가능한 각 시그니처가 지정하는 구문으로 소스를 파싱합니다. 각 구문에 대해 워크스페이스의 카탈로그가 제공하는 parser가 사용되고, 카탈로그가 제공하지 않는 경우에는 컴파일러 자체가 내장한 parser가 사용됩니다. 빌드가 Terraform 출력을 읽는 데 사용하는 HCL parser와 컴파일러의 [core importer](../plugins/core-importers.md)가 사용하는 JSON parser도 그중 하나이므로, Terraform 출력에 대한 정책이든 core importer를 통한 import든 카탈로그에 parser가 필요하지 않습니다. 카탈로그가 어떤 구문의 parser를 제공하는 경우 컴파일러 자체의 parser는 관여하지 않으며, 카탈로그에 이름이 다른 두 parser가 있으면 [A parse or import format is advertised by more than one plugin (parse 또는 import 형식을 둘 이상의 플러그인이 알림)](#a-parse-or-import-format-is-advertised-by-more-than-one-plugin)에서 설명하는 대로 거부됩니다. 따라서 이 중단은 카탈로그와 컴파일러 어느 쪽도 parser를 제공하지 않는 구문을 지정합니다."
   },
   "6a3fd8a60f08abb9": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -112109,6 +112167,13 @@
     "status": "machine",
     "text": "파일 이름을 `aggrega`로 바꾸고 실행 권한을 부여한 다음 `PATH`에 포함된 디렉터리로 옮깁니다. 예를 들어 터미널에서 다운로드한 파일이 있는 디렉터리에서 다음을 실행합니다. `<version>`은 내려받은 버전으로 바꾸고, Intel Mac에서는 `arm64`를 `amd64`로 바꿉니다:"
   },
+  "a6890b3b5b35cb9d": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "srcHash": "a6890b3b5b35cb9d",
+    "status": "machine",
+    "text": "**모두 해당하지 않으면 작업 디렉터리가 사용됩니다** — 명령은 시작을 거부하지 않고 실행됩니다. 결과가 워크스페이스에 따라 달라지는 명령, 즉 워크스페이스의 문서를 읽거나 쓰고, 아티팩트 캐시를 읽거나 채우거나, 워크스페이스를 제공하는 명령은 표준 오류에 한 번 경고합니다: `warning: <folder> is not inside an Aggrega workspace. To make it one, run: aggrega config init --workspace`. 결과가 어느 폴더가 루트인지에 따라 달라지지 않는 명령은 구성을 읽는 경우에도 아무것도 출력하지 않습니다. `aggrega version`, `aggrega config show`, `aggrega plugin list`, `aggrega registry list`, `aggrega explain`, `aggrega login`이 그러한 명령에 속합니다. 워크스페이스 자체의 구성 파일을 쓰는 것이 작업인 `aggrega config capture`는 그런 폴더에서는 아무것도 쓰지 않고 그렇다는 오류와 함께 종료합니다."
+  },
   "a68947ab5a9c1286": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -140324,6 +140389,17 @@
     "status": "machine",
     "text": "공식 허브는 예외입니다. 공식 허브는 내장 기준선을 가지고 있으므로, 문서를 게시하지 않으면 대신 그 기준선이 고정되며, 알림은 ID를 고정하라고 요청하는 대신 허브의 응답과 그 자리에 기준선이 사용된다는 사실을 알려 줍니다."
   },
+  "cf3321a1ec1a965c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "8eb971e93835626c",
+      "reviewed": false
+    },
+    "srcHash": "cf3321a1ec1a965c",
+    "status": "machine",
+    "text": "릴리스 이후의 몇몇 커밋으로 빌드한 `aggrega`(`aggrega version`이 `0.9.0-12-g1a2b3c4d`처럼 표시되는 빌드)는 빌드의 기준이 된 릴리스(여기서는 `0.9.0`)의 문서를 읽고, 그것이 게시되지 않았으면 그 이전 릴리스의 문서를 읽습니다. 릴리스 번호 없이 찍힌 빌드는 자신의 버전의 문서를 읽거나 아무것도 읽지 않습니다. [`aggrega explain`](aggrega-explain.md)도 단계별 안내를 읽어 오는 번들을 같은 방식으로 선택합니다."
+  },
   "cf372023c6784151": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -159240,6 +159316,17 @@
     "status": "machine",
     "text": "워크스페이스에 대한 세션을 열고 클라이언트가 처리할 수 있는 것을 명시합니다. 이 메서드는 `workspaceRoot`가 대상이 아니라 선언인 유일한 메서드입니다. 생략, 빈 값, 경로는 서로 다른 세 가지이며, 경로 없이 열린 세션은 클라이언트가 아직 워크스페이스를 지정하지 않은 세션입니다."
   },
+  "ea8a8d8be5e5bf9b": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "37c8ae9a2efa21c4",
+      "reviewed": false
+    },
+    "srcHash": "ea8a8d8be5e5bf9b",
+    "status": "machine",
+    "text": "**여기서 보고하는 것은 Release의 의존성 해석입니다.** `pull`은 해석이 각 단계에 들어설 때마다 보고합니다. `build`는 먼저 해석할 때만 보고합니다. `auto_pull`을 보냈거나 워크스페이스 자체 설정이 그 안의 모든 빌드에 해석을 요구하는 경우이며, 보고는 그 단계에 속하기 때문입니다. 이미 가진 핀으로 렌더링하는 빌드는 아무것에도 도달하지 않고 아무것도 보고하지 않으므로, 그 호출의 토큰은 응답 방식에 아무 영향을 주지 않습니다. 또한 모든 호출은 그 작업이 진입하여 기다리는 각 단계, 즉 레지스트리 읽기, 아티팩트나 문서 번들 가져오기, 플러그인 첫 컴파일처럼 명령줄이 스피너 옆에 사람에게 보여 주는 단계를 보고합니다. 작업이 그중 어느 것도 기다리지 않는 호출은 아무것도 보고하지 않으며, 이는 오류가 아니라 무해합니다. 응답은 토큰 없이 받았을 것과 같습니다."
+  },
   "ea8acd66128b4b0b": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -160438,6 +160525,17 @@
     "srcHash": "ec3d049ac52a0729",
     "status": "machine",
     "text": "`importer/agent-framework`는 Microsoft Agent Framework 선언적 에이전트, 즉 Agent Framework 기반 애플리케이션이 에이전트를 로드하는 `Prompt` 종류의 YAML 문서를 읽고, 표준 라이브러리의 Agent Framework 에이전트인 `core/ai-agent/agent-framework`의 인스턴스 하나를 담은 Aggregate를 초안으로 작성합니다. 이 인스턴스는 에이전트가 지정하는 OpenAI 모델에 연결되며, 그 옆에 Release도 함께 작성됩니다. 임포터는 선언적 에이전트를 읽으며, 애플리케이션의 코드는 절대 읽지 않습니다. Agent Framework는 선언적 에이전트 패키지를 프리릴리스로 게시합니다."
+  },
+  "ec3ea55add660d1c": {
+    "at": "2026-11-11T03:09:40.136Z",
+    "job": "session-0004-20261111030940",
+    "revision": {
+      "from": "830a36329c72dfa8",
+      "reviewed": false
+    },
+    "srcHash": "ec3ea55add660d1c",
+    "status": "machine",
+    "text": "레지스트리에서 지정한 유형의 플러그인을 찾아 추가합니다"
   },
   "ec3f823251a1a3e4": {
     "at": "2026-10-22T04:05:10.557953+00:00",
