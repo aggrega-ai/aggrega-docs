@@ -23799,6 +23799,13 @@
     "status": "machine",
     "text": "`release-compose-scheduled.yaml` 在 Docker Compose 上填写 `report_schedule`，并且同时将 `core/manual-trigger` 挂接到 `report`。在 Kubernetes 和 AWS 上，有调度的任务无论是否有该挂接都会按调度运行；在没有调度器的 Docker Compose 上，有调度的任务无论是否挂接都没有实现。`aggrega build --release release-compose-scheduled.yaml\n--auto-pull` 会中止："
   },
+  "22fb8f8a13715f91": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "22fb8f8a13715f91",
+    "status": "machine",
+    "text": "`aggrega config init`, `aggrega deprecate`, `aggrega explain`, `aggrega import`, `aggrega inspect`, `aggrega lint`, `aggrega plugin add`, `aggrega plugin gen-catalog`, `aggrega plugin run-local`, `aggrega plugin sync`, `aggrega push`, `aggrega push-artifact`, `aggrega registry add`, `aggrega scaffold`, `aggrega sign`, `aggrega validate`"
+  },
   "22fc54171888b9b2": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -60116,6 +60123,13 @@
     "status": "machine",
     "text": "**之所以列出这两个位置，是因为作者会以为它们接受 URI，而实际上并非如此。** Manifest 和 Release 是彼此并列编写的部署侧文档，而不是由目录索引的实体，因此二者的 `extends:` 都不会针对目录或注册表进行解析：该值指向一个**文件**，在任一位置写入注册表坐标都会被拒绝，诊断信息中会给出可接受的形式。两者的写法也不相同——Manifest 还接受位于 Release 旁边的 Manifest 的裸 `metadata.name`，而 Release 只接受相对路径。Release 的形式参见 [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance)，各项拒绝的具体说明参见 [`errors/fatal-halts.md`](../errors/fatal-halts.md)。"
   },
+  "590b6ec12801454a": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "590b6ec12801454a",
+    "status": "machine",
+    "text": "**正在等待的命令会说明它在等待什么。** 只要命令在等待注册表、下载或首次编译插件，它就会在标准错误上显示该步骤，就像 `aggrega build` 和 `aggrega pull` 显示它们的步骤一样：在终端上，显示一行，给出步骤名称、一个旋转指示器以及到目前为止所用的时间，步骤完成后打勾，步骤失败则不打勾；在无法原地重绘的终端上，或在使用 [`--plain`](cli/global-flags.md) 时，每个步骤结束时输出一行，并附上其用时。如果标准错误不是终端，则不显示任何内容；无论哪种情况，命令在标准输出上打印的内容都不会改变。只有在命令确实在等待某个步骤时才会显示该步骤，因此由缓存提供的运行完全不显示任何内容，而编译插件只有在耗时足够长、属于真正的编译而非缓存命中时才会显示。"
+  },
   "590ba78b02b1f6f0": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -74112,6 +74126,13 @@
     "srcHash": "6e2b7f540d6ef68b",
     "status": "machine",
     "text": "Schema id：`https://aggrega.ai/schemas/artifactlibrary-v1alpha1.schema.json`"
+  },
+  "6e2e1bf33422d198": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "6e2e1bf33422d198",
+    "status": "machine",
+    "text": "进度，以及命令等待注册表的时长"
   },
   "6e322764f11667e7": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -96428,6 +96449,17 @@
     "status": "machine",
     "text": "整值 null 与逐子键 null"
   },
+  "8fc73444556d8283": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "revision": {
+      "from": "e0419cd9219ddb6d",
+      "reviewed": false
+    },
+    "srcHash": "8fc73444556d8283",
+    "status": "machine",
+    "text": "**无法识别的命令还会说明如何查找同名的 CLI 插件。** 答案来自默认注册表的本地索引，该索引由 [`aggrega registry update`](cli/aggrega-registry.md) 构建、由 [`aggrega search`](cli/aggrega-search.md) 读取，因此会立即返回，且无论联网还是离线，拼错的词都不会被发送到任何注册表。如果索引中有同名的 CLI 插件，消息会给出安装它的 `aggrega plugin add cli <name>` 命令。如果索引中没有，消息会给出查找该插件的搜索命令 `aggrega search <name> --kind plugin --plugin-type cli`。如果尚未构建任何索引，消息会给出 `aggrega plugin add cli <name>`，该命令会按这个名称在注册表中查找插件，若没有已发布的同名插件则拒绝执行。无论是哪个命令，都会在需要时为 shell 给名称加上引号。"
+  },
   "8fc9bfaf0926c08b": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -114383,6 +114415,13 @@
     "status": "machine",
     "text": "**重新指向一个 provider。** 编辑路由器映射中的某个 `target`。其他都不变：模型不变，智能体不变，渲染出的 Secret 也不变。"
   },
+  "aa5859a23fe6707b": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "aa5859a23fe6707b",
+    "status": "machine",
+    "text": "这两个限制是固定的；没有任何设置可以更改它们。"
+  },
   "aa59c43f2ae7e965": {
     "at": "2026-11-01T23:08:53.608Z",
     "job": "session-0001-20261101230853",
@@ -127490,6 +127529,17 @@
     "status": "machine",
     "text": "`instance_id: api`、`values.port: 8080`、`infra.replicas: 2` 的合成输出："
   },
+  "bd11eafb0352095f": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "revision": {
+      "from": "938f900ac61289c4",
+      "reviewed": false
+    },
+    "srcHash": "bd11eafb0352095f",
+    "status": "machine",
+    "text": "**Aggrega: Cache…** — 选择一个缓存操作，然后通过语言服务器运行它。在 Commands 面板上按下时，这四个操作会作为按钮旁边的菜单提供；从此处运行时，它们会作为供你选择的列表提供。不会派生任何进程，每个回答都会作为结构化结果返回，由面板报告：**status** 列出每个缓存、其内容以及各自的共享范围，且不删除任何内容；**prune** 删除没有任何锁文件引用的条目，并指明它保留了什么，以及任何它没有依据回收的内容和能够回收它的操作；**evict** 首先询问大小上限 — 一个字节量，例如 `5GiB` 或 `512MiB`，或一个字节数，由命令行使用的同一解析器读取 — 并将共享的已编译模块缓存削减到该上限；**clear** 清空所有缓存。删除内容的三个操作会先请你确认，每个确认都会指明该操作实际涉及的缓存：清空涉及本工作区自己的实体、源工件和外部输入缓存，*以及*本机所有项目共享的已编译模块、插件描述、文档包和 CLI 插件缓存；修剪涉及同样的工作区缓存，*以及*共享的已编译模块、插件描述和 CLI 插件缓存；而削减只涉及共享的已编译模块缓存。这些操作报告的每个大小都使用与读取上限相同的写法，因此你从缓存报告中读到的数字可以直接输入到上限提示中。编译器无法读取的上限会返回编译器自己的消息，说明大小上限的格式。被清空和削减的缓存会在下一次需要它们的构建中重新填充。Windows 拒绝删除被另一个进程打开的文件，此时修剪、削减或清空会将其保留在原位并继续处理其余内容，而不是失败：Aggrega 输出通道会指明修剪或削减保留下来的每个条目，包括其类别、共享范围和大小，并在清空所涉及的每个缓存下给出它在那里保留的文件数量及其大小；操作结束时的消息会说明有多少个被保留在原位，请你在该进程结束后再次运行该操作，并指引你到通道中查看是哪些。若没有任何内容被保留在原位 — 在会删除已打开文件的平台上每次运行都是如此 — 则两者都不会提及此事。"
+  },
   "bd12a87faa9cc225": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -129021,6 +129071,13 @@
     "srcHash": "bf5c2ca26006c11f",
     "status": "machine",
     "text": "**模式 1：内联（Go 模板字符串标量）。** 值是一个块标量，映射键即输出文件名，按原样使用——上面的第一个条目生成 `extra-configmap.yaml`。"
+  },
+  "bf5c333cfccdace9": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "bf5c333cfccdace9",
+    "status": "machine",
+    "text": "除每个已安装 CLI 插件的命令外，以这种方式显示步骤的命令有："
   },
   "bf5f9e04addfcd11": {
     "at": "2026-11-05T21:03:25.752Z",
@@ -140444,6 +140501,13 @@
     "srcHash": "cf9301febbee39dc",
     "status": "machine",
     "text": "设置该策略后，名称形状规则不会报告任何内容。也可以使用 `aggrega lint --allow-nonstandard-names` 仅为单次调用设置，或使用 `--no-allow-nonstandard-names` 强制重新关闭。合理的用途包括永远不会发布的目录、多发布者实验以及特殊用途的实体。"
+  },
+  "cf9376e7132867b8": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "cf9376e7132867b8",
+    "status": "machine",
+    "text": "**遍历注册表的完整仓库列表会在五分钟内结束。** 有些注册表在回答列表请求之前，会先收集其持有的所有仓库，因此列表每一页的等待时长是遍历可能持续的时长，而不是 30 秒；五分钟后仍未结束的列表会被停止，并以 [`E0377`](errors/fatal-halts.md#a-registrys-repository-listing-did-not-end-in-time) 被拒绝。`aggrega plugin add` 只有在没有插件恰好使用所给名称时，才会遍历列表，以查找名称中包含该名称的插件，因此准确指定插件名称时绝不会等待遍历。"
   },
   "cf9735b6f348ed0b": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -160373,6 +160437,13 @@
     "srcHash": "ec6ef412a7feed9b",
     "status": "machine",
     "text": "聊天流"
+  },
+  "ec78c13eaf4123c8": {
+    "at": "2026-11-11T02:25:09.042Z",
+    "job": "session-0001-20261111022509",
+    "srcHash": "ec78c13eaf4123c8",
+    "status": "machine",
+    "text": "**任何请求都不会无休止地等待服务器。** 请求完整发送后，最多等待 30 秒让服务器开始回答；对于已经开始到达的回答，最多等待 30 秒接收其下一部分。让请求等待更久的服务器会以 [`E0376`](errors/fatal-halts.md#a-server-did-not-answer-in-time) 被拒绝，并指明该服务器和等待时间。受限制的只有等待：持续推进的下载或上传需要多长时间就用多长时间。Recipe 的 `source:` 通过 HTTPS 获取的 Helm chart 只受两种等待中的第一种限制，其超时以网络库自己的措辞报告，而不是以 `E0376` 报告。命令在超时时本就会重试的请求 — 例如 `aggrega registry update` 期间的读取、发布期间的写入 — 会在报告拒绝之前重试。"
   },
   "ec7a56f72b14c1cf": {
     "at": "2026-11-02T14:36:39.571Z",
