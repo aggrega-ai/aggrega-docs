@@ -197,6 +197,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrOCILocationCollision()` | `oci-location-collision` | `oci: distinct catalog identities map to the same OCI repository location` |
 | `ErrPublishedArtifactNotAnEntity()` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `ErrReferrerDiscoveryUnavailable()` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
+| `ErrRegistryTooBusy()` | `registry-too-busy` | `oci: the registry kept asking to slow down` |
 | `ErrRetiredMediaType()` | `retired-media-type` | `oci: artifact carries a media type this compiler no longer reads` |
 | `ErrSignatureBundleDigestMismatch()` | `signature-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `ErrSignatureForAnotherArtifact()` | `signature-for-another-artifact` | `signing: the recorded signature was made for a different artifact` |
@@ -861,6 +862,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0375` | `retired-media-type` | `oci: artifact carries a media type this compiler no longer reads` |
 | `E0376` | `no-answer-in-time` | `egress: the server did not answer in time` |
 | `E0377` | `repository-listing-too-long` | `registry: the repository listing did not end in time` |
+| `E0378` | `registry-too-busy` | `oci: the registry kept asking to slow down` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

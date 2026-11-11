@@ -179,10 +179,17 @@ published manifest. A repository with no conforming version is skipped; a
 repository that cannot be read is skipped with a note, so one unreadable
 repository does not abandon the whole index.
 
-A read the registry refuses or drops in passing — a 429 or 5xx answer, a
-connection reset or timed out, an answer cut short — is asked again a few times,
-with a growing wait between attempts, and where the registry says how long to
-wait (Retry-After) the wait is as long as it says. A repository with a read still
+A registry that asks the walk to slow down — a 429 answer, or a 503 that says
+how long to wait (Retry-After) — is left alone for as long as it asks, or ten
+seconds where it does not say, and the walk reads fewer of its repositories at
+once until it answers again, then returns to its usual pace; on a terminal the
+wait is shown beside that registry's row. A registry that answers nothing but
+"slow down" for five minutes is not indexed: it keeps the index it had before
+the run, and the command names it, its last answer and how long it waited.
+
+A read the registry fails or drops in passing — a 5xx answer, a connection
+reset or timed out, an answer cut short — is asked again a few times, with a
+growing wait between attempts. A repository with a read still
 failing after that is not recorded from this run: it keeps the record the index
 already holds for it, where that record was judged under the trust policy now in
 force, and is otherwise left out of the index; either way it is named as a
@@ -192,7 +199,8 @@ status the registry answered, a timeout, a reset, an answer cut short — and th
 read that failed. So a version is never recorded unsigned,
 undated or without its deprecation marker because a read failed, with or without
 --upgrade. Each registry's row in the closing summary also says how many reads
-were asked again, whether or not they then succeeded, and says zero when none
+were asked again, whether or not they then succeeded — a read sent again after
+the registry asked the walk to slow down among them — and says zero when none
 was.
 
 Every signature a registry's walk verifies against the public Sigstore trust root

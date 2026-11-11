@@ -2545,6 +2545,22 @@ Emitted message, for a plugin addition whose query is part of a name:
 
 **How to fix:** for `aggrega plugin add`, name the plugin exactly — `aggrega plugin add cli moo` rather than `aggrega plugin add cli mo` — which looks the plugin up by that name with one request and never walks the listing. For `aggrega registry update`, the registry's listing is the cause: check with whoever runs the registry that its listing ends, and run the update again once it does. The five-minute bound is fixed; there is no setting that lengthens it.
 
+### A registry kept asking to slow down
+
+<!-- covers: pkg/oci.ErrRegistryTooBusy -->
+
+A registry that is too busy answers 429 Too Many Requests, or 503 Service Unavailable with a `Retry-After` header saying how long to wait. Every request a command makes to a registry waits as long as the registry asks — ten seconds where it does not say — and is asked again; every request to that registry waits with it, and fewer are sent to it at once until it answers again. A registry that answers nothing but "slow down" for five minutes is refused under this condition, naming the registry, its last answer and how long it had answered nothing else, and so is a request whose own time limit ends while it waits. `aggrega registry update` then reports that registry as not indexed, and it keeps the index it had before the run.
+
+Emitted message, for a registry that asked to slow down for five minutes:
+
+> `<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for 5m0s: oci: the registry kept asking to slow down
+
+and for a request whose own time limit ended the wait:
+
+> `<host>` kept asking to slow down: its last answer was 429 Too Many Requests, and it had answered nothing else for `<how long>` when the request's own time ran out: oci: the registry kept asking to slow down
+
+**How to fix:** the cause is the registry's rate limit, not anything you authored. A registry limiting how fast a client may ask is usually limiting everything coming from the same address, so check whether other commands or machines behind that address are asking it at the same time, and run the command again once they are done. Where the registry is one you run, check its rate limit. The five-minute bound is fixed; there is no setting that lengthens it.
+
 ### Fetched or cached bytes do not match the digest committed for them
 
 <!-- covers: pkg/oci.ErrFetchIntegrity -->
@@ -6815,6 +6831,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0375` | `oci: artifact carries a media type this compiler no longer reads` | An artifact carries a media type this compiler no longer reads |
 | `E0376` | `egress: the server did not answer in time` | A server did not answer in time |
 | `E0377` | `registry: the repository listing did not end in time` | A registry's repository listing did not end in time |
+| `E0378` | `oci: the registry kept asking to slow down` | A registry kept asking to slow down |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
