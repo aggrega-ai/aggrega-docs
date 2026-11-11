@@ -99,6 +99,12 @@ made no choice for google_search (tool)
 
 ## What it wrote
 
+The Aggregate, the Release and the Manifest are named `imported/support-agent`,
+after the root agent's `name`, `support_agent`, reduced to `support-agent`,
+under the namespace the importer's `target_namespace` setting sets, `imported`
+unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — the agent, wired to the model, and the model, opening with
 comments that say what was read and what was not:
 
@@ -111,7 +117,7 @@ comments that say what was read and what was not:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
   description: Draft Aggregate imported from a source in the google-adk format.
 spec:
@@ -156,13 +162,13 @@ named in a comment above it, and an entry placing the model beside it:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the google-adk format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-agent
+  manifest: imported/support-agent
   components:
     # Left for the Release, since no configuration states it:
     #   - infra.image, the container image running the application built on ADK, holding its configurations
@@ -180,7 +186,7 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
 spec:
   mappings:
@@ -244,14 +250,14 @@ The Aggregate needs no change. The reviewed `release.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   # Reviewed: the environment this Release deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the google-adk format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-agent
+  manifest: imported/support-agent
   components:
     # Left for the Release, since no configuration states it:
     #   - infra.image, the container image running the application built on ADK, holding its configurations
@@ -283,7 +289,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
 spec:
   mappings:

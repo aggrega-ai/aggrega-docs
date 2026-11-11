@@ -20,6 +20,8 @@ prints and the blocks this page quotes with the files kept there.
 
 # A small notes service: its API, the PostgreSQL database it keeps the notes in,
 # and the Redis cache in front of it.
+name: notes
+
 services:
   api:
     image: ghcr.io/example/notes-api:2.3.0
@@ -132,6 +134,12 @@ Three kinds of line are worth reading before the files:
 
 ## What it wrote
 
+The Aggregate, the Release and the Manifest are named `imported/notes`, after the
+Compose project's `name:` — a Compose file with no `name:` is named after its
+file, `compose` — under the namespace the importer's `target_namespace` setting
+sets, `imported` unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one entry per service, and one connection per service a
 service's `depends_on` names, each under an alias of its own, the name of the
 service it reaches:
@@ -142,7 +150,7 @@ service it reaches:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/notes
   version: 0.1.0
   description: Draft Aggregate imported from a source in the compose format.
 spec:
@@ -170,13 +178,13 @@ key takes it and as comments where none does:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/notes
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/notes
+  manifest: imported/notes
   components:
     # The source also states, for the Release to carry where core/compute/server takes it:
     #   ports:
@@ -214,7 +222,7 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/notes
   version: 0.1.0
 spec:
   mappings:
@@ -308,7 +316,7 @@ The reviewed `aggregate.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/notes
   version: 0.1.0
   description: Draft Aggregate imported from a source in the compose format.
 spec:
@@ -372,14 +380,14 @@ The reviewed `release.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/notes
   # Reviewed: the environment this Release deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/notes
+  manifest: imported/notes
   components:
     # Reviewed: the environment the source stated is now delivered by the edges
     # and the password attachment in the Aggregate; the port is infra.port.
@@ -406,7 +414,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/notes
   version: 0.1.0
 spec:
   mappings:

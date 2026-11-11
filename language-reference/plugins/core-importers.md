@@ -207,6 +207,39 @@ stops the import under
 `parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
 the importer asks for the source's tree, and the parser's refusal is the answer it gets.
 
+## How a draft is named
+
+Every importer names the Aggregate it drafts, and the Release beside it where it drafts one,
+`<target_namespace>/<name>`. The first part is the [`target_namespace` setting](#settings), `imported`
+unless you set another. `<name>` is the first of these that is not empty:
+
+- the name the source gives itself, in the field its format declares it in:
+
+  | Importer | The name it reads |
+  | --- | --- |
+  | `importer/langflow` | the flow's `name` |
+  | `importer/flowise` | none: an export carries no name of its own |
+  | `importer/n8n` | the workflow's `name` |
+  | `importer/mcp` | a registry server description's `name`; a client's configuration carries none |
+  | `importer/compose` | the project's top-level `name`, an override file's in place of the one it overrides, as Compose merges them |
+  | `importer/dify` | the application's `name`, under `app` |
+  | `importer/crewai` | the crew's `name` in `crew.jsonc` or `crew.json`; `config/agents.yaml` and `config/tasks.yaml` carry none, since a classic project names its crew in its program |
+  | `importer/langgraph` | the id of the graph the configuration declares, since a configuration carries no name of its own |
+  | `importer/google-adk` | the root agent's `name` |
+  | `importer/agent-framework` | the agent's `name`; its `displayName` is not read |
+
+- the name of the file the import was handed, without its extension — a directory hands none;
+- `flow`.
+
+A draft made from several sources — several Compose projects, configurations, agent trees or
+servers, or a configuration declaring several graphs — takes their name only where every one of them
+names itself and all of them are written alike; otherwise it takes the next. A name is written in
+lowercase, each run of characters other than the ASCII letters and digits as one hyphen, the hyphens
+at either end dropped: `Basic Prompting` is written `basic-prompting`, and `SupportAgent`
+`supportagent`. The same source is named the same way on every import. A Manifest an import drafts
+for a target takes the Release's name, or the Aggregate's where no Release is drafted, as
+[What a target adds](#what-a-target-adds) describes.
+
 ## What the Langflow importer reads
 
 - The nodes and edges under the flow's top-level `data` object, `data.nodes` and `data.edges`.
@@ -305,7 +338,8 @@ as a Component of its own.
 
 By default an import writes:
 
-- `aggregate.yaml` — a draft Aggregate named `<target_namespace>/flow`. It holds one instance of the
+- `aggregate.yaml` — a draft Aggregate named after the flow, as
+  [How a draft is named](#how-a-draft-is-named) describes. It holds one instance of the
   platform that runs the flow — `core/ai-agent/langflow`, under the key `langflow`, for a Langflow
   flow, `core/ai-agent/flowise`, under the key `flowise`, for a Flowise one, and `core/ai-agent/n8n`,
   under the key `n8n`, for an n8n workflow — referencing the catalog Component of that name. The
@@ -321,15 +355,16 @@ reads `kept in the flow <platform> carries, with no Component of its own:`, foll
 mapping row names its type and its closest candidate scored only so much, say. The flow keeps the
 edges between nodes; the draft writes none of its own.
 
-Flowise's Multiple Documents QnA chatflow, imported with `reuse_mode: auto-apply-above-threshold`
-over a catalog holding the standard library's Flowise platform and its model and retrieval-tool
-Components, is drafted as this Aggregate, most of the flow left out here and marked `...`:
+Flowise's Multiple Documents QnA chatflow, exported as `Multiple Documents QnA.json` and imported with
+`reuse_mode: auto-apply-above-threshold` over a catalog holding the standard library's Flowise platform
+and its model and retrieval-tool Components, is drafted as this Aggregate, most of the flow left out
+here and marked `...`:
 
 ```yaml
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/multiple-documents-qna
   version: 0.1.0
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
@@ -798,7 +833,8 @@ derived from the identifiers of the flow's nodes.
 
 With `layout: nodes`, an import drafts every node of the flow as a Component of its own, and writes:
 
-- `aggregate.yaml` — a draft Aggregate named `<target_namespace>/flow`, composing the flow's nodes:
+- `aggregate.yaml` — a draft Aggregate named after the flow, as
+  [How a draft is named](#how-a-draft-is-named) describes, composing the flow's nodes:
   an entry for each, and each edge of the flow a `uses` connection of the node it feeds, its socket
   and its alias both named after the key of the node feeding it, so a node fed by several gives each
   connection an alias of its own.
@@ -894,7 +930,8 @@ Aggregate.
 
 ### What a server becomes
 
-`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` holding one instance of
+`aggregate.yaml` is a draft Aggregate named after the source, as
+[How a draft is named](#how-a-draft-is-named) describes, holding one instance of
 `core/ai-tool/mcp` per server. An instance is keyed by its server's name, lowercased, with every run
 of characters other than letters and digits written as one hyphen, and a numeric suffix where an
 earlier server took the key. Where the key is not the server's name as written, or the import read
@@ -957,7 +994,7 @@ is drafted as:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/mcp
   version: 0.1.0
   description: Draft Aggregate imported from a source in the mcp format.
 spec:
@@ -973,12 +1010,12 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/mcp
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
 spec:
-  aggregate: imported/flow
+  aggregate: imported/mcp
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the servers are built for.
   components:
     # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
@@ -1182,7 +1219,8 @@ service's decision is reported as each node's is.
 
 ### What a service becomes
 
-`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` holding one instance per
+`aggregate.yaml` is a draft Aggregate named after the project, as
+[How a draft is named](#how-a-draft-is-named) describes, holding one instance per
 service, of the Component its decision chose, keyed as the MCP importer keys a server, a comment above
 it naming the service and the file it came from where the key is not the service's name or the import
 read several directories. Each service a service's `depends_on` names is a connection,
@@ -1261,14 +1299,15 @@ services:
       CACHE_URL: redis://cache:6379/0
 ```
 
-is drafted, with no setting, over a catalog holding the standard library's `core/datastore/postgres`, as:
+is drafted, with no setting, over a catalog holding the standard library's `core/datastore/postgres`,
+named after the file since the project carries no `name`, as:
 
 ```yaml
 # aggregate.yaml
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/compose
   version: 0.1.0
   description: Draft Aggregate imported from a source in the compose format.
 spec:
@@ -1288,12 +1327,12 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/compose
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
-  aggregate: imported/flow
+  aggregate: imported/compose
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the services are built for.
   components:
     # The source states, for the Release to carry where imported/datastore/postgres takes it:
@@ -1366,7 +1405,8 @@ Nothing else decides what is drafted: the whole application is carried.
 
 ### What an application becomes
 
-`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` composing one entry of
+`aggregate.yaml` is a draft Aggregate named after the application, as
+[How a draft is named](#how-a-draft-is-named) describes, composing one entry of
 `core/dify`, keyed `dify`, whose `app_definition` parameter carries the application as written — as
 [How the flow is written into the draft](#how-the-flow-is-written-into-the-draft) describes for a flow,
 so Dify's own `{{#…#}}` references reach the installation as exported. The installation wires every
@@ -1391,14 +1431,15 @@ comment above the entry leaves for it `infra.owner_email` on the installation's 
 `owner_password` slot on that component, both set in the Release's routing entry for the installation,
 without which the build halts.
 
-The authored workflow application this importer's tests import is drafted, with no setting, as:
+The authored workflow application this importer's tests import, named `Support Answers`, is drafted,
+with no setting, as:
 
 ```yaml
 # aggregate.yaml
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-answers
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
@@ -1429,7 +1470,7 @@ installation:
 
 ```yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/support-answers
   parameters:
     secret_key: <the secret, or an existing Secret's name>
   boundaries:
@@ -1546,7 +1587,8 @@ directory may hold several crews, each read from its own directory.
 
 ### What a project becomes
 
-`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow`, opening with comments naming
+`aggregate.yaml` is a draft Aggregate named after the crew, as
+[How a draft is named](#how-a-draft-is-named) describes, opening with comments naming
 the declarations read, that the crew's program is not read, and each crew's tasks with the agent each
 is assigned to. It holds, per agent and keyed by its name, an instance of `core/ai-agent/crewai` with:
 
@@ -1590,7 +1632,8 @@ the model's Component takes them. The Release's `metadata.environment` and
 [What a target adds](#what-a-target-adds) describes.
 
 The classic project this importer's tests import, whose two agents both name `openai/gpt-4o`, is
-drafted, with no setting, as:
+drafted, with no setting, as below; imported as its directory, whose declarations name no crew, it is
+named `flow`:
 
 ```yaml
 # aggregate.yaml
@@ -1731,7 +1774,8 @@ applications, each read from its own directory.
 
 ### What an application becomes
 
-`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow`, opening with comments naming the
+`aggregate.yaml` is a draft Aggregate named after the graph, as
+[How a draft is named](#how-a-draft-is-named) describes, opening with comments naming the
 configurations read, the environment files read for their names alone, that the application's code is
 not read, and what the draft does not carry. It holds, per graph and keyed by its id, an instance of
 `core/ai-agent/langgraph` with:
@@ -1768,7 +1812,8 @@ Release's `metadata.environment` and `spec.manifest` are left unset, each named 
 the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 
 The Python application this importer's tests import, declaring two graphs, a checkpointer naming no
-backend, a store and an `env` written as an object, is drafted, with no setting, as:
+backend, a store and an `env` written as an object, is drafted, with no setting, as below; imported as
+its directory, with two graphs whose ids differ, it is named `flow`:
 
 ```yaml
 # aggregate.yaml
@@ -1952,7 +1997,7 @@ application from its own configuration, so the draft carries none of them.
 
 ADK serves an application from its root agent, every agent its configurations name built inside it, and
 `core/ai-agent/google-adk` runs one such application. So `aggregate.yaml`, a draft Aggregate named
-`<target_namespace>/flow`, holds, per agent tree and keyed by its root agent's name, an instance of
+after the root agent, as [How a draft is named](#how-a-draft-is-named) describes, holds, per agent tree and keyed by its root agent's name, an instance of
 `core/ai-agent/google-adk` with:
 
 - `description`, the root agent's description, where its configuration gives one;
@@ -2014,7 +2059,7 @@ the import is given a target, as [What a target adds](#what-a-target-adds) descr
 
 The application this importer's tests import, a root agent naming two sub-agents' configurations and
 one built by code, imported as its directory with the two configurations named under `with.sources`,
-is drafted, with no setting, as:
+is drafted, with no setting, under its root agent's name, `tutor_root`, as:
 
 ```yaml
 # aggregate.yaml
@@ -2027,7 +2072,7 @@ is drafted, with no setting, as:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/tutor-root
   version: 0.1.0
   description: Draft Aggregate imported from a source in the google-adk format.
 spec:
@@ -2060,7 +2105,7 @@ two braces in a comment, read back as written once the Aggregate is evaluated.
 ```yaml
 # release.yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/tutor-root
   components:
     # Left for the Release, since no configuration states it:
     #   - infra.image, the container image running the application built on ADK, holding its configurations
@@ -2082,7 +2127,7 @@ connection, and places the model in a boundary:
 
 ```yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/tutor-root
   boundaries:
     main:
       components:
@@ -2178,7 +2223,8 @@ application loads its declarative agents itself, from the image the Release name
 
 ### What a declarative agent becomes
 
-`aggregate.yaml`, a draft Aggregate named `<target_namespace>/flow`, holds, per declarative agent and
+`aggregate.yaml`, a draft Aggregate named after the agent, as
+[How a draft is named](#how-a-draft-is-named) describes, holds, per declarative agent and
 keyed by its name, an instance of `core/ai-agent/agent-framework` with:
 
 - `display_name` and `description`, the agent's `displayName` and `description`, where it states
@@ -2227,7 +2273,7 @@ the import is given a target, as [What a target adds](#what-a-target-adds) descr
 
 The declarative agent this importer's tests import, of the OpenAI provider with a key connection, an MCP
 server presenting a key of its own, a function tool and a web search, imported as a file of its own,
-is drafted, with no setting, as:
+is drafted, with no setting, under its `name`, `LearnAgent`, as:
 
 ```yaml
 # aggregate.yaml
@@ -2235,7 +2281,7 @@ is drafted, with no setting, as:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/learnagent
   version: 0.1.0
   description: Draft Aggregate imported from a source in the agent-framework format.
 spec:
@@ -2268,7 +2314,7 @@ each `{{` as ``{{`{{`}}``, so it reads back as written once the Aggregate is eva
 ```yaml
 # release.yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/learnagent
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the agents are built for.
   components:
     # Left for the Release, since the declarative agent does not state it:
@@ -2290,7 +2336,7 @@ its model connection, and places them in a boundary:
 
 ```yaml
 spec:
-  aggregate: imported/flow
+  aggregate: imported/learnagent
   boundaries:
     main:
       components:
@@ -2345,7 +2391,8 @@ The Agent Framework importer reads `target_namespace`, `empty_credentials` and `
 An importer drafts no Manifest. An import given a target — `--target` on `aggrega import`, or `target`
 on the assistant's import tool and the session's `aggrega/import` method, naming a provider capability
 such as `compose` or `helm` — has the import itself draft one beside whatever the importer drafted,
-whichever importer ran: `manifest.yaml`, beside the drafted Release and named and versioned as it is,
+whichever importer ran: `manifest.yaml`, beside the drafted Release and named and versioned as it is —
+or, where the importer drafted no Release, beside the drafted Aggregate and named and versioned as that is —
 mapping each component type the drafted Aggregate declares to the one Recipe of that capability the
 workspace's catalog offers for it. Where the drafted Release names no Manifest, its `spec.manifest` is
 set to that one in place of the comment the importer wrote, and nothing else in the Release changes. A
@@ -2372,7 +2419,7 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose, CrewAI, LangGraph, Google ADK and Agent Framework importers draft. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, and `<target_namespace>/<name>` for the Aggregate and the Release, `<name>` the source's own name, else its file's name without the extension, else `flow`, written in lowercase with each run of other characters than ASCII letters and digits as one hyphen, as [How a draft is named](#how-a-draft-is-named) describes. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |

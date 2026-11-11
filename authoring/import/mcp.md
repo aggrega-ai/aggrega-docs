@@ -116,6 +116,12 @@ line. Two kinds of warning remain:
 
 ## What it wrote
 
+The Aggregate, the Release and the Manifest are named `imported/mcp`, after the
+file, `.mcp.json`, since a client's configuration carries no name of its own — a
+registry's `server.json` is named after its `name` — under the namespace the
+importer's `target_namespace` setting sets, `imported` unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one instance per server, and nothing that uses them yet:
 
 <!-- quotes: draft/aggregate.yaml -->
@@ -123,7 +129,7 @@ line. Two kinds of warning remain:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/mcp
   version: 0.1.0
   description: Draft Aggregate imported from a source in the mcp format.
 spec:
@@ -144,13 +150,13 @@ it:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/mcp
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/mcp
+  manifest: imported/mcp
   components:
     # Left for the Release, since the draft does not write it:
     #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
@@ -191,7 +197,7 @@ the variable's name and no value.
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/mcp
   version: 0.1.0
 spec:
   mappings:
@@ -220,7 +226,7 @@ a value:
 
 ```text
   [OPS_ERROR E0168] .spec.components.github.features.server_env.infra.entries[0].value
-    authored pillar does not conform to its declared schema (Release imported/flow, at .spec.components.github.features.server_env.infra.entries[0].value, infra pillar does not conform to the Feature schema: missing required property: value (required))
+    authored pillar does not conform to its declared schema (Release imported/mcp, at .spec.components.github.features.server_env.infra.entries[0].value, infra pillar does not conform to the Feature schema: missing required property: value (required))
   notice: LINT: Feature "core/referenced-secret-set" at core/referenced-secret-set:1.0.0 declares property "entries" in both values: and infra: pillars (path: entries)
 release dependency validation failed: 1 diagnostic(s)
 ```
@@ -255,14 +261,14 @@ The review leaves `aggregate.yaml` as the import wrote it. The reviewed
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/mcp
   # Reviewed: the environment this Release deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/mcp
+  manifest: imported/mcp
   components:
     github:
       infra:
@@ -302,7 +308,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/mcp
   version: 0.1.0
 spec:
   mappings:

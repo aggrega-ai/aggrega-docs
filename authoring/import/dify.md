@@ -89,6 +89,13 @@ made no choice for model_config.model (model)
 
 ## What it wrote
 
+The Aggregate and the Manifest are named `imported/support-assistant`, after
+the application's name, `Support assistant` under `app`, reduced to
+`support-assistant` — an application with no name is named after its file —
+under the namespace the importer's `target_namespace` setting sets, `imported`
+unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — the standard library's Dify installation, `core/dify`, an
 Aggregate the draft composes under `aggregates`, with the application carried
 as written in its `app_definition` parameter, most of it left out here, and
@@ -100,7 +107,7 @@ declares:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-assistant
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
@@ -145,7 +152,7 @@ application is imported under, and its password.
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-assistant
   version: 0.1.0
 spec:
   mappings:
@@ -183,7 +190,7 @@ The review changes:
 
   ```text
     [OPS_ERROR E0076] .spec.aggregates.dify
-      sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release imported/flow, at .spec.aggregates.dify, "dify")
+      sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release imported/support-assistant, at .spec.aggregates.dify, "dify")
   release dependency validation failed: 1 diagnostic(s)
   ```
 
@@ -235,7 +242,7 @@ The reviewed `aggregate.yaml`, the application left out here as above:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-assistant
   version: 0.1.0
   description: Draft Aggregate imported from a source in the dify format.
 spec:
@@ -276,12 +283,12 @@ The Release:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-assistant
   environment: development
   version: 0.1.0
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-assistant
+  manifest: imported/support-assistant
   # The installation's application secret, which the Aggregate passes down to
   # core/dify: with the Manifest binding the credential to an existing Secret,
   # the name of the Secret holding it under the data key secret-key.
@@ -313,7 +320,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-assistant
   version: 0.1.0
 spec:
   mappings:

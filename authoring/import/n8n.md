@@ -143,6 +143,12 @@ made no choice for Simple Memory (@n8n/n8n-nodes-langchain.memoryBufferWindow)
 
 ## What it wrote
 
+The Aggregate and the Manifest are named `imported/support-agent`, after the
+workflow's own name, `Support agent`, reduced to `support-agent` — a workflow
+with no name is named after its file — under the namespace the importer's
+`target_namespace` setting sets, `imported` unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one instance of the standard library's n8n platform,
 `core/ai-agent/n8n`, carrying the workflow as it was exported, most of it left
 out here, and the drafted model wired to its `model` socket:
@@ -152,7 +158,7 @@ out here, and the drafted model wired to its `model` socket:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
   description: Draft Aggregate imported from a source in the n8n format.
 spec:
@@ -188,7 +194,7 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
 spec:
   mappings:
@@ -279,7 +285,7 @@ The reviewed `aggregate.yaml`, the workflow left out here as above:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
   description: Draft Aggregate imported from a source in the n8n format.
 spec:
@@ -316,12 +322,12 @@ The Release:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   environment: development
   version: 0.1.0
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-agent
+  manifest: imported/support-agent
   components:
     n8n:
       infra:
@@ -348,7 +354,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-agent
   version: 0.1.0
 spec:
   mappings:

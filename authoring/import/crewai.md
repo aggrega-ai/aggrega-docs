@@ -135,6 +135,13 @@ made no choice for reply_task (task)
 
 ## What it wrote
 
+The Aggregate, the Release and the Manifest are named `imported/flow`: a
+project's `config/agents.yaml` and `config/tasks.yaml` name no crew — its name
+lives in the program, which the import does not read — so a directory import of
+them is named `flow`, under the namespace the importer's `target_namespace`
+setting sets, `imported` unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one instance per agent, each wired to the model it names,
 and the model, opening with comments that say what was read and what was not:
 

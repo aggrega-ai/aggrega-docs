@@ -97,6 +97,13 @@ mapped checkpointer (checkpointer) to core/datastore/postgres as a reference, NO
 
 ## What it wrote
 
+The Aggregate, the Release and the Manifest are named `imported/support`, after
+the one graph `langgraph.json` serves, `support`, since a configuration carries
+no name of its own — one serving several graphs is named after its file, or
+`flow` where, as here, the import is given its directory — under the namespace
+the importer's `target_namespace` setting sets, `imported` unless you set
+another ([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — the graph and the database it keeps state in, opening with
 comments that say what was read and what was not:
 
@@ -109,7 +116,7 @@ comments that say what was read and what was not:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support
   version: 0.1.0
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
@@ -143,13 +150,13 @@ entry placing the database beside it:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support
   # environment: left for the operator, since no source names the environment this Release deploys to.
   version: 0.1.0
   description: Draft Release imported from a source in the langgraph format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support
+  manifest: imported/support
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
     # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
@@ -170,7 +177,7 @@ spec:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support
   version: 0.1.0
 spec:
   mappings:
@@ -249,7 +256,7 @@ The reviewed `aggregate.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support
   version: 0.1.0
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
@@ -293,14 +300,14 @@ The reviewed `release.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support
   # Reviewed: the environment this Release deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the langgraph format.
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support
+  manifest: imported/support
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
     # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
@@ -352,7 +359,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support
   version: 0.1.0
 spec:
   mappings:

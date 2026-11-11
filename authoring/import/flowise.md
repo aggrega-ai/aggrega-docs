@@ -88,6 +88,12 @@ made no choice for conversationChain_0 (conversationChain)
 
 ## What it wrote
 
+The Aggregate and the Manifest are named `imported/support-chat`, after the
+file, `support-chat.json`, since a Flowise export carries no name of its own,
+under the namespace the importer's `target_namespace` setting sets, `imported`
+unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one instance of the standard library's Flowise platform,
 `core/ai-agent/flowise`, carrying the chatflow as it was exported, most of it
 left out here, and the drafted model wired to its `model` socket:
@@ -97,7 +103,7 @@ left out here, and the drafted model wired to its `model` socket:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-chat
   version: 0.1.0
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
@@ -158,7 +164,7 @@ Three things in it are worth reading before the review:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-chat
   version: 0.1.0
 spec:
   mappings:
@@ -258,7 +264,7 @@ The reviewed `aggregate.yaml`, the chatflow left out here as above:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/support-chat
   version: 0.1.0
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
@@ -306,12 +312,12 @@ The Release:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/support-chat
   environment: development
   version: 0.1.0
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/support-chat
+  manifest: imported/support-chat
   components:
     flowise:
       infra:
@@ -350,7 +356,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/support-chat
   version: 0.1.0
 spec:
   mappings:

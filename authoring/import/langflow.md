@@ -95,6 +95,12 @@ mapped LanguageModelComponent-kBOja (LanguageModelComponent) to imported/ai-mode
 
 ## What it wrote
 
+The Aggregate and the Manifest are named `imported/basic-prompting`, after the
+flow's own name, `Basic Prompting`, reduced to `basic-prompting` — a flow with
+no name is named after its file — under the namespace the importer's
+`target_namespace` setting sets, `imported` unless you set another
+([Settings](../../language-reference/plugins/core-importers.md#settings)).
+
 `aggregate.yaml` — one instance of the standard library's Langflow platform,
 `core/ai-agent/langflow`, carrying the flow as it was exported, more than a
 thousand lines of it left out here, and the model it reaches:
@@ -104,7 +110,7 @@ thousand lines of it left out here, and the model it reaches:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   version: 0.1.0
   description: Draft Aggregate imported from a source in the langflow format.
 spec:
@@ -153,7 +159,7 @@ it takes and its key as a credential slot, `api_key`.
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   version: 0.1.0
 spec:
   mappings:
@@ -174,12 +180,12 @@ the image the comment asks for, and an entry for each of the two instances.
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   environment: development
   version: 0.1.0
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/basic-prompting
+  manifest: imported/basic-prompting
   components:
     langflow:
       infra:
@@ -229,7 +235,7 @@ The reviewed `aggregate.yaml`, the flow left out here as above:
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   version: 0.1.0
   description: Draft Aggregate imported from a source in the langflow format.
 spec:
@@ -274,12 +280,12 @@ The Release:
 apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   environment: development
   version: 0.1.0
 spec:
-  aggregate: imported/flow
-  manifest: imported/flow
+  aggregate: imported/basic-prompting
+  manifest: imported/basic-prompting
   components:
     langflow:
       infra:
@@ -311,7 +317,7 @@ The reviewed `manifest.yaml`:
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
-  name: imported/flow
+  name: imported/basic-prompting
   version: 0.1.0
 spec:
   mappings:

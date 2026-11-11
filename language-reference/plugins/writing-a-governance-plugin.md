@@ -504,8 +504,6 @@ The generated entity:
 
 ```yaml
 # Generated from the plugin by `aggrega plugin gen-catalog`. You may narrow its capability lists; edit nothing else here.
-# SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
 apiVersion: aggrega.ai/v1beta1
 kind: Plugin
 metadata:
