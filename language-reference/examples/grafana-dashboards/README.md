@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 19
   products: [core/observability/grafana]
   shows: [multi-target, credentials]
 ---
@@ -72,6 +74,14 @@ The packaged Grafana server is **AGPL-3.0**.
 Grafana is deployed standalone. Wiring a metrics or logs source — for example a
 Prometheus server — into Grafana as a provisioned datasource is not modelled:
 the component declares no `uses` socket.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example grafana-dashboards && cd grafana-dashboards
+```
 
 ## Build
 

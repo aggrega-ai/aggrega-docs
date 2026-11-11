@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 36
   products: [core/ai-model/openai, core/ai-model/tei, core/datastore/cognee]
   shows: [connections, credentials, parameters]
 ---
@@ -47,14 +49,22 @@ of its own:
 | `release-mismatched.yaml` | `aggregate-mismatched.yaml` | the same with the two ends reading two parameters: the build succeeds, and the conventions check advises |
 | `release-operator-wired.yaml` | `aggregate-operator-wired.yaml` | the extraction connection left to the operator: the Release wires it and names its key in `infra` |
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example connection-credentials && cd connection-credentials
+```
+
+## Build
 
 Build one release per run:
 
 ```bash
-aggrega build --release release-matched.yaml           # → dist/matched/
-aggrega build --release release-mismatched.yaml        # → dist/mismatched/
-aggrega build --release release-operator-wired.yaml    # → dist/operator-wired/
+aggrega build --release release-matched.yaml --auto-pull           # → dist/matched/
+aggrega build --release release-mismatched.yaml --auto-pull        # → dist/mismatched/
+aggrega build --release release-operator-wired.yaml --auto-pull    # → dist/operator-wired/
 ```
 
 Each release writes to its own directory, so the three rendered trees coexist

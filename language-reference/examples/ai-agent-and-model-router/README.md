@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 35
   products: [core/ai-agent/langgraph, core/datastore/valkey, core/gateway/litellm]
   shows: [connections, features, credentials, parameters]
 ---
@@ -52,10 +54,18 @@ datastore category). Six Feature attachments over four Feature kinds — five on
 the router, one on the agent's `model` connection — each of which puts something
 in the rendered output; the section below shows what each one produces.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ai-agent-and-model-router && cd ai-agent-and-model-router
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

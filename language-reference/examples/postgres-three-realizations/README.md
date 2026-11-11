@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 9
   products: [core/datastore/postgres]
   shows: [multi-target, recipe-selection, cloud-infrastructure, connections, catalog-authoring]
 ---
@@ -56,6 +58,14 @@ single line in the Manifest.
 - `catalog/` — the application's own Component and the one Recipe
   that renders it. Everything on the database side comes from the standard
   library unmodified.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example postgres-three-realizations && cd postgres-three-realizations
+```
 
 ## Build
 

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 5
   products: [core/security/sealed-secrets]
   shows: [external-sources]
 ---
@@ -50,6 +52,14 @@ key material is produced at render time.
 - **A reproducible image.** The Recipe pins the controller image to a resolvable
   release tag (`docker.io/bitnami/sealed-secrets-controller:0.38.4`), so the
   rendered workload references a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example sealed-secrets-controller && cd sealed-secrets-controller
+```
 
 ## Build
 

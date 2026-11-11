@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 45
   products: [core/datastore/postgres, core/storage/s3-object-store, core/storage/velero, core/storage/barman-cloud-plugin]
   shows: [features, multi-target, recipe-selection, connections, parameters, guardrails, cloud-infrastructure]
 ---
@@ -133,7 +135,15 @@ attachments naming Secrets the cluster already holds, so no key is written into
 any rendered file. Every account-specific value in the AWS Releases is a
 placeholder.
 
-## Building it
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example datastore-backup && cd datastore-backup
+```
+
+## Build
 
 The workspace reads the standard-library catalog from the hub registry
 `.aggrega-config.yaml` names. Velero and the Barman Cloud plugin

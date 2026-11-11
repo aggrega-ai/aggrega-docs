@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 11
   products: [core/datastore/redis]
   shows: [multi-target, credentials]
 ---
@@ -65,6 +67,14 @@ speaks the same wire protocol; its `helm/valkey` Recipe declares BSD-3-Clause.
   passed to the server as that argument; on the synthesized Kubernetes path
   (`aggregate-helm-synth-auth.yaml`) it is materialized as a Secret the
   Deployment references.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example redis-cache && cd redis-cache
+```
 
 ## Build
 

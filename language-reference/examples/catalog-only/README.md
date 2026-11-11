@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 1
   products: [core/datastore/mariadb, core/devtool/adminer]
   shows: [connections, credentials]
 ---
@@ -59,6 +61,14 @@ how the layer underneath is made.
   reference that matches more than one provider's Recipe halts the build
   loudly rather than silently picking one. Re-target the stack by re-pointing
   these mappings; the Aggregate does not change.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example catalog-only && cd catalog-only
+```
 
 ## Build
 

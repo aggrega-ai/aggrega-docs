@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: start-here
+  position: 4
   products: [core/datastore/mariadb]
   shows: [cloud-infrastructure, features, boundaries, guardrails]
 ---
@@ -55,6 +57,14 @@ into the instance's own `Properties`.
 The entities this example uses all live in the published catalog. Nothing is
 copied in beside the release files, so the example resolves against the catalog
 as it stands rather than against a private snapshot of it.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example cloudformation-rds-stack && cd cloudformation-rds-stack
+```
 
 ## Build
 

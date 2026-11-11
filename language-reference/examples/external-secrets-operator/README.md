@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 4
   products: [core/security/external-secrets]
   shows: [external-sources]
 ---
@@ -48,6 +50,14 @@ Kubernetes `Secret`s.
 - **A reproducible image.** The Recipe pins all three container images to a
   resolvable release tag (`ghcr.io/external-secrets/external-secrets:v2.7.0`),
   so the rendered workloads reference a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example external-secrets-operator && cd external-secrets-operator
+```
 
 ## Build
 

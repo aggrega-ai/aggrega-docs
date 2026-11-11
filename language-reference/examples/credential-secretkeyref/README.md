@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 32
   products: [core/datastore/postgres]
   shows: [multi-target, credentials, guardrails]
 ---
@@ -13,7 +15,15 @@ subsystem, shown per provider. The same `password` slot on
 developer attaches decides how the password is delivered, and the database
 Recipe reads the slot the way its provider supports.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example credential-secretkeyref && cd credential-secretkeyref
+```
+
+## Build
 
 This example has three releases. Build one per run:
 

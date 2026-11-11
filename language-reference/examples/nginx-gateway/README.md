@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 21
   products: [core/devtool/adminer, core/gateway/nginx]
   shows: [multi-target, connections]
 ---
@@ -44,6 +46,14 @@ Manifest changes per target.
 - **Reproducible images.** The Kubernetes target runs the official upstream
   nginx image pinned to an explicit tag, so the rendered Deployment references
   a stable image.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example nginx-gateway && cd nginx-gateway
+```
 
 ## Build
 

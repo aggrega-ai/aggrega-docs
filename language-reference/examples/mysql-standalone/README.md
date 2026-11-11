@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 16
   products: [core/datastore/mysql]
   shows: [multi-target, credentials]
 ---
@@ -73,6 +75,14 @@ both read `.features.user_password.provides.name`. Leaving `user_password`
 unattached (the base variant) is also valid: the Recipe falls back to an inline
 development default (`MYSQL_PASSWORD: apppass`) and no Secret is generated, so a
 minimal deployment still renders and runs.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mysql-standalone && cd mysql-standalone
+```
 
 ## Build
 

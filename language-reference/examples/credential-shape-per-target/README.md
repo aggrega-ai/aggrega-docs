@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 7
   products: [core/datastore/postgres]
   shows: [multi-target, recipe-selection, credentials]
 ---
@@ -230,6 +232,14 @@ Which store a cluster runs, and under what name, is a property of the target
 rather than of the application, so `k8s-external-secret` carries no authoring key
 for it. A cluster whose store is named differently is served by a FeatureRecipe
 that names that store.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example credential-shape-per-target && cd credential-shape-per-target
+```
 
 ## Build
 

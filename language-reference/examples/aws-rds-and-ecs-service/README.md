@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 2
   products: [core/datastore/postgres]
   shows: [multi-target, cloud-infrastructure, connections, external-sources]
 ---
@@ -105,6 +107,14 @@ The Terraform Recipes read their keys in the catalog's terraform spelling
 properties' own names (`DBSubnetGroupName`, `VPCSecurityGroups`, `Cluster`,
 `Subnets`, `SecurityGroups`, `ExecutionRoleArn`), so the same operator values are
 spelled differently on the two targets.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example aws-rds-and-ecs-service && cd aws-rds-and-ecs-service
+```
 
 ## Build
 

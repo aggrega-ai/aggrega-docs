@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: start-here
+  position: 1
   products: [core/ai-agent/langgraph, core/ai-model/ollama, core/datastore/valkey, core/gateway/litellm, core/ai-model/openai, core/security/presidio-analyzer, core/security/presidio-anonymizer]
   shows: [connections, credentials, features]
 ---
@@ -47,6 +49,14 @@ Output blocks on this page are copied from a real run, per
   `OPENAI_API_KEY` in your shell before you start the stack; no file holds it.
 - For `4/`, nothing more to build it. Applying what it writes needs a
   Kubernetes cluster and the Secret described there.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example quickstart-ai && cd quickstart-ai
+```
 
 ## Build
 

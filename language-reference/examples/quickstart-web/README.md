@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: start-here
+  position: 2
   products: [core/datastore/postgres, core/datastore/redis]
   shows: [connections, credentials, features, cloud-infrastructure, external-sources]
 ---
@@ -40,6 +42,14 @@ Output blocks on this page are copied from a real run, per
   first build of each fetches the RDS and ElastiCache modules from their git
   repositories. Planning and applying those files is a separate act, done with
   your own AWS account and credentials once the placeholders are replaced.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example quickstart-web && cd quickstart-web
+```
 
 ## Build
 

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 20
   products: [core/storage/s3-object-store]
   shows: [multi-target, credentials, guardrails]
 ---
@@ -70,6 +72,14 @@ credentials materialized as Kubernetes Secrets).
   `host`, `port` `8333`, `protocol` `s3` and `region` `us-east-1`, the region S3
   clients read from a server reporting none. A consumer wired to it points its
   S3 client at the endpoint and presents a key pair on its own connection.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example s3-object-store && cd s3-object-store
+```
 
 ## Build
 

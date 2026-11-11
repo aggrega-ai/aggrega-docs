@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 40
   products: [core/ai-model/openai, core/gateway/apisix]
   shows: [connections, features]
 ---
@@ -42,10 +44,18 @@ the gateway. With a model wired, the gateway reads its routes from a file
 rendered with it, so it takes no etcd connection and no Admin API key; the
 Aggregate wires neither.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example apisix-token-budget && cd apisix-token-budget
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 14
   products: [core/messaging/nats]
   shows: [multi-target, credentials]
 ---
@@ -58,6 +60,14 @@ credential for the synthesized helm path.
   authentication and the render is byte-identical across runs. When a credential
   is attached, the injected value enables user/password authentication on both
   realizations.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example nats-messaging && cd nats-messaging
+```
 
 ## Build
 

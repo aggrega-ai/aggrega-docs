@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 6
   products: [core/datastore/mariadb]
   shows: [credentials, catalog-authoring, external-sources]
 ---
@@ -23,7 +25,15 @@ Recipe reads the produced Secret's name from `.features.root_password.provides.n
 The reference name and the generated Secret's `metadata.name` are one value —
 there is no re-derivation and no convention for the two sides to agree on.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mariadb-bitnami-credential-set && cd mariadb-bitnami-credential-set
+```
+
+## Build
 
 ```bash
 aggrega build --release release.yaml --auto-pull

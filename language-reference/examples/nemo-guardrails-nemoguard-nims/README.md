@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 42
   products: [core/ai-agent/langgraph, core/datastore/valkey, core/gateway/litellm, core/security/nemo-guardrails, core/security/trustyai-huggingface-detector, core/ai-model/nemoguard-content-safety, core/security/nemoguard-jailbreak-detect]
   shows: [connections, credentials, features]
 ---
@@ -65,10 +67,18 @@ sockets to the three checks. The attachments: `shield`, the
 path; `upstream_key`, the credential the guard presents to the model API; and
 `ngc_api_key` on each NemoGuard component.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example nemo-guardrails-nemoguard-nims && cd nemo-guardrails-nemoguard-nims
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

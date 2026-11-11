@@ -134,7 +134,7 @@ Its page, redis-cache/README.md, explains what it shows.
 
 **The commands it prints next** are the ones the example's own page gives: the first `sh`, `bash` or `shell` block under the page's `## Build` heading, as the page writes it, comments included, after a `cd` into the directory. An example whose page has no such block is answered with the path of its page instead.
 
-**Which examples there are.** `--list` prints every example, once each, in name order — its name, the level its page declares, and the first sentence of its page — and writes nothing:
+**Which examples there are.** `--list` prints every example, once each, in the order the documentation teaches them — its name, the level its page declares, and the first sentence of its page — and writes nothing:
 
 ```bash
 aggrega scaffold --example --list

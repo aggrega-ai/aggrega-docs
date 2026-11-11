@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 10
   products: [core/ai-tool/mcp]
   shows: [multi-target, connections, credentials, catalog-authoring]
 ---
@@ -40,7 +42,15 @@ Two Releases share the one Aggregate, each with a Manifest of its own:
 | `release-helm.yaml` | `manifest-helm.yaml` | Kubernetes | a Secret the namespace already holds: `core/referenced-secret` bound to `helm/k8s-existing-secret` |
 | `release-compose.yaml` | `manifest-compose.yaml` | Docker Compose | a Compose variable reference: `core/secret-value` bound to `compose/dotenv-secret` |
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mcp-address-from-secret && cd mcp-address-from-secret
+```
+
+## Build
 
 ```bash
 aggrega build --release release-helm.yaml --auto-pull       # → dist/kubernetes/

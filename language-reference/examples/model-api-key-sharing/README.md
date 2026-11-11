@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 33
   products: [core/ai-agent/crewai, core/ai-model/openai-compatible]
   shows: [connections, credentials, parameters]
 ---
@@ -18,14 +20,22 @@ single consumer — the difference is *which* Secret each consumer ends up
 pointing at, and that question has no content until there is more than one
 consumer.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example model-api-key-sharing && cd model-api-key-sharing
+```
+
+## Build
 
 Three releases, one per form. Build one per run:
 
 ```bash
-aggrega build --release release-per-consumer.yaml    # → dist/per-consumer/
-aggrega build --release release-shared.yaml          # → dist/shared/
-aggrega build --release release-composed.yaml        # → dist/composed/
+aggrega build --release release-per-consumer.yaml --auto-pull    # → dist/per-consumer/
+aggrega build --release release-shared.yaml --auto-pull          # → dist/shared/
+aggrega build --release release-composed.yaml --auto-pull        # → dist/composed/
 ```
 
 Each release writes to its own directory, so all three rendered trees coexist

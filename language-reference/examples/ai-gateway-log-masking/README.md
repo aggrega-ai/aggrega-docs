@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 37
   products: [core/ai-model/openai, core/gateway/litellm, core/security/presidio-analyzer, core/security/presidio-anonymizer]
   shows: [connections]
 ---
@@ -44,10 +46,18 @@ lists what to mask: a regular expression for the company's ticket numbers under
 There is no default list; a gateway listing neither masks nothing in its logs,
 and renders exactly as it does without the value.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ai-gateway-log-masking && cd ai-gateway-log-masking
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 5
   products: [core/datastore/documentdb, core/datastore/ferretdb, core/observability/thanos-query, core/observability/thanos-store, core/storage/s3-object-store]
   shows: [modules, boundaries]
 ---
@@ -52,6 +54,14 @@ it.
   routed in with nothing said about it renders the same as the same component
   named directly in that boundary with an empty body. The two spellings are two
   ways to say where a component belongs, not two behaviours.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example module-boundary-routing && cd module-boundary-routing
+```
 
 ## Build
 

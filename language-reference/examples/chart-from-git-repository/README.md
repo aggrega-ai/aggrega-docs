@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 11
   products: []
   shows: [external-sources, catalog-authoring, guardrails]
 ---
@@ -74,7 +76,15 @@ is reproducible. The reference is what the build **looks the entry up by**, whic
 is what lets you keep writing `ref: hello-world-0.1.0` in the Recipe and still
 resolve to the exact commit that tag stood at when the lockfile was written.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example chart-from-git-repository && cd chart-from-git-repository
+```
+
+## Build
 
 ```bash
 aggrega build --release release-chart.yaml --auto-pull

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: importers
+  position: 7
   products: [core/ai-agent/google-adk, core/ai-model/gemini]
   shows: [import, connections, credentials]
 ---
@@ -31,3 +33,23 @@ the walkthrough quotes with these files, and builds `reviewed/`. It needs the st
 ([where to get one](../../../authoring/import/README.md#how-an-import-runs))
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example import-google-adk && cd import-google-adk
+```
+
+## Build
+
+The import drafts the Aggrega files beside the project, in `source/`:
+
+```sh
+cd source
+aggrega import support_agent --target compose
+```
+
+What the review changes, and the build of the reviewed files, are in the
+walkthrough linked above.

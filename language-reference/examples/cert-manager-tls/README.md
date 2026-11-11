@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 2
   products: [core/security/cert-manager]
   shows: [external-sources]
 ---
@@ -54,6 +56,14 @@ its metrics.
 - **Reproducible images.** The chart ships resolvable release tags; the Recipe
   re-pins the controller, webhook, CA-injector, and ACME solver images to those
   tags so the rendered workloads reference pinned versions.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example cert-manager-tls && cd cert-manager-tls
+```
 
 ## Build
 

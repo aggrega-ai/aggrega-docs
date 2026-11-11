@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 31
   products: [core/devtool/harbor]
   shows: [modules, parameters, credentials, external-sources]
 ---
@@ -118,6 +120,14 @@ the module's component in the Release.
   every one at once; `infra.overrides.image` replaces a single service's pin, and
   `infra.overrides.image_prefix` moves them together for a Release pulling from a
   mirror.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example harbor-stack && cd harbor-stack
+```
 
 ## Build
 

@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 10
   products: [core/datastore/mariadb, core/datastore/redis, core/devtool/adminer]
   shows: [policy, guardrails]
 ---
@@ -171,7 +173,15 @@ before it runs; `selector-tagger` attached there halts the build with:
   ir-verdict: plugin "governance/selector-tagger:0.9.0-rc.2": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
 ```
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-label-transform && cd policy-label-transform
+```
+
+## Build
 
 ```bash
 aggrega build --release release-staging.yaml --auto-pull

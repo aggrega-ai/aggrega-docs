@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 43
   products: [core/ai-model/ollama, core/gateway/nginx]
   shows: [connections, features]
 ---
@@ -53,10 +55,18 @@ Feature attachment, in the Release: `allowlist`, `core/caller-allowlist`, on the
 model server. The Release affirms that the cluster enforces network policy and
 names one source outside the Aggregate, a monitoring agent.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example model-server-caller-allowlist && cd model-server-caller-allowlist
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 34
   products: [core/ai-model/anthropic, core/datastore/mariadb, core/devtool/adminer]
   shows: [connections, guardrails]
 ---
@@ -88,7 +90,15 @@ position.
 What it does **not** give up is what the edge may carry. `endpoint` and `model`
 are both keys `core/ai-model/anthropic` declares in its `provides` pillar.
 
-## Build it
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example adhoc-uses-socket && cd adhoc-uses-socket
+```
+
+## Build
 
 ```bash
 aggrega build --release release-delivers.yaml --auto-pull

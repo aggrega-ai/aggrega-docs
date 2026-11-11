@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 25
   products: [core/datastore/mysql-innodb-cluster, core/datastore/mysql-operator]
   shows: []
 ---
@@ -59,6 +61,14 @@ would be a second thing to keep in step for no gain.
   field is held equal on purpose so that one line is the whole difference.
 - `.aggrega-config.yaml` — names the hub registry the standard-library catalog
   resolves from. This example authors no entities of its own.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mysql-innodb-cluster && cd mysql-innodb-cluster
+```
 
 ## Build
 

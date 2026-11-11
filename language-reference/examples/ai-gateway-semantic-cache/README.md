@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 39
   products: [core/ai-model/openai, core/ai-model/openai-embedding, core/datastore/redis, core/gateway/litellm]
   shows: [connections, features]
 ---
@@ -43,10 +45,18 @@ that turns each prompt into a vector, how alike two prompts must be — `0.9`,
 as a cosine similarity — and how long a stored reply lasts, an hour. It leaves
 `scope` out, so it takes the default, `end_user`.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ai-gateway-semantic-cache && cd ai-gateway-semantic-cache
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

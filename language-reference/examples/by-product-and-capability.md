@@ -2,13 +2,125 @@
 
 # Examples by product and capability
 
-Every example in this folder, listed under each product it deploys and under each
-capability it shows. Each entry gives the example's level and the first sentence
-of its page.
+Every example in this folder, listed first in the order to work through them,
+tier by tier, then under each product it deploys and under each capability it
+shows. Each entry gives the example's level and the first sentence of its page.
 
 The level is `start`, `authoring` or `advanced`: the levels [Runnable Examples](README.md) is arranged by.
-The header each example carries, and the two lists its values come from, are
+The header each example carries, and the lists its values come from, are
 described in [The header on each example](README.md#the-header-on-each-example).
+
+## In teaching order
+
+### Start here
+
+Tier `start-here`: the two examples Getting started grows one step at a time, then the two starters for the cloud.
+
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
+- [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
+- [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.
+- [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
+
+### Catalog only
+
+Tier `catalog-only`: assembled from catalog entities, with nothing authored but the Aggregate, the Manifest and the Release.
+
+- [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
+- [cert-manager-tls](cert-manager-tls/README.md) (`start`) — This example compiles a small, real stack — a **cert-manager** certificate controller — from one Developer-authored `Aggregate` to Kubernetes.
+- [contour-gateway](contour-gateway/README.md) (`start`) — This example compiles a small, real stack — a **Contour** ingress gateway — from one Developer-authored `Aggregate` to Kubernetes.
+- [external-secrets-operator](external-secrets-operator/README.md) (`start`) — This example compiles a small, real stack — the **external-secrets** operator — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official external-secrets Helm chart**.
+- [sealed-secrets-controller](sealed-secrets-controller/README.md) (`start`) — This example compiles a small, real stack — the **sealed-secrets** controller — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official sealed-secrets Helm chart** served from an HTTPS chart repository.
+- [openbao-secrets](openbao-secrets/README.md) (`start`) — This example compiles a small, real stack — a single **OpenBao** secrets server — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official OpenBao Helm chart**.
+- [jaeger-tracing](jaeger-tracing/README.md) (`start`) — This example compiles a small, real stack — a **Jaeger** distributed-tracing backend in its single-node shape — from one Developer-authored `Aggregate` to Kubernetes, synthesized directly from the **official Jaeger image** with no upstream chart.
+- [tempo-tracing](tempo-tracing/README.md) (`start`) — This example compiles a small, real stack — a **Grafana Tempo** distributed-tracing server — from one Developer-authored `Aggregate` to Kubernetes via Workload synthesis on the official `grafana/tempo` image, in its single-binary shape.
+- [loki-logging](loki-logging/README.md) (`start`) — This example compiles a small, real stack — a **Grafana Loki** log-aggregation server — from one Developer-authored `Aggregate` to Kubernetes, backed by the **official Grafana Loki Helm chart** in its single-binary shape.
+- [kafka-broker](kafka-broker/README.md) (`start`) — This example compiles a small, real stack — an **Apache Kafka** event-streaming broker in its single-node KRaft shape — from one Developer-authored `Aggregate` to Kubernetes, synthesized directly from the **official Apache Kafka image** with no upstream chart.
+- [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
+- [valkey-cache](valkey-cache/README.md) (`start`) — This lean example compiles a single **Valkey** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
+- [memcached-cache](memcached-cache/README.md) (`start`) — This lean example compiles a single **Memcached** in-memory cache from one Developer-authored `Aggregate` to two realizations.
+- [nats-messaging](nats-messaging/README.md) (`start`) — This example compiles a single **NATS** messaging server (pub-sub, request-reply, queueing) from one Developer-authored `Aggregate` to two realizations.
+- [rabbitmq-broker](rabbitmq-broker/README.md) (`start`) — This example compiles a single **RabbitMQ** message broker (AMQP) from one Developer-authored `Aggregate` to two targets.
+- [mysql-standalone](mysql-standalone/README.md) (`start`) — This lean example compiles a single **MySQL** database from Developer-authored `Aggregate`s to two targets.
+- [mariadb-helm-synth](mariadb-helm-synth/README.md) (`start`) — A single MariaDB database rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
+- [postgres-init-config](postgres-init-config/README.md) (`start`) — `core/datastore/postgres` exposes two optional developer values that shape the database's first start: `init_scripts` (SQL or shell run once on initialization) and `custom_config` (a `postgresql.conf` fragment).
+- [grafana-dashboards](grafana-dashboards/README.md) (`start`) — This example compiles a single **Grafana** dashboards and visualization server from one Developer-authored `Aggregate` to two realizations.
+- [s3-object-store](s3-object-store/README.md) (`start`) — This example compiles one **S3-compatible object store**, the `core/storage/s3-object-store` component, to its two self-hosted realizations.
+- [nginx-gateway](nginx-gateway/README.md) (`start`) — This example compiles a small, real stack — an **NGINX** reverse-proxy gateway fronting a **web backend** — from one Developer-authored `Aggregate` to two targets.
+- [prometheus-scrape](prometheus-scrape/README.md) (`start`) — This example compiles a small, real stack — a **Prometheus** metrics server scraping **two Grafana dashboards servers** — from one Developer-authored `Aggregate` to two targets.
+- [fluentd-aggregator](fluentd-aggregator/README.md) (`start`) — This example compiles a **Fluentd** log aggregator — the receiving end of a log pipeline — from one Developer-authored `Aggregate` to two realizations.
+- [fluent-bit-to-fluentd](fluent-bit-to-fluentd/README.md) (`start`) — This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping records to a **Fluentd** aggregator over the forward protocol — from one Developer-authored `Aggregate` to two realizations.
+- [mysql-innodb-cluster](mysql-innodb-cluster/README.md) (`start`) — A MySQL InnoDB Cluster and the control plane that reconciles it, built **twice from one unchanged Aggregate**: once asking for a single server instance, once asking for three.
+- [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [ferretdb-stack](ferretdb-stack/README.md) (`start`) — This example compiles a small, real stack — a **document database** exposing the MongoDB wire protocol — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [kong-stack](kong-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [keycloak-stack](keycloak-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed identity server** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [thanos-stack](thanos-stack/README.md) (`start`) — This example compiles a small, real stack — the **read/query tier of a Thanos metrics system** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
+- [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
+- [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
+- [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
+- [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
+- [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
+- [ai-gateway-log-masking](ai-gateway-log-masking/README.md) (`start`) — A support assistant has to work with customers' names and email addresses, so the model it calls must see them.
+- [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
+- [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
+- [apisix-token-budget](apisix-token-budget/README.md) (`start`) — A team puts two OpenAI models behind one gateway and wants a ceiling on what the gateway spends on them each day, counted in tokens.
+- [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
+- [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
+- [model-server-caller-allowlist](model-server-caller-allowlist/README.md) (`start`) — A model server running in a cluster answers whoever reaches its address.
+- [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
+- [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
+
+### Authoring
+
+Tier `authoring`: writes a Component, a Feature or a Recipe of its own, or shows how one is shaped.
+
+- [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
+- [per-instance-recipe-override](per-instance-recipe-override/README.md) (`authoring`) — This example teaches one Manifest feature: the **`name` mapping tier**, which overrides the Recipe for a single component *instance* while every other instance of the same type keeps the bulk `type`-tier Recipe.
+- [workload-library-import](workload-library-import/README.md) (`authoring`) — A single stateless web service whose Recipe synthesizes its Kubernetes Workload from a **shared library entry** instead of an inline body.
+- [workload-identity-binding](workload-identity-binding/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
+- [multikey-secret-synth](multikey-secret-synth/README.md) (`authoring`) — A single stateless app rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
+- [mariadb-bitnami-credential-set](mariadb-bitnami-credential-set/README.md) (`authoring`) — A single MariaDB database realized by the **Bitnami Helm chart**, whose passwords are supplied by **one multi-key referenceable secret** (`core/referenced-secret-set`).
+- [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
+- [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
+- [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
+- [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
+- [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
+- [extends-wrapper](extends-wrapper/README.md) (`authoring`) — This example teaches one thing: a Component that `extends` another inherits that base's whole data contract, so every Recipe written for the base already implements the extending Component.
+
+### Advanced
+
+Tier `advanced`: boundaries, governance policy, annotation-driven Features and assembled cloud stacks, several combined in one build.
+
+- [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
+- [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
+- [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
+- [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
+- [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
+- [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
+- [policy-in-ci](policy-in-ci/README.md) (`advanced`) — Two ready-to-use rule scripts that read an Aggrega build's output directory and refuse it when it breaks a rule.
+- [policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/README.md) (`advanced`) — This example teaches one house rule and the fact that makes it expressible.
+- [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
+- [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
+- [policy-org-overlay](policy-org-overlay/README.md) (`advanced`) — A team's policy, its organization's and its pipeline's run together on one build, each attached in a configuration file of its own.
+- [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
+- [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
+- [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
+
+### Importers
+
+Tier `importers`: a project written in another format, drafted into Aggrega files by `aggrega import`, then reviewed and built.
+
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
 
 ## By product
 

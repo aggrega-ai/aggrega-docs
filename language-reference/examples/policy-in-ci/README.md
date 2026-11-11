@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 7
   products: []
   shows: [policy]
 ---
@@ -87,6 +89,27 @@ opposite reasons:
   searched every document for an `image` key would report a CRD's schema as an
   unpinned workload. So `require-pinned-image.sh` reads the six pod-spec paths
   explicitly, and adding a workload kind means adding a path.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-in-ci && cd policy-in-ci
+```
+
+## Build
+
+This folder holds no workspace, so there is nothing to build here. `./check.sh`
+runs both rules over small output directories it writes itself, in the shapes
+a build emits, and checks each verdict:
+
+```sh
+./check.sh
+```
+
+To run a rule over a real build, give it that build's output directory, as the
+next section does.
 
 ## Producing a build to run them against
 

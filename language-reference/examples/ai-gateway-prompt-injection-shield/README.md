@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 38
   products: [core/gateway/litellm, core/security/nemo-guardrails, core/security/trustyai-huggingface-detector]
   shows: [connections, features]
 ---
@@ -39,10 +41,18 @@ Two `uses` edges: the gateway's `guard` socket to the guard, and the guard's
 shield, on the gateway, at `sensitivity: standard`; and `upstream_key`, the
 credential the guard presents to the model API, on the guard.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ai-gateway-prompt-injection-shield && cd ai-gateway-prompt-injection-shield
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

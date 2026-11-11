@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 2
   products: []
   shows: [recipe-selection]
 ---
@@ -39,7 +41,15 @@ mappings:
 Name wins over type, so `greeter-special` deploys through `greeter-green` and
 `greeter-default` through `greeter-blue`.
 
-## Build it
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example per-instance-recipe-override && cd per-instance-recipe-override
+```
+
+## Build
 
 ```bash
 aggrega pull --release release.yaml     # writes release.lock, which the build reads

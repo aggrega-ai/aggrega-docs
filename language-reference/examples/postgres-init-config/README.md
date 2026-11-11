@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 18
   products: [core/datastore/postgres]
   shows: []
 ---
@@ -22,7 +24,15 @@ developer values:
   `custom_config` unset.
 - **`release-config.yaml`** (`aggregate-config.yaml`) — both set.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example postgres-init-config && cd postgres-init-config
+```
+
+## Build
 
 ```bash
 aggrega build --release release-bare.yaml --auto-pull

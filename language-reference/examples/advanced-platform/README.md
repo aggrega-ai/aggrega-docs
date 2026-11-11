@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 1
   products: [core/datastore/mariadb, core/devtool/adminer]
   shows: [boundaries, parameters, features, credentials, catalog-authoring, external-sources]
 ---
@@ -51,6 +53,24 @@ Bitnami chart the sourced Recipe names and pins it, with every entity, in
 `release.lock`; the build reads that lockfile:
 
 ```bash
+aggrega pull --release release.yaml
+aggrega build --release release.yaml
+```
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example advanced-platform && cd advanced-platform
+```
+
+## Build
+
+The pull resolves the lockfile, fetching the Bitnami chart the local Recipe
+names, and the build reads it:
+
+```sh
 aggrega pull --release release.yaml
 aggrega build --release release.yaml
 ```

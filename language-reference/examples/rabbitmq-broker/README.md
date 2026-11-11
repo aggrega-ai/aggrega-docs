@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 15
   products: [core/messaging/rabbitmq]
   shows: [multi-target, credentials]
 ---
@@ -59,6 +61,14 @@ The Recipe references in the Manifests are provider-scoped (`compose/rabbitmq`,
   the `RABBITMQ_DEFAULT_PASS` service environment variable; on Kubernetes it is
   materialized as a Secret and referenced by an env `secretKeyRef`, so the
   plaintext never lands in the rendered manifest.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example rabbitmq-broker && cd rabbitmq-broker
+```
 
 ## Build
 

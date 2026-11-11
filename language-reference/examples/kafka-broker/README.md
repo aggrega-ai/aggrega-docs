@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 10
   products: [core/messaging/kafka]
   shows: []
 ---
@@ -50,6 +52,14 @@ endpoint and exchanges records there.
   to it and connects there.
 - **Reproducible images.** The Recipe pins the Kafka server image to a
   resolvable tag so the rendered workload references a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example kafka-broker && cd kafka-broker
+```
 
 ## Build
 

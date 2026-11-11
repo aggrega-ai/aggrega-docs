@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 13
   products: []
   shows: [policy, features, guardrails]
 ---
@@ -347,7 +349,15 @@ plugins:
 The attachment names a version that catalog carries, so the pin resolves
 through the catalog the workspace reads.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-annotation-transform && cd policy-annotation-transform
+```
+
+## Build
 
 ```bash
 aggrega build --release release.yaml --config governance-rego.yaml --auto-pull

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 24
   products: [core/observability/fluent-bit, core/observability/fluentd]
   shows: [multi-target, connections]
 ---
@@ -79,6 +81,14 @@ Because both a Compose and a synthesized helm Recipe carry the names
 - **Reproducible images.** `infra.engine_version` pins each image tag, so the
   rendered workloads reference fixed images and the synthesized Recipes render
   no floating tag.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example fluent-bit-to-fluentd && cd fluent-bit-to-fluentd
+```
 
 ## Build
 

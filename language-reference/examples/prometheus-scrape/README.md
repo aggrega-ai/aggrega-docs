@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 22
   products: [core/observability/grafana, core/observability/prometheus]
   shows: [multi-target, connections]
 ---
@@ -112,6 +114,14 @@ decided by what it publishes.
   as its StatefulSet, its ClusterIP and Headless Services, and its data volume
   claim — nothing else. Each Grafana renders as its own Deployment, Service and
   data volume claim.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example prometheus-scrape && cd prometheus-scrape
+```
 
 ## Build
 

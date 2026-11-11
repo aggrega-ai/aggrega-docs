@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 3
   products: [core/gateway/contour]
   shows: [external-sources]
 ---
@@ -52,6 +54,14 @@ family ships a Helm Recipe only; there is no Compose target.
   `infra.overrides.service_type`.
 - **Reproducible images.** The Recipe re-pins the Contour and Envoy images to
   explicit release tags so the rendered workloads reference pinned versions.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example contour-gateway && cd contour-gateway
+```
 
 ## Build
 

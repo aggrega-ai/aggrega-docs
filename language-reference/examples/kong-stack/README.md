@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 28
   products: [core/datastore/postgres, core/gateway/kong]
   shows: [modules]
 ---
@@ -59,6 +61,14 @@ the module's internal components in the Release.
   default, so the stack runs self-contained with no external secret.
 - **Reproducible images.** Both the gateway and the backend pin explicit image
   tags, so the rendered manifests reference stable images.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example kong-stack && cd kong-stack
+```
 
 ## Build
 

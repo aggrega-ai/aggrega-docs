@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 5
   products: []
   shows: [credentials, catalog-authoring]
 ---
@@ -12,7 +14,15 @@ synthesis — no external chart. The app reads **two data keys from one secret**
 a username and a password. One credential slot backs both, filled by a
 multi-key referenceable credential.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example multikey-secret-synth && cd multikey-secret-synth
+```
+
+## Build
 
 ```bash
 aggrega build --release release.yaml --auto-pull

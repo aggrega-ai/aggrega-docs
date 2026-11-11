@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 7
   products: [core/observability/jaeger]
   shows: []
 ---
@@ -47,6 +49,14 @@ reads them back from the UI.
   to it and pushes spans there.
 - **Reproducible images.** The Recipe pins the Jaeger server image to a
   resolvable tag so the rendered workload references a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example jaeger-tracing && cd jaeger-tracing
+```
 
 ## Build
 

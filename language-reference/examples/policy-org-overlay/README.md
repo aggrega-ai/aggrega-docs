@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 11
   products: [core/datastore/mariadb, core/devtool/adminer]
   shows: [policy, guardrails]
 ---
@@ -163,7 +165,15 @@ settings:
 So one rule, over the same `web`, is a warning on a developer's build and the
 reason a pipeline's build stops.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-org-overlay && cd policy-org-overlay
+```
+
+## Build
 
 **The standard-library catalog supplies the Components, the Recipes, the
 Feature and its FeatureRecipe.** They resolve from `hub.aggrega.ai`, the default

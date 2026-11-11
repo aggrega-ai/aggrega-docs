@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: start-here
+  position: 3
   products: [core/datastore/mariadb]
   shows: [cloud-infrastructure, credentials]
 ---
@@ -31,6 +33,14 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
   `terraform/backup-native`.
 - `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
   from.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example terraform-rds && cd terraform-rds
+```
 
 ## Build
 

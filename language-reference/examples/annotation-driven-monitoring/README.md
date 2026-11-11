@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 6
   products: []
   shows: [features, boundaries]
 ---
@@ -56,6 +58,23 @@ ServiceMonitor per attached component, templating `interval`/`port`/`path` from
 the resolved annotation — all three are operator scrape knobs in the feature's
 `infra`. (It is FeatureRecipe Resource Generation — `source:` + `valuesMapping:`
 rendered by the helm provider — not a Wasm mutator or pipeline step.)
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example annotation-driven-monitoring && cd annotation-driven-monitoring
+```
+
+## Build
+
+The pull resolves the lockfile and the build reads it:
+
+```sh
+aggrega pull --release release.yaml
+aggrega build --release release.yaml
+```
 
 ## What the rendered output proves
 

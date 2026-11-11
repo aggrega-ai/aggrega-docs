@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 8
   products: [core/datastore/mariadb]
   shows: [policy, guardrails, credentials, cloud-infrastructure]
 ---
@@ -386,6 +388,14 @@ check working, not a fault in the example.
   answer. Not attached by default.
 - `.aggrega-config.yaml` — the default registry and the governance
   attachment.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-payload-leaf-sensitivity && cd policy-payload-leaf-sensitivity
+```
 
 ## Build
 

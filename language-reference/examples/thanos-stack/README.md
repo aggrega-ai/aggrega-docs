@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 30
   products: [core/observability/thanos-query, core/observability/thanos-store, core/storage/s3-object-store]
   shows: [modules]
 ---
@@ -44,6 +46,14 @@ produces metric blocks**. The read tier serves blocks; it does not create them.
 A writer — a Thanos Receive tier or a Prometheus instance with the Thanos
 sidecar — must ship metric blocks into the same bucket. Until a writer has
 uploaded blocks, the Store Gateway serves an empty result set.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example thanos-stack && cd thanos-stack
+```
 
 ## Build
 

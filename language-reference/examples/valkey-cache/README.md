@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 12
   products: [core/datastore/valkey]
   shows: [multi-target, credentials]
 ---
@@ -61,6 +63,14 @@ credential materialized as a Kubernetes Secret).
   server requires the password: on Compose the value reaches the server through
   the image's `VALKEY_EXTRA_FLAGS` variable; on Kubernetes the synthesized helm
   path materializes it as a Secret the Deployment references.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example valkey-cache && cd valkey-cache
+```
 
 ## Build
 

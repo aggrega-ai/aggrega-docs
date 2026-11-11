@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 3
   products: []
   shows: [cloud-infrastructure, parameters]
 ---
@@ -183,6 +185,14 @@ Both credential halves are `parameters` rather than authored values because they
 are values an operator supplies and differ per environment. A Release cannot
 declare `values:`, so a typed parameter is the surface for exactly this: the
 developer declares the variation point, the Release fulfils it.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example terraform-declared-sensitivity && cd terraform-declared-sensitivity
+```
 
 ## Build
 

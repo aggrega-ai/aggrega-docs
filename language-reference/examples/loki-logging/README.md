@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 9
   products: [core/observability/loki]
   shows: [external-sources]
 ---
@@ -44,6 +46,14 @@ dashboards server reads them back over the query API.
 - **Reproducible images.** The Recipe pins the Loki server image and the
   config-reload sidecar image to resolvable tags so the rendered workload
   references pinned versions.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example loki-logging && cd loki-logging
+```
 
 ## Build
 

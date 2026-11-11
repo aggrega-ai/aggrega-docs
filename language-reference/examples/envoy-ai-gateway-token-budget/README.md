@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 41
   products: [core/ai-agent/crewai, core/ai-model/openai, core/datastore/redis, core/gateway/envoy-ai-gateway-operator, core/gateway/envoy-gateway, core/security/cert-manager]
   shows: [connections, features]
 ---
@@ -71,10 +73,18 @@ A cluster runs one cert-manager. Where yours already runs one, remove `certs`
 from the Aggregate and the Release before building; the build then renders the
 same files less cert-manager's own.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example envoy-ai-gateway-token-budget && cd envoy-ai-gateway-token-budget
+```
+
+## Build
 
 ```bash
-aggrega build --release release.yaml
+aggrega build --release release.yaml --auto-pull
 ```
 
 A release needs a lockfile before it builds, and lockfiles are generated rather

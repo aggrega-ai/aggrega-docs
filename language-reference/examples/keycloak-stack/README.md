@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 29
   products: [core/datastore/postgres, core/security/keycloak]
   shows: [modules]
 ---
@@ -71,6 +73,14 @@ the module's internal components in the Release.
   parameter as the name of a Secret that already exists in the namespace.
 - **Reproducible images.** Both the server and the backend pin explicit image
   tags, so the rendered manifests reference stable images.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example keycloak-stack && cd keycloak-stack
+```
 
 ## Build
 

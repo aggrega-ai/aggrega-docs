@@ -429,14 +429,17 @@ cross-boundary networking across providers.
 ## The header on each example
 
 Each example's README opens with a short header, written as YAML front matter,
-saying what the example is: its level, the products it deploys and what it
-shows. [Examples by product and capability](by-product-and-capability.md) is
+saying what the example is: its level, its place in the teaching order, the
+products it deploys and what it shows.
+[Examples by product and capability](by-product-and-capability.md) is
 generated from these headers.
 
 ```yaml
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 1
   products: [core/datastore/mariadb, core/devtool/adminer]
   shows: [connections, credentials]
 ---
@@ -451,6 +454,25 @@ example:
   or shows how one is shaped.
 - `advanced` — the Advanced level: boundaries, governance policy,
   annotation-driven Features and assembled cloud stacks.
+
+`tier` is the part of the teaching order the example belongs to, one of these,
+taught in this order:
+
+<!-- example-header: tier -->
+- `start-here` — Start here: the two examples Getting started grows one step at
+  a time, then the two starters for the cloud.
+- `catalog-only` — Catalog only: assembled from catalog entities, with nothing
+  authored but the Aggregate, the Manifest and the Release.
+- `authoring` — Authoring: writes a Component, a Feature or a Recipe of its own,
+  or shows how one is shaped.
+- `advanced` — Advanced: boundaries, governance policy, annotation-driven
+  Features and assembled cloud stacks, several combined in one build.
+- `importers` — Importers: a project written in another format, drafted into
+  Aggrega files by `aggrega import`, then reviewed and built.
+
+`position` is the example's place within its tier, a positive whole number no
+other example of that tier takes; a tier lists its examples from the lowest
+position up, simplest first.
 
 `products` lists each catalog Component the example deploys, by the name its
 catalog entry carries. A generic compute component (`core/compute/server`, say)
@@ -487,7 +509,11 @@ list none.
   `aggrega import`, then reviewed and built.
 
 An example lists at least one product or one capability, so the index can place
-it. `scripts/gen-examples-index.sh --check`, run from the root of this
-repository, checks every header against these lists, refuses an example with
-neither an executable `check.sh` nor a `build-release.sh`, and confirms the
-index is current; run it without `--check` to write the index again.
+it. Its README also carries a `## Scaffold the example` section, holding
+`aggrega scaffold --example <name> && cd <name>`, directly followed by a
+`## Build` section whose first command block is what
+`aggrega scaffold --example` prints to run next. `scripts/gen-examples-index.sh --check`, run
+from the root of this repository, checks every header against these lists,
+refuses an example missing either section, and one with neither an executable
+`check.sh` nor a `build-release.sh`, and confirms the index is current; run it
+without `--check` to write the index again.

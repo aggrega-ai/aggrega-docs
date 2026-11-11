@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 14
   products: [core/gateway/envoy-ai-gateway-operator]
   shows: [external-sources, catalog-authoring, guardrails]
 ---
@@ -105,7 +107,15 @@ Secret the controller's pod mounts is the operator's own, created separately.
 The field leaves a document out; it does not check that whatever the rest of
 the output relies on exists somewhere else.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ai-gateway-own-webhook-certificate && cd ai-gateway-own-webhook-certificate
+```
+
+## Build
 
 ```bash
 aggrega build --release release-cert-manager.yaml --auto-pull

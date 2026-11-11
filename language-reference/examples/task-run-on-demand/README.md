@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 44
   products: []
   shows: [features, multi-target, parameters, guardrails, cloud-infrastructure]
 ---
@@ -89,7 +91,15 @@ Each Release names the image each task runs under `infra.image`, as
 task runs with, and, where `report` has a schedule, the role the schedule starts
 each run under. Every account-specific value there is a placeholder.
 
-## Building it
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example task-run-on-demand && cd task-run-on-demand
+```
+
+## Build
 
 The workspace reads the standard-library catalog from the hub registry
 `.aggrega-config.yaml` names. Every Recipe here renders from the

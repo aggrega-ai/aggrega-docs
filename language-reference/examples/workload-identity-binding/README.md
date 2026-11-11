@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 4
   products: []
   shows: [catalog-authoring, features]
 ---
@@ -17,7 +19,15 @@ The teaching point is the direction of the flow. The producer states the name
 once; the consumer reads it. Nothing on the consuming side restates a value the
 producer already owns, so the two cannot drift apart.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example workload-identity-binding && cd workload-identity-binding
+```
+
+## Build
 
 ```bash
 aggrega build --release release.yaml --auto-pull

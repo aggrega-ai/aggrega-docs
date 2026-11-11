@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 3
   products: []
   shows: [catalog-authoring]
 ---
@@ -45,7 +47,15 @@ appears in the reference. On `aggrega pull`, `BaseWorkloads` is pinned in the
 lockfile's `workload_libraries` section; on `aggrega build`, the pinned library is
 resolved and its entry rendered.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example workload-library-import && cd workload-library-import
+```
+
+## Build
 
 ```bash
 aggrega pull --release release.yaml   # pins BaseWorkloads in release.lock

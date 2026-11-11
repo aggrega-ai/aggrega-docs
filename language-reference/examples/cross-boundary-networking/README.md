@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 4
   products: [core/datastore/postgres, core/devtool/adminer]
   shows: [multi-target, boundaries, connections, catalog-authoring]
 ---
@@ -52,6 +54,26 @@ The one `uses` edge injects the database's `host` into `ADMINER_DEFAULT_SERVER`.
 What that host *resolves to* is an Ops concern decided below the Aggregate — so
 the same edge yields `aggrega-gw:5432` under compose and `db-default.backend`
 under helm, with no change to developer intent.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example cross-boundary-networking && cd cross-boundary-networking
+```
+
+## Build
+
+Each variant is one Release, built against its own catalog directory, one
+Release per run:
+
+```sh
+aggrega pull --release release-compose.yaml --catalog catalog-compose
+aggrega build --release release-compose.yaml --catalog catalog-compose
+aggrega pull --release release-helm.yaml --catalog catalog-helm
+aggrega build --release release-helm.yaml --catalog catalog-helm
+```
 
 ## Variant A — local (Docker Compose): the bridge
 

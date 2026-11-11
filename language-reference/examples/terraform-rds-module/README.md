@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 8
   products: [core/datastore/mariadb]
   shows: [cloud-infrastructure, credentials]
 ---
@@ -105,6 +107,14 @@ bare recipe name resolves only when exactly one provider carries it, and the
 standard library ships a `generated-secret` FeatureRecipe under more than one —
 so a bare name does not resolve at all, and the build halts loudly rather than
 silently picking a provider for you.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example terraform-rds-module && cd terraform-rds-module
+```
 
 ## Build
 

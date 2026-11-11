@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: importers
+  position: 8
   products: [core/ai-agent/langgraph, core/datastore/postgres, core/ai-model/openai]
   shows: [import, connections, credentials]
 ---
@@ -31,3 +33,23 @@ the walkthrough quotes with these files, and builds `reviewed/`. It needs the st
 ([where to get one](../../../authoring/import/README.md#how-an-import-runs))
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example import-langgraph && cd import-langgraph
+```
+
+## Build
+
+The import drafts the Aggrega files beside the project, in `source/`:
+
+```sh
+cd source
+aggrega import . --target compose
+```
+
+What the review changes, and the build of the reviewed files, are in the
+walkthrough linked above.

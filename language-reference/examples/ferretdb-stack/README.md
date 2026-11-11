@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 27
   products: [core/datastore/documentdb, core/datastore/ferretdb]
   shows: [modules]
 ---
@@ -58,6 +60,14 @@ internal components in the Release.
   the rendered manifest.
 - **Reproducible images.** Both the proxy and the backend pin explicit image tags,
   so the rendered manifests reference stable images.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example ferretdb-stack && cd ferretdb-stack
+```
 
 ## Build
 

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 23
   products: [core/observability/fluentd]
   shows: [multi-target]
 ---
@@ -74,6 +76,14 @@ the Manifests reference them provider-scoped as `compose/fluentd` and
 - **Reproducible images.** `infra.engine_version` pins the Fluentd image tag, so
   the rendered workload references a fixed image and the synthesized Recipe
   renders no floating tag.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example fluentd-aggregator && cd fluentd-aggregator
+```
 
 ## Build
 

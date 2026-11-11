@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 12
   products: [core/devtool/adminer, core/gateway/nginx]
   shows: [catalog-authoring, guardrails]
 ---
@@ -110,7 +112,15 @@ served by it unchanged. Two facts hold at once here, and they are separate:
   wrapper instance with no entry of its own halts with the unmapped-instance
   diagnostic even when its base is mapped.
 
-## Build it
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example extends-wrapper && cd extends-wrapper
+```
+
+## Build
 
 ```bash
 aggrega build --release release-reviewed.yaml --auto-pull

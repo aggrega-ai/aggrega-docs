@@ -1,6 +1,8 @@
 ---
 example:
   level: authoring
+  tier: authoring
+  position: 1
   products: [core/datastore/mariadb, core/devtool/adminer]
   shows: [multi-target, catalog-authoring, connections, credentials, external-sources]
 ---
@@ -176,6 +178,25 @@ Adminer UI — by *referencing* standard-library entities, authoring none of its
 own. Read the database side of this example to learn how catalog entities are
 **built**; read the consumption examples to learn how a whole stack is **used**
 from the shipped catalog.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mariadb-adminer && cd mariadb-adminer
+```
+
+## Build
+
+Each target is one Release, built one per run; the pull writes the lockfile the
+build reads. Docker Compose first — the section of each target below gives its
+own commands:
+
+```sh
+aggrega pull --release release-compose.yaml
+aggrega build --release release-compose.yaml
+```
 
 ## Layout
 

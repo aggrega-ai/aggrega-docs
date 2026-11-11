@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 17
   products: [core/datastore/mariadb]
   shows: [credentials]
 ---
@@ -19,7 +21,15 @@ synthesized helm target. The two password slots are delivered by different
 mechanisms because the Component declares them differently, and the Recipe wires
 each the way its slot demands.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example mariadb-helm-synth && cd mariadb-helm-synth
+```
+
+## Build
 
 ```bash
 aggrega build --release release.yaml --auto-pull

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 13
   products: [core/datastore/memcached]
   shows: [multi-target, credentials, guardrails]
 ---
@@ -58,6 +60,14 @@ realization can enforce a Memcached password.
   clients use neither. A Recipe that accepted the attachment would render a
   cache that answers every client while the Aggregate says it is protected, so
   each Recipe halts the build instead, naming the slot.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example memcached-cache && cd memcached-cache
+```
 
 ## Build
 

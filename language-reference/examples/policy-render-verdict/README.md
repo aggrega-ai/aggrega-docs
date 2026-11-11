@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 12
   products: [core/datastore/postgres]
   shows: [policy, multi-target, guardrails, cloud-infrastructure]
 ---
@@ -339,7 +341,15 @@ and without it, and `check.sh` compares the two trees on every run. A refused
 build writes no `dist/` at all. To fix a refusal, the Release changes — a pinned
 tag, an encryption key — and the next build is judged again.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-render-verdict && cd policy-render-verdict
+```
+
+## Build
 
 ```bash
 aggrega build --release release-terraform.yaml --config governance-rego.yaml --auto-pull

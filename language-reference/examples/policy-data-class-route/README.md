@@ -1,6 +1,8 @@
 ---
 example:
   level: advanced
+  tier: advanced
+  position: 9
   products: [core/ai-agent/langgraph, core/ai-model/openai, core/datastore/valkey, core/gateway/litellm, core/security/presidio-analyzer, core/security/presidio-anonymizer]
   shows: [policy, guardrails, connections, features, catalog-authoring]
 ---
@@ -59,7 +61,15 @@ Each Release binds the `model` socket of the two assistants to a gateway the
 Aggregate declares. That is edge wiring within a socket the Component declares,
 which a Release may do; it adds no component and changes no value.
 
-## Building
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example policy-data-class-route && cd policy-data-class-route
+```
+
+## Build
 
 ```bash
 aggrega build --release release-masked.yaml --config governance-rego.yaml --auto-pull

@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 26
   products: [core/datastore/etcd, core/gateway/apisix]
   shows: [modules, parameters, credentials]
 ---
@@ -66,6 +68,14 @@ internal components in the Release.
   supplies no value halts the build, naming the parameter.
 - **Reproducible images.** Both the gateway and the store pin explicit image
   tags, so the rendered manifests reference stable images.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example apisix-stack && cd apisix-stack
+```
 
 ## Build
 

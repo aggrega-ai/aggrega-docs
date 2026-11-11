@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 6
   products: [core/security/openbao]
   shows: [external-sources]
 ---
@@ -46,6 +48,14 @@ materialized at build time.
 - **A reproducible image.** The Recipe pins the server image to a resolvable
   release tag (`quay.io/openbao/openbao:2.5.5`), so the rendered workload
   references a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example openbao-secrets && cd openbao-secrets
+```
 
 ## Build
 

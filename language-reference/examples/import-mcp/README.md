@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: importers
+  position: 2
   products: [core/ai-tool/mcp]
   shows: [import, recipe-selection, credentials]
 ---
@@ -27,3 +29,23 @@ the walkthrough quotes with these files, and builds `reviewed/`. It needs the st
 ([where to get one](../../../authoring/import/README.md#how-an-import-runs))
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example import-mcp && cd import-mcp
+```
+
+## Build
+
+The import drafts the Aggrega files beside the project, in `source/`:
+
+```sh
+cd source
+aggrega import .mcp.json --target helm
+```
+
+What the review changes, and the build of the reviewed files, are in the
+walkthrough linked above.

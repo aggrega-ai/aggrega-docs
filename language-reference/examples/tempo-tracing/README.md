@@ -1,6 +1,8 @@
 ---
 example:
   level: start
+  tier: catalog-only
+  position: 8
   products: [core/observability/tempo]
   shows: []
 ---
@@ -42,6 +44,14 @@ dashboards server reads them back over the query API.
   to it and pushes spans there.
 - **Reproducible images.** The Recipe pins the Tempo server image tag from
   `infra.engine_version` so the rendered workload references a pinned version.
+
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into it:
+
+```sh
+aggrega scaffold --example tempo-tracing && cd tempo-tracing
+```
 
 ## Build
 
