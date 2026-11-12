@@ -9,6 +9,16 @@ run; the configuration and each stage of the walkthrough are in the
 example, where a check script runs the import again and compares what it writes, what it
 prints and the blocks this page quotes with the files kept there.
 
+## Scaffold the example
+
+Write the example into a new folder named after it, and change into its
+`source` folder, which holds what this page imports and is where the import runs:
+
+```bash
+aggrega scaffold --example import-google-adk && cd import-google-adk
+cd source
+```
+
 ## The project
 
 ADK can declare an application's agents in Agent Config files instead of code:
@@ -19,9 +29,6 @@ Google Search tool ADK ships:
 
 <!-- quotes: source/support_agent/root_agent.yaml -->
 ```yaml
-# SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
-
 # yaml-language-server: $schema=https://raw.githubusercontent.com/google/adk-python/refs/heads/main/src/google/adk/agents/config_schemas/AgentConfig.json
 name: support_agent
 model: gemini-2.5-flash
@@ -40,9 +47,6 @@ an `.aggrega-config.yaml` makes the folder a workspace:
 
 <!-- quotes: source/.aggrega-config.yaml -->
 ```yaml
-# SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
-
 # The workspace key marks this directory as the workspace root, so an import run
 # here writes its drafts beside support_agent/.
 workspace: {}
@@ -58,6 +62,11 @@ path:
 ```bash
 export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
 ```
+
+The import reads that catalog from folders on your machine, not from the
+registry it fetches its importer from, so the scaffolded example needs the
+checkout too: with none, `--target` is refused, since no Recipe binds to the
+target.
 
 ## Run the import
 

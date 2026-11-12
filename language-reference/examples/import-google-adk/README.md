@@ -44,10 +44,15 @@ aggrega scaffold --example import-google-adk && cd import-google-adk
 
 ## Build
 
-The import drafts the Aggrega files beside the project, in `source/`:
+The import drafts the Aggrega files beside the project, in `source/`. It
+weighs the project against the standard-library catalog, read from the
+checkout `AGGREGA_CATALOG_DIRS` names
+([where to get one](../../../authoring/import/README.md#how-an-import-runs)),
+so set that first:
 
 ```sh
 cd source
+# with AGGREGA_CATALOG_DIRS naming a checkout of the standard-library catalog
 aggrega import support_agent --target compose
 ```
 
