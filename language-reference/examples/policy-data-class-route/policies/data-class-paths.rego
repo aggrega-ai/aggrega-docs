@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 
 # A house rule: data of one class does not reach a component of another class
 # along a route of the build graph unless a declassifying Feature is attached on

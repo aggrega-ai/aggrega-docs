@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 
 # Gives every component the platform's monitoring and an IAM role, by injecting
 # the two annotations the Manifest binds. A component that already carries one

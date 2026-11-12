@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # build-commands.awk — print the commands a runnable example's page gives to run
 # next, read as `aggrega scaffold --example` reads them once it has written the

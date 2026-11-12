@@ -162,7 +162,7 @@ Each release carries a Windows installer, `aggrega-<version>-windows-amd64-setup
 What it does:
 
 - **With Add to PATH selected, it adds the install folder to your user `PATH`** unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with. With it cleared, nothing is added to your `PATH`, and a terminal runs `aggrega.exe` by its full path; an entry an earlier install added is left as it is.
-- **It lists Aggrega among your installed apps**, published by Cognitio S.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller asks you to confirm, then removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
+- **It lists Aggrega among your installed apps**, published by Cognitio s.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller asks you to confirm, then removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
 - **Run again, it installs over what is there**, offering the folder it installed into last, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
 - **Beside `aggrega.exe`, the folder holds `uninstall.exe`**, `LICENSE` with the license text, and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
 
@@ -292,7 +292,7 @@ mv aggrega-<version>-darwin-arm64 ~/.local/bin/aggrega
 
 The `mkdir` creates the folder where it does not exist yet. `~/.local/bin` is not on the `PATH` macOS gives a new terminal, so add the line from [Install it by hand](#install-it-by-hand) to `~/.zshrc`, or to `~/.bash_profile` for bash, unless it is there already.
 
-**The executables are signed and notarized.** Each carries a code signature made with the Developer ID of **Cognitio S.r.l.** — the certificate Apple issues to a developer for software distributed outside the Mac App Store — with the hardened runtime and a secure timestamp, and Apple's notary service has checked each one and notarized it. Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark, the mark a web browser adds to a file it downloads, and accepts one that Apple has notarized, so a file downloaded from the release page runs as it is. A notarization ticket cannot be attached to a single executable file, so Gatekeeper finds the ticket online the first time the file runs; on a Mac that is offline at that moment, Gatekeeper may block the file until the Mac can reach Apple.
+**The executables are signed and notarized.** Each carries a code signature made with the Developer ID of **Cognitio s.r.l.** — the certificate Apple issues to a developer for software distributed outside the Mac App Store — with the hardened runtime and a secure timestamp, and Apple's notary service has checked each one and notarized it. Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark, the mark a web browser adds to a file it downloads, and accepts one that Apple has notarized, so a file downloaded from the release page runs as it is. A notarization ticket cannot be attached to a single executable file, so Gatekeeper finds the ticket online the first time the file runs; on a Mac that is offline at that moment, Gatekeeper may block the file until the Mac can reach Apple.
 
 To check a downloaded file before you run it, from Terminal, with the file name you downloaded:
 
@@ -301,6 +301,6 @@ codesign --verify --strict --verbose=2 aggrega-<version>-darwin-arm64
 codesign --display --verbose=2 aggrega-<version>-darwin-arm64
 ```
 
-The first reports that the file is *valid on disk* and *satisfies its Designated Requirement*. The second lists the signature's authorities, the first of them `Developer ID Application: Cognitio S.r.l.` followed by the team identifier in parentheses, and a `Timestamp`. A file that fails either is not the one the release published, or was changed after it was signed.
+The first reports that the file is *valid on disk* and *satisfies its Designated Requirement*. The second lists the signature's authorities, the first of them `Developer ID Application: COGNITIO SRL` followed by the team identifier in parentheses, and a `Timestamp`. A file that fails either is not the one the release published, or was changed after it was signed.
 
 A file fetched with `curl` carries no quarantine mark, so Gatekeeper does not assess it at all: `curl` does not add the mark a browser does. That is also why the binary the install command puts in place runs without that assessment.

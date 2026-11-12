@@ -332,7 +332,7 @@ mutators:
       sources:
         - content: |
             [… omitted: the policy file, as written]
-          digest: sha256:4fe7eef3877c3e87c4c9f8b9540874af5ae1411da223876354b33f6d214f5f4e
+          digest: sha256:9779faf366fc131b1a56ea68ccbae811173e3642943909f8d4ca63c00df8781b
           path: platform-defaults.rego
 ```
 

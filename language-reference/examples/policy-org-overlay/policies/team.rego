@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # The team's own rule, attached at ir-verdict in .aggrega-config.yaml. It
 # collects under warn, which the attachment reports at the warn severity: the

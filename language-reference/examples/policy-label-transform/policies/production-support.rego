@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # Attached at ir-verdict. Halts a build in which a node labelled as built for
 # production carries no support tier. Both labels are written by the

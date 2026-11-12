@@ -354,7 +354,7 @@ verdict_inputs:
     - plugin: governance/rego:0.9.0-rc.2
       role: ir-verdict
       sources:
-        - digest: sha256:09f774d5d03ed288d21c157bcf7066ac903a341c8177e2701975ad32d9be5278
+        - digest: sha256:5e01fc76f791ef00eba02f02ffb383437c87531f3927ee4a91cec9bf9c6e8cd8
           path: production-support.rego
 ```
 

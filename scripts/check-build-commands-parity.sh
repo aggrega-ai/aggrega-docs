@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # check-build-commands-parity.sh — hold lib/build-commands.awk to the reading
 # `aggrega scaffold --example` gives a page's Build section.

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # fenced-blocks.awk — print every closed fenced block of a Markdown page, as
 # "block <line> <info>" and then "| <line as written>" for each of its lines.

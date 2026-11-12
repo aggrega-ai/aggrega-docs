@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # Runs this example's import again, as its walkthrough page shows it, compares
 # what it writes and prints with draft/, compares the blocks the page quotes

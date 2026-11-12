@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 
 # A planted mistake: the monitoring binding routes three subkeys, and this
 # policy injects a string under its key, which names none of them. The build

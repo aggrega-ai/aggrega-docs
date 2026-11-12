@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # gen-examples-index.sh — check the header and the sections every runnable
 # example carries, and write the page listing the examples in teaching order,

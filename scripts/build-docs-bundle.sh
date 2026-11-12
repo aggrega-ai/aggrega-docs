@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # build-docs-bundle.sh — pack the published documentation into a single
 # deterministic gzipped tar for publication as a standalone OCI data artifact.

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # The organization's rule, attached at ir-verdict twice: in org/config.yaml,
 # where its translation reports deny at warn, and in the pipeline's

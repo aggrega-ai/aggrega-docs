@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # build-release.sh — build one Release of an example workspace with the aggrega
 # CLI, choosing the catalog source the way each example expects.

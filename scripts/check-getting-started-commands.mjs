@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2026 Cognitio S.r.l.
+// Copyright 2026 Cognitio s.r.l.
 //
 // check-getting-started-commands.mjs — hold the commands of the Getting started
 // page to the pages they come from, every page that scaffolds an example to what

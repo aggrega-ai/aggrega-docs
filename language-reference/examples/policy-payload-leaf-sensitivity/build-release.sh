@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Cognitio S.r.l.
+# Copyright 2026 Cognitio s.r.l.
 #
 # Thin wrapper: builds a Release of this example via the shared helper at
 # aggrega-docs/scripts/build-release.sh. One release per run.
