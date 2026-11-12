@@ -7,13 +7,13 @@
 #
 #   - an output that keeps both rules: every image pinned by a tag or a digest,
 #     a CustomResourceDefinition declaring a schema property named `image`, a
-#     ConfigMap with a data: block and an ExternalSecret written as JSON — both
+#     ConfigMap with a data: block and an ExternalSecret written as JSON -- both
 #     rules exit 0 and say how much they looked at;
 #   - an output that breaks both: an image with no tag behind a registry port, an
-#     image tagged `latest`, and a Secret carrying material under stringData: —
+#     image tagged `latest`, and a Secret carrying material under stringData: --
 #     both rules exit 1 and name each offending artifact;
 #   - an output holding a file that does not parse, and a run given no
-#     directory — both rules exit 2, the code for "could not evaluate".
+#     directory -- both rules exit 2, the code for "could not evaluate".
 #
 # Nothing here builds a workspace or needs the aggrega binary: the rules read
 # whatever output directory they are given, so the directories are written here

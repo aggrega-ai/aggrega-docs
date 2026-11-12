@@ -17,7 +17,7 @@ metadata:
     in the standard-library catalog.
 spec:
   components:
-    # ── The agent ───────────────────────────────────────────────────────────
+    # -- The agent -----------------------------------------------------------
     # A LangGraph agent, the Release's own application image. Its model is the
     # gateway: the gateway carries model.aggrega.ai/api and publishes an
     # endpoint and one alias, so the agent's Recipe delivers them as
@@ -43,7 +43,7 @@ spec:
     checkpointer:
       type: core/datastore/valkey
 
-    # ── The gateway ─────────────────────────────────────────────────────────
+    # -- The gateway ---------------------------------------------------------
     # One alias, typed into values.models. With the shield attached the gateway
     # sends the alias to the guard over the OpenAI API, so its target is written
     # openai/<model>, the model name the guard's upstream serves.
@@ -66,7 +66,7 @@ spec:
           screening:
             target: guard
 
-    # ── The guard ───────────────────────────────────────────────────────────
+    # -- The guard -----------------------------------------------------------
     # NeMo Guardrails' server in the model's path. For each chat request it
     # sends the latest user message to three checks, and forwards what all
     # three admit to the model API the Release names, presenting its own
@@ -102,7 +102,7 @@ spec:
     detector:
       type: core/security/trustyai-huggingface-detector
 
-    # ── The NemoGuard models ────────────────────────────────────────────────
+    # -- The NemoGuard models ------------------------------------------------
     # Each fetches its model from NVIDIA with the NGC API key when it starts.
     # Only the data key is written here; the Release names the Secret that holds
     # the key, so no key appears in any file of this workspace.

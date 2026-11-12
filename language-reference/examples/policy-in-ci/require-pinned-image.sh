@@ -7,13 +7,13 @@
 # `latest`.
 #
 # It reads only the emitted artifacts, with yq. Nothing here is specific to any
-# workspace — point it at an output directory and it walks whatever is there.
+# workspace -- point it at an output directory and it walks whatever is there.
 #
 # Usage:  ./require-pinned-image.sh <output-directory>
 #
 # Exit codes
-#   0  no finding — every image is pinned
-#   1  finding — at least one image is untagged or tagged `latest`
+#   0  no finding -- every image is pinned
+#   1  finding -- at least one image is untagged or tagged `latest`
 #   2  the rule could not be evaluated (bad usage, yq absent, unparseable file)
 #
 # The third code is deliberately distinct from the second: "the artifacts could

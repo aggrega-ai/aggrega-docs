@@ -36,9 +36,9 @@ spec:
     primary_compute: "mariadb"
 
   provides:
-    # The valuesMapping pins the chart's fullnameOverride to the rendered name —
+    # The valuesMapping pins the chart's fullnameOverride to the rendered name --
     # the release name the helm provider gives the chart, which spells the
-    # Component's name in the alphabet a Kubernetes name allows — followed by the
+    # Component's name in the alphabet a Kubernetes name allows -- followed by the
     # chart's own "-mariadb" suffix, so the primary Service is
     # "<rendered_name>-mariadb" (e.g. "db-mariadb") and a consumer dials that,
     # NOT the bare name. With read replicas the chart's replication architecture
@@ -69,14 +69,14 @@ spec:
       {{- end -}}
 
   valuesMapping: |
-    ## ── Pin the chart's resource names to the rendered name ────
+    ## -- Pin the chart's resource names to the rendered name ----
     ## Names the primary Service "<rendered_name>-mariadb" ("-mariadb-primary"
     ## with read replicas), matching provides.host. Every object the chart
     ## emits derives its name from this key, read from a render rather than
     ## assumed.
     fullnameOverride: "{{ .context.rendered_name }}-mariadb"
 
-    ## ── Image overrides ────────────────────────────────────────
+    ## -- Image overrides ----------------------------------------
     {{- if .infra.overrides }}
     {{- if .infra.overrides.image }}
     image:
@@ -97,10 +97,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    ## ── Authentication ─────────────────────────────────────────
+    ## -- Authentication -----------------------------------------
     ## The credential Secrets deliver the passwords into the component inject
     ## pipe (.context.inject.env); the chart reads them inline. No Kubernetes
-    ## Secret is generated here — that is the production resource-generation path.
+    ## Secret is generated here -- that is the production resource-generation path.
     auth:
       database: "{{ .values.database }}"
       rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
@@ -112,7 +112,7 @@ spec:
       replicationPassword: "{{ .context.inject.env.MARIADB_REPLICATION_PASSWORD | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
       {{- end }}
 
-    ## ── Primary ────────────────────────────────────────────────
+    ## -- Primary ------------------------------------------------
     primary:
       {{- if .values.custom_config }}
       configuration: |-
@@ -154,7 +154,7 @@ spec:
       {{- end }}
       {{- end }}
 
-    ## ── Init scripts ───────────────────────────────────────────
+    ## -- Init scripts -------------------------------------------
     {{- if .values.init_scripts }}
     initdbScripts:
       {{- range $name, $sql := .values.init_scripts }}
@@ -163,7 +163,7 @@ spec:
       {{- end }}
     {{- end }}
 
-    ## ── Read replicas ──────────────────────────────────────────
+    ## -- Read replicas ------------------------------------------
     ## The chart renders its secondaries only under architecture: replication,
     ## so a non-zero infra.ha.read_replicas selects it and sizes the secondary
     ## StatefulSet; otherwise the chart runs its single primary.
@@ -183,7 +183,7 @@ spec:
     architecture: standalone
     {{- end }}
 
-    ## ── Metrics ────────────────────────────────────────────────
+    ## -- Metrics ------------------------------------------------
     {{- if .infra.overrides }}
     {{- if .infra.overrides.metrics }}
     metrics:

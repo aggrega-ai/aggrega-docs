@@ -11,11 +11,11 @@ metadata:
     single Developer-authored intent surface; the Release places the two
     components in separate boundaries on Kubernetes/Helm.
 spec:
-  # ── Parameter hoisting ──────────────────────────────────────────────
+  # -- Parameter hoisting ----------------------------------------------
   # A typed parameter the Release fulfils per environment: app_design hoists
   # into web.values.design (the Adminer theme), flowing a typed parameter into
   # a standard developer value. (The database's chart/source version is the
-  # operator's infra.source_version knob, set Release-side — not hoisted into.)
+  # operator's infra.source_version knob, set Release-side -- not hoisted into.)
   parameters:
     app_design:
       type: string
@@ -24,7 +24,7 @@ spec:
         Adminer UI theme. Hoisted into web.values.design — a typed parameter
         flowing into a standard developer value, fulfilled per environment.
   components:
-    # ── Database ────────────────────────────────────────────────────────
+    # -- Database --------------------------------------------------------
     db:
       type: core/datastore/mariadb
       values:
@@ -62,7 +62,7 @@ spec:
               - in: MARIADB_PASSWORD
                 from: value
 
-    # ── Web UI ──────────────────────────────────────────────────────────
+    # -- Web UI ----------------------------------------------------------
     web:
       type: core/devtool/adminer
       values:
@@ -71,7 +71,7 @@ spec:
       # rather than an inline component `uses:`. The feature carries the
       # `databases` uses-edge AND its delivery: db.provides.host lands on
       # Adminer's ADMINER_DEFAULT_SERVER. The edge is therefore attributed to
-      # the binding feature (its origin feature) — a feature-carried
+      # the binding feature (its origin feature) -- a feature-carried
       # dependency, distinct from an inline component edge. The String Pipe is
       # unchanged: the compiler does not interpret the string; it routes
       # whatever the database Recipe's `provides.host` emits (a compose service

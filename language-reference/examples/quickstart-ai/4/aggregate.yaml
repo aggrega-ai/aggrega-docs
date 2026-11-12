@@ -14,7 +14,7 @@ metadata:
     decided by the Release and the Manifest.
 spec:
   components:
-    # ── The agent ───────────────────────────────────────────────────────
+    # -- The agent -------------------------------------------------------
     # A LangGraph application. Its model connection hands it the endpoint and
     # the model name, and its checkpointer connection the store it keeps every
     # conversation in, under the variable names the application reads.
@@ -32,7 +32,7 @@ spec:
           memory:
             target: memory
 
-    # ── The gateway ─────────────────────────────────────────────────────
+    # -- The gateway -----------------------------------------------------
     # A LiteLLM gateway in front of two models: cloud, a hosted OpenAI model,
     # and local, the Ollama model. It publishes cloud as the model the agent
     # asks for, and a request cloud cannot answer is sent on to local.
@@ -83,14 +83,14 @@ spec:
           anonymizer:
             target: anonymizer
 
-    # ── The cloud model ─────────────────────────────────────────────────
+    # -- The cloud model -------------------------------------------------
     # OpenAI's hosted API, asked for a small model.
     gpt:
       type: core/ai-model/openai
       values:
         model: gpt-4o-mini
 
-    # ── The local model ─────────────────────────────────────────────────
+    # -- The local model -------------------------------------------------
     # Ollama serving a small model that answers on an ordinary laptop's CPU.
     # The model name is pulled when the stack starts, never at build time.
     llm:
@@ -98,13 +98,13 @@ spec:
       values:
         model: llama3.2:1b
 
-    # ── The memory ──────────────────────────────────────────────────────
+    # -- The memory ------------------------------------------------------
     # A Valkey store holding each conversation, so the agent picks a
     # conversation up where it stopped, even after it restarts.
     memory:
       type: core/datastore/valkey
 
-    # ── The personal-data recognizer ────────────────────────────────────
+    # -- The personal-data recognizer ------------------------------------
     # Microsoft Presidio's analyzer, which finds personal data in text, and
     # its anonymizer, which replaces what the analyzer found.
     analyzer:

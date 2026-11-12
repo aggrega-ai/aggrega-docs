@@ -14,7 +14,7 @@ metadata:
     edge tier wires the extra socket the wrapper adds.
 spec:
   components:
-    # ── Edge tier ───────────────────────────────────────────────────────
+    # -- Edge tier -------------------------------------------------------
     edge:
       # The published wrapper. Nothing else about this deployment changes
       # because of it: the type reads like any other catalog reference.
@@ -23,14 +23,14 @@ spec:
         # upstream_path is declared in core/gateway/nginx's values pillar. The
         # wrapper authors `schema: inherited` and never mentions this key, yet
         # the value is accepted here and reaches the rendered gateway
-        # configuration — the pillar contract is the base's, at every depth.
+        # configuration -- the pillar contract is the base's, at every depth.
         upstream_path: /api/
       uses:
         # `reviewed_upstream` is the socket the wrapper ADDS. Its selector
         # requires gateway.example.com/audit-tier=reviewed, so only a component
         # carrying that label may be wired here. The `internal` target below is
         # another instance of the wrapper and carries it; the console does not,
-        # and neither does the bare core/gateway/nginx base — see
+        # and neither does the bare core/gateway/nginx base -- see
         # aggregate-unreviewed.yaml for that halt.
         reviewed_upstream:
           internal:
@@ -42,7 +42,7 @@ spec:
                 - in: NGINX_UPSTREAM_PORT
                   from: port
 
-    # ── Internal tier ───────────────────────────────────────────────────
+    # -- Internal tier ---------------------------------------------------
     internal:
       type: example/gateway/nginx-reviewed
       values:
@@ -51,7 +51,7 @@ spec:
         # `upstream` is the socket the wrapper INHERITS from
         # core/gateway/nginx, unchanged: its selector admits any component
         # labeled component.aggrega.ai/type=server, which the console is. The
-        # wrapper's file never mentions this socket — extending adds a socket
+        # wrapper's file never mentions this socket -- extending adds a socket
         # rather than replacing the set.
         upstream:
           console:
@@ -63,7 +63,7 @@ spec:
                 - in: NGINX_UPSTREAM_PORT
                   from: port
 
-    # ── The application the gateways front ──────────────────────────────
+    # -- The application the gateways front ------------------------------
     console:
       type: core/devtool/adminer
       values:

@@ -27,12 +27,12 @@
 #
 # Each build runs in its own copy of this workspace, made in a temporary
 # directory. The configuration lists no catalog directory, so the catalog
-# entities come from the hub registry, unless the builds are given one — a
+# entities come from the hub registry, unless the builds are given one -- a
 # --catalog passed after --, or AGGREGA_CATALOG_DIRS in the environment.
 # Nothing in this directory is written: no lockfile and no dist/.
 #
 # Every build runs through the shared build-release helper, so the aggrega
-# binary is the one that helper resolves — AGGREGA_BIN, when it is set. Each
+# binary is the one that helper resolves -- AGGREGA_BIN, when it is set. Each
 # build passes --auto-pull, because lockfiles are not shipped, and --no-color,
 # so the output is read as plain text.
 #

@@ -18,7 +18,7 @@ metadata:
     Component, Feature and Recipe ships in the standard-library catalog.
 spec:
   components:
-    # ── The assistants ──────────────────────────────────────────────────────
+    # -- The assistants ------------------------------------------------------
     # Both declare the model socket core/ai-agent/langgraph declares, which
     # admits a model component or a gateway serving a model API. Neither binds
     # it here: which gateway an assistant's traffic leaves through is decided
@@ -51,11 +51,11 @@ spec:
           run_state:
             target: checkpointer
 
-    # ── Where both assistants keep their run state ──────────────────────────
+    # -- Where both assistants keep their run state --------------------------
     checkpointer:
       type: core/datastore/valkey
 
-    # ── The masking gateway ─────────────────────────────────────────────────
+    # -- The masking gateway -------------------------------------------------
     # A gateway serving one alias, chat, from the model wired to its models
     # socket, with data masking attached: what the attachment lists is replaced
     # in every request before the request travels on to the model provider.
@@ -97,7 +97,7 @@ spec:
           replacer:
             target: anonymizer
 
-    # ── The plain gateway ───────────────────────────────────────────────────
+    # -- The plain gateway ---------------------------------------------------
     # The same gateway with nothing attached: requests reach the model provider
     # exactly as the caller sent them.
     plain-gateway:
@@ -114,7 +114,7 @@ spec:
                 values:
                   key: api-key
 
-    # ── The model ───────────────────────────────────────────────────────────
+    # -- The model -----------------------------------------------------------
     # OpenAI's managed API, reached as an external reference: nothing runs for
     # it in the cluster. Its Component carries
     # component.aggrega.ai/hosting: managed, which the policy's settings map to
@@ -124,7 +124,7 @@ spec:
       values:
         model: gpt-4o
 
-    # ── The recognizer ──────────────────────────────────────────────────────
+    # -- The recognizer ------------------------------------------------------
     analyzer:
       type: core/security/presidio-analyzer
     anonymizer:

@@ -25,15 +25,15 @@ spec:
   # provides.host is provider-specific: the helm provider names the
   # synthesized Service "<rendered_name>-<service-key>", so the in-cluster DNS
   # name a consumer must dial is "<rendered_name>-default". The compose Recipe
-  # names its service after the component alone — the same Aggregate edge
+  # names its service after the component alone -- the same Aggregate edge
   # routes whichever string the bound Recipe emits.
   provides:
     host: "{{ .context.rendered_name }}-default"
     port: "3306"
     protocol: "mariadb"
 
-  # This Recipe runs one MariaDB server — the Workload below is one pod of the
-  # official image with no replication configured — so a highly available
+  # This Recipe runs one MariaDB server -- the Workload below is one pod of the
+  # official image with no replication configured -- so a highly available
   # primary and read replicas are refused by name rather than dropped. The
   # managed-chart Recipe, helm/mariadb-bitnami, runs read replicas.
   assertions:
@@ -78,7 +78,7 @@ spec:
             path: /var/lib/mysql
     volumes:
       data:
-        # persistentTemplate — not persistent — because the form above is
+        # persistentTemplate -- not persistent -- because the form above is
         # stateful: it renders as the StatefulSet's volumeClaimTemplate, so each
         # replica gets its own claim rather than sharing one.
         persistentTemplate:
@@ -87,7 +87,7 @@ spec:
           # the resolved infra value directly rather than carrying its own.
           size: "{{ .infra.storage.size }}"
     services:
-      # default is the address consumers dial — the name provides.host emits.
+      # default is the address consumers dial -- the name provides.host emits.
       default:
         type: ClusterIP
         ports:

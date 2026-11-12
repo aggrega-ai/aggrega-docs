@@ -13,8 +13,8 @@
 # Each clause reads the output shape of the targets that write it, and a file of
 # any other shape is passed over.
 #
-# This rule is written twice — this file for the Rego engine, house-rule.cel for
-# the CEL engine — and the two are a deliberate near-duplicate, each written on
+# This rule is written twice -- this file for the Rego engine, house-rule.cel for
+# the CEL engine -- and the two are a deliberate near-duplicate, each written on
 # its own from the rule above. A build on which the two engines disagree shows
 # the disagreement, so they are not to be generated one from the other.
 package house

@@ -12,7 +12,7 @@ metadata:
     what anyone authors here: every Component, Feature and Recipe named below
     ships in the standard-library catalog.
 spec:
-  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # -- Parameter hoisting --------------------------------------------------
   # The router's administrative key has two consumers: the router itself, which
   # requires it of every caller, and the agent, which presents it. Both read
   # this one typed parameter, so the value has a single authored home and the
@@ -25,11 +25,11 @@ spec:
         The key the router requires of callers and the agent presents. One value
         with one home; fulfilled per environment in the Release.
   components:
-    # ── The router ──────────────────────────────────────────────────────────
+    # -- The router ----------------------------------------------------------
     # The routing component. Its authoring surface is the model map: each entry
     # publishes an alias a caller may ask for and names the upstream target that
     # alias resolves to. Both entries below publish the SAME alias, which is what
-    # gives the router a choice to make — with distinct aliases the gateway
+    # gives the router a choice to make -- with distinct aliases the gateway
     # routes by name alone, and the selection attachment below changes no
     # answer.
     #
@@ -83,7 +83,7 @@ spec:
         # api_key guards the router's own API: with it attached, a caller must
         # present the key, which LiteLLM calls its master key. provider_key is
         # the credential the router presents UPSTREAM on the caller's behalf, on
-        # every entry typed into values.models — so the agent never holds it,
+        # every entry typed into values.models -- so the agent never holds it,
         # and repointing the map at a different provider changes no application.
         api_key:
           type: core/referenced-secret
@@ -99,8 +99,8 @@ spec:
         # An attachment that brings a resource of its own rather than filling a
         # slot the Component declared. It is admitted by its own selector, which
         # requires component.aggrega.ai/type=server, and the router carries it.
-        # The `path` is the developer's — which requests an application serves
-        # is part of what the application is — while the host it answers on is
+        # The `path` is the developer's -- which requests an application serves
+        # is part of what the application is -- while the host it answers on is
         # the environment's name for it, which the operator writes in the
         # Release beside the routing knobs. The router's scrape target is not
         # attached here: every input it takes is operator sizing, so the
@@ -110,14 +110,14 @@ spec:
           values:
             path: /
 
-    # ── Where the agent keeps its run state ─────────────────────────────────
+    # -- Where the agent keeps its run state ---------------------------------
     # The agent's checkpointer socket is required and selects on the datastore
     # category, so an author chooses which store arrives. A key-value cache
     # suits run state; a bare declaration takes every schema default.
     checkpointer:
       type: core/datastore/valkey
 
-    # ── The agent ───────────────────────────────────────────────────────────
+    # -- The agent -----------------------------------------------------------
     # Two sockets, both declared by the Component and both filled here. The
     # aliases below (router_model, run_state) name the edges; the socket names
     # are what the Recipe matches on, and what each selector is evaluated
@@ -133,7 +133,7 @@ spec:
         # carries model.aggrega.ai/api, and its Recipe publishes `endpoint` and
         # `model`. The agent's Recipe reads them off this edge and delivers them
         # as OPENAI_BASE_URL and OPENAI_MODEL. No inject block is needed here,
-        # because the delivery is the consuming Recipe's own — the edge is what
+        # because the delivery is the consuming Recipe's own -- the edge is what
         # the developer declares, and the Recipe decides what to do with it.
         model:
           router_model:

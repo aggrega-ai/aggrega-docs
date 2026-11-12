@@ -22,12 +22,12 @@
 # Aggregate, Manifest, production Release and policies, and an
 # .aggrega-config.yaml derived from this one. The configuration lists no catalog
 # directory, so the catalog entities come from the hub registry, unless the
-# builds are given one — a --catalog passed after --, or AGGREGA_CATALOG_DIRS in
+# builds are given one -- a --catalog passed after --, or AGGREGA_CATALOG_DIRS in
 # the environment. No file in this directory is edited; the two builds made here
 # fill its lockfiles, as any build does.
 #
 # Every build runs through the build-release.sh helper, so the aggrega binary is
-# the one that helper resolves — AGGREGA_BIN, when it is set. Each build passes
+# the one that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, --no-color, so the output is
 # read as plain text, and --ir-graph.
 #
@@ -176,7 +176,7 @@ written() {
 }
 
 # refusals <log>: the message of every [POLICY_ERROR E0005] in the log, one per
-# line — the line after the code, without its "policy plugin "…" rejected the
+# line -- the line after the code, without its "policy plugin "..." rejected the
 # build: " lead.
 refusals() {
   local line take=0

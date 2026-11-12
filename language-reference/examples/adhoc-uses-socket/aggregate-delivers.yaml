@@ -14,7 +14,7 @@ metadata:
     rendered output does not record which socket was declared.
 spec:
   components:
-    # ── Database ────────────────────────────────────────────────────────
+    # -- Database --------------------------------------------------------
     db:
       type: core/datastore/mariadb
       values:
@@ -29,7 +29,7 @@ spec:
             key: MARIADB_ROOT_PASSWORD
             origin: dev-root-pw-change-me
 
-    # ── Model endpoint ──────────────────────────────────────────────────
+    # -- Model endpoint --------------------------------------------------
     # A reference-form realization: no compute runs for it. Its published
     # endpoint is a deterministic pointer string the Recipe emits, and the
     # compiler routes it without resolving or interpreting it.
@@ -38,13 +38,13 @@ spec:
       values:
         model: claude-sonnet-4-5
 
-    # ── Web console ─────────────────────────────────────────────────────
+    # -- Web console -----------------------------------------------------
     web:
       type: core/devtool/adminer
       values:
         design: pepa-linha-dark
       uses:
-        # ── A DECLARED socket ───────────────────────────────────────────
+        # -- A DECLARED socket -------------------------------------------
         # `databases` is declared in core/devtool/adminer's usesSchema, with
         # selector component.aggrega.ai/type=stateful-server. The db instance
         # carries that label, so the edge satisfies the socket's contract and
@@ -57,7 +57,7 @@ spec:
                 - in: ADMINER_DEFAULT_SERVER
                   from: host
 
-        # ── An AD-HOC socket ────────────────────────────────────────────
+        # -- An AD-HOC socket --------------------------------------------
         # `assistant` is declared nowhere. core/devtool/adminer's usesSchema
         # names one socket, `databases`, and this is not it. The Component was
         # authored to front a database; nobody anticipated wiring a model
@@ -71,7 +71,7 @@ spec:
         #
         # What it does NOT give up is what the edge may carry. Both from: keys
         # below name keys core/ai-model/anthropic declares in its provides
-        # pillar — endpoint and model. A key it does not declare halts the
+        # pillar -- endpoint and model. A key it does not declare halts the
         # build; aggregate-undeclared-key.yaml is that case.
         assistant:
           model:

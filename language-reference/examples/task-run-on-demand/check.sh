@@ -16,7 +16,7 @@
 #     it, and write no dist/.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
-# that helper resolves — AGGREGA_BIN, when it is set. Each build passes
+# that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #

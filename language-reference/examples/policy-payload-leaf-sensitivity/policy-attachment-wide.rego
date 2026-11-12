@@ -6,7 +6,7 @@
 #
 # This one asks the whole-attachment question instead: is this attachment
 # sensitive at all? That answer is true whenever the slot being filled is
-# declared sensitive, whoever fills it and whatever they author — so this rule
+# declared sensitive, whoever fills it and whatever they author -- so this rule
 # refuses both releases in this workspace, including the one that authors
 # nothing. Attach it in place of policy.rego to see that happen.
 package house.governance

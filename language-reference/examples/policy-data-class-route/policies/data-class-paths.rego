@@ -5,9 +5,9 @@
 # along a route of the build graph unless a declassifying Feature is attached on
 # that route, at either end or anywhere between them.
 #
-# This rule is written once per engine this workspace attaches — this file for
+# This rule is written once per engine this workspace attaches -- this file for
 # the Rego engine in the compiler, data-class-paths.cel for the CEL engine, and
-# data-class-paths-opa.rego for OPA — and the three copies are a deliberate
+# data-class-paths-opa.rego for OPA -- and the three copies are a deliberate
 # near-duplicate. Each is written on its own from the rule above, so a build on
 # which the engines disagree shows the disagreement: the same build halting under
 # one engine and completing under another is the signal. None is generated from

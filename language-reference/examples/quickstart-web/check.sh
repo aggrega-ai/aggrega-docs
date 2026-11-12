@@ -19,7 +19,7 @@
 #       02:30-03:00.
 #
 # Every build runs through the shared build-release.sh helper, so the aggrega
-# binary is the one that helper resolves — AGGREGA_BIN, when it is set. Each
+# binary is the one that helper resolves -- AGGREGA_BIN, when it is set. Each
 # build passes --auto-pull, because lockfiles are not shipped, and --no-color,
 # so the output is read as plain text.
 #
@@ -93,7 +93,7 @@ read_file() {
   if [ -f "$1/$2" ]; then text="$(cat "$1/$2")"; else problem "wrote no $2"; fi
 }
 
-# compose_app <text>: what steps 1 and 2 share — the application and its
+# compose_app <text>: what steps 1 and 2 share -- the application and its
 # database, the password left to Docker Compose to fill.
 compose_app() {
   want "$1" "image: $IMAGE" "the web service does not run the pinned quickstart image"
@@ -102,7 +102,7 @@ compose_app() {
   want "$1" 'POSTGRES_PASSWORD: ${QUICKSTART_DB_PASSWORD}' "the database does not take its password from \${QUICKSTART_DB_PASSWORD}"
 }
 
-# aws_app <text>: what steps 3 and 4 share — three module blocks, each address
+# aws_app <text>: what steps 3 and 4 share -- three module blocks, each address
 # a module output reference, and no password anywhere.
 aws_app() {
   want "$1" 'module "web" {' "the root configuration holds no server module"

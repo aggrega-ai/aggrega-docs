@@ -25,12 +25,12 @@
 # Each copy is made in a temporary directory. It holds this workspace's
 # .aggrega-config.yaml, Aggregate, Manifest, Release, policies/ and org/. The
 # configuration lists no catalog directory, so the catalog entities come from
-# the hub registry, unless the builds are given one — a --catalog passed after
+# the hub registry, unless the builds are given one -- a --catalog passed after
 # --, or AGGREGA_CATALOG_DIRS in the environment. No file in this directory is
 # edited or written.
 #
 # Every build runs through the build-release.sh helper, so the aggrega binary is
-# the one that helper resolves — AGGREGA_BIN, when it is set. Each build passes
+# the one that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #
@@ -102,7 +102,7 @@ copy() {
   fi
 }
 
-# org_as_base <dir>: beside the copy's org/config.yaml, org/config-base.yaml —
+# org_as_base <dir>: beside the copy's org/config.yaml, org/config-base.yaml --
 # the same file with its attachment under plugins.governance rather than
 # plugins.governance_append. Exits 2 if the file does not read as expected,
 # rather than building a copy that does not differ the way it should.

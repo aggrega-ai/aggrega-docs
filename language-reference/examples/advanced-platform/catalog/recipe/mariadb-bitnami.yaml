@@ -33,7 +33,7 @@ spec:
     primary_compute: "mariadb"
     # Credential delivery, in precedence order. When the attachment filling
     # the root_password slot generates a K8s Secret and publishes its name,
-    # the chart reads that name via auth.existingSecret below — the recipe
+    # the chart reads that name via auth.existingSecret below -- the recipe
     # references the producer's published name rather than re-deriving it, so
     # the two never drift. Otherwise the credential values arrive on this
     # component's inject pipe as .context.inject.env.<VAR> and are mapped
@@ -42,9 +42,9 @@ spec:
     # given, and a minted value differs on every build.
 
   # host is the chart's primary Service. The valuesMapping pins the chart's
-  # fullnameOverride to the rendered name — the release name the helm provider
+  # fullnameOverride to the rendered name -- the release name the helm provider
   # gives the chart, which spells the Component's name in the alphabet a
-  # Kubernetes name allows — followed by the chart's own "-mariadb" suffix, so
+  # Kubernetes name allows -- followed by the chart's own "-mariadb" suffix, so
   # the primary Service is "<rendered_name>-mariadb" and host is built from the
   # same key and suffix.
   provides:
@@ -52,20 +52,20 @@ spec:
     port: "{{ .infra.port }}"
     # user and database are part of core/datastore/mariadb's declared
     # schema.provides contract, so this realizer publishes them from the
-    # developer's own values — the same keys the standard-library mariadb
+    # developer's own values -- the same keys the standard-library mariadb
     # Recipe publishes. A realizer that omits a declared key halts.
     user: "{{ .values.user }}"
     database: "{{ .values.database }}"
     protocol: "mariadb"
 
   valuesMapping: |
-    ## ── Pin the chart's resource names to the rendered name ────
+    ## -- Pin the chart's resource names to the rendered name ----
     ## Names the primary Service "<rendered_name>-mariadb", matching
     ## provides.host. Every object the chart emits derives its name from this
     ## key, read from a render rather than assumed.
     fullnameOverride: "{{ .context.rendered_name }}-mariadb"
 
-    ## ── Image overrides ────────────────────────────────────────
+    ## -- Image overrides ----------------------------------------
     {{- if .infra.overrides }}
     {{- if .infra.overrides.image }}
     image:
@@ -86,7 +86,7 @@ spec:
     {{- end }}
     {{- end }}
 
-    ## ── Authentication ─────────────────────────────────────────
+    ## -- Authentication -----------------------------------------
     auth:
       database: "{{ .values.database }}"
       {{- if hasKey (default dict (default dict (default dict .features).root_password).provides) "name" }}
@@ -102,7 +102,7 @@ spec:
       {{- end }}
       {{- end }}
 
-    ## ── Primary ────────────────────────────────────────────────
+    ## -- Primary ------------------------------------------------
     primary:
       {{- if .values.custom_config }}
       configuration: |-
@@ -144,7 +144,7 @@ spec:
       {{- end }}
       {{- end }}
 
-    ## ── Init scripts ───────────────────────────────────────────
+    ## -- Init scripts -------------------------------------------
     {{- if .values.init_scripts }}
     initdbScripts:
       {{- range $name, $sql := .values.init_scripts }}
@@ -153,7 +153,7 @@ spec:
       {{- end }}
     {{- end }}
 
-    ## ── Secondary (HA) ─────────────────────────────────────────
+    ## -- Secondary (HA) -----------------------------------------
     secondary:
       {{- if and .infra.ha.enabled (gt (int .infra.ha.read_replicas) 0) }}
       replicaCount: {{ .infra.ha.read_replicas }}
@@ -169,7 +169,7 @@ spec:
       replicaCount: 0
       {{- end }}
 
-    ## ── Metrics ────────────────────────────────────────────────
+    ## -- Metrics ------------------------------------------------
     {{- if .infra.overrides }}
     {{- if .infra.overrides.metrics }}
     metrics:

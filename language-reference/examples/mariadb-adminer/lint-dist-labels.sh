@@ -4,7 +4,7 @@
 #
 # Kubernetes label VALUES may not contain ':' or '/', so URI-valued provenance
 # (the recipe-uri the compiler stamps on every rendered object) must be an
-# annotation, not a label — otherwise `kubectl apply` rejects the manifest. This
+# annotation, not a label -- otherwise `kubectl apply` rejects the manifest. This
 # lint walks the rendered K8s output and fails if any label value breaks the
 # rule, and confirms recipe-uri is present as an annotation. It reads only the
 # generated files; it never contacts a cluster.

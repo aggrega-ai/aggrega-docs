@@ -13,7 +13,7 @@ metadata:
     the Release are the whole of what anyone authors here: every Component,
     Feature and Recipe named below ships in the standard-library catalog.
 spec:
-  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # -- Parameter hoisting --------------------------------------------------
   # The names of the two Secrets this workspace references and never renders.
   # Each is read by every attachment presenting that credential, so the ends
   # cannot name two different Secrets; the Release fulfils both.
@@ -30,20 +30,20 @@ spec:
         its budget's count in, under the data key password, in the namespace
         the store and the gateway share.
   components:
-    # ── The certificate controller ──────────────────────────────────────────
+    # -- The certificate controller ------------------------------------------
     # The AI gateway controller's webhook serves a certificate cert-manager
     # issues, so cert-manager is declared here beside it.
     certs:
       type: core/security/cert-manager
 
-    # ── The AI gateway controller ───────────────────────────────────────────
+    # -- The AI gateway controller -------------------------------------------
     # Envoy AI Gateway's control plane: the controller Envoy Gateway calls as
     # its extension server, the webhook adding the AI external processor to
     # the gateway's data plane, and the six AI Gateway resource definitions.
     ai-controller:
       type: core/gateway/envoy-ai-gateway-operator
 
-    # ── The gateway ─────────────────────────────────────────────────────────
+    # -- The gateway ---------------------------------------------------------
     # Envoy Gateway, calling the controller on its extension socket and serving
     # the model wired to its models socket under the alias `assistant`, which
     # values.model publishes as its model.
@@ -87,7 +87,7 @@ spec:
                   key: password
                   origin: "{{ .parameters.counter_store_password_secret }}"
 
-    # ── The model ───────────────────────────────────────────────────────────
+    # -- The model -----------------------------------------------------------
     # OpenAI's managed chat API, reached as an external reference: nothing runs
     # for it in the cluster.
     chat:
@@ -95,7 +95,7 @@ spec:
       values:
         model: gpt-4o-mini
 
-    # ── The budget's store ──────────────────────────────────────────────────
+    # -- The budget's store --------------------------------------------------
     # A Redis holding the count. Its own password slot and the gateway's cache
     # connection read one parameter, so the store and its client hold one
     # password.
@@ -108,7 +108,7 @@ spec:
             key: password
             origin: "{{ .parameters.counter_store_password_secret }}"
 
-    # ── The agent ───────────────────────────────────────────────────────────
+    # -- The agent -----------------------------------------------------------
     # A CrewAI agent wired to the gateway over its model socket: it reads the
     # gateway's endpoint and the alias it publishes, the same keys a model
     # publishes, and every request it sends counts against the budget.

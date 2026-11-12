@@ -13,7 +13,7 @@ metadata:
     ends of the second connection read one parameter, so the key the store
     presents and the key the server verifies cannot be written apart.
 spec:
-  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # -- Parameter hoisting --------------------------------------------------
   # Two keys, two parameters, each fulfilled per environment in the Release.
   # What a parameter carries is the locator the bound realization reads, so
   # the Manifest decides whether it is a Secret's name or a store entry.
@@ -29,7 +29,7 @@ spec:
         The Secret holding the one key the embedding server verifies and the
         memory store presents to it. Both ends read this parameter.
   components:
-    # ── The hosted model ────────────────────────────────────────────────────
+    # -- The hosted model ----------------------------------------------------
     # A provider's own API, reached as a reference: nothing runs for it in the
     # cluster. Its catalog entity is labelled component.aggrega.ai/hosting:
     # managed, so a connection reaching it must carry a credential or say in its
@@ -39,7 +39,7 @@ spec:
       values:
         model: gpt-4o-mini
 
-    # ── The embedding server ────────────────────────────────────────────────
+    # -- The embedding server ------------------------------------------------
     # Text Embeddings Inference, running in the cluster. The key it requires of
     # every caller fills a slot of its own Component, api_key, and its Recipe
     # delivers whatever fills that slot as the variable the server reads.
@@ -54,7 +54,7 @@ spec:
             key: api-key
             origin: "{{ .parameters.embedding_key_secret }}"
 
-    # ── The memory store ────────────────────────────────────────────────────
+    # -- The memory store ----------------------------------------------------
     # Two sockets its catalog entity declares, each reaching a model, and each
     # declaring a credential slot for the key the store presents on that
     # connection. The keys sit on the connections, not on the store, so each

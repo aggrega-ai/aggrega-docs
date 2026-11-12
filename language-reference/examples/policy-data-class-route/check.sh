@@ -3,9 +3,9 @@
 # Copyright 2026 Cognitio S.r.l.
 #
 # Builds every Release of this example under every policy engine and checks each
-# outcome against the one the README describes: three engines — the files
+# outcome against the one the README describes: three engines -- the files
 # governance-rego.yaml, governance-cel.yaml and governance-opa.yaml, each named
-# with --config — by three Releases, nine builds.
+# with --config -- by three Releases, nine builds.
 #
 #   - A Release expected to halt must exit non-zero with a policy refusal,
 #     [POLICY_ERROR E0005], whose message is the sentence written below for it,
@@ -19,7 +19,7 @@
 # same sentence, so an engine that reads the rule differently fails here.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
-# that helper resolves — AGGREGA_BIN, when it is set. Each build passes
+# that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #
@@ -86,7 +86,7 @@ build() {
 }
 
 # refusals <log>: the message of every [POLICY_ERROR E0005] in the log, one per
-# line — the line after the code, without its "policy plugin "…" rejected the
+# line -- the line after the code, without its "policy plugin "..." rejected the
 # build: " lead.
 refusals() {
   local line take=0

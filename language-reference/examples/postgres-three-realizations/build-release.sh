@@ -6,7 +6,7 @@
 # aggrega-docs/scripts/build-release.sh. One release per run.
 #
 # Usage: ./build-release.sh [RELEASE] [-- EXTRA aggrega build args]
-#   RELEASE is a release*.yaml filename or its <P> token — here selfhosted,
+#   RELEASE is a release*.yaml filename or its <P> token -- here selfhosted,
 #   managed or external. The shared helper auto-discovers the catalog source
 #   and echoes the equivalent direct aggrega build command. See that helper for
 #   the full discovery rules and binary resolution.

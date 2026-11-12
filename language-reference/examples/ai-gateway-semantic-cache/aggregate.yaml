@@ -13,7 +13,7 @@ metadata:
     here: every Component, Feature and Recipe named below ships in the
     standard-library catalog.
 spec:
-  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # -- Parameter hoisting --------------------------------------------------
   # The store's password, which both ends of the cache_store connection read:
   # the store requires it and the gateway's cache presents it. One parameter,
   # so the two cannot be written apart; the Release fulfils it.
@@ -31,7 +31,7 @@ spec:
         The key the gateway presents to OpenAI's API, on the connection to the
         chat model and on the one to the embedding model.
   components:
-    # ── The gateway ─────────────────────────────────────────────────────────
+    # -- The gateway ---------------------------------------------------------
     # Two aliases, each served from a model wired to the gateway's models
     # socket: the chat model callers ask for, and an embedding model the cache
     # turns each prompt into a vector with. values.model names the alias the
@@ -100,7 +100,7 @@ spec:
                   key: password
                   origin: "{{ .parameters.cache_password }}"
 
-    # ── The models ──────────────────────────────────────────────────────────
+    # -- The models ----------------------------------------------------------
     # OpenAI's managed chat and embeddings APIs, each reached as an external
     # reference: nothing runs for either in the cluster.
     chat:
@@ -112,7 +112,7 @@ spec:
       values:
         model: text-embedding-3-small
 
-    # ── The store ───────────────────────────────────────────────────────────
+    # -- The store -----------------------------------------------------------
     # Redis, whose image loads the query engine whose vector search the cache
     # searches its replies with. The credential on its password slot
     # turns on password authentication, with the same password the gateway's

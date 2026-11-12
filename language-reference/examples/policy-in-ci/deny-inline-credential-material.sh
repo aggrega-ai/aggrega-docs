@@ -6,13 +6,13 @@
 # ships credential material as a literal.
 #
 # It reads only the emitted artifacts, with yq. Nothing here is specific to any
-# workspace — point it at an output directory and it walks whatever is there.
+# workspace -- point it at an output directory and it walks whatever is there.
 #
 # Usage:  ./deny-inline-credential-material.sh <output-directory>
 #
 # Exit codes
-#   0  no finding — the output satisfies the rule
-#   1  finding — at least one Secret carries inline material
+#   0  no finding -- the output satisfies the rule
+#   1  finding -- at least one Secret carries inline material
 #   2  the rule could not be evaluated (bad usage, yq absent, unparseable file)
 #
 # The third code is deliberately distinct from the second: "the artifacts could

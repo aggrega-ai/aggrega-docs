@@ -19,7 +19,7 @@
 #       release-negative-stale-omits.yaml, which must also name the entry.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
-# that helper resolves — AGGREGA_BIN, when it is set. Each build passes
+# that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #
@@ -99,7 +99,7 @@ build() {
 }
 
 # kinds <tree>: the kind of every document written under the tree, one per
-# line — each top-level "kind:" line of each file.
+# line -- each top-level "kind:" line of each file.
 kinds() {
   local f line
   while IFS= read -r f; do
@@ -144,7 +144,7 @@ certs_secret() {
 }
 
 # halts <log>: the head of every coded halt in the log, one per line, as
-# "<code>" — read from a line of the form "[<CATEGORY> <code>] <subject>".
+# "<code>" -- read from a line of the form "[<CATEGORY> <code>] <subject>".
 halts() {
   local line head
   while IFS= read -r line; do

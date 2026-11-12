@@ -26,7 +26,7 @@
 # Kubernetes from the hub registry, so its build needs to reach the hub.
 #
 # Every build runs through the shared build-release.sh helper, so the aggrega
-# binary is the one that helper resolves — AGGREGA_BIN, when it is set. Each
+# binary is the one that helper resolves -- AGGREGA_BIN, when it is set. Each
 # build passes --auto-pull, because lockfiles are not shipped, and --no-color,
 # so the output is read as plain text.
 #
@@ -114,7 +114,7 @@ chat_page() {
   want "$1" $'    depends_on:\n      - agent\n' "the chat page does not start after the agent"
 }
 
-# gateway_base <text>: what 2/ and 3/ share — the agent behind the gateway.
+# gateway_base <text>: what 2/ and 3/ share -- the agent behind the gateway.
 gateway_base() {
   want "$1" $'      OPENAI_BASE_URL: http://gateway:4000/v1\n      OPENAI_MODEL: cloud' "the agent does not reach the model cloud through the gateway"
   want "$1" 'LITELLM_MODEL_CLOUD_API_KEY: ${OPENAI_API_KEY}' "the gateway does not take the OpenAI key from \${OPENAI_API_KEY}"
