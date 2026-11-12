@@ -116,7 +116,7 @@ spec:
   components:
     web:
       infra:
-        image: hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:…
+        image: hub.aggrega.ai/tools/quickstart-web:1.1.0@sha256:…
         port: 8080
     db: {}
 ```

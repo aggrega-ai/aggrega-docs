@@ -23,7 +23,7 @@ Comparing a file with the previous step's shows exactly what the step adds:
 diff 1/aggregate.yaml 2/aggregate.yaml
 ```
 
-The application is `hub.aggrega.ai/tools/quickstart-web:1.0.0`, under the
+The application is `hub.aggrega.ai/tools/quickstart-web:1.1.0`, under the
 Apache-2.0 licence. It reads its configuration from its environment alone:
 `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` and `PGDATABASE` for PostgreSQL, and
 `REDIS_HOST` and `REDIS_PORT` for a cache, which it uses only while
@@ -150,7 +150,7 @@ of its multi-platform index, and the port. The `web` service in
 
 ```yaml
   web:
-    image: hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:cf87f67716c9c6fea961aceba636ca349e47af3900817f38090106647794e8d7
+    image: hub.aggrega.ai/tools/quickstart-web:1.1.0@sha256:72d42d6db51d34d1268108eca1989e1467ccb2c66d15ed3e50ca97e09003c8fb
     environment:
       PGDATABASE: appdb
       PGHOST: db
@@ -363,7 +363,7 @@ module "web" {
   desired_count      = 1
   environment        = {"PGDATABASE":"appdb","PGHOST":"${module.db.db_instance_address}","PGPORT":"5432","PGUSER":"appuser","REDIS_HOST":"${module.cache.replication_group_primary_endpoint_address}","REDIS_PORT":"6379"}
   execution_role_arn = "arn:aws:iam::123456789012:role/example-ecs-task-execution"
-  image              = "hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:cf87f67716c9c6fea961aceba636ca349e47af3900817f38090106647794e8d7"
+  image              = "hub.aggrega.ai/tools/quickstart-web:1.1.0@sha256:72d42d6db51d34d1268108eca1989e1467ccb2c66d15ed3e50ca97e09003c8fb"
   memory             = "512"
   name               = "web"
   port               = 8080

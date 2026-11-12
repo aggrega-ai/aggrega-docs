@@ -52,7 +52,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 STEPS="1 2 3 4"
-IMAGE='hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:cf87f67716c9c6fea961aceba636ca349e47af3900817f38090106647794e8d7'
+IMAGE='hub.aggrega.ai/tools/quickstart-web:1.1.0@sha256:72d42d6db51d34d1268108eca1989e1467ccb2c66d15ed3e50ca97e09003c8fb'
 
 [ -x "$HELPER" ] || die "no build helper at $HELPER"
 for n in $STEPS; do
