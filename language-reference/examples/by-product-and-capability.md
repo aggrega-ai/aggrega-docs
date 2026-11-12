@@ -236,6 +236,10 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 - [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 
+### `core/compute/server`
+
+- [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
+
 ### `core/datastore/cognee`
 
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.

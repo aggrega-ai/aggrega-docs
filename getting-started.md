@@ -146,7 +146,7 @@ diff 1/aggregate.yaml 2/aggregate.yaml
 ## Build it and run it
 
 The first step is a LangGraph agent that answers through a local model and keeps every conversation in a Valkey
-store. Build it and start it:
+store, with a small chat page to talk to it from your browser. Build it and start it:
 
 ```sh
 cd 1
@@ -157,7 +157,12 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
 The build writes one file, `dist/compose/docker-compose.yaml`, and `docker compose` starts it and returns once every
 service is up. **The first start downloads the model runtime and the model**, about 5 GB, before it returns.
 
-Tell the agent your name and ask it a question, restart it, and ask it your name on the same conversation:
+Open `http://localhost:8090/` in a browser on the same machine to chat with the agent: the page is published on your
+machine's loopback address only, the line under its header names the model that answers, and the conversation lives
+in the agent's store, so a reload continues it.
+
+Or ask from a terminal. Tell the agent your name and ask it a question, restart it, and ask it your name on the same
+conversation:
 
 ```sh
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml exec agent quickstart-ask demo "My name is Ada. What is the capital of France?"
@@ -178,7 +183,7 @@ what every step writes.
 The Aggregate adds a LiteLLM gateway in front of two models, a hosted OpenAI model and the local one, with a fallback
 chain from the first to the second, and the agent now asks the gateway. It runs without an API key: the cloud model
 cannot answer without one, and the gateway answers from the local model instead. Export `OPENAI_API_KEY` in your
-shell before you start the stack to use OpenAI.
+shell before you start the stack to use OpenAI. The line under the chat page's header now names both models.
 
 ```sh
 cd ../2
@@ -190,7 +195,7 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
 
 The Aggregate adds Microsoft Presidio, which masks names, email addresses and phone numbers in the copies of each
 call the gateway writes to its logs, and a list of patterns the gateway refuses a request on before it reaches a
-model.
+model. The line under the chat page's header now names the guardrails too.
 
 ```sh
 cd ../3
@@ -212,10 +217,10 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml down -v
 
 ### Same app, on Kubernetes
 
-The same components, built for Kubernetes: the build writes the manifests under `dist/helm/` and stops, without
-contacting a cluster. On Kubernetes the gateway reads the OpenAI key from a Secret that already exists in its
-namespace, which [the example's page](language-reference/examples/quickstart-ai/README.md) shows how to create before
-you apply what the build writes.
+The same components but the chat page, built for Kubernetes: the build writes the manifests under `dist/helm/` and
+stops, without contacting a cluster. On Kubernetes the gateway reads the OpenAI key from a Secret that already exists
+in its namespace, which [the example's page](language-reference/examples/quickstart-ai/README.md) shows how to create
+before you apply what the build writes.
 
 ```sh
 cd ../4

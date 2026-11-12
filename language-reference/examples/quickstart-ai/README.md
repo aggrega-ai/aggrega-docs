@@ -3,7 +3,7 @@ example:
   level: start
   tier: start-here
   position: 1
-  products: [core/ai-agent/langgraph, core/ai-model/ollama, core/datastore/valkey, core/gateway/litellm, core/ai-model/openai, core/security/presidio-analyzer, core/security/presidio-anonymizer]
+  products: [core/ai-agent/langgraph, core/ai-model/ollama, core/datastore/valkey, core/compute/server, core/gateway/litellm, core/ai-model/openai, core/security/presidio-analyzer, core/security/presidio-anonymizer]
   shows: [connections, credentials, features]
 ---
 
@@ -33,6 +33,14 @@ store. It serves no port outside its container; the image carries
 `quickstart-ask --history <thread>` for the conversation so far. Every answer is
 JSON.
 
+The first three steps also run a chat page,
+`hub.aggrega.ai/tools/quickstart-chat:1.0.0`, under the Apache-2.0 licence: a
+small server that serves one page to your browser and forwards each message you
+send to the agent, so you talk to the agent, and the agent to its model. It
+keeps nothing itself: the conversation lives in the agent's store, and the page
+remembers only the conversation's name. The page loads nothing from anywhere
+but its own server.
+
 Output blocks on this page are copied from a real run, per
 [Reading the output on these pages](../reading-the-output.md).
 
@@ -40,10 +48,13 @@ Output blocks on this page are copied from a real run, per
 
 - The `aggrega` CLI, for every step.
 - Docker with Compose, for `1/` to `3/`. The model server is given 4 GiB of
-  memory, and the model below uses about 2 GiB of it.
+  memory, and the model below uses about 2 GiB of it. The chat page is
+  published on port 8090 of your machine's loopback address, so that port must
+  be free.
 - About 5 GB of downloads the first time `1/` starts: the Ollama image is about
   3.3 GB of that and the model about 1.3 GB, measured as the registries serve
-  them. The model is kept in a Docker volume, so later starts reuse it.
+  them, and the chat page's image is under 10 MB. The model is kept in a Docker
+  volume, so later starts reuse it.
 - No API key. `2/` and `3/` add a hosted OpenAI model, and with no key a request
   for it is answered by the local model instead. To use OpenAI, export
   `OPENAI_API_KEY` in your shell before you start the stack; no file holds it.
@@ -75,8 +86,14 @@ one step further.
 
 ## An agent with a local model and memory — `1/`
 
-The Aggregate declares three components:
+The Aggregate declares four components:
 
+- `chat`, of type `core/compute/server`, the chat page. Its own `inject` block
+  sets `CHAT_SUBTITLE`, the line under the page's header naming what answers.
+  Its connection `agent`, to the agent, delivers nothing, as the agent
+  publishes nothing: the page reaches the agent at `http://agent:8000`, its
+  address on the Compose network, and on Docker Compose the connection starts
+  the page after the agent.
 - `agent`, of type `core/ai-agent/langgraph`, with two connections: `model`, to
   the model it answers through, and `checkpointer_db`, to the store it keeps
   each conversation in.
@@ -89,10 +106,18 @@ The Release names no image for the agent: on Docker Compose the agent's Recipe
 then runs the quickstart agent, pinned by the digest of its image index. The
 agent receives `OPENAI_BASE_URL: http://llm:11434/v1`,
 `OPENAI_MODEL: llama3.2:1b` and the store's host and port from its two
-connections.
+connections. For `chat` the Release names the chat page's image and its port,
+8090, which Docker Compose publishes on your machine's loopback address alone.
 
-Tell the agent your name and ask it a question, restart it, and ask for your
-name on the same conversation:
+Open `http://localhost:8090/` in a browser on the machine running the stack,
+and talk to the agent there. Under the header the page reads "The agent answers
+with llama3.2:1b, served by Ollama on your machine.", and each reply shows the
+model the agent says answered it. A reload continues the conversation, and
+"Start a new conversation" begins another.
+
+From a terminal, with `quickstart-ask` inside the agent's container, tell the
+agent your name and ask it a question, restart it, and ask for your name on the
+same conversation:
 
 ```sh
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml exec agent quickstart-ask demo "My name is Ada. What is the capital of France?"
@@ -140,6 +165,8 @@ The Aggregate adds three things:
 - A `core/fallback-chain` attachment on the gateway, sending a request `cloud`
   cannot answer on to `local`.
 
+The chat page's line under the header now names the gateway's two models.
+
 The agent's model connection now targets the gateway. This step builds without
 a key, and runs without one too: with `OPENAI_API_KEY` unset, Docker Compose
 warns that the variable is not set, the cloud model cannot answer without a
@@ -171,7 +198,8 @@ obtain:
 
 Both are written in the Aggregate: the patterns are the attachment's `values`,
 and a Release may not give an attachment values. The Release only places the
-two new components.
+two new components. The chat page's line under the header now names the
+guardrails too.
 
 ```sh
 cd ../3
@@ -247,7 +275,9 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml down -v
 
 ## Same app, on Kubernetes — `4/`
 
-The same components, built for Kubernetes. The Manifest maps each type to a
+The same components, built for Kubernetes, all but the chat page: on
+Kubernetes the agent's Recipe writes no Service in front of the agent, so the
+page would have no address to reach it at. The Manifest maps each type to a
 Recipe that writes its workload as Kubernetes manifests, and the Release names
 the agent's image, the same pinned quickstart agent, because on Kubernetes the
 agent's Recipe runs only the image a Release names.
@@ -291,7 +321,8 @@ In a checkout of the documentation repository, which holds the shared build
 helper a copy written by `aggrega scaffold --example` does not carry,
 `./check.sh` in this directory builds the four steps and checks that each
 writes what this page describes: the three Compose files with their services,
-their connections and the gateway's guardrails, and the Kubernetes manifests
-with the key read from the Secret. It prints one line per step and exits
-non-zero if any step differs. `dist/`, `.aggrega/` and the `*.lock` files are
-generated and are not committed; they regenerate from the files that are.
+the chat page among them, their connections and the gateway's guardrails, and
+the Kubernetes manifests with the key read from the Secret and no chat page. It
+prints one line per step and exits non-zero if any step differs. `dist/`,
+`.aggrega/` and the `*.lock` files are generated and are not committed; they
+regenerate from the files that are.

@@ -11,10 +11,18 @@ metadata:
 spec:
   aggregate: quickstart-ai
   manifest: quickstart-ai-compose
-  # Every component the Aggregate declares is placed by the Release. Each runs
-  # with its defaults: on Docker Compose the agent runs the catalog's
-  # quickstart agent image, pinned by digest, when no infra.image is set.
+  # Every component the Aggregate declares is placed by the Release. The chat
+  # page names its image; the others run with their defaults: on Docker
+  # Compose the agent runs the catalog's quickstart agent image, pinned by
+  # digest, when no infra.image is set.
   components:
+    chat:
+      infra:
+        # The quickstart chat page, a small server whose one page talks to
+        # the agent.
+        image: hub.aggrega.ai/tools/quickstart-chat:1.0.0
+        # The port it listens on, published on your machine's loopback address.
+        port: 8090
     agent: {}
     gateway: {}
     gpt: {}

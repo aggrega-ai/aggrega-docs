@@ -8,15 +8,19 @@
 #
 #   1/  a Compose file running the quickstart agent, pinned by digest, against
 #       the Ollama model llama3.2:1b, with its conversations in Valkey, and no
-#       gateway;
+#       gateway; and the chat page, the quickstart chat image published on
+#       127.0.0.1:8090, its line under the header naming llama3.2:1b;
 #   2/  the same agent reaching its model through the LiteLLM gateway, which
 #       publishes cloud, takes the OpenAI key from ${OPENAI_API_KEY} and falls
-#       back from cloud to local, with no guardrail yet;
+#       back from cloud to local, with no guardrail yet; the chat page's line
+#       naming the gateway's two models;
 #   3/  the same, plus the two Presidio services, the gateway's log masking
-#       and its pattern guard with two rules;
+#       and its pattern guard with two rules; the chat page's line naming the
+#       guardrails too;
 #   4/  Kubernetes manifests: the agent running the same pinned image, and the
 #       gateway reading the OpenAI key from the Secret openai-api-key, with its
-#       fallback chain and pattern guard in its configuration.
+#       fallback chain and pattern guard in its configuration, and no chat
+#       page.
 #
 # 4/ reads the pipeline step plugin that writes the gateway's configuration on
 # Kubernetes from the hub registry, so its build needs to reach the hub.
@@ -56,6 +60,7 @@ done
 
 STEPS="1 2 3 4"
 AGENT='hub.aggrega.ai/tools/quickstart-agent:1.0.0@sha256:99816fe5ab1015d2576bd7bffe5a51ca07fec41fe650bda17c5555143367acab'
+CHAT='hub.aggrega.ai/tools/quickstart-chat:1.0.0'
 
 [ -x "$HELPER" ] || die "no build helper at $HELPER"
 for n in $STEPS; do
@@ -101,6 +106,14 @@ compose_base() {
   want "$1" $'\n  memory:\n    image: valkey/valkey:' "the Compose file runs no Valkey store"
 }
 
+# chat_page <text> <line>: the chat page, running the quickstart chat image
+# with <line> under its header, published on the loopback address only, and
+# started after the agent.
+chat_page() {
+  want "$1" $'\n  chat:\n    image: '"$CHAT"$'\n    environment:\n      CHAT_SUBTITLE: '"$2"$'\n    ports:\n      - 127.0.0.1:8090:8090\n' "the Compose file runs no chat page on 127.0.0.1:8090 with the line \"$2\""
+  want "$1" $'    depends_on:\n      - agent\n' "the chat page does not start after the agent"
+}
+
 # gateway_base <text>: what 2/ and 3/ share — the agent behind the gateway.
 gateway_base() {
   want "$1" $'      OPENAI_BASE_URL: http://gateway:4000/v1\n      OPENAI_MODEL: cloud' "the agent does not reach the model cloud through the gateway"
@@ -117,6 +130,7 @@ inspect() {
       compose_base "$text"
       want "$text" $'      OPENAI_BASE_URL: http://llm:11434/v1\n      OPENAI_MODEL: llama3.2:1b' "the agent does not reach llama3.2:1b on the model service"
       refuse "$text" $'\n  gateway:\n' "the Compose file runs a gateway"
+      chat_page "$text" "The agent answers with llama3.2:1b, served by Ollama on your machine."
       ;;
     2)
       read_file "$d" compose/docker-compose.yaml
@@ -124,11 +138,13 @@ inspect() {
       gateway_base "$text"
       refuse "$text" 'gateway-prompt-guard' "the gateway carries a pattern guard"
       refuse "$text" $'\n  analyzer:\n' "the Compose file runs a Presidio analyzer"
+      chat_page "$text" "The agent answers with gpt-4o-mini through the LiteLLM gateway, or with the local llama3.2:1b when OpenAI cannot answer."
       ;;
     3)
       read_file "$d" compose/docker-compose.yaml
       compose_base "$text"
       gateway_base "$text"
+      chat_page "$text" "The agent answers with gpt-4o-mini through the LiteLLM gateway and its guardrails, or with the local llama3.2:1b when OpenAI cannot answer."
       want "$text" $'      PRESIDIO_ANALYZER_API_BASE: http://analyzer:3000\n      PRESIDIO_ANONYMIZER_API_BASE: http://anonymizer:3000' "the gateway does not reach the two Presidio services"
       want "$text" 'guardrail_name: "gateway.log-masking"' "the gateway does not mask its logs"
       want "$text" 'guardrail_name: "gateway-prompt-guard"' "the gateway carries no pattern guard"
@@ -145,6 +161,11 @@ inspect() {
       want "$text" 'gateway-prompt-guard' "the gateway carries no pattern guard"
       want "$text" 'deny_pattern_2' "the pattern guard does not carry two rules"
       want "$text" 'max_fallbacks' "the gateway carries no fallback chain"
+      # No Service fronts the agent on Kubernetes, so this step runs no chat
+      # page: the build writes no file for one.
+      for f in "$d"/helm/chat*; do
+        if [ -e "$f" ]; then problem "the Kubernetes manifests run a chat page"; fi
+      done
       ;;
   esac
 }

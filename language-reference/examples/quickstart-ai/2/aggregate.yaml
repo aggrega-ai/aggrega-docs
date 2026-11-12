@@ -14,6 +14,25 @@ metadata:
     decided by the Release and the Manifest.
 spec:
   components:
+    # ── The chat page ───────────────────────────────────────────────────
+    # A small web page for talking to the agent in a browser.
+    # core/compute/server packages no software of its own: the Release names
+    # the image that runs. The page reaches the agent at http://agent:8000,
+    # the agent's address on the Compose network. The connection below records
+    # that it does and starts the page after the agent; the agent publishes
+    # nothing for it to deliver. The line under the page's header now names
+    # the gateway's two models.
+    chat:
+      type: core/compute/server
+      inject:
+        env:
+          - in: CHAT_SUBTITLE
+            value: "The agent answers with gpt-4o-mini through the LiteLLM gateway, or with the local llama3.2:1b when OpenAI cannot answer."
+      uses:
+        agent:
+          agent:
+            target: agent
+
     # ── The agent ───────────────────────────────────────────────────────
     # A LangGraph application. Its model connection hands it the endpoint and
     # the model name, and its checkpointer connection the store it keeps every
