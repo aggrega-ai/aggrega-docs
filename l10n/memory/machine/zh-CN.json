@@ -23104,6 +23104,17 @@
     "status": "machine",
     "text": "有关默认作用域模式，请参阅 [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md)。"
   },
+  "2158e8f732667e2b": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "6d5633d3f34ac32c",
+      "reviewed": false
+    },
+    "srcHash": "2158e8f732667e2b",
+    "status": "machine",
+    "text": "导入源的名称，前面不带目录，以便 importer 在其报告的内容和起草的内容中指明该源。源为单个文件时，它是该文件的基本名称：主字节不作为具名源到达，因此这是它们携带的唯一名称。源为目录时，它是该目录的基本名称，目录中的文件仍作为具名源到达，各自带有自己的名称，而主字节为空。源没有可提供的名称时不存在。"
+  },
   "215a678deb07931a": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -26597,6 +26608,17 @@
     "srcHash": "264c757ddd69ccaf",
     "status": "machine",
     "text": "`pin` 会在 Recipe 或 FeatureRecipe 旁的 `entity.lock` 中，为该实体从其自身文档之外读取的每个输入记录内容固定版本：坐标完整写出的远程源，以及 artifacts 条目导入的文件。它与 [`aggrega pin`](aggrega-pin.md) 在终端中执行的是同一步骤，写入的锁文件与该命令写入的逐字节相同。传入 `entity`，即实体文档，可以是绝对路径，也可以是相对于工作区根目录的路径，遵循此处所有其他路径参数相同的约定；通过 HTTPS 时，它必须解析到该进程所服务的工作区之内。"
+  },
+  "264f4d142c5d8f90": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "0555e04828849831",
+      "reviewed": false
+    },
+    "srcHash": "264f4d142c5d8f90",
+    "status": "machine",
+    "text": "[`examples/04-secrets.md`](../examples/04-secrets.md) —— Fetcher + Injector 流水线结构。"
   },
   "2650376b11709c2c": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -44145,6 +44167,17 @@
     "status": "machine",
     "text": "`mappinglibrary.spec`"
   },
+  "409a81bcb20904dd": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "d323065193e66532",
+      "reviewed": false
+    },
+    "srcHash": "409a81bcb20904dd",
+    "status": "machine",
+    "text": "**导入目录时读取哪些内容。** 源可以是一个目录，由导入器声明的文件模式决定读取什么：宿主恰好读取该目录中（任意深度）被导入器各签名的某个 `files` 模式选中的文件——每个文件以其在目录内以斜杠分隔的路径的末尾进行匹配——并按名称顺序以 `sources` 交出，此时 `bytes` 为空，`name` 为目录自身的名称。目录中的其他文件都不会被打开。未声明 `files` 模式的签名不会选中目录中的任何文件，因此未声明任何模式的导入器只读取单个文件并拒绝目录；不包含任何被其模式选中的文件的目录同样会被拒绝。目录被限定在自身范围内：在要读取的文件中，若有链接（或指向目录的链接）通向目录之外，会在读取任何内容之前被拒绝；指向目录的链接从不进入；指向未被任何模式选中的文件的链接会被跳过、不予读取。识别目录的格式遵循同一规则——每个签名针对其模式选中的文件按名称顺序逐一尝试，每个文件对每种语法至多读取并解析一次，未声明模式的签名不适用于其中任何文件。宿主不设任何上限：对导入器来说过大的目录由导入器自身的运行时限制拒绝。编译器的 Langflow、Flowise、n8n、Dify 和 Agent Framework 导入器都未声明 `files` 模式，因此各自只读取单个文件；其 MCP 导入器声明了四种客户端配置的文件名，因此会读取目录中包含的每一个此类文件；其 Compose 导入器声明了八个 Compose 文件名，因此会收到目录中包含的每个 Compose 文件，并合并 Compose 会读取的那些文件；其 CrewAI 导入器声明了 CrewAI 项目声明所使用的六个文件名，因此会收到项目的声明，而不会收到其程序的任何部分；其 LangGraph 导入器声明了 `langgraph.json`，因此会收到应用的配置，而不会收到其任何代码或环境文件，环境文件只能通过其挂载的 `with.sources` 传入；其 Google ADK 导入器声明了 `root_agent.yaml`，因此会收到应用的根代理配置，而不会收到其任何代码或环境文件，其子代理所指定的配置只能通过其挂载的 `with.sources` 传入。"
+  },
   "409b99369d7e783e": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -46734,6 +46767,17 @@
     "srcHash": "44897dc2ca77e4c0",
     "status": "machine",
     "text": "helm provider 的 `source:` 指定一个 chart，它接受 `source:` 字段的两种形式：**裸文件系统路径字符串**，以及由 `url:` 携带位置的**结构化对象**。只要该位置是文件系统路径，它就以声明它的 `recipe.yaml` 所在目录为基准，而不是以调用构建的目录为基准，并且必须保持在该目录之内：向上越出该目录的路径或绝对路径会被拒绝，因为该 Recipe 的发布所携带的每个文件都取自其目录——参见 [`entities/recipe.md`](../entities/recipe.md) “Content paths stay inside the Recipe's own directory”。以这种方式指定的 chart 会随 Recipe 一起发布，包括其下在 Recipe 被固定时所记录的忽略规则保留的每个文件——helm provider 会排除版本控制目录以及 chart 的 `templates/` 下的隐藏文件，并遵循 chart 自身的 `.helmignore`，而作者的 `.aggregaignore` 拥有最终决定权，如 [Which files ship with an entity](../cli/aggrega-pin.md#which-files-ship-with-an-entity) 所述——而 Recipe 旁边未被其任何声明引用的文件则不会发布。渲染读取的文件与发布所携带的文件相同，因此 chart 无论从你的目录还是从注册表渲染，结果都一致。你书写它的形式不会改变这一点：`url:` 为 `./charts/api-server` 的结构化 `source:`，其基准与裸字符串 `./charts/api-server` 完全相同。"
+  },
+  "448d76ac357e3936": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "400dfdbc2b4cda0e",
+      "reviewed": false
+    },
+    "srcHash": "448d76ac357e3936",
+    "status": "machine",
+    "text": "`name` —— 源的名称，前面不带目录，以便 importer 在其报告的内容和起草的内容中指明该源：导入文件时，为读取 `bytes` 所用文件的基本名称；导入目录时，为目录自身的基本名称，从其完整路径中读取，因此 `aggrega import .` 传入的是其运行所在目录的名称，而目录中的每个文件仍以其自身名称传入。源没有可提供的名称时不存在。"
   },
   "448f62e7cee824b7": {
     "at": "2026-11-09T23:54:34.603Z",
@@ -51090,6 +51134,17 @@
     "srcHash": "4a9c321adbbe83ca",
     "status": "machine",
     "text": "如何书写镜像仓库主机"
+  },
+  "4aa2ee01d036f7bf": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "022f4595a81f78bc",
+      "reviewed": false
+    },
+    "srcHash": "4aa2ee01d036f7bf",
+    "status": "machine",
+    "text": "**第一个真实示例。** 一个用 `aggrega` CLI 构建的完整工作区，以及构建写出的文件：[仅用目录 — MariaDB + Adminer，无需任何平台编写](language-reference/examples/catalog-only/README.md)，这是完成快速入门页面中的示例后，第一个完全由目录组装而成的示例。[教学顺序](language-reference/examples/by-product-and-capability.md#in-teaching-order)按层级列出其后的每个示例，同一页面还可按所部署的产品或所展示的内容查找示例。"
   },
   "4aa5ce094ce9768e": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -62783,6 +62838,17 @@
     "srcHash": "5b928e6a4b459eb6",
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (插件无法表达本次构建声明的某个构造)\n> cloudformation-provider: the assembled stack of component `\"<component>\"`, … cannot carry the transform `\"<transform>\"`, declared by component `\"<component>\"`: `<why>` (cloudformation-provider：由这些组件组装的栈无法承载该组件声明的 transform，原因如上)"
+  },
+  "5b9580585a4a4565": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "5b9580585a4a4565",
+    "status": "machine",
+    "text": "导入器不会起草 Manifest。如果导入指定了目标（`aggrega import` 上的 `--target`，或助手导入工具上的 `target` 及会话的 `aggrega/import` 方法，命名一个 provider 能力，例如 `compose` 或 `helm`），则无论运行的是哪个导入器，导入本身都会在导入器起草的内容旁边再起草一个：`manifest.yaml`，位于起草的 Release 旁边，其命名和版本与该 Release 相同（若导入器未起草 Release，则位于起草的 Aggregate 旁边，其命名和版本与该 Aggregate 相同），它将起草的 Aggregate 声明的每个组件类型映射到工作区目录为该类型提供的、属于该能力的唯一一个 Recipe。如果起草的 Release 未命名 Manifest，其 `spec.manifest` 会被设置为该 Manifest，取代导入器所写的注释，Release 中的其他内容均不变。没有此类 Recipe 的类型，或有多个名称的 Recipes 的类型（例如 MCP 导入器的服务器，目录为 `core/ai-tool/mcp` 同时提供了 `compose/mcp-stdio-bridge` 和 `compose/mcp-remote`）将保持未映射状态，构建这些草稿时会停止并列出该类型的每个实例，直到你为其建立映射。[aggrega import](../cli/aggrega-import.md) 对此有完整说明。"
   },
   "5b99fce3216d3204": {
     "at": "2026-10-30T00:50:36.309Z",
@@ -89395,6 +89461,17 @@
     "status": "machine",
     "text": "**由运维人员设定内部组件规格。** Release 通过模块作用域 ID（`gateway.store`、\n  `gateway.gateway`）引用模块的内部组件来设置计算资源，\n  无需在开发者的 Aggregate 中重复声明\n  物理规格。"
   },
+  "82cb62e879feb506": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "b772f11de3b6f95e",
+      "reviewed": false
+    },
+    "srcHash": "82cb62e879feb506",
+    "status": "machine",
+    "text": "在插件流水线中运行的 FeatureRecipe 和 Recipe `pipeline:` 步骤针对已渲染的文档集发出 RFC 6902 JSON Patch 操作。宿主将带键的文档集整体交给每个步骤；步骤按内容选择其目标文档，并返回按键寻址的补丁，由应用引擎将其应用到所寻址的文档——通常是追加一个 sidecar 容器、挂载一个 secret 卷或改写一个环境变量。步骤还会返回 `side_effects`（见下文）、`diagnostics`（每个条目都采用所有插槽报告问题时共用的 `Diagnostic` 形状）以及 `outputs`（见下文）。说明见 [`examples/04-secrets.md`](../examples/04-secrets.md)。"
+  },
   "82cd2d588b1dc37f": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -92876,6 +92953,17 @@
     "srcHash": "8817dd080b93cb06",
     "status": "machine",
     "text": "ImportDecision[]"
+  },
+  "881b5ee670a2edee": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "77068e50ea0884ea",
+      "reviewed": false
+    },
+    "srcHash": "881b5ee670a2edee",
+    "status": "machine",
+    "text": "[`examples/04-secrets.md`](../examples/04-secrets.md) — 凭据 FeatureRecipe 可以采用的 Fetcher + Injector 流水线结构。"
   },
   "881bdd6214edae24": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -112794,6 +112882,17 @@
     "status": "machine",
     "text": "平台架构师编写 WorkloadLibraries，用于集中管理在目录的 Recipes 和 FeatureRecipes 中反复出现的 Workload 内容。库不是可部署的构建指令，而是一个定义命名空间。Recipe 和 FeatureRecipe 的作者通过 `$import:` 指令引用库条目：条目只编写一次，凡是导入能够解析的地方都可以使用。"
   },
+  "a4f496b6f26b9d57": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "5b04d43190091eca",
+      "reviewed": false
+    },
+    "srcHash": "a4f496b6f26b9d57",
+    "status": "machine",
+    "text": "凭据 FeatureRecipe 流水线（两段式 Plugin 原则（Two-Part Plugin Principle）：Fetcher + Injector）通过步骤的 `side_effects` 在补丁之外输出完整资源，每一项都声明契约定义的两种类型之一：`emit_crd`，即由集群在运行时获取的自定义资源文档，例如 `ExternalSecret` 或 `VaultSecret` CRD；或 `emit_file`，即一个写入的文件。返回任何其他类型的步骤会[中止构建](../errors/fatal-halts.md#a-pipeline-step-declares-an-emission-kind-the-contract-does-not-define)，并指出节点、副作用的索引及其声明的类型。Fetcher 的步骤输出完整资源；Injector 的步骤返回一个挂载所生成 Kubernetes Secret 的补丁。说明见 [`examples/04-secrets.md`](../examples/04-secrets.md)。"
+  },
   "a4f57ae32347bea1": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -130864,6 +130963,13 @@
     "srcHash": "beb163521fd21935",
     "status": "machine",
     "text": "锁文件感知"
+  },
+  "beb34323cd6656a1": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "srcHash": "beb34323cd6656a1",
+    "status": "machine",
+    "text": "起草的实体所在的命名空间：Component 为 `<target_namespace>/<category>/<name>`，Aggregate 和 Release 为 `<target_namespace>/<name>`；其中 `<name>` 为源自身的名称，若没有，则为其目录的名称或其文件去掉扩展名后的名称，若仍没有，则为 `flow`，以小写书写，且每一段由 ASCII 字母和数字以外的字符组成的连续字符都写为一个连字符，详见[草稿如何命名](#how-a-draft-is-named)。"
   },
   "beb35f18e2fa844c": {
     "at": "2026-10-22T03:12:40.354254+00:00",

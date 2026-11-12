@@ -20749,6 +20749,17 @@
     "status": "machine",
     "text": "Das Muster des Standardbereichs finden Sie unter [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md)."
   },
+  "2158e8f732667e2b": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "6d5633d3f34ac32c",
+      "reviewed": false
+    },
+    "srcHash": "2158e8f732667e2b",
+    "status": "machine",
+    "text": "Der Name der Quelle des Imports, ohne vorangestelltes Verzeichnis, damit ein Importer die Quelle in dem nennen kann, was er meldet und was er entwirft. Ist die Quelle eine einzelne Datei, ist es der Basisname der Datei: Die primären Bytes kommen nicht als benannte Quelle an, daher ist dies der einzige Name, den sie tragen. Ist die Quelle ein Verzeichnis, ist es der Basisname des Verzeichnisses, und die Dateien des Verzeichnisses kommen weiterhin als benannte Quellen an, jede unter ihrem eigenen Namen, bei leeren primären Bytes. Fehlt, wo die Quelle keinen Namen zu geben hat."
+  },
   "215bedff54fcb2f9": {
     "at": "2026-11-03T23:48:35.245Z",
     "job": "session-0176-20261103234835",
@@ -23871,6 +23882,17 @@
     "srcHash": "264c757ddd69ccaf",
     "status": "machine",
     "text": "`pin` hält im `entity.lock` neben einem Recipe oder FeatureRecipe den Inhalts-Pin für jede Eingabe fest, die die Entität von außerhalb ihres eigenen Dokuments liest: eine entfernte Quelle, deren Koordinaten vollständig ausgeschrieben sind, und eine Datei, die ein Artefakteintrag importiert. Es ist derselbe Schritt, den [`aggrega pin`](aggrega-pin.md) im Terminal ausführt, und das Lock, das es schreibt, ist Byte für Byte identisch mit dem, das dieser Befehl schreibt. Übergeben Sie `entity`, das Entitätsdokument, absolut oder relativ zum Workspace-Stammverzeichnis nach demselben Vertrag, dem jedes andere Pfadargument hier folgt; über HTTPS muss es innerhalb des Workspace aufgelöst werden, den der Prozess bedient."
+  },
+  "264f4d142c5d8f90": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "0555e04828849831",
+      "reviewed": false
+    },
+    "srcHash": "264f4d142c5d8f90",
+    "status": "machine",
+    "text": "[`examples/04-secrets.md`](../examples/04-secrets.md) — die Pipeline-Form Fetcher + Injector."
   },
   "2650376b11709c2c": {
     "at": "2026-11-04T06:30:15.892Z",
@@ -39721,6 +39743,17 @@
     "status": "machine",
     "text": "`mappinglibrary.spec`"
   },
+  "409a81bcb20904dd": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "d323065193e66532",
+      "reviewed": false
+    },
+    "srcHash": "409a81bcb20904dd",
+    "status": "machine",
+    "text": "**Was ein Import eines Verzeichnisses liest.** Eine Quelle kann ein Verzeichnis sein, und die deklarierten Dateimuster des Importers entscheiden, was er liest: Der Host liest genau die Dateien des Verzeichnisses, in beliebiger Tiefe, die eines der Muster `files` der Signaturen des Importers auswählt — jedes mit dem Ende des durch Schrägstriche getrennten Pfads der Datei innerhalb des Verzeichnisses verglichen — und übergibt sie als `sources` in Namensreihenfolge, mit leerem `bytes` und dem eigenen Namen des Verzeichnisses als `name`. Keine andere Datei des Verzeichnisses wird geöffnet. Eine Signatur, die keine Muster `files` deklariert, wählt keine Datei eines Verzeichnisses aus, daher liest ein Importer, der keine deklariert, eine einzelne Datei und weist ein Verzeichnis zurück, und auch ein Verzeichnis, das keine Datei enthält, die seine Muster auswählen, wird zurückgewiesen. Das Verzeichnis bleibt auf sich selbst beschränkt: Ein Link unter den Dateien, die er lesen würde, oder auf ein Verzeichnis, der aus dem Verzeichnis hinausführt, wird zurückgewiesen, bevor irgendetwas gelesen wird, ein Link auf ein Verzeichnis wird nie betreten, und ein Link auf eine Datei, die kein Muster auswählt, wird ungelesen übergangen. Das Erkennen des Formats eines Verzeichnisses folgt derselben Regel — jede Signatur wird gegen die Dateien probiert, die ihre Muster auswählen, in Namensreihenfolge, jede Datei höchstens einmal pro Syntax gelesen und geparst, und eine Signatur, die kein Muster deklariert, gilt für keine davon. Der Host begrenzt nichts: Ein Verzeichnis, das für den Importer zu groß ist, wird durch die eigenen Laufzeitgrenzen des Importers zurückgewiesen. Keiner der Importer des Compilers für Langflow, Flowise, n8n, Dify und Agent Framework deklariert Muster `files`, daher liest jeder eine einzelne Datei; sein MCP-Importer deklariert die Namen der vier Client-Konfigurationen, daher liest er jede davon, die ein Verzeichnis enthält; sein Compose-Importer deklariert die acht Compose-Dateinamen, daher erhält er jede Compose-Datei, die ein Verzeichnis enthält, und führt diejenigen zusammen, die Compose lesen würde; und sein CrewAI-Importer deklariert die sechs Namen, unter denen die Deklarationen eines CrewAI-Projekts geschrieben werden, daher erhält er die Deklarationen eines Projekts und nichts von seinem Programm; und sein LangGraph-Importer deklariert `langgraph.json`, daher erhält er die Konfiguration einer Anwendung und nichts von ihrem Code oder ihren Umgebungsdateien, wobei eine Umgebungsdatei ihn nur unter dem `with.sources` seiner Anbindung erreicht; und sein Google-ADK-Importer deklariert `root_agent.yaml`, daher erhält er die Konfiguration des Wurzelagenten einer Anwendung und nichts von ihrem Code oder ihrer Umgebungsdatei, wobei die Konfigurationen, die ihre Sub-Agenten nennen, ihn nur unter dem `with.sources` seiner Anbindung erreichen."
+  },
   "409b99369d7e783e": {
     "at": "2026-11-03T14:46:30.297Z",
     "job": "session-0119-20261103144630",
@@ -42047,6 +42080,17 @@
     "srcHash": "44897dc2ca77e4c0",
     "status": "machine",
     "text": "Das `source:` des helm-Providers benennt ein Chart, und es akzeptiert beide Formen, die das Feld `source:` annimmt: einen **reinen Dateisystempfad als String** und ein **strukturiertes Objekt**, dessen `url:` den Ort trägt. Wo immer dieser Ort ein Dateisystempfad ist, wird er an dem Verzeichnis verankert, das die `recipe.yaml` enthält, die ihn deklariert, nicht an dem Verzeichnis, aus dem der Build aufgerufen wird, und er muss innerhalb dieses Verzeichnisses bleiben: Ein Pfad, der aus ihm herausführt, oder ein absoluter wird abgelehnt, weil jede Datei, die eine Veröffentlichung des Recipe mitführt, aus seinem Verzeichnis genommen wird — siehe [`entities/recipe.md`](../entities/recipe.md) „Content paths stay inside the Recipe's own directory (Inhaltspfade bleiben im eigenen Verzeichnis des Recipe)“. Ein auf diese Weise benanntes Chart wird mit dem Recipe veröffentlicht, mit jeder Datei darunter, die die beim Fixieren des Recipe festgehaltenen Ignore-Regeln behalten — der helm-Provider lässt die Verzeichnisse der Versionskontrolle und die versteckten Dateien unter `templates/` des Charts weg und beachtet die eigene `.helmignore` des Charts, und die `.aggregaignore` des Autors hat das letzte Wort, wie [Welche Dateien mit einer Entität ausgeliefert werden](../cli/aggrega-pin.md#which-files-ship-with-an-entity) beschreibt —, während eine Datei neben dem Recipe, die nichts von dem benennt, was es deklariert, nicht mitveröffentlicht wird. Das Rendern liest dieselben Dateien, die die Veröffentlichung mitführt, sodass ein Chart aus Ihrem Verzeichnis und aus einer Registry gleich gerendert wird. Die Form, in der Sie es geschrieben haben, ändert daran nichts: Ein strukturiertes `source:`, dessen `url:` `./charts/api-server` ist, wird genau so verankert wie der reine String `./charts/api-server`."
+  },
+  "448d76ac357e3936": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "400dfdbc2b4cda0e",
+      "reviewed": false
+    },
+    "srcHash": "448d76ac357e3936",
+    "status": "machine",
+    "text": "`name` — der Name der Quelle, ohne vorangestelltes Verzeichnis, damit der Importer die Quelle in dem, was er meldet, und in dem, was er entwirft, benennen kann: bei einem Import einer Datei der Basisname der Datei, aus der `bytes` gelesen wurde; bei einem Import eines Verzeichnisses der eigene Basisname des Verzeichnisses, aus seinem vollständigen Pfad gelesen, sodass `aggrega import .` den Namen des Verzeichnisses übergibt, in dem es läuft, während die Dateien des Verzeichnisses weiterhin jeweils unter ihrem eigenen Namen ankommen. Fehlt, wo die Quelle keinen Namen zu geben hat."
   },
   "448f62e7cee824b7": {
     "at": "2026-11-09T23:54:34.603Z",
@@ -46069,6 +46113,13 @@
     "srcHash": "4a9c321adbbe83ca",
     "status": "machine",
     "text": "Wie ein Registry-Host geschrieben wird"
+  },
+  "4aa2ee01d036f7bf": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "srcHash": "4aa2ee01d036f7bf",
+    "status": "machine",
+    "text": "**Ein erstes echtes Beispiel.** Ein vollständiger Workspace, den Sie mit der CLI `aggrega` bauen, und die Dateien, die der Build schreibt: [Nur Katalog — MariaDB + Adminer ganz ohne Plattform-Authoring](language-reference/examples/catalog-only/README.md), das erste Beispiel, das allein aus dem Katalog zusammengesetzt wird, sobald die Beispiele der Seite Erste Schritte abgeschlossen sind. [Die Lernreihenfolge](language-reference/examples/by-product-and-capability.md#in-teaching-order) führt jedes darauf folgende Beispiel auf, Stufe für Stufe, und dieselbe Seite findet eines nach dem Produkt, das es bereitstellt, oder nach dem, was es zeigt."
   },
   "4aa5ce094ce9768e": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -56624,6 +56675,17 @@
     "srcHash": "5b928e6a4b459eb6",
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (ein Plugin hat keinen Ausdruck für ein Konstrukt, das dieser Build deklariert) cloudformation-provider: the assembled stack of component `\"<component>\"`, … cannot carry the transform `\"<transform>\"`, declared by component `\"<component>\"`: `<why>` (cloudformation-provider: der assemblierte Stack der angegebenen Komponente, … kann die angegebene Transformation nicht tragen, die von der angegebenen Komponente deklariert wird: mit dem angegebenen Grund)"
+  },
+  "5b9580585a4a4565": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "5b9580585a4a4565",
+    "status": "machine",
+    "text": "Ein Importer entwirft kein Manifest. Bei einem Import, dem ein Target gegeben wird — `--target` bei `aggrega import` oder `target` beim Import-Werkzeug des Assistenten und bei der Methode `aggrega/import` der Sitzung, das eine Provider-Fähigkeit wie `compose` oder `helm` nennt —, entwirft der Import selbst eines neben dem, was der Importer entworfen hat, unabhängig davon, welcher Importer lief: `manifest.yaml`, neben dem entworfenen Release und wie dieses benannt und versioniert — oder, wo der Importer kein Release entworfen hat, neben dem entworfenen Aggregate und wie dieses benannt und versioniert —, das jeden Komponententyp, den das entworfene Aggregate deklariert, auf das eine Recipe dieser Fähigkeit abbildet, das der Workspace-Katalog dafür anbietet. Wo das entworfene Release kein Manifest nennt, wird sein `spec.manifest` anstelle des Kommentars, den der Importer schrieb, auf dieses gesetzt, und sonst ändert sich nichts am Release. Ein Typ ohne ein solches Recipe oder mit Recipes mehr als eines Namens — etwa die Server des MCP-Importers, wo der Katalog sowohl `compose/mcp-stdio-bridge` als auch `compose/mcp-remote` für `core/ai-tool/mcp` anbietet — bleibt unabgebildet, und ein Build der Entwürfe bricht ab und nennt jede seiner Instanzen, bis Sie ihn abbilden. [aggrega import](../cli/aggrega-import.md) beschreibt es vollständig."
   },
   "5b99fce3216d3204": {
     "at": "2026-11-03T22:29:52.482Z",
@@ -80412,6 +80474,17 @@
     "status": "machine",
     "text": "**Dimensionierung interner Komponenten durch den Betreiber.** Das Release adressiert die internen Komponenten des Moduls über ihre modulbezogenen IDs (`gateway.store`, `gateway.gateway`), um Rechenressourcen festzulegen, ohne dass das Aggregate des Entwicklers die physische Dimensionierung wiederholt."
   },
+  "82cb62e879feb506": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "b772f11de3b6f95e",
+      "reviewed": false
+    },
+    "srcHash": "82cb62e879feb506",
+    "status": "machine",
+    "text": "Schritte der `pipeline:` von FeatureRecipe und Recipe, die in der Plugin-Pipeline laufen, erzeugen RFC-6902-JSON-Patch-Operationen gegen die Menge der gerenderten Dokumente. Der Host übergibt jedem Schritt die nach Schlüsseln adressierte Dokumentmenge vollständig; der Schritt wählt die Dokumente, auf die er zielt, nach ihrem Inhalt aus und gibt schlüsseladressierte Patches zurück, die die Apply-Engine auf die adressierten Dokumente anwendet — typischerweise, indem sie einen Sidecar-Container anhängt, ein Secret-Volume einhängt oder eine Umgebungsvariable umschreibt. Ein Schritt gibt außerdem `side_effects` (unten), `diagnostics` — jeder Eintrag in derselben gemeinsamen Form `Diagnostic`, in der jeder Socket Probleme meldet — und `outputs` (unten) zurück. Beschrieben in [`examples/04-secrets.md`](../examples/04-secrets.md)."
+  },
   "82cdbc71581d20c4": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -83621,6 +83694,17 @@
     "srcHash": "8817dd080b93cb06",
     "status": "machine",
     "text": "ImportDecision[]"
+  },
+  "881b5ee670a2edee": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "77068e50ea0884ea",
+      "reviewed": false
+    },
+    "srcHash": "881b5ee670a2edee",
+    "status": "machine",
+    "text": "[`examples/04-secrets.md`](../examples/04-secrets.md) — die Pipeline-Form Fetcher + Injector, die ein FeatureRecipe für Anmeldedaten annehmen kann."
   },
   "881bdd6214edae24": {
     "at": "2026-10-30T09:04:49.650Z",
@@ -101476,6 +101560,17 @@
     "status": "machine",
     "text": "Plattformarchitekten schreiben WorkloadLibraries, um den Workload-Inhalt zu zentralisieren, der in den Recipes und FeatureRecipes des Katalogs wiederkehrt. Eine Bibliothek ist keine bereitstellbare Build-Anweisung; sie ist ein Namespace für Definitionen. Recipe- und FeatureRecipe-Autoren verweisen über eine `$import:`-Direktive auf Bibliothekseinträge, die einmal geschrieben und überall dort verwendet werden, wo der Import aufgelöst wird."
   },
+  "a4f496b6f26b9d57": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "revision": {
+      "from": "5b04d43190091eca",
+      "reviewed": false
+    },
+    "srcHash": "a4f496b6f26b9d57",
+    "status": "machine",
+    "text": "FeatureRecipe-Pipelines für Anmeldedaten (Prinzip des zweiteiligen Plugin: Fetcher + Injector) erzeugen über die `side_effects` eines Schritts vollständige Ressourcen neben einem Patch, von denen jede eine der zwei Arten deklariert, die der Vertrag definiert: `emit_crd`, ein Custom-Resource-Dokument wie eine CRD `ExternalSecret` oder `VaultSecret`, die der Cluster zur Laufzeit abruft, oder `emit_file`, eine geschriebene Datei. Ein Schritt, der eine andere Art zurückgibt, [hält den Build an](../errors/fatal-halts.md#a-pipeline-step-declares-an-emission-kind-the-contract-does-not-define) und nennt dabei den Knoten, den Index des Nebeneffekts und die Art, die er deklariert hat. Der Schritt des Fetcher erzeugt die vollständige Ressource; der Schritt des Injector gibt einen Patch zurück, der das resultierende Kubernetes-Secret einhängt. Beschrieben in [`examples/04-secrets.md`](../examples/04-secrets.md)."
+  },
   "a4f57ae32347bea1": {
     "at": "2026-10-23T01:24:44.067Z",
     "job": "session-0058-20261023012444",
@@ -117914,6 +118009,13 @@
     "srcHash": "beb163521fd21935",
     "status": "machine",
     "text": "Lockfile-Bewusstsein"
+  },
+  "beb34323cd6656a1": {
+    "at": "2026-11-12T10:28:37.720Z",
+    "job": "session-0012-20261112102837",
+    "srcHash": "beb34323cd6656a1",
+    "status": "machine",
+    "text": "Der Namespace, unter dem entworfene Entitäten benannt werden: `<target_namespace>/<category>/<name>` für eine Component und `<target_namespace>/<name>` für das Aggregate und das Release, wobei `<name>` der eigene Name der Quelle ist, andernfalls der Name ihres Verzeichnisses oder der Name ihrer Datei ohne die Erweiterung, andernfalls `flow`, in Kleinbuchstaben geschrieben, wobei jede Folge anderer Zeichen als ASCII-Buchstaben und -Ziffern zu einem einzigen Bindestrich wird, wie [Wie ein Entwurf benannt wird](#how-a-draft-is-named) beschreibt."
   },
   "beb5728e75def163": {
     "at": "2026-11-03T10:16:19.100Z",
