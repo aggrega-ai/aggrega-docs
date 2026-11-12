@@ -99,9 +99,9 @@ Aggrega stops at the files. It never reaches a running cluster or a cloud accoun
 
 ## What you need
 
-- **To install Aggrega and write an example**, a terminal on Linux or macOS and nothing else. The commands on this
-  page are written for a shell such as bash or zsh; [Install](install.md) gives every other way to install,
-  Windows included.
+- **To install Aggrega and write an example**, a terminal and nothing else. The one-line commands on this page are
+  given for Linux and macOS and for PowerShell on Windows. The step-by-step commands are written for a shell such as
+  bash or zsh. [Install](install.md) gives every other way to install.
 - **To run the examples on your machine**, Docker with Compose.
 - **For the AI agent track**, room for its first start: it downloads about 5 GB, the Ollama image about 3.3 GB of that
   and the `llama3.2:1b` model about 1.3 GB, measured as the registries serve them. The model is kept in a Docker
@@ -111,20 +111,71 @@ Aggrega stops at the files. It never reaches a running cluster or a cloud accoun
 
 ## Install Aggrega
 
+On Linux or macOS:
+
 ```bash
 curl -fsSL https://aggrega.ai/install.sh | sh
 ```
 
-Then check that it runs:
+The script ends by printing the version it installed, as in this run on Linux:
 
-```bash
-aggrega version
+```text
+aggrega install: reading the checksum list https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/SHA256SUMS
+aggrega install: downloading https://github.com/aggrega-ai/aggrega-cli/releases/download/v0.9.0-rc.3/aggrega-0.9.0-rc.3-linux-amd64
+aggrega install: aggrega-0.9.0-rc.3-linux-amd64 matches its SHA-256 checksum in SHA256SUMS
+aggrega install: installed /home/myuser/.local/bin/aggrega
+aggrega install: /home/myuser/.local/bin is not on your PATH. To run aggrega by name, add this line to /home/myuser/.bashrc:
+
+  export PATH="/home/myuser/.local/bin:$PATH"
+
+aggrega install: then open a new terminal.
+aggrega install: next steps:
+
+  Set up shell completion for bash:
+    curl -fsSL https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/install.sh | sh -s -- --completion
+  Install the Aggrega skill for the AI assistants on this machine:
+    aggrega skills install --global
+  Connect your AI client to the Aggrega MCP server, as this page describes:
+    https://aggrega.ai/docs/install/#connect-an-mcp-client
+
+aggrega 0.9.0-rc.3 (committed 2026-11-11T12:57:07Z, commit 3eccd4b5, abi v1beta1, go1.26.0)
+embedded  15 plugins version 0.9.0-rc.3 — `aggrega plugin list` for details
 ```
 
-A version string means the binary is installed and found. [Install](install.md) says what the command does and where
-it puts the binary.
+On Windows, in PowerShell:
+
+```powershell
+irm https://aggrega.ai/install.ps1 | iex
+```
+
+[Install](install.md) says what the commands do and where they put the binary.
+
+## Run quickstart-ai in one command
+
+On Linux or macOS:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 1
+```
+
+On Windows, in PowerShell:
+
+```powershell
+& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-ai.ps1))) 1
+```
+
+The script says what it will do and asks before it goes on. It checks that it can find `aggrega`, and that Docker
+answers and has Compose. It writes the example into the folder `quickstart-ai`, or uses that folder when it is
+already there. It then builds the first step and starts it with Docker Compose. The first start downloads about 5 GB.
+The script ends by printing the page to open, [http://127.0.0.1:8090/](http://127.0.0.1:8090/).
+
+Give it `2`, `3` or `4` in place of `1` to run another step; step 4 only builds. Add `--yes` (`-Yes` in PowerShell)
+to go ahead without the question.
 
 ## Write the AI agent example into a folder
+
+If you prefer to build and run it step by step, the sections below give the commands the script runs, one at a time.
+The first writes the example into a new folder:
 
 ```sh
 aggrega scaffold --example quickstart-ai
@@ -152,9 +203,9 @@ docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
 The build writes one file, `dist/compose/docker-compose.yaml`, and `docker compose` starts it and returns once every
 service is up. **The first start downloads the model runtime and the model**, about 5 GB, before it returns.
 
-Open `http://localhost:8090/` in a browser on the same machine to chat with the agent: the page is published on your
-machine's loopback address only, the line under its header names the model that answers, and the conversation lives
-in the agent's store, so a reload continues it.
+Open [http://127.0.0.1:8090/](http://127.0.0.1:8090/) in a browser on the same machine to chat with the agent: the
+page is published on your machine's loopback address only, the line under its header names the model that answers,
+and the conversation lives in the agent's store, so a reload continues it.
 
 Or ask from a terminal. Tell the agent your name and ask it a question, restart it, and ask it your name on the same
 conversation:
@@ -232,8 +283,32 @@ aggrega build --release release.yaml --auto-pull
 ## The second track: a web app with PostgreSQL
 
 The second example grows a small web app that keeps notes in PostgreSQL: it starts with its database on your machine,
-gains a Redis cache, moves to AWS with the database on Amazon RDS, and gets its backups. Run the command from the
-folder you started in, not from inside `quickstart-ai`, since it writes a new folder where it runs:
+gains a Redis cache, moves to AWS with the database on Amazon RDS, and gets its backups. Run its commands from the
+folder you started in, not from inside `quickstart-ai`, since they write a new folder where they run.
+
+To run its first step in one command, choose a password for its database and export it first. On Linux or macOS:
+
+```sh
+export QUICKSTART_DB_PASSWORD=choose-a-password
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 1
+```
+
+On Windows, in PowerShell:
+
+```powershell
+$env:QUICKSTART_DB_PASSWORD = 'choose-a-password'
+& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-web.ps1))) 1
+```
+
+The password must be exported because Docker Compose reads it from your shell, and the database keeps the first
+password it was started with, so the second step needs the same one. The script refuses to start without it. It asks
+and checks as the quickstart-ai script does, writes the example into the folder `quickstart-web`, builds the first
+step and starts it. It ends by printing the app's page, [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
+
+Give it `2`, `3` or `4` in place of `1` to run another step; steps 3 and 4 only build.
+
+If you prefer to build and run it step by step, the sections below give the commands the script runs, one at a time.
+The first writes the example into a new folder:
 
 ```sh
 aggrega scaffold --example quickstart-web
@@ -255,8 +330,13 @@ docker compose -p quickstart-web -f dist/compose/docker-compose.yaml up -d --wai
 # then open http://127.0.0.1:8080/ in your browser
 ```
 
-The app listens on port 8080 of your machine's loopback address. Ask it what it is connected to, then store a note
-and read it back:
+Open [http://127.0.0.1:8080/](http://127.0.0.1:8080/) in a browser on the same machine to see the app's page. It
+names the database and the cache the app is connected to, and lets you add a note and read it. Each read says where it
+came from, "from PostgreSQL" or "from the cache". With no cache wired yet, the page says "No cache is wired to the
+app, so every read comes from PostgreSQL."
+
+The app listens on port 8080 of your machine's loopback address. From a terminal, ask it what it is connected to,
+then store a note and read it back:
 
 ```sh
 curl -s http://localhost:8080/
@@ -275,8 +355,9 @@ aggrega build --release release.yaml --auto-pull
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml up -d --wait
 ```
 
-Read the note you stored twice. Every answer about a note says where it was read from, in its `source` field: the
-first read comes from PostgreSQL, the second from the cache.
+On the page, reading a note twice shows "from PostgreSQL", then "from the cache". From a terminal, read the note you
+stored twice. Every answer about a note says where it was read from, in its `source` field: the first read comes from
+PostgreSQL, the second from the cache.
 
 ```sh
 curl -s http://localhost:8080/notes/1

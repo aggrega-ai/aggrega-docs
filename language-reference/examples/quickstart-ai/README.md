@@ -61,9 +61,34 @@ Output blocks on this page are copied from a real run, per
 - For `4/`, nothing more to build it. Applying what it writes needs a
   Kubernetes cluster and the Secret described there.
 
+## Run it in one command
+
+On Linux or macOS:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 1
+```
+
+On Windows, in PowerShell:
+
+```powershell
+& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-ai.ps1))) 1
+```
+
+The script says what it will do and asks before it goes on. It checks that it
+can find `aggrega`, and that Docker answers and has Compose. It writes the
+example into the folder `quickstart-ai`, or uses that folder when it is already
+there. It then builds the first step and starts it with Docker Compose. The
+script ends by printing the page to open,
+[http://127.0.0.1:8090/](http://127.0.0.1:8090/).
+
+Give it `2`, `3` or `4` in place of `1` to run another step; step 4 only
+builds. Add `--yes` (`-Yes` in PowerShell) to go ahead without the question.
+
 ## Scaffold the example
 
-Write the example into a new folder named after it:
+If you prefer to build and run it step by step, write the example into a new
+folder named after it:
 
 ```sh
 aggrega scaffold --example quickstart-ai
@@ -116,8 +141,8 @@ agent receives `OPENAI_BASE_URL: http://llm:11434/v1`,
 connections. For `chat` the Release names the chat page's image and its port,
 8090, which Docker Compose publishes on your machine's loopback address alone.
 
-Open `http://localhost:8090/` in a browser on the machine running the stack,
-and talk to the agent there. Under the header the page reads "The agent answers
+Open [http://127.0.0.1:8090/](http://127.0.0.1:8090/) in a browser on the
+machine running the stack, and talk to the agent there. Under the header the page reads "The agent answers
 with llama3.2:1b, served by Ollama on your machine.", and each reply shows the
 model the agent says answered it. A reload continues the conversation, and
 "Start a new conversation" begins another.

@@ -43,9 +43,40 @@ Output blocks on this page are copied from a real run, per
   repositories. Planning and applying those files is a separate act, done with
   your own AWS account and credentials once the placeholders are replaced.
 
+## Run it in one command
+
+Choose a password for the database and export it first. On Linux or macOS:
+
+```sh
+export QUICKSTART_DB_PASSWORD=choose-a-password
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 1
+```
+
+On Windows, in PowerShell:
+
+```powershell
+$env:QUICKSTART_DB_PASSWORD = 'choose-a-password'
+& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-web.ps1))) 1
+```
+
+The password must be exported because Docker Compose reads it from your shell,
+and the database keeps the first password it was started with, so the second
+step needs the same one. The script refuses to start without it.
+
+The script says what it will do and asks before it goes on. It checks that it
+can find `aggrega`, and that Docker answers and has Compose. It writes the
+example into the folder `quickstart-web`, or uses that folder when it is
+already there. It then builds the first step and starts it with Docker
+Compose. The script ends by printing the app's page,
+[http://127.0.0.1:8080/](http://127.0.0.1:8080/).
+
+Give it `2`, `3` or `4` in place of `1` to run another step; steps 3 and 4 only
+build. Add `--yes` (`-Yes` in PowerShell) to go ahead without the question.
+
 ## Scaffold the example
 
-Write the example into a new folder named after it:
+If you prefer to build and run it step by step, write the example into a new
+folder named after it:
 
 ```sh
 aggrega scaffold --example quickstart-web
@@ -131,8 +162,16 @@ of its multi-platform index, and the port. The `web` service in
 ```
 
 `PGHOST` is `db`, the database's service name on the Compose network, and the
-port is published on your machine's loopback address alone. Ask the
-application what it is connected to, then store a note and read it back:
+port is published on your machine's loopback address alone.
+
+Open [http://127.0.0.1:8080/](http://127.0.0.1:8080/) in a browser on the same
+machine to see the app's page. It names the database and the cache the app is
+connected to, and lets you add a note and read it. Each read says where it came
+from, "from PostgreSQL" or "from the cache". With no cache wired yet, the page
+says "No cache is wired to the app, so every read comes from PostgreSQL."
+
+From a terminal, ask the application what it is connected to, then store a
+note and read it back:
 
 ```sh
 curl -s http://localhost:8080/
@@ -219,8 +258,10 @@ curl -s http://localhost:8080/notes/1
 ```
 
 The first read comes from PostgreSQL and fills the cache; the second comes from
-the cache, which keeps a note for five minutes. When you are done with the
-stack, remove it, with the database's data:
+the cache, which keeps a note for five minutes. On the page, reading a note
+twice shows "from PostgreSQL", then "from the cache".
+
+When you are done with the stack, remove it, with the database's data:
 
 ```sh
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml down -v
