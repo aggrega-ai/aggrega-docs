@@ -45,7 +45,7 @@ A version string means the binary is found and runnable. That is everything the 
 
 ## Connect an MCP client
 
-Your AI assistant's client starts Aggrega's MCP server by running `aggrega mcp`, and [Connect the MCP server](ai-assistants/mcp-server.md) gives the command or the entry that adds it, client by client.
+Your AI assistant's client starts Aggrega's MCP server by running `aggrega mcp`, and [Connect the MCP server](ai-assistants/mcp-server.md) gives the command or the entry that adds it, client by client. In an assistant that installs plugins, the Aggrega plugin adds the server and the Aggrega skill in one step: see [Install the plugin](ai-assistants/skill.md#install-the-plugin).
 
 ## Each way to install, in detail
 

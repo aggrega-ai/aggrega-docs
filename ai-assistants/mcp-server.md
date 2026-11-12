@@ -4,7 +4,9 @@ Aggrega's MCP server is the `aggrega mcp` command, and the `aggrega` binary is i
 
 ## Clients that add it with one command
 
-In Claude Code:
+**An assistant with the Aggrega plugin installed is connected already.** Installing the plugin adds the Aggrega skill and the server in one step — in Claude Code, Codex, GitHub Copilot, Gemini CLI, Antigravity, Cursor, Kiro and OpenClaw, as [Install the plugin](skill.md#install-the-plugin) describes — so nothing else on this page is needed to connect that assistant. The plugin starts `aggrega mcp` with the `aggrega` found on the `PATH` the assistant was started with, so the binary must be installed there. Some assistants start a plugin's server in the plugin's own folder rather than in your project — Codex does — and the assistant then names your project's folder as `workspace_root` on the calls that take it; the skill tells it to check which workspace the server answers in.
+
+Without the plugin, add the server with the client's own command. In Claude Code:
 
 ```bash
 claude mcp add --transport stdio aggrega -- aggrega mcp
