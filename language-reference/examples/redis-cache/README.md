@@ -70,10 +70,16 @@ speaks the same wire protocol; its `helm/valkey` Recipe declares BSD-3-Clause.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example redis-cache && cd redis-cache
+aggrega scaffold --example redis-cache
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd redis-cache
 ```
 
 ## Build

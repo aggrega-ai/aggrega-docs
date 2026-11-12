@@ -57,10 +57,16 @@ it.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example module-boundary-routing && cd module-boundary-routing
+aggrega scaffold --example module-boundary-routing
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd module-boundary-routing
 ```
 
 ## Build

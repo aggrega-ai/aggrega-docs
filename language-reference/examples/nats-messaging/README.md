@@ -63,10 +63,16 @@ credential for the synthesized helm path.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example nats-messaging && cd nats-messaging
+aggrega scaffold --example nats-messaging
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd nats-messaging
 ```
 
 ## Build

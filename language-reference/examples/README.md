@@ -192,9 +192,10 @@ list none.
 
 An example lists at least one product or one capability, so the index can place
 it. Its README also carries a `## Scaffold the example` section, holding
-`aggrega scaffold --example <name> && cd <name>`, directly followed by a
-`## Build` section whose first command block is what
-`aggrega scaffold --example` prints to run next. `scripts/gen-examples-index.sh --check`, run
+`aggrega scaffold --example <name>` in its first command block and `cd <name>`
+in its second, directly followed by a `## Build` section whose first command
+block is what `aggrega scaffold --example` prints to run next after that `cd`.
+`scripts/gen-examples-index.sh --check`, run
 from the root of this repository, checks every header against these lists,
 refuses an example missing either section, and one with neither an executable
 `check.sh` nor a `build-release.sh`, and confirms the index is current; run it

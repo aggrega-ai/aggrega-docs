@@ -5,7 +5,18 @@ This page explains one idea, which file of a build says what, and is not a runna
 write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example quickstart-web && cd quickstart-web
+aggrega scaffold --example quickstart-web
+```
+
+It then prints the commands to run next:
+
+```sh
+cd quickstart-web
+cd 1
+aggrega build --release release.yaml --auto-pull
+export QUICKSTART_DB_PASSWORD=choose-a-password
+docker compose -p quickstart-web -f dist/compose/docker-compose.yaml up -d --wait
+# then open http://127.0.0.1:8080/ in your browser
 ```
 
 ## Five kinds of file, each with one author

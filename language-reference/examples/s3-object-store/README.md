@@ -75,10 +75,16 @@ credentials materialized as Kubernetes Secrets).
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example s3-object-store && cd s3-object-store
+aggrega scaffold --example s3-object-store
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd s3-object-store
 ```
 
 ## Build

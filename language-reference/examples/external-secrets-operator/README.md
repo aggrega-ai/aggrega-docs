@@ -53,10 +53,16 @@ Kubernetes `Secret`s.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example external-secrets-operator && cd external-secrets-operator
+aggrega scaffold --example external-secrets-operator
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd external-secrets-operator
 ```
 
 ## Build

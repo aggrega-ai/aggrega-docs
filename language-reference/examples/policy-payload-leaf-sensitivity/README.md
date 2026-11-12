@@ -391,10 +391,16 @@ check working, not a fault in the example.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-payload-leaf-sensitivity && cd policy-payload-leaf-sensitivity
+aggrega scaffold --example policy-payload-leaf-sensitivity
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd policy-payload-leaf-sensitivity
 ```
 
 ## Build

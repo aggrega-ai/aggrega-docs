@@ -11,11 +11,18 @@ prints and the blocks this page quotes with the files kept there.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into its
-`source` folder, which holds what this page imports and is where the import runs:
+Write the example into a new folder named after it:
 
 ```bash
-aggrega scaffold --example import-compose && cd import-compose
+aggrega scaffold --example import-compose
+```
+
+It then prints the commands to run next. The first two change into the new folder
+and into its `source` folder, which holds what this page imports and is where
+the import runs:
+
+```bash
+cd import-compose
 cd source
 ```
 

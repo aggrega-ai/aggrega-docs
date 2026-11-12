@@ -109,10 +109,16 @@ the output relies on exists somewhere else.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-gateway-own-webhook-certificate && cd ai-gateway-own-webhook-certificate
+aggrega scaffold --example ai-gateway-own-webhook-certificate
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd ai-gateway-own-webhook-certificate
 ```
 
 ## Build

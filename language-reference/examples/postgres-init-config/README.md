@@ -26,10 +26,16 @@ developer values:
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example postgres-init-config && cd postgres-init-config
+aggrega scaffold --example postgres-init-config
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd postgres-init-config
 ```
 
 ## Build

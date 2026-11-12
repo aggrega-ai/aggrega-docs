@@ -5,7 +5,15 @@ This page explains one idea, how a credential reaches the component that needs i
 a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example advanced-platform && cd advanced-platform
+aggrega scaffold --example advanced-platform
+```
+
+It then prints the commands to run next:
+
+```sh
+cd advanced-platform
+aggrega pull --release release.yaml
+aggrega build --release release.yaml
 ```
 
 ## The secret-delivery checklist

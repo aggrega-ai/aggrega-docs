@@ -5,7 +5,17 @@ else, and is not a runnable workspace.
 [Cross-boundary networking](cross-boundary-networking/README.md) shows it in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example cross-boundary-networking && cd cross-boundary-networking
+aggrega scaffold --example cross-boundary-networking
+```
+
+It then prints the commands to run next:
+
+```sh
+cd cross-boundary-networking
+aggrega pull --release release-compose.yaml --catalog catalog-compose
+aggrega build --release release-compose.yaml --catalog catalog-compose
+aggrega pull --release release-helm.yaml --catalog catalog-helm
+aggrega build --release release-helm.yaml --catalog catalog-helm
 ```
 
 When two components are placed in different boundaries, the `host` the target publishes is a string the build cannot

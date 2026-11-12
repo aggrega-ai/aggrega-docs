@@ -93,10 +93,16 @@ each run under. Every account-specific value there is a placeholder.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example task-run-on-demand && cd task-run-on-demand
+aggrega scaffold --example task-run-on-demand
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd task-run-on-demand
 ```
 
 ## Build

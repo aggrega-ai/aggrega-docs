@@ -27,10 +27,16 @@ there is no re-derivation and no convention for the two sides to agree on.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mariadb-bitnami-credential-set && cd mariadb-bitnami-credential-set
+aggrega scaffold --example mariadb-bitnami-credential-set
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd mariadb-bitnami-credential-set
 ```
 
 ## Build

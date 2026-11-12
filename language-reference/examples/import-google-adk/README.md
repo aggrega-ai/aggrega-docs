@@ -36,10 +36,16 @@ checked out beside this repository, or its directory named in
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example import-google-adk && cd import-google-adk
+aggrega scaffold --example import-google-adk
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd import-google-adk
 ```
 
 ## Build

@@ -110,10 +110,16 @@ spelled differently on the two targets.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example aws-rds-and-ecs-service && cd aws-rds-and-ecs-service
+aggrega scaffold --example aws-rds-and-ecs-service
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd aws-rds-and-ecs-service
 ```
 
 ## Build

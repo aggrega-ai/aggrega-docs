@@ -6,7 +6,15 @@ each, and is not a runnable workspace.
 against two realizations of the same credential; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example credential-shape-per-target && cd credential-shape-per-target
+aggrega scaffold --example credential-shape-per-target
+```
+
+It then prints the commands to run next:
+
+```sh
+cd credential-shape-per-target
+aggrega build --release release-local.yaml --auto-pull
+aggrega build --release release-store.yaml --auto-pull
 ```
 
 A credential fills a slot a Component declares in its `featuresSchema` (see

@@ -76,10 +76,16 @@ the module's internal components in the Release.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example keycloak-stack && cd keycloak-stack
+aggrega scaffold --example keycloak-stack
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd keycloak-stack
 ```
 
 ## Build

@@ -6,7 +6,16 @@ a runnable workspace.
 shows both in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example policy-data-class-route && cd policy-data-class-route
+aggrega scaffold --example policy-data-class-route
+```
+
+It then prints the commands to run next:
+
+```sh
+cd policy-data-class-route
+aggrega build --release release-masked.yaml --config governance-rego.yaml --auto-pull
+aggrega build --release release-unmasked.yaml --config governance-rego.yaml --auto-pull           # halts; exits 1
+aggrega build --release release-masking-off-route.yaml --config governance-rego.yaml --auto-pull  # halts; exits 1
 ```
 
 ## A Feature is attached, and realized by a FeatureRecipe

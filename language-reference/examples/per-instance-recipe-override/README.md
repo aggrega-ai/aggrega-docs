@@ -43,10 +43,16 @@ Name wins over type, so `greeter-special` deploys through `greeter-green` and
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example per-instance-recipe-override && cd per-instance-recipe-override
+aggrega scaffold --example per-instance-recipe-override
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd per-instance-recipe-override
 ```
 
 ## Build

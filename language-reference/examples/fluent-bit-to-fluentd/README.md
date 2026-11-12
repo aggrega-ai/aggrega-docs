@@ -84,10 +84,16 @@ Because both a Compose and a synthesized helm Recipe carry the names
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example fluent-bit-to-fluentd && cd fluent-bit-to-fluentd
+aggrega scaffold --example fluent-bit-to-fluentd
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd fluent-bit-to-fluentd
 ```
 
 ## Build

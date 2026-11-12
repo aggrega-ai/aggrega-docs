@@ -17,10 +17,16 @@ Recipe reads the slot the way its provider supports.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example credential-secretkeyref && cd credential-secretkeyref
+aggrega scaffold --example credential-secretkeyref
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd credential-secretkeyref
 ```
 
 ## Build

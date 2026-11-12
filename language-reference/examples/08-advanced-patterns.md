@@ -5,7 +5,15 @@ component's own Recipe, and is not a runnable workspace. [Per-instance recipe ov
 shows the Manifest half in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example per-instance-recipe-override && cd per-instance-recipe-override
+aggrega scaffold --example per-instance-recipe-override
+```
+
+It then prints the commands to run next:
+
+```sh
+cd per-instance-recipe-override
+aggrega pull --release release.yaml     # writes release.lock, which the build reads
+aggrega build --release release.yaml
 ```
 
 ## One instance, a Recipe of its own

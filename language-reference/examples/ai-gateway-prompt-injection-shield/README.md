@@ -43,10 +43,16 @@ credential the guard presents to the model API, on the guard.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-gateway-prompt-injection-shield && cd ai-gateway-prompt-injection-shield
+aggrega scaffold --example ai-gateway-prompt-injection-shield
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd ai-gateway-prompt-injection-shield
 ```
 
 ## Build

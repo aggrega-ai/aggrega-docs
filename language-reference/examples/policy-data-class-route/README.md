@@ -63,10 +63,16 @@ which a Release may do; it adds no component and changes no value.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-data-class-route && cd policy-data-class-route
+aggrega scaffold --example policy-data-class-route
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd policy-data-class-route
 ```
 
 ## Build

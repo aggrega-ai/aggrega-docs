@@ -10,6 +10,8 @@
 #
 #   -v section=TEXT   read the block under a level-two heading exactly TEXT
 #                     instead of "Build"
+#   -v block=N        read the Nth such block instead of the first (N from 1);
+#                     the CLI reads only the first
 #   -v mode=headings  print instead every heading of level one or two, in page
 #                     order, as its run of # and its text
 #
@@ -23,9 +25,9 @@
 #     page, hiding every heading after it, and a block it opened still counts;
 #   - a heading is up to three spaces, one to six #, then its text, with a closing
 #     run of # dropped; one of level one or two ends the section before it;
-#   - the block read is the first sh, bash or shell block opened inside a section
-#     with that heading, wherever on the page that section is; the page is read no
-#     further once that block ends.
+#   - the block read is the first (or the Nth) sh, bash or shell block opened
+#     inside a section with that heading, wherever on the page that section is;
+#     the page is read no further once that block ends.
 #
 # A carriage return ending a line is dropped.
 #
@@ -35,7 +37,7 @@
 # at a tab-indented fence, a backtick in a backtick fence's info word and a fence
 # never closed.
 #
-# Usage: awk [-v section=TEXT] [-v mode=headings] -f scripts/lib/build-commands.awk PAGE
+# Usage: awk [-v section=TEXT] [-v block=N] [-v mode=headings] -f scripts/lib/build-commands.awk PAGE
 #
 # 🔴 DELIBERATE NEAR-DUPLICATE of NextCommands in aggrega-cli's
 # internal/exampleops: the documentation's scripts run where no aggrega binary is
@@ -95,7 +97,7 @@ function emit(    first, last, k) {
   done = 1
 }
 
-BEGIN { if (section == "") section = "Build" }
+BEGIN { if (section == "") section = "Build"; if (block == "") block = 1 }
 
 { sub(/\r$/, "") }
 
@@ -111,7 +113,7 @@ fence != "" {
 
 opens($0) {
   fence = OPENED
-  capturing = mode != "headings" && insection && shell(INFO)
+  capturing = mode != "headings" && insection && shell(INFO) && ++seen == block + 0
   nbuf = 0
   next
 }

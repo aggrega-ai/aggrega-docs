@@ -75,10 +75,16 @@ same files less cert-manager's own.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example envoy-ai-gateway-token-budget && cd envoy-ai-gateway-token-budget
+aggrega scaffold --example envoy-ai-gateway-token-budget
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd envoy-ai-gateway-token-budget
 ```
 
 ## Build

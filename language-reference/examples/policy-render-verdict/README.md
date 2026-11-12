@@ -343,10 +343,16 @@ tag, an encryption key — and the next build is judged again.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-render-verdict && cd policy-render-verdict
+aggrega scaffold --example policy-render-verdict
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd policy-render-verdict
 ```
 
 ## Build

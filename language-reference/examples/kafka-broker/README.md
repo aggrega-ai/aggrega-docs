@@ -55,10 +55,16 @@ endpoint and exchanges records there.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example kafka-broker && cd kafka-broker
+aggrega scaffold --example kafka-broker
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd kafka-broker
 ```
 
 ## Build

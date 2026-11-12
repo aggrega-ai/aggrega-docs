@@ -5,7 +5,17 @@ This page explains one idea, who writes which data about a component, and is not
 into a folder of your own with:
 
 ```sh
-aggrega scaffold --example postgres-three-realizations && cd postgres-three-realizations
+aggrega scaffold --example postgres-three-realizations
+```
+
+It then prints the commands to run next:
+
+```sh
+cd postgres-three-realizations
+aggrega build --release release-selfhosted.yaml --auto-pull
+aggrega build --release release-managed.yaml --auto-pull
+aggrega build --release release-managed-dns.yaml --auto-pull
+aggrega build --release release-external.yaml --auto-pull
 ```
 
 ## `values` and `infra`: two namespaces, two authors

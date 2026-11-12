@@ -69,10 +69,16 @@ path; `upstream_key`, the credential the guard presents to the model API; and
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example nemo-guardrails-nemoguard-nims && cd nemo-guardrails-nemoguard-nims
+aggrega scaffold --example nemo-guardrails-nemoguard-nims
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd nemo-guardrails-nemoguard-nims
 ```
 
 ## Build

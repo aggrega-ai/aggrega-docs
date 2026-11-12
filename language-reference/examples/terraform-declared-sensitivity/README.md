@@ -188,10 +188,16 @@ developer declares the variation point, the Release fulfils it.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example terraform-declared-sensitivity && cd terraform-declared-sensitivity
+aggrega scaffold --example terraform-declared-sensitivity
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd terraform-declared-sensitivity
 ```
 
 ## Build

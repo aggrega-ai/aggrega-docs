@@ -63,10 +63,16 @@ Output blocks on this page are copied from a real run, per
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example quickstart-ai && cd quickstart-ai
+aggrega scaffold --example quickstart-ai
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd quickstart-ai
 ```
 
 ## Build
@@ -77,6 +83,7 @@ The commands below start the first step, from this example's directory:
 cd 1
 aggrega build --release release.yaml --auto-pull
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
+# then open http://127.0.0.1:8090/ in your browser
 ```
 
 The build writes one file, `dist/compose/docker-compose.yaml`, and
@@ -177,6 +184,13 @@ reads `llama3.2:1b`.
 cd ../2
 aggrega build --release release.yaml --auto-pull
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+From `2/`, compare this step's Aggregate with the previous step's to see what
+it adds:
+
+```sh
+diff ../1/aggregate.yaml aggregate.yaml
 ```
 
 ## Add guardrails: Presidio PII masking + prompt-injection blocking — `3/`

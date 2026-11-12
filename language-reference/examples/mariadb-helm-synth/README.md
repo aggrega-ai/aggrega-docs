@@ -23,10 +23,16 @@ each the way its slot demands.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mariadb-helm-synth && cd mariadb-helm-synth
+aggrega scaffold --example mariadb-helm-synth
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd mariadb-helm-synth
 ```
 
 ## Build

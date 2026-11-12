@@ -27,13 +27,16 @@
 # copy of any of them. The tiers are taught in the order their list gives them.
 #
 # Every README must also carry a level-two section `## Scaffold the example`
-# whose first sh, bash or shell block holds the line
-# `aggrega scaffold --example <name> && cd <name>`, followed directly — no other
-# heading of level one or two between them — by a level-two section `## Build`
-# whose first sh, bash or shell block holds a command: the commands
-# `aggrega scaffold --example` prints once it has written the example. The page
-# is read as that command reads it (see section_defects below), so a heading
-# inside a fenced block is not a heading.
+# whose first sh, bash or shell block holds exactly the line
+# `aggrega scaffold --example <name>` and whose second holds exactly the line
+# `cd <name>`, followed directly — no other heading of level one or two between
+# them — by a level-two section `## Build` whose first sh, bash or shell block
+# holds a command. `aggrega scaffold --example` prints, once it has written the
+# example, `cd <name>` and then that Build block, so the page shows the commands
+# in the order it prints them. A scaffold line that also changes directory —
+# `aggrega scaffold --example <name> && cd <name>` — is refused, naming the form
+# to write. The page is read as that command reads it (see section_defects
+# below), so a heading inside a fenced block is not a heading.
 #
 # Every example must also be buildable by the examples workflow: an executable
 # check.sh, or a build-release.sh, in its directory.
@@ -191,9 +194,10 @@ check_list() {
 # and Build sections, none when both are as the header of this script says. The
 # page is read by $BUILD_COMMANDS, as `aggrega scaffold --example` reads it.
 section_defects() {
-  local name=$1 readme=$2 want line found=0 i scaffold=-1 build=-1
+  local name=$1 readme=$2 want want_cd got i scaffold=-1 build=-1
   local -a headings=()
-  want="aggrega scaffold --example $name && cd $name"
+  want="aggrega scaffold --example $name"
+  want_cd="cd $name"
   mapfile -t headings < <(awk -v mode=headings -f "$BUILD_COMMANDS" "$readme")
   for i in "${!headings[@]}"; do
     if [ "$scaffold" -lt 0 ] && [ "${headings[$i]}" = "## Scaffold the example" ]; then scaffold=$i; fi
@@ -205,12 +209,18 @@ section_defects() {
     if [ "${headings[$((scaffold + 1))]:-}" != "## Build" ]; then
       echo 'README.md section "## Scaffold the example" is not followed directly by "## Build"'
     fi
-    while IFS= read -r line; do
-      line=${line#| }
-      line=${line%"${line##*[![:space:]]}"}
-      if [ "$line" = "$want" ]; then found=1; fi
-    done < <(awk -v section="Scaffold the example" -f "$BUILD_COMMANDS" "$readme")
-    [ "$found" -eq 1 ] || echo "README.md section \"## Scaffold the example\" has no sh, bash or shell block holding \"$want\""
+    # The section's first and second shell blocks, each as the reader prints it:
+    # "| <line>" per line, so a block of exactly one line is exactly "| <line>".
+    got=$(awk -v section="Scaffold the example" -v block=1 -f "$BUILD_COMMANDS" "$readme")
+    if [[ "$got" == "| $want "* ]]; then
+      echo "README.md section \"## Scaffold the example\" writes more than \"$want\" on its line, such as \"&& $want_cd\"; write \"$want\" alone in the first sh, bash or shell block and \"$want_cd\" alone in the next, because the command prints that cd itself"
+    elif [ "$got" != "| $want" ]; then
+      echo "README.md section \"## Scaffold the example\" has no first sh, bash or shell block holding exactly \"$want\""
+    fi
+    got=$(awk -v section="Scaffold the example" -v block=2 -f "$BUILD_COMMANDS" "$readme")
+    if [ "$got" != "| $want_cd" ]; then
+      echo "README.md section \"## Scaffold the example\" has no second sh, bash or shell block holding exactly \"$want_cd\", the first command \`aggrega scaffold --example\` prints"
+    fi
   fi
   if [ "$build" -ge 0 ] && [ -z "$(awk -f "$BUILD_COMMANDS" "$readme")" ]; then
     echo 'README.md section "## Build" has no sh, bash or shell block holding a command, so scaffolding the example prints no command to run next'

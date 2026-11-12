@@ -56,10 +56,16 @@ in the rendered output; the section below shows what each one produces.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-agent-and-model-router && cd ai-agent-and-model-router
+aggrega scaffold --example ai-agent-and-model-router
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd ai-agent-and-model-router
 ```
 
 ## Build

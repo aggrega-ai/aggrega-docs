@@ -45,10 +45,16 @@ Output blocks on this page are copied from a real run, per
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example quickstart-web && cd quickstart-web
+aggrega scaffold --example quickstart-web
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd quickstart-web
 ```
 
 ## Build
@@ -62,6 +68,7 @@ cd 1
 aggrega build --release release.yaml --auto-pull
 export QUICKSTART_DB_PASSWORD=choose-a-password
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml up -d --wait
+# then open http://127.0.0.1:8080/ in your browser
 ```
 
 The build writes one file, `dist/compose/docker-compose.yaml`, and

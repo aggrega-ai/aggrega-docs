@@ -44,10 +44,16 @@ Two Releases share the one Aggregate, each with a Manifest of its own:
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mcp-address-from-secret && cd mcp-address-from-secret
+aggrega scaffold --example mcp-address-from-secret
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd mcp-address-from-secret
 ```
 
 ## Build

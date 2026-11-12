@@ -5,7 +5,15 @@ entities share, and is not a runnable workspace. [MariaDB + Adminer — a runnab
 composes its database's storage settings from a schema library; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example mariadb-adminer && cd mariadb-adminer
+aggrega scaffold --example mariadb-adminer
+```
+
+It then prints the commands to run next:
+
+```sh
+cd mariadb-adminer
+aggrega pull --release release-compose.yaml
+aggrega build --release release-compose.yaml
 ```
 
 The entities on this page are a catalog of your own, in the namespace `my-org`; the shape of each is what a

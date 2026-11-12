@@ -5,7 +5,15 @@ workspace. [MariaDB + Adminer — a runnable dual-target example](mariadb-admine
 with a synthesized Recipe, a fetched chart and artifacts beside them; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example mariadb-adminer && cd mariadb-adminer
+aggrega scaffold --example mariadb-adminer
+```
+
+It then prints the commands to run next:
+
+```sh
+cd mariadb-adminer
+aggrega pull --release release-compose.yaml
+aggrega build --release release-compose.yaml
 ```
 
 A Recipe has three inputs, and uses any combination of them:

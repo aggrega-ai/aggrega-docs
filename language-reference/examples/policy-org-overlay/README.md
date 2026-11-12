@@ -167,10 +167,16 @@ reason a pipeline's build stops.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-org-overlay && cd policy-org-overlay
+aggrega scaffold --example policy-org-overlay
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd policy-org-overlay
 ```
 
 ## Build

@@ -11,12 +11,18 @@ prints and the blocks this page quotes with the files kept there.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into its
-`source` folder, where the import runs. That folder carries the flow file,
-`basic-prompting.json`, which this page describes rather than quotes:
+Write the example into a new folder named after it:
 
 ```bash
-aggrega scaffold --example import-langflow && cd import-langflow
+aggrega scaffold --example import-langflow
+```
+
+It then prints the commands to run next. The first two change into the new folder
+and into its `source` folder, where the import runs. That folder carries the
+flow file, `basic-prompting.json`, which this page describes rather than quotes:
+
+```bash
+cd import-langflow
 cd source
 ```
 

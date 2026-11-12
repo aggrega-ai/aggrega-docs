@@ -127,21 +127,14 @@ it puts the binary.
 ## Write the AI agent example into a folder
 
 ```sh
-aggrega scaffold --example quickstart-ai && cd quickstart-ai
+aggrega scaffold --example quickstart-ai
 ```
 
 `aggrega scaffold --example` reads the example from the documentation published for your version of `aggrega` and
 writes its files into a new folder named after it: the four steps, in the folders `1/` to `4/`, each a complete
-workspace that builds as it stands. It then prints the commands for building the first step, which are the ones
-below. [`aggrega scaffold`](language-reference/cli/aggrega-scaffold.md) describes the command, and
-`aggrega scaffold --example --list` lists every example there is.
-
-Each step's files open with a one-line comment naming the step, and comparing a file with the previous step's shows
-exactly what the step adds:
-
-```sh
-diff 1/aggregate.yaml 2/aggregate.yaml
-```
+workspace that builds as it stands. It then prints the commands to run next, which change into that folder and build
+and start the first step: the ones below. [`aggrega scaffold`](language-reference/cli/aggrega-scaffold.md) describes
+the command, and `aggrega scaffold --example --list` lists every example there is.
 
 ## Build it and run it
 
@@ -149,9 +142,11 @@ The first step is a LangGraph agent that answers through a local model and keeps
 store, with a small chat page to talk to it from your browser. Build it and start it:
 
 ```sh
+cd quickstart-ai
 cd 1
 aggrega build --release release.yaml --auto-pull
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
+# then open http://127.0.0.1:8090/ in your browser
 ```
 
 The build writes one file, `dist/compose/docker-compose.yaml`, and `docker compose` starts it and returns once every
@@ -189,6 +184,13 @@ shell before you start the stack to use OpenAI. The line under the chat page's h
 cd ../2
 aggrega build --release release.yaml --auto-pull
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+Each step's files open with a one-line comment naming the step, and comparing this step's file with the previous
+step's shows exactly what the step adds:
+
+```sh
+diff ../1/aggregate.yaml aggregate.yaml
 ```
 
 ### Add guardrails: Presidio PII masking + prompt-injection blocking
@@ -234,8 +236,10 @@ gains a Redis cache, moves to AWS with the database on Amazon RDS, and gets its 
 folder you started in, not from inside `quickstart-ai`, since it writes a new folder where it runs:
 
 ```sh
-aggrega scaffold --example quickstart-web && cd quickstart-web
+aggrega scaffold --example quickstart-web
 ```
+
+It then prints the commands to run next, which are the ones below.
 
 ### A web app and its PostgreSQL
 
@@ -243,10 +247,12 @@ The first step runs the app and its database on your machine. The database passw
 Compose reads it from your shell when the stack starts, so no file holds it.
 
 ```sh
+cd quickstart-web
 cd 1
 aggrega build --release release.yaml --auto-pull
 export QUICKSTART_DB_PASSWORD=choose-a-password
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml up -d --wait
+# then open http://127.0.0.1:8080/ in your browser
 ```
 
 The app listens on port 8080 of your machine's loopback address. Ask it what it is connected to, then store a note
@@ -317,7 +323,13 @@ run each from the folder you started in.
 ### Terraform
 
 ```sh
-aggrega scaffold --example terraform-rds && cd terraform-rds
+aggrega scaffold --example terraform-rds
+```
+
+It then prints the commands to run next:
+
+```sh
+cd terraform-rds
 aggrega build --release release.yaml --auto-pull
 ```
 
@@ -329,7 +341,13 @@ your environment. [Terraform RDS](language-reference/examples/terraform-rds/READ
 ### AWS CloudFormation
 
 ```sh
-aggrega scaffold --example cloudformation-rds-stack && cd cloudformation-rds-stack
+aggrega scaffold --example cloudformation-rds-stack
+```
+
+It then prints the commands to run next:
+
+```sh
+cd cloudformation-rds-stack
 aggrega pull --release release-one-stack.yaml
 aggrega build --release release-one-stack.yaml
 ```

@@ -5,7 +5,14 @@ workspace. [Module boundary routing — placing whole sub-modules into boundarie
 shows it in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example module-boundary-routing && cd module-boundary-routing
+aggrega scaffold --example module-boundary-routing
+```
+
+It then prints the commands to run next:
+
+```sh
+cd module-boundary-routing
+aggrega build --release release.yaml --auto-pull
 ```
 
 ## Modules: an Aggregate imported by another

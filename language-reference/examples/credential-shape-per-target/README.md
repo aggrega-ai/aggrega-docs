@@ -235,10 +235,16 @@ that names that store.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example credential-shape-per-target && cd credential-shape-per-target
+aggrega scaffold --example credential-shape-per-target
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd credential-shape-per-target
 ```
 
 ## Build

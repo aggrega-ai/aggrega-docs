@@ -11,12 +11,18 @@ prints and the blocks this page quotes with the files kept there.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into its
-`source` folder, where the import runs. That folder carries the chatflow file,
-`support-chat.json`, which this page describes rather than quotes:
+Write the example into a new folder named after it:
 
 ```bash
-aggrega scaffold --example import-flowise && cd import-flowise
+aggrega scaffold --example import-flowise
+```
+
+It then prints the commands to run next. The first two change into the new folder
+and into its `source` folder, where the import runs. That folder carries the
+chatflow file, `support-chat.json`, which this page describes rather than quotes:
+
+```bash
+cd import-flowise
 cd source
 ```
 

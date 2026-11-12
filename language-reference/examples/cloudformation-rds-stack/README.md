@@ -60,10 +60,16 @@ as it stands rather than against a private snapshot of it.
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example cloudformation-rds-stack && cd cloudformation-rds-stack
+aggrega scaffold --example cloudformation-rds-stack
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd cloudformation-rds-stack
 ```
 
 ## Build

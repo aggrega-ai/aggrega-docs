@@ -47,10 +47,16 @@ as a cosine similarity — and how long a stored reply lasts, an hour. It leaves
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-gateway-semantic-cache && cd ai-gateway-semantic-cache
+aggrega scaffold --example ai-gateway-semantic-cache
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd ai-gateway-semantic-cache
 ```
 
 ## Build

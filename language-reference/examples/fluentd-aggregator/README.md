@@ -79,10 +79,16 @@ the Manifests reference them provider-scoped as `compose/fluentd` and
 
 ## Scaffold the example
 
-Write the example into a new folder named after it, and change into it:
+Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example fluentd-aggregator && cd fluentd-aggregator
+aggrega scaffold --example fluentd-aggregator
+```
+
+It then prints the commands to run next. The first changes into the new folder:
+
+```sh
+cd fluentd-aggregator
 ```
 
 ## Build
