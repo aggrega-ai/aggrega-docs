@@ -49,15 +49,17 @@ cd import-n8n
 
 ## Build
 
-The import drafts the Aggrega files beside the project, in `source/`. It
-weighs the project against the standard-library catalog, read from the
-checkout `AGGREGA_CATALOG_DIRS` names
-([where to get one](../../../authoring/import/README.md#how-an-import-runs)),
-so set that first:
+The import drafts the Aggrega files beside the project, in `source/`. It weighs
+the project against the standard-library catalog, read from the directory
+`AGGREGA_CATALOG_DIRS` names. That catalog is the `aggrega-catalog` folder of
+the `aggrega-hub` repository: clone the repository first, here in the example's
+folder, beside `source/` rather than inside it, so the catalog stays outside the
+project being imported, and name that folder by its absolute path:
 
 ```sh
+git clone https://github.com/aggrega-ai/aggrega-hub
+export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
 cd source
-# with AGGREGA_CATALOG_DIRS naming a checkout of the standard-library catalog
 aggrega import support-agent.json --target compose
 ```
 

@@ -17,13 +17,13 @@ Write the example into a new folder named after it:
 aggrega scaffold --example import-crewai
 ```
 
-It then prints the commands to run next. The first two change into the new folder
-and into its `source` folder, which holds what this page imports and is where
-the import runs:
+It then prints the commands to run next. The first changes into the new folder;
+the ones after it, below, fetch the catalog the import reads and change into its
+`source` folder, which holds what this page imports and is where the import
+runs:
 
 ```bash
 cd import-crewai
-cd source
 ```
 
 ## The project
@@ -91,12 +91,16 @@ default_registry: hub.aggrega.ai
 ```
 
 The import references the catalog's agent and model Components, and `--target`
-drafts a Manifest from its Recipes, so name a checkout of the standard-library
-catalog ([where to get one](README.md#how-an-import-runs)), by its absolute
-path:
+drafts a Manifest from its Recipes, so clone the `aggrega-hub` repository, whose
+`aggrega-catalog` folder is the standard-library catalog, and name that folder
+by its absolute path. Clone it here, in `import-crewai`, beside `source` rather
+than inside it, so the catalog stays outside the project being imported and the
+workspace the import writes into; then change into `source`:
 
 ```bash
-export AGGREGA_CATALOG_DIRS=/path/to/aggrega-catalog
+git clone https://github.com/aggrega-ai/aggrega-hub
+export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
+cd source
 ```
 
 The import reads that catalog from folders on your machine, not from the
