@@ -66,13 +66,13 @@ Output blocks on this page are copied from a real run, per
 On Linux or macOS:
 
 ```sh
-curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 1
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh
 ```
 
 On Windows, in PowerShell:
 
 ```powershell
-& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-ai.ps1))) 1
+irm https://aggrega.ai/quickstart-ai.ps1 | iex
 ```
 
 The script says what it will do and asks before it goes on. It checks that it
@@ -82,8 +82,21 @@ there. It then builds the first step and starts it with Docker Compose. The
 script ends by printing the page to open,
 [http://127.0.0.1:8090/](http://127.0.0.1:8090/).
 
-Give it `2`, `3` or `4` in place of `1` to run another step; step 4 only
-builds. Add `--yes` (`-Yes` in PowerShell) to go ahead without the question.
+To run another step, name it: `2`, `3` or `4`; step 4 only builds. On Linux or
+macOS, give it after `sh -s --`, and add `--yes` there to go ahead without the
+question:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 2
+```
+
+In PowerShell, set it in `QUICKSTART_STEP` first. It stays set in that window,
+for every later run, until you remove it with
+`Remove-Item Env:QUICKSTART_STEP`:
+
+```powershell
+$env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-ai.ps1 | iex
+```
 
 ## Scaffold the example
 

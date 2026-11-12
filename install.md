@@ -68,10 +68,16 @@ What the command does:
 - **It picks the default binary for your machine** from the latest release: Linux and macOS on 64-bit x86 or 64-bit ARM, Windows on 64-bit x86. It refuses any other system or processor with a message saying which it found or where to turn instead. On a Mac with Apple silicon it picks the Apple silicon binary, even from a shell running through Rosetta 2.
 - **It checks the binary against the release's `SHA256SUMS`** before installing anything. A download whose SHA-256 digest differs from the one the list gives is deleted, nothing is installed, and the command stops with a message naming both digests.
 - **It installs the binary for you alone**, as `~/.local/bin/aggrega` on Linux and macOS and as `%LOCALAPPDATA%\Programs\aggrega\aggrega.exe` on Windows, creating the folder when it is missing and replacing an earlier copy there in one step, so running the command again updates the one you have. It never uses `sudo`. On Windows it also removes the mark a file downloaded from the internet can carry, as `Unblock-File` does in [the manual steps](#the-windows-prebuilt-binary). On macOS it downloads with `curl`, so the binary it installs carries no quarantine mark (see [The macOS prebuilt binary](#the-macos-prebuilt-binary)).
-- **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints the line that puts it there and names the file your shell reads it from: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, which takes a `fish_add_path` line, and `~/.profile` for any other shell. It does not add that line itself: add it and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it.
+- **It makes the command reachable.** On Linux and macOS, when the folder is not on your `PATH`, it prints a command that adds the folder to the file your shell reads when it starts: `~/.zshrc` for zsh, `~/.bashrc` for bash (`~/.bash_profile` on macOS), `~/.config/fish/config.fish` for fish, with a `fish_add_path` line, and `~/.profile` for any other shell. It does not run that command itself: run it and open a new terminal. On Windows it adds the folder to your user `PATH` when it is not there, and to the `PATH` of the PowerShell window it runs in, so `aggrega` runs in that window and in every terminal opened after it, and it says that it added the folder.
 - **It checks that the installed binary runs**, and stops with a message before anything else is set up when it does not. It adds a note when another `aggrega` comes before the one it installed on your `PATH`.
-- **It prints the next steps**, one line to copy for each: the command that sets up shell completion for your shell, as [Set up shell completion as you install](#set-up-shell-completion-as-you-install) describes; `aggrega skills install --global`, which adds the Aggrega skill to the AI assistants on your machine, as [Add the assistant skill as you install](#add-the-assistant-skill-as-you-install) describes; and the address of [Connect an MCP client](#connect-an-mcp-client) above. A step an option has already done is reported as done instead.
-- **It ends by printing the installed version**, running the binary it installed by its full path, so the version shows before your `PATH` reaches the folder.
+- **It prints the installed version**, running the binary it installed by its full path, so the version shows before your `PATH` reaches the folder.
+- **It ends with the next steps**, under `Next:`, one line each: the command that runs the AI quickstart, as [Getting started](getting-started.md#run-quickstart-ai-in-one-command) describes; `aggrega skills install --global`, which adds the Aggrega skill to the AI assistants on your machine, as [Add the assistant skill as you install](#add-the-assistant-skill-as-you-install) describes; and the address of this page, for shell completion and [Connect an MCP client](#connect-an-mcp-client) above. When an option has already installed the skill, its line is left out.
+
+What it prints is short: the version and the system it installs for, a line once the download matches its checksum, and the path it installed. [Getting started](getting-started.md#install-aggrega) shows a whole run. `--verbose`, given after `sh -s --` as the options below are, also prints the address of the checksum list, the name of the release file and the address it downloads it from; `install.ps1` has the same switch as `-Verbose`, for a run of the script with arguments, which `irm … | iex` cannot give it. When the command refuses or a step fails, it says so in one line, on standard error from `install.sh` and as the error or warning PowerShell shows from `install.ps1`:
+
+```text
+aggrega install: error: <what went wrong> - <what to do>
+```
 
 `install.sh`, the Linux and macOS script, needs `curl` or `wget`, `uname`, and `sha256sum` or `shasum`. `install.ps1`, the Windows one, runs in Windows PowerShell 5.1 and in PowerShell 7.
 
@@ -101,11 +107,7 @@ With `--completion`, `install.sh` also sets up shell completion, so that the Tab
 curl -fsSL https://aggrega.ai/install.sh | sh -s -- --completion
 ```
 
-`irm … | iex` passes no option to a script, so in PowerShell run it as a script block, which takes `-Completion`:
-
-```powershell
-& ([scriptblock]::Create((irm https://aggrega.ai/install.ps1))) -Completion
-```
+`irm … | iex` passes no option to a script. In PowerShell, set completion up once the install is done, with the script `aggrega completion powershell` writes, as [Shell completion](language-reference/07-cli.md#shell-completion) describes. `install.ps1` takes `-Completion` too, for a run of the script with arguments.
 
 It sets completion up for you alone, without administrator rights, for the shell your `SHELL` setting names, or in PowerShell for the PowerShell it runs in. It uses the script the installed binary's own `aggrega completion` writes, and names every file it writes or changes:
 
@@ -124,9 +126,7 @@ With `--skills` (`-Skills` in PowerShell), the install command also installs the
 curl -fsSL https://aggrega.ai/install.sh | sh -s -- --completion --skills
 ```
 
-```powershell
-& ([scriptblock]::Create((irm https://aggrega.ai/install.ps1))) -Completion -Skills
-```
+In PowerShell, where `irm … | iex` passes no option, run `aggrega skills install --global` once the install is done: it is the command `-Skills` runs.
 
 It runs the installed binary's own `aggrega skills install --global`, which looks for the assistants on your machine — each one whose configuration folder is in your home directory, or whose command is on your `PATH` — and prints each one it found and what found it. Then:
 

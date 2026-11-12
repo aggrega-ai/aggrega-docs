@@ -117,29 +117,25 @@ On Linux or macOS:
 curl -fsSL https://aggrega.ai/install.sh | sh
 ```
 
-The script ends by printing the version it installed, as in this run on Linux:
+The script names the version it installs and the path it installs it to, says how to add the folder to your `PATH` when
+it is not there, prints the installed version, and ends with what to do next, as in this run on Linux:
 
 ```text
-aggrega install: reading the checksum list https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/SHA256SUMS
-aggrega install: downloading https://github.com/aggrega-ai/aggrega-cli/releases/download/v0.9.0-rc.3/aggrega-0.9.0-rc.3-linux-amd64
-aggrega install: aggrega-0.9.0-rc.3-linux-amd64 matches its SHA-256 checksum in SHA256SUMS
-aggrega install: installed /home/myuser/.local/bin/aggrega
-aggrega install: /home/myuser/.local/bin is not on your PATH. To run aggrega by name, add this line to /home/myuser/.bashrc:
+Installing aggrega 0.9.0-rc.3 (linux-amd64)
+  Downloaded and checked against its SHA-256 checksum
+  Installed /home/myuser/.local/bin/aggrega
 
-  export PATH="/home/myuser/.local/bin:$PATH"
+/home/myuser/.local/bin is not on your PATH. Add it, then open a new terminal:
 
-aggrega install: then open a new terminal.
-aggrega install: next steps:
-
-  Set up shell completion for bash:
-    curl -fsSL https://github.com/aggrega-ai/aggrega-cli/releases/latest/download/install.sh | sh -s -- --completion
-  Install the Aggrega skill for the AI assistants on this machine:
-    aggrega skills install --global
-  Connect your AI client to the Aggrega MCP server, as this page describes:
-    https://aggrega.ai/docs/install/#connect-an-mcp-client
+  echo 'export PATH="/home/myuser/.local/bin:$PATH"' >> ~/.bashrc
 
 aggrega 0.9.0-rc.3 (committed 2026-11-11T12:57:07Z, commit 3eccd4b5, abi v1beta1, go1.26.0)
 embedded  15 plugins version 0.9.0-rc.3 — `aggrega plugin list` for details
+
+Next:
+  Run the AI quickstart:        curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh
+  Add the skill to your AI:     aggrega skills install --global
+  Shell completion and MCP:     https://aggrega.ai/docs/install/
 ```
 
 On Windows, in PowerShell:
@@ -155,13 +151,13 @@ irm https://aggrega.ai/install.ps1 | iex
 On Linux or macOS:
 
 ```sh
-curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 1
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh
 ```
 
 On Windows, in PowerShell:
 
 ```powershell
-& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-ai.ps1))) 1
+irm https://aggrega.ai/quickstart-ai.ps1 | iex
 ```
 
 The script says what it will do and asks before it goes on. It checks that it can find `aggrega`, and that Docker
@@ -169,8 +165,19 @@ answers and has Compose. It writes the example into the folder `quickstart-ai`, 
 already there. It then builds the first step and starts it with Docker Compose. The first start downloads about 5 GB.
 The script ends by printing the page to open, [http://127.0.0.1:8090/](http://127.0.0.1:8090/).
 
-Give it `2`, `3` or `4` in place of `1` to run another step; step 4 only builds. Add `--yes` (`-Yes` in PowerShell)
-to go ahead without the question.
+To run another step, name it: `2`, `3` or `4`; step 4 only builds. On Linux or macOS, give it after `sh -s --`, and
+add `--yes` there to go ahead without the question:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh -s -- 2
+```
+
+In PowerShell, set it in `QUICKSTART_STEP` first. It stays set in that window, for every later run, until you remove
+it with `Remove-Item Env:QUICKSTART_STEP`:
+
+```powershell
+$env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-ai.ps1 | iex
+```
 
 ## Write the AI agent example into a folder
 
@@ -290,14 +297,14 @@ To run its first step in one command, choose a password for its database and exp
 
 ```sh
 export QUICKSTART_DB_PASSWORD=choose-a-password
-curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 1
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh
 ```
 
 On Windows, in PowerShell:
 
 ```powershell
 $env:QUICKSTART_DB_PASSWORD = 'choose-a-password'
-& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-web.ps1))) 1
+irm https://aggrega.ai/quickstart-web.ps1 | iex
 ```
 
 The password must be exported because Docker Compose reads it from your shell, and the database keeps the first
@@ -305,7 +312,17 @@ password it was started with, so the second step needs the same one. The script 
 and checks as the quickstart-ai script does, writes the example into the folder `quickstart-web`, builds the first
 step and starts it. It ends by printing the app's page, [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
 
-Give it `2`, `3` or `4` in place of `1` to run another step; steps 3 and 4 only build.
+Another step is named the same way as for quickstart-ai; steps 3 and 4 only build. On Linux or macOS:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 2
+```
+
+In PowerShell:
+
+```powershell
+$env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-web.ps1 | iex
+```
 
 If you prefer to build and run it step by step, the sections below give the commands the script runs, one at a time.
 The first writes the example into a new folder:

@@ -32,13 +32,21 @@
 // where it has any; otherwise the lines of the next command block on the page, up
 // to that block's own first scaffold line.
 //
-// A one-command line runs a step of an example with its quickstart script:
-// `curl -fsSL https://aggrega.ai/<name>.sh | sh -s -- <step>`, or, in PowerShell,
-// `& ([scriptblock]::Create((irm https://aggrega.ai/<name>.ps1))) <step>`, where
-// <name> is quickstart- and the rest of an example's name. The example's README
-// gives these lines in its section under the level-two heading exactly "Run it
-// in one command", up to the next heading of level one or two (a heading inside
-// a fenced block is not a heading): that section is their source.
+// A one-command line runs a step of an example with its quickstart script, step 1
+// where it names none:
+//
+//   curl -fsSL https://aggrega.ai/<name>.sh | sh
+//   curl -fsSL https://aggrega.ai/<name>.sh | sh -s -- <options>
+//   irm https://aggrega.ai/<name>.ps1 | iex
+//   $env:QUICKSTART_STEP=<step>; irm https://aggrega.ai/<name>.ps1 | iex
+//
+// where <name> is quickstart- and the rest of an example's name, and <options>
+// is a step, --yes, or both, in either order. The example's README gives these
+// lines in its section under the level-two heading exactly "Run it in one
+// command", up to the next heading of level one or two (a heading inside a
+// fenced block is not a heading): that section is their source. A command line
+// naming https://aggrega.ai/quickstart-<rest>.sh or .ps1 in any other shape
+// fails, naming the shapes to write.
 //
 // The Getting started page walks the examples, and is read the strictest way:
 //
@@ -141,10 +149,9 @@ const LIST = /^aggrega scaffold --example --list$/;
 const NAMES_SCAFFOLD = /\baggrega\s+scaffold\b.*\s--example\b/;
 const JOINED =
   /\baggrega\s+scaffold\s+--example(?:\s+|=)\S+.*(?:&&|\|\||;|&)\s*(?:cd|Set-Location|sl|pushd|chdir)(?:\s|$|`)/;
-const ONE_COMMAND = [
-  [/^curl -fsSL https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.sh \| sh -s -- ([0-9]+)$/, "sh"],
-  [/^& \(\[scriptblock\]::Create\(\(irm https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.ps1\)\)\) ([0-9]+)$/, "ps1"],
-];
+const ONE_COMMAND_SH = /^curl -fsSL https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.sh \| sh(?: -s --((?: \S+)+))?$/;
+const ONE_COMMAND_PS1 = /^(?:\$env:QUICKSTART_STEP=([0-9]+); )?irm https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.ps1 \| iex$/;
+const NAMES_ONE_COMMAND = /https:\/\/aggrega\.ai\/quickstart-[^\s/]*\.(?:sh|ps1)\b/;
 const ONE_COMMAND_SECTION = "Run it in one command";
 const MACHINERY = "# The machinery that runs a step from the functions above.";
 const EXAMPLES = "language-reference/examples";
@@ -384,13 +391,33 @@ function joinedForm(pageName, markdown) {
 // --- one-command lines ---------------------------------------------------------------
 
 // oneCommandOf reads one command line: { name, step, script } for a one-command
-// line, script being the file it runs, and undefined for any other line.
+// line, script being the file it runs and step "1" where the line names none,
+// and undefined for any other line.
 function oneCommandOf(text) {
-  for (const [re, ext] of ONE_COMMAND) {
-    const m = text.match(re);
-    if (m) return { name: m[1], step: m[2], script: `${m[1]}.${ext}` };
+  const sh = text.match(ONE_COMMAND_SH);
+  if (sh) {
+    const options = sh[2] === undefined ? [] : sh[2].trim().split(" ");
+    const steps = options.filter((o) => /^[0-9]+$/.test(o));
+    const yes = options.filter((o) => o === "--yes");
+    if (steps.length > 1 || yes.length > 1 || steps.length + yes.length !== options.length) return undefined;
+    return { name: sh[1], step: steps[0] ?? "1", script: `${sh[1]}.sh` };
   }
+  const ps1 = text.match(ONE_COMMAND_PS1);
+  if (ps1) return { name: ps1[2], step: ps1[1] ?? "1", script: `${ps1[2]}.ps1` };
   return undefined;
+}
+
+// misshapenOneCommands fails every command line of lines that names a quickstart
+// script's address but is not a one-command line.
+function misshapenOneCommands(pageName, lines) {
+  for (const l of lines) {
+    if (!NAMES_ONE_COMMAND.test(l.text) || oneCommandOf(l.text)) continue;
+    failures.push(
+      `${pageName}:${l.line}: the command "${l.text}" runs a quickstart script in a shape this check does not read: write ` +
+        '"curl -fsSL https://aggrega.ai/<name>.sh | sh", optionally followed by "-s --" and a step, --yes or both, or ' +
+        '"irm https://aggrega.ai/<name>.ps1 | iex", optionally after "$env:QUICKSTART_STEP=<step>;"',
+    );
+  }
 }
 
 // sectionCommandBlocks returns the command blocks of a Markdown page that sit in
@@ -539,6 +566,7 @@ function checkStrict(file) {
   blocks.forEach((block, bi) => {
     if (!block.command) return;
     checkedBlocks++;
+    misshapenOneCommands(pageName, block.lines);
     const one = expect === undefined && block.lines.map((l) => oneCommandOf(l.text)).find(Boolean);
     if (one) {
       // A block running a quickstart script is held to that example's README, and
@@ -582,6 +610,7 @@ function checkLight(file) {
   // An example's own README: language-reference/examples/<example>/README.md.
   const own = pageName.match(new RegExp(`^${EXAMPLES}/([^/]+)/README\\.md$`))?.[1];
   for (const block of commandBlocks(markdown)) {
+    misshapenOneCommands(pageName, block.lines);
     for (const l of block.lines) {
       const one = oneCommandOf(l.text);
       if (!one) continue;

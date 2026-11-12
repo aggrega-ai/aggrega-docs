@@ -49,14 +49,14 @@ Choose a password for the database and export it first. On Linux or macOS:
 
 ```sh
 export QUICKSTART_DB_PASSWORD=choose-a-password
-curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 1
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh
 ```
 
 On Windows, in PowerShell:
 
 ```powershell
 $env:QUICKSTART_DB_PASSWORD = 'choose-a-password'
-& ([scriptblock]::Create((irm https://aggrega.ai/quickstart-web.ps1))) 1
+irm https://aggrega.ai/quickstart-web.ps1 | iex
 ```
 
 The password must be exported because Docker Compose reads it from your shell,
@@ -70,8 +70,21 @@ already there. It then builds the first step and starts it with Docker
 Compose. The script ends by printing the app's page,
 [http://127.0.0.1:8080/](http://127.0.0.1:8080/).
 
-Give it `2`, `3` or `4` in place of `1` to run another step; steps 3 and 4 only
-build. Add `--yes` (`-Yes` in PowerShell) to go ahead without the question.
+To run another step, name it: `2`, `3` or `4`; steps 3 and 4 only build. On
+Linux or macOS, give it after `sh -s --`, and add `--yes` there to go ahead
+without the question:
+
+```sh
+curl -fsSL https://aggrega.ai/quickstart-web.sh | sh -s -- 2
+```
+
+In PowerShell, set it in `QUICKSTART_STEP` first. It stays set in that window,
+for every later run, until you remove it with
+`Remove-Item Env:QUICKSTART_STEP`:
+
+```powershell
+$env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-web.ps1 | iex
+```
 
 ## Scaffold the example
 
