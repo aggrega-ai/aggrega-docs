@@ -144,6 +144,22 @@ On Windows, in PowerShell:
 irm https://aggrega.ai/install.ps1 | iex
 ```
 
+It prints the same kind of summary, as in this run on Windows:
+
+```text
+Installing aggrega 0.9.0-rc.3 (windows-amd64)
+  Downloaded and checked against its SHA-256 checksum
+  Installed C:\Users\myuser\AppData\Local\Programs\aggrega\aggrega.exe
+
+aggrega 0.9.0-rc.3 (committed 2026-11-11T12:57:07Z, commit 3eccd4b5, abi v1beta1, go1.26.0)
+embedded  15 plugins version 0.9.0-rc.3 — `aggrega plugin list` for details
+
+Next:
+  Run the AI quickstart:        irm https://aggrega.ai/quickstart-ai.ps1 | iex
+  Add the skill to your AI:     aggrega skills install --global
+  Shell completion and MCP:     https://aggrega.ai/docs/install/
+```
+
 [Install](install.md) says what the commands do and where they put the binary.
 
 ## Run quickstart-ai in one command
