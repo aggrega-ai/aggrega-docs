@@ -3,7 +3,11 @@
 ## Scaffold the example
 
 ```sh
-aggrega scaffold --example demo && cd demo
+aggrega scaffold --example demo
+```
+
+```sh
+cd demo
 ```
 
 ## Build
