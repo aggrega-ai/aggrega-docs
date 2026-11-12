@@ -3604,6 +3604,17 @@
     "status": "machine",
     "text": "`reference` Workload에 대해서는 서비스가 출력되지 않으므로, 그것이 실현하는 컴포넌트의 전달 파이프를 읽는 것이 없습니다. 그 컴포넌트에 어태치된 자격 증명(`dotenv-secret` 또는 어태치먼트 자체의 `inject:` 블록에 의해 그 파이프로 전달되는 것)은 출력되는 어떤 파일에도 도달하지 않습니다. 따라서 이런 방식으로 외부 서비스를 실현하고 그 Component가 자격 증명 슬롯을 선언하는 모든 표준 라이브러리 Compose Recipe는 그 슬롯을 채우는 자격 증명을 거부합니다. 빌드는 자격 증명이 없는 채로 성공하는 대신 슬롯과 컴포넌트를 명시하며 중단됩니다. compose에서 외부 서비스의 자격 증명은 그 서비스를 호출하는 컴포넌트에, 그 컴포넌트가 읽는 환경 변수 이름으로 어태치합니다. 이 거부는 각 Recipe 자체의 어설션이며, 이 provider가 무엇이든 렌더링하기 전에 실행됩니다. 이 provider는 Recipe가 어느 카탈로그에서 왔든 노드 자체에서도 거부합니다. `reference` 노드의 어태치먼트 중 그 자료가 민감한 것으로 선언된 것, 즉 그 Feature가 필드를 `sensitive: true`로 선언하거나 그것이 채우는 슬롯이 그렇게 선언한 것은 `TRANSLATION_ERROR`(`E0288`)로 빌드를 중단시키며, 노드와 그러한 모든 어태치먼트를 명시합니다. 이는 어태치에 쓰인 이름을 어떤 슬롯이 선언하는지 여부와 관계없습니다. 민감한 것으로 선언된 것을 아무것도 갖지 않는 어태치먼트는 여기서 거부되지 않습니다. 해당 Components는 자격 증명 슬롯을 선택 사항으로 선언하므로, compose에서는 비어 있는 슬롯 때문에 중단되는 일이 없습니다. Kubernetes 실현에 자격 증명이 필요한 경우, 즉 `twilio`, `vonage`, `telnyx`, `bland`, `letta`, `retell`, `vapi`의 `helm` Recipes에서는 그 Recipe가 대신 슬롯을 필수로 요구하며, 비어 있으면 슬롯을 명시하며 빌드를 중단합니다."
   },
+  "0503af92936871fa": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "3a1448be6e464556",
+      "reviewed": false
+    },
+    "srcHash": "0503af92936871fa",
+    "status": "machine",
+    "text": "Aggregate는 호스팅된 OpenAI 모델과 로컬 모델, 두 모델 앞에 LiteLLM 게이트웨이를 추가하고 앞의 모델에서 뒤의 모델로 가는 폴백 체인을 둡니다. 이제 에이전트는 게이트웨이에 묻습니다. API 키 없이 실행됩니다. 키가 없으면 클라우드 모델이 답할 수 없으므로 게이트웨이가 대신 로컬 모델에서 답합니다. OpenAI를 사용하려면 스택을 시작하기 전에 셸에서 `OPENAI_API_KEY`를 export하십시오. 이제 채팅 페이지 헤더 아래 줄에는 두 모델의 이름이 모두 표시됩니다."
+  },
   "0505795503da0e0a": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -7727,6 +7738,13 @@
     "status": "machine",
     "text": "pipeline step failed: step `\"<id>\"` (index `<n>`): `<the severity the host could not route>`: pipeline step typed-I/O contract violation (파이프라인 단계 타입 지정 I/O 계약 위반)"
   },
+  "0b1dbdd008e023d5": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0b1dbdd008e023d5",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/support`입니다. 구성 파일에는 자체 이름이 없으므로 `langgraph.json`이 제공하는 단 하나의 그래프 `support`를 따릅니다. 여러 그래프를 제공하는 구성 파일은 파일 이름을 따르거나, 여기처럼 가져오기에 디렉터리를 넘긴 경우에는 디렉터리 이름을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
+  },
   "0b1fb5bcabfd4ae4": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -10151,6 +10169,13 @@
     "status": "machine",
     "text": "`format` — 대상의 프로바이더가 해당 파일에 대해 선언한 형식입니다. Compose 파일은 `yaml`, CloudFormation 템플릿은 `json`, 그리고 Recipe가 작성하는 데이터베이스 본문을 포함한 모든 Terraform 파일은 `hcl`입니다. 아무것도 선언하지 않은 경우에는 빈 문자열이며, 여기의 Kubernetes 파일이 그렇습니다."
   },
+  "0ed1595afd4cf08c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0ed1595afd4cf08c",
+    "status": "machine",
+    "text": "예제를 그 이름을 딴 새 폴더에 작성하고, 그 안의 `source` 폴더로 이동합니다. 가져오기는 여기서 실행됩니다. 이 폴더에는 챗플로 파일 `support-chat.json`이 들어 있으며, 이 페이지는 그 내용을 인용하지 않고 설명합니다."
+  },
   "0ed3a8ce8e41e315": {
     "at": "2026-10-23T00:26:03.433962+00:00",
     "job": "msgbatch_01JTbBN2BtxkiETJeUmZcKFY",
@@ -11554,6 +11579,17 @@
     "srcHash": "108e03de00a1689c",
     "status": "machine",
     "text": "더 깊은 원본(라이브러리 B)은 현재 주석 형태에서 보존되지 않습니다. 이는 문서화된 작성 측면의 동작이며 결함이 아닙니다. `aggrega explain`은 직계 부모 출처를 보고하며, 필요하면 라이브러리를 재귀적으로 조회하여 체인을 재구성할 수 있습니다. 향후 작성 편의 개선을 통해 `x-aggrega-source-chain:` 확장으로 체인 깊이를 노출할 수 있으며, 그때까지는 직계 부모 출처 표시가 계약입니다."
+  },
+  "108fd444f25803d4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "329229423bd500b2",
+      "reviewed": false
+    },
+    "srcHash": "108fd444f25803d4",
+    "status": "machine",
+    "text": "또는 터미널에서 물어볼 수도 있습니다. 에이전트에게 이름을 알려 주고 질문한 뒤, 에이전트를 다시 시작하고, 같은 대화에서 자신의 이름을 물어봅니다."
   },
   "109371d74273fbd2": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -23127,6 +23163,13 @@
     "status": "machine",
     "text": "provider는 어떤 키의 의미도 읽지 않습니다. 키는 위의 집합에 있기 때문에 전달되고, 없기 때문에 거부됩니다."
   },
+  "21f7b2f029dc6b16": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "21f7b2f029dc6b16",
+    "status": "machine",
+    "text": "트랙은 두 가지입니다:"
+  },
   "21fa0aaf41976dc9": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -23865,6 +23908,13 @@
     "srcHash": "23026c5c3b72d10c",
     "status": "machine",
     "text": "기반 메커니즘 — 어노테이션이 계단식으로 적용되는 방식, 측-대-필러 분할이 어노테이션 값을 Feature 필러로 라우팅하는 방식, 명시적 연결 우선 원칙이 어노테이션 기반 기여와 상호 작용하는 방식 — 은 [providers/well-known-annotations.md](../providers/well-known-annotations.md) 및 [entities/manifest.md](../entities/manifest.md) “Annotation-Driven Feature Bindings”를 참조하십시오."
+  },
+  "230425d976e3a730": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "230425d976e3a730",
+    "status": "machine",
+    "text": "Aggregate와 Manifest의 이름은 `imported/support-assistant`입니다. 애플리케이션의 이름, 즉 `app` 아래의 `Support assistant`를 `support-assistant`로 줄인 것이며, 이름이 없는 애플리케이션은 파일 이름을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "23057a985039dd43": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -34485,6 +34535,17 @@
     "status": "machine",
     "text": "이 세 가지가 전부이며, 다른 모든 소켓의 진단이 사용하는 것과 같은 세 가지이므로 심각도는 어디에서 읽든 같은 의미를 가집니다."
   },
+  "32e4ddcac2937244": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "b131302ba695f8eb",
+      "reviewed": false
+    },
+    "srcHash": "32e4ddcac2937244",
+    "status": "machine",
+    "text": "첫 번째 단계는 로컬 모델을 통해 답하고 모든 대화를 Valkey 저장소에 보관하는 LangGraph 에이전트로, 브라우저에서 에이전트와 대화할 수 있는 작은 채팅 페이지가 함께 있습니다. 빌드하고 시작합니다."
+  },
   "32e523fdf3e38d0d": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -40855,6 +40916,13 @@
     "status": "machine",
     "text": "`ImportCandidate`"
   },
+  "3c9c8b3306884c72": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3c9c8b3306884c72",
+    "status": "machine",
+    "text": "PostgreSQL을 사용하는 웹 앱"
+  },
   "3c9ce52104285201": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -41301,6 +41369,13 @@
     "status": "machine",
     "text": "파일 본문 안에서는 Go 템플릿의 전체 합성 어휘를 사용할 수 있습니다. `{{ define \"name\" }}...{{ end }}`는 재사용 가능한 블록을 선언하고, `{{ template \"name\" . }}`는 이를 호출하며, 파이프라인과 함수는 표준 Go `text/template` 패키지를 따릅니다. 파일 본문이 읽을 수 있는 필러 컨텍스트(`.values`, `.infra`, `.locals`, `.context`, `.features`, 그리고 소비하는 Recipe가 선언한 경우 `.workload`와 `.source`)는 소비하는 Recipe 자체의 `artifacts:` 항목이 읽는 컨텍스트와 같으며, [Recipe](recipe.md) 페이지의 `artifacts:` 필드 아래에 설명되어 있습니다. 소비하는 Recipe가 `workload:`를 선언하지 않았는데 `.workload`를 읽거나, `source:`를 선언하지 않았는데 `.source`를 읽는 본문은 충족할 수 없었던 참조를 명시하는 진단과 함께 중단됩니다. 각 필러는 개별적으로 검사되므로, 하나를 선언했다고 해서 다른 하나를 읽을 수 있는 것은 아닙니다."
   },
+  "3d38de45b660eced": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3d38de45b660eced",
+    "status": "machine",
+    "text": "로컬 모델에서 동작하는 AI 에이전트"
+  },
   "3d3972ba61f237d4": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -41709,6 +41784,13 @@
     "srcHash": "3de3f72fd8857a5c",
     "status": "machine",
     "text": "**응답은 폭이 0인 위치와 그 주변에 써야 할 내용입니다.** `file`은 워크스페이스 기준 상대 경로로 나타낸 문서입니다. `container`는 요청한 경로를 그대로 반복하므로, 여러 요청을 동시에 진행 중인 클라이언트는 자체적으로 순서를 관리하지 않고도 각 응답을 해당 질문과 짝지을 수 있습니다. `position`은 교체가 아니라 삽입합니다. 문서에 이미 있는 것은 아무것도 덮어쓰이거나 밀리지 않습니다."
+  },
+  "3de7c9555b222849": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3de7c9555b222849",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/support-brief`입니다. 프로젝트의 `config/agents.yaml`과 `config/tasks.yaml`은 크루의 이름을 정하지 않습니다. 크루의 이름은 프로그램 안에 있고, 가져오기는 프로그램을 읽지 않기 때문입니다. 따라서 이 파일들을 디렉터리로 가져오면 디렉터리 이름 `support_brief`를 이름 세그먼트 형태로 쓴 것이 이름이 됩니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "3dea292adf01b736": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -48393,6 +48475,13 @@
     "status": "machine",
     "text": "Component assertions와 마찬가지로 Feature assertions는 계약 수준의 불변 조건, 즉 어떤 FeatureRecipe가 렌더링을 구현하든 Feature 연결이 충족해야 하는 속성을 표현합니다. 특정 구현에 의존하는 필드 간 규칙(Wasm 플러그인 요구 사항, 차트의 특이 동작)에는 대신 FeatureRecipe의 `assertions:` 필드를 사용합니다. 전체 작성 문법, 템플릿 컨텍스트, Feature assertions와 FeatureRecipe assertions 간의 책임 분담은 [templates/assertions-block.md](../templates/assertions-block.md)를 참조하십시오."
   },
+  "47a4887eeaa2b8b1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "47a4887eeaa2b8b1",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/notes`이며, Compose 프로젝트의 `name:`에서 따옵니다. `name:`이 없는 Compose 파일은 파일 이름인 `compose`를 따르고, 그 파일이 들어 있는 디렉터리를 디렉터리로 가져온 경우에는 그 디렉터리 이름을 따릅니다. 이는 Compose가 프로젝트에 이름을 붙이는 방식과 같습니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
+  },
   "47a7212415cf57a5": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -48778,6 +48867,13 @@
     "srcHash": "483958368f6154f4",
     "status": "machine",
     "text": "**도메인 4**"
+  },
+  "483a08474855a723": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "483a08474855a723",
+    "status": "machine",
+    "text": "예제를 빌드하고 자신의 머신에서 실행;"
   },
   "483bd49023ae2bfb": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -54081,6 +54177,17 @@
     "srcHash": "503c170d5066303d",
     "status": "machine",
     "text": "SignedArtifact[] 또는 null"
+  },
+  "5042fef592e99001": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "332d91de857547eb",
+      "reviewed": false
+    },
+    "srcHash": "5042fef592e99001",
+    "status": "machine",
+    "text": "Aggrega 설치;"
   },
   "5046ce2c2d707964": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -71080,6 +71187,13 @@
     "status": "machine",
     "text": "`server_instances`를 커스텀 리소스가 허용하는 어떤 값으로 바꾸어도 이 디렉터리의\n`aggregate.yaml`은 달라지지 않습니다."
   },
+  "694cbf82da026908": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "694cbf82da026908",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/mcp`입니다. 클라이언트의 구성에는 자체 이름이 없으므로 파일 이름 `.mcp.json`을 따르며, 레지스트리의 `server.json`은 그 `name`을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
+  },
   "694fdbfcd71d1467": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -73838,6 +73952,17 @@
     "srcHash": "6d7a66dd47b49bc9",
     "status": "machine",
     "text": "AI 어시스턴트와 함께 작업하기"
+  },
+  "6d7e50e12cf6bd4a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "8d797f95fdd07c15",
+      "reviewed": false
+    },
+    "srcHash": "6d7e50e12cf6bd4a",
+    "status": "machine",
+    "text": "각 트랙의 각 단계는 짧은 섹션 하나이며, 그 단계가 무엇을 추가하는지와 그것을 빌드하는 명령을 보여 줍니다. 그 뒤에 클라우드용 스타터 두 가지가 이어지며, 하나는 Terraform용, 하나는 AWS CloudFormation용입니다."
   },
   "6d7e8a15a5180cfc": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -78734,6 +78859,13 @@
     "srcHash": "74d40d736eb794fc",
     "status": "machine",
     "text": "duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered (`\"<key>\"`, mechanism `\"<mechanism>\"`, attachment `\"<attachment>\"`, delivered first by attachment `\"<other-attachment>\"`)"
+  },
+  "74d53dfca68436b9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "74d53dfca68436b9",
+    "status": "machine",
+    "text": "예제 생성하기"
   },
   "74d631855f8d1987": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -88728,6 +88860,13 @@
     "status": "machine",
     "text": "workspaceconfig: governance attachment `\"<uri>\"` declares no role; set `role:` to one of `<the known roles>`: a governance attachment declares no role or an unknown role (workspaceconfig: governance 연결이 역할을 선언하지 않습니다. 알려진 역할 중 하나로 role을 설정하십시오: governance 연결이 역할을 선언하지 않거나 알 수 없는 역할을 선언합니다)"
   },
+  "83afe1a0db6a44f9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "83afe1a0db6a44f9",
+    "status": "machine",
+    "text": "예제를 그 이름을 딴 새 폴더에 작성하고, 그 안의 `source` 폴더로 이동합니다. 이 폴더에는 이 페이지가 가져오는 내용이 들어 있으며, 가져오기는 여기서 실행됩니다."
+  },
   "83b2180992e7a531": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -89472,6 +89611,13 @@
     "status": "machine",
     "text": "**다중 환경 스케일링(파라미터 호이스팅 요구 사항).**\n개발자의 `Aggregate.yaml`을 변경하지 않고 이 하드웨어 제약을 GitOps 환경(Dev와 Prod) 전반에 걸쳐 조정하기 위해, 개발자는 값을 타입이 지정된 `parameters` 계약으로 호이스팅합니다. Ops는 환경별 `Release` 파일을 통해 특정 IOPS 요구 사항을 충족합니다. 컴파일러의 실행 순서가 이 흐름을 보호합니다. 파라미터 계약 검증은 해석 단계에서 실행되고, 보간은 파라미터를 주변의 `values:` 문자열로 해석하며, Recipe의 `valuesMapping:` 템플릿은 해석된 값을 렌더링된 출력으로 전달합니다."
   },
+  "84f87c35564ad5e1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "84f87c35564ad5e1",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/support-agent`입니다. 루트 에이전트의 `name`인 `support_agent`를 `support-agent`로 줄인 것입니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
+  },
   "84f9be992ceb3f93": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -89913,6 +90059,13 @@
     "srcHash": "85a39ab345d672ff",
     "status": "machine",
     "text": "예"
+  },
+  "85a48d5ad70084f7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "85a48d5ad70084f7",
+    "status": "machine",
+    "text": "Aggregate와 Manifest의 이름은 `imported/support-agent`입니다. 워크플로 자체의 이름 `Support agent`를 `support-agent`로 줄인 것이며, 이름이 없는 워크플로는 파일 이름을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "85a54341b8d805e7": {
     "at": "2026-11-01T19:00:07.009Z",
@@ -93362,6 +93515,13 @@
     "status": "machine",
     "text": "**찾아낸 경로에서는 전체 검증을 하고, 경로를 찾을 수 없을 때만 소프트 스킵합니다.** 바인딩된 하위 키의 하위 스키마를 찾으면, 값은 해당 경로의 **완전한** JSON Schema 2020-12 제약 조건 집합(type, enum, pattern, 숫자 범위, 중첩된 object/array 형태)에 대해 검증됩니다. 말단의 `$ref` / `allOf` / `oneOf`는 건너뛰지 않고 스키마의 정의에 대해 해석한 뒤 검증합니다. 소프트 스킵 원칙은 *탐색*에만 적용됩니다. 탐색기가 바인딩된 리프에 도달하기 전 **중간** 세그먼트에서 탈출구(`$ref`, `patternProperties`, `oneOf`/`anyOf`/`allOf`, 또는 스키마 본문을 가진 `additionalProperties`)를 만나면 경로를 정적으로 해석할 수 없으므로, 검증기는 잘못된 중단의 위험을 감수하는 대신 오류를 발생시키지 않고 계속 진행합니다. 해당 바인딩의 검증은 런타임이 계속 담당합니다."
   },
+  "8ad3ea923f613cac": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8ad3ea923f613cac",
+    "status": "machine",
+    "text": "예제를 한 단계씩 확장."
+  },
   "8ad753ea56928ed8": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -94475,6 +94635,13 @@
     "srcHash": "8c6449ec6a1e04a4",
     "status": "machine",
     "text": "**Provider 참고.** Helm은 위에서 설명한 `secretKeyRef`/Secret 볼륨 참조를 렌더링합니다. compose provider에는 Secret에서 환경 변수를 가져오는 네이티브 기본 요소가 없으므로, compose 대상 Workload의 `as: env` attachment 항목은 빈 값의 환경 항목과 해당 항목을 지정하는 경고로 렌더링됩니다([compose provider 페이지](../providers/compose.md#what-the-compose-provider-does-not-deliver) 참조). 이때에도 참조 가능성 규칙(기능에 구애받지 않는)은 그대로 적용됩니다."
+  },
+  "8c68956bb85ca59c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8c68956bb85ca59c",
+    "status": "machine",
+    "text": "가져오기는 그 카탈로그를 임포터를 가져오는 레지스트리가 아니라 자신의 머신에 있는 폴더에서 읽으므로, 생성된 예제에도 그 체크아웃이 필요합니다. 체크아웃이 없으면 대상에 바인딩되는 Recipe가 없으므로 `--target`이 거부됩니다."
   },
   "8c69bc3d9df57d70": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -97010,6 +97177,13 @@
     "srcHash": "9027ca38aa83db75",
     "status": "machine",
     "text": "[`entities/component.md`](../entities/component.md) — Component의 `metadata.labels.component.aggrega.ai/type` 요구 사항과 `schema` / `usesSchema` / `featuresSchema` 선언입니다."
+  },
+  "9027ff6ac0445083": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9027ff6ac0445083",
+    "status": "machine",
+    "text": "실행 가능한 예제를 자신의 폴더에 작성;"
   },
   "9029c3e1adb55aa9": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -103529,6 +103703,13 @@
     "status": "machine",
     "text": "해당 노드의 의존성 소켓 중 하나 안의 연결"
   },
+  "99e913c703b9a7d1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "99e913c703b9a7d1",
+    "status": "machine",
+    "text": "이 장에서는 다음 과정을 안내합니다:"
+  },
   "99e9850c7abf37ec": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -105396,6 +105577,13 @@
     "srcHash": "9c9b79b864e8821d",
     "status": "machine",
     "text": "`volume.secret`"
+  },
+  "9c9f5d16492255a3": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9c9f5d16492255a3",
+    "status": "machine",
+    "text": "Aggregate, Release, Manifest의 이름은 `imported/supportagent`입니다. 에이전트의 `name`인 `SupportAgent`를 `supportagent`로 줄인 것이며, `displayName`은 읽지 않습니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "9ca1be4964b5e4bc": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -115186,6 +115374,13 @@
     "srcHash": "ab01e138a9aed759",
     "status": "machine",
     "text": "**사용 사례:**"
+  },
+  "ab031805300bc4c4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "ab031805300bc4c4",
+    "status": "machine",
+    "text": "예제를 그 이름을 딴 새 폴더에 작성하고, 그 안의 `source` 폴더로 이동합니다. 가져오기는 여기서 실행됩니다. 이 폴더에는 플로 파일 `basic-prompting.json`이 들어 있으며, 이 페이지는 그 내용을 인용하지 않고 설명합니다."
   },
   "ab073ead04253f22": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -134045,6 +134240,17 @@
     "status": "machine",
     "text": "provider가 소비하는 인바운드 어노테이션 외에도, Aggrega는 렌더링된 모든 Kubernetes 매니페스트와 내보낸 모든 compose 서비스에 출처 레이블을 **내보냅니다**. 이 레이블 집합을 통해 다운스트림 도구(비용 대시보드, 관측성 스택, GitOps 컨트롤러)는 런타임 리소스를 그것을 생성한 카탈로그 콘텐츠로 거슬러 귀속시킬 수 있습니다."
   },
+  "c6035d3a0193e53b": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "7055688b74f2449f",
+      "reviewed": false
+    },
+    "srcHash": "c6035d3a0193e53b",
+    "status": "machine",
+    "text": "[Aggrega 배우기](learn.md)는 Aggrega의 바탕이 되는 개념부터 자신의 Aggregate 작성까지 문서 전체를 따라가는 경로입니다. 실행 가능한 예제는 더 나아가며 각각이 그대로 빌드되는 워크스페이스이고, [학습 순서](language-reference/examples/by-product-and-capability.md#in-teaching-order)에 그 모두가 나열되어 있습니다. 먼저 “여기서 시작” 아래에 이 페이지의 네 가지가 오고, 이어서 나머지가 티어별로 가장 단순한 것부터 나옵니다. 사이드바의 예제 섹션도 같은 순서를 따릅니다. 다른 형식으로 이미 가지고 있는 프로젝트에서 시작하려면, [가져오기](authoring/import/README.md)가 그 프로젝트로부터 Aggrega 파일의 초안을 작성하므로 이를 검토하고 빌드하면 됩니다."
+  },
   "c60424e5e9b89eb3": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -147365,6 +147571,17 @@
     "status": "machine",
     "text": "Aggregate 컴포넌트 / 어태치먼트 인스턴스"
   },
+  "d926121d1a3d2069": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "a129093cc5ca9adb",
+      "reviewed": false
+    },
+    "srcHash": "d926121d1a3d2069",
+    "status": "machine",
+    "text": "Aggregate는 Microsoft Presidio를 추가하는데, 이는 게이트웨이가 로그에 기록하는 각 호출의 사본에서 이름, 이메일 주소, 전화번호를 마스킹합니다. 또한 요청이 모델에 도달하기 전에 게이트웨이가 요청을 거부하는 기준이 되는 패턴 목록도 추가합니다. 이제 채팅 페이지 헤더 아래 줄에는 가드레일도 표시됩니다."
+  },
   "d9266aeb5913b201": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -149825,6 +150042,13 @@
     "status": "machine",
     "text": "해석됨"
   },
+  "dc6961c2283a3cd7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dc6961c2283a3cd7",
+    "status": "machine",
+    "text": "같은 머신의 브라우저에서 `http://localhost:8090/`을 열면 에이전트와 채팅할 수 있습니다. 이 페이지는 머신의 루프백 주소에만 게시되고, 헤더 아래 줄에는 답하는 모델의 이름이 표시되며, 대화는 에이전트의 저장소에 보관되므로 새로 고침해도 대화가 이어집니다."
+  },
   "dc6f1734d0bafaf1": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -150264,6 +150488,13 @@
     "srcHash": "dcf23461a53420b0",
     "status": "machine",
     "text": "`08-workload-synthesis.yaml` — `workload:` 템플릿이 평가되고 그 출력이 파싱될 당시의 컨텍스트입니다. Recipe가 `workload:`를 선언한 경우(인라인 또는 `$import:`로 로드)에만 존재합니다. 파싱된 `Workload` 자체는 이 슬롯에 없습니다. 진행 중이 아니라 확정된 뒤인 `09-artifact-evaluation/`부터 나타납니다."
+  },
+  "dcf27ebedd638659": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dcf27ebedd638659",
+    "status": "machine",
+    "text": "Aggregate와 Manifest의 이름은 `imported/basic-prompting`입니다. 플로 자체의 이름 `Basic Prompting`을 `basic-prompting`으로 줄인 것이며, 이름이 없는 플로는 파일 이름을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "dcf2e9a0dd5e56a6": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -154149,6 +154380,13 @@
     "srcHash": "e2461d6d85156600",
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (이 빌드가 선언한 구성 요소를 플러그인이 표현할 수 없습니다)\n> cloudformation-provider: rule `\"<rule>\"` of template `\"<template>\"` reads parameter `\"<parameter>\"` through Fn::ValueOf, which names a declared parameter by its logical ID, and binding the parameter removes its declaration from the source; leave the parameter unbound so the rule can read it at deploy (템플릿의 규칙이 선언된 파라미터를 논리적 ID로 지정하는 Fn::ValueOf를 통해 파라미터를 읽는데, 파라미터를 바인딩하면 소스에서 그 선언이 제거됩니다. 규칙이 배포 시에 읽을 수 있도록 파라미터를 바인딩하지 않은 채로 두십시오)"
+  },
+  "e248d454a77b672a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "e248d454a77b672a",
+    "status": "machine",
+    "text": "Aggregate와 Manifest의 이름은 `imported/support-chat`입니다. Flowise 내보내기에는 자체 이름이 없으므로 파일 이름 `support-chat.json`을 따릅니다. 네임스페이스는 임포터의 `target_namespace` 설정이 정하며, 다른 값을 설정하지 않으면 `imported`입니다([설정](../../language-reference/plugins/core-importers.md#settings))."
   },
   "e24ec6e5c08dcca3": {
     "at": "2026-11-01T19:02:04.075Z",
@@ -160972,6 +161210,17 @@
     "srcHash": "ec8ae08060ddd3ab",
     "status": "machine",
     "text": "더 진행하기 전에 export를 확인합니다."
+  },
+  "ec8c82ec5ce7ae6d": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "aa26e41b4c2496b7",
+      "reviewed": false
+    },
+    "srcHash": "ec8c82ec5ce7ae6d",
+    "status": "machine",
+    "text": "채팅 페이지를 제외한 같은 컴포넌트를 Kubernetes용으로 빌드합니다. 빌드는 매니페스트를 `dist/helm/` 아래에 작성하고 클러스터에 접속하지 않은 채 멈춥니다. Kubernetes에서 게이트웨이는 자신의 네임스페이스에 이미 존재하는 Secret에서 OpenAI 키를 읽습니다. 빌드가 작성한 내용을 적용하기 전에 이를 만드는 방법은 [예제 페이지](language-reference/examples/quickstart-ai/README.md)에서 보여 줍니다."
   },
   "ec909588ec931dbe": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -171169,6 +171418,17 @@
     "srcHash": "fb0a76dce94be86e",
     "status": "machine",
     "text": "**이중 연결은 두 컴포넌트의 컨테이너를 서로 구분합니다.** 컨테이너 `warm-cache`가 있는 `api`와 컨테이너 `cache`가 있는 `api-warm`은 `api--warm-cache`와 `api-warm--cache`라는 두 서비스로 실행되며, 하이픈 하나로 연결하면 둘 다 `api-warm-cache`가 됩니다."
+  },
+  "fb0c0964816dc6b2": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "c3f3e787930bd6f5",
+      "reviewed": false
+    },
+    "srcHash": "fb0c0964816dc6b2",
+    "status": "machine",
+    "text": "이 장에서는 Aggrega의 멘탈 모델과 개념적 형태를 다룹니다. 비전과 포지셔닝, 네 가지 도메인의 분리, 엔티티 분류 체계, 시스템 전반에 걸쳐 유지되는 불변 조건, 컴파일러 파이프라인이 개념적 수준에서 동작하는 방식, 엔터프라이즈 거버넌스, 카탈로그 생태계, 그리고 확장성을 설명합니다. 전체 그림을 파악하려면 각 장을 순서대로 읽으십시오."
   },
   "fb0c8da52a4b3db3": {
     "at": "2026-10-29T23:55:51.039Z",

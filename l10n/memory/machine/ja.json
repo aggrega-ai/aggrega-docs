@@ -3604,6 +3604,17 @@
     "status": "machine",
     "text": "`reference` Workload にはサービスが出力されないため、それが実現するコンポーネントの配信パイプを読むものはありません。そのコンポーネントにアタッチされた認証情報（`dotenv-secret` によって、またはアタッチメント自身の `inject:` ブロックによってパイプ上で配信されるもの）は、出力されるどのファイルにも届きません。そのため、この方法で外部サービスを実現し、その Component が認証情報スロットを宣言している標準ライブラリの Compose Recipe はすべて、そのスロットを埋める認証情報を拒否します。ビルドは、認証情報が欠けたまま成功するのではなく、スロットとコンポーネントを示して停止します。compose では、外部サービスの認証情報は、それを呼び出すコンポーネントに、そのコンポーネントが読む環境変数のもとでアタッチします。この拒否は各 Recipe 自身のアサーションであり、このプロバイダが何かをレンダリングする前に実行されます。このプロバイダは、Recipe がどのカタログから来たかにかかわらず、ノード自体でも拒否します。`reference` ノード上のアタッチメントのうち、その素材が機密と宣言されているもの（その Feature がフィールドを `sensitive: true` と宣言しているか、それが埋めるスロットがそう宣言しているもの）は、ビルドを `TRANSLATION_ERROR`（`E0288`）で停止させ、ノードとそのようなアタッチメントをすべて示します。これは、アタッチ時の名前をいずれかのスロットが宣言しているかどうかにかかわりません。機密と宣言されたものを何も持たないアタッチメントは、ここでは拒否されません。これらの Components は認証情報スロットを任意として宣言しているため、compose では空のままのスロットによって停止することはありません。Kubernetes での実現に認証情報が必要な場合（`twilio`、`vonage`、`telnyx`、`bland`、`letta`、`retell`、`vapi` の `helm` Recipes）は、その Recipe が代わりにスロットを必須とし、空の場合はスロットを示してビルドを停止します。"
   },
+  "0503af92936871fa": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "3a1448be6e464556",
+      "reviewed": false
+    },
+    "srcHash": "0503af92936871fa",
+    "status": "machine",
+    "text": "この Aggregate は、ホストされた OpenAI モデルとローカルモデルの 2 つのモデルの前に LiteLLM ゲートウェイを追加し、前者から後者へのフォールバックチェーンを設けます。エージェントはこれからゲートウェイに問い合わせます。API キーなしで動作します。キーがなければクラウドモデルは回答できず、代わりにゲートウェイがローカルモデルから回答します。OpenAI を使うには、スタックを起動する前にシェルで `OPENAI_API_KEY` を export します。チャットページのヘッダーの下の行には、両方のモデルの名前が表示されるようになります。"
+  },
   "0505795503da0e0a": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -7727,6 +7738,13 @@
     "status": "machine",
     "text": "pipeline step failed: step `\"<id>\"` (index `<n>`): `<the severity the host could not route>`: pipeline step typed-I/O contract violation（パイプラインステップが失敗しました: パイプラインステップの型付き I/O 契約違反）"
   },
+  "0b1dbdd008e023d5": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0b1dbdd008e023d5",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/support` です。設定ファイルには独自の名前がないため、`langgraph.json` が提供する唯一のグラフ `support` から名前が付きます。複数のグラフを提供する設定ファイルには、そのファイル名から、またはここでのようにインポートにディレクトリを渡した場合はそのディレクトリ名から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "0b1fb5bcabfd4ae4": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -10151,6 +10169,13 @@
     "status": "machine",
     "text": "`format` — ターゲットのプロバイダーがそのファイルに宣言したフォーマット。Compose ファイルは `yaml`、CloudFormation テンプレートは `json`、Recipe が書くデータベースの本体を含むすべての Terraform ファイルは `hcl` です。何も宣言されていない場合は空文字列で、ここでの Kubernetes のファイルがそうです。"
   },
+  "0ed1595afd4cf08c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0ed1595afd4cf08c",
+    "status": "machine",
+    "text": "サンプルを、その名前を付けた新しいフォルダーに書き出し、その `source` フォルダーに移動します。インポートはここで実行します。このフォルダーにはチャットフローのファイル `support-chat.json` が入っており、このページではその内容を引用せずに説明します。"
+  },
   "0ed3a8ce8e41e315": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -11554,6 +11579,17 @@
     "srcHash": "108e03de00a1689c",
     "status": "machine",
     "text": "より深い出所(ライブラリ B)は、現在のアノテーションの形では保持されません。これは文書化されたオーサリング上の挙動であり、不具合ではありません。`aggrega explain` は直接の親による出所を報告し、必要であればライブラリを再帰的に参照することでチェーンを再構築できます。将来のオーサリング上の改善で `x-aggrega-source-chain:` 拡張によってチェーンの深さを示す可能性がありますが、それまでは直接の親による出所の記録が契約となります。"
+  },
+  "108fd444f25803d4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "329229423bd500b2",
+      "reviewed": false
+    },
+    "srcHash": "108fd444f25803d4",
+    "status": "machine",
+    "text": "ターミナルから尋ねることもできます。エージェントに名前を伝えて質問し、エージェントを再起動してから、同じ会話で自分の名前を尋ねます。"
   },
   "109371d74273fbd2": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -23121,6 +23157,13 @@
     "status": "machine",
     "text": "プロバイダはキーの意味を読みません。キーが運ばれるのは上記の集合に含まれるからであり、拒否されるのは含まれないからです。"
   },
+  "21f7b2f029dc6b16": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "21f7b2f029dc6b16",
+    "status": "machine",
+    "text": "トラックは 2 つあります。"
+  },
   "21fa0aaf41976dc9": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -23859,6 +23902,13 @@
     "srcHash": "23026c5c3b72d10c",
     "status": "machine",
     "text": "根底にある仕組み — アノテーションがどのようにカスケードするか、サイド対ピラーの区分がアノテーションの値をどのように Feature のピラーへ振り分けるか、明示的なアタッチメントが優先されるという規律がアノテーション駆動の寄与とどのように相互作用するか — については、[providers/well-known-annotations.md](../providers/well-known-annotations.md) と [entities/manifest.md](../entities/manifest.md) の「Annotation-Driven Feature Bindings」を参照してください。"
+  },
+  "230425d976e3a730": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "230425d976e3a730",
+    "status": "machine",
+    "text": "Aggregate と Manifest の名前は `imported/support-assistant` です。アプリケーションの名前、つまり `app` の下の `Support assistant` を `support-assistant` に縮めたものです。名前のないアプリケーションには、そのファイル名から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "23057a985039dd43": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -34479,6 +34529,17 @@
     "status": "machine",
     "text": "この 3 つがすべてであり、ほかのすべてのソケットの診断が使う 3 つと同じです。そのため、重大度はどこで読んでも同じ意味を持ちます。"
   },
+  "32e4ddcac2937244": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "b131302ba695f8eb",
+      "reviewed": false
+    },
+    "srcHash": "32e4ddcac2937244",
+    "status": "machine",
+    "text": "最初のステップは LangGraph エージェントで、ローカルモデルを通じて回答し、すべての会話を Valkey ストアに保存します。ブラウザーからエージェントと話すための小さなチャットページも付いています。ビルドして起動します。"
+  },
   "32e523fdf3e38d0d": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -40849,6 +40910,13 @@
     "status": "machine",
     "text": "`ImportCandidate`"
   },
+  "3c9c8b3306884c72": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3c9c8b3306884c72",
+    "status": "machine",
+    "text": "PostgreSQL を使う Web アプリ"
+  },
   "3c9ce52104285201": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -41295,6 +41363,13 @@
     "status": "machine",
     "text": "ファイル本体の中では、Go テンプレートの合成用の語彙をすべて使用できます。`{{ define \"name\" }}...{{ end }}` は再利用可能なブロックを宣言し、`{{ template \"name\" . }}` はそれを呼び出します。パイプラインと関数は標準の Go `text/template` パッケージに従います。ファイル本体が読み取れるピラーのコンテキスト（`.values`、`.infra`、`.locals`、`.context`、`.features`、および利用側の Recipe が宣言している場合の `.workload` と `.source`）は、利用側の Recipe 自身の `artifacts:` エントリが読み取るコンテキストと同じであり、[Recipe](recipe.md) ページの `artifacts:` フィールドの項に記載されています。利用側の Recipe が `workload:` を宣言していないのに `.workload` を読み取る本体、または `source:` を宣言していないのに `.source` を読み取る本体は、解決できなかった参照を示す診断とともに停止します。各ピラーは個別にチェックされるため、一方を宣言しても他方を読み取れるようにはなりません。"
   },
+  "3d38de45b660eced": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3d38de45b660eced",
+    "status": "machine",
+    "text": "ローカルモデルで動く AI エージェント"
+  },
   "3d3972ba61f237d4": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -41703,6 +41778,13 @@
     "srcHash": "3de3f72fd8857a5c",
     "status": "machine",
     "text": "**答えは幅ゼロの位置と、その周囲に書く必要があるものです。** `file` はワークスペース相対のドキュメントです。`container` は問い合わせたパスを繰り返すため、複数のリクエストを未完了のまま抱えるクライアントは、独自に順序を保持しなくても各回答を質問と対応付けられます。`position` は置換ではなく挿入を表します。ドキュメントに既にあるものは上書きもずれもしません。"
+  },
+  "3de7c9555b222849": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3de7c9555b222849",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/support-brief` です。プロジェクトの `config/agents.yaml` と `config/tasks.yaml` はクルーの名前を示しません。クルーの名前はプログラムの中にあり、インポートはプログラムを読み取らないためです。そのため、これらをディレクトリとしてインポートすると、ディレクトリ名 `support_brief` を名前セグメントとして書き表したものが名前になります。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "3dea292adf01b736": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -48381,6 +48463,13 @@
     "status": "machine",
     "text": "Component のアサーションと同様に、Feature のアサーションはコントラクトレベルの不変条件を表します。これは、どの FeatureRecipe がレンダリングを実装するかにかかわらず、Feature のアタッチメントが満たさなければならない性質です。特定の実装に依存するフィールド横断のルール（Wasm プラグインの要件、チャート固有の癖など）には、代わりに FeatureRecipe の `assertions:` フィールドを使用します。完全な記述文法、テンプレートコンテキスト、および Feature と FeatureRecipe のアサーション間の責任分担については、[templates/assertions-block.md](../templates/assertions-block.md) を参照してください。"
   },
+  "47a4887eeaa2b8b1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "47a4887eeaa2b8b1",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/notes` で、Compose プロジェクトの `name:` に由来します。`name:` のない Compose ファイルにはそのファイル名 `compose` から、それを含むディレクトリをディレクトリとしてインポートした場合にはそのディレクトリ名から名前が付きます。これは Compose がプロジェクトに名前を付ける方法と同じです。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "47a7212415cf57a5": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -48766,6 +48855,13 @@
     "srcHash": "483958368f6154f4",
     "status": "machine",
     "text": "**ドメイン 4**"
+  },
+  "483a08474855a723": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "483a08474855a723",
+    "status": "machine",
+    "text": "サンプルをビルドし、手元のマシンで実行する、"
   },
   "483bd49023ae2bfb": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -54069,6 +54165,17 @@
     "srcHash": "503c170d5066303d",
     "status": "machine",
     "text": "SignedArtifact[] or null"
+  },
+  "5042fef592e99001": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "332d91de857547eb",
+      "reviewed": false
+    },
+    "srcHash": "5042fef592e99001",
+    "status": "machine",
+    "text": "Aggrega をインストールする、"
   },
   "5046ce2c2d707964": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -71068,6 +71175,13 @@
     "status": "machine",
     "text": "`server_instances` をカスタムリソースが受け付ける任意の値に変更しても、このディレクトリの\n`aggregate.yaml` は変わりません。"
   },
+  "694cbf82da026908": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "694cbf82da026908",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/mcp` です。クライアントの設定には独自の名前がないため、ファイル名 `.mcp.json` から名前が付きます。レジストリの `server.json` には、その `name` から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "694fdbfcd71d1467": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -73826,6 +73940,17 @@
     "srcHash": "6d7a66dd47b49bc9",
     "status": "machine",
     "text": "AI アシスタントとの連携"
+  },
+  "6d7e50e12cf6bd4a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "8d797f95fdd07c15",
+      "reviewed": false
+    },
+    "srcHash": "6d7e50e12cf6bd4a",
+    "status": "machine",
+    "text": "各トラックの各ステップは短いセクション 1 つで、そのステップが何を追加するかと、それをビルドするコマンドを示します。その後に、クラウド向けのスターターが 2 つ続きます。1 つは Terraform 用、もう 1 つは AWS CloudFormation 用です。"
   },
   "6d7e8a15a5180cfc": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -78722,6 +78847,13 @@
     "srcHash": "74d40d736eb794fc",
     "status": "machine",
     "text": "duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered (`\"<key>\"`, mechanism `\"<mechanism>\"`, attachment `\"<attachment>\"`, delivered first by attachment `\"<other-attachment>\"`)（二つのアタッチメント間で配信キーが重複している：あるアタッチメントの FeatureRecipe の injectMapping が、別のアタッチメントがすでに配信したキーを書き込んでいる）"
+  },
+  "74d53dfca68436b9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "74d53dfca68436b9",
+    "status": "machine",
+    "text": "サンプルを生成する"
   },
   "74d631855f8d1987": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -88712,6 +88844,13 @@
     "status": "machine",
     "text": "workspaceconfig: governance attachment `\"<uri>\"` declares no role; set `role:` to one of `<the known roles>`: a governance attachment declares no role or an unknown role（workspaceconfig: governance アタッチメントがロールを宣言していません。role: を既知のロールのいずれかに設定してください: governance アタッチメントがロールを宣言していないか、未知のロールを宣言しています）"
   },
+  "83afe1a0db6a44f9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "83afe1a0db6a44f9",
+    "status": "machine",
+    "text": "サンプルを、その名前を付けた新しいフォルダーに書き出し、その `source` フォルダーに移動します。このフォルダーには、このページがインポートするものが入っており、インポートはここで実行します。"
+  },
   "83b2180992e7a531": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -89456,6 +89595,13 @@
     "status": "machine",
     "text": "**マルチ環境スケーリング（パラメータのホイスティング要件）。**\n開発者の `Aggregate.yaml` を変更せずにこのハードウェア制約を GitOps 環境（Dev と Prod）にわたってスケールさせるため、開発者は値を型付きの `parameters` 契約へホイストします。Ops は環境ごとの `Release` ファイルによって特定の IOPS 要件を満たします。コンパイラの実行順序がこの流れを保護します。パラメータ契約の検証は解決時に実行され、補間によってパラメータが周囲の `values:` 文字列へ解決され、Recipe の `valuesMapping:` テンプレートが解決済みの値をレンダリング出力へ渡します。"
   },
+  "84f87c35564ad5e1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "84f87c35564ad5e1",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/support-agent` です。ルートエージェントの `name` である `support_agent` を `support-agent` に縮めたものです。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "84f9be992ceb3f93": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -89897,6 +90043,13 @@
     "srcHash": "85a39ab345d672ff",
     "status": "machine",
     "text": "はい"
+  },
+  "85a48d5ad70084f7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "85a48d5ad70084f7",
+    "status": "machine",
+    "text": "Aggregate と Manifest の名前は `imported/support-agent` です。ワークフロー自身の名前 `Support agent` を `support-agent` に縮めたものです。名前のないワークフローには、そのファイル名から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "85a54341b8d805e7": {
     "at": "2026-11-01T19:00:07.009Z",
@@ -93346,6 +93499,13 @@
     "status": "machine",
     "text": "**特定できたパスでは完全な検証を行い、パスを特定できない場合にのみソフトスキップします。** バインドされたサブキーのサブスキーマが特定されると、値はそのパスにおける JSON Schema 2020-12 の**完全な**制約セット（型、enum、pattern、数値範囲、ネストされたオブジェクト／配列の形状）に対して検証されます。末端の `$ref` / `allOf` / `oneOf` はスキーマの定義に対して解決されて検証され、スキップされることはありません。ソフトスキップの規律は*ナビゲーション*にのみ適用されます。ウォーカーがバインドされたリーフに到達する前の**中間**セグメントでエスケープハッチ（`$ref`、`patternProperties`、`oneOf`/`anyOf`/`allOf`、またはスキーマ本体を持つ `additionalProperties`）に出会った場合、パスは静的に解決できないため、バリデーターは誤った停止のリスクを避けてエラーを発生させずに続行します。そのバインディングについては、引き続きランタイムが検証を担います。"
   },
+  "8ad3ea923f613cac": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8ad3ea923f613cac",
+    "status": "machine",
+    "text": "サンプルを一歩ずつ育てる。"
+  },
   "8ad753ea56928ed8": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -94465,6 +94625,13 @@
     "srcHash": "8c6449ec6a1e04a4",
     "status": "machine",
     "text": "**Provider に関する注記。** Helm は上記の `secretKeyRef`/Secret ボリュームの参照をレンダリングします。compose provider には Secret から環境変数を設定するネイティブのプリミティブがありません。compose を対象とする Workload の `as: env` アタッチメントエントリは、空の値を持つ環境エントリとしてレンダリングされ、そのエントリを示す警告が出されます([compose provider のページ](../providers/compose.md#what-the-compose-provider-does-not-deliver)を参照)。ただし、参照可能性のルール(ケイパビリティに依存しない)は引き続き適用されます。"
+  },
+  "8c68956bb85ca59c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8c68956bb85ca59c",
+    "status": "machine",
+    "text": "インポートは、そのカタログを、インポーターを取得するレジストリからではなく、手元のマシン上のフォルダーから読み取ります。そのため、生成したサンプルにもそのチェックアウトが必要です。チェックアウトがないと、ターゲットにバインドされる Recipe がないため、`--target` は拒否されます。"
   },
   "8c69bc3d9df57d70": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -97000,6 +97167,13 @@
     "srcHash": "9027ca38aa83db75",
     "status": "machine",
     "text": "[`entities/component.md`](../entities/component.md) — Component の `metadata.labels.component.aggrega.ai/type` の要件と、`schema` / `usesSchema` / `featuresSchema` の宣言。"
+  },
+  "9027ff6ac0445083": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9027ff6ac0445083",
+    "status": "machine",
+    "text": "実行可能なサンプルを自分のフォルダーに書き出す、"
   },
   "9029c3e1adb55aa9": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -103519,6 +103693,13 @@
     "status": "machine",
     "text": "そのノードの依存ソケットの 1 つの中の接続"
   },
+  "99e913c703b9a7d1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "99e913c703b9a7d1",
+    "status": "machine",
+    "text": "この章では、次の手順を案内します。"
+  },
   "99e9850c7abf37ec": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -105386,6 +105567,13 @@
     "srcHash": "9c9b79b864e8821d",
     "status": "machine",
     "text": "`volume.secret`"
+  },
+  "9c9f5d16492255a3": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9c9f5d16492255a3",
+    "status": "machine",
+    "text": "Aggregate、Release、Manifest の名前は `imported/supportagent` です。エージェントの `name` である `SupportAgent` を `supportagent` に縮めたもので、`displayName` は読み取られません。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "9ca1be4964b5e4bc": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -115188,6 +115376,13 @@
     "srcHash": "ab01e138a9aed759",
     "status": "machine",
     "text": "**ユースケース:**"
+  },
+  "ab031805300bc4c4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "ab031805300bc4c4",
+    "status": "machine",
+    "text": "サンプルを、その名前を付けた新しいフォルダーに書き出し、その `source` フォルダーに移動します。インポートはここで実行します。このフォルダーにはフローのファイル `basic-prompting.json` が入っており、このページではその内容を引用せずに説明します。"
   },
   "ab073ead04253f22": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -134053,6 +134248,17 @@
     "status": "machine",
     "text": "プロバイダーが消費する入力側のアノテーションに加えて、Aggrega はレンダリングされるすべての Kubernetes マニフェストと、出力されるすべての compose サービスに来歴ラベルを**付与**します。このラベルセットにより、下流のツール（コストダッシュボード、オブザーバビリティスタック、GitOps コントローラー）は、ランタイムのリソースをそれを生成したカタログのコンテンツまでたどることができます。"
   },
+  "c6035d3a0193e53b": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "7055688b74f2449f",
+      "reviewed": false
+    },
+    "srcHash": "c6035d3a0193e53b",
+    "status": "machine",
+    "text": "[Aggrega を学ぶ](learn.md)は、Aggrega の背後にある考え方から自分の Aggregate を書くところまで、ドキュメントを通して進む道筋です。実行可能なサンプルはさらに先へ進み、どれもそのままビルドできるワークスペースです。[学習順](language-reference/examples/by-product-and-capability.md#in-teaching-order)にはそのすべてが並んでいます。まず「ここから始める」の下にこのページの 4 つ、続いて残りがティアごとに、簡単なものから順に並びます。サイドバーの「サンプル」セクションも同じ順序です。別の形式ですでに持っているプロジェクトから始めるには、[インポート](authoring/import/README.md)がそのプロジェクトから Aggrega のファイルを下書きするので、それをレビューしてビルドします。"
+  },
   "c60424e5e9b89eb3": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -147371,6 +147577,17 @@
     "status": "machine",
     "text": "Aggregate のコンポーネント / アタッチメントインスタンス"
   },
+  "d926121d1a3d2069": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "a129093cc5ca9adb",
+      "reviewed": false
+    },
+    "srcHash": "d926121d1a3d2069",
+    "status": "machine",
+    "text": "この Aggregate は Microsoft Presidio を追加します。Presidio は、ゲートウェイがログに書き込む各呼び出しのコピーの中で、名前、メールアドレス、電話番号をマスクします。さらに、リクエストがモデルに届く前にゲートウェイが拒否する根拠となるパターンのリストも追加します。チャットページのヘッダーの下の行には、ガードレールも表示されるようになります。"
+  },
   "d9266aeb5913b201": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -149831,6 +150048,13 @@
     "status": "machine",
     "text": "解決済み"
   },
+  "dc6961c2283a3cd7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dc6961c2283a3cd7",
+    "status": "machine",
+    "text": "同じマシン上のブラウザーで `http://localhost:8090/` を開くと、エージェントとチャットできます。このページはマシンのループバックアドレスにのみ公開され、ヘッダーの下の行には回答するモデルの名前が表示されます。会話はエージェントのストアに保存されるので、再読み込みしても会話は続きます。"
+  },
   "dc6f1734d0bafaf1": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -150270,6 +150494,13 @@
     "srcHash": "dcf23461a53420b0",
     "status": "machine",
     "text": "`08-workload-synthesis.yaml` — `workload:` テンプレートが評価され、その出力がパースされた時点のコンテキストです。Recipe が `workload:` を宣言している場合（インラインまたは `$import:` による読み込み）にのみ存在します。パース済みの `Workload` 自体はこのスロットには含まれません。処理途中ではなく確定した後の `09-artifact-evaluation/` 以降に現れます。"
+  },
+  "dcf27ebedd638659": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dcf27ebedd638659",
+    "status": "machine",
+    "text": "Aggregate と Manifest の名前は `imported/basic-prompting` です。フロー自身の名前 `Basic Prompting` を `basic-prompting` に縮めたものです。名前のないフローには、そのファイル名から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "dcf2e9a0dd5e56a6": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -154155,6 +154386,13 @@
     "srcHash": "e2461d6d85156600",
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares\n> cloudformation-provider: rule `\"<rule>\"` of template `\"<template>\"` reads parameter `\"<parameter>\"` through Fn::ValueOf, which names a declared parameter by its logical ID, and binding the parameter removes its declaration from the source; leave the parameter unbound so the rule can read it at deploy"
+  },
+  "e248d454a77b672a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "e248d454a77b672a",
+    "status": "machine",
+    "text": "Aggregate と Manifest の名前は `imported/support-chat` です。Flowise のエクスポートには独自の名前がないため、ファイル名 `support-chat.json` から名前が付きます。名前空間は、インポーターの `target_namespace` 設定が定めるもので、別のものを設定しない限り `imported` です（[設定](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "e24ec6e5c08dcca3": {
     "at": "2026-11-01T19:02:04.075Z",
@@ -160970,6 +161208,17 @@
     "srcHash": "ec8ae08060ddd3ab",
     "status": "machine",
     "text": "先に進む前に、エクスポートを確認します。"
+  },
+  "ec8c82ec5ce7ae6d": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "aa26e41b4c2496b7",
+      "reviewed": false
+    },
+    "srcHash": "ec8c82ec5ce7ae6d",
+    "status": "machine",
+    "text": "チャットページを除く同じコンポーネントを Kubernetes 向けにビルドします。ビルドはマニフェストを `dist/helm/` の下に書き出して停止し、クラスターには接続しません。Kubernetes では、ゲートウェイは自分の名前空間にすでに存在する Secret から OpenAI キーを読み取ります。ビルドが書き出した内容を適用する前にそれを作成する方法は、[サンプルのページ](language-reference/examples/quickstart-ai/README.md)に示されています。"
   },
   "ec909588ec931dbe": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -171155,6 +171404,17 @@
     "srcHash": "fb0a76dce94be86e",
     "status": "machine",
     "text": "**二重の結合によって、2 つのコンポーネントのコンテナが区別されます。** コンテナ `warm-cache` を持つ `api` と、コンテナ `cache` を持つ `api-warm` は、`api--warm-cache` と `api-warm--cache` という 2 つのサービスとして実行されます。ハイフン 1 つの結合では、どちらも `api-warm-cache` になってしまいます。"
+  },
+  "fb0c0964816dc6b2": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "c3f3e787930bd6f5",
+      "reviewed": false
+    },
+    "srcHash": "fb0c0964816dc6b2",
+    "status": "machine",
+    "text": "この章では、Aggrega のメンタルモデルと概念的な形を示します。ビジョン、ポジショニング、4 つのドメインの分離、エンティティの分類、システム全体で成り立つ不変条件、コンパイラのパイプラインが概念レベルでどのように動作するか、エンタープライズガバナンス、カタログエコシステム、そして拡張性を扱います。全体像をつかむには、各章を順番に読んでください。"
   },
   "fb0c8da52a4b3db3": {
     "at": "2026-10-29T23:55:51.039Z",

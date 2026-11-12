@@ -3604,6 +3604,17 @@
     "status": "machine",
     "text": "由于不会为 `reference` Workload 生成任何服务，因此没有任何东西读取它所实现的组件的交付管道：附加到该组件的凭据——由 `dotenv-secret` 或附件自身的 `inject:` 块在其管道上交付——不会到达任何生成的文件。因此，每个以这种方式实现外部服务、且其 Component 声明了凭据槽的标准库 Compose Recipe，都会拒绝填充该槽的凭据：构建会停止并指出该槽和该组件，而不是在缺少凭据的情况下成功。在 compose 上，外部服务的凭据应附加到调用它的组件上，并使用该组件读取的环境变量。该拒绝是每个 Recipe 自身的断言，在本 provider 渲染任何内容之前运行。本 provider 也会在节点本身处拒绝，无论 Recipe 来自哪个目录：`reference` 节点上材料被声明为敏感的附件——其 Feature 将某个字段声明为 `sensitive: true`，或其填充的槽如此声明——会以 `TRANSLATION_ERROR`（`E0288`）停止构建，并指出该节点和每个此类附件，无论是否有任何槽声明了它附加时所用的名称。不携带任何声明为敏感内容的附件不会在此处被拒绝。这些 Components 将其凭据槽声明为可选，因此在 compose 上，留空的槽不会导致任何停止。在 Kubernetes 实现需要凭据的情况下——`twilio`、`vonage`、`telnyx`、`bland`、`letta`、`retell` 和 `vapi` 的 `helm` Recipes——该 Recipe 则要求填写该槽，并在其为空时停止构建并指出该槽。"
   },
+  "0503af92936871fa": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "3a1448be6e464556",
+      "reviewed": false
+    },
+    "srcHash": "0503af92936871fa",
+    "status": "machine",
+    "text": "该 Aggregate 在两个模型前面添加了一个 LiteLLM 网关，一个是托管的 OpenAI 模型，一个是本地模型，并带有从前者到后者的后备链，智能体现在向网关提问。它无需 API 密钥即可运行：没有密钥时云端模型无法作答，网关会改由本地模型作答。要使用 OpenAI，请在启动这组服务之前在你的 shell 中导出 `OPENAI_API_KEY`。聊天页面页眉下方的那一行现在会写明这两个模型。"
+  },
   "0505795503da0e0a": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -7727,6 +7738,13 @@
     "status": "machine",
     "text": "pipeline step failed: step `\"<id>\"` (index `<n>`): `<the severity the host could not route>`: pipeline step typed-I/O contract violation"
   },
+  "0b1dbdd008e023d5": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0b1dbdd008e023d5",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/support`，取自 `langgraph.json` 所服务的唯一一个图 `support`，因为配置不带自己的名称——服务多个图的配置按其文件命名，或者在像这里这样把目录交给导入时，按其目录命名——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "0b1fb5bcabfd4ae4": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -10151,6 +10169,13 @@
     "status": "machine",
     "text": "`format` — 目标的提供方为该文件声明的格式：Compose 文件为 `yaml`，CloudFormation 模板为 `json`，每个 Terraform 文件为 `hcl`，包括其 Recipe 写出的数据库主体。没有任何声明的地方，它是空字符串，这里的 Kubernetes 文件就是如此；"
   },
+  "0ed1595afd4cf08c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "0ed1595afd4cf08c",
+    "status": "machine",
+    "text": "将示例写入一个以它命名的新文件夹，然后进入其 `source` 文件夹，导入就在这里运行。该文件夹包含 chatflow 文件 `support-chat.json`，本页对其进行描述而不是引用："
+  },
   "0ed3a8ce8e41e315": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -11554,6 +11579,17 @@
     "srcHash": "108e03de00a1689c",
     "status": "machine",
     "text": "在当前的标注结构中，更深层的来源（库 B）不会被保留。这是已记录在文档中的编写层面行为，而非缺陷——`aggrega explain` 报告直接父级归属；如有需要，可以通过递归查找库来重建这条链。未来的编写改进可能会通过 `x-aggrega-source-chain:` 扩展呈现链深度；在此之前，直接父级归属即为约定的契约。"
+  },
+  "108fd444f25803d4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "329229423bd500b2",
+      "reviewed": false
+    },
+    "srcHash": "108fd444f25803d4",
+    "status": "machine",
+    "text": "也可以从终端提问。告诉智能体你的名字并问它一个问题，重启它，然后在同一段对话中问它你的名字："
   },
   "109371d74273fbd2": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -23121,6 +23157,13 @@
     "status": "machine",
     "text": "provider 不读取任何键的含义：一个键被保留是因为它在上述集合中，被拒绝是因为它不在其中。"
   },
+  "21f7b2f029dc6b16": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "21f7b2f029dc6b16",
+    "status": "machine",
+    "text": "共有两条路线："
+  },
   "21fa0aaf41976dc9": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -23859,6 +23902,13 @@
     "srcHash": "23026c5c3b72d10c",
     "status": "machine",
     "text": "关于底层机制——注解如何级联、侧与支柱的划分如何将注解值路由到 Feature 支柱中，以及显式附加优先的规则如何与注解驱动的贡献相互作用——请参阅 [providers/well-known-annotations.md](../providers/well-known-annotations.md) 和 [entities/manifest.md](../entities/manifest.md) 中的“Annotation-Driven Feature Bindings”。"
+  },
+  "230425d976e3a730": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "230425d976e3a730",
+    "status": "machine",
+    "text": "该 Aggregate 和 Manifest 命名为 `imported/support-assistant`，取自应用的名称，即 `app` 下的 `Support assistant`，缩减为 `support-assistant`——没有名称的应用按其文件命名——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "23057a985039dd43": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -34479,6 +34529,17 @@
     "status": "machine",
     "text": "这三个就是全部，并且与其他所有 socket 的诊断使用的三个相同，因此无论在何处读到严重级别，其含义都一样。"
   },
+  "32e4ddcac2937244": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "b131302ba695f8eb",
+      "reviewed": false
+    },
+    "srcHash": "32e4ddcac2937244",
+    "status": "machine",
+    "text": "第一步是一个 LangGraph 智能体，它通过本地模型作答，并把每段对话保存在一个 Valkey 存储中，还带有一个小型聊天页面，供你在浏览器中与它对话。构建并启动它："
+  },
   "32e523fdf3e38d0d": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -40849,6 +40910,13 @@
     "status": "machine",
     "text": "`ImportCandidate`"
   },
+  "3c9c8b3306884c72": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3c9c8b3306884c72",
+    "status": "machine",
+    "text": "一个使用 PostgreSQL 的 Web 应用"
+  },
   "3c9ce52104285201": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -41295,6 +41363,13 @@
     "status": "machine",
     "text": "文件正文中可以使用 Go 模板完整的组合词汇：`{{ define \"name\" }}...{{ end }}` 声明可复用的块，`{{ template \"name\" . }}` 调用这些块，管道和函数遵循标准 Go `text/template` 包。文件正文可读取的支柱上下文——`.values`、`.infra`、`.locals`、`.context`、`.features`，以及在使用方 Recipe 声明时可用的 `.workload` 和 `.source`——与使用方 Recipe 自身的 `artifacts:` 条目所读取的上下文相同，详见 [Recipe](recipe.md) 页面中 `artifacts:` 字段的说明。如果正文在使用方 Recipe 未声明 `workload:` 时读取 `.workload`，或在未声明 `source:` 时读取 `.source`，编译将中止，并给出指明无法满足的引用的诊断信息——每个支柱都单独检查，因此声明其中一个并不允许读取另一个。"
   },
+  "3d38de45b660eced": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3d38de45b660eced",
+    "status": "machine",
+    "text": "一个运行在本地模型上的 AI 智能体"
+  },
   "3d3972ba61f237d4": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -41703,6 +41778,13 @@
     "srcHash": "3de3f72fd8857a5c",
     "status": "machine",
     "text": "**答案是一个零宽度位置，加上你需要在其周围写入的内容。** `file` 是该文档，相对于工作区。`container` 重复你所询问的路径，因此同时有多个未完成请求的客户端无需自行维护顺序，即可将每个答案与其问题配对。`position` 表示插入而非替换：文档中已有的内容不会被覆盖或移动。"
+  },
+  "3de7c9555b222849": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "3de7c9555b222849",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/support-brief`：项目的 `config/agents.yaml` 和 `config/tasks.yaml` 没有为 crew 命名——它的名称位于程序中，而导入不读取程序——因此以目录方式导入它们时，按该目录命名，即 `support_brief`，写成名称段的形式，位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "3dea292adf01b736": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -48381,6 +48463,13 @@
     "status": "machine",
     "text": "与 Component 断言一样，Feature 断言表达的是契约层面的不变量——即无论由哪个 FeatureRecipe 实现渲染，该 Feature 附着都必须满足的属性。对于依赖具体实现的跨字段规则（例如某个 Wasm 插件的要求、某个 chart 的特殊行为），请改用 FeatureRecipe 的 `assertions:` 字段。关于完整的编写语法、模板上下文，以及 Feature 断言与 FeatureRecipe 断言之间的职责划分，请参阅 [templates/assertions-block.md](../templates/assertions-block.md)。"
   },
+  "47a4887eeaa2b8b1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "47a4887eeaa2b8b1",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/notes`，取自 Compose 项目的 `name:`——没有 `name:` 的 Compose 文件按其文件命名，即 `compose`，而包含它的目录在作为目录导入时按该目录命名，这与 Compose 为项目命名的方式相同——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "47a7212415cf57a5": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -48766,6 +48855,13 @@
     "srcHash": "483958368f6154f4",
     "status": "machine",
     "text": "**领域 4**"
+  },
+  "483a08474855a723": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "483a08474855a723",
+    "status": "machine",
+    "text": "构建该示例并在你的机器上运行它；"
   },
   "483bd49023ae2bfb": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -54069,6 +54165,17 @@
     "srcHash": "503c170d5066303d",
     "status": "machine",
     "text": "SignedArtifact[] 或 null"
+  },
+  "5042fef592e99001": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "332d91de857547eb",
+      "reviewed": false
+    },
+    "srcHash": "5042fef592e99001",
+    "status": "machine",
+    "text": "安装 Aggrega；"
   },
   "5046ce2c2d707964": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -71062,6 +71169,13 @@
     "status": "machine",
     "text": "将 `server_instances` 改为自定义资源接受的任意值，本目录中的\n`aggregate.yaml` 都不会改变。"
   },
+  "694cbf82da026908": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "694cbf82da026908",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/mcp`，取自文件名 `.mcp.json`，因为客户端的配置不带自己的名称——注册表的 `server.json` 按其 `name` 命名——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "694fdbfcd71d1467": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -73820,6 +73934,17 @@
     "srcHash": "6d7a66dd47b49bc9",
     "status": "machine",
     "text": "使用 AI 助手"
+  },
+  "6d7e50e12cf6bd4a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "8d797f95fdd07c15",
+      "reviewed": false
+    },
+    "srcHash": "6d7e50e12cf6bd4a",
+    "status": "machine",
+    "text": "每条路线的每一步都是一个简短的小节：这一步添加了什么，以及构建它的命令。随后是两个面向云的入门模板，一个用于 Terraform，一个用于 AWS CloudFormation。"
   },
   "6d7e8a15a5180cfc": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -78716,6 +78841,13 @@
     "srcHash": "74d40d736eb794fc",
     "status": "machine",
     "text": "duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered（两个挂载之间存在重复交付键：某个挂载的 FeatureRecipe injectMapping 写入了另一个挂载已交付的键）(`\"<key>\"`, mechanism `\"<mechanism>\"`, attachment `\"<attachment>\"`, delivered first by attachment `\"<other-attachment>\"`)"
+  },
+  "74d53dfca68436b9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "74d53dfca68436b9",
+    "status": "machine",
+    "text": "生成示例"
   },
   "74d631855f8d1987": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -88704,6 +88836,13 @@
     "status": "machine",
     "text": "workspaceconfig: governance attachment `\"<uri>\"` declares no role; set `role:` to one of `<the known roles>`: a governance attachment declares no role or an unknown role（workspaceconfig：该 governance 挂载未声明角色；请将 role 设为已知角色之一：governance 挂载未声明角色或声明了未知角色）"
   },
+  "83afe1a0db6a44f9": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "83afe1a0db6a44f9",
+    "status": "machine",
+    "text": "将示例写入一个以它命名的新文件夹，然后进入其 `source` 文件夹，该文件夹包含本页导入的内容，也是运行导入的位置："
+  },
   "83b2180992e7a531": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -89448,6 +89587,13 @@
     "status": "machine",
     "text": "**多环境扩展（参数提升要求）。**\n为了在 GitOps 环境（Dev 与 Prod）之间扩展这一硬件约束而不修改开发者的 `Aggregate.yaml`，开发者将该值提升到类型化的 `parameters` 契约中。运维通过特定于环境的 `Release` 文件满足具体的 IOPS 要求。编译器的执行顺序保护了这一流程：参数契约校验在解析时运行；插值将参数解析进所在的 `values:` 字符串；Recipe 的 `valuesMapping:` 模板将解析后的值传入渲染输出。"
   },
+  "84f87c35564ad5e1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "84f87c35564ad5e1",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/support-agent`，取自根智能体的 `name`，即 `support_agent`，缩减为 `support-agent`，位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
+  },
   "84f9be992ceb3f93": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -89889,6 +90035,13 @@
     "srcHash": "85a39ab345d672ff",
     "status": "machine",
     "text": "是"
+  },
+  "85a48d5ad70084f7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "85a48d5ad70084f7",
+    "status": "machine",
+    "text": "该 Aggregate 和 Manifest 命名为 `imported/support-agent`，取自工作流自身的名称 `Support agent`，缩减为 `support-agent`——没有名称的工作流按其文件命名——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "85a54341b8d805e7": {
     "at": "2026-11-01T19:00:07.009Z",
@@ -93338,6 +93491,13 @@
     "status": "machine",
     "text": "**在已定位的路径上做完整校验；仅当路径无法定位时才软跳过。** 一旦定位到绑定子键的子 schema，就会在该路径上按照**完整的** JSON Schema 2020-12 约束集（类型、enum、pattern、数值范围、嵌套对象/数组结构）校验该值——末端的 `$ref` / `allOf` / `oneOf` 会依据 schema 的定义解析并校验，而不是跳过。软跳过规则仅适用于*导航*：当遍历器在**中间**段（到达绑定的叶子之前）遇到逃生舱口（`$ref`、`patternProperties`、`oneOf`/`anyOf`/`allOf`，或带 schema 体的 `additionalProperties`）时，该路径无法静态解析，因此校验器继续执行而不报错，以免误中止；该绑定仍由运行时负责校验。"
   },
+  "8ad3ea923f613cac": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8ad3ea923f613cac",
+    "status": "machine",
+    "text": "一步一步地扩展该示例。"
+  },
   "8ad753ea56928ed8": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -94457,6 +94617,13 @@
     "srcHash": "8c6449ec6a1e04a4",
     "status": "machine",
     "text": "**Provider 说明。** Helm 渲染上文所述的 `secretKeyRef`/secret 卷引用。compose provider 没有原生的从 secret 读取环境变量的原语；面向 compose 的 Workload 上的 `as: env` 附件条目会渲染为值为空的环境条目，并附带指出该条目的警告（参见 [compose provider 页面](../providers/compose.md#what-the-compose-provider-does-not-deliver)），而可引用性规则（与能力无关）仍然适用。"
+  },
+  "8c68956bb85ca59c": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "8c68956bb85ca59c",
+    "status": "machine",
+    "text": "导入从你机器上的文件夹读取该目录，而不是从它获取导入器的注册表读取，因此生成的示例也需要该检出副本：没有它，`--target` 会被拒绝，因为没有 Recipe 绑定到该目标。"
   },
   "8c69bc3d9df57d70": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -96992,6 +97159,13 @@
     "srcHash": "9027ca38aa83db75",
     "status": "machine",
     "text": "[`entities/component.md`](../entities/component.md) — Component 的 `metadata.labels.component.aggrega.ai/type` 要求，以及 `schema` / `usesSchema` / `featuresSchema` 声明。"
+  },
+  "9027ff6ac0445083": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9027ff6ac0445083",
+    "status": "machine",
+    "text": "把一个可运行的示例写入你自己的文件夹；"
   },
   "9029c3e1adb55aa9": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -103511,6 +103685,13 @@
     "status": "machine",
     "text": "该节点某个依赖插槽内的一个连接"
   },
+  "99e913c703b9a7d1": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "99e913c703b9a7d1",
+    "status": "machine",
+    "text": "本章将引导你："
+  },
   "99e9850c7abf37ec": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -105378,6 +105559,13 @@
     "srcHash": "9c9b79b864e8821d",
     "status": "machine",
     "text": "`volume.secret`"
+  },
+  "9c9f5d16492255a3": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "9c9f5d16492255a3",
+    "status": "machine",
+    "text": "该 Aggregate、Release 和 Manifest 命名为 `imported/supportagent`，取自智能体的 `name`，即 `SupportAgent`，缩减为 `supportagent`——不读取其 `displayName`——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "9ca1be4964b5e4bc": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -115180,6 +115368,13 @@
     "srcHash": "ab01e138a9aed759",
     "status": "machine",
     "text": "**使用场景：**"
+  },
+  "ab031805300bc4c4": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "ab031805300bc4c4",
+    "status": "machine",
+    "text": "将示例写入一个以它命名的新文件夹，然后进入其 `source` 文件夹，导入就在这里运行。该文件夹包含流程文件 `basic-prompting.json`，本页对其进行描述而不是引用："
   },
   "ab073ead04253f22": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -134045,6 +134240,17 @@
     "status": "machine",
     "text": "除了 provider 所消费的入站注解之外，Aggrega 还会向每个渲染出的 Kubernetes manifest 和每个发出的 compose 服务**发出**溯源标签。借助这组标签，下游工具（成本看板、可观测性栈、GitOps 控制器）可以将运行时资源追溯到生成它们的目录内容。"
   },
+  "c6035d3a0193e53b": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "7055688b74f2449f",
+      "reviewed": false
+    },
+    "srcHash": "c6035d3a0193e53b",
+    "status": "machine",
+    "text": "[学习 Aggrega](learn.md) 是贯穿整个文档的学习路径，从 Aggrega 背后的理念到编写你自己的 Aggregate。可运行的示例则更进一步，每个都是可以直接构建的工作区，[教学顺序](language-reference/examples/by-product-and-capability.md#in-teaching-order)列出了所有示例：先是本页的四个示例，位于“从这里开始”之下，然后是其余示例，逐层排列，由简到繁。侧边栏的“示例”部分也遵循同样的顺序。如果要从你已有的另一种格式的项目开始，[导入](authoring/import/README.md)会据此起草 Aggrega 文件，供你审阅和构建。"
+  },
   "c60424e5e9b89eb3": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -147363,6 +147569,17 @@
     "status": "machine",
     "text": "Aggregate 组件 / 附件实例"
   },
+  "d926121d1a3d2069": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "a129093cc5ca9adb",
+      "reviewed": false
+    },
+    "srcHash": "d926121d1a3d2069",
+    "status": "machine",
+    "text": "该 Aggregate 添加了 Microsoft Presidio，它会在网关写入日志的每次调用副本中屏蔽姓名、电子邮件地址和电话号码，并添加了一个模式列表，网关会在请求到达模型之前据此拒绝请求。聊天页面页眉下方的那一行现在也会写明这些护栏。"
+  },
   "d9266aeb5913b201": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -149821,6 +150038,13 @@
     "status": "machine",
     "text": "已解析"
   },
+  "dc6961c2283a3cd7": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dc6961c2283a3cd7",
+    "status": "machine",
+    "text": "在同一台机器上的浏览器中打开 `http://localhost:8090/`，即可与智能体聊天：该页面仅发布在你机器的环回地址上，页眉下方的那一行写明作答的模型，对话保存在智能体的存储中，因此重新加载页面后对话会继续。"
+  },
   "dc6f1734d0bafaf1": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -150260,6 +150484,13 @@
     "srcHash": "dcf23461a53420b0",
     "status": "machine",
     "text": "`08-workload-synthesis.yaml` — 对 `workload:` 模板求值并解析其输出时的上下文。仅当 Recipe 声明了 `workload:`（内联或通过 `$import:` 加载）时存在。解析后的 `Workload` 本身不在此槽位中：它从 `09-artifact-evaluation/` 起出现，此时它已确定，而不是仍在处理中。"
+  },
+  "dcf27ebedd638659": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "dcf27ebedd638659",
+    "status": "machine",
+    "text": "该 Aggregate 和 Manifest 命名为 `imported/basic-prompting`，取自流程自身的名称 `Basic Prompting`，缩减为 `basic-prompting`——没有名称的流程按其文件命名——位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "dcf2e9a0dd5e56a6": {
     "at": "2026-10-29T20:59:44.128Z",
@@ -154145,6 +154376,13 @@
     "srcHash": "e2461d6d85156600",
     "status": "machine",
     "text": "a plugin has no expression for a construct this build declares (插件无法表达本次构建声明的某个构造)\n> cloudformation-provider: rule `\"<rule>\"` of template `\"<template>\"` reads parameter `\"<parameter>\"` through Fn::ValueOf, which names a declared parameter by its logical ID, and binding the parameter removes its declaration from the source; leave the parameter unbound so the rule can read it at deploy (cloudformation-provider：该模板的规则通过 Fn::ValueOf 读取该参数，Fn::ValueOf 按逻辑 ID 指名一个已声明的参数，而绑定该参数会从来源中移除其声明；请不绑定该参数，以便规则在部署时读取它)"
+  },
+  "e248d454a77b672a": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "srcHash": "e248d454a77b672a",
+    "status": "machine",
+    "text": "该 Aggregate 和 Manifest 命名为 `imported/support-chat`，取自文件名 `support-chat.json`，因为 Flowise 导出的内容不带自己的名称，位于导入器的 `target_namespace` 设置所设定的命名空间下，除非你另行设置，否则该命名空间为 `imported`（[设置](../../language-reference/plugins/core-importers.md#settings)）。"
   },
   "e24ec6e5c08dcca3": {
     "at": "2026-11-01T19:02:04.075Z",
@@ -160964,6 +161202,17 @@
     "srcHash": "ec8ae08060ddd3ab",
     "status": "machine",
     "text": "继续之前，先确认导出项："
+  },
+  "ec8c82ec5ce7ae6d": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "aa26e41b4c2496b7",
+      "reviewed": false
+    },
+    "srcHash": "ec8c82ec5ce7ae6d",
+    "status": "machine",
+    "text": "除聊天页面外的同样组件，为 Kubernetes 构建：构建把清单写到 `dist/helm/` 下，然后停止，不会连接任何集群。在 Kubernetes 上，网关从其命名空间中已存在的一个 Secret 读取 OpenAI 密钥，[示例的页面](language-reference/examples/quickstart-ai/README.md)说明了在应用构建写出的内容之前如何创建它。"
   },
   "ec909588ec931dbe": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -171149,6 +171398,17 @@
     "srcHash": "fb0a76dce94be86e",
     "status": "machine",
     "text": "**双连字符连接使两个组件的容器保持区分。** 带有容器 `warm-cache` 的 `api` 和带有容器 `cache` 的 `api-warm` 分别作为 `api--warm-cache` 和 `api-warm--cache` 两个服务运行，而单连字符连接会把两者都拼成 `api-warm-cache`。"
+  },
+  "fb0c0964816dc6b2": {
+    "at": "2026-11-12T07:05:58.307Z",
+    "job": "session-0001-20261112070558",
+    "revision": {
+      "from": "c3f3e787930bd6f5",
+      "reviewed": false
+    },
+    "srcHash": "fb0c0964816dc6b2",
+    "status": "machine",
+    "text": "本章介绍 Aggrega 的心智模型与概念形态：愿景、定位、四领域划分、实体分类、在整个系统中成立的不变量、编译器流水线在概念层面如何工作、企业治理、目录生态系统以及可扩展性。请按顺序阅读各章，以逐步建立完整的认识。"
   },
   "fb0c8da52a4b3db3": {
     "at": "2026-10-29T23:55:51.039Z",
