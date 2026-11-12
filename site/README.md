@@ -33,7 +33,14 @@ served at `aggrega.ai/docs`.
   page is listed under both its names, and a page that moved is listed at
   whichever of its paths the corpus holds (`src/moved-pages.mjs`), so the tags
   holding the old file and the tree holding the new one each keep the entry
-  they hold.
+  they hold. The Examples group is read from the corpus while the site is
+  configured (`src/examples-sidebar.mjs`): the examples overview and the pages
+  about the examples as a whole, then one group per tier of the teaching order,
+  each example under its page's title, then the concept pages. The order is the
+  "In teaching order" section of
+  `language-reference/examples/by-product-and-capability.md`, which
+  `scripts/gen-examples-index.sh` generates from the examples' headers; a tag
+  whose index page has no such section lists the folder by path.
 - **Moved pages.** Every page that moved keeps its earlier address working. The
   build writes a `_redirects` file (`src/redirects.mjs`) answering each earlier
   address, in English and in every published language, with a permanent (301)

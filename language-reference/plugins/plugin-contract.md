@@ -218,7 +218,7 @@ The sockets below carry typed contract surfaces the compiler dispatches at build
 
 ### RFC 6902 patches (the plugin pipeline)
 
-FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics` — each entry the same shared `Diagnostic` shape every socket reports issues in — and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics` — each entry the same shared `Diagnostic` shape every socket reports issues in — and `outputs` (below). Described at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
 **Status today:** **available**. Each declared step runs during `aggrega build`.
 
@@ -226,7 +226,7 @@ FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit R
 
 ### Side effects — emitting resources (credential plugins in the plugin pipeline)
 
-Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects`, each declaring one of the two kinds the contract defines: `emit_crd`, a custom-resource document such as an `ExternalSecret` or `VaultSecret` CRD that the cluster fetches at runtime, or `emit_file`, a written file. A step returning any other kind [halts the build](../errors/fatal-halts.md#a-pipeline-step-declares-an-emission-kind-the-contract-does-not-define), naming the node, the side effect's index and the kind it declared. The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects`, each declaring one of the two kinds the contract defines: `emit_crd`, a custom-resource document such as an `ExternalSecret` or `VaultSecret` CRD that the cluster fetches at runtime, or `emit_file`, a written file. A step returning any other kind [halts the build](../errors/fatal-halts.md#a-pipeline-step-declares-an-emission-kind-the-contract-does-not-define), naming the node, the side effect's index and the kind it declared. The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Described at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
 **Status today:** **available**.
 
@@ -533,5 +533,5 @@ Both are usable today. The linter socket runs the publishing-linter via `aggrega
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe `pipeline:` authoring surface.
 - [`when-to-use-a-pipeline-step.md`](when-to-use-a-pipeline-step.md) — decision guide: a pipeline step vs a templated FeatureRecipe.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — the plugin pipeline's `pipeline:` `with:` block template-evaluation rules and `.steps` access semantics.
-- [`examples/04-secrets.md`](../examples/04-secrets.md) — worked credential FeatureRecipe with Fetcher + Injector pipeline shape.
+- [`examples/04-secrets.md`](../examples/04-secrets.md) — the Fetcher + Injector pipeline shape a credential FeatureRecipe can take.
 - [`errors/error-translation.md`](../errors/error-translation.md) — the error-translation discipline plugin guests participate in.

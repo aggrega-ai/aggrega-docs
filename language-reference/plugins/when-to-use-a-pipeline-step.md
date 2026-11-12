@@ -34,4 +34,4 @@ A pipeline step can declare a typed input and output contract, so its `with:` in
 - [`plugins/plugin-contract.md`](plugin-contract.md) — the pipeline step's wire shape: the keyed document set in, RFC 6902 patches, side effects, diagnostics, and step outputs out.
 - [`plugins/policy-socket.md`](policy-socket.md) — the governance socket, including the render-stage verdict role that validates a build's output.
 - [`templates/template-context-contract.md`](../templates/template-context-contract.md) — the `.steps.<id>.outputs` field a later step reads.
-- [`examples/04-secrets.md`](../examples/04-secrets.md) — a worked Fetcher + Injector pipeline.
+- [`examples/04-secrets.md`](../examples/04-secrets.md) — the Fetcher + Injector pipeline shape.

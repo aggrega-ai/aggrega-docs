@@ -1,6 +1,6 @@
 # Architecture
 
-The mental model and conceptual shape of Aggrega. Vision, positioning, the four-domain separation, the entity taxonomy, the invariants that hold across the system, how the compiler pipeline works at a conceptual level, enterprise governance, the catalog ecosystem, and extensibility. Read the chapters in order to build up the full picture.
+This chapter gives the mental model and conceptual shape of Aggrega: vision, positioning, the four-domain separation, the entity taxonomy, the invariants that hold across the system, how the compiler pipeline works at a conceptual level, enterprise governance, the catalog ecosystem, and extensibility. Read the chapters in order to build up the full picture.
 
 Cross-references between chapters use relative links; external references to the Language Reference use `../language-reference/` relative paths.
 

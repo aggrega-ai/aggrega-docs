@@ -410,7 +410,7 @@ render() {
   printf 'Every example in this folder, listed first in the order to work through them,\n'
   printf 'tier by tier, then under each product it deploys and under each capability it\n'
   printf 'shows. Each entry gives the example'"'"'s level and the first sentence of its page.\n\n'
-  printf 'The level is %s: the levels [Runnable Examples](README.md) is arranged by.\n' "$(level_list)"
+  printf 'The level is %s: the levels [The header on each example](README.md#the-header-on-each-example) lists.\n' "$(level_list)"
   printf 'The header each example carries, and the lists its values come from, are\n'
   printf 'described in [The header on each example](README.md#the-header-on-each-example).\n'
 

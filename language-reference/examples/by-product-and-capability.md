@@ -6,7 +6,7 @@ Every example in this folder, listed first in the order to work through them,
 tier by tier, then under each product it deploys and under each capability it
 shows. Each entry gives the example's level and the first sentence of its page.
 
-The level is `start`, `authoring` or `advanced`: the levels [Runnable Examples](README.md) is arranged by.
+The level is `start`, `authoring` or `advanced`: the levels [The header on each example](README.md#the-header-on-each-example) lists.
 The header each example carries, and the lists its values come from, are
 described in [The header on each example](README.md#the-header-on-each-example).
 

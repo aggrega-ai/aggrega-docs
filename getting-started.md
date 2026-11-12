@@ -1,9 +1,18 @@
 # Getting started
 
-This is the quickstart. You install Aggrega, write a runnable example into a folder of your own, build it and run it
-on your machine, then grow it one step at a time. There are two tracks, an AI agent on a local model and a web app
-with PostgreSQL, and each step of each track is one short section: what it adds, and the commands that build it. Two
-starters for the cloud follow, one for Terraform and one for AWS CloudFormation.
+This chapter will guide you to:
+
+- install Aggrega;
+- write a runnable example into a folder of your own;
+- build the example and run it on your machine;
+- grow the example one step at a time.
+
+There are two tracks:
+
+- an AI agent on a local model
+- a web app with PostgreSQL
+
+Each step of each track is one short section: what it adds, and the commands that build it. Two starters for the cloud follow, one for Terraform and one for AWS CloudFormation.
 
 Every command on this page is one the example's own page gives, or, for installing, the install page, so each
 section links to that page for the full account of what the step writes.
@@ -329,6 +338,8 @@ each part of the template comes from, and builds the same intent as two stacks.
 ## Where to go next
 
 [Learn Aggrega](learn.md) is the path through the documentation, from the ideas behind Aggrega to authoring your own
-Aggregate, and [the runnable examples](language-reference/examples/README.md) go further, each one a workspace that
-builds as it stands. To start from a project you already have in another format, [Import](authoring/import/README.md)
-drafts the Aggrega files from it, for you to review and build.
+Aggregate. The runnable examples go further, each one a workspace that builds as it stands, and
+[the teaching order](language-reference/examples/by-product-and-capability.md#in-teaching-order) lists every one of
+them: the four on this page first, under Start here, then the rest tier by tier, simplest first. The Examples section
+of the sidebar follows the same order. To start from a project you already have in another format,
+[Import](authoring/import/README.md) drafts the Aggrega files from it, for you to review and build.

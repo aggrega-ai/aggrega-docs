@@ -15,6 +15,7 @@ import {
 } from "./src/translations.mjs";
 import notFoundPages from "./src/not-found.mjs";
 import { heldRoute } from "./src/moved-pages.mjs";
+import { examplesSidebarItems } from "./src/examples-sidebar.mjs";
 import movedPageRedirects from "./src/redirects.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
@@ -352,11 +353,13 @@ export default defineConfig({
           label: "Errors",
           items: [{ autogenerate: { directory: corpusDirectory("language-reference/errors") } }],
         },
+        // The runnable examples in teaching order, one group per tier, then the
+        // concept pages (src/examples-sidebar.mjs).
         {
           label: "Examples",
-          items: [
-            { autogenerate: { directory: corpusDirectory("language-reference/examples") } },
-          ],
+          items: examplesSidebarItems({
+            autogenerate: { directory: corpusDirectory("language-reference/examples") },
+          }),
         },
         {
           label: "Schema Reference",

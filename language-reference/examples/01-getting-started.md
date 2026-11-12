@@ -1,372 +1,146 @@
-# Hello World
+# The files of a build
 
-## Example 1: Hello World — A Single Component
+This page explains one idea, which file of a build says what, and is not a runnable workspace.
+[A web app with PostgreSQL, built up one step at a time](quickstart-web/README.md) shows it in a workspace you build;
+write it into a folder of your own with:
 
-The absolute minimum to compile. A developer requests a web server. Ops provides the implementation. The compiler generates the physical artifacts.
-
-**1. Platform Catalog: The Component Interface**
-The Architect defines what a web server *is* — its ontology type and the shape of its configuration.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: core/web-server
-  version: 1.0.0
-  labels:
-    component.aggrega.ai/type: "server"
-spec:
-  schema:
-    values:
-      image: { type: string, required: true }
-    infra:
-      port: { type: integer, default: 8080 }
+```sh
+aggrega scaffold --example quickstart-web && cd quickstart-web
 ```
 
-**2. Dev Domain: The Aggregate**
-The Developer writes pure intent. No ports, no namespaces, no cloud provider.
+## Five kinds of file, each with one author
+
+A build reads five kinds of file. Each says one thing, and in a typical team each has its own author:
+
+- a **Component** says what a kind of component is: the values a developer may set, the infrastructure settings an
+  operator may set, what it publishes to the components that connect to it, and the sockets it connects through. The
+  standard-library catalog carries the Components most applications need, such as `core/datastore/postgres` and
+  `core/compute/server`, so a workspace usually writes none;
+- an **Aggregate** is the developer's: which components the application has, and what each one connects to;
+- a **Recipe** turns one kind of component into files for one tool — a Compose service, a Helm chart, a Terraform
+  module;
+- a **Manifest** chooses which Recipe realizes each kind of component for one target;
+- a **Release** names an Aggregate and a Manifest and gives one environment's settings. It is what you build:
+  `aggrega build --release release.yaml`.
+
+The split is guidance: one person may write all five, and the build accepts any of them as long as each is valid.
+
+## The Aggregate: components and their connections
+
+The first step of the example is a web application and its database. Its Aggregate, from `1/aggregate.yaml` with its
+comments left out:
 
 ```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: hello-world
-  version: 1.0.0
 spec:
   components:
-    my-site:
-      type: core/web-server:1.0.0
-      description: "The corporate landing page."
-      values:
-        image: "myregistry/landing-page:v1"
+    web:
+      type: core/compute/server
+      features:
+        db_password:
+          type: core/secret-value
+          values:
+            key: PGPASSWORD
+            origin: "${QUICKSTART_DB_PASSWORD}"
+      uses:
+        database:
+          db:
+            target: db
+            inject:
+              env:
+                - in: PGHOST
+                  from: host
+                - in: PGPORT
+                  from: port
+                - in: PGUSER
+                  from: user
+                - in: PGDATABASE
+                  from: database
+
+    db:
+      type: core/datastore/postgres
+      features:
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
+            origin: "${QUICKSTART_DB_PASSWORD}"
 ```
 
-**3. Ops Domain: The Recipe**
-Ops maps the abstract Component to a real Helm chart. The `locals` block exports private physical state for downstream plugins. The `valuesMapping` template wires `.values` into the chart's expected format.
+Nothing here names a port, a host, a namespace or a tool. `web` connects to `db` through its `database` socket, and
+the `inject` list says which variable of the application receives each entry the database publishes: `from:` names
+the entry, `in:` the variable.
+
+## A connection is a string, piped
+
+The database's Recipe publishes `host`, `port`, `user` and `database` for the connection to read. Which address `host`
+holds follows the Recipe the Manifest chose: a service's name where the database runs beside the application, a
+pointer string a provisioning tool resolves for a managed database, or the address of a server that already exists.
+The build copies each published string into the variable the Aggregate named and
+does not interpret it: it never resolves an address or checks that one is reachable.
+
+## The Manifest and the Release
+
+The Manifest, from `1/manifest.yaml`, binds each kind of component, and the password attachments, to the Recipe
+that realizes it on Docker Compose:
 
 ```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Recipe
-metadata:
-  name: web-server-helm
-  version: 1.0.0
-spec:
-  capability: helm
-  implements: core/web-server:1.0.0
-  source: "./charts/web-server"
-  locals:
-    primary_compute: "web-container"
-  valuesMapping: |
-    image: "{{ .values.image }}"
-    containerPort: {{ .infra.port }}
-```
-
-**4. Routing Domain: The Manifest (Dependency Lockfile)**
-The Manifest maps abstract component types to concrete Recipe URIs. Every instance of `core/web-server` resolves to the named Recipe; the Recipe URI's path segment carries the provider.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: hello-world-manifest
-  version: 1.0.0
 spec:
   mappings:
     components:
       type:
-        core/web-server: helm/web-server-helm:1.0.0
-```
-
-**5. Routing Domain: The Release (Deployment Router)**
-The Release binds the Aggregate to the Manifest and routes Components into physical boundaries. This is the single entry point for the compiler: `aggrega build --release release.yaml`.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: hello-world-release
-  version: 1.0.0
-  environment: production
-spec:
-  aggregate: hello-world
-  manifest: hello-world-manifest
-  boundaries:
-    default-cluster:
-      directory: "deploy/k8s"
-      components:
-        my-site: {}
-```
-
-**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.capability: helm` names the provider to dispatch to) → renders the chart into `dist/deploy/k8s/helm/`.
-
----
-
-## Example 2: Connecting Components — The Injection Contract
-
-A web application connects to a Postgres database. The developer declares *what* they need and *how* their code reads connection data. The compiler pipes the address the database's Recipe publishes into the web application's environment.
-
-**1. Platform Catalog: The Postgres Component**
-The Architect defines the database interface. The `provides` block in the schema declares the Public API keys downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: core/postgres
-  version: 1.0.0
-  labels:
-    component.aggrega.ai/type: "stateful-server"
-spec:
-  schema:
-    values:
-      db_name: { type: string, default: "appdb" }
-    provides:
-      host: { type: string }
-      port: { type: string }
-```
-
-**2. Platform Catalog: The Web Server (Extended)**
-The web server now declares a `usesSchema` — a topology socket allowing it to connect to databases. The `selector` enforces Cross-Node Type Safety: the developer cannot accidentally plug a messaging queue into the `databases` socket.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: core/web-server
-  version: 1.0.0
-  labels:
-    component.aggrega.ai/type: "server"
-spec:
-  usesSchema:
-    databases:
-      selector: "component.aggrega.ai/type=stateful-server"
-      inject: ["env"]
-  schema:
-    values:
-      image: { type: string, required: true }
-```
-
-**3. Dev Domain: The Aggregate**
-The developer declares two components and an explicit topological edge. Each `inject` mechanism is a list of entries: `in:` names the local environment variable, and `from:` names the target's `provides` key it receives.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: web-app
-  version: 1.0.0
-spec:
-  components:
-    app-db:
-      type: core/postgres:1.0.0
-      values:
-        db_name: "customers"
-
-    web-server:
-      type: core/web-server:1.0.0
-      values:
-        image: "myregistry/web-app:v2"
-      uses:
-        databases:
-          primary:
-            target: app-db
-            inject:
-              env:
-                - in: DB_HOST       # inject env var DB_HOST from provides key "host"
-                  from: "host"
-                - in: DB_PORT       # inject env var DB_PORT from provides key "port"
-                  from: "port"
-```
-
-> **The same entries in YAML flow style.** Each delivery mechanism is a list of entries, so the block style above and the flow style below are the same document:
->
-> ```yaml
-> inject:
->   env:
->     - { in: "DB_HOST", from: "host" }
->     - { in: "DB_PORT", from: "port" }
-> ```
-
-**4. Ops Domain: The Postgres Recipe**
-Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, the Recipe's own `.locals`, and static strings — and, in a Recipe naming a chart in `source:`, `.context.rendered_name`). This invariant enables cyclic dependency safety. The host is built from `.context.rendered_name`, the name the helm provider gives the chart, and the chart's `fullnameOverride` is pinned to the same key, so the address `provides` publishes is the Service the chart emits — see [Naming a Rendered Resource](../templates/rendered-resource-names.md).
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Recipe
-metadata:
-  name: postgres-chart
-  version: 1.0.0
-spec:
-  capability: helm
-  implements: core/postgres:1.0.0
-  source:
-    # A chart repository root paired with the chart's name.
-    kind: helm-https-chart
-    url: https://charts.example.com
-    chart: postgresql
-    version: 12.1.0
-  locals:
-    primary_compute: "postgresql"
-  provides:
-    host: "{{ .context.rendered_name }}"
-    port: "5432"
-  valuesMapping: |
-    fullnameOverride: "{{ .context.rendered_name }}"
-    primary:
-      initdb:
-        scripts:
-          create_db.sql: "CREATE DATABASE {{ .values.db_name }};"
-```
-
-**5. Ops Domain: The Web Server Recipe**
-The web server's Recipe consumes the pre-hydrated `.context.inject.env` pipe. By the time this template renders, the compiler has already filled it: `DB_HOST` → `"app-db"` and `DB_PORT` → `"5432"`.
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Recipe
-metadata:
-  name: web-server-helm
-  version: 1.0.0
-spec:
-  capability: helm
-  implements: core/web-server:1.0.0
-  source: "./charts/web-server"
-  locals:
-    primary_compute: "web-container"
-  valuesMapping: |
-    image: "{{ .values.image }}"
-    env:
-      {{- range $key, $value := .context.inject.env }}
-      - name: {{ $key }}
-        value: "{{ $value }}"
-      {{- end }}
-```
-
-**6. Routing Domain: Manifest & Release**
-
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: web-app-manifest
-  version: 1.0.0
-spec:
-  mappings:
-    components:
+        core/compute/server:1.0.0: compose/server:1.0.0
+        core/datastore/postgres:1.0.0: compose/postgres:1.0.0
+    features:
       type:
-        "core/web-server": "web-server-helm:1.0.0"
-        "core/postgres": "postgres-chart:1.0.0"
----
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: web-app-release
-  version: 1.0.0
-  environment: production
-spec:
-  aggregate: web-app
-  manifest: web-app-manifest
-  boundaries:
-    default-cluster:
-      directory: "deploy/k8s"
-      components:
-        app-db: {}
-        web-server: {}
+        core/secret-value:1.0.0: compose/dotenv-secret:1.0.0
 ```
 
-**Compilation Trace (rendering):**
-
-1. **Provides evaluation:** The compiler evaluates `app-db`'s Recipe `provides` → `{ host: "app-db", port: "5432" }`.
-2. **Inject hydration:** The compiler maps `web-server`'s inject contract: `DB_HOST` → target `app-db`'s `provides["host"]` → `"app-db"`. `DB_PORT` → `provides["port"]` → `"5432"`. The `.context.inject.env` pipe is now `{ "DB_HOST": "app-db", "DB_PORT": "5432" }`.
-3. **Base rendering:** The web server's `valuesMapping` template iterates over the pre-hydrated pipe, generating the Helm values.
-
----
-
-## Example 3: Parameters — One Blueprint, Many Environments
-
-A single Aggregate serves dev and production by hoisting environment-specific values into `parameters`. The Release fulfills the contract.
-
-**1. Dev Domain: The Aggregate**
-The developer uses `parameters` to declare an environment contract. Each parameter slot is typed; the compiler validates each Release-supplied value against the typed contract, then Go template interpolation (`{{ .parameters.X }}`) executes *before* the surrounding `values:` schema validation.
+The Release, from `1/release.yaml`, names the Aggregate and the Manifest and gives what only an environment knows,
+here the image the application runs and the port it listens on (the image's digest shortened):
 
 ```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: configurable-app
-  version: 1.0.0
 spec:
-  parameters:
-    app_image:
-      type: string
-      required: true
-    db_name:
-      type: string
-      required: true
-
+  aggregate: quickstart-web
+  manifest: quickstart-web-compose
   components:
-    app-db:
-      type: core/postgres:1.0.0            # Uses Component from Example 2
-      values:
-        db_name: "{{ .parameters.db_name }}"
-
-    web-server:
-      type: core/web-server:1.0.0          # Uses Component from Example 2
-      values:
-        image: "{{ .parameters.app_image }}"
-      uses:
-        databases:
-          primary:
-            target: app-db
-            inject:
-              env:
-                - in: DB_HOST
-                  from: "host"
-                - in: DB_PORT
-                  from: "port"
+    web:
+      infra:
+        image: hub.aggrega.ai/tools/quickstart-web:1.0.0@sha256:…
+        port: 8080
+    db: {}
 ```
 
-**2. Routing Domain: Two Releases (Dev & Prod)**
-Each environment fulfills the parameter contract with its own values. The Aggregate is never modified.
+The example's later steps grow it: a Redis cache beside the database, then the same components on AWS through
+Terraform, then the database's backups.
+
+## Parameters: one Aggregate, many environments
+
+A value that differs between environments is declared in the Aggregate as a typed parameter, referenced where it is
+used, and given by each Release. In [A task run on demand](task-run-on-demand/README.md), the
+Aggregate declares the schedule of its report:
 
 ```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: dev-release
-  version: 1.0.0
-  environment: development
 spec:
-  aggregate: configurable-app
-  manifest: web-app-manifest              # Uses Manifest from Example 2
   parameters:
-    app_image: "myregistry/web-app:dev"
-    db_name: "dev_customers"
-  boundaries:
-    dev-cluster:
-      directory: "deploy/dev"
-      components:
-        app-db: {}
-        web-server: {}
----
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: prod-release
-  version: 1.0.0
-  environment: production
-spec:
-  aggregate: configurable-app
-  manifest: web-app-manifest
-  parameters:
-    app_image: "myregistry/web-app:v3.1.0"
-    db_name: "prod_customers"
-  boundaries:
-    prod-cluster:
-      directory: "deploy/prod"
-      components:
-        app-db: {}
-        web-server: {}
+    report_schedule:
+      type: string
+      default: ""
+  components:
+    report:
+      type: core/compute/task
+      values:
+        schedule: "{{ .parameters.report_schedule }}"
 ```
 
-> **External parameters file (GitOps pattern):** For CI/CD-driven workflows that keep parameter values in a separate file, the Release uses the `$import:` form: `parameters: { $import: ./env/prod-values.yaml }`. The compiler loads the file's content and replaces the inline `parameters:` map. Multi-file layering (combining a base file with per-environment overrides) is expressed via Release `extends:` chains.
+and a Release fulfils it:
+
+```yaml
+spec:
+  parameters:
+    report_schedule: "30 2 * * 1-5"
+```
+
+The build checks each value a Release gives against the parameter's type before it fills the template. A Release
+never writes a component's `values` itself: it fulfils the parameters the Aggregate exposes, so the Aggregate stays
+the one place that says which values vary by environment. A Release can also read its parameters from a file of
+their own, `parameters: { $import: ./env/prod-values.yaml }`.
