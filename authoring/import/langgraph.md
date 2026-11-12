@@ -491,7 +491,7 @@ nothing else:
 
 ```yaml
   support--wait-for-store:
-    image: hub.aggrega.ai/tools/quickstart-agent:1.0.0@sha256:99816fe5ab1015d2576bd7bffe5a51ca07fec41fe650bda17c5555143367acab
+    image: hub.aggrega.ai/tools/quickstart-agent:1.0.1@sha256:a5f8dcfbb670d86a0cae0aadd2844bec93221a651238f8be3863873e261ee168
     [… omitted: the command and the entrypoint, a bash loop that opens a connection to the address]
     environment:
       STORE_HOST: postgres

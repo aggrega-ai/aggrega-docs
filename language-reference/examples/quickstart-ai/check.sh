@@ -59,7 +59,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 STEPS="1 2 3 4"
-AGENT='hub.aggrega.ai/tools/quickstart-agent:1.0.0@sha256:99816fe5ab1015d2576bd7bffe5a51ca07fec41fe650bda17c5555143367acab'
+AGENT='hub.aggrega.ai/tools/quickstart-agent:1.0.1@sha256:a5f8dcfbb670d86a0cae0aadd2844bec93221a651238f8be3863873e261ee168'
 CHAT='hub.aggrega.ai/tools/quickstart-chat:1.0.0@sha256:e3c74685308bae76025c5b50c4cf72b4f57f59226783e7fc9fb1550cca107e7c'
 
 [ -x "$HELPER" ] || die "no build helper at $HELPER"
