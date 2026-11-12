@@ -4087,6 +4087,17 @@
     "status": "machine",
     "text": "2. Vera inversione del controllo e collegamento semantico"
   },
+  "06602ba937ac638a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "27c356f6c7fe2857",
+      "reviewed": false
+    },
+    "srcHash": "06602ba937ac638a",
+    "status": "machine",
+    "text": "L’id di un nodo è la chiave sotto cui si trova in `input.graph.spec.nodes`; `attached_features` elenca i tipi di Feature associati a qualsiasi nodo del percorso, quindi l’appartenenza si verifica con `in`; la regola controlla che il mascheramento sia associato, non che cosa elenchi; e una decisione raccolta sotto `deny` viene segnalata con la severità `halt`, che arresta la build. Una regola sui percorsi vede un nodo solo dove un arco lo raggiunge o ne parte, quindi una policy che deve coprire anche un nodo non collegato legge i nodi stessi."
+  },
   "0667bcb4713d057c": {
     "at": "2026-11-03T19:06:07.164Z",
     "job": "session-0145-20261103190607",
@@ -8204,6 +8215,17 @@
     "status": "machine",
     "text": "Annota ogni impostazione effettiva con il livello da cui proviene (un flag della riga di comando, una variabile d’ambiente, un file di configurazione o i valori predefiniti integrati)."
   },
+  "0d2272fcbbc40ad5": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "24d3dfa8defc999d",
+      "reviewed": false
+    },
+    "srcHash": "0d2272fcbbc40ad5",
+    "status": "machine",
+    "text": "**Obblighi di presenza.** Un Component può richiedere che sia presente un’associazione di un dato tipo. Nel catalogo, `example/compute/service` porta l’annotazione `features.aggrega.ai/requiredType.monitoring:\n  core/prometheus-exporter`, quindi una build in cui una sua istanza non porta alcuna `core/prometheus-exporter`, a qualsiasi livello, si arresta indicando il requisito `monitoring`. Ripeti la chiave con un altro suffisso per richiedere un secondo tipo; vedi [entities/component.md](../entities/component.md) «Presence mandates (Obblighi di presenza)» per come un obbligo differisce da uno slot di associazione."
+  },
   "0d2bc08e8ac29e32": {
     "at": "2026-11-05T16:59:03.620Z",
     "job": "session-0005-20261105165903",
@@ -11565,6 +11587,17 @@
     "srcHash": "126a655366f9a470",
     "status": "machine",
     "text": "Descrizione dell’involucro"
+  },
+  "126aaf54094b501d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "ef7a5c7c155cc8bc",
+      "reviewed": false
+    },
+    "srcHash": "126aaf54094b501d",
+    "status": "machine",
+    "text": "Lo sviluppatore non indica alcun indirizzo, guardrail o impostazione del provider. Il Manifest lega `core/data-masking` a `helm/data-masking-litellm`, che scrive il mascheramento nella configurazione che renderizza la Recipe del gateway stesso, attraverso passi della pipeline di plugin che chiude il rendering, e aggiunge accanto un modulo che il gateway carica. Ogni altro file che la build scrive è identico byte per byte a quello di una build senza il collegamento."
   },
   "126d950958dbc035": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -19623,6 +19656,17 @@
     "status": "machine",
     "text": "Il rifiuto viene segnalato anziché assorbito, perché nulla in un risultato dice quale riferimento vi mancasse. Con i provider inclusi in questo binario, il provider che ha richiesto il riferimento restituisce il rifiuto, quindi un rendering che ha raggiunto un riferimento rifiutato non si completa. Ogni riferimento rifiutato arriva perciò come voce a sé sul layer `aggrega-build`, con il nome del riferimento e del comando che lo fissa: `aggrega pull --release <release>`, oppure `aggrega/resolveDependencies` per lo stesso lavoro senza lasciare la sessione. Le voci sono **consultive** anziché un rifiuto — il grafo viene comunque restituito, con lo stesso status che ha l’avviso di drift visto sopra — e sono attribuite all’Aggregate in testa al file, perché un riferimento richiesto da un rendering non nomina alcuna chiave scritta da un autore. Viaggiano nella stessa pubblicazione degli avvisi propri del rendering, che sostituisce quel layer per intero, quindi un riferimento che poi fissi smette di essere segnalato senza che nulla debba cancellarlo. Un rendering completamente fissato non dice nulla di tutto ciò. Vedi [Che cosa contiene una voce di diagnostica](#what-a-diagnostic-entry-carries) per la forma che assume ciascuna voce."
   },
+  "1fe4c38de0704668": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d95b9fd73be170a7",
+      "reviewed": false
+    },
+    "srcHash": "1fe4c38de0704668",
+    "status": "machine",
+    "text": "Una Feature è un comportamento che un componente non ha di per sé — il mascheramento, un backup, un ingress, una credenziale — e che un autore gli associa sotto `features:`. Chi la associa discende da chi ne decide gli input: lo sviluppatore associa, nell’Aggregate, una Feature il cui comportamento fa parte di ciò che l’applicazione è; l’operatore associa, nella Release, una Feature i cui input sono tutti operativi. In entrambi i casi il Manifest lega ogni Feature a una FeatureRecipe, che decide come viene realizzata per il target."
+  },
   "1fe91d77090d57bd": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -21180,6 +21224,17 @@
     "srcHash": "22882024016d31c7",
     "status": "machine",
     "text": "Applicato a una Release: `boundaries` si compongono per nome di confine e un confine per chiave, `components` per nome di componente, `infra` in profondità, `features` per nome di istanza e poi per pilastro; gli `uses` di un componente per socket e poi per connessione, dove un `target` scritto dal figlio sostituisce quello ereditato, l’`infra` della connessione si compone chiave per chiave, e le sue `features` si compongono per slot e poi per pilastro secondo la stessa regola seguita dalle `features` proprie di un componente; `directory`, `subDirectory`, `syncWave` e i puntatori all’Aggregate e al Manifest sono scalari che sostituiscono."
+  },
+  "22907c32e8265e3d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d0c9349608d005d4",
+      "reviewed": false
+    },
+    "srcHash": "22907c32e8265e3d",
+    "status": "machine",
+    "text": "**Interoperabilità.** Una Feature può indicare le Features con cui non può condividere un componente. `core/data-masking` dichiara `interoperability.conflictsWith: [core/semantic-caching]`, quindi una build in cui un componente finisce per portarle entrambe — associate al componente stesso oppure a un sottosistema o a un confine che lo contiene — si arresta prima del rendering."
   },
   "229792fca9e7edc6": {
     "at": "2026-11-03T20:08:39.308Z",
@@ -45035,6 +45090,13 @@
     "status": "machine",
     "text": "**`AGGREGA_VERSION`** nomina la release da installare, come `0.8.7`, scritta con o senza la `v` iniziale. Se non è impostata, il comando installa l’ultima release — quella che GitHub contrassegna come più recente, che non è mai una prerelease, quindi una prerelease viene installata solo nominandola qui."
   },
+  "49d38f05b031b6fe": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "49d38f05b031b6fe",
+    "status": "machine",
+    "text": "Questa pagina spiega un’unica idea, associare un comportamento a un componente e verificare il risultato con una policy, e non è un workspace eseguibile. [Una policy che arresta una build quando dati riservati raggiungono un modello gestito senza essere mascherati](policy-data-class-route/README.md) mostra entrambe le cose in un workspace di cui esegui la build; scrivilo in una tua cartella con:"
+  },
   "49d3c8b2b3e5a036": {
     "at": "2026-11-04T11:35:34.654Z",
     "job": "session-0237-20261104113534",
@@ -58042,6 +58104,17 @@
     "status": "machine",
     "text": "**[Manifest](../language-reference/entities/manifest.md)** — il livello di routing. Indica al compilatore quale Recipe realizza ciascun Component per un dato target, così lo stesso Aggregate può essere puntato su implementazioni diverse tra ambienti — una Recipe cloud per la produzione, una Recipe Compose per i test locali — senza alcuna modifica al file dello sviluppatore."
   },
+  "5f300c7dbe8490ee": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "1a741835e2b77c01",
+      "reviewed": false
+    },
+    "srcHash": "5f300c7dbe8490ee",
+    "status": "machine",
+    "text": "La [pagina del socket di governance](../plugins/policy-socket.md) è la superficie di scrittura completa: il payload che ogni ruolo espone, le chiavi di decisione e come dare un nome alle tue. L’esempio [Policy che danno forma alle etichette](policy-label-transform/README.md) associa una policy che dà forma alle etichette accanto ai due plugin di etichettatura integrati e ne esegue la build."
+  },
   "5f32633c5b1a09ee": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -68161,6 +68234,13 @@
     "srcHash": "6fe022489ef13637",
     "status": "machine",
     "text": "Vedere che cosa emetterebbe una Release senza scriverne nulla:"
+  },
+  "6fe28beb4ccac62d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "6fe28beb4ccac62d",
+    "status": "machine",
+    "text": "Una Feature viene associata, e una FeatureRecipe la realizza"
   },
   "6fe486fb5b69d7a7": {
     "at": "2026-11-03T04:59:01.011Z",
@@ -89104,6 +89184,13 @@
     "status": "machine",
     "text": "Il tipo è il token di schema in minuscolo con trattini — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` e così via. [`aggrega get-schema --list`](aggrega-get-schema.md) stampa l’insieme completo, e un token a cui non corrisponde alcuno schema viene rifiutato con quell’insieme nel messaggio, così un errore di battitura si corregge senza una seconda ricerca."
   },
+  "92aea67fe5dcf438": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "92aea67fe5dcf438",
+    "status": "machine",
+    "text": "La prima regola qui sotto etichetta ogni gateway che analizza il payload del modello che inoltra come un punto in cui i prompt partono verso un provider di modelli. In questo ruolo i nodi si trovano in `input.graph.nodes`:"
+  },
   "92b02dec76138a69": {
     "at": "2026-11-03T20:41:36.264Z",
     "job": "session-0156-20261103204136",
@@ -101167,6 +101254,13 @@
     "status": "machine",
     "text": "SourceFile[]"
   },
+  "a6497e5c1890f6d7": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "a6497e5c1890f6d7",
+    "status": "machine",
+    "text": "Le etichette decidono dove può andare una Feature"
+  },
   "a64cb3fcdcf665a2": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -103390,6 +103484,17 @@
     "srcHash": "aa175a7ded3be9a0",
     "status": "machine",
     "text": "**Leggi [Nulla viene servito senza una credenziale](#nothing-is-served-without-a-credential) prima di distribuirne uno.** Ogni richiesta all’endpoint porta una credenziale, e non esiste impostazione che serva una richiesta che ne è priva — ciò che un’impostazione sceglie è se questo server verifica da sé un bearer token o legge un chiamante che un proxy posto davanti ha già verificato."
+  },
+  "aa181ffad8ec1e01": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "011955123f48ff20",
+      "reviewed": false
+    },
+    "srcHash": "aa181ffad8ec1e01",
+    "status": "machine",
+    "text": "L’operatore associa il motore una volta per ruolo, ciascuna associazione con il proprio file di policy; un percorso relativo sotto `sources` si risolve rispetto alla directory del file di configurazione, e la trasformazione viene eseguita prima del verdetto:"
   },
   "aa188c42a71cc35a": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -115698,6 +115803,13 @@
     "status": "machine",
     "text": "[`errors/fatal-halts.md`](../errors/fatal-halts.md) — le regole di forma della Recipe sulle chiavi univoche delle voci di `artifacts:` e sulla collisione dei nomi di file tra tipi di input."
   },
+  "bd3226f40f54943e": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "bd3226f40f54943e",
+    "status": "machine",
+    "text": "Le etichette sono l’identità semantica di un componente, e guidano il posizionamento di una Feature, i selettori dei socket e le policy senza alcuna modifica al compilatore. Il campo `appliesTo` di una Feature è un selettore di etichette applicato al componente a cui è associata. `core/data-masking` dichiara `appliesTo: \"dataplane.aggrega.ai/content-masking\"`, una chiave nuda, che corrisponde a qualsiasi componente che porti quell’etichetta, qualunque ne sia il valore; `core/gateway/litellm` la porta, con il valore `entity-recognition`. Un selettore può anche confrontare valori, `component.aggrega.ai/type in (server, worker)`, o escludere un’etichetta, `!model.aggrega.ai/capability`; i requisiti di un selettore, separati da virgole, devono valere tutti, e la Feature si associa solo a un componente a cui corrispondono. [Associazione basata sulle etichette](../entities/feature.md#label-based-attachment) fornisce l’intera grammatica dei selettori."
+  },
   "bd36f83ee708df8e": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -116223,6 +116335,13 @@
     "srcHash": "be2f43949e14fe88",
     "status": "machine",
     "text": "**Un solo avviso, per scelta progettuale.** Dichiarare la stessa foglia in entrambi i pilastri è ciò che cerca l’avviso di sovrapposizione dei pilastri, quindi ogni caricamento di queste quattro Features lo segnala — `LINT: Feature \"core/referenced-secret\" ... declares property \"origin\" in both values: and infra: pillars` — in una validazione dell’intero catalogo, e in un build o in una validazione il cui Manifest o Aggregate ne raggiunge una. Qui la sovrapposizione è il contratto, non una svista; l’avviso non cambia alcun verdetto né alcun byte renderizzato. Vedi [vocabulary/data-pillars.md](../vocabulary/data-pillars.md#the-same-property-name-in-both-pillars) «The same property name in both pillars (Lo stesso nome di proprietà in entrambi i pilastri)»."
+  },
+  "be2fe300f7eba209": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "be2fe300f7eba209",
+    "status": "machine",
+    "text": "Altre due dichiarazioni vincolano le associazioni:"
   },
   "be302427bf428edc": {
     "at": "2026-11-04T05:50:41.976Z",
@@ -129866,6 +129985,17 @@
     "status": "machine",
     "text": "**Non giudica la risposta del modello**, né gli argomenti delle chiamate agli strumenti né le immagini."
   },
+  "d3646ebc876301c9": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "03d6aa0db1b8f7b2",
+      "reviewed": false
+    },
+    "srcHash": "d3646ebc876301c9",
+    "status": "machine",
+    "text": "Le policy vengono associate dall’operatore sotto `plugins.governance` nella configurazione del workspace, ciascuna associazione in un ruolo. Una policy nel ruolo `label-transform` aggiunge etichette al grafo; una nel ruolo `ir-verdict` lo giudica e può arrestare la build. Il motore Rego le esegue entrambe; è compilato nella CLI, e `governance/rego` è la sua entità Plugin nel catalogo della libreria standard."
+  },
   "d36c0a66e3e8ed61": {
     "at": "2026-11-03T19:06:08.912Z",
     "job": "session-0146-20261103190608",
@@ -141399,6 +141529,13 @@
     "status": "machine",
     "text": "`code` è un codice stabile e confrontabile da una macchina per ciò che la voce riporta, così un client può ramificare in base a esso senza confrontare il testo del messaggio. **Una sola chiave contiene il codice, chiunque l’abbia assegnato**, e `source` ti dice quale tipo hai in mano, perché i livelli danno i nomi alle cose a partire da vocabolari diversi."
   },
+  "e5d6943f7cc6fd71": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e5d6943f7cc6fd71",
+    "status": "machine",
+    "text": "La seconda arresta qualsiasi percorso attraverso un gateway di questo tipo che non porta alcun mascheramento:"
+  },
   "e5d7530cecbe4305": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -142291,6 +142428,13 @@
     "srcHash": "e76a027be7bb1678",
     "status": "machine",
     "text": "**1. Dominio Dev: l’Aggregate** Lo sviluppatore usa `parameters` per dichiarare un contratto di ambiente. Ogni slot di parametro è tipizzato; il compilatore valida ogni valore fornito dalla Release rispetto al contratto tipizzato, poi l’interpolazione dei template Go (`{{ .parameters.X }}`) viene eseguita *prima* della validazione dello schema `values:` circostante."
+  },
+  "e76a98de0788320a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e76a98de0788320a",
+    "status": "machine",
+    "text": "Una policy legge il grafo costruito"
   },
   "e76e1b5e2af3f1a4": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -148526,6 +148670,13 @@
     "status": "machine",
     "text": "**Indentazione.** Un frammento estratto da una struttura profondamente annidata viene di solito mostrato a partire dal margine sinistro, così si legge da solo. Le righe sono quelle emesse; sono cambiati solo gli spazi iniziali."
   },
+  "f153c9d059faff9b": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f153c9d059faff9b",
+    "status": "machine",
+    "text": "Nell’esempio, lo sviluppatore associa la `core/data-masking` della libreria standard a un gateway di IA ed elenca che cosa mascherare, da `aggregate.yaml` con i commenti omessi:"
+  },
   "f156ff652dcfc718": {
     "at": "2026-11-04T00:28:10.767Z",
     "job": "session-0180-20261104002810",
@@ -149049,6 +149200,17 @@
     "srcHash": "f2282b9f7e5b8ea0",
     "status": "machine",
     "text": "La Release nei cui termini risolvere il nome, come percorso relativo alla radice del workspace. Il nome viene allora risolto tramite le directory di catalogo che la configurazione del workspace assegna a quella Release, così un nome che più varianti dichiarano in un unico workspace, una per Release, si risolve nella variante con cui quella Release esegue la build, e un nome che essa non risolve viene rifiutato con una spiegazione che nomina la voce di quella Release sotto `workspace.releases`. Se assente, il nome viene risolto sulle directory di catalogo proprie del workspace. Un riferimento a un registry non accetta alcuna Release e viene rifiutato se ne porta una, come lo è un valore che non nomina alcun file di Release."
+  },
+  "f22a2f791290f9a1": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "0b86a4b199705bf8",
+      "reviewed": false
+    },
+    "srcHash": "f22a2f791290f9a1",
+    "status": "machine",
+    "text": "Ciò che l’associazione non fa è indicato con la stessa cura di ciò che fa: il testo che nessun pattern intercetta e che il riconoscitore non rileva passa invariato, il gateway e i due servizi del riconoscitore vedono il testo originale, e il traffico che non passa attraverso il gateway non viene toccato. I commenti della FeatureRecipe elencano ciò che questo gateway rifiuta e ciò che lascia passare così come è stato inviato."
   },
   "f22be2eec72c87d8": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -150956,6 +151118,13 @@
     "srcHash": "f515591655e01eea",
     "status": "machine",
     "text": "Tre distinzioni strutturali:"
+  },
+  "f515691a05fdfaae": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f515691a05fdfaae",
+    "status": "machine",
+    "text": "Una Feature va sul componente di cui modifica il comportamento. `core/caller-allowlist` è associata a un server di modelli, non ai gateway autorizzati a chiamarlo; [Un server di modelli che solo il suo gateway può chiamare](model-server-caller-allowlist/README.md) ne esegue la build."
   },
   "f517ce43afb8817c": {
     "at": "2026-11-04T08:39:26.304Z",

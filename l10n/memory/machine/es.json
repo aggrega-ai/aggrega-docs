@@ -4087,6 +4087,17 @@
     "status": "machine",
     "text": "2. Verdadera inversión de control y conexión semántica"
   },
+  "06602ba937ac638a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "27c356f6c7fe2857",
+      "reviewed": false
+    },
+    "srcHash": "06602ba937ac638a",
+    "status": "machine",
+    "text": "El id de un nodo es la clave bajo la que está en `input.graph.spec.nodes`; `attached_features` enumera los tipos de Feature vinculados a cualquier nodo de la ruta, así que la pertenencia se comprueba con `in`; la regla comprueba que el enmascaramiento esté vinculado, no lo que enumera; y una decisión recogida bajo `deny` se notifica con la severidad `halt`, que detiene la compilación. Una regla sobre rutas solo ve un nodo donde una arista llega a él o sale de él, así que una política que también deba cubrir un nodo no conectado lee los propios nodos."
+  },
   "0667bcb4713d057c": {
     "at": "2026-11-03T19:06:07.164Z",
     "job": "session-0145-20261103190607",
@@ -8198,6 +8209,17 @@
     "status": "machine",
     "text": "Anota cada opción efectiva con la capa de la que procede (un flag de la línea de comandos, una variable de entorno, un archivo de configuración o los valores predeterminados integrados)."
   },
+  "0d2272fcbbc40ad5": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "24d3dfa8defc999d",
+      "reviewed": false
+    },
+    "srcHash": "0d2272fcbbc40ad5",
+    "status": "machine",
+    "text": "**Mandatos de presencia.** Un Component puede exigir que esté presente una vinculación de un tipo dado. El `example/compute/service` del catálogo lleva la anotación `features.aggrega.ai/requiredType.monitoring:\n  core/prometheus-exporter`, así que una compilación en la que una instancia suya no lleva ninguna `core/prometheus-exporter`, en ningún ámbito, se detiene nombrando el requisito `monitoring`. Repite la clave con otro sufijo para exigir un segundo tipo; consulta [entities/component.md](../entities/component.md) «Presence mandates (Mandatos de presencia)» para ver en qué se diferencia un mandato de un slot de vinculación."
+  },
   "0d2bc08e8ac29e32": {
     "at": "2026-11-05T16:59:03.620Z",
     "job": "session-0005-20261105165903",
@@ -11559,6 +11581,17 @@
     "srcHash": "126a655366f9a470",
     "status": "machine",
     "text": "Descripción de la envoltura"
+  },
+  "126aaf54094b501d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "ef7a5c7c155cc8bc",
+      "reviewed": false
+    },
+    "srcHash": "126aaf54094b501d",
+    "status": "machine",
+    "text": "El desarrollador no indica ninguna dirección, guardrail ni ajuste del proveedor. El Manifest enlaza `core/data-masking` con `helm/data-masking-litellm`, que escribe el enmascaramiento en la configuración que renderiza la propia Recipe del gateway, mediante pasos del pipeline de plugins que cierra el renderizado, y añade a su lado un módulo que el gateway carga. Todos los demás archivos que escribe la compilación son idénticos byte a byte a los de una compilación sin el adjunto."
   },
   "126d950958dbc035": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -19617,6 +19650,17 @@
     "status": "machine",
     "text": "El rechazo se notifica en lugar de absorberse, porque nada en un resultado indica qué referencia le faltaba. Con los providers que incluye este binario, el provider que pidió la referencia devuelve el rechazo, por lo que un renderizado que llegó a una referencia rechazada no se completa. Por eso cada referencia rechazada llega como una entrada propia en la capa `aggrega-build`, que nombra la referencia y el comando que la fija: `aggrega pull --release <release>`, o `aggrega/resolveDependencies` para el mismo trabajo sin salir de la sesión. Las entradas son **consultivas** y no un rechazo — el grafo se devuelve igualmente, con la misma consideración que tiene el aviso de deriva anterior — y se atribuyen al Aggregate que encabeza el archivo, porque una referencia que pidió un renderizado no nombra ninguna clave que haya escrito un autor. Viajan en la misma publicación que los avisos propios del renderizado, que sustituye esa capa por completo, de modo que una referencia que luego fijes deja de notificarse sin que nada tenga que borrarla. Un renderizado totalmente fijado no dice nada de todo esto. Consulta [Qué contiene una entrada de diagnóstico](#what-a-diagnostic-entry-carries) para ver la forma que adopta cada entrada."
   },
+  "1fe4c38de0704668": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d95b9fd73be170a7",
+      "reviewed": false
+    },
+    "srcHash": "1fe4c38de0704668",
+    "status": "machine",
+    "text": "Una Feature es un comportamiento que un componente no tiene por sí mismo — enmascaramiento, una copia de seguridad, un ingress, una credencial — y que un autor le vincula bajo `features:`. Quién la vincula se deduce de quién decide sus entradas: el desarrollador vincula, en el Aggregate, una Feature cuyo comportamiento forma parte de lo que la aplicación es; el operador vincula, en la Release, una cuyas entradas son todas operativas. En ambos casos, el Manifest enlaza cada Feature con una FeatureRecipe, que decide cómo se realiza para el destino."
+  },
   "1fe91d77090d57bd": {
     "at": "2026-11-02T23:50:30.937Z",
     "job": "session-0021-20261102235030",
@@ -21176,6 +21220,17 @@
     "srcHash": "22882024016d31c7",
     "status": "machine",
     "text": "Aplicado a una Release: los `boundaries` se componen por nombre de límite y un límite por clave, los `components` por nombre de componente, `infra` en profundidad, las `features` por nombre de instancia y luego por pilar; los `uses` de un componente por socket y luego por conexión, donde un `target` que escribe el hijo reemplaza al heredado, el `infra` de la conexión se compone clave por clave, y sus `features` se componen por slot y luego por pilar según la misma regla que siguen las `features` propias de un componente; `directory`, `subDirectory`, `syncWave` y los punteros al Aggregate y al Manifest son escalares que reemplazan."
+  },
+  "22907c32e8265e3d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d0c9349608d005d4",
+      "reviewed": false
+    },
+    "srcHash": "22907c32e8265e3d",
+    "status": "machine",
+    "text": "**Interoperabilidad.** Una Feature puede nombrar Features con las que no puede compartir un componente. `core/data-masking` declara `interoperability.conflictsWith: [core/semantic-caching]`, así que una compilación en la que un componente acaba llevando ambas — vinculadas al propio componente, o a un subsistema o límite que lo contiene — se detiene antes del renderizado."
   },
   "229792fca9e7edc6": {
     "at": "2026-11-03T20:08:39.308Z",
@@ -45007,6 +45062,13 @@
     "status": "machine",
     "text": "**`AGGREGA_VERSION`** nombra la release que se instala, como `0.8.7`, escrita con o sin su `v` inicial. Si no está definido, el comando instala la última release — la que GitHub marca como más reciente, que nunca es una versión preliminar, así que una versión preliminar solo se instala nombrándola aquí."
   },
+  "49d38f05b031b6fe": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "49d38f05b031b6fe",
+    "status": "machine",
+    "text": "Esta página explica una sola idea, vincular un comportamiento a un componente y comprobar el resultado con una política, y no es un espacio de trabajo ejecutable. [Una política que detiene una compilación cuando datos restringidos llegan sin enmascarar a un modelo gestionado](policy-data-class-route/README.md) muestra ambas cosas en un espacio de trabajo que compilas; escríbelo en una carpeta propia con:"
+  },
   "49d3c8b2b3e5a036": {
     "at": "2026-11-04T11:35:34.654Z",
     "job": "session-0237-20261104113534",
@@ -58020,6 +58082,17 @@
     "status": "machine",
     "text": "**[Manifest](../language-reference/entities/manifest.md)** — la capa de enrutamiento. Indica al compilador qué Recipe realiza cada Component para un destino dado, de modo que el mismo Aggregate puede dirigirse a implementaciones distintas según el entorno — una Recipe de nube para producción, una Recipe de Compose para pruebas locales — sin ningún cambio en el archivo del desarrollador."
   },
+  "5f300c7dbe8490ee": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "1a741835e2b77c01",
+      "reviewed": false
+    },
+    "srcHash": "5f300c7dbe8490ee",
+    "status": "machine",
+    "text": "La [página del socket de gobernanza](../plugins/policy-socket.md) es la superficie de creación completa: la carga útil que expone cada rol, las claves de decisión y cómo nombrar las tuyas. El ejemplo [Políticas que dan forma a las etiquetas](policy-label-transform/README.md) vincula una política que da forma a las etiquetas junto a los dos plugins de etiquetado integrados, y la compila."
+  },
   "5f32633c5b1a09ee": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -68139,6 +68212,13 @@
     "srcHash": "6fe022489ef13637",
     "status": "machine",
     "text": "Ver lo que emitiría una Release sin escribir nada de ello:"
+  },
+  "6fe28beb4ccac62d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "6fe28beb4ccac62d",
+    "status": "machine",
+    "text": "Una Feature se vincula, y la realiza una FeatureRecipe"
   },
   "6fe486fb5b69d7a7": {
     "at": "2026-11-03T04:59:01.011Z",
@@ -89082,6 +89162,13 @@
     "status": "machine",
     "text": "El tipo es el token de esquema en minúsculas y con guiones: `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` y los demás. [`aggrega get-schema --list`](aggrega-get-schema.md) imprime el conjunto completo, y un token al que no corresponde ningún esquema se rechaza con ese conjunto en el mensaje, de modo que una errata se corrige sin una segunda consulta."
   },
+  "92aea67fe5dcf438": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "92aea67fe5dcf438",
+    "status": "machine",
+    "text": "La primera regla de abajo etiqueta cada gateway que analiza la carga útil del modelo que reenvía como un punto donde los prompts salen hacia un proveedor de modelos. En este rol, los nodos están en `input.graph.nodes`:"
+  },
   "92b02dec76138a69": {
     "at": "2026-11-03T20:41:36.264Z",
     "job": "session-0156-20261103204136",
@@ -101145,6 +101232,13 @@
     "status": "machine",
     "text": "SourceFile[]"
   },
+  "a6497e5c1890f6d7": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "a6497e5c1890f6d7",
+    "status": "machine",
+    "text": "Las etiquetas deciden adónde puede ir una Feature"
+  },
   "a64cb3fcdcf665a2": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -103368,6 +103462,17 @@
     "srcHash": "aa175a7ded3be9a0",
     "status": "machine",
     "text": "**Lee [Nada se sirve sin una credencial](#nothing-is-served-without-a-credential) antes de desplegar uno.** Cada solicitud al endpoint lleva una credencial, y no hay ningún ajuste que sirva una solicitud sin ella — lo que elige un ajuste es si este servidor verifica él mismo un bearer token o lee un llamante que un proxy situado delante ya ha verificado."
+  },
+  "aa181ffad8ec1e01": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "011955123f48ff20",
+      "reviewed": false
+    },
+    "srcHash": "aa181ffad8ec1e01",
+    "status": "machine",
+    "text": "El operador vincula el motor una vez por rol, cada vinculación con su propio archivo de política; una ruta relativa bajo `sources` se resuelve respecto al directorio del archivo de configuración, y la transformación se ejecuta antes que el veredicto:"
   },
   "aa188c42a71cc35a": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -115664,6 +115769,13 @@
     "status": "machine",
     "text": "[`errors/fatal-halts.md`](../errors/fatal-halts.md) — las reglas de forma de la Recipe sobre claves de entrada únicas en `artifacts:` y sobre la colisión de nombres de archivo entre tipos de entrada."
   },
+  "bd3226f40f54943e": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "bd3226f40f54943e",
+    "status": "machine",
+    "text": "Las etiquetas son la identidad semántica de un componente, y determinan la colocación de una Feature, los selectores de sockets y las políticas sin ningún cambio en el compilador. El campo `appliesTo` de una Feature es un selector de etiquetas sobre el componente al que está vinculada. `core/data-masking` declara `appliesTo: \"dataplane.aggrega.ai/content-masking\"`, una clave sola, que coincide con cualquier componente que lleve esa etiqueta, sea cual sea su valor; `core/gateway/litellm` la lleva, con el valor `entity-recognition`. Un selector también puede comparar valores, `component.aggrega.ai/type in (server, worker)`, o excluir una etiqueta, `!model.aggrega.ai/capability`; los requisitos de un mismo selector, separados por comas, deben cumplirse todos, y la Feature se vincula solo a un componente con el que coincidan. [Vinculación basada en etiquetas](../entities/feature.md#label-based-attachment) ofrece la gramática completa de los selectores."
+  },
   "bd36f83ee708df8e": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -116189,6 +116301,13 @@
     "srcHash": "be2f43949e14fe88",
     "status": "machine",
     "text": "**Un aviso, por diseño.** Declarar la misma hoja en ambos pilares es lo que busca el aviso de solapamiento de pilares, así que cada carga de estas cuatro Features lo informa — `LINT: Feature \"core/referenced-secret\" ... declares property \"origin\" in both values: and infra: pillars` — en una validación de todo el catálogo, y en una compilación o validación cuyo Manifest o Aggregate alcanza una de ellas. Aquí el solapamiento es el contrato y no un descuido; el aviso no cambia ningún veredicto ni ningún byte renderizado. Consulta [vocabulary/data-pillars.md](../vocabulary/data-pillars.md#the-same-property-name-in-both-pillars) «The same property name in both pillars (El mismo nombre de propiedad en ambos pilares)»."
+  },
+  "be2fe300f7eba209": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "be2fe300f7eba209",
+    "status": "machine",
+    "text": "Otras dos declaraciones restringen las vinculaciones:"
   },
   "be302427bf428edc": {
     "at": "2026-11-04T05:50:41.976Z",
@@ -129826,6 +129945,17 @@
     "status": "machine",
     "text": "**No juzga la respuesta del modelo**, ni los argumentos de las llamadas a herramientas ni las imágenes."
   },
+  "d3646ebc876301c9": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "03d6aa0db1b8f7b2",
+      "reviewed": false
+    },
+    "srcHash": "d3646ebc876301c9",
+    "status": "machine",
+    "text": "El operador vincula las políticas bajo `plugins.governance` en la configuración del espacio de trabajo, cada vinculación en un rol. Una política en el rol `label-transform` añade etiquetas al grafo; una en el rol `ir-verdict` lo juzga y puede detener la compilación. El motor Rego ejecuta ambas; está compilado en la CLI, y `governance/rego` es su entidad Plugin en el catálogo de la biblioteca estándar."
+  },
   "d36c0a66e3e8ed61": {
     "at": "2026-11-03T19:06:08.912Z",
     "job": "session-0146-20261103190608",
@@ -141351,6 +141481,13 @@
     "status": "machine",
     "text": "`code` es un código estable y comparable por máquina para lo que informa la entrada, de modo que un cliente puede ramificar según él sin comparar el texto del mensaje. **Una sola clave lleva el código, lo haya asignado quien lo haya asignado**, y `source` te indica de qué tipo es el que tienes, porque las capas nombran las cosas a partir de vocabularios distintos."
   },
+  "e5d6943f7cc6fd71": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e5d6943f7cc6fd71",
+    "status": "machine",
+    "text": "La segunda detiene cualquier ruta a través de un gateway así que no lleve enmascaramiento:"
+  },
   "e5d7530cecbe4305": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -142243,6 +142380,13 @@
     "srcHash": "e76a027be7bb1678",
     "status": "machine",
     "text": "**1. Dominio Dev: el Aggregate** El desarrollador usa `parameters` para declarar un contrato de entorno. Cada slot de parámetro está tipado; el compilador valida cada valor suministrado por la Release contra el contrato tipado y, después, la interpolación de plantillas Go (`{{ .parameters.X }}`) se ejecuta *antes* de la validación del esquema `values:` que la rodea."
+  },
+  "e76a98de0788320a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e76a98de0788320a",
+    "status": "machine",
+    "text": "Una política lee el grafo construido"
   },
   "e76e1b5e2af3f1a4": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -148460,6 +148604,13 @@
     "status": "machine",
     "text": "**La sangría.** Un fragmento extraído de una estructura profundamente anidada suele mostrarse desde el margen izquierdo para que se lea por sí solo. Las líneas son las líneas emitidas; solo cambiaron los espacios iniciales."
   },
+  "f153c9d059faff9b": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f153c9d059faff9b",
+    "status": "machine",
+    "text": "En el ejemplo, el desarrollador vincula la `core/data-masking` de la biblioteca estándar a un gateway de IA y enumera qué enmascarar, desde `aggregate.yaml` sin sus comentarios:"
+  },
   "f156ff652dcfc718": {
     "at": "2026-11-04T00:28:10.767Z",
     "job": "session-0180-20261104002810",
@@ -148983,6 +149134,17 @@
     "srcHash": "f2282b9f7e5b8ea0",
     "status": "machine",
     "text": "La Release en cuyos términos se resuelve el nombre, como ruta relativa a la raíz del espacio de trabajo. El nombre se resuelve entonces a través de los directorios de catálogo que la configuración del espacio de trabajo asigna a esa Release, de modo que un nombre que declaran varias variantes en un mismo espacio de trabajo, una por Release, se resuelve en la variante con la que se compila esa Release, y un nombre que no resuelve se rechaza con una explicación que nombra la entrada de esa Release bajo `workspace.releases`. Si falta, el nombre se resuelve sobre los propios directorios de catálogo del espacio de trabajo. Una referencia de registro no admite ninguna Release y se rechaza si lleva una, igual que un valor que no nombra ningún archivo de Release."
+  },
+  "f22a2f791290f9a1": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "0b86a4b199705bf8",
+      "reviewed": false
+    },
+    "srcHash": "f22a2f791290f9a1",
+    "status": "machine",
+    "text": "Lo que la vinculación no hace se indica con el mismo cuidado que lo que hace: el texto con el que no coincide ningún patrón y que el reconocedor no detecta pasa sin cambios, el gateway y los dos servicios del reconocedor ven el texto original, y el tráfico que no pasa por el gateway no se toca. Los comentarios de la FeatureRecipe enumeran lo que este gateway rechaza y lo que deja pasar tal como se envió."
   },
   "f22be2eec72c87d8": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -150884,6 +151046,13 @@
     "srcHash": "f515591655e01eea",
     "status": "machine",
     "text": "Tres distinciones estructurales:"
+  },
+  "f515691a05fdfaae": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f515691a05fdfaae",
+    "status": "machine",
+    "text": "Una Feature va en el componente cuyo comportamiento cambia. `core/caller-allowlist` se vincula a un servidor de modelos, no a los gateways autorizados a llamarlo; [Un servidor de modelos al que solo su gateway puede llamar](model-server-caller-allowlist/README.md) lo compila."
   },
   "f517ce43afb8817c": {
     "at": "2026-11-04T08:39:26.304Z",

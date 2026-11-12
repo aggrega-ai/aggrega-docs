@@ -4552,6 +4552,17 @@
     "status": "machine",
     "text": "2. Prawdziwe odwrócenie sterowania i semantyczne łączenie"
   },
+  "06602ba937ac638a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "27c356f6c7fe2857",
+      "reviewed": false
+    },
+    "srcHash": "06602ba937ac638a",
+    "status": "machine",
+    "text": "Identyfikator węzła to klucz, pod którym węzeł znajduje się w `input.graph.spec.nodes`; `attached_features` wymienia typy encji Feature dołączonych do dowolnego węzła na ścieżce, więc przynależność sprawdza się za pomocą `in`; reguła sprawdza, czy maskowanie jest dołączone, a nie, co ono wymienia; a decyzja zebrana pod `deny` jest zgłaszana z poziomem ważności `halt`, który zatrzymuje kompilację. Reguła dotycząca ścieżek widzi węzeł tylko tam, gdzie dochodzi do niego lub wychodzi z niego krawędź, więc polityka, która musi obejmować także niepołączony węzeł, odczytuje same węzły."
+  },
   "0667bcb4713d057c": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -9053,6 +9064,17 @@
     "status": "machine",
     "text": "Opisuje każde efektywne ustawienie warstwą, z której pochodzi (flaga wiersza poleceń, zmienna środowiskowa, plik konfiguracyjny lub wbudowane wartości domyślne)."
   },
+  "0d2272fcbbc40ad5": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "24d3dfa8defc999d",
+      "reviewed": false
+    },
+    "srcHash": "0d2272fcbbc40ad5",
+    "status": "machine",
+    "text": "**Wymogi obecności.** Encja Component może wymagać, aby obecne było dołączenie danego typu. `example/compute/service` z katalogu ma adnotację `features.aggrega.ai/requiredType.monitoring:\n  core/prometheus-exporter`, więc kompilacja, w której jego instancja nie ma `core/prometheus-exporter` w żadnym zakresie, zatrzymuje się, wskazując wymaganie `monitoring`. Aby wymagać drugiego typu, należy powtórzyć klucz z innym sufiksem; różnicę między wymogiem obecności a slotem dołączenia opisuje sekcja „Presence mandates” w [entities/component.md](../entities/component.md)."
+  },
   "0d2bc08e8ac29e32": {
     "at": "2026-11-05T16:59:03.620Z",
     "job": "session-0005-20261105165903",
@@ -12866,6 +12888,17 @@
     "srcHash": "126a655366f9a470",
     "status": "machine",
     "text": "Opis koperty"
+  },
+  "126aaf54094b501d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "ef7a5c7c155cc8bc",
+      "reviewed": false
+    },
+    "srcHash": "126aaf54094b501d",
+    "status": "machine",
+    "text": "Deweloper nie podaje żadnego adresu, zabezpieczenia ani ustawienia dostawcy. Encja Manifest wiąże `core/data-masking` z `helm/data-masking-litellm`, który zapisuje maskowanie w konfiguracji, którą renderuje własna encja Recipe bramy, za pomocą kroków potoku wtyczek zamykającego renderowanie, i dodaje obok moduł ładowany przez bramę. Każdy inny plik zapisywany przez kompilację jest bajt w bajt identyczny z plikiem z kompilacji bez dołączenia."
   },
   "126d950958dbc035": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -21873,6 +21906,17 @@
     "status": "machine",
     "text": "Odrzucenie jest zgłaszane, a nie pochłaniane, ponieważ nic w wyniku nie wskazuje, którego odwołania w nim zabrakło. W przypadku dostawców wbudowanych w ten plik binarny dostawca, który poprosił o odwołanie, zwraca odmowę, więc renderowanie, które natrafiło na odrzucone odwołanie, nie kończy się. Każde odrzucone odwołanie trafia zatem jako osobny wpis na warstwę `aggrega-build`, wskazując odwołanie i polecenie, które je przypina: `aggrega pull --release <release>` lub `aggrega/resolveDependencies`, aby wykonać to samo bez opuszczania sesji. Wpisy te są **ostrzeżeniami**, a nie odmową — graf jest nadal zwracany, tak samo jak w przypadku opisanego wyżej ostrzeżenia o rozbieżności — i są przypisywane encji Aggregate na początku pliku, ponieważ odwołanie, o które poprosiło renderowanie, nie wskazuje żadnego klucza zapisanego przez autora. Są przesyłane w tej samej publikacji co własne ostrzeżenia renderowania, która zastępuje całą warstwę, więc odwołanie, które następnie zostanie przypięte, przestaje być zgłaszane bez konieczności czyszczenia czegokolwiek. W pełni przypięte renderowanie nie zgłasza w tej kwestii niczego. Kształt każdego wpisu opisano w sekcji [Co zawiera wpis diagnostyczny](#what-a-diagnostic-entry-carries)."
   },
+  "1fe4c38de0704668": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d95b9fd73be170a7",
+      "reviewed": false
+    },
+    "srcHash": "1fe4c38de0704668",
+    "status": "machine",
+    "text": "Encja Feature to zachowanie, którego komponent nie ma sam z siebie — maskowanie, kopia zapasowa, ingress, poświadczenie — a które autor dołącza do niego w `features:`. To, kto ją dołącza, wynika z tego, kto decyduje o jej danych wejściowych: deweloper dołącza w encji Aggregate encję Feature, której zachowanie jest częścią tego, czym jest aplikacja; operator dołącza w encji Release taką, której wszystkie dane wejściowe są operacyjne. W obu przypadkach encja Manifest wiąże każdą encję Feature z encją FeatureRecipe, która decyduje, jak zostanie ona zrealizowana dla celu."
+  },
   "1fe91d77090d57bd": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -23606,6 +23650,17 @@
     "srcHash": "2289e134418f181b",
     "status": "machine",
     "text": "`manifest.yaml` — wiąże typ komponentu MariaDB z encją Recipe Terraform\n  `terraform/mariadb-rds-module`, która pobiera swój moduł lokalnie, a\n  typ encji Feature poświadczenia z `terraform/generated-secret`."
+  },
+  "22907c32e8265e3d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "d0c9349608d005d4",
+      "reviewed": false
+    },
+    "srcHash": "22907c32e8265e3d",
+    "status": "machine",
+    "text": "**Interoperacyjność.** Encja Feature może wskazać encje Features, z którymi nie może współdzielić komponentu. `core/data-masking` deklaruje `interoperability.conflictsWith: [core/semantic-caching]`, więc kompilacja, w której jeden komponent ostatecznie przenosi obie — dołączone do samego komponentu albo do podsystemu lub granicy, które go zawierają — zatrzymuje się przed renderowaniem."
   },
   "229792fca9e7edc6": {
     "at": "2026-10-22T23:26:42.562574+00:00",
@@ -49984,6 +50039,13 @@
     "status": "machine",
     "text": "**`AGGREGA_VERSION`** wskazuje wydanie do zainstalowania, na przykład `0.8.7`, zapisane z początkowym `v` lub bez niego. Gdy nie jest ustawione, polecenie instaluje najnowsze wydanie — to, które GitHub oznacza jako latest i które nigdy nie jest wydaniem wstępnym, więc wydanie wstępne zostaje zainstalowane tylko wtedy, gdy wskaże się je tutaj."
   },
+  "49d38f05b031b6fe": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "49d38f05b031b6fe",
+    "status": "machine",
+    "text": "Ta strona wyjaśnia jedną ideę, dołączanie zachowania do komponentu i sprawdzanie wyniku za pomocą polityki, i nie jest uruchamialnym obszarem roboczym. [Polityka, która zatrzymuje kompilację, gdy dane objęte ograniczeniami docierają do zarządzanego modelu bez maskowania](policy-data-class-route/README.md) pokazuje oba elementy w obszarze roboczym, który się kompiluje; można go zapisać we własnym folderze za pomocą:"
+  },
   "49d3c8b2b3e5a036": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -64470,6 +64532,17 @@
     "status": "machine",
     "text": "**[Manifest](../language-reference/entities/manifest.md)** — warstwa routingu. Wskazuje kompilatorowi, która encja Recipe realizuje każdą encję Component dla danego celu, dzięki czemu tę samą encję Aggregate można skierować na różne implementacje w różnych środowiskach — chmurową encję Recipe dla produkcji, encję Recipe dla Compose do testów lokalnych — bez zmiany pliku programisty."
   },
+  "5f300c7dbe8490ee": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "1a741835e2b77c01",
+      "reviewed": false
+    },
+    "srcHash": "5f300c7dbe8490ee",
+    "status": "machine",
+    "text": "[Strona gniazda ładu](../plugins/policy-socket.md) opisuje pełną powierzchnię tworzenia: ładunek udostępniany przez każdą rolę, klucze decyzji i sposób nadawania własnych nazw. Przykład [Polityki kształtujące etykiety](policy-label-transform/README.md) dołącza politykę kształtującą etykiety obok dwóch wbudowanych wtyczek tagujących i ją kompiluje."
+  },
   "5f32633c5b1a09ee": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -75863,6 +75936,13 @@
     "srcHash": "6fe022489ef13637",
     "status": "machine",
     "text": "Podgląd tego, co wygenerowałaby encja Release, bez zapisywania czegokolwiek:"
+  },
+  "6fe28beb4ccac62d": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "6fe28beb4ccac62d",
+    "status": "machine",
+    "text": "Encja Feature jest dołączana i realizowana przez encję FeatureRecipe"
   },
   "6fe486fb5b69d7a7": {
     "at": "2026-10-22T13:26:34.362950+00:00",
@@ -99001,6 +99081,17 @@
     "status": "machine",
     "text": "Rodzaj to token schematu zapisany małymi literami z łącznikami — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` i pozostałe. [`aggrega get-schema --list`](aggrega-get-schema.md) wypisuje cały zestaw, a token, któremu nie odpowiada żaden schemat, zostaje odrzucony z tym zestawem w komunikacie, dzięki czemu literówkę można poprawić bez ponownego sprawdzania."
   },
+  "92aea67fe5dcf438": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "085631046c1c2c49",
+      "reviewed": false
+    },
+    "srcHash": "92aea67fe5dcf438",
+    "status": "machine",
+    "text": "Pierwsza reguła poniżej taguje każdą bramę, która parsuje przekazywany przez siebie ładunek modelu, jako punkt, w którym prompty wychodzą do dostawcy modelu. W tej roli węzły znajdują się w `input.graph.nodes`:"
+  },
   "92b02dec76138a69": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -112523,6 +112614,13 @@
     "status": "machine",
     "text": "SourceFile[]"
   },
+  "a6497e5c1890f6d7": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "a6497e5c1890f6d7",
+    "status": "machine",
+    "text": "Etykiety decydują, gdzie może trafić encja Feature"
+  },
   "a64cb3fcdcf665a2": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -114927,6 +115025,17 @@
     "srcHash": "aa175a7ded3be9a0",
     "status": "machine",
     "text": "**Przed wdrożeniem takiego serwera należy przeczytać [Nic nie jest udostępniane bez poświadczenia](#nothing-is-served-without-a-credential).** Każde żądanie do punktu końcowego zawiera poświadczenie i nie istnieje ustawienie, które obsłuży żądanie bez niego — ustawienie wybiera jedynie, czy ten serwer sam sprawdza token typu bearer, czy odczytuje wywołującego, którego sprawdził już proxy stojący przed nim."
+  },
+  "aa181ffad8ec1e01": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "011955123f48ff20",
+      "reviewed": false
+    },
+    "srcHash": "aa181ffad8ec1e01",
+    "status": "machine",
+    "text": "Operator dołącza silnik raz na rolę, a każde dołączenie ma własny plik polityki; ścieżka względna w `sources` jest rozwiązywana względem katalogu pliku konfiguracji, a transformacja działa przed werdyktem:"
   },
   "aa188c42a71cc35a": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -128431,6 +128540,13 @@
     "status": "machine",
     "text": "[`errors/fatal-halts.md`](../errors/fatal-halts.md) — reguły kształtu encji Recipe dotyczące unikalnych kluczy wpisów `artifacts:` oraz kolizji nazw plików między rodzajami wejść."
   },
+  "bd3226f40f54943e": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "bd3226f40f54943e",
+    "status": "machine",
+    "text": "Etykiety są semantyczną tożsamością komponentu i sterują rozmieszczaniem encji Feature, selektorami gniazd oraz politykami bez żadnych zmian w kompilatorze. Pole `appliesTo` encji Feature to selektor etykiet działający na komponencie, do którego jest ona dołączona. `core/data-masking` deklaruje `appliesTo: \"dataplane.aggrega.ai/content-masking\"`, sam klucz, który pasuje do każdego komponentu z tą etykietą, niezależnie od jej wartości; `core/gateway/litellm` ma tę etykietę z wartością `entity-recognition`. Selektor może też dopasowywać wartości, `component.aggrega.ai/type in (server, worker)`, albo wykluczać etykietę, `!model.aggrega.ai/capability`; wszystkie wymagania jednego selektora, oddzielone przecinkami, muszą być spełnione, a encja Feature zostaje dołączona tylko do komponentu, do którego one pasują. [Dołączanie na podstawie etykiet](../entities/feature.md#label-based-attachment) przedstawia pełną gramatykę selektorów."
+  },
   "bd36f83ee708df8e": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -129044,6 +129160,13 @@
     "srcHash": "be2f43949e14fe88",
     "status": "machine",
     "text": "**Jedno ostrzeżenie, celowo.** Zadeklarowanie tego samego liścia w obu filarach jest dokładnie tym, czego szuka ostrzeżenie o nakładaniu się filarów, więc każde wczytanie tych czterech encji Features je zgłasza — `LINT: Feature \"core/referenced-secret\" ... declares property \"origin\" in both values: and infra: pillars` — przy walidacji całego katalogu oraz przy kompilacji lub walidacji, której Manifest lub Aggregate sięga do jednej z nich. Tutaj nakładanie się jest kontraktem, a nie pomyłką; ostrzeżenie nie zmienia żadnego werdyktu ani żadnego wyrenderowanego bajtu. Zob. [vocabulary/data-pillars.md](../vocabulary/data-pillars.md#the-same-property-name-in-both-pillars) „Ta sama nazwa właściwości w obu filarach”."
+  },
+  "be2fe300f7eba209": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "be2fe300f7eba209",
+    "status": "machine",
+    "text": "Dołączenia ograniczają jeszcze dwie deklaracje:"
   },
   "be302427bf428edc": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -144216,6 +144339,17 @@
     "status": "machine",
     "text": "Dyscyplinę egzekwuje wtyczka Wasm uruchamiana w jednym z udokumentowanych punktów gniazd (rola zarządcza `label-transform` podczas budowy topologii; rola zarządcza `ir-verdict` podczas analizy statycznej; poza głównym przebiegiem `linter.wasm`). Naruszenie powoduje albo zatrzymujący kompilację błąd polityki (gniazda w głównym przebiegu), albo ostrzeżenie doradcze (gniazda poza głównym przebiegiem), zależnie od semantyki bramkowania gniazda."
   },
+  "d3646ebc876301c9": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "03d6aa0db1b8f7b2",
+      "reviewed": false
+    },
+    "srcHash": "d3646ebc876301c9",
+    "status": "machine",
+    "text": "Polityki dołącza operator w `plugins.governance` w konfiguracji obszaru roboczego, każde dołączenie w określonej roli. Polityka w roli `label-transform` dodaje etykiety do grafu; polityka w roli `ir-verdict` ocenia go i może zatrzymać kompilację. Obie uruchamia silnik Rego; jest on wkompilowany w CLI, a `governance/rego` to jego encja Plugin w katalogu biblioteki standardowej."
+  },
   "d36c0a66e3e8ed61": {
     "at": "2026-10-22T23:26:41.069265+00:00",
     "job": "msgbatch_01LCUeRRVNZvPLdxTpY96sQK",
@@ -157018,6 +157152,13 @@
     "status": "machine",
     "text": "`code` to stabilny, przeznaczony do dopasowywania maszynowego kod tego, co zgłasza wpis, dzięki czemu klient może rozgałęziać się na jego podstawie bez dopasowywania tekstu komunikatu. **Jeden klucz przenosi kod niezależnie od tego, kto go nadał**, a `source` mówi, z jakim rodzajem ma się do czynienia, ponieważ warstwy nazywają rzeczy za pomocą różnych słowników."
   },
+  "e5d6943f7cc6fd71": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e5d6943f7cc6fd71",
+    "status": "machine",
+    "text": "Druga zatrzymuje każdą ścieżkę przez taką bramę, na której nie ma maskowania:"
+  },
   "e5d7530cecbe4305": {
     "at": "2026-10-22T11:48:02.910092+00:00",
     "job": "msgbatch_01Evd5wJaBRMEf4MnbVZuRR2",
@@ -158018,6 +158159,13 @@
     "srcHash": "e76a027be7bb1678",
     "status": "machine",
     "text": "**1. Domena Dev: encja Aggregate**\nProgramista używa `parameters` do zadeklarowania kontraktu środowiska. Każde miejsce na parametr ma typ; kompilator sprawdza każdą wartość dostarczoną przez encję Release względem typowanego kontraktu, a następnie interpolacja szablonów Go (`{{ .parameters.X }}`) wykonuje się *przed* walidacją schematu otaczającego `values:`."
+  },
+  "e76a98de0788320a": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "e76a98de0788320a",
+    "status": "machine",
+    "text": "Polityka odczytuje zbudowany graf"
   },
   "e76e1b5e2af3f1a4": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -164849,6 +164997,13 @@
     "status": "machine",
     "text": "**Wcięcia.** Fragment wyjęty z głęboko zagnieżdżonej struktury jest zwykle\n  pokazywany od lewego marginesu, aby był czytelny samodzielnie. Wiersze są wierszami\n  wygenerowanymi; zmieniły się tylko spacje na początku."
   },
+  "f153c9d059faff9b": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f153c9d059faff9b",
+    "status": "machine",
+    "text": "W przykładzie deweloper dołącza `core/data-masking` z biblioteki standardowej do bramy AI i wymienia, co maskować, z pliku `aggregate.yaml` z pominiętymi komentarzami:"
+  },
   "f156ff652dcfc718": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -165434,6 +165589,17 @@
     "srcHash": "f2282b9f7e5b8ea0",
     "status": "machine",
     "text": "Encja Release, w kontekście której rozwiązywana jest nazwa, jako ścieżka względna wobec katalogu głównego obszaru roboczego. Nazwa jest wtedy rozwiązywana przez katalogi katalogu encji, które konfiguracja obszaru roboczego przypisuje tej encji Release, więc nazwa deklarowana przez kilka wariantów w jednym obszarze roboczym, po jednym na każdą encję Release, rozwiązuje się na wariant, z którym buduje ta encja Release, a nazwa, której nie rozwiązuje, jest odrzucana z wyjaśnieniem wskazującym wpis tej encji Release w `workspace.releases`. Gdy brak wartości, nazwa jest rozwiązywana w obrębie własnych katalogów katalogu encji obszaru roboczego. Odwołanie do rejestru nie przyjmuje encji Release i jest z nią odrzucane, podobnie jak wartość, która nie wskazuje żadnego pliku Release."
+  },
+  "f22a2f791290f9a1": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "revision": {
+      "from": "0b86a4b199705bf8",
+      "reviewed": false
+    },
+    "srcHash": "f22a2f791290f9a1",
+    "status": "machine",
+    "text": "To, czego dołączenie nie robi, opisano równie starannie jak to, co robi: tekst, do którego nie pasuje żaden wzorzec i którego nie wykrywa rozpoznawacz, przechodzi bez zmian, brama i obie usługi rozpoznawania widzą oryginalny tekst, a ruch, który nie przechodzi przez bramę, pozostaje nienaruszony. Komentarze w encji FeatureRecipe wymieniają, co ta brama odrzuca, a co przekazuje w postaci wysłanej."
   },
   "f22be2eec72c87d8": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -167505,6 +167671,13 @@
     "srcHash": "f515591655e01eea",
     "status": "machine",
     "text": "Trzy rozróżnienia strukturalne:"
+  },
+  "f515691a05fdfaae": {
+    "at": "2026-11-12T08:10:09.936Z",
+    "job": "session-0004-20261112081009",
+    "srcHash": "f515691a05fdfaae",
+    "status": "machine",
+    "text": "Encja Feature trafia do komponentu, którego zachowanie zmienia. `core/caller-allowlist` dołącza się do serwera modeli, a nie do bram, które mogą go wywoływać; przykład [Serwer modeli, który może wywoływać tylko jego brama](model-server-caller-allowlist/README.md) to kompiluje."
   },
   "f517ce43afb8817c": {
     "at": "2026-10-30T02:00:09.600Z",
