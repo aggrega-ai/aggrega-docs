@@ -7,7 +7,7 @@ served at `aggrega.ai/docs`.
 ## How it is built
 
 - **Single source.** The site renders the repository's root `README.md`,
-  `getting-started.md`, `install.md` and `learn.md` and the Markdown in `ai-assistants/`,
+  `getting-started.md`, `install.md`, `learn.md` and `roadmap.md` and the Markdown in `ai-assistants/`,
   `architecture/`, `authoring/`, and `language-reference/` in place. There is no second copy of
   any page: the `docs` content collection (`src/content.config.ts`) points its
   loader at the repository root (`base: ".."`) and reads the same files the

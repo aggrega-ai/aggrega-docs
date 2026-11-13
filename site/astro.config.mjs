@@ -385,6 +385,9 @@ export default defineConfig({
             },
           ],
         },
+        // Where Aggrega is going: the roadmap page, at the top level. A version
+        // whose tag holds no roadmap page lists none.
+        ...present("roadmap"),
         {
           label: "Catalog",
           link: "https://aggrega.ai/catalog",
