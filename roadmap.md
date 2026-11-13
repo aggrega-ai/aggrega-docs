@@ -90,14 +90,14 @@ Everything from Milestone 2 up to the public release:
 - **A live view of your architecture.** The editor's topology graph and `--ir-graph` already show the graph
   the compiler resolved; a streaming mode would send that graph as it changes, so a frontend follows each
   edit as it happens.
-- **Workloads on managed container services** *(proposal)*. A Workload described once is synthesized for
+- **Workloads on managed container services**. A Workload described once is synthesized for
   the managed container services of the cloud targets, such as Amazon ECS and Fargate, Google Cloud Run
   and Azure Container Apps.
-- **More formats to import** *(proposal)*. OpenAPI specifications, for an API an application calls or
+- **More formats to import**. OpenAPI specifications, for an API an application calls or
   serves, and Score workload files.
-- **A Recipe drafted from its Component** *(proposal)*. A starter Recipe that already reads the
+- **A Recipe drafted from its Component**. A starter Recipe that already reads the
   Component's values and delivers its connection values, for the platform team to complete.
-- **Templates that change a document's shape per environment** *(proposal)*. A key present in one
+- **Templates that change a document's shape per environment**. A key present in one
   environment and absent in another, by evaluating templates before a document is parsed.
-- **Policy findings in the editor** *(proposal)*. A governance plugin's findings shown in the editor as
+- **Policy findings in the editor**. A governance plugin's findings shown in the editor as
   the files change, beside the validation it shows today.
