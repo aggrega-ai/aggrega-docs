@@ -86,7 +86,7 @@ The build prints, with `<workspace>` standing for this example's folder:
 
 ```
 Total build time:               4.1s
-Build completed: 1 files written to <workspace>/dist
+Build completed: 1 file written to <workspace>/dist
 ```
 
 The assembled stack lands at

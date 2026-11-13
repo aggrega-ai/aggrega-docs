@@ -255,7 +255,7 @@ aggrega build --release release-one-stack.yaml --auto-pull
 ```
 Pull complete: release-one-stack.lock (entities=11, source_artifacts=0, external_inputs=0)
 Total build time:               6.2s
-Build completed: 1 files written to <workspace>/dist
+Build completed: 1 file written to <workspace>/dist
 ```
 
 The assembled stack lands at

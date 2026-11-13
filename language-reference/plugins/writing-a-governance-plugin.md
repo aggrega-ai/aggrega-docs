@@ -718,7 +718,7 @@ aggrega build --release release.yaml
   warning: plugin "governance/category-guard" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
 Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
 [… omitted: a line reporting total build time, which differs on every run]
-Build completed: 1 files written to <workspace>/dist
+Build completed: 1 file written to <workspace>/dist
 ```
 
 The shop carries no `devtool` component, so the rule allows the build, and

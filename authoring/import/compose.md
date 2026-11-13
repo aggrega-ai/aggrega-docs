@@ -468,7 +468,7 @@ files:
 Pull complete: release.lock (entities=10, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
-Build completed: 1 files written to <workspace>/dist
+Build completed: 1 file written to <workspace>/dist
 ```
 
 The `notice` line is advisory: the password Feature accepts its `origin` from

@@ -121,7 +121,7 @@ What it does instead is tell you. Once its files are written, the build looks in
 The closing line then counts them:
 
 ```text
-Build completed: 1 files written to <workspace>/dist, beside 2 file(s) this build did not write
+Build completed: 1 file written to <workspace>/dist, beside 2 files this build did not write
 ```
 
 A directory the build wrote nothing into, and nothing beneath, is not looked into, so a folder of your own kept under `dist/` is not listed file by file. A build that finds no such file prints no warning, and its closing line is the one shown under [Output](#output). Either way the files the build writes are the same bytes. To compare two builds, or to start from nothing, remove `dist/` before building.
@@ -164,7 +164,7 @@ kind: ConfigMap
 ...
 
 Total build time:               2.5s
-Dry run: 1 files would be written to <workspace>/dist; nothing was written
+Dry run: 1 file would be written to <workspace>/dist; nothing was written
 ```
 
 The artifacts are reported in the order a build writes them, so the same input reports the same bytes in the same sequence, and the path reported is the path a build would write to — beneath the workspace root, spelled out in full where `<workspace>` stands above.
