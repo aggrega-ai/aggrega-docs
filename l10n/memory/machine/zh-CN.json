@@ -1837,6 +1837,17 @@
     "status": "machine",
     "text": "调用方是否接受命令扩展插件所声明的能力。"
   },
+  "028110984f1ed7b9": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "216628eb4daeb439",
+      "reviewed": false
+    },
+    "srcHash": "028110984f1ed7b9",
+    "status": "machine",
+    "text": "**本机尚未持有的核心导入器，会由第一个需要它的导入获取一次。**它来自工作区的默认注册表，限定为编译器的发布版本所发布的模块，并按 pull 验证其获取的插件的方式进行验证——依据该注册表的信任策略验证其签名，并检查它使用的宿主函数——然后保存在工作区的内容缓存中，这是为它写入的唯一内容：不写 lockfile，也不写受信任插件的记录。之后的每次导入都从那里读取它，不访问任何注册表。未通过验证的模块是一个携带其条件代码的错误，且不会保存任何内容；无法获取的模块——工作区处于离线状态、无法访问其注册表，或注册表中没有它——是 [A plugin's `.wasm` is not on this machine（插件的 wasm 文件不在本机上）](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine) 下的错误，会指明该导入器、其版本，以及如何将其模块放到本机上。请求本身不指定注册表，而所需的每个导入器以及它所读取的目录都已在本机上的导入完全不访问网络。"
+  },
   "0281c1f3544d0929": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -6222,6 +6233,17 @@
     "status": "machine",
     "text": "告警自身的属性通过宿主的派生名称引用宿主："
   },
+  "08928f4eb4b2adf5": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "1a12d3b6ff70ab35",
+      "reviewed": false
+    },
+    "srcHash": "08928f4eb4b2adf5",
+    "status": "machine",
+    "text": "在这三个目录旁边还可能出现另外三个目录，它们都不存放固定的依赖内容：`index/` 存放 `aggrega registry update` 写入的按 registry 划分的可搜索快照（§8），`signatures/` 将每个已校验的签名包缓存在其自身的摘要下，因此之后的读取会将缓存的 blob 与记录时的摘要重新比对，而不是再次获取签名包，`catalog-snapshots/` 则保存导入读取过的每个已发布目录快照（§8）——归档及其清单存放在以清单摘要命名的槽位中，每次读取时都从归档展开目录树，另有一个 `current` 文件，在没有其他内容指定别的快照时，指明工作区读取的快照。"
+  },
   "08973f1646548170": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -6929,6 +6951,17 @@
     "srcHash": "09a185849c39f328",
     "status": "machine",
     "text": "实体的内容位于实体自身的目录中，因为实体的发布所携带的每个文件都取自该目录。离开该目录的路径指向一个不会随实体一起传递的文件，因此任何接收该实体的人都拿不到这个文件，而基于它记录的 pin 所担保的字节，他们也无法获取。"
+  },
+  "09a58b4096636509": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "fe3a1e45f4ec7387",
+      "reviewed": false
+    },
+    "srcHash": "09a58b4096636509",
+    "status": "machine",
+    "text": "导入会引用目录中的 ADK 智能体和 Gemini 模型 Components，而 `--target` 会根据该目录的 Recipes 起草一个 Manifest。工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
   },
   "09a88e62e337708d": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -11972,6 +12005,17 @@
     "srcHash": "10b5da219b0321d4",
     "status": "machine",
     "text": "**两者皆无。** 方括号被完全省略，诊断信息就是其消息本身。这种失败既未指明 Aggrega 自身的任何条件，*也*没有可以引导你去查看的关注点：命令拒绝其参数、无法读取的文件、取消操作，或编译器所封装的库报告的、下层没有我们任何条件的故障。没有可在 [`sentinels.md`](sentinels.md) 中查找的内容，消息就是该失败要说明的全部。"
+  },
+  "10bcc91640abc0be": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "7c749d12b1641498",
+      "reviewed": false
+    },
+    "srcHash": "10bcc91640abc0be",
+    "status": "machine",
+    "text": "**在 `dryRun` 下不会创建任何内容。** `written` 为空，`files` 带有与写入时相同的文件（若带 `sync`，则是同步将写入的文件，以及它将更新的 `drift`），也不会创建目录，因此编辑器可以把这些文件呈现给作者，由其保存、修改或丢弃。写入所做的其他一切都会照做：同一导入器在同一源上运行并报告相同的诊断，因此写入时会被拒绝的源在这里同样会被拒绝。在 `dryRun` 下获取的核心导入器或目录快照会像写入时一样保存在内容缓存中，因为获取导入运行所依赖的内容属于运行导入的一部分，而不属于放置草稿。"
   },
   "10c2e81d54af6d27": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -24137,6 +24181,17 @@
     "status": "machine",
     "text": "[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) 列出了上述每个键及其默认值（如有）。"
   },
+  "22a52c52c504539f": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "a9076edeef9e9a79",
+      "reviewed": false
+    },
+    "srcHash": "22a52c52c504539f",
+    "status": "machine",
+    "text": "导入会在项目旁边的 `source/` 中起草 Aggrega 文件。它根据标准库目录评估项目，该目录由工作区的默认注册表以已签名快照的形式发布：首次导入会获取它、验证它、将其保存在工作区的内容缓存中，并在写于草稿旁边的记录中按摘要指明它。指定了自身目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为以这些文件夹为依据进行导入："
+  },
   "22a700ab07e7a0ed": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -25477,6 +25532,17 @@
     "srcHash": "2469697eb6efcca3",
     "status": "machine",
     "text": "从所有工作区共享的全局配置中移除。"
+  },
+  "246a4a7bc5d1ce65": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "0253a37267fc7d90",
+      "reviewed": false
+    },
+    "srcHash": "246a4a7bc5d1ce65",
+    "status": "machine",
+    "text": "每种格式都由一个导入器插件读取。编译器的核心导入器（下表中每种格式各一个）随每个编译器版本一起发布，并在每个工作区中为其格式提供服务，无需在你的目录中添加任何条目。第一次需要某个导入器的导入会从工作区的默认注册表中按编译器自身的版本获取它，对其进行验证，并将其保存在工作区的内容缓存中，因此之后的每次导入都从那里读取它，无需为此访问网络。如果模块根本无法获取——例如工作区处于离线状态——导入会停止并指出将其放到机器上的两种方法。[核心导入器](../../language-reference/plugins/core-importers.md)完整描述了每个导入器，以及通过 `plugins.importer` 条目提供给导入器的设置。"
   },
   "246acf62d97926c5": {
     "at": "2026-11-08T12:51:16.665Z",
@@ -28360,6 +28426,17 @@
     "status": "machine",
     "text": "**Workload 合成（Kubernetes）。** 合成的 helm Recipe 声明一个\n  Workload——一个 Deployment 加一个 ClusterIP Service，运行官方\n  `grafana/grafana` 镜像——helm provider 将其转换为 Kubernetes\n  清单，无需外部 chart。渲染出的资源集合与\n  该 Workload 声明的内容完全一致。由于 Compose Recipe 和合成的 helm Recipe\n  都名为 `grafana`，Manifests 以 provider 作用域的方式引用它们，即\n  `compose/grafana` 和 `helm/grafana`。"
   },
+  "28a516be7203a991": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "03b40bd2147aaa00",
+      "reviewed": false
+    },
+    "srcHash": "28a516be7203a991",
+    "status": "machine",
+    "text": "将外部源描述转换为草稿编写文档，并在其旁写入 `.aggrega-import.json`，即记录此次导入所写内容的文件——给定的目标（如有给定）、读取的目录快照（如有读取）、每个草稿文件，以及草稿 Aggregate 或 Release 在各层级的每个键——供之后的同步读取。无法完全转换的源会得到一个应答而非失败：已生成的草稿会被写入，发现项说明无法转换的内容——但同步模式除外，转换中止时同步不写入任何内容。"
+  },
   "28a6eab93235e0f6": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -30402,6 +30479,17 @@
     "status": "machine",
     "text": "**排除已渲染的文档。** 此 provider 遵循 Recipe 或 FeatureRecipe 声明的 [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) 条目，且仅在此模式下遵循：合成的 Workload 和 `artifacts:` 主体在渲染时不应用它们。chart 渲染的每个文档——无论来自模板还是其 `crds/` 目录中的文件——都会与适用于本次构建的每个条目进行匹配，任一条目指定的文档都会被排除。条目通过文档自身携带的字词指定文档，这些字词也是构建其输出文件名和渲染事实的依据：其 `kind`、其 `metadata.name`，以及仅在条目指定了命名空间时，文档所在的命名空间——即其模板写入的命名空间，或在此 provider 按上文所述放置文档时边界声明的命名空间。它绝不是 chart 仅仅据以渲染的命名空间：未声明命名空间时，chart 针对 `default` 渲染，但模板未写入命名空间的文档不在任何命名空间中，因此指定 `default` 的条目不会匹配它。不带 kind 或 name 的文档不匹配任何条目。被排除的文档会先渲染，在所有文件名确定后再丢弃，因此保留的每个文档的命名和写入方式与没有这些条目时完全相同，而被排除的文档不会进入构建之后的任何环节——不生成文件，不参与拒绝两个贡献者落到同一名称的比较，不产生 Feature 读取的渲染事实，也不会交给任何流水线步骤。provider 会报告每个条目匹配了多少文档，未匹配任何文档的条目会终止构建；参见 [An omits entry left out nothing the source rendered（omits 条目未排除源渲染的任何内容）](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered)。"
   },
+  "2ba2e227f3ac9b05": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "bbeeb4b8b3d94fa1",
+      "reviewed": false
+    },
+    "srcHash": "2ba2e227f3ac9b05",
+    "status": "machine",
+    "text": "`catalog`——工作区自身目录所持有 Components 的视图：即导入器本身被选出的那个目录（工作区的目录文件夹；工作区未指定任何目录文件夹时，则为其默认注册表发布并保存在本机上的目录快照），不为视图本身获取任何内容。其 `components` 列表按 Component 名称每个名称一项，按名称排序；目录持有某个 Component 的多个版本时，该项描述不带版本引用它时所解析到的版本。每项携带该 Component 的 `name` 和 `version`、其 `labels`、其 values 和 provides 声明的顶层键名（`values` 和 `provides`，各自排序），以及其 `sockets`——每个插槽的 `name` 和经由它连接的依赖必须满足的标签 `selector`——顺序与该 Component 声明的顺序一致。扩展另一个 Component 的 Component 既携带其声明的内容，也携带其继承的内容，继承的插槽排在前面。该视图只包含名称、版本、标签和选择器——从不包含值、默认值或机密——且顺序固定，因此一个目录产生唯一的字节序列。目录不持有任何 Component 时不出现。"
+  },
   "2ba32285ec2a70e3": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -31212,6 +31300,17 @@
     "status": "machine",
     "text": "裁决，以及它中止的构建"
   },
+  "2d09470366439c72": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "eaf0cbc1329aa59a",
+      "reviewed": false
+    },
+    "srcHash": "2d09470366439c72",
+    "status": "machine",
+    "text": "工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
+  },
   "2d0a1fc70baed11b": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -31429,6 +31528,17 @@
     "srcHash": "2d6fbb6da3582a93",
     "status": "machine",
     "text": "signing: no verified signature is recorded for an artifact that requires one (`\"<plugin>\"`, `<record-path>` records no signature for it, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the plugin's signature at its registry and record it in `<record-path>`（签名：要求签名的制品未记录经过验证的签名（信任记录未为该插件记录签名，由相应设置要求）。修复：运行 pull 命令，在插件的注册表处验证其签名并将其记录到信任记录中）"
+  },
+  "2d7099b5eb3f4627": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "4f1e83960d88e8a3",
+      "reviewed": false
+    },
+    "srcHash": "2d7099b5eb3f4627",
+    "status": "machine",
+    "text": "导入会将每个节点与工作区目录中的 Components 进行比对评估，而 `--target` 会根据该目录的 Recipes 起草一个 Manifest。工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
   },
   "2d717353fe99da0f": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -47013,6 +47123,17 @@
     "status": "machine",
     "text": "**对于节点所建立的某一条连接上的附加项，请添加 `connection`**，并给出其 `socket`、`alias` 和 `document`；这里必须给出所属文档，因为两个文档都可能包含该连接。使用 `aggregate` 时，答案是该连接在节点编写所在文档中的自有条目，最后一段为其 `features` 块；由 Release 建立的连接在那里没有条目，会被拒绝。使用 `release` 时，答案是该 Release 中节点条目下的逐边条目——`[\"spec\", \"boundaries\", \"cluster\", \"components\", \"gateway\", \"uses\", \"models\", \"gpt\", \"features\"]`——无论该 Release 是否已写出这个逐边条目都会报告，这样 `insertion-point` 会列出仍需写入的键；没有为该节点写出条目的 Release 会被拒绝，因为节点放在何处不由此工具决定。由 Feature 建立的连接在任一文档中都会被拒绝。"
   },
+  "4487e28767318f40": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "5f6b6bed23631337",
+      "reviewed": false
+    },
+    "srcHash": "4487e28767318f40",
+    "status": "machine",
+    "text": "`--target` 会根据目录的 Recipes 起草一个 Manifest。工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
+  },
   "44897dc2ca77e4c0": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -48345,6 +48466,17 @@
     "srcHash": "4646200ae3162187",
     "status": "machine",
     "text": "`stateless`：可互换、水平扩展的副本，没有每副本身份（常见的长期运行服务）。"
+  },
+  "46463d8baf4c3a55": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "87c2f72e56fc4f32",
+      "reviewed": false
+    },
+    "srcHash": "46463d8baf4c3a55",
+    "status": "machine",
+    "text": "已发布的目录快照"
   },
   "4648f3457dbd959b": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -51085,6 +51217,13 @@
     "status": "machine",
     "text": "设置了 `readsCallerRenderFacts: true` 的 FeatureRecipe 读取每个调用方的事实的方式，与读取宿主的事实相同。对于记录了名为 `ports` 的事实、且每个条目都带有 `port` 的 provider："
   },
+  "4a1c5e618b81d4d6": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "srcHash": "4a1c5e618b81d4d6",
+    "status": "machine",
+    "text": "指定了自己的目录文件夹的工作区则改为与这些文件夹比对导入，且不获取任何快照：即 `workspace.catalog_dirs` 列出的目录、工作区根目录下的 `catalog` 文件夹，或 `AGGREGA_CATALOG_DIRS` 指定的目录。对于希望以文件夹形式获得标准库目录自身文件的工作区，这些文件就是 `aggrega-hub` 仓库的 `aggrega-catalog` 文件夹，<https://github.com/aggrega-ai/aggrega-hub>。`--upgrade` 会获取注册表发布的最新快照，并从此以它为准进行导入；在 `--offline` 下，需要获取快照的导入会停止，并指出应运行什么。"
+  },
   "4a1e80a44ff2e4b4": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -52977,6 +53116,13 @@
     "status": "machine",
     "text": "[Recipe 输入组合](16-recipe-input-composition.md)"
   },
+  "4d34838d395485d7": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "srcHash": "4d34838d395485d7",
+    "status": "machine",
+    "text": "标准库目录的每次发布也会将目录作为一个整体发布：一个 OCI 制品，即该次发布所发布的提交中目录树所含全部文件的 gzip 压缩 tar 包，位于目录所发布到的 registry 下的 `catalog/snapshot`——对于官方 hub 即为 `hub.aggrega.ai/catalog/snapshot`。只有在该次发布的每个实体都已位于 registry 上之后，它才会被推送，因此它不会指向 registry 中不存在的任何实体。它以构建它的提交和 `latest` 作为标签，并像该次发布的每个实体一样由发布者以无密钥方式签名，因此可凭发布者的身份依据 registry 的信任策略对其进行验证；只有在快照签名之后，`latest` 才会移到该快照。归档按照一种固定布局写入——条目按名称升序排列，每个条目具有相同的模式、所有者和修改时间——因此同一个提交始终产生相同的 tar 包。"
+  },
   "4d3ba0af99854472": {
     "at": "2026-11-05T20:22:43.828Z",
     "job": "session-0020-20261105202243",
@@ -54075,6 +54221,17 @@
     "srcHash": "4ecd212c78844e18",
     "status": "machine",
     "text": "目录中某个 Component 为其依赖声明的一个插槽：插槽名称，以及通过它连接的依赖必须满足的标签选择器。"
+  },
+  "4ed37a1ecbad6baa": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "7d1d095f31492a60",
+      "reviewed": false
+    },
+    "srcHash": "4ed37a1ecbad6baa",
+    "status": "machine",
+    "text": "**Aggrega: Import into Aggrega** — 根据另一个工具编写的源起草 Aggrega 编写文件。它也是 Commands 面板 Author 组中的 **Import** 按钮，以及资源管理器中文件或文件夹右键菜单上的 **Import into Aggrega**，后者导入你点击的文件或文件夹：这三者是同一个命令，因此它们按相同顺序提出相同的问题，每个问题都在编辑器自己的输入框中提出，只是资源管理器中的入口不会询问源。首先是源：**File…** 或 **Folder…**，然后是你的编辑器中用于该类型的打开对话框 — 先做这一选择，是因为在 Windows 和 Linux 上一个对话框无法同时提供两者。然后是工作区内要起草到的文件夹，相对于其根目录，留空则起草到工作区根目录下，与不带 `--output-dir` 的 `aggrega import` 相同。然后是选项，一个列表，你可以在其中勾选 **Preview**、**Sync**、两者都勾选或都不勾选：**Preview** 即 `--dry-run` — 不写入任何内容，导入将写入的每个文件都会显示在输出通道上，后跟其内容 — 而 **Sync** 即 `--sync`，使之前的导入所起草的内容与源保持同步，只更改导入所写入的内容，它更新的每个部分都会以 `aggrega import --sync` 为其打印的措辞列在通道上；两者都不勾选则完整写入草稿。最后是要为其起草 Manifest 的提供程序能力，例如 `compose` 或 `helm`，留空则不起草任何内容，与不带 `--target` 时相同。你留空的回答和你未勾选的选项根本不会发送，因此编译器会应用其自己的默认值；关闭任何问题或对话框都会结束导入且不发送任何内容。通向工作区之外的文件夹，以及工作区编目中没有任何 Recipe 绑定的能力，会在写入任何内容之前被编译器以其自己的措辞拒绝。格式根据源自身的形态识别，与在终端中相同；当编译器因没有任何格式或有多于一种格式识别该源而拒绝时，编辑器会显示该拒绝 — 其中指明了各种格式 — 并询问以哪种格式读取该源，然后再次发送携带该格式的同一导入；将该问题留空则以该拒绝结束导入。它只读取你指明的文件，或你指明的目录中其导入器会读取的文件，不读取其他文件。它不访问网络，除非是为了获取导入运行所需而本机尚未拥有的内容 — 某种格式首次需要的某个编译器核心导入器，以及在未指定任何编目文件夹的工作区中，导入作为其编目读取的已发布编目快照 — 每一项都从工作区的默认注册表获取、经过验证并保存在内容缓存中，与 `aggrega import` 相同。源可以位于本机的任何位置，因为它是你指向的文件，而不是工作区所包含的文件；草稿始终落在工作区中。它会显示带 Cancel 按钮的进度，按下 Cancel 会停止转换，而不仅仅是停止编辑器的等待，因为导入器作为编译器可以在运行中途回退的插件运行。结束时会说明源被识别为什么、起草了多少个文件以及它们的去向，计数的是草稿，不包括 `.aggrega-import.json`，即每次导入都会在其草稿旁写入的、记录导入写入了什么的记录；导入器自己的发现以及每个写入磁盘的文件（包括该记录）都会进入 Aggrega 输出通道，因为它们指明的是源文件中的位置，而不是你编写的文档中的位置。"
   },
   "4ed7e617f98f52cb": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -67598,6 +67755,17 @@
     "status": "machine",
     "text": "**修复方法：**重构 aggregate 拓扑以减少嵌套。如此深的嵌套通常表明 Aggregate 的结构反映的是组织层级而非部署拓扑——可以考虑将若干组子 aggregate 展平为同一个父 Aggregate 中的对等子系统。"
   },
+  "61f313064e4b6341": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "212408ed081a9896",
+      "reviewed": false
+    },
+    "srcHash": "61f313064e4b6341",
+    "status": "machine",
+    "text": "`aggrega cache status` 按类别说明这一点，而不是让人从名称去推断：每个类别都会报告其覆盖范围是工作区还是本机，`prune`、`evict` 和 `clear` 删除的每个元素也会报告相同的范围。`evict` 只作用于共享的已编译模块存储；`prune` 从不删除文档包或导入读取过的目录快照，因为没有任何锁文件引用它们，并会将每个这样的类别报告为不可 prune；`prune` 会保留你的配置中 `plugins.cli` 列表所固定的每个 cli 插件的字节——无论是在 cli 插件存储中还是在工作区的产物缓存中，连同其插件描述条目——并删除没有任何固定项指名的那些；`clear` 作用于所有内容，因此它在开始前会进行确认。"
+  },
   "61f671c8522d25d6": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -69461,6 +69629,13 @@
     "status": "machine",
     "text": "一句话概括的心智模型：*附加只有一种；变化的是它产生什么。*"
   },
+  "64a4ea47a096986b": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "srcHash": "64a4ea47a096986b",
+    "status": "machine",
+    "text": "根据注册表的当前状态重新读取已发布的目录：获取工作区默认注册表发布的最新目录快照，验证它并据此导入，并将其保留为此后该工作区读取的快照，取代它所保存的快照或草稿旁记录所指定的快照。仅当工作区未指定目录文件夹时才有效，并且在 --offline 下会被拒绝"
+  },
   "64a9f1d09658d4b6": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -70290,6 +70465,17 @@
     "srcHash": "65dd6b3de23da37b",
     "status": "machine",
     "text": "在决定声明哪些内容时，值得了解以下三个特性："
+  },
+  "65e179c7f9338737": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "d398c607f79e7dbd",
+      "reviewed": false
+    },
+    "srcHash": "65e179c7f9338737",
+    "status": "machine",
+    "text": "**映射是确定性的、带置信度评分的，并以你自己的目录为依据进行权衡。** 宿主向导入器提供工作区自身目录所含 Components 的视图——即选出该导入器的那个目录——工作区的目录文件夹，或在工作区未指定任何目录文件夹时，其默认 registry 发布的目录快照——企业目录的 Components 与标准库的待遇完全相同。该视图包含每个 Component 的名称、版本和标签、其 values 和 provides 所声明的键名，以及其插槽的选择器，但绝不包含值、默认值或密钥；除该快照外，不会为此获取任何内容，且其顺序固定，因此一个目录只产生一个视图。基于 Go PDK 导入器包构建的导入器——包括编译器自带的 Langflow、Flowise、n8n 和 Compose 导入器——仅以这些 Components 为依据权衡来源中的每个节点，采用确定性的、不依赖模型的置信度模型，并将决策——它权衡过的候选项、它判定的匹配等级以及它所做的选择——记录为作者可阅读和修改的可审阅提示。目录新增的 Component 在下次导入时即成为候选项，无需重新构建任何导入器。默认只给出提示：导入负责提议，作者负责决定。高置信度的匹配可以写成对现有目录组件的引用，而不是新起草的主体，但仅在操作员选择启用时——且始终是由作者把关的、明确且可撤销的建议，绝不是静默改写。由于评分不涉及模型和运行时查找，同一来源针对同一目录评分，总是产生相同的提示。"
   },
   "65e385b1425eb453": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -76632,6 +76818,17 @@
     "status": "machine",
     "text": "`core/ai-agent/crewai`"
   },
+  "6f0d1ffb67834e85": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "7c86b910fe4024cb",
+      "reviewed": false
+    },
+    "srcHash": "6f0d1ffb67834e85",
+    "status": "machine",
+    "text": "**请求绝不会覆盖 `outputDir` 中已有的 Aggregate。** Aggregate 是作者在草稿生成后会持续编辑的文档，因此若请求的某份草稿会落在一个被识别为 Aggregate 的文件上，该请求会被拒绝，并指出该草稿以及该 Aggregate 所在位置，且完全不写入任何内容——在 `dryRun` 下同样如此，因为试运行会拒绝写入所拒绝的内容。请改为发送 `sync` 使其与源保持同步，或指定另一个 `outputDir` 在其旁边生成草稿。草稿路径上已有的其他文件都会被覆盖，而先前导入生成但本次未生成的文件会原样保留。每个生成了任何草稿的请求还会在 `outputDir` 中写入 `.aggrega-import.json`，即导入所写内容的记录——请求所发送的 `target`（若发送了的话）、导入所读取的目录快照（若读取了的话），以及每个草稿文件；在草稿 Aggregate 或 Release 中，还记录每一层级的每个键及其所写文本的摘要，其他草稿文件则整体记录——`files` 和 `written` 在草稿之后携带它。它是 JSON，因此读取工作区 YAML 文档的任何程序都不会读取它；`sync` 与 [`aggrega import --sync`](aggrega-import.md) 一样，读取它以使草稿与其源保持同步。未发送 `target` 的 `sync` 会为记录中指定的目标生成草稿，因此会生成先前导入所生成的 Manifest；发送了 `target` 的则为该目标生成草稿，记录随后会指定它。目录中没有任何 Recipe 绑定的已记录目标，会像发送的目标一样被拒绝，拒绝信息会说明该目标是记录中的目标。由于草稿 Release 是逐键记录的，作者在导入为其留下注释之处写入的环境属于作者写入的键，同步会逐字节保留它。"
+  },
   "6f0d24e9d9a7ae07": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -80234,6 +80431,17 @@
     "srcHash": "747589304cedae1d",
     "status": "machine",
     "text": "抽象计算节点接口"
+  },
+  "747aebf0a0a2cc81": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "f06f598b24679c91",
+      "reviewed": false
+    },
+    "srcHash": "747aebf0a0a2cc81",
+    "status": "machine",
+    "text": "它们与其他导入器插件无异——特定于格式的映射逻辑位于其中，而不在核心中——由编译器源码构建，并随每个编译器版本以该版本号发布。它们都不编译进二进制文件：二进制文件携带每个导入器的 `Plugin` 实体及其所接受的唯一模块的摘要，因此每个导入器无需目录条目即可在每个工作区中服务其格式。首次需要本机尚未持有的导入器时，导入会从工作区的默认注册表获取它，将其锁定到该摘要，像 pull 验证所获取的插件那样验证它——依据该注册表的信任策略验证其签名，并检查其使用的宿主函数——然后将其保存在工作区的内容缓存中；之后的每次导入都从缓存读取它，无需为它访问网络。导入不固定任何导入器：不会为它写入其他任何东西——没有锁文件条目，也没有受信任插件记录——pull 不会缓存它，构建也不会读取它。未通过验证的模块会被拒绝，且不保存任何内容。若无法获取模块——工作区处于离线状态、无法访问其注册表，或注册表中没有该模块——导入将停止，并列出导入器、其版本以及如何将其模块放到本机上。选择权仍在工作区：其目录中以其他名称为这些格式之一持有的导入器，在某个 `plugins.importer` 附加项指定它时运行；与核心导入器同名同版本的导入器则代替核心导入器运行。"
   },
   "747f91a0b5007e9a": {
     "at": "2026-10-22T02:18:58.122887+00:00",
@@ -104766,6 +104974,17 @@
     "status": "machine",
     "text": "Aggrega 承诺的正是 Terraform 自身属性所提供的，不多也不少。"
   },
+  "985540da2154e099": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "94172dbd4e61e501",
+      "reviewed": false
+    },
+    "srcHash": "985540da2154e099",
+    "status": "machine",
+    "text": "然后它会打印接下来要运行的命令。第一条命令进入新文件夹；其后的一条命令见下文，它进入新文件夹的 `source` 文件夹，导入就在这里运行。该文件夹包含 chatflow 文件 `support-chat.json`，本页对其进行描述而不是引用："
+  },
   "985adeccf0d036fe": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -105491,6 +105710,17 @@
     "srcHash": "995ab7984d0bf3e0",
     "status": "machine",
     "text": "显示当前生效的配置以及每项设置的来源"
+  },
+  "995b4d37e7e4bcb0": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "3cd73d9398420ee0",
+      "reviewed": false
+    },
+    "srcHash": "995b4d37e7e4bcb0",
+    "status": "machine",
+    "text": "**访问 registry 的请求分为读取类和发布类。**`aggrega/resolveDependencies` 获取一个 Release 所需的内容；`aggrega/build` 在且仅在其 `autoPull` 字段要求先解析依赖时加入其中，此时它会访问 registry，并在渲染前写入 lockfile；`aggrega/registryUpdate` 遍历每个已配置的 registry 以重建本地搜索索引；`aggrega/pluginAdd` 在已配置的 registry 中搜索请求所指定的插件，并读取其已发布版本以固定其中一个；`aggrega/registryAdd` 向它所注册的 registry 请求该 registry 公布的信任策略，除非请求拒绝此次获取或自行提供策略，`aggrega/configInit` 也向它所初始化的 registry 请求同样的内容；`aggrega/explainError` 在本机所有项目共享的缓存中没有通过工作区自身签名检查的副本时，获取一次它用来读取某个条件讲解的文档包——参见 [`aggrega explain`](aggrega-explain.md)；`aggrega/scaffoldEntity` 在发送了 `example` 或 `list` 时，以同样的条件获取同一个文档包，写入时随后会将示例写入工作区中的一个新目录；`aggrega/import` 在本机尚未持有某个核心导入器时，从工作区的默认 registry 获取一次，并在未指定目录文件夹的工作区中获取它所读取的已发布目录快照——参见 [import 响应告诉你什么](#what-an-import-response-tells-you)；`aggrega/entityDefinition` 在其 `name` 为一个 registry 引用时读取该引用所指的实体，不写入任何内容。`aggrega/publishEntity`、`aggrega/publishArtifact`、`aggrega/signArtifacts` 和 `aggrega/deprecateArtifact` 向 registry 写入——字节、签名或撤回标记。请求只有在被要求这样做时才会访问 registry：列表报告配置所固定的内容，搜索读取离线快照，而带 `dryRun` 的发布只计算它将要发送的内容，不联系任何一方。"
   },
   "995cc477f8dac12b": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -110262,6 +110492,13 @@
     "status": "machine",
     "text": "如何寻址实体"
   },
+  "a06ce6c3b3e0dac3": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "srcHash": "a06ce6c3b3e0dac3",
+    "status": "machine",
+    "text": "**当工作区未指定任何目录文件夹时，导入会读取其默认注册表所发布的目录。** 如果工作区的 `workspace.catalog_dirs`、`AGGREGA_CATALOG_DIRS` 和根目录都未指定目录文件夹，该工作区会将标准库目录作为单个已签名快照读取，该快照位于其默认注册表上的 `catalog/snapshot`。快照只获取一次：依据该注册表的信任策略验证其签名，然后将其保存在工作区的内容缓存中，并在那里作为目录文件夹读取，限定于其摘要，不会再向任何注册表请求它。请求读取哪个快照：带 `upgrade` 时，读取最新的；否则读取 `outputDir` 中的记录所指定的快照，本机未持有时按其摘要获取；否则读取工作区上一次作为最新快照获取的那个；否则读取最新的。导入写入的记录会按摘要指明它所读取的快照，因此之后向同一 `outputDir` 发出的请求会读取同一目录。在离线模式下，需要获取快照的请求是 [The workspace is offline and the step needs the network（工作区处于离线状态，而该步骤需要网络）](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) 下的错误，会指明应运行什么；而无论本机持有什么，`upgrade` 都会被拒绝，因为只有注册表才能说明哪个快照是最新的。不发布任何快照的注册表会使导入没有目录可用，`diagnostics` 中的一条 `warn` 条目会说明这一点。指定了目录文件夹的工作区会以该文件夹为依据进行导入，不获取任何快照，`upgrade` 在那里也不会改变任何内容。"
+  },
   "a06def07d5dd1dd0": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -113811,6 +114048,17 @@
     "status": "machine",
     "text": "流水线步骤"
   },
+  "a51c738c4198e3e0": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "6269e3eb3ffbc494",
+      "reviewed": false
+    },
+    "srcHash": "a51c738c4198e3e0",
+    "status": "machine",
+    "text": "导入会引用目录中的 Agent Framework 智能体和 OpenAI 模型 Components，并且 `--target` 会根据目录的 Recipes 起草一个 Manifest。该工作区没有指定任何目录文件夹，因此导入会从它获取导入器的那个注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要指明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为与这些文件夹比对导入。进入 `source`："
+  },
   "a51ecc6ff0d252e7": {
     "at": "2026-10-29T21:05:52.313Z",
     "job": "session-0019-20261029210552",
@@ -116587,6 +116835,17 @@
     "status": "machine",
     "text": "一个工作区根"
   },
+  "a92b4dbaacc0489b": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "fbc73bb1634cd762",
+      "reviewed": false
+    },
+    "srcHash": "a92b4dbaacc0489b",
+    "status": "machine",
+    "text": "导入会引用目录中的智能体和模型 Components，而 `--target` 会根据目录中的 Recipes 起草一个 Manifest。工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
+  },
   "a92b9a251a08b81b": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -117715,6 +117974,17 @@
     "srcHash": "aad0b31f3ef31f9c",
     "status": "machine",
     "text": "`catalog/recipe/compose/db-console/1.0.0/recipe.yaml`："
+  },
+  "aad3399423827543": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "fc4ac41aac905e6e",
+      "reviewed": false
+    },
+    "srcHash": "aad3399423827543",
+    "status": "machine",
+    "text": "然后它会打印接下来要运行的命令。第一条命令进入新文件夹；其后的那条命令见下文，它进入新文件夹的 `source` 文件夹，该文件夹包含本页导入的内容，也是运行导入的位置："
   },
   "aad5dfa061b5d819": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -119250,6 +119520,13 @@
     "status": "machine",
     "text": "`namespace` *（可选）*——文档所在的命名空间，适用于输出带有命名空间的 provider。省略时，该条目指称任意命名空间中具有该种类和名称的内容；渲染结果为空的 `namespace` 视为未提供。"
   },
+  "ad147030e4cc9ce9": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "srcHash": "ad147030e4cc9ce9",
+    "status": "machine",
+    "text": "**当工作区未指定目录文件夹时，导入会读取其默认注册表发布的目录。** 如果工作区的 `workspace.catalog_dirs`、`AGGREGA_CATALOG_DIRS` 和根目录都没有指定目录文件夹，它会将标准库目录作为一个签名快照读取，该快照位于所服务工作区默认注册表上的 `catalog/snapshot`——与获取核心导入器的注册表相同，以相同的条件访问，调用中没有任何内容指定注册表或携带凭据。快照只获取一次：其签名按照该注册表的信任策略进行验证，然后保存在工作区的内容缓存中，并作为目录文件夹在那里读取，与其摘要绑定，不会再向任何注册表请求它。调用读取哪个快照：使用 `upgrade` 时，读取最新的快照；否则读取输出目录中的记录所指定的快照，若本机没有则按其摘要获取；否则读取工作区上一次作为最新快照获取的那个；否则读取最新的快照。导入写入的记录会按摘要指明它读取的快照，因此之后向同一输出目录起草的调用会读取同一份目录。离线时，需要获取快照的调用会被拒绝，并指明要运行什么；无论本机保存了什么，`upgrade` 都会被拒绝，因为只有注册表才能说明哪个快照是最新的。不发布任何快照的注册表会使导入没有目录可用，`diagnostics` 中的一个 `warn` 条目会说明这一点。指定了目录文件夹的工作区会针对该文件夹导入，不获取任何快照，`upgrade` 在那里不会改变任何内容。"
+  },
   "ad166fc5dde10885": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -120692,6 +120969,17 @@
     "srcHash": "aee60adf096426a7",
     "status": "machine",
     "text": "**通过 `toJson` 写出每个值**。渲染器以 YAML 读取模板的输出，因此原样插入引号之间的值，一旦包含双引号或反斜杠，要么会破坏该输出，要么读回时已被改变——密码就是常见情形。`toJson` 将值写成 JSON 字符串，YAML 能将其原样读回，因此该值会连同它所含的每个字符一起送达："
+  },
+  "aeea9d3302b51a87": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "0038bd13019efce3",
+      "reviewed": false
+    },
+    "srcHash": "aeea9d3302b51a87",
+    "status": "machine",
+    "text": "**用于比对的目录。** 导入只将你的来源与工作区目录中的 Components 进行评分比对，此外别无其他。如果工作区没有指定自己的目录文件夹，该目录就是标准库目录，从工作区的默认注册表读取：目录的每次发布都会发布整个目录的一个签名快照，第一次导入会获取该快照、验证其签名、将其保存在工作区的内容缓存中，并在它写在草稿旁的记录中以摘要指明该快照，因此之后对同一批草稿的导入会读取同一个目录，而无需再次询问注册表。基于该目录，PostgreSQL 服务会被建议为 `core/datastore/postgres`，并且 `--target` 可以根据该目录的 Recipes 起草一个 Manifest。如果没有目录，导入就没有可建议的内容，`--target` 也会被拒绝，因为没有 Recipe 绑定到该目标。"
   },
   "aeeb09977f6ae6fa": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -143677,6 +143965,13 @@
     "status": "machine",
     "text": "`release_uses_block`"
   },
+  "cf20353e457f185f": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "srcHash": "cf20353e457f185f",
+    "status": "machine",
+    "text": "是否获取工作区默认注册表发布的最新目录快照并据此导入，并从此保留该快照，取代工作区所持有的快照或草稿旁的记录所指定的快照；工作区指定了目录文件夹时，此项不改变任何内容；离线时会被拒绝。"
+  },
   "cf242788df1f36de": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -147352,6 +147647,17 @@
     "srcHash": "d4320388e04d578d",
     "status": "machine",
     "text": "`/component/{publisher}/{category}/{name}` 或 `/feature/{publisher}/{name}`"
+  },
+  "d4321e8ebc85f47d": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "b624e69ed0b737f8",
+      "reviewed": false
+    },
+    "srcHash": "d4321e8ebc85f47d",
+    "status": "machine",
+    "text": "**仅属于你。** `artifact_cache_dir` 下的制品缓存——本项目已解析的实体、源制品和已固定的外部输入，以及未指定目录文件夹的导入所读取的已发布目录快照。从中回收只影响本项目，不影响其他任何内容。"
   },
   "d432ac6e9795f479": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -155312,6 +155618,17 @@
     "status": "machine",
     "text": "法律合规（通常为 SPDX 标识符）"
   },
+  "df6c8b7de8fdd37e": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "1f01244e5f900980",
+      "reviewed": false
+    },
+    "srcHash": "df6c8b7de8fdd37e",
+    "status": "machine",
+    "text": "导入会引用目录中的 LangGraph 代理和 PostgreSQL Components，而 `--target` 会根据目录的 Recipes 起草一个 Manifest。工作区没有指定目录文件夹，因此导入会从获取其导入器的注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要标明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为针对这些文件夹进行导入。进入 `source`："
+  },
   "df6e4f5e04713ddd": {
     "at": "2026-10-30T00:18:19.811Z",
     "job": "session-0039-20261030001819",
@@ -155584,6 +155901,13 @@
     "srcHash": "dfda254006006f1d",
     "status": "machine",
     "text": "已验证签名事实，在拉取时依据解析所用 registry 的信任策略验证了制品签名后记录。每一种可签名的制品都以相同方式记录它——目录实体、库、Wasm 插件——因为它们都通过同一条路径验证，而不是每种类型各有一条。记录验证模式、匹配的无密钥身份/签发者（在无密钥模式下），以及内容缓存中签名包的内容寻址摘要。构建不会重新执行验证。在渲染任何内容之前，构建会在每个分区中、对其所依据的每个条目读取这一事实：重新哈希缓存的签名包，并将结果与 `bundle_digest` 比较，若该 blob 缺失或不一致则停止；对于由内容缓存提供的条目，构建会从该签名包中读取签名所针对的制品，若签名针对的制品不同于构建为该条目读取的制品则停止——因此，从一个条目复制到另一个条目上的 `signature` 会被拒绝，无论签名要求如何规定。构建不验证任何签名，因此手动写入缓存、针对该条目自身制品制作的签名包，与经拉取验证的签名包无法区分。而当工作区的信任配置要求由内容缓存提供的条目必须有签名时——这是 `pull` 在获取制品时应用的要求，因此允许拉取接纳无签名制品的跳过项和 `advisory` registry，也同样允许构建接纳其条目——未携带该事实的条目会使构建停止。从目录文件夹、编译器二进制文件内的副本或 Release 旁边读取的条目，永远不受该要求约束。"
+  },
+  "dfde9f0b2248b23a": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "srcHash": "dfde9f0b2248b23a",
+    "status": "machine",
+    "text": "它唯一的读取者是工作区未指定任何目录文件夹的导入：没有 `workspace.catalog_dirs`，没有 `AGGREGA_CATALOG_DIRS`，工作区根目录下也没有 `catalog/` 目录。`aggrega import`、编辑器会话的导入以及助手的导入工具执行的是同一操作，因此它们获取快照的方式相同。导入通过与 pull 相同的出站流量管控和登录，从工作区的默认 registry 获取快照，在保留任何内容之前依据该 registry 的信任策略验证其签名，将其保存在工作区的制品缓存中，并在那里将其作为目录文件夹读取，同时锁定到其摘要——因此导入器得到的是目录的 Components，`--target` 则根据其 Recipes 起草 Manifest，所走的路径与目录文件夹完全相同。导入在其草稿旁写入的记录通过清单摘要指明该快照，因此之后对相同草稿的导入无需发出请求即可读取同一目录，而 `aggrega import --upgrade` 会获取最新的快照，并从此以其为依据进行导入。在离线模式下，需要获取快照的导入会停止，并指明应运行的内容。指定了目录文件夹的工作区以该文件夹为依据进行导入，不获取任何快照。没有其他命令读取该快照：pull、构建和验证都通过 §5 的各层级解析每个实体并将其固定在锁文件中，而导入的草稿按名称引用目录实体，因此构建这些草稿时也以相同方式解析这些实体。"
   },
   "dfe0160ab6aa1d0d": {
     "at": "2026-10-22T02:24:43.656154+00:00",
@@ -156344,6 +156668,17 @@
     "srcHash": "e0ba63c68c55e684",
     "status": "machine",
     "text": "无论该设置如何，直接请求检查都有效，并适用于上述全部三种范围。因此，一个从未开启逐次编辑层的工作区，仍然可以让其编辑器扫描整个目录、某个 Release 的闭包或单个实体——并得到与本命令输出相同的发现。该设置只决定检查是否也会在你未明确请求的地方运行。"
+  },
+  "e0bc3b43ce8e184d": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "2574cd2b07cac4b5",
+      "reviewed": false
+    },
+    "srcHash": "e0bc3b43ce8e184d",
+    "status": "machine",
+    "text": "**每次起草了内容的导入还会在其草稿旁写入 `.aggrega-import.json`**：即其写入内容的记录——发送给它的 `target`（如果发送了的话）、它读取的目录快照（如果读取了的话），以及每个起草的文件，并且在起草的 Aggregate 或 Release 中，记录每一层级的每个键，附带写入该处文本的摘要；其他起草的文件则整体记录。一个键的文本包括其所在行、其值不是键映射时其值的各行，以及在其自身缩进处直接写在其上方的注释行。`written` 会将该记录与草稿一同列出，在 `dry_run` 下它也在返回的草稿之中。该记录是 JSON，因此读取工作区 YAML 文档的任何程序都不会读取它。"
   },
   "e0bdb9a08a19ad15": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -162486,6 +162821,17 @@
     "status": "machine",
     "text": "**它只报告，从不创建。**该方法不修改任何内容，不写入任何内容，也不创建任何附件。编写和应用编辑是编辑器的职责，缓冲区和撤销历史都在编辑器那里。"
   },
+  "e9f7bf948b1ba3f0": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "e7ea22452cfff5d0",
+      "reviewed": false
+    },
+    "srcHash": "e9f7bf948b1ba3f0",
+    "status": "machine",
+    "text": "[`aggrega import`](../cli/aggrega-import.md)、编辑器会话的 `aggrega/import` 方法和助手的 `import` 工具以相同方式获取核心导入器。如果本机已持有其模块（位于工作区的内容缓存中），导入会从那里读取，无需为此访问网络。如果本机没有，第一次需要它的导入会按编译器的版本从工作区的默认注册表获取它，并且："
+  },
   "e9f95b12b636c2b8": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -165284,6 +165630,17 @@
     "srcHash": "edb7a9c0fb8f1d1a",
     "status": "machine",
     "text": "**将该块声明在引用它的字段所在的数据支柱内部**，与这些字段并列，而不是与该支柱并列。`schema:` 块的顶层只接受三个数据支柱名称，因此写成 `values:` 同级的 `$defs:` 会在实体加载时被拒绝，并指出出错的键以及该位置可容纳的支柱集合。无论哪种情况，指针都写作 `#/$defs/<Name>`。"
+  },
+  "edbabd0a8d64719a": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "a6efa44b716cf709",
+      "reviewed": false
+    },
+    "srcHash": "edbabd0a8d64719a",
+    "status": "machine",
+    "text": "将其保存在工作区的内容缓存中，这是为它写入的唯一内容：没有锁文件，也没有受信任插件的记录，因为导入不固定任何导入器。"
   },
   "edbd1f5e8230d689": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -168862,6 +169219,17 @@
     "status": "machine",
     "text": "[aggrega-push.md](aggrega-push.md) 和 [aggrega-sign.md](aggrega-sign.md) — 签名相关变量以及身份令牌别名。"
   },
+  "f2d60565d2a20a82": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "929de72c20db1357",
+      "reviewed": false
+    },
+    "srcHash": "f2d60565d2a20a82",
+    "status": "machine",
+    "text": "然后它会打印接下来要运行的命令。第一条命令进入新文件夹；其后的一条命令见下文，它进入新文件夹的 `source` 文件夹，导入就在这里运行。该文件夹包含流程文件 `basic-prompting.json`，本页对其进行描述而不是引用："
+  },
   "f2d7c559192f168d": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -170683,6 +171051,17 @@
     "srcHash": "f5447410ad5e165f",
     "status": "machine",
     "text": "**附件形状。** 每个条目所携带的内容与组件自身某个附件的 `.features.<name>` 完全相同——`.type`、`.resolved_version`、`.labels`、`.values`、`.infra`，以及绑定到它的 FeatureRecipe 的已解析 `.provides`——参见[附件形状](#the-attachment-shape)。此处读取的 provides 正是该附件自身的 FeatureRecipe 渲染时所依据的值，因此消费方引用的名称与该 FeatureRecipe 输出的资源名称是同一个求值结果。"
+  },
+  "f548ee2dbe0b50da": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "9c0c0bde4f3ef6b6",
+      "reviewed": false
+    },
+    "srcHash": "f548ee2dbe0b50da",
+    "status": "machine",
+    "text": "导入会将每个服务与工作区目录中的 Components 进行比对，而 `--target` 会根据目录中的 Recipes 起草一个 Manifest。该工作区没有指定任何目录文件夹，因此导入会从它获取导入器的那个注册表中读取标准库目录：这是已发布目录的一个签名快照，由第一次导入获取、验证并保存在工作区的内容缓存中，并在导入写在其草稿旁的记录中以其摘要指明。指定了自己的目录文件夹的工作区——在 `AGGREGA_CATALOG_DIRS` 中，或在 `workspace.catalog_dirs` 下——则改为与这些文件夹比对导入。进入 `source`："
   },
   "f54b8e9890f3512b": {
     "at": "2026-10-22T05:07:43.448651+00:00",

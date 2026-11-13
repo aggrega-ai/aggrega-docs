@@ -1632,6 +1632,17 @@
     "status": "machine",
     "text": "Si el llamador acepta las capacidades que declara un plugin de extensión de comandos."
   },
+  "028110984f1ed7b9": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "216628eb4daeb439",
+      "reviewed": false
+    },
+    "srcHash": "028110984f1ed7b9",
+    "status": "machine",
+    "text": "**Un importador básico que la máquina aún no tiene se obtiene una vez, en la primera importación que lo necesita.** Procede del registro predeterminado del espacio de trabajo, ceñido al módulo que publica la versión del compilador y verificado como un pull verifica un plugin que obtiene — su firma según la política de confianza de ese registro, y las funciones de host que usa — y se guarda en la caché de contenido del espacio de trabajo, que es lo único que se escribe para él: ningún lockfile y ningún registro de plugins de confianza. Cada importación posterior lo lee de allí y no llega a ningún registro. Un módulo que no supera la verificación es un error con el código de su condición, y no se guarda nada; uno que no se puede obtener — el espacio de trabajo está sin conexión, su registro no es accesible o el registro no lo contiene — es un error bajo [A plugin's `.wasm` is not on this machine (El módulo de un plugin no está en esta máquina)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), que nombra el importador, su versión y qué pone su módulo en la máquina. La propia solicitud no nombra ningún registro, y una importación que ya tiene en la máquina todos los importadores y el catálogo que lee no llega a ninguna red."
+  },
   "02838b846c24bc11": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -5609,6 +5620,17 @@
     "status": "machine",
     "text": "Las propiedades de la propia alarma se refieren al host por el nombre derivado del host:"
   },
+  "08928f4eb4b2adf5": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "1a12d3b6ff70ab35",
+      "reviewed": false
+    },
+    "srcHash": "08928f4eb4b2adf5",
+    "status": "machine",
+    "text": "Junto a esos tres pueden aparecer otros tres directorios, y ninguno contiene contenido de dependencias fijadas: `index/` contiene las instantáneas consultables por registro que escribe `aggrega registry update` (§8), `signatures/` almacena en caché cada paquete de firma verificado bajo su propio digest, de modo que una lectura posterior vuelve a comprobar el blob en caché frente al digest con el que se registró en lugar de volver a obtener el paquete, y `catalog-snapshots/` conserva cada instantánea publicada del catálogo que leyó una importación (§8) —el archivo comprimido y su manifiesto en una ranura con el nombre del digest del manifiesto, con el árbol del catálogo dispuesto a partir del archivo comprimido en cada lectura, y un archivo `current` que nombra la instantánea que lee el workspace cuando nada nombra otra."
+  },
   "08973f1646548170": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -6265,6 +6287,17 @@
     "srcHash": "09a185849c39f328",
     "status": "machine",
     "text": "El contenido de una entidad reside en el directorio propio de la entidad, porque cada archivo que lleva una publicación de la entidad se toma de ahí. Una ruta que sale de él apunta a un archivo que no viajaría con la entidad, así que el archivo no está ahí para nadie que reciba la entidad, y un pin registrado sobre él avala bytes que esos destinatarios no pueden obtener."
+  },
+  "09a58b4096636509": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "fe3a1e45f4ec7387",
+      "reviewed": false
+    },
+    "srcHash": "09a58b4096636509",
+    "status": "machine",
+    "text": "La importación hace referencia a los Components del catálogo para el agente ADK y el modelo Gemini, y `--target` genera un borrador de Manifest a partir de sus Recipes. El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
   },
   "09a88e62e337708d": {
     "at": "2026-11-03T23:11:55.145Z",
@@ -10797,6 +10830,17 @@
     "srcHash": "10b5da219b0321d4",
     "status": "machine",
     "text": "**Ninguno de los dos.** Los corchetes se omiten por completo y el diagnóstico es su mensaje. Se trata de un fallo que no nombra ninguna condición propia de Aggrega *y* no tiene ningún ámbito al que remitirte: un comando que rechaza sus argumentos, un archivo que no puede leer, una cancelación o un error notificado por una biblioteca que el compilador envuelve sin ninguna condición nuestra por debajo. No hay nada que resolver en [`sentinels.md`](sentinels.md), y el mensaje es todo lo que el fallo tiene que decir."
+  },
+  "10bcc91640abc0be": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "7c749d12b1641498",
+      "reviewed": false
+    },
+    "srcHash": "10bcc91640abc0be",
+    "status": "machine",
+    "text": "**Con `dryRun` no se crea nada.** `written` está vacío, `files` lleva los mismos archivos que habría producido una escritura — con `sync`, los archivos que escribiría la sincronización, junto al `drift` que actualizaría — y no se crea ningún directorio — de modo que un editor puede ponerlos delante del autor para que los guarde, los modifique o los descarte. Todo lo demás que hace una escritura se hace: el mismo importador se ejecuta sobre la misma fuente e informa los mismos diagnósticos, así que una fuente que una escritura rechazaría también se rechaza aquí. Un importador básico o una instantánea del catálogo obtenidos con `dryRun` se guardan en la caché de contenido como con una escritura, porque adquirir aquello sobre lo que se ejecuta la importación forma parte de ejecutarla y no de colocar los borradores."
   },
   "10c2e81d54af6d27": {
     "at": "2026-11-04T08:57:20.450Z",
@@ -21703,6 +21747,17 @@
     "status": "machine",
     "text": "[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) indica cada una de estas claves junto con su valor predeterminado, donde lo tiene."
   },
+  "22a52c52c504539f": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "a9076edeef9e9a79",
+      "reviewed": false
+    },
+    "srcHash": "22a52c52c504539f",
+    "status": "machine",
+    "text": "La importación redacta los borradores de los archivos Aggrega junto al proyecto, en `source/`. Evalúa el proyecto frente al catálogo de la biblioteca estándar, que el registro predeterminado del espacio de trabajo publica como una instantánea firmada: la primera importación la obtiene, la verifica, la guarda en la caché de contenido del espacio de trabajo y la nombra por su digest en el registro que escribe junto a los borradores. Un espacio de trabajo que nombra sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio con respecto a ellas:"
+  },
   "22a700ab07e7a0ed": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -22888,6 +22943,17 @@
     "srcHash": "2469697eb6efcca3",
     "status": "machine",
     "text": "Eliminar de la configuración global compartida por todos los workspaces."
+  },
+  "246a4a7bc5d1ce65": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "0253a37267fc7d90",
+      "reviewed": false
+    },
+    "srcHash": "246a4a7bc5d1ce65",
+    "status": "machine",
+    "text": "Cada formato lo lee un plugin importador. Los importadores básicos del compilador, uno por cada formato de la tabla siguiente, se publican con cada versión del compilador y sirven sus formatos en todos los espacios de trabajo, sin ninguna entrada en tu catálogo. La primera importación que necesita uno lo obtiene del registro predeterminado del espacio de trabajo, en la propia versión del compilador, lo verifica y lo guarda en la caché de contenido del espacio de trabajo, de modo que cada importación posterior lo lee desde ahí, sin necesitar la red para ello. Donde el módulo no se puede obtener en absoluto — porque el espacio de trabajo está sin conexión, por ejemplo — la importación se detiene y nombra las dos formas de ponerlo en la máquina. [Importadores básicos](../../language-reference/plugins/core-importers.md) describe cada importador por completo, y los ajustes que recibe un importador a través de una entrada `plugins.importer`."
   },
   "246acf62d97926c5": {
     "at": "2026-11-08T12:51:16.665Z",
@@ -25478,6 +25544,17 @@
     "status": "machine",
     "text": "**Síntesis de Workload (Kubernetes).** La Recipe helm sintetizada declara un Workload — un Deployment más un Service ClusterIP que ejecuta la imagen oficial `grafana/grafana` — que el proveedor helm traduce a manifiestos de Kubernetes sin ningún chart externo. El conjunto de recursos renderizado es exactamente lo que declara el Workload. Como el nombre `grafana` lo llevan tanto una Recipe de Compose como una helm sintetizada, los Manifests las referencian con ámbito de proveedor como `compose/grafana` y `helm/grafana`."
   },
+  "28a516be7203a991": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "03b40bd2147aaa00",
+      "reviewed": false
+    },
+    "srcHash": "28a516be7203a991",
+    "status": "machine",
+    "text": "Convierte una descripción de fuente externa en documentos de authoring en borrador, y escribe junto a ellos `.aggrega-import.json`, el registro de lo que escribió la importación — el destino que se le dio, donde se le dio uno, la instantánea del catálogo que leyó, donde leyó una, cada archivo redactado y cada clave de un Aggregate o de una Release redactados a cualquier profundidad —, que lee una sincronización posterior. Una fuente que no pudo convertir por completo es una respuesta y no un fallo: los borradores que sí produjo se escriben y los hallazgos dicen lo que no pudo convertir — salvo con sync, que no escribe nada a partir de una conversión que se detuvo."
+  },
   "28a7aec6e815a52c": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -27331,6 +27408,17 @@
     "status": "machine",
     "text": "**Dejar fuera documentos renderizados.** Este proveedor respeta las entradas [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) que declara una Recipe o una FeatureRecipe, en este modo y en ningún otro: un Workload sintetizado y un cuerpo `artifacts:` se renderizan sin ellas. Cada documento que renderiza el chart — desde una plantilla o desde un archivo de su directorio `crds/` — se compara con cada entrada que se aplica a la compilación, y un documento que nombra cualquier entrada se deja fuera. Una entrada nombra un documento por las palabras que lleva el propio documento, las mismas palabras con las que se construyen su nombre de archivo de salida y sus hechos de renderizado: su `kind`, su `metadata.name` y, solo donde la entrada nombra uno, el espacio de nombres en el que está el documento — el que escribe su plantilla, o el espacio de nombres declarado del límite donde este proveedor coloca el documento como se describe arriba. Nunca es el espacio de nombres para el que el chart simplemente se renderiza: sin ningún espacio de nombres declarado el chart se renderiza para `default`, pero un documento cuya plantilla no escribe ningún espacio de nombres no está en ninguno, así que una entrada que nombra `default` no coincide con él. Un documento que no lleva tipo o nombre no coincide con ninguna entrada. Los documentos que se dejan fuera se renderizan y luego se descartan una vez fijado el nombre de cada archivo, de modo que cada documento conservado se nombra y se escribe exactamente como se haría sin las entradas, y un documento que se deja fuera no llega a nada de lo que hace la compilación después — ningún archivo, ningún nombre en la comparación que rechaza dos contribuidores que llegan al mismo nombre, ningún hecho de renderizado que lea una Feature, nada que se entregue a un paso del pipeline. El proveedor informa de cuántos documentos coincidieron con cada entrada, y una entrada con la que no coincidió ninguno detiene la compilación; consulta [An omits entry left out nothing the source rendered (Una entrada omits no dejó fuera nada de lo que renderizó la fuente)](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered)."
   },
+  "2ba2e227f3ac9b05": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "bbeeb4b8b3d94fa1",
+      "reviewed": false
+    },
+    "srcHash": "2ba2e227f3ac9b05",
+    "status": "machine",
+    "text": "`catalog` — una vista de los Components que contiene el catálogo propio del espacio de trabajo: el catálogo del que se seleccionó el propio importador — las carpetas de catálogo del espacio de trabajo o, donde no nombra ninguna, la instantánea del catálogo que publica su registro predeterminado, guardada en esta máquina —, sin descargar nada para la propia vista. Su lista `components` contiene una entrada por nombre de Component, ordenada por nombre; donde el catálogo contiene varias versiones de un Component, la entrada describe la versión a la que se resuelve una referencia que lo nombra sin versión. Cada entrada lleva el `name` y la `version` del Component, sus `labels`, los nombres de las claves de nivel superior que declaran sus values y provides (`values` y `provides`, cada uno ordenado), y sus `sockets` — cada uno con el `name` del socket y el `selector` de etiquetas que debe satisfacer una dependencia conectada a través de él — en el orden en que el Component los declara. Un Component que extiende otro lleva lo que hereda además de lo que declara, y los sockets que hereda van primero. La vista contiene solo nombres, versiones, etiquetas y selectores — nunca un valor, un valor predeterminado ni un secreto — y su orden es fijo, así que un catálogo produce una única secuencia de bytes. Ausente cuando el catálogo no contiene ningún Component."
+  },
   "2ba32285ec2a70e3": {
     "at": "2026-11-04T01:50:23.893Z",
     "job": "session-0188-20261104015023",
@@ -28048,6 +28136,17 @@
     "status": "machine",
     "text": "El veredicto, y la compilación que detiene"
   },
+  "2d09470366439c72": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "eaf0cbc1329aa59a",
+      "reviewed": false
+    },
+    "srcHash": "2d09470366439c72",
+    "status": "machine",
+    "text": "El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
+  },
   "2d0a1fc70baed11b": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -28258,6 +28357,17 @@
     "srcHash": "2d6fbb6da3582a93",
     "status": "machine",
     "text": "signing: no verified signature is recorded for an artifact that requires one (`\"<plugin>\"`, `<record-path>` records no signature for it, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the plugin's signature at its registry and record it in `<record-path>` (signing: no hay ninguna firma verificada registrada para un artefacto que la requiere: el archivo de confianza no registra ninguna firma para el plugin, requerida por los ajustes indicados. solución: ejecuta el pull para verificar la firma del plugin en su registro y registrarla en el archivo de confianza)"
+  },
+  "2d7099b5eb3f4627": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "4f1e83960d88e8a3",
+      "reviewed": false
+    },
+    "srcHash": "2d7099b5eb3f4627",
+    "status": "machine",
+    "text": "La importación evalúa cada nodo frente a los Components del catálogo del espacio de trabajo, y `--target` genera un borrador de Manifest a partir de sus Recipes. El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
   },
   "2d717353fe99da0f": {
     "at": "2026-11-03T17:08:26.299Z",
@@ -42314,6 +42424,17 @@
     "status": "machine",
     "text": "**Para una vinculación en una conexión que traza el nodo, añade `connection`** con su `socket`, su `alias` y su `document`, que aquí es obligatorio porque cualquiera de los dos documentos puede contener una. Con `aggregate`, la respuesta es la propia entrada de la conexión en el documento en el que se escribió el nodo, con su bloque `features` al final; una conexión que trazó la Release no tiene allí ninguna entrada y se rechaza. Con `release`, es la entrada por arista bajo la entrada de la Release para el nodo — `[\"spec\", \"boundaries\", \"cluster\", \"components\", \"gateway\", \"uses\", \"models\", \"gpt\", \"features\"]` —, que se indica tanto si la Release ya escribe esa entrada por arista como si no, de modo que `insertion-point` indica las claves que faltan por escribir; una Release que no escribe ninguna entrada para el nodo se rechaza, ya que no le corresponde a esta herramienta decidir dónde se coloca el nodo. Una conexión que trazó una Feature se rechaza en ambos documentos."
   },
+  "4487e28767318f40": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "5f6b6bed23631337",
+      "reviewed": false
+    },
+    "srcHash": "4487e28767318f40",
+    "status": "machine",
+    "text": "`--target` genera un borrador de Manifest a partir de las Recipes del catálogo. El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
+  },
   "44897dc2ca77e4c0": {
     "at": "2026-11-04T00:28:10.767Z",
     "job": "session-0180-20261104002810",
@@ -43521,6 +43642,17 @@
     "srcHash": "4646200ae3162187",
     "status": "machine",
     "text": "`stateless` — réplicas intercambiables, escaladas horizontalmente, sin identidad por réplica (el servicio común de larga duración)."
+  },
+  "46463d8baf4c3a55": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "87c2f72e56fc4f32",
+      "reviewed": false
+    },
+    "srcHash": "46463d8baf4c3a55",
+    "status": "machine",
+    "text": "La instantánea publicada del catálogo"
   },
   "4648f3457dbd959b": {
     "at": "2026-11-04T07:59:45.803Z",
@@ -46079,6 +46211,13 @@
     "status": "machine",
     "text": "Una FeatureRecipe que establece `readsCallerRenderFacts: true` lee los hechos de cada llamador de la misma manera que lee los del host. Para un proveedor que documenta un hecho llamado `ports` cuyas entradas llevan cada una un `port`:"
   },
+  "4a1c5e618b81d4d6": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "srcHash": "4a1c5e618b81d4d6",
+    "status": "machine",
+    "text": "Un espacio de trabajo que nombra sus propias carpetas de catálogo importa frente a ellas en su lugar, y no obtiene ninguna instantánea: los directorios que enumera `workspace.catalog_dirs`, una carpeta `catalog` en la raíz del espacio de trabajo o los directorios que indica `AGGREGA_CATALOG_DIRS`. Los archivos propios del catálogo de la biblioteca estándar son la carpeta `aggrega-catalog` del repositorio `aggrega-hub`, <https://github.com/aggrega-ai/aggrega-hub>, para un espacio de trabajo que los quiera como carpeta. `--upgrade` obtiene la instantánea más reciente que publica el registro e importa frente a ella a partir de entonces; con `--offline`, una importación que tendría que obtener una instantánea se detiene e indica qué ejecutar."
+  },
   "4a1e80a44ff2e4b4": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -47777,6 +47916,13 @@
     "status": "machine",
     "text": "[Composición de entradas de la Recipe](16-recipe-input-composition.md)"
   },
+  "4d34838d395485d7": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "srcHash": "4d34838d395485d7",
+    "status": "machine",
+    "text": "Cada publicación del catálogo de la biblioteca estándar publica también el catálogo completo: un único artefacto OCI, un tar comprimido con gzip de todos los archivos que contiene el árbol del catálogo en el commit que publicó esa publicación, en `catalog/snapshot` bajo el registro en el que se publica el catálogo —`hub.aggrega.ai/catalog/snapshot` para el hub oficial. Solo se envía después de que todas las entidades de esa publicación estén en el registro, de modo que no nombra ninguna entidad que el registro no contenga. Se etiqueta con el commit a partir del cual se construyó y con `latest`, y el publicador lo firma sin clave, como cada entidad de la publicación, de modo que la identidad del publicador lo verifica según la política de confianza del registro; `latest` pasa a una instantánea solo una vez que está firmada. El archivo comprimido se escribe con una única disposición fija —entradas en orden ascendente de sus nombres, cada una con el mismo modo, propietario y hora de modificación—, de modo que un mismo commit produce siempre el mismo tar."
+  },
   "4d3ba0af99854472": {
     "at": "2026-11-05T16:44:55.584Z",
     "job": "session-0004-20261105164455",
@@ -48741,6 +48887,17 @@
     "srcHash": "4ecd212c78844e18",
     "status": "machine",
     "text": "Un socket que un Component del catálogo declara para sus dependencias: el nombre del socket y el selector de etiquetas que debe satisfacer una dependencia cableada a través de él."
+  },
+  "4ed37a1ecbad6baa": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "7d1d095f31492a60",
+      "reviewed": false
+    },
+    "srcHash": "4ed37a1ecbad6baa",
+    "status": "machine",
+    "text": "**Aggrega: Import into Aggrega** — redacta archivos de authoring de Aggrega a partir de una fuente que escribió otra herramienta. También es el botón **Import** del grupo Author del panel Commands, e **Import into Aggrega** en el menú contextual de un archivo o carpeta en el Explorer, que importa el archivo o la carpeta en que hiciste clic: los tres son un solo comando, así que hacen las mismas preguntas, en este orden, cada una en la entrada propia del editor, salvo que la entrada del Explorer no pregunta por la fuente. Primero la fuente: **File…** o **Folder…**, y después el diálogo de apertura de tu editor para uno de ese tipo — la elección va primero porque en Windows y Linux un diálogo no puede ofrecer ambos. Después la carpeta dentro del workspace en la que redactar, relativa a su raíz, donde dejarla vacía redacta bajo la raíz del workspace, como hace `aggrega import` sin `--output-dir`. Después las opciones, una lista en la que puedes marcar **Preview**, **Sync**, ambas o ninguna: **Preview** es `--dry-run` — no se escribe nada, y cada archivo que escribiría la importación se muestra en el canal de salida seguido de su contenido — y **Sync** es `--sync`, que pone al día con la fuente lo que redactó una importación anterior, cambiando solo lo que escribió la importación, con cada parte que actualiza listada en el canal con las palabras que `aggrega import --sync` imprime para ella; no marcar ninguna escribe los borradores completos. Por último, la capacidad de provider para la que redactar un Manifest, como `compose` o `helm`, donde dejarla vacía no redacta ninguno, como sin `--target`. Una respuesta que dejas vacía, y una opción que dejas sin marcar, no se envía en absoluto, así que el compilador aplica su propio valor predeterminado, y descartar cualquier pregunta o diálogo termina la importación sin enviar nada. Una carpeta que sale del workspace, y una capacidad a la que no se vincula ninguna Recipe del catálogo del workspace, las rechaza el compilador con sus propias palabras antes de escribir nada. El formato se reconoce por la forma propia de la fuente, como en un terminal; cuando el compilador rechaza porque ningún formato, o más de uno, reconoce la fuente, el editor muestra ese rechazo — que nombra los formatos — y pide el formato con el que leer la fuente, y luego envía de nuevo la misma importación incluyéndolo; dejar vacía esa pregunta termina la importación con el rechazo. Lee el archivo que nombras, o los archivos del directorio que nombras que lee su importador, y ningún otro. No llega a ninguna red, salvo para obtener lo que una importación necesita para ejecutarse y esta máquina aún no tiene — uno de los importadores básicos del compilador, la primera vez que un formato lo necesita, y, en un workspace que no nombra ninguna carpeta de catálogo, la instantánea publicada del catálogo que la importación lee como su catálogo —, cada uno obtenido del registro predeterminado del workspace, verificado y guardado en la caché de contenido, como hace `aggrega import`. La fuente puede estar en cualquier lugar de esta máquina, porque es un archivo al que apuntaste y no uno que contiene el workspace; los borradores siempre acaban en el workspace. Muestra el progreso con un botón Cancel, y pulsar Cancel detiene la conversión en lugar de solo hacer que el editor deje de esperar, porque el importador se ejecuta como un plugin que el compilador puede deshacer a mitad de ejecución. El final dice en qué formato se reconoció la fuente, cuántos archivos se redactaron y adónde fueron, contando los borradores y no `.aggrega-import.json`, el registro de lo que escribió la importación que toda importación escribe junto a sus borradores; los propios hallazgos del importador y cada archivo que llegó al disco, registro incluido, van al canal de salida de Aggrega, porque nombran un lugar del archivo fuente y no de un documento que tú escribiste."
   },
   "4ed7e617f98f52cb": {
     "at": "2026-11-04T10:56:32.711Z",
@@ -60845,6 +61002,17 @@
     "status": "machine",
     "text": "**Cómo corregirlo:** reestructura la topología del agregado para reducir el anidamiento. Un anidamiento tan profundo suele indicar que la forma del Aggregate refleja la jerarquía organizativa en lugar de la topología de despliegue — considera aplanar grupos de subagregados en subsistemas del mismo nivel dentro de un único Aggregate padre."
   },
+  "61f313064e4b6341": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "212408ed081a9896",
+      "reviewed": false
+    },
+    "srcHash": "61f313064e4b6341",
+    "status": "machine",
+    "text": "`aggrega cache status` lo indica por clase en lugar de dejar que se deduzca del nombre: cada clase se notifica como de alcance del workspace o de la máquina, y el mismo alcance se notifica para cada elemento que eliminan `prune`, `evict` y `clear`. `evict` actúa solo sobre el almacén compartido de módulos compilados; `prune` nunca elimina un paquete de documentación ni una instantánea del catálogo que haya leído una importación, ya que ningún lockfile hace referencia a ninguno de los dos, y notifica cada una de esas clases como no apta para prune; `prune` conserva los bytes de cada plugin cli que fija la lista `plugins.cli` de tu configuración — tanto en el almacén de plugins cli como en la caché de artefactos del workspace, junto con su entrada de descripción de plugin — y elimina los que ninguna fijación nombra; `clear` actúa sobre todo, por lo que pregunta antes de empezar."
+  },
   "61f671c8522d25d6": {
     "at": "2026-11-02T23:50:32.426Z",
     "job": "session-0022-20261102235032",
@@ -62513,6 +62681,13 @@
     "status": "machine",
     "text": "El modelo mental en una frase: *hay un solo tipo de adjunto; lo que varía es lo que produce.*"
   },
+  "64a4ea47a096986b": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "srcHash": "64a4ea47a096986b",
+    "status": "machine",
+    "text": "Volver a leer el catálogo publicado desde el estado actual del registro: obtener la instantánea de catálogo más reciente que publica el registro predeterminado del espacio de trabajo, verificarla e importar a partir de ella, conservándola como la instantánea de la que este espacio de trabajo lee a partir de entonces, en lugar de la que conserva o de la que nombra el historial junto a los borradores. Solo tiene efecto donde el espacio de trabajo no indica ninguna carpeta de catálogo, y se rechaza con --offline"
+  },
   "64a9f1d09658d4b6": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -63244,6 +63419,17 @@
     "srcHash": "65dd6b3de23da37b",
     "status": "machine",
     "text": "Conviene conocer tres propiedades cuando decides qué declarar:"
+  },
+  "65e179c7f9338737": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "d398c607f79e7dbd",
+      "reviewed": false
+    },
+    "srcHash": "65e179c7f9338737",
+    "status": "machine",
+    "text": "**La correspondencia es determinista, con puntuación de confianza y evaluada frente a tu propio catálogo.** El host entrega al importador una vista de los Components que contiene el propio catálogo del workspace: el catálogo del que se seleccionó el importador —las carpetas de catálogo del workspace o, si no nombra ninguna, la instantánea del catálogo que publica su registro predeterminado—, los Components de un catálogo empresarial exactamente igual que los de la biblioteca estándar. La vista contiene el nombre, la versión y las etiquetas de cada Component, los nombres de clave que declaran sus values y provides, y los selectores de sus sockets, y nunca un valor, un valor predeterminado ni un secreto; no se descarga nada para construirla aparte de esa instantánea, y su orden es fijo, de modo que un catálogo produce una sola vista. Un importador construido sobre el paquete importer del PDK de Go —entre ellos los propios importadores de Langflow, Flowise, n8n y Compose del compilador— evalúa cada nodo de la fuente frente a esos Components y nada más, con un modelo de confianza determinista y sin modelos de IA, y registra la decisión —los candidatos que evaluó, el nivel de coincidencia que asignó y la elección que hizo— como sugerencias revisables que un autor puede leer y modificar. Un Component que el catálogo incorpora es un candidato en la siguiente importación, sin reconstruir ningún importador. El comportamiento predeterminado es solo sugerencias: la importación propone y el autor decide. Una coincidencia de alta confianza puede escribirse como referencia a un componente existente del catálogo en lugar de un cuerpo recién generado como borrador, pero solo cuando el operador lo activa expresamente, siempre como una sugerencia explícita y reversible que el autor aprueba, nunca como una reescritura silenciosa. Como la puntuación no usa ningún modelo ni ninguna consulta en tiempo de ejecución, la misma fuente evaluada frente al mismo catálogo produce siempre las mismas sugerencias."
   },
   "65e385b1425eb453": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -68929,6 +69115,17 @@
     "status": "machine",
     "text": "`core/ai-agent/crewai`"
   },
+  "6f0d1ffb67834e85": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "7c86b910fe4024cb",
+      "reviewed": false
+    },
+    "srcHash": "6f0d1ffb67834e85",
+    "status": "machine",
+    "text": "**Una solicitud nunca sobrescribe un Aggregate que ya está en `outputDir`.** Un Aggregate es el documento que un autor sigue editando una vez creado el borrador, así que una solicitud en la que uno de sus borradores caería sobre un archivo que se lee como un Aggregate se rechaza, nombrando el borrador y dónde está el Aggregate, y no se escribe absolutamente nada — también con `dryRun`, ya que una ejecución de prueba rechaza lo que la escritura rechaza. Envía en su lugar `sync` para actualizarlo respecto a la fuente, o nombra otro `outputDir` para crear el borrador junto a él. Cualquier otro archivo que ya esté en una ruta de borrador se sobrescribe, y un archivo que una importación anterior creó como borrador y que esta no crea se deja donde está. Cada solicitud que crea algún borrador también escribe `.aggrega-import.json` en `outputDir`, el registro de lo que escribió la importación — el `target` que se le envió, cuando se le envió uno, la instantánea del catálogo que leyó, cuando leyó una, y cada archivo de borrador y, en un Aggregate o una Release de borrador, cada clave a cualquier profundidad, con un digest del texto escrito allí, registrándose completo cualquier otro archivo de borrador — y `files` y `written` lo llevan después de los borradores. Es JSON, así que nada de lo que lee los documentos YAML del espacio de trabajo lo lee; `sync`, como [`aggrega import --sync`](aggrega-import.md), lo lee para actualizar los borradores respecto a su fuente. Un `sync` enviado sin `target` crea los borradores para el destino que nombra el registro, así que crea el Manifest que creó la importación anterior; uno enviado con un `target` crea los borradores para ese, y el registro pasa a nombrarlo. Un destino registrado al que no se vincula ninguna Recipe del catálogo se rechaza como se rechaza uno enviado, y el rechazo dice que el destino es el registrado. Como una Release de borrador se registra clave por clave, el entorno que su autor escribe donde la importación dejó un comentario para él es una clave que escribió el autor, y una sincronización la deja intacta byte a byte."
+  },
   "6f0d24e9d9a7ae07": {
     "at": "2026-11-04T00:44:10.257Z",
     "job": "session-0181-20261104004410",
@@ -72197,6 +72394,17 @@
     "srcHash": "747589304cedae1d",
     "status": "machine",
     "text": "Interfaz abstracta de nodo de cómputo"
+  },
+  "747aebf0a0a2cc81": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "revision": {
+      "from": "f06f598b24679c91",
+      "reviewed": false
+    },
+    "srcHash": "747aebf0a0a2cc81",
+    "status": "machine",
+    "text": "Son plugins de importación como cualquier otro —la inteligencia de correspondencia específica de cada formato reside en ellos, no en el núcleo—, construidos a partir del código fuente del compilador y publicados con cada versión del compilador con el número de esa versión. Ninguno está compilado en el binario: el binario lleva la entidad `Plugin` de cada uno y el digest del único módulo que acepta, de modo que cada uno sirve su formato en todos los workspaces sin ninguna entrada de catálogo. La primera importación que necesita uno que la máquina no tiene lo descarga del registro predeterminado del workspace, lo vincula a ese digest, lo verifica igual que un pull verifica un plugin que descarga —su firma según la política de confianza de ese registro, y las funciones del host que usa— y lo guarda en la caché de contenido del workspace; cada importación posterior lo lee de ahí, sin acceder a la red para él. Una importación no fija ningún importador: no se escribe nada más para él —ninguna entrada de lockfile ni ningún registro de plugins de confianza—, ningún pull lo almacena en caché y ninguna build lo lee. Un módulo que no supera la verificación se rechaza, y no se guarda nada. Donde el módulo no puede descargarse —el workspace está sin conexión, no se puede acceder a su registro o el registro no lo contiene—, la importación se detiene, nombrando el importador, su versión y lo que coloca su módulo en la máquina. La elección sigue siendo del workspace: un importador que su catálogo contiene con otro nombre para uno de estos formatos se ejecuta donde lo nombra una conexión `plugins.importer`, y uno con el mismo nombre y la misma versión que un importador del núcleo se ejecuta en su lugar."
   },
   "747f91a0b5007e9a": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -94363,6 +94571,17 @@
     "status": "machine",
     "text": "Aggrega promete exactamente lo que ofrece el atributo propio de Terraform, y nada más."
   },
+  "985540da2154e099": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "94172dbd4e61e501",
+      "reviewed": false
+    },
+    "srcHash": "985540da2154e099",
+    "status": "machine",
+    "text": "Después imprime los comandos que hay que ejecutar a continuación. El primero entra en la carpeta nueva; el siguiente, más abajo, entra en la carpeta `source` de la carpeta nueva, donde se ejecuta la importación. Esa carpeta contiene el archivo del chatflow, `support-chat.json`, que esta página describe en lugar de citar:"
+  },
   "985adeccf0d036fe": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -95020,6 +95239,17 @@
     "srcHash": "995ab7984d0bf3e0",
     "status": "machine",
     "text": "Muestra la configuración efectiva y de dónde procede cada opción"
+  },
+  "995b4d37e7e4bcb0": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "revision": {
+      "from": "3cd73d9398420ee0",
+      "reviewed": false
+    },
+    "srcHash": "995b4d37e7e4bcb0",
+    "status": "machine",
+    "text": "**Las solicitudes que salen a un registro se dividen en las que leen y las que publican.** `aggrega/resolveDependencies` obtiene lo que necesita una Release, y `aggrega/build` se le une cuando — y solo cuando — su campo `autoPull` le pide resolver primero las dependencias, en cuyo caso alcanza un registro y escribe el lockfile antes de renderizar; `aggrega/registryUpdate` recorre cada registro configurado para reconstruir el índice de búsqueda local; `aggrega/pluginAdd` busca en el registro configurado el plugin que nombra una solicitud y lee sus versiones publicadas para fijar una; `aggrega/registryAdd` pide al registro que registra la política de confianza que ese registro anuncia, salvo que la solicitud renuncie a obtenerla o aporte una política propia, y `aggrega/configInit` pide lo mismo al registro que está inicializando; `aggrega/explainError` adquiere el paquete de documentación del que lee la explicación detallada de una condición, una sola vez, donde la caché que comparten todos los proyectos de la máquina no contiene ninguna copia que admita la comprobación de firma propia del espacio de trabajo — consulta [`aggrega explain`](aggrega-explain.md); `aggrega/scaffoldEntity` enviado con `example` o `list` adquiere el mismo paquete en las mismas condiciones, y una escritura escribe después el ejemplo en un directorio nuevo del espacio de trabajo; `aggrega/import` obtiene un importer básico del registro predeterminado del espacio de trabajo, una sola vez, donde la máquina aún no lo tiene, y, en un espacio de trabajo que no nombra ninguna carpeta de catálogo, la instantánea publicada del catálogo que lee — consulta [Qué te dice una respuesta de importación](#what-an-import-response-tells-you); y `aggrega/entityDefinition` lee la entidad que nombra una referencia de registro cuando se envía una como su `name`, sin escribir nada. `aggrega/publishEntity`, `aggrega/publishArtifact`, `aggrega/signArtifacts` y `aggrega/deprecateArtifact` escriben en uno — bytes, una firma o un marcador de retirada. Una solicitud alcanza un registro solo cuando se envió para hacerlo: un listado informa de lo que fija la configuración, una búsqueda lee una instantánea sin conexión y una publicación pedida con `dryRun` calcula lo que enviaría y no contacta con nadie."
   },
   "995cc477f8dac12b": {
     "at": "2026-11-03T21:35:42.901Z",
@@ -99324,6 +99554,13 @@
     "status": "machine",
     "text": "Cómo se direcciona una entidad"
   },
+  "a06ce6c3b3e0dac3": {
+    "at": "2026-11-13T02:59:47.326Z",
+    "job": "session-0004-20261113025947",
+    "srcHash": "a06ce6c3b3e0dac3",
+    "status": "machine",
+    "text": "**Cuando el espacio de trabajo no nombra ninguna carpeta de catálogo, la importación lee el catálogo que publica su registro predeterminado.** Un espacio de trabajo en el que ni `workspace.catalog_dirs`, ni `AGGREGA_CATALOG_DIRS`, ni la raíz nombran una carpeta de catálogo lee el catálogo de la biblioteca estándar como una única instantánea firmada, en `catalog/snapshot` de su registro predeterminado. Una instantánea se obtiene una sola vez: su firma se verifica según la política de confianza de ese registro, y se guarda en la caché de contenido del espacio de trabajo y se lee allí como una carpeta de catálogo, ceñida a su digest, sin volver a pedírsela a ningún registro. Qué instantánea lee una solicitud: con `upgrade`, la más reciente; si no, la que nombra el registro de importación en `outputDir`, obtenida por su digest donde la máquina no la tiene; si no, la que el espacio de trabajo obtuvo por última vez como la más reciente; si no, la más reciente. El registro que escribe la importación nombra la instantánea que leyó, por su digest, de modo que una solicitud posterior en el mismo `outputDir` lee el mismo catálogo. Con la postura sin conexión, una solicitud que tendría que obtener una instantánea es un error bajo [The workspace is offline and the step needs the network (El espacio de trabajo está sin conexión y el paso necesita la red)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network), que nombra qué ejecutar, y `upgrade` se rechaza tenga lo que tenga la máquina, ya que solo el registro puede decir qué instantánea es la más reciente. Un registro que no publica ninguna instantánea deja la importación sin catálogo, y una entrada `warn` en `diagnostics` lo indica. Un espacio de trabajo que nombra una carpeta de catálogo importa con respecto a ella y no obtiene ninguna instantánea, y `upgrade` no cambia nada allí."
+  },
   "a06def07d5dd1dd0": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -102474,6 +102711,17 @@
     "status": "machine",
     "text": "El paso del pipeline"
   },
+  "a51c738c4198e3e0": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "6269e3eb3ffbc494",
+      "reviewed": false
+    },
+    "srcHash": "a51c738c4198e3e0",
+    "status": "machine",
+    "text": "La importación hace referencia a los Components del catálogo para el agente de Agent Framework y el modelo de OpenAI, y `--target` genera un Manifest a partir de sus Recipes. El espacio de trabajo no nombra ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar del registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que se nombra por su digest en el archivo de registro que la importación escribe junto a sus borradores. Un espacio de trabajo que nombra sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS` o bajo `workspace.catalog_dirs` — importa frente a ellas en su lugar. Entra en `source`:"
+  },
   "a51ecc6ff0d252e7": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -104990,6 +105238,17 @@
     "status": "machine",
     "text": "una raíz de espacio de trabajo"
   },
+  "a92b4dbaacc0489b": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "fbc73bb1634cd762",
+      "reviewed": false
+    },
+    "srcHash": "a92b4dbaacc0489b",
+    "status": "machine",
+    "text": "La importación hace referencia a los Components de agente y de modelo del catálogo, y `--target` esboza un Manifest a partir de las Recipes del catálogo. El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
+  },
   "a92b9a251a08b81b": {
     "at": "2026-10-30T06:59:34.584Z",
     "job": "session-0073-20261030065934",
@@ -106033,6 +106292,17 @@
     "srcHash": "aad0b31f3ef31f9c",
     "status": "machine",
     "text": "`catalog/recipe/compose/db-console/1.0.0/recipe.yaml`:"
+  },
+  "aad3399423827543": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "fc4ac41aac905e6e",
+      "reviewed": false
+    },
+    "srcHash": "aad3399423827543",
+    "status": "machine",
+    "text": "Después imprime los comandos que hay que ejecutar a continuación. El primero entra en la carpeta nueva; el siguiente, más abajo, entra en la carpeta `source` de la carpeta nueva, que contiene lo que esta página importa y es donde se ejecuta la importación:"
   },
   "aad5dfa061b5d819": {
     "at": "2026-11-02T23:50:30.937Z",
@@ -107408,6 +107678,13 @@
     "status": "machine",
     "text": "`namespace` *(opcional)* — el namespace en el que está el documento, para un proveedor cuya salida tiene namespaces. Sin él, la entrada nombra el kind y el nombre en cualquier namespace; un `namespace` que se renderiza vacío se trata como ausente."
   },
+  "ad147030e4cc9ce9": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "srcHash": "ad147030e4cc9ce9",
+    "status": "machine",
+    "text": "**Donde el espacio de trabajo no indica ninguna carpeta de catálogo, la importación lee el catálogo que publica su registro predeterminado.** Un espacio de trabajo cuyos `workspace.catalog_dirs`, `AGGREGA_CATALOG_DIRS` y raíz no indican ninguna carpeta de catálogo lee el catálogo de la biblioteca estándar como una única instantánea firmada, en `catalog/snapshot` en el registro predeterminado del espacio de trabajo servido — el mismo registro del que se obtiene un importador del núcleo, alcanzado en las mismas condiciones, sin que nada en la llamada nombre un registro ni lleve una credencial. Una instantánea se obtiene una sola vez: su firma se verifica según la política de confianza de ese registro, y se guarda en la caché de contenido del espacio de trabajo y se lee allí como una carpeta de catálogo, sujeta a su resumen criptográfico, sin volver a pedírsela a ningún registro. Qué instantánea lee una llamada: con `upgrade`, la más reciente; si no, la que nombra el historial en el directorio de salida, obtenida por su resumen criptográfico cuando la máquina no la tiene; si no, la que el espacio de trabajo obtuvo por última vez como la más reciente; si no, la más reciente. El historial que escribe la importación nombra la instantánea que leyó, por su resumen criptográfico, de modo que una llamada posterior que redacte borradores en el mismo directorio lee el mismo catálogo. Sin conexión, una llamada que tendría que obtener una instantánea se rechaza indicando qué ejecutar, y `upgrade` se rechaza tenga lo que tenga la máquina, ya que solo el registro puede decir qué instantánea es la más reciente. Un registro que no publica ninguna instantánea deja la importación sin catálogo, y una entrada `warn` en `diagnostics` lo indica. Un espacio de trabajo que indica una carpeta de catálogo importa a partir de ella y no obtiene ninguna instantánea, y allí `upgrade` no cambia nada."
+  },
   "ad166fc5dde10885": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -108705,6 +108982,17 @@
     "srcHash": "aee60adf096426a7",
     "status": "machine",
     "text": "**Escribe cada valor mediante `toJson`.** El renderizador lee la salida de la plantilla como YAML, por lo que un valor interpolado tal cual entre comillas rompe esa salida o se vuelve a leer modificado en cuanto contiene una comilla doble o una barra invertida — una contraseña es el caso habitual. `toJson` escribe el valor como una cadena JSON, que YAML vuelve a leer exactamente, de modo que el valor se entrega con cada carácter que contiene:"
+  },
+  "aeea9d3302b51a87": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "0038bd13019efce3",
+      "reviewed": false
+    },
+    "srcHash": "aeea9d3302b51a87",
+    "status": "machine",
+    "text": "**El catálogo con el que compara.** La importación puntúa tu fuente frente a los Components del catálogo del espacio de trabajo, y nada más. Cuando el espacio de trabajo no nombra ninguna carpeta de catálogo propia, ese es el catálogo de la biblioteca estándar, leído del registro predeterminado del espacio de trabajo: cada publicación del catálogo publica una instantánea firmada del catálogo completo, y la primera importación obtiene esa instantánea, verifica su firma, la guarda en la caché de contenido del espacio de trabajo y la nombra por su digest en el archivo de registro que escribe junto a los borradores, de modo que una importación posterior de los mismos borradores lee el mismo catálogo sin volver a consultar el registro. Frente a él, un servicio PostgreSQL se sugiere como `core/datastore/postgres`, y `--target` puede generar un Manifest a partir de las Recipes del catálogo. Sin catálogo, la importación no tiene nada que sugerir, y `--target` se rechaza, ya que ninguna Recipe se vincula al destino."
   },
   "aeeb09977f6ae6fa": {
     "at": "2026-11-04T07:59:42.076Z",
@@ -129544,6 +129832,13 @@
     "status": "machine",
     "text": "`release_uses_block`"
   },
+  "cf20353e457f185f": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "srcHash": "cf20353e457f185f",
+    "status": "machine",
+    "text": "Si se descarga la instantánea del catálogo más reciente que publica el registro predeterminado del espacio de trabajo y se importa con respecto a ella, conservándola desde entonces en lugar de la que contiene el espacio de trabajo o de la que nombra el registro situado junto a los borradores; no cambia nada donde el espacio de trabajo nombra una carpeta de catálogo, y se rechaza sin conexión."
+  },
   "cf242788df1f36de": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -132796,6 +133091,17 @@
     "srcHash": "d4320388e04d578d",
     "status": "machine",
     "text": "`/component/{publisher}/{category}/{name}` o `/feature/{publisher}/{name}`"
+  },
+  "d4321e8ebc85f47d": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "b624e69ed0b737f8",
+      "reviewed": false
+    },
+    "srcHash": "d4321e8ebc85f47d",
+    "status": "machine",
+    "text": "**Solo tuya.** La caché de artefactos en `artifact_cache_dir` — las entidades, los artefactos de origen y las entradas externas con pin que este proyecto ha resuelto, y las instantáneas del catálogo publicado que ha leído una importación que no indica ninguna carpeta de catálogo. Recuperar espacio de ella afecta a este proyecto y a nada más."
   },
   "d432ac6e9795f479": {
     "at": "2026-11-04T07:36:16.499Z",
@@ -140000,6 +140306,17 @@
     "status": "machine",
     "text": "Cumplimiento legal (normalmente un identificador SPDX)"
   },
+  "df6c8b7de8fdd37e": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "1f01244e5f900980",
+      "reviewed": false
+    },
+    "srcHash": "df6c8b7de8fdd37e",
+    "status": "machine",
+    "text": "La importación hace referencia a los Components del catálogo para el agente LangGraph y para PostgreSQL, y `--target` genera como borrador un Manifest a partir de sus Recipes. El espacio de trabajo no indica ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar desde el registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que el historial que la importación escribe junto a sus borradores nombra por su resumen criptográfico. Un espacio de trabajo que indica sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS`, o bajo `workspace.catalog_dirs` — importa en cambio a partir de ellas. Entra en `source`:"
+  },
   "df6e4f5e04713ddd": {
     "at": "2026-11-03T20:41:34.574Z",
     "job": "session-0155-20261103204134",
@@ -140252,6 +140569,13 @@
     "srcHash": "dfda254006006f1d",
     "status": "machine",
     "text": "Hecho de firma verificada que se registra cuando la firma de un artefacto se verificó en el momento del pull, frente a la política de confianza del registro que lo resolvió. Todo artefacto firmable lo registra de la misma manera — una entidad del catálogo, una biblioteca, un plugin de Wasm — porque todos se verifican por una única ruta en lugar de una por tipo. Registra el modo de verificación, la identidad/el emisor keyless que coincidió (si es keyless) y el digest direccionado por contenido del bundle de firma en la caché de contenido. La compilación no vuelve a ejecutar la verificación. Antes de que se renderice nada, lee este hecho en cada entrada a partir de la cual compila, en cada sección: vuelve a calcular el hash del bundle en caché y compara el resultado con `bundle_digest`, deteniéndose donde el blob falta o difiere; y para una entrada que sirvió la caché de contenido, lee de ese bundle para qué artefacto se hizo la firma, y se detiene donde se hizo para un artefacto distinto del que la compilación leyó para la entrada — de modo que una `signature` copiada de una entrada a otra se rechaza, diga lo que diga el requisito de firma. Una compilación no verifica ninguna firma, así que un bundle escrito a mano en la caché, emitido para el propio artefacto de la entrada, no se distingue de uno que verificó un pull. Y donde la configuración de confianza del espacio de trabajo exige una firma para una entrada que sirvió la caché de contenido — el requisito que `pull` aplica cuando obtiene el artefacto, de modo que las exenciones y un registro `advisory` que permiten que un pull admita un artefacto sin firma permiten también que la compilación admita su entrada — una entrada que no lleva ningún hecho detiene la compilación. Una entrada leída desde un directorio de catálogo, desde la copia dentro del binario del compilador o desde junto a la Release nunca está sujeta a ese requisito."
+  },
+  "dfde9f0b2248b23a": {
+    "at": "2026-11-13T02:59:32.636Z",
+    "job": "session-0001-20261113025932",
+    "srcHash": "dfde9f0b2248b23a",
+    "status": "machine",
+    "text": "Su único lector es una importación cuyo workspace no nombra ninguna carpeta de catálogo: ni `workspace.catalog_dirs`, ni `AGGREGA_CATALOG_DIRS`, ni un directorio `catalog/` en la raíz del workspace. `aggrega import`, la importación de la sesión del editor y la herramienta de importación del asistente ejecutan la misma operación, de modo que cada uno obtiene la instantánea de la misma forma. La importación la descarga del registro predeterminado del workspace a través del mismo control de tráfico de salida y el mismo inicio de sesión que un pull, verifica su firma según la política de confianza de ese registro antes de conservar nada, la guarda en la caché de artefactos del workspace y la lee allí como una carpeta de catálogo, sujeta a su digest —así, al importador se le ofrecen los Components del catálogo, y `--target` genera como borrador un Manifest a partir de sus Recipes, exactamente por el camino que sigue una carpeta de catálogo. La constancia que la importación escribe junto a sus borradores identifica la instantánea por el digest de su manifiesto, de modo que una importación posterior de los mismos borradores lee el mismo catálogo sin ninguna solicitud, y `aggrega import --upgrade` descarga la instantánea más reciente e importa frente a ella a partir de ese momento. En modo sin conexión, una importación que tendría que descargar una instantánea se detiene, nombrando lo que hay que ejecutar. Un workspace que nombra una carpeta de catálogo importa frente a ella y no descarga ninguna instantánea. Ningún otro comando lee la instantánea: un pull, una build y una validación resuelven cada entidad a través de los niveles del §5 y la fijan en el lockfile, y los borradores de una importación hacen referencia a las entidades del catálogo por su nombre, de modo que compilarlos resuelve esas entidades de la misma forma."
   },
   "dfe0160ab6aa1d0d": {
     "at": "2026-10-30T09:03:14.647Z",
@@ -140933,6 +141257,17 @@
     "srcHash": "e0ba63c68c55e684",
     "status": "machine",
     "text": "Pedir la comprobación explícitamente funciona diga lo que diga el ajuste, en los tres ámbitos anteriores. Así, un workspace que nunca ha activado la capa por edición puede pedir igualmente a su editor que recorra el catálogo, el cierre de una Release o una sola entidad — y obtener los mismos hallazgos que imprime este comando. El ajuste decide solo si la comprobación se ejecuta también donde no la pediste por su nombre."
+  },
+  "e0bc3b43ce8e184d": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "2574cd2b07cac4b5",
+      "reviewed": false
+    },
+    "srcHash": "e0bc3b43ce8e184d",
+    "status": "machine",
+    "text": "**Toda importación que redacta algo escribe también `.aggrega-import.json` junto a sus borradores**: el historial de lo que escribió — el `target` con el que se envió, cuando se envió con uno, la instantánea del catálogo que leyó, cuando leyó una, y cada archivo en borrador y, en un Aggregate o una Release en borrador, cada clave a cualquier profundidad, con un resumen criptográfico del texto escrito allí; cualquier otro archivo en borrador se registra completo. El texto de una clave es su línea, las líneas de su valor cuando su valor no es un mapping de claves, y las líneas de comentario escritas justo encima de ella con su misma sangría. `written` indica el historial junto con los borradores, y bajo `dry_run` está entre los borradores devueltos. El historial es JSON, así que nada que lea los documentos YAML del espacio de trabajo lo lee."
   },
   "e0bdb9a08a19ad15": {
     "at": "2026-11-03T10:34:01.071Z",
@@ -146457,6 +146792,17 @@
     "status": "machine",
     "text": "**Informa y nunca crea.** El método no modifica nada, no escribe nada y no crea ningún attachment. Componer y aplicar cualquier edición corresponde al editor, que es donde están el búfer y el historial de deshacer."
   },
+  "e9f7bf948b1ba3f0": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "e7ea22452cfff5d0",
+      "reviewed": false
+    },
+    "srcHash": "e9f7bf948b1ba3f0",
+    "status": "machine",
+    "text": "[`aggrega import`](../cli/aggrega-import.md), el método `aggrega/import` de la sesión del editor y la herramienta `import` del asistente obtienen un importador core de la misma manera. Donde la máquina ya contiene su módulo — en la caché de contenido del espacio de trabajo —, la importación lo lee de ahí, sin necesidad de red para ello. Donde no lo contiene, la primera importación que lo necesita lo descarga del registro predeterminado del espacio de trabajo, en la versión del compilador, y:"
+  },
   "e9f95b12b636c2b8": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -148968,6 +149314,17 @@
     "srcHash": "edb7a9c0fb8f1d1a",
     "status": "machine",
     "text": "**Declara el bloque dentro del pilar cuyos campos hacen referencia a él**, junto a esos campos — no junto al pilar. Un bloque `schema:` solo acepta en su propio nivel superior los nombres de los tres pilares de datos, así que un `$defs:` escrito como hermano de `values:` se rechaza cuando se carga la entidad, con un error que nombra la clave en cuestión y el conjunto de pilares que el bloque puede contener. El puntero se escribe `#/$defs/<Name>` en ambos casos."
+  },
+  "edbabd0a8d64719a": {
+    "at": "2026-11-13T02:59:52.271Z",
+    "job": "session-0005-20261113025952",
+    "revision": {
+      "from": "a6efa44b716cf709",
+      "reviewed": false
+    },
+    "srcHash": "edbabd0a8d64719a",
+    "status": "machine",
+    "text": "lo conserva en la caché de contenido del espacio de trabajo, que es lo único que se escribe para él: ningún archivo de bloqueo, y ningún registro de plugins de confianza, porque una importación no fija ningún importador."
   },
   "edbd1f5e8230d689": {
     "at": "2026-10-22T06:31:57.052Z",
@@ -152288,6 +152645,17 @@
     "status": "machine",
     "text": "[aggrega-push.md](aggrega-push.md) y [aggrega-sign.md](aggrega-sign.md) — las variables de firma y el alias del token de identidad."
   },
+  "f2d60565d2a20a82": {
+    "at": "2026-11-13T02:59:42.438Z",
+    "job": "session-0003-20261113025942",
+    "revision": {
+      "from": "929de72c20db1357",
+      "reviewed": false
+    },
+    "srcHash": "f2d60565d2a20a82",
+    "status": "machine",
+    "text": "Después imprime los comandos que hay que ejecutar a continuación. El primero entra en la carpeta nueva; el siguiente, más abajo, entra en la carpeta `source` de la carpeta nueva, donde se ejecuta la importación. Esa carpeta contiene el archivo del flujo, `basic-prompting.json`, que esta página describe en lugar de citar:"
+  },
   "f2d7c559192f168d": {
     "at": "2026-11-04T13:23:51.879Z",
     "job": "session-0248-20261104132351",
@@ -153971,6 +154339,17 @@
     "srcHash": "f5447410ad5e165f",
     "status": "machine",
     "text": "**La forma de la vinculación.** Cada entrada lleva exactamente lo que `.features.<name>` lleva para una de las vinculaciones propias del componente — `.type`, `.resolved_version`, `.labels`, `.values`, `.infra` y los `.provides` resueltos de la FeatureRecipe asignada a ella —; consulta [la forma de la vinculación](#the-attachment-shape). Los provides que se leen aquí son aquellos con los que se renderiza la propia FeatureRecipe de la vinculación, de modo que el nombre al que hace referencia un consumidor y el nombre del recurso que emite esa FeatureRecipe son un único valor evaluado."
+  },
+  "f548ee2dbe0b50da": {
+    "at": "2026-11-13T02:59:37.648Z",
+    "job": "session-0002-20261113025937",
+    "revision": {
+      "from": "9c0c0bde4f3ef6b6",
+      "reviewed": false
+    },
+    "srcHash": "f548ee2dbe0b50da",
+    "status": "machine",
+    "text": "La importación compara cada servicio con los Components del catálogo del espacio de trabajo, y `--target` esboza un Manifest a partir de las Recipes del catálogo. El espacio de trabajo no nombra ninguna carpeta de catálogo, así que la importación lee el catálogo de la biblioteca estándar del registro del que obtiene su importador: una instantánea firmada del catálogo publicado, que la primera importación obtiene, verifica y guarda en la caché de contenido del espacio de trabajo, y que se nombra por su digest en el archivo de registro que la importación escribe junto a sus borradores. Un espacio de trabajo que nombra sus propias carpetas de catálogo — en `AGGREGA_CATALOG_DIRS` o bajo `workspace.catalog_dirs` — importa frente a ellas en su lugar. Entra en `source`:"
   },
   "f54b8e9890f3512b": {
     "at": "2026-11-04T02:11:12.148Z",
