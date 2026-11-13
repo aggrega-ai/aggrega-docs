@@ -59,7 +59,7 @@ Every halting condition carries a short code — the letter `E` and four digits,
 
 ## Plugin kits
 
-The plugin development kits — `github.com/aggrega-ai/aggrega-pdk-go`, `aggrega-pdk-rust` and `@aggrega-ai/aggrega-pdk-typescript` — and the `aggrega-abi` codecs they re-export follow semantic versioning from `0.9.0`. The three languages of the kits share one version number, and the three languages of the codecs share another.
+The plugin development kits — `github.com/aggrega-ai/aggrega-pdk/go`, `aggrega-pdk-rust` and `@aggrega-ai/aggrega-pdk-typescript` — and the `aggrega-abi` codecs they re-export follow semantic versioning from `0.9.0`. The three languages of the kits share one version number, and the three languages of the codecs share another.
 
 - **A plugin built against a version keeps building against every later release of the same line.** Within `0.9.x` a release may add exported functions, types and constants, and never removes or changes one.
 - **A breaking change to an exported API ships only in a new minor version** (`0.9.x` to `0.10.0`), and a patch release never breaks. The kits and codecs move to `1.0.0` together with Aggrega's own `1.0.0`, after which a breaking change raises the major number.

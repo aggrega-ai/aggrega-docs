@@ -76,7 +76,7 @@ import (
 
 	pdk "github.com/extism/go-pdk"
 
-	"github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega"
+	"github.com/aggrega-ai/aggrega-pdk/go/pkg/aggrega"
 )
 
 func descriptor() aggrega.PluginDescriptor {
@@ -292,15 +292,15 @@ module example.com/dotenv-provider
 go 1.26.0
 
 require (
-	github.com/aggrega-ai/aggrega-pdk-go v0.0.0
+	github.com/aggrega-ai/aggrega-pdk/go v0.0.0
 	github.com/extism/go-pdk v1.1.3
 )
 
-require github.com/aggrega-ai/aggrega-abi-go v0.0.0 // indirect
+require github.com/aggrega-ai/aggrega-abi/go v0.0.0 // indirect
 
-replace github.com/aggrega-ai/aggrega-pdk-go => /path/to/aggrega-pdk/go
+replace github.com/aggrega-ai/aggrega-pdk/go => /path/to/aggrega-pdk/go
 
-replace github.com/aggrega-ai/aggrega-abi-go => /path/to/aggrega-abi/go
+replace github.com/aggrega-ai/aggrega-abi/go => /path/to/aggrega-abi/go
 ```
 
 ## 3. Build the guest
@@ -311,8 +311,8 @@ A guest is an ordinary Go build with the WebAssembly target selected:
 cd guest
 go mod tidy
 GOWORK=off GOOS=wasip1 GOARCH=wasm go build -trimpath -buildvcs=false \
-  -ldflags "-X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Version=0.1.0 \
-            -X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Commit=walkthru" \
+  -ldflags "-X github.com/aggrega-ai/aggrega-pdk/go/pkg/aggrega.Version=0.1.0 \
+            -X github.com/aggrega-ai/aggrega-pdk/go/pkg/aggrega.Commit=walkthru" \
   -buildmode=c-shared -o ../dotenv.wasm ./
 ```
 
@@ -634,8 +634,8 @@ it:
 ```sh
 cd guest
 GOWORK=off GOOS=wasip1 GOARCH=wasm go build -trimpath -buildvcs=false \
-  -ldflags "-X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Version=0.1.0 \
-            -X github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega.Commit=walkthru" \
+  -ldflags "-X github.com/aggrega-ai/aggrega-pdk/go/pkg/aggrega.Version=0.1.0 \
+            -X github.com/aggrega-ai/aggrega-pdk/go/pkg/aggrega.Commit=walkthru" \
   -buildmode=c-shared -o ../dotenv.wasm ./
 cd ..
 aggrega plugin gen-catalog --plugin dotenv.wasm \

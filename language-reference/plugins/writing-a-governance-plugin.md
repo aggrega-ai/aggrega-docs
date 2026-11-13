@@ -99,14 +99,14 @@ module example.com/category-guard
 go 1.26.0
 
 require (
-	github.com/aggrega-ai/aggrega-abi-go v0.0.0
-	github.com/aggrega-ai/aggrega-pdk-go v0.0.0
+	github.com/aggrega-ai/aggrega-abi/go v0.0.0
+	github.com/aggrega-ai/aggrega-pdk/go v0.0.0
 	github.com/extism/go-pdk v1.1.3
 )
 
-replace github.com/aggrega-ai/aggrega-pdk-go => /path/to/aggrega-pdk/go
+replace github.com/aggrega-ai/aggrega-pdk/go => /path/to/aggrega-pdk/go
 
-replace github.com/aggrega-ai/aggrega-abi-go => /path/to/aggrega-abi/go
+replace github.com/aggrega-ai/aggrega-abi/go => /path/to/aggrega-abi/go
 ```
 
 The skeleton's `go.sum` stays as it is.

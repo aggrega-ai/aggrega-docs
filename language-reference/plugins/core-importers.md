@@ -22,7 +22,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All ten are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All ten are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk/go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
