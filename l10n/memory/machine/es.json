@@ -2019,6 +2019,13 @@
     "status": "machine",
     "text": "[`../examples/policy-annotation-transform/`](../examples/policy-annotation-transform/README.md) vincula una política así, que inyecta una cadena bajo un enlace y un objeto de subclaves bajo otro, y compila los mismos archivos que una Release que escribe esas anotaciones a mano."
   },
+  "0302d17a690baec3": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "0302d17a690baec3",
+    "status": "machine",
+    "text": "Todo lo que va desde el hito 2 hasta el lanzamiento público:"
+  },
   "03035628685a74d3": {
     "at": "2026-11-03T18:29:45.694Z",
     "job": "session-0140-20261103182945",
@@ -2868,6 +2875,13 @@
     "srcHash": "04604e9a84236ff4",
     "status": "machine",
     "text": "`featurerecipe.metadata.maintainers[]`"
+  },
+  "04634084cdce3f82": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "04634084cdce3f82",
+    "status": "machine",
+    "text": "Hito 2 — Un pipeline completo"
   },
   "046f8ab054c2ff73": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -7745,6 +7759,13 @@
     "status": "machine",
     "text": "`MutatorGraph`"
   },
+  "0bfa69727cc2f63f": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "0bfa69727cc2f63f",
+    "status": "machine",
+    "text": "**Plantillas que cambian la forma de un documento según el entorno** *(propuesta)*. Una clave presente en un entorno y ausente en otro, evaluando las plantillas antes de analizar un documento."
+  },
   "0bfb8ae12449d222": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -9085,6 +9106,13 @@
     "srcHash": "0e3821a2878f93dd",
     "status": "machine",
     "text": "**Cómo corregirlo:** sustituye la construcción dinámica por una referencia simple que nombre directamente el destino. Donde el esquema realmente necesite la construcción y no vaya a referenciarse entre documentos, la regla tiene una opción de exclusión descrita en «Las reglas de disciplina» en [aggrega-lint.md](../cli/aggrega-lint.md)."
+  },
+  "0e383c16aaaf6632": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "0e383c16aaaf6632",
+    "status": "machine",
+    "text": "**Gobernanza.** Un plugin de políticas adjunto a un espacio de trabajo comprueba cada build: rechaza un grafo o un archivo renderizado que infringe una regla, indicando qué corregir, o aporta etiquetas y anotaciones que un desarrollador nunca escribe."
   },
   "0e38a9a8b20d1f9d": {
     "at": "2026-11-04T07:59:42.076Z",
@@ -14758,6 +14786,13 @@
     "status": "machine",
     "text": "**Una ruta que nombra una llamada también permanece dentro de ese workspace.** Por HTTP, un argumento de ruta se resuelve respecto a la raíz del workspace y se rechaza si sale de ella — una ruta relativa que sube fuera del workspace, una ruta absoluta que nombra otro lugar y una ruta relativa que sale del workspace a través de un enlace a un archivo o un directorio que está ahí vuelven cada una como un fallo que nombra el argumento, sin nombrar ni la raíz del workspace ni el lugar al que la ruta habría llegado; una ruta relativa se devuelve tal como la enviaste. Cada argumento de ruta se juzga por adónde lleva, según la definición de «dentro» que da [El límite del workspace](workspace-boundary.md#what-lies-inside-the-workspace), tanto si la herramienta lo lee como si lo escribe — el directorio en el que `gen-catalog` escribe su salida, el documento que `edit-document` reescribe y la entidad junto a la que `pin` escribe su bloqueo tanto como un documento que lee una herramienta — así que una ruta aún no creada bajo un enlace que sale del workspace se rechaza igual que ese enlace, sin que se lea ni se escriba nada. Una `release` que nombra una Release que nombra la configuración del workspace servido, como `build.authoring_release` o como clave de `workspace.releases`, se alcanza a través de esa configuración y se acepta a través de un enlace dondequiera que esté su archivo; ningún otro argumento tiene esa excepción. Cuando la ruta que querías está dentro de ese workspace pero se escribió de forma absoluta, el rechazo te da la forma relativa a la raíz que debes enviar en su lugar, de modo que a un llamante que adivinó la forma equivocada se le indica la correcta en lugar de solo decirle que era equivocada. Eso vale para las rutas que una llamada nombra como su objeto — el documento que se ha de validar, la Release que se ha de compilar, el directorio en el que una generación escribe su salida — y para aquellas en las que escribe una herramienta no menos que para las que lee: un llamante que llega a un servidor por la red le pide a una máquina que no puede ver que lea y escriba archivos, y el workspace que eligió el operador es donde se contienen esa lectura y esa escritura. Por entrada y salida estándar, los argumentos de ruta de cada herramienta mantienen el contrato descrito más abajo para esa herramienta, donde una ruta puede ser absoluta y puede apuntar fuera del workspace — la persona que llama es dueña de la máquina en la que se ejecuta el servidor, así que confinarla a un directorio que eligió ella misma no aportaría nada. Las dos herramientas cuya propia operación responde solo sobre un documento que contiene el workspace, `insertion-point` y `edit-document`, mantienen eso en ambos transportes, y rechazan un documento fuera del workspace tanto si está escrito así como si se alcanza a través de un enlace que sale de él. Lo que se respeta por entrada y salida estándar es la ruta que nombra una llamada y nada más allá. Lo que la operación lee y escribe luego por su cuenta se contiene en ambos transportes exactamente igual que cuando el mismo comando se escribe en un terminal: un recorrido o una búsqueda no lee a través de un enlace que sale del workspace, un archivo que una Release del workspace o su Manifest nombra mediante una ruta no se lee desde fuera del workspace — y uno que nombra una Release que la llamada nombró fuera del workspace no se lee desde fuera del directorio que contiene esa Release — y un archivo escrito bajo un directorio — el workspace, o uno que nombró la llamada — permanece dentro de ese directorio. [El límite del workspace](workspace-boundary.md#the-two-assistant-transports) sitúa los dos transportes junto a la línea de comandos y el editor, y expone lo que queda abierto por entrada y salida estándar: un documento en un workspace que clonaste puede llevar a un asistente a nombrar una ruta fuera del workspace, y esa ruta se respeta tal como se nombra."
   },
+  "174f7376db244b11": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "174f7376db244b11",
+    "status": "machine",
+    "text": "**Un catálogo más amplio.** Más componentes y Recipes para cada destino, incluidas las realizaciones en Terraform y CloudFormation de los componentes base."
+  },
   "175220c8b87ec8d4": {
     "at": "2026-11-04T06:11:41.842Z",
     "job": "session-0208-20261104061141",
@@ -15304,6 +15339,13 @@
     "srcHash": "18528b56b313ead6",
     "status": "machine",
     "text": "Junto al conjunto de procedencia que pertenece al compilador, el autor de una Recipe puede declarar sus propias etiquetas para estamparlas en la salida renderizada de la Recipe, mediante `Recipe.spec.outputLabels:`. Estas viajan por el mismo carril de emisión que las etiquetas de procedencia — se fusionan en el mismo conjunto de etiquetas y llegan a donde llegue la procedencia —, pero pertenecen al autor y no al compilador. El uso previsto es un *rasgo de realización*: una propiedad de cómo una Recipe concreta realiza un componente (por ejemplo, `hosting: managed` frente a `hosting: self-hosted` para una Recipe de servicio gestionado frente a una Recipe de chart autoalojado del mismo tipo de componente), expuesta en la salida para que las herramientas de costes, políticas e inventario puedan consultarla."
+  },
+  "185294e4e1a0149b": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "185294e4e1a0149b",
+    "status": "machine",
+    "text": "**Hallazgos de políticas en el editor** *(propuesta)*. Los hallazgos de un plugin de gobernanza mostrados en el editor a medida que cambian los archivos, junto a la validación que muestra hoy."
   },
   "185435f25a677600": {
     "at": "2026-11-04T13:23:51.879Z",
@@ -33267,6 +33309,13 @@
     "status": "machine",
     "text": "release_uses_block"
   },
+  "353a0579b910e270": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "353a0579b910e270",
+    "status": "machine",
+    "text": "**Parámetros por entorno.** Un Aggregate expone parámetros, y cada Release los completa para su entorno."
+  },
   "35422e07054b0fed": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -33294,6 +33343,13 @@
     "srcHash": "355735ecf9530998",
     "status": "machine",
     "text": "**`.Files.Lines` de un archivo vacío** no devuelve ninguna línea en lugar de hacer fallar el renderizado."
+  },
+  "35583e7831ca07cd": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "35583e7831ca07cd",
+    "status": "machine",
+    "text": "**Un único lenguaje de esquemas.** JSON Schema 2020-12, con una forma abreviada compacta en YAML, bibliotecas reutilizables de esquemas y de mapeos, contratos de parámetros tipados y aserciones entre campos."
   },
   "355c4f7cffbbf247": {
     "at": "2026-11-04T01:50:23.893Z",
@@ -37600,6 +37656,13 @@
     "srcHash": "3c6b2d92e8972b42",
     "status": "machine",
     "text": "Plano de la topología de la aplicación"
+  },
+  "3c6d673e35ba650e": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "3c6d673e35ba650e",
+    "status": "machine",
+    "text": "**Manifiestos de Kubernetes y charts de Helm**, escritos por frontera, con `aggrega build` y `aggrega inspect`."
   },
   "3c76e229893eb90f": {
     "at": "2026-11-03T14:46:30.297Z",
@@ -43595,6 +43658,13 @@
     "status": "machine",
     "text": "`--limit` limita el número de resultados."
   },
+  "462eb7e252273575": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "462eb7e252273575",
+    "status": "machine",
+    "text": "**El catálogo de la biblioteca estándar y su hub público.** Components para agentes, modelos, gateways, almacenes de datos, mensajería, observabilidad, seguridad y almacenamiento, organizados por etiquetas de tipo, categoría y capacidad y servidos desde `hub.aggrega.ai`."
+  },
   "463188482be71570": {
     "at": "2026-11-04T02:29:26.170Z",
     "job": "session-0192-20261104022926",
@@ -48650,6 +48720,13 @@
     "status": "machine",
     "text": "**La obsolescencia no es un campo de la superficie de publicación.** Una entidad se marca como obsoleta registrando un marcador contra ella en el registro *después* de la publicación — un marcador firmado que lleva una gravedad (`warning`, `error` o `retracted`), un motivo y un reemplazo, verificado en el momento del pull. Toda superficie que lee el lockfile lo informa entonces; `build.halt_on_deprecated_severity` decide solo si además detiene una compilación. El marcador nunca se escribe en el YAML propio de la entidad, y la razón es estructural: un artefacto publicado es inmutable, así que un indicador congelado en él en el momento de publicar nunca podría expresar una decisión tomada después. El aviso de obsolescencia que `aggrega inspect` imprime para una entidad del catálogo procede del marcador, para cada tipo que resuelve por nombre."
   },
+  "4e5918f19fba658f": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "4e5918f19fba658f",
+    "status": "machine",
+    "text": "Hito 3 — Listo para el uso público"
+  },
   "4e5a5ada6b7fa1da": {
     "at": "2026-11-06T04:43:35.520Z",
     "job": "session-0006-20261106044335",
@@ -50687,6 +50764,13 @@
     "srcHash": "5183b087ba847106",
     "status": "machine",
     "text": "**Lo que un formato marca como credencial** — escrito vacío con `marked` y `all`:"
+  },
+  "5186e190456d6822": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "5186e190456d6822",
+    "status": "machine",
+    "text": "**Registros, archivos de bloqueo y firma.** Las entidades del catálogo, incluidos los Aggregates, se publican en registros OCI y se descargan de ellos por nombre y versión; `aggrega pull` fija cada dependencia en un archivo de bloqueo, y los artefactos se firman al publicarse y se verifican al descargarse."
   },
   "5187e4859e7fe9bf": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -58601,6 +58685,17 @@
     "srcHash": "5e14ff31ba2771a7",
     "status": "machine",
     "text": "`aggregate.yaml` — una instancia de la plataforma Langflow de la biblioteca estándar, `core/ai-agent/langflow`, que lleva el flujo tal como se exportó, del que aquí se omiten más de mil líneas, y el modelo al que llega:"
+  },
+  "5e1ad9d9636b2f68": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "revision": {
+      "from": "332d91de857547eb",
+      "reviewed": false
+    },
+    "srcHash": "5e1ad9d9636b2f68",
+    "status": "machine",
+    "text": "Hoja de ruta de Aggrega"
   },
   "5e22116dec78273f": {
     "at": "2026-11-03T08:18:34.158Z",
@@ -69226,6 +69321,13 @@
     "status": "machine",
     "text": "Este es el cuerpo de configuración del gateway, la clave `config.yaml` de `dist/helm/router/litellm-gateway-config/configmap.yaml`, desde su sección `litellm_settings` en adelante:"
   },
+  "6f270f8e32e1c9b4": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "6f270f8e32e1c9b4",
+    "status": "machine",
+    "text": "**`aggrega build --trace`**, que escribe el estado intermedio de cada componente para la depuración."
+  },
   "6f2729a36d9f69a3": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -69867,6 +69969,13 @@
     "srcHash": "700ab4fb2042d738",
     "status": "machine",
     "text": "Ambas exigencias se comprueban contra la misma entrada — el conjunto final de attachments de la instancia — y ambas detienen el build con su propio diagnóstico, porque le plantean preguntas distintas: si un punto de vinculación con nombre está vinculado, frente a si algún attachment lleva un tipo con nombre. Ninguna responde por la otra."
+  },
+  "70128a9666689c28": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "70128a9666689c28",
+    "status": "machine",
+    "text": "**Cinco destinos, renderizados por plugins.** Los manifiestos de Kubernetes, los charts de Helm, Docker Compose, Terraform y CloudFormation se escriben, cada uno, mediante un plugin de proveedor de WebAssembly integrado en el binario, de modo que una instalación nueva renderiza sin conexión; el compilador escribe los archivos y nunca ejecuta las herramientas. El `form` de un Workload elige el controlador en que se convierte: sin estado, con estado, daemon, programado o una tarea puntual."
   },
   "7013af4c42fe4380": {
     "at": "2026-10-22T10:25:30.703Z",
@@ -71751,6 +71860,13 @@
     "srcHash": "73562fb106e915d4",
     "status": "machine",
     "text": "**Modos de error.** Una cadena `extends:` cíclica, y un padre que ninguna entidad del catálogo proporciona, detienen la build, nombrando la Feature desde la que empezó la resolución, la Feature cuya línea `extends:` hay que abrir y la referencia que declara. Los mensajes están en [Cyclic extends on Components or Features (extends cíclico en Components o Features)](../errors/fatal-halts.md#cyclic-extends-on-components-or-features) y [An `extends:` chain cannot be assembled (No se puede ensamblar una cadena)](../errors/fatal-halts.md#an-extends-chain-cannot-be-assembled)."
+  },
+  "735998f790437bec": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "735998f790437bec",
+    "status": "machine",
+    "text": "**`aggrega import`.** Los plugins importadores generan borradores de archivos de Aggrega a partir de proyectos de Langflow, Flowise, n8n, Dify, CrewAI, LangGraph, Google ADK, Microsoft Agent Framework, MCP y Docker Compose, y puntúan cada mapeo frente al catálogo; `--sync` mantiene los borradores sincronizados con su origen."
   },
   "735e2bb295f3a9c2": {
     "at": "2026-11-04T11:35:36.862Z",
@@ -78040,6 +78156,13 @@
     "status": "machine",
     "text": "`aggregate-delegated.yaml` — la misma base de datos sin vinculación: el desarrollador no enlaza nada."
   },
+  "7d63253789f6be2c": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "7d63253789f6be2c",
+    "status": "machine",
+    "text": "De dónde viene Aggrega y hacia dónde va, a grandes pasos. Los hitos 0 a 3 describen lo que el compilador y su catálogo hacen hoy; el hito 4 y las direcciones posteriores describen el trabajo por delante. Esta página no da fechas. Lo que funciona hoy, superficie por superficie, está en [Estado del lenguaje](language-reference/10-status.md)."
+  },
   "7d65cac3d8ceb637": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -78337,6 +78460,13 @@
     "srcHash": "7deadc6e6c0e91ae",
     "status": "machine",
     "text": "`component.metadata`"
+  },
+  "7df0a5eca32063d6": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "7df0a5eca32063d6",
+    "status": "machine",
+    "text": "**Adopción por parte de los usuarios.** Lo que los usuarios nos digan una vez que Aggrega sea público decide el orden del trabajo: lo que facilite su adopción va primero."
   },
   "7dfd2d4246cebc76": {
     "at": "2026-11-04T09:20:00.075Z",
@@ -79847,6 +79977,13 @@
     "status": "machine",
     "text": "The Feature filling an attachment slot does not satisfy the slot's selector (La Feature que llena un slot de vinculación no satisface el selector del slot)"
   },
+  "8080cd66b4d3b813": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "8080cd66b4d3b813",
+    "status": "machine",
+    "text": "**Un núcleo verificado formalmente.** Las propiedades fundamentales del compilador demostradas como teoremas en Lean: una entrada idéntica produce una salida idéntica, no se emite nada que no se haya declarado, y cada valor de conexión llega exactamente a los consumidores que nombran sus conexiones `uses`. Las pruebas basadas en propiedades cubren los plugins integrados."
+  },
   "808240863bf6972f": {
     "at": "2026-11-03T15:26:13.355Z",
     "job": "session-0122-20261103152613",
@@ -79909,6 +80046,13 @@
     "srcHash": "808f7b862704b4a1",
     "status": "machine",
     "text": "**El pipeline de plugins** — mutación posterior al renderizado: los pasos de plugin `pipeline:` de la FeatureRecipe aplican parches RFC 6902 y emiten recursos adicionales (mecanismo 4)."
+  },
+  "80926c3ad0dd653c": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "80926c3ad0dd653c",
+    "status": "machine",
+    "text": "**Tres formas de escribir una Recipe, que se combinan:** envolver un chart, un módulo o un archivo existente (`source:`), describir un contenedor una sola vez como un Workload que el destino sintetiza (`workload:`), o emitir tus propios archivos (`artifacts:`)."
   },
   "8097c7c123bf8d79": {
     "at": "2026-11-04T04:12:48.125Z",
@@ -83624,6 +83768,13 @@
     "status": "machine",
     "text": "a file read from the directory and a file named in the importer's `with.sources` have the same name (un archivo leído del directorio y un archivo nombrado en las fuentes del importer tienen el mismo nombre)"
   },
+  "86a7492d27f3ae3b": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "86a7492d27f3ae3b",
+    "status": "machine",
+    "text": "**El contrato de inyección.** Un componente publica sus valores de conexión mediante `provides`, y el compilador los canaliza hacia cada consumidor mediante `inject`, a través de los namespaces, sin que el desarrollador escriba un nombre de host."
+  },
   "86a9a57d65d8e141": {
     "at": "2026-11-03T13:03:32.857Z",
     "job": "session-0108-20261103130332",
@@ -83756,6 +83907,13 @@
     "srcHash": "86e856dad5c900b7",
     "status": "machine",
     "text": "Fuerza allow_category_mismatches=false"
+  },
+  "86ea6416f1472845": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "86ea6416f1472845",
+    "status": "machine",
+    "text": "**Salida determinista.** El orden del autor se conserva en todas partes, de modo que una entrada idéntica produce una salida idéntica byte a byte."
   },
   "86eab78db1545d90": {
     "at": "2026-10-30T04:51:13.962Z",
@@ -86589,6 +86747,13 @@
     "status": "machine",
     "text": "La detención es la lección. La base satisface su propio socket `upstream` — es `component.aggrega.ai/type=server`, y el nivel interno se conecta a través de ese socket exactamente de la misma manera —, pero no lleva ninguna etiqueta `audit-tier`, así que el socket más estricto del wrapper la rechaza. La etiqueta que añade el wrapper es lo que hace seleccionable una instancia suya, y es en el selector donde se ve."
   },
+  "8b60bdcaa003feeb": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "8b60bdcaa003feeb",
+    "status": "machine",
+    "text": "Hito 4 — Adopción por parte de los usuarios, más nubes y un catálogo más amplio"
+  },
   "8b69f56ff2763247": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -86956,6 +87121,13 @@
     "srcHash": "8bed0440a904dec6",
     "status": "machine",
     "text": "**Un documento de Aggrega que no se puede cargar detiene la ejecución.** Un archivo YAML bajo un directorio de catálogo es un documento de Aggrega cuando una de sus líneas empieza, sin sangría, por `apiVersion:` y un valor que comienza por `aggrega.ai/`, entre comillas o no. Uno que no se puede leer, cuyo YAML no se puede analizar, o cuyo `kind` o `metadata` no tiene la forma que adopta el sobre de una entidad —un `metadata` escrito como lista, por ejemplo— detiene la ejecución con [`E0175`](../errors/fatal-halts.md#a-file-cannot-be-read-or-its-bytes-do-not-parse) una vez leídos los directorios, nombrando cada uno de esos archivos con el motivo que dio la lectura o el analizador; no se comprueba nada y no se imprime ninguna línea `catalog validation passed`. Cualquier otro YAML —las plantillas de un chart de Helm, que no se pueden analizar hasta que se renderizan, los valores de un chart, las definiciones de flujos de trabajo— se omite."
+  },
+  "8bee93fb64543ba9": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "8bee93fb64543ba9",
+    "status": "machine",
+    "text": "**Una Recipe esbozada a partir de su Component** *(propuesta)*. Una Recipe inicial que ya lee los valores del Component y entrega sus valores de conexión, para que el equipo de plataforma la complete."
   },
   "8bf27c3c90296db2": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -94894,6 +95066,13 @@
     "status": "machine",
     "text": "El renderizado Provider lo proporciona un Plugin con `pluginType: provider`; consulta [`entities/plugin.md`](entities/plugin.md) para la superficie de autoría del Plugin de renderizado de providers y [`06-providers.md`](06-providers.md) para las páginas de referencia por provider."
   },
+  "98cdacf9e2c0578f": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "98cdacf9e2c0578f",
+    "status": "machine",
+    "text": "**Más formatos para importar** *(propuesta)*. Especificaciones OpenAPI, para una API que una aplicación llama o sirve, y archivos de carga de trabajo de Score."
+  },
   "98cfde95a246a600": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -95012,6 +95191,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "La detención se produce sobre la anotación tal como está escrita, antes de que se expanda en una vinculación de Feature, igual que en las condiciones contiguas, de modo que el diagnóstico nombra el documento y el lugar donde se escribió el valor. La comprobación se hace una vez por cada anotación que escribiste: un valor escrito en un límite o en un subsistema se rechaza allí, una sola vez, tanto si un componente que contiene lo recoge como si no. Se informa de cada valor de este tipo en la compilación, no solo del primero. La compilación informa de una anotación del lado de la Release bajo una etiqueta `OPS_ERROR` y de una del lado del Aggregate bajo una etiqueta `DEVELOPER_ERROR`, según el documento que la escribió. La condición es `a scalar annotation value does not route to exactly one path of its binding`, que es lo que [`aggrega explain`](../cli/aggrega-explain.md) imprime para su código."
+  },
+  "990a270af7804a26": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "990a270af7804a26",
+    "status": "machine",
+    "text": "**Features adjuntadas mediante anotación.** Una Release o un Aggregate adjunta una Feature escribiendo una anotación que el Manifest vincula, con la misma salida que adjuntarla explícitamente."
   },
   "990b3a5722e68796": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -101570,6 +101756,13 @@
     "status": "machine",
     "text": "**Qué ejemplos hay.** `--list` imprime cada ejemplo, una vez cada uno, en el orden en que los enseña la documentación — su nombre, el nivel que declara su página y la primera frase de su página — y no escribe nada:"
   },
+  "a34eb6afbcd914b8": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "a34eb6afbcd914b8",
+    "status": "machine",
+    "text": "**El modelo de entidades.** Los desarrolladores describen una aplicación en un Aggregate. Los equipos de plataforma aportan los Components y las Features que usa y las Recipes y las FeatureRecipes que los realizan sobre un destino; un Manifest asigna a cada tipo su Recipe, y una Release sitúa el Aggregate en un entorno."
+  },
   "a34fbccb9dfc3152": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -106123,6 +106316,13 @@
     "status": "machine",
     "text": "**[`aggrega build`](./aggrega-build.md)**: *compilar un despliegue completo.* Build necesita un cierre completo de Aggregate + Manifest + Release y emite artefactos nativos del provider. Valida su propio cierre de dependencias como parte de la compilación y después renderiza. `aggrega validate --release` es esa validación de dependencias por sí sola, sin el renderizado; validate de una sola entidad aísla el renderizado de una única Recipe sin un Aggregate completo."
   },
+  "aa701fc290285226": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "aa701fc290285226",
+    "status": "machine",
+    "text": "**Workloads en servicios de contenedores gestionados** *(propuesta)*. Un Workload descrito una sola vez se sintetiza para los servicios de contenedores gestionados de los destinos en la nube, como Amazon ECS y Fargate, Google Cloud Run y Azure Container Apps."
+  },
   "aa703af28f4ed96f": {
     "at": "2026-10-30T21:31:35.304Z",
     "job": "session-0023-20261030213135",
@@ -110195,6 +110395,13 @@
     "srcHash": "b09a20cba37386f8",
     "status": "machine",
     "text": "**Una búsqueda recursiva es demasiado.** Una `CustomResourceDefinition` declara su propio esquema, y ese esquema puede declarar una propiedad llamada `image`. Una regla que buscara una clave `image` en cada documento notificaría el esquema de una CRD como una carga de trabajo sin fijar. Por eso `require-pinned-image.sh` lee explícitamente las seis rutas de pod-spec, y añadir un tipo de carga de trabajo significa añadir una ruta."
+  },
+  "b0a2582fa82e75bf": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "b0a2582fa82e75bf",
+    "status": "machine",
+    "text": "Hito 0 — Un prototipo"
   },
   "b0a2a29a8ec31083": {
     "at": "2026-11-04T03:28:35.383Z",
@@ -114993,6 +115200,13 @@
     "status": "machine",
     "text": "La versión concreta fijada a la que se resolvió la fuente — una versión de chart para un tipo helm-*, el commit al que se resolvió una referencia git-repository. Se registra como un único segmento de ruta, porque construye la ranura de la caché desde la que la compilación vuelve a leer la fuente, así que no lleva `/`, ni `\\`, ni `..`. Patrón: `^([^/\\\\.]\\|\\.[^/\\\\.])*\\.?$`."
   },
+  "b7ffadf4212864b8": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "b7ffadf4212864b8",
+    "status": "machine",
+    "text": "**Un comienzo sencillo.** Una Release o un Aggregate con un único ámbito no necesita fronteras ni subsistemas, y `aggrega scaffold`, `aggrega edit-document`, `aggrega validate`, `aggrega lint` y `aggrega explain` dan soporte al ciclo de autoría."
+  },
   "b801c46b66406605": {
     "at": "2026-11-03T21:17:49.829Z",
     "job": "session-0160-20261103211749",
@@ -117858,6 +118072,13 @@
     "status": "machine",
     "text": "*El esquema exige `environment:` en cada Release; el valor es informativo, y el compilador solo lo lee para escribir la etiqueta `aggrega.ai/environment`.*"
   },
+  "bc6147e326fc9000": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "bc6147e326fc9000",
+    "status": "machine",
+    "text": "**Plugins para todo lo específico de un dominio.** Providers, políticas, importadores, pasos de pipeline y extensiones de línea de comandos son plugins de WebAssembly, escritos con los kits de plugins para Go, Rust y TypeScript. El host y el plugin intercambian datos a través de una única interfaz versionada codificada en CBOR, generada a partir de un solo esquema para los tres lenguajes."
+  },
   "bc61f904c1cdf09c": {
     "at": "2026-11-03T02:20:42.738Z",
     "job": "session-0037-20261103022042",
@@ -118763,6 +118984,13 @@
     "srcHash": "bdcf81ae40b2529e",
     "status": "machine",
     "text": "`FixedEntryPluginRef`"
+  },
+  "bdd179dd460ed6c1": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "bdd179dd460ed6c1",
+    "status": "machine",
+    "text": "**Docker Compose**, con un puente que retransmite las conexiones entre redes de Compose."
   },
   "bdd1d0ec7ab35927": {
     "at": "2026-11-10T00:52:32.955Z",
@@ -121013,6 +121241,17 @@
     "status": "machine",
     "text": "Límites lógicos anidados (p. ej., namespaces dentro de un clúster). Claves: una o más letras, dígitos, guiones bajos o guiones. No se permite un punto. Patrón: `^[a-zA-Z0-9_-]+$`."
   },
+  "c122c4c67da0ff69": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "revision": {
+      "from": "33b501b300556ef4",
+      "reviewed": false
+    },
+    "srcHash": "c122c4c67da0ff69",
+    "status": "machine",
+    "text": "**Instalación** con un solo comando en Linux, macOS y Windows, o mediante Homebrew, Scoop y winget."
+  },
   "c123e0aa10253236": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -122638,6 +122877,13 @@
     "status": "machine",
     "text": "El mismo comando, con `--from=cronjob/report`, inicia una ejecución adicional de `report` entre las programadas."
   },
+  "c3d4a807b3045db9": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "c3d4a807b3045db9",
+    "status": "machine",
+    "text": "Otras direcciones"
+  },
   "c3d81ce0079f6623": {
     "at": "2026-11-03T23:30:44.700Z",
     "job": "session-0174-20261103233044",
@@ -123744,6 +123990,13 @@
     "srcHash": "c5c50fea6ef059a0",
     "status": "machine",
     "text": "**Realizarla** para el destino: escribir el valor donde el componente lo lee, renderizar un recurso que lo contenga, o renderizar uno que lo obtenga de un almacén de secretos."
+  },
+  "c5ca23031fe20a66": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "c5ca23031fe20a66",
+    "status": "machine",
+    "text": "**El pipeline de compilación.** La resolución, la construcción de la topología, la finalización del grafo, el análisis estático y el renderizado convierten los documentos en un grafo intermedio de componentes y de las conexiones `uses` entre ellos, y luego en archivos."
   },
   "c5cca721b1a80c09": {
     "at": "2026-11-03T08:33:46.400Z",
@@ -126591,6 +126844,13 @@
     "status": "machine",
     "text": "`compose.yaml`:"
   },
+  "ca279a82510bbabe": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "ca279a82510bbabe",
+    "status": "machine",
+    "text": "**Una vista en vivo de tu arquitectura.** El grafo de topología del editor y `--ir-graph` ya muestran el grafo que resolvió el compilador; un modo de streaming enviaría ese grafo a medida que cambia, de modo que un frontend siga cada edición en el momento en que se produce."
+  },
   "ca290cb3e70ab72b": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -129048,6 +129308,13 @@
     "srcHash": "cdf62352c8f9313b",
     "status": "machine",
     "text": "Rutas de red lógicas explícitas y dependencias entre nodos."
+  },
+  "ce0155437db7f78e": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "ce0155437db7f78e",
+    "status": "machine",
+    "text": "**Proveedores para Azure y Google Cloud.**"
   },
   "ce01c06a8b53d999": {
     "at": "2026-11-03T20:25:38.864Z",
@@ -141479,6 +141746,13 @@
     "status": "machine",
     "text": "Forma"
   },
+  "e0e5dbcc40b15720": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "e0e5dbcc40b15720",
+    "status": "machine",
+    "text": "Un primer prototipo compilaba documentos YAML, a través de un grafo intermedio, en salida de Helm y demostró que el enfoque funciona. El compilador que vino después se escribió en torno al modelo de entidades que se describe a continuación."
+  },
   "e0e6ba3f6f28c4a4": {
     "at": "2026-11-03T20:57:16.080Z",
     "job": "session-0158-20261103205716",
@@ -143014,6 +143288,13 @@
     "srcHash": "e341ef44faf56f95",
     "status": "machine",
     "text": "Una funcionalidad vinculada a un único componente lleva el mismo bloque `uses:` y cablea la misma arista desde ese único componente: el componente obtiene una arista de dependencia hacia cada destino nombrado, recibe por inyección los `provides` de esos destinos, y la arista registra la vinculación como su origen exactamente como lo hace la forma para todo el límite. Las dos son una misma declaración con dos amplitudes — vincular en el límite para cablear cada componente de él, vincular en un componente para cablear ese — y la elección entre ambas es una cuestión de alcance, nunca de lo que hace el cableado. Ninguna crea cómputo: el destino debe nombrar ya un componente que el Aggregate declaró, y uno que no lo haga detiene la compilación. Una conexión que traza una Feature no lleva vinculaciones propias: su entrada acepta `target` e `inject`, y una clave `features:` en ella se rechaza cuando se carga la Release."
+  },
+  "e3466ba118566383": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "e3466ba118566383",
+    "status": "machine",
+    "text": "**Features que renderizan recursos, y credenciales como Features.** Una Feature adjunta puede renderizar recursos propios, y una credencial es una Feature como cualquier otra, entregada a su componente como variable de entorno o como archivo."
   },
   "e3470467eb27a76a": {
     "at": "2026-10-17T19:20:14.598Z",
@@ -149513,6 +149794,13 @@
     "srcHash": "ede2e4d5275182dd",
     "status": "machine",
     "text": "Un pin del lockfile nombra un contenido —un digest— en lugar de un lugar. Para una entidad es el digest de lo que contiene una publicación de ella, su documento y los archivos que nombra, de modo que una copia de una entidad en un directorio de catálogo y una entrada de caché que contiene su publicación llevan el mismo pin, como describe [El lockfile](aggrega-pull.md#the-lockfile). Un build lee cada dependencia fijada desde las fuentes que ya están en la máquina: primero los directorios de catálogo, como en todas partes, y luego la caché de contenido en `.aggrega/cache`. Leerlas no consulta ningún registro; solo el paso de pull, donde un build ejecuta uno, descarga."
+  },
+  "ede3758e1a220b50": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "ede3758e1a220b50",
+    "status": "machine",
+    "text": "**El editor y el asistente.** La extensión de Visual Studio Code aporta validación, navegación, hover, autocompletado y un grafo de topología al YAML de Aggrega mediante `aggrega serve`; `aggrega mcp` y la skill de Aggrega dan las mismas herramientas a un asistente de IA."
   },
   "ede6aa9632b5f4cd": {
     "at": "2026-11-03T22:09:07.585Z",
@@ -160191,6 +160479,13 @@
     "srcHash": "fe3c4a96cd460c45",
     "status": "machine",
     "text": "**Aggrega: Push… / Sign… / Deprecate…** — las operaciones que cambian lo que otras personas resuelven. Push pregunta cuál de las entidades que enumera el panel Catalog publicar — un menú junto al botón en el panel Commands, una lista en la que eliges si se ejecuta desde aquí — y luego la empaqueta y la publica en un registro configurado. Sign y deprecate piden una referencia a un artefacto ya publicado, porque ambas modifican bytes publicados en lugar del espacio de trabajo: sign adjunta una firma, deprecate adjunta un marcador de obsolescencia firmado y pide la gravedad — `warning`, `error` o `retracted` — y el motivo que registra. Las tres pasan por el servidor de lenguaje, las tres muestran el progreso con un botón Cancel que termina la publicación y no solo la espera, y cada una termina nombrando lo que el compilador hizo realmente: la referencia y la versión a las que se resolvió la entidad y el digest al que apunta ahora esa versión, el digest con el que se compromete cada firma, o el digest propio del marcador. Una publicación que encontró los mismos bytes ya publicados lo dice, en lugar de presentarse como una que depositó algo. Sus hallazgos y el informe completo van al canal de salida de Aggrega."
+  },
+  "fe40013969f25ee0": {
+    "at": "2026-11-13T18:50:20.840Z",
+    "job": "session-0001-20261113185020",
+    "srcHash": "fe40013969f25ee0",
+    "status": "machine",
+    "text": "Hito 1 — El núcleo del compilador"
   },
   "fe417f2141f5e86a": {
     "at": "2026-11-10T01:41:59.922Z",
