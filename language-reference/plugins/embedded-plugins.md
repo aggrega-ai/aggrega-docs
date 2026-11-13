@@ -6,18 +6,18 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| governance | `governance/label-injector` | — | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| governance | `governance/rego` | — | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| governance | `governance/selector-tagger` | — | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| linter | `linter/publishing` | — | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| parser | `parser/hcl` | parse:hcl | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| parser | `parser/json` | parse:json | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| parser | `parser/jsonc` | parse:jsonc | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| parser | `parser/toml` | parse:toml | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| parser | `parser/yaml` | parse:yaml | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| provider | `provider/cloudformation` | cloudformation | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| provider | `provider/compose` | compose | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| provider | `provider/helm` | helm | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| provider | `provider/helm-chart` | helm-chart | `0.9.0-rc.3 (commit 3eccd4b55)` |
-| provider | `provider/terraform` | terraform | `0.9.0-rc.3 (commit 3eccd4b55)` |
+| governance | `governance/cel` | — | `0.9.0-rc.6 (commit b05590463)` |
+| governance | `governance/label-injector` | — | `0.9.0-rc.6 (commit b05590463)` |
+| governance | `governance/rego` | — | `0.9.0-rc.6 (commit b05590463)` |
+| governance | `governance/selector-tagger` | — | `0.9.0-rc.6 (commit b05590463)` |
+| linter | `linter/publishing` | — | `0.9.0-rc.6 (commit b05590463)` |
+| parser | `parser/hcl` | parse:hcl | `0.9.0-rc.6 (commit b05590463)` |
+| parser | `parser/json` | parse:json | `0.9.0-rc.6 (commit b05590463)` |
+| parser | `parser/jsonc` | parse:jsonc | `0.9.0-rc.6 (commit b05590463)` |
+| parser | `parser/toml` | parse:toml | `0.9.0-rc.6 (commit b05590463)` |
+| parser | `parser/yaml` | parse:yaml | `0.9.0-rc.6 (commit b05590463)` |
+| provider | `provider/cloudformation` | cloudformation | `0.9.0-rc.6 (commit b05590463)` |
+| provider | `provider/compose` | compose | `0.9.0-rc.6 (commit b05590463)` |
+| provider | `provider/helm` | helm | `0.9.0-rc.6 (commit b05590463)` |
+| provider | `provider/helm-chart` | helm-chart | `0.9.0-rc.6 (commit b05590463)` |
+| provider | `provider/terraform` | terraform | `0.9.0-rc.6 (commit b05590463)` |
