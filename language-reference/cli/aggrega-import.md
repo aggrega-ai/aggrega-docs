@@ -31,7 +31,7 @@ fetches it from the workspace's default registry, holds it to the module the
 compiler's release publishes, verifies its signature under that registry's
 trust policy and the host functions it uses, and keeps it in the workspace's
 content cache, so every later import reads it from there and reaches no
-network. Nothing else is written for it: no lockfile, and no record of trusted
+network for it. Nothing else is written for it: no lockfile, and no record of trusted
 plugins. A module that does not verify is refused, and nothing is kept. Where
 the module cannot be fetched — the workspace is offline, its registry cannot be
 reached, or the registry does not hold it — import stops, naming the importer
@@ -39,6 +39,22 @@ and its version and what puts its module on the machine: running the import
 once with the network available, where that would fetch it, or placing the
 module beside a Plugin entity of that importer at that version in a catalog
 folder.
+
+The catalog an import reads is the workspace's catalog folders. Where the
+workspace names none — AGGREGA_CATALOG_DIRS is unset, its configuration lists
+no catalog_dirs, and it holds no catalog folder at its root — import reads the
+catalog its default registry publishes as one signed snapshot, at
+catalog/snapshot. A snapshot is fetched once: its signature is verified under
+that registry's trust policy, and it is kept in the workspace's content cache
+and read there as a catalog folder, held to its digest, with no registry asked
+for it again. Which snapshot an import reads: with --upgrade, the newest;
+otherwise the one the record beside the drafts names, fetched by its digest
+when this machine does not hold it; otherwise the one the workspace last
+fetched as the newest; otherwise the newest. The record an import writes names
+the snapshot it read by its digest. Under --offline an import that would have
+to fetch one stops, naming what to run. A registry that publishes no
+snapshot leaves the import with no catalog, and a warning says so. A workspace
+that names a catalog folder imports against it, and nothing is fetched.
 
 The source is a file or a directory. A file is handed to the importer whole. A
 directory is read into named sources: exactly the files the importer's declared
@@ -112,7 +128,7 @@ reuses the target the earlier import was given.
 
 Beside its drafts, every import that drafts anything writes .aggrega-import.json,
 the record of what it wrote: the target it was given, where it was given one,
-and each drafted file and, in a drafted Aggregate or Release, each key at every
+the catalog snapshot it read, where it read one, and each drafted file and, in a drafted Aggregate or Release, each key at every
 depth, with a digest of the text written there; any other drafted file is
 recorded whole. A key's text is its line, its value's lines where its value is
 not a mapping of keys, and the comment lines written directly above it at its
@@ -270,4 +286,5 @@ source the write would refuse is refused here too.
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 | `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each drafted component type to the one Recipe of that capability the workspace's catalog offers for it, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
+| `--upgrade` | `false` | Re-read the published catalog from current registry state: fetch the newest catalog snapshot the workspace's default registry publishes, verify it, and import against it, holding it as the snapshot this workspace reads from then on in place of the one it holds or the one the record beside the drafts names. It has an effect only where the workspace names no catalog folder, and is refused under --offline |
 <!-- END GENERATED: cli-import -->

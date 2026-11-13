@@ -47,15 +47,14 @@ cd import-compose
 ## Build
 
 The import drafts the Aggrega files beside the project, in `source/`. It weighs
-the project against the standard-library catalog, read from the directory
-`AGGREGA_CATALOG_DIRS` names. That catalog is the `aggrega-catalog` folder of
-the `aggrega-hub` repository: clone the repository first, here in the example's
-folder, beside `source/` rather than inside it, so the catalog stays outside the
-project being imported, and name that folder by its absolute path:
+the project against the standard-library catalog, which the workspace's default
+registry publishes as a signed snapshot: the first import fetches it, verifies
+it, keeps it in the workspace's content cache and names it by its digest in the
+record it writes beside the drafts. A workspace that names its own catalog
+folders — in `AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` —
+imports against those instead:
 
 ```sh
-git clone https://github.com/aggrega-ai/aggrega-hub
-export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
 cd source
 aggrega import compose.yaml --target compose
 ```

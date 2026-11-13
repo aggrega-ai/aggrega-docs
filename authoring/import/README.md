@@ -103,23 +103,28 @@ not supply.
    the workspace it runs in — the folder holding an `.aggrega-config.yaml` with a
    `workspace` key — or beneath the directory `--output-dir` names. It never
    writes over an Aggregate already there.
-2. **Give it a catalog to weigh against.** The import scores your source against
-   the Components of the workspace's own catalog — the directories
-   `catalog_dirs` lists, a `catalog` folder at the workspace root, or the
-   directories `AGGREGA_CATALOG_DIRS` names — and nothing else. With a checkout
-   of the standard-library catalog among them, a PostgreSQL service is
-   suggested as `core/datastore/postgres`, and `--target` can draft a Manifest
-   from the catalog's Recipes. With no catalog, the import has nothing to
-   suggest, and `--target` is refused, since no Recipe binds to the target.
+2. **The catalog it weighs against.** The import scores your source against
+   the Components of the workspace's catalog, and nothing else. Where the
+   workspace names no catalog folder of its own, that is the standard-library
+   catalog, read from the workspace's default registry: every publish of the
+   catalog publishes a signed snapshot of the whole of it, and the first import
+   fetches that snapshot, verifies its signature, keeps it in the workspace's
+   content cache and names it by its digest in the record it writes beside the
+   drafts, so a later import of the same drafts reads the same catalog without
+   asking the registry again. Against it, a PostgreSQL service is suggested as
+   `core/datastore/postgres`, and `--target` can draft a Manifest from the
+   catalog's Recipes. With no catalog, the import has nothing to suggest, and
+   `--target` is refused, since no Recipe binds to the target.
 
-   The standard-library catalog is the `aggrega-catalog` folder of the
-   `aggrega-hub` repository, <https://github.com/aggrega-ai/aggrega-hub>. Clone
-   the repository and name that folder by its absolute path:
-
-   ```bash
-   git clone https://github.com/aggrega-ai/aggrega-hub.git
-   export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
-   ```
+   A workspace that names its own catalog folders imports against those
+   instead, and fetches no snapshot: the directories `workspace.catalog_dirs`
+   lists, a `catalog` folder at the workspace root, or the directories
+   `AGGREGA_CATALOG_DIRS` names. The standard-library catalog's own files are
+   the `aggrega-catalog` folder of the `aggrega-hub` repository,
+   <https://github.com/aggrega-ai/aggrega-hub>, for a workspace that wants them
+   as a folder. `--upgrade` fetches the newest snapshot the registry publishes
+   and imports against it from then on; under `--offline`, an import that would
+   have to fetch a snapshot stops and names what to run.
 
 3. **Run the import.** Name the file or the directory:
 
@@ -222,7 +227,7 @@ for each format in the table below, are published with every compiler release an
 workspace, with no entry in your catalog. The first import that needs one
 fetches it from the workspace's default registry, at the compiler's own
 version, verifies it and keeps it in the workspace's content cache, so every
-later import reads it from there and reaches no network. Where the module
+later import reads it from there, with no network for it. Where the module
 cannot be fetched at all — the workspace is offline, say — the import stops and
 names the two ways to put it on the machine.
 [Core importers](../../language-reference/plugins/core-importers.md) describes

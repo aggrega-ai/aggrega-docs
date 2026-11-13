@@ -61,7 +61,7 @@ its source to a build, one format at a time.
 
 [`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the
 assistant's `import` tool obtain a core importer the same way. Where the machine already holds its
-module — in the workspace's content cache — the import reads it from there and reaches no network.
+module — in the workspace's content cache — the import reads it from there, with no network for it.
 Where it does not, the first import that needs it fetches it from the workspace's default registry,
 at the compiler's version, and:
 
@@ -70,7 +70,7 @@ at the compiler's version, and:
 - verifies it as a pull verifies a plugin it fetches — its signature under that registry's trust
   policy, and the host functions it uses against the ones its Plugin entity records;
 - keeps it in the workspace's content cache, which is the only thing written for it: no lockfile, and
-  no record of trusted plugins, because an import pins nothing.
+  no record of trusted plugins, because an import pins no importer.
 
 Every later import reads it from the content cache. A module that does not verify is refused, and
 nothing is kept. In a folder no workspace marks there is no content cache to keep it in, so the fetch

@@ -18,9 +18,8 @@ aggrega scaffold --example import-n8n
 ```
 
 It then prints the commands to run next. The first changes into the new folder;
-the ones after it, below, fetch the catalog the import reads and change into its
-`source` folder, which holds what this page imports and is where the import
-runs:
+the one after it, below, changes into its `source` folder, which holds what this
+page imports and is where the import runs:
 
 ```bash
 cd import-n8n
@@ -92,22 +91,18 @@ default_registry: hub.aggrega.ai
 ```
 
 The import weighs each node against the Components of the workspace's catalog,
-and `--target` drafts a Manifest from its Recipes, so clone the `aggrega-hub`
-repository, whose `aggrega-catalog` folder is the standard-library catalog, and
-name that folder by its absolute path. Clone it here, in `import-n8n`, beside
-`source` rather than inside it, so the catalog stays outside the project being
-imported and the workspace the import writes into; then change into `source`:
+and `--target` drafts a Manifest from its Recipes. The workspace names no
+catalog folder, so the import reads the standard-library catalog from the
+registry it fetches its importer from: a signed snapshot of the published
+catalog, fetched, verified and kept in the workspace's content cache by the
+first import, and named by its digest in the record the import writes beside its
+drafts. A workspace that names its own catalog folders — in
+`AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — imports against
+those instead. Change into `source`:
 
 ```bash
-git clone https://github.com/aggrega-ai/aggrega-hub
-export AGGREGA_CATALOG_DIRS="$PWD/aggrega-hub/aggrega-catalog"
 cd source
 ```
-
-The import reads that catalog from folders on your machine, not from the
-registry it fetches its importer from, so the scaffolded example needs the
-checkout too: with none, `--target` is refused, since no Recipe binds to the
-target.
 
 ## Run the import
 
