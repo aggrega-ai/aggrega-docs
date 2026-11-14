@@ -427,71 +427,88 @@ deployment.apps/fetch condition met
 deployment.apps/github condition met
 ```
 
+On Docker Compose, in a workspace imported with `--target compose` and built,
+start the stack with your token in your shell's `GITHUB_TOKEN`, which Docker
+Compose reads when the stack starts:
+
+```bash
+docker compose -p mcp -f dist/compose/docker-compose.yaml up -d --wait
+```
+
+## Test it
+
 The bridge serves each server over MCP's Streamable HTTP transport, at `/mcp`
-on port 8080 of the server's Service: `fetch-default` for the fetch server.
-Forward a local port to it, and leave the command running:
+on port 8080. Ask the fetch server to open a session with MCP's `initialize`
+request, which reads no token.
+
+On Docker Compose, send it from a throwaway container on the stack's network,
+`mcp_compose`, where the server's name is `fetch`:
+
+```bash
+docker run --rm --network mcp_compose curlimages/curl:8.11.1 -sS http://fetch:8080/mcp \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test-it", "version": "1.0.0"}}}'
+```
+
+```text
+: keepalive
+
+[… omitted: the same comment, repeated while the server starts]
+
+event: message
+data: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{"listChanged":false},"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"mcp-fetch","version":"2026.11.11"}}}
+```
+
+On Kubernetes, forward a local port to the server's Service, `fetch-default`,
+and leave the command running:
 
 ```bash
 kubectl port-forward svc/fetch-default 8080:8080
 ```
 
-From another terminal, open a session with the fetch server:
+From another terminal, send the same request to the forwarded port:
 
 ```bash
-curl -sS -i http://127.0.0.1:8080/mcp \
-  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "run-it", "version": "1.0.0"}}}'
-```
-
-```text
-HTTP/1.1 200 OK
-[… omitted: the x-powered-by, cache-control and connection headers]
-content-type: text/event-stream
-mcp-session-id: f93d7f93-3873-4574-a065-16c76c5ca345
-[… omitted: the x-accel-buffering, date and transfer-encoding headers]
-
-: keepalive
-
-: keepalive
-
-event: message
-data: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{"listChanged":false},"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"mcp-fetch","version":"2026.11.4"}}}
-```
-
-The reply took about half a minute in the run. The bridge starts the server's
-command line, `uvx mcp-server-fetch`, for the session: `uvx` downloaded and
-installed the server's packages in under ten seconds, and the server answered
-about twenty seconds after that. The `: keepalive` lines are comments the
-stream sends meanwhile. The bridge runs `--stateful`, so the reply carries the
-session's identifier in `mcp-session-id`. Send it with every later request:
-first the notice that the client is ready, then the request for the server's
-tools:
-
-```bash
-curl -sS -i http://127.0.0.1:8080/mcp \
-  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -H 'Mcp-Session-Id: <session id>' -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc": "2.0", "method": "notifications/initialized"}'
 curl -sS http://127.0.0.1:8080/mcp \
   -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -H 'Mcp-Session-Id: <session id>' -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/list"}'
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test-it", "version": "1.0.0"}}}'
 ```
 
 ```text
-HTTP/1.1 202 Accepted
-[… omitted: the response's other headers]
+: keepalive
+
+: keepalive
 
 event: message
-data: {"jsonrpc":"2.0","id":2,"result":{"tools":[{"annotations":{"destructiveHint":false,"idempotentHint":true,"openWorldHint":true,"readOnlyHint":true},"description":"Fetches a URL from the internet and optionally extracts its contents as markdown.[… omitted: the rest of the description, and the input schema, whose one required argument is url]","name":"fetch"}]}}
+data: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{"listChanged":false},"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"mcp-fetch","version":"2026.11.11"}}}
 ```
 
-The notice is accepted with no reply of its own, and the second request lists
-the server's one tool, `fetch`.
+The reply names the server, `mcp-fetch`. It takes a while: the bridge starts
+the server's command line, `uvx mcp-server-fetch`, for each session, and `uvx`
+downloads and installs the server's packages first — about half a minute on
+Kubernetes and about a minute on Docker Compose in the run. The `: keepalive`
+lines are comments the stream sends meanwhile.
+
+The GitHub server answers the same request at `http://github:8080/mcp` on
+Docker Compose, and through `kubectl port-forward svc/github-default 8080:8080`
+on Kubernetes. `initialize` reads no token, so it answers whatever the token
+holds; the run used a placeholder token:
+
+```text
+[… omitted: the keepalive comments, sent while npx installs the server]
+event: message
+data: {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"github-mcp-server","version":"0.6.2"}},"jsonrpc":"2.0","id":1}
+```
 
 Stop the port forward, then remove what you applied and the Secret:
 
 ```bash
 kubectl delete -R -f dist/helm/
 kubectl delete secret github-mcp-token
+```
+
+On Docker Compose, stop and remove the stack:
+
+```bash
+docker compose -p mcp -f dist/compose/docker-compose.yaml down
 ```

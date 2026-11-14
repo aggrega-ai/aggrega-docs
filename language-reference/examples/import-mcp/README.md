@@ -66,3 +66,33 @@ aggrega build --release release.yaml
 
 The build writes the Kubernetes manifests under `dist/helm/`; creating the
 Secret and applying them is in the walkthrough linked above.
+
+## Test it
+
+With the build applied, forward a local port to the fetch server's Service and
+leave the command running:
+
+```sh
+kubectl port-forward svc/fetch-default 8080:8080
+```
+
+From another terminal, ask the server to open a session with MCP's
+`initialize` request:
+
+```sh
+curl -sS http://127.0.0.1:8080/mcp \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test-it", "version": "1.0.0"}}}'
+```
+
+```text
+: keepalive
+
+: keepalive
+
+event: message
+data: {"jsonrpc":"2.0","id":1,"result":{"capabilities":{"prompts":{"listChanged":false},"resources":{"listChanged":false,"subscribe":false},"tools":{"listChanged":false}},"protocolVersion":"2025-06-18","serverInfo":{"name":"mcp-fetch","version":"2026.11.11"}}}
+```
+
+[The walkthrough](../../../authoring/import/mcp.md#test-it) makes the same call
+on Docker Compose and to the GitHub server.
