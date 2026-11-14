@@ -4286,6 +4286,13 @@
     "status": "machine",
     "text": "**实体旁的 `.wasm`。** 在你编写插件期间，还没有任何已发布的内容可供构建获取，因此构建会从某个目录文件夹中该插件的 `Plugin` 实体旁读取插件的 `.wasm`，其文件名由实体的插件类型和名称派生：对于 `pipeline-step/patch`，文件名为 `pipeline-step--patch.wasm`。小写字母、数字和大多数连字符按原样写入该名称；其他任何字符都以转义形式写入，少数位置上的连字符也是如此 — 因此在需要时，缺少 `.wasm` 时的拒绝信息 [A plugin's `.wasm` is not on this machine (插件的 Wasm 模块不在此机器上)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine) 会给出完整的名称。除非二进制文件本身携带该插件，`aggrega lint <plugin.yaml>` 会从同一位置读取 `.wasm` — 即在给定的实体文件旁，无论该文件位于哪个目录 — 并针对 `.wasm` 报告而实体遗漏的每个导出、能力或契约打印一条通知。若该处没有 `.wasm`，lint 会说明它跳过了该报告，并指出它查找的文件和目录，其结果不会改变。"
   },
+  "05cedb671faf2b91": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "05cedb671faf2b91",
+    "status": "machine",
+    "text": "例如，使用 `--target helm` 起草的 [Google ADK 导入](../authoring/import/google-adk.md)在其 Release 中有两个待填值：你从项目构建的代理镜像，以及代理的 Gemini API 密钥的来源。两者都填好后，源目录 `support_agent/` 中的应答文件内容如下："
+  },
   "05cf32a5d00d40db": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -6783,6 +6790,13 @@
     "srcHash": "09542c9f91481c5e",
     "status": "machine",
     "text": "`bytes`——源字节。"
+  },
+  "095661fde2bd7d6b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "095661fde2bd7d6b",
+    "status": "machine",
+    "text": "本页说明该文件位于何处、包含什么、值如何写入其中，以及当某个值仍然缺失时导入会做什么。导入的用途，以及从源到构建的演练，请参见[导入](../authoring/import/README.md)。"
   },
   "095ae11710a3a921": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -10391,6 +10405,13 @@
     "status": "machine",
     "text": "**保留且强制执行。** 此处的键由平台定义，你可以编写平台定义的键，例如 Release 边界上的 `aggrega.ai/namespace`。在该前缀下声明*新*键会导致构建中止：无论是直接位于该前缀下的 Manifest `features.annotations` 绑定，还是位于该前缀下、出现在 `outputLabels:` 或 `outputComponentLabels:` 中的 Recipe 输出标签键，均是如此。参见 [`errors/fatal-halts.md`](../errors/fatal-halts.md) 中的“A Manifest annotation binding claims the reserved `aggrega.ai/` prefix（Manifest 注解绑定占用了保留前缀）”和“An output-label key uses a reserved namespace（输出标签键使用了保留命名空间）”。"
   },
+  "0eafaa11e0808da2": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "0eafaa11e0808da2",
+    "status": "machine",
+    "text": "[`aggrega import`](cli/aggrega-import.md) — 该命令的参考，包括所有标志。"
+  },
   "0eb06a849d49d401": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -11360,6 +11381,17 @@
     "srcHash": "0fc48f4ae1427300",
     "status": "machine",
     "text": "[`aggrega-pull`](aggrega-pull.md) — 从 OCI 镜像仓库将目录实体拉取到本地目录。"
+  },
+  "0fc5b18dbf6e708d": {
+    "at": "2026-11-14T09:58:23.259Z",
+    "job": "session-0004-20261114095823",
+    "revision": {
+      "from": "b01c85c4818679bf",
+      "reviewed": false
+    },
+    "srcHash": "0fc5b18dbf6e708d",
+    "status": "machine",
+    "text": "`aggrega/import` — 将外部源描述转换为 Aggrega 编写文件草稿，与 [`aggrega import`](aggrega-import.md) 在终端执行的转换相同。`source` 为必填项，指明要转换的文件或目录，可以是绝对路径，也可以相对于工作区根目录——由其他工具导出的描述位于你保存它的任何位置，因此它在实际所在位置读取，而不仅限于工作区内。目录的读取方式与 [`aggrega import`](aggrega-import.md) 相同：只读取导入器声明的文件模式所选中的那些文件，并且无论目录位于何处都限定在其自身范围内，因此不会沿其中的任何链接跳出该目录。`outputDir` 是可选的，指明草稿存放的目录，它**不**遵循上述约定：它是被写入的，因此是工作区内的路径，绝对值或解析到根目录之外的值（无论按字面写法还是经由链接，包括位于这样的链接之下、尚未创建的目录）都会被拒绝。省略它，草稿就放在工作区根目录下，即 [`aggrega import`](aggrega-import.md) 未指定目标时写入的位置——在 `dryRun` 下也是如此。`format` 显式指明源格式；省略它，则按导入器声明的特征识别格式——工作区目录中的导入器与编译器的[核心导入器](../plugins/core-importers.md)一视同仁——没有导入器能识别的源，或被多种格式的导入器识别的源，会被拒绝并要求提供 `format`，而不是靠猜测。`target` 指明一个 provider 能力，例如 `compose` 或 `helm`——即 Recipe 的 `spec.capability` 所绑定的词——并在导入器的草稿之外，为该 provider 起草所起草的 Release 据以构建的 Manifest，与 `aggrega import --target` 的行为完全相同：`manifest.yaml`，将草稿所需的每个组件类型和功能类型（包括所起草的 Aggregate 所组合的目录 Aggregate 的类型）映射到工作区目录为其提供的该能力的 Recipe 或功能配方，使用其能力限定名称且不带版本：只有一个时取该项，有多个时取以该类型命名的那一项。Release 的 `spec.manifest` 设为它；没有任何对应项，或有多个但都不以该类型命名的类型保持未映射，并产生一条指明它的 `warn` 发现；导入器自行起草的映射，若目录为该类型和能力提供了它则保留，否则丢弃并产生一条 `warn` 发现。目录中没有任何 Recipe 绑定的 `target` 会在导入器运行前被拒绝，消息指明该 target 及目录中 Recipes 所绑定的能力，且不写入任何内容；省略它则不起草 Manifest——`sync` 下除外，此时会为先前导入记录中指明的 target 起草。机器上尚未持有的核心导入器，会由第一次需要它的导入获取——参见[import 响应告诉你什么](#what-an-import-response-tells-you)。`dryRun` 执行普通请求的全部操作但不写入，以内容形式返回草稿，供先将其展示给作者的客户端使用；在此模式下不创建任何内容，`written` 为空。`sync` 会使先前导入在 `outputDir` 中起草的内容与源保持同步，只改动导入所写的内容，与 `aggrega import --sync` 相同；不带它时，草稿将覆盖已存在的 Aggregate 的请求会被拒绝。答复携带 `format`、`outputDir`、`written`、`files`、`drift`、`diagnostics`、`decisions` 和 `halted`。参见[import 响应告诉你什么](#what-an-import-response-tells-you)，因为导入器未能完全转换的源是一个成功的答复，而不是错误。"
   },
   "0fc628f1809ecca4": {
     "at": "2026-10-30T00:50:36.309Z",
@@ -13850,6 +13882,13 @@
     "status": "machine",
     "text": "**`helm-chart`——它派生的名称是所放置 chart 自身的地址，这与该 chart 的模板渲染时所依据的名称是两回事。**该 provider 将你 vendor 的 chart 的 `name` 字段设置为贡献它的对象的编码标识，这同时也是 umbrella 绑定该子 chart 所用的别名，以及其 values 所归属的键。对于组件，该标识就是 `{{ .context.instance_id }}` 所携带的内容，因此所放置 chart 的名称已可通过表明其含义的键获取。被 vendor 的 chart 自身*模板*渲染时所依据的名称是 release 名称，它由 umbrella 的 release 在安装时提供，而非由该 provider 派生——因此这里没有可供此键报告的此类名称。参见\n  [`../providers/helm-chart.md`](../providers/helm-chart.md)“The chart name the umbrella owns”。"
   },
+  "137c33ae78707b9d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "137c33ae78707b9d",
+    "status": "machine",
+    "text": "在答案文件中，导入会停止，并指出答案文件、草拟的文件和键 — 绝不指出答案本身，因为它可能就是机密 — 且不写入任何内容。"
+  },
   "137de87e9b48bd3b": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -15188,6 +15227,13 @@
     "srcHash": "1581f725c1ab607e",
     "status": "machine",
     "text": "**角色**：平台架构师。平台的“程序员”。他们把每个组件放到可运维本体中，编写可编程策略（Wasm 变换器和校验器），并建立语义鸭子类型标签。"
+  },
+  "158e331b65405f68": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "158e331b65405f68",
+    "status": "machine",
+    "text": "在每个键旁边写入其答案，然后在同一目录中运行 `aggrega import <source> --sync`。在已包含草拟的 Aggregate 的目录中运行普通的 `aggrega import` 会停止，提示 `--sync`，且不写入任何内容。导入到新的输出目录时同样会读取答案文件：默认的答案文件，或 `--answers` 指定的答案文件。"
   },
   "15912767fa78f2a6": {
     "at": "2026-10-22T02:18:58.122887+00:00",
@@ -16615,6 +16661,13 @@
     "status": "machine",
     "text": "将 Grafana 类型映射到 Compose Recipe（`compose/grafana`），并将凭据映射到 `dotenv-secret`。"
   },
+  "179ed653afd6e252": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "179ed653afd6e252",
+    "status": "machine",
+    "text": "`--answers <file>` 指定另一个文件。相对路径相对于你运行命令时所在的目录进行解析。当草稿中有待填的值，且应答文件不是源旁边的默认文件时，导入在草稿旁写入的记录 `.aggrega-import.json` 会指明该文件，因此之后在同一目录中运行的 `aggrega import --sync` 无需再次指定即可读取它。该记录从不包含任何应答。"
+  },
   "179f6a4ff4be5cf5": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -17458,6 +17511,13 @@
     "status": "machine",
     "text": "[`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) — 策略读取的标签与注解。"
   },
+  "18fbd3c8e2a30ec6": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "18fbd3c8e2a30ec6",
+    "status": "machine",
+    "text": "`aggrega import --sync` 读取与之前那次导入相同的答案文件：优先使用 `--answers` 指定的文件，否则使用草稿旁记录所指定的文件，否则使用源旁边的默认文件。它将每个答案写入草稿，替换空值；当答案文件回答了所有欠缺的值时，它不提任何问题。"
+  },
   "18fd1ce92dc47f70": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -17839,6 +17899,13 @@
     "srcHash": "197e87953672a52b",
     "status": "machine",
     "text": "在文本中查找敏感片段"
+  },
+  "197eddbcdca5315d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "197eddbcdca5315d",
+    "status": "machine",
+    "text": "无终端时"
   },
   "1983f0f4acd509f8": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -31107,6 +31174,13 @@
     "status": "machine",
     "text": "Recipe 自身的私有状态（例如 primary_compute、volumes_path）。在 locals 前导部分求值——早于该节点的 provides——并在源解析阶段发布到此支柱上。每个条目都是一个 Go 模板，针对一个自包含的节点本地上下文求值，该上下文携带同一块中迄今已解析的条目，因此一个条目可以读取定义在其上方的同级条目，并获得该同级条目的解析值。只要一个条目读取另一个条目，编写顺序就是契约的一部分：把定义移到其读取者下方会导致构建失败。对后面条目或对块中未声明的键的 '.locals.<key>' 引用会中止构建。该检查读取的是引用所解析到的路径而不是按键输入的文本，因此直接形式、'{{ with .locals }}' 块内的读取，以及通过直接绑定到 '.locals' 的变量进行的读取都同样被覆盖。它不覆盖两种写法：一种是路径不由模板文本决定的引用——通过函数（例如 'index .locals'）到达的引用，或通过其管道应用了函数的 'with' 块或变量绑定到达的引用；另一种是从带括号的块上读取的键，即 '(.locals).<key>' 或 '($.locals).<key>'，此时键挂在括号产生的值上，而不是挂在块本身上。这两种都不做分析，以任一方式到达的缺失键都不会中止构建：它会渲染出字面文本 '<no value>'，而不是什么都不输出。唯一的例外是 'index' 本身：在所有模板位置上，当它读取的映射不包含所请求的键时，它都会中止构建并指出该键，因此通过 'index .locals' 到达的缺失键会中止构建。locals 条目不能读取 '.provides'。可用于 provides（在 provides 求值阶段、前导部分之后）、source、valuesMapping、workload、artifacts、assertions，并可通过 pipeline[].with（以及 pipeline[].when）提供给下游 Wasm 插件。从不暴露给调用方。"
   },
+  "2c839ce3e6f8af1c": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2c839ce3e6f8af1c",
+    "status": "machine",
+    "text": "写入草稿，每个欠缺的值留空；"
+  },
   "2c841c691c02923b": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -32485,6 +32559,13 @@
     "srcHash": "2ea22211f5e27e22",
     "status": "machine",
     "text": "**离线 pull 无法在本地满足的依赖会使其中止。** 该条目绝不会被跳过："
+  },
+  "2ea8b7fbe231f881": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2ea8b7fbe231f881",
+    "status": "machine",
+    "text": "导入会检查答案是否具有这些名称之一的形式，并拒绝其他任何内容："
   },
   "2ea9653cc8c84f51": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -40702,6 +40783,13 @@
     "status": "machine",
     "text": "随每个编译器版本发布"
   },
+  "3ae67fb4b0db3b76": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3ae67fb4b0db3b76",
+    "status": "machine",
+    "text": "[导入](../authoring/import/README.md) — 导入会草拟哪些内容，以及每种源格式的分步演练。"
+  },
   "3ae7caf0f4810e11": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -42098,6 +42186,13 @@
     "srcHash": "3cc6d8fedc8543f1",
     "status": "machine",
     "text": "消息会指明节点、provider、声明该条目的文档、该条目在该文档 `omits:` 列表中的位置（从 `0` 开始计数），以及该条目解析出的 kind、name 和 namespace，namespace 仅在条目指定时给出。对于附加到 component 的 FeatureRecipe，节点即该 component；对于附加到 boundary 的 FeatureRecipe，消息上方一行会指明该附加项及其 boundary。当多个条目都未匹配任何内容时，指明的是按你编写顺序的第一个，因此每次运行指明的都是同一条目。若某字段的模板读取了声明为敏感的值，则显示为 `<redacted>`，而不是其解析结果。被其 `when:` 丢弃的条目永远不会交给 provider，也永远不会被检查。"
+  },
+  "3ccb2fe5cb2fcba4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "3ccb2fe5cb2fcba4",
+    "status": "machine",
+    "text": "值如何填入"
   },
   "3cd437c7143e191e": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -43717,6 +43812,13 @@
     "srcHash": "3f33eef1b9d869e7",
     "status": "machine",
     "text": "a plugin has no representation for a value it was given\n> compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `\"<value>\"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value"
+  },
+  "3f348773a80806f7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3f348773a80806f7",
+    "status": "machine",
+    "text": "针对这些草稿并不欠缺的键的答案会保留在文件中但不会应用，标准错误上会有一条信息行指出它；"
   },
   "3f39623715f9a586": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -53386,6 +53488,13 @@
     "status": "machine",
     "text": "每条记录还带有 `published`：索引记录的每个版本，按版本升序\n排列，每个版本都带有构建索引时其标签解析到的 `manifestDigest`，并且在\n本工作区信任策略验证了该版本自身签名的情况下，带有其 `signer`——若有多个\n可验证的签名，则取透明日志最早记录的那个。没有 `signer` 的版本\n不带有该策略验证过的签名，对此不作进一步说明。\n读取某个版本内容的使用方通过该摘要寻址——例如\n`aggrega inspect oci://<host>/<repository>@<digest>`——因此它读取的是索引\n所记录的字节，无论该标签之后发生什么变化。"
   },
+  "4d6bda4228866fc8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "4d6bda4228866fc8",
+    "status": "machine",
+    "text": "文件中的其他所有键和注释保持原样。"
+  },
   "4d6c763354ce99c8": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -55377,6 +55486,13 @@
     "srcHash": "5020e691490fefe8",
     "status": "machine",
     "text": "**在模型连接上出示 OpenAI 密钥。** Release 将其作为读取 `${OPENAI_API_KEY}` 的 `core/secret-value` 附加到该连接上。"
+  },
+  "50220ad04074e0b7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "50220ad04074e0b7",
+    "status": "machine",
+    "text": "在持续集成中、通过管道、从助手的导入工具（`aggrega mcp`）以及从编辑器中，都不会提问。读取答案文件后仍欠缺值的导入会："
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -60755,6 +60871,13 @@
     "status": "machine",
     "text": "一个 Claude Code `.mcp.json`，列出三个 Model Context Protocol 服务器 — 两个通过命令行启动，一个由他人运行 — 由 `aggrega import` 起草为 Aggrega 文件，经审阅后为 Kubernetes 构建。"
   },
+  "57ca4474081da557": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "57ca4474081da557",
+    "status": "machine",
+    "text": "问题写入标准错误，因此标准输出只包含导入的结果；"
+  },
   "57cb8546339ab3aa": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -64371,6 +64494,13 @@
     "srcHash": "5d139b6597327aa4",
     "status": "machine",
     "text": "Kubernetes 安全的 component 标识——该节点输出的资源所“属于”的对象，即来源信息所记录的、选择器所查询的内容。非空时，它取代节点 id 作为 app.kubernetes.io/name 和 aggrega.ai/component-id 标签的值；为空表示节点 id 本身已是合法的标签值，直接使用。对于 Feature attachment 输出的每个资源，无论该 attachment 以何种方式交付，都会承载此字段，因此仅凭标签即可将 attachment 的资源与其宿主 component 的资源区分开。guest 据以派生自身名称的是另一个字段 derived_name_basis，两者回答的是不同的问题。"
+  },
+  "5d1421914cc8d34f": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "srcHash": "5d1421914cc8d34f",
+    "status": "machine",
+    "text": "用于读取和写入草稿留空且任何来源都无法容纳的值的答案文件：在每个草拟文件的路径下，记录其中的键路径及其答案。相对路径相对于你运行命令时所在的目录解析。不使用该标志时，使用草稿旁记录所指定的答案文件，否则使用源文件旁或源目录内的 import-answers.yaml。机密的答案是该机密来源的名称，而绝不是机密本身。"
   },
   "5d18d785317d749e": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -68079,6 +68209,17 @@
     "status": "machine",
     "text": "写在连接上的附加项列在 `Uses:` 中该连接所在行的下方，而不是 `Features:` 下，因此 `Features:` 只包含组件自身的附加项。其上方的一行通过别名及其到达的组件指明该连接，附加项自身的子句说明其余信息："
   },
+  "62132e66784e4cf8": {
+    "at": "2026-11-14T09:58:04.272Z",
+    "job": "session-0001-20261114095804",
+    "revision": {
+      "from": "1fba9c7e11dd3449",
+      "reviewed": false
+    },
+    "srcHash": "62132e66784e4cf8",
+    "status": "machine",
+    "text": "**标准库的承载情况。** `core/ai-tool/mcp` 带有 `http`。它将一个 Model Context Protocol 服务器挂接到智能体上，由 Manifest 决定该服务器如何实现：`helm/mcp` 和 `compose/mcp` 运行一个通过 HTTP 提供该协议的镜像；`helm/mcp-stdio-bridge` 和 `compose/mcp-stdio-bridge` 运行一个只支持 stdio 的软件包，并在其前面放置一个固定版本的桥接器，通过 HTTP 对外提供服务；`helm/mcp-remote` 和 `compose/mcp-remote` 访问由他人运行的服务器，自身不运行任何内容。每种实现都发布相同的 `host`、`port`、`endpoint`、`protocol` 和 `credential_header`，因此消费者的连线不随实现方式而改变。服务器自身的凭据是环境变量，保存在该工具的 `server_env` 槽位中：在 Kubernetes 上以引用方式传递给桥接器，在 Docker Compose 上则按传递时的原样写入服务的环境，其中 Compose 变量引用可使凭据不出现在文件中；远程服务器的凭据由消费者保存在其自身到该工具的连接上，并在 `credential_header` 指定的请求头下出示，除非 Release 指定了其他请求头，否则为 `Authorization`。如果远程服务器从自身地址中读取密钥，消费者也在该连接上保存完整地址，放在一个 `endpoint` 槽位中：在 Kubernetes 上由对 Secret 的引用填充，在 Docker Compose 上由 Compose 变量引用填充，因此密钥不会出现在任何渲染文件中，而该工具的 `infra.endpoint` 保存不含密钥部分的地址；[examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) 同时构建了这两者。`core/ai-agent/openai-agents-sdk`、`core/ai-agent/claude-agent-sdk`、`core/ai-agent/agent-framework`、`core/ai-agent/google-adk` 和 `core/ai-agent/mastra`，以及流程平台 `core/ai-agent/flowise` 和 `core/ai-agent/n8n`，都声明了这种形式的工具 socket `tools`，并以按连接别名命名的变量传递每个已连接工具的地址，以及以引用方式传递该连接的凭据，而写有 `inject:` 块的连接则接收该块所规定的内容，取代由工具发布的内容派生出的变量，其 `credential` 和 `endpoint` 槽位中保存的内容仍沿用别名的名称；自定义的消费者也以同样方式声明。这三个流程平台都会在部署时将 Aggregate 中编写的流程带入平台，两种目标上均是如此：Langflow 在每次启动时从其 flows 目录加载所携带的定义，Flowise 的 chatflow 由一个一次性步骤写入，该步骤以 Release 指定的所有者账户登录，n8n 的 workflow 则由平台启动前的一个 init 步骤导入。`core/ai-agent/langflow` 声明了相同形式的 `tools` socket（该 socket 不接受 `inject:` 块），但改为通过该流程传递每个连接，因为 Langflow 的 MCP Tools 组件只从 Langflow 自身的设置或流程中获取服务器地址，从不从变量中获取：其 Recipes 将工具地址写入服务器名称与连接别名相同的 MCP Tools 节点，以引用方式将连接的凭据作为该节点请求头所指定的变量传递——在 `Authorization` 下，变量中保存 `Bearer` 和凭据——并让已连接的工具和存储的主机通过 Langflow 针对私有地址的防护。这三个平台还都声明了一个选择 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` 的 `vector_store` socket，以同样方式传递每个已连接存储的地址——即其发布的 `endpoint`（对于 `core/datastore/pgvector`，是一个不含密码的连接 URI），或由其协议、主机和端口组合而成的地址——以及以引用方式传递连接的凭据；如果某个存储还发布了其数据库和用户（如 `core/datastore/pgvector`），这些部分也会分别传递给 Flowise 和 n8n，因为这两个平台的 PostgreSQL 向量节点都不接受连接字符串；Langflow 的 PGVector 组件接受单个字符串，因此它以 `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING` 接收这样的存储，连接的凭据即其密码，在 Kubernetes 上以引用方式传递，在 Docker Compose 上按传递方式提供。Flowise chatflow 通过在 Flowise 的 Variables 页面上创建的同名 Runtime 变量读取传递的变量；n8n workflow 只有在 Aggregate 设置了平台的 `allow_env_access_in_nodes` 值时才能通过 `$env` 读取变量，因为其 Recipes 默认保留 n8n 对节点内访问环境变量的限制。"
+  },
   "62136175ad509e63": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -70000,6 +70141,17 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "在 `envFrom` 条目上，相同的诊断结果位于 `.containers.<name>.envFrom[<i>].connection` 和 `.containers.<name>.envFrom[<i>].secret`。"
+  },
+  "6503353463e95d8b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "5e487c338b512423",
+      "reviewed": false
+    },
+    "srcHash": "6503353463e95d8b",
+    "status": "machine",
+    "text": "其中 `embeddings` 组件（`core/ai-model/openai-embedding`，其 `values.model` 设为 `text-embedding-3-small`）和 `cache` 组件（`core/datastore/redis`）与各模型一同声明，并各自放置在 Release 中；Manifest 映射这两者，并把 `core/referenced-secret-set` 映射到它的 Kubernetes 实现 `helm/k8s-secret-set`，该实现把密钥直接写入渲染出的 Secret，因此只适用于开发目标。随后路由文件声明每个调用方并在每条路由上检查其密钥，聊天路由则带有缓存："
   },
   "650a29f570ba59ad": {
     "at": "2026-11-08T10:48:22.903Z",
@@ -77963,6 +78115,13 @@
     "status": "machine",
     "text": "服务仅凭名称即被拒绝，不比较两个节点声明的内容。一个 compose 服务就是一个运行中的容器，因此两个各自需要一个服务的节点只能共用一个，无论两个定义多么相同，总有一个贡献者的意图会丢失。"
   },
+  "706983b557ebd085": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "706983b557ebd085",
+    "status": "machine",
+    "text": "导入答案文件"
+  },
   "70706b5780f5908e": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -78613,6 +78772,13 @@
     "status": "machine",
     "text": "对照：改为询问整个挂接层面的问题"
   },
+  "718f1ef5027284fc": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "718f1ef5027284fc",
+    "status": "machine",
+    "text": "只要还有值待提供，导入就不会拉取所起草 Release 的依赖；一旦每个值都有了答案，它就会拉取这些依赖（参见[重新运行与 `--sync`](#re-running-and---sync)）。"
+  },
   "71914862b85708f3": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -78693,6 +78859,13 @@
     "srcHash": "71b4b5011b6ea307",
     "status": "machine",
     "text": "逐字段的 Go 模板谓词，返回布尔值；为 false 时以 `validateMessage:` 停止验证"
+  },
+  "71b9c6cd7433bc34": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "71b9c6cd7433bc34",
+    "status": "machine",
+    "text": "以状态 1 退出，并输出一句话，说明欠缺多少个值以及在何处写入它们："
   },
   "71bc190397cca90c": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -79934,6 +80107,17 @@
     "status": "machine",
     "text": "**原因：**标签是由平台架构师编写的、不可变的 Catalog 级特征——即策略引擎和选择器读取的语义标识。Release 通过显式的基于映射的 ID 定位（`components: { \"my-agent\": {} }`）将组件路由到边界，这样既保留了按组件嵌套 `infra` 和 feature 覆盖的能力，又不会把标签的编写混入开发者的 Aggregate。"
   },
+  "7365d029861e32c5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "f3abe585a795282e",
+      "reviewed": false
+    },
+    "srcHash": "7365d029861e32c5",
+    "status": "machine",
+    "text": "一个文件"
+  },
   "736a02351b06b57b": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -81095,6 +81279,13 @@
     "srcHash": "7518581e44216492",
     "status": "machine",
     "text": "**还有一种情形也在此报告，而它并非拼写错误。** ArtifactLibrary bundle 自身的文件主体不能本身是对另一个 bundle 的 `$import:`：一个文件槽位无法展开为多个文件，因此嵌套导入会被拒绝，而不会被解析成作者未曾书写的内容。请改为在使用这些 bundle 的位置组合它们。"
+  },
+  "75239700e2644177": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "75239700e2644177",
+    "status": "machine",
+    "text": "与源文件位于同一目录中的 `import-answers.yaml`"
   },
   "7523f654f29a018d": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -82608,6 +82799,17 @@
     "status": "machine",
     "text": "A `plugins.importer` entry pins a version of its importer the catalog does not hold（该条目固定了目录中不存在的导入器版本）"
   },
+  "772c44b57a59b496": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "revision": {
+      "from": "5b15b0bff9004d72",
+      "reviewed": false
+    },
+    "srcHash": "772c44b57a59b496",
+    "status": "machine",
+    "text": "为此 provider 能力（即 Recipe 的 spec.capability 所绑定的词，例如 compose 或 helm）草拟一个 Manifest，将草稿所需的每个组件类型和功能类型映射到工作区目录为其提供的该能力的 Recipe 或功能配方（只有一个时即为该项，有多个时则为以该类型命名的那一个），并让草拟的 Release 指向它。目录中没有任何 Recipe 绑定的能力会在导入器运行之前被拒绝。不使用该标志时不会草拟 Manifest，但 --sync 会复用先前导入时指定的目标。"
+  },
   "7732bfb324554508": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -82646,6 +82848,13 @@
     "srcHash": "773bd1a40e883de2",
     "status": "machine",
     "text": "平台工程中一个常见的陷阱，是强迫路由器（即我们的 `Release` 文件）承担繁重的 Day-0 集群资源供给（例如，先启动一个新的 AWS EKS 集群，再将应用部署到其中）。这会产生冗长且难以阅读的路由文件。"
+  },
+  "7745c3b6295ba239": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "7745c3b6295ba239",
+    "status": "machine",
+    "text": "每个应答是一个值，导入将其作为字符串写入草稿，替换空值，草稿中的其他内容不做任何改动。写入起草出的 Aggregate 中的应答，读回时与你输入的完全一致，包括 `{{`。空应答会使该值仍处于待填状态。"
   },
   "7746eaad9501fcce": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -90600,6 +90809,13 @@
     "status": "machine",
     "text": "An attachment delivers a key another inject source already claimed（挂载交付的键已被另一个注入来源占用）"
   },
+  "82fefe7cc78eed7b": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "srcHash": "82fefe7cc78eed7b",
+    "status": "machine",
+    "text": "导入为之起草的提供程序能力，例如 compose 或 helm：即为导入指定的目标；对于刷新先前某次导入且自身未指定目标的导入，则为先前那次导入所记录的目标。importer 将仅该目标所需的内容作为声明写入草稿，并略去仅其他目标所需的内容。宿主在检查工作区目录中有某个 Recipe 绑定到该目标后，按原样传递它。导入未指定目标时不存在。"
+  },
   "8302efd87fcb3bb3": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -92612,6 +92828,13 @@
     "status": "machine",
     "text": "只有声明过的叶子才会被隐去，附加级别的 `[sensitive]` 子句并不是隐去指令：它表示该附加处理机密材料，而不是说明其哪些叶子带有机密材料。凭据 Feature 发布的定位符——资源名称和数据键——是公开的，在标准库目录中特意未作声明，因此它们会以明文打印在不以明文打印的材料旁边："
   },
+  "860c6d1ba558c97e": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "860c6d1ba558c97e",
+    "status": "machine",
+    "text": "一个答案文件用于多个目标"
+  },
   "860edcbc7c542bc7": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -94534,6 +94757,13 @@
     "status": "machine",
     "text": "CI 和溯源工具会记录生成某个制品的确切编译器构建。"
   },
+  "88ed00729f0fbb83": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "88ed00729f0fbb83",
+    "status": "machine",
+    "text": "`core/referenced-secret-set` 在 Docker Compose 上由 `compose/dotenv-secret-set` 实现，它将每个条目作为以其键命名的变量交付到 inject 管道中，并按编写的原样写入服务的环境，因此值为 `${GITHUB_TOKEN}` 的条目会以该引用写入。它不创建任何资源，因此它发布的定位符为空：Compose 上的消费方从自己的 inject 管道读取这些条目，而不是按名称引用某个 Secret，正如 `compose/mcp` 和 `compose/mcp-stdio-bridge` 自 1.1.0 起对 Model Context Protocol 服务器的 `server_env` 所做的那样。"
+  },
   "88ed2efc2df54a20": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -94937,6 +95167,17 @@
     "srcHash": "8992c5b8001a189f",
     "status": "machine",
     "text": "`container.envFrom[]`"
+  },
+  "8993ee37b1cfbf38": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "b8828a58d32f6b08",
+      "reviewed": false
+    },
+    "srcHash": "8993ee37b1cfbf38",
+    "status": "machine",
+    "text": "**`core/referenced-secret-set`** 实体化一个这样的资源，其中包含作者提供的一组数据键，并且只发布其定位符，适用于目标已固定其读取的键名的消费方。Docker Compose 没有这样的资源，因此在那里它的实现改为以值的形式交付这些键，如下文所述。[MariaDB（Bitnami chart）——一个多键凭据 Secret](mariadb-bitnami-credential-set/README.md)使用了它。"
   },
   "8997963e942de33f": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -98943,6 +99184,13 @@
     "status": "machine",
     "text": "`Aggregate.spec.aggregates[].type` 下的字符串扩展为 `/aggregate/`。"
   },
+  "8f412215764bc121": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "8f412215764bc121",
+    "status": "machine",
+    "text": "一个目录"
+  },
   "8f4134c8abeeb09a": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -100195,6 +100443,13 @@
     "srcHash": "91261c5a12a44c76",
     "status": "machine",
     "text": "编写自有扩展关键字的目录作者使用同一命名空间；使用编译后 JSON Schema 的下游工具读取 `x-aggrega-*` 键时，不会与 JSON Schema 自身的关键字空间冲突。"
+  },
+  "9127b532618e5aea": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9127b532618e5aea",
+    "status": "machine",
+    "text": "你给出的每个应答都会写入草稿和应答文件，并且应答文件会列在已写入的文件之中。如果一次运行未对应答文件做任何更改，则不会再次写入该文件。"
   },
   "9129cea81336c687": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -102584,6 +102839,17 @@
     "status": "machine",
     "text": "**无论该解析在何处运行，你都会得到这两种形式。** [`aggrega build`](../cli/aggrega-build.md)、[`aggrega pull`](../cli/aggrega-pull.md)、[`aggrega validate --release`](../cli/aggrega-validate.md) 和 [`aggrega inspect --closure`](../cli/aggrega-inspect.md) 会在终端中输出它们，通过 [`aggrega mcp`](../cli/aggrega-mcp.md) 连接的 AI 助手也会从 `build` 和 `validate` 工具收到相同的说明。你从哪个界面发起请求，都不会改变你被指引去打开的文件——通过 HTTP 访问 [`aggrega mcp`](../cli/aggrega-mcp.md) 的调用方得到的是相对于工作区根目录的路径，且不会被告知该服务器所服务工作区之外的文件——并且当拒绝排在最前时，答复所指向的编写契约是该被拒绝文档所声明 kind 的契约，而不是失败引用的 kind 的契约。"
   },
+  "947642c1caea5cbd": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "f54d84cbf201e858",
+      "reviewed": false
+    },
+    "srcHash": "947642c1caea5cbd",
+    "status": "machine",
+    "text": "一种 provider 能力，例如 compose 或 helm——即 Recipe 的 spec.capability 所绑定的词——用于在草稿旁起草一个 Manifest，即 manifest.yaml：草稿所需的每个组件类型和功能类型（包括草稿 Aggregate 所组合的目录 Aggregate 的类型）都会映射到工作区目录为其提供的该能力的 Recipe 或功能配方——只有一个时即为该项，有多个时则为以该类型命名的那一项；没有对应项，或有多个但无一以此命名的类型保持未映射，并产生一条指出该类型的警告发现项；导入器自行起草的映射，若目录为该类型和该能力提供了它则保留，否则丢弃并产生一条警告发现项；草稿 Release 的 spec.manifest 会设置为该 Manifest。目录中没有任何 Recipe 绑定的能力会在转换运行前被拒绝，且不写入任何内容。未提供时不起草 Manifest，但同步模式除外：同步会为先前导入记录中指定的目标起草；指定了目标的同步会为该目标起草，之后记录中即为该目标。"
+  },
   "947777b12485f94c": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -103941,6 +104207,13 @@
     "srcHash": "9666116910e802bf",
     "status": "machine",
     "text": "该角色上的策略**指出标签**——节点、键及其取值——而不是编写构建所应用的编辑指令。这一原因对编写此类策略的人很重要：编辑指令按路径定位标签，而 Aggrega 的标签键通常包含 `/`，即路径分隔符，因此手写的路径会定位到一个嵌套位置，而不是某一个标签。构建会定位决定中指出的标签，并且该角色接收的仅含标签的投影，其节点比针对整个图的裁决浅一层。"
+  },
+  "966651cdf2bfa43b": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "966651cdf2bfa43b",
+    "status": "machine",
+    "text": "一旦不再欠缺任何值且工作区不处于离线状态，导入会像 [`aggrega pull`](cli/aggrega-pull.md) 那样拉取草拟的 Release 的依赖项并写入 `release.lock`，因此 `aggrega validate` 和 `aggrega build` 可立即在草稿上运行。在 `--offline` 下不拉取任何内容，导入会给出接下来要运行的 `aggrega pull --release <path>`。"
   },
   "96694c4e53690fb1": {
     "at": "2026-11-10T00:52:32.955Z",
@@ -106500,6 +106773,13 @@
     "status": "machine",
     "text": "signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `\"<issuer>\"` with identity `\"<subject>\"`, but no trusted identity permits that issuer（signing：signing：该签名身份不受此 registry 信任，后附验证器报告的内容；签名者出示了颁发者及身份，但没有任何受信任的身份允许该颁发者）"
   },
+  "9a1f5d74e4d8d031": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9a1f5d74e4d8d031",
+    "status": "machine",
+    "text": "文件所在位置"
+  },
   "9a24d51bf0b2e179": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -106546,6 +106826,17 @@
     "srcHash": "9a35dc81c6c733cf",
     "status": "machine",
     "text": "Recipes 使用 `implements` 关键字绑定到其实现的接口。`implements` 字段支持精确、主版本兼容范围或无版本匹配（关于 `implements` 版本匹配，参见 [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md)）。Manifest 映射条目中的 Recipe 必须实现它所映射的类型，或该类型 `extends` 的某个基类：即条目的键，以及该键在未指明版本时所覆盖的每个组件实例的类型（按构建编译该实例时所用的版本）——因此，一个键无法把实例发送给为其类型的另一个版本编写的 Recipe。"
+  },
+  "9a39e2d2a139972e": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "revision": {
+      "from": "87bb922793536cb7",
+      "reviewed": false
+    },
+    "srcHash": "9a39e2d2a139972e",
+    "status": "machine",
+    "text": "importer guest 接收的载荷：选择如何读取字节的源格式、主源字节及读取这些字节的文件名、多文件导入时的任何具名源、使用方为 importer 特定行为提供的可选不透明选项文档、工作区目录所含 Components 的视图，以及导入为之起草的目标。"
   },
   "9a4186edced0763b": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -107493,6 +107784,13 @@
     "status": "machine",
     "text": "当 `aggrega.exe` 正在运行时（由编辑器或 AI 客户端启动），安装程序无法替换它，会停止并给出相应的消息；请关闭启动它的程序，然后再次运行安装程序。卸载程序也会以同样的方式停止，此时它尚未移除任何内容。"
   },
+  "9bbc336ef5119fe1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9bbc336ef5119fe1",
+    "status": "machine",
+    "text": "机密的值 — 即其模式标记为敏感的值 — 以该机密的来源作答，绝不以机密本身作答。它的问题询问的正是这一点，答案是以下名称之一："
+  },
   "9bbd20f47453e326": {
     "at": "2026-11-08T10:59:19.008Z",
     "job": "session-0011-20261108105919",
@@ -108325,6 +108623,13 @@
     "srcHash": "9cbd0e64fb4d6ace",
     "status": "machine",
     "text": "featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`（featurerecipe eval-provider 约束：provider 为 eval 时禁止使用渲染输入类型字段（所示 FeatureRecipe、规则 eval、所示路径处）。已声明的禁用字段如上所列）"
+  },
+  "9cc18d963f48e284": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9cc18d963f48e284",
+    "status": "machine",
+    "text": "在 `--dry-run` 下，不提问也不写入任何内容，包括答案文件。每个欠缺的值仍会在标准错误上列出，退出状态即为试运行本身的状态。"
   },
   "9cc40f55b5bf3d3d": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -109250,6 +109555,13 @@
     "srcHash": "9e04baf5d270cc1c",
     "status": "machine",
     "text": "本地服务器使用其扩展设置；通过 HTTPS 访问的服务器使用其连接器设置"
+  },
+  "9e062337b7582141": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9e062337b7582141",
+    "status": "machine",
+    "text": "不拉取草拟的 Release 的依赖项；"
   },
   "9e0e63dd0928516a": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -112238,6 +112550,13 @@
     "status": "machine",
     "text": "应用以安装的所有者账户导入，该账户由 Release 指定：条目上方的注释为此留下安装的 `api` 组件上的 `infra.owner_email` 和该组件上的 `owner_password` 槽位，两者都在 Release 中该安装的路由条目里设置，缺少它们构建会中止。"
   },
+  "a2635061f627a755": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "a2635061f627a755",
+    "status": "machine",
+    "text": "应答文件是"
+  },
   "a266bd3eabf7d506": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -112758,6 +113077,13 @@
     "status": "machine",
     "text": "关于该命令开启的编写循环——起草结构、填写占位符、验证——参见[编写入门](../../authoring/getting-started.md)。"
   },
+  "a309be11b24b4c5a": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "srcHash": "a309be11b24b4c5a",
+    "status": "machine",
+    "text": "答案文件：草稿留空且任何源都无法提供的值从该文件读取并写入该文件，路径相对于工作区根目录；绝对值，或按原样或通过链接指向工作区之外的值，会被拒绝。该文件在每个草稿文件的路径下保存该文档内的键路径及其答案，答案会写入草稿。未提供时，读取草稿旁记录所指定的文件，否则读取源文件旁或源目录内的 import-answers.yaml。机密的答案指明机密的来源——变量名、${NAME} 或 Kubernetes Secret 的名称——其他任何内容都会被拒绝，且不写入任何内容。不会进行任何询问：每个仍待提供的值都是一条警告发现项，指出草稿文件、键及其含义；在写入草稿的情况下，最后一条发现项会说明还有多少待提供以及位于何处。当草稿包含 Release、没有待提供的值且转换已完成时，随后会拉取其依赖项并写入其 lockfile；拉取失败时，会以一条说明原因的发现项结束，草稿仍已写入；离线时不拉取任何内容，并由一条发现项指出需要运行的拉取。针对这些草稿未留空的键的答案会保留在文件中但不应用，因此一个答案文件可服务于所有目标。"
+  },
   "a309dc3d56980868": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -113258,6 +113584,13 @@
     "srcHash": "a3a7751f60c4e726",
     "status": "machine",
     "text": "`ConfigCapturedAttachment`"
+  },
+  "a3a966af05a9d0dc": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "a3a966af05a9d0dc",
+    "status": "machine",
+    "text": "导入会添加其草稿欠缺的键，并设置它收到的答案；"
   },
   "a3adcab20a521644": {
     "at": "2026-10-29T21:59:45.311Z",
@@ -119256,6 +119589,13 @@
     "status": "machine",
     "text": "**操作：**编译器最终确定扁平的中间表示（IR）图，保留拓扑构建器绘制的显式拓扑边。随后它将挂载的 Features 及其 `values` 载荷规范化为按节点 ID 映射的扁平字典，为验证准备好与能力无关的图。"
   },
+  "ac469c64ee1b099f": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ac469c64ee1b099f",
+    "status": "machine",
+    "text": "对变量的引用"
+  },
   "ac48b5016cd205a8": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -120477,6 +120817,13 @@
     "srcHash": "adf4bad2a226d5e8",
     "status": "machine",
     "text": "**Release 按其内容记录，而不仅仅按其名称记录。** Release 请求的一切——某个源解析为哪个 chart 版本、哪些组件落入哪个边界——都依据该文件所含内容解析，因此 `release_documents` 记录该 Release 及其扩展的每个 Release 的摘要，与指名它的 `release` 并列。拉取后编辑 Release，下一次构建会在任何渲染之前中止，指名你编辑的文件并提示你重新拉取；普通的 `aggrega pull --release <release>` 会记录该编辑，同时遵循其他所有固定。摘要覆盖文件的原始字节，因此注释或空白的更改也算在内，与 Aggregate 和 Manifest 完全一样。Release 通过 `parameters` 导入的文件不以这种方式记录。"
+  },
+  "adfab8bc08de2f93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "adfab8bc08de2f93",
+    "status": "machine",
+    "text": "有些值任何源都无法提供：用你自己的代码构建的应用程序镜像、所有者账户的电子邮件、源中未指明的模型、Kubernetes Secret 的名称。[`aggrega import`](cli/aggrega-import.md) 将每个这样的值起草为空字符串，并在其上方加一条注释说明它是什么，然后只向你获取一次——从答案文件中获取，或在终端中提问获取。答案保存在答案文件 `import-answers.yaml` 中，因此之后对同一源的每次导入都会从那里读取，不再提问。"
   },
   "adfb88249147d90a": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -123989,6 +124336,13 @@
     "status": "machine",
     "text": "**属于 CloudFormation 内置函数的值**——例如 `!GetAtt Db.Endpoint.Address` 这样的短格式标签，或长格式的 `Ref` 或 `Fn::` 映射——指向只有生产者的栈才声明的内容，因此消费者会收到与注入值相同的跨栈引用：生产者栈为该键发布一个 `Export`，消费者用 `Fn::ImportValue` 读取它；若两个边界声明的放置位置不同，则用 `Fn::GetStackOutput` 读取。"
   },
+  "b2a3aa602762a782": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b2a3aa602762a782",
+    "status": "machine",
+    "text": "答案"
+  },
   "b2a672eb818b4a9d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -124108,6 +124462,13 @@
     "srcHash": "b2ce60cb8a1b6661",
     "status": "machine",
     "text": "缺少锁文件的通知关闭后，针对你未请求的工作再次显示之前的秒数。仅当 `toastDebounceMode` 为 `time` 时读取。"
+  },
+  "b2cfead1dd8a3c93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "b2cfead1dd8a3c93",
+    "status": "machine",
+    "text": "哪些值待提供"
   },
   "b2d371a9b40f8288": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -126638,6 +126999,13 @@
     "status": "machine",
     "text": "`AGGREGA_DEFAULT_REGISTRY` —— 省略 `--registry` 时使用的目标镜像仓库。"
   },
+  "b62ba0a7ad6f9e85": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b62ba0a7ad6f9e85",
+    "status": "machine",
+    "text": "每个问题都会指明起草出的文件和键路径，其措辞依据 schema 的描述；"
+  },
   "b62c640b29f5d3fc": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -126686,6 +127054,13 @@
     "srcHash": "b638f933aded58df",
     "status": "machine",
     "text": "打印实体或契约种类的 JSON Schema"
+  },
+  "b6391c66b71fa2c4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b6391c66b71fa2c4",
+    "status": "machine",
+    "text": "按 Enter 键可将该值留待以后填写，结束输入则停止提问。"
   },
   "b6392a1a9830cb92": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -128004,6 +128379,13 @@
     "status": "machine",
     "text": "`patches`——一个不透明 JSONPatch 文档（RFC 6902）数组，由 host 应用到仅含标签的投影上。"
   },
+  "b84e767bc103a0da": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b84e767bc103a0da",
+    "status": "machine",
+    "text": "助手的导入工具以 `answers` 接收答案文件，可相对于工作区根目录指定，也可使用绝对路径。仍欠缺值的调用会以该句话失败，并在其旁附带导入结果，包括警告。编辑器的导入同样接收答案文件，并以同一句话结束其诊断信息。"
+  },
   "b84e7e70b29cb956": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -129109,6 +129491,13 @@
     "status": "machine",
     "text": "**给资源取不同的名称并不能解决这个问题。** 输出名称由\n  宿主组件和条目构建而成，因此必须不同的是*条目*——\n  要么只用一个附加而不是两个，要么使用一个 Feature，其发布的条目名称\n  读起来就属于该附加自身。"
   },
+  "b9ef755373870edd": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b9ef755373870edd",
+    "status": "machine",
+    "text": "重新运行与 `--sync`"
+  },
   "b9f0addcbd75da82": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -129626,6 +130015,17 @@
     "srcHash": "ba878d4ce6c913a4",
     "status": "machine",
     "text": "**归档中的每个文件都带有模式 `0644` 且不带时间戳，无论其在磁盘上的权限位如何。**检出操作会以自己的权限位写入文件，而不记录执行位的系统会把另一系统检出为可执行文件的内容检出为普通文件，因此归档不携带从磁盘读取的模式：同一提交的两次检出，无论其 umask 如何、在哪个系统上完成，发布的文件都相同，翻转脚本的执行位也不会改变任何已发布内容。"
+  },
+  "ba8af07e176f9ac9": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "4555c029e3e298f5",
+      "reviewed": false
+    },
+    "srcHash": "ba8af07e176f9ac9",
+    "status": "machine",
+    "text": "Release 的 `metadata.environment` 和 `spec.manifest` 保持未设置，并各自在其所属位置的注释中列出：没有任何源指明 Release 部署到的环境，且导入器不起草 Manifest——除非为导入指定了目标，如[目标带来的内容](#what-a-target-adds)所述。你编写的 Manifest 将每个服务器映射到其实现——命令行对应 `helm/mcp-stdio-bridge` 或 `compose/mcp-stdio-bridge`，地址对应 `helm/mcp-remote` 或 `compose/mcp-remote`，镜像对应 `helm/mcp` 或 `compose/mcp`——并将 `core/referenced-secret-set` 映射到其自身的实现，即 `helm/k8s-secret-set` 或 `compose/dotenv-secret-set`；起草的 Manifest 两者都不映射。Release schema 要求两者都存在，因此在设置之前，构建会停止并列出它们。"
   },
   "ba8ba836674439a1": {
     "at": "2026-10-29T21:05:52.313Z",
@@ -136762,6 +137162,13 @@
     "status": "machine",
     "text": "provider 的支持声明：此 provider 读取的平台原生知名注解键（aggrega.ai/ 命名空间），每个键附带其读取的作用域以及缺省时应用的行为。仅在 provider 确实读取某个键时才声明它——公开的支持矩阵由这些声明渲染生成，因此此处列出的键，就是作者可以预期会在其指定作用域内改变渲染输出的键。编译器以两种方式读取该声明：若 `scope` 指定的输入类型不在 provider 自身 `contract.inputKinds` 的声明之中，则与同一实体中的相邻声明相矛盾，构建会中止并指出该键及矛盾之处；若某个 aggrega.ai/ 注解经由此 provider 到达某次渲染，而该渲染声明的任何输入类型上都没有条目涵盖它，构建会发出警告。它不同于管辖在保留的 aggrega.ai/ 前缀下绑定值的规则。缺省表示不声明任何支持，也不会为此 provider 发出此类警告；不读取任何这些键的 provider 则声明 `readsNoWellKnownAnnotations`，而不是此列表。条目为有序列表，并保留编写顺序。"
   },
+  "c48cd90b2e7127a7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c48cd90b2e7127a7",
+    "status": "machine",
+    "text": "该检查读取的是答案的形式，因此碰巧看起来像名称的机密无法与名称区分开来。机密本身保留在名称所指向的位置：变量中，或 Secret 中。"
+  },
   "c4908d1b1bca39d4": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -140113,6 +140520,13 @@
     "status": "machine",
     "text": "由边推导的条目以**无门控**方式生成：无论目标是否声明了 healthcheck，它们都具有 `service_started` 语义。以目标的健康状态为门控（这会让 compose 运行时阻止启动，直到目标的 healthcheck 报告健康）是可以表达的，但这并不是 `uses` 边目前的含义。指名同一对服务的[部署波次](#deployment-wave-ordering)是唯一会改变由边推导条目的条件的因素，而这样做是因为波次提出了要求，而不是因为边提出了要求。"
   },
+  "c94504c2a935cab8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c94504c2a935cab8",
+    "status": "machine",
+    "text": "同一来源针对不同目标草拟时，可能欠缺不同的值：上文的 Google ADK Release 以 `--target compose` 草拟时只欠缺镜像，而同一 Release 以 `--target helm` 草拟时还欠缺智能体的 Gemini API 密钥的来源。一个答案文件可同时服务两者："
+  },
   "c9482c890a55be01": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -141304,6 +141718,13 @@
     "srcHash": "cad90fe442777b96",
     "status": "machine",
     "text": "**长形式映射**：当任一条目带有条件时使用——即该服务还需等待某个[init 容器](#init-containers)，或者某个[部署波次](#deployment-wave-ordering)为其排序时。此时，由边推导的条目会生成显式的 `condition: service_started`，Compose Specification 将其定义为与短形式等价，因此其含义不变。"
+  },
+  "cadb56db6aef01cf": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "cadb56db6aef01cf",
+    "status": "machine",
+    "text": "源目录中的 `import-answers.yaml`"
   },
   "cadbdeba89aff2b3": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -143385,6 +143806,17 @@
     "status": "machine",
     "text": "**本页介绍目录类型，但声明 `extends` 的不只有这些类型。** Release 和 Manifest 也会声明它，二者都是彼此并列编写的部署侧文档，而不是由目录索引的实体——因此它们的引用指向文件而非目录实体，折叠的是编写层面而非 schema。相关内容请参阅 [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) 和 [`entities/manifest.md`](../entities/manifest.md)。"
   },
+  "cde78a6f86e77be9": {
+    "at": "2026-11-14T09:58:17.556Z",
+    "job": "session-0003-20261114095817",
+    "revision": {
+      "from": "98d215f124954c81",
+      "reviewed": false
+    },
+    "srcHash": "cde78a6f86e77be9",
+    "status": "machine",
+    "text": "**发送 `target`，为某一个 provider 起草所起草的 Release 据以构建的 Manifest。**`target` 是一种 provider 能力——即 Recipe 的 `spec.capability` 所绑定的词，例如 `compose` 或 `helm`——它就是 `aggrega import` 的 `--target`，由同一操作组合而成，因此一次调用与该命令会从同一来源起草出相同的文件。对于草稿所需的每个组件类型和每个功能类型——涉及所起草的 Aggregate 的组件、这些组件的连接及其子系统，它所组合的目录 Aggregates，以及所起草的 Release 的附加项——按草稿首次声明的顺序，导入会在工作区的目录中查找实现该类型并绑定到该能力的 Recipes（对于功能类型则查找功能配方）。若恰好有一个——其中某一个的多个版本算作一个——Manifest 就以不带版本的能力限定名称将该类型映射到它，例如 `compose/postgres`，首次 pull 会在锁文件中将其固定为可用的最高版本。若有多个且名称各不相同，则映射以该类型本身命名的那一个，例如为 `core/datastore/postgres` 映射 `helm/postgres`。若一个都没有，或有多个但没有一个如此命名，该类型就保持未映射，`diagnostics` 中的一条 `warn` 条目会指明它及其原因——多个时逐一列出名称——因此在添加映射之前，对这些草稿的构建会停止并指明它的每个实例或附加项，归于 [No Recipe is mapped for a component or feature instance（没有为组件或 Feature 实例映射 Recipe）](../errors/fatal-halts.md#no-recipe-is-mapped-for-a-component-or-feature-instance)。若由导入器自己起草 Manifest，用以选择某个实例渲染所经由的 Recipe，或在多个功能配方中选择一个，则它写下的、目录为该类型和该能力所提供的每个映射都会保留，其他映射则被丢弃并附一条 `warn` 条目，它留下的类型按上述方式映射。Manifest 起草为所起草的 Release 旁边的 `manifest.yaml`，其名称和版本与该 Release 相同，并且该 Release 的 `spec.manifest` 被设为该名称——导入器在该位置写下的注释会被替换，Release 中的其他内容不变。已经指定了 Manifest 的 Release 保持原样；若导入未起草 Release，Manifest 就起草在 Aggregate 旁边，采用其名称和版本，并有一条 `info` 条目说明没有任何内容引用它。Manifest 和编辑过的 Release 与其他草稿一样：列在 `written` 中，记录在记录里，并在 `dry_run` 下返回。若目录中没有任何 Recipe 绑定到该 `target`，会在导入器运行之前被拒绝，归于 [An import's target names a capability no Recipe in the catalog binds to（导入的 target 指定了目录中没有任何 Recipe 绑定的能力）](../errors/fatal-halts.md#an-imports-target-names-a-capability-no-recipe-in-the-catalog-binds-to)，并给出你发送的值以及目录中 Recipes 所绑定的能力，且不写入任何内容。省略 `target` 则不起草 Manifest——`sync` 除外，它会为先前导入所发送的 target 起草；空的 `target` 会被拒绝，而不是当作你省略了它。"
+  },
   "cded6d3462fda3d2": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -143845,6 +144277,13 @@
     "srcHash": "ce81d2451cb65e1d",
     "status": "machine",
     "text": "**指向实体旁边的目录或文件的 `source:` 中的每个文件。** 不会获取任何内容：该步骤对该源为实体发布内容所贡献的每个文件计算摘要——即其所指目录下被实体的忽略规则保留的每个文件，或那一个文件——并按其在实体旁边的路径记录。Recipe 旁边但不由该源贡献的文件（例如 README）不会被固定。以模板形式写出的源，例如 `./charts/{{ .values.flavour }}`，只有在 Release 填入后才指向其目录，因此它贡献实体目录中被规则保留的每个文件，而这些文件都会被固定。构建会在其 provider 读取源之前将源与这些固定记录进行比较，因此自固定以来新增、修改或删除的文件会使构建中止——[A local source no longer matches the pins recorded beside its Recipe（本地源不再与其 Recipe 旁边记录的固定内容一致）](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe)。"
+  },
+  "ce8614df5f442559": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ce8614df5f442559",
+    "status": "machine",
+    "text": "该文件为 YAML 格式。其顶层键是起草出的文件，以每个文件的起草路径表示。在每个顶层键之下，一个键是该文档中某个待填值的点分键路径，其值就是应答。schema 对该键的描述以注释形式写在键的上方。为空、或包含句点、空白字符或引号的键路径段，会写在双引号中。不符合此结构的文件会使导入停止，并指出该文件及原因，且不写入任何内容。"
   },
   "ce879f2e0eb33dfb": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -144895,6 +145334,13 @@
     "srcHash": "cfe94b9cdcec4a14",
     "status": "machine",
     "text": "运行位置"
+  },
+  "cfeb558f45ef2ba1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "cfeb558f45ef2ba1",
+    "status": "machine",
+    "text": "Kubernetes Secret 的名称"
   },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -150231,6 +150677,13 @@
     "status": "machine",
     "text": "发出的消息，定位于声明该模块的 `aggregates` 条目，使用导入文档所写的本地名称："
   },
+  "d7a52d2cb772511a": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "d7a52d2cb772511a",
+    "status": "machine",
+    "text": "起草完成后，导入会根据每个起草文档自身的 schema，以及该文档声明的每个 Component、Feature 和连接的目录 schema 来检查该文档。当某个值在该 schema 要求有值的地方仍为空，或在 schema 声明了该键而没有任何来源提供它时，该值即为**待提供**。每个待提供的值都由 schema 自身对其键的描述来说明；schema 未给出描述时，则由草稿在该键上方写入的注释来说明。"
+  },
   "d7ad36e04765a51b": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -155314,6 +155767,13 @@
     "status": "machine",
     "text": "在 helm 上，`Loopback` 条目会中止构建，而不是渲染成与其含义不符的内容。Kubernetes Service 没有绑定到主机回环地址的类型——`NodePort` Service 监听哪些节点地址是整个集群的设置，而非单个 Service 的设置——因此 `ClusterIP` Service 会丢失该条目要求的可达范围，而 `NodePort` Service 会将端口发布在集群允许的每个节点地址上。中止信息会指明节点和服务；参见 [A service type the helm provider cannot render（helm provider 无法渲染的服务类型）](../errors/fatal-halts.md#a-service-type-the-helm-provider-cannot-render)。"
   },
+  "de924b6792609c84": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "de924b6792609c84",
+    "status": "machine",
+    "text": "变量名"
+  },
   "de9361a06a9d236f": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -156579,6 +157039,13 @@
     "status": "machine",
     "text": "annotation contribution overridden by an explicit value（注解的贡献被显式值覆盖）"
   },
+  "e02e83c53945b2b5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e02e83c53945b2b5",
+    "status": "machine",
+    "text": "密钥的应答是密钥来源的名称，而绝不是密钥本身（参见[密钥](#secrets)），因此应答文件可以与源一起保存在版本控制中。"
+  },
   "e0304859d466cea4": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -156981,6 +157448,13 @@
     "srcHash": "e0abfdbceef42902",
     "status": "machine",
     "text": "请求可以指定的所有方法。该集合是封闭的：指定其他任何内容的请求会收到 method-not-found 错误作为答复。"
+  },
+  "e0ae7a1f3f51e7e7": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e0ae7a1f3f51e7e7",
+    "status": "machine",
+    "text": "文件内容"
   },
   "e0b0610077afe719": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -160059,6 +160533,13 @@
     "srcHash": "e5117a3f1b78b275",
     "status": "machine",
     "text": "通常由谁编写哪些文件。这种分工是指导，而不是编译器强制执行的规则：在小团队或个人项目中，一个人编写全部文件。"
+  },
+  "e51a0b1bf8548448": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "e51a0b1bf8548448",
+    "status": "machine",
+    "text": "在标准错误上列出每个欠缺的值，作为一条警告，指出草拟的文件、键路径及其描述；"
   },
   "e51b9b9af00f629f": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -164144,6 +164625,13 @@
     "status": "machine",
     "text": "同一缓存，在组件的可选 `password` 槽位上附加了 inject-value 密码凭据（Compose 路径）。其构建会中止。"
   },
+  "eb424d0978e0df0d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "eb424d0978e0df0d",
+    "status": "machine",
+    "text": "写入答案文件，其中包含每个欠缺的键，其答案为空；"
+  },
   "eb43e6e2ed3d82b4": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -165074,6 +165562,13 @@
     "srcHash": "ec6595c6004da722",
     "status": "machine",
     "text": "对端被视为同区域，跨 stack 引用通过同区域的 stack 导出导入解析。"
+  },
+  "ec6703343a0626d4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ec6703343a0626d4",
+    "status": "machine",
+    "text": "导入首先从应答文件中为每个待填值获取应答。对于文件中未作应答的每个值，它会逐一向你提问——但仅当标准输入和标准输出都是终端，且未指定 `--dry-run` 时："
   },
   "ec6de3549db1cf0d": {
     "at": "2026-10-29T23:25:30.396Z",
@@ -170873,6 +171368,17 @@
     "status": "machine",
     "text": "`RenderedNameOutput`"
   },
+  "f465d891fd1af658": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "a490cd8e08cae82f",
+      "reviewed": false
+    },
+    "srcHash": "f465d891fd1af658",
+    "status": "machine",
+    "text": "源是"
+  },
   "f466ae263b32aecc": {
     "at": "2026-10-30T01:13:08.755Z",
     "job": "session-0043-20261030011308",
@@ -171567,6 +172073,13 @@
     "srcHash": "f569f31ab76e7198",
     "status": "machine",
     "text": "插件变更写入了哪个配置文档，以及其影响范围。命令扩展插槽自身的默认值是本机范围的文档，因此每个应答都会说明它写入了哪个文档。"
+  },
+  "f56c84bbb22f3966": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "f56c84bbb22f3966",
+    "status": "machine",
+    "text": "这两个应答都由你决定：`ghcr.io/example/support-agent:1.0.0` 代表你构建并推送的镜像，`google-api-key` 代表在你部署到的命名空间中保存该密钥的 Kubernetes Secret 的名称。"
   },
   "f56db32603c4b949": {
     "at": "2026-11-08T10:34:42.436Z",
@@ -175306,6 +175819,17 @@
     "status": "machine",
     "text": "**修复方法：** 将消息引用的 id 与组合中实际存在的组件进行比对。缺少模块前缀和把子系统名称写入 id 是两种常见原因；去掉子系统、加上模块前缀，或更正拼写。若该条目是已删除或已重命名组件的遗留条目，请删除它。"
   },
+  "fa81d6eac5c562f4": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "988e6880f3577fa0",
+      "reviewed": false
+    },
+    "srcHash": "fa81d6eac5c562f4",
+    "status": "machine",
+    "text": "`core/referenced-secret` 在 Docker Compose 上由 `compose/dotenv-referenced-secret` 实现。Compose 没有可供引用的 secret 资源，因此 `origin` 就是凭据本身，而不是某个 Secret 的名称：它以附加项的 `key` 为名交付到 inject 管道中，读取该槽位的 Compose Recipe 将其按编写的原样写入输出文件，因此写成 `${DB_PASSWORD}` 的 origin 会以该引用写入。它不创建任何资源，因此它发布的名称为空，发布的键为 `values.key`。"
+  },
   "fa822b61196acabe": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -178402,6 +178926,13 @@
     "srcHash": "ff18ebbd0613c8f4",
     "status": "machine",
     "text": "FeatureRecipe 结构规则"
+  },
+  "ff19f949e4e0fff0": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ff19f949e4e0fff0",
+    "status": "machine",
+    "text": "在终端中，答案被拒绝，显示原因，并再次提出问题；"
   },
   "ff2f778fc9d75fc9": {
     "at": "2026-10-17T20:35:57.134Z",

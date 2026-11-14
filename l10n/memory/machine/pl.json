@@ -4286,6 +4286,13 @@
     "status": "machine",
     "text": "**Plik `.wasm` obok swojej encji.** Podczas pisania pluginu nie ma jeszcze nic opublikowanego, co kompilacja mogłaby pobrać, więc kompilacja czyta plik `.wasm` pluginu obok jego encji `Plugin` w folderze katalogu, pod nazwą wyprowadzoną z typu pluginu i nazwy encji: dla `pipeline-step/patch` jest to `pipeline-step--patch.wasm`. Małe litery, cyfry i większość łączników są zapisywane w tej nazwie bez zmian; każdy inny znak jest zapisywany w postaci zakodowanej, podobnie jak łącznik na kilku pozycjach — dlatego tam, gdzie ma to znaczenie, odmowa z powodu brakującego pliku `.wasm`, [A plugin's `.wasm` is not on this machine (Moduł pluginu nie znajduje się na tej maszynie)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), podaje pełną nazwę. `aggrega lint <plugin.yaml>` czyta plik `.wasm` z tego samego miejsca — obok przekazanego pliku encji, w jakimkolwiek folderze ten plik się znajduje — chyba że plik binarny sam zawiera plugin, i wypisuje uwagę dla każdego eksportu, możliwości lub kontraktu, który plik `.wasm` zgłasza, a który encja pomija. Jeśli nie ma tam pliku `.wasm`, lint informuje, że pominął ten raport, podając plik, którego szukał, i folder, a jego wynik się nie zmienia."
   },
+  "05cedb671faf2b91": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "05cedb671faf2b91",
+    "status": "machine",
+    "text": "Na przykład [import Google ADK](../authoring/import/google-adk.md) wygenerowany z `--target helm` ma dwie brakujące wartości w encji Release: obraz agenta budowanego z projektu oraz miejsce, z którego pochodzi klucz API Gemini agenta. Po udzieleniu obu odpowiedzi plik odpowiedzi w katalogu źródłowym `support_agent/` wygląda tak:"
+  },
   "05cf32a5d00d40db": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -6783,6 +6790,13 @@
     "srcHash": "09542c9f91481c5e",
     "status": "machine",
     "text": "`bytes` — bajty źródła."
+  },
+  "095661fde2bd7d6b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "095661fde2bd7d6b",
+    "status": "machine",
+    "text": "Ta strona opisuje, gdzie znajduje się plik, co zawiera, jak trafiają do niego wartości i co robi import, gdy wartości wciąż brakuje. Do czego służy import oraz przewodniki od źródła do kompilacji opisano w sekcji [Import](../authoring/import/README.md)."
   },
   "095ae11710a3a921": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -10391,6 +10405,13 @@
     "status": "machine",
     "text": "**Zarezerwowany i egzekwowany.** Platforma definiuje tu klucze, a użytkownik zapisuje te, które ona definiuje — np. `aggrega.ai/namespace` na granicy encji Release. Deklaracja *nowego* klucza w tym prefiksie zatrzymuje kompilację: zarówno powiązanie `features.annotations` encji Manifest pod samym prefiksem, jak i klucz etykiety wyjściowej encji Recipe pod nim w `outputLabels:` lub `outputComponentLabels:`. Zob. [`errors/fatal-halts.md`](../errors/fatal-halts.md) „A Manifest annotation binding claims the reserved `aggrega.ai/` prefix (Powiązanie adnotacji w manifeście deklaruje zarezerwowany prefiks)” oraz „An output-label key uses a reserved namespace (Klucz etykiety wyjściowej używa zarezerwowanej przestrzeni nazw)”."
   },
+  "0eafaa11e0808da2": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "0eafaa11e0808da2",
+    "status": "machine",
+    "text": "[`aggrega import`](cli/aggrega-import.md) — dokumentacja polecenia, łącznie ze wszystkimi flagami."
+  },
   "0eb06a849d49d401": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -11360,6 +11381,17 @@
     "srcHash": "0fc48f4ae1427300",
     "status": "machine",
     "text": "[`aggrega-pull`](aggrega-pull.md) — pobiera encje katalogu z rejestru OCI do lokalnego katalogu."
+  },
+  "0fc5b18dbf6e708d": {
+    "at": "2026-11-14T09:58:23.259Z",
+    "job": "session-0004-20261114095823",
+    "revision": {
+      "from": "b01c85c4818679bf",
+      "reviewed": false
+    },
+    "srcHash": "0fc5b18dbf6e708d",
+    "status": "machine",
+    "text": "`aggrega/import` — przekształca obcy opis źródłowy w robocze pliki autorskie Aggrega; jest to ta sama konwersja, którą [`aggrega import`](aggrega-import.md) wykonuje w terminalu. `source` jest wymagane i wskazuje plik lub katalog do konwersji, jako ścieżkę bezwzględną albo względną wobec katalogu głównego obszaru roboczego — opis wyeksportowany przez inne narzędzie znajduje się tam, gdzie go zapisano, więc jest odczytywany tam, gdzie faktycznie się znajduje, a nie tylko wewnątrz obszaru roboczego. Katalog jest odczytywany tak, jak odczytuje go [`aggrega import`](aggrega-import.md): ograniczony dokładnie do tych jego plików, które wybierają zadeklarowane wzorce plików importera, i zamknięty w sobie, gdziekolwiek się znajduje, więc żadne dowiązanie w nim nie jest śledzone poza niego. `outputDir` jest opcjonalne i wskazuje katalog, do którego trafiają wersje robocze, i **nie** podlega tej zasadzie: następuje do niego zapis, więc jest to ścieżka wewnątrz obszaru roboczego, a wartość bezwzględna lub wskazująca poza katalog główny — wprost albo przez dowiązanie, łącznie z jeszcze nieutworzonym katalogiem pod takim dowiązaniem — jest odrzucana. Gdy zostanie pominięte, wersje robocze trafiają pod katalog główny obszaru roboczego, tam, gdzie zapisuje je [`aggrega import`](aggrega-import.md), gdy nie wskazuje miejsca docelowego — również przy `dryRun`. `format` jawnie wskazuje format źródła; gdy zostanie pominięty, format jest rozpoznawany po sygnaturach deklarowanych przez importery — zarówno z katalogu obszaru roboczego, jak i [importery rdzenia](../plugins/core-importers.md) kompilatora — a źródło, którego żaden nie rozpoznaje albo które rozpoznają importery więcej niż jednego formatu, jest odrzucane z prośbą o `format`, zamiast zgadywania. `target` wskazuje możliwość dostawcy, taką jak `compose` lub `helm` — słowo, z którym wiąże się `spec.capability` encji Recipe — i obok wersji roboczych importera tworzy roboczy Manifest, względem którego buduje się roboczy Release dla tego dostawcy, dokładnie tak jak `aggrega import --target`: `manifest.yaml`, mapujący każdy typ komponentu i każdy typ funkcji potrzebny wersjom roboczym — łącznie z typami katalogowej encji Aggregate, którą roboczy Aggregate włącza w swój skład — na Recipe lub recepturę funkcji tej możliwości, jaką katalog obszaru roboczego dla niego oferuje, według nazwy kwalifikowanej możliwością, bez wersji: na jedyną, jaka istnieje, albo spośród kilku na tę nazwaną od typu. `spec.manifest` encji Release jest ustawiane na niego; typ bez żadnej albo z kilkoma, z których żadna nie ma takiej nazwy, pozostaje niezmapowany, z ustaleniem `warn`, które go wskazuje, a mapowanie utworzone przez sam importer jest zachowywane tam, gdzie katalog oferuje je dla tego typu i tej możliwości, a w przeciwnym razie odrzucane z ustaleniem `warn`. `target`, z którym nie wiąże się żaden Recipe w katalogu, jest odrzucany przed uruchomieniem importera, z podaniem go i możliwości, z którymi wiążą się Recipes katalogu, i nic nie jest zapisywane; gdy zostanie pominięty, Manifest nie jest tworzony — z wyjątkiem trybu `sync`, który tworzy go dla celu wskazanego w zapisie wcześniejszego importu. Importer rdzenia, którego maszyna jeszcze nie ma, jest pobierany przez pierwszy import, który go potrzebuje — zob. [Co mówi odpowiedź importu](#what-an-import-response-tells-you). `dryRun` robi wszystko to, co zwykłe żądanie, z wyjątkiem zapisu, i zwraca wersje robocze jako treść, dla klienta, który najpierw pokazuje je autorowi; nic nie jest tworzone, a `written` jest puste. `sync` aktualizuje względem źródła to, co wcześniejszy import utworzył w `outputDir`, zmieniając tylko to, co zapisał import, tak jak `aggrega import --sync`; bez niego żądanie, którego wersje robocze nadpisałyby istniejący już Aggregate, jest odrzucane. Odpowiedź zawiera `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` i `halted`. Zob. [Co mówi odpowiedź importu](#what-an-import-response-tells-you), ponieważ źródło, którego importer nie mógł w pełni przekonwertować, daje odpowiedź pomyślną, a nie błąd."
   },
   "0fc628f1809ecca4": {
     "at": "2026-10-30T00:50:36.309Z",
@@ -13850,6 +13882,13 @@
     "status": "machine",
     "text": "**`helm-chart` — wyprowadzana przez niego nazwa jest własnym adresem umieszczonego chartu, a to coś\n  innego niż nazwa, względem której renderują się szablony tego chartu.** Ten dostawca ustawia pole `name`\n  dołączonego chartu na zakodowaną tożsamość tego, co go wniosło; jest to również alias, pod którym chart\n  nadrzędny wiąże ten podchart, i klucz, w którego zakresie znajdują się jego wartości. Dla komponentu tę\n  tożsamość niesie `{{ .context.instance_id }}`, więc nazwa umieszczonego chartu jest już dostępna pod\n  kluczem, który mówi, czym ona jest. Nazwą, względem której renderują się własne *szablony* dołączonego\n  chartu, jest nazwa wydania, którą dostarcza wydanie chartu nadrzędnego w czasie instalacji, a nie ten\n  dostawca — nie ma więc tu takiej nazwy, którą ten klucz mógłby zgłosić. Zob.\n  [`../providers/helm-chart.md`](../providers/helm-chart.md), „The chart name the umbrella owns”."
   },
+  "137c33ae78707b9d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "137c33ae78707b9d",
+    "status": "machine",
+    "text": "w pliku odpowiedzi import zatrzymuje się, podając plik odpowiedzi, szkicowany plik i klucz — nigdy odpowiedź, która może być samym sekretem — i niczego nie zapisuje."
+  },
   "137de87e9b48bd3b": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -15188,6 +15227,13 @@
     "srcHash": "1581f725c1ab607e",
     "status": "machine",
     "text": "**Rola:** Platform Architect. „Programista” platformy. Umieszcza każdy komponent w ontologii operacyjnej, pisze programowalne polityki (mutatory i walidatory Wasm) i ustanawia semantyczne etykiety duck typingu."
+  },
+  "158e331b65405f68": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "158e331b65405f68",
+    "status": "machine",
+    "text": "Należy wpisać każdą odpowiedź obok jej klucza, a następnie uruchomić `aggrega import <source> --sync` do tego samego katalogu. Zwykłe `aggrega import` do katalogu, który zawiera już szkicowaną encję Aggregate, zatrzymuje się, wskazując `--sync`, i niczego nie zapisuje. Import do nowego katalogu wyjściowego również odczytuje plik odpowiedzi: domyślny lub ten, który wskazuje `--answers`."
   },
   "15912767fa78f2a6": {
     "at": "2026-10-22T09:44:21.400057+00:00",
@@ -16615,6 +16661,13 @@
     "status": "machine",
     "text": "Mapuje typ Grafana na Recipe Compose (`compose/grafana`), a poświadczenie na `dotenv-secret`."
   },
+  "179ed653afd6e252": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "179ed653afd6e252",
+    "status": "machine",
+    "text": "`--answers <file>` wskazuje inny plik. Ścieżka względna jest rozwiązywana względem katalogu, w którym uruchamia się polecenie. Gdy w szkicach brakuje wartości, a plik odpowiedzi nie jest domyślnym plikiem obok źródła, rekord zapisywany przez import obok szkiców, `.aggrega-import.json`, wskazuje go, dzięki czemu późniejsze `aggrega import --sync` w tym samym katalogu odczytuje go bez ponownego wskazywania. Rekord nigdy nie zawiera odpowiedzi."
+  },
   "179f6a4ff4be5cf5": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -17458,6 +17511,13 @@
     "status": "machine",
     "text": "[`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md)\n  — powierzchnie etykiet i adnotacji odczytywane przez politykę."
   },
+  "18fbd3c8e2a30ec6": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "18fbd3c8e2a30ec6",
+    "status": "machine",
+    "text": "`aggrega import --sync` odczytuje ten sam plik odpowiedzi co poprzedni import: ten, który wskazuje `--answers`, w przeciwnym razie ten, który wskazuje zapis obok szkiców, a w przeciwnym razie domyślny obok źródła. Zapisuje każdą odpowiedź w szkicach w miejsce pustej wartości, a jeśli plik odpowiedzi odpowiada na każdą brakującą wartość, o nic nie pyta."
+  },
   "18fd1ce92dc47f70": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -17839,6 +17899,13 @@
     "srcHash": "197e87953672a52b",
     "status": "machine",
     "text": "znajduje wrażliwe fragmenty w tekście"
+  },
+  "197eddbcdca5315d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "197eddbcdca5315d",
+    "status": "machine",
+    "text": "Bez terminala"
   },
   "1983f0f4acd509f8": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -31100,6 +31167,13 @@
     "status": "machine",
     "text": "Prywatny stan encji Recipe (np. primary_compute, volumes_path). Obliczany w preambule locals — przed provides danego węzła — i publikowany w tym filarze podczas rozwiązywania source. Każdy wpis jest szablonem Go obliczanym względem samodzielnego, lokalnego dla węzła kontekstu zawierającego dotychczas rozwiązane wpisy tego samego bloku, więc wpis MOŻE odczytać wpis siostrzany zdefiniowany POWYŻEJ niego i otrzymuje jego rozwiązaną wartość. Kolejność autora jest częścią kontraktu wszędzie tam, gdzie jeden wpis odczytuje inny: przeniesienie definicji poniżej wpisu, który ją odczytuje, psuje kompilację. Odwołanie '.locals.<key>' do późniejszego wpisu lub do klucza, którego blok nie deklaruje, zatrzymuje kompilację. Kontrola sprawdza ścieżkę, do której odwołanie SIĘ ROZWIĄZUJE, a nie wpisane znaki, więc obejmuje zarówno formę bezpośrednią, odczyt wewnątrz bloku '{{ with .locals }}', jak i odczyt przez zmienną powiązaną bezpośrednio z '.locals'. Nie obejmuje dwóch zapisów: odwołania, którego ścieżki nie rozstrzyga tekst szablonu — osiągniętego przez funkcję, np. 'index .locals', albo przez blok 'with' lub powiązanie zmiennej, którego potok stosuje taką funkcję — oraz klucza odczytywanego z bloku w nawiasach, '(.locals).<key>' lub '($.locals).<key>', gdzie klucz odnosi się do wartości zwróconej przez nawiasy, a nie do samego bloku. Żaden z nich nie jest analizowany, a nieobecny klucz osiągnięty w którykolwiek z tych sposobów nie zatrzymuje kompilacji: renderuje dosłowny tekst '<no value>' zamiast niczego. Jedynym wyjątkiem jest samo 'index': na każdej powierzchni szablonu zatrzymuje kompilację, podając nazwę klucza, gdy odczytywana mapa nie zawiera żądanego klucza, więc nieobecny klucz osiągnięty przez 'index .locals' zatrzymuje kompilację. Wpis locals nie może odczytać '.provides'. Dostępne w provides (podczas obliczania provides, po preambule), source, valuesMapping, workload, artifacts, assertions oraz dla dalszych Plugins Wasm przez pipeline[].with (i pipeline[].when). Nigdy nie jest udostępniane wywołującym."
   },
+  "2c839ce3e6f8af1c": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2c839ce3e6f8af1c",
+    "status": "machine",
+    "text": "zapisuje szkice, pozostawiając każdą brakującą wartość pustą;"
+  },
   "2c841c691c02923b": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -32478,6 +32552,13 @@
     "srcHash": "2ea22211f5e27e22",
     "status": "machine",
     "text": "**Zależność, której pull w trybie offline nie może spełnić lokalnie, zatrzymuje go.** Wpis nigdy nie jest pomijany:"
+  },
+  "2ea8b7fbe231f881": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2ea8b7fbe231f881",
+    "status": "machine",
+    "text": "Import sprawdza, czy odpowiedź ma postać jednej z tych nazw, i odrzuca wszystko inne:"
   },
   "2ea9653cc8c84f51": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -40695,6 +40776,13 @@
     "status": "machine",
     "text": "Publikowane z każdym wydaniem kompilatora"
   },
+  "3ae67fb4b0db3b76": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3ae67fb4b0db3b76",
+    "status": "machine",
+    "text": "[Import](../authoring/import/README.md) — co szkicuje import, oraz przewodnik krok po kroku dla każdego formatu źródłowego."
+  },
   "3ae7caf0f4810e11": {
     "at": "2026-10-22T23:34:48.466793+00:00",
     "job": "msgbatch_012aTHHfasvCmeZDPUMZda5D",
@@ -42084,6 +42172,13 @@
     "srcHash": "3cc6d8fedc8543f1",
     "status": "machine",
     "text": "Komunikat podaje węzeł, providera, dokument deklarujący wpis i pozycję wpisu na liście `omits:` tego dokumentu, licząc od `0`, oraz rodzaj, nazwę i przestrzeń nazw, do których wpis został rozwiązany, przy czym przestrzeń nazw tylko wtedy, gdy wpis ją wskazuje. Dla encji FeatureRecipe dołączonej do komponentu węzłem jest ten komponent; dla dołączonej do granicy wiersz nad komunikatem podaje dołączenie i jego granicę. Jeśli kilka wpisów niczego nie dopasowało, wskazywany jest pierwszy w kolejności zapisu, więc przy każdym uruchomieniu wskazywany jest ten sam wpis. Pole, którego szablon odczytał wartość zadeklarowaną jako wrażliwa, jest pokazywane jako `<redacted>` zamiast wartości, do której zostało rozwiązane. Wpis odrzucony przez swoje `when:` nigdy nie jest przekazywany providerowi i nigdy nie jest sprawdzany."
+  },
+  "3ccb2fe5cb2fcba4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "3ccb2fe5cb2fcba4",
+    "status": "machine",
+    "text": "Jak wartości trafiają do szkiców"
   },
   "3cd437c7143e191e": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -43703,6 +43798,13 @@
     "srcHash": "3f33eef1b9d869e7",
     "status": "machine",
     "text": "a plugin has no representation for a value it was given\n> compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `\"<value>\"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value (wtyczka nie ma reprezentacji dla otrzymanej wartości; compose: wartość nvidia.com/gpu w podanej ścieżce to ilość, której compose nie może dokładnie przedstawić; liczba urządzeń compose to całkowita liczba urządzeń od 0 do 9223372036854775807: ilości zasobów nie można przekształcić w wartość deploy.resources compose)"
+  },
+  "3f348773a80806f7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3f348773a80806f7",
+    "status": "machine",
+    "text": "odpowiedź dla klucza, którego te szkice nie wymagają, zostaje zachowana w pliku i nie jest stosowana, a wiersz informacyjny na standardowym wyjściu błędów ją wymienia;"
   },
   "3f39623715f9a586": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -53372,6 +53474,13 @@
     "status": "machine",
     "text": "Każdy rekord zawiera też `published`: każdą wersję odnotowaną w indeksie, w rosnącej kolejności\nwersji, każdą z `manifestDigest`, na który wskazywał jej tag w chwili budowy indeksu, oraz — jeśli\npolityka zaufania tego obszaru roboczego zweryfikowała własny podpis tej wersji — jej `signer`: spośród kilku\nweryfikowanych ten, który dziennik przejrzystości odnotował najwcześniej. Wersja bez `signer` nie ma\npodpisu zweryfikowanego przez tę politykę i nic więcej się o niej nie mówi.\nKonsument odczytujący zawartość jednej wersji adresuje ją tym skrótem — na przykład\n`aggrega inspect oci://<host>/<repository>@<digest>` — więc odczytuje bajty odnotowane przez indeks,\nbez względu na to, co później stanie się z tagiem."
   },
+  "4d6bda4228866fc8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "4d6bda4228866fc8",
+    "status": "machine",
+    "text": "każdy inny klucz i komentarz w pliku pozostaje bez zmian."
+  },
   "4d6c763354ce99c8": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -55363,6 +55472,13 @@
     "srcHash": "5020e691490fefe8",
     "status": "machine",
     "text": "**Przedstawienie klucza OpenAI w połączeniu z modelem.** Encja Release dołącza go do połączenia jako `core/secret-value` odczytujący `${OPENAI_API_KEY}`."
+  },
+  "50220ad04074e0b7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "50220ad04074e0b7",
+    "status": "machine",
+    "text": "W ciągłej integracji, przez potok, z narzędzia importu asystenta (`aggrega mcp`) oraz z edytora nie jest zadawane żadne pytanie. Import, któremu po odczytaniu pliku odpowiedzi nadal brakuje wartości:"
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -60741,6 +60857,13 @@
     "status": "machine",
     "text": "Plik `.mcp.json` Claude Code wymieniający trzy serwery Model Context Protocol — dwa uruchamiane z wiersza poleceń i jeden prowadzony przez kogoś innego — przekształcony przez `aggrega import` w szkice plików Aggrega, przejrzany i skompilowany dla Kubernetes."
   },
+  "57ca4474081da557": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "57ca4474081da557",
+    "status": "machine",
+    "text": "pytania są zapisywane na standardowe wyjście błędów, więc standardowe wyjście zawiera tylko wynik importu;"
+  },
   "57cb8546339ab3aa": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -64368,6 +64491,13 @@
     "srcHash": "5d139b6597327aa4",
     "status": "machine",
     "text": "Bezpieczna dla Kubernetes tożsamość komponentu — to, do czego NALEŻY zasób emitowany przez ten węzeł, czyli to, co rejestruje proweniencja i o co pyta selektor. Gdy jest niepusta, zastępuje identyfikator węzła jako wartość etykiet app.kubernetes.io/name i aggrega.ai/component-id; pusta oznacza, że identyfikator węzła jest już poprawną wartością etykiety i jest używany bezpośrednio. Jest niesiona dla każdego zasobu emitowanego przez załącznik Feature, niezależnie od sposobu, w jaki załącznik je dostarcza, więc zasoby załącznika można odróżnić od zasobów komponentu-hosta wyłącznie po etykiecie. To, z czego gość wyprowadza własne nazwy, jest osobnym polem, derived_name_basis, a oba odpowiadają na różne pytania."
+  },
+  "5d1421914cc8d34f": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "srcHash": "5d1421914cc8d34f",
+    "status": "machine",
+    "text": "Plik odpowiedzi, z którego odczytywane i do którego zapisywane są wartości pozostawione przez szkice jako puste, których nie może przechowywać żadne źródło: pod ścieżką każdego pliku ze szkicu ścieżka klucza w nim i jej odpowiedź. Ścieżka względna jest rozwiązywana względem katalogu, w którym uruchamia się polecenie. Bez tej flagi używany jest plik odpowiedzi wskazany przez rekord obok szkiców, a w przeciwnym razie import-answers.yaml obok pliku źródłowego lub w katalogu źródłowym. Odpowiedzią dla sekretu jest nazwa miejsca, z którego pochodzi sekret, nigdy sam sekret."
   },
   "5d18d785317d749e": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -68069,6 +68199,17 @@
     "status": "machine",
     "text": "Załącznik zapisany na połączeniu jest wymieniony pod wierszem tego połączenia w `Uses:`, a nie pod `Features:`, dzięki czemu `Features:` zawiera wyłącznie własne załączniki komponentu. Wiersz nad nim określa połączenie przez jego alias i komponent, do którego prowadzi, a resztę mówi jego własna klauzula:"
   },
+  "62132e66784e4cf8": {
+    "at": "2026-11-14T09:58:04.272Z",
+    "job": "session-0001-20261114095804",
+    "revision": {
+      "from": "1fba9c7e11dd3449",
+      "reviewed": false
+    },
+    "srcHash": "62132e66784e4cf8",
+    "status": "machine",
+    "text": "**Co zawiera biblioteka standardowa.** `core/ai-tool/mcp` nosi `http`. Dołącza on serwer Model Context Protocol do agenta, a encja Manifest wybiera, jak ten serwer jest realizowany: `helm/mcp` i `compose/mcp` uruchamiają obraz udostępniający protokół przez HTTP; `helm/mcp-stdio-bridge` i `compose/mcp-stdio-bridge` uruchamiają pakiet obsługujący tylko stdio za przypiętym mostem, który udostępnia go przez HTTP; `helm/mcp-remote` i `compose/mcp-remote` docierają do serwera prowadzonego przez kogoś innego i niczego nie uruchamiają. Każda realizacja publikuje te same `host`, `port`, `endpoint`, `protocol` i `credential_header`, więc okablowanie konsumenta nie zmienia się wraz z realizacją. Własne poświadczenia serwera są zmiennymi środowiskowymi, przechowywanymi w slocie `server_env` narzędzia: dostarczanymi do mostu przez referencję na Kubernetes, a na Docker Compose zapisywanymi do środowiska usługi w postaci dostarczonej, gdzie referencja do zmiennej Compose utrzymuje poświadczenia poza plikiem; poświadczenia serwera zdalnego przechowuje konsument na własnym połączeniu z narzędziem i przedstawia je w nagłówku wskazanym przez `credential_header`, czyli `Authorization`, chyba że encja Release wskaże inny. Gdy serwer zdalny odczytuje swój klucz z własnego adresu, konsument przechowuje na tym połączeniu również cały adres, w slocie `endpoint` wypełnianym na Kubernetes referencją do obiektu Secret, a na Docker Compose referencją do zmiennej Compose, więc klucz nie trafia do żadnego wyrenderowanego pliku, podczas gdy `infra.endpoint` narzędzia zawiera adres bez części niosącej klucz; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) buduje oba warianty. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` i `core/ai-agent/mastra` oraz platformy przepływów `core/ai-agent/flowise` i `core/ai-agent/n8n` deklarują gniazdo narzędzi tej postaci, `tools`, i dostarczają adres każdego podłączonego narzędzia oraz poświadczenia połączenia przez referencję w zmiennych nazwanych według aliasu połączenia, podczas gdy połączenie zapisujące blok `inject:` otrzymuje to, co dyktuje ten blok, zamiast zmiennych wyprowadzonych z tego, co publikuje narzędzie, a zawartość jego slotów `credential` i `endpoint` pozostaje pod nazwą aliasu; własny konsument deklaruje takie gniazdo w ten sam sposób. Każda z trzech platform przepływów przenosi do platformy podczas wdrożenia przepływ napisany w encji Aggregate, na obu celach: Langflow ładuje przeniesioną definicję ze swojego katalogu przepływów przy każdym uruchomieniu, chatflow Flowise jest zasilany przez jednorazowy krok zalogowany jako konto właściciela wskazane przez encję Release, a workflow n8n jest importowany przez krok init przed uruchomieniem platformy. `core/ai-agent/langflow` deklaruje gniazdo `tools` tej samej postaci, które nie dopuszcza bloku `inject:`, i zamiast tego dostarcza każde połączenie przez ten przepływ, ponieważ komponent MCP Tools w Langflow przyjmuje adres serwera wyłącznie z ustawień samego Langflow lub z przepływu, nigdy ze zmiennej: jego Recipes zapisują adres narzędzia w węźle MCP Tools, którego serwer nosi nazwę aliasu połączenia, dostarczają poświadczenia połączenia przez referencję jako zmienną wskazaną przez nagłówek tego węzła — w `Authorization` zmienną zawierającą `Bearer` i poświadczenia — i przepuszczają hosty podłączonych narzędzi i magazynów przez zabezpieczenie Langflow przed adresami prywatnymi. Wszystkie trzy platformy deklarują też gniazdo `vector_store` wybierające `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, które w ten sam sposób dostarcza adres każdego podłączonego magazynu — publikowany przez niego `endpoint`, dla `core/datastore/pgvector` URI połączenia bez hasła, albo adres złożony z jego protokołu, hosta i portu — oraz poświadczenia połączenia przez referencję; magazyn, który publikuje także swoją bazę danych i użytkownika, jak robi to `core/datastore/pgvector`, trafia do Flowise i n8n również w tych częściach, ponieważ węzeł wektorowy PostgreSQL żadnej z tych platform nie przyjmuje ciągu połączenia; Langflow, którego komponent PGVector przyjmuje jeden ciąg, otrzymuje taki magazyn jako `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, z poświadczeniami połączenia jako hasłem, przez referencję na Kubernetes i w postaci dostarczonej na Docker Compose. Chatflow Flowise odczytuje dostarczoną zmienną przez zmienną Runtime o tej samej nazwie utworzoną na stronie Variables w Flowise, a workflow n8n odczytuje ją przez `$env` tylko tam, gdzie encja Aggregate ustawia wartość `allow_env_access_in_nodes` platformy, ponieważ domyślnie Recipes tej platformy utrzymują blokadę n8n dla dostępu do środowiska w węzłach."
+  },
   "62136175ad509e63": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -69990,6 +70131,17 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "We wpisie `envFrom` te same komunikaty dotyczą ścieżek `.containers.<name>.envFrom[<i>].connection` i `.containers.<name>.envFrom[<i>].secret`."
+  },
+  "6503353463e95d8b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "5e487c338b512423",
+      "reviewed": false
+    },
+    "srcHash": "6503353463e95d8b",
+    "status": "machine",
+    "text": "przy czym komponent `embeddings` (`core/ai-model/openai-embedding`, z `values.model` ustawionym na `text-embedding-3-small`) i komponent `cache` (`core/datastore/redis`) są zadeklarowane obok modeli, każdy umieszczony w encji Release, a Manifest mapuje oba oraz `core/referenced-secret-set` na jego realizację dla Kubernetes, `helm/k8s-secret-set`, która zapisuje klucze bezpośrednio w renderowanym obiekcie Secret, więc nadaje się wyłącznie do środowiska deweloperskiego. Plik tras deklaruje następnie każdego wywołującego i sprawdza jego klucz na każdej trasie, a trasa czatu zawiera pamięć podręczną:"
   },
   "650a29f570ba59ad": {
     "at": "2026-11-08T10:48:22.903Z",
@@ -77954,6 +78106,13 @@
     "status": "machine",
     "text": "Usługa jest odrzucana na podstawie samej nazwy, bez porównywania tego, co zadeklarowały oba węzły. Usługa compose to pojedynczy działający kontener, więc dwa węzły, z których każdy chciał jednej, dostają jedną na dwa, a intencja jednego ze współtwórców ginie, niezależnie od tego, jak identyczne są obie definicje."
   },
+  "706983b557ebd085": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "706983b557ebd085",
+    "status": "machine",
+    "text": "Plik odpowiedzi importu"
+  },
   "70706b5780f5908e": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -78604,6 +78763,13 @@
     "status": "machine",
     "text": "Próba kontrolna: pytanie o całe powiązanie"
   },
+  "718f1ef5027284fc": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "718f1ef5027284fc",
+    "status": "machine",
+    "text": "Dopóki jakakolwiek wartość jest zaległa, import nie pobiera zależności szkicu encji Release; pobiera je, gdy tylko każda wartość otrzyma odpowiedź (zob. [Ponowne uruchamianie i `--sync`](#re-running-and---sync))."
+  },
   "71914862b85708f3": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -78684,6 +78850,13 @@
     "srcHash": "71b4b5011b6ea307",
     "status": "machine",
     "text": "Predykat szablonu Go na poziomie pola zwracający wartość logiczną; fałsz zatrzymuje walidację z komunikatem `validateMessage:`"
+  },
+  "71b9c6cd7433bc34": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "71b9c6cd7433bc34",
+    "status": "machine",
+    "text": "kończy działanie ze statusem 1 i jednym zdaniem informującym, ile wartości brakuje i gdzie je wpisać:"
   },
   "71bc190397cca90c": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -79925,6 +80098,17 @@
     "status": "machine",
     "text": "**Dlaczego:** etykiety to niezmienne cechy na poziomie katalogu, tworzone przez architekta platformy — semantyczna tożsamość, którą odczytują silniki polityk i selektory. Encja Release kieruje komponenty do granic przez jawne wskazywanie po ID oparte na mapach (`components: { \"my-agent\": {} }`), co zachowuje możliwość zagnieżdżania `infra` i nadpisań funkcji dla każdego komponentu bez mieszania autorstwa etykiet z encją Aggregate programisty."
   },
+  "7365d029861e32c5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "f3abe585a795282e",
+      "reviewed": false
+    },
+    "srcHash": "7365d029861e32c5",
+    "status": "machine",
+    "text": "plik"
+  },
   "736a02351b06b57b": {
     "at": "2026-10-22T12:28:13.070114+00:00",
     "job": "msgbatch_01Y3HuRsDKK1RKid7JwBTRsz",
@@ -81086,6 +81270,13 @@
     "srcHash": "7518581e44216492",
     "status": "machine",
     "text": "**Zgłaszany jest tu jeszcze jeden przypadek i nie jest to błąd pisowni.** Treść własnego pliku pakietu w encji ArtifactLibrary nie może sama być wyrażeniem `$import:` innego pakietu: jedno miejsce na plik nie może rozwinąć się w wiele plików, więc zagnieżdżony import jest odrzucany, a nie rozwiązywany w coś, czego autor nie napisał. Zamiast tego należy złożyć pakiety w miejscu, w którym są używane."
+  },
+  "75239700e2644177": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "75239700e2644177",
+    "status": "machine",
+    "text": "`import-answers.yaml` w tym samym katalogu co plik źródłowy"
   },
   "7523f654f29a018d": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -82599,6 +82790,17 @@
     "status": "machine",
     "text": "A `plugins.importer` entry pins a version of its importer the catalog does not hold (Wpis przypina wersję swojego importera, której katalog nie zawiera)"
   },
+  "772c44b57a59b496": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "revision": {
+      "from": "5b15b0bff9004d72",
+      "reviewed": false
+    },
+    "srcHash": "772c44b57a59b496",
+    "status": "machine",
+    "text": "Przygotowuje szkic encji Manifest dla tej możliwości dostawcy — słowa, z którym wiąże się spec.capability encji Recipe, na przykład compose lub helm — przypisując każdy typ komponentu i typ funkcjonalności potrzebny szkicom do encji Recipe lub receptury funkcjonalności tej możliwości, którą katalog obszaru roboczego dla niego oferuje, jedynej istniejącej lub, spośród kilku, nazwanej od typu, i kieruje na nią szkic encji Release. Możliwość, z którą nie wiąże się żadna encja Recipe w katalogu, jest odrzucana przed uruchomieniem importera. Bez tej flagi nie powstaje szkic encji Manifest, z tym że --sync ponownie używa celu podanego przy wcześniejszym imporcie."
+  },
   "7732bfb324554508": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -82637,6 +82839,13 @@
     "srcHash": "773bd1a40e883de2",
     "status": "machine",
     "text": "Powtarzającą się pułapką w inżynierii platform jest zmuszanie routera (naszego pliku `Release`) do obsługi ciężkiej aprowizacji klastrów w dniu 0 (np. uruchamiania nowego klastra AWS EKS przed wdrożeniem do niego aplikacji). Prowadzi to do długich, trudnych do czytania plików routingu."
+  },
+  "7745c3b6295ba239": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "7745c3b6295ba239",
+    "status": "machine",
+    "text": "Każda odpowiedź jest jedną wartością, a import zapisuje ją w szkicu jako ciąg znaków w miejsce pustej, nie zmieniając w szkicu niczego innego. Odpowiedź zapisana w wygenerowanej encji Aggregate odczytuje się dokładnie tak, jak została wpisana, łącznie z `{{`. Pusta odpowiedź pozostawia wartość brakującą."
   },
   "7746eaad9501fcce": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -90589,6 +90798,13 @@
     "status": "machine",
     "text": "An attachment delivers a key another inject source already claimed (Załącznik dostarcza klucz, który zajęło już inne źródło inject)"
   },
+  "82fefe7cc78eed7b": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "srcHash": "82fefe7cc78eed7b",
+    "status": "machine",
+    "text": "Możliwość dostawcy, dla której import sporządza szkice, na przykład compose lub helm: cel przekazany do importu albo, w przypadku importu, który odświeża wcześniejszy i sam nie wskazuje żadnego celu, cel zapisany przez ten wcześniejszy import. Importer zapisuje w szkicach jako deklaracje to, czego potrzebuje wyłącznie ten cel, i pomija to, czego potrzebuje wyłącznie inny cel. Host przekazuje go bez zmian, po sprawdzeniu, że encja Recipe z katalogu obszaru roboczego się z nim wiąże. Nieobecne, gdy import nie wskazuje żadnego celu."
+  },
   "8302efd87fcb3bb3": {
     "at": "2026-10-22T23:53:40.461542+00:00",
     "job": "msgbatch_01TAz2r7XL5YU3Y3vJEvBndz",
@@ -92601,6 +92817,13 @@
     "status": "machine",
     "text": "Wstrzymywany jest tylko zadeklarowany liść, a klauzula `[sensitive]` na poziomie dołączenia nie jest instrukcją wstrzymania: informuje, że dołączenie obsługuje materiał poufny, a nie to, które z jego liści go zawierają. Publikowane lokalizatory encji Feature z poświadczeniami — nazwa zasobu i klucz danych — są publiczne i celowo pozostawiono je niezadeklarowane w katalogu biblioteki standardowej, dlatego są wyświetlane jawnie obok materiału, który taki nie jest:"
   },
+  "860c6d1ba558c97e": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "860c6d1ba558c97e",
+    "status": "machine",
+    "text": "Jeden plik odpowiedzi dla kilku celów"
+  },
   "860edcbc7c542bc7": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -94519,6 +94742,13 @@
     "status": "machine",
     "text": "Narzędzia CI i narzędzia pochodzenia (provenance) zapisują dokładną kompilację kompilatora, która wytworzyła artefakt."
   },
+  "88ed00729f0fbb83": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "88ed00729f0fbb83",
+    "status": "machine",
+    "text": "`core/referenced-secret-set` jest realizowany w Docker Compose przez `compose/dotenv-secret-set`, który dostarcza każdy wpis do potoku wstrzykiwania jako zmienną nazwaną od jego klucza, zapisaną w środowisku usługi dokładnie w zapisanej postaci, więc wpis o wartości `${GITHUB_TOKEN}` trafia jako to odwołanie. Nie tworzy żadnego zasobu, więc publikowany lokalizator jest pusty: konsument w Compose odczytuje wpisy z własnego potoku wstrzykiwania zamiast odwoływać się do obiektu Secret po nazwie, jak robią to `compose/mcp` i `compose/mcp-stdio-bridge` od wersji 1.1.0 dla `server_env` serwera Model Context Protocol."
+  },
   "88ed2efc2df54a20": {
     "at": "2026-10-22T11:01:14.074299+00:00",
     "job": "msgbatch_01WmWeB2utBJXh4eG9wKjueC",
@@ -94922,6 +95152,17 @@
     "srcHash": "8992c5b8001a189f",
     "status": "machine",
     "text": "`container.envFrom[]`"
+  },
+  "8993ee37b1cfbf38": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "b8828a58d32f6b08",
+      "reviewed": false
+    },
+    "srcHash": "8993ee37b1cfbf38",
+    "status": "machine",
+    "text": "**`core/referenced-secret-set`** materializuje jeden taki zasób zawierający zbiór kluczy danych dostarczony przez autora i publikuje wyłącznie jego lokalizator, dla konsumenta, którego cel już ustala odczytywane nazwy kluczy. Docker Compose nie ma takiego zasobu, więc tam jego realizacja dostarcza klucze zamiast tego jako wartości, jak opisano poniżej. Używa go [MariaDB (chart Bitnami) — jeden wielokluczowy Secret poświadczeń](mariadb-bitnami-credential-set/README.md)."
   },
   "8997963e942de33f": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -98922,6 +99163,13 @@
     "status": "machine",
     "text": "Ciągi w `Aggregate.spec.aggregates[].type` są rozwijane do `/aggregate/`."
   },
+  "8f412215764bc121": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "8f412215764bc121",
+    "status": "machine",
+    "text": "katalog"
+  },
   "8f4134c8abeeb09a": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -100174,6 +100422,13 @@
     "srcHash": "91261c5a12a44c76",
     "status": "machine",
     "text": "Autorzy katalogów piszący własne słowa kluczowe rozszerzeń używają tej samej przestrzeni nazw; narzędzia niższego rzędu, które konsumują skompilowany JSON Schema, odczytują klucze `x-aggrega-*` bez kolizji z przestrzenią słów kluczowych samego JSON Schema."
+  },
+  "9127b532618e5aea": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9127b532618e5aea",
+    "status": "machine",
+    "text": "Każda udzielona odpowiedź jest zapisywana w szkicach i w pliku odpowiedzi, a plik odpowiedzi jest wymieniany wśród zapisanych plików. Uruchomienie, które niczego nie zmienia w pliku odpowiedzi, nie zapisuje go ponownie."
   },
   "9129cea81336c687": {
     "at": "2026-10-22T14:48:33.335041+00:00",
@@ -102559,6 +102814,17 @@
     "status": "machine",
     "text": "**Obie postacie docierają wszędzie tam, gdzie wykonywane jest to rozwiązywanie.** [`aggrega build`](../cli/aggrega-build.md), [`aggrega pull`](../cli/aggrega-pull.md), [`aggrega validate --release`](../cli/aggrega-validate.md) i [`aggrega inspect --closure`](../cli/aggrega-inspect.md) generują je w terminalu, a asystent AI połączony przez [`aggrega mcp`](../cli/aggrega-mcp.md) otrzymuje ten sam opis z narzędzi `build` i `validate`. Powierzchnia, z której pochodzi zapytanie, nie zmienia tego, który plik należy otworzyć — wywołujący, który łączy się z [`aggrega mcp`](../cli/aggrega-mcp.md) przez HTTP, otrzymuje ścieżkę względem katalogu głównego obszaru roboczego i nie otrzymuje ścieżki spoza obszaru roboczego obsługiwanego przez serwer — a gdy odrzucenie jest na pierwszym miejscu, kontrakt autorski, do którego odsyła odpowiedź, dotyczy rodzaju deklarowanego przez odrzucony dokument, a nie rodzaju nieudanego odwołania."
   },
+  "947642c1caea5cbd": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "f54d84cbf201e858",
+      "reviewed": false
+    },
+    "srcHash": "947642c1caea5cbd",
+    "status": "machine",
+    "text": "Możliwość dostawcy, taka jak compose lub helm — słowo, z którym wiąże się spec.capability encji Recipe — dla której obok wersji roboczych zostanie wygenerowana encja Manifest jako manifest.yaml: każdy typ komponentu i typ funkcji, których potrzebują wersje robocze, łącznie z typami katalogowej encji Aggregate, którą komponuje wygenerowana encja, zostaje przypisany do encji Recipe lub receptury funkcji o tej możliwości, jaką katalog obszaru roboczego dla niego oferuje — jedynej, jaka istnieje, albo spośród kilku tej nazwanej od typu; typ bez żadnej albo z kilkoma, z których żadna nie jest tak nazwana, pozostaje nieprzypisany z wynikiem ostrzegawczym, który go wskazuje; przypisanie, które importer wygenerował sam, zostaje zachowane tam, gdzie katalog oferuje je dla tego typu i tej możliwości, a w przeciwnym razie odrzucone z wynikiem ostrzegawczym; a spec.manifest wygenerowanej encji Release zostaje ustawione na tę encję Manifest. Możliwość, z którą nie wiąże się żadna encja Recipe w katalogu, jest odrzucana przed uruchomieniem przekształcenia i nic nie zostaje zapisane. Brak wartości oznacza, że żadna encja Manifest nie jest generowana, z wyjątkiem trybu sync, który generuje ją dla celu wskazanego w zapisie wcześniejszego importu; synchronizacja wskazująca cel generuje ją dla niego, a zapis wskazuje go odtąd."
+  },
   "947777b12485f94c": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -103916,6 +104182,13 @@
     "srcHash": "9666116910e802bf",
     "status": "machine",
     "text": "Polityka w tej roli **wskazuje etykietę** — węzeł, klucz i wartość, jaką przyjmuje — zamiast pisać instrukcję edycji, którą stosuje build. Powód ma znaczenie dla każdego, kto taką politykę pisze: instrukcja adresuje etykietę przez ścieżkę, a klucz etykiety Aggrega rutynowo zawiera `/`, który jest separatorem ścieżki, więc ręcznie napisana ścieżka adresowałaby zagnieżdżoną lokalizację zamiast jednej etykiety. Build adresuje etykietę wskazaną przez decyzję, a projekcja zawierająca tylko etykiety, którą otrzymuje ta rola, umieszcza jej węzły o jeden poziom płycej niż werdykt dotyczący całego grafu."
+  },
+  "966651cdf2bfa43b": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "966651cdf2bfa43b",
+    "status": "machine",
+    "text": "Gdy nie brakuje już żadnej wartości, a obszar roboczy nie jest w trybie offline, import pobiera zależności szkicowanej encji Release tak, jak robi to [`aggrega pull`](cli/aggrega-pull.md), zapisując `release.lock`, dzięki czemu `aggrega validate` i `aggrega build` od razu działają na szkicach. Przy `--offline` nic nie jest pobierane, a import podaje polecenie `aggrega pull --release <path>` do uruchomienia jako następne."
   },
   "96694c4e53690fb1": {
     "at": "2026-11-10T00:52:32.955Z",
@@ -106475,6 +106748,13 @@
     "status": "machine",
     "text": "signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `\"<issuer>\"` with identity `\"<subject>\"`, but no trusted identity permits that issuer (signing: signing: tożsamość podpisu nie jest zaufana dla tego rejestru: komunikat weryfikatora; podpisujący przedstawił wystawcę wraz z tożsamością, ale żadna zaufana tożsamość nie dopuszcza tego wystawcy)"
   },
+  "9a1f5d74e4d8d031": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9a1f5d74e4d8d031",
+    "status": "machine",
+    "text": "Gdzie znajduje się plik"
+  },
   "9a24d51bf0b2e179": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -106521,6 +106801,17 @@
     "srcHash": "9a35dc81c6c733cf",
     "status": "machine",
     "text": "Encje Recipes używają słowa kluczowego `implements`, aby powiązać się z interfejsem, który realizują. Pole `implements` obsługuje dopasowanie dokładne, według zakresu zgodnego z wersją główną lub bez wersji (dopasowanie wersji `implements` opisuje [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md)). Encja Recipe we wpisie mapowania encji Manifest musi implementować typ, dla którego jest mapowana, lub bazę, którą ten typ `extends`: klucz wpisu oraz typ każdej instancji komponentu, do której klucz dociera w wersji, której nie wskazuje, w wersji, w jakiej kompilacja kompiluje tę instancję — więc klucz nie może skierować instancji do encji Recipe napisanej dla innej wersji jej typu."
+  },
+  "9a39e2d2a139972e": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "revision": {
+      "from": "87bb922793536cb7",
+      "reviewed": false
+    },
+    "srcHash": "9a39e2d2a139972e",
+    "status": "machine",
+    "text": "Ładunek, który otrzymuje gość importera: format źródłowy określający sposób odczytu bajtów, główne bajty źródłowe i nazwa pliku, z którego je odczytano, ewentualne nazwane źródła w przypadku importu wieloplikowego, opcjonalny nieprzezroczysty dokument opcji dostarczany przez konsumenta na potrzeby zachowania specyficznego dla importera, widok encji Components przechowywanych w katalogu obszaru roboczego oraz cel, dla którego import sporządza szkice."
   },
   "9a4186edced0763b": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -107468,6 +107759,13 @@
     "status": "machine",
     "text": "Gdy `aggrega.exe` jest uruchomiony — przez edytor lub klienta AI — instalator nie może go zastąpić i kończy działanie z odpowiednim komunikatem; należy zamknąć to, co go uruchomiło, i ponownie uruchomić instalator. Deinstalator kończy działanie w ten sam sposób, zanim cokolwiek usunie."
   },
+  "9bbc336ef5119fe1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9bbc336ef5119fe1",
+    "status": "machine",
+    "text": "Na wartość sekretu — taką, którą jej schemat oznacza jako wrażliwą — odpowiada się miejscem, z którego pochodzi sekret, nigdy samym sekretem. Pytanie o nią pyta właśnie o to, a odpowiedzią jest jedna z tych nazw:"
+  },
   "9bbd20f47453e326": {
     "at": "2026-11-08T10:59:19.008Z",
     "job": "session-0011-20261108105919",
@@ -108300,6 +108598,13 @@
     "srcHash": "9cbd0e64fb4d6ace",
     "status": "machine",
     "text": "featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...` (ograniczenie dostawcy eval dla featurerecipe: pola renderowanych rodzajów wejścia są zabronione, gdy dostawcą jest eval (FeatureRecipe o podanej nazwie i wersji, reguła eval, we wskazanej ścieżce). zadeklarowano zabronione pola wymienione powyżej)"
+  },
+  "9cc18d963f48e284": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9cc18d963f48e284",
+    "status": "machine",
+    "text": "Przy `--dry-run` nie jest zadawane żadne pytanie i nic nie jest zapisywane, łącznie z plikiem odpowiedzi. Każda brakująca wartość jest nadal wymieniana na standardowym wyjściu błędów, a kod wyjścia jest kodem samego przebiegu próbnego."
   },
   "9cc40f55b5bf3d3d": {
     "at": "2026-10-22T13:38:02.118076+00:00",
@@ -109225,6 +109530,13 @@
     "srcHash": "9e04baf5d270cc1c",
     "status": "machine",
     "text": "ustawienia rozszerzeń dla serwera lokalnego; ustawienia konektorów dla serwera dostępnego przez HTTPS"
+  },
+  "9e062337b7582141": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9e062337b7582141",
+    "status": "machine",
+    "text": "nie pobiera zależności szkicowanej encji Release;"
   },
   "9e0e63dd0928516a": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -112213,6 +112525,13 @@
     "status": "machine",
     "text": "Aplikacja jest importowana na konto właściciela instalacji, które wskazuje encja Release:\nkomentarz nad wpisem pozostawia dla niego `infra.owner_email` w komponencie `api` instalacji oraz\ngniazdo `owner_password` w tym komponencie, oba ustawiane we wpisie routingu encji Release dla instalacji;\nbez nich kompilacja zostaje zatrzymana."
   },
+  "a2635061f627a755": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "a2635061f627a755",
+    "status": "machine",
+    "text": "Plik odpowiedzi to"
+  },
   "a266bd3eabf7d506": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -112733,6 +113052,13 @@
     "status": "machine",
     "text": "Cykl tworzenia, który rozpoczyna to polecenie — wygenerowanie struktury, wypełnienie symboli zastępczych, walidacja — opisano w rozdziale [Pierwsze kroki w tworzeniu](../../authoring/getting-started.md)."
   },
+  "a309be11b24b4c5a": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "srcHash": "a309be11b24b4c5a",
+    "status": "machine",
+    "text": "Plik odpowiedzi, z którego odczytywane i do którego zapisywane są wartości pozostawiane przez wersje robocze puste, których żadne źródło nie może zawierać, podany względem katalogu głównego obszaru roboczego; wartość bezwzględna lub taka, która prowadzi poza obszar roboczy wprost lub przez dowiązanie, jest odrzucana. Zawiera on, pod ścieżką każdego wygenerowanego pliku, ścieżkę klucza w tym dokumencie i odpowiedź dla niego, a odpowiedzi są zapisywane w wersjach roboczych. Brak wartości oznacza odczyt pliku wskazanego w zapisie obok wersji roboczych, a w przeciwnym razie import-answers.yaml obok pliku źródłowego lub w katalogu źródłowym. Odpowiedź dla sekretu wskazuje, skąd pochodzi sekret — nazwę zmiennej, ${NAME} lub nazwę obiektu Kubernetes Secret — a wszystko inne jest odrzucane i nic nie zostaje zapisane. O nic nie jest pytane: każda wciąż brakująca wartość jest wynikiem ostrzegawczym wskazującym wygenerowany plik, klucz i to, czym on jest, a tam, gdzie wersje robocze zostają zapisane, ostatni wynik podaje, ilu wartości brakuje i gdzie. Gdy wersje robocze obejmują encję Release, nie brakuje w nich żadnej wartości, a przekształcenie się zakończyło, pobierane są następnie jej zależności i zapisywany jest jej plik blokady, a nieudane pobranie zamyka wyniki z podaniem przyczyny, przy czym wersje robocze pozostają zapisane; w trybie offline nic nie jest pobierane, a wynik wskazuje pobranie do uruchomienia. Odpowiedź dla klucza, którego te wersje robocze nie pozostawiają pustego, zostaje zachowana w pliku i nie jest stosowana, więc jeden plik odpowiedzi służy każdemu celowi."
+  },
   "a309dc3d56980868": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -113233,6 +113559,13 @@
     "srcHash": "a3a7751f60c4e726",
     "status": "machine",
     "text": "`ConfigCapturedAttachment`"
+  },
+  "a3a966af05a9d0dc": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "a3a966af05a9d0dc",
+    "status": "machine",
+    "text": "import dodaje klucze, których wymagają jego szkice, i ustawia otrzymane odpowiedzi;"
   },
   "a3adcab20a521644": {
     "at": "2026-10-29T21:59:45.311Z",
@@ -119205,6 +119538,13 @@
     "status": "machine",
     "text": "**Działanie:** Kompilator finalizuje płaski graf reprezentacji pośredniej (IR), zachowując jawne krawędzie topologiczne wyznaczone przez konstruktor topologii. Następnie normalizuje dołączone encje Features i ich ładunki `values` do płaskiego słownika indeksowanego identyfikatorem węzła, przygotowując niezależny od zdolności graf do walidacji."
   },
+  "ac469c64ee1b099f": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ac469c64ee1b099f",
+    "status": "machine",
+    "text": "odwołanie do zmiennej"
+  },
   "ac48b5016cd205a8": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -120426,6 +120766,13 @@
     "srcHash": "adf4bad2a226d5e8",
     "status": "machine",
     "text": "**Encja Release jest rejestrowana według treści, nie tylko według nazwy.** Wszystko, o co prosi Release — do której wersji wykresu rozwiązuje się źródło, które komponenty trafiają do której granicy — wynika z zawartości pliku, dlatego `release_documents` rejestruje skrót encji Release i każdej encji Release, którą ona rozszerza, obok pola `release`, które ją nazywa. Edycja encji Release po pobraniu sprawia, że następna kompilacja zatrzymuje się przed renderowaniem, wskazując edytowany plik i polecając ponowne pobranie; zwykłe `aggrega pull --release <release>` rejestruje zmianę, respektując wszystkie pozostałe przypięcia. Skrót obejmuje bajty pliku w obecnej postaci, więc zmiana komentarza lub białych znaków również się liczy, dokładnie tak jak w przypadku encji Aggregate i Manifest. Plik importowany przez Release poprzez `parameters` nie jest rejestrowany w ten sposób."
+  },
+  "adfab8bc08de2f93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "adfab8bc08de2f93",
+    "status": "machine",
+    "text": "Niektórych wartości żadne źródło nie może zawierać: obrazu aplikacji zbudowanej z własnego kodu, adresu e-mail konta właściciela, modelu, którego źródło nie nazywa, nazwy obiektu Secret w Kubernetes. [`aggrega import`](cli/aggrega-import.md) zapisuje w szkicu każdą taką wartość jako pusty ciąg znaków, pod komentarzem mówiącym, czym ona jest, i pobiera ją od użytkownika jeden raz — z pliku odpowiedzi lub z pytania w terminalu. Odpowiedzi są przechowywane w pliku odpowiedzi `import-answers.yaml`, więc każdy późniejszy import tego samego źródła odczytuje je stamtąd i o nic nie pyta."
   },
   "adfb88249147d90a": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -123938,6 +124285,13 @@
     "status": "machine",
     "text": "**Wartość będąca funkcją wewnętrzną CloudFormation** — znacznik w formie skróconej, taki jak `!GetAtt Db.Endpoint.Address`, albo mapowanie `Ref` lub `Fn::` w formie pełnej — wskazuje coś, co deklaruje tylko stos producenta, więc konsument otrzymuje to samo odwołanie między stosami, co w przypadku wartości wstrzykniętej: stos producenta publikuje `Export` dla tego klucza, a konsument odczytuje go za pomocą `Fn::ImportValue` albo `Fn::GetStackOutput`, gdy obie granice deklarują różne rozmieszczenia."
   },
+  "b2a3aa602762a782": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b2a3aa602762a782",
+    "status": "machine",
+    "text": "Odpowiedź"
+  },
   "b2a672eb818b4a9d": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -124057,6 +124411,13 @@
     "srcHash": "b2ce60cb8a1b6661",
     "status": "machine",
     "text": "Liczba sekund od zamknięcia powiadomienia o brakującym pliku blokady, po której jest ono pokazywane ponownie dla pracy, o którą nie proszono. Odczytywane tylko wtedy, gdy `toastDebounceMode` ma wartość `time`."
+  },
+  "b2cfead1dd8a3c93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "b2cfead1dd8a3c93",
+    "status": "machine",
+    "text": "Które wartości są zaległe"
   },
   "b2d371a9b40f8288": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -126587,6 +126948,13 @@
     "status": "machine",
     "text": "`AGGREGA_DEFAULT_REGISTRY` — rejestr docelowy, gdy pominięto `--registry`."
   },
+  "b62ba0a7ad6f9e85": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b62ba0a7ad6f9e85",
+    "status": "machine",
+    "text": "każde pytanie wskazuje wygenerowany plik i ścieżkę klucza, a jego treść opiera się na opisie ze schematu;"
+  },
   "b62c640b29f5d3fc": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -126635,6 +127003,13 @@
     "srcHash": "b638f933aded58df",
     "status": "machine",
     "text": "Wypisuje JSON Schema dla rodzaju encji lub kontraktu"
+  },
+  "b6391c66b71fa2c4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b6391c66b71fa2c4",
+    "status": "machine",
+    "text": "naciśnięcie Enter odkłada wartość na później, a zakończenie wejścia przerywa zadawanie pytań."
   },
   "b6392a1a9830cb92": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -127953,6 +128328,13 @@
     "status": "machine",
     "text": "`patches` — tablicę nieprzezroczystych dokumentów JSONPatch (RFC 6902), które host stosuje do projekcji zawierającej wyłącznie etykiety."
   },
+  "b84e767bc103a0da": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b84e767bc103a0da",
+    "status": "machine",
+    "text": "Narzędzie importu asystenta przyjmuje plik odpowiedzi jako `answers`, podany względem katalogu głównego obszaru roboczego lub jako ścieżka bezwzględna. Wywołanie, któremu nadal brakuje wartości, kończy się niepowodzeniem z tym zdaniem i zawiera obok niego wynik importu, łącznie z ostrzeżeniami. Import w edytorze również przyjmuje plik odpowiedzi, a to samo zdanie zamyka jego diagnostykę."
+  },
   "b84e7e70b29cb956": {
     "at": "2026-10-22T11:48:02.910092+00:00",
     "job": "msgbatch_01Evd5wJaBRMEf4MnbVZuRR2",
@@ -129058,6 +129440,13 @@
     "status": "machine",
     "text": "**Rozróżnienie nazw zasobów tego nie naprawia.** Nazwa wyjścia jest budowana\n  z komponentu-hosta i wpisu, więc to *wpis* musi się różnić —\n  albo jedno dołączenie zamiast dwóch, albo encja Feature, której nazwy publikowanych wpisów\n  odczytuje się jako własne nazwy tego dołączenia."
   },
+  "b9ef755373870edd": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b9ef755373870edd",
+    "status": "machine",
+    "text": "Ponowne uruchomienie i `--sync`"
+  },
   "b9f0addcbd75da82": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -129575,6 +129964,17 @@
     "srcHash": "ba878d4ce6c913a4",
     "status": "machine",
     "text": "**Każdy plik w archiwum ma tryb `0644` i nie ma znacznika czasu, niezależnie od bitów uprawnień na dysku.** Checkout zapisuje pliki z własnymi bitami uprawnień, a system, który nie zapisuje bitu wykonywania, pobiera jako zwykły plik to, co inny system pobiera jako wykonywalne, więc archiwum nie zawiera trybu odczytanego z dysku: dwa checkouty jednego commita publikują te same pliki niezależnie od umask i systemu, na którym powstały, a przełączenie bitu wykonywania skryptu nie zmienia niczego w publikacji."
+  },
+  "ba8af07e176f9ac9": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "4555c029e3e298f5",
+      "reviewed": false
+    },
+    "srcHash": "ba8af07e176f9ac9",
+    "status": "machine",
+    "text": "Pola `metadata.environment` i `spec.manifest` encji Release pozostają nieustawione, a każde jest wskazane w komentarzu w miejscu, w którym powinno się znaleźć: żadne źródło nie wskazuje środowiska, do którego wdraża się Release, a importer nie tworzy szkicu encji Manifest — chyba że import otrzyma cel, jak opisuje [Co dodaje cel](#what-a-target-adds). Samodzielnie napisana encja Manifest mapuje każdy serwer na jego realizację — `helm/mcp-stdio-bridge` lub `compose/mcp-stdio-bridge` dla wiersza poleceń, `helm/mcp-remote` lub `compose/mcp-remote` dla adresu, `helm/mcp` lub `compose/mcp` dla obrazu — a `core/referenced-secret-set` na jego własną, `helm/k8s-secret-set` lub `compose/dotenv-secret-set`; szkic nie mapuje żadnego z nich. Schemat encji Release wymaga obu pól, więc kompilacja zatrzymuje się, wskazując je, dopóki nie zostaną ustawione."
   },
   "ba8ba836674439a1": {
     "at": "2026-10-29T21:05:52.313Z",
@@ -136693,6 +137093,13 @@
     "status": "machine",
     "text": "Deklaracja wsparcia providera: natywne dla platformy, dobrze znane klucze adnotacji (przestrzeń nazw aggrega.ai/), które ten provider odczytuje, każdy z zakresem, w którym jest odczytywany, i zachowaniem stosowanym w razie jego braku. Klucz należy deklarować tylko tam, gdzie provider go odczytuje — publikowana macierz wsparcia jest renderowana z tych deklaracji, więc klucz wymieniony tutaj to klucz, po którym autor może oczekiwać zmiany renderowanego wyniku w zakresie, który wskazuje. Kompilator odczytuje deklarację na dwa sposoby: `scope` wskazujący rodzaj wejścia, którego nie deklaruje własne `contract.inputKinds` providera, przeczy sąsiedniej deklaracji w tej samej encji, a kompilacja zatrzymuje się, podając klucz i sprzeczność; ponadto kompilacja ostrzega o adnotacji aggrega.ai/ docierającej do renderowania przez tego providera, gdy żaden wpis nie obejmuje jej w żadnym rodzaju wejścia deklarowanym przez to renderowanie. Pole jest odrębne od reguły rządzącej wiązaniem wartości pod zarezerwowanym prefiksem aggrega.ai/. Brak pola nie deklaruje żadnego wsparcia i dla tego providera takie ostrzeżenie nie jest zgłaszane; provider, który nie odczytuje żadnego z tych kluczy, deklaruje `readsNoWellKnownAnnotations` zamiast tej listy. Wpisy tworzą uporządkowaną listę i zachowują kolejność autora."
   },
+  "c48cd90b2e7127a7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c48cd90b2e7127a7",
+    "status": "machine",
+    "text": "Kontrola odczytuje postać odpowiedzi, więc sekret, który przypadkiem wygląda jak nazwa, nie zostanie od niej odróżniony. Sam sekret pozostaje tam, gdzie wskazuje nazwa: w zmiennej lub w obiekcie Secret."
+  },
   "c4908d1b1bca39d4": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -140044,6 +140451,13 @@
     "status": "machine",
     "text": "Wpisy wyprowadzone z krawędzi są emitowane **bez bramkowania**: mają semantykę `service_started` niezależnie od tego, czy cel deklaruje healthcheck. Uzależnienie ich od stanu zdrowia celu — co pozwoliłoby środowisku uruchomieniowemu compose wstrzymać start, dopóki healthcheck celu nie zgłosi stanu healthy — jest możliwe do wyrażenia, ale obecnie nie to oznacza krawędź `uses`. [Fala wdrożenia](#deployment-wave-ordering) wskazująca tę samą parę to jedyna rzecz, która zmienia warunek we wpisie wyprowadzonym z krawędzi, i robi to dlatego, że wymaga tego fala, a nie krawędź."
   },
+  "c94504c2a935cab8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c94504c2a935cab8",
+    "status": "machine",
+    "text": "To samo źródło szkicowane dla różnych celów może wymagać różnych wartości: opisana wyżej encja Release dla Google ADK, szkicowana z `--target compose`, wymaga tylko obrazu, a ta sama encja Release szkicowana z `--target helm` wymaga też wskazania, skąd pochodzi klucz API Gemini agenta. Jeden plik odpowiedzi obsługuje oba przypadki:"
+  },
   "c9482c890a55be01": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -141235,6 +141649,13 @@
     "srcHash": "cad90fe442777b96",
     "status": "machine",
     "text": "**Mapowanie w formie długiej**, gdy dowolny wpis ma warunek — co ma miejsce, gdy usługa czeka również na [kontener init](#init-containers) albo gdy porządkuje ją [fala wdrożenia](#deployment-wave-ordering). Wówczas wpisy wyprowadzone z krawędzi emitują jawny `condition: service_started`, który Compose Specification definiuje jako odpowiednik formy krótkiej, więc ich znaczenie się nie zmienia."
+  },
+  "cadb56db6aef01cf": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "cadb56db6aef01cf",
+    "status": "machine",
+    "text": "`import-answers.yaml` wewnątrz katalogu źródłowego"
   },
   "cadbdeba89aff2b3": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -143316,6 +143737,17 @@
     "status": "machine",
     "text": "**Ta strona omawia rodzaje katalogowe, ale nie są one jedynymi rodzajami deklarującymi `extends`.** Deklarują je także encje Release i Manifest, a oba są dokumentami po stronie wdrożenia, tworzonymi obok siebie, a nie encjami indeksowanymi w katalogu — dlatego ich odwołania wskazują pliki, a nie encje katalogu, a scalana jest powierzchnia autorska, a nie schemat. Więcej informacji: [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) i [`entities/manifest.md`](../entities/manifest.md)."
   },
+  "cde78a6f86e77be9": {
+    "at": "2026-11-14T09:58:17.556Z",
+    "job": "session-0003-20261114095817",
+    "revision": {
+      "from": "98d215f124954c81",
+      "reviewed": false
+    },
+    "srcHash": "cde78a6f86e77be9",
+    "status": "machine",
+    "text": "**Przesłanie `target` powoduje utworzenie szkicu encji Manifest, względem której buduje się szkicowana encja Release, dla jednego dostawcy.** `target` to zdolność dostawcy — słowo, z którym wiąże się `spec.capability` encji Recipe, np. `compose` lub `helm` — i jest to `--target` polecenia `aggrega import`, składane przez tę samą operację, więc wywołanie i polecenie tworzą te same pliki z tego samego źródła. Dla każdego typu komponentu i każdego typu funkcji, których potrzebują szkice — w komponentach szkicowanej encji Aggregate, ich połączeniach i jej podsystemach, w encjach Aggregates z katalogu, które ona składa, oraz w dołączeniach szkicowanej encji Release — w kolejności, w jakiej szkice deklarują go po raz pierwszy, import szuka w katalogu obszaru roboczego encji Recipes, a dla typu funkcji receptur funkcji, które implementują ten typ i wiążą się z tą zdolnością. Gdy jest dokładnie jedna — kilka wersji jednej z nich liczy się jako jedna — Manifest mapuje typ na nią przez jej nazwę kwalifikowaną zdolnością, bez wersji, np. `compose/postgres`, którą pierwszy pull przypina w pliku blokady w najwyższej dostępnej wersji. Gdy jest ich kilka o różnych nazwach, mapuje tę nazwaną tak jak sam typ, np. `helm/postgres` dla `core/datastore/postgres`. Gdy nie ma żadnej albo jest kilka i żadna nie nosi takiej nazwy, typ pozostaje niezmapowany, a wpis `warn` w `diagnostics` podaje go i przyczynę — w przypadku kilku każdą z nazwy — więc budowanie szkiców zatrzymuje się, wskazując każdą jego instancję lub dołączenie, z błędem [No Recipe is mapped for a component or feature instance (Żadna encja Recipe nie jest zmapowana dla instancji komponentu lub funkcji)](../errors/fatal-halts.md#no-recipe-is-mapped-for-a-component-or-feature-instance), dopóki mapowanie nie zostanie dodane. Gdy importer sam szkicuje Manifest, aby wybrać encję Recipe, przez którą renderuje się instancja, lub recepturę funkcji spośród kilku, każde zapisane przez niego mapowanie, które katalog oferuje dla tego typu i tej zdolności, zostaje zachowane, każde inne jest odrzucane z wpisem `warn`, a typy, które pozostawia, są mapowane jak wyżej. Manifest jest szkicowany jako `manifest.yaml` obok szkicowanej encji Release, z nazwą i wersją takimi jak Release, a `spec.manifest` encji Release otrzymuje tę nazwę — komentarz, który importer zapisał w tym miejscu, zostaje zastąpiony i nic innego w encji Release się nie zmienia. Encja Release, która już wskazuje Manifest, pozostaje bez zmian, a gdy import nie tworzy szkicu encji Release, Manifest jest szkicowany obok encji Aggregate, z jej nazwą i wersją, a wpis `info` informuje, że nic się do niego nie odwołuje. Manifest i zmieniona encja Release są szkicami jak pozostałe: w `written`, w rejestrze i zwracane przy `dry_run`. Wartość `target`, z którą nie wiąże się żadna encja Recipe w katalogu, jest odrzucana przed uruchomieniem importera z błędem [An import's target names a capability no Recipe in the catalog binds to (Cel importu wskazuje zdolność, z którą nie wiąże się żadna encja Recipe w katalogu)](../errors/fatal-halts.md#an-imports-target-names-a-capability-no-recipe-in-the-catalog-binds-to), z podaniem jej w przesłanej postaci oraz zdolności, z którymi wiążą się Recipes katalogu, i nic nie jest zapisywane. Bez `target` żaden Manifest nie jest szkicowany — z wyjątkiem `sync`, który tworzy szkic dla celu przesłanego do wcześniejszego importu; pusty `target` jest odrzucany, a nie traktowany tak, jakby go pominięto."
+  },
   "cded6d3462fda3d2": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -143776,6 +144208,13 @@
     "srcHash": "ce81d2451cb65e1d",
     "status": "machine",
     "text": "**Każdy plik `source:`, które wskazuje katalog lub plik obok encji.** Nic nie jest pobierane: krok oblicza skrót każdego pliku, który źródło wnosi do zawartości publikacji encji — każdego pliku w wskazanym katalogu, który zachowują reguły ignorowania encji, albo tego jednego pliku — i rejestruje go według ścieżki względem encji. Plik obok encji Recipe, którego źródło nie wnosi, na przykład README, nie jest przypinany. Źródło zapisane jako szablon, na przykład `./charts/{{ .values.flavour }}`, wskazuje swój katalog dopiero wtedy, gdy wypełni go encja Release, dlatego wnosi każdy plik w katalogu encji, który zachowują reguły, i każdy z nich jest przypinany. Kompilacja porównuje źródło z tymi przypięciami, zanim odczyta je provider, więc plik dodany, zmieniony lub usunięty od czasu przypięcia zatrzymuje kompilację — [A local source no longer matches the pins recorded beside its Recipe (Lokalne źródło nie odpowiada już przypięciom zarejestrowanym obok jego Recipe)](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe)."
+  },
+  "ce8614df5f442559": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ce8614df5f442559",
+    "status": "machine",
+    "text": "Plik jest w formacie YAML. Jego klucze najwyższego poziomu to pliki wygenerowane jako szkic, według ścieżki, pod którą każdy z nich jest generowany. Pod każdym z nich kluczem jest ścieżka klucza z kropkami brakującej wartości w danym dokumencie, a jego wartością jest odpowiedź. Opis klucza ze schematu jest zapisywany jako komentarz nad nim. Segment ścieżki klucza, który jest pusty albo zawiera kropkę, biały znak lub cudzysłów, jest zapisywany w podwójnym cudzysłowie. Plik, którego nie da się odczytać w tej postaci, zatrzymuje import, podając plik i przyczynę, i nic nie jest zapisywane."
   },
   "ce879f2e0eb33dfb": {
     "at": "2026-10-22T09:37:52.967973+00:00",
@@ -144826,6 +145265,13 @@
     "srcHash": "cfe94b9cdcec4a14",
     "status": "machine",
     "text": "gdzie działa"
+  },
+  "cfeb558f45ef2ba1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "cfeb558f45ef2ba1",
+    "status": "machine",
+    "text": "nazwa obiektu Secret w Kubernetes"
   },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T09:26:23.460774+00:00",
@@ -150164,6 +150610,13 @@
     "status": "machine",
     "text": "Emitowany komunikat, umiejscowiony we wpisie `aggregates`, który zadeklarował moduł, pod nazwą lokalną zapisaną w importującym dokumencie:"
   },
+  "d7a52d2cb772511a": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "d7a52d2cb772511a",
+    "status": "machine",
+    "text": "Po przygotowaniu szkiców import sprawdza każdy dokument szkicu względem jego własnego schematu oraz względem schematu katalogu każdej encji Component, Feature i każdego połączenia, które dokument deklaruje. Wartość jest **zaległa**, gdy wciąż jest pusta tam, gdzie ten schemat jej wymaga, lub tam, gdzie schemat deklaruje klucz, a nic go nie dostarczyło. Każdą zaległą wartość opisuje własny opis jej klucza w schemacie; gdy schemat go nie podaje — komentarz, który szkic zapisuje nad kluczem."
+  },
   "d7ad36e04765a51b": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -155251,6 +155704,13 @@
     "status": "machine",
     "text": "W helm wpis `Loopback` zatrzymuje kompilację, zamiast renderować się jako coś, czym nie jest. Service w Kubernetes nie ma typu, który wiąże się z adresem loopback hosta — to, na których adresach węzła nasłuchuje Service `NodePort`, jest ustawieniem całego klastra, a nie pojedynczej usługi Service — więc Service `ClusterIP` utraciłby zasięg, o który prosi wpis, a `NodePort` opublikowałby port na każdym adresie węzła dopuszczanym przez klaster. Zatrzymanie podaje węzeł i usługę; zob. [A service type the helm provider cannot render (Typ usługi, którego provider helm nie potrafi wyrenderować)](../errors/fatal-halts.md#a-service-type-the-helm-provider-cannot-render)."
   },
+  "de924b6792609c84": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "de924b6792609c84",
+    "status": "machine",
+    "text": "nazwa zmiennej"
+  },
   "de9361a06a9d236f": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -156516,6 +156976,13 @@
     "status": "machine",
     "text": "annotation contribution overridden by an explicit value (wkład adnotacji nadpisany jawną wartością)"
   },
+  "e02e83c53945b2b5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e02e83c53945b2b5",
+    "status": "machine",
+    "text": "Odpowiedzią dla sekretu jest nazwa miejsca, z którego pochodzi sekret, nigdy sam sekret (zob. [Sekrety](#secrets)), dzięki czemu plik odpowiedzi można przechowywać razem ze źródłem w systemie kontroli wersji."
+  },
   "e0304859d466cea4": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -156918,6 +157385,13 @@
     "srcHash": "e0abfdbceef42902",
     "status": "machine",
     "text": "Każda metoda, którą może wskazać żądanie. Zbiór jest zamknięty: na żądanie wskazujące cokolwiek innego odpowiada się błędem method-not-found (nie znaleziono metody)."
+  },
+  "e0ae7a1f3f51e7e7": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e0ae7a1f3f51e7e7",
+    "status": "machine",
+    "text": "Co zawiera"
   },
   "e0b0610077afe719": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -159996,6 +160470,13 @@
     "srcHash": "e5117a3f1b78b275",
     "status": "machine",
     "text": "Kto zwykle pisze które pliki. Ten podział jest wskazówką, a nie regułą egzekwowaną przez kompilator: w małym zespole lub projekcie jednoosobowym jedna osoba pisze je wszystkie."
+  },
+  "e51a0b1bf8548448": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "e51a0b1bf8548448",
+    "status": "machine",
+    "text": "wymienia każdą brakującą wartość na standardowym wyjściu błędów jako ostrzeżenie podające szkicowany plik, ścieżkę klucza i jego opis;"
   },
   "e51b9b9af00f629f": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -164077,6 +164558,13 @@
     "status": "machine",
     "text": "Ta sama pamięć podręczna z poświadczeniem hasła typu inject-value dołączonym do opcjonalnego slotu `password` komponentu (ścieżka Compose). Jej kompilacja zostaje zatrzymana."
   },
+  "eb424d0978e0df0d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "eb424d0978e0df0d",
+    "status": "machine",
+    "text": "zapisuje plik odpowiedzi z każdym brakującym kluczem i pustą odpowiedzią;"
+  },
   "eb43e6e2ed3d82b4": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -165007,6 +165495,13 @@
     "srcHash": "ec6595c6004da722",
     "status": "machine",
     "text": "Stos równorzędny jest traktowany jako znajdujący się w tym samym regionie, a referencja między stosami jest rozstrzygana przez import eksportu stosu w obrębie tego samego regionu."
+  },
+  "ec6703343a0626d4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ec6703343a0626d4",
+    "status": "machine",
+    "text": "Import najpierw uzupełnia każdą brakującą wartość z pliku odpowiedzi. O każdą wartość, której plik nie uzupełnia, pyta użytkownika, po jednym pytaniu naraz — ale tylko wtedy, gdy standardowe wejście i standardowe wyjście są terminalem, a nie podano `--dry-run`:"
   },
   "ec6de3549db1cf0d": {
     "at": "2026-10-29T23:25:30.396Z",
@@ -170806,6 +171301,17 @@
     "status": "machine",
     "text": "`RenderedNameOutput`"
   },
+  "f465d891fd1af658": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "a490cd8e08cae82f",
+      "reviewed": false
+    },
+    "srcHash": "f465d891fd1af658",
+    "status": "machine",
+    "text": "Źródło to"
+  },
   "f466ae263b32aecc": {
     "at": "2026-10-30T01:13:08.755Z",
     "job": "session-0043-20261030011308",
@@ -171500,6 +172006,13 @@
     "srcHash": "f569f31ab76e7198",
     "status": "machine",
     "text": "Do którego dokumentu konfiguracyjnego zapisano zmianę wtyczki i jaki ma on zasięg. Domyślnym dokumentem gniazda rozszerzeń poleceń jest dokument obejmujący całą maszynę, dlatego każda odpowiedź podaje, który dokument zapisała."
+  },
+  "f56c84bbb22f3966": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "f56c84bbb22f3966",
+    "status": "machine",
+    "text": "Obie odpowiedzi należą do użytkownika: `ghcr.io/example/support-agent:1.0.0` oznacza obraz, który się buduje i wypycha, a `google-api-key` nazwę obiektu Secret Kubernetes przechowującego klucz w przestrzeni nazw, do której następuje wdrożenie."
   },
   "f56db32603c4b949": {
     "at": "2026-11-08T10:34:42.436Z",
@@ -175237,6 +175750,17 @@
     "status": "machine",
     "text": "**Jak naprawić:** należy porównać identyfikator przytoczony w komunikacie z komponentami, które kompozycja faktycznie zawiera. Brakujący prefiks modułu i nazwa podsystemu wpisana w identyfikator to dwie typowe przyczyny; należy usunąć podsystem, dodać prefiks modułu lub poprawić pisownię. Jeśli wpis pozostał po komponencie, który został usunięty lub przemianowany, należy go skasować."
   },
+  "fa81d6eac5c562f4": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "988e6880f3577fa0",
+      "reviewed": false
+    },
+    "srcHash": "fa81d6eac5c562f4",
+    "status": "machine",
+    "text": "`core/referenced-secret` jest realizowany w Docker Compose przez `compose/dotenv-referenced-secret`. Compose nie ma zasobu sekretu, do którego można by się odwołać, więc `origin` jest samym poświadczeniem, a nie nazwą obiektu Secret: jest dostarczany do potoku wstrzykiwania pod kluczem `key` dołączenia, a encja Recipe dla Compose, która odczytuje slot, zapisuje go w emitowanym pliku dokładnie w zapisanej postaci, więc origin zapisany jako `${DB_PASSWORD}` trafia jako to odwołanie. Nie tworzy żadnego zasobu, więc publikowana nazwa jest pusta, a publikowany klucz to `values.key`."
+  },
   "fa822b61196acabe": {
     "at": "2026-10-22T10:02:42.507672+00:00",
     "job": "msgbatch_016mtxa6okjjwCp6axdX1NDr",
@@ -178333,6 +178857,13 @@
     "srcHash": "ff18ebbd0613c8f4",
     "status": "machine",
     "text": "Reguły kształtu encji FeatureRecipe"
+  },
+  "ff19f949e4e0fff0": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ff19f949e4e0fff0",
+    "status": "machine",
+    "text": "w terminalu odpowiedź jest odrzucana, wyświetlany jest powód, a pytanie jest zadawane ponownie;"
   },
   "ff2f778fc9d75fc9": {
     "at": "2026-10-17T20:35:57.134Z",

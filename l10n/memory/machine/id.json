@@ -4286,6 +4286,13 @@
     "status": "machine",
     "text": "**`.wasm` di samping entitasnya.** Selama Anda menulis plugin, belum ada yang dipublikasikan untuk diambil oleh build, sehingga build membaca `.wasm` plugin dari samping entitas `Plugin` miliknya dalam direktori katalog, dengan nama yang diturunkan dari tipe plugin dan nama entitas: untuk `pipeline-step/patch` namanya adalah `pipeline-step--patch.wasm`. Huruf kecil, angka, dan sebagian besar tanda hubung ditulis ke dalam nama itu apa adanya; karakter lain ditulis dalam bentuk escape, demikian pula tanda hubung di beberapa posisi — sehingga di tempat yang penting, penolakan atas `.wasm` yang hilang, [A plugin's `.wasm` is not on this machine (berkas sebuah plugin tidak ada di mesin ini)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), memberikan nama tersebut secara lengkap. `aggrega lint <plugin.yaml>` membaca `.wasm` dari tempat yang sama — di samping berkas entitas yang diberikan kepadanya, di direktori mana pun berkas itu berada — kecuali biner itu sendiri membawa plugin tersebut, dan mencetak pemberitahuan untuk setiap ekspor, kapabilitas, atau kontrak yang dilaporkan `.wasm` tetapi tidak dicantumkan oleh entitas. Jika tidak ada `.wasm` di sana, lint menyatakan bahwa ia melewati laporan itu, dengan menyebutkan berkas yang dicarinya dan direktorinya, dan hasilnya tidak berubah."
   },
+  "05cedb671faf2b91": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "05cedb671faf2b91",
+    "status": "machine",
+    "text": "Sebagai contoh, [import Google ADK](../authoring/import/google-adk.md) yang dibuat dengan `--target helm` memerlukan dua nilai dalam Release-nya: image agen yang Anda build dari proyek Anda, dan asal kunci API Gemini milik agen. Setelah keduanya dijawab, file jawaban di dalam direktori sumber `support_agent/` berisi:"
+  },
   "05cf32a5d00d40db": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -6783,6 +6790,13 @@
     "srcHash": "09542c9f91481c5e",
     "status": "machine",
     "text": "`bytes` — byte sumber."
+  },
+  "095661fde2bd7d6b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "095661fde2bd7d6b",
+    "status": "machine",
+    "text": "Halaman ini menjelaskan di mana file berada, apa isinya, bagaimana nilai-nilai masuk ke dalamnya, dan apa yang dilakukan impor saat suatu nilai masih belum ada. Kegunaan impor, serta panduan langkah demi langkah dari sumber hingga build, ada di [Impor](../authoring/import/README.md)."
   },
   "095ae11710a3a921": {
     "at": "2026-10-22T02:10:02.194Z",
@@ -10397,6 +10411,13 @@
     "status": "machine",
     "text": "**Dicadangkan, dan ditegakkan.** Platform mendefinisikan kunci di sini, dan Anda menulis kunci yang didefinisikannya — misalnya `aggrega.ai/namespace` pada boundary Release. Mengklaim kunci *baru* di dalam prefiks ini menghentikan build: baik binding `features.annotations` pada Manifest di bawah prefiks polos, maupun kunci label keluaran Recipe di bawahnya dalam `outputLabels:` atau `outputComponentLabels:`. Lihat [`errors/fatal-halts.md`](../errors/fatal-halts.md) \"A Manifest annotation binding claims the reserved `aggrega.ai/` prefix (Binding anotasi Manifest mengklaim prefiks yang dicadangkan)\" dan \"An output-label key uses a reserved namespace (Kunci label keluaran menggunakan namespace yang dicadangkan)\"."
   },
+  "0eafaa11e0808da2": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "0eafaa11e0808da2",
+    "status": "machine",
+    "text": "[`aggrega import`](cli/aggrega-import.md) — referensi perintah, termasuk setiap flag."
+  },
   "0eb06a849d49d401": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -11366,6 +11387,17 @@
     "srcHash": "0fc48f4ae1427300",
     "status": "machine",
     "text": "[`aggrega-pull`](aggrega-pull.md) — mengambil entitas katalog dari registry OCI ke dalam katalog lokal."
+  },
+  "0fc5b18dbf6e708d": {
+    "at": "2026-11-14T09:58:23.259Z",
+    "job": "session-0004-20261114095823",
+    "revision": {
+      "from": "b01c85c4818679bf",
+      "reviewed": false
+    },
+    "srcHash": "0fc5b18dbf6e708d",
+    "status": "machine",
+    "text": "`aggrega/import` — mengubah deskripsi sumber asing menjadi draf file authoring Aggrega, konversi yang sama yang dilakukan [`aggrega import`](aggrega-import.md) di terminal. `source` wajib diisi dan menyebutkan file atau direktori yang akan dikonversi, baik sebagai jalur absolut maupun relatif terhadap root workspace — deskripsi yang diekspor oleh alat lain berada di mana pun Anda menyimpannya, sehingga dibaca di tempat sebenarnya berada, bukan hanya di dalam workspace. Sebuah direktori dibaca sebagaimana [`aggrega import`](aggrega-import.md) membacanya: hanya file di dalamnya yang dipilih oleh pola file yang dideklarasikan importer, dan dibatasi pada dirinya sendiri di mana pun letaknya, sehingga tidak ada tautan di dalamnya yang diikuti ke luar. `outputDir` bersifat opsional dan menyebutkan direktori tempat draf disimpan, dan **tidak** mengikuti kontrak tersebut: direktori ini ditulisi, sehingga berupa jalur di dalam workspace, dan nilai absolut, atau nilai yang teresolusi ke luar root — sebagaimana tertulis, atau melalui tautan, termasuk direktori yang belum dibuat di bawahnya — ditolak. Jika dihilangkan, draf ditempatkan di bawah root workspace, tempat [`aggrega import`](aggrega-import.md) menulisnya ketika tidak menyebutkan tujuan — termasuk di bawah `dryRun`. `format` menyebutkan format sumber secara eksplisit; jika dihilangkan, format dikenali dari tanda tangan yang dideklarasikan importer — baik importer dari katalog workspace maupun [importer inti](../plugins/core-importers.md) compiler — dan sumber yang tidak dikenali oleh importer mana pun, atau dikenali oleh importer dari lebih dari satu format, ditolak dengan meminta `format` alih-alih ditebak. `target` menyebutkan capability provider, seperti `compose` atau `helm` — kata yang diikat oleh `spec.capability` sebuah Recipe — dan membuat draf, di samping draf importer, Manifest yang menjadi acuan build Release yang didraf untuk provider tersebut, persis seperti yang dilakukan `aggrega import --target`: `manifest.yaml`, yang memetakan setiap tipe komponen dan tipe fitur yang dibutuhkan draf — termasuk tipe dari Aggregate katalog yang disusun oleh Aggregate yang didraf — ke Recipe atau resep fitur dengan capability tersebut yang ditawarkan katalog workspace untuknya, berdasarkan nama yang dikualifikasi capability tanpa versi: satu-satunya yang ada, atau, di antara beberapa, yang dinamai sesuai tipe tersebut. `spec.manifest` milik Release diatur ke manifest tersebut; tipe yang tidak memiliki satu pun, atau memiliki beberapa tetapi tidak ada yang dinamai demikian, dibiarkan tidak terpetakan dengan temuan `warn` yang menyebutkannya, dan pemetaan yang didraf sendiri oleh importer dipertahankan jika katalog menawarkannya untuk tipe dan capability tersebut, dan jika tidak, dibuang dengan temuan `warn`. `target` yang tidak diikat oleh Recipe mana pun di katalog ditolak sebelum importer berjalan, dengan menyebutkan target tersebut dan capability yang diikat oleh Recipes di katalog, dan tidak ada yang ditulis; jika dihilangkan, tidak ada Manifest yang didraf — kecuali di bawah `sync`, yang membuat draf untuk target yang disebutkan oleh catatan impor sebelumnya. Importer inti yang belum dimiliki mesin akan diambil oleh impor pertama yang membutuhkannya — lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you). `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dan menjawab dengan draf sebagai konten, untuk klien yang terlebih dahulu menampilkannya kepada penulis; tidak ada yang dibuat dalam mode ini dan `written` kosong. `sync` memperbarui apa yang didraf oleh impor sebelumnya di `outputDir` agar sesuai dengan sumber, hanya mengubah apa yang ditulis oleh impor tersebut, seperti yang dilakukan `aggrega import --sync`; tanpa opsi ini, permintaan yang drafnya akan menimpa Aggregate yang sudah ada ditolak. Jawaban berisi `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions`, dan `halted`. Lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you), karena sumber yang tidak dapat dikonversi sepenuhnya oleh importer merupakan jawaban yang berhasil, bukan error."
   },
   "0fc628f1809ecca4": {
     "at": "2026-10-30T00:50:36.309Z",
@@ -13856,6 +13888,13 @@
     "status": "machine",
     "text": "**`helm-chart` — nama yang diturunkannya adalah alamat chart yang ditempatkan itu sendiri, yang merupakan hal yang berbeda\n  dari nama yang menjadi acuan render template chart tersebut.** Provider ini menetapkan field `name` dari chart\n  yang Anda vendor ke identitas terenkode dari apa pun yang menyumbangkannya, yang juga merupakan alias yang digunakan umbrella\n  untuk mengikat sub-chart itu dan kunci tempat nilai-nilainya dicakup. Untuk sebuah komponen, identitas itu adalah\n  apa yang dibawa `{{ .context.instance_id }}`, sehingga nama chart yang ditempatkan sudah dapat dijangkau melalui\n  kunci yang menyatakan apa nama itu. Nama yang menjadi acuan render *template* chart yang di-vendor itu sendiri adalah nama\n  rilis, yang disediakan oleh rilis umbrella pada saat instalasi, bukan diturunkan oleh provider ini —\n  sehingga di sini tidak ada nama semacam itu untuk dilaporkan oleh kunci ini. Lihat\n  [`../providers/helm-chart.md`](../providers/helm-chart.md) “The chart name the umbrella owns”."
   },
+  "137c33ae78707b9d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "137c33ae78707b9d",
+    "status": "machine",
+    "text": "di file jawaban, impor berhenti dengan menyebutkan file jawaban, file draf, dan kuncinya — tidak pernah jawabannya, yang mungkin merupakan rahasia itu sendiri — dan tidak menulis apa pun."
+  },
   "137de87e9b48bd3b": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -15194,6 +15233,13 @@
     "srcHash": "1581f725c1ab607e",
     "status": "machine",
     "text": "**Peran:** Platform Architect. “Pemrogram” platform. Mereka menempatkan setiap komponen pada ontologi operasional, menulis kebijakan yang dapat diprogram (mutator dan validator Wasm), serta menetapkan label duck typing semantik."
+  },
+  "158e331b65405f68": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "158e331b65405f68",
+    "status": "machine",
+    "text": "Tulis setiap jawaban di samping kuncinya, lalu jalankan `aggrega import <source> --sync` ke direktori yang sama. `aggrega import` biasa ke direktori yang sudah berisi Aggregate draf akan berhenti, menyebutkan `--sync`, dan tidak menulis apa pun. Impor ke direktori output baru juga membaca file jawaban: yang default, atau yang disebutkan oleh `--answers`."
   },
   "15912767fa78f2a6": {
     "at": "2026-10-23T02:15:21.677Z",
@@ -16621,6 +16667,13 @@
     "status": "machine",
     "text": "Memetakan tipe Grafana ke Recipe Compose (`compose/grafana`) dan kredensial ke `dotenv-secret`."
   },
+  "179ed653afd6e252": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "179ed653afd6e252",
+    "status": "machine",
+    "text": "`--answers <file>` menunjuk file lain. Path relatif di-resolve terhadap direktori tempat Anda menjalankan perintah. Jika draf masih memerlukan nilai dan file jawaban bukan file default di samping sumber, catatan yang ditulis import di samping draf, `.aggrega-import.json`, menyebutkannya, sehingga `aggrega import --sync` berikutnya ke direktori yang sama membacanya tanpa perlu diberi tahu lagi. Catatan tersebut tidak pernah menyimpan jawaban."
+  },
   "179f6a4ff4be5cf5": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -17464,6 +17517,13 @@
     "status": "machine",
     "text": "[`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md)\n  — permukaan label dan anotasi yang dibaca oleh sebuah kebijakan."
   },
+  "18fbd3c8e2a30ec6": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "18fbd3c8e2a30ec6",
+    "status": "machine",
+    "text": "`aggrega import --sync` membaca file jawaban yang sama dengan impor sebelumnya: yang disebutkan oleh `--answers`, jika tidak, yang disebutkan oleh catatan di samping draf, jika tidak, yang default di samping sumber. Perintah ini menulis setiap jawaban ke draf sebagai pengganti nilai kosong, dan jika file jawaban menjawab setiap nilai terutang, tidak ada yang ditanyakan."
+  },
   "18fd1ce92dc47f70": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -17851,6 +17911,13 @@
     "srcHash": "197e87953672a52b",
     "status": "machine",
     "text": "menemukan rentang teks yang sensitif di dalam sebuah teks"
+  },
+  "197eddbcdca5315d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "197eddbcdca5315d",
+    "status": "machine",
+    "text": "Tanpa terminal"
   },
   "1983f0f4acd509f8": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -31118,6 +31185,13 @@
     "status": "machine",
     "text": "Status privat milik Recipe itu sendiri (misalnya, primary_compute, volumes_path). Dievaluasi dalam preamble locals — sebelum provides dari node tersebut — dan dipublikasikan ke pilar ini saat resolusi source. Setiap entri adalah template Go yang dievaluasi terhadap konteks lokal-node yang mandiri, yang membawa entri-entri dari blok yang sama yang telah diresolusi sejauh ini, sehingga sebuah entri BOLEH membaca entri saudara yang didefinisikan DI ATASNYA dan menerima nilai saudara tersebut yang telah diresolusi. Urutan penulisan merupakan bagian dari kontrak di mana pun satu entri membaca entri lain: memindahkan definisi ke bawah pembacanya akan merusak build. Referensi '.locals.<key>' ke entri yang lebih belakang, atau ke kunci yang tidak dideklarasikan oleh blok, akan menghentikan proses. Pemeriksaan ini membaca path yang DIRESOLUSI oleh referensi, bukan ketikannya, sehingga mencakup bentuk langsung, pembacaan di dalam blok '{{ with .locals }}', dan pembacaan melalui variabel yang diikat langsung ke '.locals'. Dua penulisan yang tidak dicakupnya: referensi yang path-nya tidak ditentukan oleh teks template — yang dicapai melalui fungsi, seperti 'index .locals', atau melalui blok 'with' atau pengikatan variabel yang pipeline-nya menerapkan fungsi tersebut — dan kunci yang dibaca dari blok dalam tanda kurung, '(.locals).<key>' atau '($.locals).<key>', di mana kunci tersebut bergantung pada nilai yang dihasilkan tanda kurung, bukan pada blok itu sendiri. Keduanya tidak dianalisis, dan kunci yang tidak ada yang dicapai dengan cara mana pun tidak menghentikan proses: kunci tersebut merender teks literal '<no value>' alih-alih tidak merender apa pun. Satu-satunya pengecualian adalah 'index' itu sendiri: pada setiap permukaan template, fungsi ini menghentikan proses, dengan menyebutkan kuncinya, ketika map yang dibacanya tidak memuat kunci yang diminta, sehingga kunci yang tidak ada yang dicapai melalui 'index .locals' akan menghentikan proses. Entri locals tidak dapat membaca '.provides'. Tersedia di provides (saat evaluasi provides, setelah preamble), source, valuesMapping, workload, artifacts, assertions, dan bagi Plugins Wasm hilir melalui pipeline[].with (dan pipeline[].when). Tidak pernah diekspos ke pemanggil."
   },
+  "2c839ce3e6f8af1c": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2c839ce3e6f8af1c",
+    "status": "machine",
+    "text": "menulis draf, dengan setiap nilai terutang dibiarkan kosong;"
+  },
   "2c841c691c02923b": {
     "at": "2026-10-22T03:40:32.071Z",
     "job": "session-0010-20261022034032",
@@ -32496,6 +32570,13 @@
     "srcHash": "2ea22211f5e27e22",
     "status": "machine",
     "text": "**Dependensi yang tidak dapat dipenuhi pull luring secara lokal menghentikannya.** Entri tersebut tidak pernah dilewati:"
+  },
+  "2ea8b7fbe231f881": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "2ea8b7fbe231f881",
+    "status": "machine",
+    "text": "Impor memeriksa bahwa jawaban berbentuk salah satu nama ini, dan menolak yang lainnya:"
   },
   "2ea9653cc8c84f51": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -40713,6 +40794,13 @@
     "status": "machine",
     "text": "Diterbitkan bersama setiap rilis kompiler"
   },
+  "3ae67fb4b0db3b76": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3ae67fb4b0db3b76",
+    "status": "machine",
+    "text": "[Impor](../authoring/import/README.md) — apa yang didrafkan oleh impor, dan panduan langkah demi langkah untuk setiap format sumber."
+  },
   "3ae7caf0f4810e11": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -42102,6 +42190,13 @@
     "srcHash": "3cc6d8fedc8543f1",
     "status": "machine",
     "text": "Pesan menyebutkan node, provider, dokumen yang mendeklarasikan entri, dan posisi entri dalam daftar `omits:` dokumen tersebut, dihitung dari `0`, serta kind, nama, dan namespace hasil resolve entri, dengan namespace hanya jika entri menyebutkannya. Untuk FeatureRecipe yang dilampirkan ke sebuah komponen, node-nya adalah komponen tersebut; untuk yang dilampirkan ke sebuah boundary, baris di atas pesan menyebutkan lampiran dan boundary-nya. Jika beberapa entri tidak cocok dengan apa pun, entri pertama sesuai urutan penulisan Anda yang disebutkan, sehingga entri yang sama disebutkan pada setiap eksekusi. Field yang templatenya membaca nilai yang dideklarasikan sensitif ditampilkan sebagai `<redacted>`, bukan sebagai hasil resolve-nya. Entri yang dibuang oleh `when:`-nya tidak pernah diserahkan ke provider dan tidak pernah diperiksa."
+  },
+  "3ccb2fe5cb2fcba4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "3ccb2fe5cb2fcba4",
+    "status": "machine",
+    "text": "Cara nilai dimasukkan"
   },
   "3cd437c7143e191e": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -43721,6 +43816,13 @@
     "srcHash": "3f33eef1b9d869e7",
     "status": "machine",
     "text": "a plugin has no representation for a value it was given (plugin tidak memiliki representasi untuk nilai yang diberikan kepadanya)\n> compose: the nvidia.com/gpu `<request|limit>` at `<path>` is `\"<value>\"`, a quantity compose cannot represent exactly; a compose device count is a whole number of devices from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value (compose: nvidia.com/gpu pada path tersebut adalah kuantitas yang tidak dapat direpresentasikan compose secara persis; jumlah perangkat compose adalah bilangan bulat perangkat dari 0 hingga 9223372036854775807: kuantitas resources tidak dapat dikonversi menjadi nilai deploy.resources compose)"
+  },
+  "3f348773a80806f7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "3f348773a80806f7",
+    "status": "machine",
+    "text": "jawaban untuk kunci yang tidak diperlukan draf ini tetap disimpan di file dan tidak diterapkan, dan sebuah baris informasi di standard error menyebutkannya;"
   },
   "3f39623715f9a586": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -53396,6 +53498,13 @@
     "status": "machine",
     "text": "Setiap record juga membawa `published`: setiap versi yang dicatat indeks, dalam urutan versi menaik, masing-masing dengan `manifestDigest` yang menjadi hasil resolusi tag-nya saat indeks dibangun dan, jika kebijakan kepercayaan workspace ini memverifikasi tanda tangan milik versi itu sendiri, `signer`-nya — dari beberapa yang terverifikasi, yang paling awal dicatat oleh log transparansi. Versi tanpa `signer` tidak membawa tanda tangan yang diverifikasi kebijakan tersebut, dan tidak ada lagi yang dikatakan tentangnya. Konsumen yang membaca konten suatu versi merujuknya melalui digest tersebut — misalnya `aggrega inspect oci://<host>/<repository>@<digest>` — sehingga yang dibacanya adalah byte yang dicatat indeks, apa pun yang terjadi pada tag-nya setelah itu."
   },
+  "4d6bda4228866fc8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "4d6bda4228866fc8",
+    "status": "machine",
+    "text": "setiap kunci dan komentar lain di file tetap apa adanya."
+  },
   "4d6c763354ce99c8": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -55389,6 +55498,13 @@
     "srcHash": "5020e691490fefe8",
     "status": "machine",
     "text": "**Sajikan kunci OpenAI pada koneksi model.** Release melampirkannya ke koneksi sebagai `core/secret-value` yang membaca `${OPENAI_API_KEY}`."
+  },
+  "50220ad04074e0b7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "50220ad04074e0b7",
+    "status": "machine",
+    "text": "Di integrasi berkelanjutan, melalui pipe, dari alat impor asisten (`aggrega mcp`), dan dari editor, tidak ada yang ditanyakan. Impor yang masih memiliki nilai terutang setelah file jawaban dibaca:"
   },
   "502b4c9645fb83ef": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -60767,6 +60883,13 @@
     "status": "machine",
     "text": "`.mcp.json` milik Claude Code yang mencantumkan tiga server Model Context Protocol — dua dijalankan dari baris perintah dan satu dijalankan oleh pihak lain — dijadikan draf berkas Aggrega oleh `aggrega import`, ditinjau, dan di-build untuk Kubernetes."
   },
+  "57ca4474081da557": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "57ca4474081da557",
+    "status": "machine",
+    "text": "pertanyaan ditulis ke error standar, sehingga output standar hanya memuat hasil import;"
+  },
   "57cb8546339ab3aa": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -64394,6 +64517,13 @@
     "srcHash": "5d139b6597327aa4",
     "status": "machine",
     "text": "Identitas komponen yang aman untuk Kubernetes — tempat resource yang dikeluarkan node ini BERASAL, yaitu yang dicatat provenance dan yang dikueri selector. Jika tidak kosong, nilai ini menggantikan id node sebagai nilai label app.kubernetes.io/name dan aggrega.ai/component-id; kosong berarti id node sudah valid sebagai label dan digunakan secara langsung. Nilai ini dibawa untuk setiap resource yang dikeluarkan lampiran Feature, apa pun cara lampiran tersebut menyampaikannya, sehingga resource lampiran dapat dibedakan dari resource komponen host-nya hanya melalui label. Asal guest menurunkan namanya sendiri adalah nilai terpisah, derived_name_basis, dan keduanya menjawab pertanyaan yang berbeda."
+  },
+  "5d1421914cc8d34f": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "srcHash": "5d1421914cc8d34f",
+    "status": "machine",
+    "text": "File jawaban tempat nilai-nilai yang dibiarkan kosong oleh draf dan tidak dapat ditampung oleh sumber mana pun dibaca dan ditulis: di bawah path setiap file yang didrafkan, path kunci di dalamnya beserta jawabannya. Path relatif di-resolve terhadap direktori tempat Anda menjalankan perintah. Tanpa opsi ini, digunakan file jawaban yang disebutkan oleh catatan di samping draf, atau jika tidak ada, import-answers.yaml di samping file sumber, atau di dalam direktori sumber. Jawaban untuk sebuah secret adalah nama asal secret tersebut, bukan secret itu sendiri."
   },
   "5d18d785317d749e": {
     "at": "2026-10-23T08:34:05.283963+00:00",
@@ -68095,6 +68225,17 @@
     "status": "machine",
     "text": "Lampiran yang ditulis pada koneksi dicantumkan di bawah baris koneksi tersebut dalam `Uses:`, bukan di bawah `Features:`, sehingga `Features:` hanya memuat lampiran milik komponen itu sendiri. Baris di atasnya menyebut koneksi melalui alias dan komponen yang dijangkaunya, dan klausanya sendiri menyatakan sisanya:"
   },
+  "62132e66784e4cf8": {
+    "at": "2026-11-14T09:58:04.272Z",
+    "job": "session-0001-20261114095804",
+    "revision": {
+      "from": "1fba9c7e11dd3449",
+      "reviewed": false
+    },
+    "srcHash": "62132e66784e4cf8",
+    "status": "machine",
+    "text": "**Yang dibawa pustaka standar.** `core/ai-tool/mcp` membawa `http`. Komponen ini melampirkan server Model Context Protocol ke agen, dan Manifest memilih bagaimana server itu direalisasikan: `helm/mcp` dan `compose/mcp` menjalankan image yang menyajikan protokol melalui HTTP; `helm/mcp-stdio-bridge` dan `compose/mcp-stdio-bridge` menjalankan paket yang hanya berbicara stdio di balik bridge yang dipin yang menyajikannya melalui HTTP; `helm/mcp-remote` dan `compose/mcp-remote` menjangkau server yang dijalankan pihak lain, dan tidak menjalankan apa pun. Setiap realisasi memublikasikan `host`, `port`, `endpoint`, `protocol`, dan `credential_header` yang sama, sehingga pengkabelan konsumen tidak berubah mengikuti realisasinya. Kredensial milik server sendiri adalah variabel lingkungan, disimpan di slot `server_env` milik alat: diserahkan ke bridge melalui referensi di Kubernetes, dan di Docker Compose ditulis ke lingkungan layanan sebagaimana diserahkan, dengan referensi variabel Compose menjaga kredensial tetap di luar file; kredensial server jarak jauh disimpan oleh konsumen pada koneksinya sendiri ke alat dan diserahkan di bawah header yang disebutkan oleh `credential_header`, yaitu `Authorization` kecuali Release menyebutkan yang lain. Jika server jarak jauh membaca kuncinya dari alamatnya sendiri, konsumen juga menyimpan seluruh alamat pada koneksi tersebut, dalam slot `endpoint` yang diisi di Kubernetes dengan referensi ke Secret dan di Docker Compose dengan referensi variabel Compose, sehingga kunci tidak sampai ke file hasil render mana pun, sementara `infra.endpoint` milik alat menyimpan alamat tanpa bagian yang membawa kunci; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) membangun keduanya. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk`, dan `core/ai-agent/mastra`, serta platform alur `core/ai-agent/flowise` dan `core/ai-agent/n8n`, mendeklarasikan soket alat dengan bentuk ini, `tools`, dan menyerahkan alamat setiap alat yang terhubung, serta kredensial koneksi melalui referensi, di bawah variabel yang dinamai menurut alias koneksi, sementara koneksi yang menulis blok `inject:` menerima apa yang ditentukan blok tersebut sebagai pengganti variabel yang diturunkan dari apa yang dipublikasikan alat, dengan isi slot `credential` dan `endpoint` miliknya tetap berada di bawah nama alias; konsumen buatan sendiri mendeklarasikannya dengan cara yang sama. Masing-masing dari ketiga platform alur membawa alur yang ditulis di dalam Aggregate ke dalam platform saat deploy, pada kedua target: Langflow memuat definisi yang dibawa dari direktori alurnya pada setiap start, chatflow Flowise diisi oleh langkah sekali jalan yang masuk sebagai akun pemilik yang disebutkan oleh Release, dan workflow n8n diimpor oleh langkah init sebelum platform dimulai. `core/ai-agent/langflow` mendeklarasikan soket `tools` dengan bentuk yang sama, yang tidak menerima blok `inject:`, dan sebagai gantinya menyerahkan setiap koneksi melalui alur tersebut, karena komponen MCP Tools milik Langflow mengambil alamat server hanya dari pengaturan Langflow sendiri atau dari alur, tidak pernah dari variabel: Recipes miliknya menulis alamat alat ke node MCP Tools yang servernya dinamai menurut alias koneksi, menyerahkan kredensial koneksi melalui referensi sebagai variabel yang disebutkan oleh header node tersebut — di bawah `Authorization`, sebuah variabel yang menyimpan `Bearer` dan kredensial — dan meloloskan host dari alat dan penyimpanan yang terhubung melalui pelindung Langflow terhadap alamat privat. Ketiga platform juga mendeklarasikan soket `vector_store` yang memilih `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, yang dengan cara yang sama menyerahkan alamat setiap penyimpanan yang terhubung — `endpoint` yang dipublikasikannya, untuk `core/datastore/pgvector` URI koneksi tanpa kata sandi, atau alamat yang disusun dari protokol, host, dan port-nya — serta kredensial koneksi melalui referensi; penyimpanan yang juga memublikasikan basis data dan penggunanya, seperti yang dilakukan `core/datastore/pgvector`, sampai ke Flowise dan n8n juga dalam bagian-bagian tersebut, karena node vektor PostgreSQL milik kedua platform itu tidak menerima string koneksi; Langflow, yang komponen PGVector-nya menerima satu string, menerima penyimpanan seperti itu sebagai `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, dengan kredensial koneksi sebagai kata sandinya, melalui referensi di Kubernetes dan sebagaimana diserahkan di Docker Compose. Chatflow Flowise membaca variabel yang diserahkan melalui variabel Runtime dengan nama yang sama yang dibuat di halaman Variables milik Flowise, dan workflow n8n membacanya melalui `$env` hanya jika Aggregate menetapkan nilai `allow_env_access_in_nodes` milik platform, karena secara default Recipes miliknya mempertahankan blokir n8n atas akses lingkungan di dalam node."
+  },
   "62136175ad509e63": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -70016,6 +70157,17 @@
     "srcHash": "64fd9557211fc6f8",
     "status": "machine",
     "text": "Pada entri `envFrom`, temuan yang sama berada di `.containers.<name>.envFrom[<i>].connection` dan `.containers.<name>.envFrom[<i>].secret`."
+  },
+  "6503353463e95d8b": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "5e487c338b512423",
+      "reviewed": false
+    },
+    "srcHash": "6503353463e95d8b",
+    "status": "machine",
+    "text": "dengan komponen `embeddings` (`core/ai-model/openai-embedding`, dengan `values.model` diatur ke `text-embedding-3-small`) dan komponen `cache` (`core/datastore/redis`) dideklarasikan di samping model-model, masing-masing ditempatkan di Release, dan Manifest memetakan keduanya serta `core/referenced-secret-set` ke realisasi Kubernetes-nya, `helm/k8s-secret-set`, yang menulis kunci langsung ke dalam Secret yang dirender sehingga hanya cocok untuk target pengembangan. File rute kemudian mendeklarasikan setiap pemanggil dan memeriksa kuncinya di setiap rute, dan rute chat membawa cache:"
   },
   "650a29f570ba59ad": {
     "at": "2026-11-08T10:48:22.903Z",
@@ -77980,6 +78132,13 @@
     "status": "machine",
     "text": "Sebuah service ditolak berdasarkan namanya saja, tanpa membandingkan apa yang dideklarasikan kedua node. Service compose adalah satu kontainer yang berjalan, sehingga dua node yang masing-masing menginginkan satu hanya mendapat satu untuk berdua, dan maksud salah satu kontributor hilang seidentik apa pun kedua definisinya."
   },
+  "706983b557ebd085": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "706983b557ebd085",
+    "status": "machine",
+    "text": "File jawaban impor"
+  },
   "70706b5780f5908e": {
     "at": "2026-10-22T09:46:26.370Z",
     "job": "session-0029-20261022094626",
@@ -78630,6 +78789,13 @@
     "status": "machine",
     "text": "Kontrol: mengajukan pertanyaan tingkat seluruh lampiran sebagai gantinya"
   },
+  "718f1ef5027284fc": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "718f1ef5027284fc",
+    "status": "machine",
+    "text": "Selama masih ada nilai yang harus diisi, impor tidak menarik dependensi Release yang didrafkan; impor menariknya begitu setiap nilai telah dijawab (lihat [Menjalankan ulang dan `--sync`](#re-running-and---sync))."
+  },
   "71914862b85708f3": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -78710,6 +78876,13 @@
     "srcHash": "71b4b5011b6ea307",
     "status": "machine",
     "text": "Predikat templat Go per bidang yang mengembalikan boolean; false menghentikan validasi dengan `validateMessage:`"
+  },
+  "71b9c6cd7433bc34": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "71b9c6cd7433bc34",
+    "status": "machine",
+    "text": "keluar dengan status 1 dan satu kalimat yang menyatakan berapa banyak nilai yang terutang dan di mana menuliskannya:"
   },
   "71bc190397cca90c": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -79951,6 +80124,17 @@
     "status": "machine",
     "text": "**Mengapa:** Label adalah ciri tingkat katalog yang tidak dapat diubah dan ditulis oleh arsitek platform — identitas semantik yang dibaca oleh mesin kebijakan dan selektor. Release merutekan komponen ke batas melalui penargetan ID eksplisit berbasis map (`components: { \"my-agent\": {} }`), yang mempertahankan kemampuan menyarangkan `infra` dan penimpaan fitur per komponen tanpa mencampurkan kepengarangan label ke dalam Aggregate pengembang."
   },
+  "7365d029861e32c5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "f3abe585a795282e",
+      "reviewed": false
+    },
+    "srcHash": "7365d029861e32c5",
+    "status": "machine",
+    "text": "sebuah file"
+  },
   "736a02351b06b57b": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -81112,6 +81296,13 @@
     "srcHash": "7518581e44216492",
     "status": "machine",
     "text": "**Satu bentuk lagi dilaporkan di sini, dan itu bukan kesalahan ejaan.** Isi file milik bundle ArtifactLibrary tidak boleh berupa `$import:` dari bundle lain: satu slot file tidak dapat diperluas menjadi banyak file, sehingga impor bersarang ditolak alih-alih diselesaikan menjadi sesuatu yang tidak ditulis oleh penulisnya. Sebagai gantinya, gabungkan bundle-bundle tersebut di titik tempat bundle itu dikonsumsi."
+  },
+  "75239700e2644177": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "75239700e2644177",
+    "status": "machine",
+    "text": "`import-answers.yaml` di direktori yang sama dengan file sumber"
   },
   "7523f654f29a018d": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -82625,6 +82816,17 @@
     "status": "machine",
     "text": "Entri `plugins.importer` mematok versi importer-nya yang tidak dimiliki katalog"
   },
+  "772c44b57a59b496": {
+    "at": "2026-11-14T09:58:12.016Z",
+    "job": "session-0002-20261114095812",
+    "revision": {
+      "from": "5b15b0bff9004d72",
+      "reviewed": false
+    },
+    "srcHash": "772c44b57a59b496",
+    "status": "machine",
+    "text": "Draf sebuah Manifest untuk kapabilitas provider ini — kata yang menjadi ikatan spec.capability sebuah Recipe, misalnya compose atau helm — dengan memetakan setiap tipe komponen dan tipe fitur yang dibutuhkan draf ke Recipe atau resep fitur untuk kapabilitas itu yang ditawarkan katalog workspace untuknya, yaitu satu-satunya yang ada atau, di antara beberapa, yang dinamai sesuai tipenya, dan arahkan Release yang didrafkan ke Manifest tersebut. Kapabilitas yang tidak menjadi ikatan Recipe mana pun di katalog ditolak sebelum importer berjalan. Tanpa opsi ini, tidak ada Manifest yang didrafkan, kecuali bahwa --sync menggunakan kembali target yang diberikan pada impor sebelumnya."
+  },
   "7732bfb324554508": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -82663,6 +82865,13 @@
     "srcHash": "773bd1a40e883de2",
     "status": "machine",
     "text": "Jebakan yang berulang dalam rekayasa platform adalah memaksa router (file `Release` kita) menangani penyediaan kluster Hari-0 yang berat (mis. menyalakan kluster AWS EKS baru sebelum men-deploy aplikasi ke dalamnya). Hal ini menghasilkan file perutean yang panjang dan sulit dibaca."
+  },
+  "7745c3b6295ba239": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "7745c3b6295ba239",
+    "status": "machine",
+    "text": "Setiap jawaban adalah satu nilai, dan import menuliskannya ke draf sebagai string, menggantikan nilai yang kosong, tanpa mengubah hal lain di draf. Jawaban yang ditulis ke dalam Aggregate hasil draf terbaca kembali persis seperti yang Anda ketik, termasuk `{{`. Jawaban kosong membiarkan nilai tetap diperlukan."
   },
   "7746eaad9501fcce": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -90615,6 +90824,13 @@
     "status": "machine",
     "text": "An attachment delivers a key another inject source already claimed (Sebuah lampiran mengirimkan kunci yang sudah diklaim oleh sumber inject lain)"
   },
+  "82fefe7cc78eed7b": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "srcHash": "82fefe7cc78eed7b",
+    "status": "machine",
+    "text": "Kapabilitas penyedia yang menjadi sasaran draf impor, seperti compose atau helm: target yang diberikan kepada impor, atau, untuk impor yang memperbarui impor sebelumnya dan tidak menyebutkan target apa pun, target yang dicatat oleh impor sebelumnya itu. Importer menuliskan apa yang hanya dibutuhkan target itu ke dalam draf sebagai deklarasi, dan menghilangkan apa yang hanya dibutuhkan target lain. Host meneruskannya apa adanya, setelah memeriksa bahwa sebuah Recipe dari katalog workspace terikat padanya. Tidak ada jika impor tidak menyebutkan target."
+  },
   "8302efd87fcb3bb3": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -92633,6 +92849,13 @@
     "status": "machine",
     "text": "Hanya daun yang dideklarasikan yang disembunyikan, dan klausa `[sensitive]` pada tingkat lampiran bukan instruksi penyembunyian: klausa itu menyatakan bahwa lampiran menangani materi rahasia, bukan daun mana yang membawanya. Lokator yang dipublikasikan dari sebuah Feature kredensial — nama resource dan kunci data — bersifat publik dan sengaja dibiarkan tidak dideklarasikan dalam katalog pustaka standar, sehingga dicetak dalam bentuk teks biasa di samping materi yang tidak publik:"
   },
+  "860c6d1ba558c97e": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "860c6d1ba558c97e",
+    "status": "machine",
+    "text": "Satu file jawaban untuk beberapa target"
+  },
   "860edcbc7c542bc7": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -94551,6 +94774,13 @@
     "status": "machine",
     "text": "Perangkat CI dan provenans mencatat build compiler persis yang menghasilkan suatu artefak."
   },
+  "88ed00729f0fbb83": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "88ed00729f0fbb83",
+    "status": "machine",
+    "text": "`core/referenced-secret-set` direalisasikan di Docker Compose oleh `compose/dotenv-secret-set`, yang mengirimkan setiap entri ke pipa inject sebagai variabel yang dinamai sesuai kuncinya, ditulis ke environment layanan persis seperti yang ditulis, sehingga entri yang nilainya `${GITHUB_TOKEN}` masuk sebagai referensi tersebut. Realisasi ini tidak membuat resource apa pun, sehingga locator yang dipublikasikannya kosong: konsumen di Compose membaca entri dari pipa inject-nya sendiri alih-alih merujuk sebuah Secret berdasarkan nama, seperti yang dilakukan `compose/mcp` dan `compose/mcp-stdio-bridge` sejak 1.1.0 untuk `server_env` milik server Model Context Protocol."
+  },
   "88ed2efc2df54a20": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -94954,6 +95184,17 @@
     "srcHash": "8992c5b8001a189f",
     "status": "machine",
     "text": "`container.envFrom[]`"
+  },
+  "8993ee37b1cfbf38": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "b8828a58d32f6b08",
+      "reviewed": false
+    },
+    "srcHash": "8993ee37b1cfbf38",
+    "status": "machine",
+    "text": "**`core/referenced-secret-set`** mewujudkan satu resource semacam itu yang memuat himpunan kunci data yang diberikan penulis, dan hanya memublikasikan locator-nya, untuk konsumen yang targetnya sudah menetapkan nama kunci yang dibacanya. Docker Compose tidak memiliki resource semacam itu, sehingga di sana realisasinya mengirimkan kunci-kunci tersebut sebagai nilai, seperti dijelaskan di bawah. [MariaDB (chart Bitnami) — satu Secret kredensial multi-kunci](mariadb-bitnami-credential-set/README.md) menggunakannya."
   },
   "8997963e942de33f": {
     "at": "2026-10-22T08:42:51.391Z",
@@ -98954,6 +99195,13 @@
     "status": "machine",
     "text": "String di bawah `Aggregate.spec.aggregates[].type` diekspansi menjadi `/aggregate/`."
   },
+  "8f412215764bc121": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "8f412215764bc121",
+    "status": "machine",
+    "text": "sebuah direktori"
+  },
   "8f4134c8abeeb09a": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -100206,6 +100454,13 @@
     "srcHash": "91261c5a12a44c76",
     "status": "machine",
     "text": "Penulis katalog yang menulis kata kunci ekstensi mereka sendiri menggunakan namespace yang sama; tooling hilir yang mengonsumsi JSON Schema hasil kompilasi membaca kunci `x-aggrega-*` tanpa bertabrakan dengan ruang kata kunci milik JSON Schema sendiri."
+  },
+  "9127b532618e5aea": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9127b532618e5aea",
+    "status": "machine",
+    "text": "Setiap jawaban yang Anda berikan ditulis ke dalam draf dan ke file jawaban, dan file jawaban disebutkan di antara file yang ditulis. Eksekusi yang tidak mengubah apa pun di file jawaban tidak menulisnya lagi."
   },
   "9129cea81336c687": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -102591,6 +102846,17 @@
     "status": "machine",
     "text": "**Kedua bentuk sampai kepada Anda di mana pun resolusi tersebut dijalankan.** [`aggrega build`](../cli/aggrega-build.md), [`aggrega pull`](../cli/aggrega-pull.md), [`aggrega validate --release`](../cli/aggrega-validate.md), dan [`aggrega inspect --closure`](../cli/aggrega-inspect.md) menghasilkannya di terminal, dan asisten AI yang terhubung melalui [`aggrega mcp`](../cli/aggrega-mcp.md) menerima penjelasan yang sama dari alat `build` dan `validate`. Permukaan tempat Anda bertanya tidak mengubah apa pun tentang berkas mana yang harus Anda buka — pemanggil yang mengakses [`aggrega mcp`](../cli/aggrega-mcp.md) melalui HTTP diberi tahu berkas itu secara relatif terhadap root workspace, dan tidak diberi tahu berkas di luar workspace yang dilayani server tersebut — dan jika penolakan ditampilkan lebih dulu, kontrak penulisan yang dirujuk jawaban adalah kontrak untuk jenis yang dideklarasikan dokumen yang ditolak tersebut — bukan jenis referensi yang gagal."
   },
+  "947642c1caea5cbd": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "f54d84cbf201e858",
+      "reviewed": false
+    },
+    "srcHash": "947642c1caea5cbd",
+    "status": "machine",
+    "text": "Kapabilitas provider, seperti compose atau helm — kata yang diikat oleh spec.capability sebuah Recipe — untuk membuat draf Manifest di samping draf-draf tersebut, sebagai manifest.yaml: setiap tipe component dan tipe feature yang dibutuhkan draf, termasuk tipe-tipe dari Aggregate katalog yang disusun oleh Aggregate draf, dipetakan ke Recipe atau resep feature dengan kapabilitas tersebut yang ditawarkan katalog workspace untuknya — satu-satunya yang ada, atau di antara beberapa, yang dinamai sesuai tipe tersebut — tipe yang tidak memilikinya, atau memiliki beberapa tetapi tidak ada yang dinamai demikian, dibiarkan tidak terpetakan dengan temuan peringatan yang menyebutkannya, pemetaan yang dibuat sendiri oleh importer dipertahankan jika katalog menawarkannya untuk tipe dan kapabilitas tersebut dan dibuang dengan temuan peringatan jika tidak, dan spec.manifest dari Release draf diatur ke Manifest tersebut. Kapabilitas yang tidak diikat oleh Recipe mana pun di katalog ditolak sebelum konversi berjalan, dan tidak ada yang ditulis. Jika tidak ada, tidak ada Manifest yang dibuat drafnya, kecuali di bawah sync, yang membuat draf untuk target yang disebut catatan impor sebelumnya; sync yang menyebut target membuat draf untuk target itu, dan catatan kemudian menyebutnya."
+  },
   "947777b12485f94c": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -103948,6 +104214,13 @@
     "srcHash": "9666116910e802bf",
     "status": "machine",
     "text": "Kebijakan pada peran ini **menyebut labelnya** — node, kunci, dan nilai yang diambilnya — alih-alih menulis instruksi edit yang diterapkan build. Alasannya penting bagi siapa pun yang menulisnya: instruksi menunjuk label melalui jalur, dan kunci label Aggrega lazimnya berisi `/`, yang merupakan pemisah jalur, sehingga jalur yang ditulis manual akan menunjuk lokasi bertingkat alih-alih satu label. Build menunjuk label yang disebut oleh keputusan, dan proyeksi khusus label yang diterima peran ini menempatkan node-nodenya satu tingkat lebih dangkal daripada putusan atas seluruh graf."
+  },
+  "966651cdf2bfa43b": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "966651cdf2bfa43b",
+    "status": "machine",
+    "text": "Setelah tidak ada lagi yang terutang dan workspace tidak sedang offline, impor menarik dependensi Release draf seperti yang dilakukan [`aggrega pull`](cli/aggrega-pull.md), dengan menulis `release.lock`, sehingga `aggrega validate` dan `aggrega build` langsung berfungsi pada draf. Dengan `--offline`, tidak ada yang ditarik, dan impor menyebutkan `aggrega pull --release <path>` yang perlu dijalankan berikutnya."
   },
   "96694c4e53690fb1": {
     "at": "2026-11-10T00:52:32.955Z",
@@ -106507,6 +106780,13 @@
     "status": "machine",
     "text": "signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `\"<issuer>\"` with identity `\"<subject>\"`, but no trusted identity permits that issuer (penandatanganan: penandatanganan: identitas tanda tangan tidak dipercaya untuk registry ini; penandatangan menampilkan penerbit dengan identitas tersebut, tetapi tidak ada identitas tepercaya yang mengizinkan penerbit itu)"
   },
+  "9a1f5d74e4d8d031": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "9a1f5d74e4d8d031",
+    "status": "machine",
+    "text": "Lokasi file"
+  },
   "9a24d51bf0b2e179": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -106553,6 +106833,17 @@
     "srcHash": "9a35dc81c6c733cf",
     "status": "machine",
     "text": "Recipes menggunakan kata kunci `implements` untuk mengikat diri pada antarmuka yang dipenuhinya. Kolom `implements` mendukung pencocokan persis, rentang yang kompatibel dengan versi mayor, atau tanpa versi (lihat [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) untuk Pencocokan Versi `implements`). Recipe dari entri pemetaan Manifest harus mengimplementasikan tipe yang dipetakannya, atau basis yang dirujuk tipe itu melalui `extends`: kunci entri, dan tipe setiap instans komponen yang dijangkau kunci pada versi yang tidak disebutnya, pada versi yang digunakan build untuk mengompilasi instans tersebut — sehingga sebuah kunci tidak dapat mengirim instans ke Recipe yang ditulis untuk versi lain dari tipenya."
+  },
+  "9a39e2d2a139972e": {
+    "at": "2026-11-14T09:58:52.389Z",
+    "job": "session-0009-20261114095852",
+    "revision": {
+      "from": "87bb922793536cb7",
+      "reviewed": false
+    },
+    "srcHash": "9a39e2d2a139972e",
+    "status": "machine",
+    "text": "Payload yang diterima guest importer: format sumber yang menentukan cara membaca byte, byte sumber utama beserta nama file tempat byte itu dibaca, sumber bernama apa pun untuk impor multi-file, dokumen opsi opak opsional yang diberikan konsumen untuk perilaku khusus importer, tampilan Components yang dimuat katalog workspace, dan target yang menjadi sasaran draf impor."
   },
   "9a4186edced0763b": {
     "at": "2026-10-22T01:47:50.336Z",
@@ -107500,6 +107791,13 @@
     "status": "machine",
     "text": "Ketika `aggrega.exe` sedang berjalan — dijalankan oleh editor atau klien AI — penginstal tidak dapat menggantinya, dan berhenti dengan pesan yang menyatakan hal itu; tutup program yang menjalankannya lalu jalankan penginstal lagi. Pencopot instalasi berhenti dengan cara yang sama, sebelum menghapus apa pun."
   },
+  "9bbc336ef5119fe1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9bbc336ef5119fe1",
+    "status": "machine",
+    "text": "Nilai rahasia — nilai yang ditandai sensitif oleh skemanya — dijawab dengan asal rahasia tersebut, tidak pernah dengan rahasia itu sendiri. Pertanyaannya menanyakan hal itu, dan jawabannya adalah salah satu nama berikut:"
+  },
   "9bbd20f47453e326": {
     "at": "2026-11-08T10:59:19.008Z",
     "job": "session-0011-20261108105919",
@@ -108332,6 +108630,13 @@
     "srcHash": "9cbd0e64fb4d6ace",
     "status": "machine",
     "text": "featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...` (batasan provider eval pada featurerecipe: bidang jenis input render dilarang jika provider adalah eval (FeatureRecipe, aturan eval). bidang terlarang yang dideklarasikan)"
+  },
+  "9cc18d963f48e284": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9cc18d963f48e284",
+    "status": "machine",
+    "text": "Dengan `--dry-run`, tidak ada yang ditanyakan dan tidak ada yang ditulis, termasuk file jawaban. Setiap nilai terutang tetap disebutkan di standard error, dan status keluarnya adalah status dry run itu sendiri."
   },
   "9cc40f55b5bf3d3d": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -109257,6 +109562,13 @@
     "srcHash": "9e04baf5d270cc1c",
     "status": "machine",
     "text": "pengaturan ekstensinya untuk server lokal; pengaturan konektornya untuk server yang dijangkau melalui HTTPS"
+  },
+  "9e062337b7582141": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "9e062337b7582141",
+    "status": "machine",
+    "text": "tidak menarik dependensi Release draf;"
   },
   "9e0e63dd0928516a": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -112245,6 +112557,13 @@
     "status": "machine",
     "text": "Aplikasi diimpor di bawah akun pemilik instalasi, yang disebutkan oleh Release: komentar\ndi atas entri menyisakan untuknya `infra.owner_email` pada komponen `api` milik instalasi dan\nslot `owner_password` pada komponen tersebut, keduanya ditetapkan dalam entri routing Release untuk instalasi,\ntanpanya build berhenti."
   },
+  "a2635061f627a755": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "a2635061f627a755",
+    "status": "machine",
+    "text": "File jawaban adalah"
+  },
   "a266bd3eabf7d506": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -112765,6 +113084,13 @@
     "status": "machine",
     "text": "Untuk siklus penulisan yang dimulai perintah ini — membuat draf bentuk, mengisi placeholder, memvalidasi — lihat [Memulai penulisan](../../authoring/getting-started.md)."
   },
+  "a309be11b24b4c5a": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "srcHash": "a309be11b24b4c5a",
+    "status": "machine",
+    "text": "File jawaban tempat nilai-nilai yang dibiarkan kosong oleh draf dan tidak dapat dimuat oleh sumber mana pun dibaca dan ditulis, relatif terhadap root workspace; nilai absolut, atau nilai yang mengarah ke luar workspace sebagaimana tertulis atau melalui tautan, ditolak. File ini memuat, di bawah path setiap file draf, path kunci di dalam dokumen tersebut beserta jawabannya, dan jawaban-jawaban itu ditulis ke dalam draf. Jika tidak ada, yang dibaca adalah file yang disebutkan oleh catatan di samping draf, atau jika tidak, import-answers.yaml di samping file sumber atau di dalam direktori sumber. Jawaban untuk sebuah secret menyebutkan asal secret tersebut — nama variabel, ${NAME}, atau nama sebuah Kubernetes Secret — dan apa pun selain itu ditolak tanpa ada yang ditulis. Tidak ada yang ditanyakan: setiap nilai yang masih terutang menjadi temuan peringatan yang menyebutkan file draf, kuncinya, dan apa nilai itu, dan jika draf ditulis, temuan terakhir menyatakan berapa banyak yang masih terutang dan di mana. Jika draf mencakup Release, tidak ada yang terutang, dan konversi selesai, dependensinya kemudian di-pull sambil menulis lockfile-nya, dan pull yang gagal menutup temuan dengan menyebutkan alasannya, dengan draf tetap ditulis; dalam mode offline tidak ada yang di-pull dan sebuah temuan menyebutkan pull yang perlu dijalankan. Jawaban untuk kunci yang tidak dibiarkan kosong oleh draf ini tetap disimpan di file dan tidak diterapkan, sehingga satu file jawaban melayani setiap target."
+  },
   "a309dc3d56980868": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -113265,6 +113591,13 @@
     "srcHash": "a3a7751f60c4e726",
     "status": "machine",
     "text": "`ConfigCapturedAttachment`"
+  },
+  "a3a966af05a9d0dc": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "a3a966af05a9d0dc",
+    "status": "machine",
+    "text": "impor menambahkan kunci yang diperlukan drafnya dan menetapkan jawaban yang diberikan kepadanya;"
   },
   "a3adcab20a521644": {
     "at": "2026-10-29T21:59:45.311Z",
@@ -119237,6 +119570,13 @@
     "status": "machine",
     "text": "**Tindakan:** Compiler memfinalisasi Graf Representasi Perantara (IR) yang datar, dengan mempertahankan edge topologis eksplisit yang digambar oleh pembangun topologi. Kemudian compiler menormalisasi Features yang dilampirkan beserta payload `values`-nya ke dalam dictionary datar yang dipetakan berdasarkan ID node, sehingga graf yang agnostik terhadap kapabilitas siap untuk divalidasi."
   },
+  "ac469c64ee1b099f": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ac469c64ee1b099f",
+    "status": "machine",
+    "text": "referensi ke variabel"
+  },
   "ac48b5016cd205a8": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -120458,6 +120798,13 @@
     "srcHash": "adf4bad2a226d5e8",
     "status": "machine",
     "text": "**Release dicatat berdasarkan kontennya, bukan hanya namanya.** Segala hal yang diminta Release — ke versi chart mana sebuah sumber di-resolve, komponen mana yang masuk ke batas mana — di-resolve dari isi file, sehingga `release_documents` mencatat digest Release dan setiap Release yang diperluasnya, di samping `release`, yang menyebutkan namanya. Edit Release setelah pull dan build berikutnya berhenti sebelum apa pun dirender, menyebutkan file yang Anda edit dan meminta Anda melakukan pull lagi; `aggrega pull --release <release>` biasa mencatat suntingan tersebut sambil tetap mematuhi setiap pin lainnya. Digest mencakup byte file apa adanya, sehingga perubahan komentar atau spasi juga dihitung, persis seperti untuk Aggregate dan Manifest. File yang diimpor Release melalui `parameters` tidak dicatat dengan cara ini."
+  },
+  "adfab8bc08de2f93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "adfab8bc08de2f93",
+    "status": "machine",
+    "text": "Beberapa nilai tidak dapat dimuat oleh sumber mana pun: image aplikasi yang dibangun dari kode Anda sendiri, email akun pemilik, model yang tidak disebutkan oleh sumber, nama Secret Kubernetes. [`aggrega import`](cli/aggrega-import.md) membuat draf setiap nilai semacam itu sebagai string kosong, di bawah komentar yang menjelaskan apa nilai itu, dan mengambilnya dari Anda satu kali — dari file jawaban, atau dari pertanyaan di terminal. Jawaban disimpan di file jawaban, `import-answers.yaml`, sehingga setiap impor berikutnya dari sumber yang sama membacanya dari sana dan tidak menanyakan apa pun."
   },
   "adfb88249147d90a": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -123970,6 +124317,13 @@
     "status": "machine",
     "text": "**Nilai yang merupakan intrinsic CloudFormation** — tag bentuk pendek seperti `!GetAtt Db.Endpoint.Address`, atau pemetaan `Ref` atau `Fn::` bentuk panjang — menamai sesuatu yang hanya dideklarasikan oleh stack produsen, sehingga konsumen menerima referensi lintas stack yang sama seperti nilai yang diinjeksikan: stack produsen menerbitkan `Export` untuk kunci tersebut, dan konsumen membacanya dengan `Fn::ImportValue`, atau dengan `Fn::GetStackOutput` jika kedua boundary mendeklarasikan penempatan yang berbeda."
   },
+  "b2a3aa602762a782": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b2a3aa602762a782",
+    "status": "machine",
+    "text": "Jawaban"
+  },
   "b2a672eb818b4a9d": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -124089,6 +124443,13 @@
     "srcHash": "b2ce60cb8a1b6661",
     "status": "machine",
     "text": "Detik setelah pemberitahuan lockfile yang hilang ditutup sebelum ditampilkan lagi untuk pekerjaan yang tidak Anda minta. Hanya dibaca saat `toastDebounceMode` bernilai `time`."
+  },
+  "b2cfead1dd8a3c93": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "b2cfead1dd8a3c93",
+    "status": "machine",
+    "text": "Nilai mana yang masih harus diisi"
   },
   "b2d371a9b40f8288": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -126619,6 +126980,13 @@
     "status": "machine",
     "text": "`AGGREGA_DEFAULT_REGISTRY` — registry tujuan ketika `--registry` dihilangkan."
   },
+  "b62ba0a7ad6f9e85": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b62ba0a7ad6f9e85",
+    "status": "machine",
+    "text": "setiap pertanyaan menyebutkan file draf dan path kunci, serta dirumuskan dari deskripsi skema;"
+  },
   "b62c640b29f5d3fc": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -126667,6 +127035,13 @@
     "srcHash": "b638f933aded58df",
     "status": "machine",
     "text": "Mencetak JSON Schema untuk jenis entitas atau kontrak"
+  },
+  "b6391c66b71fa2c4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "b6391c66b71fa2c4",
+    "status": "machine",
+    "text": "menekan Enter menunda nilai untuk nanti, dan mengakhiri input menghentikan pertanyaan."
   },
   "b6392a1a9830cb92": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -127985,6 +128360,13 @@
     "status": "machine",
     "text": "`patches` — array dokumen JSONPatch opak (RFC 6902) yang diterapkan host pada proyeksi yang hanya berisi label."
   },
+  "b84e767bc103a0da": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b84e767bc103a0da",
+    "status": "machine",
+    "text": "Alat impor asisten menerima file jawaban sebagai `answers`, disebutkan relatif terhadap root workspace atau secara absolut. Panggilan yang masih memiliki nilai terutang gagal dengan kalimat tersebut dan membawa hasil impor, termasuk peringatannya, di sampingnya. Impor di editor juga menerima file jawaban, dan kalimat yang sama menutup diagnostiknya."
+  },
   "b84e7e70b29cb956": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -129096,6 +129478,13 @@
     "status": "machine",
     "text": "**Membedakan nama sumber daya tidak memperbaiki masalah ini.** Nama output dibangun\n  dari komponen host dan entri, sehingga *entri*-lah yang harus berbeda —\n  entah satu lampiran alih-alih dua, atau sebuah Feature yang nama entri terbitannya\n  terbaca sebagai milik lampiran itu sendiri."
   },
+  "b9ef755373870edd": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "b9ef755373870edd",
+    "status": "machine",
+    "text": "Menjalankan ulang dan `--sync`"
+  },
   "b9f0addcbd75da82": {
     "at": "2026-10-22T22:35:51.476Z",
     "job": "session-0052-20261022223551",
@@ -129613,6 +130002,17 @@
     "srcHash": "ba878d4ce6c913a4",
     "status": "machine",
     "text": "**Setiap file dalam arsip membawa mode `0644` dan tanpa timestamp, apa pun bit izinnya di disk.** Checkout menulis file dengan bit izinnya sendiri, dan sistem yang tidak mencatat bit eksekusi melakukan checkout sebagai file biasa terhadap apa yang di-checkout sistem lain sebagai file yang dapat dieksekusi, sehingga arsip tidak membawa mode yang dibaca dari disk: dua checkout dari satu commit memublikasikan file yang sama apa pun umask-nya dan di sistem mana pun checkout itu dibuat, dan membalik bit eksekusi sebuah skrip tidak mengubah apa pun yang dipublikasikan."
+  },
+  "ba8af07e176f9ac9": {
+    "at": "2026-11-14T09:58:47.175Z",
+    "job": "session-0008-20261114095847",
+    "revision": {
+      "from": "4555c029e3e298f5",
+      "reviewed": false
+    },
+    "srcHash": "ba8af07e176f9ac9",
+    "status": "machine",
+    "text": "`metadata.environment` dan `spec.manifest` milik Release dibiarkan tidak diatur, masing-masing disebutkan dalam komentar di tempatnya: tidak ada sumber yang menyebutkan lingkungan tempat Release di-deploy, dan importer tidak membuat draf Manifest — kecuali impor diberi target, sebagaimana dijelaskan dalam [Apa yang ditambahkan target](#what-a-target-adds). Manifest yang Anda tulis memetakan setiap server ke realisasinya — `helm/mcp-stdio-bridge` atau `compose/mcp-stdio-bridge` untuk baris perintah, `helm/mcp-remote` atau `compose/mcp-remote` untuk alamat, `helm/mcp` atau `compose/mcp` untuk image — dan `core/referenced-secret-set` ke realisasinya sendiri, `helm/k8s-secret-set` atau `compose/dotenv-secret-set`; Manifest hasil draf tidak memetakan keduanya. Skema Release mewajibkan keduanya, sehingga build berhenti dengan menyebutkannya hingga keduanya diatur."
   },
   "ba8ba836674439a1": {
     "at": "2026-10-29T21:05:52.313Z",
@@ -136731,6 +137131,13 @@
     "status": "machine",
     "text": "Klaim dukungan provider: kunci anotasi well-known native platform (namespace aggrega.ai/) yang dibaca provider ini, masing-masing dengan cakupan tempat kunci dibaca dan perilaku yang diterapkan jika kunci tidak ada. Deklarasikan sebuah kunci hanya jika provider membacanya — matriks dukungan yang dipublikasikan dirender dari deklarasi ini, sehingga kunci yang tercantum di sini adalah kunci yang dapat diharapkan penulis untuk mengubah keluaran yang dirender pada cakupan yang disebutkannya. Compiler membaca deklarasi ini dengan dua cara: `scope` yang menyebut input kind yang tidak diklaim oleh `contract.inputKinds` milik provider itu sendiri bertentangan dengan klaim lain dalam entitas yang sama, dan build dihentikan dengan menyebutkan kunci dan pertentangannya; dan build memberikan peringatan tentang anotasi aggrega.ai/ yang mencapai sebuah render melalui provider ini jika tidak ada entri yang mencakupnya pada input kind mana pun yang dideklarasikan render tersebut. Field ini terpisah dari aturan yang mengatur pengikatan nilai di bawah prefiks cadangan aggrega.ai/. Jika tidak ada, tidak ada klaim dukungan yang dideklarasikan, dan tidak ada peringatan semacam itu yang dimunculkan untuk provider ini; provider yang tidak membaca satu pun dari kunci ini mendeklarasikan `readsNoWellKnownAnnotations` sebagai ganti daftar ini. Entri berupa daftar berurutan dan mempertahankan urutan penulis."
   },
+  "c48cd90b2e7127a7": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c48cd90b2e7127a7",
+    "status": "machine",
+    "text": "Pemeriksaan membaca bentuk jawaban, sehingga rahasia yang kebetulan terlihat seperti nama tidak dapat dibedakan dari nama. Rahasia itu sendiri tetap berada di tempat yang ditunjuk nama: di variabel, atau di Secret."
+  },
   "c4908d1b1bca39d4": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -140082,6 +140489,13 @@
     "status": "machine",
     "text": "Entri yang diturunkan dari edge diemisikan **tanpa gerbang**: entri tersebut memiliki semantik `service_started` terlepas dari apakah target mendeklarasikan healthcheck. Menggerbangkannya pada kesehatan target — yang akan membuat runtime compose menahan startup hingga healthcheck target melaporkan sehat — dapat diekspresikan, tetapi bukan itulah makna edge `uses` saat ini. [Deployment wave](#deployment-wave-ordering) yang menyebut pasangan yang sama adalah satu-satunya hal yang mengubah kondisi pada entri yang diturunkan dari edge, dan hal itu terjadi karena wave memintanya, bukan karena edge memintanya."
   },
+  "c94504c2a935cab8": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "c94504c2a935cab8",
+    "status": "machine",
+    "text": "Sumber yang sama yang didrafkan untuk target berbeda dapat memiliki nilai terutang yang berbeda: Release Google ADK di atas, yang didrafkan dengan `--target compose`, hanya memerlukan image, sedangkan Release yang sama yang didrafkan dengan `--target helm` juga memerlukan asal kunci API Gemini milik agen. Satu file jawaban melayani keduanya:"
+  },
   "c9482c890a55be01": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -141273,6 +141687,13 @@
     "srcHash": "cad90fe442777b96",
     "status": "machine",
     "text": "**Mapping bentuk panjang** jika ada entri yang membawa kondisi — yang terjadi ketika service juga menunggu [init container](#init-containers), atau ketika [deployment wave](#deployment-wave-ordering) mengurutkannya. Dalam hal itu, entri yang diturunkan dari edge diemisikan dengan `condition: service_started` secara eksplisit, yang oleh Compose Specification didefinisikan sebagai padanan bentuk pendek, sehingga maknanya tidak berubah."
+  },
+  "cadb56db6aef01cf": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "cadb56db6aef01cf",
+    "status": "machine",
+    "text": "`import-answers.yaml` di dalam direktori sumber"
   },
   "cadbdeba89aff2b3": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -143354,6 +143775,17 @@
     "status": "machine",
     "text": "**Halaman ini membahas jenis katalog, dan jenis tersebut bukan satu-satunya jenis yang mendeklarasikan `extends`.** Release dan Manifest juga mendeklarasikannya, dan keduanya adalah dokumen sisi deployment yang ditulis berdampingan, bukan entitas yang diindeks katalog — sehingga referensinya menamai file, bukan entitas katalog, dan yang digabungkan adalah permukaan penulisan, bukan skema. Untuk keduanya, lihat [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) dan [`entities/manifest.md`](../entities/manifest.md)."
   },
+  "cde78a6f86e77be9": {
+    "at": "2026-11-14T09:58:17.556Z",
+    "job": "session-0003-20261114095817",
+    "revision": {
+      "from": "98d215f124954c81",
+      "reviewed": false
+    },
+    "srcHash": "cde78a6f86e77be9",
+    "status": "machine",
+    "text": "**Kirim `target` untuk membuat draf Manifest yang menjadi dasar build Release draf untuk satu provider.** `target` adalah kapabilitas provider — kata yang menjadi ikatan `spec.capability` sebuah Recipe, seperti `compose` atau `helm` — dan merupakan `--target` milik `aggrega import`, disusun oleh operasi yang sama, sehingga sebuah panggilan dan perintah tersebut membuat draf file yang sama dari sumber yang sama. Untuk setiap tipe komponen dan setiap tipe fitur yang dibutuhkan draf — pada komponen Aggregate draf, koneksinya, dan subsistemnya, pada Aggregates katalog yang disusunnya, serta pada lampiran Release draf — dalam urutan pertama kali dideklarasikan oleh draf, impor mencari di katalog ruang kerja Recipes, atau untuk tipe fitur resep fitur, yang mengimplementasikan tipe tersebut dan terikat pada kapabilitas itu. Jika ada tepat satu — beberapa versi dari salah satunya dihitung sebagai satu — Manifest memetakan tipe tersebut ke sana melalui nama yang dikualifikasi kapabilitas tanpa versi, seperti `compose/postgres`, yang dipatok oleh pull pertama dalam lockfile pada versi tertinggi yang tersedia. Jika ada beberapa dengan nama berbeda, Manifest memetakan yang dinamai sesuai tipe itu sendiri, seperti `helm/postgres` untuk `core/datastore/postgres`. Jika tidak ada, atau ada beberapa tetapi tidak satu pun bernama demikian, tipe tersebut dibiarkan tidak terpetakan dan entri `warn` dalam `diagnostics` menyebutkannya beserta alasannya — beberapa itu masing-masing dengan namanya — sehingga build draf berhenti dengan menyebutkan setiap instans atau lampirannya, dengan kondisi [No Recipe is mapped for a component or feature instance (Tidak ada Recipe yang dipetakan untuk instans komponen atau fitur)](../errors/fatal-halts.md#no-recipe-is-mapped-for-a-component-or-feature-instance), hingga pemetaan ditambahkan. Jika importer membuat draf Manifest sendiri, untuk memilih Recipe yang digunakan untuk merender sebuah instans atau sebuah resep fitur di antara beberapa, setiap pemetaan yang ditulisnya dan ditawarkan katalog untuk tipe dan kapabilitas tersebut dipertahankan, pemetaan lainnya dibuang dengan entri `warn`, dan tipe yang ditinggalkannya dipetakan seperti di atas. Manifest dibuat sebagai `manifest.yaml` di samping Release draf, dengan nama dan versi yang sama dengan Release, dan `spec.manifest` milik Release ditetapkan ke nama tersebut — komentar yang ditulis importer di tempatnya diganti, dan tidak ada hal lain dalam Release yang berubah. Release yang sudah menyebutkan sebuah Manifest dibiarkan apa adanya, dan jika impor tidak membuat draf Release, Manifest dibuat di samping Aggregate, dengan nama dan versinya, dan entri `info` menyatakan bahwa tidak ada yang merujuknya. Manifest dan Release yang disunting adalah draf seperti yang lain: ada dalam `written`, dalam catatan, dan dikembalikan di bawah `dry_run`. `target` yang tidak menjadi ikatan Recipe mana pun dalam katalog ditolak sebelum importer dijalankan, dengan kondisi [An import's target names a capability no Recipe in the catalog binds to (Target sebuah impor menyebutkan kapabilitas yang tidak menjadi ikatan Recipe mana pun dalam katalog)](../errors/fatal-halts.md#an-imports-target-names-a-capability-no-recipe-in-the-catalog-binds-to), dengan menyebutkannya sebagaimana Anda kirim beserta kapabilitas yang menjadi ikatan Recipes dalam katalog, dan tidak ada yang ditulis. Jika `target` dihilangkan, tidak ada Manifest yang dibuat — kecuali di bawah `sync`, yang membuat draf untuk target yang dikirim bersama impor sebelumnya; `target` yang kosong ditolak alih-alih dibaca seolah-olah Anda menghilangkannya."
+  },
   "cded6d3462fda3d2": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -143814,6 +144246,13 @@
     "srcHash": "ce81d2451cb65e1d",
     "status": "machine",
     "text": "**Setiap file dari `source:` yang menyebutkan direktori atau file di samping entitas.** Tidak ada yang diambil: langkah ini menghitung digest setiap file yang dikontribusikan sumber ke apa yang dibawa publikasi entitas — setiap file di bawah direktori yang disebutkannya yang dipertahankan oleh aturan pengabaian entitas, atau file tunggal tersebut — dan mencatatnya berdasarkan jalurnya di samping entitas. File di samping Recipe yang tidak dikontribusikan sumber, seperti README, tidak di-pin. Sumber yang ditulis sebagai template, seperti `./charts/{{ .values.flavour }}`, baru menyebutkan direktorinya setelah sebuah Release mengisinya, sehingga sumber tersebut mengontribusikan setiap file di direktori entitas yang dipertahankan aturan, dan masing-masing di-pin. Sebuah build membandingkan sumber dengan pin-pin ini sebelum provider-nya membacanya, sehingga file yang ditambahkan, diubah, atau dihapus sejak pin akan menghentikan build — [A local source no longer matches the pins recorded beside its Recipe (Sumber lokal tidak lagi cocok dengan pin yang dicatat di samping Recipe-nya)](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe)."
+  },
+  "ce8614df5f442559": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ce8614df5f442559",
+    "status": "machine",
+    "text": "File ini berformat YAML. Kunci tingkat atasnya adalah file draf, berdasarkan path tempat masing-masing dibuat. Di bawah masing-masing, sebuah kunci adalah path kunci bertitik dari nilai yang masih diperlukan di dalam dokumen tersebut, dan nilainya adalah jawabannya. Deskripsi kunci dari skema ditulis sebagai komentar di atasnya. Segmen path kunci yang kosong, atau berisi titik, spasi putih, atau tanda kutip, ditulis dalam tanda kutip ganda. File yang tidak terbaca dalam bentuk ini menghentikan import, dengan menyebutkan file dan alasannya, dan tidak ada yang ditulis."
   },
   "ce879f2e0eb33dfb": {
     "at": "2026-10-22T21:56:12.149Z",
@@ -144864,6 +145303,13 @@
     "srcHash": "cfe94b9cdcec4a14",
     "status": "machine",
     "text": "tempat berjalannya"
+  },
+  "cfeb558f45ef2ba1": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "cfeb558f45ef2ba1",
+    "status": "machine",
+    "text": "nama Kubernetes Secret"
   },
   "cfec9fad654cf4bd": {
     "at": "2026-10-22T17:21:40.169Z",
@@ -150202,6 +150648,13 @@
     "status": "machine",
     "text": "Pesan yang dikeluarkan, diposisikan pada entri `aggregates` yang mendeklarasikan modul tersebut, dengan nama lokal yang ditulis oleh dokumen pengimpor:"
   },
+  "d7a52d2cb772511a": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "srcHash": "d7a52d2cb772511a",
+    "status": "machine",
+    "text": "Setelah membuat draf, impor membaca setiap dokumen draf terhadap skemanya sendiri, dan terhadap skema katalog setiap Component, Feature, dan koneksi yang dideklarasikan dokumen tersebut. Suatu nilai **masih harus diisi** ketika nilai itu masih kosong di tempat skema tersebut mewajibkannya, atau di tempat skema mendeklarasikan kuncinya dan tidak ada yang menyediakannya. Setiap nilai yang masih harus diisi dijelaskan oleh deskripsi skema itu sendiri tentang kuncinya; jika skema tidak memberikannya, oleh komentar yang ditulis draf di atas kunci tersebut."
+  },
   "d7ad36e04765a51b": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -155289,6 +155742,13 @@
     "status": "machine",
     "text": "Pada helm, entri `Loopback` menghentikan build alih-alih dirender sebagai sesuatu yang bukan dirinya. Service Kubernetes tidak memiliki tipe yang melakukan binding ke alamat loopback host — alamat node mana yang didengarkan oleh Service `NodePort` merupakan pengaturan seluruh kluster, bukan satu Service — sehingga Service `ClusterIP` akan menghilangkan jangkauan yang diminta entri, dan Service `NodePort` akan memublikasikan port pada setiap alamat node yang diizinkan kluster. Penghentian tersebut menyebut node dan layanannya; lihat [A service type the helm provider cannot render (Tipe layanan yang tidak dapat dirender oleh provider helm)](../errors/fatal-halts.md#a-service-type-the-helm-provider-cannot-render)."
   },
+  "de924b6792609c84": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "de924b6792609c84",
+    "status": "machine",
+    "text": "nama variabel"
+  },
   "de9361a06a9d236f": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -156554,6 +157014,13 @@
     "status": "machine",
     "text": "annotation contribution overridden by an explicit value (kontribusi anotasi ditimpa oleh nilai eksplisit)"
   },
+  "e02e83c53945b2b5": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e02e83c53945b2b5",
+    "status": "machine",
+    "text": "Jawaban untuk sebuah rahasia adalah nama asal rahasia tersebut, tidak pernah rahasia itu sendiri (lihat [Rahasia](#secrets)), sehingga file jawaban dapat disimpan bersama sumber di kontrol versi."
+  },
   "e0304859d466cea4": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -156956,6 +157423,13 @@
     "srcHash": "e0abfdbceef42902",
     "status": "machine",
     "text": "Setiap metode yang dapat disebut oleh sebuah permintaan. Himpunan ini tertutup: permintaan yang menyebut hal lain dijawab dengan galat method-not-found."
+  },
+  "e0ae7a1f3f51e7e7": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "e0ae7a1f3f51e7e7",
+    "status": "machine",
+    "text": "Isinya"
   },
   "e0b0610077afe719": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -160034,6 +160508,13 @@
     "srcHash": "e5117a3f1b78b275",
     "status": "machine",
     "text": "Siapa yang biasanya menulis berkas mana. Pembagian ini adalah panduan, bukan aturan yang ditegakkan kompiler: dalam tim kecil atau proyek perorangan, satu orang menulis semuanya."
+  },
+  "e51a0b1bf8548448": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "e51a0b1bf8548448",
+    "status": "machine",
+    "text": "menyebutkan setiap nilai terutang di standard error, sebagai peringatan yang menyebutkan file draf, path kunci, dan deskripsinya;"
   },
   "e51b9b9af00f629f": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -164125,6 +164606,13 @@
     "status": "machine",
     "text": "Cache yang sama dengan kredensial kata sandi inject-value yang dilampirkan ke slot opsional `password` milik komponen (jalur Compose). Build-nya berhenti."
   },
+  "eb424d0978e0df0d": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "eb424d0978e0df0d",
+    "status": "machine",
+    "text": "menulis file jawaban dengan setiap kunci terutang ada dan jawabannya kosong;"
+  },
   "eb43e6e2ed3d82b4": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -165057,6 +165545,13 @@
     "srcHash": "ec6595c6004da722",
     "status": "machine",
     "text": "Rekan diperlakukan sebagai berada di region yang sama, dan referensi lintas stack di-resolve melalui impor stack-export di region yang sama."
+  },
+  "ec6703343a0626d4": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "ec6703343a0626d4",
+    "status": "machine",
+    "text": "Import menjawab setiap nilai yang diperlukan terlebih dahulu dari file jawaban. Untuk setiap nilai yang tidak dijawab oleh file, import menanyakannya kepada Anda, satu pertanyaan setiap kali — tetapi hanya jika input standar dan output standar keduanya adalah terminal, dan `--dry-run` tidak diberikan:"
   },
   "ec6de3549db1cf0d": {
     "at": "2026-10-29T23:25:30.396Z",
@@ -170862,6 +171357,17 @@
     "status": "machine",
     "text": "`RenderedNameOutput`"
   },
+  "f465d891fd1af658": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "revision": {
+      "from": "a490cd8e08cae82f",
+      "reviewed": false
+    },
+    "srcHash": "f465d891fd1af658",
+    "status": "machine",
+    "text": "Sumbernya adalah"
+  },
   "f466ae263b32aecc": {
     "at": "2026-10-30T01:13:08.755Z",
     "job": "session-0043-20261030011308",
@@ -171556,6 +172062,13 @@
     "srcHash": "f569f31ab76e7198",
     "status": "machine",
     "text": "Dokumen konfigurasi mana yang menjadi tempat penulisan perubahan plugin dan seberapa jauh jangkauannya. Default socket ekstensi perintah sendiri adalah dokumen tingkat mesin, sehingga setiap jawaban menyebutkan dokumen mana yang ditulisnya."
+  },
+  "f56c84bbb22f3966": {
+    "at": "2026-11-14T09:58:36.040Z",
+    "job": "session-0006-20261114095836",
+    "srcHash": "f56c84bbb22f3966",
+    "status": "machine",
+    "text": "Kedua jawaban adalah milik Anda: `ghcr.io/example/support-agent:1.0.0` mewakili image yang Anda build dan push, dan `google-api-key` mewakili nama Secret Kubernetes yang menyimpan kunci tersebut di namespace tujuan deploy Anda."
   },
   "f56db32603c4b949": {
     "at": "2026-11-08T10:34:42.436Z",
@@ -175293,6 +175806,17 @@
     "status": "machine",
     "text": "**Cara memperbaiki:** bandingkan id yang dikutip pesan dengan komponen yang benar-benar dimuat oleh komposisi. Prefiks modul yang hilang dan nama subsistem yang ditulis ke dalam id adalah dua penyebab umum; hapus subsistemnya, tambahkan prefiks modul, atau perbaiki ejaannya. Jika entri tersebut merupakan sisa dari komponen yang telah dihapus atau diganti namanya, hapus entri itu."
   },
+  "fa81d6eac5c562f4": {
+    "at": "2026-11-14T09:58:28.763Z",
+    "job": "session-0005-20261114095828",
+    "revision": {
+      "from": "988e6880f3577fa0",
+      "reviewed": false
+    },
+    "srcHash": "fa81d6eac5c562f4",
+    "status": "machine",
+    "text": "`core/referenced-secret` direalisasikan di Docker Compose oleh `compose/dotenv-referenced-secret`. Compose tidak memiliki resource secret untuk dirujuk, sehingga `origin` adalah kredensial itu sendiri, bukan nama sebuah Secret: nilai ini dikirimkan ke pipa inject di bawah `key` milik lampiran, dan Recipe Compose yang membaca slot tersebut menuliskannya ke file yang dihasilkan persis seperti yang ditulis, sehingga origin yang ditulis sebagai `${DB_PASSWORD}` masuk sebagai referensi tersebut. Realisasi ini tidak membuat resource apa pun, sehingga nama yang dipublikasikannya kosong dan kunci yang dipublikasikannya adalah `values.key`."
+  },
   "fa822b61196acabe": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -178389,6 +178913,13 @@
     "srcHash": "ff18ebbd0613c8f4",
     "status": "machine",
     "text": "Aturan bentuk FeatureRecipe"
+  },
+  "ff19f949e4e0fff0": {
+    "at": "2026-11-14T09:58:41.460Z",
+    "job": "session-0007-20261114095841",
+    "srcHash": "ff19f949e4e0fff0",
+    "status": "machine",
+    "text": "di terminal, jawaban ditolak, alasannya ditampilkan, dan pertanyaan diajukan lagi;"
   },
   "ff2f778fc9d75fc9": {
     "at": "2026-10-17T20:35:57.134Z",
