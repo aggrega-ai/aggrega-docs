@@ -144,6 +144,55 @@ own indentation. The record is JSON, so nothing that reads the workspace's YAML
 documents reads it; keep it beside the drafts for as long as you mean to sync
 them.
 
+Some values no source can hold: the image of an application built from your
+own code, the email of an owner account, a model the source does not name, the
+name of a Kubernetes Secret. The drafts write each such value as an empty
+string under a comment saying what it is. After drafting, import reads every
+drafted document against its own schema and against the catalog schema of each
+Component, Feature and connection it declares, and lists every value still
+empty where that schema requires one, or where it declares the key and nothing
+supplied it — each described by the schema's own description. The values are
+answered from the answers file: --answers names it, and without it import reads
+the one the record beside the drafts names, or else import-answers.yaml beside
+the source file, or inside the source directory. The answers file holds, under
+each drafted file's path, the key path inside that document and its answer as a
+string, with the schema's description in a comment above each key. Each answer
+is written into the drafts before anything is written or recorded, so an import
+of the same source, and --sync, read the same answers and draft the same files.
+An answer for a key these drafts do not leave empty — one only another
+target's drafts ask for, say — is kept in the file and not applied, so one
+answers file serves every target: import adds the keys it owes, sets the
+answers it is given, and leaves every other key and comment as it is, writing
+the file only where that changes it. The record beside the drafts names the
+answers file where it is not the one beside the source, and holds no answer.
+
+The answers file never holds a secret. A secret's value — one its schema marks
+sensitive — is answered with where the secret comes from: a variable name, a
+reference such as ${OPENAI_API_KEY}, or the name of a Kubernetes Secret.
+Anything else is refused, naming the key and never the answer, and nothing is
+written.
+
+Where standard input and standard output are both a terminal, and --dry-run is
+not given, import asks one question for each value the answers file leaves
+unanswered, worded from the schema's description; an empty answer leaves the
+value for later, and a secret's answer that is not a name is refused and asked
+again. Every answer is written into the answers file, so a later run asks
+nothing. Anywhere else — a pipe, continuous integration, the assistant's import
+tool, the editor — nothing is asked: the drafts keep their empty values, the
+answers file is written with every owed key present and empty, each owed value
+is named on standard error, and import exits 1 with one sentence saying how
+many values are owed and where to write them. Under --dry-run nothing is asked
+and nothing is written: each owed value is named on standard error, and the
+exit status is the dry run's own.
+
+When the drafts include a Release, owe nothing, and the importer finished,
+import pulls that Release's dependencies once the drafts are written, exactly
+as aggrega pull --release does, writing its release.lock, so aggrega validate
+and aggrega build work on the drafts at once. Under --offline nothing is pulled,
+and import names the aggrega pull to run next. A pull that fails leaves the
+drafts written and stops import, naming why and the pull to run once it is
+fixed.
+
 An import never writes over an Aggregate already at one of its drafted paths:
 an Aggregate is the document an author goes on editing once it is drafted, so
 import stops, naming it and --sync, and writes nothing — under --dry-run too.
@@ -289,6 +338,7 @@ source the write would refuse is refused here too.
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--answers` | — | The answers file the values the drafts leave empty that no source can hold are read from and written to: under each drafted file's path, the key path inside it and its answer. A relative path resolves against the directory you run the command in. Without it, the answers file the record beside the drafts names, or else import-answers.yaml beside the source file, or inside the source directory. A secret's answer is the name of where the secret comes from, never the secret itself. |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk or agent-framework) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
