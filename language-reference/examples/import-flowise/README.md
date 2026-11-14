@@ -77,7 +77,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `import-flowise` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import `support-chat.json` there with the `import` tool, for the target `compose`; the import reads the answers it needs from `import-answers.yaml` beside it. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-flowise` folder yet, call the `scaffold` tool once with `example` set to `import-flowise` and no `dir`: it writes the example into a new `import-flowise` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-flowise/source`, `source` set to `support-chat.json` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `support-chat.json`, writes its drafts into `import-flowise/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-flowise/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-flowise/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-flowise/source/dist/`.
 
 ## Test it
 
