@@ -15,7 +15,7 @@ The wire shapes an importer plugin socket consumes (ImportInput) and emits (Impo
 
 ### `ImportInput`
 
-The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes and the name of the file they were read from, any named sources for a multi-file import, an optional opaque options document the consumer supplies for importer-specific behavior, and a view of the Components the workspace's catalog holds.
+The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes and the name of the file they were read from, any named sources for a multi-file import, an optional opaque options document the consumer supplies for importer-specific behavior, a view of the Components the workspace's catalog holds, and the target the import drafts for.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -25,6 +25,7 @@ The payload an importer guest receives: the source format that selects how to re
 | `sources` | ImportSource[] | no | Named sources, each carrying its own bytes, in one list sorted by name. Where the import's source is a directory, there is one per file of it that the importer's declared file patterns select, named by its slash-separated path inside the directory. The files the attachment configuring the importer declares under with.sources are carried here too, each under its base name, and the host refuses an import in which a file read from the directory and one of these carry the same name. Absent where neither supplies any. |
 | `settings` | any | no | An opaque import-options document the consumer supplies for importer-specific behavior. The host pipes it through without interpreting it; the importer reads whatever shape it documents. Absent when the consumer supplies no options. |
 | `catalog` | CatalogProjection | no | A view of the Components the workspace's own catalog holds — the catalog the importer itself was selected from — so the importer can weigh them as candidates when it maps a source node to a catalog entity. The host builds it from that local catalog alone, and it carries names, versions, labels and declared structure only: never a value, a default or a secret. Its order is fixed, so one catalog yields one byte sequence. Absent when the catalog holds no Component. |
+| `target` | string | no | The provider capability the import drafts for, such as compose or helm: the target the import was given, or, for an import refreshing an earlier one that names none, the target that earlier import recorded. An importer writes what only that target needs into the drafts as declarations, and leaves out what only another target needs. The host pipes it through as given, once it has checked that a Recipe of the workspace's catalog binds to it. Absent where the import names no target. |
 
 _Additional properties are not permitted._
 
