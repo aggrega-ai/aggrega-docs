@@ -428,7 +428,7 @@ can do the same: paste this prompt into it.
 ## Open it in VS Code
 
 With the
-[Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension)
+[Aggrega extension for Visual Studio Code](../editor/install.md#installing-the-extension)
 installed, open the folder `import-n8n/source` in VS Code, where the import
 wrote its drafts. The folder holds one Release, the drafted `release.yaml`, so
 the editor selects it for you, and it checks the drafts against that Release as

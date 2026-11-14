@@ -269,7 +269,7 @@ can do the same: paste this prompt into it.
 ## Open it in VS Code
 
 With the
-[Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension)
+[Aggrega extension for Visual Studio Code](../editor/install.md#installing-the-extension)
 installed, open the workspace the import ran in — the folder holding its
 `.aggrega-config.yaml` — in VS Code: the drafts are in it, at its root or in the
 folder `--output-dir` named. Where the workspace holds one Release, the editor

@@ -8,6 +8,21 @@
 
 You do not have to arrange any of that by hand: see [The welcome page](welcome-page.md).
 
+## Installing the extension
+
+The extension's identifier is `aggrega-ai.aggrega`, and it is listed in two places:
+
+- the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=aggrega-ai.aggrega), which Visual Studio Code installs from;
+- [Open VSX](https://open-vsx.org/extension/aggrega-ai/aggrega), for editors that install their extensions from Open VSX.
+
+In the editor, open the Extensions view, search for **Aggrega**, and install the entry whose identifier is `aggrega-ai.aggrega`.
+
+From a terminal, pass the identifier to Visual Studio Code's command-line program:
+
+```bash
+code --install-extension aggrega-ai.aggrega
+```
+
 ## Getting the compiler
 
 **The extension runs the compiler `aggrega.server.binaryPath` names, and finds one before it offers to

@@ -6,7 +6,7 @@ This section covers the Aggrega extension for Visual Studio Code: what it needs,
 
 ## The pages of this section
 
-- [Set up the extension](install.md) — what the extension needs, and how it gets the compiler.
+- [Set up the extension](install.md) — what the extension needs, where to install it from, and how it gets the compiler.
 - [The welcome page](welcome-page.md) — the page listing what the extension needs in the workspace you have open.
 - [The Aggrega view](panels.md) — the Commands, Registries, Catalog and Plugins panels.
 - [The topology graph](topology-graph.md) — the selected Release drawn as an interactive graph.

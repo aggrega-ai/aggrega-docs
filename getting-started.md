@@ -257,7 +257,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ## Open it in VS Code
 
-With the [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) installed,
+With the [Aggrega extension for Visual Studio Code](authoring/editor/install.md#installing-the-extension) installed,
 open the folder `quickstart-ai/1` in VS Code, or the folder of any other step of either example. The folder holds one
 Release, `release.yaml`, so the editor selects it for you, and it checks each file of the step against that Release as
 you edit, marking what it finds in the file and in the Problems panel. **Aggrega: Show topology graph**, in the Command
