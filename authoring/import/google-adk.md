@@ -338,8 +338,11 @@ The application receives the port its server listens on as `PORT`, and the key
 as `GOOGLE_API_KEY`, which ADK's Gemini client sends to the Gemini API. The
 model gets no service of its own: the client sends its requests to the Gemini
 API's own address, and reads no other from its environment. The key is a
-variable reference, filled from your shell when the stack starts. The service
-publishes no port on your machine: the rendered file gives it none.
+variable reference, filled from your shell when the stack starts. The ADK
+agent's Compose Recipe publishes a port on your machine only where the Release
+sets `published_port` in the agent's `infra`, and then on the loopback
+address, 127.0.0.1, alone; without it, the service is reached on the stack's
+network only.
 
 ## Run it
 
@@ -377,9 +380,9 @@ docker compose -p support-agent -f dist/compose/docker-compose.yaml up -d --wait
 ```
 
 `-p` names the project, as the run step of
-[How an import runs](README.md#how-an-import-runs) explains. The service
-publishes no port, so send requests from a container on the stack's network,
-`support-agent_compose`. `--wait` returns once the container runs, since the
+[How an import runs](README.md#how-an-import-runs) explains. With no
+`published_port` in the Release, send requests from a container on the stack's
+network, `support-agent_compose`. `--wait` returns once the container runs, since the
 build gives the service no health check, and the server answers a moment
 later, so repeat a request it refuses. Then it lists the application:
 

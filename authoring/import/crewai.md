@@ -463,9 +463,16 @@ docker compose -p support-brief -f dist/compose/docker-compose.yaml up -d --wait
 ```
 
 `-p` names the project, as the run step of
-[How an import runs](README.md#how-an-import-runs) explains. The services
-publish no port, so the run sent its request from a container on the stack's
-network, `support-brief_compose`, to its own program's route:
+[How an import runs](README.md#how-an-import-runs) explains.
+
+## Test it
+
+The request below reaches the program this walkthrough's image runs: the
+crew behind a small HTTP server on port 8000, answering `POST /kickoff`. Your
+own program decides its own address, route and reply. The services publish no
+port and the image carries no HTTP client, so the request comes from a
+container started on the stack's network, `support-brief_compose`. Send it once
+the program listens, a few seconds after the stack starts:
 
 ```bash
 docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X POST \
@@ -475,22 +482,46 @@ docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X PO
 
 ```text
 {
-  "answer": "[… omitted: the crew's reply, written by the small local model]",
-  "token_usage": {
-    [… omitted: the token counts]
-    "successful_requests": 2
-  }
+  "error": "the crew failed: AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the error's type and code]"
 }
 ```
 
-The route, the request and the shape of the reply are that program's own.
-Both agents run the same image, so the request could go to either; the crew
-ran its two tasks, one request to the model each. This answer came from a
-small local model in place of OpenAI, set up as the run step of
-[How an import runs](README.md#how-an-import-runs) describes.
+The run set `OPENAI_API_KEY` to a placeholder, so the reply is OpenAI's
+refusal of it, passed on by the program. The crew's request reached the OpenAI
+API with the key the build delivered. Both agents run the same image, so the
+request could go to either.
 
 Stop the stack with:
 
 ```bash
 docker compose -p support-brief -f dist/compose/docker-compose.yaml down
+```
+
+On Kubernetes, import with `--target helm` and push the image to a registry
+your cluster pulls from, naming it in `src/support_brief/import-answers.yaml`.
+Then create the Secret `openai-api-key` and apply the build, as the run step of
+[How an import runs](README.md#how-an-import-runs) describes. Each agent's
+Deployment has no Service, so forward a local port to the researcher's. The
+command runs until you stop it:
+
+```bash
+kubectl port-forward deploy/researcher 8000:8000
+```
+
+```text
+Forwarding from 127.0.0.1:8000 -> 8000
+Forwarding from [::1]:8000 -> 8000
+```
+
+From another terminal, send the same request to the forwarded port:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/kickoff -H 'Content-Type: application/json' \
+  -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
+```
+
+```text
+{
+  "error": "the crew failed: AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the error's type and code]"
+}
 ```

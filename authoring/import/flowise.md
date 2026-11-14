@@ -384,8 +384,11 @@ exits:
 
 It registers the owner account on a fresh Flowise, or signs in as it, and
 writes the chatflow at `chatflow_id`. The key and the password are variable
-references, filled from your shell when the stack starts. Flowise publishes no
-port on your machine: the rendered file gives it none.
+references, filled from your shell when the stack starts. Flowise's Compose
+Recipe publishes a port on your machine only where the Release sets
+`published_port` in Flowise's `infra`, and then on the loopback address,
+127.0.0.1, alone; without it, the service is reached on the stack's network
+only.
 
 ## Run it
 
@@ -413,8 +416,9 @@ Leave `--wait` off: it counts the seed's exit as a failure, and `up -d --wait`
 exits 1 with `container support-chat-flowise-flow-seed-1 exited (0)` on a
 stack that is running as it should.
 
-Flowise publishes no port, so send the question from inside its own
-container, which carries `curl`, to the chatflow's prediction endpoint:
+With no `published_port` in the Release, send the question from inside
+Flowise's own container, which carries `curl`, to the chatflow's prediction
+endpoint:
 
 ```bash
 docker compose -p support-chat -f dist/compose/docker-compose.yaml exec flowise \

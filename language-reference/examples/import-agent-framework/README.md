@@ -70,3 +70,35 @@ aggrega build --release release.yaml
 
 The image the example names stands for one you build from your project;
 building it and running the stack are in the walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it, one request reaches the
+agent. The route below is the walkthrough's own program's, a small HTTP server
+on port 8000; your own program decides its own. The service publishes no port,
+so the request comes from a container on the stack's network:
+
+```sh
+docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://supportagent:8000/ask -H 'Content-Type: application/json' \
+  -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
+```
+
+```text
+{"error": "the agent failed: ChatClientException: (\"<class 'agent_framework_openai._chat_client.OpenAIChatClient'> service failed to complete the prompt: Error code: 401 - Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the same error repeated as the exception it wraps]"}
+```
+
+The run's key was a placeholder, so the answer is OpenAI's refusal of it. On
+Kubernetes, forward a local port to the Deployment, which has no Service, and
+send the same request to it from another terminal:
+
+```sh
+kubectl port-forward deploy/supportagent 8000:8000
+```
+
+```sh
+curl -sS -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' \
+  -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
+```
+
+The answer is the same.

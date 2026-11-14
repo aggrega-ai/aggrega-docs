@@ -504,9 +504,16 @@ docker compose -p order-support -f dist/compose/docker-compose.yaml up -d --wait
 `-p` names the project, as the run step of
 [How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
 once the database reports healthy, the wait for it has completed and the
-graph's service runs. The services
-publish no port, so the run sent its request from a container on the stack's
-network, `order-support_compose`, to its own program's route:
+graph's service runs.
+
+## Test it
+
+The request below reaches the program this walkthrough's image runs: the
+graph behind a small HTTP server on port 8000, answering
+`POST /threads/<thread>/runs`. Your own program decides its own address, route
+and reply. The services publish no port and the image carries no HTTP client,
+so the request comes from a container started on the stack's network,
+`order-support_compose`:
 
 ```bash
 docker run --rm --network order-support_compose curlimages/curl:8.11.1 -sS -X POST \
@@ -517,24 +524,14 @@ docker run --rm --network order-support_compose curlimages/curl:8.11.1 -sS -X PO
 ```text
 {
   "thread": "order-1234",
-  "messages_in_thread": 2,
-  "answer": "[… omitted: the graph's reply, written by the small local model]",
-  "model": "gpt-4o-mini",
-  "usage": {
-    "input_tokens": 45,
-    "output_tokens": 17,
-    "total_tokens": 62,
-    "input_token_details": {},
-    "output_token_details": {}
-  }
+  "error": "the run failed: OpenAIAuthenticationError: Error code: 401 - Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key]"
 }
 ```
 
-The route, the request and the shape of the reply are that program's own:
-the graph made one request to the model, and the checkpointer kept the
-thread, `order-1234`, in the database. This answer came from a small local
-model in place of OpenAI, set up as the run step of
-[How an import runs](README.md#how-an-import-runs) describes.
+The run set `OPENAI_API_KEY` to a placeholder, so the reply is OpenAI's
+refusal of it, passed on by the program. The graph's request reached the OpenAI
+API with the key the build delivered, from a program that had opened its
+checkpointer in the database with the credentials the build delivered.
 
 Stop the stack with:
 
@@ -544,3 +541,34 @@ docker compose -p order-support -f dist/compose/docker-compose.yaml down -v
 
 `-v` removes the volume the database keeps its data in, and the conversations
 with it.
+
+On Kubernetes, import with `--target helm` and push the image to a registry
+your cluster pulls from, naming it in `import-answers.yaml`. Then create the
+Secrets `openai-api-key` and `support-db-password` and apply the build, as the
+run step of [How an import runs](README.md#how-an-import-runs) describes. The
+graph's Deployment has no Service. Its pod restarts until the database accepts
+connections, because the program opens its checkpointer as it starts. Forward a
+local port to it; the command runs until you stop it:
+
+```bash
+kubectl port-forward deploy/support 8000:8000
+```
+
+```text
+Forwarding from 127.0.0.1:8000 -> 8000
+Forwarding from [::1]:8000 -> 8000
+```
+
+From another terminal, send the same request to the forwarded port:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/threads/order-1234/runs -H 'Content-Type: application/json' \
+  -d '{"message": "Where is my order 1234? It has not arrived yet."}'
+```
+
+```text
+{
+  "thread": "order-1234",
+  "error": "the run failed: OpenAIAuthenticationError: Error code: 401 - Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key]"
+}
+```

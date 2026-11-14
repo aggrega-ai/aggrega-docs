@@ -416,9 +416,16 @@ docker compose -p docs-assistant -f dist/compose/docker-compose.yaml up -d --wai
 ```
 
 `-p` names the project, as the run step of
-[How an import runs](README.md#how-an-import-runs) explains. The service
-publishes no port, so the run sent its request from a container on the stack's
-network, `docs-assistant_compose`, to its own program's route:
+[How an import runs](README.md#how-an-import-runs) explains.
+
+## Test it
+
+The request below reaches the program this walkthrough's image runs: the
+declarative agent behind a small HTTP server on port 8000, answering
+`POST /ask`. Your own program decides its own address, route and reply. The
+service publishes no port and the image carries no HTTP client, so the request
+comes from a container started on the stack's network, `docs-assistant_compose`.
+Send it once the program listens, a few seconds after the stack starts:
 
 ```bash
 docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X POST \
@@ -427,19 +434,43 @@ docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X P
 ```
 
 ```text
-{"answer": "[… omitted: the agent's reply, written by the small local model]", "usage": {"input_token_count": 137, "output_token_count": 30, "total_token_count": 167}}
+{"error": "the agent failed: ChatClientException: (\"<class 'agent_framework_openai._chat_client.OpenAIChatClient'> service failed to complete the prompt: Error code: 401 - Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the same error repeated as the exception it wraps]"}
 ```
 
-The route, the request and the shape of the reply are that program's own.
-Agent Framework sent the question to the model's Responses API in one request,
-carrying the MCP server as a hosted tool for the provider to call. This answer
-came from a small local model in place of OpenAI, set up as the run step of
-[How an import runs](README.md#how-an-import-runs) describes, whose server
-replied without calling the tool, so the answer draws on nothing from
-Microsoft Learn.
+The run set `OPENAI_API_KEY` to a placeholder, so the reply is OpenAI's
+refusal of it, passed on by the program. The key OpenAI refused is that
+placeholder, shown masked, so the declarative agent's `=Env.OPENAI_API_KEY`
+read it from the environment the build delivers.
 
 Stop the stack with:
 
 ```bash
 docker compose -p docs-assistant -f dist/compose/docker-compose.yaml down
+```
+
+On Kubernetes, import with `--target helm` and push the image to a registry
+your cluster pulls from, naming it in `import-answers.yaml`. Then create the
+Secret `openai-api-key` and apply the build, as the run step of
+[How an import runs](README.md#how-an-import-runs) describes. The agent's
+Deployment has no Service, so forward a local port to it. The command runs
+until you stop it:
+
+```bash
+kubectl port-forward deploy/supportagent 8000:8000
+```
+
+```text
+Forwarding from 127.0.0.1:8000 -> 8000
+Forwarding from [::1]:8000 -> 8000
+```
+
+From another terminal, send the same request to the forwarded port:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' \
+  -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
+```
+
+```text
+{"error": "the agent failed: ChatClientException: (\"<class 'agent_framework_openai._chat_client.OpenAIChatClient'> service failed to complete the prompt: Error code: 401 - Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the same error repeated as the exception it wraps]"}
 ```

@@ -375,8 +375,10 @@ services:
 The flow reaches Langflow as `/app/flows/flow.json`, from a `configs` entry
 holding the flow the Aggregate carries, and Langflow loads it from `LANGFLOW_LOAD_FLOWS_PATH`
 at each start. The key and the password are variable references, filled from
-your shell when the stack starts. The service publishes no port on your
-machine: the rendered file gives it none.
+your shell when the stack starts. Langflow's Compose Recipe publishes a port
+on your machine only where the Release sets `published_port` in Langflow's
+`infra`, and then on the loopback address, 127.0.0.1, alone; without it, the
+service is reached on the stack's network only.
 
 `langflow--data-owner` runs Langflow's image as root, gives the data volume to
 user 1000, group 0, the identity Langflow's image runs as, and exits. Langflow
@@ -398,8 +400,8 @@ docker compose -p basic-prompting -f dist/compose/docker-compose.yaml up -d --wa
 [How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
 once `langflow--data-owner` has completed and Langflow reports healthy.
 
-Langflow publishes no port, so the requests run inside its own container, which
-carries `curl`. Sign in as the administrator:
+With no `published_port` in the Release, the requests run inside Langflow's own
+container, which carries `curl`. Sign in as the administrator:
 
 ```bash
 docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \

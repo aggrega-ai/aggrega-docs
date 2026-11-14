@@ -69,3 +69,37 @@ aggrega build --release release.yaml
 
 The image the example names stands for one you build from your project;
 building it and running the stack are in the walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it, one request reaches the
+crew. The route below is the walkthrough's own program's, a small HTTP server
+on port 8000; your own program decides its own. The services publish no port,
+so the request comes from a container on the stack's network:
+
+```sh
+docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X POST \
+  http://researcher:8000/kickoff -H 'Content-Type: application/json' \
+  -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
+```
+
+```text
+{
+  "error": "the crew failed: AuthenticationError: Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place************-key. [… omitted: where to find an API key, and the error's type and code]"
+}
+```
+
+The run's key was a placeholder, so the answer is OpenAI's refusal of it. On
+Kubernetes, forward a local port to the Deployment, which has no Service, and
+send the same request to it from another terminal:
+
+```sh
+kubectl port-forward deploy/researcher 8000:8000
+```
+
+```sh
+curl -sS -X POST http://127.0.0.1:8000/kickoff -H 'Content-Type: application/json' \
+  -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
+```
+
+The answer is the same.

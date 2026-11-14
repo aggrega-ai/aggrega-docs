@@ -389,14 +389,17 @@ volume each time the stack starts, before n8n itself. `N8N_BLOCK_ENV_ACCESS_IN_N
 is `"true"`, n8n's block on a workflow reading its environment, since the
 Aggregate leaves `allow_env_access_in_nodes` at `false`. So the OpenAI Chat
 Model node reads its key from n8n's own credential store, as the chat trigger
-reads its user and password, and the run below stores both. n8n publishes no
-port on your machine: the rendered file gives it none.
+reads its user and password, and the run below stores both. n8n's Compose
+Recipe publishes a port on your machine only where the Release sets
+`published_port` in n8n's `infra`, and then on the loopback address,
+127.0.0.1, alone; without it, the service is reached on the stack's network
+only.
 
 ## Run it
 
 n8n reads both credentials the workflow selects from its own store, by their
 identifiers: the OpenAI key under `Rb7nW2xQ9kT4mZ1c`, and the chat's user and
-password under `Vx3mQ8rLb2Nk7Tz5`. The rendered file publishes no port, so
+password under `Vx3mQ8rLb2Nk7Tz5`. With no `published_port` in the Release,
 store them with n8n's own command line rather than its editor. Write them into
 `credentials.json`, with your own values:
 
