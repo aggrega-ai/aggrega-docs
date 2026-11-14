@@ -996,7 +996,8 @@ Converts a foreign source description into draft authoring documents, and writes
 | `dryRun` | boolean | no | Whether to answer with the content of every file the request would write rather than writing it. Every other behaviour is the write's, so a request the write would refuse is refused under it too; with sync, it answers with what the sync would write and every part that would drift. |
 | `sync` | boolean | no | Whether to bring what an earlier import drafted beneath outputDir up to date with the source, rather than writing the draft whole. Only what the import wrote changes, as the record beside the drafts lists it: a part the source left alone stays as it is on disk, edited or not; a part the source changed, dropped or gained is written anew, removed — a drafted file deleted whole — or added, where what is on disk is what the import last wrote; and everything else, a key an author added — the environment a drafted Release leaves for its author among them — or a comment not written directly above a drafted key, stays byte for byte. A sync that would change or remove what an author edited or added, or add a part where an author already wrote one, is refused naming each part, and so is a sync over an Aggregate no record lists; nothing is written either way. Without it, a request whose drafts would be written over an Aggregate already in outputDir is refused, under dryRun too. |
 | `upgrade` | boolean | no | Whether to fetch the newest catalog snapshot the workspace's default registry publishes and import against it, holding it from then on in place of the one the workspace holds or the one the record beside the drafts names; it changes nothing where the workspace names a catalog folder, and is refused offline. |
-| `answers` | string | no | The answers file the values the drafts leave empty that no source can hold are read from and written to, relative to the workspace root; an absolute value, or one leading out of the workspace as written or through a link, is refused. It holds, under each drafted file's path, the key path inside that document and its answer, and the answers are written into the drafts. Absent reads the one the record beside the drafts names, or else import-answers.yaml beside the source file or inside the source directory. A secret's answer names where the secret comes from — a variable name, ${NAME}, or the name of a Kubernetes Secret — and anything else is refused with nothing written. Nothing is asked: each value still owed is a warning finding naming the drafted file, the key and what it is, and where the drafts are written the last finding says how many are owed and where. Where the drafts include a Release, owe nothing and the conversion finished, its dependencies are then pulled, writing its lockfile, and a pull that fails closes the findings saying why, the drafts written; offline nothing is pulled and a finding names the pull to run. An answer for a key these drafts do not leave empty is kept in the file and not applied, so one answers file serves every target. |
+| `answers` | string | no | The answers file the values the drafts leave empty that no source can hold are read from and written to, relative to the workspace root; an absolute value, or one leading out of the workspace as written or through a link, is refused. It holds, under each drafted file's path, the key path inside that document and its answer, and the answers are written into the drafts. Absent reads the one the record beside the drafts names, or else import-answers.yaml beside the source file or inside the source directory. A secret's answer names where the secret comes from — a variable name, ${NAME}, or the name of a Kubernetes Secret — and anything else is refused with nothing written. Nothing is asked: each value still owed is an entry of the answer's owed and a warning finding naming the drafted file, the key and what it is, its answer is sent as answered, and where the drafts are written the last finding says how many are owed and where. Where the drafts include a Release, owe nothing and the conversion finished, its dependencies are then pulled, writing its lockfile, and a pull that fails closes the findings saying why, the drafts written; offline nothing is pulled and a finding names the pull to run. An answer for a key these drafts do not leave empty is kept in the file and not applied, so one answers file serves every target. |
+| `answered` | ImportAnswered[] | no | Answers for values the answer's owed listed, each naming the drafted file and the keys as owed named them. Each is judged, kept in the answers file and written into the drafts exactly as an answer typed at a terminal is: a secret's answer names where the secret comes from — a variable name, ${NAME}, or the name of a Kubernetes Secret — and one that does not is neither kept nor written, its value staying owed with the reason as its secretAdvice. A value the answers file already answers is answered from the file; an empty answer, or one naming a value the drafts do not owe, is not applied. Send it with sync once the drafts are written, since a request that is not a sync is refused over an Aggregate already in outputDir. Under dryRun, which keeps no answer, and under a sync whose conversion stopped, which writes nothing, no answer sent is applied. |
 
 _Additional properties are not permitted._
 
@@ -1658,6 +1659,32 @@ One part a sync brought up to date with the source, or under dryRun would.
 | `change` | string | yes | How the part drifted: added, for a part the source gained; removed, for one it dropped; or changed, for one it changed. |
 | `file` | string | yes | The drafted file the part is in, as a path relative to the answer's outputDir. |
 | `key` | string[] | yes | The keys leading to the part from the top of a drafted Aggregate or Release, one entry per key, so a key holding a full stop stays one entry. Empty where the part is the whole file. |
+
+_Additional properties are not permitted._
+
+### `ImportOwed`
+
+One value the drafts still leave empty that no source could supply and no answer did.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file` | string | yes | The drafted file the value is in, as a path relative to the answer's outputDir. |
+| `key` | string[] | yes | The keys leading to the value from the top of that document, one entry per key, so a key holding a full stop stays one entry. An answer sent as answered names the value by these keys. |
+| `question` | string | yes | What the value is: its schema's description, or else the comment the draft writes above its key, or else what its schema says it takes. |
+| `sensitive` | boolean | yes | Whether the value is a secret's, whose answer names where the secret comes from and never holds the secret itself. |
+| `secretAdvice` | string | no | Present on a secret's value: what its answer must be, in the sentence a person answering it at a terminal is shown — or, where the answer sent for it as answered was refused, why it was refused. |
+
+_Additional properties are not permitted._
+
+### `ImportAnswered`
+
+One answer for a value the answer's owed listed.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `file` | string | yes | The drafted file the value is in, as owed names it. |
+| `key` | string[] | yes | The keys leading to the value, as owed names them. |
+| `answer` | string | yes | The answer. An empty one leaves the value owed. |
 
 _Additional properties are not permitted._
 
@@ -2492,6 +2519,7 @@ What converting a foreign source produced, and what it could not convert.
 | `drift` | ImportDrift[] | yes | Each part a sync brought up to date with the source, or under dryRun would, in the order the draft names them; a drafted file the sync deletes is one of them, removed with no keys. An empty list for a request that is not a sync, for a sync in step, and for a sync whose conversion stopped, which writes nothing. |
 | `diagnostics` | ImportDiagnostic[] or null | yes | What could not be converted. |
 | `decisions` | ImportDecision[] | yes | How the importer mapped each source node, in the importer's order and exactly as it reported it: what tells you where the conversion guessed. Carried under both deliveries and whether or not the conversion stopped, and an empty list for an importer that reports none. |
+| `owed` | ImportOwed[] | no | Each value the drafts still leave empty that no source could supply and no answer did, in the order the drafts are written — the values the warning findings name. Every answer carries it, an empty list where the drafts owe nothing. |
 | `halted` | boolean | yes | Whether the conversion stopped rather than finishing with findings. |
 
 _Additional properties are not permitted._
