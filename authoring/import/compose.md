@@ -31,6 +31,8 @@ page imports and is where the import runs:
 cd import-compose
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing its Compose file: a notes service's API, its PostgreSQL database and its Redis cache.](../../images/editor/import/compose/scaffold.png)
+
 ## The project
 
 `compose.yaml`:
@@ -163,6 +165,8 @@ mapped db (postgres) to core/datastore/postgres as a reference, HIGH at 0.9
 mapped cache (redis) to core/datastore/redis as a reference, HIGH at 0.9
 Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the Compose file, the Aggrega output lists how each service was mapped and the files written, and a notification says the import drafted 3 files, recognised as compose.](../../images/editor/import/compose/import.png)
 
 - **The `warn` lines** name each value the drafts carry as written, by its
   service and its variable and never by its value: Compose marks no value as
@@ -355,6 +359,10 @@ which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/compose/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/compose/build.png)
 
 The validation prints:
 

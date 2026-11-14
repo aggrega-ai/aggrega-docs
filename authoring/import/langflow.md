@@ -31,6 +31,8 @@ runs. That folder carries the flow file,
 cd import-langflow
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the Langflow flow export of a basic prompting flow.](../../images/editor/import/langflow/scaffold.png)
+
 ## The flow
 
 Basic Prompting chains four nodes: a Chat Input, a Prompt, a Language Model
@@ -126,6 +128,8 @@ mapped LanguageModelComponent-kBOja (LanguageModelComponent) to core/ai-model/op
   warning: node "langflow" (provider "compose"): artifact "langflow-flow/langflow-flow.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
 Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the flow export, the Aggrega output lists how each component of the flow was mapped and the files written, and a notification says the import drafted 3 files, recognised as langflow.](../../images/editor/import/langflow/import.png)
 
 - **The `mapped` line** says what the Language Model node became: the standard
   library's OpenAI model, `core/ai-model/openai`, referenced rather than
@@ -311,6 +315,10 @@ Release resolves to, by version and digest.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/langflow/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/langflow/build.png)
 
 The validation prints:
 

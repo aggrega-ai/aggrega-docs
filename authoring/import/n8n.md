@@ -30,6 +30,8 @@ page imports and is where the import runs:
 cd import-n8n
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the n8n workflow export of a support agent, opening on its chat trigger and AI Agent nodes.](../../images/editor/import/n8n/scaffold.png)
+
 ## The workflow
 
 `support-agent.json`, written for this walkthrough in the shape n8n exports a
@@ -164,6 +166,8 @@ made no choice for Simple Memory (@n8n/n8n-nodes-langchain.memoryBufferWindow)
   warning: node "n8n" (provider "compose"): artifact "n8n-flow.compose-fragment.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
 Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the workflow export, the Aggrega output lists how each node was mapped and the files written, and a notification says the import drafted 3 files, recognised as n8n.](../../images/editor/import/n8n/import.png)
 
 - **The `mapped` line** says the OpenAI Chat Model node became the standard
   library's OpenAI model, `core/ai-model/openai`, referenced rather than
@@ -330,6 +334,10 @@ Release resolves to, by version and digest.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/n8n/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/n8n/build.png)
 
 The validation prints:
 

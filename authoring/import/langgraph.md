@@ -33,6 +33,8 @@ page imports and is where the import runs:
 cd import-langgraph
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing its LangGraph configuration, which names one graph, support.](../../images/editor/import/langgraph/scaffold.png)
+
 ## The project
 
 A LangGraph application keeps its graphs in code and declares them in
@@ -178,6 +180,8 @@ mapped checkpointer (checkpointer) to core/datastore/postgres as a reference, NO
 mapped model (model) to core/ai-model/openai as a reference, NONE
 Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the LangGraph configuration, the Aggrega output lists how the graph, its checkpointer and its model were mapped and the files written, and a notification says the import drafted 3 files, recognised as langgraph.](../../images/editor/import/langgraph/import.png)
 
 - **The `info` line** names the answers the Docker Compose drafts do not use,
   kept in the answers file for a build for Kubernetes.
@@ -366,6 +370,10 @@ which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/langgraph/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/langgraph/build.png)
 
 The validation prints:
 

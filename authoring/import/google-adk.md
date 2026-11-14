@@ -32,6 +32,8 @@ page imports and is where the import runs:
 cd import-google-adk
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the agent's configuration: support_agent on gemini-2.5-flash with the google_search tool.](../../images/editor/import/google-adk/scaffold.png)
+
 ## The project
 
 ADK can declare an application's agents in Agent Config files instead of code:
@@ -153,6 +155,8 @@ mapped gemini-2.5-flash (model) to core/ai-model/gemini as a reference, NONE
 made no choice for google_search (tool)
 Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the agent's configuration, the Aggrega output lists how the agent and its model were mapped and the files written, and a notification says the import drafted 3 files, recognised as google-adk.](../../images/editor/import/google-adk/import.png)
 
 - **The `info` line** names the answer the Docker Compose drafts do not use,
   kept in the answers file for a build for Kubernetes.
@@ -310,6 +314,10 @@ which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/google-adk/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/google-adk/build.png)
 
 The validation prints:
 

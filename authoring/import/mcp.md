@@ -31,6 +31,8 @@ page imports and is where the import runs:
 cd import-mcp
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing its MCP configuration with three servers: github, fetch and docs-search.](../../images/editor/import/mcp/scaffold.png)
+
 ## The configuration
 
 Claude Code's `.mcp.json`, in the root of a project:
@@ -160,6 +162,8 @@ warn: the value of headers.Authorization of node docs-search is carried as writt
 warn: the value of infra.endpoint of node docs-search is carried as written in the Release the draft writes: the field belongs to an MCP server's configuration, which can carry a key, and setting empty_credentials to marked or all writes it empty
 Pull complete: <workspace>/release.lock (entities=7, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the MCP configuration, the Aggrega output lists the values carried as written and the files written, and a notification says the import drafted 3 files, recognised as mcp.](../../images/editor/import/mcp/import.png)
 
 Every server is an instance of the standard library's MCP tool,
 `core/ai-tool/mcp`, so the import weighs no candidate and prints no `mapped`
@@ -321,6 +325,10 @@ without using it.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/mcp/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists a Deployment and a Service for each server, and a notification says 5 files were written.](../../images/editor/import/mcp/build.png)
 
 The validation prints:
 

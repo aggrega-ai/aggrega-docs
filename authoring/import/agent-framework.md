@@ -32,6 +32,8 @@ page imports and is where the import runs:
 cd import-agent-framework
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the prompt agent SupportAgent with its OpenAI model and its Microsoft Learn MCP tool.](../../images/editor/import/agent-framework/scaffold.png)
+
 ## The project
 
 An application built on Agent Framework can load an agent from a declarative
@@ -183,6 +185,8 @@ made no choice for SupportAgent#microsoft_learn (tool)
 Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
 
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the declarative agent, the Aggrega output lists how the agent and its model were mapped and the files written, and a notification says the import drafted 3 files, recognised as agent-framework.](../../images/editor/import/agent-framework/import.png)
+
 - **The `warn` line** names a value that can carry a key — an MCP server's
   address — and says it is carried as written. This address carries none.
 - **The `info` line** names the answer the Docker Compose drafts do not use,
@@ -332,6 +336,10 @@ which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/agent-framework/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/agent-framework/build.png)
 
 The validation prints:
 

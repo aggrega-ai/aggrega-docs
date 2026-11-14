@@ -30,6 +30,8 @@ page imports and is where the import runs:
 cd import-dify
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the Dify app export of a support assistant in chat mode.](../../images/editor/import/dify/scaffold.png)
+
 ## The application
 
 `support-assistant.yml`, written for this walkthrough, is a chat application in
@@ -140,6 +142,8 @@ warn: node model_config.model (model) names the model "gpt-4o-mini" of the model
 made no choice for model_config.model (model)
 Pull complete: <workspace>/release.lock (entities=25, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the app export, the Aggrega output lists what the draft wires and the files written, and a notification says the import drafted 3 files, recognised as dify.](../../images/editor/import/dify/import.png)
 
 - **The `warn` line** says that the model stays inside Dify: Dify configures
   its model providers, and their keys, for itself, so the draft wires no model.
@@ -295,6 +299,10 @@ Release resolves to, by version and digest.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/dify/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Kubernetes manifests of the Dify installation, and a notification says 24 files were written.](../../images/editor/import/dify/build.png)
 
 The validation prints:
 

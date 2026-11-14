@@ -32,6 +32,8 @@ page imports and is where the import runs:
 cd import-crewai
 ```
 
+![The scaffolded example's source folder open in Visual Studio Code, showing the crew's agents configuration with a researcher and a writer.](../../images/editor/import/crewai/scaffold.png)
+
 ## The project
 
 A CrewAI project keeps its crew's behaviour in a program and declares its
@@ -190,6 +192,8 @@ made no choice for research_task (task)
 made no choice for reply_task (task)
 Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
+
+![The import run from the editor: the drafted Aggregate, Release and Manifest appear beside the crew's project, the Aggrega output lists how each agent, model and task was mapped and the files written, and a notification says the import drafted 3 files, recognised as crewai.](../../images/editor/import/crewai/import.png)
 
 - **The `info` line** names the answers the Docker Compose drafts do not use,
   kept in the answers file for a build for Kubernetes.
@@ -371,6 +375,10 @@ which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
+
+![The drafted Release open in the editor after validating it, with the Aggrega output and a notification both reporting no problems found.](../../images/editor/import/crewai/validate.png)
+
+![The build of the drafted Release: a dist folder appears in the Explorer, the Aggrega output lists the Docker Compose file written, and a notification says 1 file was written.](../../images/editor/import/crewai/build.png)
 
 The validation prints:
 
