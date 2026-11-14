@@ -80,7 +80,7 @@ openclaw plugins install aggrega --marketplace aggrega-ai/aggrega-skills --force
 
 ### The folder the server works in
 
-Aggrega's tools work in a workspace, and a call that names none is answered in the workspace the server finds from the folder it was started in. Some assistants start a plugin's server in the plugin's own folder rather than in your project — Codex does. The skill tells the assistant to check which workspace the server answers in, with the `config-show` tool, before it works in a project, and to name the project's folder as `workspace_root` on each call that takes it where the two differ.
+Aggrega's tools work in a workspace, and a call that names none is answered in the workspace the server finds from the folder it was started in. Some assistants start a plugin's server in the plugin's own folder rather than in your project — Codex does. The skill tells the assistant to check which workspace the server answers in, with the `config-show` tool, before it works in a project, and to name the project's folder as `workspace_root` on each call that takes it where the two differ — by its full path, because a relative `workspace_root` is read from the workspace the server already answers in.
 
 ## Install the skill alone
 
