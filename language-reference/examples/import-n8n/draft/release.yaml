@@ -1,0 +1,26 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-agent
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the n8n format.
+spec:
+  aggregate: imported/support-agent
+  manifest: imported/support-agent
+  components:
+    n8n:
+      infra:
+        # The image running core/ai-agent/n8n, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
+        image: "n8nio/n8n:1.110.1"
+      uses:
+        model:
+          openai-chat-model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential n8n presents to openai-chat-model on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    openai-chat-model: {}

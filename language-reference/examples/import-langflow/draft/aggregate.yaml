@@ -6,18 +6,14 @@ metadata:
   description: Draft Aggregate imported from a source in the langflow format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running Langflow
-    #   - the admin_password slot, the administrator's password, while values.require_authentication stays true
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     langflow:
       type: core/ai-agent/langflow
-      # For the compose target only, uncomment the lines below, which declare admin_password on langflow: the compose Recipe reads every secret the Release alone attaches under the key value, so the administrator's password and a connection's credential would both arrive under it and halt the build; the Release still attaches admin_password, naming this type or none.
-      # features:
-      #   admin_password:
-      #     type: core/secret-value
-      #     values:
-      #       key: LANGFLOW_SUPERUSER_PASSWORD
+      features:
+        # For the compose target, the lines below declare admin_password on langflow: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        admin_password:
+          type: core/secret-value
+          values:
+            key: LANGFLOW_SUPERUSER_PASSWORD
       values:
         flow_id: '0dbee653-41ae-4e51-af2e-55757fb24be3'
         flow_definition: |-
@@ -1076,6 +1072,15 @@ spec:
         model:
           languagemodelcomponent-kboja:
             target: languagemodelcomponent-kboja
-    # resembles core/ai-model/openai (score 0.9000); reference it by setting type: core/ai-model/openai
+            # For the compose target, the lines below declare credential on languagemodelcomponent-kboja: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # swap to core/ai-model/azure-openai (score 0.4000) by setting type: core/ai-model/azure-openai
     languagemodelcomponent-kboja:
-      type: imported/ai-model/languagemodelcomponent
+      type: core/ai-model/openai
+      values:
+        model: |-
+          gpt-4.1

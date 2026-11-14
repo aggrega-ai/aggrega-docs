@@ -9,14 +9,44 @@ spec:
   components:
     api:
       type: core/compute/server
+      features:
+        # For the compose target, the lines below declare database_password on api: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        database_password:
+          type: core/secret-value
+          values:
+            key: DATABASE_PASSWORD
       uses:
         cache:
           cache:
             target: cache
+            # The variables the source sets to what cache publishes, delivered from it under the names the source gives them.
+            inject:
+              env:
+                - in: "CACHE_HOST"
+                  from: host
         db:
           db:
             target: db
+            # The variables the source sets to what db publishes, delivered from it under the names the source gives them.
+            inject:
+              env:
+                - in: "DATABASE_HOST"
+                  from: host
+                - in: "DATABASE_USER"
+                  from: user
+                - in: "DATABASE_NAME"
+                  from: database
     db:
-      type: imported/datastore/postgres
+      type: core/datastore/postgres
+      # The values of core/datastore/postgres the source sets as POSTGRES_USER, POSTGRES_DB, the variables its Compose Recipes set from them.
+      values:
+        user: "notes"
+        database: "notes"
+      features:
+        # For the compose target, the lines below declare password on db: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
     cache:
-      type: imported/datastore/redis
+      type: core/datastore/redis

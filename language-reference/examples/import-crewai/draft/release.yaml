@@ -2,22 +2,38 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support-brief
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the crewai format.
 spec:
   aggregate: imported/support-brief
   manifest: imported/support-brief
   components:
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential researcher presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
     researcher:
-      infra: {}
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
+        image: "ghcr.io/example/support-brief:1.0.0"
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential researcher presents to gpt-4o-mini on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     writer:
-      infra: {}
-    gpt-4o-mini:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
+        image: "ghcr.io/example/support-brief:1.0.0"
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential writer presents to gpt-4o-mini on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    gpt-4o-mini: {}

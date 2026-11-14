@@ -2,7 +2,8 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the langgraph format.
 spec:
@@ -13,9 +14,32 @@ spec:
     # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
     # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
     # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application
     support:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application
+        image: "ghcr.io/example/support-agent:1.0.0"
+      uses:
+        checkpointer_db:
+          postgres:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support presents to postgres on its checkpointer_db connection, the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${POSTGRES_PASSWORD}"
+        model:
+          model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support presents to model on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     postgres:
-      infra: {}
+      features:
+        password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
+    model: {}

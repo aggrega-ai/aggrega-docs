@@ -2,15 +2,14 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/mcp
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
 spec:
   aggregate: imported/mcp
   manifest: imported/mcp
   components:
-    # Left for the Release, since the draft does not write it:
-    #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
     github:
       infra:
         stdio_command:
@@ -20,10 +19,10 @@ spec:
         stdio_runtime: npm
       features:
         server_env:
-          type: core/referenced-secret-set
+          type: core/referenced-secret
           infra:
-            entries:
-              - key: "GITHUB_PERSONAL_ACCESS_TOKEN"
+            # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding the environment github is started with, one data key per variable, each named as the variable it holds: GITHUB_PERSONAL_ACCESS_TOKEN.
+            origin: "github-mcp-token"
     fetch:
       infra:
         stdio_command:

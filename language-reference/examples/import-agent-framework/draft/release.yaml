@@ -2,20 +2,28 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/supportagent
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the agent-framework format.
 spec:
   aggregate: imported/supportagent
   manifest: imported/supportagent
   components:
-    # Left for the Release, since the declarative agent does not state it:
-    #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
-    #   - the credential supportagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
     # The declarative agent also states these values for its model and its MCP servers, written here for review:
     #   - model.connection.key, written as =Env.OPENAI_API_KEY, which Agent Framework reads from the environment variable OPENAI_API_KEY only where the application loads the declarative agent with AgentFactory(safe_mode=False), Agent Framework's own security setting, and a .NET runtime is present; otherwise the value is the expression's text as written
     #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp"
     supportagent:
-      infra: {}
-    gpt-4-1-mini:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on Agent Framework, holding its declarative agent
+        image: "ghcr.io/example/support-agent:1.0.0"
+      uses:
+        model:
+          gpt-4-1-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential supportagent presents to gpt-4-1-mini on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    gpt-4-1-mini: {}

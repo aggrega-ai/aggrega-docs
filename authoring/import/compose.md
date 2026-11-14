@@ -1,13 +1,16 @@
 # Import a Compose project
 
 This walkthrough imports a small Compose project — an API, the PostgreSQL
-database it keeps its notes in and a Redis cache — reviews what the import
-drafts, and builds the result for Docker Compose. Every file and every block of
-output below comes from a real run; the project and each stage of the
-walkthrough are in the
+database it keeps its notes in and a Redis cache — and builds the result for
+Docker Compose. The import drafts every file the build reads, with what the
+Compose file states carried over: the API's connections to the database and the
+cache, the database's user and name, the password as a variable reference, and
+each image's tag. Every file and every block of output below comes from a real
+run; the project and each stage of the walkthrough are in the
 [import-compose](../../language-reference/examples/import-compose/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -84,7 +87,44 @@ catalog, fetched, verified and kept in the workspace's content cache by the
 first import, and named by its digest in the record the import writes beside
 its drafts. A workspace that names its own catalog folders — in
 `AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — imports against
-those instead. Change into `source`:
+those instead.
+
+### The answers file
+
+A build for Docker Compose needs nothing the Compose file does not state, so
+this import asks for nothing. A build of the same project for Kubernetes, with
+`--target helm`, needs one value no Compose file holds: the name of the
+Kubernetes Secret the database's password is read from, since a Kubernetes
+build reads a password from a Secret rather than from your shell. The example
+keeps that answer in `import-answers.yaml`, beside `compose.yaml`, where the
+import looks for it:
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.db.features.password.infra.origin: "notes-db-password"
+```
+
+The import wrote the file itself, the first time it was run with
+`--target helm`: it listed the value it could not draft, with its key empty,
+and stopped. The answer is a Secret's name, never the password. The import
+for Docker Compose owes no such value, keeps the answer in the file, and does
+not use it. [The import answers file](../../language-reference/import-answers.md)
+describes the file, the questions an import asks at a terminal instead, and
+what it does with neither.
+
+[`aggrega import`](../../language-reference/cli/aggrega-import.md) lists
+every flag the command takes, `--answers`, which names an answers file kept
+elsewhere, among them.
+
+Change into `source`:
 
 ```bash
 cd source
@@ -101,8 +141,6 @@ On standard output it lists what it wrote:
 
 <!-- quotes: draft/stdout.txt -->
 ```text
-wrote components/imported-datastore-postgres.yaml
-wrote components/imported-datastore-redis.yaml
 wrote aggregate.yaml
 wrote release.yaml
 wrote manifest.yaml
@@ -115,37 +153,31 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the compose format, with drafted paths relative to <workspace>
-warn: the value of environment.DATABASE_HOST of node api is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the value of environment.DATABASE_USER of node api is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the value of environment.DATABASE_NAME of node api is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the value of environment.CACHE_HOST of node api is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the value of environment.POSTGRES_USER of node db is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the value of environment.POSTGRES_DB of node db is carried as written in the Release the draft writes: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
-warn: the drafted Manifest leaves the component type "imported/datastore/postgres" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
-warn: the drafted Manifest leaves the component type "imported/datastore/redis" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
+warn: the value of environment.POSTGRES_USER of node db is carried as written in the drafts: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
+warn: the value of environment.POSTGRES_DB of node db is carried as written in the drafts: its format marks the field as no credential, though it can carry one, and setting empty_credentials to all writes it empty
 mapped api (ghcr.io/example/notes-api) to core/compute/server as a reference, NONE
-mapped db (postgres) to imported/datastore/postgres as a draft, HIGH at 0.9
-mapped cache (redis) to imported/datastore/redis as a draft, HIGH at 0.9
+mapped db (postgres) to core/datastore/postgres as a reference, HIGH at 0.9
+mapped cache (redis) to core/datastore/redis as a reference, HIGH at 0.9
+Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, external_inputs=0)
 ```
 
-Three kinds of line are worth reading before the files:
-
-- **The `warn` lines about values** name every environment value that holds
-  something, by its service and its variable and never by its value: Compose
-  marks no value as a credential, and any of them could carry one. Here none
-  does. The two values that read `${POSTGRES_PASSWORD}` are a variable reference
-  and nothing else, so they hold no value of their own, and no warning names
-  them.
+- **The `warn` lines** name each value the drafts carry as written, by its
+  service and its variable and never by its value: Compose marks no value as
+  a credential, and any of them could carry one. Here neither does. The
+  variables the API reads from another service are not carried as values at
+  all — the connections deliver them — and the two that read
+  `${POSTGRES_PASSWORD}` are a variable reference and nothing else, so no
+  warning names them.
 - **The `mapped` lines** say what each service became. `api` runs an image of
   its own, so it is an instance of the standard library's generic server,
-  `core/compute/server`. `db` and `cache` run images the standard library's
+  `core/compute/server`. `db` and `cache` run the images the standard library's
   Compose Recipes run for `core/datastore/postgres` and `core/datastore/redis`;
-  each matched that Component in the high tier, at 0.9, and was drafted as a
-  Component of its own all the same, because by default an import suggests and
-  you choose.
-- **The `warn` lines about the Manifest** say which component types it could not
-  map: no Recipe in the catalog realizes a Component the import has just
-  drafted.
+  each matched that Component in the high tier, at 0.9, and the drafts reference
+  it.
+- **The `Pull complete` line** is the import fetching what the drafted Release
+  depends on, as [`aggrega pull`](../../language-reference/cli/aggrega-pull.md)
+  does, into `release.lock`, so the drafts validate and build at once. Under
+  `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
 ## What it wrote
 
@@ -156,9 +188,8 @@ that directory, as Compose names a project — under the namespace the importer'
 `target_namespace` setting sets, `imported` unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
-`aggregate.yaml` — one entry per service, and one connection per service a
-service's `depends_on` names, each under an alias of its own, the name of the
-service it reaches:
+`aggregate.yaml` — one entry per service, the connections the API's environment
+draws, and the values and the passwords the Compose file sets:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -173,21 +204,61 @@ spec:
   components:
     api:
       type: core/compute/server
+      features:
+        # For the compose target, the lines below declare database_password on api: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        database_password:
+          type: core/secret-value
+          values:
+            key: DATABASE_PASSWORD
       uses:
         cache:
           cache:
             target: cache
+            # The variables the source sets to what cache publishes, delivered from it under the names the source gives them.
+            inject:
+              env:
+                - in: "CACHE_HOST"
+                  from: host
         db:
           db:
             target: db
+            # The variables the source sets to what db publishes, delivered from it under the names the source gives them.
+            inject:
+              env:
+                - in: "DATABASE_HOST"
+                  from: host
+                - in: "DATABASE_USER"
+                  from: user
+                - in: "DATABASE_NAME"
+                  from: database
     db:
-      type: imported/datastore/postgres
+      type: core/datastore/postgres
+      # The values of core/datastore/postgres the source sets as POSTGRES_USER, POSTGRES_DB, the variables its Compose Recipes set from them.
+      values:
+        user: "notes"
+        database: "notes"
+      features:
+        # For the compose target, the lines below declare password on db: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
     cache:
-      type: imported/datastore/redis
+      type: core/datastore/redis
 ```
 
-`release.yaml` — what each service states for its operation, as keys where a
-key takes it and as comments where none does:
+Each variable of the API that names another service becomes that connection's
+`inject` block: the Compose file set `DATABASE_HOST` to `db`, and the
+connection delivers the database's published `host` under that name, so it
+follows the database on any target rather than being copied. `DATABASE_USER`
+and `DATABASE_NAME` matched the user and the database the PostgreSQL service is
+created with, so they are delivered from what it publishes too, and those two
+values become the database's own `values`. Each password becomes a
+`core/secret-value` attachment, declared with the key its variable is read
+under.
+
+`release.yaml` — the environment, the API's image and port, each datastore's
+engine version, and where each password comes from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -195,7 +266,8 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/notes
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
@@ -205,33 +277,44 @@ spec:
     # The source also states, for the Release to carry where core/compute/server takes it:
     #   ports:
     #     - "8080:8080"
-    #   environment:
-    #     DATABASE_HOST: "db"
-    #     DATABASE_USER: "notes"
-    #     DATABASE_NAME: "notes"
-    #     DATABASE_PASSWORD: "${POSTGRES_PASSWORD}"
-    #     CACHE_HOST: "cache"
     api:
       infra:
         image: "ghcr.io/example/notes-api:2.3.0"
         port: 8080
-    # The source states, for the Release to carry where imported/datastore/postgres takes it:
-    #   image: "postgres:16"
+      features:
+        database_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the value api reads as DATABASE_PASSWORD, read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
+    # The source states, for the Release to carry where core/datastore/postgres takes it:
     #   volumes:
     #     - "db-data:/var/lib/postgresql/data"
-    #   environment:
-    #     POSTGRES_USER: "notes"
-    #     POSTGRES_DB: "notes"
-    #     POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     db:
-      infra: {}
-    # The source states, for the Release to carry where imported/datastore/redis takes it:
-    #   image: "redis:7"
+      infra:
+        # The tag of the image the source runs, postgres:16, the engine_version of core/datastore/postgres its Compose Recipes run.
+        engine_version: "16"
+      features:
+        password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the password of db, which the source sets as POSTGRES_PASSWORD, read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
     cache:
-      infra: {}
+      infra:
+        # The tag of the image the source runs, redis:7, the engine_version of core/datastore/redis its Compose Recipes run.
+        engine_version: "7"
 ```
 
-`manifest.yaml` — the one type the catalog has exactly one Compose Recipe for:
+The environment, `development`, is a default the import writes because no
+Compose file names one; change it where the Release deploys elsewhere. The
+image tags become the engine versions the standard-library Components take.
+What no key takes stays a comment above its entry: the published port, which
+the server's `port` already carries, and the database's named volume.
+
+`manifest.yaml` — the Compose Recipe of each component type, and the
+realization that writes a password's variable reference into the Compose file
+as written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -245,213 +328,22 @@ spec:
     components:
       type:
         core/compute/server: compose/server
-```
-
-`components/imported-datastore-postgres.yaml`, and its Redis twin, which differs
-only in its names:
-
-<!-- quotes: draft/components/imported-datastore-postgres.yaml -->
-```yaml
-# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: imported/datastore/postgres
-  version: 0.1.0
-  labels:
-    component.aggrega.ai/type: resource
-    component.aggrega.ai/category: datastore
-spec: {}
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-Validate the draft as it stands:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
-```
-
-Each refusal names the document and the key it is about. With the environment
-set, the next is the drafted PostgreSQL Component:
-
-```text
-[E0114]
-  resolve: no entity in the catalog matches this URI: entity "imported/datastore/postgres" (referenced from aggregate.spec.components.db.type)
-  note: local entities are read from `catalog/` at the workspace root and from every directory .aggrega-config.yaml lists under `workspace.catalog_dirs`. The workspace root itself holds 3 documents declaring an entity kind, and the root is read only while it is listed there. Put the entity under `catalog/`, or list the directory holding it under `workspace.catalog_dirs`.
-```
-
-The drafted Components sit in `components/`, which the workspace's catalog does
-not read, and each is an empty Component no Recipe realizes. The comment at the
-top of each says what to do instead, and that is the review's first change:
-
-- **Reference the Components the hints name.** `db` becomes
-   `core/datastore/postgres` and `cache` becomes `core/datastore/redis`, and
-   `components/` is deleted. The Compose file's `POSTGRES_USER` and `POSTGRES_DB`
-   become the Component's `user` and `database` values.
-
-With that change made, validate reports two refusals at once:
-
-```text
-  [OPS_ERROR E0099] .spec.components.db
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.db, "db", of type "core/datastore/postgres", recipes implementing it "cloudformation/postgres-rds:1.0.0, compose/postgres:1.0.0, helm/postgres-cloudnative-pg:1.0.0, helm/postgres-external:1.0.0, helm/postgres:1.0.0, terraform/postgres-cloud-sql:1.0.0, terraform/postgres-flexible-server:1.0.0, terraform/postgres-rds-terraform-aws-modules:1.0.0, terraform/postgres-rds:1.0.0"). pin one of them in the Manifest
-  [OPS_ERROR E0099] .spec.components.cache
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.cache, "cache", of type "core/datastore/redis", recipes implementing it "cloudformation/redis-elasticache:1.0.0, compose/redis:1.0.0, helm/redis:1.0.0, terraform/redis-azure-managed:1.0.0, terraform/redis-elasticache:1.0.0"). pin one of them in the Manifest
-release dependency validation failed: 2 diagnostic(s)
-```
-
-The rest of the review answers them, and carries what the Compose file stated:
-
-- **Deliver the environment through the connections.** The API reads
-   `DATABASE_HOST`, `DATABASE_USER`, `DATABASE_NAME` and `CACHE_HOST`. Rather
-   than copying the values the Compose file wrote, each connection's `inject`
-   block delivers them from what the database and the cache publish, so they
-   follow the realization on any target. The password, a variable reference,
-   becomes a `core/secret-value` attachment on each end reading the same
-   `${POSTGRES_PASSWORD}`, which Docker Compose fills from your shell.
-- **Fill the Release.** It names its environment, `development`, and carries
-   each image's tag as the engine version the standard-library Component takes.
-- **Map the Manifest.** The two types the review chose map to their Compose
-   Recipes, and the password attachments to the realization that writes their
-   variable reference into the Compose file as written.
-
-The reviewed `aggregate.yaml`:
-
-<!-- quotes: reviewed/aggregate.yaml -->
-```yaml
-# The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-# Not carried, since the draft reads the services and the models alone: volumes.
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: imported/notes
-  version: 0.1.0
-  description: Draft Aggregate imported from a source in the compose format.
-spec:
-  components:
-    api:
-      type: core/compute/server
-      # Reviewed: the password the API signs in with, read from the same
-      # variable the Compose file read it from. Docker Compose fills it from
-      # your shell when the stack starts, so no file carries the password.
-      features:
-        database_password:
-          type: core/secret-value
-          values:
-            key: DATABASE_PASSWORD
-            origin: "${POSTGRES_PASSWORD}"
-      uses:
-        cache:
-          cache:
-            target: cache
-            # Reviewed: the cache's address, under the name the API reads.
-            inject:
-              env:
-                - in: CACHE_HOST
-                  from: host
-        db:
-          db:
-            target: db
-            # Reviewed: the database's address, user and name, under the names
-            # the API reads, each filled from what the database publishes.
-            inject:
-              env:
-                - in: DATABASE_HOST
-                  from: host
-                - in: DATABASE_USER
-                  from: user
-                - in: DATABASE_NAME
-                  from: database
-    db:
-      # Reviewed: the standard library's PostgreSQL, as the hint in the drafted
-      # Component suggested, with the user and database the Compose file named.
-      type: core/datastore/postgres
-      values:
-        user: notes
-        database: notes
-      features:
-        password:
-          type: core/secret-value
-          values:
-            key: POSTGRES_PASSWORD
-            origin: "${POSTGRES_PASSWORD}"
-    cache:
-      # Reviewed: the standard library's Redis, as the hint suggested.
-      type: core/datastore/redis
-```
-
-The reviewed `release.yaml`:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/notes
-  # Reviewed: the environment this Release deploys to.
-  environment: development
-  version: 0.1.0
-  description: Draft Release imported from a source in the compose format.
-spec:
-  aggregate: imported/notes
-  manifest: imported/notes
-  components:
-    # Reviewed: the environment the source stated is now delivered by the edges
-    # and the password attachment in the Aggregate; the port is infra.port.
-    api:
-      infra:
-        image: "ghcr.io/example/notes-api:2.3.0"
-        port: 8080
-    # Reviewed: the image's tag is the database's engine version. The user, the
-    # database and the password are set in the Aggregate.
-    db:
-      infra:
-        engine_version: "16"
-    # Reviewed: the image's tag is the cache's engine version.
-    cache:
-      infra:
-        engine_version: "7"
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/notes
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/compute/server: compose/server
-        # Reviewed: the Compose Recipes of the two types the review chose.
         core/datastore/postgres: compose/postgres
         core/datastore/redis: compose/redis
-    # Reviewed: the realization that writes a password's variable reference
-    # into the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`release.lock` records the catalog entities the Release resolved to, by
+digest, and `.aggrega-import.json` is the record of what the import wrote,
+which a later `aggrega import --sync` reads.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -461,11 +353,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-Pull complete: release.lock (entities=10, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -476,7 +366,7 @@ the Aggregate's `values` or the Release's `infra`, and the notice reports that
 one leaf is declared in both. It changes no verdict.
 
 The `api` service in `dist/compose/docker-compose.yaml` reads the environment
-the Compose project gave it, now delivered by the connections and the password
+the Compose project gave it, delivered by the connections and the password
 attachment:
 
 ```yaml
@@ -499,13 +389,30 @@ attachment:
     [… omitted: the CPU and memory the server's defaults reserve]
 ```
 
-Two differences from the project you started with are the review's to weigh,
-and both show in the rendered file. The port is published on the loopback
-address alone, as the generic server's Compose Recipe publishes it. And the
-named volume the Compose file mounted for the database's data appears nowhere:
-the draft listed it in a comment for the Release to carry where the Component
-takes it, this review carried it nowhere, and the rendered database service
-mounts no volume.
+and the database and the cache run the images the Compose file named:
+
+```yaml
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: notes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: notes
+    [… omitted: the labels, the network and a health check running PostgreSQL's pg_isready]
+```
+
+```yaml
+  cache:
+    image: redis:7
+    [… omitted: the labels, the network and a health check running redis-cli ping]
+```
+
+Two differences from the project you started with show in the rendered file.
+The port is published on the loopback address alone, as the generic server's
+Compose Recipe publishes it. And the named volume the Compose file mounted for
+the database's data appears nowhere: the draft lists it in a comment above the
+database's entry, no key of the PostgreSQL Component takes it, and the
+rendered database service mounts no volume.
 
 ## Run it
 
@@ -524,9 +431,11 @@ description of the request it received:
         port: 8080
 ```
 
-Build again with the change. Docker Compose fills both `${POSTGRES_PASSWORD}`
-references from your shell, so set the password before you start the stack:
-left unset, Compose warns
+Build again with the change. The Release no longer matches the `release.lock`
+the import wrote, so the build needs `--auto-pull`, which resolves it again;
+without it the build stops and names `aggrega pull`. Docker Compose fills both
+`${POSTGRES_PASSWORD}` references from your shell, so set the password before
+you start the stack: left unset, Compose warns
 `The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.`
 and writes an empty value in its place.
 
@@ -588,7 +497,8 @@ changes run:
 aggrega import compose.yaml --sync
 ```
 
-It changes only what the import wrote. A part the source left alone stays as
-it is on disk, edited or not; where the source changed a part you edited, it
-stops, names the part, and writes nothing, for you to reconcile by hand. [aggrega import](../../language-reference/cli/aggrega-import.md)
-describes the rules in full.
+It changes only what the import wrote, and reads the same answers file. A part
+the source left alone stays as it is on disk, edited or not; where the source
+changed a part you edited, it stops, names the part, and writes nothing, for
+you to reconcile by hand. [aggrega import](../../language-reference/cli/aggrega-import.md)
+describes the rules and every flag in full.

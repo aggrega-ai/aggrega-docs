@@ -1,13 +1,17 @@
 # Import a CrewAI project
 
 This walkthrough imports the agent and task declarations of a CrewAI project —
-a crew of two agents answering a customer's question about support plans —
-reviews what the import drafts, and builds the crew for Docker Compose. Every file
+a crew of two agents answering a customer's question about support plans — and
+builds the crew for Docker Compose. The import drafts every file the build
+reads: both agents and their model, the key each presents to the model as a
+variable reference, and the realizations of each. It asks once for the one
+value no declaration holds, the image the crew's program runs in. Every file
 and every block of output below comes from a real run; the declarations and
 each stage of the walkthrough are in the
 [import-crewai](../../language-reference/examples/import-crewai/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -96,7 +100,54 @@ importer from: a signed snapshot of the published catalog, fetched, verified and
 kept in the workspace's content cache by the first import, and named by its
 digest in the record the import writes beside its drafts. A workspace that names
 its own catalog folders — in `AGGREGA_CATALOG_DIRS`, or under
-`workspace.catalog_dirs` — imports against those instead. Change into `source`:
+`workspace.catalog_dirs` — imports against those instead.
+
+### What the import asks for
+
+The declarations name each agent's model, never the image the crew's program
+runs in: you build that image from your project. So the import asks for it,
+once for each agent. At a terminal it asks a question for each, and writes the
+answers into the drafts and into the answers file, `import-answers.yaml`,
+inside the directory it imports, `src/support_brief/`, so the next import reads
+them from there and asks nothing. With no terminal — in continuous
+integration, or through a pipe — it asks nothing: it writes the file with the
+keys empty, and stops, naming the file. The example holds the file already, with
+both agents on the same image, `ghcr.io/example/support-brief:1.0.0`, which
+stands for the image you build:
+
+<!-- quotes: source/src/support_brief/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Container image running the CrewAI application code.
+  spec.components.researcher.infra.image: "ghcr.io/example/support-brief:1.0.0"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.researcher.uses.model.gpt-4o-mini.features.credential.infra.origin: "openai-api-key"
+  # Container image running the CrewAI application code.
+  spec.components.writer.infra.image: "ghcr.io/example/support-brief:1.0.0"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.writer.uses.model.gpt-4o-mini.features.credential.infra.origin: "openai-api-key"
+```
+
+The two `origin` answers are for a build for Kubernetes, with `--target helm`:
+there each agent reads the OpenAI key from a Kubernetes Secret, and the answer
+is the Secret's name, `openai-api-key`, never the key. A build for Docker
+Compose reads the key from your shell instead, so this import does not use
+those answers. [The import answers file](../../language-reference/import-answers.md)
+describes the file, the questions and the rules for a secret's answer.
+
+[`aggrega import`](../../language-reference/cli/aggrega-import.md) lists
+every flag the command takes, `--answers`, which names an answers file kept
+elsewhere, among them.
+
+Change into `source`:
 
 ```bash
 cd source
@@ -128,13 +179,17 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the crewai format, with drafted paths relative to <workspace>
+info: the answers file <workspace>/src/support_brief/import-answers.yaml also answers spec.components.researcher.uses.model.gpt-4o-mini.features.credential.infra.origin in release.yaml, spec.components.writer.uses.model.gpt-4o-mini.features.credential.infra.origin in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
 mapped researcher (agent) to core/ai-agent/crewai as a reference, NONE
 mapped openai/gpt-4o-mini (llm) to core/ai-model/openai as a reference, NONE
 mapped writer (agent) to core/ai-agent/crewai as a reference, NONE
 made no choice for research_task (task)
 made no choice for reply_task (task)
+Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
 
+- **The `info` line** names the answers the Docker Compose drafts do not use,
+  kept in the answers file for a build for Kubernetes.
 - **The `mapped` lines** say that each agent is an instance of the standard
   library's CrewAI agent, `core/ai-agent/crewai`, and that the model both name,
   `openai/gpt-4o-mini`, is an instance of `core/ai-model/openai`. Their tier
@@ -143,6 +198,10 @@ made no choice for reply_task (task)
   each against the catalog.
 - **The `made no choice` lines** say that the tasks are drafted as nothing: a
   task is logic the crew's program runs.
+- **The `Pull complete` line** is the import fetching what the drafted Release
+  depends on, as [`aggrega pull`](../../language-reference/cli/aggrega-pull.md)
+  does, into `release.lock`, so the drafts validate and build at once. Under
+  `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
 ## What it wrote
 
@@ -154,8 +213,9 @@ under the namespace the importer's `target_namespace` setting sets, `imported`
 unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
-`aggregate.yaml` — one instance per agent, each wired to the model it names,
-and the model, opening with comments that say what was read and what was not:
+`aggregate.yaml` — one instance per agent, each wired to the model it names
+with the key it presents declared on the connection, and the model, opening
+with comments that say what was read and what was not:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -186,6 +246,12 @@ spec:
         model:
           gpt-4o-mini:
             target: gpt-4o-mini
+            # For the compose target, the lines below declare credential on gpt-4o-mini: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
     writer:
       type: core/ai-agent/crewai
       values:
@@ -198,6 +264,12 @@ spec:
         model:
           gpt-4o-mini:
             target: gpt-4o-mini
+            # For the compose target, the lines below declare credential on gpt-4o-mini: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
     # The model openai/gpt-4o-mini.
     gpt-4o-mini:
       type: core/ai-model/openai
@@ -208,10 +280,12 @@ spec:
 `role`, `goal` and `backstory` are carried as declared, the line break each
 folded block ends with included. `log_level` is `DEBUG` for the researcher,
 declared `verbose`, and `INFO` for the writer, which is not. An agent that
-declares no `allow_delegation` is drafted with `false`.
+declares no `allow_delegation` is drafted with `false`. The model is a hosted
+service, so the agent's Component refuses a connection to it that carries no
+credential; each connection declares one, under the key `OPENAI_API_KEY`.
 
-`release.yaml` — an entry for each agent, with what no declaration states
-named in a comment above it, and an entry placing the model beside them:
+`release.yaml` — the environment, each agent's image, and where each key comes
+from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -219,28 +293,52 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support-brief
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the crewai format.
 spec:
   aggregate: imported/support-brief
   manifest: imported/support-brief
   components:
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential researcher presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
     researcher:
-      infra: {}
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
+        image: "ghcr.io/example/support-brief:1.0.0"
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential researcher presents to gpt-4o-mini on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     writer:
-      infra: {}
-    gpt-4o-mini:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
+        image: "ghcr.io/example/support-brief:1.0.0"
+      uses:
+        model:
+          gpt-4o-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential writer presents to gpt-4o-mini on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    gpt-4o-mini: {}
 ```
 
-`manifest.yaml` — the one Compose Recipe the catalog offers for each type:
+The environment, `development`, is a default the import writes because no
+declaration names one; change it where the Release deploys elsewhere. Each
+image is the answer the import read from `import-answers.yaml`. The
+declarations name no variable for the key, so each connection reads it from
+`${OPENAI_API_KEY}`, the variable OpenAI's client libraries read, as a variable
+reference and never a value.
+
+`manifest.yaml` — the Compose Recipe of each type, and the realization that
+writes a key's variable reference into the Compose file as written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -255,135 +353,20 @@ spec:
       type:
         core/ai-agent/crewai: compose/crewai
         core/ai-model/openai: compose/openai
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-Validate the draft as it stands:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
-```
-
-With the environment set, the next refusal is the key each agent presents to
-the model, which no declaration states:
-
-```text
-  [DEVELOPER_ERROR E0033]
-    Component/Feature assertions
-    caused by: Component "core/ai-agent/crewai" instance "researcher" assertion "managed_target_needs_a_credential": assertion "Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential": template: Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential:1:369: executing "Component/core/ai-agent/crewai/researcher/managed_target_needs_a_credential" at <fail (printf "the %s connection %s of %q reaches %q, whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values" $socket $alias $.metadata.instance_id $connection.target)>: error calling fail: assertion failed: the model connection gpt-4o-mini of "researcher" reaches "gpt-4o-mini", whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values
-release dependency validation failed: 1 diagnostic(s)
-```
-
-The review changes the Release, and adds one mapping to the Manifest:
-
-- **Set the environment**, `development`.
-- **Name the image each agent runs.** The crew's program runs in an image you
-  build from the project; both agents run the same one here,
-  `ghcr.io/example/support-brief:1.0.0`.
-- **Present the OpenAI key on each agent's model connection**, as the comments
-  ask. The model is a hosted service, so the agent's Component refuses a
-  connection to it that carries no credential, naming the connection. Each
-  connection attaches a `core/secret-value` whose `origin` is the Compose
-  variable reference `${OPENAI_API_KEY}`.
-- **Map the Manifest.** `core/secret-value` maps to `compose/dotenv-secret`,
-  which writes the reference into the Compose file as written, so Docker
-  Compose fills it from your shell when the stack starts and no file carries
-  the key.
-
-The Aggregate needs no change. The reviewed `release.yaml`:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support-brief
-  # Reviewed: the environment this Release deploys to.
-  environment: development
-  version: 0.1.0
-  description: Draft Release imported from a source in the crewai format.
-spec:
-  aggregate: imported/support-brief
-  manifest: imported/support-brief
-  components:
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential researcher presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
-    researcher:
-      # Reviewed: the image running the crew's program, which you build from
-      # the project.
-      infra:
-        image: ghcr.io/example/support-brief:1.0.0
-      # Reviewed: the OpenAI key this agent presents to the model, read from
-      # your shell when the stack starts, so no file carries it.
-      uses:
-        model:
-          gpt-4o-mini:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${OPENAI_API_KEY}"
-    # Left for the Release, since no declaration states it:
-    #   - infra.image, the container image running the crew's program
-    #   - the credential writer presents to the model it reaches, attached under credential on its connection uses.model.gpt-4o-mini
-    writer:
-      # Reviewed: the image running the crew's program, which you build from
-      # the project.
-      infra:
-        image: ghcr.io/example/support-brief:1.0.0
-      # Reviewed: the OpenAI key this agent presents to the model, read from
-      # your shell when the stack starts, so no file carries it.
-      uses:
-        model:
-          gpt-4o-mini:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${OPENAI_API_KEY}"
-    gpt-4o-mini:
-      infra: {}
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support-brief
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/ai-agent/crewai: compose/crewai
-        core/ai-model/openai: compose/openai
-    # Reviewed: the realization that writes a secret's variable reference into
-    # the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`release.lock` records the catalog entities the Release resolved to, by
+digest, and `.aggrega-import.json` is the record of what the import wrote,
+which a later `aggrega import --sync` reads.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -393,11 +376,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -455,13 +436,23 @@ The run below used such an image: the crew's program in CrewAI's classic
 layout — a `crew.py` building the crew from the two declaration files, as the
 import read them — and, as the image's command, a small HTTP server of the
 program's own on port 8000, which runs the crew once for each `POST /kickoff`.
-Build your image at the project's root, put its name in place of
-`ghcr.io/example/support-brief:1.0.0` for both agents in `release.yaml`, and
-build again:
+Build your image at the project's root, write its name in place of
+`ghcr.io/example/support-brief:1.0.0` for both agents in
+`src/support_brief/import-answers.yaml`, and import again with `--sync`, which
+writes the new answers into the drafts and pulls again; then build:
 
 ```bash
 docker build -t support-brief:local .
-aggrega build --release release.yaml --auto-pull
+aggrega import src/support_brief --sync
+aggrega build --release release.yaml
+```
+
+With `support-brief:local` as both answers, the sync names the two values it
+changed, among the lines it prints:
+
+```text
+changed spec.components.researcher.infra.image in release.yaml
+changed spec.components.writer.infra.image in release.yaml
 ```
 
 Then set the key in your shell and start the stack:

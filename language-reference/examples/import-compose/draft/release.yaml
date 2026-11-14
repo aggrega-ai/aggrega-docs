@@ -2,7 +2,8 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/notes
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
@@ -12,27 +13,30 @@ spec:
     # The source also states, for the Release to carry where core/compute/server takes it:
     #   ports:
     #     - "8080:8080"
-    #   environment:
-    #     DATABASE_HOST: "db"
-    #     DATABASE_USER: "notes"
-    #     DATABASE_NAME: "notes"
-    #     DATABASE_PASSWORD: "${POSTGRES_PASSWORD}"
-    #     CACHE_HOST: "cache"
     api:
       infra:
         image: "ghcr.io/example/notes-api:2.3.0"
         port: 8080
-    # The source states, for the Release to carry where imported/datastore/postgres takes it:
-    #   image: "postgres:16"
+      features:
+        database_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the value api reads as DATABASE_PASSWORD, read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
+    # The source states, for the Release to carry where core/datastore/postgres takes it:
     #   volumes:
     #     - "db-data:/var/lib/postgresql/data"
-    #   environment:
-    #     POSTGRES_USER: "notes"
-    #     POSTGRES_DB: "notes"
-    #     POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     db:
-      infra: {}
-    # The source states, for the Release to carry where imported/datastore/redis takes it:
-    #   image: "redis:7"
+      infra:
+        # The tag of the image the source runs, postgres:16, the engine_version of core/datastore/postgres its Compose Recipes run.
+        engine_version: "16"
+      features:
+        password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the password of db, which the source sets as POSTGRES_PASSWORD, read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
     cache:
-      infra: {}
+      infra:
+        # The tag of the image the source runs, redis:7, the engine_version of core/datastore/redis its Compose Recipes run.
+        engine_version: "7"

@@ -1,13 +1,15 @@
 # Import an n8n workflow
 
 This walkthrough imports a workflow exported from n8n — an AI agent answering
-chat messages with an OpenAI chat model and a memory — reviews what the import
-drafts, and builds n8n carrying the workflow for Docker Compose. Every file and
+chat messages with an OpenAI chat model and a memory — into an Aggregate, a
+Release and a Manifest that build n8n carrying the workflow for Docker Compose
+as they are written, then builds them and runs the result. Every file and
 every block of output below comes from a real run; the workflow and each stage
 of the walkthrough are in the
 [import-n8n](../../language-reference/examples/import-n8n/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -90,6 +92,28 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
+and `import-answers.yaml` holds the answers to what no workflow can hold. An
+import for Docker Compose needs none: it attaches the OpenAI key by a variable
+reference Docker Compose fills from your shell. An import for Kubernetes
+attaches it by the name of a Kubernetes Secret, which only you can name, so the
+file names that Secret (see [On Kubernetes](#on-kubernetes)):
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.n8n.uses.model.openai-chat-model.features.credential.infra.origin: "openai-api-key"
+```
+
+[The import answers file](../../language-reference/import-answers.md)
+describes the file in full.
+
 The import weighs each node against the Components of the workspace's catalog,
 and `--target` drafts a Manifest from its Recipes. The workspace names no
 catalog folder, so the import reads the standard-library catalog from the
@@ -115,8 +139,8 @@ On standard output it lists what it wrote:
 
 <!-- quotes: draft/stdout.txt -->
 ```text
-wrote components/imported-ai-model-n8n-n8n-nodes-langchain-lmchatopenai.yaml
 wrote aggregate.yaml
+wrote release.yaml
 wrote manifest.yaml
 wrote .aggrega-import.json
 ```
@@ -130,19 +154,18 @@ read as the n8n format, with drafted paths relative to <workspace>
 warn: the value of credentials.httpBasicAuth.id of node When chat message received is carried as written in the flow the draft carries: its format marks the field as a credential, and setting empty_credentials to marked or all writes it empty
 warn: the value of credentials.openAiApi.id of node OpenAI Chat Model is carried as written in the flow the draft carries: its format marks the field as a credential, and setting empty_credentials to marked or all writes it empty
 warn: node OpenAI Chat Model reaches openai-chat-model, wired to the model socket of core/ai-agent/n8n as openai-chat-model, other than through that connection: an n8n @n8n/n8n-nodes-langchain.lmChatOpenAi node reaches the part at the address the stored credential it selects, or its own parameters, give; the platform delivers this connection as OPENAI_BASE_URL and OPENAI_API_KEY, but an n8n workflow reads a variable of the platform's environment only through an expression reading $env, which the platform refuses while values.allow_env_access_in_nodes is false, the value the draft leaves it at; setting it true lets every workflow, and every user who can edit one, read every variable of the platform's environment, the delivered credentials included
-warn: the drafted Manifest leaves the component type "imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
-info: the importer drafted no Release, so nothing references the drafted Manifest "manifest.yaml"; name it as a Release's spec.manifest to build against it
 made no choice for When chat message received (@n8n/n8n-nodes-langchain.chatTrigger)
 made no choice for AI Agent (@n8n/n8n-nodes-langchain.agent)
-mapped OpenAI Chat Model (@n8n/n8n-nodes-langchain.lmChatOpenAi) to imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai as a draft, HIGH at 0.9143
+mapped OpenAI Chat Model (@n8n/n8n-nodes-langchain.lmChatOpenAi) to core/ai-model/openai as a reference, HIGH at 0.9143
 made no choice for Simple Memory (@n8n/n8n-nodes-langchain.memoryBufferWindow)
+  warning: node "n8n" (provider "compose"): artifact "n8n-flow.compose-fragment.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
+Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
 
-- **The `mapped` line** says the OpenAI Chat Model node became a part of the
-  workflow, a Component of its own wired to the platform's `model` socket. It
-  matched the standard library's `core/ai-model/openai` in the high tier, at
-  0.9143, and was drafted all the same, because by default an import suggests
-  and you choose.
+- **The `mapped` line** says the OpenAI Chat Model node became the standard
+  library's OpenAI model, `core/ai-model/openai`, referenced rather than
+  drafted, since it matched in the high tier, at 0.9143: a component of its
+  own, wired to the platform's `model` socket.
 - **The `made no choice` lines** say that the trigger, the agent and the memory
   stay inside the workflow, which n8n runs itself.
 - **The first two `warn` lines** name the identifiers of the stored credentials
@@ -154,22 +177,29 @@ made no choice for Simple Memory (@n8n/n8n-nodes-langchain.memoryBufferWindow)
   n8n refuses a workflow's reads of its environment while the Aggregate leaves
   `values.allow_env_access_in_nodes` at `false`, as the draft does. Setting it
   `true` lets every workflow, and everyone who can edit one, read every
-  variable of the platform, the delivered key included.
-- **The fourth `warn` line and the `info` line** are about the Manifest and the
-  Release: no Recipe realizes the Component the import has just drafted, and
-  the n8n import drafts no Release, so you write it.
+  variable of the platform, the delivered key included. So the key the workflow
+  uses is the one n8n stores, as [Run it](#run-it) shows.
+- **The last two lines** are the pull. Nothing was left to answer, so the import
+  pulled the drafted Release's dependencies, as `aggrega pull` does, and wrote
+  `release.lock`; the build below needs nothing more. The `warning` line is one
+  the build prints too, and [Validate and build](#validate-and-build) explains
+  it.
+
+The answers file names a Secret this import does not ask for: it leaves nothing
+empty for it, so it applies no answer and leaves the file as it is.
 
 ## What it wrote
 
-The Aggregate and the Manifest are named `imported/support-agent`, after the
-workflow's own name, `Support agent`, reduced to `support-agent` — a workflow
-with no name is named after its file — under the namespace the importer's
-`target_namespace` setting sets, `imported` unless you set another
+The Aggregate, the Release and the Manifest are named
+`imported/support-agent`, after the workflow's own name, `Support agent`,
+reduced to `support-agent` — a workflow with no name is named after its file —
+under the namespace the importer's `target_namespace` setting sets, `imported`
+unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — one instance of the standard library's n8n platform,
 `core/ai-agent/n8n`, carrying the workflow as it was exported, most of it left
-out here, and the drafted model wired to its `model` socket:
+out here, and the model wired to its `model` socket:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -181,9 +211,6 @@ metadata:
   description: Draft Aggregate imported from a source in the n8n format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running n8n
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     n8n:
       type: core/ai-agent/n8n
       values:
@@ -198,14 +225,71 @@ spec:
         model:
           openai-chat-model:
             target: openai-chat-model
-    # resembles core/ai-model/openai (score 0.9143); reference it by setting type: core/ai-model/openai
+            # For the compose target, the lines below declare credential on openai-chat-model: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # swap to core/ai-model/azure-openai (score 0.4125) by setting type: core/ai-model/azure-openai
     openai-chat-model:
-      type: imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai
+      type: core/ai-model/openai
+      values:
+        model: |-
+          gpt-4o-mini
 ```
 
-`workflow_id` is the identifier the export gives the workflow.
+`workflow_id` is the identifier the export gives the workflow. The model is
+`core/ai-model/openai`, with the model the node selects, `gpt-4o-mini`; the
+comment above it names another Component of the catalog the node resembles,
+with its score. The OpenAI key the platform presents to the model is declared
+on the connection with the variable it arrives under in n8n's environment,
+`OPENAI_API_KEY`; the Release says where it comes from.
 
-`manifest.yaml` — the platform's one Compose Recipe:
+`release.yaml` — the Release, which deploys the Aggregate with the Manifest:
+
+<!-- quotes: draft/release.yaml -->
+```yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-agent
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the n8n format.
+spec:
+  aggregate: imported/support-agent
+  manifest: imported/support-agent
+  components:
+    n8n:
+      infra:
+        # The image running core/ai-agent/n8n, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
+        image: "n8nio/n8n:1.110.1"
+      uses:
+        model:
+          openai-chat-model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential n8n presents to openai-chat-model on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    openai-chat-model: {}
+```
+
+- **`environment`** is `development`, a default the comment above it says to
+  change to the environment the Release deploys to.
+- **The image** is n8n 1.110.1, the version the catalog's Recipes for n8n run.
+- **The key** is a variable reference, `${OPENAI_API_KEY}`, which Docker
+  Compose fills from your shell when the stack starts. The standard library's
+  OpenAI model is a hosted service, and a connection to it must carry a
+  credential, so the Release attaches one even though the workflow reads its
+  key from n8n's store.
+
+`manifest.yaml` — the Compose Recipes of the platform and the model, and the
+realization that writes the key's variable reference into the Compose file as
+written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -219,180 +303,21 @@ spec:
     components:
       type:
         core/ai-agent/n8n: compose/n8n
-```
-
-`components/imported-ai-model-n8n-n8n-nodes-langchain-lmchatopenai.yaml` — the
-drafted model, a value field for each of the node's top-level parameters and a
-credential slot for the credential type it selects:
-
-<!-- quotes: draft/components/imported-ai-model-n8n-n8n-nodes-langchain-lmchatopenai.yaml -->
-```yaml
-# resembles core/ai-model/openai (score 0.9143); reference it by setting type: core/ai-model/openai
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai
-  version: 0.1.0
-  labels:
-    component.aggrega.ai/type: resource
-    component.aggrega.ai/category: ai-model
-spec:
-  featuresSchema:
-    openAiApi:
-      required: true
-      inject: []
-      description: Credential slot inferred from the source node; the recipe controls delivery.
-  schema:
-    values:
-      type: object
-      properties:
-        model: { type: string }
-        options: { type: string }
-      additionalProperties: false
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-The review starts by writing the Release the import did not, with an
-environment and the image, and validating:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[E0114]
-  resolve: no entity in the catalog matches this URI: entity "imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai" (referenced from aggregate.spec.components.openai-chat-model.type)
-  note: local entities are read from `catalog/` at the workspace root and from every directory .aggrega-config.yaml lists under `workspace.catalog_dirs`. The workspace root itself holds 3 documents declaring an entity kind, and the root is read only while it is listed there. Put the entity under `catalog/`, or list the directory holding it under `workspace.catalog_dirs`.
-```
-
-The drafted Component sits in `components/`, which the workspace's catalog
-does not read, and no Recipe realizes it. The review changes:
-
-- **Reference the standard library's model.** `openai-chat-model` becomes
-  `core/ai-model/openai`, naming the model the node selects, `gpt-4o-mini`, and
-  `components/` is deleted. The Release places the model beside the platform,
-  `openai-chat-model: {}`.
-- **Present the OpenAI key on the model connection.** The platform's `model`
-  socket is required, and OpenAI's model is a hosted service, so validation
-  refuses a connection to it that carries no credential:
-
-  ```text
-  [DEVELOPER_ERROR E0033]
-    Component/Feature assertions
-    caused by: Component "core/ai-agent/n8n" instance "n8n" assertion "managed_target_needs_a_credential": assertion "Component/core/ai-agent/n8n/n8n/managed_target_needs_a_credential": template: Component/core/ai-agent/n8n/n8n/managed_target_needs_a_credential:1:392: executing "Component/core/ai-agent/n8n/n8n/managed_target_needs_a_credential" at <fail (printf "the %s connection %s of %q reaches %q, whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values" $socket $alias $.metadata.instance_id $connection.target)>: error calling fail: assertion failed: the model connection openai-chat-model of "n8n" reaches "openai-chat-model", whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values
-  ```
-
-  The Release attaches the key to the connection as a `core/secret-value`
-  reading `${OPENAI_API_KEY}`, which Docker Compose fills from your shell. It
-  reaches n8n's environment as `OPENAI_API_KEY`, where the workflow does not
-  read it while `allow_env_access_in_nodes` stays `false`, as the review
-  leaves it.
-- **Map the Manifest.** The model maps to its Compose Recipe, and the key to
-  the realization that writes its variable reference into the Compose file as
-  written.
-
-The reviewed `aggregate.yaml`, the workflow left out here as above:
-
-<!-- quotes: reviewed/aggregate.yaml -->
-```yaml
-# The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: imported/support-agent
-  version: 0.1.0
-  description: Draft Aggregate imported from a source in the n8n format.
-spec:
-  components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running n8n
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
-    n8n:
-      type: core/ai-agent/n8n
-      values:
-        workflow_id: 'sQ4vT8nKp2LmX7bR'
-        flow_definition: |
-          {
-          [… omitted: the workflow, as exported]
-          }
-      uses:
-        model:
-          openai-chat-model:
-            target: openai-chat-model
-    # Reviewed: the standard library's OpenAI model, as the hint suggested, in
-    # place of the drafted Component, naming the model the workflow's OpenAI
-    # Chat Model node selects.
-    openai-chat-model:
-      type: core/ai-model/openai
-      values:
-        model: gpt-4o-mini
-```
-
-The Release:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The Release the review wrote: the n8n import drafts none.
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support-agent
-  environment: development
-  version: 0.1.0
-spec:
-  aggregate: imported/support-agent
-  manifest: imported/support-agent
-  components:
-    n8n:
-      infra:
-        # The image running n8n.
-        image: n8nio/n8n:1.110.1
-      # The OpenAI key, presented on the model connection and read from your
-      # shell when the stack starts, so no file carries it.
-      uses:
-        model:
-          openai-chat-model:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${OPENAI_API_KEY}"
-    openai-chat-model: {}
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support-agent
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/ai-agent/n8n: compose/n8n
-        # Reviewed: the Compose Recipe of the model the review referenced.
         core/ai-model/openai: compose/openai
-    # Reviewed: the realization that writes a secret's variable reference into
-    # the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`.aggrega-import.json` is the record of what the import wrote, which a later
+`aggrega import --sync` reads, and `release.lock` pins every catalog entity the
+Release resolves to, by version and digest.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -402,12 +327,10 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder holding the drafts:
 
 ```text
   warning: node "n8n" (provider "compose"): artifact "n8n-flow.compose-fragment.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
-Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -484,7 +407,7 @@ store them with n8n's own command line rather than its editor. Write them into
 ]
 ```
 
-Set the key in your shell, as the reviewed Release reads it, and start the
+Set the key in your shell, as the drafted Release reads it, and start the
 stack:
 
 ```bash
@@ -571,3 +494,23 @@ with it the stored credentials and the activation:
 ```bash
 docker compose -p support-agent -f dist/compose/docker-compose.yaml down -v
 ```
+
+## On Kubernetes
+
+The same workflow imports for Kubernetes with the `helm` target:
+
+```bash
+aggrega import support-agent.json --target helm
+```
+
+The drafts differ where the target does. The Manifest maps the platform to
+`helm/n8n`, the model to `helm/openai`, and the key to
+`helm/k8s-existing-secret`, which reads it from a Secret already in the
+namespace. The Release attaches the key as `core/referenced-secret`, naming
+that Secret, `openai-api-key`, from the answers file.
+
+The build writes plain Kubernetes manifests under `dist/helm/`. Create the
+Secret in the namespace you apply to, holding the key under the data key
+`value`, then apply the folder as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The workflow still
+reads its credentials from n8n's own store, as [Run it](#run-it) describes.

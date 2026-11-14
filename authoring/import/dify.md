@@ -1,13 +1,15 @@
 # Import a Dify application
 
 This walkthrough imports an application exported from Dify — a chat assistant
-on an OpenAI model — reviews what the import drafts, and builds the standard
-library's Dify installation, carrying the application, for Kubernetes. Every
+on an OpenAI model — into an Aggregate, a Release and a Manifest that build the
+standard library's Dify installation, carrying the application, for
+Kubernetes as they are written, then builds them and runs the result. Every
 file and every block of output below comes from a real run; the application
 and each stage of the walkthrough are in the
 [import-dify](../../language-reference/examples/import-dify/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -54,6 +56,43 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
+and `import-answers.yaml` holds the answers to what no application can hold:
+the installation's application secret, the key Dify signs sessions with and
+encrypts the model-provider keys it stores under; and the owner account the
+application is imported under, its email and its password. On Kubernetes each
+secret is read from a Kubernetes Secret, so its answer is that Secret's name:
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Passed down to core/dify's secret_key parameter, which has no default; that parameter's description
+  # in core/dify says what the value is.
+  spec.parameters.secret_key: "dify-credentials"
+  # Email address of the installation's owner account, read only when values.app_definition is set. The
+  # step that imports the application creates this account when it performs Dify's first-time setup, and
+  # signs in as it; on an installation whose setup has already run, it names an existing account allowed
+  # to import applications, and the password attached to the owner_password slot is that account's.
+  # Required when values.app_definition is set: the build halts when it is empty. It has no default.
+  spec.boundaries.platform.aggregates.dify.components.api.infra.owner_email: "owner@example.com"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.boundaries.platform.aggregates.dify.components.api.features.owner_password.infra.origin: "dify-owner"
+```
+
+`owner@example.com` stands for an email of your own; `dify-credentials` and
+`dify-owner` are the Secrets [Run it](#run-it) creates. Without the file, an
+import at a terminal asks for each of the three values, one question at a
+time, and writes your answers into a new answers file; where nothing can be
+asked, it writes that file with the three keys and empty answers, lists them,
+and exits with status 1.
+[The import answers file](../../language-reference/import-answers.md)
+describes the file in full.
+
 The workspace names no catalog folder, so the import reads the standard-library
 catalog from the registry it fetches its importer from: a signed snapshot of the
 published catalog, fetched, verified and kept in the workspace's content cache
@@ -68,9 +107,8 @@ cd source
 
 ## Run the import
 
-The standard library's Dify installation is realized on Kubernetes only: its
-Dify components have Helm Recipes and no Compose Recipe. So the import names
-the `helm` target:
+The standard library's Dify installation is realized on Kubernetes and on
+Docker Compose. This walkthrough names the `helm` target:
 
 <!-- quotes: import-command -->
 ```bash
@@ -82,6 +120,7 @@ On standard output it lists what it wrote:
 <!-- quotes: draft/stdout.txt -->
 ```text
 wrote aggregate.yaml
+wrote release.yaml
 wrote manifest.yaml
 wrote .aggrega-import.json
 ```
@@ -93,24 +132,26 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the dify format, with drafted paths relative to <workspace>
 warn: node model_config.model (model) names the model "gpt-4o-mini" of the model provider "langgenius/openai/openai", whose credentials are set inside Dify, and core/ai-agent/dify configures that for itself rather than reaching it through a socket, so the draft wires no part for it
-info: the importer drafted no Release, so nothing references the drafted Manifest "manifest.yaml"; name it as a Release's spec.manifest to build against it
 made no choice for model_config.model (model)
+Pull complete: <workspace>/release.lock (entities=25, source_artifacts=0, external_inputs=0)
 ```
 
 - **The `warn` line** says that the model stays inside Dify: Dify configures
   its model providers, and their keys, for itself, so the draft wires no model.
   Once Dify runs, you install its OpenAI provider and set the provider's key,
   as [Run it](#run-it) shows.
-- **The `info` line** is about the Release: the Dify import drafts none, so
-  you write it.
+- **The `Pull complete` line** is the pull. With every value answered from the
+  answers file, the import pulled the drafted Release's dependencies, as
+  `aggrega pull` does, and wrote `release.lock`; the build below needs nothing
+  more.
 
 ## What it wrote
 
-The Aggregate and the Manifest are named `imported/support-assistant`, after
-the application's name, `Support assistant` under `app`, reduced to
-`support-assistant` — an application with no name is named after its file —
-under the namespace the importer's `target_namespace` setting sets, `imported`
-unless you set another
+The Aggregate, the Release and the Manifest are named
+`imported/support-assistant`, after the application's name, `Support
+assistant` under `app`, reduced to `support-assistant` — an application with
+no name is named after its file — under the namespace the importer's
+`target_namespace` setting sets, `imported` unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — the standard library's Dify installation, `core/dify`, an
@@ -136,10 +177,6 @@ spec:
       description: "Passed down to core/dify's secret_key parameter, which has no default; that parameter's description in core/dify says what the value is."
   aggregates:
     # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
-    # Left for the Release, since the source cannot supply it:
-    #   - the secret_key parameter declared above, which this entry passes down to core/dify
-    #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
-    #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
     dify:
       type: core/dify
       parameters:
@@ -155,14 +192,63 @@ The installation is ten components — Dify's API server, its worker, its
 scheduler, its web front end, its code sandbox, its plugin runtime, an egress
 proxy, PostgreSQL, a Redis-compatible cache and Weaviate — wired to each
 other, and the import of the application is a step its API server's Recipe
-renders. Its application secret, the key Dify signs sessions with and encrypts
-the model-provider keys it stores under, has no default in `core/dify`, so the
-draft declares `secret_key` as a parameter of its own, with no default, and
-passes it down for the Release to fulfill. The comments above the entry name
-what the application cannot supply: that parameter, the owner account the
-application is imported under, and its password.
+renders. Its application secret has no default in `core/dify`, so the draft
+declares `secret_key` as a parameter of its own, with no default, and passes
+it down for the Release to fulfill. The installation's other credentials keep
+the defaults `core/dify` gives them, as [Run it](#run-it) describes.
 
-`manifest.yaml` — empty:
+`release.yaml` — the Release, which routes the installation into a boundary,
+`platform`, and fulfills what the application cannot supply from the answers
+file:
+
+<!-- quotes: draft/release.yaml -->
+```yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-assistant
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the dify format.
+spec:
+  aggregate: imported/support-assistant
+  manifest: imported/support-assistant
+  parameters:
+    # Left for the Release, since the source cannot supply it: secret_key, which the drafted Aggregate declares and passes down to core/dify; that parameter's description there says what the value is
+    secret_key: "dify-credentials"
+  boundaries:
+    platform:
+      aggregates:
+        dify:
+          components:
+            api:
+              infra:
+                # Left for the Release, since the source cannot supply it: components.api.infra.owner_email, the email of the installation's owner account the application is imported under, on the api component of core/dify
+                owner_email: "owner@example.com"
+              features:
+                owner_password:
+                  type: core/referenced-secret
+                  infra:
+                    # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding, under the data key value, the owner account's password.
+                    origin: "dify-owner"
+```
+
+- **`environment`** is `development`, a default the comment above it says to
+  change to the environment the Release deploys to.
+- **`secret_key`** is the name of the Secret holding the application secret,
+  `dify-credentials`, under the data key the installation names,
+  `secret-key`: the Manifest reads every credential from a Secret already in
+  the namespace.
+- **The owner account** is set on the installation's `api` component, in the
+  routing entry that places the installation in its boundary: its email, and
+  its password attached as a `core/referenced-secret` naming the Secret that
+  holds it, `dify-owner`, under the data key `value`. The comments above the
+  answered values say why the import could not draft them.
+
+`manifest.yaml` — a Helm Recipe for each component the installation composes,
+and the realization that reads a credential from a Secret already in the
+namespace:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -174,200 +260,35 @@ metadata:
 spec:
   mappings:
     components:
-      type: {}
-```
-
-`--target` maps each component type the drafted Aggregate declares, and this
-one declares none of its own: every component is the installation's. The
-review maps them.
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-The review starts by writing the Release the import did not, with an
-environment, and validating:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-  [DEVELOPER_ERROR E0165] .spec.parameters.secret_key
-    required parameter not supplied (Aggregate, at .spec.parameters.secret_key, parameter "secret_key" is required but not supplied by Release)
-release dependency validation failed: 1 diagnostic(s)
-```
-
-The review changes:
-
-- **Fulfill the application secret.** The Release supplies `secret_key` under
-  its `parameters`; what the value is follows the Manifest, as the last change
-  below says. With it supplied, validation names the next thing to settle:
-
-  ```text
-    [OPS_ERROR E0076] .spec.aggregates.dify
-      sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release imported/support-assistant, at .spec.aggregates.dify, "dify")
-  release dependency validation failed: 1 diagnostic(s)
-  ```
-
-- **Place the installation in a boundary, and name its owner there.** The
-  Release routes `dify` into a boundary, `platform`, and in that routing entry
-  sets the owner on the installation's `api` component: `infra.owner_email`,
-  and `owner_password` attached as a `core/referenced-secret` naming the
-  Kubernetes Secret that holds the password, `dify-owner`, under the data key
-  `value`. With no email, validation stops with an assertion of the API
-  server's Recipe that says so: "the Dify server "dify-zdapi" is given
-  values.app_definition to import but no infra.owner_email".
-- **Map every component of the installation.** With the boundary in place,
-  validation names each component no Recipe resolves for, and each credential
-  attachment no realization resolves for:
-
-  ```text
-    [OPS_ERROR E0099] .spec.components.db
-      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.db, "dify.db", of type "core/datastore/postgres", recipes implementing it "cloudformation/postgres-rds:1.0.0, compose/postgres:1.0.0, helm/postgres-cloudnative-pg:1.0.0, helm/postgres-external:1.0.0, helm/postgres:1.0.0, terraform/postgres-cloud-sql:1.0.0, terraform/postgres-flexible-server:1.0.0, terraform/postgres-rds-terraform-aws-modules:1.0.0, terraform/postgres-rds:1.0.0"). pin one of them in the Manifest
-    [… omitted: one such line for each of the other nine components]
-    [E0099]
-      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: feature "password" (type "core/referenced-secret"); feature recipes implementing it: [helm/k8s-existing-secret:1.0.0 helm/k8s-external-secret:1.0.0 helm/k8s-secret-from-parameter:1.0.0]; pin one in the Manifest
-    [… omitted: one such line for each of the other credential attachments, and the LINT notice the validation below prints as well]
-  release dependency validation failed: 27 diagnostic(s)
-  ```
-
-  The Manifest maps each component to its Helm Recipe — PostgreSQL to
-  `helm/postgres`, since the installation fills the database's credential slot
-  and `helm/postgres-cloudnative-pg` halts on a filled one — and
-  `core/referenced-secret` to `helm/k8s-existing-secret`, so every credential
-  is read from a Secret already in the namespace and none is written into a
-  rendered file.
-- **Pass the installation's own credentials.** The installation takes five
-  credentials as parameters — its database password, its application secret
-  and three keys its components present to each other. The application secret
-  has no default: the draft passes it down from its own `secret_key`
-  parameter, and the Release fulfills that. The other four each default to a
-  development value every reader of the catalog holds. With
-  `helm/k8s-existing-secret`, each is the name of a Secret, so the review
-  passes the same Secret, `dify-credentials`, for those four, and the Release
-  names it for `secret_key`; it holds each under its own data key,
-  `db-password`, `secret-key`, `code-execution-key`, `plugin-daemon-key` and
-  `inner-api-key`.
-
-The reviewed `aggregate.yaml`, the application left out here as above:
-
-<!-- quotes: reviewed/aggregate.yaml -->
-```yaml
-# The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: imported/support-assistant
-  version: 0.1.0
-  description: Draft Aggregate imported from a source in the dify format.
-spec:
-  parameters:
-    secret_key:
-      type: string
-      required: true
-      minLength: 1
-      [… omitted: its description, as drafted]
-  aggregates:
-    # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
-    # Left for the Release, since the source cannot supply it:
-    #   - the secret_key parameter declared above, which this entry passes down to core/dify
-    #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
-    #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
-    dify:
-      type: core/dify
-      parameters:
-        secret_key: "{{ .parameters.secret_key }}"
-        # Reviewed: the installation's other four credentials, each the name of
-        # the Secret holding it, under the data key the module names, in place
-        # of the evaluation defaults every reader of the catalog knows.
-        db_password: dify-credentials
-        code_execution_key: dify-credentials
-        plugin_daemon_key: dify-credentials
-        inner_api_key: dify-credentials
-        app_definition: |
-          app:
-          [… omitted: the application, as exported]
-          version: 0.7.0
-```
-
-The Release:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The Release the review wrote: the Dify import drafts none.
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support-assistant
-  environment: development
-  version: 0.1.0
-spec:
-  aggregate: imported/support-assistant
-  manifest: imported/support-assistant
-  # The installation's application secret, which the Aggregate passes down to
-  # core/dify: with the Manifest binding the credential to an existing Secret,
-  # the name of the Secret holding it under the data key secret-key.
-  parameters:
-    secret_key: dify-credentials
-  boundaries:
-    platform:
-      aggregates:
-        dify:
-          components:
-            # The owner account the application is imported under, and its
-            # password, read from a Secret named dify-owner, under the data key
-            # value.
-            api:
-              infra:
-                owner_email: owner@example.com
-              features:
-                owner_password:
-                  type: core/referenced-secret
-                  infra:
-                    origin: dify-owner
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support-assistant
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      # Reviewed: a Helm Recipe for each component the Dify installation
-      # composes. The draft mapped none, since the drafted Aggregate declares
-      # no component of its own.
       type:
+        core/datastore/postgres: helm/postgres
+        core/datastore/redis: helm/redis
+        core/datastore/weaviate: helm/weaviate
+        core/ai-agent/dify-ssrf-proxy: helm/dify-ssrf-proxy
+        core/ai-agent/dify-sandbox: helm/dify-sandbox
+        core/ai-agent/dify-plugin-daemon: helm/dify-plugin-daemon
         core/ai-agent/dify: helm/dify
         core/ai-agent/dify-worker: helm/dify-worker
         core/ai-agent/dify-worker-beat: helm/dify-worker-beat
         core/ai-agent/dify-web: helm/dify-web
-        core/ai-agent/dify-sandbox: helm/dify-sandbox
-        core/ai-agent/dify-plugin-daemon: helm/dify-plugin-daemon
-        core/ai-agent/dify-ssrf-proxy: helm/dify-ssrf-proxy
-        core/datastore/postgres: helm/postgres
-        core/datastore/redis: helm/redis
-        core/datastore/weaviate: helm/weaviate
-    # Reviewed: every credential is read from a Secret already in the
-    # namespace, so none is written into a rendered file.
     features:
       type:
         core/referenced-secret: helm/k8s-existing-secret
 ```
 
+`--target` maps the component types of the installation the draft composes as
+well as its own. Where the catalog offers several Helm Recipes for one type, as
+it does for PostgreSQL, it maps the one named after the type, `helm/postgres`.
+
+`.aggrega-import.json` is the record of what the import wrote, which a later
+`aggrega import --sync` reads, and `release.lock` pins every catalog entity the
+Release resolves to, by version and digest.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -377,11 +298,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder holding the drafts:
 
 ```text
-Pull complete: release.lock (entities=25, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 24 files written to <workspace>/dist
@@ -443,13 +362,26 @@ such as the server not answering within about ten minutes, is retried.
 
 ## Run it
 
-Before applying the manifests, create the two Secrets they read: `dify-owner`,
-holding the owner's password under `value`, and `dify-credentials`, holding
-the five credentials under their data keys. A workload naming a Secret that
-does not exist does not start. Set the owner's password in your shell, as
-`DIFY_OWNER_PASSWORD`, since you sign in with it below. Dify takes an owner password of at least eight characters holding a
-letter and a digit: given any other, the import Job fails as soon as Dify refuses the setup,
-and its log reads
+Before applying the manifests, create the Secrets they read. A workload naming
+a Secret that does not exist does not start. Two hold what the answers file
+named: `dify-owner`, holding the owner's password under `value`, and
+`dify-credentials`, holding the application secret under `secret-key`. The
+installation's four other credentials — its database password and three keys
+its components present to each other — keep the defaults `core/dify` gives
+them, and on Kubernetes each default is the name of the Secret the manifests
+read it from: `dify-db-password-for-evaluation-only` under `db-password`,
+`dify-code-execution-key-for-evaluation-only` under `code-execution-key`,
+`dify-plugin-daemon-key-for-evaluation-only` under `plugin-daemon-key`, and
+`dify-inner-api-key-for-evaluation-only` under `inner-api-key`. Create those
+four too, each holding a value of your own; to read them from Secrets named
+otherwise, pass the names to `core/dify` in the Aggregate's `dify` entry,
+under `parameters`, as `db_password`, `code_execution_key`,
+`plugin_daemon_key` and `inner_api_key`.
+
+Set the owner's password in your shell, as `DIFY_OWNER_PASSWORD`, since you
+sign in with it below. Dify takes an owner password of at least eight
+characters holding a letter and a digit: given any other, the import Job fails
+as soon as Dify refuses the setup, and its log reads
 `first-time setup was refused with HTTP 422: Validation error for parameter 'payload'`,
 the reply Dify gives an owner account it refuses. The wait below waits for the
 Job to complete, and a failed Job never completes, so it then runs to its
@@ -457,21 +389,24 @@ timeout; run
 `kubectl wait --for=condition=failed job/dify-zdapi-app-import --timeout=15m`
 in a second terminal beside it, and that wait returns as soon as the Job
 fails. Delete the Job and the `dify-owner` Secret, create the Secret again with
-a password Dify takes, and apply again. Write `dify-credentials.env`, one line for each data key:
-`db-password=`, `secret-key=`, `code-execution-key=`, `plugin-daemon-key=` and
-`inner-api-key=`, each followed by a value of your own. Then create the two
-Secrets. The cluster holds the values then, so delete the two files:
+a password Dify takes, and apply again.
+
+Write one file for each of the five other Secrets, holding one line: the data
+key, `=`, and a value of your own — `dify-credentials.env` with `secret-key=`,
+`db-password.env` with `db-password=`, `code-execution-key.env` with
+`code-execution-key=`, `plugin-daemon-key.env` with `plugin-daemon-key=` and
+`inner-api-key.env` with `inner-api-key=`. Then create the six Secrets. The
+cluster holds the values then, so delete the files:
 
 ```bash
 printf 'value=%s\n' "$DIFY_OWNER_PASSWORD" > dify-owner.env
 kubectl create secret generic dify-owner --from-env-file=dify-owner.env
 kubectl create secret generic dify-credentials --from-env-file=dify-credentials.env
-rm dify-owner.env dify-credentials.env
-```
-
-```text
-secret/dify-owner created
-secret/dify-credentials created
+kubectl create secret generic dify-db-password-for-evaluation-only --from-env-file=db-password.env
+kubectl create secret generic dify-code-execution-key-for-evaluation-only --from-env-file=code-execution-key.env
+kubectl create secret generic dify-plugin-daemon-key-for-evaluation-only --from-env-file=plugin-daemon-key.env
+kubectl create secret generic dify-inner-api-key-for-evaluation-only --from-env-file=inner-api-key.env
+rm dify-owner.env dify-credentials.env db-password.env code-execution-key.env plugin-daemon-key.env inner-api-key.env
 ```
 
 Apply the manifests, as the run step of
@@ -613,7 +548,7 @@ session file:
 
 ```bash
 kubectl delete -R -f dist/boundaries/platform/helm/
-kubectl delete secret dify-owner dify-credentials
+kubectl delete secret dify-owner dify-credentials dify-db-password-for-evaluation-only dify-code-execution-key-for-evaluation-only dify-plugin-daemon-key-for-evaluation-only dify-inner-api-key-for-evaluation-only
 kubectl delete pvc data-dify-zddb-0 storage-dify-zdplugins-0 data-dify-zdvector-0
 rm cookies.txt
 ```
@@ -621,3 +556,30 @@ rm cookies.txt
 Kubernetes keeps the volume claims a StatefulSet made when the StatefulSet is
 deleted, so the third command removes them, and with them the database, the
 installed plugin and the vector store.
+
+## On Docker Compose
+
+The same application imports for Docker Compose with the `compose` target. It
+owes the same three values under the same keys, but on Docker Compose a secret
+is written into the Compose file as it is answered, so the application secret
+and the owner's password are answered with variable references, which Docker
+Compose fills from your shell when the stack starts. Those answers differ from
+the Secret names above, so keep them in an answers file of their own and name
+it with `--answers`:
+
+```yaml
+release.yaml:
+  spec.parameters.secret_key: "${DIFY_SECRET_KEY}"
+  spec.boundaries.platform.aggregates.dify.components.api.infra.owner_email: "owner@example.com"
+  spec.boundaries.platform.aggregates.dify.components.api.features.owner_password.infra.origin: "${DIFY_OWNER_PASSWORD}"
+```
+
+```bash
+aggrega import support-assistant.yml --target compose --answers compose-answers.yaml
+```
+
+The Manifest maps each component to its Compose Recipe and
+`core/referenced-secret` to `compose/dotenv-referenced-secret`, and the build
+writes one Compose file, `dist/boundaries/platform/compose/docker-compose.yaml`,
+which carries `SECRET_KEY: ${DIFY_SECRET_KEY}` and
+`OWNER_PASSWORD: ${DIFY_OWNER_PASSWORD}` rather than either value.

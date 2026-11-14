@@ -1,0 +1,34 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-chat
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the flowise format.
+spec:
+  aggregate: imported/support-chat
+  manifest: imported/support-chat
+  components:
+    flowise:
+      infra:
+        # The image running core/ai-agent/flowise, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
+        image: "flowiseai/flowise:3.1.3"
+        # Left for the Release, since the source cannot supply it: infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
+        owner_email: "owner@example.com"
+      features:
+        owner_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the owner account's password, required while values.flow_definition is set, read from the variable FLOWISE_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${FLOWISE_OWNER_PASSWORD}"
+      uses:
+        model:
+          chatopenai-0:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential flowise presents to chatopenai-0 on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    chatopenai-0: {}

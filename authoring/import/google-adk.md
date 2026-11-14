@@ -2,12 +2,16 @@
 
 This walkthrough imports the Agent Config of an application built on Google's
 Agent Development Kit (ADK) — one agent answering customers' questions about
-their orders — reviews what the import drafts, and builds the application for
-Docker Compose. Every file and every block of output below comes from a real
-run; the configuration and each stage of the walkthrough are in the
+their orders — and builds the application for Docker Compose. The import drafts
+every file the build reads: the agent and its Gemini model, the key the agent
+presents to the model as a variable reference, and the realizations of each. It
+asks once for the one value no configuration holds, the image the application
+runs in. Every file and every block of output below comes from a real run; the
+configuration and each stage of the walkthrough are in the
 [import-google-adk](../../language-reference/examples/import-google-adk/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -67,8 +71,49 @@ fetches its importer from: a signed snapshot of the published catalog, fetched,
 verified and kept in the workspace's content cache by the first import, and
 named by its digest in the record the import writes beside its drafts. A
 workspace that names its own catalog folders — in `AGGREGA_CATALOG_DIRS`, or
-under `workspace.catalog_dirs` — imports against those instead. Change into
-`source`:
+under `workspace.catalog_dirs` — imports against those instead.
+
+### What the import asks for
+
+An Agent Config names the agent's model, never the image the application runs
+in: you build that image from your project. The catalog holds no default image
+for an application built on ADK, so the import asks for it. At a terminal it
+asks, and writes the answer into the drafts and into the answers file,
+`import-answers.yaml`, inside the directory it imports, `support_agent/`, so
+the next import reads it from there and asks nothing. With no terminal — in
+continuous integration, or through a pipe — it asks nothing: it writes the file
+with the key empty, and stops, naming the file. The example holds the file
+already, with the image answered, `ghcr.io/example/support-agent:1.0.0`, which
+stands for the image you build:
+
+<!-- quotes: source/support_agent/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Container image running the application built on ADK, serving its API on infra.port on every
+  # interface.
+  spec.components.support-agent.infra.image: "ghcr.io/example/support-agent:1.0.0"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.support-agent.uses.model.gemini-2-5-flash.features.credential.infra.origin: "google-api-key"
+```
+
+The second answer is for a build for Kubernetes, with `--target helm`: there
+the agent reads the Gemini API key from a Kubernetes Secret, and the answer is
+the Secret's name, `google-api-key`, never the key. A build for Docker Compose
+reads the key from your shell instead, so this import does not use that
+answer. [The import answers file](../../language-reference/import-answers.md)
+describes the file, the questions and the rules for a secret's answer.
+
+[`aggrega import`](../../language-reference/cli/aggrega-import.md) lists
+every flag the command takes, `--answers`, which names an answers file kept
+elsewhere, among them.
+
+Change into `source`:
 
 ```bash
 cd source
@@ -99,11 +144,15 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the google-adk format, with drafted paths relative to <workspace>
+info: the answers file <workspace>/support_agent/import-answers.yaml also answers spec.components.support-agent.uses.model.gemini-2-5-flash.features.credential.infra.origin in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
 mapped support_agent (agent) to core/ai-agent/google-adk as a reference, NONE
 mapped gemini-2.5-flash (model) to core/ai-model/gemini as a reference, NONE
 made no choice for google_search (tool)
+Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
 
+- **The `info` line** names the answer the Docker Compose drafts do not use,
+  kept in the answers file for a build for Kubernetes.
 - **The `mapped` lines** say that the agent is an instance of the standard
   library's ADK agent, `core/ai-agent/google-adk`, and that the model it names
   is an instance of `core/ai-model/gemini`. Their tier reads `NONE`: the ADK
@@ -111,6 +160,10 @@ made no choice for google_search (tool)
   than by weighing each against the catalog.
 - **The `made no choice` line** says that the Google Search tool is drafted as
   nothing: it is a tool ADK ships, and it runs inside the application.
+- **The `Pull complete` line** is the import fetching what the drafted Release
+  depends on, as [`aggrega pull`](../../language-reference/cli/aggrega-pull.md)
+  does, into `release.lock`, so the drafts validate and build at once. Under
+  `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
 ## What it wrote
 
@@ -120,8 +173,9 @@ under the namespace the importer's `target_namespace` setting sets, `imported`
 unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
-`aggregate.yaml` — the agent, wired to the model, and the model, opening with
-comments that say what was read and what was not:
+`aggregate.yaml` — the agent, wired to the model with the key it presents
+declared on the connection, and the model, opening with comments that say what
+was read and what was not:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -147,6 +201,12 @@ spec:
         model:
           gemini-2-5-flash:
             target: gemini-2-5-flash
+            # For the compose target, the lines below declare credential on gemini-2-5-flash: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: GOOGLE_API_KEY
     # The model gemini-2.5-flash.
     gemini-2-5-flash:
       type: core/ai-model/gemini
@@ -161,16 +221,16 @@ holds.
 
 ADK serves `gemini-2.5-flash` through its Gemini class, which sends its
 requests to the Gemini API, so the draft wires the model to the agent's `model`
-socket, which admits the Gemini API alone. A model ADK serves any other way — a
-name such as `gpt-4o` that ADK serves through a class of its own, or a LiteLLM
-model string such as `openai/gpt-4o` — is wired to nothing: a comment
-above the instance names it,
-and the connection is left for you, as
+socket, which admits the Gemini API alone. Gemini is a hosted service, so the
+agent's Component refuses a connection to it that carries no credential; the
+connection declares one, under the key `GOOGLE_API_KEY`. A model ADK serves any
+other way — a name such as `gpt-4o` that ADK serves through a class of its own,
+or a LiteLLM model string such as `openai/gpt-4o` — is wired to nothing: a
+comment above the instance names it, and the connection is left for you, as
 [What an agent tree becomes](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)
 describes.
 
-`release.yaml` — an entry for the agent, with what no configuration states
-named in a comment above it, and an entry placing the model beside it:
+`release.yaml` — the environment, the image, and where the key comes from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -178,23 +238,39 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support-agent
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the google-adk format.
 spec:
   aggregate: imported/support-agent
   manifest: imported/support-agent
   components:
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application built on ADK, holding its configurations
-    #   - the credential support-agent presents to the model it reaches, attached under credential on its connection uses.model.gemini-2-5-flash
     support-agent:
-      infra: {}
-    gemini-2-5-flash:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on ADK, holding its configurations
+        image: "ghcr.io/example/support-agent:1.0.0"
+      uses:
+        model:
+          gemini-2-5-flash:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support-agent presents to gemini-2-5-flash on its model connection (the source names no variable for it, so it is read from the one Google's Gemini API's client libraries read the API key from), read from the variable GOOGLE_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${GOOGLE_API_KEY}"
+    gemini-2-5-flash: {}
 ```
 
-`manifest.yaml` — the one Compose Recipe the catalog offers for each type:
+The environment, `development`, is a default the import writes because no
+configuration names one; change it where the Release deploys elsewhere. The
+image is the answer the import read from `support_agent/import-answers.yaml`.
+The configuration names no variable for the key, so the connection reads it
+from `${GOOGLE_API_KEY}`, the variable the Gemini API's client libraries read,
+as a variable reference and never a value.
+
+`manifest.yaml` — the Compose Recipe of each type, and the realization that
+writes the key's variable reference into the Compose file as written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -209,121 +285,20 @@ spec:
       type:
         core/ai-agent/google-adk: compose/google-adk
         core/ai-model/gemini: compose/gemini
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-Validate the draft as it stands:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
-```
-
-With the environment set, the next refusal is the image, which no configuration
-states:
-
-```text
-  [DEVELOPER_ERROR E0033]
-    Component/Feature assertions
-    caused by: Component "core/ai-agent/google-adk" instance "support-agent" assertion "image_supplied": assertion "Component/core/ai-agent/google-adk/support-agent/image_supplied": template: Component/core/ai-agent/google-adk/support-agent/image_supplied:1:85: executing "Component/core/ai-agent/google-adk/support-agent/image_supplied" at <fail (printf "%q runs an application built on Google's Agent Development Kit from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application" $.metadata.instance_id)>: error calling fail: assertion failed: "support-agent" runs an application built on Google's Agent Development Kit from an image the Release supplies, and the catalog holds no default for it: set infra.image on it in the Release to the container image running that application
-release dependency validation failed: 1 diagnostic(s)
-```
-
-The review changes the Release, and adds one mapping to the Manifest:
-
-- **Set the environment**, `development`.
-- **Name the image** running the application, which you build from the project
-  with its configuration inside, `ghcr.io/example/support-agent:1.0.0` here. The
-  catalog holds no default image for an application built on ADK, so the
-  agent's Component refuses a Release that names none, and says where to set
-  it.
-- **Present the Gemini API key on the model connection**, as the comment asks.
-  Gemini is a hosted service, so the agent's Component refuses a connection to
-  it that carries no credential: "the model connection gemini-2-5-flash of
-  "support-agent" reaches "gemini-2-5-flash", whose
-  component.aggrega.ai/hosting label is managed, with no credential". The
-  connection attaches a `core/secret-value` whose `origin` is the Compose
-  variable reference `${GOOGLE_API_KEY}`.
-- **Map the Manifest.** `core/secret-value` maps to `compose/dotenv-secret`,
-  which writes the reference into the Compose file as written, so Docker
-  Compose fills it from your shell when the stack starts and no file carries
-  the key.
-
-The Aggregate needs no change. The reviewed `release.yaml`:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support-agent
-  # Reviewed: the environment this Release deploys to.
-  environment: development
-  version: 0.1.0
-  description: Draft Release imported from a source in the google-adk format.
-spec:
-  aggregate: imported/support-agent
-  manifest: imported/support-agent
-  components:
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application built on ADK, holding its configurations
-    #   - the credential support-agent presents to the model it reaches, attached under credential on its connection uses.model.gemini-2-5-flash
-    support-agent:
-      # Reviewed: the image running the application, which you build from the
-      # project, root_agent.yaml included.
-      infra:
-        image: ghcr.io/example/support-agent:1.0.0
-      # Reviewed: the Gemini API key the application presents to the model,
-      # read from your shell when the stack starts, so no file carries it.
-      uses:
-        model:
-          gemini-2-5-flash:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${GOOGLE_API_KEY}"
-    gemini-2-5-flash:
-      infra: {}
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support-agent
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/ai-agent/google-adk: compose/google-adk
-        core/ai-model/gemini: compose/gemini
-    # Reviewed: the realization that writes a secret's variable reference into
-    # the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`release.lock` records the catalog entities the Release resolved to, by
+digest, and `.aggrega-import.json` is the record of what the import wrote,
+which a later `aggrega import --sync` reads.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -333,11 +308,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -385,13 +358,15 @@ CMD ["sh", "-c", "exec adk api_server --host 0.0.0.0 --port \"$PORT\" /app/agent
 ```
 
 `adk api_server` serves the agent directories in the folder it names, and the
-command passes `PORT` to it. Build the
-image, put its name in place of `ghcr.io/example/support-agent:1.0.0` as the
-agent's `infra.image` in `release.yaml`, and build again:
+command passes `PORT` to it. Build the image, write its name in place of
+`ghcr.io/example/support-agent:1.0.0` in `support_agent/import-answers.yaml`,
+and import again with `--sync`, which writes the new answer into the drafts and
+pulls again; then build:
 
 ```bash
 docker build -t support-agent:local .
-aggrega build --release release.yaml --auto-pull
+aggrega import support_agent --sync
+aggrega build --release release.yaml
 ```
 
 Then set the key in your shell and start the stack:

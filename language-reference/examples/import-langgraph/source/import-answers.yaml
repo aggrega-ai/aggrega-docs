@@ -1,0 +1,24 @@
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+aggregate.yaml:
+  # Left for the author, since the configuration names no model: values.model, the name of the model
+  # core/ai-model/openai serves.
+  spec.components.model.values.model: "gpt-4o-mini"
+release.yaml:
+  # Container image running the LangGraph application code. The Docker Compose Recipe runs the catalog's
+  # quickstart agent when it is unset.
+  spec.components.support.infra.image: "ghcr.io/example/support-agent:1.0.0"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.support.uses.checkpointer_db.postgres.features.credential.infra.origin: "support-db-password"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.support.uses.model.model.features.credential.infra.origin: "openai-api-key"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.postgres.features.password.infra.origin: "support-db-password"

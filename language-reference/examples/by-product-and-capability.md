@@ -111,80 +111,80 @@ Tier `advanced`: boundaries, governance policy, annotation-driven Features and a
 
 Tier `importers`: a project written in another format, drafted into Aggrega files by `aggrega import`, then reviewed and built.
 
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, each server mapped to the realization of how it runs, and built for Kubernetes.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
 
 ## By product
 
 ### `core/ai-agent/agent-framework`
 
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
 
 ### `core/ai-agent/crewai`
 
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
 
 ### `core/ai-agent/dify`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-plugin-daemon`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-sandbox`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-ssrf-proxy`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-web`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-worker`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/dify-worker-beat`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/ai-agent/flowise`
 
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 
 ### `core/ai-agent/google-adk`
 
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
 
 ### `core/ai-agent/langflow`
 
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 
 ### `core/ai-agent/langgraph`
 
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
 - [nemo-guardrails-nemoguard-nims](nemo-guardrails-nemoguard-nims/README.md) (`start`) — An agent's model requests pass through NVIDIA NeMo Guardrails, which checks each one with two of NVIDIA's NemoGuard models, licensed NVIDIA products that need a licence from NVIDIA, an NGC API key and a GPU node to run.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/ai-agent/n8n`
 
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 
 ### `core/ai-model/anthropic`
 
@@ -192,7 +192,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 ### `core/ai-model/gemini`
 
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
 
 ### `core/ai-model/nemoguard-content-safety`
 
@@ -210,12 +210,12 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 - [apisix-token-budget](apisix-token-budget/README.md) (`start`) — A team puts two OpenAI models behind one gateway and wants a ceiling on what the gateway spends on them each day, counted in tokens.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 - [policy-data-class-route](policy-data-class-route/README.md) (`advanced`) — An estate runs a claims assistant that handles restricted customer data, and a helpdesk assistant that handles none.
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
@@ -233,7 +233,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 ### `core/ai-tool/mcp`
 
-- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, each server mapped to the realization of how it runs, and built for Kubernetes.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 
 ### `core/compute/server`
@@ -296,9 +296,9 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
 - [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
 - [keycloak-stack](keycloak-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed identity server** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [kong-stack](kong-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
@@ -310,8 +310,8 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 - [policy-label-transform](policy-label-transform/README.md) (`advanced`) — Governance plugins label every component this workspace deploys with its owner, the support tier its environment earns, its backup schedule and a short tag, so that no developer types any of them.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [redis-cache](redis-cache/README.md) (`start`) — This lean example compiles a single **Redis** in-memory cache (Redis wire protocol) from one Developer-authored `Aggregate` to two realizations.
@@ -326,7 +326,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 ### `core/datastore/weaviate`
 
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 
 ### `core/devtool/adminer`
 
@@ -531,9 +531,9 @@ the Manifest choosing which Recipe realizes a component, or which FeatureRecipe 
 
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
 - [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
-- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, each server mapped to the realization of how it runs, and built for Kubernetes.
 - [per-instance-recipe-override](per-instance-recipe-override/README.md) (`authoring`) — This example teaches one Manifest feature: the **`name` mapping tier**, which overrides the Recipe for a single component *instance* while every other instance of the same type keeps the bulk `type`-tier Recipe.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 
@@ -544,7 +544,7 @@ a catalog Aggregate imported as a module.
 - [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [ferretdb-stack](ferretdb-stack/README.md) (`start`) — This example compiles a small, real stack — a **document database** exposing the MongoDB wire protocol — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 - [keycloak-stack](keycloak-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed identity server** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [kong-stack](kong-stack/README.md) (`start`) — This example compiles a small, real stack — a **database-backed API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
 - [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
@@ -567,14 +567,14 @@ components wired through `uses` sockets, with values piped across each edge.
 - [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.
 - [envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/README.md) (`start`) — A team puts OpenAI's `gpt-4o-mini` behind an in-cluster gateway, wants a ceiling on the tokens the gateway spends on it each calendar month, and points its agent at the gateway rather than at OpenAI.
 - [fluent-bit-to-fluentd](fluent-bit-to-fluentd/README.md) (`start`) — This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping records to a **Fluentd** aggregator over the forward protocol — from one Developer-authored `Aggregate` to two realizations.
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
 - [mcp-address-from-secret](mcp-address-from-secret/README.md) (`authoring`) — Some Model Context Protocol servers that someone else runs read their key from their own address — `https://mcp.example.com/mcp?api_key=<key>` — rather than from a request header.
 - [model-api-key-sharing](model-api-key-sharing/README.md) (`start`) — Two CrewAI agents behind one OpenAI-compatible gateway.
@@ -600,16 +600,16 @@ credential attachments and how each target delivers them.
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
 - [grafana-dashboards](grafana-dashboards/README.md) (`start`) — This example compiles a single **Grafana** dashboards and visualization server from one Developer-authored `Aggregate` to two realizations.
 - [harbor-stack](harbor-stack/README.md) (`start`) — This example compiles a real container registry to Kubernetes manifests from one Developer-authored `Aggregate`.
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, each server mapped to the realization of how it runs, and built for Kubernetes.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
 - [mariadb-adminer](mariadb-adminer/README.md) (`authoring`) — This example compiles a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — from a single Developer-authored `Aggregate` to **two platforms**.
 - [mariadb-bitnami-credential-set](mariadb-bitnami-credential-set/README.md) (`authoring`) — A single MariaDB database realized by the **Bitnami Helm chart**, whose passwords are supplied by **one multi-key referenceable secret** (`core/referenced-secret-set`).
 - [mariadb-helm-synth](mariadb-helm-synth/README.md) (`start`) — A single MariaDB database rendered on Kubernetes by the helm provider's Workload synthesis — no external chart.
@@ -674,7 +674,7 @@ components or modules placed in boundaries, and what crosses between them.
 - [annotation-driven-monitoring](annotation-driven-monitoring/README.md) (`advanced`) — This example attaches a monitoring Feature to **six services across a nested topology** without writing a single per-component `features:` block.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — A two-component stack — an **Adminer** database UI and a **PostgreSQL** database — split across **two boundaries**, where Adminer must reach the database across the boundary seam.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
 - [module-boundary-routing](module-boundary-routing/README.md) (`advanced`) — This example compiles two capabilities — a **Thanos metrics read tier** over object storage and a **document database** speaking the MongoDB wire protocol — from one Developer-authored `Aggregate`, and places each into a boundary of its own from the Release.
 
 ### `policy`
@@ -767,13 +767,13 @@ a Recipe that fetches what it renders: an upstream chart, a git repository or a 
 
 a project written in another format, drafted into Aggrega files by `aggrega import`, then reviewed and built.
 
-- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, drafted into Aggrega files by `aggrega import` as the standard library's Dify installation carrying it, reviewed, and built for Kubernetes.
-- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
-- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, reviewed, and built for Kubernetes.
-- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — drafted into Aggrega files by `aggrega import`, reviewed, and built for Docker Compose.
+- [import-agent-framework](import-agent-framework/README.md) (`start`) — A declarative agent of Microsoft Agent Framework — one agent on an OpenAI model, searching documentation through an MCP server — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-compose](import-compose/README.md) (`start`) — A Compose file running an API, the PostgreSQL database it keeps its notes in and a Redis cache, drafted into Aggrega files by `aggrega import` — the connections, the database's settings, the password as a variable reference and each image's tag carried over — and built for Docker Compose.
+- [import-crewai](import-crewai/README.md) (`start`) — The agent and task declarations of a CrewAI project in the classic layout — two agents on one OpenAI model, one task each — drafted into Aggrega files by `aggrega import`, with the image the crew's program runs in answered once in an answers file, and built for Docker Compose.
+- [import-dify](import-dify/README.md) (`start`) — A Dify chat application, exported in Dify's DSL, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build the standard library's Dify installation, carrying it, for Kubernetes as written.
+- [import-flowise](import-flowise/README.md) (`start`) — A Flowise chatflow — a ChatOpenAI node, a Buffer Memory and a Conversation Chain — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-google-adk](import-google-adk/README.md) (`start`) — The Agent Config of an application built on Google's Agent Development Kit — one agent on Gemini, with the Google Search tool ADK ships — drafted into Aggrega files by `aggrega import`, with the application's image answered once in an answers file, and built for Docker Compose.
+- [import-langflow](import-langflow/README.md) (`start`) — Langflow's Basic Prompting starter project, exported as JSON, imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.
+- [import-langgraph](import-langgraph/README.md) (`start`) — The `langgraph.json` of a LangGraph application — one graph, keeping its state in PostgreSQL — drafted into Aggrega files by `aggrega import`, with the model the graph calls and the application's image answered once in an answers file, and built for Docker Compose.
+- [import-mcp](import-mcp/README.md) (`start`) — A Claude Code `.mcp.json` listing three Model Context Protocol servers — two started from a command line and one someone else runs — drafted into Aggrega files by `aggrega import`, each server mapped to the realization of how it runs, and built for Kubernetes.
+- [import-n8n](import-n8n/README.md) (`start`) — An n8n workflow — a chat trigger, an AI Agent, an OpenAI Chat Model and a Simple Memory — imported by `aggrega import` into an Aggregate, a Release and a Manifest that build for Docker Compose as written.

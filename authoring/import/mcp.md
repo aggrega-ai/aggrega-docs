@@ -2,13 +2,15 @@
 
 This walkthrough imports the Model Context Protocol servers a coding assistant
 is configured with — two it starts from a command line and one someone else
-runs — reviews what the import drafts, and builds the servers for Kubernetes,
-so an agent running in a cluster can reach the same tools. Every file and every
-block of output below comes from a real run; the configuration and each stage
-of the walkthrough are in the
-[import-mcp](../../language-reference/examples/import-mcp/README.md) example,
-where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+runs — and builds the servers for Kubernetes, so an agent running in a cluster
+can reach the same tools. The import drafts every file the build reads: each
+server's command line or address, the realization that runs it, and where the
+GitHub server's token comes from. Every file and every block of output below
+comes from a real run; the configuration and each stage of the walkthrough are
+in the [import-mcp](../../language-reference/examples/import-mcp/README.md)
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -77,7 +79,47 @@ catalog, fetched, verified and kept in the workspace's content cache by the
 first import, and named by its digest in the record the import writes beside
 its drafts. A workspace that names its own catalog folders — in
 `AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — imports against
-those instead. Change into `source`:
+those instead.
+
+### The answers file
+
+On Kubernetes, the GitHub server reads its token from a Secret the cluster
+holds, and no MCP configuration names that Secret: the configuration reads the
+token from your shell's `GITHUB_TOKEN`. So the import asks for the Secret's
+name. The example keeps the answer in `import-answers.yaml`, beside
+`.mcp.json`, where the import looks for it:
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.github.features.server_env.infra.origin: "github-mcp-token"
+```
+
+The import wrote the file itself, the first time it was run with no answer:
+with no terminal to ask at, it drafted everything else, left the Secret's name
+empty, listed the key in the file, and stopped with
+
+```text
+1 value the drafts leave empty is still owed, listed in the answers file <workspace>/import-answers.yaml: write it beside its key there, then run the import again
+```
+
+At a terminal it asks the question instead, and writes the answer into the file
+for the next import. The answer is the Secret's name, `github-mcp-token`, never
+the token. [The import answers file](../../language-reference/import-answers.md)
+describes the file and the questions in full.
+
+[`aggrega import`](../../language-reference/cli/aggrega-import.md) lists
+every flag the command takes, `--answers`, which names an answers file kept
+elsewhere, among them.
+
+Change into `source`:
 
 ```bash
 cd source
@@ -113,24 +155,24 @@ warn: the value of infra.stdio_command.0 of node fetch is carried as written in 
 warn: the value of infra.stdio_command.1 of node fetch is carried as written in the Release the draft writes: the field belongs to an MCP server's configuration, which can carry a key, and setting empty_credentials to marked or all writes it empty
 warn: the value of headers.Authorization of node docs-search is carried as written in the Release the draft writes: the field belongs to an MCP server's configuration, which can carry a key, and setting empty_credentials to marked or all writes it empty
 warn: the value of infra.endpoint of node docs-search is carried as written in the Release the draft writes: the field belongs to an MCP server's configuration, which can carry a key, and setting empty_credentials to marked or all writes it empty
-warn: the drafted Manifest leaves the component type "core/ai-tool/mcp" unmapped: the workspace's catalog holds more than one Recipe binding to the target "helm" that implements it ("helm/mcp-remote", "helm/mcp-stdio-bridge", "helm/mcp"), and the import does not choose between them, so a build of the drafts halts naming each instance of it until the one wanted is mapped
+Pull complete: <workspace>/release.lock (entities=7, source_artifacts=0, external_inputs=0)
 ```
 
 Every server is an instance of the standard library's MCP tool,
 `core/ai-tool/mcp`, so the import weighs no candidate and prints no `mapped`
-line. Two kinds of warning remain:
+line.
 
-- **The values a server's configuration holds.** No MCP client marks any of
-  them as a credential, and any of them can carry one — a key in a command-line
-  argument, a token in an address — so the import names each item of a command
-  line, each header and each address it carried, by its server and its place,
-  never by its value. Read them before you share the draft. The `env` value
-  `${GITHUB_TOKEN}` is a variable reference and nothing else, so it holds no
-  value of its own and no warning names it.
-- **The Manifest.** Three Kubernetes Recipes realize `core/ai-tool/mcp` — one
-  for a server published as an image, one for a package run behind a bridge,
-  one for a server someone else runs — and which one fits is a property of each
-  server, so the import leaves the choice to you.
+- **The `warn` lines** name the values a server's configuration holds. No MCP
+  client marks any of them as a credential, and any of them can carry one — a
+  key in a command-line argument, a token in an address — so the import names
+  each item of a command line, each header and each address it carried, by its
+  server and its place, never by its value. Read them before you share the
+  draft. The `env` value `${GITHUB_TOKEN}` is a variable reference and nothing
+  else, so it holds no value of its own and no warning names it.
+- **The `Pull complete` line** is the import fetching what the drafted Release
+  depends on, as [`aggrega pull`](../../language-reference/cli/aggrega-pull.md)
+  does, into `release.lock`, so the drafts validate and build at once. Under
+  `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
 ## What it wrote
 
@@ -161,7 +203,7 @@ spec:
 ```
 
 `release.yaml` — how each server is run or reached, as the configuration states
-it:
+it, and the Secret the GitHub server's token is read from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -169,118 +211,7 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/mcp
-  # environment: left for the operator, since no source names the environment this Release deploys to.
-  version: 0.1.0
-  description: Draft Release imported from a source in the mcp format.
-spec:
-  aggregate: imported/mcp
-  manifest: imported/mcp
-  components:
-    # Left for the Release, since the draft does not write it:
-    #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
-    github:
-      infra:
-        stdio_command:
-          - "npx"
-          - "-y"
-          - "@modelcontextprotocol/server-github"
-        stdio_runtime: npm
-      features:
-        server_env:
-          type: core/referenced-secret-set
-          infra:
-            entries:
-              - key: "GITHUB_PERSONAL_ACCESS_TOKEN"
-    fetch:
-      infra:
-        stdio_command:
-          - "uvx"
-          - "mcp-server-fetch"
-        stdio_runtime: pypi
-    # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
-    #   - Authorization: "Bearer ${DOCS_API_KEY}"
-    docs-search:
-      infra:
-        endpoint: "https://mcp.example.com/docs/mcp"
-```
-
-`stdio_runtime` is read off each command: `npx` runs an npm package, `uvx` a
-PyPI one. The GitHub server's environment becomes its `server_env` slot, with
-the variable's name and no value.
-
-`manifest.yaml` — with the one type left unmapped, nothing to map:
-
-<!-- quotes: draft/manifest.yaml -->
-```yaml
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/mcp
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type: {}
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-Validate the draft as it stands:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
-```
-
-With the environment set, the next refusal is the token the draft left without
-a value:
-
-```text
-  [OPS_ERROR E0168] .spec.components.github.features.server_env.infra.entries[0].value
-    authored pillar does not conform to its declared schema (Release imported/mcp, at .spec.components.github.features.server_env.infra.entries[0].value, infra pillar does not conform to the Feature schema: missing required property: value (required))
-  notice: LINT: Feature "core/referenced-secret-set" at core/referenced-secret-set:1.0.0 declares property "entries" in both values: and infra: pillars (path: entries)
-release dependency validation failed: 1 diagnostic(s)
-```
-
-The review changes:
-
-- **The environment.** The Release names it: `development`.
-- **Where the GitHub token comes from.** `core/referenced-secret-set` writes the
-  values it is given into a Secret the build renders, which puts the token in a
-  file. The review attaches `core/referenced-secret` to `server_env` instead,
-  naming `github-mcp-token`, a Secret the cluster already holds with the data
-  key `GITHUB_PERSONAL_ACCESS_TOKEN`. The bridge imports every data key of that
-  Secret as a variable of the same name, so the server reads its token as it
-  did on your machine, and no rendered file carries it.
-- **Which Recipe realizes each server.** The Manifest maps each instance by its
-  name: `github` and `fetch`, started from a command line, run behind the stdio
-  bridge, `helm/mcp-stdio-bridge`; `docs-search`, which someone else runs, maps
-  to `helm/mcp-remote`, which runs nothing and publishes the address. The token's
-  Secret maps to `helm/k8s-existing-secret`, which references a Secret rather
-  than writing one.
-- **The `Authorization` header stays a comment.** A remote server's credential
-  is held by whoever calls it, on that caller's own connection to the tool, and
-  this workspace has no caller yet. When you wire an agent to `docs-search`,
-  the header goes on that connection.
-
-The review leaves `aggregate.yaml` as the import wrote it. The reviewed
-`release.yaml`:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/mcp
-  # Reviewed: the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
   environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
@@ -295,22 +226,18 @@ spec:
           - "-y"
           - "@modelcontextprotocol/server-github"
         stdio_runtime: npm
-      # Reviewed: the token is read from a Secret the cluster already holds,
-      # github-mcp-token, whose data key GITHUB_PERSONAL_ACCESS_TOKEN becomes
-      # the server's variable of that name, so no rendered file carries it.
       features:
         server_env:
           type: core/referenced-secret
           infra:
-            origin: github-mcp-token
+            # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding the environment github is started with, one data key per variable, each named as the variable it holds: GITHUB_PERSONAL_ACCESS_TOKEN.
+            origin: "github-mcp-token"
     fetch:
       infra:
         stdio_command:
           - "uvx"
           - "mcp-server-fetch"
         stdio_runtime: pypi
-    # Reviewed: the header stays with whoever calls this server. An agent wired
-    # to docs-search presents it on its own connection to the tool.
     # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
     #   - Authorization: "Bearer ${DOCS_API_KEY}"
     docs-search:
@@ -318,11 +245,29 @@ spec:
         endpoint: "https://mcp.example.com/docs/mcp"
 ```
 
-The reviewed `manifest.yaml`:
+- **The environment**, `development`, is a default the import writes because
+  no configuration names one; change it where the Release deploys elsewhere.
+- **`stdio_runtime`** is read off each command: `npx` runs an npm package,
+  `uvx` a PyPI one.
+- **The GitHub token.** The server's environment becomes its `server_env` slot.
+  On Kubernetes, `core/referenced-secret-set`'s realization,
+  `helm/k8s-secret-set`, writes the values it is given into a Secret the build
+  renders, which would put the token in a file. So for `--target helm` the
+  import attaches `core/referenced-secret` instead, naming a Secret the cluster
+  already holds — the answer, `github-mcp-token` — with one data key per
+  variable, `GITHUB_PERSONAL_ACCESS_TOKEN`. The bridge imports every data key of
+  that Secret as a variable of the same name, so the server reads its token as
+  it did on your machine, and no rendered file carries it.
+- **The `Authorization` header stays a comment.** A remote server's credential
+  is held by whoever calls it, on that caller's own connection to the tool, and
+  this workspace has no caller yet. When you wire an agent to `docs-search`,
+  the header goes on that connection.
 
-<!-- quotes: reviewed/manifest.yaml -->
+`manifest.yaml` — one realization per server, by its name, and the Secret's
+realization:
+
+<!-- quotes: draft/manifest.yaml -->
 ```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
 apiVersion: aggrega.ai/v1beta1
 kind: Manifest
 metadata:
@@ -332,24 +277,46 @@ spec:
   mappings:
     components:
       type: {}
-      # Reviewed: one realization per server, by its name. The two started from
-      # a command line run behind the stdio bridge; the one someone else runs
-      # is published at its address, and nothing runs for it.
       name:
         github: helm/mcp-stdio-bridge
         fetch: helm/mcp-stdio-bridge
         docs-search: helm/mcp-remote
-    # Reviewed: the token's Secret is one the cluster already holds.
     features:
       type:
         core/referenced-secret: helm/k8s-existing-secret
 ```
 
+Three Kubernetes Recipes realize `core/ai-tool/mcp` — one for a server
+published as an image, one for a package run behind a bridge, one for a server
+someone else runs — and which one fits is a property of each server, which the
+configuration states. So the import maps each instance by its name: `github`
+and `fetch`, started from a command line, run behind the stdio bridge,
+`helm/mcp-stdio-bridge`; `docs-search`, which someone else runs, maps to
+`helm/mcp-remote`, which runs nothing and publishes the address. The token's
+Secret maps to `helm/k8s-existing-secret`, which references a Secret rather
+than writing one.
+
+`release.lock` records the catalog entities the Release resolved to, by
+digest, and `.aggrega-import.json` is the record of what the import wrote,
+which a later `aggrega import --sync` reads.
+
+### On Docker Compose
+
+The servers run on Docker Compose too. `aggrega import .mcp.json --target compose`
+maps `github` and `fetch` to `compose/mcp-stdio-bridge` and `docs-search` to
+`compose/mcp-remote`, and keeps the GitHub server's environment as the
+configuration writes it: a `core/referenced-secret-set` entry whose value is
+the variable reference `${GITHUB_TOKEN}`, realized by
+`compose/dotenv-secret-set`, which writes it into the service's environment as
+written, so Docker Compose fills it from your shell when the stack starts. That
+import asks for nothing, and keeps the Secret's name in the answers file
+without using it.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -359,11 +326,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-Pull complete: release.lock (entities=7, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 5 files written to <workspace>/dist

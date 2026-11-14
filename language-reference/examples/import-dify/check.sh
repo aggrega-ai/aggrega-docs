@@ -4,7 +4,8 @@
 #
 # Runs this example's import again, as its walkthrough page shows it, compares
 # what it writes and prints with draft/, compares the blocks the page quotes
-# with this example's files, and builds reviewed/, through the shared
+# with this example's files, and validates and builds what the import wrote,
+# through the shared
 # aggrega-docs/scripts/check-import-example.sh, whose header says what each
 # step checks, which binary and catalogs it reads, and what --update does.
 #

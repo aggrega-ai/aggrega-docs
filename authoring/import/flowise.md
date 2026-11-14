@@ -1,13 +1,15 @@
 # Import a Flowise chatflow
 
 This walkthrough imports a chatflow exported from Flowise — a conversation
-chain with a chat model and a memory — reviews what the import drafts, and
-builds Flowise carrying the chatflow for Docker Compose. Every file and every
-block of output below comes from a real run; the chatflow and each stage of the
+chain with a chat model and a memory — into an Aggregate, a Release and a
+Manifest that build Flowise carrying the chatflow for Docker Compose as they
+are written, then builds them and runs the result. Every file and every block
+of output below comes from a real run; the chatflow and each stage of the
 walkthrough are in the
 [import-flowise](../../language-reference/examples/import-flowise/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -47,6 +49,45 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
+and `import-answers.yaml` holds the answers to what no chatflow can hold.
+Flowise loads no chatflow from a file at start, so the build seeds it through
+Flowise's own API under an owner account, and no export names that account:
+its email is the one answer an import for Docker Compose needs. An import for
+Kubernetes also needs the name of the Kubernetes Secret holding each secret —
+the owner's password and the OpenAI key — so the file names those two Secrets
+as well (see [On Kubernetes](#on-kubernetes)):
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Email address of the platform's owner account, read only when values.flow_definition is set. The
+  # step that seeds the chatflow registers this account when the instance has no owner yet, which makes
+  # it the owner, and signs in as it; on an instance that already has one, it names an account allowed
+  # to import chatflows, and the password attached to the owner_password slot is that account's.
+  # Required when values.flow_definition is set: the build halts when it is empty. It has no default.
+  spec.components.flowise.infra.owner_email: "owner@example.com"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.flowise.features.owner_password.infra.origin: "flowise-owner"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.flowise.uses.model.chatopenai-0.features.credential.infra.origin: "openai-api-key"
+```
+
+`owner@example.com` stands for an email of your own. Without the file, an
+import at a terminal asks for each value, one question at a time, worded from
+the description above its key, and writes your answers into a new answers
+file; where nothing can be asked, it writes that file with the keys and empty
+answers, lists them, and exits with status 1.
+[The import answers file](../../language-reference/import-answers.md)
+describes the file in full.
+
 The import weighs each node against the Components of the workspace's catalog,
 and `--target` drafts a Manifest from its Recipes. The workspace names no
 catalog folder, so the import reads the standard-library catalog from the
@@ -72,8 +113,8 @@ On standard output it lists what it wrote:
 
 <!-- quotes: draft/stdout.txt -->
 ```text
-wrote components/imported-ai-model-chatopenai.yaml
 wrote aggregate.yaml
+wrote release.yaml
 wrote manifest.yaml
 wrote .aggrega-import.json
 ```
@@ -85,37 +126,43 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the flowise format, with drafted paths relative to <workspace>
 warn: node chatOpenAI_0 reaches chatopenai-0 through the model connection chatopenai-0 of core/ai-agent/flowise: its Base Path is empty, so the OpenAI client Flowise runs it on reads the address the platform delivers for this connection, OPENAI_BASE_URL, and, since it selects no credential, the key delivered as OPENAI_API_KEY
-warn: the drafted Manifest leaves the component type "imported/ai-model/chatopenai" unmapped: no Recipe in the workspace's catalog binds to the target "compose" and implements it, so a build of the drafts halts naming each instance of it until a mapping is added
-info: the importer drafted no Release, so nothing references the drafted Manifest "manifest.yaml"; name it as a Release's spec.manifest to build against it
-mapped chatOpenAI_0 (chatOpenAI) to imported/ai-model/chatopenai as a draft, HIGH at 0.9
+info: the answers file <workspace>/import-answers.yaml also answers spec.components.flowise.features.owner_password.infra.origin in release.yaml, spec.components.flowise.uses.model.chatopenai-0.features.credential.infra.origin in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
+mapped chatOpenAI_0 (chatOpenAI) to core/ai-model/openai as a reference, HIGH at 0.9
 made no choice for bufferMemory_0 (bufferMemory)
 made no choice for conversationChain_0 (conversationChain)
+  warning: node "flowise" (provider "compose"): artifact "flowise-flow/flowise-flow.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
+Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 ```
 
-- **The `mapped` line** says the ChatOpenAI node became a part of the flow, a
-  Component of its own wired to the platform's `model` socket. It matched the
-  standard library's `core/ai-model/openai` in the high tier, at 0.9, and was
-  drafted all the same, because by default an import suggests and you choose.
-- **The first `warn` line** says how the chatflow reaches that part: the node
-  reads the address and the key the platform delivers for the model connection,
-  so the key you attach to the connection is the one the chatflow uses.
+- **The `mapped` line** says the ChatOpenAI node became the standard library's
+  OpenAI model, `core/ai-model/openai`, referenced rather than drafted, since it
+  matched in the high tier, at 0.9: a component of its own, wired to the
+  platform's `model` socket.
+- **The `warn` line** says how the chatflow reaches that model: the node reads
+  the address and the key the platform delivers for the model connection, so
+  the key the Release attaches to the connection is the one the chatflow uses.
+- **The `info` line** is about the answers file. It answered the owner's email,
+  which the drafts left empty; its two Secret names answer what only an import
+  for Kubernetes leaves empty, so they stay in the file, unused here.
 - **The `made no choice` lines** say that the memory and the chain stay inside
   the chatflow: no socket of the platform takes them.
-- **The second `warn` line and the `info` line** are about the Manifest and the
-  Release: no Recipe realizes the Component the import has just drafted, and
-  the Flowise import drafts no Release, so you write it.
+- **The last two lines** are the pull. With every value answered, the import
+  pulled the drafted Release's dependencies, as `aggrega pull` does, and wrote
+  `release.lock`; the build below needs nothing more. The `warning` line is one
+  the build prints too, and [Validate and build](#validate-and-build) explains
+  it.
 
 ## What it wrote
 
-The Aggregate and the Manifest are named `imported/support-chat`, after the
-file, `support-chat.json`, since a Flowise export carries no name of its own,
-under the namespace the importer's `target_namespace` setting sets, `imported`
-unless you set another
+The Aggregate, the Release and the Manifest are named `imported/support-chat`,
+after the file, `support-chat.json`, since a Flowise export carries no name of
+its own, under the namespace the importer's `target_namespace` setting sets,
+`imported` unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — one instance of the standard library's Flowise platform,
 `core/ai-agent/flowise`, carrying the chatflow as it was exported, most of it
-left out here, and the drafted model wired to its `model` socket:
+left out here, and the model wired to its `model` socket:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -127,19 +174,14 @@ metadata:
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running Flowise
-    #   - infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
-    #   - the owner_password slot, that account's password, required while values.flow_definition is set
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     flowise:
       type: core/ai-agent/flowise
-      # For the compose target only, uncomment the lines below, which declare owner_password on flowise: the compose Recipe reads every secret the Release alone attaches under the key value, so the owner's password and a connection's credential would both arrive under it and halt the build; the Release still attaches owner_password, naming this type or none.
-      # features:
-      #   owner_password:
-      #     type: core/secret-value
-      #     values:
-      #       key: OWNER_PASSWORD
+      features:
+        # For the compose target, the lines below declare owner_password on flowise: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        owner_password:
+          type: core/secret-value
+          values:
+            key: OWNER_PASSWORD
       values:
         # chatflow_id is derived from the exported flow, which gives no identifier of its own.
         chatflow_id: '40d9f5c5-5187-54c1-a9f5-a8dac92f88bb'
@@ -156,19 +198,30 @@ spec:
         model:
           chatopenai-0:
             target: chatopenai-0
-    # resembles core/ai-model/openai (score 0.9000); reference it by setting type: core/ai-model/openai
+            # For the compose target, the lines below declare credential on chatopenai-0: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # swap to core/ai-model/azure-openai (score 0.4000) by setting type: core/ai-model/azure-openai
     chatopenai-0:
-      type: imported/ai-model/chatopenai
+      type: core/ai-model/openai
+      values:
+        model: |-
+          gpt-4o-mini
 ```
 
-Three things in it are worth reading before the review:
-
-- **The comments above the platform** name what the chatflow cannot supply:
-  the image, the owner account the chatflow is seeded under, its password, and
-  the credential the model connection presents.
-- **The commented-out `features` lines** are for a build for Docker Compose,
-  which this walkthrough is. The review uncomments them, and the next section
-  shows what happens when they stay commented.
+- **The model** is `core/ai-model/openai`, with the model the node selects,
+  `gpt-4o-mini`. The comment above it names another Component of the catalog
+  the node resembles, with its score.
+- **The two secrets** — the password of the owner account the chatflow is
+  seeded under, and the OpenAI key the platform presents to the model — are
+  declared here with the variable each arrives under in Flowise's environment,
+  `OWNER_PASSWORD` and `OPENAI_API_KEY`. On Docker Compose a secret the Release
+  alone attached would arrive under the key `value`, and the two would collide;
+  declared here, each has a key of its own. The Release says where each comes
+  from.
 - **`chatflow_id`** is derived from the chatflow, since an export from Flowise's
   editor carries no identifier of its own, so one chatflow always yields one
   identifier. A Flowise chatflow writes `{{<node id>.data.instance}}` for every
@@ -176,7 +229,59 @@ Three things in it are worth reading before the review:
   so the draft writes each `{{` as `{{"{{"}}`, which the build turns back into
   the two braces.
 
-`manifest.yaml` — the platform's one Compose Recipe:
+`release.yaml` — the Release, which deploys the Aggregate with the Manifest:
+
+<!-- quotes: draft/release.yaml -->
+```yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-chat
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the flowise format.
+spec:
+  aggregate: imported/support-chat
+  manifest: imported/support-chat
+  components:
+    flowise:
+      infra:
+        # The image running core/ai-agent/flowise, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
+        image: "flowiseai/flowise:3.1.3"
+        # Left for the Release, since the source cannot supply it: infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
+        owner_email: "owner@example.com"
+      features:
+        owner_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the owner account's password, required while values.flow_definition is set, read from the variable FLOWISE_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${FLOWISE_OWNER_PASSWORD}"
+      uses:
+        model:
+          chatopenai-0:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential flowise presents to chatopenai-0 on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    chatopenai-0: {}
+```
+
+- **`environment`** is `development`, a default the comment above it says to
+  change to the environment the Release deploys to.
+- **The image** is Flowise 3.1.3, the version the catalog's Recipes for Flowise
+  run.
+- **`owner_email`** is the answer from the answers file. The comment above it
+  says why the import could not draft it.
+- **The two secrets** are variable references, `${FLOWISE_OWNER_PASSWORD}` and
+  `${OPENAI_API_KEY}`, which Docker Compose fills from your shell when the stack
+  starts, so no file carries either value.
+
+`manifest.yaml` — the Compose Recipes of the platform and the model, and the
+realization that writes a secret's variable reference into the Compose file as
+written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -190,212 +295,21 @@ spec:
     components:
       type:
         core/ai-agent/flowise: compose/flowise
-```
-
-`components/imported-ai-model-chatopenai.yaml` — the drafted model: a value
-field for each of the node's inputs but the one another node connects into,
-and a credential slot for its Connect Credential:
-
-<!-- quotes: draft/components/imported-ai-model-chatopenai.yaml -->
-```yaml
-# resembles core/ai-model/openai (score 0.9000); reference it by setting type: core/ai-model/openai
-apiVersion: aggrega.ai/v1beta1
-kind: Component
-metadata:
-  name: imported/ai-model/chatopenai
-  version: 0.1.0
-  labels:
-    component.aggrega.ai/type: resource
-    component.aggrega.ai/category: ai-model
-spec:
-  featuresSchema:
-    credential:
-      required: true
-      inject: []
-      description: Credential slot inferred from the source node; the recipe controls delivery.
-  schema:
-    values:
-      type: object
-      properties:
-        baseOptions: { type: string }
-        basepath: { type: string }
-        modelName: { type: string }
-        temperature: { type: string }
-      additionalProperties: false
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-The review starts by writing the Release the import did not, with an
-environment and the image, and validating:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[E0114]
-  resolve: no entity in the catalog matches this URI: entity "imported/ai-model/chatopenai" (referenced from aggregate.spec.components.chatopenai-0.type)
-  note: local entities are read from `catalog/` at the workspace root and from every directory .aggrega-config.yaml lists under `workspace.catalog_dirs`. The workspace root itself holds 3 documents declaring an entity kind, and the root is read only while it is listed there. Put the entity under `catalog/`, or list the directory holding it under `workspace.catalog_dirs`.
-```
-
-The drafted Component sits in `components/`, which the workspace's catalog
-does not read, and no Recipe realizes it. The comment above it says what to do
-instead, and the review changes:
-
-- **Reference the standard library's model.** `chatopenai-0` becomes
-  `core/ai-model/openai`, naming the model the node selects, `gpt-4o-mini`, and
-  `components/` is deleted. The Release places the model beside the platform,
-  `chatopenai-0: {}`; without that entry, validation refuses the model as
-  placed in no boundary.
-- **Name the owner account.** Flowise loads no chatflow from a file at start,
-  so the build seeds it through Flowise's own API under an owner account the
-  Release names: `infra.owner_email`, and a password attached to
-  `owner_password`, read from `${FLOWISE_OWNER_PASSWORD}`, which Docker Compose
-  fills from your shell. Without an email, validation stops with an assertion
-  of the platform that says so: "the Flowise platform "flowise" is given
-  values.flow_definition to seed but no infra.owner_email".
-- **Present the OpenAI key on the model connection.** The Release attaches it
-  to the connection as a `core/secret-value` reading `${OPENAI_API_KEY}`.
-- **Uncomment the `owner_password` lines.** With both secrets attached by the
-  Release alone and the lines left commented, the build halts as the comment
-  warns:
-
-  ```text
-  [OPS_ERROR E0318] release.yaml at .spec.components.flowise.uses.model.chatopenai-0.features.credential
-    duplicate delivery key across two attachments: an attachment's FeatureRecipe writes a delivery key another attachment already delivered ("value", mechanism "env", attachment "chatopenai-0.credential", delivered first by attachment "owner_password"). Give one of the two attachments a key of its own, or attach one fewer: the key this attachment delivers under is chosen by its FeatureRecipe, which can read the attachment's own values and infra, and the other's is chosen the same way or by its own inject block where it delivered through one. A Release sets an attachment's infra and never its values, so where a key is chosen by a value, attach that attachment in the Aggregate with the value, and keep giving the rest from the Release.
-  ```
-
-  Uncommented, the Aggregate declares the password under a key of its own,
-  `OWNER_PASSWORD`, and the Release still attaches it.
-- **Map the Manifest.** The model maps to its Compose Recipe, and the two
-  secrets to the realization that writes their variable reference into the
-  Compose file as written.
-
-The reviewed `aggregate.yaml`, the chatflow left out here as above:
-
-<!-- quotes: reviewed/aggregate.yaml -->
-```yaml
-# The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: imported/support-chat
-  version: 0.1.0
-  description: Draft Aggregate imported from a source in the flowise format.
-spec:
-  components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running Flowise
-    #   - infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
-    #   - the owner_password slot, that account's password, required while values.flow_definition is set
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
-    flowise:
-      type: core/ai-agent/flowise
-      # Reviewed: the lines the draft showed commented out for the compose
-      # target, uncommented: the owner's password arrives under a key of its
-      # own, OWNER_PASSWORD, apart from the model connection's key.
-      features:
-        owner_password:
-          type: core/secret-value
-          values:
-            key: OWNER_PASSWORD
-      values:
-        # chatflow_id is derived from the exported flow, which gives no identifier of its own.
-        chatflow_id: '40d9f5c5-5187-54c1-a9f5-a8dac92f88bb'
-        flow_definition: |
-          {
-          [… omitted: the chatflow, as exported]
-          }
-      uses:
-        model:
-          chatopenai-0:
-            target: chatopenai-0
-    # Reviewed: the standard library's OpenAI model, as the hint suggested, in
-    # place of the drafted Component, naming the model the chatflow's
-    # ChatOpenAI node selects.
-    chatopenai-0:
-      type: core/ai-model/openai
-      values:
-        model: gpt-4o-mini
-```
-
-The Release:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The Release the review wrote: the Flowise import drafts none.
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support-chat
-  environment: development
-  version: 0.1.0
-spec:
-  aggregate: imported/support-chat
-  manifest: imported/support-chat
-  components:
-    flowise:
-      infra:
-        # The image running Flowise.
-        image: flowiseai/flowise:3.1.3
-        # The owner account the chatflow is seeded under.
-        owner_email: owner@example.com
-      # That account's password, read from your shell when the stack starts, so
-      # no file carries it.
-      features:
-        owner_password:
-          type: core/secret-value
-          infra:
-            origin: "${FLOWISE_OWNER_PASSWORD}"
-      # The OpenAI key the platform presents to the model, read from your shell
-      # the same way.
-      uses:
-        model:
-          chatopenai-0:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${OPENAI_API_KEY}"
-    chatopenai-0: {}
-```
-
-The image is Flowise 3.1.3, the version the standard library's Compose Recipe
-for Flowise is written against.
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support-chat
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/ai-agent/flowise: compose/flowise
-        # Reviewed: the Compose Recipe of the model the review referenced.
         core/ai-model/openai: compose/openai
-    # Reviewed: the realization that writes a secret's variable reference into
-    # the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`.aggrega-import.json` is the record of what the import wrote, which a later
+`aggrega import --sync` reads, and `release.lock` pins every catalog entity the
+Release resolves to, by version and digest.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -405,12 +319,10 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder holding the drafts:
 
 ```text
   warning: node "flowise" (provider "compose"): artifact "flowise-flow/flowise-flow.yaml": skipped provenance label injection — the fragment declares no compose service. Compose carries build provenance as service labels, so a fragment contributing only top-level networks, volumes or configs carries none; the services this component emits elsewhere carry the full set.
-Pull complete: release.lock (entities=8, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -523,3 +435,23 @@ volume, and with it the owner account and the chatflow the seed wrote:
 ```bash
 docker compose -p support-chat -f dist/compose/docker-compose.yaml down -v
 ```
+
+## On Kubernetes
+
+The same chatflow imports for Kubernetes with the `helm` target:
+
+```bash
+aggrega import support-chat.json --target helm
+```
+
+The drafts differ where the target does. The Manifest maps the platform to
+`helm/flowise`, the model to `helm/openai`, and each secret to
+`helm/k8s-existing-secret`, which reads it from a Secret already in the
+namespace. The Release attaches the owner's password and the OpenAI key as
+`core/referenced-secret`, each naming its Secret, and takes all three answers
+from the answers file: the owner's email, `flowise-owner` and `openai-api-key`.
+
+The build writes plain Kubernetes manifests under `dist/helm/`, the chatflow's
+seed among them as a Job. Create the two Secrets in the namespace you apply to,
+each holding its value under the data key `value`, then apply the folder as the
+run step of [How an import runs](README.md#how-an-import-runs) explains.

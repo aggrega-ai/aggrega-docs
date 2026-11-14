@@ -1,13 +1,18 @@
 # Import a LangGraph application
 
 This walkthrough imports the configuration of a LangGraph application — one
-graph answering customers' questions about their orders — reviews what the
-import drafts, and builds the application for Docker Compose. Every file and every
-block of output below comes from a real run; the configuration and each stage
-of the walkthrough are in the
+graph answering customers' questions about their orders — and builds the
+application for Docker Compose. The import drafts every file the build reads:
+the graph, the PostgreSQL database its checkpointer keeps state in, the model
+it calls, the passwords and the key as variable references, and the
+realizations of each. It asks once for the two values no configuration holds:
+the model the graph's code calls, and the image the application runs in. Every
+file and every block of output below comes from a real run; the configuration
+and each stage of the walkthrough are in the
 [import-langgraph](../../language-reference/examples/import-langgraph/README.md)
-example, where a check script runs the import again and compares what it writes, what it
-prints and the blocks this page quotes with the files kept there.
+example, where a check script runs the import again, compares what it writes,
+what it prints and the blocks this page quotes with the files kept there, and
+validates and builds what the import wrote.
 
 ## Scaffold the example
 
@@ -61,15 +66,78 @@ workspace: {}
 default_registry: hub.aggrega.ai
 ```
 
-The import references the catalog's LangGraph agent and PostgreSQL Components,
-and `--target` drafts a Manifest from its Recipes. The workspace names no
-catalog folder, so the import reads the standard-library catalog from the
-registry it fetches its importer from: a signed snapshot of the published
-catalog, fetched, verified and kept in the workspace's content cache by the
-first import, and named by its digest in the record the import writes beside its
-drafts. A workspace that names its own catalog folders — in
+The import references the catalog's LangGraph agent, PostgreSQL and OpenAI
+model Components, and `--target` drafts a Manifest from its Recipes. The
+workspace names no catalog folder, so the import reads the standard-library
+catalog from the registry it fetches its importer from: a signed snapshot of
+the published catalog, fetched, verified and kept in the workspace's content
+cache by the first import, and named by its digest in the record the import
+writes beside its drafts. A workspace that names its own catalog folders — in
 `AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — imports against
-those instead. Change into `source`:
+those instead.
+
+### What the import asks for
+
+A LangGraph configuration names no model, since the graph's code chooses it,
+and no image, since you build that image from your project. So the import asks
+for both: the name of the model the graph calls, for the OpenAI model it
+drafts, and the image the application runs in. At a terminal it asks, and
+writes the answers into the drafts and into the answers file,
+`import-answers.yaml`, inside the directory it imports — here the project's
+root, `.` — so the next import reads them from there and asks nothing. With no
+terminal — in continuous integration, or through a pipe — it asks nothing: it
+writes the file with the keys empty, and stops:
+
+```text
+2 values the drafts leave empty are still owed, listed in the answers file <workspace>/import-answers.yaml: write each beside its key there, then run the import again
+```
+
+The example holds the file already, answered: the graph calls OpenAI's
+`gpt-4o-mini`, and `ghcr.io/example/support-agent:1.0.0` stands for the image
+you build:
+
+<!-- quotes: source/import-answers.yaml -->
+```yaml
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+aggregate.yaml:
+  # Left for the author, since the configuration names no model: values.model, the name of the model
+  # core/ai-model/openai serves.
+  spec.components.model.values.model: "gpt-4o-mini"
+release.yaml:
+  # Container image running the LangGraph application code. The Docker Compose Recipe runs the catalog's
+  # quickstart agent when it is unset.
+  spec.components.support.infra.image: "ghcr.io/example/support-agent:1.0.0"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.support.uses.checkpointer_db.postgres.features.credential.infra.origin: "support-db-password"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.support.uses.model.model.features.credential.infra.origin: "openai-api-key"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.postgres.features.password.infra.origin: "support-db-password"
+```
+
+The three `origin` answers are for a build for Kubernetes, with
+`--target helm`: there the database's password and the OpenAI key are read
+from Kubernetes Secrets, and each answer is a Secret's name — the database's
+password from `support-db-password`, on both ends, and the key from
+`openai-api-key` — never the password or the key. A build for Docker Compose
+reads them from your shell instead, so this import does not use those answers.
+[The import answers file](../../language-reference/import-answers.md)
+describes the file, the questions and the rules for a secret's answer.
+
+[`aggrega import`](../../language-reference/cli/aggrega-import.md) lists
+every flag the command takes, `--answers`, which names an answers file kept
+elsewhere, among them.
+
+Change into `source`:
 
 ```bash
 cd source
@@ -101,17 +169,31 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the langgraph format, with drafted paths relative to <workspace>
+info: the answers file <workspace>/import-answers.yaml also answers spec.components.postgres.features.password.infra.origin in release.yaml, spec.components.support.uses.checkpointer_db.postgres.features.credential.infra.origin in release.yaml, spec.components.support.uses.model.model.features.credential.infra.origin in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
 mapped support (graph) to core/ai-agent/langgraph as a reference, NONE
 mapped checkpointer (checkpointer) to core/datastore/postgres as a reference, NONE
+mapped model (model) to core/ai-model/openai as a reference, NONE
+Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, external_inputs=0)
 ```
 
+- **The `info` line** names the answers the Docker Compose drafts do not use,
+  kept in the answers file for a build for Kubernetes.
 - **The `mapped` lines** say that the graph is an instance of the standard
-  library's LangGraph agent, `core/ai-agent/langgraph`, and that its
-  checkpointer, where LangGraph keeps each graph's state, is an instance of
-  `core/datastore/postgres`. The configuration names no checkpointer, and
-  LangGraph then keeps state in PostgreSQL. Their tier reads `NONE`: the
+  library's LangGraph agent, `core/ai-agent/langgraph`; that its checkpointer,
+  where LangGraph keeps each graph's state, is an instance of
+  `core/datastore/postgres`, since the configuration names no checkpointer
+  and LangGraph then keeps state in PostgreSQL; and that the model every graph
+  calls is an instance of `core/ai-model/openai`. Their tier reads `NONE`: the
   LangGraph import references these Components by what the configuration
-  declares rather than by weighing each against the catalog.
+  declares rather than by weighing each against the catalog. A configuration
+  whose `checkpointer.backend` is `mongo` is drafted with
+  `core/datastore/ferretdb`, which speaks MongoDB's protocol, over
+  `core/datastore/documentdb`, the two wired as the catalog's FerretDB
+  Aggregate wires them, with one password for both.
+- **The `Pull complete` line** is the import fetching what the drafted Release
+  depends on, as [`aggrega pull`](../../language-reference/cli/aggrega-pull.md)
+  does, into `release.lock`, so the drafts validate and build at once. Under
+  `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
 ## What it wrote
 
@@ -123,7 +205,8 @@ the namespace the importer's `target_namespace` setting sets, `imported` unless
 you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
-`aggregate.yaml` — the graph and the database it keeps state in, opening with
+`aggregate.yaml` — the graph, the database it keeps state in and the model it
+calls, each connection declaring the credential it presents, opening with
 comments that say what was read and what was not:
 
 <!-- quotes: draft/aggregate.yaml -->
@@ -140,7 +223,6 @@ metadata:
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
   components:
-    # The model connection is left for the author, since the configuration names no model; the build halts naming the socket until one is wired.
     support:
       type: core/ai-agent/langgraph
       values:
@@ -150,19 +232,49 @@ spec:
         checkpointer_db:
           postgres:
             target: postgres
-    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
+            # For the compose target, the lines below declare credential on postgres: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: POSTGRES_PASSWORD
+        model:
+          model:
+            target: model
+            # For the compose target, the lines below declare credential on model: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # The database the configuration's checkpointer keeps each graph's state in, PostgreSQL.
     postgres:
       type: core/datastore/postgres
+      features:
+        # For the compose target, the lines below declare password on postgres: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
+    # The model every graph calls, which the configuration does not name.
+    model:
+      type: core/ai-model/openai
+      values:
+        # Left for the author, since the configuration names no model: values.model, the name of the model core/ai-model/openai serves.
+        model: "gpt-4o-mini"
 ```
 
-`graph_entrypoint` is the graph's import path as the configuration writes it,
-and its `checkpointer_db` connection is wired to the database. `recursion_limit`
-is not written, so the Component's default, 25, stands. The model is left to
-you: a LangGraph configuration names none, since the graph's code chooses it.
+`graph_entrypoint` is the graph's import path as the configuration writes it.
+Its `checkpointer_db` connection is wired to the database and its `model`
+connection to the model, whose name is the answer the import read from
+`import-answers.yaml`. `recursion_limit` is not written, so the Component's
+default, 25, stands. The database gets a password, so the PostgreSQL Recipe
+writes none of its own, and the graph presents the same password on its
+connection to the database.
 
-`release.yaml` — an entry for the graph, with comments above it saying what
-its image is and what it is handed, and what no configuration states, and an
-entry placing the database beside it:
+`release.yaml` — the environment, the image, and where the key and the
+passwords come from, with comments above the graph saying what its image is and
+what it is handed:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -170,7 +282,8 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the langgraph format.
 spec:
@@ -181,15 +294,45 @@ spec:
     # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
     # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
     # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application
     support:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application
+        image: "ghcr.io/example/support-agent:1.0.0"
+      uses:
+        checkpointer_db:
+          postgres:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support presents to postgres on its checkpointer_db connection, the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${POSTGRES_PASSWORD}"
+        model:
+          model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support presents to model on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     postgres:
-      infra: {}
+      features:
+        password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
+    model: {}
 ```
 
-`manifest.yaml` — the one Compose Recipe the catalog offers for each type:
+The environment, `development`, is a default the import writes because no
+configuration names one; change it where the Release deploys elsewhere. The
+image is the answer the import read from `import-answers.yaml`. The key and
+the password are variable references, `${OPENAI_API_KEY}` and
+`${POSTGRES_PASSWORD}`, never values.
+
+`manifest.yaml` — the Compose Recipe of each type, and the realization that
+writes each variable reference into the Compose file as written:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -204,202 +347,21 @@ spec:
       type:
         core/ai-agent/langgraph: compose/langgraph
         core/datastore/postgres: compose/postgres
-```
-
-`.aggrega-import.json` is the record of what the import wrote, which a later
-`aggrega import --sync` reads.
-
-## Review
-
-Validate the draft as it stands:
-
-```bash
-aggrega validate --release release.yaml
-```
-
-```text
-[OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 3:1: metadata.environment: missing required property: environment. correct the document to match its kind's schema
-```
-
-With the environment set, the next refusal is the model the comment above the
-graph asked for:
-
-```text
-  [CATALOG_ERROR E0163] .spec.components.support.uses.model
-    required uses socket not populated (Component, at .spec.components.support.uses.model, "model", declared required by component type "core/ai-agent/langgraph")
-release dependency validation failed: 1 diagnostic(s)
-```
-
-The review adds the model, and the credential the graph presents to the
-database, to the Aggregate, and changes the Release and the Manifest:
-
-- **Add the model and wire it.** The graph's code calls OpenAI's
-  `gpt-4o-mini` here, so the Aggregate gains an instance of
-  `core/ai-model/openai` serving it, and the graph's `model` connection to it.
-- **Set the environment**, `development`.
-- **Place the model the review added** beside the graph: `gpt-4o-mini`.
-- **Name the image the graph runs.** As the comment above the graph says, it
-  is the application's own image, not the server image `langgraph build`
-  builds: its code, with LangGraph installed, which you build from the
-  project. `ghcr.io/example/support-agent:1.0.0` here.
-- **Present the OpenAI key on the graph's model connection**: a
-  `core/secret-value` whose `origin` is the Compose variable reference
-  `${OPENAI_API_KEY}`.
-- **Give the database its password** the same way, from `${POSTGRES_PASSWORD}`.
-  Without it, the PostgreSQL Recipe writes a default password into the rendered
-  Compose file.
-- **Present the same password on the graph's checkpointer connection**, so
-  the graph's code can open the database. The Aggregate attaches it, a
-  `core/secret-value` naming the key its value arrives under,
-  `checkpointer_password`, and the Release gives its origin,
-  `${POSTGRES_PASSWORD}` again. A secret the Release alone attaches arrives
-  under the key `value`, so two of them on one component collide, and the
-  build refuses the second, saying to attach one of them in the Aggregate with
-  the value that chooses its key — the shape written here.
-- **Map the Manifest.** `core/ai-model/openai`, the model the review added, maps
-  to `compose/openai`, and `core/secret-value` to `compose/dotenv-secret`,
-  which writes each reference into the Compose file as written, so Docker
-  Compose fills it from your shell when the stack starts and neither the key
-  nor the password is written into a file.
-
-The reviewed `aggregate.yaml`:
-
-<!-- quotes: reviewed/aggregate.yaml -->
-```yaml
-# The draft aggregate.yaml after review. Each change is marked "Reviewed:".
-# LangGraph configurations read:
-#   - langgraph.json
-# Not read: the application's code, which defines each graph; it runs in the image the Release names for each graph.
-# Not carried, since they configure the server image langgraph build builds, and the image the Release names is the application's own: dependencies, python_version.
-apiVersion: aggrega.ai/v1beta1
-kind: Aggregate
-metadata:
-  name: imported/support
-  version: 0.1.0
-  description: Draft Aggregate imported from a source in the langgraph format.
-spec:
-  components:
-    support:
-      type: core/ai-agent/langgraph
-      values:
-        graph_entrypoint: "./src/support_agent/graph.py:graph"
-        description: "Answers a question from a customer about their order, and hands it to a person when it cannot."
-      uses:
-        checkpointer_db:
-          postgres:
-            target: postgres
-            # Reviewed: the password the graph presents to the database, under
-            # a key of its own; the Release gives its origin.
-            features:
-              credential:
-                type: core/secret-value
-                values:
-                  key: checkpointer_password
-        # Reviewed: the model the graph calls, which the configuration does not
-        # name.
-        model:
-          gpt-4o-mini:
-            target: gpt-4o-mini
-    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
-    postgres:
-      type: core/datastore/postgres
-    # Reviewed: the model, OpenAI's gpt-4o-mini.
-    gpt-4o-mini:
-      type: core/ai-model/openai
-      values:
-        model: gpt-4o-mini
-```
-
-The reviewed `release.yaml`:
-
-<!-- quotes: reviewed/release.yaml -->
-```yaml
-# The draft release.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Release
-metadata:
-  name: imported/support
-  # Reviewed: the environment this Release deploys to.
-  environment: development
-  version: 0.1.0
-  description: Draft Release imported from a source in the langgraph format.
-spec:
-  aggregate: imported/support
-  manifest: imported/support
-  components:
-    # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
-    # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
-    # It is also handed the model's address as OPENAI_BASE_URL and a key attached on the model connection as OPENAI_API_KEY, which the OpenAI client library reads, and recursion_limit as LANGGRAPH_DEFAULT_RECURSION_LIMIT, which LangGraph reads.
-    # An inject: block on the graph's own instance, through an entry reading graph_entrypoint alone, replaces LANGGRAPH_GRAPH_ENTRYPOINT with the name it writes; one on the model connection replaces OPENAI_MODEL, and one on the checkpointer_db connection the store's host, port, user and database, with the names it writes.
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application
-    support:
-      # Reviewed: the image running the application's code, which you build
-      # from the project.
-      infra:
-        image: ghcr.io/example/support-agent:1.0.0
-      # Reviewed: the OpenAI key the graph presents to the model, and the
-      # origin of the password the Aggregate has it present to the database,
-      # each read from your shell when the stack starts, so no file carries
-      # either.
-      uses:
-        model:
-          gpt-4o-mini:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${OPENAI_API_KEY}"
-        checkpointer_db:
-          postgres:
-            features:
-              credential:
-                type: core/secret-value
-                infra:
-                  origin: "${POSTGRES_PASSWORD}"
-    postgres:
-      infra: {}
-      # Reviewed: the database's password, read from your shell the same way.
-      features:
-        password:
-          type: core/secret-value
-          infra:
-            origin: "${POSTGRES_PASSWORD}"
-    # Reviewed: the model the review added, placed with the graph.
-    gpt-4o-mini: {}
-```
-
-The reviewed `manifest.yaml`:
-
-<!-- quotes: reviewed/manifest.yaml -->
-```yaml
-# The draft manifest.yaml after review. Each change is marked "Reviewed:".
-apiVersion: aggrega.ai/v1beta1
-kind: Manifest
-metadata:
-  name: imported/support
-  version: 0.1.0
-spec:
-  mappings:
-    components:
-      type:
-        core/ai-agent/langgraph: compose/langgraph
-        core/datastore/postgres: compose/postgres
-        # Reviewed: the Compose Recipe of the model the review added.
         core/ai-model/openai: compose/openai
-    # Reviewed: the realization that writes a secret's variable reference into
-    # the Compose file as written.
     features:
       type:
         core/secret-value: compose/dotenv-secret
 ```
 
+`release.lock` records the catalog entities the Release resolved to, by
+digest, and `.aggrega-import.json` is the record of what the import wrote,
+which a later `aggrega import --sync` reads.
+
 ## Validate and build
 
 ```bash
 aggrega validate --release release.yaml
-aggrega build --release release.yaml --auto-pull
+aggrega build --release release.yaml
 ```
 
 The validation prints:
@@ -409,11 +371,9 @@ The validation prints:
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
-and the build, with `<workspace>` standing for the folder holding the reviewed
-files:
+and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-Pull complete: release.lock (entities=10, source_artifacts=0, external_inputs=0)
   notice: LINT: Feature "core/secret-value" at core/secret-value:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
@@ -521,13 +481,15 @@ the `LANGGRAPH_CHECKPOINTER_` variable it arrives under, so the program writes
 none of them itself, and runs the graph once for each
 `POST /threads/<thread>/runs`. The graph's service starts once the database
 accepts connections, so a server that opens the checkpointer as it starts
-finds the database accepting connections. Build
-your image at the project's root, put its name in place of
-`ghcr.io/example/support-agent:1.0.0` in `release.yaml`, and build again:
+finds the database accepting connections. Build your image at the project's
+root, write its name in place of `ghcr.io/example/support-agent:1.0.0` in
+`import-answers.yaml`, and import again with `--sync`, which writes the new
+answer into the drafts and pulls again; then build:
 
 ```bash
 docker build -t order-support:local .
-aggrega build --release release.yaml --auto-pull
+aggrega import . --sync
+aggrega build --release release.yaml
 ```
 
 Then set the key and the database's password in your shell and start the

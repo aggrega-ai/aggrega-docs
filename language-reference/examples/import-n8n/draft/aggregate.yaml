@@ -6,9 +6,6 @@ metadata:
   description: Draft Aggregate imported from a source in the n8n format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running n8n
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     n8n:
       type: core/ai-agent/n8n
       values:
@@ -128,6 +125,15 @@ spec:
         model:
           openai-chat-model:
             target: openai-chat-model
-    # resembles core/ai-model/openai (score 0.9143); reference it by setting type: core/ai-model/openai
+            # For the compose target, the lines below declare credential on openai-chat-model: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # swap to core/ai-model/azure-openai (score 0.4125) by setting type: core/ai-model/azure-openai
     openai-chat-model:
-      type: imported/ai-model/n8n-n8n-nodes-langchain-lmchatopenai
+      type: core/ai-model/openai
+      values:
+        model: |-
+          gpt-4o-mini

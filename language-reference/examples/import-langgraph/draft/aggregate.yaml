@@ -10,7 +10,6 @@ metadata:
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
   components:
-    # The model connection is left for the author, since the configuration names no model; the build halts naming the socket until one is wired.
     support:
       type: core/ai-agent/langgraph
       values:
@@ -20,6 +19,33 @@ spec:
         checkpointer_db:
           postgres:
             target: postgres
-    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
+            # For the compose target, the lines below declare credential on postgres: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: POSTGRES_PASSWORD
+        model:
+          model:
+            target: model
+            # For the compose target, the lines below declare credential on model: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # The database the configuration's checkpointer keeps each graph's state in, PostgreSQL.
     postgres:
       type: core/datastore/postgres
+      features:
+        # For the compose target, the lines below declare password on postgres: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
+    # The model every graph calls, which the configuration does not name.
+    model:
+      type: core/ai-model/openai
+      values:
+        # Left for the author, since the configuration names no model: values.model, the name of the model core/ai-model/openai serves.
+        model: "gpt-4o-mini"

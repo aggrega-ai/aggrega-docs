@@ -1,0 +1,19 @@
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Email address of the platform's owner account, read only when values.flow_definition is set. The
+  # step that seeds the chatflow registers this account when the instance has no owner yet, which makes
+  # it the owner, and signs in as it; on an instance that already has one, it names an account allowed
+  # to import chatflows, and the password attached to the owner_password slot is that account's.
+  # Required when values.flow_definition is set: the build halts when it is empty. It has no default.
+  spec.components.flowise.infra.owner_email: "owner@example.com"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.flowise.features.owner_password.infra.origin: "flowise-owner"
+  # The origin of the secret value, written by the operator in the Release. Read exactly as
+  # values.origin is. Write it here or in values.origin, never in both. A secret: name where it comes
+  # from, never the value.
+  spec.components.flowise.uses.model.chatopenai-0.features.credential.infra.origin: "openai-api-key"

@@ -1,0 +1,32 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/basic-prompting
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the langflow format.
+spec:
+  aggregate: imported/basic-prompting
+  manifest: imported/basic-prompting
+  components:
+    langflow:
+      infra:
+        # The image running core/ai-agent/langflow, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source. The source states version "1.5.0" of the platform.
+        image: "langflowai/langflow:1.6.0"
+      features:
+        admin_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the administrator's password, read while values.require_authentication stays true, read from the variable LANGFLOW_ADMIN_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${LANGFLOW_ADMIN_PASSWORD}"
+      uses:
+        model:
+          languagemodelcomponent-kboja:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential langflow presents to languagemodelcomponent-kboja on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    languagemodelcomponent-kboja: {}

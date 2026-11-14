@@ -2,17 +2,25 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/support-agent
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the google-adk format.
 spec:
   aggregate: imported/support-agent
   manifest: imported/support-agent
   components:
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application built on ADK, holding its configurations
-    #   - the credential support-agent presents to the model it reaches, attached under credential on its connection uses.model.gemini-2-5-flash
     support-agent:
-      infra: {}
-    gemini-2-5-flash:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on ADK, holding its configurations
+        image: "ghcr.io/example/support-agent:1.0.0"
+      uses:
+        model:
+          gemini-2-5-flash:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential support-agent presents to gemini-2-5-flash on its model connection (the source names no variable for it, so it is read from the one Google's Gemini API's client libraries read the API key from), read from the variable GOOGLE_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${GOOGLE_API_KEY}"
+    gemini-2-5-flash: {}

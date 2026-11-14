@@ -6,19 +6,14 @@ metadata:
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running Flowise
-    #   - infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
-    #   - the owner_password slot, that account's password, required while values.flow_definition is set
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     flowise:
       type: core/ai-agent/flowise
-      # For the compose target only, uncomment the lines below, which declare owner_password on flowise: the compose Recipe reads every secret the Release alone attaches under the key value, so the owner's password and a connection's credential would both arrive under it and halt the build; the Release still attaches owner_password, naming this type or none.
-      # features:
-      #   owner_password:
-      #     type: core/secret-value
-      #     values:
-      #       key: OWNER_PASSWORD
+      features:
+        # For the compose target, the lines below declare owner_password on flowise: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+        owner_password:
+          type: core/secret-value
+          values:
+            key: OWNER_PASSWORD
       values:
         # chatflow_id is derived from the exported flow, which gives no identifier of its own.
         chatflow_id: '40d9f5c5-5187-54c1-a9f5-a8dac92f88bb'
@@ -251,6 +246,15 @@ spec:
         model:
           chatopenai-0:
             target: chatopenai-0
-    # resembles core/ai-model/openai (score 0.9000); reference it by setting type: core/ai-model/openai
+            # For the compose target, the lines below declare credential on chatopenai-0: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            features:
+              credential:
+                type: core/secret-value
+                values:
+                  key: OPENAI_API_KEY
+    # swap to core/ai-model/azure-openai (score 0.4000) by setting type: core/ai-model/azure-openai
     chatopenai-0:
-      type: imported/ai-model/chatopenai
+      type: core/ai-model/openai
+      values:
+        model: |-
+          gpt-4o-mini
