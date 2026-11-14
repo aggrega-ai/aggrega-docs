@@ -264,7 +264,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Import my project into Aggrega with the `import` tool: the source is `compose.yaml` in this folder, and the target is `compose`. If the import says values are still owed, tell me each one and what it is, and wait while I write my answers beside their keys in the answers file it names; then import again. Then validate the Release the import drafted with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. Call the `import` tool with `source` set to `compose.yaml` and `target` set to `compose`: it writes its drafts into the Workspace folder. If it says values are still owed, tell me each one and what it is, and wait while I write my answers beside their keys in the answers file it names; then call the `import` tool again the same way. Then call the `validate` tool with `release` set to `release.yaml`, and the `build` tool with `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `dist/` in the Workspace folder.
 
 ## Open it in VS Code
 

@@ -129,7 +129,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/1/dist/`.
 
 ## A web app and its PostgreSQL — `1/`
 
