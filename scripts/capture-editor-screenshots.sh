@@ -81,7 +81,9 @@ WHAT IT NEEDS
   Read access to the registry the examples name (hub.aggrega.ai), for the
   dependencies they pull and the importers an import fetches — with --catalog,
   for what that catalog does not hold, such as a plugin published to the
-  registry or an importer.
+  registry or an importer. Where DOCKER_CONFIG is set, a registry credential is
+  read from the Docker configuration directory it names: its path is handed on
+  to every compiler run and editor the capture starts, and nothing here opens it.
 
 OPTIONS
 
@@ -209,6 +211,7 @@ ARGS=(capture-docs --scratch "$SCRATCH" --out "$RAW/frames" --docs "$DOCS" --com
 [ -z "$ONLY" ] || ARGS+=(--only "$ONLY")
 [ -z "$CATALOG" ] || ARGS+=(--catalog "$CATALOG")
 [ -z "$IMPORTERS" ] || ARGS+=(--importer-catalog "$IMPORTERS")
+[ -z "${DOCKER_CONFIG:-}" ] || ARGS+=(--docker-config "$DOCKER_CONFIG")
 ( cd "$EXT" && node out/test/e2e/run.js "${ARGS[@]}" )
 CAPTURED=$?
 case "$CAPTURED" in
