@@ -14759,6 +14759,17 @@
     "status": "machine",
     "text": "Salta la cache persistente su disco della compilazione dei plugin per questa build e compila i guest dei plugin da zero in una cache in memoria che viene scartata al termine della build. Disattivato per impostazione predefinita, il che riutilizza la cache condivisa su disco tra le build. Non modifica l’output renderizzato"
   },
+  "16dd952b2e134619": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "3c1da95eddc804eb",
+      "reviewed": false
+    },
+    "srcHash": "16dd952b2e134619",
+    "status": "machine",
+    "text": "La conseguenza è voluta: **un repository non può fissare nessuna di queste impostazioni per chiunque lo apra.** Scriverne una in un `.vscode/settings.json` del workspace non ha effetto — l’editor la contrassegna lì come non applicabile e continua a usare il tuo valore. Se vuoi che una scelta sia registrata nel workspace stesso, i due comandi della Release in [Selezione di una Release](releases.md#selecting-a-release) sono quelli che lo fanno, e scrivono `.aggrega/active-release` o `.aggrega-config.yaml` invece di un’impostazione dell’editor."
+  },
   "16de412059b01250": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -41946,6 +41957,13 @@
     "status": "machine",
     "text": "Questa pagina è l’inventario canonico dei contratti sociali del linguaggio. Gli autori che imparano i contratti da questa pagina possono capire perché il compilatore accetta una build malformata secondo una convenzione (la accetta — il compilatore non interpreta la convenzione) e dove ricade la responsabilità di individuare la violazione (disciplina di authoring, attenzione dei revisori o un plugin linter eseguito da `aggrega lint`)."
   },
+  "4292bd76e9a3274e": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4292bd76e9a3274e",
+    "status": "machine",
+    "text": "L’elenco è la risposta del language server stesso, quindi nomina le stesse entità che legge il compilatore — compresi i buffer non salvati dell’editor, che prevalgono sui byte su disco — ed è presentato nell’ordine in cui il server lo ha inviato, senza essere riordinato qui. Il pannello rilegge l’elenco da solo quando il language server diventa in grado di rispondere, quando cambia la Release selezionata, quando un documento `.yaml` in una cartella aperta nella finestra viene creato, modificato o eliminato su disco — dall’editor, da un terminale o da un checkout allo stesso modo — e quando l’editor chiude un documento YAML. Lo chiede solo dopo che il language server ha scartato ciò che conservava per quel file, così un file eliminato mentre era aperto nell’editor esce dall’elenco anziché essere riportato dalla copia che l’editor ha inviato per ultima, un documento rinominato in un buffer e chiuso senza salvare viene elencato di nuovo com’è su disco, e una raffica di tali modifiche e chiusure produce una sola lettura. L’editor chiude un documento quando lo rilascia, cosa che non garantisce di fare nel momento in cui si chiude la scheda del documento, quindi una riga ricavata dal testo di un documento la cui scheda è stata chiusa può restare finché l’editor non lo fa. Il pannello non segue da solo ciò che digiti. Una modifica ancora in un buffer non salvato viene inviata al language server quando fai una pausa nella digitazione in quel documento — ogni documento aperto attende la propria pausa, così la digitazione in uno non trattiene mai un altro — e compare alla successiva lettura dell’elenco. Premere l’aggiornamento del pannello legge l’elenco per ogni documento aperto così come l’editor lo contiene nel momento in cui premi, per quanto poco tempo sia passato dall’ultimo tasto premuto o dall’ultimo annullamento: una modifica non ancora inviata viene inviata subito, e l’elenco viene richiesto solo dopo che il language server ha risposto per ogni modifica inviatagli fino alla pressione. Una cartella eliminata per intero compare alla successiva lettura dell’elenco, o quando si preme l’aggiornamento, poiché l’editor può segnalarla come un’unica modifica alla cartella anziché come una per ciascun documento al suo interno."
+  },
   "42979e1839642761": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
@@ -43004,6 +43022,13 @@
     "srcHash": "4411ca90bf9be929",
     "status": "machine",
     "text": "Per chiarezza:"
+  },
+  "4418397927c5c297": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4418397927c5c297",
+    "status": "machine",
+    "text": "La validazione dell’entità, il controllo delle sue convenzioni di pubblicazione e la sua pubblicazione richiedono ciascuno il percorso dell’entità, quindi sono offerti solo su una riga la cui entità è dichiarata da un documento in questo workspace; una riga risolta da una directory di catalogo configurata non ha un percorso in questo workspace da fornire loro, e su di essa vengono omessi anziché offerti come controlli che potrebbero solo segnalare un argomento mancante. Di queste tre operazioni, il controllo delle convenzioni di pubblicazione è offerto su ogni riga di questo tipo. La validazione è offerta dove il compilatore controlla da solo un documento di quel tipo: un Aggregate, per esempio, viene controllato con l’intero catalogo quando si trova in una directory di catalogo, e con una Release che lo distribuisce, quindi la sua riga non offre la validazione. La validazione controlla l’entità nei termini della Release selezionata, come fa `aggrega validate <path> --release <Release>` in un terminale, così ciò a cui l’entità fa riferimento — il Component che una Recipe implementa, una libreria che il suo schema compone — si risolve attraverso le directory di catalogo su cui quella Release esegue la build; senza alcuna Release selezionata, attraverso quelle del workspace stesso. La pubblicazione è offerta dove un documento di quel tipo viene pubblicato da solo, il che esclude un Plugin, la cui pubblicazione vincola anche il suo eseguibile, e un Manifest o una Release, nessuno dei quali viene pubblicato. Se il language server non dice quali operazioni accettano il tipo di una riga, le righe vengono comunque elencate e una riga con un documento offre solo il controllo delle convenzioni; dove la richiesta di quella risposta fallisce, il motivo viene scritto nel canale di output Aggrega."
   },
   "441dcd73d6094a9e": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -48804,6 +48829,17 @@
     "srcHash": "4cfdf7e683e03167",
     "status": "machine",
     "text": "Un avviso sollevato quando un’entità viene verificata rispetto alle convenzioni di pubblicazione, sia mentre redigi sia al gate di pubblicazione; non arresta mai nulla, e un build non lo solleva. Uno slot di associazione può fissare, tramite il suo selettore, che solo una Feature portatrice di segreti possa riempirlo, e può registrare separatamente che qualunque cosa lo riempia gestisce materiale segreto. Il selettore stabilisce quali riempimenti sono ammissibili; la registrazione stabilisce la gestione. Uno slot che fissa il primo e omette la seconda lascia che la gestione venga dedotta dal selettore anziché letta dallo slot. Ogni slot che un’entità dichiara viene verificato: quelli del suo blocco di associazioni e, su un Component, quelli che un socket di dipendenza dichiara per ogni connessione cablata attraverso di esso — il rilievo sullo slot di un socket nomina il socket accanto allo slot."
+  },
+  "4d01e118847ff11a": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "ed51ba115718031e",
+      "reviewed": false
+    },
+    "srcHash": "4d01e118847ff11a",
+    "status": "machine",
+    "text": "Se la [pagina di benvenuto](welcome-page.md) si apre all’avvio. Tre superfici modificano questa unica impostazione e restano allineate: la casella di controllo in fondo alla pagina stessa, **Aggrega: Stop opening the welcome page on startup** e **Aggrega: Get started**. Disattivarla impedisce l’apertura della pagina senza rimuoverla; riattivarla con **Aggrega: Get started** la apre anche."
   },
   "4d0505b0beef2682": {
     "at": "2026-10-30T20:43:14.394Z",
@@ -58283,6 +58319,13 @@
     "status": "machine",
     "text": "Il payload che un guest del Provider riceve tramite la sua esportazione facoltativa name_bound: un nome che l’host propone di usare come identità di componente di un nodo, perché il guest lo giudichi rispetto a ogni nome che ne deriverebbe per la propria destinazione, insieme ai fatti del workload risolto del nodo da cui dipendono alcuni di quei nomi, quando l’identità viene stabilita dopo la risoluzione di quel workload. Il guest risponde con un vincolo anziché con un nome proprio — un nome derivato che tornasse indietro metterebbe l’host nella posizione di comporre nomi per una destinazione di cui non sa nulla, che è esattamente ciò che porre la domanda elimina. Un provider la cui destinazione limita o restringe i nomi che accetta dichiara l’esportazione; un provider la cui destinazione accetta qualsiasi nome la omette e non viene mai interpellato, e il suo rendering resta invariato."
   },
+  "5b848c6fa53c2a21": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "5b848c6fa53c2a21",
+    "status": "machine",
+    "text": "![Il selettore di Release che elenca le quattro Releases di un workspace per percorso, mentre la riga Release e la barra di stato indicano che nessuna è selezionata.](../../images/editor/manual/release-picker.png)"
+  },
   "5b84e7c915382c78": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -65451,6 +65494,13 @@
     "srcHash": "66dad8deae980340",
     "status": "machine",
     "text": "Usare come sorgente un modulo pubblicato da un registry"
+  },
+  "66db9d07a5d9fb38": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "66db9d07a5d9fb38",
+    "status": "machine",
+    "text": "La ricerca nel catalogo pubblicato è la prima riga di questo pannello, **Search catalog**: chiede un filtro e copia il riferimento di ciò che scegli. La stesura di una nuova entità è la seconda riga, **Draft entity**: chiede il tipo, come un elenco da cui scegliere, e apre il documento iniziale in una scheda senza scrivere nulla su disco. La barra del titolo di questo pannello reca solo l’aggiornamento. Le operazioni che agiscono su una singola entità si trovano sulla riga di quell’entità, e una riga offre un’operazione solo dove il compilatore la accetta per il tipo della riga. Quali tipi accetta ciascuna operazione è la risposta del language server stesso, riletta ogni volta insieme all’elenco, così le righe seguono il compilatore che stai eseguendo anziché un elenco mantenuto nell’estensione. L’ispezione di ciò in cui un’entità si risolve è l’unica raggiungibile senza aprire il menu della riga: si rivolge all’entità per nome, che ogni riga riporta, quindi è offerta su una riga che il workspace contenga o meno un documento per essa, ovunque il compilatore risolva un nome in un’entità di quel tipo, e non modifica nulla."
   },
   "66dd8211a8629bfb": {
     "at": "2026-11-03T22:53:36.381Z",
@@ -78504,6 +78554,13 @@
     "status": "machine",
     "text": "Tutto ciò che precede regola i nomi sulla superficie di authoring — un nome di istanza che scegli, un campo di schema che il linguaggio definisce perché tu lo compili, una chiave del contesto del template che leggi. Altri due registri regolano gli identificatori che **la piattaforma stessa definisce** e che tu ti limiti a rileggere o a digitare. Sono separati perché svolgono compiti diversi, ed è il compito a deciderne la forma."
   },
+  "7b347133bd9dbd29": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "7b347133bd9dbd29",
+    "status": "machine",
+    "text": "Il language server non legge alcuna entità attraverso un collegamento che porta fuori dal workspace — un collegamento a una directory esterna, o un collegamento con un nome da file YAML che porta a un file esterno — quindi nessuna entità dietro un tale collegamento viene elencata, anche se l’albero dei file dell’editor la mostra. L’unica eccezione è una Release che la configurazione del workspace nomina, come `build.authoring_release` o come chiave di `workspace.releases`, che viene letta attraverso il suo collegamento ed elencata nella posizione del collegamento stesso. Dove l’elenco omette un tale collegamento, lo segnala una riga a sé dopo l’elenco: **Le entità raggiunte attraverso questo collegamento non sono elencate, perché porta fuori dal workspace Aggrega:** seguito dal percorso del collegamento relativo al workspace — oppure **Le entità raggiunte attraverso questi collegamenti non sono elencate, perché ciascuno porta fuori dal workspace Aggrega:** per più collegamenti, nominando prima i collegamenti a directory e poi quelli a file. Passando il puntatore sulla riga si ottiene la frase intera, poiché nella riga un percorso lungo viene troncato. Con una Release selezionata, un collegamento all’interno di una directory di catalogo letta solo da altre Releases non viene nominato, poiché nulla dietro di esso verrebbe comunque elencato per quella Release."
+  },
   "7b3636c2d459af4f": {
     "at": "2026-11-03T03:37:30.908Z",
     "job": "session-0046-20261103033730",
@@ -90494,6 +90551,17 @@
     "status": "machine",
     "text": "**Un passo di pipeline legge solo i fatti propri del suo host.** `with:` e `when:` di un passo leggono le connessioni che l’host stabilisce, come le legge la Recipe propria dell’host, e mai i fatti di render dei loro target — che la FeatureRecipe imposti o meno la chiave. Un passo può riscrivere i documenti propri del componente host, e il render proprio dell’host legge ciò che i suoi target pubblicano, mai ciò che hanno emesso. Un `with:` o `when:` di un passo scritto inline che legge `render_facts` sotto `.context.uses` arresta quindi la build prima che venga renderizzato qualsiasi cosa, con il codice breve `E0348`, nominando il riferimento e il campo del passo — anziché renderizzare un valore vuoto. Leggi i fatti dei target in `valuesMapping:`, `workload:` o `artifacts:` della FeatureRecipe."
   },
+  "8e519a240064ded7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "30844f0a033450e8",
+      "reviewed": false
+    },
+    "srcHash": "8e519a240064ded7",
+    "status": "machine",
+    "text": "Scegli la Release su cui lavori"
+  },
   "8e51c97c753b334a": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -94502,6 +94570,13 @@
     "srcHash": "9485466ca3933034",
     "status": "machine",
     "text": "Messaggio emesso. La categoria ti arriva nell’intestazione tra parentesi quadre:"
+  },
+  "948692449b5bbbf1": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "948692449b5bbbf1",
+    "status": "machine",
+    "text": "La pubblicazione chiede prima una conferma e dice fin dove arriva la modifica: l’entità viene impacchettata e inviata con la propria versione dichiarata, e chiunque scarichi quella versione da quel registry risolve ciò che è stato pubblicato. La pubblicazione è anche l’unica di queste operazioni che modifica qualcosa al di fuori di questa macchina; i due controlli e l’ispezione non scrivono nulla e non pubblicano nulla. Tutte e quattro mostrano l’avanzamento e possono essere interrotte."
   },
   "9486e77c1faef1bb": {
     "at": "2026-11-03T21:51:54.059Z",
@@ -111478,6 +111553,13 @@
     "status": "machine",
     "text": "Recipe"
   },
+  "aec80ae7002f2588": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "aec80ae7002f2588",
+    "status": "machine",
+    "text": "![La pagina delle impostazioni dell’editor ristretta alle impostazioni dell’estensione Aggrega, ciascuna sotto la propria intestazione.](../../images/editor/manual/settings.png)"
+  },
   "aecbea9a4e5f8c3c": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -120390,6 +120472,17 @@
     "status": "machine",
     "text": "L’ingegnere Ops scrive codice di infrastruttura altamente specifico e legato al fornitore in un file a sé, disaccoppiato dalla superficie di authoring dello sviluppatore."
   },
+  "bbbc5c4f21fa32a7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "5e8dcfce480ef95e",
+      "reviewed": false
+    },
+    "srcHash": "bbbc5c4f21fa32a7",
+    "status": "machine",
+    "text": "Le operazioni che agiscono sull’intero insieme sono le prime due righe del pannello — **Add plugin**, e **Generate entities**, che scrive entità di catalogo Plugin — e la barra del titolo del pannello reca solo l’aggiornamento. L’aggiunta chiede quale tipo di plugin, come un elenco da cui scegliere, poi l’unica ulteriore risposta che quel tipo richiede: la capability servita da un binding `provider`, o il ruolo a cui è vincolato un collegamento `governance`, e infine il nome da cercare nel registry configurato, che deve risolversi in esattamente un plugin di quel tipo; il collegamento viene scritto nella configurazione del workspace di questo progetto. L’aggiunta è l’unica operazione qui che raggiunge la rete, poiché cerca nel registry, quindi mostra l’avanzamento e può essere interrotta. Dove una versione pubblicata del plugin è stata ritirata, l’aggiunta termina dicendolo anziché lasciarlo da scoprire: le versioni ritirate e non selezionate, il motivo registrato per ciascuna, e da dove sono stati letti i record di ritiro e quando sono stati aggiornati l’ultima volta, mostrando solo ciò che il compilatore riporta — e dove quei record non è stato possibile leggerli affatto, dice invece questo, riportando il motivo dato dal compilatore stesso, che è una risposta diversa dal fatto che nulla sia stato ritirato."
+  },
   "bbbf2479d1561c0a": {
     "at": "2026-11-03T22:29:54.265Z",
     "job": "session-0168-20261103222954",
@@ -128591,6 +128684,17 @@
     "status": "machine",
     "text": "PluginRetractionProvenance"
   },
+  "c8982f34b7d69a0d": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "76e76a00eb6ba42c",
+      "reviewed": false
+    },
+    "srcHash": "c8982f34b7d69a0d",
+    "status": "machine",
+    "text": "Quante volte, entro la finestra indicata sotto, il language server viene riavviato dopo essersi fermato senza che gli sia stato chiesto, prima che l’estensione lo lasci fermo e generi la notifica di mancata risposta. Un server riavviato che si ferma prima di aver risposto conta come uno che si ferma mentre è in esecuzione. Vedi [Ciclo di vita](language-server.md#lifecycle)."
+  },
   "c89e9a44a3691648": {
     "at": "2026-10-30T04:51:13.962Z",
     "job": "session-0057-20261030045113",
@@ -136784,6 +136888,13 @@
     "srcHash": "d4dc76bbb188cd4c",
     "status": "machine",
     "text": "**Una Release che nomini tramite un collegamento viene letta dove conduce il collegamento, e risolta dove l’hai nominata.** Digitata come `--release release.yaml`, dove `release.yaml` è un collegamento a un file conservato altrove — o nominata così sotto `workspace.releases`, o come `build.authoring_release` — la Release viene letta dal luogo a cui conduce il collegamento. L’Aggregate e il Manifest che nomina, per identità o tramite un percorso, vengono cercati accanto al collegamento, nella directory in cui l’hai nominata, e vincolati alla radice di quella directory: il workspace, oppure la directory stessa dove si trova fuori dal workspace. Anche il suo lockfile viene letto e scritto accanto al collegamento, mai dove il collegamento conduce. La Release non è uno dei documenti che la sua stessa ricerca incontra accanto a sé, quindi non arresta mai quella ricerca; un’altra Release conservata accanto a essa che sia un collegamento che conduce fuori la arresta comunque. Un Manifest che ispezioni da solo tramite un collegamento viene letto e risolto allo stesso modo."
+  },
+  "d4dfa42f84925087": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "d4dfa42f84925087",
+    "status": "machine",
+    "text": "La generazione delle entità di catalogo chiede se coprire ogni plugin integrato nel compilatore o un artefatto di plugin su questa macchina, anch’essa come un elenco da cui scegliere, poi l’overlay scritto a mano da unire e la directory sotto cui scrivere, e chiede conferma prima di scrivere: ogni entità viene scritta in un percorso derivato dal tipo, dal nome e dalla versione del suo plugin, quindi un’entità già presente per quello stesso plugin e quella versione viene sostituita."
   },
   "d4e0d6d2dd4718c7": {
     "at": "2026-11-03T01:59:06.045Z",
@@ -148700,6 +148811,13 @@
     "srcHash": "e6fe5ea332e893e6",
     "status": "machine",
     "text": "Required attachment slot not bound (Slot di associazione richiesto non legato)"
+  },
+  "e6fe707ff305d345": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "e6fe707ff305d345",
+    "status": "machine",
+    "text": "**Dettaglio del pannello Plugins** — ogni riga nomina il plugin, il suo tipo e la versione, e il suo stato di prontezza dove il plugin ne porta uno. Un plugin che il compilatore non è riuscito a risolvere o descrivere viene contrassegnato e mantiene la propria riga, con il messaggio del compilatore nel tooltip, così non viene mai scambiato per uno funzionante. Il tooltip nomina anche la chiave di configurazione da cui proviene un collegamento, le sue capability, i suoi tipi di input, il suo boundary e i suoi export — mostrando solo ciò che l’elenco riporta effettivamente."
   },
   "e703bc2b08168d0e": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -164314,6 +164432,13 @@
     "srcHash": "fea8250b11d1ae33",
     "status": "machine",
     "text": "**la build non deve produrre affatto l’artefatto.** Una policy `ir-verdict` viene eseguita al controllo di analisi statica, prima che qualcosa venga renderizzato, quindi un arresto lì non lascia nulla di scritto — nessun file di output da revisionare, mettere in quarantena o applicare per errore. Un controllo in pipeline viene necessariamente eseguito dopo che i file esistono."
+  },
+  "fea8623803c72819": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "fea8623803c72819",
+    "status": "machine",
+    "text": "La rimozione di un plugin si trova sulla riga di quel plugin. Chiede prima una conferma e dice quale file di configurazione scrive, perché dipende dal tipo del plugin — un plugin `cli` viene rimosso dalla configurazione globale condivisa tra tutti i workspace su questa macchina, ogni altro tipo da quella propria di questo progetto — e opera solo sul testo della configurazione, quindi nient’altro su questa macchina viene rimosso. La rimozione è offerta solo su un plugin configurato per cui il compilatore ha risposto: un plugin integrato nel compilatore non è affatto una voce di configurazione, e un collegamento che nulla ha potuto risolvere o descrivere arriva senza tipo, che la rimozione richiede insieme al riferimento — quindi su quelle righe viene omessa anziché offerta come un controllo che potrebbe solo segnalare un argomento mancante. L’aggiunta di un plugin `cli` non è offerta dal pannello, perché installarne uno conferma le capability dichiarate in un terminale e dietro un pulsante non ce n’è uno — eseguila da un terminale e premi aggiorna. Nemmeno la sincronizzazione dei record gestiti dalla macchina di un’entità plugin è offerta: richiede il file dell’entità e l’artefatto `.wasm` come due percorsi, e una riga non nomina nessuno dei due."
   },
   "feb57ba4135b15c4": {
     "at": "2026-11-05T16:17:32.939Z",

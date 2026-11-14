@@ -16363,6 +16363,17 @@
     "status": "machine",
     "text": "Pomija trwałą dyskową pamięć podręczną kompilacji pluginów dla tego buildu i kompiluje gości pluginów od nowa w pamięci podręcznej w RAM, odrzucanej po zakończeniu buildu. Domyślnie wyłączone, co oznacza ponowne użycie współdzielonej dyskowej pamięci podręcznej między buildami. Nie zmienia renderowanego wyniku"
   },
+  "16dd952b2e134619": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "3c1da95eddc804eb",
+      "reviewed": false
+    },
+    "srcHash": "16dd952b2e134619",
+    "status": "machine",
+    "text": "Ta konsekwencja jest zamierzona: **repozytorium nie może przypiąć żadnego z tych ustawień dla osoby, która je otwiera.** Zapisanie któregoś z nich w pliku `.vscode/settings.json` obszaru roboczego nie ma żadnego efektu — edytor oznacza je tam jako niemające zastosowania i nadal używa wartości użytkownika. Aby zapisać wybór w samym obszarze roboczym, należy użyć dwóch poleceń dotyczących encji Release opisanych w sekcji [Wybór Release](releases.md#selecting-a-release); zapisują one `.aggrega/active-release` lub `.aggrega-config.yaml`, a nie ustawienie edytora."
+  },
   "16de412059b01250": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -46500,6 +46511,13 @@
     "status": "machine",
     "text": "Ta strona jest kanonicznym spisem umów społecznych języka. Autorzy, którzy poznają umowy z tej strony, mogą zrozumieć, dlaczego kompilator akceptuje kompilację niepoprawną z punktu widzenia konwencji (akceptuje — kompilator nie interpretuje konwencji) i do kogo należy wychwycenie naruszenia (dyscyplina autorska, uwaga recenzenta lub plugin lintera uruchamiany przez `aggrega lint`)."
   },
+  "4292bd76e9a3274e": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4292bd76e9a3274e",
+    "status": "machine",
+    "text": "Lista jest własną odpowiedzią serwera językowego, więc wymienia te same encje, które odczytuje kompilator — łącznie z niezapisanymi buforami edytora, mającymi pierwszeństwo przed bajtami na dysku — i jest przedstawiana w kolejności, w jakiej wysłał ją serwer, a nie sortowana tutaj ponownie. Panel sam ponownie odczytuje listę, gdy serwer językowy staje się zdolny do odpowiedzi, gdy zmienia się wybrana encja Release, gdy dokument `.yaml` w folderze otwartym w oknie zostaje utworzony, zmieniony lub usunięty na dysku — czy to przez edytor, terminal, czy checkout — oraz gdy edytor zamyka dokument YAML. Prosi o nią dopiero wtedy, gdy serwer językowy porzuci to, co przechowywał dla danego pliku, więc plik usunięty, gdy był otwarty w edytorze, znika z listy, zamiast być zgłaszany na podstawie kopii ostatnio wysłanej przez edytor, dokument przemianowany w buforze i zamknięty bez zapisywania jest ponownie wyświetlany tak, jak wygląda na dysku, a seria takich zmian i zamknięć daje jeden odczyt. Edytor zamyka dokument, gdy go zwalnia, czego nie obiecuje robić w chwili zamknięcia karty dokumentu, więc wiersz utworzony z tekstu dokumentu, którego karta została zamknięta, może pozostać, dopóki edytor tego nie zrobi. Panel nie śledzi samodzielnie wpisywanego tekstu. Zmiana wciąż znajdująca się w niezapisanym buforze jest wysyłana do serwera językowego, gdy nastąpi przerwa w pisaniu w tym dokumencie — każdy otwarty dokument czeka na własną przerwę, więc pisanie w jednym nigdy nie wstrzymuje innego — i pojawia się przy następnym odczycie listy po tym momencie. Naciśnięcie odświeżania panelu odczytuje listę dla każdego otwartego dokumentu w stanie, w jakim edytor przechowuje go w chwili naciśnięcia, niezależnie od tego, jak krótko po ostatnim naciśnięciu klawisza lub cofnięciu: zmiana jeszcze niewysłana jest wysyłana natychmiast, a o listę prosi się dopiero wtedy, gdy serwer językowy odpowie na każdą zmianę wysłaną do niego do chwili naciśnięcia. Folder usunięty w całości pojawia się przy następnym odczycie listy albo po naciśnięciu odświeżania, ponieważ edytor może zgłosić to jako jedną zmianę folderu, a nie po jednej zmianie każdego zawartego w nim dokumentu."
+  },
   "42979e1839642761": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -47640,6 +47658,13 @@
     "srcHash": "4411ca90bf9be929",
     "status": "machine",
     "text": "Dla jasności:"
+  },
+  "4418397927c5c297": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4418397927c5c297",
+    "status": "machine",
+    "text": "Walidacja encji, sprawdzenie jej konwencji publikowania i jej publikacja wymagają ścieżki encji, więc są oferowane tylko w wierszu, którego encję deklaruje dokument w tym obszarze roboczym; wiersz rozwiązany ze skonfigurowanego katalogu katalogowego nie ma w tym obszarze roboczym ścieżki, którą mógłby im przekazać, więc są w nim wstrzymane, zamiast być oferowane jako kontrolki, które mogłyby jedynie zgłosić brakujący argument. Z tych trzech sprawdzenie konwencji publikowania jest oferowane w każdym takim wierszu. Walidacja jest oferowana tam, gdzie kompilator sprawdza dokument tego rodzaju samodzielnie: na przykład encja Aggregate jest sprawdzana z całym katalogiem, gdy znajduje się w katalogu katalogowym, oraz z encją Release, która ją wdraża, więc jej wiersz nie oferuje walidacji. Walidacja sprawdza encję w kategoriach wybranej encji Release, tak jak robi to `aggrega validate <path> --release <Release>` w terminalu, więc to, do czego encja się odwołuje — encja Component implementowana przez encję Recipe, biblioteka, którą komponuje jej schemat — jest rozwiązywane przez katalogi katalogowe, względem których buduje ta encja Release; gdy żadna encja Release nie jest wybrana — przez katalogi samego obszaru roboczego. Publikacja jest oferowana tam, gdzie dokument tego rodzaju jest publikowany samodzielnie, co wyklucza encję Plugin, której publikacja wiąże też jej plik wykonywalny, oraz encję Manifest lub Release, z których żadna nie jest publikowana. Jeśli serwer językowy nie poda, które operacje akceptują rodzaj wiersza, wiersze i tak są wyświetlane, a wiersz z dokumentem oferuje tylko sprawdzenie konwencji; gdy żądanie tej odpowiedzi się nie powiedzie, jego przyczyna jest zapisywana w kanale wyjściowym Aggrega."
   },
   "441dcd73d6094a9e": {
     "at": "2026-11-01T16:14:00.101Z",
@@ -53948,6 +53973,17 @@
     "srcHash": "4cfdf7e683e03167",
     "status": "machine",
     "text": "Ostrzeżenie zgłaszane przy sprawdzaniu encji pod kątem konwencji publikowania, zarówno podczas tworzenia, jak i na bramce publikacji; nigdy niczego nie zatrzymuje, a kompilacja go nie zgłasza. Slot załącznika może za pomocą selektora ustalić, że wypełnić go może tylko encja Feature zawierająca sekrety, a osobno może zapisać, że to, co go wypełnia, obsługuje materiał tajny. Selektor określa, które wypełnienia są dopuszczalne; zapis określa obsługę. Slot, który ustala pierwsze i pomija drugie, pozostawia obsługę do wywnioskowania z selektora, zamiast odczytania jej ze slotu. Sprawdzany jest każdy slot zadeklarowany przez encję: slot z jej własnego bloku załączników oraz, w encji Component, slot deklarowany przez gniazdo zależności dla każdego połączenia przez nie poprowadzonego — ustalenie dotyczące slotu gniazda podaje gniazdo obok slotu."
+  },
+  "4d01e118847ff11a": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "ed51ba115718031e",
+      "reviewed": false
+    },
+    "srcHash": "4d01e118847ff11a",
+    "status": "machine",
+    "text": "Czy [strona powitalna](welcome-page.md) otwiera się przy uruchomieniu. To jedno ustawienie zmieniają trzy elementy interfejsu, które pozostają ze sobą zgodne: pole wyboru u dołu samej strony, **Aggrega: Stop opening the welcome page on startup** oraz **Aggrega: Get started**. Wyłączenie go sprawia, że strona przestaje się otwierać, ale nie zostaje usunięta; ponowne włączenie za pomocą **Aggrega: Get started** także ją otwiera."
   },
   "4d0505b0beef2682": {
     "at": "2026-10-22T11:13:32.031992+00:00",
@@ -64433,6 +64469,13 @@
     "status": "machine",
     "text": "Ładunek, który gość Provider otrzymuje w swoim opcjonalnym eksporcie name_bound: jedną nazwę, którą host proponuje jako tożsamość komponentu węzła, do oceny przez gościa względem każdej nazwy, jaką wyprowadziłby z tej tożsamości dla swojego celu, wraz z faktami dotyczącymi rozwiązanego workloadu węzła, od których zależą niektóre z tych nazw, jeśli tożsamość jest ustalana po rozwiązaniu tego workloadu. Gość odpowiada ograniczeniem, a nie własną nazwą — wyprowadzona nazwa odesłana z powrotem zmusiłaby hosta do składania nazw dla celu, o którym nic nie wie, a właśnie to eliminuje zadanie tego pytania. Dostawca, którego cel ogranicza lub zawęża akceptowane nazwy, deklaruje ten eksport; dostawca, którego cel akceptuje dowolną nazwę, pomija go i nigdy nie jest pytany, a jego renderowanie pozostaje bez zmian."
   },
+  "5b848c6fa53c2a21": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "5b848c6fa53c2a21",
+    "status": "machine",
+    "text": "![Selektor encji Release wyświetlający cztery Releases obszaru roboczego według ich ścieżek, podczas gdy wiersz Release i pasek stanu wskazują, że żadna nie jest wybrana.](../../images/editor/manual/release-picker.png)"
+  },
   "5b84e7c915382c78": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -72557,6 +72600,13 @@
     "srcHash": "66dad8deae980340",
     "status": "machine",
     "text": "Korzystanie z modułu publikowanego przez rejestr"
+  },
+  "66db9d07a5d9fb38": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "66db9d07a5d9fb38",
+    "status": "machine",
+    "text": "Wyszukiwanie w opublikowanym katalogu to pierwszy wiersz tego panelu, **Search catalog**: prosi o filtr i kopiuje odwołanie do tego, co zostanie wybrane. Tworzenie szkicu nowej encji to drugi wiersz, **Draft entity**: pyta o rodzaj, w postaci listy do wyboru, i otwiera dokument startowy w karcie, niczego nie zapisując na dysku. Pasek tytułu samego panelu zawiera tylko odświeżanie. Operacje działające na jedną encję znajdują się w wierszu tej encji, a wiersz oferuje operację tylko wtedy, gdy kompilator akceptuje ją dla rodzaju z tego wiersza. To, jakie rodzaje akceptuje każda operacja, jest własną odpowiedzią serwera językowego, odczytywaną ponownie razem z listą za każdym razem, więc wiersze podążają za uruchomionym kompilatorem, a nie za listą przechowywaną w rozszerzeniu. Sprawdzenie, do czego rozwiązuje się encja, to jedyna operacja dostępna bez otwierania menu wiersza: wskazuje encję po nazwie, którą ma każdy wiersz, więc jest oferowana w wierszu niezależnie od tego, czy obszar roboczy zawiera dokument tej encji, wszędzie tam, gdzie kompilator rozwiązuje nazwę do encji tego rodzaju, i niczego nie zmienia."
   },
   "66dd8211a8629bfb": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -86969,6 +87019,13 @@
     "status": "machine",
     "text": "Wszystko powyżej dotyczy nazw na powierzchni tworzenia — nazwy instancji wybieranej przez autora, pola schematu, które język definiuje do wypełnienia, klucza kontekstu szablonu, który się odczytuje. Dwa kolejne rejestry dotyczą identyfikatorów, które **definiuje sama platforma**, a użytkownik jedynie je odczytuje lub wpisuje. Są one rozdzielone, ponieważ pełnią różne zadania, a to zadanie decyduje o kształcie."
   },
+  "7b347133bd9dbd29": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "7b347133bd9dbd29",
+    "status": "machine",
+    "text": "Serwer językowy nie odczytuje żadnej encji przez dowiązanie prowadzące poza obszar roboczy — dowiązanie do katalogu na zewnątrz albo dowiązanie nazwane jak plik YAML, które prowadzi do pliku na zewnątrz — więc żadna encja za takim dowiązaniem nie pojawia się na liście, choć drzewo plików edytora ją pokazuje. Jedynym wyjątkiem jest encja Release wskazana w konfiguracji obszaru roboczego jako `build.authoring_release` lub jako klucz `workspace.releases`, która jest odczytywana przez swoje dowiązanie i wyświetlana na liście w miejscu samego dowiązania. Gdy lista pomija takie dowiązanie, informuje o tym osobny wiersz za listą: **Encje osiągane przez to dowiązanie nie są wyświetlane, ponieważ prowadzi ono poza obszar roboczy Aggrega:**, a po nim ścieżka dowiązania względem obszaru roboczego — albo **Encje osiągane przez te dowiązania nie są wyświetlane, ponieważ każde z nich prowadzi poza obszar roboczy Aggrega:** w przypadku kilku, przy czym najpierw wymieniane są dowiązania do katalogów, a potem dowiązania do plików. Po najechaniu kursorem na wiersz widać całe zdanie, ponieważ długa ścieżka jest w wierszu skracana. Gdy wybrana jest encja Release, dowiązanie w katalogu katalogowym, który odczytują tylko inne Releases, nie jest wymieniane, ponieważ i tak nic za nim nie zostałoby wyświetlone dla tej encji Release."
+  },
   "7b3636c2d459af4f": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -100090,6 +100147,17 @@
     "status": "machine",
     "text": "**Krok potoku odczytuje wyłącznie własne fakty hosta.** Pola `with:` i `when:` kroku odczytują połączenia tworzone przez hosta, tak jak odczytuje je własna encja Recipe hosta, i nigdy faktów renderowania ich celów — niezależnie od tego, czy FeatureRecipe ustawia klucz. Krok może przepisywać własne dokumenty komponentu hosta, a własne renderowanie hosta odczytuje to, co jego cele publikują, nigdy to, co wyemitowały. Dlatego zapisane bezpośrednio `with:` lub `when:` kroku, które odczytuje `render_facts` pod `.context.uses`, zatrzymuje build, zanim cokolwiek zostanie wyrenderowane, z krótkim kodem `E0348`, podając odwołanie i pole kroku — zamiast renderować pustą wartość. Fakty celów należy odczytywać w `valuesMapping:`, `workload:` lub `artifacts:` encji FeatureRecipe."
   },
+  "8e519a240064ded7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "30844f0a033450e8",
+      "reviewed": false
+    },
+    "srcHash": "8e519a240064ded7",
+    "status": "machine",
+    "text": "Wybór encji Release do pracy"
+  },
   "8e51c97c753b334a": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -104539,6 +104607,13 @@
     "srcHash": "94865a0ae1df4ffb",
     "status": "machine",
     "text": "Odwołanie do klucza provides"
+  },
+  "948692449b5bbbf1": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "948692449b5bbbf1",
+    "status": "machine",
+    "text": "Publikacja najpierw prosi o potwierdzenie i mówi, jak daleko sięga zmiana: encja jest pakowana i wypychana pod własną zadeklarowaną wersją, a każdy, kto pobierze tę wersję z tego rejestru, rozwiąże to, co zostało opublikowane. Publikacja jest też jedyną z tych operacji, która zmienia cokolwiek poza tą maszyną; dwa sprawdzenia i inspekcja niczego nie zapisują i niczego nie publikują. Wszystkie cztery pokazują postęp i można je zatrzymać."
   },
   "9486e77c1faef1bb": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -123388,6 +123463,13 @@
     "status": "machine",
     "text": "Recipe"
   },
+  "aec80ae7002f2588": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "aec80ae7002f2588",
+    "status": "machine",
+    "text": "![Strona ustawień samego edytora zawężona do ustawień rozszerzenia Aggrega, każde pod własnym nagłówkiem.](../../images/editor/manual/settings.png)"
+  },
   "aecbea9a4e5f8c3c": {
     "at": "2026-10-29T20:34:12.781Z",
     "job": "session-0018-20261029203412",
@@ -133096,6 +133178,17 @@
     "status": "machine",
     "text": "Inżynier Ops pisze wysoce specyficzny, związany z dostawcą kod infrastruktury we własnym pliku, oddzielonym od powierzchni autorskiej programisty."
   },
+  "bbbc5c4f21fa32a7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "5e8dcfce480ef95e",
+      "reviewed": false
+    },
+    "srcHash": "bbbc5c4f21fa32a7",
+    "status": "machine",
+    "text": "Operacje działające na cały zbiór to pierwsze dwa wiersze panelu — **Add plugin** oraz **Generate entities**, która zapisuje encje katalogu Plugin — a pasek tytułu samego panelu zawiera tylko odświeżanie. Dodawanie pyta o typ wtyczki, w postaci listy do wyboru, następnie o jedną dalszą odpowiedź wymaganą przez ten typ: możliwość obsługiwaną przez powiązanie `provider` albo rolę, w której powiązane jest dołączenie `governance`, a na końcu o nazwę do wyszukania w skonfigurowanym rejestrze, która musi rozwiązywać się do dokładnie jednej wtyczki tego typu; dołączenie jest zapisywane w konfiguracji obszaru roboczego tego projektu. Dodawanie to jedyna operacja tutaj, która łączy się z siecią, ponieważ przeszukuje rejestr, więc pokazuje postęp i można je zatrzymać. Gdy opublikowana wersja wtyczki została wycofana, dodawanie kończy się informacją o tym, zamiast pozostawiać to do odkrycia: wersje wycofane i niewybrane, przyczyna zapisana dla każdej, a także skąd odczytano rekordy wycofania i kiedy były ostatnio aktualizowane, pokazując tylko to, co zgłasza kompilator — a gdy tych rekordów w ogóle nie dało się odczytać, mówi to zamiast tego, z przyczyną podaną przez sam kompilator, co jest inną odpowiedzią niż to, że nic nie zostało wycofane."
+  },
   "bbbf2479d1561c0a": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -142218,6 +142311,17 @@
     "status": "machine",
     "text": "PluginRetractionProvenance"
   },
+  "c8982f34b7d69a0d": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "76e76a00eb6ba42c",
+      "reviewed": false
+    },
+    "srcHash": "c8982f34b7d69a0d",
+    "status": "machine",
+    "text": "Ile razy w poniższym oknie serwer językowy jest uruchamiany ponownie po tym, jak zatrzymał się bez polecenia, zanim rozszerzenie pozostawi go zatrzymanego i wyświetli powiadomienie o braku odpowiedzi. Ponownie uruchomiony serwer, który zatrzyma się, zanim odpowie, liczy się tak samo jak serwer zatrzymany w trakcie działania. Zob. [Cykl życia](language-server.md#lifecycle)."
+  },
   "c89e9a44a3691648": {
     "at": "2026-10-29T17:54:09.612Z",
     "job": "session-0007-20261029175409",
@@ -151272,6 +151376,13 @@
     "srcHash": "d4dc76bbb188cd4c",
     "status": "machine",
     "text": "**Encja Release wskazana przez dowiązanie jest odczytywana tam, dokąd prowadzi dowiązanie, a rozwiązywana tam, gdzie ją wskazano.**\nGdy wpisano `--release release.yaml`, a `release.yaml` jest dowiązaniem do pliku przechowywanego gdzie indziej — lub wskazano ją\nw ten sposób w `workspace.releases` albo jako `build.authoring_release` — encja Release jest odczytywana z\nmiejsca, do którego prowadzi dowiązanie. Wskazywane przez nią encje Aggregate i Manifest, przez tożsamość lub ścieżkę, są wyszukiwane\nobok dowiązania, w katalogu, w którym ją wskazano, i ograniczone do korzenia tego katalogu: obszaru\nroboczego lub samego katalogu, jeśli leży poza obszarem roboczym. Jej plik blokady również jest odczytywany i\nzapisywany obok dowiązania, nigdy tam, dokąd prowadzi dowiązanie. Encja Release nie należy do dokumentów, które\nnapotyka jej własne wyszukiwanie obok niej, więc nigdy go nie zatrzymuje; inna encja Release przechowywana obok niej, będąca\ndowiązaniem wychodzącym na zewnątrz, nadal je zatrzymuje. Encja Manifest sprawdzana samodzielnie przez dowiązanie jest odczytywana i rozwiązywana\nw ten sam sposób."
+  },
+  "d4dfa42f84925087": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "d4dfa42f84925087",
+    "status": "machine",
+    "text": "Generowanie encji katalogu pyta, czy objąć każdą wtyczkę wbudowaną w kompilator, czy jeden artefakt wtyczki na tej maszynie, również w postaci listy do wyboru, następnie o autorską nakładkę do scalenia i katalog, w którym zapisać, i prosi o potwierdzenie przed zapisem: każda encja jest zapisywana pod ścieżką wyprowadzoną z typu, nazwy i wersji jej wtyczki, więc encja już tam istniejąca dla tej samej wtyczki i wersji zostaje zastąpiona."
   },
   "d4e0d6d2dd4718c7": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -164429,6 +164540,13 @@
     "srcHash": "e6fe5ea332e893e6",
     "status": "machine",
     "text": "Required attachment slot not bound (Wymagany slot dołączenia nie jest powiązany)"
+  },
+  "e6fe707ff305d345": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "e6fe707ff305d345",
+    "status": "machine",
+    "text": "**Szczegóły panelu Plugins** — każdy wiersz podaje wtyczkę, jej typ i wersję oraz gotowość, jeśli wtyczka ją podaje. Wtyczka, której kompilator nie mógł rozwiązać ani opisać, jest oznaczona i zachowuje własny wiersz, z komunikatem kompilatora w podpowiedzi, więc nigdy nie zostanie wzięta za działającą. Podpowiedź podaje też klucz konfiguracji, z którego pochodzi dołączenie, jego możliwości, rodzaje danych wejściowych, granicę i eksporty — pokazując tylko to, co lista faktycznie zgłasza."
   },
   "e703bc2b08168d0e": {
     "at": "2026-10-29T22:01:23.699Z",
@@ -181464,6 +181582,13 @@
     "srcHash": "fea8250b11d1ae33",
     "status": "machine",
     "text": "**budowanie w ogóle nie może wytworzyć artefaktu.** Polityka `ir-verdict` działa\n  na bramce analizy statycznej, zanim cokolwiek zostanie wyrenderowane, więc zatrzymanie w tym miejscu\n  nie pozostawia niczego zapisanego — żadnego pliku wyjściowego do przeglądu, kwarantanny czy przypadkowego\n  zastosowania. Kontrola w potoku z konieczności działa dopiero wtedy, gdy pliki już istnieją."
+  },
+  "fea8623803c72819": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "fea8623803c72819",
+    "status": "machine",
+    "text": "Usuwanie wtyczki znajduje się w wierszu tej wtyczki. Najpierw prosi o potwierdzenie i mówi, który plik konfiguracyjny zapisuje, ponieważ zależy to od typu wtyczki — wtyczka `cli` jest usuwana z konfiguracji globalnej współdzielonej przez wszystkie obszary robocze na tej maszynie, każdy inny typ z własnej konfiguracji tego projektu — i działa wyłącznie na tekście konfiguracji, więc nic innego na tej maszynie nie jest usuwane. Usuwanie jest oferowane tylko dla skonfigurowanej wtyczki, za którą odpowiedział kompilator: wtyczka wbudowana w kompilator w ogóle nie jest wpisem konfiguracji, a dołączenie, którego nic nie mogło rozwiązać ani opisać, przychodzi bez typu, którego usuwanie potrzebuje obok odwołania — więc w tych wierszach jest ono wstrzymane, zamiast być oferowane jako kontrolka, która mogłaby jedynie zgłosić brakujący argument. Dodawanie wtyczki `cli` nie jest oferowane z panelu, ponieważ jej instalacja potwierdza zadeklarowane możliwości w terminalu, a za przyciskiem nie ma terminala — należy uruchomić to w terminalu i nacisnąć odświeżanie. Synchronizacja rekordów encji wtyczki należących do maszyny również nie jest oferowana: przyjmuje ona plik encji i artefakt `.wasm` jako dwie ścieżki, a wiersz nie wskazuje żadnej z nich."
   },
   "feb57ba4135b15c4": {
     "at": "2026-11-05T16:17:32.939Z",

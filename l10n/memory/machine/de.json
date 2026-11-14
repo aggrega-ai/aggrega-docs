@@ -14753,6 +14753,17 @@
     "status": "machine",
     "text": "Überspringt für diesen Build den persistenten Plugin-Kompilierungscache auf der Festplatte und kompiliert Plugin-Guests neu in einem In-Memory-Cache, der am Ende des Builds verworfen wird. Standardmäßig aus, wodurch der gemeinsame Cache auf der Festplatte über Builds hinweg wiederverwendet wird. Ändert die gerenderte Ausgabe nicht"
   },
+  "16dd952b2e134619": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "3c1da95eddc804eb",
+      "reviewed": false
+    },
+    "srcHash": "16dd952b2e134619",
+    "status": "machine",
+    "text": "Die Folge ist gewollt: **Ein Repository kann keine dieser Einstellungen für jemanden festlegen, der es öffnet.** Eine davon in eine `.vscode/settings.json` des Workspace zu schreiben, hat keine Wirkung — der Editor markiert sie dort als nicht anwendbar und verwendet weiterhin Ihren Wert. Wenn Sie eine Auswahl im Workspace selbst festhalten möchten, sind die beiden Release-Befehle unter [Ein Release auswählen](releases.md#selecting-a-release) diejenigen, die das tun, und sie schreiben `.aggrega/active-release` oder `.aggrega-config.yaml` statt einer Editoreinstellung."
+  },
   "16de412059b01250": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -41930,6 +41941,13 @@
     "status": "machine",
     "text": "Diese Seite ist das kanonische Inventar der Gesellschaftsverträge der Sprache. Autoren, die diese Gesellschaftsverträge auf dieser Seite kennenlernen, können nachvollziehen, warum der Compiler einen gemäß Konvention fehlerhaften Build akzeptiert (er tut es — der Compiler interpretiert die Konvention nicht) und wo die Verantwortung dafür liegt, die Verletzung zu erkennen (Authoring-Disziplin, Aufmerksamkeit der Reviewer oder ein Linter-Plugin, das von `aggrega lint` ausgeführt wird)."
   },
+  "4292bd76e9a3274e": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4292bd76e9a3274e",
+    "status": "machine",
+    "text": "Die Liste ist die eigene Antwort des Language Servers, daher nennt sie dieselben Entitäten, die der Compiler liest — ungespeicherte Editorpuffer eingeschlossen, die Vorrang vor den Bytes auf der Festplatte haben —, und sie wird in der Reihenfolge dargestellt, in der der Server sie gesendet hat, statt hier neu sortiert zu werden. Das Panel liest die Liste von sich aus erneut, wenn der Language Server antwortbereit wird, wenn sich das ausgewählte Release ändert, wenn ein `.yaml`-Dokument in einem im Fenster geöffneten Ordner auf der Festplatte erstellt, geändert oder gelöscht wird — ob durch den Editor, ein Terminal oder einen Checkout —, und wenn der Editor ein YAML-Dokument schließt. Es fragt erst, nachdem der Language Server verworfen hat, was er für diese Datei vorhielt, sodass eine Datei, die gelöscht wurde, während sie im Editor geöffnet war, aus der Liste verschwindet, statt aus der zuletzt vom Editor gesendeten Kopie gemeldet zu werden, ein in einem Puffer umbenanntes und ohne Speichern geschlossenes Dokument wieder so aufgelistet wird, wie es auf der Festplatte steht, und eine Reihe solcher Änderungen und Schließvorgänge ein einziger Lesevorgang ist. Der Editor schließt ein Dokument, wenn er es freigibt, was er nicht in dem Moment zu tun verspricht, in dem der Tab des Dokuments geschlossen wird, sodass eine Zeile, die aus dem Text eines Dokuments mit geschlossenem Tab stammt, bestehen bleiben kann, bis der Editor es tut. Das Panel folgt Ihrer Eingabe nicht von sich aus. Eine Änderung, die sich noch in einem ungespeicherten Puffer befindet, wird an den Language Server gesendet, sobald Sie die Eingabe in diesem Dokument unterbrechen — jedes geöffnete Dokument wartet seine eigene Pause ab, sodass die Eingabe in einem nie ein anderes aufhält —, und sie erscheint beim nächsten Lesen der Liste danach. Ein Druck auf die Aktualisierung des Panels liest die Liste für jedes geöffnete Dokument so, wie der Editor es im Moment des Drückens hält, wie kurz auch immer nach Ihrem letzten Tastendruck oder Rückgängigmachen: Eine noch nicht gesendete Änderung wird sofort gesendet, und die Liste wird erst angefordert, wenn der Language Server auf jede bis zum Drücken an ihn gesendete Änderung geantwortet hat. Ein vollständig gelöschter Ordner erscheint beim nächsten Lesen der Liste oder beim Drücken der Aktualisierung, da der Editor ihn möglicherweise als eine Änderung am Ordner meldet statt als eine an jedem Dokument darin."
+  },
   "42979e1839642761": {
     "at": "2026-11-03T10:34:01.071Z",
     "job": "session-0091-20261103103401",
@@ -42988,6 +43006,13 @@
     "srcHash": "4411ca90bf9be929",
     "status": "machine",
     "text": "Zur Klarstellung:"
+  },
+  "4418397927c5c297": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "4418397927c5c297",
+    "status": "machine",
+    "text": "Das Validieren der Entität, das Prüfen ihrer Veröffentlichungskonventionen und ihr Veröffentlichen benötigen jeweils den Pfad der Entität, daher werden sie nur auf einer Zeile angeboten, deren Entität von einem Dokument in diesem Workspace deklariert wird; eine aus einem konfigurierten Katalogverzeichnis aufgelöste Zeile hat in diesem Workspace keinen Pfad, den sie ihnen übergeben könnte, und sie werden auf ihr weggelassen, statt als Steuerelemente angeboten zu werden, die nur ein fehlendes Argument melden könnten. Von diesen dreien wird das Prüfen der Veröffentlichungskonventionen auf jeder solchen Zeile angeboten. Das Validieren wird dort angeboten, wo der Compiler ein Dokument dieser Art für sich allein prüft: Ein Aggregate etwa wird mit dem gesamten Katalog geprüft, wenn es in einem Katalogverzeichnis liegt, und mit einem Release, das es bereitstellt, daher bietet seine Zeile keine Validierung an. Die Validierung prüft die Entität im Sinne des ausgewählten Release, wie es `aggrega validate <path> --release <Release>` in einem Terminal tut, sodass das, worauf die Entität verweist — die Component, die ein Recipe implementiert, eine Bibliothek, die ihr Schema einbindet —, über die Katalogverzeichnisse aufgelöst wird, gegen die dieses Release baut; ohne ausgewähltes Release über die des Workspace selbst. Das Veröffentlichen wird dort angeboten, wo ein Dokument dieser Art für sich allein veröffentlicht wird, was ein Plugin ausschließt, dessen Veröffentlichung auch seine ausführbare Datei bindet, sowie ein Manifest oder ein Release, von denen keines veröffentlicht wird. Wenn der Language Server nicht angibt, welche Operationen die Art einer Zeile akzeptieren, werden die Zeilen dennoch aufgelistet, und eine Zeile mit einem Dokument bietet nur die Konventionsprüfung an; wo die Anfrage nach dieser Antwort fehlschlägt, wird ihr Grund in den Aggrega-Ausgabekanal geschrieben."
   },
   "441dcd73d6094a9e": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -48788,6 +48813,17 @@
     "srcHash": "4cfdf7e683e03167",
     "status": "machine",
     "text": "Ein Hinweis, der ausgelöst wird, wenn eine Entität gegen die Veröffentlichungskonventionen geprüft wird, beim Verfassen ebenso wie am Veröffentlichungs-Gate; er hält nie etwas an, und ein Build löst ihn nicht aus. Ein Anbindungs-Slot kann über seinen Selektor festlegen, dass nur ein Feature, das Secrets trägt, ihn füllen darf, und er kann separat festhalten, dass alles, was ihn füllt, geheimes Material verarbeitet. Der Selektor legt fest, welche Füllungen zulässig sind; der Eintrag legt die Verarbeitung fest. Ein Slot, der das Erste festlegt und das Zweite weglässt, sorgt dafür, dass die Verarbeitung aus dem Selektor erschlossen werden muss, statt am Slot abgelesen zu werden. Jeder Slot, den eine Entität deklariert, wird geprüft: die ihres eigenen Anbindungsblocks und, bei einer Component, die, die ein Abhängigkeits-Socket für jede darüber verdrahtete Verbindung deklariert — der Befund zum Slot eines Sockets nennt den Socket neben dem Slot."
+  },
+  "4d01e118847ff11a": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "ed51ba115718031e",
+      "reviewed": false
+    },
+    "srcHash": "4d01e118847ff11a",
+    "status": "machine",
+    "text": "Ob die [Willkommensseite](welcome-page.md) beim Start geöffnet wird. Drei Oberflächen verstellen diese eine Einstellung und bleiben synchron: das Kontrollkästchen am Fuß der Seite selbst, **Aggrega: Stop opening the welcome page on startup** und **Aggrega: Get started**. Das Ausschalten verhindert, dass sich die Seite öffnet, ohne sie zu entfernen; das Wiedereinschalten mit **Aggrega: Get started** öffnet sie auch."
   },
   "4d0505b0beef2682": {
     "at": "2026-10-30T20:43:14.394Z",
@@ -58273,6 +58309,13 @@
     "status": "machine",
     "text": "Die Payload, die ein Provider-Guest über seinen optionalen Export name_bound erhält: ein Name, den der Host als Komponentenidentität eines Knotens zu verwenden vorschlägt, damit der Guest ihn gegen jeden Namen beurteilt, den er daraus für sein Ziel ableiten würde, zusammen mit den Fakten der aufgelösten Workload des Knotens, von denen einige dieser Namen abhängen, wenn die Identität erst nach der Auflösung dieser Workload festgelegt wird. Der Guest antwortet mit einer Einschränkung statt mit einem eigenen Namen — ein zurückgegebener abgeleiteter Name würde den Host in die Lage bringen, Namen für ein Ziel zu bilden, über das er nichts weiß, und genau das beseitigt das Stellen der Frage. Ein Provider, dessen Ziel die Namen, die es akzeptiert, begrenzt oder einschränkt, kündigt den Export an; ein Provider, dessen Ziel jeden Namen akzeptiert, lässt ihn weg und wird nie gefragt, und sein Rendering bleibt unverändert."
   },
+  "5b848c6fa53c2a21": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "5b848c6fa53c2a21",
+    "status": "machine",
+    "text": "![Die Release-Auswahl, die die vier Releases eines Workspace nach ihren Pfaden auflistet, während die Release-Zeile und die Statusleiste anzeigen, dass keines ausgewählt ist.](../../images/editor/manual/release-picker.png)"
+  },
   "5b84e7c915382c78": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -65435,6 +65478,13 @@
     "srcHash": "66dad8deae980340",
     "status": "machine",
     "text": "Ein Modul, das eine Registry veröffentlicht, als Quelle verwenden"
+  },
+  "66db9d07a5d9fb38": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "66db9d07a5d9fb38",
+    "status": "machine",
+    "text": "Die Suche im veröffentlichten Katalog ist die erste Zeile dieses Panels, **Search catalog**: Sie fragt nach einem Filter und kopiert die Referenz dessen, was Sie auswählen. Das Entwerfen einer neuen Entität ist die zweite Zeile, **Draft entity**: Sie fragt nach der Art, als Liste, aus der Sie wählen, und öffnet das Startdokument in einem Tab, ohne etwas auf die Festplatte zu schreiben. Die Titelleiste dieses Panels selbst trägt nur die Aktualisierung. Die Operationen, die auf eine einzelne Entität wirken, liegen auf der Zeile dieser Entität, und eine Zeile bietet eine Operation nur dort an, wo der Compiler sie für die Art der Zeile akzeptiert. Welche Arten jede Operation akzeptiert, ist die eigene Antwort des Language Servers, die jedes Mal mit der Liste erneut gelesen wird, sodass die Zeilen dem Compiler folgen, den Sie ausführen, statt einer in der Erweiterung gepflegten Liste. Das Untersuchen dessen, wozu eine Entität aufgelöst wird, ist die einzige Operation, die ohne Öffnen des Zeilenmenüs erreichbar ist: Sie spricht die Entität über ihren Namen an, den jede Zeile trägt, daher wird sie auf einer Zeile angeboten, ob der Workspace ein Dokument dafür enthält oder nicht, überall dort, wo der Compiler einen Namen zu einer Entität dieser Art auflöst, und sie ändert nichts."
   },
   "66dd8211a8629bfb": {
     "at": "2026-11-03T22:53:36.381Z",
@@ -78500,6 +78550,13 @@
     "status": "machine",
     "text": "Alles Obige regelt Namen auf der Authoring-Oberfläche — einen Instanznamen, den Sie wählen, ein Schemafeld, das die Sprache für Sie zum Ausfüllen definiert, einen Template-Kontext-Schlüssel, den Sie lesen. Zwei weitere Register regeln die Bezeichner, die **die Plattform selbst definiert** und die Sie nur zurücklesen oder eintippen. Sie sind getrennt, weil sie unterschiedliche Aufgaben erfüllen, und die Aufgabe bestimmt die Form."
   },
+  "7b347133bd9dbd29": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "7b347133bd9dbd29",
+    "status": "machine",
+    "text": "Der Language Server liest keine Entität über einen Link, der aus dem Workspace hinausführt — einen Link auf ein Verzeichnis außerhalb oder einen wie eine YAML-Datei benannten Link, der auf eine Datei außerhalb führt —, daher wird keine Entität hinter einem solchen Link aufgelistet, obwohl der Dateibaum Ihres Editors sie zeigt. Die einzige Ausnahme ist ein Release, das Ihre Workspace-Konfiguration als `build.authoring_release` oder als Schlüssel von `workspace.releases` nennt; es wird über seinen Link gelesen und an der Stelle des Links selbst aufgelistet. Wo die Liste einen solchen Link auslässt, sagt dies eine eigene Zeile nach der Liste: **Über diesen Link erreichte Entitäten werden nicht aufgelistet, weil er aus dem Aggrega-Workspace hinausführt:** gefolgt vom Pfad des Links relativ zum Workspace — oder **Über diese Links erreichte Entitäten werden nicht aufgelistet, weil jeder aus dem Aggrega-Workspace hinausführt:** bei mehreren, wobei zuerst die Links auf Verzeichnisse und dann die Links auf Dateien genannt werden. Beim Darüberfahren mit dem Mauszeiger zeigt die Zeile den ganzen Satz, da ein langer Pfad in der Zeile gekürzt wird. Ist ein Release ausgewählt, wird ein Link in einem Katalogverzeichnis, das nur andere Releases lesen, nicht genannt, da dahinter für dieses Release ohnehin nichts aufgelistet würde."
+  },
   "7b3636c2d459af4f": {
     "at": "2026-11-03T03:37:30.908Z",
     "job": "session-0046-20261103033730",
@@ -90482,6 +90539,17 @@
     "status": "machine",
     "text": "**Ein Pipeline-Schritt liest nur die eigenen Fakten seines Hosts.** `with:` und `when:` eines Schritts lesen die Verbindungen, die der Host herstellt, so wie das eigene Recipe des Hosts sie liest, und nie die Render-Fakten ihrer Ziele — ob das FeatureRecipe den Schlüssel setzt oder nicht. Ein Schritt kann die eigenen Dokumente der Host-Komponente umschreiben, und das eigene Rendern des Hosts liest, was seine Ziele veröffentlichen, nie, was sie ausgegeben haben. Ein inline geschriebenes `with:` oder `when:` eines Schritts, das `render_facts` unterhalb von `.context.uses` liest, hält daher den Build an, bevor irgendetwas gerendert wird, mit dem Kurzcode `E0348`, und nennt die Referenz und das Feld des Schritts — statt einen leeren Wert zu rendern. Lesen Sie die Fakten der Ziele in `valuesMapping:`, `workload:` oder `artifacts:` des FeatureRecipe."
   },
+  "8e519a240064ded7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "30844f0a033450e8",
+      "reviewed": false
+    },
+    "srcHash": "8e519a240064ded7",
+    "status": "machine",
+    "text": "Das Release wählen, an dem Sie arbeiten"
+  },
   "8e51c97c753b334a": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -94484,6 +94552,13 @@
     "srcHash": "9485466ca3933034",
     "status": "machine",
     "text": "Ausgegebene Meldung. Die Kategorie erreicht Sie im Kopf in eckigen Klammern:"
+  },
+  "948692449b5bbbf1": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "948692449b5bbbf1",
+    "status": "machine",
+    "text": "Das Veröffentlichen fragt zuerst nach einer Bestätigung und sagt, wie weit die Änderung reicht: Die Entität wird gebündelt und unter ihrer eigenen deklarierten Version gepusht, und jeder, der diese Version aus dieser Registry bezieht, löst das Veröffentlichte auf. Das Veröffentlichen ist außerdem die einzige dieser Operationen, die etwas über diesen Rechner hinaus ändert; die beiden Prüfungen und die Untersuchung schreiben nichts und veröffentlichen nichts. Alle vier zeigen Fortschritt an und können abgebrochen werden."
   },
   "9486e77c1faef1bb": {
     "at": "2026-11-03T21:51:54.059Z",
@@ -111466,6 +111541,13 @@
     "status": "machine",
     "text": "Recipe"
   },
+  "aec80ae7002f2588": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "aec80ae7002f2588",
+    "status": "machine",
+    "text": "![Die Einstellungsseite des Editors, auf die Einstellungen der Aggrega-Erweiterung eingeschränkt, jede unter ihrer eigenen Überschrift.](../../images/editor/manual/settings.png)"
+  },
   "aecbea9a4e5f8c3c": {
     "at": "2026-10-30T06:11:53.265Z",
     "job": "session-0068-20261030061153",
@@ -120360,6 +120442,17 @@
     "status": "machine",
     "text": "Der Ops-Ingenieur schreibt hochspezifischen, herstellergebundenen Infrastrukturcode in einer eigenen Datei, entkoppelt von der Autorenoberfläche des Entwicklers."
   },
+  "bbbc5c4f21fa32a7": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "5e8dcfce480ef95e",
+      "reviewed": false
+    },
+    "srcHash": "bbbc5c4f21fa32a7",
+    "status": "machine",
+    "text": "Die Operationen, die auf die gesamte Menge wirken, sind die ersten beiden Zeilen des Panels — **Add plugin** und **Generate entities**, das Plugin-Katalogentitäten schreibt —, und die Titelleiste des Panels selbst trägt nur die Aktualisierung. Das Hinzufügen fragt nach dem Plugin-Typ, als Liste, aus der Sie wählen, dann nach der einen weiteren Antwort, die dieser Typ verlangt: der Capability, die ein `provider`-Binding bedient, oder der Rolle, an die ein `governance`-Attachment gebunden ist, und zuletzt nach dem Namen, nach dem in der konfigurierten Registry gesucht werden soll und der zu genau einem Plugin dieses Typs aufgelöst werden muss; das Attachment wird in die Workspace-Konfiguration dieses Projekts geschrieben. Das Hinzufügen ist hier die einzige Operation, die auf das Netzwerk zugreift, da sie die Registry durchsucht; daher zeigt sie Fortschritt an und kann abgebrochen werden. Wo eine veröffentlichte Version des Plugins zurückgezogen wurde, endet das Hinzufügen damit, dies zu sagen, statt es dem späteren Auffinden zu überlassen: die zurückgezogenen und nicht ausgewählten Versionen, der jeweils dazu festgehaltene Grund und woher die Rückzugsdatensätze gelesen wurden und wann sie zuletzt aktualisiert wurden, wobei nur gezeigt wird, was der Compiler meldet — und wo diese Datensätze überhaupt nicht gelesen werden konnten, sagt es stattdessen das, mit dem eigenen Grund des Compilers, was eine andere Antwort ist als die, dass nichts zurückgezogen wurde."
+  },
   "bbbf2479d1561c0a": {
     "at": "2026-11-03T22:29:54.265Z",
     "job": "session-0168-20261103222954",
@@ -128555,6 +128648,17 @@
     "status": "machine",
     "text": "PluginRetractionProvenance"
   },
+  "c8982f34b7d69a0d": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "revision": {
+      "from": "76e76a00eb6ba42c",
+      "reviewed": false
+    },
+    "srcHash": "c8982f34b7d69a0d",
+    "status": "machine",
+    "text": "Wie oft der Language Server innerhalb des unten angegebenen Fensters erneut gestartet wird, nachdem er ohne Aufforderung angehalten hat, bevor die Erweiterung ihn angehalten lässt und die Benachrichtigung auslöst, dass er nicht mehr antwortet. Ein erneut gestarteter Server, der anhält, bevor er geantwortet hat, zählt genauso wie einer, der während des Betriebs anhält. Siehe [Lebenszyklus](language-server.md#lifecycle)."
+  },
   "c89e9a44a3691648": {
     "at": "2026-10-30T04:51:13.962Z",
     "job": "session-0057-20261030045113",
@@ -136746,6 +136850,13 @@
     "srcHash": "d4dc76bbb188cd4c",
     "status": "machine",
     "text": "**Ein Release, das Sie über einen Link benennen, wird dort gelesen, wohin der Link führt, und dort aufgelöst, wo Sie es benannt haben.** Eingegeben als `--release release.yaml`, wobei `release.yaml` ein Link auf eine anderswo liegende Datei ist — oder auf diese Weise unter `workspace.releases` oder als `build.authoring_release` benannt —, wird das Release von dem Ort gelesen, zu dem der Link führt. Das Aggregate und das Manifest, die es benennt, über die Identität oder über einen Pfad, werden neben dem Link gesucht, in dem Verzeichnis, in dem Sie es benannt haben, und an die Wurzel dieses Verzeichnisses gebunden: den Workspace oder das Verzeichnis selbst, wo es außerhalb des Workspace liegt. Auch sein Lockfile wird neben dem Link gelesen und geschrieben, nie dort, wohin der Link führt. Das Release gehört nicht zu den Dokumenten, auf die seine eigene Suche neben ihm trifft, daher hält es diese Suche nie an; ein anderes Release daneben, das ein hinausführender Link ist, hält sie dennoch an. Ein Manifest, das Sie allein über einen Link inspizieren, wird auf dieselbe Weise gelesen und aufgelöst."
+  },
+  "d4dfa42f84925087": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "d4dfa42f84925087",
+    "status": "machine",
+    "text": "Das Generieren von Katalogentitäten fragt, ob jedes in den Compiler eingebaute Plugin oder ein Plugin-Artefakt auf diesem Rechner abgedeckt werden soll, ebenfalls als Liste, aus der Sie wählen, dann nach dem verfassten Overlay, das eingemischt werden soll, und dem Verzeichnis, unter das geschrieben werden soll, und fragt vor dem Schreiben nach einer Bestätigung: Jede Entität wird unter einem Pfad geschrieben, der aus Typ, Name und Version ihres Plugins abgeleitet ist, sodass eine bereits vorhandene Entität für dasselbe Plugin und dieselbe Version ersetzt wird."
   },
   "d4e0d6d2dd4718c7": {
     "at": "2026-11-03T01:59:06.045Z",
@@ -148658,6 +148769,13 @@
     "srcHash": "e6fe5ea332e893e6",
     "status": "machine",
     "text": "Required attachment slot not bound (Erforderlicher Anbindungs-Slot nicht gebunden)"
+  },
+  "e6fe707ff305d345": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "e6fe707ff305d345",
+    "status": "machine",
+    "text": "**Details zum Plugins-Panel** — jede Zeile nennt das Plugin, seinen Typ und seine Version sowie seine Bereitschaft, wo das Plugin eine angibt. Ein Plugin, das der Compiler nicht auflösen oder beschreiben konnte, wird markiert und behält seine eigene Zeile, mit der Meldung des Compilers im Tooltip, sodass es nie für ein funktionierendes gehalten wird. Der Tooltip nennt außerdem den Konfigurationsschlüssel, aus dem ein Attachment stammt, seine Capabilities, seine Eingabearten, seine Boundary und seine Exporte — wobei nur gezeigt wird, was die Auflistung tatsächlich meldet."
   },
   "e703bc2b08168d0e": {
     "at": "2026-10-30T19:18:26.912Z",
@@ -164254,6 +164372,13 @@
     "srcHash": "fea8250b11d1ae33",
     "status": "machine",
     "text": "**der Build das Artefakt gar nicht erst erzeugen darf.** Eine Richtlinie `ir-verdict` läuft an der Prüfung der statischen Analyse, bevor irgendetwas gerendert wird, sodass ein Abbruch dort nichts Geschriebenes hinterlässt — keine Ausgabedatei, die zu prüfen, unter Quarantäne zu stellen oder versehentlich anzuwenden wäre. Eine Pipeline-Prüfung läuft zwangsläufig, nachdem die Dateien existieren."
+  },
+  "fea8623803c72819": {
+    "at": "2026-11-14T23:39:01.940Z",
+    "job": "session-0008-20261114233901",
+    "srcHash": "fea8623803c72819",
+    "status": "machine",
+    "text": "Das Entfernen eines Plugins liegt auf der Zeile dieses Plugins. Es fragt zuerst nach einer Bestätigung und sagt, welche Konfigurationsdatei es schreibt, weil das vom Typ des Plugins abhängt — ein `cli`-Plugin wird aus der globalen Konfiguration entfernt, die von allen Workspaces auf diesem Rechner geteilt wird, jeder andere Typ aus der eigenen Konfiguration dieses Projekts —, und es arbeitet nur am Text der Konfiguration, sodass sonst nichts auf diesem Rechner entfernt wird. Das Entfernen wird nur für ein konfiguriertes Plugin angeboten, für das der Compiler geantwortet hat: Ein in den Compiler eingebautes Plugin ist überhaupt kein Konfigurationseintrag, und ein Attachment, das nichts auflösen oder beschreiben konnte, kommt ohne Typ an, den das Entfernen neben der Referenz benötigt — daher wird es auf diesen Zeilen weggelassen, statt als Steuerelement angeboten zu werden, das nur ein fehlendes Argument melden könnte. Das Hinzufügen eines `cli`-Plugins wird im Panel nicht angeboten, weil bei seiner Installation die deklarierten Capabilities in einem Terminal bestätigt werden und hinter einer Schaltfläche keines steht — führen Sie es in einem Terminal aus und drücken Sie auf Aktualisieren. Auch das Synchronisieren der maschinenverwalteten Datensätze einer Plugin-Entität wird nicht angeboten: Es nimmt die Entitätsdatei und das `.wasm`-Artefakt als zwei Pfade entgegen, und eine Zeile nennt keinen von beiden."
   },
   "feb57ba4135b15c4": {
     "at": "2026-11-05T16:17:32.939Z",
