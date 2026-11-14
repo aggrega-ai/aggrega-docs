@@ -102,3 +102,12 @@ The run's provider key was a placeholder, which Dify refused with OpenAI's
 ```text
 {"code":"provider_not_initialize","message":"Model gpt-4o-mini credentials is not initialized.","status":400}
 ```
+
+Built as above, for Kubernetes, and applied as the walkthrough's
+[Run it](../../../authoring/import/dify.md#run-it) applies it, the API answers
+the same requests at the same address once a local port is forwarded to its
+Service; the run got the same replies there:
+
+```sh
+kubectl port-forward -n <namespace> svc/dify-zdapi-default 5001:5001
+```

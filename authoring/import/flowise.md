@@ -477,6 +477,18 @@ refusal of it, which shows the chatflow ran as far as its call to the model:
 
 With your key, the reply carries the answer at `text`.
 
+On Kubernetes, with the build [On Kubernetes](#on-kubernetes) describes
+applied and its seed Job complete, forward a local port to Flowise's Service,
+`flowise-default`, in the namespace you applied to, and leave the command
+running:
+
+```bash
+kubectl port-forward -n <namespace> svc/flowise-default 3000:3000
+```
+
+From another terminal, the question above reaches the chatflow at the same
+address, unchanged; the run got the same refusal of the placeholder key.
+
 Stop the stack with the command below. `-v` also removes Flowise's data
 volume, and with it the owner account and the chatflow the seed wrote:
 
@@ -486,10 +498,16 @@ docker compose -p support-chat -f dist/compose/docker-compose.yaml down -v
 
 ## On Kubernetes
 
-The same chatflow imports for Kubernetes with the `helm` target:
+The same chatflow imports for Kubernetes with the `helm` target. The drafts
+for Docker Compose already sit in `source`, and the import never writes over
+an Aggregate there, so draft these into a folder of their own with
+`--output-dir`, then validate and build from it:
 
 ```bash
-aggrega import support-chat.json --target helm
+aggrega import support-chat.json --target helm --output-dir helm
+cd helm
+aggrega validate --release release.yaml
+aggrega build --release release.yaml
 ```
 
 The drafts differ where the target does. The Manifest maps the platform to
@@ -499,7 +517,8 @@ namespace. The Release attaches the owner's password and the OpenAI key as
 `core/referenced-secret`, each naming its Secret, and takes all three answers
 from the answers file: the owner's email, `flowise-owner` and `openai-api-key`.
 
-The build writes plain Kubernetes manifests under `dist/helm/`, the chatflow's
+The build writes plain Kubernetes manifests under `dist/helm/` at the
+workspace root, `source`, which from `helm` is `../dist/helm/`, the chatflow's
 seed among them as a Job. Create the two Secrets in the namespace you apply to,
 each holding its value under the data key `value`, then apply the folder as the
 run step of [How an import runs](README.md#how-an-import-runs) explains.

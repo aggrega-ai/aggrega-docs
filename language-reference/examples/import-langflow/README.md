@@ -103,3 +103,11 @@ curl -sS -X POST 'http://127.0.0.1:7860/api/v1/run/0dbee653-41ae-4e51-af2e-55757
 
 The run's OpenAI key was a placeholder, so the answer is OpenAI's refusal of
 it: the flow ran as far as its call to the model.
+
+Imported with `--target helm` and applied to Kubernetes, Langflow answers the
+same requests at the same address once a local port is forwarded to its
+Service:
+
+```sh
+kubectl port-forward -n <namespace> svc/langflow-default 7860:7860
+```

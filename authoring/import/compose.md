@@ -525,6 +525,37 @@ Stop the stack with:
 docker compose -p notes -f dist/compose/docker-compose.yaml down
 ```
 
+### On Kubernetes
+
+The same project imports for Kubernetes with `--target helm`, and the import
+reads the Secret's name, `notes-db-password`, from the answers file above. The
+drafts for Docker Compose already sit in `source`, so draft these into a
+folder of their own, name the API's image in its `release.yaml` as for Docker
+Compose, and build from it:
+
+```bash
+aggrega import compose.yaml --target helm --output-dir helm
+cd helm
+aggrega build --release release.yaml --auto-pull
+```
+
+The build writes plain Kubernetes manifests under `dist/helm/` at the
+workspace root, `source`, which from `helm` is `../dist/helm/`. Create the
+Secret `notes-db-password` in the namespace you apply to, holding the password
+under the data key `value`, and apply the folder as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The API's Service
+is `api-default`: forward a local port to it, and leave the command running:
+
+```bash
+kubectl port-forward -n <namespace> svc/api-default 8080:8080
+```
+
+From another terminal, the request above reaches the API at the same address,
+unchanged, and the stand-in answers the same way, `"host": "127.0.0.1:8080"`.
+The connections deliver the Services' names:
+`kubectl exec -n <namespace> deploy/api -- printenv DATABASE_HOST DATABASE_USER DATABASE_NAME CACHE_HOST`
+prints `db-default`, `notes`, `notes` and `cache-default`.
+
 ## When the Compose file changes
 
 Keep `.aggrega-import.json` beside the drafts, and after the Compose file

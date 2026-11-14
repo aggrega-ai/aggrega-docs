@@ -144,7 +144,7 @@ Pull complete: <workspace>/release.lock (entities=25, source_artifacts=0, extern
 - **The `warn` line** says that the model stays inside Dify: Dify configures
   its model providers, and their keys, for itself, so the draft wires no model.
   Once Dify runs, you install its OpenAI provider and set the provider's key,
-  as [Run it](#run-it) shows.
+  as [Test it](#test-it) shows.
 - **The `Pull complete` line** is the pull. With every value answered from the
   answers file, the import pulled the drafted Release's dependencies, as
   `aggrega pull` does, and wrote `release.lock`; the build below needs nothing
@@ -465,21 +465,33 @@ imported 'Support assistant' as application 7e03e85c-b13f-4ddc-b539-040470a61d4c
 partitioned roll out complete: 1 new pods have been updated...
 ```
 
-The log names the application's identifier, which you need below. The steps
-that follow call Dify's console API on its API server, so in a second terminal
-forward a local port to the server's Service, and leave the command running
-there:
+The log names the application's identifier, which [Test it](#test-it) needs.
+
+## Test it
+
+Dify's API answers at `http://127.0.0.1:5001`. On Kubernetes, forward a local
+port to the API server's Service, `dify-zdapi-default`, in the namespace you
+applied to, and leave the command running in a second terminal:
 
 ```bash
-kubectl port-forward svc/dify-zdapi-default 5001:5001
+kubectl port-forward -n <namespace> svc/dify-zdapi-default 5001:5001
 ```
 
-Back in the first terminal, where `DIFY_OWNER_PASSWORD` is set, sign in as the
-owner. The console API takes the password Base64-encoded, and signing in
-leaves the session in `cookies.txt`. Every later console request sends the
-session back, with the CSRF token from the same file in an `X-CSRF-Token`
-header; a request without it is refused with
-`CSRF token is missing or invalid.`
+On Docker Compose, started as [On Docker Compose](#on-docker-compose) shows,
+the Release publishes the API at that address already, and the console at
+`http://127.0.0.1:3001`. Open <http://127.0.0.1:3001/signin>, the console's
+sign-in page; `/` redirects there. Signing in from that page does not work as
+drafted: the page sends its requests to the API at `http://127.0.0.1:5001`,
+and Dify's API answers a browser only for pages served from
+`http://127.0.0.1:3000`, the console address it assumes, so the browser
+refuses each reply.
+
+The application answers through the API, with no browser involved. In a
+terminal where `DIFY_OWNER_PASSWORD` is set, sign in as the owner. The console
+API takes the password Base64-encoded, and signing in leaves the session in
+`cookies.txt`. Every later console request sends the session back, with the
+CSRF token from the same file in an `X-CSRF-Token` header; a request without it
+is refused with `CSRF token is missing or invalid.`
 
 ```bash
 printf '{"email": "owner@example.com", "password": "%s"}' "$(printf %s "$DIFY_OWNER_PASSWORD" | base64 | tr -d '\n')" |
@@ -493,7 +505,7 @@ CSRF=$(awk '$6 == "csrf_token" {print $7}' cookies.txt)
 
 Dify's model providers are plugins, and a new installation holds none. Install
 Dify's OpenAI provider, at version 1.1.0, the one the run installed; the plugin
-runtime fetches it from Dify's marketplace, so the cluster must reach the
+runtime fetches it from Dify's marketplace, so the installation must reach the
 internet:
 
 ```bash
@@ -503,7 +515,7 @@ curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/j
 ```
 
 ```text
-{"all_installed":false,"task_id":"01a1b9ef-8220-73d0-b9be-251a1fbd53d0","task":null}
+{"all_installed":false,"task_id":"01a1dc0a-653d-756b-a104-e5d6d1e43695","task":null}
 ```
 
 The installation runs in the background. Ask for its task, with the
@@ -515,7 +527,7 @@ curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" \
 ```
 
 ```text
-{"task":{"id":"01a1b9ef-8220-73d0-b9be-251a1fbd53d0",[… omitted: when it was created and last updated],"status":"success","total_plugins":1,"completed_plugins":1,"plugins":[{"plugin_unique_identifier":"langgenius\/openai:1.1.0@1ded02acee56efd5788c86fd447d792e4923e959554a4942f440c7859d164340","plugin_id":"langgenius\/openai","status":"success","message":"installed",[… omitted: the plugin's icon and its names in four languages],"source":"marketplace"}]}}
+{"task":{"id":"01a1dc0a-653d-756b-a104-e5d6d1e43695",[… omitted: when it was created and last updated],"status":"success","total_plugins":1,"completed_plugins":1,"plugins":[{"plugin_unique_identifier":"langgenius\/openai:1.1.0@1ded02acee56efd5788c86fd447d792e4923e959554a4942f440c7859d164340",[… omitted: the plugin's status, its icon and its names in four languages]}]}}
 ```
 
 Write the provider's key into `openai.json`, as
@@ -529,26 +541,18 @@ curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/j
 rm openai.json
 ```
 
+Dify checks the key with one request to the provider before it keeps it, and
+answers `{"result":"success"}` for a key the provider accepts. The run set a
+placeholder, and Dify refused it with OpenAI's answer:
+
 ```text
-{"result":"success"}
+{"code":"invalid_param","message":"Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place*****************-key. You can find your API key at https:\/\/platform.openai.com\/account\/api-keys.', 'type': 'invalid_request_error', 'code': 'invalid_api_key', 'param': None}, 'status': 401}","status":400}
 ```
 
-Dify checks the key with one request to the provider before it keeps it. The
-run had no OpenAI key: it used a small local model in place of OpenAI, as the
-run step of [How an import runs](README.md#how-an-import-runs) describes, here
-built for `helm/ollama` from a workspace of its own and served in the cluster
-behind the Service `local-model-default`. The run copied the model under the
-name the application asks for, with
-`kubectl exec statefulset/local-model -- ollama cp qwen2.5:0.5b gpt-4o-mini`,
-and its `openai.json` carried, beside a key the local server does not check,
-three more settings: `"openai_api_base": "http://local-model-default:11434"`,
-that server's address, with no `/v1`, which the provider adds; `"api_protocol": "chat"`, which has the provider call
-the server's Chat Completions route rather than the Responses API it calls by default; and
-`"validate_model": "gpt-4o-mini"`, the model Dify checks the key with. With an
-OpenAI key, you set only `openai_api_key`, as above.
-
 An application answers requests made with an API key of its own. Create one,
-with the application's identifier from the import Job's log:
+with the application's identifier from the log of the step that imports it —
+on Docker Compose,
+`docker compose -p support-assistant -f ../dist/boundaries/platform/compose/docker-compose.yaml logs dify-zdapi-app-import`:
 
 ```bash
 curl -sS -X POST -b cookies.txt -H "X-CSRF-Token: $CSRF" \
@@ -556,7 +560,7 @@ curl -sS -X POST -b cookies.txt -H "X-CSRF-Token: $CSRF" \
 ```
 
 ```text
-{"id":"bddd5811-8733-495e-835d-21b26d1fc01b","type":"app","token":"[… omitted: the key]","last_used_at":null,"created_at":1794120860}
+{"id":"8d6c1eb1-cf61-4825-9b04-f32689ed0489","type":"app","token":"[… omitted: the key]","last_used_at":null,"created_at":1794693042}
 ```
 
 and send the application a message with the key, the reply's `token`:
@@ -564,18 +568,20 @@ and send the application a message with the key, the reply's `token`:
 ```bash
 curl -sS http://127.0.0.1:5001/v1/chat-messages \
   -H 'Authorization: Bearer <app key>' -H 'Content-Type: application/json' \
-  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "run-it"}'
+  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "test-it"}'
 ```
+
+With the placeholder refused, the model has no key, and Dify says so:
 
 ```text
-{"event": "message", [… omitted: the task's, the message's and the conversation's identifiers], "mode": "chat", "answer": "Support plans cover technical assistance, troubleshooting, maintenance, and other services related to software usage.", "metadata": {[… omitted: the token usage, Dify's list price for it and the latency, and three empty fields]}, "created_at": 1794120860}
+{"code":"provider_not_initialize","message":"Model gpt-4o-mini credentials is not initialized.","status":400}
 ```
 
-The answer is at `answer`. It came from the small local model above, under the
-name `gpt-4o-mini`.
+The runs on Kubernetes and on Docker Compose got the same replies. With a key
+the provider accepts, the reply carries the model's answer at `answer`.
 
-Stop the port forward, then remove what you applied, the Secrets and the
-session file:
+On Kubernetes, stop the port forward, then remove what you applied, the
+Secrets and the session file:
 
 ```bash
 kubectl delete -R -f dist/boundaries/platform/helm/
@@ -586,48 +592,9 @@ rm cookies.txt
 
 Kubernetes keeps the volume claims a StatefulSet made when the StatefulSet is
 deleted, so the third command removes them, and with them the database, the
-installed plugin and the vector store.
-
-## Test it
-
-On Docker Compose, started as [On Docker Compose](#on-docker-compose) shows,
-the Release publishes the API at `http://127.0.0.1:5001` and the console at
-`http://127.0.0.1:3001`. Open <http://127.0.0.1:3001/signin>, the console's
-sign-in page; `/` redirects there. Signing in from that page does not work as
-drafted: the page sends its requests to the API at `http://127.0.0.1:5001`,
-and Dify's API answers a browser only for pages served from
-`http://127.0.0.1:3000`, the console address it assumes, so the browser
-refuses each reply.
-
-The application answers through the API, with no browser involved. The
-requests of [Run it](#run-it) that sign in, install the OpenAI provider, set
-its key and create the application's key reach `http://127.0.0.1:5001` as they
-stand, with no port forward; the application's identifier is in the log of the
-step that imports it,
-`docker compose -p support-assistant -f ../dist/boundaries/platform/compose/docker-compose.yaml logs dify-zdapi-app-import`.
-Then send the application a message with its key:
-
-```bash
-curl -sS http://127.0.0.1:5001/v1/chat-messages \
-  -H 'Authorization: Bearer <app key>' -H 'Content-Type: application/json' \
-  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "test-it"}'
-```
-
-The run set a placeholder as the provider's key, and Dify refused it with
-OpenAI's answer when it checked it:
-
-```text
-{"code":"invalid_param","message":"Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place*****************-key. You can find your API key at https:\/\/platform.openai.com\/account\/api-keys.', 'type': 'invalid_request_error', 'code': 'invalid_api_key', 'param': None}, 'status': 401}","status":400}
-```
-
-so the message got Dify's answer that the model has no key:
-
-```text
-{"code":"provider_not_initialize","message":"Model gpt-4o-mini credentials is not initialized.","status":400}
-```
-
-With a key the provider accepts, the reply carries the answer at `answer`, as
-in [Run it](#run-it).
+installed plugin and the vector store. On Docker Compose,
+`docker compose -p support-assistant -f ../dist/boundaries/platform/compose/docker-compose.yaml down -v`
+removes the stack and its volumes.
 
 ## On Docker Compose
 

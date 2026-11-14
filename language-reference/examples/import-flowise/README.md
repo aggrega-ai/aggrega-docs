@@ -97,3 +97,11 @@ curl -sS -X POST http://127.0.0.1:3000/api/v1/prediction/40d9f5c5-5187-54c1-a9f5
 The run's OpenAI key was a placeholder, so the answer is OpenAI's refusal of
 it: the chatflow ran as far as its call to the model. The run published
 Flowise on 3002, since 3000 was taken on its machine, as the walkthrough says.
+
+Imported with `--target helm` and applied to Kubernetes, the chatflow answers
+the same request at the same address once a local port is forwarded to
+Flowise's Service; the run got the same refusal there:
+
+```sh
+kubectl port-forward -n <namespace> svc/flowise-default 3000:3000
+```

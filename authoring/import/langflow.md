@@ -482,6 +482,17 @@ refusal of the key, which shows the flow ran as far as its call to the model:
 With your key, the reply carries the model's answer at
 `outputs[0].outputs[0].results.message.text`.
 
+On Kubernetes, with the build [On Kubernetes](#on-kubernetes) describes
+applied, forward a local port to Langflow's Service, `langflow-default`, in
+the namespace you applied to, and leave the command running:
+
+```bash
+kubectl port-forward -n <namespace> svc/langflow-default 7860:7860
+```
+
+From another terminal, the three requests above reach Langflow at the same
+address, unchanged; the run got the same refusal of the placeholder key.
+
 Stop the stack with the command below. `-v` also removes Langflow's data volume,
 and with it the administrator's account, the API key and the flow's run history:
 
@@ -491,10 +502,16 @@ docker compose -p basic-prompting -f dist/compose/docker-compose.yaml down -v
 
 ## On Kubernetes
 
-The same flow imports for Kubernetes with the `helm` target:
+The same flow imports for Kubernetes with the `helm` target. The drafts for
+Docker Compose already sit in `source`, and the import never writes over an
+Aggregate there, so draft these into a folder of their own with
+`--output-dir`, then validate and build from it:
 
 ```bash
-aggrega import basic-prompting.json --target helm
+aggrega import basic-prompting.json --target helm --output-dir helm
+cd helm
+aggrega validate --release release.yaml
+aggrega build --release release.yaml
 ```
 
 The drafts differ where the target does. The Manifest maps the platform to
@@ -521,7 +538,8 @@ this line, `<workspace>` standing for the folder you ran it in:
 2 values the drafts leave empty are still owed, listed in the answers file <workspace>/import-answers.yaml: write each beside its key there, then run the import again
 ```
 
-The build writes plain Kubernetes manifests under `dist/helm/`. Create the two
+The build writes plain Kubernetes manifests under `dist/helm/` at the
+workspace root, `source`, which from `helm` is `../dist/helm/`. Create the two
 Secrets in the namespace you apply to, each holding its value under the data
 key `value`, then apply the folder as the run step of
 [How an import runs](README.md#how-an-import-runs) explains.

@@ -100,3 +100,13 @@ The run's Gemini key was a placeholder, so the request answered HTTP 500,
 ```text
 google.genai.errors.ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', [… omitted: the error's details]}}
 ```
+
+Imported with `--target helm`, on the image pushed to a registry the cluster
+reads, as
+[the walkthrough](../../../authoring/import/google-adk.md#on-kubernetes)
+shows, the agent answers the same message at the same address once a local
+port is forwarded to its Service:
+
+```sh
+kubectl port-forward -n <namespace> svc/support-agent-default 8000:8000
+```

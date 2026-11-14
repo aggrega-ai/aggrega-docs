@@ -450,3 +450,37 @@ Stop the stack with:
 ```bash
 docker compose -p support-agent -f dist/compose/docker-compose.yaml down
 ```
+
+### On Kubernetes
+
+The same agent imports for Kubernetes with `--target helm`. A cluster pulls
+its images from a registry, so push the image you built to one your cluster
+reads, and write its name in place of the image answered in
+`support_agent/import-answers.yaml`; the run pushed it to a registry on the
+cluster's own machine, as `localhost:5000/support-agent:1.0.0`. The second
+answer there names the Secret the agent reads the Gemini API key from,
+`google-api-key`. The drafts for Docker Compose already sit in `source`, so
+draft these into a folder of their own, and build from it:
+
+```bash
+aggrega import support_agent --target helm --output-dir helm
+cd helm
+aggrega build --release release.yaml
+```
+
+The build writes plain Kubernetes manifests under `dist/helm/` at the
+workspace root, `source`, which from `helm` is `../dist/helm/`. Create the
+Secret `google-api-key` in the namespace you apply to, holding the key under
+the data key `value`, and apply the folder as the run step of
+[How an import runs](README.md#how-an-import-runs) explains. The agent's
+Service is `support-agent-default`: forward a local port to it, and leave the
+command running:
+
+```bash
+kubectl port-forward -n <namespace> svc/support-agent-default 8000:8000
+```
+
+From another terminal, the message above reaches the agent at the same
+address, unchanged. The run got the same `Internal Server Error`, and
+`kubectl logs -n <namespace> deploy/support-agent` names the same refusal of
+the placeholder key.

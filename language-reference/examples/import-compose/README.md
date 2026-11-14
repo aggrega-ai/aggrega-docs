@@ -101,3 +101,12 @@ received:
   [… omitted: the rest of the request as the stand-in received it, the client's address and the container's host name]
 }
 ```
+
+Imported with `--target helm` and applied to Kubernetes, as
+[the walkthrough](../../../authoring/import/compose.md#on-kubernetes) shows,
+the API answers the same request at the same address once a local port is
+forwarded to its Service:
+
+```sh
+kubectl port-forward -n <namespace> svc/api-default 8080:8080
+```

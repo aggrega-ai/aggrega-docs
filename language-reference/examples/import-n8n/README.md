@@ -101,3 +101,13 @@ HTTP/1.1 500 Internal Server Error
 The run stored a placeholder for the OpenAI key, so the workflow stopped at
 its call to the model, and its execution in the editor reads OpenAI's
 refusal: `Incorrect API key provided: sk-place*****************-key.`
+
+Imported with `--target helm` and applied to Kubernetes, n8n takes the same
+message at the same address once the credentials are stored and the workflow
+activated on the running instance, as
+[the walkthrough](../../../authoring/import/n8n.md#test-it) shows, and a local
+port is forwarded to its Service; the run got the same answer there:
+
+```sh
+kubectl port-forward -n <namespace> svc/n8n-default 5678:5678
+```

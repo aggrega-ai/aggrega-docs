@@ -520,6 +520,45 @@ the workflow's executions, with OpenAI's refusal:
 `Incorrect API key provided: sk-place*****************-key.` With your key,
 the reply is `HTTP/1.1 200 OK` and the agent's answer, as `{"output": "…"}`.
 
+On Kubernetes, with the build [On Kubernetes](#on-kubernetes) describes
+applied, n8n keeps its data in a volume that lives as long as its pod, so a
+new pod starts without what you stored; store the credentials and activate the
+workflow on the running instance instead. Write `credentials.json` as
+[Run it](#run-it) does, import it through `kubectl exec`, from its standard
+input, in the namespace you applied to, and delete it afterwards:
+
+```bash
+kubectl exec -i -n <namespace> deploy/n8n -- n8n import:credentials --input=/dev/stdin < credentials.json
+```
+
+```text
+Defaulted container "main" out of: main, import-flow (init)
+[… omitted: n8n's notices about its settings file's permissions, error tracking and deprecated settings]
+Successfully imported 2 credentials.
+```
+
+Forward a local port to n8n's Service, `n8n-default`, and leave the command
+running:
+
+```bash
+kubectl port-forward -n <namespace> svc/n8n-default 5678:5678
+```
+
+From another terminal, set up the owner account through n8n's API, which signs
+you in and keeps the session in `cookies.txt`, then activate the workflow:
+
+```bash
+curl -sS -c cookies.txt -X POST http://127.0.0.1:5678/rest/owner/setup -H 'Content-Type: application/json' \
+  -d '{"email": "owner@example.com", "firstName": "Your", "lastName": "Name", "password": "a password of your own"}'
+curl -sS -b cookies.txt -X PATCH http://127.0.0.1:5678/rest/workflows/sQ4vT8nKp2LmX7bR \
+  -H 'Content-Type: application/json' -d '{"active": true}'
+```
+
+The second reply is the workflow, with `"active":true`. The
+chat message above then reaches it at the same address, unchanged; the run got
+the same `{"message":"Error in workflow"}` and the same refusal in the
+execution.
+
 Stop the stack with the command below. `-v` also removes n8n's data volume, and
 with it the stored credentials and the activation:
 
@@ -529,10 +568,16 @@ docker compose -p support-agent -f dist/compose/docker-compose.yaml down -v
 
 ## On Kubernetes
 
-The same workflow imports for Kubernetes with the `helm` target:
+The same workflow imports for Kubernetes with the `helm` target. The drafts
+for Docker Compose already sit in `source`, and the import never writes over
+an Aggregate there, so draft these into a folder of their own with
+`--output-dir`, then validate and build from it:
 
 ```bash
-aggrega import support-agent.json --target helm
+aggrega import support-agent.json --target helm --output-dir helm
+cd helm
+aggrega validate --release release.yaml
+aggrega build --release release.yaml
 ```
 
 The drafts differ where the target does. The Manifest maps the platform to
@@ -541,8 +586,10 @@ The drafts differ where the target does. The Manifest maps the platform to
 namespace. The Release attaches the key as `core/referenced-secret`, naming
 that Secret, `openai-api-key`, from the answers file.
 
-The build writes plain Kubernetes manifests under `dist/helm/`. Create the
+The build writes plain Kubernetes manifests under `dist/helm/` at the
+workspace root, `source`, which from `helm` is `../dist/helm/`. Create the
 Secret in the namespace you apply to, holding the key under the data key
 `value`, then apply the folder as the run step of
 [How an import runs](README.md#how-an-import-runs) explains. The workflow still
-reads its credentials from n8n's own store, as [Run it](#run-it) describes.
+reads its credentials from n8n's own store, which [Test it](#test-it) fills on
+Kubernetes.
