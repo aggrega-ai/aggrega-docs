@@ -1616,6 +1616,12 @@ routing entry for the installation: `infra.owner_email` on the installation's `a
 build halts. The owner's email is no source's to give, so it is written empty under a comment saying
 what it is, and the import owes it.
 
+On every target, the same routing entry sets `infra.marketplace_enabled` to `true` on the
+installation's `api`, `worker` and `scheduler` components, each under a comment saying why: the
+installation reaches nothing of Dify's vendor unless the Release allows it, each of the three reads its
+own setting, and Dify installs the plugin serving an application's model, such as OpenAI's, from its
+plugin marketplace.
+
 The application secret and the owner's password are secrets, drafted by reference for the import's
 target:
 
@@ -1663,8 +1669,9 @@ spec:
             ...
 ```
 
-Imported with `--target helm`, its drafted Release fulfills `secret_key` and names the owner in the
-routing entry placing the installation, each value it owes written empty:
+Imported with `--target helm`, its drafted Release fulfills `secret_key`, and names the owner and
+switches the plugin marketplace on in the routing entry placing the installation, each value it owes
+written empty:
 
 ```yaml
 # release.yaml
@@ -1689,6 +1696,8 @@ spec:
           components:
             api:
               infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
                 # Left for the Release, since the source cannot supply it: components.api.infra.owner_email, the email of the installation's owner account the application is imported under, on the api component of core/dify
                 owner_email: ""
               features:
@@ -1697,13 +1706,23 @@ spec:
                   infra:
                     # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding, under the data key value, the owner account's password.
                     origin: ""
+            worker:
+              infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
+            scheduler:
+              infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
 ```
 
 The import owes the three empty values. Imported with `--target compose`, the same Release writes
 `secret_key: "${DIFY_SECRET_KEY}"` and `origin: "${DIFY_OWNER_PASSWORD}"`, and owes the owner's email
 alone; it also writes `infra.published_port` on the `api` component, 5001, and on the front end, the
 `console` component, 3001, each under the comment saying it is reachable from this machine only, by
-any process running on it, and that deleting the line keeps the service internal. The [Dify import walkthrough](../../authoring/import/dify.md) builds an application for both
+any process running on it, and that deleting the line keeps the service internal, and, beneath the
+`api` component's port, `infra.console_url` with the address the console is published at,
+`"http://127.0.0.1:3001"`, which the Dify server takes as the console's address. The [Dify import walkthrough](../../authoring/import/dify.md) builds an application for both
 targets and runs it on Kubernetes.
 
 ### What Dify configures for itself

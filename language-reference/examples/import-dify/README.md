@@ -88,7 +88,9 @@ the installation answers on this machine: the API at `http://127.0.0.1:5001`
 and the console at <http://127.0.0.1:3001/signin>. The application answers a
 message sent with its own key, which
 [the walkthrough](../../../authoring/import/dify.md#test-it) creates after
-signing in and setting the OpenAI provider's key:
+signing in, installing the OpenAI provider from Dify's plugin marketplace,
+which the drafted Release's `marketplace_enabled` lets the installation reach,
+and setting the provider's key:
 
 ```sh
 curl -sS http://127.0.0.1:5001/v1/chat-messages \

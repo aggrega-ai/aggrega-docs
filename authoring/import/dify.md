@@ -233,6 +233,8 @@ spec:
           components:
             api:
               infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
                 # Left for the Release, since the source cannot supply it: components.api.infra.owner_email, the email of the installation's owner account the application is imported under, on the api component of core/dify
                 owner_email: "owner@example.com"
               features:
@@ -241,6 +243,14 @@ spec:
                   infra:
                     # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding, under the data key value, the owner account's password.
                     origin: "dify-owner"
+            worker:
+              infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
+            scheduler:
+              infra:
+                # Lets the installation reach Dify's plugin marketplace, which the plugin serving the application's model, such as OpenAI's, is installed from.
+                marketplace_enabled: true
 ```
 
 - **`environment`** is `development`, a default the comment above it says to
@@ -254,6 +264,11 @@ spec:
   its password attached as a `core/referenced-secret` naming the Secret that
   holds it, `dify-owner`, under the data key `value`. The comments above the
   answered values say why the import could not draft them.
+- **`marketplace_enabled`** is `true` on the API server, `api`, its worker and
+  its scheduler, on every target: the installation reaches nothing of Dify's
+  vendor unless the Release allows it, and the OpenAI provider the application
+  answers with is a plugin Dify installs from its plugin marketplace, as
+  [Test it](#test-it) shows. Each of the three reads its own setting.
 
 `manifest.yaml` — a Helm Recipe for each component the installation composes,
 and the realization that reads a credential from a Secret already in the
@@ -488,13 +503,15 @@ kubectl port-forward -n <namespace> svc/dify-zdapi-default 5001:5001
 On Docker Compose, started as [On Docker Compose](#on-docker-compose) shows,
 the Release publishes the API at that address already, and the console at
 `http://127.0.0.1:3001`. Open <http://127.0.0.1:3001/signin>, the console's
-sign-in page; `/` redirects there. Signing in from that page does not work as
-drafted: the page sends its requests to the API at `http://127.0.0.1:5001`,
-and Dify's API answers a browser only for pages served from
-`http://127.0.0.1:3000`, the console address it assumes, so the browser
-refuses each reply.
+sign-in page; `/` redirects there. The page sends its requests to the API at
+`http://127.0.0.1:5001`, and Dify's API answers a browser only for pages
+served from the address the drafted `console_url` names,
+`http://127.0.0.1:3001`, so sign in there as the owner. Opened at any other
+address, the console's requests get no such answer and the browser refuses
+each reply; publish the console on another port and change `console_url` with
+it.
 
-The application answers through the API, with no browser involved. In a
+The application also answers through the API, with no browser involved. In a
 terminal where `DIFY_OWNER_PASSWORD` is set, sign in as the owner. The console
 API takes the password Base64-encoded, and signing in leaves the session in
 `cookies.txt`. Every later console request sends the session back, with the
@@ -513,8 +530,9 @@ CSRF=$(awk '$6 == "csrf_token" {print $7}' cookies.txt)
 
 Dify's model providers are plugins, and a new installation holds none. Install
 Dify's OpenAI provider, at version 1.1.0, the one the run installed; the plugin
-runtime fetches it from Dify's marketplace, so the installation must reach the
-internet:
+runtime fetches it from Dify's marketplace, which the drafted
+`marketplace_enabled` lets the installation reach, so the installation must
+reach the internet:
 
 ```bash
 curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/json' \
@@ -526,6 +544,9 @@ curl -sS -b cookies.txt -H "X-CSRF-Token: $CSRF" -H 'Content-Type: application/j
 {"all_installed":false,"task_id":"01a1dc0a-653d-756b-a104-e5d6d1e43695","task":null}
 ```
 
+With `marketplace_enabled` deleted from the Release, Dify refuses the request
+instead, with
+`{"code":"invalid_param","message":"marketplace is not enabled","status":400}`.
 The installation runs in the background. Ask for its task, with the
 `task_id` the reply names, until its `status` is `success`:
 
@@ -634,15 +655,17 @@ the owner's password from `DIFY_OWNER_PASSWORD`, and publishes the API on port
   parameters:
     # Passed by reference, never as a value: secret_key, which the drafted Aggregate declares and passes down to core/dify; that parameter's description there says what the value is; it is read from the variable DIFY_SECRET_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
     secret_key: "${DIFY_SECRET_KEY}"
-  [… omitted: the boundary, and the owner's email, answered as above]
+  [… omitted: the boundary, the marketplace switch, and the owner's email, answered as above]
                 # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
                 published_port: 5001
+                console_url: "http://127.0.0.1:3001"
               features:
                 owner_password:
                   type: core/referenced-secret
                   infra:
                     # Attached by reference, never as a value: the owner account's password, read from the variable DIFY_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
                     origin: "${DIFY_OWNER_PASSWORD}"
+            [… omitted: the worker and the scheduler, each with the marketplace switch, as above]
             console:
               infra:
                 # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
@@ -652,7 +675,9 @@ the owner's password from `DIFY_OWNER_PASSWORD`, and publishes the API on port
 Each port is reachable from your machine only, as its comment says, and
 deleting a line keeps that service on the stack's network alone. The front end
 listens on 3000 inside its container and is published on 3001, so it runs
-beside another example publishing 3000.
+beside another example publishing 3000. The API server's `console_url` is the
+address the front end is published at, so a port you change for the front end
+is changed there too.
 
 The Manifest maps each component to its Compose Recipe and
 `core/referenced-secret` to `compose/dotenv-referenced-secret`, which writes
