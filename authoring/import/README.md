@@ -263,6 +263,24 @@ can do the same: paste this prompt into it.
 
 > Import my project into Aggrega with the `import` tool: the source is `compose.yaml` in this folder, and the target is `compose`. If the import says values are still owed, tell me each one and what it is, and wait while I write my answers beside their keys in the answers file it names; then import again. Then validate the Release the import drafted with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
 
+## Open it in VS Code
+
+With the
+[Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension)
+installed, open the workspace the import ran in — the folder holding its
+`.aggrega-config.yaml` — in VS Code: the drafts are in it, at its root or in the
+folder `--output-dir` named. Where the workspace holds one Release, the editor
+selects it for you; where it holds more, **Aggrega: Select Release…** chooses
+the one the editor works on. The editor checks the drafts against the selected
+Release as you edit them, marking what it finds in the file and in the Problems
+panel. **Aggrega: Show topology graph**, in the Command Palette, draws the
+selected Release's components and the connections between them.
+**Aggrega: Build**, **Aggrega: Preview build** and **Aggrega: Pull** act on the
+same Release, and each is also a button on the **Commands** panel of the
+**Aggrega** view in the activity bar; Build writes its files into the
+workspace's `dist/`. [Use Aggrega in Visual Studio Code](../editor.md) covers
+the rest.
+
 ## Where the importers come from
 
 Each format is read by an importer plugin. The compiler's core importers, one

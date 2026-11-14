@@ -414,6 +414,21 @@ can do the same: paste this prompt into it.
 
 > Write the Aggrega documentation's runnable example `import-n8n` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import `support-agent.json` there with the `import` tool, for the target `compose`; the import reads the answers it needs from `import-answers.yaml` beside it. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
 
+## Open it in VS Code
+
+With the
+[Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension)
+installed, open the folder `import-n8n/source` in VS Code, where the import
+wrote its drafts. The folder holds one Release, the drafted `release.yaml`, so
+the editor selects it for you, and it checks the drafts against that Release as
+you edit them, marking what it finds in the file and in the Problems panel.
+**Aggrega: Show topology graph**, in the Command Palette, draws the Release's
+components and the connections between them. **Aggrega: Build**,
+**Aggrega: Preview build** and **Aggrega: Pull** act on the same Release, and
+each is also a button on the **Commands** panel of the **Aggrega** view in the
+activity bar; Build writes its files into the folder's `dist/`.
+[Use Aggrega in Visual Studio Code](../editor.md) covers the rest.
+
 ## Run it
 
 n8n reads both credentials the workflow selects from its own store, by their
