@@ -104,15 +104,23 @@ directory — is refused, and nothing is written.
 Pass --target to draft, beside the importer's drafts, the Manifest the drafted
 Release builds against for one provider. The target is a provider capability —
 the word a Recipe's spec.capability binds to, such as compose or helm. For each
-component type the drafted Aggregate declares, in the order it first declares
-it, import looks in the workspace's catalog for the Recipes that implement the
-type and bind to that capability: where there is exactly one Recipe — several
-versions of one Recipe count as one — the Manifest maps the type to it by its
-capability-qualified name with no version, such as compose/postgres, which the
-first pull pins in the lockfile at the highest version available; where there is
-none, or Recipes of more than one name, the type is left unmapped and a warning
-names it and why, so a build of the drafts stops naming each instance of it
-until you add the mapping. Feature attachments are not mapped. The Manifest is
+component type and each feature type the drafts need — on the drafted
+Aggregate's components, their connections and its subsystems, on the catalog
+Aggregates it composes, and on the drafted Release's attachments — in the order
+the drafts first declare it, import looks in the workspace's catalog for the
+Recipes, or for a feature type the feature recipes, that implement the type and
+bind to that capability: where there is exactly one — several versions of one
+count as one — the Manifest maps the type to it by its capability-qualified name
+with no version, such as compose/postgres, which the first pull pins in the
+lockfile at the highest version available; where there are several of different
+names, it maps the one named after the type itself, such as helm/postgres for
+core/datastore/postgres; where there is none, or several with none so named, the
+type is left unmapped and a warning names it and why, so a build of the drafts
+stops naming each instance or attachment of it until you add the mapping. Where
+the importer drafts the Manifest itself, to choose the Recipe one instance
+renders through or a feature recipe among several, each mapping it wrote that
+the catalog offers for that type and capability is kept, any other is dropped
+with a warning, and the types it leaves are mapped as above. The Manifest is
 written as manifest.yaml beside the drafted Release, with the Release's name
 and version, and the Release's spec.manifest is set to that name — the comment
 the importer wrote in its place is replaced, and nothing else in the Release
@@ -285,6 +293,6 @@ source the write would refuse is refused here too.
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk or agent-framework) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
-| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each drafted component type to the one Recipe of that capability the workspace's catalog offers for it, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
+| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each component type and feature type the drafts need to the Recipe or feature recipe of that capability the workspace's catalog offers for it, the one there is or, among several, the one named after the type, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
 | `--upgrade` | `false` | Re-read the published catalog from current registry state: fetch the newest catalog snapshot the workspace's default registry publishes, verify it, and import against it, holding it as the snapshot this workspace reads from then on in place of the one it holds or the one the record beside the drafts names. It has an effect only where the workspace names no catalog folder, and is refused under --offline |
 <!-- END GENERATED: cli-import -->
