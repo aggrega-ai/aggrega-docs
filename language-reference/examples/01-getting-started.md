@@ -99,7 +99,7 @@ spec:
   mappings:
     components:
       type:
-        core/compute/server:1.0.0: compose/server:1.0.0
+        core/compute/server:1.1.0: compose/server:2.0.0
         core/datastore/postgres:1.0.0: compose/postgres:1.0.0
     features:
       type:
@@ -107,7 +107,8 @@ spec:
 ```
 
 The Release, from `1/release.yaml`, names the Aggregate and the Manifest and gives what only an environment knows,
-here the image the application runs and the port it listens on (the image's digest shortened):
+here the image the application runs, the port it listens on, and the port Docker Compose publishes it on, on your
+machine's loopback address (the image's digest shortened):
 
 ```yaml
 spec:
@@ -118,6 +119,7 @@ spec:
       infra:
         image: hub.aggrega.ai/tools/quickstart-web:1.1.0@sha256:…
         port: 8080
+        published_port: 8080
     db: {}
 ```
 

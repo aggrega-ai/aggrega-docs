@@ -151,8 +151,10 @@ The Release names no image for the agent: on Docker Compose the agent's Recipe
 then runs the quickstart agent, pinned by the digest of its image index. The
 agent receives `OPENAI_BASE_URL: http://llm:11434/v1`,
 `OPENAI_MODEL: llama3.2:1b` and the store's host and port from its two
-connections. For `chat` the Release names the chat page's image and its port,
-8090, which Docker Compose publishes on your machine's loopback address alone.
+connections. For `chat` the Release names the chat page's image, the port it
+listens on, `port: 8090`, and `published_port: 8090`, which has Docker Compose
+publish it on your machine's loopback address alone. Without `published_port`
+nothing is published on your machine.
 
 Open [http://127.0.0.1:8090/](http://127.0.0.1:8090/) in a browser on the
 machine running the stack, and talk to the agent there. Under the header the page reads "The agent answers

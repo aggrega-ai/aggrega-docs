@@ -18,7 +18,7 @@ metadata:
       email: "m.ferrero@cognitio.it"
 spec:
   capability: helm
-  implements: core/compute/server:1.0.0
+  implements: core/compute/server:1.1.0
 
   source:
     kind: git-repository
@@ -31,6 +31,9 @@ spec:
   provides: {}
 
   valuesMapping: |
+    {{- if .infra.published_port }}
+    {{- fail (printf "the component %q sets infra.published_port: publishing a port on the host is a Docker Compose setting; on Kubernetes reach it with `kubectl port-forward`, or attach `core/public-ingress` to expose it" .context.instance_id) }}
+    {{- end }}
     replicaCount: {{ .infra.replicas }}
     {{- $image := splitList ":" .infra.image }}
     image:

@@ -145,7 +145,9 @@ database on an edge, under the names it reads:
 The password reaches both ends through a `core/secret-value` attachment on
 each, whose origin is the Compose variable reference
 `${QUICKSTART_DB_PASSWORD}`. The Release names the image, pinned by the digest
-of its multi-platform index, and the port. The `web` service in
+of its multi-platform index, the port it listens on, `port: 8080`, and
+`published_port: 8080`, the port published for it on your machine; without
+`published_port` nothing is published there. The `web` service in
 `dist/compose/docker-compose.yaml`:
 
 ```yaml
