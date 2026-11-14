@@ -4,17 +4,17 @@
 #
 # check-import-example.sh — run an import example's `aggrega import` again,
 # compare what it writes and prints with what the example holds, compare the
-# blocks its walkthrough page quotes with the same files, and build the reviewed
-# result.
+# blocks its walkthrough page quotes with the same files, then validate and
+# build what the import wrote, and the reviewed result where the example has one.
 #
-# An import example holds three directories:
+# An import example holds these directories:
 #
 #   source/    the project being imported, and the .aggrega-config.yaml that
 #              marks it a workspace
 #   draft/     the files the import wrote, unchanged; stdout.txt, what it printed
 #              on standard output; and import.txt, what it printed on standard
 #              error
-#   reviewed/  the draft after review: a workspace that builds
+#   reviewed/  optional: the draft after review, a workspace that builds
 #
 # The check, in order:
 #
@@ -48,17 +48,27 @@
 #      a validation's or a build's output, a rendered file — are not compared.
 #      The translation tool copies HTML comments and fenced code unchanged, so a
 #      translated page keeps its markers;
-#   5. builds release.yaml and every release-*.yaml in reviewed/, in a copy,
-#      through the shared build-release.sh helper with --auto-pull and
-#      --no-color; each build must complete.
+#   5. validates and builds what the import wrote, in a copy of the workspace
+#      it wrote into, so the comparison above reads the files as written: each
+#      Release file the import wrote — a file the shared build-release.sh
+#      helper lists for that workspace (--list-releases) and the import wrote —
+#      is checked with `aggrega validate --release` and then built through that
+#      helper with --auto-pull and --no-color. Each validation must pass and
+#      each build must complete; an import that wrote no Release file fails the
+#      check, since nothing it drafted can be built;
+#   6. where the example has a reviewed/ directory, validates and builds each
+#      Release file the helper lists in it, in a copy, the same way; reviewed/
+#      must hold at least one. Without reviewed/ the step is skipped, and the
+#      check says so.
 #
 # The binary is the one build-release.sh resolves (`build-release.sh
 # --print-binary`): AGGREGA_BIN where it is set, else its prebuilt and
 # build-from-source order. Where that order builds from source, the helper writes
 # the binary into a directory this script created inside its own temporary
 # directory (--build-into), which it removes with the rest of that directory;
-# nothing else is removed. The builds in step 5 are given that same binary as
-# AGGREGA_BIN, so their provenance reads it as an override.
+# nothing else is removed. Steps 5 and 6 validate with that binary and give it
+# to their builds as AGGREGA_BIN, so the builds' provenance reads it as an
+# override.
 #
 # The block reader. Step 4 reads a page's fenced blocks with
 # scripts/lib/fenced-blocks.awk, whose header states the rules it reads them by.
@@ -78,7 +88,8 @@
 # reads the standard-library catalog: the first directory AGGREGA_CATALOG_DIRS
 # names, where it is set — the examples workflow sets it to the catalog it checks
 # out — and otherwise the catalog checked out beside this repository, at
-# ../aggrega-hub/aggrega-catalog. The builds read the same directory.
+# ../aggrega-hub/aggrega-catalog. The validations and builds read the same
+# directory.
 #
 # The importer. A binary fetches its core importer from its default registry the
 # first time an import needs it, at the binary's own version. A binary built from
@@ -117,14 +128,16 @@
 #
 #   --page    the walkthrough page quoting the example (step 4)
 #   --update   write draft/, draft/stdout.txt and draft/import.txt from this
-#              run instead of comparing them, then compare the page and build
-#              as usual. A file that changed is replaced from a real run, never
-#              edited by hand; the page's blocks are then edited to match.
+#              run instead of comparing them, then compare the page, validate
+#              and build as usual. A file that changed is replaced from a real
+#              run, never edited by hand; the page's blocks are then edited to
+#              match.
 #
 # Exit status: 0 when the import wrote and printed what draft/ holds, the page
-# quotes what the example holds, and every build completed; 1 on any difference
-# or failed build, with what differed; 2 on a usage error or a missing binary,
-# catalog, page or directory.
+# quotes what the example holds, and every validation passed and every build
+# completed; 1 on any difference, an import that wrote no Release, a refused
+# validation or a failed build, with what failed; 2 on a usage error or a
+# missing binary, catalog, page or directory.
 set -uo pipefail
 export LC_ALL=C
 export NO_COLOR=1
@@ -156,7 +169,6 @@ EXAMPLE="$(cd "$EXAMPLE" 2>/dev/null && pwd)" || die "no example directory at th
 [ -f "$PAGE" ] || die "no walkthrough page at $PAGE"
 [ "${#IMPORT_ARGS[@]}" -gt 0 ] || die "give the import's arguments after --"
 [ -d "$EXAMPLE/source" ] || die "$EXAMPLE has no source/ directory"
-[ -d "$EXAMPLE/reviewed" ] || die "$EXAMPLE has no reviewed/ directory"
 [ -d "$EXAMPLE/draft" ] || [ "$UPDATE" -eq 1 ] || die "$EXAMPLE has no draft/ directory (--update writes one)"
 
 WORK="$(mktemp -d)"
@@ -378,20 +390,60 @@ elif [ "$rc" -eq 0 ]; then
   printf 'check-import: %s quotes what the example holds (%d marked blocks)\n' "${PAGE##*/}" "$quoted"
 fi
 
-# --- step 5: the reviewed result builds -----------------------------------------------
-built=0
-for rf in "$EXAMPLE"/reviewed/release.yaml "$EXAMPLE"/reviewed/release-*.yaml; do
-  [ -f "$rf" ] || continue
-  built=$((built + 1))
-  name="$(basename "$rf")"
-  rm -rf "$WORK/reviewed"
-  cp -R "$EXAMPLE/reviewed" "$WORK/reviewed"
-  if out="$(AGGREGA_BIN="$AGG" AGGREGA_CATALOG_DIRS="$STANDARD" "$HELPER" --example "$WORK/reviewed" "$name" -- --auto-pull --no-color 2>&1)"; then
-    printf 'check-import: reviewed/%s built\n' "$name"
+# validate_and_build <origin> <workspace copy> <release file>: validate one
+# Release, then build it, in a copy of its workspace that no later step reads;
+# <origin> opens the name printed for it. Both run whatever the other reports,
+# so a failing check states both verdicts.
+validate_and_build() {
+  local origin=$1 ws=$2 name=$3 out
+  if out="$(cd "$ws" && AGGREGA_CATALOG_DIRS="$STANDARD" "$AGG" validate --release "$name" --no-color 2>&1)"; then
+    printf 'check-import: %s%s validated\n' "$origin" "$name"
   else
-    printf 'check-import: reviewed/%s did not build:\n%s\n' "$name" "$out"
+    printf 'check-import: %s%s did not validate:\n%s\n' "$origin" "$name" "$out"
     rc=1
   fi
-done
-[ "$built" -gt 0 ] || { printf 'check-import: reviewed/ holds no release.yaml or release-*.yaml to build\n'; rc=1; }
+  if out="$(AGGREGA_BIN="$AGG" AGGREGA_CATALOG_DIRS="$STANDARD" "$HELPER" --example "$ws" "$name" -- --auto-pull --no-color 2>&1)"; then
+    printf 'check-import: %s%s built\n' "$origin" "$name"
+  else
+    printf 'check-import: %s%s did not build:\n%s\n' "$origin" "$name" "$out"
+    rc=1
+  fi
+}
+
+# Which files of a workspace are Releases is the build helper's to say
+# (`build-release.sh --list-releases`), from the list it builds from; steps 5
+# and 6 ask it rather than spell the rule a second time.
+"$HELPER" --list-releases "$WS" > "$WORK/workspace-releases" || die "build-release.sh could not list the Releases of the import's workspace"
+
+# --- step 5: what the import wrote validates and builds ------------------------------
+# Only the Releases the import WROTE are drafts: the helper's listing is
+# intersected with the files the import wrote, so a Release the source already
+# held is never taken for one.
+awk 'NR == FNR { written[$0]; next } ("./" $0) in written' "$WORK/written" "$WORK/workspace-releases" > "$WORK/drafted-releases"
+drafted=0
+while IFS= read -r name; do
+  drafted=$((drafted + 1))
+  rm -rf "$WORK/drafted"
+  cp -R "$WS" "$WORK/drafted"
+  validate_and_build "the drafted " "$WORK/drafted" "$name"
+done < "$WORK/drafted-releases"
+if [ "$drafted" -eq 0 ]; then
+  printf 'check-import: the import wrote no Release file, so nothing it drafted can be validated or built\n'
+  rc=1
+fi
+
+# --- step 6: the reviewed result, where there is one, validates and builds ------------
+if [ -d "$EXAMPLE/reviewed" ]; then
+  "$HELPER" --list-releases "$EXAMPLE/reviewed" > "$WORK/reviewed-releases" || die "build-release.sh could not list the Releases of reviewed/"
+  built=0
+  while IFS= read -r name; do
+    built=$((built + 1))
+    rm -rf "$WORK/reviewed"
+    cp -R "$EXAMPLE/reviewed" "$WORK/reviewed"
+    validate_and_build "reviewed/" "$WORK/reviewed" "$name"
+  done < "$WORK/reviewed-releases"
+  [ "$built" -gt 0 ] || { printf 'check-import: reviewed/ holds no Release file to build\n'; rc=1; }
+else
+  printf 'check-import: no reviewed/ directory, so only what the import wrote is validated and built\n'
+fi
 exit "$rc"

@@ -106,7 +106,17 @@
 # Usage:
 #   build-release.sh [--example DIR] [RELEASE] [-- EXTRA aggrega build args]
 #   build-release.sh --print-binary [--build-into DIR]
+#   build-release.sh --list-releases DIR
 #
+#   --list-releases DIR
+#                   Print the name of each Release file the workspace DIR holds,
+#                   one per line, in the order this script enumerates them for a
+#                   build, and nothing else on stdout; build nothing and resolve no
+#                   binary. A workspace holding none prints nothing and exits 0. It
+#                   is read from the same list a build chooses its release from,
+#                   so the two cannot disagree, and it is how another script asks
+#                   which files are Releases without a second copy of that rule.
+#                   It refuses every other argument.
 #   --print-binary  Resolve the binary exactly as a build would, print the
 #                   provenance block on stderr and the binary's path on stdout,
 #                   and build no Release. It is how another script of this
@@ -144,10 +154,13 @@ EXAMPLE_GIVEN=0
 RELEASE_ARG=""
 PRINT_BINARY=0
 BUILD_INTO=""
+LIST_RELEASES=""
+LIST_GIVEN=0
 DASHDASH=0
 declare -a EXTRA=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --list-releases) [ "$#" -ge 2 ] || die "--list-releases needs a workspace directory"; LIST_RELEASES="$2"; LIST_GIVEN=1; shift 2 ;;
     --print-binary) PRINT_BINARY=1; shift ;;
     --build-into) [ "$#" -ge 2 ] || die "--build-into needs a directory"; BUILD_INTO="$2"; shift 2 ;;
     --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE_DIR="$2"; EXAMPLE_GIVEN=1; shift 2 ;;
@@ -159,6 +172,9 @@ while [ "$#" -gt 0 ]; do
       printf '           (resolve the binary as a build would and print its path; a build\n'
       printf '           from source goes into DIR, which the caller created and removes;\n'
       printf '           --example, a RELEASE and -- are refused with it)\n'
+      printf '       build-release.sh --list-releases DIR\n'
+      printf '           (print the Release files workspace DIR holds, one per line, in the\n'
+      printf '           order a build enumerates them; nothing printed when it holds none)\n'
       printf '  RELEASE  a release*.yaml filename or its <P> token (e.g. helm); optional\n'
       printf '           when the example has exactly one release file.\n'
       printf '  One release per run. Catalog source is auto-discovered per release file.\n'
@@ -175,6 +191,29 @@ while [ "$#" -gt 0 ]; do
     *) [ -z "$RELEASE_ARG" ] || die "only one release per run (got '$RELEASE_ARG' and '$1')"; RELEASE_ARG="$1"; shift ;;
   esac
 done
+
+# release_files: the Release files of the current directory, one per line, in the
+# order a build enumerates them. The ONE list both a build and --list-releases
+# read, so the files a build chooses from and the files a listing names cannot
+# come apart.
+release_files() {
+  local f
+  for f in release.yaml release-*.yaml; do
+    if [ -f "$f" ]; then printf '%s\n' "$f"; fi
+  done
+}
+
+# --list-releases resolves no binary and builds nothing, so it takes no other
+# argument; refused rather than silently ignored.
+if [ "$LIST_GIVEN" -eq 1 ]; then
+  if [ "$PRINT_BINARY" -eq 1 ] || [ -n "$BUILD_INTO" ] || [ "$EXAMPLE_GIVEN" -eq 1 ] \
+    || [ -n "$RELEASE_ARG" ] || [ "$DASHDASH" -eq 1 ]; then
+    die "--list-releases takes a workspace directory and no other argument"
+  fi
+  [ -d "$LIST_RELEASES" ] || die "--list-releases names no directory: $LIST_RELEASES"
+  ( cd "$LIST_RELEASES" && release_files )
+  exit 0
+fi
 
 # --print-binary builds no Release, so what only a build reads is refused rather
 # than silently ignored.
@@ -313,9 +352,7 @@ fi
 
 # --- enumerate release files ------------------------------------------------
 declare -a RELEASES=()
-for f in release.yaml release-*.yaml; do
-  [ -f "$f" ] && RELEASES+=("$f")
-done
+mapfile -t RELEASES < <(release_files)
 [ "${#RELEASES[@]}" -gt 0 ] || die "no release.yaml or release-*.yaml in $(pwd)"
 
 # --- choose exactly one release ---------------------------------------------
