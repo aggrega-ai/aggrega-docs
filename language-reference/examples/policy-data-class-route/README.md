@@ -116,6 +116,15 @@ than per Release.
 `--auto-pull` fills each Release's lockfile during the build; lockfiles and the
 rendered output are generated, not shipped.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `policy-data-class-route` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-masked.yaml`, `release-unmasked.yaml` and `release-masking-off-route.yaml` one at a time in that order with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml` each time. Tell me which files the first build wrote; the other two are meant to be refused, so read me each refusal.
+
 ## The halt
 
 `release-unmasked.yaml`, under each engine. The Rego engine:

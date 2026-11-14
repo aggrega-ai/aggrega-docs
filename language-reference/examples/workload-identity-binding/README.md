@@ -46,6 +46,15 @@ example's own `./catalog` (the `local/compute/identity-app` Component and its
 the lockfile a fresh clone lacks during the build.
 Three manifests land under `dist/helm/helm/`.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `workload-identity-binding` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## The Component declares the need; the Release fills it
 
 The app needs an identity to run under, so its Component declares one, as a

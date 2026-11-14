@@ -54,6 +54,15 @@ copy — an enterprise-authored local sourced Recipe — while the
 `catalog/` is listed under `catalog_dirs` there. The Bitnami chart is pulled
 from its OCI source.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `mariadb-bitnami-credential-set` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## What the credential produces
 
 The `db` component attaches `core/referenced-secret-set` to its required

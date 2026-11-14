@@ -149,6 +149,15 @@ release-compose.yaml` once up front does the same and lets later builds run
 without the flag. The synthesized target needs no external chart fetch — both
 Recipes render the official images directly into Kubernetes resources.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `prometheus-scrape` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose.yaml` and `release-helm-synth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## What the compiled scrape configuration looks like
 
 On Compose, the server writes a `prometheus.yml` holding one job per wired

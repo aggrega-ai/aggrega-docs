@@ -398,6 +398,15 @@ from the left margin. The first comes from the Rego engine and the other two
 from the CEL engine, each naming the engine that reported it; the other engine
 prints the same message under its own name.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `policy-render-verdict` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-terraform.yaml` and `release-terraform-unencrypted.yaml` one at a time in that order with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml` each time. Tell me which files the first build wrote; the second is meant to be refused, so read me the refusal.
+
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds

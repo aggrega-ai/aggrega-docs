@@ -112,6 +112,15 @@ aggrega build --release release-helm-synth.yaml --auto-pull
 
 Rendered artifacts land under `dist/`.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `fluent-bit-to-fluentd` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose.yaml` and `release-helm-synth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, then tell me which files each build wrote.
+
 ## What the injected forward target looks like
 
 On Compose, the forwarder writes a `fluent-bit.conf` whose `forward` output

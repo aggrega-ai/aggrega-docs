@@ -137,6 +137,15 @@ values for it, so the Recipe maps nothing there. A sourced Recipe maps what the
 chart it sources actually accepts, and the compiler reports the value that reached
 nothing instead of pretending it landed.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `chart-from-git-repository` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-chart.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## When the reference moves
 
 A tag can be repointed at the repository. When that happens, the next ordinary

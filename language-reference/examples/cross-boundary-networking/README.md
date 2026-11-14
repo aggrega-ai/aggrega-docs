@@ -81,6 +81,15 @@ aggrega pull --release release-helm.yaml --catalog catalog-helm
 aggrega build --release release-helm.yaml --catalog catalog-helm
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `cross-boundary-networking` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-compose.yaml` with the `build` tool, with its `catalog-compose` folder as a catalog directory, resolving its dependencies first and writing the files into `dist/`. Then build its Release `release-helm.yaml` the same way, with its `catalog-helm` folder as the catalog directory instead, and tell me which files each build wrote.
+
 ## Variant A — local (Docker Compose): the bridge
 
 ```bash

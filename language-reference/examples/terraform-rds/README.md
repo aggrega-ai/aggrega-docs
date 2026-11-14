@@ -80,6 +80,15 @@ A Recipe that vendors a module instead — the
 [`terraform-rds-module`](../terraform-rds-module/) example — leaves those inputs
 undeclared in the body, so the compiler supplies them as this block's arguments.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `terraform-rds` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## The credential slot on a managed target
 
 `core/datastore/mariadb` declares `root_password` as a required slot: a build

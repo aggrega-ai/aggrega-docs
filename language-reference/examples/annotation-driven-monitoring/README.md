@@ -82,6 +82,15 @@ aggrega pull --release release.yaml
 aggrega build --release release.yaml
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `annotation-driven-monitoring` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## What the rendered output proves
 
 Resolve the lockfile, build it, and inspect `dist/<boundary>/helm/<component>--feature-zdaggrega-zdai-zsmonitoring--<component>-servicemonitor-<component>-scrape.yaml`:

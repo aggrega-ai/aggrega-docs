@@ -76,6 +76,15 @@ The rendered `dist/app/compose/docker-compose.yaml` shows the override firing â€
 `image: greeter:green`, and each service's `aggrega.ai/recipe-uri` provenance
 label names the distinct Recipe it resolved to.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `per-instance-recipe-override` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## Why this is useful
 
 Two instances of one component type sometimes need different physical

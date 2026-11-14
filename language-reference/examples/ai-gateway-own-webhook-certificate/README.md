@@ -142,6 +142,15 @@ rendered output are generated, not shipped. Resolving a lockfile fetches the
 controller's chart from Docker Hub, so the first build of each Release needs the
 network.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `ai-gateway-own-webhook-certificate` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-cert-manager.yaml` and `release-own-certificate.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote. Then build `release-negative-without-omits.yaml` with the `cli-build` tool, which runs `aggrega build` and takes its `--verify-determinism` flag, passing that flag and `--auto-pull`: it is meant to be refused, so read me the refusal. Last, build `release-negative-stale-omits.yaml` with the `build` tool, resolving its dependencies first: it is meant to be refused too, so read me that refusal as well.
+
 ## The two certificate modes, as rendered
 
 `release-cert-manager.yaml`, built with `--auto-pull`, prints, with

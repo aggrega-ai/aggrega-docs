@@ -51,6 +51,15 @@ clone lacks during the build. The bare release writes three files under
 `dist/helm/helm/`; the configured release writes those three plus two more under
 `dist/helm/helm/db/`.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `postgres-init-config` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-bare.yaml` and `release-config.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## Bare — the additive baseline
 
 `aggregate-bare.yaml` leaves both values unset. The rendered output is a

@@ -78,6 +78,15 @@ aggrega build --release release-helm-synth.yaml --auto-pull
 Rendered artifacts land under `dist/`. The Kubernetes target renders plain
 manifests offline — no chart pull is required.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `nginx-gateway` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose.yaml` and `release-helm-synth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## What the injected upstream looks like
 
 On Compose, the gateway service runs NGINX with a server block pointing at the

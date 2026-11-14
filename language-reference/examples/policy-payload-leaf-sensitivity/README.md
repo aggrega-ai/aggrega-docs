@@ -409,3 +409,12 @@ cd policy-payload-leaf-sensitivity
 aggrega build --release release-negative-authored.yaml --auto-pull    # refused; exits 1
 aggrega build --release release-delegated.yaml --auto-pull            # builds
 ```
+
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `policy-payload-leaf-sensitivity` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-negative-authored.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`: it is meant to be refused, so read me the refusal. Then build its Release `release-delegated.yaml` the same way, and tell me which files the build wrote.

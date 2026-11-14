@@ -44,6 +44,15 @@ Every release resolves its catalog entities through this workspace's
 `--catalog` flag is needed, and
 `--auto-pull` writes the lockfile a fresh clone lacks during the build.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `credential-secretkeyref` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-helm.yaml` and `release-compose.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote. Then build `release-negative.yaml` the same way: it is meant to be refused, so read me the refusal.
+
 ## Helm — a referenceable Secret + `secretKeyRef`
 
 `aggregate-helm.yaml` attaches **`core/referenced-secret`** to the `password`

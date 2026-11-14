@@ -125,6 +125,15 @@ the step the two other Aggregates take: attach a credential under each of
 `features.access_key_id` and `features.secret_access_key` on the `store`
 component.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `s3-object-store` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote. Then build `release-helm-synth.yaml` the same way: it is meant to be refused, so read me the refusal.
+
 ## Credential delivery note
 
 On the Compose path each key is an inject-value secret (`aggregate-auth.yaml`):

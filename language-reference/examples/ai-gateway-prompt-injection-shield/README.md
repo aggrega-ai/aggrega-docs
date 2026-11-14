@@ -90,6 +90,15 @@ its behaviour was proved on. The two values in `release.yaml` are placeholders
 for a copy of the build you run, mirrored into a registry you control. The build
 pipes whatever string is there; replace both before deploying.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `ai-gateway-prompt-injection-shield` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## The rendered tree
 
 ```

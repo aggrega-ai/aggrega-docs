@@ -68,6 +68,15 @@ attachment carries, for the per-consumer release; and
 and points each consumer at a Secret already in the namespace, for the shared
 and composed releases.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `model-api-key-sharing` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-per-consumer.yaml`, `release-shared.yaml` and `release-composed.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## Per-consumer — each connection holds its own key
 
 `aggregate-per-consumer.yaml` fills the slot on each agent's connection, with a

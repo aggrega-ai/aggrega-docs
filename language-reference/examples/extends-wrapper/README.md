@@ -187,6 +187,15 @@ it. Whether any of that appears in a rendered artifact is the Recipe's choice â€
 these labels and annotations are component identity for selectors and policy to
 read, not output the compiler stamps.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `extends-wrapper` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-reviewed.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## The control: what the added label is for
 
 `aggregate-unreviewed.yaml` is `aggregate-reviewed.yaml` with one edit â€” the

@@ -116,6 +116,15 @@ Where this page prints what a build produced, the block is copied from a real
 run — see [Reading the output on these pages](../reading-the-output.md) for the
 convention and the mark it uses for lines left out.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `connection-credentials` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-matched.yaml`, `release-mismatched.yaml` and `release-operator-wired.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, then tell me which files each build wrote.
+
 ## The rendered tree
 
 ```

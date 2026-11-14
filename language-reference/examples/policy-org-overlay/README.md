@@ -244,6 +244,15 @@ the pipeline's. The `audit` records appear once, from the organization's
 attachment alone. Remove `.aggrega-config-append-ci.yaml` from this directory to
 build without it again.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `policy-org-overlay` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, and tell me which files the build wrote and what the policy reported. Then build it again with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config org/config.yaml`, and tell me what the policy reported this time.
+
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds

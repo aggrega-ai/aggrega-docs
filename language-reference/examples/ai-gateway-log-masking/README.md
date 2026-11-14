@@ -86,6 +86,15 @@ The build prints, with `<workspace>` standing for this example's folder:
 Build completed: 9 files written to <workspace>/dist
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `ai-gateway-log-masking` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## The rendered tree
 
 ```

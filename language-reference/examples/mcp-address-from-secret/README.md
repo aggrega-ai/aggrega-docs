@@ -91,6 +91,15 @@ credential Feature the Release attaches: it accepts the secret's locator,
 advisory reports that one leaf is declared in both pillars. It changes no verdict
 and no rendered byte.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `mcp-address-from-secret` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-helm.yaml` and `release-compose.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## The tool holds the address without its key
 
 From `release-helm.yaml`:

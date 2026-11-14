@@ -91,6 +91,15 @@ on its own:
 rm -rf dist && aggrega build --release release-managed.yaml
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `postgres-three-realizations` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-selfhosted.yaml`, `release-managed.yaml`, `release-managed-dns.yaml` and `release-external.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## What each one renders
 
 ### Self-hosted — the deployment runs the server

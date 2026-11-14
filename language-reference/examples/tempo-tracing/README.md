@@ -73,6 +73,15 @@ Rendered artifacts land under `dist/`. The synthesized target needs no external
 chart fetch — the Recipe renders the official image directly into a StatefulSet,
 Services, and a data volume.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `tempo-tracing` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## What renders
 
 The build emits the Tempo server as four Kubernetes objects:

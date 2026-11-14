@@ -179,6 +179,15 @@ release-compose.yaml                 1     halt      OK: halted with the expecte
 check: every build ended as expected.
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `datastore-backup` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-helm-velero.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## Kubernetes, with Velero
 
 `release-helm-velero.yaml` writes the database's StatefulSet and Services, the

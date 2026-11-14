@@ -379,6 +379,15 @@ registry, so the builds run offline. `--auto-pull` fills
 each Release's lockfile during the build. Lockfiles and the rendered output are
 generated, not shipped.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `policy-annotation-transform` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml`; then build it again the same way with `--config governance-cel.yaml`. Last, build its Release `release-by-hand.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds

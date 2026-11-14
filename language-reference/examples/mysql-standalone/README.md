@@ -109,6 +109,15 @@ aggrega build --release release-compose.yaml --auto-pull
 
 Rendered artifacts land under `dist/`.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `mysql-standalone` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-helm-synth.yaml`, `release-helm-synth-auth.yaml` and `release-compose.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## Operator sizing
 
 The Kubernetes releases fulfill the operator-sizing pillar per environment: the

@@ -41,6 +41,15 @@ Feature, its FeatureRecipe, and the helm Provider). `--auto-pull` writes the
 lockfile a fresh clone lacks during the build. Three manifests land under
 `dist/helm/helm/`.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `multikey-secret-synth` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## One slot, two keys
 
 The Component declares one transparent credential slot, `app_credentials`

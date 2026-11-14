@@ -103,6 +103,15 @@ dist/stack/helm/mysql-operator/deployment.yaml
 dist/stack/helm/mysql-operator/serviceaccount.yaml
 ```
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `mysql-innodb-cluster` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-single.yaml` and `release-replicated.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+
 ## What the database renders to
 
 ```yaml
