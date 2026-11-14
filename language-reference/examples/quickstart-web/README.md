@@ -119,6 +119,15 @@ The build writes one file, `dist/compose/docker-compose.yaml`, and
 `docker compose` starts it under the project name `quickstart-web` and returns
 once both services are up. Each section below takes one step further.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## A web app and its PostgreSQL — `1/`
 
 The Aggregate declares two components: `web`, of type `core/compute/server`,

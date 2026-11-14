@@ -424,6 +424,15 @@ own address. The key is a variable reference, filled from your shell when the
 stack starts. The services publish no port on your machine: the rendered file
 gives them none.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `import-crewai` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import the folder `src/support_brief` there with the `import` tool, for the target `compose`; the import reads the answers it needs from `import-answers.yaml` inside that folder. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+
 ## Run it
 
 You build the image from the project, with a Dockerfile of your own. Docker

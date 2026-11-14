@@ -129,6 +129,15 @@ The build writes one file, `dist/compose/docker-compose.yaml`, and
 once the model is downloaded and every service is up. Each section below takes
 one step further.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## An agent with a local model and memory — `1/`
 
 The Aggregate declares four components:

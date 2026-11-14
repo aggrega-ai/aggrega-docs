@@ -245,6 +245,14 @@ knows your name because it reads the first turn back from the store.
 [The example's page](language-reference/examples/quickstart-ai/README.md) shows the answers from a real run, and
 what every step writes.
 
+### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ## Grow the agent one step at a time
 
 ### Add a cloud model, with the local one as fallback
@@ -266,6 +274,14 @@ step's shows exactly what the step adds:
 ```sh
 diff ../1/aggregate.yaml aggregate.yaml
 ```
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/2` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ### Add guardrails: Presidio PII masking + prompt-injection blocking
 
@@ -311,6 +327,14 @@ When you are done with the stack, remove it, with the model cache and the conver
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml down -v
 ```
 
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/3` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ### Same app, on Kubernetes
 
 The same components but the chat page, built for Kubernetes: the build writes the manifests under `dist/helm/` and
@@ -322,6 +346,14 @@ before you apply what the build writes.
 cd ../4
 aggrega build --release release.yaml --auto-pull
 ```
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/4` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ## The second track: a web app with PostgreSQL
 
@@ -397,6 +429,14 @@ curl -s -X POST --data 'hello from the quickstart' http://localhost:8080/notes
 curl -s http://localhost:8080/notes/1
 ```
 
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ### Add a cache
 
 The Aggregate adds a Redis cache, and the app reads a note from the cache once it has read it from the database.
@@ -423,6 +463,14 @@ When you are done with the stack, remove it, with the database's data:
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml down -v
 ```
 
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/2` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ### Same database, managed on AWS
 
 The same three components, built as Terraform for AWS: the app on Amazon ECS, the database on Amazon RDS and the
@@ -434,6 +482,14 @@ never contacts AWS.
 cd ../3
 aggrega build --release release.yaml --auto-pull
 ```
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/3` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ### Add backups
 
@@ -447,6 +503,14 @@ aggrega build --release release.yaml --auto-pull
 
 [The example's page](language-reference/examples/quickstart-web/README.md) shows what each step writes and the
 answers from a real run.
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/4` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ## Starters for the cloud
 
@@ -472,6 +536,14 @@ as a module, and the module's `main.tf`, an `aws_db_instance` whose master passw
 Run `terraform init` and then `terraform plan` in `dist/infra/terraform/` with your AWS credentials and region set in
 your environment. [Terraform RDS](language-reference/examples/terraform-rds/README.md) explains each file.
 
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `terraform-rds` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+
 ### AWS CloudFormation
 
 ```sh
@@ -491,6 +563,14 @@ database on RDS, a storage alarm on it, and a parameter holding the database's a
 Deploy it as a stack with your own AWS account.
 [CloudFormation stack with attachments](language-reference/examples/cloudformation-rds-stack/README.md) explains what
 each part of the template comes from, and builds the same intent as two stacks.
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `cloudformation-rds-stack` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-one-stack.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ## Where to go next
 
