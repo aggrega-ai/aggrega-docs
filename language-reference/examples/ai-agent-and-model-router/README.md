@@ -56,6 +56,8 @@ in the rendered output; the section below shows what each one produces.
 
 ## Scaffold the example
 
+You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```sh

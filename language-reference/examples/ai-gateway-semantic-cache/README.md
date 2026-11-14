@@ -47,6 +47,8 @@ as a cosine similarity — and how long a stored reply lasts, an hour. It leaves
 
 ## Scaffold the example
 
+You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```sh

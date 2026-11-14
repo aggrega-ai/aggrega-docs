@@ -55,6 +55,8 @@ key material is produced at render time.
 
 ## Scaffold the example
 
+You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```sh

@@ -63,6 +63,8 @@ which a Release may do; it adds no component and changes no value.
 
 ## Scaffold the example
 
+You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```sh
