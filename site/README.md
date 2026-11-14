@@ -71,6 +71,10 @@ served at `aggrega.ai/docs`.
   (`src/plugins/rewrite-relative-md-links.mjs`) rewrites those to the built
   route at render time, so they resolve as site links without editing any source
   file. Links are emitted route-relative, so they resolve under any base path.
+  Images are authored the same way, relative to the page, and exist once beside
+  the English pages; on a translated page the same plugin points each relative
+  inline image (`![alt](path)`) at the English page's directory, so both pages
+  show the same image file.
 - **Theme.** Colours, fonts, the logo, and the per-size tab icons come from the
   shared brand package, through Starlight's `customCss` and `logo` options and
   the page head. No brand value is retyped; every colour and size is a token

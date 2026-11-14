@@ -4,6 +4,8 @@
 page, narrowed to this extension, and it is the only settings surface there is. Everything below is
 also reachable from the ordinary Settings editor and from your settings file.
 
+![The editor's own settings page narrowed to the Aggrega extension's settings, each under its own heading.](../../images/editor/manual/settings.png)
+
 **Every one of these settings is yours, not the project's.** Each describes your own environment or
 your own reading habits — where your binary is, how long to wait before revalidating, how many
 respawns to tolerate, whether to show values that would be readable over your shoulder, how you want

@@ -2,6 +2,8 @@
 
 This section covers the Aggrega extension for Visual Studio Code: what it needs, how it gets the compiler, its welcome page and features, selecting a Release, what happens when the language server is not running, and its commands and settings.
 
+![Visual Studio Code with the Aggrega view open beside an Aggregate: the Commands panel names the project folder, the Aggrega workspace and the Release above its operation buttons, the Registries, Catalog and Plugins panels sit below it, and the status bar reports the language server running.](../../images/editor/manual/overview.png)
+
 ## The pages of this section
 
 - [Set up the extension](install.md) — what the extension needs, and how it gets the compiler.

@@ -1,8 +1,9 @@
 import path from "node:path";
-import { routeOf } from "../translations.mjs";
+import { englishPathOf, languageOf, routeOf } from "../translations.mjs";
 
 // Rewrites relative Markdown-file cross-links in body prose to their built
-// route form.
+// route form, and re-anchors the relative images of a translated page to its
+// English page.
 //
 // The documentation corpus is authored with source-relative links such as
 // `../../architecture/04-entity-taxonomy.md` or `schemalibrary.md`.
@@ -30,22 +31,54 @@ import { routeOf } from "../translations.mjs";
 // This is why a source link with N `../` steps becomes one with N+1 steps:
 // the current page contributes an extra directory level that the source path,
 // relative to the file rather than the route, did not account for.
+//
+// Images are a different case. The site resolves a page's relative image from
+// the page's own file, not from its route, so an English page's images need no
+// rewriting. A translated page holds the same relative image paths as its English
+// page, inside a tree with the same paths, but the images are not copied into the
+// translated trees: they exist once, beside the English pages. So on a page of a
+// translated tree each relative image path is resolved against the English
+// page's directory and written relative to the translated page's own directory,
+// and both pages show the same image file. This runs as a remark plugin, before
+// the site collects a page's images, so the path it resolves is the rewritten one.
 
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+
+// Splits a relative URL into its path and its query-or-fragment suffix, or
+// returns null for a URL that is not a relative path (absolute URLs,
+// root-absolute paths, pure anchors).
+function relativeParts(url) {
+  if (!url) return null;
+  if (url.startsWith("#")) return null; // pure anchor
+  if (url.startsWith("//")) return null; // protocol-relative
+  if (url.startsWith("/")) return null; // root-absolute
+  if (SCHEME.test(url)) return null; // http:, https:, mailto:, data:, ...
+
+  const splitAt = url.search(/[?#]/);
+  return {
+    pathPart: splitAt === -1 ? url : url.slice(0, splitAt),
+    suffix: splitAt === -1 ? "" : url.slice(splitAt),
+  };
+}
+
+// Returns the image path of a translated page re-anchored to its English page's
+// directory, or null when the path must be left untouched (not a relative path,
+// or one that resolves outside the corpus).
+function reanchorImage(url, currentFileDir, englishFileDir) {
+  const parts = relativeParts(url);
+  if (parts === null) return null;
+  const target = path.posix.normalize(path.posix.join(englishFileDir, parts.pathPart));
+  if (target === ".." || target.startsWith("../")) return null; // escapes the corpus
+  return path.posix.relative(currentFileDir, target) + parts.suffix;
+}
 
 // Returns the rewritten href, or null when the link must be left untouched
 // (absolute URLs, root-absolute paths, pure anchors, non-Markdown targets, or
 // targets that resolve outside the corpus).
 function rewriteUrl(url, currentRoutePath, currentFileDir, contentRoot) {
-  if (!url) return null;
-  if (url.startsWith("#")) return null; // pure anchor
-  if (url.startsWith("//")) return null; // protocol-relative
-  if (url.startsWith("/")) return null; // root-absolute
-  if (SCHEME.test(url)) return null; // http:, https:, mailto:, ...
-
-  const splitAt = url.search(/[?#]/);
-  const pathPart = splitAt === -1 ? url : url.slice(0, splitAt);
-  const suffix = splitAt === -1 ? "" : url.slice(splitAt);
+  const parts = relativeParts(url);
+  if (parts === null) return null;
+  const { pathPart, suffix } = parts;
   if (!pathPart.toLowerCase().endsWith(".md")) return null;
 
   const targetRel = path.posix.normalize(
@@ -71,6 +104,10 @@ function walk(node, ctx) {
     const next = rewriteUrl(node.url, ctx.routePath, ctx.fileDir, ctx.contentRoot);
     if (next !== null) node.url = next;
   }
+  if (node.type === "image" && ctx.englishFileDir !== null && typeof node.url === "string") {
+    const next = reanchorImage(node.url, ctx.fileDir, ctx.englishFileDir);
+    if (next !== null) node.url = next;
+  }
   if (Array.isArray(node.children)) {
     for (const child of node.children) walk(child, ctx);
   }
@@ -87,7 +124,12 @@ export default function rewriteRelativeMdLinks(options = {}) {
     const rel = path.relative(contentRoot, abs).split(path.sep).join("/");
     if (!rel.toLowerCase().endsWith(".md")) return;
     const routePath = routeOf(rel, contentRoot);
-    const dir = path.posix.dirname(rel);
-    walk(tree, { routePath, fileDir: dir === "." ? "" : dir, contentRoot });
+    const dirOf = (p) => {
+      const dir = path.posix.dirname(p);
+      return dir === "." ? "" : dir;
+    };
+    // The English page's directory, for a page of a translated tree only.
+    const englishFileDir = languageOf(rel, contentRoot) ? dirOf(englishPathOf(rel, contentRoot)) : null;
+    walk(tree, { routePath, fileDir: dirOf(rel), englishFileDir, contentRoot });
   };
 }

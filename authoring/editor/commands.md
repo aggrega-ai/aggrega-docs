@@ -49,6 +49,8 @@ says nothing looks exactly like one that never ran.
 
 ## The commands
 
+![The Command Palette filtered to the Aggrega commands.](../../images/editor/manual/command-palette.png)
+
 - **Aggrega: Get started** — bring the [welcome page](welcome-page.md) back after you have turned it off, and open it. It turns `aggrega.getStarted.show` back on, so turning the page off is a choice you can undo rather than a door that locks behind you. Ticking the checkbox at the page's foot turns the same setting back on and opens nothing: the page is the one you are on, so the checkbox keeps the keyboard focus and Space ticks and unticks it in turn. The house icon in the Commands panel title bar is a different thing: it opens the page and changes no setting, so a glance at the page is never also a decision about startup.
 - **Aggrega: Stop opening the welcome page on startup** — stop the [welcome page](welcome-page.md) opening on startup, by turning `aggrega.getStarted.show` off in your own settings. This stops it arriving unasked rather than putting it out of reach: **Aggrega: Get started** brings it back. Unticking the checkbox at the page's foot runs this same command, so the decision can be taken from where the page is being read as well as from the palette.
 - **Aggrega: Open settings** — open this extension's preferences. Also the cog at the top right of the Commands panel. It opens the editor's own settings page filtered to this extension, so there is one place a preference lives and one place it is written. Distinct from **Show config**, which reports what the *compiler* resolved for the workspace rather than what your editor is set to.

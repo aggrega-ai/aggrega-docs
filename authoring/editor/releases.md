@@ -28,6 +28,8 @@ Commands panel as the chooser opened — on its Release row, or on any of its co
 back to that control when the chooser closes, whether you chose a Release or dismissed it;
 opened from anywhere else, the chooser leaves the panel without the focus.
 
+![The Release chooser listing the four Releases of a workspace by their paths, while the Release row and the status bar read none selected.](../../images/editor/manual/release-picker.png)
+
 The Releases on offer are the ones inside the folder the language server anchored to, named
 relative to it, because that is the form it accepts. Where a Release cannot be offered, the
 editor says how many and where they sit rather than leaving them out silently. The language

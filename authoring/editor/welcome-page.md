@@ -14,6 +14,8 @@ extension needs in the workspace you have open:
 Each step explains what the condition is for and how the editor reaches it, so the page is somewhere
 to read about the product rather than only a checklist.
 
+![The Welcome to Aggrega! tab in a folder Aggrega does not yet recognise, with its first step, A workspace Aggrega recognises, marked to do and open on its explanation.](../../images/editor/manual/welcome-page.png)
+
 **Each step offers more than one way through, and one of them is always "I already have this."** You
 can create a workspace configuration or point the editor at a folder that already carries one; use
 the compiler on your `PATH`, select a build you have somewhere else, or download one; draft a Release or choose one
@@ -48,6 +50,8 @@ title, so you can confirm your selection without unfolding anything; an open one
 of the explanation, immediately above the buttons, where it is the last thing read before you act.
 A chosen value is introduced by **Selected:**, set smaller and lighter than the value itself so the
 label points at the value rather than competing with it.
+
+![The welcome page in a configured workspace, with the compiler, Release and registry steps marked met and folded, each showing its selected value above its buttons, and the startup checkbox, the versions and the language server's state at its foot.](../../images/editor/manual/welcome-page-met.png)
 
 **Where you have not chosen yet, the step says so in words rather than leaving a blank line**, which
 would read as the page having failed to draw — and it distinguishes two states a reader acts on

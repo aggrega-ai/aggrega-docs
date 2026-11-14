@@ -153,6 +153,16 @@ export function languageOf(rel, root = corpusRoot) {
 }
 
 /**
+ * The corpus-relative path of the English page a path is a copy of: a path in a
+ * published language's translated tree without the tree's prefix, and any other
+ * path as it is.
+ */
+export function englishPathOf(rel, root = corpusRoot) {
+  const language = languageOf(rel, root);
+  return language ? rel.slice(translatedPath("", language.lang, root).length) : rel;
+}
+
+/**
  * The route of a page from its Markdown path relative to the corpus root. A page
  * in a published language's translated tree is served under that language's
  * path segment, at the route its English page has. The content collection names
@@ -160,8 +170,8 @@ export function languageOf(rel, root = corpusRoot) {
  */
 export function routeOf(rel, root = corpusRoot) {
   const language = languageOf(rel, root);
-  if (!language) return englishRoute(rel);
-  const route = englishRoute(rel.slice(translatedPath("", language.lang, root).length));
+  const route = englishRoute(englishPathOf(rel, root));
+  if (!language) return route;
   return route === "" ? language.locale : `${language.locale}/${route}`;
 }
 

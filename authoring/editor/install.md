@@ -14,6 +14,8 @@ You do not have to arrange any of that by hand: see [The welcome page](welcome-p
 get one.** A path in the setting is used as written. A plain name — the default is `aggrega` — is looked up on your `PATH`, and the Aggrega
 output channel says which file that found and the version it reports.
 
+![The welcome page's compiler step, marked to do, offering Use the compiler on my PATH, Point at a compiler I have and Download the compiler.](../../images/editor/manual/install-compiler-step.png)
+
 **Where it finds none, it offers to download one** — from the welcome page's compiler step, whose
 **Download the compiler** sits beside **Use the compiler on my PATH** and **Point at a compiler I
 have**, and from the notification that the language server could not start because nothing is at

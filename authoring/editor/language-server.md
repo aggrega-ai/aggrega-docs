@@ -16,6 +16,8 @@ and you are looking for the way to start it.
 window is one Aggrega recognises, or there is one and the server is not attached to it. Clicking it
 offers **Start** or **Restart** — whichever applies — and does it.
 
+![The status bar reporting the Aggrega language server not running, in red, and the menu its indicator opens offering Start.](../../images/editor/manual/language-server-stopped.png)
+
 That indicator exists because a command that cannot run explains nothing: the command index leaves
 it out rather than saying why, and no editor surface shows a tooltip on a disabled control. The
 indicator is where the reason is written down, and it is also where you act on it.
