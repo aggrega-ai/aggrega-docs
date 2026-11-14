@@ -608,8 +608,28 @@ aggrega validate --release release.yaml
 aggrega build --release release.yaml
 ```
 
-The build writes one Compose file into the workspace's `dist` folder,
-`dist/boundaries/platform/compose/docker-compose.yaml`, which carries
+The build writes under `dist` at the workspace root, and the workspace is
+still `source`, the folder holding `.aggrega-config.yaml`: the Compose file is
+`source/dist/boundaries/platform/compose/docker-compose.yaml`, which from
+`compose` is `../dist/boundaries/platform/compose/docker-compose.yaml`, and no
+`dist` folder is written inside `compose`. The file carries
 `SECRET_KEY: ${DIFY_SECRET_KEY}` and `OWNER_PASSWORD: ${DIFY_OWNER_PASSWORD}`
 rather than either value. Set both variables in your shell, or in a `.env`
 file beside the Compose file, before you start the stack.
+
+The installation's four other credentials keep the defaults `core/dify` gives
+them, and on Docker Compose each default is the value itself, written into the
+Compose file as it stands: `DB_PASSWORD: dify-db-password-for-evaluation-only`,
+with `POSTGRES_PASSWORD` the same on the database, and likewise
+`dify-code-execution-key-for-evaluation-only`,
+`dify-plugin-daemon-key-for-evaluation-only` and
+`dify-inner-api-key-for-evaluation-only`. Every reader of the catalog holds
+these defaults, so they serve evaluation only. To replace one, declare a
+string parameter for it in the drafted Aggregate, pass it down in the `dify`
+entry's `parameters` under `core/dify`'s name for it — `db_password`,
+`code_execution_key`, `plugin_daemon_key` or `inner_api_key` — as the draft
+passes `secret_key`, and fulfill it under the Release's `parameters`. A
+Release writing `db_password: "${DIFY_DB_PASSWORD}"` builds a Compose file
+carrying `DB_PASSWORD: ${DIFY_DB_PASSWORD}` and
+`POSTGRES_PASSWORD: ${DIFY_DB_PASSWORD}`, filled from the environment like the
+two above.
