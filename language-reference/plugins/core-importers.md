@@ -847,18 +847,18 @@ the standard library's `core/egress-allowlist` Feature under `features`, as `egr
 platform connects only to the components its connections reach, its own pods and the cluster's DNS
 — the outbound counterpart of a [`uses` edge as a declared call](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares).
 The Aggregate declares the attachment's type and nothing else, since an Aggregate's attachment
-carries no `infra`, and the drafted Release writes, under `features.egress-allowlist.infra` of the
-platform's entry, each value it leaves empty under a comment saying what it is:
-`control_plane_present`, the operator's affirmation that the cluster's network plugin enforces network
-policy, without which the build halts; and `admitted_destinations`, an address range for each
+carries no `infra`, and the drafted Release writes none of it: the comment above the platform's entry
+names, under `features.egress-allowlist.infra`, `control_plane_present`, which the operator sets `true`
+to affirm that the cluster's network plugin enforces network policy, without which the build halts;
+`admitted_destinations`, a list holding an entry naming the target and an address range for each
 connection whose target the cluster does not run, such as a hosted model, without which the build
-halts naming that connection. A comment above the platform's entry names `aggrega.ai/namespace` for
-the boundary holding the platform, since the policy is placed in its workloads' namespace and the
-build halts where they are emitted into none. Each wired part's decision says the attachment admits
-its connection, and the import reports the attachment as `feature-attached`. Compose has no network
-policy, so a compose build of such a draft halts naming the attachment; where the platform draws a
-connection, the compose lines above are written inside the instance's `features` block, with no
-second `features` key.
+halts naming that connection; and `aggrega.ai/namespace` for the boundary holding the platform, since
+the policy is placed in its workloads' namespace and the build halts where they are emitted into none.
+Neither key is written empty, so neither is among the values the import owes. Each wired part's
+decision says the attachment admits its connection, and the import reports the attachment as
+`feature-attached`. Compose has no network policy, so a compose build of such a draft halts naming the
+attachment; where the platform draws a connection, the compose lines above are written inside the
+instance's `features` block, with no second `features` key.
 
 ### The model a part serves
 
