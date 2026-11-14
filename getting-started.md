@@ -253,6 +253,17 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 > If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/1` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
+## Open it in VS Code
+
+With the [Aggrega extension for Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) installed,
+open the folder `quickstart-ai/1` in VS Code, or the folder of any other step of either example. The folder holds one
+Release, `release.yaml`, so the editor selects it for you, and it checks each file of the step against that Release as
+you edit, marking what it finds in the file and in the Problems panel. **Aggrega: Show topology graph**, in the Command
+Palette, draws the Release's components and the connections between them. **Aggrega: Build**,
+**Aggrega: Preview build** and **Aggrega: Pull** act on the same Release, and each is also a button on the **Commands**
+panel of the **Aggrega** view in the activity bar; Build writes its files into the folder's `dist/`.
+[Use Aggrega in Visual Studio Code](authoring/editor.md) covers the rest.
+
 ## Grow the agent one step at a time
 
 ### Add a cloud model, with the local one as fallback
