@@ -968,7 +968,8 @@ it belongs: no source names the environment a Release deploys to, and the import
 — unless the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 The Manifest you write maps each server to its realization — `helm/mcp-stdio-bridge` or
 `compose/mcp-stdio-bridge` for a command line, `helm/mcp-remote` or `compose/mcp-remote` for an
-address, `helm/mcp` for an image — and `core/referenced-secret-set` to its own; a drafted one maps
+address, `helm/mcp` or `compose/mcp` for an image — and `core/referenced-secret-set` to its own,
+`helm/k8s-secret-set` or `compose/dotenv-secret-set`; a drafted one maps
 neither. The Release schema requires both, so a build stops naming them until they are set.
 
 A Claude Code `.mcp.json` listing a server reached over HTTP and one started with `npx`:
