@@ -119,6 +119,12 @@ the inject pipe, and `helm/k8s-secret-from-value` also writes it into a Secret a
 consumer that reads the credential by reference. Neither Kubernetes realization accepts a Compose variable reference,
 which nothing there would fill.
 
+`core/referenced-secret` is realized on Docker Compose by `compose/dotenv-referenced-secret`. Compose has no secret
+resource to reference, so `origin` is the credential itself rather than a Secret's name: it is delivered into the inject
+pipe under the attachment's `key`, and a Compose Recipe reading the slot writes it into the emitted file exactly as
+authored, so an origin written as `${DB_PASSWORD}` lands as that reference. It creates no resource, so the name it publishes is empty and the key it
+publishes is `values.key`.
+
 `core/referenced-secret-set` is realized on Docker Compose by `compose/dotenv-secret-set`, which delivers each entry into
 the inject pipe as a variable named for its key, written into the service's environment exactly as authored, so an entry
 whose value is `${GITHUB_TOKEN}` lands as that reference. It creates no resource, so the locator it publishes is empty:
