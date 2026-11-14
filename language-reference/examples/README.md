@@ -91,9 +91,9 @@ project written in another format as `aggrega import` meets it, in three folders
 output (`stdout.txt`) and standard error (`import.txt`); and `reviewed/`, the same
 files after review, a workspace that builds. Its walkthrough under
 [Import](../../authoring/import/README.md) teaches each stage. Its `check.sh` runs
-the shared `scripts/check-import-example.sh` of this repository, which runs the
-import again and compares what it writes and prints with `draft/`, compares the
-blocks the walkthrough quotes with the example's files, and builds `reviewed/`.
+the shared `scripts/check-import-example.sh` of this repository, which imports again,
+compares what it writes and prints with `draft/` and the walkthrough's quoted blocks
+with the example's files, then validates and builds the drafts and `reviewed/`.
 
 ## The teaching order
 
