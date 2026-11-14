@@ -72,7 +72,8 @@
 # override.
 #
 # The block reader. Step 4 reads a page's fenced blocks with
-# scripts/lib/fenced-blocks.awk, whose header states the rules it reads them by.
+# scripts/lib/fenced-blocks.awk, whose header states the rules it reads them by,
+# and pairs each marker with its block with scripts/lib/marked-blocks.awk.
 # 🔴 That reader is a DELIBERATE NEAR-DUPLICATE of fencedBlocks() in
 # check-getting-started-commands.mjs: this script runs in the examples workflow's
 # step that builds the examples, before that workflow sets up Node, so it cannot
@@ -163,6 +164,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$SCRIPT_DIR/.." && pwd)"
 HELPER="$SCRIPT_DIR/build-release.sh"
 BLOCK_READER="$SCRIPT_DIR/lib/fenced-blocks.awk"
+MARKER_READER="$SCRIPT_DIR/lib/marked-blocks.awk"
 
 die() { printf 'check-import: %s\n' "$*" >&2; exit 2; }
 
@@ -343,30 +345,26 @@ else
   printf 'check-import: fenced-block parity not run: no node on PATH\n'
 fi
 # Each marked block is written to its own file, beside a file naming its target.
-# A marker is the page's line directly above a block's opening fence; a marker
-# with no block opening on the next line is reported.
+# A marker is the page's line directly above a block's opening fence, paired with
+# its block by scripts/lib/marked-blocks.awk; a marker with no block opening on
+# the next line is reported.
 mkdir -p "$WORK/quotes"
 awk -f "$BLOCK_READER" "$PAGE" > "$WORK/blocks" || die "the block reader failed on $PAGE"
-awk -v out="$WORK/quotes" -v blocks="$WORK/blocks" '
-  BEGIN {
-    while ((getline l < blocks) > 0) {
-      if (l ~ /^block /) { split(l, f, " "); cur = f[2]; opens[cur] = 1; continue }
-      body[cur] = body[cur] substr(l, 3) "\n"
-    }
+awk -v blocks="$WORK/blocks" -f "$MARKER_READER" "$PAGE" > "$WORK/marked" || die "the marker reader failed on $PAGE"
+awk -v out="$WORK/quotes" '
+  /^marker / {
+    n = $2
+    printf "%s\n", $4 > (out "/" n ".target")
+    close(out "/" n ".target")
+    if (f != "") close(f)
+    f = out "/" n ".block"
+    if ($3 == "unfenced") printf "UNFENCED\n" > f
+    else printf "" > f
+    next
   }
-  { line[NR] = $0 }
-  END {
-    for (i = 1; i <= NR; i++) {
-      if (!match(line[i], /^<!-- quotes: [^ ]+ -->$/)) continue
-      n++
-      printf "%s\n", substr(line[i], 14, length(line[i]) - 17) > (out "/" n ".target")
-      close(out "/" n ".target")
-      if ((i + 1) in opens) printf "%s", body[i + 1] > (out "/" n ".block")
-      else printf "UNFENCED\n" > (out "/" n ".block")
-      close(out "/" n ".block")
-    }
-  }
-' "$PAGE"
+  { printf "%s\n", substr($0, 3) > f }
+  END { if (f != "") close(f) }
+' "$WORK/marked"
 
 # contains <block> <file>: the block lines, in runs separated by omission lines,
 # each run consecutive in the file, the runs in order. Prints the first block
