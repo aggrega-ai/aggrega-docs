@@ -124,7 +124,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `envoy-ai-gateway-token-budget` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `envoy-ai-gateway-token-budget` folder yet, call the `scaffold` tool once with `example` set to `envoy-ai-gateway-token-budget` and no `dir`: it writes the example into a new `envoy-ai-gateway-token-budget` folder. Then call the `build` tool with `workspace_root` set to `envoy-ai-gateway-token-budget`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `envoy-ai-gateway-token-budget/dist/`.
 
 ## The rendered tree
 

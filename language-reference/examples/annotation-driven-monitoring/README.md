@@ -91,7 +91,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `annotation-driven-monitoring` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `annotation-driven-monitoring` folder yet, call the `scaffold` tool once with `example` set to `annotation-driven-monitoring` and no `dir`: it writes the example into a new `annotation-driven-monitoring` folder. Then call the `build` tool with `workspace_root` set to `annotation-driven-monitoring`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `annotation-driven-monitoring/dist/`.
 
 ## What the rendered output proves
 

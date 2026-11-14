@@ -188,7 +188,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `datastore-backup` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-helm-velero.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `datastore-backup` folder yet, call the `scaffold` tool once with `example` set to `datastore-backup` and no `dir`: it writes the example into a new `datastore-backup` folder. Then call the `build` tool with `workspace_root` set to `datastore-backup`, `release` set to `release-helm-velero.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `datastore-backup/dist/`.
 
 ## Kubernetes, with Velero
 

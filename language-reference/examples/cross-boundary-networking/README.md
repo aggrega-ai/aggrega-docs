@@ -90,7 +90,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `cross-boundary-networking` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-compose.yaml` with the `build` tool, with its `catalog-compose` folder as a catalog directory, resolving its dependencies first and writing the files into `dist/`. Then build its Release `release-helm.yaml` the same way, with its `catalog-helm` folder as the catalog directory instead, and tell me which files each build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cross-boundary-networking` folder yet, call the `scaffold` tool once with `example` set to `cross-boundary-networking` and no `dir`: it writes the example into a new `cross-boundary-networking` folder. Then call the `build` tool with `workspace_root` set to `cross-boundary-networking`, `release` set to `release-compose.yaml`, `catalog_dirs` set to a list holding `catalog-compose`, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm.yaml` and `catalog_dirs` set to a list holding `catalog-helm`. Tell me which files each build wrote; they are under `cross-boundary-networking/dist/`.
 
 ## Variant A — local (Docker Compose): the bridge
 

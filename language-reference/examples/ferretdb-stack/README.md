@@ -97,7 +97,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `ferretdb-stack` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release-helm-synth.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ferretdb-stack` folder yet, call the `scaffold` tool once with `example` set to `ferretdb-stack` and no `dir`: it writes the example into a new `ferretdb-stack` folder. Then call the `build` tool with `workspace_root` set to `ferretdb-stack`, `release` set to `release-helm-synth.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `ferretdb-stack/dist/`.
 
 ## What the composed stack looks like
 
