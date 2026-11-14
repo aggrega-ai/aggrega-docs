@@ -60,7 +60,9 @@ and `import-answers.yaml` holds the answers to what no application can hold:
 the installation's application secret, the key Dify signs sessions with and
 encrypts the model-provider keys it stores under; and the owner account the
 application is imported under, its email and its password. On Kubernetes each
-secret is read from a Kubernetes Secret, so its answer is that Secret's name:
+secret is read from a Kubernetes Secret, so its answer is that Secret's name;
+the same file serves an import for Docker Compose, as
+[On Docker Compose](#on-docker-compose) shows:
 
 <!-- quotes: source/import-answers.yaml -->
 ```yaml
@@ -559,27 +561,55 @@ installed plugin and the vector store.
 
 ## On Docker Compose
 
-The same application imports for Docker Compose with the `compose` target. It
-owes the same three values under the same keys, but on Docker Compose a secret
-is written into the Compose file as it is answered, so the application secret
-and the owner's password are answered with variable references, which Docker
-Compose fills from your shell when the stack starts. Those answers differ from
-the Secret names above, so keep them in an answers file of their own and name
-it with `--answers`:
-
-```yaml
-release.yaml:
-  spec.parameters.secret_key: "${DIFY_SECRET_KEY}"
-  spec.boundaries.platform.aggregates.dify.components.api.infra.owner_email: "owner@example.com"
-  spec.boundaries.platform.aggregates.dify.components.api.features.owner_password.infra.origin: "${DIFY_OWNER_PASSWORD}"
-```
+The same application imports for Docker Compose with the `compose` target,
+from the same answers file. The drafts for Kubernetes already sit in `source`,
+so draft the Compose ones into a folder of their own with `--output-dir`; the
+import reads the answers file beside the application all the same:
 
 ```bash
-aggrega import support-assistant.yml --target compose --answers compose-answers.yaml
+aggrega import support-assistant.yml --target compose --output-dir compose
+```
+
+Docker Compose has no Secret to name, so for `compose` the draft writes the
+application secret and the owner's password itself, each as a variable
+reference that Docker Compose fills from the environment of whoever starts the
+stack. Only the owner's email is owed there. The import keeps the two Secret
+names in the answers file without applying them, and says so on standard
+error:
+
+```text
+info: the answers file <workspace>/import-answers.yaml also answers spec.boundaries.platform.aggregates.dify.components.api.features.owner_password.infra.origin in release.yaml, spec.parameters.secret_key in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
+```
+
+The drafted Release reads the application secret from `DIFY_SECRET_KEY` and
+the owner's password from `DIFY_OWNER_PASSWORD`:
+
+```yaml
+  parameters:
+    # Passed by reference, never as a value: secret_key, which the drafted Aggregate declares and passes down to core/dify; that parameter's description there says what the value is; it is read from the variable DIFY_SECRET_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+    secret_key: "${DIFY_SECRET_KEY}"
+  [… omitted: the boundary, and the owner's email, answered as above]
+              features:
+                owner_password:
+                  type: core/referenced-secret
+                  infra:
+                    # Attached by reference, never as a value: the owner account's password, read from the variable DIFY_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                    origin: "${DIFY_OWNER_PASSWORD}"
 ```
 
 The Manifest maps each component to its Compose Recipe and
-`core/referenced-secret` to `compose/dotenv-referenced-secret`, and the build
-writes one Compose file, `dist/boundaries/platform/compose/docker-compose.yaml`,
-which carries `SECRET_KEY: ${DIFY_SECRET_KEY}` and
-`OWNER_PASSWORD: ${DIFY_OWNER_PASSWORD}` rather than either value.
+`core/referenced-secret` to `compose/dotenv-referenced-secret`, which writes
+each reference into the Compose file as it stands. Validate and build from the
+new folder:
+
+```bash
+cd compose
+aggrega validate --release release.yaml
+aggrega build --release release.yaml
+```
+
+The build writes one Compose file into the workspace's `dist` folder,
+`dist/boundaries/platform/compose/docker-compose.yaml`, which carries
+`SECRET_KEY: ${DIFY_SECRET_KEY}` and `OWNER_PASSWORD: ${DIFY_OWNER_PASSWORD}`
+rather than either value. Set both variables in your shell, or in a `.env`
+file beside the Compose file, before you start the stack.
