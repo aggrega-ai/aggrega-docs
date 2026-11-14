@@ -264,7 +264,7 @@ you edit, marking what it finds in the file and in the Problems panel. **Aggrega
 Palette, draws the Release's components and the connections between them. **Aggrega: Build**,
 **Aggrega: Preview build** and **Aggrega: Pull** act on the same Release, and each is also a button on the **Commands**
 panel of the **Aggrega** view in the activity bar; Build writes its files into the folder's `dist/`.
-[Use Aggrega in Visual Studio Code](authoring/editor.md) covers the rest.
+[Use Aggrega in Visual Studio Code](authoring/editor/README.md) covers the rest.
 
 ## Grow the agent one step at a time
 

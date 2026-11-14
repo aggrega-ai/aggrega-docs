@@ -285,7 +285,26 @@ export default defineConfig({
             "authoring/import/agent-framework",
           ],
         }),
-        // The authoring guide's pages other than those Start here lists.
+        // Working with Aggrega in Visual Studio Code: what the extension needs,
+        // then one page for each part of it. The pages live in the authoring
+        // guide's folder and are listed nowhere else in the sidebar.
+        ...present({
+          label: "Visual Studio Code",
+          items: [
+            "authoring/editor",
+            "authoring/editor/install",
+            "authoring/editor/welcome-page",
+            "authoring/editor/panels",
+            "authoring/editor/topology-graph",
+            "authoring/editor/releases",
+            "authoring/editor/import",
+            "authoring/editor/commands",
+            "authoring/editor/settings",
+            "authoring/editor/language-server",
+          ],
+        }),
+        // The authoring guide's pages other than those Start here, Import and
+        // Visual Studio Code list.
         ...present({
           label: "Authoring",
           items: [
@@ -293,7 +312,6 @@ export default defineConfig({
             "authoring/getting-started",
             "authoring/personas",
             "authoring/entities-by-role",
-            "authoring/editor",
           ],
         }),
         {

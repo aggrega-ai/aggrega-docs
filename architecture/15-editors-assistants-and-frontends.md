@@ -24,9 +24,9 @@ Each answer describes the Release as it stood when the question was asked. A fro
 
 ## The Visual Studio Code extension
 
-The [Aggrega extension for Visual Studio Code](../authoring/editor.md) starts `aggrega serve` and keeps it running for the workspace. Every answer it shows comes from the `aggrega` binary: most from that daemon — diagnostics as you edit, hover, completion, go to definition, find references, build and preview build among them — and the rest from running the binary's own commands.
+The [Aggrega extension for Visual Studio Code](../authoring/editor/README.md) starts `aggrega serve` and keeps it running for the workspace. Every answer it shows comes from the `aggrega` binary: most from that daemon — diagnostics as you edit, hover, completion, go to definition, find references, build and preview build among them — and the rest from running the binary's own commands.
 
-Its topology graph is the IR graph. The extension sends `aggrega/irGraph` for the selected Release and draws the answer: boundaries and subsystems as nested containers, components as nodes, connections as edges, and, on a selected node or connection, the Features attached to it. The compiler sends topology and never coordinates; the layout is computed in the editor. Attaching a Feature from the graph goes back through the daemon too: the compiler names the document and the place inside it where the attachment belongs, and the extension writes it there. See [the topology graph](../authoring/editor.md#features) for what the view shows and does.
+Its topology graph is the IR graph. The extension sends `aggrega/irGraph` for the selected Release and draws the answer: boundaries and subsystems as nested containers, components as nodes, connections as edges, and, on a selected node or connection, the Features attached to it. The compiler sends topology and never coordinates; the layout is computed in the editor. Attaching a Feature from the graph goes back through the daemon too: the compiler names the document and the place inside it where the attachment belongs, and the extension writes it there. See [the topology graph](../authoring/editor/topology-graph.md) for what the view shows and does.
 
 ## The MCP server
 

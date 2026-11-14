@@ -418,7 +418,7 @@ components and the connections between them. **Aggrega: Build**,
 **Aggrega: Preview build** and **Aggrega: Pull** act on the same Release, and
 each is also a button on the **Commands** panel of the **Aggrega** view in the
 activity bar; Build writes its files into the folder's `dist/`.
-[Use Aggrega in Visual Studio Code](../editor.md) covers the rest.
+[Use Aggrega in Visual Studio Code](../editor/README.md) covers the rest.
 
 ## Run it
 
